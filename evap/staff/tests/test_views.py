@@ -2,7 +2,7 @@ import datetime
 import os
 from abc import ABC, abstractmethod
 from io import BytesIO
-from typing import Tuple, Type
+from typing import Literal, Tuple, Type, Union
 from unittest.mock import PropertyMock, patch
 
 import openpyxl
@@ -2919,40 +2919,50 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         cls.text_question = baker.make(Question, questionnaire=top_general_questionnaire, type=Question.TEXT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
 
-    def assert_transition(self, old_state, expected_new_state, action, status=200):
+    def assert_transition(
+        self,
+        action: str,
+        old_state: TextAnswer.State,
+        expected_new_state: Union[TextAnswer.State, Literal["unchanged"]] = "unchanged",
+        *,
+        status: int = 204,
+    ):
+        expected_new_state = old_state if expected_new_state == "unchanged" else expected_new_state
+
         with run_in_staff_mode(self):
             textanswer = baker.make(TextAnswer, state=old_state)
+            params = {"answer_id": textanswer.id, "action": action, "evaluation_id": self.evaluation.pk}
+            response = self.app.post(self.url, params=params, user=self.manager, status=status)
 
-            params = {"id": textanswer.id, "action": action, "evaluation_id": self.evaluation.pk}
-            self.app.post(self.url, params=params, user=self.manager, status=status)
-
-            if status == 200:
-                textanswer.refresh_from_db()
-                self.assertEqual(textanswer.state, expected_new_state)
+            textanswer.refresh_from_db()
+            self.assertEqual(textanswer.state, expected_new_state)
+            return response
 
     def test_review_actions(self):
         # in an evaluation with only one voter reviewing should fail
-        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", status=403)
+        self.assert_transition("publish", TextAnswer.State.NOT_REVIEWED, status=403)
 
         let_user_vote_for_evaluation(self.student2, self.evaluation)
 
         # now reviewing should work
-        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
-        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.HIDDEN, "hide")
-        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PRIVATE, "make_private")
-        self.assert_transition(TextAnswer.State.PUBLISHED, TextAnswer.State.NOT_REVIEWED, "unreview")
+        self.assert_transition("publish", TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED)
+        self.assert_transition("delete", TextAnswer.State.NOT_REVIEWED, TextAnswer.State.HIDDEN)
+        self.assert_transition("make_private", TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PRIVATE)
+        self.assert_transition("unreview", TextAnswer.State.PUBLISHED, TextAnswer.State.NOT_REVIEWED)
 
         # textanswer_edit action should not change the state, but give a link to edit page
-        with patch("evap.staff.views.reverse") as reverse_mock:
-            self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.NOT_REVIEWED, "textanswer_edit")
-            reverse_mock.assert_called_once()
-            self.assertEqual(reverse_mock.call_args_list[0][0][0], "staff:evaluation_textanswer_edit")
+        response = self.assert_transition(
+            "textanswer_edit",
+            TextAnswer.State.NOT_REVIEWED,
+            status=302,
+        )
+        self.assertRegex(response.location, r"/staff/semester/\d+/evaluation/\d+/textanswer/[0-9a-f\-]+/edit$")
 
     def test_invalid_action(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation)
-        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "", status=400)
-        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "123", status=400)
-        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "dummy", status=400)
+        self.assert_transition("", TextAnswer.State.NOT_REVIEWED, status=400)
+        self.assert_transition("123", TextAnswer.State.NOT_REVIEWED, status=400)
+        self.assert_transition("dummy", TextAnswer.State.NOT_REVIEWED, status=400)
 
     def test_finishing_review_updates_results(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation, create_answers=True)
@@ -2980,15 +2990,15 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
 
     def test_published(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation)
-        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
+        self.assert_transition("publish", TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED)
         Evaluation.objects.filter(id=self.evaluation.id).update(state=Evaluation.State.PUBLISHED)
-        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", status=403)
+        self.assert_transition("publish", TextAnswer.State.NOT_REVIEWED, status=403)
 
     def test_archived(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation)
-        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
+        self.assert_transition("publish", TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED)
         Semester.objects.filter(id=self.evaluation.course.semester.id).update(results_are_archived=True)
-        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", status=403)
+        self.assert_transition("publish", TextAnswer.State.NOT_REVIEWED, status=403)
 
 
 class TestEvaluationTextAnswersSkip(WebTestStaffMode):
