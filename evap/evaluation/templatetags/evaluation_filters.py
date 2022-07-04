@@ -1,5 +1,4 @@
 from collections import namedtuple
-from types import new_class
 
 from django.forms import TypedChoiceField
 from django.template import Library
