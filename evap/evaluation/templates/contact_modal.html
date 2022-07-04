@@ -24,19 +24,19 @@
             <form id="{{ modal_id }}Form">
                 <div class="modal-body">
                     {{ teaser }}
-                    <br/><br/>
+                    <br /><br />
                     <div class="mb-3 modal-grid">
                         <label for="{{ modal_id }}SenderName"
                                class="control-label my-auto">{% trans 'Sender' %}:</label>
                         {% if modal_id == "feedbackModal" and allow_anonymous_feedback_messages %}
                             <div class="btn-group w-75" role="group"
-                                 aria-label="Basic radio toggle button group">
-                                <input type="radio" class="btn-check" name="btnradio" id="{{ modal_id }}SenderName"
+                                 aria-label="{{ modal_id }} Radio Group">
+                                <input type="radio" class="btn-check" name="{{ modal_id }}RadioGroup" id="{{ modal_id }}SenderName"
                                        checked>
                                 <label class="btn btn-sm btn-outline-primary"
                                        for="{{ modal_id }}SenderName">{{ user.full_name }}</label>
 
-                                <input type="radio" class="btn-check" name="btnradio" id="{{ modal_id }}AnonymName">
+                                <input type="radio" class="btn-check" name="{{ modal_id }}RadioGroup" id="{{ modal_id }}AnonymName">
                                 <label class="btn btn-sm btn-outline-primary"
                                        for="{{ modal_id }}AnonymName">{% trans 'Anonymous' %}</label>
                             </div>
