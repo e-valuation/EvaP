@@ -1,4 +1,5 @@
 from collections import namedtuple
+from types import new_class
 
 from django.forms import TypedChoiceField
 from django.template import Library
@@ -221,3 +222,10 @@ def order_by(iterable, attribute):
 @register.filter
 def get(dictionary, key):
     return dictionary.get(key)
+
+
+@register.filter(name="add_class")
+def add_class(widget, filter_attr):
+    new_class = filter_attr + " " + widget["attrs"]["class"] if "class" in widget["attrs"] else filter_attr
+    widget["attrs"].update({"class": new_class})
+    return widget

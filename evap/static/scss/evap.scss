@@ -155,32 +155,31 @@ td.icon {
 
     .notebook-container {
         width: 25vw;
-        padding-left: $spacer !important;
-        padding-bottom: $spacer !important;
-        padding-top: $spacer !important;
+        padding-left: $spacer;
+        padding-bottom: $spacer;
+        padding-top: $spacer;
     }
 
     .notebook-textarea {
-        resize: none !important;
+        resize: none;
         min-height: 65vh !important;
     }
 }
 
 @media screen and (orientation: portrait) {
     .notebook-margin {
-        max-width: 100vw;
         margin-top: 50vh;
     }
 
     .notebook-container {
         width: 100vw;
         max-height: 40vh;
-        z-index: 42;
-        padding: $spacer !important;
+        z-index:  $zindex-fixed;
+        padding: $spacer;
     }
 
     .notebook-textarea {
-        resize: none !important;
+        resize: none;
         min-height: 30vh !important;
     }
 }

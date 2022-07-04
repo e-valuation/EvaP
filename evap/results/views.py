@@ -2,7 +2,6 @@ from collections import defaultdict
 from statistics import median
 
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
 from django.core.cache import caches
 from django.core.cache.utils import make_template_fragment_key
 from django.core.exceptions import BadRequest, PermissionDenied

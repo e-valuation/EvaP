@@ -3,7 +3,6 @@ from datetime import date, timedelta
 
 from django.conf import settings
 from django.contrib import auth, messages
-from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMessage
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render

@@ -157,7 +157,6 @@ a:not([href]):not(.disabled) {
 .button-notebook {
     @include media-breakpoint-up(md) {
         position: fixed;
-        left: -2px;
         bottom: 60px;
         z-index: $zindex-fixed;
         border-top-left-radius: 0;
@@ -276,8 +275,4 @@ a.collapse-toggle {
     &.collapsed {
         box-shadow: none;
     }
-}
-
-.btn-wide {
-    min-width: 250px;
 }

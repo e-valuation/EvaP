@@ -1,9 +1,2 @@
-<textarea name="{{ widget.name }}"
-
-{% for name, value in widget.attrs.items %}
-    {% if value is not False %} {{ name }} {% endif %}
-    {% if value is not True and name == "class" %}="form-control {{ value }}"
-    {% elif value is not True %}="{{ value }}"{% endif %}
-{% endfor %}>
-
-{% if widget.value %}{{ widget.value }}{% endif %}</textarea>
+{% load evaluation_filters %}
+<textarea name="{{ widget.name }}"{% include 'django/forms/widgets/attrs.html' with widget=widget|add_class:"form-control" %}>{% if widget.value %}{{ widget.value }}{% endif %}</textarea>
