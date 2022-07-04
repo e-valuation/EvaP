@@ -14,7 +14,7 @@
                     <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>{% trans 'Navigate through answers' %}</td></tr>
                     <tr><td><kbd>J</kbd></td><td>{% trans 'Publish answer' %}</td></tr>
                     <tr><td><kbd>K</kbd></td><td>{% trans 'Make answer private to the contributor' %}</td></tr>
-                    <tr><td><kbd>L</kbd></td><td>{% trans 'Remove answer' %}</td></tr>
+                    <tr><td><kbd>L</kbd></td><td>{% trans 'Delete answer' %}</td></tr>
                     <tr><td><kbd>&#x232b;</kbd></td><td>{% trans 'Unreview answer' %}</td></tr>
                     <tr><td><kbd>E</kbd></td><td>{% trans 'Edit answer' %}</td></tr>
                     <tr><td><kbd>&#x21b2;</kbd></td><td>{% trans 'Review next evaluation' %}</td></tr>
@@ -29,114 +29,141 @@
         </div>
     </div>
 
-    <div class="card card-outline-primary slider">
-        <div class="card-header">
-            {% trans 'Text answers' %}
-            <span class="hotkey-btn" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Hotkeys' %}">
-                <span class="far fa-keyboard" data-bs-toggle="modal" data-bs-target="#hotkeys-modal"></span>
-            </span>
-        </div>
-        <div class="card-body slider-inner px-0">
-            <div class="slider-side slider-side-left">
-                <span class="badge rounded-pill bg-primary" data-counter="reviewed-left" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Reviewed text answers' %}"></span>
-                <span class="py-2 fas fa-chevron-left" data-slide="left"></span>
-                <span class="badge rounded-pill bg-secondary" data-counter="unreviewed-left" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Unreviewed text answers' %}"></span>
+    <form method="POST" action="{% url 'staff:evaluation_textanswers_update_publish' %}" id="textanswer-update-form">
+        {% csrf_token %}
+
+        <input type="hidden" name="evaluation_id" value="{{ evaluation.id }}" />
+
+        <div class="card card-outline-primary slider">
+            <div class="card-header">
+                {% trans 'Text answers' %}
+                <span class="hotkey-btn" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Hotkeys' %}">
+                    <span class="far fa-keyboard" data-bs-toggle="modal" data-bs-target="#hotkeys-modal"></span>
+                </span>
             </div>
-            <div class="slider-items">
-                {% for questionnaire, contributor, label, is_responsible, results in sections %}
-                    <div class="slider-item card-header" data-layer="0">
-                        {{ questionnaire.public_name }}{% if contributor %}: {{ contributor.full_name }}{% if is_responsible %} ({% trans 'responsible' %}){% endif %}{% if label %} &ndash;&nbsp;<span class="fst-italic">{{ label }}</span>{% endif %}{% endif %}
-                    </div>
-                    {% for result in results %}
-                        <div class="slider-item card-body" data-layer="1">
-                            {{ result.question.text}}
+            <div class="card-body slider-inner px-0">
+                <div class="slider-side slider-side-left">
+                    <span class="badge rounded-pill bg-primary" data-counter="reviewed-left" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Reviewed text answers' %}"></span>
+                    <span class="py-2 fas fa-chevron-left" data-slide="left"></span>
+                    <span class="badge rounded-pill bg-secondary" data-counter="unreviewed-left" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Unreviewed text answers' %}"></span>
+                </div>
+                <div class="slider-items">
+                    {% for questionnaire, contributor, label, is_responsible, results in sections %}
+                        <div class="slider-item card-header" data-layer="0">
+                            {{ questionnaire.public_name }}{% if contributor %}: {{ contributor.full_name }}{% if is_responsible %} ({% trans 'responsible' %}){% endif %}{% if label %} &ndash;&nbsp;<span class="fst-italic">{{ label }}</span>{% endif %}{% endif %}
                         </div>
-                        {% for answer in result.answers %}
-                            <div class="slider-item card-body" data-layer="2" data-id="{{ answer.id }}"{% if contributor %} data-contribution="yes"{% endif %}
-                                {% if answer.is_reviewed %}data-review="{% if answer.is_published %}publish{% elif answer.is_private %}make_private{% else %}hide{% endif %}"{% endif %}>
-                                {{ answer.answer|linebreaksbr }}
-                                {% if answer.original_answer %}
-                                    <span class="textanswer-original">({{ answer.original_answer|linebreaksbr }})</span>
-                                {% endif %}
+                        {% for result in results %}
+                            <div class="slider-item card-body" data-layer="1">
+                                {{ result.question.text}}
                             </div>
+                            {% for answer in result.answers %}
+                                <input
+                                    type="hidden"
+                                    name="answer_id"
+                                    value="{{ answer.id }}"
+                                    disabled
+                                />
+                                <div
+                                    class="slider-item card-body"
+                                    data-layer="2"
+                                    data-id="{{ answer.id }}"
+                                    {% if contributor %} data-contribution="yes"{% endif %}
+                                    {% if answer.is_reviewed %}
+                                        {% if answer.is_published %}
+                                            data-review="publish"
+                                        {% elif answer.is_private %}
+                                            data-review="make_private"
+                                        {% else %}
+                                            data-review="delete"
+                                        {% endif %}
+                                    {% endif %}
+                                >
+                                    {{ answer.answer|linebreaksbr }}
+                                    {% if answer.original_answer %}
+                                        <span class="textanswer-original">({{ answer.original_answer|linebreaksbr }})</span>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
                         {% endfor %}
                     {% endfor %}
-                {% endfor %}
-                <div class="slider-item alert text-center">
-                    {% if sections %}
-                        <span data-content="unreviewed">
-                            {% trans 'Some text answers for this evaluation are still unreviewed.' %}
-                        </span>
-                        <span data-content="reviewed">
-                            {% trans 'You have reviewed all text answers for this evaluation.' %}
-                        </span>
-                    {% else %}
-                        <span>
-                            {% trans 'There are no text answers for this evaluation.' %}
-                        </span>
+                    <div class="slider-item alert text-center">
+                        {% if sections %}
+                            <span data-content="unreviewed">
+                                {% trans 'Some text answers for this evaluation are still unreviewed.' %}
+                            </span>
+                            <span data-content="reviewed">
+                                {% trans 'You have reviewed all text answers for this evaluation.' %}
+                            </span>
+                        {% else %}
+                            <span>
+                                {% trans 'There are no text answers for this evaluation.' %}
+                            </span>
+                        {% endif %}
+                        {% for next_evaluation in next_evaluations %}
+                            <span data-next-evaluation-index="{{ forloop.counter0 }}" data-evaluation="{{ next_evaluation.pk }}">
+                                {% blocktrans with name=next_evaluation.full_name count answers=next_evaluation.num_unreviewed_textanswers %}The next evaluation "{{ name }}" has got {{ answers }} unreviewed text answer.{% plural %}The next evaluation "{{ name }}" has got {{ answers }} unreviewed text answers.{% endblocktrans %}
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="slider-side slider-side-right">
+                    <span class="badge rounded-pill bg-primary" data-counter="reviewed-right" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Reviewed text answers' %}"></span>
+                    <span class="py-2 fas fa-chevron-right" data-slide="right" title=""></span>
+                    <span class="badge rounded-pill bg-secondary" data-counter="unreviewed-right" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Unreviewed text answers' %}"></span>
+                </div>
+            </div>
+
+
+            <div class="card-footer d-flex">
+                <div class="lcr-left">
+                    <div data-action-set="reviewing">
+                        <button type="submit" name="action" value="unreview" class="btn btn-sm btn-outline-secondary">
+                            {% trans 'unreview' %}
+                        </button>
+                    </div>
+                </div>
+                <div class="lcr-center" data-action-set="reviewing">
+                    <button type="submit" name="action" value="publish" class="btn btn-sm btn-outline-secondary">
+                        {% trans 'publish' %}
+                    </button>
+                    <button type="submit" name="action" value="make_private" class="btn btn-sm btn-outline-secondary" disabled
+                        title="{% blocktrans %}This answer is for a general question and can't be made private.{% endblocktrans %}" data-bs-toggle="tooltip">
+                        {% trans 'private' %}
+                    </button>
+                    <button type="submit" name="action" value="delete" class="btn btn-sm btn-outline-secondary">
+                        {% trans 'delete' %}
+                    </button>
+                </div>
+                <div class="lcr-center d-none" data-action-set="summary">
+                    {% if next_evaluations %}
+                        {% for next_evaluation in next_evaluations %}
+                            <a href="{% url 'staff:evaluation_textanswers' next_evaluation.course.semester.id next_evaluation.id %}" data-next-evaluation-index="{{ forloop.counter0 }}" data-evaluation="{{ next_evaluation.pk }}" data-url="next-evaluation" class="btn btn-sm btn-primary">
+                                {% trans 'Review next evaluation' %}
+                            </a>
+                        {% endfor %}
+                        <button type="button" data-skip-evaluation class="btn btn-sm btn-outline-primary">
+                            {% trans 'Skip evaluation' %}
+                        </button>
                     {% endif %}
-                    {% for next_evaluation in next_evaluations %}
-                        <span data-next-evaluation-index="{{ forloop.counter0 }}" data-evaluation="{{ next_evaluation.pk }}">
-                            {% blocktrans with name=next_evaluation.full_name count answers=next_evaluation.num_unreviewed_textanswers %}The next evaluation "{{ name }}" has got {{ answers }} unreviewed text answer.{% plural %}The next evaluation "{{ name }}" has got {{ answers }} unreviewed text answers.{% endblocktrans %}
-                        </span>
-                    {% endfor %}
+                    <button type="button" data-startover="all" class="btn btn-sm btn-outline-primary">
+                        {% trans 'Show all again' %}
+                    </button>
+                    <button type="button" data-startover="unreviewed" class="btn btn-sm btn-outline-primary">
+                        {% trans 'Show unreviewed' %}
+                    </button>
                 </div>
-            </div>
-            <div class="slider-side slider-side-right">
-                <span class="badge rounded-pill bg-primary" data-counter="reviewed-right" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Reviewed text answers' %}"></span>
-                <span class="py-2 fas fa-chevron-right" data-slide="right" title=""></span>
-                <span class="badge rounded-pill bg-secondary" data-counter="unreviewed-right" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Unreviewed text answers' %}"></span>
+                <div class="lcr-right">
+                    {% if user.is_manager %}
+                        <div data-action-set="reviewing">
+                            <button type="submit" name="action" value="textanswer_edit" class="btn btn-sm btn-outline-secondary">
+                                <span class="fas fa-pencil">
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
-        <div class="card-footer d-flex">
-            <div class="lcr-left">
-                <div data-action-set="reviewing">
-                    <button data-action="unreview" class="btn btn-sm btn-outline-secondary">
-                        {% trans 'unreview' %}
-                    </button>
-                </div>
-            </div>
-            <div class="lcr-center" data-action-set="reviewing">
-                <button data-action="publish" class="btn btn-sm btn-outline-secondary">
-                    {% trans 'yes' %}
-                </button>
-                <button data-action="make_private" class="btn btn-sm btn-outline-secondary" disabled=""
-                    title="{% blocktrans %}This answer is for a general question and can't be made private.{% endblocktrans %}" data-bs-toggle="tooltip">
-                    {% trans 'private' %}
-                </button>
-                <button data-action="hide" class="btn btn-sm btn-outline-secondary">
-                    {% trans 'no' %}
-                </button>
-            </div>
-            <div class="lcr-center d-none" data-action-set="summary">
-                {% if next_evaluations %}
-                    {% for next_evaluation in next_evaluations %}
-                        <a href="{% url 'staff:evaluation_textanswers' next_evaluation.course.semester.id next_evaluation.id %}" data-next-evaluation-index="{{ forloop.counter0 }}" data-evaluation="{{ next_evaluation.pk }}" data-url="next-evaluation" class="btn btn-sm btn-primary">
-                            {% trans 'Review next evaluation' %}
-                        </a>
-                    {% endfor %}
-                    <button data-skip-evaluation class="btn btn-sm btn-outline-primary">
-                        {% trans 'Skip evaluation' %}
-                    </button>
-                {% endif %}
-                <button data-startover="all" class="btn btn-sm btn-outline-primary">
-                    {% trans 'Show all again' %}
-                </button>
-                <button data-startover="unreviewed" class="btn btn-sm btn-outline-primary">
-                    {% trans 'Show unreviewed' %}
-                </button>
-            </div>
-            <div class="lcr-right">
-                {% if user.is_manager %}
-                <div data-action-set="reviewing">
-                    <button data-action="textanswer_edit" class="btn btn-sm btn-outline-secondary">
-                        <span class="fas fa-pencil">
-                    </button>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
+    </form>
 {% endblock %}
 
 {% block additional_javascript %}
