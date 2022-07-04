@@ -17,7 +17,6 @@ def debug(request):
 
 
 def notebook_content(request):
-    c = {}
     if request.user.is_authenticated:
-        c["notebook_form"] = NotebookForm(instance=request.user)
-    return c
+        return {"notebook_form": NotebookForm(instance=request.user)}
+    return {}
