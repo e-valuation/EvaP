@@ -159,7 +159,6 @@ def legal_notice(request):
 
 
 @require_POST
-@login_required
 def contact(request):
     message = request.POST.get("message")
     title = request.POST.get("title")
@@ -195,7 +194,6 @@ def set_lang(request):
     return set_language(request)
 
 
-@login_required
 def profile_edit(request):
     user = request.user
     if user.is_editor:
@@ -228,12 +226,9 @@ def profile_edit(request):
     )
 
 
-@login_required
 def notebook(request):
     if request.method == "POST":
         form = NotebookForm(request.POST, instance=request.user)
-        print(request.POST)
-        print(request.body)
         if form.is_valid():
             form.save()
             return HttpResponse(status=204)
