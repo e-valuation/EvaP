@@ -1,6 +1,5 @@
 {% load static %}
-<div class="modal fade" id="successMessageModal_{{ modal_id }}" tabindex="-1" role="dialog"
-     aria-labelledby="successMessageModalLabel_{{ modal_id }}" aria-hidden="true">
+<div class="modal fade" id="successMessageModal_{{ modal_id }}" tabindex="-1" role="dialog" aria-labelledby="successMessageModalLabel_{{ modal_id }}" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -13,8 +12,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="{{ modal_id }}" tabindex="-1" role="dialog" aria-labelledby="{{ modal_id }}Label"
-     aria-hidden="true">
+<div class="modal fade" id="{{ modal_id }}" tabindex="-1" role="dialog" aria-labelledby="{{ modal_id }}Label" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -26,38 +24,25 @@
                     {{ teaser }}
                     <br /><br />
                     <div class="mb-3 modal-grid">
-                        <label for="{{ modal_id }}SenderName"
-                               class="control-label my-auto">{% trans 'Sender' %}:</label>
+                        <label for="{{ modal_id }}SenderName" class="control-label my-auto">{% trans 'Sender' %}:</label>
                         {% if modal_id == "feedbackModal" and allow_anonymous_feedback_messages %}
-                            <div class="btn-group w-75" role="group"
-                                 aria-label="{{ modal_id }} Radio Group">
-                                <input type="radio" class="btn-check" name="{{ modal_id }}RadioGroup" id="{{ modal_id }}SenderName"
-                                       checked>
-                                <label class="btn btn-sm btn-outline-primary"
-                                       for="{{ modal_id }}SenderName">{{ user.full_name }}</label>
-
+                            <div class="btn-group w-75" role="group" aria-label="{{ modal_id }} Radio Group">
+                                <input type="radio" class="btn-check" name="{{ modal_id }}RadioGroup" id="{{ modal_id }}SenderName" checked>
+                                <label class="btn btn-sm btn-outline-primary" for="{{ modal_id }}SenderName">{{ user.full_name }}</label>
                                 <input type="radio" class="btn-check" name="{{ modal_id }}RadioGroup" id="{{ modal_id }}AnonymName">
-                                <label class="btn btn-sm btn-outline-primary"
-                                       for="{{ modal_id }}AnonymName">{% trans 'Anonymous' %}</label>
+                                <label class="btn btn-sm btn-outline-primary" for="{{ modal_id }}AnonymName">{% trans 'Anonymous' %}</label>
                             </div>
                         {% else %}
-                            <input type="text" class="form-control" id="{{ modal_id }}SenderName"
-                                   disabled
-                                   value="{{ user.full_name }}"/>
+                            <input type="text" class="form-control" id="{{ modal_id }}SenderName" disabled value="{{ user.full_name }}"/>
                         {% endif %}
-                        <label for="{{ modal_id }}Subject"
-                               class="control-label my-auto">{% trans 'Subject' %}:</label>
-                        <input type="text" class="form-control" id="{{ modal_id }}Subject" disabled
-                               value="{{ title }}"/>
+                        <label for="{{ modal_id }}Subject" class="control-label my-auto">{% trans 'Subject' %}:</label>
+                        <input type="text" class="form-control" id="{{ modal_id }}Subject" disabled value="{{ title }}"/>
                     </div>
-                    <textarea autofocus class="form-control" id="{{ modal_id }}MessageText"
-                              style="resize:vertical;min-height:150px;"></textarea>
+                    <textarea autofocus class="form-control" id="{{ modal_id }}MessageText" style="resize:vertical;min-height:150px;"></textarea>
                 </div>
                 <div class="d-flex flex-wrap p-1 justify-content-end m-1">
-                    <button type="button" class="btn btn-light m-1"
-                            data-bs-dismiss="modal">{% trans 'Cancel' %}</button>
-                    <button type="submit" id="{{ modal_id }}ActionButton"
-                            class="btn btn-primary m-1">{% trans 'Send Message' %}</button>
+                    <button type="button" class="btn btn-light m-1" data-bs-dismiss="modal">{% trans 'Cancel' %}</button>
+                    <button type="submit" id="{{ modal_id }}ActionButton" class="btn btn-primary m-1">{% trans 'Send Message' %}</button>
                 </div>
             </form>
         </div>

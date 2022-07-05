@@ -4,6 +4,7 @@ from datetime import date, timedelta
 from django.conf import settings
 from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import SuspiciousOperation
 from django.core.mail import EmailMessage
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
@@ -161,13 +162,14 @@ def legal_notice(request):
 @require_POST
 @login_required
 def contact(request):
+    sent_anonymous = request.POST.get("anonymous") == "true"
+    if sent_anonymous and not settings.ALLOW_ANONYMOUS_FEEDBACK_MESSAGES:
+        raise SuspiciousOperation(
+            f"Anonymous feedback messages are not allowed, however received one from user {request.user}"
+        )
     message = request.POST.get("message")
     title = request.POST.get("title")
-    email = (
-        settings.DEFAULT_FROM_EMAIL
-        if request.POST.get("anonymous") == "on"
-        else request.user.email or f"User {request.user.id}"
-    )
+    email = settings.DEFAULT_FROM_EMAIL if sent_anonymous else request.user.email or f"User {request.user.id}"
     subject = f"[EvaP] Message from {email}"
     if message:
         mail = EmailMessage(
