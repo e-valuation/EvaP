@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group
 from django.core import mail
 from django.test import override_settings
 from django.utils import translation
-from django_webtest import WebTest
+from django_webtest import TestCase, WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import UserProfile
@@ -144,3 +144,22 @@ class TestProfileView(WebTest):
         self.assertIn("Personal information", page)
         self.assertNotIn("Delegates", page)
         self.assertIn(user.email, page)
+
+
+class TestNotebookView(TestCase):
+    url = "/notebook"
+    csrf_checks = False
+
+    def test_notebook(self):
+        user = baker.make(UserProfile)
+        self.client.force_login(user, backend=None)
+
+        note = "Data is so beautiful"
+        response = self.client.post(
+            self.url,
+            data={"notes": note},
+            user=user,
+        )
+        user.refresh_from_db()
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(user.notes, note)

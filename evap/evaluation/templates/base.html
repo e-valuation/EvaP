@@ -44,7 +44,9 @@
             {% block breadcrumb_bar %}
             {% endblock %}
         </div>
-        {% include 'notebook.html' %}
+        {% if user.is_authenticated %}
+            {% include 'notebook.html' %}
+        {% endif %}
 
         <div class="p-3 mb-4" id="evap-content">
             <div class="container">
@@ -174,16 +176,47 @@
                 $("#" + id).empty().removeClass().addClass('fas fa-spinner fa-spin');
             };
 
+            // Notebook logic
+            window.onload = fitNotebook();
+            function fitNotebook(){
+                if (document.cookie.split(';').some((item) => item.includes('evap_notebook_open=true'))) {
+                    var collapseElementList = [].slice.call(document.querySelectorAll('.collapse'))
+                    var collapseList = collapseElementList.map(function (collapseEl) {
+                        return new bootstrap.Collapse(collapseEl)
+                    })
+                    onShowNotebook();
+                };
+            };
+
+            let date = new Date();
+            date.setTime(date.getTime() + (30 * 24 * 60 * 60 * 1000));
+
             // make evap go away for notebook
             $('#notebook').on('show.bs.collapse', function () {
-                document.getElementById("evap-content").classList.add("notebook-margin");
-                document.getElementById("notebook").classList.add("notebook-container");
+                onShowNotebook();
+                setNotebookCookieIsHidden(true);
             });
 
             $('#notebook').on('hidden.bs.collapse', function () {
+                onHideNotebook()
+                setNotebookCookieIsHidden(false);
+            });
+
+            function onShowNotebook()
+            {
+                document.getElementById("evap-content").classList.add("notebook-margin");
+                document.getElementById("notebook").classList.add("notebook-container");
+            }
+
+            function onHideNotebook()
+            {
                 document.getElementById("evap-content").classList.remove("notebook-margin");
                 document.getElementById("notebook").classList.remove("notebook-container");
-            });
+            }
+
+            function setNotebookCookieIsHidden(value) {
+                document.cookie = "evap_notebook_open=" + value + "; expires=" + date.toUTCString() + "; SameSite=Lax; path=/";
+            }
         </script>
 
         {% block additional_javascript %}{% endblock %}
