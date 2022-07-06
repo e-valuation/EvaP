@@ -148,18 +148,26 @@ class TestProfileView(WebTest):
 
 class TestNotebookView(TestCase):
     url = "/notebook"
-    csrf_checks = False
+    csrf_checks = True
+    note = "Data is so beautiful"
 
     def test_notebook(self):
         user = baker.make(UserProfile)
         self.client.force_login(user, backend=None)
 
-        note = "Data is so beautiful"
         response = self.client.post(
             self.url,
-            data={"notes": note},
+            data={"notes": self.note},
             user=user,
         )
+
         user.refresh_from_db()
         self.assertEqual(response.status_code, 204)
-        self.assertEqual(user.notes, note)
+        self.assertEqual(user.notes, self.note)
+
+    def test_notebook_without_login(self):
+        response_no_login = self.client.post(
+            self.url,
+            data={"notes": self.note},
+        )
+        self.assertNotEqual(response_no_login.status_code, 204)
