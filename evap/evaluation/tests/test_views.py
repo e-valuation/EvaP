@@ -165,9 +165,13 @@ class TestNotebookView(TestCase):
         self.assertEqual(response.status_code, 204)
         self.assertEqual(user.notes, self.note)
 
-    def test_notebook_without_login(self):
-        response_no_login = self.client.post(
+    def test_notebook_invalid_request(self):
+        user = baker.make(UserProfile)
+        self.client.force_login(user, backend=None)
+
+        response = self.client.get(
             self.url,
             data={"notes": self.note},
+            user=user,
         )
-        self.assertNotEqual(response_no_login.status_code, 204)
+        self.assertEqual(response.status_code, 400)
