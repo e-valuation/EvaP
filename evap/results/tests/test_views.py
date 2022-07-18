@@ -691,9 +691,13 @@ class TestResultsTextanswerVisibilityForManager(WebTestStaffMode):
 
     def test_textanswer_visibility_for_manager_before_publish(self):
         evaluation = Evaluation.objects.get(id=1)
+        voter_count = evaluation._voter_count
+        participant_count = evaluation._participant_count
         evaluation._voter_count = 0  # set these to 0 to make unpublishing work
         evaluation._participant_count = 0
         evaluation.unpublish()
+        evaluation._voter_count = voter_count  # reset to original values
+        evaluation._participant_count = participant_count
         evaluation.save()
 
         page = self.app.get("/results/semester/1/evaluation/1?view=full", user=self.manager)

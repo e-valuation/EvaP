@@ -52,11 +52,6 @@
         margin: 0 0.5rem;
     }
 
-    @include media-breakpoint-only(md) {
-        .col-answer & {
-            margin: 0 5rem;
-        }
-    }
 }
 
 .result-widget:hover {
