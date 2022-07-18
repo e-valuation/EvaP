@@ -94,15 +94,37 @@ class TestFAQView(WebTestWith200Check):
 class TestContactEmail(WebTest):
     csrf_checks = False
 
+    @override_settings(ALLOW_ANONYMOUS_FEEDBACK_MESSAGES=True)
     def test_sends_mail(self):
         user = baker.make(UserProfile, email="user@institution.example.com")
+        # normal email
         self.app.post(
             "/contact",
-            params={"message": "feedback message", "title": "some title", "sender_email": "unique@mail.de"},
+            params={"message": "feedback message", "title": "some title", "anonymous": "false"},
             user=user,
         )
-        self.assertEqual(len(mail.outbox), 1)
+        # anonymous email
+        self.app.post(
+            "/contact",
+            params={"message": "feedback message", "title": "some title", "anonymous": "true"},
+            user=user,
+        )
+
+        self.assertEqual(len(mail.outbox), 2)
         self.assertTrue(mail.outbox[0].reply_to == ["user@institution.example.com"])
+        self.assertTrue(mail.outbox[1].reply_to != ["user@institution.example.com"])
+
+    @override_settings(ALLOW_ANONYMOUS_FEEDBACK_MESSAGES=False)
+    def test_anonymous_not_allowed(self):
+        user = baker.make(UserProfile, email="user@institution.example.com")
+        response = self.app.post(
+            "/contact",
+            params={"message": "feedback message", "title": "some title", "anonymous": "true"},
+            user=user,
+            expect_errors=True,
+        )
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertEqual(response.status_code, 400)
 
 
 class TestChangeLanguageView(WebTest):

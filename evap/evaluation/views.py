@@ -164,9 +164,7 @@ def legal_notice(request):
 def contact(request):
     sent_anonymous = request.POST.get("anonymous") == "true"
     if sent_anonymous and not settings.ALLOW_ANONYMOUS_FEEDBACK_MESSAGES:
-        raise SuspiciousOperation(
-            f"Anonymous feedback messages are not allowed, however received one from user {request.user}"
-        )
+        raise SuspiciousOperation("Anonymous feedback messages are not allowed, however received one from user!")
     message = request.POST.get("message")
     title = request.POST.get("title")
     email = settings.DEFAULT_FROM_EMAIL if sent_anonymous else request.user.email or f"User {request.user.id}"
