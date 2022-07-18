@@ -1,14 +1,23 @@
-<ul>
-    {% for answer in question_result.answers %}
-        <li>
-            {% if answer.is_private %}
-                <span data-bs-toggle="tooltip" data-bs-placement="left" class="fas fa-circle-info" title="{% trans 'This answer is only visible to you. Other contributors and your delegates can not see it.' %}"></span>
-            {% endif %}
-            {{ answer.answer|linebreaksbr }}
-        </li>
-    {% endfor %}
-</ul>
-<div class="ms-auto d-print-none">
-    {% blocktrans asvar intro_text %}These text answers can be seen by:{% endblocktrans %}
-    {% include 'textanswer_visibility_info.html' with intro_text=intro_text visible_by_contribution=question_result.answers_visible_to.visible_by_contribution visible_by_delegation_count=question_result.answers_visible_to.visible_by_delegation_count %}
+{% load results_templatetags %}
+
+<div class="w-100">
+    <div class="float-end text-end">
+        <span class="d-print-none">
+            {% blocktrans asvar intro_text %}These text answers can be seen by:{% endblocktrans %}
+            {% include 'textanswer_visibility_info.html' with intro_text=intro_text visible_by_contribution=question_result.answers_visible_to.visible_by_contribution visible_by_delegation_count=question_result.answers_visible_to.visible_by_delegation_count %}
+        </span>
+        <div class="d-inline-block badge-participants badge-participants-{{ num_answers|participationclass:num_voters }} ms-2">
+            <span class="fas fa-user"></span> {{ num_answers }}
+        </div>
+    </div>
+    <ul>
+        {% for answer in question_result.answers %}
+            <li>
+                {% if answer.is_private %}
+                    <span data-bs-toggle="tooltip" data-bs-placement="left" class="fas fa-circle-info" title="{% trans 'This answer is only visible to you. Other contributors and your delegates can not see it.' %}"></span>
+                {% endif %}
+                {{ answer.answer|linebreaksbr }}
+            </li>
+        {% endfor %}
+    </ul>
 </div>
