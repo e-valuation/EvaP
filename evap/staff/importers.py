@@ -609,7 +609,7 @@ class EnrollmentImporter(ExcelImporter):
 
         if students_created or responsibles_created:
             message = format_html(
-                "{message}: {student_list} <br /> {responsible_list}",
+                "{message}: {student_list} <br />{responsible_list}",
                 message=message,
                 student_list=create_user_list_html_string_for_message(students_created),
                 responsible_list=create_user_list_html_string_for_message(responsibles_created),
@@ -830,13 +830,12 @@ class PersonImporter:
 
         if already_related:
             msg = format_html(
-                "{sentence} {name}: {list}",
+                "{sentence}: {list}",
                 sentence=ngettext(
-                    "The following user is already participating in evaluation",
-                    "The following {user_count} are already participating in evaluation",
+                    "The following user is already participating in evaluation {name}",
+                    "The following {user_count} are already participating in evaluation {name}",
                     len(already_related),
-                ).format(user_count=len(already_related)),
-                name=evaluation.full_name,
+                ).format(user_count=len(already_related), name=evaluation.full_name),
                 list=create_user_list_html_string_for_message(already_related),
             )
             self.warnings[ImporterWarning.GENERAL].append(msg)
@@ -863,13 +862,12 @@ class PersonImporter:
                 )
             else:
                 msg = format_html(
-                    _("{sentence} {name}: {list}"),
+                    _("{sentence}: {list}"),
                     sentence=ngettext(
-                        "{user_count} participant added to the evaluation",
-                        "{user_count} participants added to the evaluation",
+                        "{user_count} participant added to the evaluation {name}",
+                        "{user_count} participants added to the evaluation {name}",
                         len(users_to_add),
-                    ).format(user_count=len(users_to_add)),
-                    name=evaluation.full_name,
+                    ).format(user_count=len(users_to_add), name=evaluation.full_name),
                     list=create_user_list_html_string_for_message(users_to_add),
                 )
 
@@ -880,13 +878,12 @@ class PersonImporter:
         already_related = [contribution.contributor for contribution in already_related_contributions]
         if already_related:
             msg = format_html(
-                "{sentence} {name}: {list}",
+                "{sentence}: {list}",
                 sentence=ngettext(
-                    "The following user is already contributing to evaluation",
-                    "The following {user_count} users are already contributing to evaluation",
+                    "The following user is already contributing to evaluation {name}",
+                    "The following {user_count} users are already contributing to evaluation {name}",
                     len(already_related),
-                ).format(user_count=len(already_related)),
-                name=evaluation.full_name,
+                ).format(user_count=len(already_related), name=evaluation.full_name),
                 list=create_user_list_html_string_for_message(already_related),
             )
             self.warnings[ImporterWarning.GENERAL].append(msg)
@@ -908,13 +905,12 @@ class PersonImporter:
         else:
             if test_run:
                 msg = format_html(
-                    _("{sentence} {name}: {list}"),
+                    _("{sentence}: {list}"),
                     sentence=ngettext(
-                        "{user_count} contributor would be added to the evaluation",
-                        "{user_count} contributors would be added to the evaluation",
+                        "{user_count} contributor would be added to the evaluation {name}",
+                        "{user_count} contributors would be added to the evaluation {name}",
                         len(users_to_add),
-                    ).format(user_count=len(users_to_add)),
-                    name=evaluation.full_name,
+                    ).format(user_count=len(users_to_add), name=evaluation.full_name),
                     list=create_user_list_html_string_for_message(users_to_add),
                 )
             else:
