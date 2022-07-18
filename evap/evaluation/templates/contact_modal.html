@@ -41,9 +41,9 @@
                     </div>
                     <textarea autofocus class="form-control" id="{{ modal_id }}MessageText" style="resize:vertical;min-height:150px;"></textarea>
                 </div>
-                <div class="d-flex flex-wrap p-1 justify-content-end m-1">
-                    <button type="button" class="btn btn-light m-1" data-bs-dismiss="modal">{% trans 'Cancel' %}</button>
-                    <button type="submit" id="{{ modal_id }}ActionButton" class="btn btn-primary m-1">{% trans 'Send Message' %}</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% trans 'Cancel' %}</button>
+                    <button type="submit" id="{{ modal_id }}ActionButton" class="btn btn-primary">{% trans 'Send Message' %}</button>
                 </div>
             </form>
         </div>
