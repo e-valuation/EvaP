@@ -54,9 +54,10 @@ class TestUserImporter(TestCase):
         original_user_count = UserProfile.objects.count()
 
         user_list, success_messages, warnings, errors = UserImporter.process(self.valid_excel_content, test_run=False)
+
         self.assertIn("Successfully read sheet 'Users'.", success_messages)
         self.assertIn(
-            "Successfully created 2 users: <br />Lucilia Manilium (lucilia.manilium@institution.example.com)<br />Bastius Quid (bastius.quid@external.example.com)",
+            "Successfully created 2 users:<br />Lucilia Manilium (lucilia.manilium@institution.example.com)<br />Bastius Quid (bastius.quid@external.example.com)",
             success_messages,
         )
         self.assertIn("Successfully read Excel file.", success_messages)
@@ -70,7 +71,7 @@ class TestUserImporter(TestCase):
         self.assertTrue(UserProfile.objects.filter(email="bastius.quid@external.example.com").exists())
 
         # Checks that the success_message after we import the same two users again, says that no users will be imported
-        user_list, success_messages, warnings, errors = UserImporter.process(self.valid_excel_content, test_run=False)
+        __, success_messages, __, __ = UserImporter.process(self.valid_excel_content, test_run=False)
         self.assertIn("No users were created.", success_messages)
         self.assertEqual(UserProfile.objects.count(), 2 + original_user_count)
 
@@ -175,28 +176,28 @@ class TestUserImporter(TestCase):
 
     def test_user_success_messages(self):
         __, success_messages, __, __ = UserImporter.process(self.valid_excel_content, test_run=True)
-        self.assertIn("The import run will create 2 users:", success_messages[3])
-        self.assertIn("lucilia.manilium@institution.example.com", success_messages[3])
-        self.assertIn("bastius.quid@external.example.com", success_messages[3])
+        self.assertIn("The import run will create 2 users:", "".join(success_messages))
+        self.assertIn("lucilia.manilium@institution.example.com", "".join(success_messages))
+        self.assertIn("bastius.quid@external.example.com", "".join(success_messages))
         __, success_messages, __, __ = UserImporter.process(self.valid_excel_content, test_run=False)
 
-        self.assertIn("Successfully created 2 users:", success_messages[2])
-        self.assertIn("lucilia.manilium@institution.example.com", success_messages[2])
-        self.assertIn("bastius.quid@external.example.com", success_messages[2])
+        self.assertIn("Successfully created 2 users:", "".join(success_messages))
+        self.assertIn("lucilia.manilium@institution.example.com", "".join(success_messages))
+        self.assertIn("bastius.quid@external.example.com", "".join(success_messages))
 
         UserProfile.objects.get(email="lucilia.manilium@institution.example.com").delete()
         __, success_messages, __, __ = UserImporter.process(self.valid_excel_content, test_run=True)
 
-        self.assertIn("The import run will create 1 user:", success_messages[3])
-        self.assertIn("lucilia.manilium@institution.example.com", success_messages[3])
+        self.assertIn("The import run will create 1 user:", "".join(success_messages))
+        self.assertIn("lucilia.manilium@institution.example.com", "".join(success_messages))
         __, success_messages, __, __ = UserImporter.process(self.valid_excel_content, test_run=False)
-        self.assertIn("Successfully created 1 user:", success_messages[2])
-        self.assertIn("lucilia.manilium@institution.example.com", success_messages[2])
+        self.assertIn("Successfully created 1 user:", "".join(success_messages))
+        self.assertIn("lucilia.manilium@institution.example.com", "".join(success_messages))
 
         __, success_messages, __, __ = UserImporter.process(self.valid_excel_content, test_run=True)
-        self.assertIn("The import run will create no users", success_messages[3])
+        self.assertIn("The import run will create no users", "".join(success_messages))
         __, success_messages, __, __ = UserImporter.process(self.valid_excel_content, test_run=False)
-        self.assertIn("No users were created.", success_messages[2])
+        self.assertIn("No users were created.", "".join(success_messages))
 
 
 class TestEnrollmentImporter(TestCase):
@@ -261,11 +262,11 @@ class TestEnrollmentImporter(TestCase):
         expected_user_count = old_user_count + 23
         self.assertEqual(UserProfile.objects.all().count(), expected_user_count)
 
-        success_messages, warnings, errors = EnrollmentImporter.process(*import_args, test_run=True)
+        success_messages, __, errors = EnrollmentImporter.process(*import_args, test_run=True)
         self.assertIn("The import run will create no courses/evaluations and no users.", "".join(success_messages))
         self.assertEqual(errors, {})
 
-        success_messages, warnings, errors = EnrollmentImporter.process(*import_args, test_run=False)
+        success_messages, __, errors = EnrollmentImporter.process(*import_args, test_run=False)
         self.assertIn(
             "Nothing changed",
             "".join(success_messages),
@@ -453,9 +454,11 @@ class TestEnrollmentImporter(TestCase):
         import_args_without_dates = [excel_content, self.semester, None, None]
         import_args_with_dates = [excel_content, self.semester, self.vote_start_datetime, self.vote_end_date]
         success_messages, __, __ = EnrollmentImporter.process(*import_args_without_dates, test_run=True)
-        self.assertIn("The import run will create 1 course/evaluation and 2 users:", success_messages[4])
+        self.assertIn("The import run will create 1 course/evaluation and 2 users:", "".join(success_messages))
         success_messages, __, __ = EnrollmentImporter.process(*import_args_with_dates, test_run=False)
-        self.assertIn("Successfully created 1 course/evaluation, 1 student and 1 responsible", success_messages[3])
+        self.assertIn(
+            "Successfully created 1 course/evaluation, 1 student and 1 responsible", "".join(success_messages)
+        )
 
         Evaluation.objects.get(course__name_de="newBauen").delete()
         Course.objects.get(name_de="newBauen").delete()
@@ -628,7 +631,7 @@ class TestPersonImporter(TestCase):
             ImportType.CONTRIBUTOR, self.evaluation1, test_run=True, source_evaluation=self.evaluation2
         )
         self.assertIn("1 contributor would be added to the evaluation", "".join(success_messages))
-        self.assertIn(str(self.contributor2.email), "".join(success_messages))
+        self.assertIn(f"{self.contributor2.email}", "".join(success_messages))
 
         self.assertEqual(self.evaluation1.contributions.count(), 2)
 

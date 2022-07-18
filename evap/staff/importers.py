@@ -611,10 +611,10 @@ class EnrollmentImporter(ExcelImporter):
 
         if students_created or responsibles_created:
             message = format_html(
-                "{}: {} <br> {}",
-                message,
-                create_user_list_html_string_for_message(students_created),
-                create_user_list_html_string_for_message(responsibles_created),
+                "{message}: {student_list} <br /> {responsible_list}",
+                message=message,
+                student_list=create_user_list_html_string_for_message(students_created),
+                responsible_list=create_user_list_html_string_for_message(responsibles_created),
             )
         self.success_messages.append(message)
 
@@ -738,16 +738,16 @@ class UserImporter(ExcelImporter):
                     )
                     raise
         if len(created_users) == 0:
-            msg = _("No users were created.")
+            msg = _("No users were created.")  # TODO add the same no function like in line 587
         else:
             msg = format_html(
-                "{}: {}",
-                ngettext(
+                "{sentence}:{list}",
+                sentence=ngettext(
                     "Successfully created {user_count} user",
                     "Successfully created {user_count} users",
                     len(created_users),
                 ).format(user_count=len(created_users)),
-                create_user_list_html_string_for_message(created_users),
+                list=create_user_list_html_string_for_message(created_users),
             )
         self.success_messages.append(msg)
         return new_participants
@@ -770,8 +770,8 @@ class UserImporter(ExcelImporter):
             msg = _("The import run will create no users.")
         else:
             msg = format_html(
-                "{object}: {list}",
-                object=ngettext(
+                "{sentence}: {list}",
+                sentence=ngettext(
                     "The import run will create {count} user",
                     "The import run will create {count} users",
                     len(filtered_users),
@@ -835,8 +835,8 @@ class PersonImporter:
 
         if already_related:
             msg = format_html(
-                "{object} {name}: {list}",
-                object=ngettext(
+                "{sentence} {name}: {list}",
+                sentence=ngettext(
                     "The following user is already participating in evaluation",
                     "The following {user_count} are already participating in evaluation",
                     len(already_related),
@@ -858,17 +858,18 @@ class PersonImporter:
         else:
             if test_run:
                 msg = format_html(
-                    _("{object} would be added to the evaluation {name}: {list}"),
-                    object=ngettext("{user_count} participant", "{user_count} participants", len(users_to_add)).format(
-                        user_count=len(users_to_add)
-                    ),
-                    name=evaluation.full_name,
+                    _("{sentence}: {list}"),
+                    sentence=ngettext(
+                        "{user_count} participant would be added to the evaluation {name}",
+                        "{user_count} participants would be added to the evaluation {name}",
+                        len(users_to_add),
+                    ).format(user_count=len(users_to_add), name=evaluation.full_name),
                     list=create_user_list_html_string_for_message(users_to_add),
                 )
             else:
                 msg = format_html(
-                    _("{object} {name}: {list}"),
-                    object=ngettext(
+                    _("{sentence} {name}: {list}"),
+                    sentence=ngettext(
                         "{user_count} participant added to the evaluation",
                         "{user_count} participants added to the evaluation",
                         len(users_to_add),
@@ -884,8 +885,8 @@ class PersonImporter:
         already_related = [contribution.contributor for contribution in already_related_contributions]
         if already_related:
             msg = format_html(
-                "{object} {name}: {list}",
-                object=ngettext(
+                "{sentence} {name}: {list}",
+                sentence=ngettext(
                     "The following user is already contributing to evaluation",
                     "The following {user_count} users are already contributing to evaluation",
                     len(already_related),
@@ -912,8 +913,8 @@ class PersonImporter:
         else:
             if test_run:
                 msg = format_html(
-                    _("{object} {name}: {list}"),
-                    object=ngettext(
+                    _("{sentence} {name}: {list}"),
+                    sentence=ngettext(
                         "{user_count} contributor would be added to the evaluation",
                         "{user_count} contributors would be added to the evaluation",
                         len(users_to_add),
@@ -923,8 +924,8 @@ class PersonImporter:
                 )
             else:
                 msg = format_html(
-                    _("{object} added to the evaluation {name}: {list}"),
-                    object=ngettext(
+                    _("{sentence} added to the evaluation {name}: {list}"),
+                    sentence=ngettext(
                         "{user_count} contributor",
                         "{user_count} contributors",
                         len(users_to_add),
