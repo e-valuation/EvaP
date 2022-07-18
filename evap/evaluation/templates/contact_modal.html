@@ -1,4 +1,5 @@
 {% load static %}
+
 <div class="modal fade" id="successMessageModal_{{ modal_id }}" tabindex="-1" role="dialog" aria-labelledby="successMessageModalLabel_{{ modal_id }}" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -50,7 +51,7 @@
 </div>
 <script type="module" src="/static/js/contact_modal.js"></script>
 <script type="module">
-    import {ContactModalLogic} from "{% static 'js/contact_modal.js' %}";
+    import { ContactModalLogic } from "{% static 'js/contact_modal.js' %}";
 
-    new ContactModalLogic("{{ modal_id }}", "{{ title|escapejs }}");
+    new ContactModalLogic("{{ modal_id }}", "{{ title|escapejs }}").attach();
 </script>

@@ -1,9 +1,9 @@
 declare const bootstrap: typeof import("bootstrap");
 
 import { selectOrError, sleep, assert } from "./utils.js";
-import { csrfHeader } from "./csrf-utils.js";
+import { CSRF_HEADER } from "./csrf-utils.js";
 
-const success_message_timeout = 3000;
+const SUCCESS_MESSAGE_TIMEOUT = 3000;
 
 export class ContactModalLogic {
     private readonly modal: bootstrap.Modal;
@@ -11,17 +11,20 @@ export class ContactModalLogic {
     private readonly actionButtonElement: HTMLButtonElement;
     private readonly messageTextElement: HTMLInputElement;
     private readonly anonymousRadioElement: HTMLInputElement;
-    private readonly modalId: string;
+    private readonly showButtonElement: HTMLElement;
     private readonly title: string;
 
     constructor(modalId: string, title: string) {
-        this.modalId = modalId;
         this.title = title;
         this.modal = new bootstrap.Modal(selectOrError("#" + modalId));
         this.successMessageModal = new bootstrap.Modal(selectOrError("#successMessageModal_" + modalId));
         this.actionButtonElement = selectOrError("#" + modalId + "ActionButton");
         this.messageTextElement = selectOrError("#" + modalId + "MessageText");
         this.anonymousRadioElement = selectOrError("#" + modalId + "AnonymName");
+        this.showButtonElement = selectOrError("#" + modalId + "ShowButton");
+    }
+
+    public attach = (): void => {
         this.actionButtonElement.addEventListener("click", async event => {
             this.actionButtonElement.disabled = true;
             event.preventDefault();
@@ -38,7 +41,7 @@ export class ContactModalLogic {
                         message,
                         title: this.title,
                     }),
-                    headers: csrfHeader,
+                    headers: CSRF_HEADER,
                     method: "POST",
                 });
                 assert(response.ok);
@@ -50,12 +53,13 @@ export class ContactModalLogic {
             this.successMessageModal.show();
             this.messageTextElement.value = "";
 
-            await sleep(success_message_timeout);
+            await sleep(SUCCESS_MESSAGE_TIMEOUT);
             this.successMessageModal.hide();
             this.actionButtonElement.disabled = false;
         });
-        selectOrError("#" + modalId + "ShowButton").addEventListener("click", () => {
+
+        this.showButtonElement.addEventListener("click", () => {
             this.modal.show();
         });
-    }
+    };
 }

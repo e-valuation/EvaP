@@ -117,14 +117,13 @@ class TestContactEmail(WebTest):
     @override_settings(ALLOW_ANONYMOUS_FEEDBACK_MESSAGES=False)
     def test_anonymous_not_allowed(self):
         user = baker.make(UserProfile, email="user@institution.example.com")
-        response = self.app.post(
+        self.app.post(
             "/contact",
             params={"message": "feedback message", "title": "some title", "anonymous": "true"},
             user=user,
-            expect_errors=True,
+            status=400,
         )
         self.assertEqual(len(mail.outbox), 0)
-        self.assertEqual(response.status_code, 400)
 
 
 class TestChangeLanguageView(WebTest):

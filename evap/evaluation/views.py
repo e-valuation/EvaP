@@ -167,8 +167,12 @@ def contact(request):
         raise SuspiciousOperation("Anonymous feedback messages are not allowed, however received one from user!")
     message = request.POST.get("message")
     title = request.POST.get("title")
-    email = "anonymous user" if sent_anonymous else request.user.email or f"User {request.user.id}"
-    subject = f"[EvaP] {'Anonymous message' if sent_anonymous else f'Message from {email}'}"
+    if sent_anonymous:
+        email = "anonymous user"
+        subject = "[EvaP] Anonymous message"
+    else:
+        email = request.user.email or f"User {request.user.id}"
+        subject = f"[EvaP] Message from {email}"
     if message:
         mail = EmailMessage(
             subject=subject,
