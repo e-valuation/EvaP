@@ -22,6 +22,10 @@ def sorted_messages(messages):
     return OrderedDict(sorted(messages.items(), key=lambda item: item[0].order))
 
 
+def make_count_word(count):
+    return pgettext("count", "no") if count == 0 else str(count)
+
+
 # taken from https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes
 class CommonEqualityMixin:
     def __eq__(self, other):
@@ -583,10 +587,6 @@ class EnrollmentImporter(ExcelImporter):
                 evaluation.participants.add(*participants)
             self.create_success_messages(students_created, responsibles_created)
 
-    @staticmethod
-    def make_count_word(count):
-        return pgettext("count", "no") if count == 0 else str(count)
-
     def create_success_messages(self, students_created, responsibles_created):
         student_count = len(students_created)
         responsible_count = len(responsibles_created)
@@ -599,13 +599,11 @@ class EnrollmentImporter(ExcelImporter):
         message = format_html(
             _("Successfully created {}, {} and {}"),
             ngettext("{count} course/evaluation", "{count} courses/evaluations", evaluation_count).format(
-                count=self.make_count_word(evaluation_count)
+                count=make_count_word(evaluation_count)
             ),
-            ngettext("{count} student", "{count} students", student_count).format(
-                count=self.make_count_word(student_count)
-            ),
+            ngettext("{count} student", "{count} students", student_count).format(count=make_count_word(student_count)),
             ngettext("{count} responsible", "{count} responsibles", responsible_count).format(
-                count=self.make_count_word(responsible_count)
+                count=make_count_word(responsible_count)
             ),
         )
 
@@ -627,17 +625,17 @@ class EnrollmentImporter(ExcelImporter):
         evaluation_count = self.created_evaluations_count
 
         if not filtered_users:
-            msg = "."
+            user_list = "."
         else:
-            msg = format_html(": {}", create_user_list_html_string_for_message(filtered_users))
+            user_list = format_html(": {user_list}", user_list=create_user_list_html_string_for_message(filtered_users))
 
         msg = format_html(
-            _("The import run will create {} and {}{}"),
-            ngettext("{count} course/evaluation", "{count} courses/evaluations", evaluation_count).format(
-                count=self.make_count_word(evaluation_count)
+            _("The import run will create {course_string} and {user_string}{user_list}"),
+            course_string=ngettext("{count} course/evaluation", "{count} courses/evaluations", evaluation_count).format(
+                count=make_count_word(evaluation_count)
             ),
-            ngettext("{count} user", "{count} users", user_count).format(count=self.make_count_word(user_count)),
-            msg,
+            user_string=ngettext("{count} user", "{count} users", user_count).format(count=make_count_word(user_count)),
+            user_list=user_list,
         )
 
         self.success_messages.append(msg)
@@ -738,7 +736,7 @@ class UserImporter(ExcelImporter):
                     )
                     raise
         if len(created_users) == 0:
-            msg = _("No users were created.")  # TODO add the same no function like in line 587
+            msg = _("No users were created.")
         else:
             msg = format_html(
                 "{sentence}:{list}",
@@ -766,18 +764,15 @@ class UserImporter(ExcelImporter):
         filtered_users = [user_data for user_data in self.users.values() if not user_data.user_already_exists()]
 
         self.success_messages.append(_("The test run showed no errors. No data was imported yet."))
-        if not filtered_users:
-            msg = _("The import run will create no users.")
-        else:
-            msg = format_html(
-                "{sentence}: {list}",
-                sentence=ngettext(
-                    "The import run will create {count} user",
-                    "The import run will create {count} users",
-                    len(filtered_users),
-                ).format(count=len(filtered_users)),
-                list=create_user_list_html_string_for_message(filtered_users),
-            )
+        msg = format_html(
+            "{sentence}: {list}",
+            sentence=ngettext(
+                "The import run will create {count} user",
+                "The import run will create {count} users",
+                len(filtered_users),
+            ).format(count=make_count_word(len(filtered_users))),
+            list=create_user_list_html_string_for_message(filtered_users),
+        )
         self.success_messages.append(msg)
 
     @classmethod
