@@ -97,7 +97,7 @@ class UserModelChoiceField(forms.ModelChoiceField):
 
 
 class UserModelMultipleChoiceField(forms.ModelMultipleChoiceField):
-    widget = forms.SelectMultiple(attrs={"data-selection-css-class": "user-multi-select"})
+    widget = forms.SelectMultiple(attrs={"data-tomselect-fullwidth": ""})
 
     def label_from_instance(self, obj):
         return obj.full_name_with_additional_info
