@@ -5,6 +5,7 @@ from django.test import override_settings
 from django.utils import translation
 from django_webtest import TestCase, WebTest
 from model_bakery import baker
+from unittest.mock import patch
 
 from evap.evaluation.models import UserProfile
 from evap.evaluation.tests.tools import WebTestWith200Check, create_evaluation_with_responsible_and_editor
@@ -174,4 +175,18 @@ class TestNotebookView(TestCase):
             data={"notes": self.note},
             user=user,
         )
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 405)
+
+    def test_notebook_invalid_form(self):
+        user = baker.make(UserProfile)
+        self.client.force_login(user, backend=None)
+
+        with patch('evap.evaluation.forms.NotebookForm.is_valid') as mock_profile_form:
+            mock_profile_form.return_value = False
+            response = self.client.post(
+                self.url,
+                data={"notes": 42},
+                user=user,
+            )
+
+            self.assertEqual(response.status_code, 400)

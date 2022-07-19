@@ -180,7 +180,10 @@
             window.onload = fitNotebook();
             function fitNotebook(){
                 if (document.cookie.split(';').some((item) => item.includes('evap_notebook_open=true'))) {
-                    var collapseElementList = [].slice.call(document.querySelectorAll('.collapse'))
+                    var collapseElementList = [];
+                    collapseElementList.push(document.querySelector('#notebook'));
+                    collapseElementList.push(document.querySelector('#notebookButton'));
+                    
                     var collapseList = collapseElementList.map(function (collapseEl) {
                         return new bootstrap.Collapse(collapseEl)
                     })

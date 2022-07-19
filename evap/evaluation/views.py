@@ -1,5 +1,6 @@
 import logging
 from datetime import date, timedelta
+from pdb import post_mortem
 
 from django.conf import settings
 from django.contrib import auth, messages
@@ -224,12 +225,11 @@ def profile_edit(request):
         ),
     )
 
-
+@require_POST
 def notebook(request):
     if request.method == "POST":
         form = NotebookForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
             return HttpResponse(status=204)
-
-    return HttpResponseBadRequest()
+        return HttpResponseBadRequest()

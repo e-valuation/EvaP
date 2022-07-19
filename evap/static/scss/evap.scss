@@ -24,7 +24,7 @@ body {
     position: absolute;
     bottom: 0;
     width: 100%;
-    height: 46px;
+    height: $footer-height;
     background: $darker-gray;
     line-height: 1.2;
     color: $light-gray;
@@ -147,6 +147,10 @@ td.icon {
     @import "print";
 }
 
+.notebook-animation {
+    transition: width .0s !important;
+}
+
 @media screen and (orientation: landscape) {
     .notebook-margin {
         max-width: 75vw;
@@ -160,9 +164,13 @@ td.icon {
         padding-top: $spacer;
     }
 
+    .notebook-card {
+        // substracting 3 * Margins 2x card 1x breadcrumb
+        height: calc((100vh - #{$navbar-brand-height}) - (#{$footer-height} + ((#{$spacer} * 1.5) * 3))) !important;
+    }
+
     .notebook-textarea {
         resize: none;
-        min-height: 65vh !important;
     }
 }
 
