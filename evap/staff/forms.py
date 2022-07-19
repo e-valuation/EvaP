@@ -579,6 +579,9 @@ class ContributionForm(forms.ModelForm):
         fields = ("evaluation", "contributor", "questionnaires", "role", "textanswer_visibility", "label", "order")
         widgets = {
             "order": forms.HiddenInput(),
+            # RadioSelects are necessary so each value gets a id_for_label, see #1769.
+            "role": forms.RadioSelect(),
+            "textanswer_visibility": forms.RadioSelect(),
         }
 
     def __init__(self, *args, evaluation=None, **kwargs):
