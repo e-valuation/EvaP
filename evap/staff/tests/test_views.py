@@ -1756,7 +1756,7 @@ class TestCourseDeleteView(DeleteViewTestMixin, WebTestStaffMode):
     ]
 )
 class TestEvaluationEditView(WebTestStaffMode):
-    render_pages_url = f"/staff/semester/PK/evaluation/PK/edit"
+    render_pages_url = "/staff/semester/PK/evaluation/PK/edit"
 
     @classmethod
     def setUpTestData(cls):
