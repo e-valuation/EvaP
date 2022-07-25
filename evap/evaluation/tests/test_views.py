@@ -111,8 +111,8 @@ class TestContactEmail(WebTest):
         )
 
         self.assertEqual(len(mail.outbox), 2)
-        self.assertTrue(mail.outbox[0].reply_to == ["user@institution.example.com"])
-        self.assertTrue(mail.outbox[1].reply_to != ["user@institution.example.com"])
+        self.assertEqual(mail.outbox[0].reply_to, ["user@institution.example.com"])
+        self.assertEqual(mail.outbox[1].reply_to, [])
 
     @override_settings(ALLOW_ANONYMOUS_FEEDBACK_MESSAGES=False)
     def test_anonymous_not_allowed(self):

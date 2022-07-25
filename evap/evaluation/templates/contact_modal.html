@@ -23,9 +23,8 @@
             <form id="{{ modal_id }}Form">
                 <div class="modal-body">
                     {{ teaser }}
-                    <br /><br />
-                    <div class="mb-3 modal-grid">
-                        <label for="{{ modal_id }}SenderName" class="control-label my-auto">{% trans 'Sender' %}:</label>
+                    <div class="my-4 modal-grid">
+                        <label for="{{ modal_id }}SenderName" class="control-label my-auto pe-4">{% trans 'Sender' %}</label>
                         {% if modal_id == "feedbackModal" and allow_anonymous_feedback_messages %}
                             <div class="btn-group w-75" role="group" aria-label="{{ modal_id }} Radio Group">
                                 <input type="radio" class="btn-check" name="{{ modal_id }}RadioGroup" id="{{ modal_id }}SenderName" checked>
@@ -36,10 +35,10 @@
                         {% else %}
                             <input type="text" class="form-control" id="{{ modal_id }}SenderName" disabled value="{{ user.full_name }}"/>
                         {% endif %}
-                        <label for="{{ modal_id }}Subject" class="control-label my-auto">{% trans 'Subject' %}:</label>
+                        <label for="{{ modal_id }}Subject" class="control-label my-auto pe-4">{% trans 'Subject' %}</label>
                         <input type="text" class="form-control" id="{{ modal_id }}Subject" disabled value="{{ title }}"/>
                     </div>
-                    <textarea autofocus class="form-control" id="{{ modal_id }}MessageText" style="resize:vertical;min-height:150px;"></textarea>
+                    <textarea autofocus class="form-control modal-textfield" id="{{ modal_id }}MessageText"></textarea>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% trans 'Cancel' %}</button>
