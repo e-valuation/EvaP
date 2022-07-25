@@ -1,12 +1,13 @@
+from unittest.mock import patch
+
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.test import override_settings
-from django.utils import translation
-from django_webtest import TestCase, WebTest
-from model_bakery import baker
-from unittest.mock import patch
 from django.urls import reverse
+from django.utils import translation
+from django_webtest import WebTest
+from model_bakery import baker
 
 from evap.evaluation.models import UserProfile
 from evap.evaluation.tests.tools import WebTestWith200Check, create_evaluation_with_responsible_and_editor
@@ -148,9 +149,8 @@ class TestProfileView(WebTest):
         self.assertIn(user.email, page)
 
 
-class TestNotebookView(TestCase):
-    url = reverse("notebook")
-    csrf_checks = True
+class TestNotebookView(WebTest):
+    url = reverse("evaluation:notebook")
     note = "Data is so beautiful"
 
     def test_notebook(self):
@@ -182,7 +182,7 @@ class TestNotebookView(TestCase):
         user = baker.make(UserProfile)
         self.client.force_login(user, backend=None)
 
-        with patch('evap.evaluation.forms.NotebookForm.is_valid', return_value=False):
+        with patch("evap.evaluation.forms.NotebookForm.is_valid", return_value=False):
             response = self.client.post(
                 self.url,
                 data={"notes": 42},

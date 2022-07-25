@@ -224,11 +224,11 @@ def profile_edit(request):
         ),
     )
 
+
 @require_POST
 def notebook(request):
-    if request.method == "POST":
-        form = NotebookForm(request.POST, instance=request.user)
-        if form.is_valid():
-            form.save()
-            return HttpResponse(status=204)
-        return HttpResponseBadRequest()
+    form = NotebookForm(request.POST, instance=request.user)
+    if form.is_valid():
+        form.save()
+        return HttpResponse(status=204)
+    return HttpResponseBadRequest()

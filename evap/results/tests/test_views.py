@@ -1,6 +1,6 @@
 import random
 from io import StringIO
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 from django.contrib.auth.models import Group
 from django.core.cache import caches
@@ -460,7 +460,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         self.assertNotIn(heading_question_2.text, page)
 
     @patch("django.template.context_processors.get_token", return_value="predicabletoken")
-    def test_default_view_is_public(self):
+    def test_default_view_is_public(self, __):
         cache_results(self.evaluation)
         random.seed(42)  # use explicit seed to always choose the same "random" slogan
         page_without_get_parameter = self.app.get(self.url, user=self.manager)
