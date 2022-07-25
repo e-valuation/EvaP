@@ -6,6 +6,7 @@ from django.utils import translation
 from django_webtest import TestCase, WebTest
 from model_bakery import baker
 from unittest.mock import patch
+from django.urls import reverse
 
 from evap.evaluation.models import UserProfile
 from evap.evaluation.tests.tools import WebTestWith200Check, create_evaluation_with_responsible_and_editor
@@ -148,7 +149,7 @@ class TestProfileView(WebTest):
 
 
 class TestNotebookView(TestCase):
-    url = "/notebook"
+    url = reverse("notebook")
     csrf_checks = True
     note = "Data is so beautiful"
 
