@@ -3,6 +3,7 @@ from datetime import date, timedelta
 
 from django.conf import settings
 from django.contrib import auth, messages
+from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMessage
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
@@ -158,6 +159,7 @@ def legal_notice(request):
 
 
 @require_POST
+@login_required
 def contact(request):
     message = request.POST.get("message")
     title = request.POST.get("title")
@@ -193,6 +195,7 @@ def set_lang(request):
     return set_language(request)
 
 
+@login_required
 def profile_edit(request):
     user = request.user
     if user.is_editor:
