@@ -459,7 +459,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         self.assertIn(likert_question.text, page)
         self.assertNotIn(heading_question_2.text, page)
 
-    @patch("django.template.context_processors.get_token", Mock(return_value="predicabletoken"))
+    @patch("django.template.context_processors.get_token", return_value="predicabletoken")
     def test_default_view_is_public(self):
         cache_results(self.evaluation)
         random.seed(42)  # use explicit seed to always choose the same "random" slogan
