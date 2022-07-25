@@ -196,14 +196,17 @@ td.icon {
 
     .notebook-container {
         width: 100vw;
-        max-height: 40vh;
         z-index:  $zindex-fixed;
         padding: $spacer;
     }
 
+    .notebook-card {
+        height: calc(50vh - (#{$spacer} * 1.5));
+    }
+
     .notebook-textarea {
         resize: none;
-        min-height: 30vh;
-        flex: 1;
+        align-self: stretch;
+        flex: 1 1 auto;
     }
 }
