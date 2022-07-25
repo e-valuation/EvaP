@@ -181,8 +181,7 @@ class TestNotebookView(TestCase):
         user = baker.make(UserProfile)
         self.client.force_login(user, backend=None)
 
-        with patch('evap.evaluation.forms.NotebookForm.is_valid') as mock_profile_form:
-            mock_profile_form.return_value = False
+        with patch('evap.evaluation.forms.NotebookForm.is_valid', return_value=False):
             response = self.client.post(
                 self.url,
                 data={"notes": 42},
