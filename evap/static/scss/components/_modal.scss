@@ -23,3 +23,9 @@
     resize:vertical;
     min-height:150px !important;
 }
+
+.modal-submit-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}

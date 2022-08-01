@@ -10,7 +10,7 @@
             <div class="card border-primary">
                 <div class="card-body">
                     <h4 class="card-title text-primary">
-                        {% trans 'HPI users' %}
+                        {% trans 'HPI login' %}
                     </h4>
                     {% if openid_active %}
                         <p class="card-text">
@@ -43,7 +43,7 @@
                     {% csrf_token %}
                     <input type="hidden" name="submit_type" value="new_key" />
                     <h4 class="card-title text-dark">
-                        {% trans 'External and D-School users' %}
+                        {% trans 'D-School, E-School and externals' %}
                     </h4>
                     <p class="card-text mb-lg-auto">
                         {% trans 'Here you can request a one-time login URL. We will send it to your email address.' %}
@@ -72,9 +72,9 @@
             </div>
             <div class="modal-body">
                 {% trans 'You should have received an evaluation invitation via email that included a URL to login on this platform. You can also request a new login URL on this page. If you encounter any problems with your login, please let us know by answering to the evaluation email you received.' %}
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% trans 'Close' %}</button>
+                <div class="modal-submit-group">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% trans 'Close' %}</button>
+                </div>
             </div>
         </div>
     </div>

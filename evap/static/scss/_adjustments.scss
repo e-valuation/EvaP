@@ -117,55 +117,6 @@ $alert-colors: (
     padding-top: 0.25rem;
 }
 
-
-// select2 adjustments
-.select2-container--default .select2-selection--single {
-    height: 38px;
-
-    .select2-selection__rendered {
-        padding-top: 4px;
-    }
-
-    .select2-selection__arrow {
-        top: 6px;
-    }
-}
-
-.form-control.select2-hidden-accessible {
-    width: 1px;
-}
-
-.select2-container .select2-selection--multiple .select2-selection__rendered {
-    // When displaying long items, they should be wrapped into multiple lines instead of cutting them of
-    white-space: normal;
-}
-
-.user-multi-select {
-    padding-right: 36px !important;
-
-    li {
-        width: 100%;
-    }
-}
-
-.select2-container:not(.select2-container--disabled) .user-multi-select.select2-selection--multiple .select2-selection__choice {
-    background-color: $lighter-gray;
-}
-
-.select2-container .select2-search--inline {
-    &, > input {
-        // When inputting long items, the input should not grow beyond the size of the selection
-        max-width: 100%;
-    }
-}
-
-.select2-container .select2-search--inline .select2-search__field {
-    // The font in inline selections should not be overwritten and the placeholder should not be cropped at the bottom
-    font-family: inherit;
-    height: 1.5rem;
-}
-
-
 // datetimepicker adjustments
 .bootstrap-datetimepicker-widget.dropdown-menu.timepicker-sbs {
     width: 33em;
@@ -178,4 +129,14 @@ $alert-colors: (
     .timepicker {
         flex: 0 0 40%;
     }
+}
+
+// tomselect adjustments
+.ts-wrapper.multi .ts-control > div.active {
+   background-color: $component-active-bg;
+}
+
+.focus .ts-control {
+    border-color: $input-focus-border-color;
+    box-shadow: $input-focus-box-shadow;
 }
