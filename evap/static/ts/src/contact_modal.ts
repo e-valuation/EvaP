@@ -10,9 +10,11 @@ export class ContactModalLogic {
     private readonly successMessageModal: bootstrap.Modal;
     private readonly actionButtonElement: HTMLButtonElement;
     private readonly messageTextElement: HTMLInputElement;
-    private readonly anonymousRadioElement: HTMLInputElement;
     private readonly showButtonElement: HTMLElement;
     private readonly title: string;
+
+    // may be null if anonymous feedback is not enabled
+    private readonly anonymousRadioElement: HTMLInputElement | null;
 
     constructor(modalId: string, title: string) {
         this.title = title;
@@ -20,7 +22,7 @@ export class ContactModalLogic {
         this.successMessageModal = new bootstrap.Modal(selectOrError("#successMessageModal_" + modalId));
         this.actionButtonElement = selectOrError("#" + modalId + "ActionButton");
         this.messageTextElement = selectOrError("#" + modalId + "MessageText");
-        this.anonymousRadioElement = selectOrError("#" + modalId + "AnonymName");
+        this.anonymousRadioElement = document.querySelector<HTMLInputElement>("#" + modalId + "AnonymName");
         this.showButtonElement = selectOrError("#" + modalId + "ShowButton");
     }
 
@@ -29,7 +31,7 @@ export class ContactModalLogic {
             this.actionButtonElement.disabled = true;
             event.preventDefault();
             const message = this.messageTextElement.value;
-            if (message.trim() == "") {
+            if (message.trim() === "") {
                 this.modal.hide();
                 this.actionButtonElement.disabled = false;
                 return;
@@ -37,7 +39,7 @@ export class ContactModalLogic {
             try {
                 const response = await fetch("/contact", {
                     body: new URLSearchParams({
-                        anonymous: String(this.anonymousRadioElement.checked),
+                        anonymous: String(this.anonymousRadioElement !== null && this.anonymousRadioElement.checked),
                         message,
                         title: this.title,
                     }),
