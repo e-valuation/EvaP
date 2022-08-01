@@ -19,9 +19,9 @@
     margin-left: auto;
 }
 
-.modal-textfield {
-    resize:vertical;
-    min-height:150px !important;
+textarea.modal-textfield {
+    resize: vertical;
+    min-height: 150px;
 }
 
 .modal-submit-group {
