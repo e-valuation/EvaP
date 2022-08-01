@@ -10,7 +10,7 @@
             <div class="card border-primary">
                 <div class="card-body">
                     <h4 class="card-title text-primary">
-                        {% trans 'HPI users' %}
+                        {% trans 'HPI login' %}
                     </h4>
                     {% if openid_active %}
                         <p class="card-text">
@@ -43,7 +43,7 @@
                     {% csrf_token %}
                     <input type="hidden" name="submit_type" value="new_key" />
                     <h4 class="card-title text-dark">
-                        {% trans 'External and D-School users' %}
+                        {% trans 'D-School, E-School and externals' %}
                     </h4>
                     <p class="card-text mb-lg-auto">
                         {% trans 'Here you can request a one-time login URL. We will send it to your email address.' %}
