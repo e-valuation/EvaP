@@ -10,14 +10,13 @@
             <form id="{{ modal_id }}Form">
                 <div class="modal-body">
                     {{ question|safe }}
-                    <br /><br />
-                    <div class="mb-3">
+                    <div class="my-4">
                         <input type="text" class="form-control" id="{{ modal_id }}ConfirmationText" oninput="{{ modal_id }}CheckValue();" />
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" id="{{ modal_id }}ActionButton" class="btn btn-{{ btn_type }}" data-bs-dismiss="modal" disabled>{{ action_text }}</button>
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% trans 'Cancel' %}</button>
+                    <div class="modal-submit-group">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% trans 'Cancel' %}</button>
+                        <button type="button" id="{{ modal_id }}ActionButton" class="btn btn-{{ btn_type }} ms-2" data-bs-dismiss="modal" disabled>{{ action_text }}</button>
+                    </div>
                 </div>
             </form>
         </div>
