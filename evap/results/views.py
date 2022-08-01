@@ -65,44 +65,33 @@ def warm_up_template_cache(evaluations):
 
     current_language = translation.get_language()
 
-    results_index_course_template = get_template("results_index_course.html", using="CachedEngine")
-    results_index_evaluation_template = get_template("results_index_evaluation.html", using="CachedEngine")
+    results_index_course_template = get_template("results_index_course_impl.html", using="CachedEngine")
+    results_index_evaluation_template = get_template("results_index_evaluation_impl.html", using="CachedEngine")
 
     try:
-        for course in courses_to_render:
-            translation.activate("en")
-            results_index_course_template.render(dict(course=course))
+        for lang in ["en", "de"]:
+            translation.activate(lang)
 
-            translation.activate("de")
-            results_index_course_template.render(dict(course=course))
+            for course in courses_to_render:
+                caches["results"].set(
+                    get_course_result_template_fragment_cache_key(course.id, lang),
+                    results_index_course_template.render(dict(course=course)),
+                )
 
-            assert get_course_result_template_fragment_cache_key(course.id, "en") in caches["results"]
-            assert get_course_result_template_fragment_cache_key(course.id, "de") in caches["results"]
+            for evaluation in evaluations:
+                assert evaluation.state in STATES_WITH_RESULT_TEMPLATE_CACHING
+                is_subentry = evaluation.course.evaluation_count > 1
+                base_args = dict(evaluation=evaluation, is_subentry=is_subentry)
 
-        for evaluation in evaluations:
-            assert evaluation.state in STATES_WITH_RESULT_TEMPLATE_CACHING
-            is_subentry = evaluation.course.evaluation_count > 1
+                caches["results"].set(
+                    get_evaluation_result_template_fragment_cache_key(evaluation.id, lang, True),
+                    results_index_evaluation_template.render(dict(**base_args, links_to_results_page=True)),
+                )
+                caches["results"].set(
+                    get_evaluation_result_template_fragment_cache_key(evaluation.id, lang, False),
+                    results_index_evaluation_template.render(dict(**base_args, links_to_results_page=False)),
+                )
 
-            translation.activate("en")
-            results_index_evaluation_template.render(
-                dict(evaluation=evaluation, links_to_results_page=True, is_subentry=is_subentry)
-            )
-            results_index_evaluation_template.render(
-                dict(evaluation=evaluation, links_to_results_page=False, is_subentry=is_subentry)
-            )
-
-            translation.activate("de")
-            results_index_evaluation_template.render(
-                dict(evaluation=evaluation, links_to_results_page=True, is_subentry=is_subentry)
-            )
-            results_index_evaluation_template.render(
-                dict(evaluation=evaluation, links_to_results_page=False, is_subentry=is_subentry)
-            )
-
-            assert get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", True) in caches["results"]
-            assert get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", False) in caches["results"]
-            assert get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", True) in caches["results"]
-            assert get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", False) in caches["results"]
     finally:
         translation.activate(current_language)  # reset to previously set language to prevent unwanted side effects
 

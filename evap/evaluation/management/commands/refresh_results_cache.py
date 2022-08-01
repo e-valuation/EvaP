@@ -1,4 +1,3 @@
-from django.core.cache import caches
 from django.core.management.base import BaseCommand
 from django.core.serializers.base import ProgressBar
 
@@ -18,9 +17,6 @@ class Command(BaseCommand):
     requires_migrations_checks = True
 
     def handle(self, *args, **options):
-        self.stdout.write("Clearing results cache...")
-        caches["results"].clear()
-
         self.stdout.write("Calculating results for all evaluations...")
 
         self.stdout.ending = None
@@ -34,7 +30,6 @@ class Command(BaseCommand):
             cache_results(evaluation, refetch_related_objects=False)
 
         self.stdout.write("Prerendering result index page...\n")
-
         warm_up_template_cache(Evaluation.objects.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING))
 
         self.stdout.write("Results cache has been refreshed.\n")
