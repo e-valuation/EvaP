@@ -9,7 +9,7 @@ test("changes form data", pageHandler(
     async page => {
         const managerId = await page.evaluate(() => {
             const tomselect = (document.getElementById("id_contributions-0-contributor") as any).tomselect;
-            const options = tomselect!.options;
+            const options = tomselect.options;
             const managerOption = Object.keys(options).find(key => options[key].text == "manager (manager)");
             tomselect.setValue(managerOption);
             return managerOption;
