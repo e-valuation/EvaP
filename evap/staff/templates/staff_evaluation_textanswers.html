@@ -21,7 +21,7 @@
                 <a href="{% url 'staff:evaluation_textanswers' semester.id evaluation.id %}?view=full" role="button" class="btn btn-sm btn-light{% if view == 'full' %} active{% endif %}">
                     {% trans 'Full' %}
                 </a>
-                <a href="{% url 'staff:evaluation_textanswers' semester.id evaluation.id %}?view=unreviewed" role="button" class="btn btn-sm btn-light{% if view == 'unreviewed' %} active{% endif %}">
+                <a href="{% url 'staff:evaluation_textanswers' semester.id evaluation.id %}?view=undecided" role="button" class="btn btn-sm btn-light{% if view == 'undecided' %} active{% endif %}">
                     {% trans 'Undecided' %}
                 </a>
             </div>

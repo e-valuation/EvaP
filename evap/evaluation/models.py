@@ -744,7 +744,7 @@ class Evaluation(LoggedModel):
         if not self.can_publish_text_results:
             self.textanswer_set.delete()
         else:
-            self.textanswer_set.filter(state=TextAnswer.State.HIDDEN).delete()
+            self.textanswer_set.filter(review_decision=TextAnswer.ReviewDecision.DELETED).delete()
             self.textanswer_set.update(original_answer=None)
 
     @transition(field=state, source=State.PUBLISHED, target=State.REVIEWED)
@@ -864,11 +864,11 @@ class Evaluation(LoggedModel):
 
     @property
     def unreviewed_textanswer_set(self):
-        return self.textanswer_set.filter(state=TextAnswer.State.NOT_REVIEWED)
+        return self.textanswer_set.filter(review_decision=TextAnswer.ReviewDecision.UNDECIDED)
 
     @property
     def reviewed_textanswer_set(self):
-        return self.textanswer_set.exclude(state=TextAnswer.State.NOT_REVIEWED)
+        return self.textanswer_set.exclude(review_decision=TextAnswer.ReviewDecision.UNDECIDED)
 
     @cached_property
     def num_reviewed_textanswers(self):

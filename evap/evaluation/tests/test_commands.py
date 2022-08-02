@@ -407,7 +407,7 @@ class TestSendTextanswerRemindersCommand(TestCase):
         baker.make(
             TextAnswer,
             contribution=evaluation.general_contribution,
-            state=TextAnswer.State.NOT_REVIEWED,
+            review_decision=TextAnswer.ReviewDecision.UNDECIDED,
         )
 
         management.call_command("send_reminders")

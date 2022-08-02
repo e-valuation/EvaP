@@ -154,7 +154,7 @@ def get_evaluations_with_prefetched_data(semester):
             ),
             num_reviewed_textanswers=Count(
                 "contributions__textanswer_set",
-                filter=~Q(contributions__textanswer_set__state=TextAnswer.State.NOT_REVIEWED),
+                filter=~Q(contributions__textanswer_set__review_decision=TextAnswer.ReviewDecision.UNDECIDED),
                 distinct=True,
             ),
             num_course_evaluations=Count("course__evaluations", distinct=True),
@@ -1446,7 +1446,7 @@ def get_evaluation_and_contributor_textanswer_sections(evaluation, filter_textan
         .order_by("contribution", "question__questionnaire", "question")
     )
     if filter_textanswers:
-        raw_answers = raw_answers.filter(state=TextAnswer.State.NOT_REVIEWED)
+        raw_answers = raw_answers.filter(review_decision=TextAnswer.ReviewDecision.UNDECIDED)
 
     questionnaire_answer_groups = itertools.groupby(
         raw_answers, lambda answer: (answer.contribution, answer.question.questionnaire)
@@ -1491,7 +1491,7 @@ def evaluation_textanswers(request, semester_id, evaluation_id):
         raise PermissionDenied
 
     view = request.GET.get("view", "quick")
-    filter_textanswers = view == "unreviewed"
+    filter_textanswers = view == "undecided"
 
     evaluation_sections, contributor_sections = get_evaluation_and_contributor_textanswer_sections(
         evaluation, filter_textanswers
@@ -1542,18 +1542,20 @@ def evaluation_textanswers_update_publish(request):
     if not evaluation.can_publish_text_results:
         raise PermissionDenied
 
-    if action == "publish":
-        answer.publish()
-    elif action == "make_private":
-        answer.make_private()
-    elif action == "delete":
-        answer.hide()
-    elif action == "unreview":
-        answer.unreview()
-    elif action == "textanswer_edit":
+    if action == "textanswer_edit":
         return redirect("staff:evaluation_textanswer_edit", evaluation.course.semester.id, evaluation.pk, answer.pk)
-    else:
+
+    review_decision_for_action = {
+        "publish": TextAnswer.ReviewDecision.PUBLIC,
+        "make_private": TextAnswer.ReviewDecision.PRIVATE,
+        "delete": TextAnswer.ReviewDecision.DELETED,
+        "unreview": TextAnswer.ReviewDecision.UNDECIDED,
+    }
+
+    if action not in review_decision_for_action:
         raise SuspiciousOperation
+
+    answer.review_decision = review_decision_for_action[action]
     answer.save()
 
     if evaluation.state == Evaluation.State.EVALUATED and evaluation.is_fully_reviewed:
