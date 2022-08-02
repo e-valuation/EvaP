@@ -20,7 +20,7 @@
                     <tr><td><kbd>&#x21b2;</kbd></td><td>{% trans 'Review next evaluation' %}</td></tr>
                     <tr><td><kbd>S</kbd></td><td>{% trans 'Skip evaluation' %}</td></tr>
                     <tr><td><kbd>N</kbd></td><td>{% trans 'Show all again' %}</td></tr>
-                    <tr><td><kbd>M</kbd></td><td>{% trans 'Show unreviewed' %}</td></tr>
+                    <tr><td><kbd>M</kbd></td><td>{% trans 'Show undecided' %}</td></tr>
                 </table>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
@@ -69,9 +69,9 @@
                                     data-id="{{ answer.id }}"
                                     {% if contributor %} data-contribution="yes"{% endif %}
                                     {% if answer.is_reviewed %}
-                                        {% if answer.is_published %}
+                                        {% if answer.will_be_public %}
                                             data-review="publish"
-                                        {% elif answer.is_private %}
+                                        {% elif answer.will_be_private %}
                                             data-review="make_private"
                                         {% else %}
                                             data-review="delete"
@@ -148,8 +148,8 @@
                     <button type="button" data-startover="all" class="btn btn-sm btn-outline-primary">
                         {% trans 'Show all again' %}
                     </button>
-                    <button type="button" data-startover="unreviewed" class="btn btn-sm btn-outline-primary">
-                        {% trans 'Show unreviewed' %}
+                    <button type="button" data-startover="undecided" class="btn btn-sm btn-outline-primary">
+                        {% trans 'Show undecided' %}
                     </button>
                 </div>
                 <div class="lcr-right">

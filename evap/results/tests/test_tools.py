@@ -497,37 +497,40 @@ class TestTextAnswerVisibilityInfo(TestCase):
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
         cls.general_contribution_textanswer = baker.make(
-            TextAnswer, question=cls.question, contribution=cls.general_contribution, state=TextAnswer.State.PUBLISHED
+            TextAnswer,
+            question=cls.question,
+            contribution=cls.general_contribution,
+            review_decision=TextAnswer.ReviewDecision.PUBLIC,
         )
         cls.responsible1_textanswer = baker.make(
             TextAnswer,
             question=cls.question,
             contribution=cls.responsible1_contribution,
-            state=TextAnswer.State.PUBLISHED,
+            review_decision=TextAnswer.ReviewDecision.PUBLIC,
         )
         cls.responsible1_additional_textanswer = baker.make(
             TextAnswer,
             question=cls.question_likert,
             contribution=cls.responsible1_contribution,
-            state=TextAnswer.State.PUBLISHED,
+            review_decision=TextAnswer.ReviewDecision.PUBLIC,
         )
         cls.responsible2_textanswer = baker.make(
             TextAnswer,
             question=cls.question,
             contribution=cls.responsible2_contribution,
-            state=TextAnswer.State.PUBLISHED,
+            review_decision=TextAnswer.ReviewDecision.PUBLIC,
         )
         cls.contributor_own_textanswer = baker.make(
             TextAnswer,
             question=cls.question,
             contribution=cls.contributor_own_contribution,
-            state=TextAnswer.State.PUBLISHED,
+            review_decision=TextAnswer.ReviewDecision.PUBLIC,
         )
         cls.contributor_general_textanswer = baker.make(
             TextAnswer,
             question=cls.question,
             contribution=cls.contributor_general_contribution,
-            state=TextAnswer.State.PUBLISHED,
+            review_decision=TextAnswer.ReviewDecision.PUBLIC,
         )
 
     def test_text_answer_visible_to_non_contributing_responsible(self):

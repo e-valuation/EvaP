@@ -343,7 +343,7 @@ class TestEvaluations(WebTest):
         evaluation.publish()
         self.assertEqual(evaluation.textanswer_set.count(), 1)
 
-    def test_hidden_textanswers_get_deleted_on_publish(self):
+    def test_textanswers_to_delete_get_deleted_on_publish(self):
         student = baker.make(UserProfile)
         student2 = baker.make(UserProfile)
         evaluation = baker.make(
@@ -360,8 +360,14 @@ class TestEvaluations(WebTest):
             TextAnswer,
             question=question,
             contribution=evaluation.general_contribution,
-            answer=iter(["hidden", "published", "private"]),
-            state=iter([TextAnswer.State.HIDDEN, TextAnswer.State.PUBLISHED, TextAnswer.State.PRIVATE]),
+            answer=iter(["deleted", "public", "private"]),
+            review_decision=iter(
+                [
+                    TextAnswer.ReviewDecision.DELETED,
+                    TextAnswer.ReviewDecision.PUBLIC,
+                    TextAnswer.ReviewDecision.PRIVATE,
+                ]
+            ),
             _quantity=3,
             _bulk_create=True,
         )
@@ -369,7 +375,7 @@ class TestEvaluations(WebTest):
         self.assertEqual(evaluation.textanswer_set.count(), 3)
         evaluation.publish()
         self.assertEqual(evaluation.textanswer_set.count(), 2)
-        self.assertFalse(TextAnswer.objects.filter(answer="hidden").exists())
+        self.assertFalse(TextAnswer.objects.filter(answer="deleted").exists())
 
     def test_original_textanswers_get_deleted_on_publish(self):
         student = baker.make(UserProfile)
@@ -390,7 +396,7 @@ class TestEvaluations(WebTest):
             contribution=evaluation.general_contribution,
             answer="published answer",
             original_answer="original answer",
-            state=TextAnswer.State.PUBLISHED,
+            review_decision=TextAnswer.ReviewDecision.PUBLIC,
         )
 
         self.assertEqual(evaluation.textanswer_set.count(), 1)
@@ -519,7 +525,7 @@ class TestEvaluations(WebTest):
             evaluation.TextAnswerReviewState.REVIEW_URGENT,  # grades were uploaded
         )
 
-        textanswer.state = TextAnswer.State.PUBLISHED
+        textanswer.review_decision = TextAnswer.ReviewDecision.PUBLIC
         textanswer.save()
         del evaluation.num_reviewed_textanswers  # reset cached_property cache
 

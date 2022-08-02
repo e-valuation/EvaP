@@ -204,7 +204,7 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
         ((textanswer.contribution_id, textanswer.question_id), textanswer)
         for contribution in evaluation.contributions.all()
         for textanswer in contribution.textanswer_set.all()
-        if textanswer.state in [TextAnswer.State.PRIVATE, TextAnswer.State.PUBLISHED]
+        if textanswer.review_decision in [TextAnswer.ReviewDecision.PRIVATE, TextAnswer.ReviewDecision.PUBLIC]
     )
 
     racs_per_contribution_question: Dict[Tuple[int, int], List[RatingAnswerCounter]] = unordered_groupby(
@@ -455,9 +455,14 @@ def textanswers_visible_to(contribution):
     return TextAnswerVisibility(visible_by_contribution=sorted_contributors, visible_by_delegation_count=num_delegates)
 
 
-def can_textanswer_be_seen_by(user, represented_users, textanswer, view):
+def can_textanswer_be_seen_by(
+    user: UserProfile,
+    represented_users: List[UserProfile],
+    textanswer: TextAnswer,
+    view: str,
+) -> bool:
     # pylint: disable=too-many-return-statements
-    assert textanswer.state in [TextAnswer.State.PRIVATE, TextAnswer.State.PUBLISHED]
+    assert textanswer.review_decision in [TextAnswer.ReviewDecision.PRIVATE, TextAnswer.ReviewDecision.PUBLIC]
     contributor = textanswer.contribution.contributor
 
     if view == "public":
@@ -476,7 +481,7 @@ def can_textanswer_be_seen_by(user, represented_users, textanswer, view):
 
     # NOTE: when changing this behavior, make sure all changes are also reflected in results.tools.textanswers_visible_to
     # and in results.tests.test_tools.TestTextAnswerVisibilityInfo
-    if textanswer.is_published:
+    if textanswer.is_public:
         # users can see textanswers if the contributor is one of their represented users (which includes the user itself)
         if contributor in represented_users:
             return True
