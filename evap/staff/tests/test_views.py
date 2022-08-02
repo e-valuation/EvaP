@@ -2307,6 +2307,14 @@ class TestEvaluationTextAnswerView(WebTest):
         )
         cls.answer = "should show up"
         baker.make(TextAnswer, contribution=contribution, question=question, answer=cls.answer)
+        cls.reviewed_answer = "someone reviewed me already"
+        baker.make(
+            TextAnswer,
+            contribution=contribution,
+            question=question,
+            answer=cls.reviewed_answer,
+            review_decision=TextAnswer.ReviewDecision.PUBLIC,
+        )
 
         cls.evaluation2 = baker.make(
             Evaluation,
@@ -2348,12 +2356,21 @@ class TestEvaluationTextAnswerView(WebTest):
         with run_in_staff_mode(self):
             page = self.app.get(self.url, user=self.manager, status=200)
             self.assertContains(page, self.answer)
+            self.assertContains(page, self.reviewed_answer)
 
     def test_textanswers_full_view(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation)
         with run_in_staff_mode(self):
             page = self.app.get(self.url + "?view=full", user=self.manager, status=200)
             self.assertContains(page, self.answer)
+            self.assertContains(page, self.reviewed_answer)
+
+    def test_textanswers_undecided_view(self):
+        let_user_vote_for_evaluation(self.student2, self.evaluation)
+        with run_in_staff_mode(self):
+            page = self.app.get(self.url + "?view=undecided", user=self.manager, status=200)
+            self.assertContains(page, self.answer)
+            self.assertNotContains(page, self.reviewed_answer)
 
     # use offset of more than 25 hours to make sure the test doesn't fail even on combined time zone change and leap second
     @override_settings(EVALUATION_END_OFFSET_HOURS=26)
