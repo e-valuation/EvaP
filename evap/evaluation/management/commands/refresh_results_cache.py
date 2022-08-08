@@ -8,7 +8,7 @@ from evap.results.tools import (
     STATES_WITH_RESULTS_CACHING,
     cache_results,
 )
-from evap.results.views import warm_up_template_cache
+from evap.results.views import update_template_cache
 
 
 class Command(BaseCommand):
@@ -30,6 +30,6 @@ class Command(BaseCommand):
             cache_results(evaluation, refetch_related_objects=False)
 
         self.stdout.write("Prerendering result index page...\n")
-        warm_up_template_cache(Evaluation.objects.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING))
+        update_template_cache(Evaluation.objects.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING))
 
         self.stdout.write("Results cache has been refreshed.\n")

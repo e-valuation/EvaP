@@ -59,7 +59,8 @@ def _delete_course_template_cache_impl(course):
     caches["results"].delete(get_course_result_template_fragment_cache_key(course.id, "de"))
 
 
-def warm_up_template_cache(evaluations):
+def update_template_cache(evaluations):
+    assert all(evaluation.state in STATES_WITH_RESULT_TEMPLATE_CACHING for evaluation in evaluations)
     evaluations = get_evaluations_with_course_result_attributes(get_evaluations_with_prefetched_data(evaluations))
     courses_to_render = {evaluation.course for evaluation in evaluations if evaluation.course.evaluation_count > 1}
 
@@ -96,19 +97,12 @@ def warm_up_template_cache(evaluations):
         translation.activate(current_language)  # reset to previously set language to prevent unwanted side effects
 
 
-def update_template_cache(evaluations):
-    for evaluation in evaluations:
-        assert evaluation.state in STATES_WITH_RESULT_TEMPLATE_CACHING
-        _delete_template_cache_impl(evaluation)
-        warm_up_template_cache([evaluation])
-
-
 def update_template_cache_of_published_evaluations_in_course(course):
-    course_evaluations = course.evaluations.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING)
-    for course_evaluation in course_evaluations:
-        _delete_evaluation_template_cache_impl(course_evaluation)
+    # Delete template caches for evaluations that no longer need to be cached (e.g. after unpublishing)
     _delete_course_template_cache_impl(course)
-    warm_up_template_cache(course_evaluations)
+
+    course_evaluations = course.evaluations.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING)
+    update_template_cache(course_evaluations)
 
 
 def get_evaluations_with_prefetched_data(evaluations):
