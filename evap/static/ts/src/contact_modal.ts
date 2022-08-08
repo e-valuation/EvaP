@@ -1,7 +1,7 @@
 declare const bootstrap: typeof import("bootstrap");
 
 import { selectOrError, sleep, assert } from "./utils.js";
-import { CSRF_HEADER } from "./csrf-utils.js";
+import { CSRF_HEADERS } from "./csrf-utils.js";
 
 const SUCCESS_MESSAGE_TIMEOUT = 3000;
 
@@ -43,7 +43,7 @@ export class ContactModalLogic {
                         message,
                         title: this.title,
                     }),
-                    headers: CSRF_HEADER,
+                    headers: CSRF_HEADERS,
                     method: "POST",
                 });
                 assert(response.ok);

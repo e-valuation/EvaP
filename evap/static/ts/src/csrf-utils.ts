@@ -12,7 +12,7 @@ function getCookie(name: string): string | null {
     return null;
 }
 const csrftoken = getCookie("csrftoken")!;
-export const CSRF_HEADER = { "X-CSRFToken": csrftoken };
+export const CSRF_HEADERS = { "X-CSRFToken": csrftoken };
 
 function isMethodCsrfSafe(method: string): boolean {
     // these HTTP methods do not require CSRF protection
