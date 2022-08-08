@@ -8,7 +8,7 @@ $(document).ready(() => {
 
     const endSlideSelected = () => selectedIndex === answerSlides.length;
 
-    startOver("unreviewed");
+    startOver("undecided");
 
     const updateForm = document.getElementById("textanswer-update-form");
     updateForm.addEventListener("submit", event => {
@@ -54,7 +54,7 @@ $(document).ready(() => {
             "backspace": "[type=submit][name=action][value=unreview]",
             "e": "[type=submit][name=action][value=textanswer_edit]",
             "enter": `[data-url=next-evaluation][data-next-evaluation-index="${nextEvaluationIndex}"]`,
-            "m": "[data-startover=unreviewed]",
+            "m": "[data-startover=undecided]",
             "n": "[data-startover=all]",
             "s": "[data-skip-evaluation]",
         };
@@ -80,7 +80,7 @@ $(document).ready(() => {
             alertSlide.toggleClass("alert-secondary", allReviewed && !slidesExist);
             alertSlide.find("[data-content=unreviewed]").toggleClass("d-none", allReviewed);
             alertSlide.find("[data-content=reviewed]").toggleClass("d-none", !allReviewed);
-            slider.find("[data-startover=unreviewed]").toggleClass("d-none", allReviewed);
+            slider.find("[data-startover=undecided]").toggleClass("d-none", allReviewed);
             slider.find("[data-startover=all]").toggleClass("d-none", !slidesExist);
             slideLayer(2, direction, alertSlide);
         } else {
@@ -168,7 +168,7 @@ $(document).ready(() => {
     function startOver(action) {
         const reviewed = slider.find("[data-layer=2][data-review]");
         const unreviewed = slider.find("[data-layer=2]:not([data-review])");
-        const startIndex = action === "unreviewed" && unreviewed.length > 0 ? reviewed.length : 0;
+        const startIndex = action === "undecided" && unreviewed.length > 0 ? reviewed.length : 0;
         answerSlides = $.merge(reviewed, unreviewed);
         slideTo(startIndex);
         updateButtons();

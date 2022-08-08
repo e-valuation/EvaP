@@ -39,16 +39,16 @@
                                         <input type="hidden" name="evaluation_id" value="{{ evaluation_id }}" />
 
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <input type="radio" class="btn-check" name="action" value="publish" id="{{ answer.id }}-radio-publish" autocomplete="off" {% if answer.is_published %}checked{% endif %}>
+                                            <input type="radio" class="btn-check" name="action" value="publish" id="{{ answer.id }}-radio-publish" autocomplete="off" {% if answer.will_be_public %}checked{% endif %}>
                                             <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-publish">{% trans 'Publish' %}</label>
 
-                                            <input type="radio" class="btn-check" name="action" value="make_private" id="{{ answer.id }}-radio-private" autocomplete="off" {% if answer.is_private %}checked{% endif %} {% if not contributor %}disabled{% endif %}>
+                                            <input type="radio" class="btn-check" name="action" value="make_private" id="{{ answer.id }}-radio-private" autocomplete="off" {% if answer.will_be_private %}checked{% endif %} {% if not contributor %}disabled{% endif %}>
                                             <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-private">{% trans 'Private' %}</label>
 
                                             <input type="radio" class="btn-check" name="action" value="unreview" id="{{ answer.id }}-radio-undecided" autocomplete="off" {% if not answer.is_reviewed %}checked{% endif %}>
                                             <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-undecided">{% trans 'Undecided' %}</label>
 
-                                            <input type="radio" class="btn-check" name="action" value="delete" id="{{ answer.id }}-radio-delete" autocomplete="off" {% if answer.is_hidden %}checked{% endif %}>
+                                            <input type="radio" class="btn-check" name="action" value="delete" id="{{ answer.id }}-radio-delete" autocomplete="off" {% if answer.will_be_deleted %}checked{% endif %}>
                                             <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-delete">{% trans 'Delete' %}</label>
                                         </div>
                                     </form>
