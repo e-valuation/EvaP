@@ -128,7 +128,7 @@
     "question": 3,
     "original_answer": null,
     "contribution": 1,
-    "state": "PU"
+    "review_decision": "PU"
   }
 },
 {
@@ -139,7 +139,7 @@
     "question": 3,
     "original_answer": null,
     "contribution": 1,
-    "state": "HI"
+    "review_decision": "HI"
   }
 },
 {
@@ -150,7 +150,7 @@
     "question": 3,
     "original_answer": ".general_orig_published_changed.",
     "contribution": 1,
-    "state": "PU"
+    "review_decision": "PU"
   }
 },
 {
@@ -161,7 +161,7 @@
     "question": 1,
     "original_answer": null,
     "contribution": 3,
-    "state": "PU"
+    "review_decision": "PU"
   }
 },
 {
@@ -172,7 +172,7 @@
     "question": 1,
     "original_answer": null,
     "contribution": 3,
-    "state": "PR"
+    "review_decision": "PR"
   }
 },
 {
@@ -183,7 +183,7 @@
     "question": 1,
     "original_answer": null,
     "contribution": 6,
-    "state": "PU"
+    "review_decision": "PU"
   }
 },
 {
@@ -194,7 +194,7 @@
     "question": 1,
     "original_answer": null,
     "contribution": 6,
-    "state": "HI"
+    "review_decision": "HI"
   }
 },
 {
@@ -205,7 +205,7 @@
     "question": 1,
     "original_answer": ".responsible_contributor_orig_published_changed.",
     "contribution": 6,
-    "state": "PU"
+    "review_decision": "PU"
   }
 },
 {
@@ -216,7 +216,7 @@
     "question": 1,
     "original_answer": null,
     "contribution": 6,
-    "state": "PR"
+    "review_decision": "PR"
   }
 },
 {
@@ -227,7 +227,7 @@
     "question": 1,
     "original_answer": null,
     "contribution": 6,
-    "state": "NR"
+    "review_decision": "NR"
   }
 },
 {
@@ -238,7 +238,7 @@
     "question": 6,
     "original_answer": null,
     "contribution": 1,
-    "state": "PU"
+    "review_decision": "PU"
   }
 },
 {
@@ -249,7 +249,7 @@
     "question": 2,
     "original_answer": null,
     "contribution": 6,
-    "state": "PU"
+    "review_decision": "PU"
   }
 },
 {
@@ -260,7 +260,7 @@
     "question": 2,
     "original_answer": null,
     "contribution": 6,
-    "state": "HI"
+    "review_decision": "HI"
   }
 },
 {
@@ -271,7 +271,7 @@
     "question": 4,
     "original_answer": null,
     "contribution": 1,
-    "state": "PU"
+    "review_decision": "PU"
   }
 },
 {
@@ -282,7 +282,7 @@
     "question": 4,
     "original_answer": null,
     "contribution": 1,
-    "state": "HI"
+    "review_decision": "HI"
   }
 },
 {

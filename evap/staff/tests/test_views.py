@@ -750,7 +750,11 @@ class TestSemesterDeleteView(DeleteViewTestMixin, WebTestStaffMode):
         evaluation = baker.make(Evaluation, course__semester=self.instance, state=Evaluation.State.PUBLISHED)
         responsible_contribution = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile))
         baker.make(RatingAnswerCounter, contribution=responsible_contribution)
-        baker.make(TextAnswer, contribution=evaluation.general_contribution, state=TextAnswer.State.PUBLISHED)
+        baker.make(
+            TextAnswer,
+            contribution=evaluation.general_contribution,
+            review_decision=TextAnswer.ReviewDecision.PUBLIC,
+        )
 
         self.instance.archive()
         self.instance.delete_grade_documents()
@@ -2307,6 +2311,14 @@ class TestEvaluationTextAnswerView(WebTest):
         )
         cls.answer = "should show up"
         baker.make(TextAnswer, contribution=contribution, question=question, answer=cls.answer)
+        cls.reviewed_answer = "someone reviewed me already"
+        baker.make(
+            TextAnswer,
+            contribution=contribution,
+            question=question,
+            answer=cls.reviewed_answer,
+            review_decision=TextAnswer.ReviewDecision.PUBLIC,
+        )
 
         cls.evaluation2 = baker.make(
             Evaluation,
@@ -2348,12 +2360,21 @@ class TestEvaluationTextAnswerView(WebTest):
         with run_in_staff_mode(self):
             page = self.app.get(self.url, user=self.manager, status=200)
             self.assertContains(page, self.answer)
+            self.assertContains(page, self.reviewed_answer)
 
     def test_textanswers_full_view(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation)
         with run_in_staff_mode(self):
             page = self.app.get(self.url + "?view=full", user=self.manager, status=200)
             self.assertContains(page, self.answer)
+            self.assertContains(page, self.reviewed_answer)
+
+    def test_textanswers_undecided_view(self):
+        let_user_vote_for_evaluation(self.student2, self.evaluation)
+        with run_in_staff_mode(self):
+            page = self.app.get(self.url + "?view=undecided", user=self.manager, status=200)
+            self.assertContains(page, self.answer)
+            self.assertNotContains(page, self.reviewed_answer)
 
     # use offset of more than 25 hours to make sure the test doesn't fail even on combined time zone change and leap second
     @override_settings(EVALUATION_END_OFFSET_HOURS=26)
@@ -2930,47 +2951,47 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
     def assert_transition(
         self,
         action: str,
-        old_state: TextAnswer.State,
-        expected_new_state: Union[TextAnswer.State, Literal["unchanged"]] = "unchanged",
+        old_decision: TextAnswer.ReviewDecision,
+        expected_new_decision: Union[TextAnswer.ReviewDecision, Literal["unchanged"]] = "unchanged",
         *,
         status: int = 204,
     ):
-        expected_new_state = old_state if expected_new_state == "unchanged" else expected_new_state
+        expected_new_decision = old_decision if expected_new_decision == "unchanged" else expected_new_decision
 
         with run_in_staff_mode(self):
-            textanswer = baker.make(TextAnswer, state=old_state)
+            textanswer = baker.make(TextAnswer, review_decision=old_decision)
             params = {"answer_id": textanswer.id, "action": action, "evaluation_id": self.evaluation.pk}
             response = self.app.post(self.url, params=params, user=self.manager, status=status)
 
             textanswer.refresh_from_db()
-            self.assertEqual(textanswer.state, expected_new_state)
+            self.assertEqual(textanswer.review_decision, expected_new_decision)
             return response
 
     def test_review_actions(self):
         # in an evaluation with only one voter reviewing should fail
-        self.assert_transition("publish", TextAnswer.State.NOT_REVIEWED, status=403)
+        self.assert_transition("publish", TextAnswer.ReviewDecision.UNDECIDED, status=403)
 
         let_user_vote_for_evaluation(self.student2, self.evaluation)
 
         # now reviewing should work
-        self.assert_transition("publish", TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED)
-        self.assert_transition("delete", TextAnswer.State.NOT_REVIEWED, TextAnswer.State.HIDDEN)
-        self.assert_transition("make_private", TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PRIVATE)
-        self.assert_transition("unreview", TextAnswer.State.PUBLISHED, TextAnswer.State.NOT_REVIEWED)
+        self.assert_transition("publish", TextAnswer.ReviewDecision.UNDECIDED, TextAnswer.ReviewDecision.PUBLIC)
+        self.assert_transition("delete", TextAnswer.ReviewDecision.UNDECIDED, TextAnswer.ReviewDecision.DELETED)
+        self.assert_transition("make_private", TextAnswer.ReviewDecision.UNDECIDED, TextAnswer.ReviewDecision.PRIVATE)
+        self.assert_transition("unreview", TextAnswer.ReviewDecision.PUBLIC, TextAnswer.ReviewDecision.UNDECIDED)
 
         # textanswer_edit action should not change the state, but give a link to edit page
         response = self.assert_transition(
             "textanswer_edit",
-            TextAnswer.State.NOT_REVIEWED,
+            TextAnswer.ReviewDecision.UNDECIDED,
             status=302,
         )
         self.assertRegex(response.location, r"/staff/semester/\d+/evaluation/\d+/textanswer/[0-9a-f\-]+/edit$")
 
     def test_invalid_action(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation)
-        self.assert_transition("", TextAnswer.State.NOT_REVIEWED, status=400)
-        self.assert_transition("123", TextAnswer.State.NOT_REVIEWED, status=400)
-        self.assert_transition("dummy", TextAnswer.State.NOT_REVIEWED, status=400)
+        self.assert_transition("", TextAnswer.ReviewDecision.UNDECIDED, status=400)
+        self.assert_transition("123", TextAnswer.ReviewDecision.UNDECIDED, status=400)
+        self.assert_transition("dummy", TextAnswer.ReviewDecision.UNDECIDED, status=400)
 
     def test_finishing_review_updates_results(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation, create_answers=True)
@@ -2985,7 +3006,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         self.assertEqual(len(textresult.answers), 0)
 
         textanswer = self.evaluation.unreviewed_textanswer_set[0]
-        textanswer.state = TextAnswer.State.PUBLISHED
+        textanswer.review_decision = TextAnswer.ReviewDecision.PUBLIC
         textanswer.save()
         self.evaluation.end_review()
         self.evaluation.save()
@@ -2998,15 +3019,15 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
 
     def test_published(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation)
-        self.assert_transition("publish", TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED)
+        self.assert_transition("publish", TextAnswer.ReviewDecision.UNDECIDED, TextAnswer.ReviewDecision.PUBLIC)
         Evaluation.objects.filter(id=self.evaluation.id).update(state=Evaluation.State.PUBLISHED)
-        self.assert_transition("publish", TextAnswer.State.NOT_REVIEWED, status=403)
+        self.assert_transition("publish", TextAnswer.ReviewDecision.UNDECIDED, status=403)
 
     def test_archived(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation)
-        self.assert_transition("publish", TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED)
+        self.assert_transition("publish", TextAnswer.ReviewDecision.UNDECIDED, TextAnswer.ReviewDecision.PUBLIC)
         Semester.objects.filter(id=self.evaluation.course.semester.id).update(results_are_archived=True)
-        self.assert_transition("publish", TextAnswer.State.NOT_REVIEWED, status=403)
+        self.assert_transition("publish", TextAnswer.ReviewDecision.UNDECIDED, status=403)
 
 
 class TestEvaluationTextAnswersSkip(WebTestStaffMode):
