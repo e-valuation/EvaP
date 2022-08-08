@@ -22,28 +22,52 @@ from evap.rewards.models import (
     RewardPointRedemptionEvent,
     SemesterActivation,
 )
-from evap.rewards.tools import grant_eligible_reward_points_for_semester, reward_points_of_user, save_redemptions
+from evap.rewards.tools import (
+    grant_eligible_reward_points_for_semester,
+    redeemed_points_of_user,
+    reward_points_of_user,
+    save_redemptions,
+)
 from evap.staff.views import semester_view
+
+
+def redemption_validation(left_points, redeemed_points, user):
+    if left_points is not None and redeemed_points is not None and left_points.isalnum() and redeemed_points.isalnum():
+        return int(left_points) == reward_points_of_user(user) and int(redeemed_points) == redeemed_points_of_user(user)
+    raise BadRequest("Invalid redeemed-points or left-points field in redemption request")
+
+
+def redeem_reward_points(request):
+    redemptions = {}
+    try:
+        for key, value in request.POST.items():
+            if key.startswith("points-"):
+                event_id = int(key.rpartition("-")[2])
+                redemptions[event_id] = int(value)
+    except ValueError as e:
+        raise BadRequest from e
+
+    try:
+        save_redemptions(request, redemptions)
+        messages.success(request, _("You successfully redeemed your points."))
+    except (NoPointsSelected, NotEnoughPoints, RedemptionEventExpired) as error:
+        messages.warning(request, error)
 
 
 @reward_user_required
 def index(request):
+    status = 200
     if request.method == "POST":
-        redemptions = {}
-        try:
-            for key, value in request.POST.items():
-                if key.startswith("points-"):
-                    event_id = int(key.rpartition("-")[2])
-                    redemptions[event_id] = int(value)
-        except ValueError as e:
-            raise BadRequest from e
-
-        try:
-            save_redemptions(request, redemptions)
-            messages.success(request, _("You successfully redeemed your points."))
-        except (NoPointsSelected, NotEnoughPoints, RedemptionEventExpired) as error:
-            messages.warning(request, error)
-
+        if redemption_validation(request.POST.get("left-points"), request.POST.get("redeemed-points"), request.user):
+            redeem_reward_points(request)
+        else:
+            messages.warning(
+                request,
+                _(
+                    "Probably your browser sent multiple redemption request. You can see all successful redemptions below."
+                ),
+            )
+            status = 409
     total_points_available = reward_points_of_user(request.user)
     reward_point_grantings = RewardPointGranting.objects.filter(user_profile=request.user)
     reward_point_redemptions = RewardPointRedemption.objects.filter(user_profile=request.user)
@@ -62,10 +86,11 @@ def index(request):
     template_data = dict(
         reward_point_actions=reward_point_actions,
         total_points_available=total_points_available,
+        total_points_spent=sum(int(action[3]) if action[3] != "" else 0 for action in reward_point_actions),
         events=events,
         point_selection=range(0, total_points_available + 1),
     )
-    return render(request, "rewards_index.html", template_data)
+    return render(request, "rewards_index.html", template_data, status=status)
 
 
 @manager_required

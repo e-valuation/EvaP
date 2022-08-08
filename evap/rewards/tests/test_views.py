@@ -13,7 +13,7 @@ from evap.rewards.models import (
     RewardPointRedemptionEvent,
     SemesterActivation,
 )
-from evap.rewards.tools import is_semester_activated, reward_points_of_user
+from evap.rewards.tools import is_semester_activated, redeemed_points_of_user, reward_points_of_user
 from evap.staff.tests.utils import WebTestStaffMode, WebTestStaffModeWith200Check
 
 
@@ -80,10 +80,20 @@ class TestIndexView(WebTest):
         self.assertEqual(5, reward_points_of_user(self.student))
 
     def test_invalid_post_parameters(self):
-        self.app.post(self.url, params={"points-asd": 2}, user=self.student, status=400)
-        self.app.post(self.url, params={"points-": 2}, user=self.student, status=400)
-        self.app.post(self.url, params={f"points-{self.event1.pk}": ""}, user=self.student, status=400)
-        self.app.post(self.url, params={f"points-{self.event1.pk}": "asd"}, user=self.student, status=400)
+        point_params = {
+            "left-points": reward_points_of_user(self.student),
+            "redeemed-points": redeemed_points_of_user(self.student),
+        }
+        self.app.post(self.url, params={"points-asd": 2, **point_params}, user=self.student, status=400)
+        self.app.post(self.url, params={"points-": 2, **point_params}, user=self.student, status=400)
+        self.app.post(self.url, params={f"points-{self.event1.pk}": "", **point_params}, user=self.student, status=400)
+        self.app.post(
+            self.url, params={f"points-{self.event1.pk}": "asd", **point_params}, user=self.student, status=400
+        )
+        # redemption without point parameters
+        self.app.post(self.url, params={f"points-{self.event1.pk}": 1}, user=self.student, status=400)
+        point_params["left-points"] = 0
+        self.app.post(self.url, params={f"points-{self.event1.pk}": 1, **point_params}, user=self.student, status=409)
         self.assertFalse(RewardPointRedemption.objects.filter(user_profile=self.student).exists())
 
 

@@ -22,6 +22,8 @@
                     <form id="reward-redemption-form" action="#" method="POST" class="form-horizontal multiselect-form">
                         {% csrf_token %}
 
+                        <input type="hidden" name="left-points" value="{{ total_points_available }}">
+                        <input type="hidden" name="redeemed-points" value="{{ total_points_spent }}">
                         <table class="table table-striped table-vertically-aligned mb-3">
                             <thead>
                                 <tr>

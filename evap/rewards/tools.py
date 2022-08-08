@@ -62,6 +62,10 @@ def reward_points_of_user(user):
     return count
 
 
+def redeemed_points_of_user(user):
+    return RewardPointRedemption.objects.filter(user_profile=user).aggregate(Sum("value"))["value__sum"] or 0
+
+
 def is_semester_activated(semester):
     return SemesterActivation.objects.filter(semester=semester, is_active=True).exists()
 
