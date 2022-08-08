@@ -2,6 +2,28 @@
     max-width: 1120px;
 }
 
+.modal-grid {
+    display: grid;
+    width: 75%;
+    margin: 1.5rem auto;
+    grid-template-columns: max-content auto;
+    grid-row-gap: 0.75rem;
+    grid-column-gap: 0.25rem;
+}
+
+.modal-grid .control-label {
+    text-align: left;
+    font-weight: bold;
+    padding-top: 0.3rem;
+    margin-bottom: 0.5rem;
+    margin-left: auto;
+}
+
+textarea.modal-textfield {
+    resize: vertical;
+    min-height: 150px;
+}
+
 .modal-submit-group {
     display: flex;
     flex-wrap: wrap;
