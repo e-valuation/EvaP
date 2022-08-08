@@ -168,17 +168,17 @@ def contact(request):
     message = request.POST.get("message")
     title = request.POST.get("title")
     if sent_anonymous:
-        email = "anonymous user"
+        sender = "anonymous user"
         subject = "[EvaP] Anonymous message"
     else:
-        email = request.user.email or f"User {request.user.id}"
-        subject = f"[EvaP] Message from {email}"
+        sender = request.user.email or f"User {request.user.id}"
+        subject = f"[EvaP] Message from {sender}"
     if message:
         mail = EmailMessage(
             subject=subject,
-            body=f"{title}\n{email}\n\n{message}",
+            body=f"{title}\n{sender}\n\n{message}",
             to=[settings.CONTACT_EMAIL],
-            reply_to=[] if sent_anonymous else [email],
+            reply_to=[] if sent_anonymous else [sender],
         )
         try:
             mail.send()

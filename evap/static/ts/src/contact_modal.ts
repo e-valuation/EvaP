@@ -22,7 +22,7 @@ export class ContactModalLogic {
         this.successMessageModal = new bootstrap.Modal(selectOrError("#successMessageModal_" + modalId));
         this.actionButtonElement = selectOrError("#" + modalId + "ActionButton");
         this.messageTextElement = selectOrError("#" + modalId + "MessageText");
-        this.anonymousRadioElement = document.querySelector<HTMLInputElement>("#" + modalId + "AnonymName");
+        this.anonymousRadioElement = document.querySelector<HTMLInputElement>("#" + modalId + "AnonymousName");
         this.showButtonElement = selectOrError("#" + modalId + "ShowButton");
     }
 

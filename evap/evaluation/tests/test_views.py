@@ -93,19 +93,20 @@ class TestFAQView(WebTestWith200Check):
 
 class TestContactEmail(WebTest):
     csrf_checks = False
+    url = "/contact"
 
     @override_settings(ALLOW_ANONYMOUS_FEEDBACK_MESSAGES=True)
     def test_sends_mail(self):
         user = baker.make(UserProfile, email="user@institution.example.com")
         # normal email
         self.app.post(
-            "/contact",
+            self.url,
             params={"message": "feedback message", "title": "some title", "anonymous": "false"},
             user=user,
         )
         # anonymous email
         self.app.post(
-            "/contact",
+            self.url,
             params={"message": "feedback message", "title": "some title", "anonymous": "true"},
             user=user,
         )
@@ -118,7 +119,7 @@ class TestContactEmail(WebTest):
     def test_anonymous_not_allowed(self):
         user = baker.make(UserProfile, email="user@institution.example.com")
         self.app.post(
-            "/contact",
+            self.url,
             params={"message": "feedback message", "title": "some title", "anonymous": "true"},
             user=user,
             status=400,
