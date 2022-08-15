@@ -88,7 +88,7 @@ def index(request):
     template_data = dict(
         reward_point_actions=reward_point_actions,
         total_points_available=total_points_available,
-        total_points_spent=sum(reward.value for reward in reward_point_redemptions),
+        total_points_spent=sum(redemption.value for redemption in reward_point_redemptions),
         events=events,
         point_selection=range(0, total_points_available + 1),
     )
