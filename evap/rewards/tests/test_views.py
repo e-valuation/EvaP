@@ -81,8 +81,8 @@ class TestIndexView(WebTest):
 
     def test_invalid_post_parameters(self):
         point_params = {
-            "left-points": reward_points_of_user(self.student),
-            "redeemed-points": redeemed_points_of_user(self.student),
+            "previous_reward_points": reward_points_of_user(self.student),
+            "previous_redeemed_points": redeemed_points_of_user(self.student),
         }
         self.app.post(self.url, params={"points-asd": 2, **point_params}, user=self.student, status=400)
         self.app.post(self.url, params={"points-": 2, **point_params}, user=self.student, status=400)
@@ -92,7 +92,7 @@ class TestIndexView(WebTest):
         )
         # redemption without point parameters
         self.app.post(self.url, params={f"points-{self.event1.pk}": 1}, user=self.student, status=400)
-        point_params["left-points"] = 0
+        point_params["previous_reward_points"] = 0
         self.app.post(self.url, params={f"points-{self.event1.pk}": 1, **point_params}, user=self.student, status=409)
         self.assertFalse(RewardPointRedemption.objects.filter(user_profile=self.student).exists())
 

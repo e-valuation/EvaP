@@ -31,10 +31,12 @@ from evap.rewards.tools import (
 from evap.staff.views import semester_view
 
 
-def redemption_validation(left_points, redeemed_points, user):
-    if left_points is not None and redeemed_points is not None and left_points.isalnum() and redeemed_points.isalnum():
-        return int(left_points) == reward_points_of_user(user) and int(redeemed_points) == redeemed_points_of_user(user)
-    raise BadRequest("Invalid redeemed-points or left-points field in redemption request")
+def check_consistent_previous_redemption_counts(request):
+    reward = request.POST.get("previous_reward_points")
+    redeemed = request.POST.get("previous_redeemed_points")
+    if reward is None or redeemed is None or not reward.isalnum() or not redeemed.isalnum():
+        raise BadRequest("Invalid redeemed-points or left-points field in redemption request")
+    return int(reward) == reward_points_of_user(request.user) and int(redeemed) == redeemed_points_of_user(request.user)
 
 
 def redeem_reward_points(request):
@@ -58,7 +60,7 @@ def redeem_reward_points(request):
 def index(request):
     status = 200
     if request.method == "POST":
-        if redemption_validation(request.POST.get("left-points"), request.POST.get("redeemed-points"), request.user):
+        if check_consistent_previous_redemption_counts(request):
             redeem_reward_points(request)
         else:
             messages.warning(
@@ -86,7 +88,7 @@ def index(request):
     template_data = dict(
         reward_point_actions=reward_point_actions,
         total_points_available=total_points_available,
-        total_points_spent=sum(int(action[3]) if action[3] != "" else 0 for action in reward_point_actions),
+        total_points_spent=sum(reward.value for reward in reward_point_redemptions),
         events=events,
         point_selection=range(0, total_points_available + 1),
     )
