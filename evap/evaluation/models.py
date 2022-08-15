@@ -960,7 +960,7 @@ class Evaluation(LoggedModel):
         )
 
     @classmethod
-    def get_evaluation_url_tuples_to_review_urgent(cls):
+    def get_evaluation_url_tuples_to_review_urgent(cls) -> List[Tuple['Evaluation', str]]:
         return [
             (evaluation, f"{PAGE_URL}/staff/semester/{evaluation.course.semester.id}/evaluation/{evaluation.id}/textanswers")
             for evaluation in Evaluation.objects.filter(state=Evaluation.State.EVALUATED)
@@ -2002,7 +2002,7 @@ class EmailTemplate(models.Model):
             template.send_to_user(participant, {}, body_params, use_cc=True)
 
     @classmethod
-    def send_textanswer_reminder_to_user(cls, user: UserProfile, evaluations: List[Evaluation]):
-        body_params = {"user": user, "evaluations": evaluations}
+    def send_textanswer_reminder_to_user(cls, user: UserProfile, evaluation_url_tuples: List[Tuple[Evaluation, str]]):
+        body_params = {"user": user, "evaluation_url_tuples": evaluation_url_tuples}
         template = cls.objects.get(name=cls.TEXT_ANSWER_REVIEW_REMINDER)
         template.send_to_user(user, {}, body_params, use_cc=False)
