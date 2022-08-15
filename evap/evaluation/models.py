@@ -38,6 +38,7 @@ from evap.evaluation.tools import (
     translate,
     vote_end_datetime,
 )
+from evap.settings import PAGE_URL
 
 logger = logging.getLogger(__name__)
 
@@ -957,6 +958,14 @@ class Evaluation(LoggedModel):
             num_participants=Subquery(participant_count_subquery),
             num_voters=Subquery(voter_count_subquery),
         )
+
+    @classmethod
+    def get_evaluation_url_tuples_to_review_urgent(cls):
+        return [
+            (evaluation, f"{PAGE_URL}/staff/semester/{evaluation.course.semester.id}/evaluation/{evaluation.id}/textanswers")
+            for evaluation in Evaluation.objects.filter(state=Evaluation.State.EVALUATED)
+            if evaluation.textanswer_review_state == Evaluation.TextAnswerReviewState.REVIEW_URGENT
+        ]
 
     @property
     def unlogged_fields(self):

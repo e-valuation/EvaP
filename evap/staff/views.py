@@ -2217,9 +2217,10 @@ def template_edit(request, template_id):
         EmailTemplate.EDITOR_REVIEW_REMINDER,
         EmailTemplate.PUBLISHING_NOTICE_CONTRIBUTOR,
         EmailTemplate.PUBLISHING_NOTICE_PARTICIPANT,
-        EmailTemplate.TEXT_ANSWER_REVIEW_REMINDER,
     ]:
         available_variables += ["evaluations"]
+    elif template.name == EmailTemplate.TEXT_ANSWER_REVIEW_REMINDER:
+        available_variables += ["evaluation_url_tuples"]
     elif template.name == EmailTemplate.EVALUATION_STARTED:
         available_variables += ["evaluations", "due_evaluations"]
     elif template.name == EmailTemplate.DIRECT_DELEGATION:
