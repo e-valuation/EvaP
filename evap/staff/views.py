@@ -820,10 +820,7 @@ def semester_preparation_reminder(request, semester_id):
     ).prefetch_related("course__degrees")
 
     prepared_evaluations = semester.evaluations.filter(state=Evaluation.State.PREPARED)
-    responsibles = list(
-        set(responsible for evaluation in prepared_evaluations for responsible in evaluation.course.responsibles.all())
-    )
-    responsibles.sort(key=lambda responsible: (responsible.last_name, responsible.first_name))
+    responsibles = UserProfile.objects.filter(courses_responsible_for__evaluations__in=prepared_evaluations).distinct()
 
     responsible_list = [
         (

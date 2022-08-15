@@ -670,6 +670,16 @@ class TestUserProfile(TestCase):
         sorted_evaluations = student.get_sorted_due_evaluations()
         self.assertEqual(sorted_evaluations, [(evaluations[1], 0), (evaluations[0], 0), (evaluations[2], 1)])
 
+    def test_can_be_sorted(self):
+        baker.make(UserProfile, 
+        last_name = iter(["B", "A", None]), first_name = iter(["X", None, None]), email = iter(["ax@example.com", "b@example.com", "unnamed@example.com"]), _quantity = 3, _bulk_create=True)
+        breakpoint()
+        user_list = list(UserProfile.objects.all())
+        email_list = [user.email for user in user_list]
+        self.assertEqual(email_list, ['b@example.com', 'ax@example.com', 'unnamed@example.com']
+        )
+        breakpoint()
+
 
 class ParticipationArchivingTests(TestCase):
     @classmethod
