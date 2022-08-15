@@ -38,7 +38,6 @@ from evap.evaluation.tools import (
     translate,
     vote_end_datetime,
 )
-from evap.settings import PAGE_URL
 
 logger = logging.getLogger(__name__)
 
