@@ -49,11 +49,10 @@ class Command(BaseCommand):
     @staticmethod
     def send_textanswer_reminders():
         if datetime.date.today().weekday() in settings.TEXTANSWER_REVIEW_REMINDER_WEEKDAYS:
-            evaluation_url_tuples = Evaluation.get_evaluation_url_tuples_to_review_urgent()
+            evaluation_url_tuples = Evaluation.get_sorted_evaluation_url_tuples_with_urgent_review()
             if not evaluation_url_tuples:
                 logger.info("no evaluations require a reminder about text answer review.")
                 return
-            evaluation_url_tuples = sorted(evaluation_url_tuples, key=lambda evaluation: evaluation[0].full_name)
 
             for manager in Group.objects.get(name="Manager").user_set.all():
                 EmailTemplate.send_textanswer_reminder_to_user(manager, evaluation_url_tuples)

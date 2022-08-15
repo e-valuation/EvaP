@@ -960,12 +960,14 @@ class Evaluation(LoggedModel):
         )
 
     @classmethod
-    def get_evaluation_url_tuples_with_urgent_review(cls) -> List[Tuple['Evaluation', str]]:
-        return [
+    def get_sorted_evaluation_url_tuples_with_urgent_review(cls) -> List[Tuple['Evaluation', str]]:
+        evaluation_url_tuples = [
             (evaluation, reverse('staff:evaluation_textanswers', {'semester_id': evaluation.course.semester.id, 'evaluation_id': evaluation.id}))
             for evaluation in Evaluation.objects.filter(state=Evaluation.State.EVALUATED)
             if evaluation.textanswer_review_state == Evaluation.TextAnswerReviewState.REVIEW_URGENT
         ]
+        evaluation_url_tuples = sorted(evaluation_url_tuples, key=lambda evaluation: evaluation[0].full_name)
+        return evaluation_url_tuples
 
     @property
     def unlogged_fields(self):
