@@ -959,9 +959,15 @@ class Evaluation(LoggedModel):
         )
 
     @classmethod
-    def get_sorted_evaluation_url_tuples_with_urgent_review(cls) -> List[Tuple['Evaluation', str]]:
+    def get_sorted_evaluation_url_tuples_with_urgent_review(cls) -> List[Tuple["Evaluation", str]]:
         evaluation_url_tuples = [
-            (evaluation, reverse('staff:evaluation_textanswers', kwargs={'semester_id': evaluation.course.semester.id, 'evaluation_id': evaluation.id}))
+            (
+                evaluation,
+                reverse(
+                    "staff:evaluation_textanswers",
+                    kwargs={"semester_id": evaluation.course.semester.id, "evaluation_id": evaluation.id},
+                ),
+            )
             for evaluation in Evaluation.objects.filter(state=Evaluation.State.EVALUATED)
             if evaluation.textanswer_review_state == Evaluation.TextAnswerReviewState.REVIEW_URGENT
         ]

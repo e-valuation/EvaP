@@ -3100,7 +3100,7 @@ class TestTemplateEditView(WebTestStaffMode):
         review_reminder_template = EmailTemplate.objects.get(name=EmailTemplate.TEXT_ANSWER_REVIEW_REMINDER)
         page = self.app.get(f"/staff/template/{review_reminder_template.pk}", user=self.manager, status=200)
 
-        self.assertContains(page, 'evaluation_url_tuples')
+        self.assertContains(page, "evaluation_url_tuples")
 
 
 class TestTextAnswerWarningsView(WebTestStaffMode):
