@@ -3096,6 +3096,12 @@ class TestTemplateEditView(WebTestStaffMode):
         self.assertEqual(self.template.plain_content, "plain_content: mflkd862xmnbo5")
         self.assertEqual(self.template.html_content, "html_content: <p>mflkd862xmnbo5</p>")
 
+    def test_review_reminder_template_tag(self):
+        review_reminder_template = EmailTemplate.objects.get(name=EmailTemplate.TEXT_ANSWER_REVIEW_REMINDER)
+        page = self.app.get(f"/staff/template/{review_reminder_template.pk}", user=self.manager, status=200)
+
+        self.assertContains(page, 'evaluation_url_tuples')
+
 
 class TestTextAnswerWarningsView(WebTestStaffMode):
     url = "/staff/text_answer_warnings/"
