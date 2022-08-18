@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.contrib import messages
 from django.core.exceptions import BadRequest, SuspiciousOperation
+from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import get_language
@@ -31,12 +32,16 @@ from evap.rewards.tools import (
 from evap.staff.views import semester_view
 
 
+@transaction.atomic
 def check_consistent_previous_redemption_counts(request):
-    reward = request.POST.get("previous_reward_points")
-    redeemed = request.POST.get("previous_redeemed_points")
-    if reward is None or redeemed is None or not reward.isalnum() or not redeemed.isalnum():
-        raise BadRequest("Invalid redeemed-points or left-points field in redemption request")
-    return int(reward) == reward_points_of_user(request.user) and int(redeemed) == redeemed_points_of_user(request.user)
+    list(request.user.reward_point_grantings.select_for_update())
+    list(request.user.reward_point_redemptions.select_for_update())
+    try:
+        reward = int(request.POST["previous_reward_points"])
+        redeemed = int(request.POST["previous_redeemed_points"])
+    except (KeyError, ValueError, TypeError) as e:
+        raise BadRequest("Invalid redeemed-points or left-points field in redemption request") from e
+    return reward == reward_points_of_user(request.user) and redeemed == redeemed_points_of_user(request.user)
 
 
 def redeem_reward_points(request):
@@ -63,10 +68,10 @@ def index(request):
         if check_consistent_previous_redemption_counts(request):
             redeem_reward_points(request)
         else:
-            messages.warning(
+            messages.error(
                 request,
                 _(
-                    "Probably your browser sent multiple redemption request. You can see all successful redemptions below."
+                    "It appears that your browser sent multiple redemption requests. You can see all successful redemptions below."
                 ),
             )
             status = 409
