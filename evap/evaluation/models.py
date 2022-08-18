@@ -38,6 +38,7 @@ from evap.evaluation.tools import (
     translate,
     vote_end_datetime,
 )
+from evap.settings import PAGE_URL
 
 logger = logging.getLogger(__name__)
 
@@ -963,7 +964,8 @@ class Evaluation(LoggedModel):
         evaluation_url_tuples = [
             (
                 evaluation,
-                reverse(
+                PAGE_URL
+                + reverse(
                     "staff:evaluation_textanswers",
                     kwargs={"semester_id": evaluation.course.semester.id, "evaluation_id": evaluation.id},
                 ),
