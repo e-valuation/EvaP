@@ -319,6 +319,10 @@ class TestUserMergeView(WebTestStaffModeWith200Check):
             "in the column of the voter and in the column of the merged data",
         )
 
+    def test_shows_swap_users_option(self):
+        page = self.app.get(self.url, user=self.manager)
+        self.assertContains(page, f"/staff/user/{self.other_user.pk}/merge/{self.main_user.pk}")
+
 
 class TestUserBulkUpdateView(WebTestStaffMode):
     url = "/staff/user/bulk_update"
