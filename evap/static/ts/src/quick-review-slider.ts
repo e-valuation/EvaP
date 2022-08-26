@@ -156,7 +156,7 @@ export class QuickReviewSlider {
             ["l", "[type=submit][name=action][value=delete]"],
             ["backspace", "[type=submit][name=action][value=unreview]"],
             ["e", "[type=submit][name=action][value=textanswer_edit]"],
-            ["enter", `[data-url=next-evaluation][data-next-evaluation-index="${nextEvaluationIndex}"]`],
+            ["enter", `[data-url=next-evaluation][data-next-evaluation-index="${this.nextEvaluationIndex}"]`],
             ["m", "[data-startover=undecided]"],
             ["n", "[data-startover=all]"],
             ["s", "[data-skip-evaluation]"],
