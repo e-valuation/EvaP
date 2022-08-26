@@ -100,8 +100,6 @@ $(document).ready(() => {
         slider.find("[data-counter=unreviewed-right]").text(Math.max(unreviewed, 0));
     }
 
-    // DONE TILL HERE (minus keydown handler)
-
     function slideLayer(layer, direction, element) {
         // to preserve the vertical positions and heights during transition,
         // the elements will be deactivated from bottom to top and activated from top to bottom
