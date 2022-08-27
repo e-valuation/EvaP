@@ -1,6 +1,6 @@
-export const selectOrError = <T extends Element>(selectors: string, root: Element | Document = document): T => {
-    const elem = root.querySelector<T>(selectors);
-    assert(elem, `Element with id ${selectors} not found`);
+export const selectOrError = <T extends Element>(selector: string, root: Element | Document = document): T => {
+    const elem = root.querySelector<T>(selector);
+    assert(elem, `Element with selector ${selector} not found`);
     return elem;
 };
 
