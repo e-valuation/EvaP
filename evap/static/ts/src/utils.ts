@@ -20,7 +20,7 @@ export const sleep = (ms: number): Promise<number> => {
 export const clamp = (val: number, lowest: number, highest: number) => Math.min(highest, Math.max(lowest, val));
 
 export const saneParseInt = (s: string): number | null => {
-    if (!(/^-?[0-9]+$/.test(s))) {
+    if (!/^-?[0-9]+$/.test(s)) {
         return null;
     }
     const num = parseInt(s);

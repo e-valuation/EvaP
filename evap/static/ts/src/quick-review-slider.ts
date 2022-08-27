@@ -35,10 +35,10 @@ export class QuickReviewSlider {
 
     answerSlides: Array<HTMLElement> = [];
     alertSlide: HTMLElement;
-    alertContentSpans: { unreviewed: HTMLElement, reviewed: HTMLElement };
-    startOverTriggers: { undecided: HTMLElement, all: HTMLElement };
+    alertContentSpans: { unreviewed: HTMLElement; reviewed: HTMLElement };
+    startOverTriggers: { undecided: HTMLElement; all: HTMLElement };
 
-    navigationButtons: { left: NavigationButtonWithCounters, right: NavigationButtonWithCounters };
+    navigationButtons: { left: NavigationButtonWithCounters; right: NavigationButtonWithCounters };
 
     updateForm: HTMLFormElement;
 
@@ -77,14 +77,18 @@ export class QuickReviewSlider {
                 reviewedCounter: selectOrError("[data-counter=reviewed-left]", this.slider),
                 unreviewedCounter: selectOrError("[data-counter=unreviewed-left]", this.slider),
             },
-        }
+        };
     }
 
     //
     // State
     //
-    isShowingEndslide() { return this.selectedSlideIndex === this.answerSlides.length; }
-    get selectedSlide() { return this.answerSlides[this.selectedSlideIndex]; }
+    isShowingEndslide() {
+        return this.selectedSlideIndex === this.answerSlides.length;
+    }
+    get selectedSlide() {
+        return this.answerSlides[this.selectedSlideIndex];
+    }
 
     //
     // DOM
@@ -93,17 +97,21 @@ export class QuickReviewSlider {
         this.updateForm.addEventListener("submit", this.formSubmitHandler);
         document.addEventListener("keydown", this.keydownHandler);
         this.skipEvaluationButton.addEventListener("click", this.skipEvaluationHandler);
-        this.sliderItems.forEach(item => item.addEventListener("transitionend", () => {
-            this.updateButtons();
-            item.classList.remove("to-left", "to-right");
-            item.style.top = "";
-            item.style.height = "";
-        }));
-        this.slideTriggers.forEach(trigger => trigger.addEventListener("click", () => {
-            const offset = trigger.dataset.slide === "left" ? - 1 : 1;
-            this.slideTo(this.selectedSlideIndex + offset);
-            this.updateButtons();
-        }));
+        this.sliderItems.forEach(item =>
+            item.addEventListener("transitionend", () => {
+                this.updateButtons();
+                item.classList.remove("to-left", "to-right");
+                item.style.top = "";
+                item.style.height = "";
+            }),
+        );
+        this.slideTriggers.forEach(trigger =>
+            trigger.addEventListener("click", () => {
+                const offset = trigger.dataset.slide === "left" ? -1 : 1;
+                this.slideTo(this.selectedSlideIndex + offset);
+                this.updateButtons();
+            }),
+        );
 
         this.startOver(StartOverWhere.Undecided);
         this.updateNextEvaluation();
@@ -161,13 +169,13 @@ export class QuickReviewSlider {
         try {
             const response = await fetch(this.evaluationSkipUrl, {
                 method: "POST",
-                body: new URLSearchParams({ "evaluation_id": skippedEvaluationId }),
+                body: new URLSearchParams({ evaluation_id: skippedEvaluationId }),
                 headers: CSRF_HEADERS,
             });
             assert(response.ok);
         } catch (err) {
             // TODO: translation?
-            window.alert("The server is not responding.")
+            window.alert("The server is not responding.");
             console.error(err);
         }
     }
@@ -190,14 +198,20 @@ export class QuickReviewSlider {
         correspondingButtonRight.focus();
     }
 
-    isWrongSubmit(submitter: SubmitterElement) { return submitter.value === "make_private" && !("contribution" in this.selectedSlide.dataset); }
+    isWrongSubmit(submitter: SubmitterElement) {
+        return submitter.value === "make_private" && !("contribution" in this.selectedSlide.dataset);
+    }
 
     //
     // UI Updates
     //
     updateButtons() {
-        this.slider.querySelectorAll("[data-action-set=reviewing]").forEach(el => el.classList.toggle("d-none", this.isShowingEndslide()));
-        this.slider.querySelectorAll("[data-action-set=summary]").forEach(el => el.classList.toggle("d-none", !this.isShowingEndslide()));
+        this.slider
+            .querySelectorAll("[data-action-set=reviewing]")
+            .forEach(el => el.classList.toggle("d-none", this.isShowingEndslide()));
+        this.slider
+            .querySelectorAll("[data-action-set=summary]")
+            .forEach(el => el.classList.toggle("d-none", !this.isShowingEndslide()));
 
         if (this.isShowingEndslide()) {
             return;
@@ -270,7 +284,10 @@ export class QuickReviewSlider {
         this.navigationButtons.left.reviewedCounter.innerText = leftReviewed.toString();
         this.navigationButtons.left.unreviewedCounter.innerText = (leftSlides.length - leftReviewed).toString();
         this.navigationButtons.right.reviewedCounter.innerText = rightReviewed.toString();
-        this.navigationButtons.right.unreviewedCounter.innerText = Math.max(rightSlides.length - rightReviewed, 0).toString();
+        this.navigationButtons.right.unreviewedCounter.innerText = Math.max(
+            rightSlides.length - rightReviewed,
+            0,
+        ).toString();
     }
 
     //
@@ -278,7 +295,9 @@ export class QuickReviewSlider {
     //
     startOver(where: StartOverWhere) {
         const decided = this.slider.querySelectorAll<HTMLElement>(`[data-layer=${Layer.Questionnaire}][data-review]`);
-        const undecided = this.slider.querySelectorAll<HTMLElement>(`[data-layer=${Layer.Questionnaire}]:not([data-review])`);
+        const undecided = this.slider.querySelectorAll<HTMLElement>(
+            `[data-layer=${Layer.Questionnaire}]:not([data-review])`,
+        );
         this.answerSlides = Array.from(decided).concat(Array.from(undecided));
 
         const startIndex = where === StartOverWhere.Undecided && undecided.length > 0 ? decided.length : 0;
@@ -332,7 +351,5 @@ export class QuickReviewSlider {
             element.classList.remove("to-left", "to-right");
             element.classList.add(`to-${direction}`, "active");
         }
-
     }
 }
-
