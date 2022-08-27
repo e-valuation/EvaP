@@ -103,21 +103,9 @@ export class QuickReviewSlider {
         this.updateForm.addEventListener("submit", this.formSubmitHandler);
         document.addEventListener("keydown", this.keydownHandler);
         this.skipEvaluationButton?.addEventListener("click", this.skipEvaluationHandler);
-        this.sliderItems.forEach(item =>
-            item.addEventListener("transitionend", () => {
-                this.updateButtons();
-                item.classList.remove("to-left", "to-right");
-                item.style.top = "";
-                item.style.height = "";
-            }),
-        );
-        this.slideTriggers.forEach(trigger =>
-            trigger.addEventListener("click", async () => {
-                const offset = trigger.dataset.slide === "left" ? -1 : 1;
-                await this.slideTo(this.selectedSlideIndex + offset);
-                this.updateButtons();
-            }),
-        );
+        this.sliderItems.forEach(item => item.addEventListener("transitionend", this.transitionHandler(item)));
+        this.slideTriggers.forEach(trigger => trigger.addEventListener("click", this.slideHandler(trigger)));
+        Object.values(this.startOverTriggers).forEach(trigger => trigger.addEventListener("click", this.startOverHandler(trigger)));
 
         await this.startOver(StartOverWhere.Undecided);
         this.updateNextEvaluation();
@@ -208,6 +196,27 @@ export class QuickReviewSlider {
         return submitter.value === "make_private" && !("contribution" in this.selectedSlide.dataset);
     };
 
+    transitionHandler = (item: HTMLElement) => () => {
+        this.updateButtons();
+        item.classList.remove("to-left", "to-right");
+        item.style.top = "";
+        item.style.height = "";
+    };
+    slideHandler = (trigger: HTMLElement) => async () => {
+        const offset = trigger.dataset.slide === "left" ? -1 : 1;
+        await this.slideTo(this.selectedSlideIndex + offset);
+        this.updateButtons();
+    };
+    startOverHandler = (trigger: HTMLElement) => async () => {
+        assertDefined(trigger.dataset.startover);
+        const mapping = new Map([
+            ["undecided", StartOverWhere.Undecided],
+            ["all", StartOverWhere.All],
+        ]);
+        const where = mapping.get(trigger.dataset.startover);
+        assertDefined(where);
+        await this.startOver(where);
+    };
     //
     // UI Updates
     //
