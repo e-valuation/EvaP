@@ -1,10 +1,11 @@
 declare const bootstrap: typeof import("bootstrap");
 
-import { selectOrError, clamp, assert } from "./utils";
+import { saneParseInt, assertDefined, selectOrError, clamp, assert } from "./utils";
 import { CSRF_HEADERS } from "./csrf-utils";
 
-type Slide = HTMLElement;
+type SubmitterElement = HTMLInputElement | HTMLButtonElement;
 type SlideDirection = "left" | "right";
+// TODO: narrow
 type Action = string;
 
 enum StartOverWhere {
@@ -24,13 +25,15 @@ interface NavigationButtonWithCounters {
     unreviewedCounter: HTMLElement;
 }
 
+const submitSelectorForAction = (action: Action) => `[type=submit][name=action][value=${action}]`;
+
 export class QuickReviewSlider {
     slider: HTMLElement;
     sliderItems: Array<HTMLElement>;
     slideTriggers: Array<HTMLElement>;
-    evaluationSkipTriggers: Array<HTMLElement>;
+    skipEvaluationButton: HTMLElement;
 
-    answerSlides: Array<Slide> = [];
+    answerSlides: Array<HTMLElement> = [];
     alertSlide: HTMLElement;
     alertContentSpans: { unreviewed: HTMLElement, reviewed: HTMLElement };
     startOverTriggers: { undecided: HTMLElement, all: HTMLElement };
@@ -52,7 +55,7 @@ export class QuickReviewSlider {
         this.sliderItems = Array.from(this.slider.querySelectorAll(".slider-item"));
         this.slideTriggers = Array.from(this.slider.querySelectorAll("[data-slide]"));
         // TODO: is there always exactly one?
-        this.evaluationSkipTriggers = Array.from(document.querySelectorAll("[data-skip-evalaution"]));
+        this.skipEvaluationButton = selectOrError("[data-skip-evalaution]");
         this.alertSlide = selectOrError(".alert", this.slider);
 
         this.startOverTriggers = {
@@ -89,8 +92,7 @@ export class QuickReviewSlider {
     attach() {
         this.updateForm.addEventListener("submit", this.formSubmitHandler);
         document.addEventListener("keydown", this.keydownHandler);
-        const skipEvaluationButton = selectOrError("[data-skip-evalaution]");
-        skipEvaluationButton.addEventListener("click", this.skipEvaluationHandler);
+        this.skipEvaluationButton.addEventListener("click", this.skipEvaluationHandler);
         this.sliderItems.forEach(item => item.addEventListener("transitionend", () => {
             this.updateButtons();
             item.classList.remove("to-left", "to-right");
@@ -105,70 +107,70 @@ export class QuickReviewSlider {
 
         this.startOver(StartOverWhere.Undecided);
         this.updateNextEvaluation();
-
-        this.evaluationSkipTriggers.forEach(trigger => trigger.addEventListener("click", async () => {
-            const idElement = document.querySelector<HTMLElement>("[data-evaluation]:not(:hidden)");
-            if (!idElement) {
-                return;
-            }
-
-            this.nextEvaluationIndex++;
-            this.updateNextEvaluation();
-
-            const skippedEvaluationId = idElement.dataset.evaluation;
-            assert(skippedEvaluationId !== undefined);
-
-            try {
-                const response = await fetch(this.evaluationSkipUrl, {
-                    method: "POST",
-                    body: new URLSearchParams({ "evaluation_id": skippedEvaluationId }),
-                    headers: CSRF_HEADERS,
-                });
-                assert(response.ok);
-            } catch (err) {
-                // TODO: translation?
-                window.alert("The server is not responding.")
-                console.error(err);
-            }
-        }));
     }
 
     formSubmitHandler(event: SubmitEvent) {
-        const actionButton = event.submitter!;
+        const actionButton = event.submitter as SubmitterElement | null;
+        assertDefined(actionButton);
+        assert(actionButton.name === "action");
         if (this.isShowingEndslide() || this.isWrongSubmit(actionButton)) {
             event.preventDefault();
             return;
         }
 
         // Update UI after submit is done (https://stackoverflow.com/q/71473512/13679671)
-        setTimeout(() => this.reviewAction(actionButton.getAttribute("value")!));
+        setTimeout(() => this.reviewAction(actionButton.value));
     }
     keydownHandler(event: KeyboardEvent) {
         if (event.ctrlKey || event.shiftKey || event.altKey || event.metaKey) {
             return;
         }
 
-        const actions = new Map([
+        const clickTargetSelectors = new Map([
             ["arrowleft", "[data-slide=left]"],
             ["arrowright", "[data-slide=right]"],
-            ["j", "[type=submit][name=action][value=publish]"],
-            ["k", "[type=submit][name=action][value=make_private]"],
-            ["l", "[type=submit][name=action][value=delete]"],
-            ["backspace", "[type=submit][name=action][value=unreview]"],
-            ["e", "[type=submit][name=action][value=textanswer_edit]"],
+            ["j", submitSelectorForAction("publish")],
+            ["k", submitSelectorForAction("make_private")],
+            ["l", submitSelectorForAction("delete")],
+            ["backspace", submitSelectorForAction("unreview")],
+            ["e", submitSelectorForAction("textanswer_edit")],
             ["enter", `[data-url=next-evaluation][data-next-evaluation-index="${this.nextEvaluationIndex}"]`],
             ["m", "[data-startover=undecided]"],
             ["n", "[data-startover=all]"],
             ["s", "[data-skip-evaluation]"],
         ]);
-        const action = actions.get(event.key.toLowerCase());
+        const selector = clickTargetSelectors.get(event.key.toLowerCase());
 
-        if (action && !event.repeat) {
-            this.slider.querySelector<HTMLElement>(action)?.click();
+        if (selector && !event.repeat) {
+            this.slider.querySelector<HTMLElement>(selector)?.click();
             event.preventDefault();
         }
     }
-    skipEvaluationHandler(event: Event) { }
+    async skipEvaluationHandler(_event: Event) {
+        const idElement = document.querySelector<HTMLElement>("[data-evaluation]:not(:hidden)");
+        if (!idElement) {
+            return;
+        }
+
+        this.nextEvaluationIndex++;
+        this.updateNextEvaluation();
+
+        const skippedEvaluationId = idElement.dataset.evaluation;
+        assertDefined(skippedEvaluationId);
+
+        try {
+            const response = await fetch(this.evaluationSkipUrl, {
+                method: "POST",
+                body: new URLSearchParams({ "evaluation_id": skippedEvaluationId }),
+                headers: CSRF_HEADERS,
+            });
+            assert(response.ok);
+        } catch (err) {
+            // TODO: translation?
+            window.alert("The server is not responding.")
+            console.error(err);
+        }
+    }
     reviewAction(action: Action) {
         if (action === "unreview") {
             delete this.selectedSlide.dataset.review;
@@ -183,12 +185,12 @@ export class QuickReviewSlider {
         }
 
         this.slideTo(this.selectedSlideIndex + 1);
-        const correspondingButtonRight = selectOrError<HTMLElement>(`[type=submit][name=value][value=${action}]`, this.slider);
+        const correspondingButtonRight = selectOrError<HTMLElement>(submitSelectorForAction(action), this.slider);
         // TODO: should this trigger an event instead?
         correspondingButtonRight.focus();
     }
 
-    isWrongSubmit(submitter: HTMLElement) { return submitter.getAttribute("value") === "make_private" && !("contribution" in this.selectedSlide.dataset); }
+    isWrongSubmit(submitter: SubmitterElement) { return submitter.value === "make_private" && !("contribution" in this.selectedSlide.dataset); }
 
     //
     // UI Updates
@@ -205,10 +207,10 @@ export class QuickReviewSlider {
 
         // Update "private" button
         const isContributor = "contribution" in this.selectedSlide.dataset;
-        const privateButton = selectOrError<HTMLInputElement>("[type=submit][name=action][value=make_private]");
+        const privateButton = selectOrError<HTMLInputElement>(submitSelectorForAction("make_private"));
         privateButton.disabled = !isContributor;
         const tooltip = bootstrap.Tooltip.getInstance(privateButton);
-        assert(tooltip);
+        assertDefined(tooltip);
         if (isContributor) {
             tooltip.disable();
         } else {
@@ -217,7 +219,7 @@ export class QuickReviewSlider {
 
         // Update "unreview" button
         const isDecided = "review" in this.selectedSlide.dataset;
-        const unreviewButton = selectOrError<HTMLInputElement>("[type=submit][name=action][value=unreview]", this.slider);
+        const unreviewButton = selectOrError<HTMLInputElement>(submitSelectorForAction("unreview"), this.slider);
         unreviewButton.disabled = !isDecided;
     }
     updateButtonsActive() {
@@ -232,7 +234,7 @@ export class QuickReviewSlider {
 
         const decision = this.selectedSlide.dataset.review;
         for (const [action, activeHighlight] of Object.entries(activeHighlights)) {
-            const btn = selectOrError(`[type=submit][name=action][value=${action}]`, this.slider);
+            const btn = selectOrError(submitSelectorForAction(action), this.slider);
             btn.classList.toggle(activeHighlight, decision === action);
             btn.classList.toggle("btn-outline-secondary", decision !== action);
         }
@@ -240,19 +242,21 @@ export class QuickReviewSlider {
     updateNextEvaluation() {
         let foundNext = false;
         document.querySelectorAll<HTMLElement>("[data-next-evaluation-index]").forEach(element => {
-            const isNext = element.dataset.nextEvaluationIndex === this.nextEvaluationIndex.toString();
+            const isNext = saneParseInt(element.dataset.nextEvaluationIndex!) === this.nextEvaluationIndex;
             element.classList.toggle("d-none", !isNext);
             foundNext ||= isNext;
         });
         if (!foundNext) {
-            this.evaluationSkipTriggers.forEach(el => el.classList.add("d-none"));
+            this.skipEvaluationButton.classList.add("d-none");
         }
     }
 
     updateAnswerIdInputs() {
-        const newAnswerId = this.selectedSlide.dataset.id;
+        assertDefined(this.selectedSlide.dataset.id);
+        const newAnswerId = saneParseInt(this.selectedSlide.dataset.id);
+        assertDefined(newAnswerId);
         for (const input of this.slider.querySelectorAll<HTMLInputElement>("input[name=answer_id]")) {
-            input.disabled = input.value !== newAnswerId;
+            input.disabled = saneParseInt(input.value) !== newAnswerId;
         }
     }
     updateNavigationButtons() {
