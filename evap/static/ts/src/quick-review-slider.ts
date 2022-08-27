@@ -325,8 +325,8 @@ export class QuickReviewSlider {
 
         this.updateNavigationButtons();
     };
-    slideLayer = (layer: Layer, direction: SlideDirection, element?: HTMLElement) => {
-        if (element?.classList.contains("active")) {
+    slideLayer = (layer: Layer, direction: SlideDirection, nextActiveElement?: HTMLElement) => {
+        if (nextActiveElement?.classList.contains("active")) {
             return;
         }
         const last = this.slider.querySelector<HTMLElement>(`[data-layer="${layer}"].active, .alert.active`);
@@ -339,18 +339,19 @@ export class QuickReviewSlider {
         }
 
         if (layer > 0) {
-            let reference;
-            if (element) {
-                reference = findPreviousElementSibling(element, `[data-layer="${layer - 1}"]`) ?? undefined;
-                reference = reference as HTMLElement | undefined;
+            let activeInParentLayer;
+            if (nextActiveElement && !this.isShowingEndslide()) {
+                activeInParentLayer =
+                    findPreviousElementSibling(nextActiveElement, `[data-layer="${layer - 1}"]`) ?? undefined;
+                activeInParentLayer = activeInParentLayer as HTMLElement | undefined;
             }
-            this.slideLayer(layer - 1, direction, reference);
+            this.slideLayer(layer - 1, direction, activeInParentLayer);
         }
 
-        if (element) {
+        if (nextActiveElement) {
             // TODO: Why the calls to .position() (jQuery) inbetween?
-            element.classList.remove("to-left", "to-right");
-            element.classList.add(`to-${direction}`, "active");
+            nextActiveElement.classList.remove("to-left", "to-right");
+            nextActiveElement.classList.add(`to-${direction}`, "active");
         }
     };
 }
