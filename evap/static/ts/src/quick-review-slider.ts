@@ -50,8 +50,8 @@ export class QuickReviewSlider {
 
     updateForm: HTMLFormElement;
 
-    selectedSlideIndex: number = 0;
-    nextEvaluationIndex: number = 0;
+    selectedSlideIndex = 0;
+    nextEvaluationIndex = 0;
 
     evaluationSkipUrl: URL;
 
@@ -99,7 +99,7 @@ export class QuickReviewSlider {
     //
     // DOM
     //
-    attach = () => {
+    attach = async () => {
         this.updateForm.addEventListener("submit", this.formSubmitHandler);
         document.addEventListener("keydown", this.keydownHandler);
         this.skipEvaluationButton?.addEventListener("click", this.skipEvaluationHandler);
@@ -112,14 +112,14 @@ export class QuickReviewSlider {
             }),
         );
         this.slideTriggers.forEach(trigger =>
-            trigger.addEventListener("click", () => {
+            trigger.addEventListener("click", async () => {
                 const offset = trigger.dataset.slide === "left" ? -1 : 1;
-                this.slideTo(this.selectedSlideIndex + offset);
+                await this.slideTo(this.selectedSlideIndex + offset);
                 this.updateButtons();
             }),
         );
 
-        this.startOver(StartOverWhere.Undecided);
+        await this.startOver(StartOverWhere.Undecided);
         this.updateNextEvaluation();
     };
 
@@ -185,7 +185,7 @@ export class QuickReviewSlider {
             console.error(err);
         }
     };
-    reviewAction = (action: Action) => {
+    reviewAction = async (action: Action) => {
         if (action === "unreview") {
             delete this.selectedSlide.dataset.review;
             this.updateButtons();
@@ -198,7 +198,7 @@ export class QuickReviewSlider {
             return;
         }
 
-        this.slideTo(this.selectedSlideIndex + 1);
+        await this.slideTo(this.selectedSlideIndex + 1);
         const correspondingButtonRight = selectOrError<HTMLElement>(submitSelectorForAction(action), this.slider);
         // TODO: should this trigger an event instead?
         correspondingButtonRight.focus();
@@ -298,7 +298,7 @@ export class QuickReviewSlider {
     //
     // Sliding
     //
-    startOver = (where: StartOverWhere) => {
+    startOver = async (where: StartOverWhere) => {
         const decided = this.slider.querySelectorAll<HTMLElement>(`[data-layer="${Layer.Answer}"][data-review]`);
         const undecided = this.slider.querySelectorAll<HTMLElement>(
             `[data-layer="${Layer.Answer}"]:not([data-review])`,
@@ -306,10 +306,10 @@ export class QuickReviewSlider {
         this.answerSlides = Array.from(decided).concat(Array.from(undecided));
 
         const startIndex = where === StartOverWhere.Undecided && undecided.length > 0 ? decided.length : 0;
-        this.slideTo(startIndex);
+        await this.slideTo(startIndex);
         this.updateButtons();
     };
-    slideTo = (requestedIndex: number) => {
+    slideTo = async (requestedIndex: number) => {
         requestedIndex = clamp(requestedIndex, 0, this.answerSlides.length);
         const direction = requestedIndex >= this.selectedSlideIndex ? "right" : "left";
         this.selectedSlideIndex = requestedIndex;
@@ -325,15 +325,15 @@ export class QuickReviewSlider {
             this.alertContentSpans.reviewed.classList.toggle("d-none", !allAreReviewed);
             this.startOverTriggers.undecided.classList.toggle("d-none", allAreReviewed);
             this.startOverTriggers.all.classList.toggle("d-none", !slidesExist);
-            this.slideLayer(Layer.Answer, direction, this.alertSlide);
+            await this.slideLayer(Layer.Answer, direction, this.alertSlide);
         } else {
-            this.slideLayer(Layer.Answer, direction, this.selectedSlide);
+            await this.slideLayer(Layer.Answer, direction, this.selectedSlide);
             this.updateAnswerIdInputs();
         }
 
         this.updateNavigationButtons();
     };
-    slideLayer = (layer: Layer, direction: SlideDirection, nextActiveElement?: HTMLElement) => {
+    slideLayer = async (layer: Layer, direction: SlideDirection, nextActiveElement?: HTMLElement) => {
         if (nextActiveElement?.classList.contains("active")) {
             return;
         }
@@ -353,14 +353,14 @@ export class QuickReviewSlider {
                     findPreviousElementSibling(nextActiveElement, `[data-layer="${layer - 1}"]`) ?? undefined;
                 activeInParentLayer = activeInParentLayer as HTMLElement | undefined;
             }
-            this.slideLayer(layer - 1, direction, activeInParentLayer);
+            await this.slideLayer(layer - 1, direction, activeInParentLayer);
         }
 
         if (nextActiveElement) {
-            // TODO: Why the calls to .position() (jQuery) inbetween?
             nextActiveElement.classList.remove("to-left", "to-right");
             nextActiveElement.classList.add(`to-${direction}`);
-            sleep().then(() => nextActiveElement.classList.add("active"));
+            await sleep();
+            nextActiveElement.classList.add("active");
         }
     };
 }
