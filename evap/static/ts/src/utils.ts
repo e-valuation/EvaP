@@ -27,3 +27,13 @@ export const saneParseInt = (s: string): number | null => {
     assert(!isNaN(num));
     return num;
 };
+
+export const findPreviousElementSibling = (element: Element, selector: string): Element | null => {
+    while (element.previousElementSibling) {
+        element = element.previousElementSibling;
+        if (element.matches(selector)) {
+            return element;
+        }
+    }
+    return null;
+};

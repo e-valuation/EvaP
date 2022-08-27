@@ -1,7 +1,7 @@
 declare const bootstrap: typeof import("bootstrap");
 
 import { CSRF_HEADERS } from "./csrf-utils.js";
-import { saneParseInt, assertDefined, selectOrError, clamp, assert } from "./utils.js";
+import { findPreviousElementSibling, saneParseInt, assertDefined, selectOrError, clamp, assert } from "./utils.js";
 
 type SubmitterElement = HTMLInputElement | HTMLButtonElement;
 type SlideDirection = "left" | "right";
@@ -339,7 +339,11 @@ export class QuickReviewSlider {
         }
 
         if (layer > 0) {
-            const reference = (element?.previousElementSibling || undefined) as HTMLElement | undefined;
+            let reference;
+            if (element) {
+                reference = findPreviousElementSibling(element, `[data-layer="${layer - 1}"]`) ?? undefined;
+                reference = reference as HTMLElement | undefined;
+            }
             this.slideLayer(layer - 1, direction, reference);
         }
 
