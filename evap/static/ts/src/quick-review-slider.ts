@@ -14,9 +14,9 @@ enum StartOverWhere {
 }
 
 enum Layer {
-    Answer = 0,
+    Questionnaire = 0,
     Question = 1,
-    Questionnaire = 2,
+    Answer = 2,
 }
 
 interface NavigationButtonWithCounters {
@@ -277,7 +277,7 @@ export class QuickReviewSlider {
         const rightReviewed = rightSlides.filter(slide => slide.matches("[data-review]")).length;
 
         this.navigationButtons.left.button.classList.toggle("visible", this.selectedSlideIndex > 0);
-        this.navigationButtons.right.button.classList.toggle("visible", !this.isShowingEndslide);
+        this.navigationButtons.right.button.classList.toggle("visible", !this.isShowingEndslide());
         this.navigationButtons.left.reviewedCounter.innerText = leftReviewed.toString();
         this.navigationButtons.left.unreviewedCounter.innerText = (leftSlides.length - leftReviewed).toString();
         this.navigationButtons.right.reviewedCounter.innerText = rightReviewed.toString();
@@ -291,9 +291,9 @@ export class QuickReviewSlider {
     // Sliding
     //
     startOver = (where: StartOverWhere) => {
-        const decided = this.slider.querySelectorAll<HTMLElement>(`[data-layer="${Layer.Questionnaire}"][data-review]`);
+        const decided = this.slider.querySelectorAll<HTMLElement>(`[data-layer="${Layer.Answer}"][data-review]`);
         const undecided = this.slider.querySelectorAll<HTMLElement>(
-            `[data-layer="${Layer.Questionnaire}"]:not([data-review])`,
+            `[data-layer="${Layer.Answer}"]:not([data-review])`,
         );
         this.answerSlides = Array.from(decided).concat(Array.from(undecided));
 
@@ -317,9 +317,9 @@ export class QuickReviewSlider {
             this.alertContentSpans.reviewed.classList.toggle("d-none", !allAreReviewed);
             this.startOverTriggers.undecided.classList.toggle("d-none", allAreReviewed);
             this.startOverTriggers.all.classList.toggle("d-none", !slidesExist);
-            this.slideLayer(Layer.Questionnaire, direction, this.alertSlide);
+            this.slideLayer(Layer.Answer, direction, this.alertSlide);
         } else {
-            this.slideLayer(Layer.Questionnaire, direction, this.selectedSlide);
+            this.slideLayer(Layer.Answer, direction, this.selectedSlide);
             this.updateAnswerIdInputs();
         }
 
