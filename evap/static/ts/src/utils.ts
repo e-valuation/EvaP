@@ -13,7 +13,7 @@ export function assertDefined<T>(val: T): asserts val is NonNullable<T> {
     assert(val !== null);
 }
 
-export const sleep = (ms: number): Promise<number> => {
+export const sleep = (ms?: number): Promise<number> => {
     return new Promise(resolve => window.setTimeout(resolve, ms));
 };
 

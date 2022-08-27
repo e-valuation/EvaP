@@ -1,7 +1,15 @@
 declare const bootstrap: typeof import("bootstrap");
 
 import { CSRF_HEADERS } from "./csrf-utils.js";
-import { findPreviousElementSibling, saneParseInt, assertDefined, selectOrError, clamp, assert } from "./utils.js";
+import {
+    assert,
+    assertDefined,
+    clamp,
+    findPreviousElementSibling,
+    saneParseInt,
+    selectOrError,
+    sleep,
+} from "./utils.js";
 
 type SubmitterElement = HTMLInputElement | HTMLButtonElement;
 type SlideDirection = "left" | "right";
@@ -351,7 +359,8 @@ export class QuickReviewSlider {
         if (nextActiveElement) {
             // TODO: Why the calls to .position() (jQuery) inbetween?
             nextActiveElement.classList.remove("to-left", "to-right");
-            nextActiveElement.classList.add(`to-${direction}`, "active");
+            nextActiveElement.classList.add(`to-${direction}`);
+            sleep().then(() => nextActiveElement.classList.add("active"));
         }
     };
 }
