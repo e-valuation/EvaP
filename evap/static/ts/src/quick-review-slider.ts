@@ -368,8 +368,8 @@ export class QuickReviewSlider {
         if (nextActiveElement) {
             nextActiveElement.classList.remove("to-left", "to-right");
             nextActiveElement.classList.add(`to-${direction}`);
-            await sleep();
-            nextActiveElement.classList.add("active");
+            // 🤔
+            setTimeout(() => nextActiveElement.classList.add("active"));
         }
     };
 }
