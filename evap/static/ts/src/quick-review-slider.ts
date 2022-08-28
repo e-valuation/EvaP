@@ -81,9 +81,9 @@ export class QuickReviewSlider {
                 unreviewedCounter: selectOrError("[data-counter=unreviewed-left]", this.slider),
             },
             right: {
-                button: selectOrError(".slider-side-left", this.slider),
-                reviewedCounter: selectOrError("[data-counter=reviewed-left]", this.slider),
-                unreviewedCounter: selectOrError("[data-counter=unreviewed-left]", this.slider),
+                button: selectOrError(".slider-side-right", this.slider),
+                reviewedCounter: selectOrError("[data-counter=reviewed-right]", this.slider),
+                unreviewedCounter: selectOrError("[data-counter=unreviewed-right]", this.slider),
             },
         };
     }
