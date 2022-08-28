@@ -199,8 +199,8 @@ export class QuickReviewSlider {
     transitionHandler = (item: HTMLElement) => () => {
         this.updateButtons();
         item.classList.remove("to-left", "to-right");
-        item.style.top = "";
-        item.style.height = "";
+        item.style.removeProperty("top");
+        item.style.removeProperty("height");
     };
     slideHandler = (trigger: HTMLElement) => async () => {
         const offset = trigger.dataset.slide === "left" ? -1 : 1;
