@@ -33,7 +33,7 @@
     display: none;
     overflow-y: auto;
     opacity: 0;
-    transition: transform, opacity;
+    transition-property: transform, opacity;
     transition-duration: 0.2s;
     &.alert, &[data-layer="2"] {
         flex: auto;
