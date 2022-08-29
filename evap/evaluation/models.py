@@ -778,6 +778,9 @@ class Evaluation(LoggedModel):
 
     @cached_property
     def general_contribution(self):
+        if self.pk is None:
+            return None
+
         try:
             return self.contributions.get(contributor=None)
         except Contribution.DoesNotExist:
