@@ -8,7 +8,6 @@ import {
     findPreviousElementSibling,
     saneParseInt,
     selectOrError,
-    sleep,
 } from "./utils.js";
 
 type SubmitterElement = HTMLInputElement | HTMLButtonElement;
@@ -105,7 +104,7 @@ export class QuickReviewSlider {
     //
     // DOM
     //
-    attach = async () => {
+    attach = () => {
         this.updateForm.addEventListener("submit", this.formSubmitHandler);
         document.addEventListener("keydown", this.keydownHandler);
         this.skipEvaluationButton?.addEventListener("click", this.skipEvaluationHandler);
@@ -113,7 +112,7 @@ export class QuickReviewSlider {
         this.slideTriggers.forEach(trigger => trigger.addEventListener("click", this.slideHandler(trigger)));
         Object.values(this.startOverTriggers).forEach(trigger => trigger.addEventListener("click", this.startOverHandler(trigger)));
 
-        await this.startOver(StartOverWhere.Undecided);
+        this.startOver(StartOverWhere.Undecided);
         this.updateNextEvaluation();
     };
 
@@ -200,7 +199,6 @@ export class QuickReviewSlider {
             });
             assert(response.ok);
         } catch (err) {
-            // TODO: translation?
             window.alert("The server is not responding.");
             console.error(err);
         }
@@ -216,12 +214,12 @@ export class QuickReviewSlider {
         item.style.removeProperty("top");
         item.style.removeProperty("height");
     };
-    slideHandler = (trigger: HTMLElement) => async () => {
+    slideHandler = (trigger: HTMLElement) => () => {
         const offset = trigger.dataset.slide === "left" ? -1 : 1;
-        await this.slideTo(this.selectedSlideIndex + offset);
+        this.slideTo(this.selectedSlideIndex + offset);
         this.updateButtons();
     };
-    startOverHandler = (trigger: HTMLElement) => async () => {
+    startOverHandler = (trigger: HTMLElement) => () => {
         assertDefined(trigger.dataset.startover);
         const mapping = new Map([
             ["undecided", StartOverWhere.Undecided],
@@ -229,7 +227,7 @@ export class QuickReviewSlider {
         ]);
         const where = mapping.get(trigger.dataset.startover);
         assertDefined(where);
-        await this.startOver(where);
+        this.startOver(where);
     };
     //
     // UI Updates
@@ -321,7 +319,7 @@ export class QuickReviewSlider {
     //
     // Sliding
     //
-    startOver = async (where: StartOverWhere) => {
+    startOver = (where: StartOverWhere) => {
         const decided = this.slider.querySelectorAll<HTMLElement>(`[data-layer="${Layer.Answer}"][data-review]`);
         const undecided = this.slider.querySelectorAll<HTMLElement>(
             `[data-layer="${Layer.Answer}"]:not([data-review])`,
@@ -329,10 +327,10 @@ export class QuickReviewSlider {
         this.answerSlides = Array.from(decided).concat(Array.from(undecided));
 
         const startIndex = where === StartOverWhere.Undecided && undecided.length > 0 ? decided.length : 0;
-        await this.slideTo(startIndex);
+        this.slideTo(startIndex);
         this.updateButtons();
     };
-    slideTo = async (requestedIndex: number) => {
+    slideTo = (requestedIndex: number) => {
         requestedIndex = clamp(requestedIndex, 0, this.answerSlides.length);
         const direction = requestedIndex >= this.selectedSlideIndex ? "right" : "left";
         this.selectedSlideIndex = requestedIndex;
@@ -348,15 +346,15 @@ export class QuickReviewSlider {
             this.alertContentSpans.reviewed.classList.toggle("d-none", !allAreReviewed);
             this.startOverTriggers.undecided.classList.toggle("d-none", allAreReviewed);
             this.startOverTriggers.all.classList.toggle("d-none", !slidesExist);
-            await this.slideLayer(Layer.Answer, direction, this.alertSlide);
+            this.slideLayer(Layer.Answer, direction, this.alertSlide);
         } else {
-            await this.slideLayer(Layer.Answer, direction, this.selectedSlide);
+            this.slideLayer(Layer.Answer, direction, this.selectedSlide);
             this.updateAnswerIdInputs();
         }
 
         this.updateNavigationButtons();
     };
-    slideLayer = async (layer: Layer, direction: SlideDirection, nextActiveElement?: HTMLElement) => {
+    slideLayer = (layer: Layer, direction: SlideDirection, nextActiveElement?: HTMLElement) => {
         if (nextActiveElement?.classList.contains("active")) {
             return;
         }
@@ -376,14 +374,15 @@ export class QuickReviewSlider {
                     findPreviousElementSibling(nextActiveElement, `[data-layer="${layer - 1}"]`) ?? undefined;
                 activeInParentLayer = activeInParentLayer as HTMLElement | undefined;
             }
-            await this.slideLayer(layer - 1, direction, activeInParentLayer);
+            this.slideLayer(layer - 1, direction, activeInParentLayer);
         }
 
         if (nextActiveElement) {
+            // First, translate nextActiveElement to the right or left and
+            // then, in the next frame, move it back to the middle
             nextActiveElement.classList.remove("to-left", "to-right");
             nextActiveElement.classList.add(`to-${direction}`);
-            // 🤔
-            setTimeout(() => nextActiveElement.classList.add("active"));
+            requestAnimationFrame(() => nextActiveElement.classList.add("active"));
         }
     };
 }
