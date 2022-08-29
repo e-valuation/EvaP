@@ -67,7 +67,6 @@ export class QuickReviewSlider {
 
         this.sliderItems = Array.from(this.slider.querySelectorAll(".slider-item"));
         this.slideTriggers = Array.from(this.slider.querySelectorAll("[data-slide]"));
-        // TODO: is there always exactly one?
         this.skipEvaluationButton = document.querySelector("[data-skip-evalaution]");
         this.alertSlide = selectOrError(".alert", this.slider);
 
@@ -150,7 +149,6 @@ export class QuickReviewSlider {
 
             this.slideTo(this.selectedSlideIndex + 1);
             const correspondingButtonRight = selectOrError<HTMLElement>(submitSelectorForAction(action), this.slider);
-            // TODO: should this trigger an event instead?
             correspondingButtonRight.focus();
         });
     };
@@ -315,6 +313,18 @@ export class QuickReviewSlider {
             0,
         ).toString();
     };
+    updateAlertSlide = () => {
+        const slidesExist = this.answerSlides.length > 0;
+        const allAreReviewed = this.answerSlides.every(slide => "review" in slide.dataset);
+
+        this.alertSlide.classList.toggle("alert-secondary", !slidesExist);
+        this.alertSlide.classList.toggle("alert-warning", !allAreReviewed);
+        this.alertSlide.classList.toggle("alert-success", slidesExist && allAreReviewed);
+        this.alertContentSpans.unreviewed.classList.toggle("d-none", allAreReviewed);
+        this.alertContentSpans.reviewed.classList.toggle("d-none", !allAreReviewed);
+        this.startOverTriggers.undecided.classList.toggle("d-none", allAreReviewed);
+        this.startOverTriggers.all.classList.toggle("d-none", !slidesExist);
+    };
 
     //
     // Sliding
@@ -335,26 +345,22 @@ export class QuickReviewSlider {
         const direction = requestedIndex >= this.selectedSlideIndex ? "right" : "left";
         this.selectedSlideIndex = requestedIndex;
 
+        let nextActiveElement;
         if (this.isShowingEndslide()) {
-            const slidesExist = this.answerSlides.length > 0;
-            const allAreReviewed = this.answerSlides.every(slide => slide.matches("[data-review]"));
-
-            this.alertSlide.classList.toggle("alert-secondary", !slidesExist);
-            this.alertSlide.classList.toggle("alert-warning", !allAreReviewed);
-            this.alertSlide.classList.toggle("alert-success", slidesExist && allAreReviewed);
-            this.alertContentSpans.unreviewed.classList.toggle("d-none", allAreReviewed);
-            this.alertContentSpans.reviewed.classList.toggle("d-none", !allAreReviewed);
-            this.startOverTriggers.undecided.classList.toggle("d-none", allAreReviewed);
-            this.startOverTriggers.all.classList.toggle("d-none", !slidesExist);
-            this.slideLayer(Layer.Answer, direction, this.alertSlide);
+            nextActiveElement = this.alertSlide;
+            this.updateAlertSlide();
         } else {
-            this.slideLayer(Layer.Answer, direction, this.selectedSlide);
-            this.updateAnswerIdInputs();
+            nextActiveElement = this.selectedSlide;
         }
+        this.slideLayer(Layer.Answer, direction, nextActiveElement);
+        this.updateAnswerIdInputs();
 
         this.updateNavigationButtons();
     };
     slideLayer = (layer: Layer, direction: SlideDirection, nextActiveElement?: HTMLElement) => {
+        // to preserve the vertical positions and heights during transition,
+        // the elements will be deactivated from bottom to top and activated from top to bottom
+
         if (nextActiveElement?.classList.contains("active")) {
             return;
         }
@@ -378,7 +384,7 @@ export class QuickReviewSlider {
         }
 
         if (nextActiveElement) {
-            // First, translate nextActiveElement to the right or left and
+            // First, translate nextActiveElement to the left or right and
             // then, in the next frame, move it back to the middle
             nextActiveElement.classList.remove("to-left", "to-right");
             nextActiveElement.classList.add(`to-${direction}`);
