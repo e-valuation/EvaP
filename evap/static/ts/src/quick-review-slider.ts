@@ -68,9 +68,9 @@ export class QuickReviewSlider {
     selectedSlideIndex = 0;
     nextEvaluationIndex = 0;
 
-    evaluationSkipUrl: URL;
+    evaluationSkipUrl: string;
 
-    constructor(slider: HTMLElement, form: HTMLFormElement, evaluationSkipUrl: URL) {
+    constructor(slider: HTMLElement, form: HTMLFormElement, evaluationSkipUrl: string) {
         this.slider = slider;
         this.form = form;
         this.evaluationSkipUrl = evaluationSkipUrl;
