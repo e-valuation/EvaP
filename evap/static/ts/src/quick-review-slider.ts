@@ -107,6 +107,7 @@ export class QuickReviewSlider {
     //
     isShowingEndslide = () => this.selectedSlideIndex === this.answerSlides.length;
     get selectedSlide() {
+        assert(!this.isShowingEndslide(), "No answer slide is selected!");
         return this.answerSlides[this.selectedSlideIndex];
     }
 
@@ -146,13 +147,14 @@ export class QuickReviewSlider {
 
         // Update UI after submit is done (https://stackoverflow.com/q/71473512/13679671)
         setTimeout(() => {
+            assert(action !== Action.TextanswerEdit, "You should have been redirected already.");
+
             if (action === Action.Unreview) {
                 delete this.selectedSlide.dataset.review;
-                this.updateButtons();
             } else {
                 this.selectedSlide.dataset.review = action;
-                this.updateButtonsActive();
             }
+            this.updateButtons();
 
             const actionsThatSlide = [Action.Delete, Action.MakePrivate, Action.Publish];
             if (!actionsThatSlide.includes(action)) {
@@ -254,7 +256,8 @@ export class QuickReviewSlider {
             return;
         }
 
-        this.updateButtonsActive();
+        this.updateFocus();
+        this.updateDecisionButtonHighlights();
 
         // Update "private" button
         const isContributor = "contribution" in this.selectedSlide.dataset;
@@ -273,10 +276,7 @@ export class QuickReviewSlider {
         const unreviewButton = selectOrError<HTMLInputElement>(submitSelectorForAction(Action.Unreview), this.slider);
         unreviewButton.disabled = !isDecided;
     };
-    updateButtonsActive = () => {
-        this.selectedSlide.focus();
-        this.slider.querySelector<HTMLElement>(".btn:focus")?.blur();
-
+    updateDecisionButtonHighlights = () => {
         const activeHighlights = new Map([
             [Action.Publish, "btn-success"],
             [Action.MakePrivate, "btn-dark"],
@@ -289,6 +289,10 @@ export class QuickReviewSlider {
             btn.classList.toggle(activeHighlight, decision === action);
             btn.classList.toggle("btn-outline-secondary", decision !== action);
         }
+    };
+    updateFocus = () => {
+        this.selectedSlide.focus();
+        this.slider.querySelector<HTMLElement>(".btn:focus")?.blur();
     };
     updateNextEvaluation = () => {
         let foundNext = false;
