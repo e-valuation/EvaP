@@ -119,9 +119,14 @@ export class QuickReviewSlider {
 
     formSubmitHandler = (event: SubmitEvent) => {
         const actionButton = event.submitter as SubmitterElement | null;
-        assertDefined(actionButton);
-        assert(actionButton.name === "action");
-        assert(Object.values<string>(Action).includes(actionButton.value)); // button value is valid Action
+        try {
+            assertDefined(actionButton);
+            assert(actionButton.name === "action");
+            assert(Object.values<string>(Action).includes(actionButton.value)); // button value is valid Action
+        } catch (err) {
+            event.preventDefault();
+            throw err;
+        }
         const action = actionButton.value as Action;
 
         if (this.isShowingEndslide() || this.isWrongSubmit(actionButton)) {
