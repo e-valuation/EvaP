@@ -63,16 +63,16 @@ export class QuickReviewSlider {
 
     navigationButtons: { left: NavigationButtonWithCounters; right: NavigationButtonWithCounters };
 
-    updateForm: HTMLFormElement;
+    form: HTMLFormElement;
 
     selectedSlideIndex = 0;
     nextEvaluationIndex = 0;
 
     evaluationSkipUrl: URL;
 
-    constructor(slider: HTMLElement, updateForm: HTMLFormElement, evaluationSkipUrl: URL) {
+    constructor(slider: HTMLElement, form: HTMLFormElement, evaluationSkipUrl: URL) {
         this.slider = slider;
-        this.updateForm = updateForm;
+        this.form = form;
         this.evaluationSkipUrl = evaluationSkipUrl;
 
         this.sliderItems = Array.from(this.slider.querySelectorAll(".slider-item"));
@@ -114,7 +114,7 @@ export class QuickReviewSlider {
     // DOM
     //
     attach = () => {
-        this.updateForm.addEventListener("submit", this.formSubmitHandler);
+        this.form.addEventListener("submit", this.formSubmitHandler);
         document.addEventListener("keydown", this.keydownHandler);
         this.skipEvaluationButton?.addEventListener("click", this.skipEvaluationHandler);
         this.sliderItems.forEach(item => item.addEventListener("transitionend", this.transitionHandler(item)));
