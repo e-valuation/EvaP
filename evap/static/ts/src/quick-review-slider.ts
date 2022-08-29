@@ -1,3 +1,12 @@
+// This file accompanies the "quick" view in the textanswer review site. The quick view presents textanswers in a
+// _slider_ that is made up of three layers - answer, question and questionnaire. One answer is shown at a time, it is
+// _active_. The slider contains a form that has multiple submit buttons, one for each review decision, one for revoking
+// a previous decision and one for editing the answer. If a review decision is made, the next answer slides in from the
+// right. At the end, there is one _alert slide_ that summarises the current state of affairs regarding textanswer
+// review. The alert slide may also be the active slide. From there, users can _start over_ and look at _all_ or only
+// _undecided_ answers again. The alert slide also shows _next evaluations_ that need textanswer reviewing and an option
+// to skip the currently suggested evaluation.
+
 declare const bootstrap: typeof import("bootstrap");
 
 import { CSRF_HEADERS } from "./csrf-utils.js";
