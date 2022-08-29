@@ -175,7 +175,7 @@
         const slider = new QuickReviewSlider(
             document.querySelector(".slider"),
             document.querySelector("#textanswer-update-form"),
-            "{% url 'staff:evaluation_textanswers_skip' %}",
+            new URL("{% url 'staff:evaluation_textanswers_skip' %}"),
         );
         slider.attach();
     </script>
