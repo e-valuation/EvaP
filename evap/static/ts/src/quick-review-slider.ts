@@ -13,8 +13,14 @@ import {
 
 type SubmitterElement = HTMLInputElement | HTMLButtonElement;
 type SlideDirection = "left" | "right";
-// TODO: narrow
-type Action = string;
+
+enum Action {
+    Delete = "delete",
+    MakePrivate = "make_private",
+    Publish = "publish",
+    TextanswerEdit = "textanswer_edit",
+    Unreview = "unreview",
+}
 
 enum StartOverWhere {
     Undecided,
@@ -115,13 +121,34 @@ export class QuickReviewSlider {
         const actionButton = event.submitter as SubmitterElement | null;
         assertDefined(actionButton);
         assert(actionButton.name === "action");
+        assert(Object.values<string>(Action).includes(actionButton.value)); // button value is valid Action
+        const action = actionButton.value as Action;
+
         if (this.isShowingEndslide() || this.isWrongSubmit(actionButton)) {
             event.preventDefault();
             return;
         }
 
         // Update UI after submit is done (https://stackoverflow.com/q/71473512/13679671)
-        setTimeout(() => this.reviewAction(actionButton.value));
+        setTimeout(() => {
+            if (action === Action.Unreview) {
+                delete this.selectedSlide.dataset.review;
+                this.updateButtons();
+            } else {
+                this.selectedSlide.dataset.review = action;
+                this.updateButtonsActive();
+            }
+
+            const actionsThatSlide = [Action.Delete, Action.MakePrivate, Action.Publish];
+            if (!actionsThatSlide.includes(action)) {
+                return;
+            }
+
+            this.slideTo(this.selectedSlideIndex + 1);
+            const correspondingButtonRight = selectOrError<HTMLElement>(submitSelectorForAction(action), this.slider);
+            // TODO: should this trigger an event instead?
+            correspondingButtonRight.focus();
+        });
     };
     keydownHandler = (event: KeyboardEvent) => {
         if (event.ctrlKey || event.shiftKey || event.altKey || event.metaKey) {
@@ -131,11 +158,11 @@ export class QuickReviewSlider {
         const clickTargetSelectors = new Map([
             ["arrowleft", "[data-slide=left]"],
             ["arrowright", "[data-slide=right]"],
-            ["j", submitSelectorForAction("publish")],
-            ["k", submitSelectorForAction("make_private")],
-            ["l", submitSelectorForAction("delete")],
-            ["backspace", submitSelectorForAction("unreview")],
-            ["e", submitSelectorForAction("textanswer_edit")],
+            ["j", submitSelectorForAction(Action.Publish)],
+            ["k", submitSelectorForAction(Action.MakePrivate)],
+            ["l", submitSelectorForAction(Action.Delete)],
+            ["backspace", submitSelectorForAction(Action.Unreview)],
+            ["e", submitSelectorForAction(Action.TextanswerEdit)],
             ["enter", `[data-url=next-evaluation][data-next-evaluation-index="${this.nextEvaluationIndex}"]`],
             ["m", "[data-startover=undecided]"],
             ["n", "[data-startover=all]"],
@@ -173,27 +200,9 @@ export class QuickReviewSlider {
             console.error(err);
         }
     };
-    reviewAction = async (action: Action) => {
-        if (action === "unreview") {
-            delete this.selectedSlide.dataset.review;
-            this.updateButtons();
-        } else {
-            this.selectedSlide.dataset.review = action;
-            this.updateButtonsActive();
-        }
-
-        if (["unreview", "textanswer_edit"].includes(action)) {
-            return;
-        }
-
-        await this.slideTo(this.selectedSlideIndex + 1);
-        const correspondingButtonRight = selectOrError<HTMLElement>(submitSelectorForAction(action), this.slider);
-        // TODO: should this trigger an event instead?
-        correspondingButtonRight.focus();
-    };
 
     isWrongSubmit = (submitter: SubmitterElement) => {
-        return submitter.value === "make_private" && !("contribution" in this.selectedSlide.dataset);
+        return submitter.value === Action.MakePrivate && !("contribution" in this.selectedSlide.dataset);
     };
 
     transitionHandler = (item: HTMLElement) => () => {
@@ -236,7 +245,7 @@ export class QuickReviewSlider {
 
         // Update "private" button
         const isContributor = "contribution" in this.selectedSlide.dataset;
-        const privateButton = selectOrError<HTMLInputElement>(submitSelectorForAction("make_private"));
+        const privateButton = selectOrError<HTMLInputElement>(submitSelectorForAction(Action.MakePrivate));
         privateButton.disabled = !isContributor;
         const tooltip = bootstrap.Tooltip.getInstance(privateButton);
         assertDefined(tooltip);
@@ -248,21 +257,21 @@ export class QuickReviewSlider {
 
         // Update "unreview" button
         const isDecided = "review" in this.selectedSlide.dataset;
-        const unreviewButton = selectOrError<HTMLInputElement>(submitSelectorForAction("unreview"), this.slider);
+        const unreviewButton = selectOrError<HTMLInputElement>(submitSelectorForAction(Action.Unreview), this.slider);
         unreviewButton.disabled = !isDecided;
     };
     updateButtonsActive = () => {
         this.selectedSlide.focus();
         this.slider.querySelector<HTMLElement>(".btn:focus")?.blur();
 
-        const activeHighlights = {
-            publish: "btn-success",
-            make_private: "btn-dark",
-            delete: "btn-danger",
-        };
+        const activeHighlights = new Map([
+            [Action.Publish, "btn-success"],
+            [Action.MakePrivate, "btn-dark"],
+            [Action.Delete, "btn-danger"],
+        ]);
 
         const decision = this.selectedSlide.dataset.review;
-        for (const [action, activeHighlight] of Object.entries(activeHighlights)) {
+        for (const [action, activeHighlight] of activeHighlights.entries()) {
             const btn = selectOrError(submitSelectorForAction(action), this.slider);
             btn.classList.toggle(activeHighlight, decision === action);
             btn.classList.toggle("btn-outline-secondary", decision !== action);
