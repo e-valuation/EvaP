@@ -1557,6 +1557,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     objects = UserProfileManager()
 
     def save(self, *args, **kwargs):
+        # This is not guaranteed to be called on every insert. For example, the importers use bulk insertion.
+
         self.email = clean_email(self.email)
         super().save(*args, **kwargs)
 

@@ -91,14 +91,19 @@ from evap.staff.forms import (
     UserImportForm,
     UserMergeSelectionForm,
 )
-from evap.staff.importers import EnrollmentImporter, PersonImporter, UserImporter, sorted_messages
+from evap.staff.importers import (
+    ImporterLogEntry,
+    import_enrollments,
+    import_persons_from_evaluation,
+    import_persons_from_file,
+    import_users,
+)
 from evap.staff.tools import (
     ImportType,
     bulk_update_users,
     delete_import_file,
     delete_navbar_cache_for_users,
     find_unreviewed_evaluations,
-    forward_messages,
     get_import_file_content_or_raise,
     import_file_exists,
     merge_users,
@@ -616,9 +621,7 @@ def semester_import(request, semester_id):
     excel_form = ImportForm(request.POST or None, request.FILES or None)
     import_type = ImportType.SEMESTER
 
-    errors = {}
-    warnings = {}
-    success_messages = []
+    importer_log = None
 
     if request.method == "POST":
         operation = request.POST.get("operation")
@@ -631,10 +634,10 @@ def semester_import(request, semester_id):
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data["excel_file"]
                 file_content = excel_file.read()
-                success_messages, warnings, errors = EnrollmentImporter.process(
+                importer_log = import_enrollments(
                     file_content, semester, vote_start_datetime=None, vote_end_date=None, test_run=True
                 )
-                if not errors:
+                if not importer_log.has_errors():
                     save_import_file(excel_file, request.user.id, import_type)
 
         elif operation == "import":
@@ -644,10 +647,10 @@ def semester_import(request, semester_id):
             if excel_form.is_valid():
                 vote_start_datetime = excel_form.cleaned_data["vote_start_datetime"]
                 vote_end_date = excel_form.cleaned_data["vote_end_date"]
-                success_messages, warnings, __ = EnrollmentImporter.process(
+                importer_log = import_enrollments(
                     file_content, semester, vote_start_datetime, vote_end_date, test_run=False
                 )
-                forward_messages(request, success_messages, warnings)
+                importer_log.forward_messages_to_django(request)
                 delete_import_file(request.user.id, import_type)
                 delete_navbar_cache_for_users(UserProfile.objects.all())
                 return redirect("staff:semester_view", semester_id)
@@ -659,9 +662,7 @@ def semester_import(request, semester_id):
         "staff_semester_import.html",
         dict(
             semester=semester,
-            success_messages=success_messages,
-            errors=sorted_messages(errors),
-            warnings=sorted_messages(warnings),
+            importer_log=importer_log,
             excel_form=excel_form,
             test_passed=test_passed,
         ),
@@ -1328,9 +1329,7 @@ def evaluation_person_management(request, semester_id, evaluation_id):
     contributor_excel_form = UserImportForm(request.POST or None, request.FILES or None, prefix="ce")
     contributor_copy_form = EvaluationParticipantCopyForm(request.POST or None, prefix="cc")
 
-    errors = {}
-    warnings = {}
-    success_messages = []
+    importer_log = None
 
     if request.method == "POST":
         operation = request.POST.get("operation")
@@ -1358,36 +1357,37 @@ def evaluation_person_management(request, semester_id, evaluation_id):
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data["excel_file"]
                 file_content = excel_file.read()
-                success_messages, warnings, errors = PersonImporter.process_file_content(
+                importer_log = import_persons_from_file(
                     import_type, evaluation, test_run=True, file_content=file_content
                 )
-                if not errors:
+                if not importer_log.has_errors():
                     save_import_file(excel_file, request.user.id, import_type)
 
         else:
-            additional_messages = []
             if "replace" in operation:
                 deleted_person_count, deletion_message = helper_delete_users_from_evaluation(evaluation, operation)
-                additional_messages = format_html(deletion_message, deleted_person_count, evaluation.full_name)
 
             if "import" in operation:
                 file_content = get_import_file_content_or_raise(request.user.id, import_type)
-                success_messages, warnings, __ = PersonImporter.process_file_content(
+                importer_log = import_persons_from_file(
                     import_type, evaluation, test_run=False, file_content=file_content
                 )
                 delete_import_file(request.user.id, import_type)
-
             elif "copy" in operation:
                 copy_form.evaluation_selection_required = True
                 if copy_form.is_valid():
                     import_evaluation = copy_form.cleaned_data["evaluation"]
-                    success_messages, warnings, errors = PersonImporter.process_source_evaluation(
+                    importer_log = import_persons_from_evaluation(
                         import_type, evaluation, test_run=False, source_evaluation=import_evaluation
                     )
 
-            success_messages.insert(0, additional_messages)
+            if "replace" in operation:
+                importer_log.add_success(
+                    format_html(deletion_message, deleted_person_count, evaluation.full_name),
+                    category=ImporterLogEntry.Category.RESULT,
+                )
 
-            forward_messages(request, success_messages, warnings)
+            importer_log.forward_messages_to_django(request)
             return redirect("staff:semester_view", semester_id)
 
     participant_test_passed = import_file_exists(request.user.id, ImportType.PARTICIPANT)
@@ -1403,9 +1403,7 @@ def evaluation_person_management(request, semester_id, evaluation_id):
             participant_copy_form=participant_copy_form,
             contributor_excel_form=contributor_excel_form,
             contributor_copy_form=contributor_copy_form,
-            success_messages=success_messages,
-            errors=sorted_messages(errors),
-            warnings=sorted_messages(warnings),
+            importer_log=importer_log,
             participant_test_passed=participant_test_passed,
             contributor_test_passed=contributor_test_passed,
         ),
@@ -2029,9 +2027,7 @@ def user_import(request):
     excel_form = UserImportForm(request.POST or None, request.FILES or None)
     import_type = ImportType.USER
 
-    errors = {}
-    warnings = {}
-    success_messages = []
+    importer_log = None
 
     if request.method == "POST":
         operation = request.POST.get("operation")
@@ -2044,14 +2040,14 @@ def user_import(request):
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data["excel_file"]
                 file_content = excel_file.read()
-                __, success_messages, warnings, errors = UserImporter.process(file_content, test_run=True)
-                if not errors:
+                __, importer_log = import_users(file_content, test_run=True)
+                if not importer_log.has_errors():
                     save_import_file(excel_file, request.user.id, import_type)
 
         elif operation == "import":
             file_content = get_import_file_content_or_raise(request.user.id, import_type)
-            __, success_messages, warnings, __ = UserImporter.process(file_content, test_run=False)
-            forward_messages(request, success_messages, warnings)
+            __, importer_log = import_users(file_content, test_run=False)
+            importer_log.forward_messages_to_django(request)
             delete_import_file(request.user.id, import_type)
             return redirect("staff:user_index")
 
@@ -2062,9 +2058,7 @@ def user_import(request):
         "staff_user_import.html",
         dict(
             excel_form=excel_form,
-            success_messages=success_messages,
-            errors=sorted_messages(errors),
-            warnings=sorted_messages(warnings),
+            importer_log=importer_log,
             test_passed=test_passed,
         ),
     )

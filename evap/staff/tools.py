@@ -21,15 +21,6 @@ from evap.grades.models import GradeDocument
 from evap.results.tools import STATES_WITH_RESULTS_CACHING, cache_results
 
 
-def forward_messages(request, success_messages, warnings):
-    for message in success_messages:
-        messages.success(request, message)
-
-    for category in warnings:
-        for warning in warnings[category]:
-            messages.warning(request, warning)
-
-
 class ImportType(Enum):
     USER = "user"
     CONTRIBUTOR = "contributor"
