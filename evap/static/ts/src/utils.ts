@@ -37,3 +37,5 @@ export const findPreviousElementSibling = (element: Element, selector: string): 
     }
     return null;
 };
+
+export const isVisible = (element: HTMLElement): boolean => element.offsetWidth !== 0 || element.offsetHeight !== 0;

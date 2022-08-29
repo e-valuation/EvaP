@@ -15,6 +15,7 @@ import {
     assertDefined,
     clamp,
     findPreviousElementSibling,
+    isVisible,
     saneParseInt,
     selectOrError,
 } from "./utils.js";
@@ -76,7 +77,7 @@ export class QuickReviewSlider {
 
         this.sliderItems = Array.from(this.slider.querySelectorAll(".slider-item"));
         this.slideTriggers = Array.from(this.slider.querySelectorAll("[data-slide]"));
-        this.skipEvaluationButton = document.querySelector("[data-skip-evalaution]");
+        this.skipEvaluationButton = document.querySelector("[data-skip-evaluation]");
         this.alertSlide = selectOrError(".alert", this.slider);
 
         this.startOverTriggers = {
@@ -118,7 +119,9 @@ export class QuickReviewSlider {
         this.skipEvaluationButton?.addEventListener("click", this.skipEvaluationHandler);
         this.sliderItems.forEach(item => item.addEventListener("transitionend", this.transitionHandler(item)));
         this.slideTriggers.forEach(trigger => trigger.addEventListener("click", this.slideHandler(trigger)));
-        Object.values(this.startOverTriggers).forEach(trigger => trigger.addEventListener("click", this.startOverHandler(trigger)));
+        Object.values(this.startOverTriggers).forEach(trigger =>
+            trigger.addEventListener("click", this.startOverHandler(trigger)),
+        );
 
         this.startOver(StartOverWhere.Undecided);
         this.updateNextEvaluation();
@@ -187,7 +190,7 @@ export class QuickReviewSlider {
         }
     };
     skipEvaluationHandler = async (_event: Event) => {
-        const idElement = document.querySelector<HTMLElement>("[data-evaluation]:not(:hidden)");
+        const idElement = Array.from(document.querySelectorAll<HTMLElement>("[data-evaluation]")).find(isVisible);
         if (!idElement) {
             return;
         }
@@ -300,8 +303,11 @@ export class QuickReviewSlider {
     };
 
     updateAnswerIdInputs = () => {
-        assertDefined(this.selectedSlide.dataset.id);
-        const newAnswerId = this.selectedSlide.dataset.id;
+        let newAnswerId;
+        if (!this.isShowingEndslide()) {
+            assertDefined(this.selectedSlide.dataset.id);
+            newAnswerId = this.selectedSlide.dataset.id;
+        }
         for (const input of this.slider.querySelectorAll<HTMLInputElement>("input[name=answer_id]")) {
             input.disabled = input.value !== newAnswerId;
         }
