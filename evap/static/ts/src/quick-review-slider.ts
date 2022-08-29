@@ -51,24 +51,21 @@ interface NavigationButtonWithCounters {
 const submitSelectorForAction = (action: Action) => `[type=submit][name=action][value=${action}]`;
 
 export class QuickReviewSlider {
-    slider: HTMLElement;
-    sliderItems: Array<HTMLElement>;
-    slideTriggers: Array<HTMLElement>;
-    skipEvaluationButton: HTMLElement | null;
+    private readonly slider: HTMLElement;
+    private readonly form: HTMLFormElement;
+    private readonly sliderItems: Array<HTMLElement>;
+    private answerSlides: Array<HTMLElement> = [];
+    private selectedSlideIndex = 0;
 
-    answerSlides: Array<HTMLElement> = [];
-    alertSlide: HTMLElement;
-    alertContentSpans: { unreviewed: HTMLElement; reviewed: HTMLElement };
-    startOverTriggers: { undecided: HTMLElement; all: HTMLElement };
+    private readonly alertSlide: HTMLElement;
+    private readonly alertContentSpans: { unreviewed: HTMLElement; reviewed: HTMLElement };
+    private readonly skipEvaluationButton: HTMLElement | null;
+    private readonly evaluationSkipUrl: string;
+    private nextEvaluationIndex = 0;
 
-    navigationButtons: { left: NavigationButtonWithCounters; right: NavigationButtonWithCounters };
-
-    form: HTMLFormElement;
-
-    selectedSlideIndex = 0;
-    nextEvaluationIndex = 0;
-
-    evaluationSkipUrl: string;
+    private readonly startOverTriggers: { undecided: HTMLElement; all: HTMLElement };
+    private readonly slideTriggers: Array<HTMLElement>;
+    private readonly navigationButtons: { left: NavigationButtonWithCounters; right: NavigationButtonWithCounters };
 
     constructor(slider: HTMLElement, form: HTMLFormElement, evaluationSkipUrl: string) {
         this.slider = slider;
@@ -105,16 +102,16 @@ export class QuickReviewSlider {
     //
     // State
     //
-    isShowingEndslide = () => this.selectedSlideIndex === this.answerSlides.length;
-    get selectedSlide() {
+    public get selectedSlide(): HTMLElement {
         assert(!this.isShowingEndslide(), "No answer slide is selected!");
         return this.answerSlides[this.selectedSlideIndex];
     }
+    public isShowingEndslide = () => this.selectedSlideIndex === this.answerSlides.length;
 
     //
     // DOM
     //
-    attach = () => {
+    public attach = () => {
         this.form.addEventListener("submit", this.formSubmitHandler);
         document.addEventListener("keydown", this.keydownHandler);
         this.skipEvaluationButton?.addEventListener("click", this.skipEvaluationHandler);
@@ -128,7 +125,7 @@ export class QuickReviewSlider {
         this.updateNextEvaluation();
     };
 
-    formSubmitHandler = (event: SubmitEvent) => {
+    private formSubmitHandler = (event: SubmitEvent) => {
         const actionButton = event.submitter as SubmitterElement | null;
         try {
             assertDefined(actionButton);
@@ -166,7 +163,7 @@ export class QuickReviewSlider {
             correspondingButtonRight.focus();
         });
     };
-    keydownHandler = (event: KeyboardEvent) => {
+    private keydownHandler = (event: KeyboardEvent) => {
         if (event.ctrlKey || event.shiftKey || event.altKey || event.metaKey) {
             return;
         }
@@ -191,7 +188,7 @@ export class QuickReviewSlider {
             event.preventDefault();
         }
     };
-    skipEvaluationHandler = async (_event: Event) => {
+    private skipEvaluationHandler = async (_event: Event) => {
         const idElement = Array.from(document.querySelectorAll<HTMLElement>("[data-evaluation]")).find(isVisible);
         if (!idElement) {
             return;
@@ -206,8 +203,8 @@ export class QuickReviewSlider {
         try {
             const response = await fetch(this.evaluationSkipUrl, {
                 method: "POST",
-                body: new URLSearchParams({ evaluation_id: skippedEvaluationId }),
                 headers: CSRF_HEADERS,
+                body: new URLSearchParams({ evaluation_id: skippedEvaluationId }),
             });
             assert(response.ok);
         } catch (err) {
@@ -216,22 +213,22 @@ export class QuickReviewSlider {
         }
     };
 
-    isWrongSubmit = (submitter: SubmitterElement) => {
+    private isWrongSubmit = (submitter: SubmitterElement) => {
         return submitter.value === Action.MakePrivate && !("contribution" in this.selectedSlide.dataset);
     };
 
-    transitionHandler = (item: HTMLElement) => () => {
+    private transitionHandler = (item: HTMLElement) => () => {
         this.updateButtons();
         item.classList.remove("to-left", "to-right");
         item.style.removeProperty("top");
         item.style.removeProperty("height");
     };
-    slideHandler = (trigger: HTMLElement) => () => {
+    private slideHandler = (trigger: HTMLElement) => () => {
         const offset = trigger.dataset.slide === "left" ? -1 : 1;
         this.slideTo(this.selectedSlideIndex + offset);
         this.updateButtons();
     };
-    startOverHandler = (trigger: HTMLElement) => () => {
+    private startOverHandler = (trigger: HTMLElement) => () => {
         assertDefined(trigger.dataset.startover);
         const mapping = new Map([
             ["undecided", StartOverWhere.Undecided],
@@ -244,7 +241,7 @@ export class QuickReviewSlider {
     //
     // UI Updates
     //
-    updateButtons = () => {
+    private updateButtons = () => {
         this.slider
             .querySelectorAll("[data-action-set=reviewing]")
             .forEach(el => el.classList.toggle("d-none", this.isShowingEndslide()));
@@ -276,7 +273,7 @@ export class QuickReviewSlider {
         const unreviewButton = selectOrError<HTMLInputElement>(submitSelectorForAction(Action.Unreview), this.slider);
         unreviewButton.disabled = !isDecided;
     };
-    updateDecisionButtonHighlights = () => {
+    private updateDecisionButtonHighlights = () => {
         const activeHighlights = new Map([
             [Action.Publish, "btn-success"],
             [Action.MakePrivate, "btn-dark"],
@@ -290,11 +287,11 @@ export class QuickReviewSlider {
             btn.classList.toggle("btn-outline-secondary", decision !== action);
         }
     };
-    updateFocus = () => {
+    private updateFocus = () => {
         this.selectedSlide.focus();
         this.slider.querySelector<HTMLElement>(".btn:focus")?.blur();
     };
-    updateNextEvaluation = () => {
+    private updateNextEvaluation = () => {
         let foundNext = false;
         document.querySelectorAll<HTMLElement>("[data-next-evaluation-index]").forEach(element => {
             const isNext = saneParseInt(element.dataset.nextEvaluationIndex!) === this.nextEvaluationIndex;
@@ -306,7 +303,7 @@ export class QuickReviewSlider {
         }
     };
 
-    updateAnswerIdInputs = () => {
+    private updateAnswerIdInputs = () => {
         let newAnswerId;
         if (!this.isShowingEndslide()) {
             assertDefined(this.selectedSlide.dataset.id);
@@ -316,7 +313,7 @@ export class QuickReviewSlider {
             input.disabled = input.value !== newAnswerId;
         }
     };
-    updateNavigationButtons = () => {
+    private updateNavigationButtons = () => {
         const leftSlides = this.answerSlides.slice(0, this.selectedSlideIndex);
         const rightSlides = this.answerSlides.slice(this.selectedSlideIndex + 1);
         const leftReviewed = leftSlides.filter(slide => slide.matches("[data-review]")).length;
@@ -332,7 +329,7 @@ export class QuickReviewSlider {
             0,
         ).toString();
     };
-    updateAlertSlide = () => {
+    private updateAlertSlide = () => {
         const slidesExist = this.answerSlides.length > 0;
         const allAreReviewed = this.answerSlides.every(slide => "review" in slide.dataset);
 
@@ -348,7 +345,7 @@ export class QuickReviewSlider {
     //
     // Sliding
     //
-    startOver = (where: StartOverWhere) => {
+    public startOver = (where: StartOverWhere) => {
         const decided = this.slider.querySelectorAll<HTMLElement>(`[data-layer="${Layer.Answer}"][data-review]`);
         const undecided = this.slider.querySelectorAll<HTMLElement>(
             `[data-layer="${Layer.Answer}"]:not([data-review])`,
@@ -359,7 +356,7 @@ export class QuickReviewSlider {
         this.slideTo(startIndex);
         this.updateButtons();
     };
-    slideTo = (requestedIndex: number) => {
+    public slideTo = (requestedIndex: number) => {
         requestedIndex = clamp(requestedIndex, 0, this.answerSlides.length);
         const direction = requestedIndex >= this.selectedSlideIndex ? "right" : "left";
         this.selectedSlideIndex = requestedIndex;
@@ -376,7 +373,7 @@ export class QuickReviewSlider {
 
         this.updateNavigationButtons();
     };
-    slideLayer = (layer: Layer, direction: SlideDirection, nextActiveElement?: HTMLElement) => {
+    private slideLayer = (layer: Layer, direction: SlideDirection, nextActiveElement?: HTMLElement) => {
         // to preserve the vertical positions and heights during transition,
         // the elements will be deactivated from bottom to top and activated from top to bottom
 
