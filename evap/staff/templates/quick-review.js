@@ -1,3 +1,5 @@
+// TODO: DELETE ME
+
 // Limits `val` to the interval [lowest, highest] - both ends included.
 const clamp = (val, lowest, highest) => Math.min(highest, Math.max(lowest, val));
 
