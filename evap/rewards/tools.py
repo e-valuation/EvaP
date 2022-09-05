@@ -26,7 +26,7 @@ from evap.rewards.models import (
 
 @login_required
 @transaction.atomic
-def save_redemptions(request, redemptions: Dict[int, int], previous_reward_points) -> bool:
+def save_redemptions(request, redemptions: Dict[int, int], previous_reward_points):
     """Saves the redemptions in the given dict. Returns True if the redemptions were saved successfully, False otherwise."""
     # lock these rows to prevent race conditions
     list(request.user.reward_point_grantings.select_for_update())
