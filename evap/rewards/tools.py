@@ -15,6 +15,7 @@ from evap.evaluation.models import Evaluation, Semester, UserProfile
 from evap.rewards.models import (
     NoPointsSelected,
     NotEnoughPoints,
+    OutdatedRedemptionData,
     RedemptionEventExpired,
     RewardPointGranting,
     RewardPointRedemption,
@@ -25,10 +26,19 @@ from evap.rewards.models import (
 
 @login_required
 @transaction.atomic
-def save_redemptions(request, redemptions: Dict[int, int]):
+def save_redemptions(request, redemptions: Dict[int, int], previous_reward_points) -> bool:
+    """Saves the redemptions in the given dict. Returns True if the redemptions were saved successfully, False otherwise."""
     # lock these rows to prevent race conditions
     list(request.user.reward_point_grantings.select_for_update())
     list(request.user.reward_point_redemptions.select_for_update())
+
+    # check consistent previous redeemed points
+    if previous_reward_points != redeemed_points_of_user(request.user):
+        raise OutdatedRedemptionData(
+            _(
+                "It appears that your browser sent multiple redemption requests. You can see all successful redemptions below."
+            )
+        )
 
     total_points_available = reward_points_of_user(request.user)
     total_points_redeemed = sum(redemptions.values())
@@ -46,6 +56,7 @@ def save_redemptions(request, redemptions: Dict[int, int]):
                 raise RedemptionEventExpired(_("Sorry, the deadline for this event expired already."))
 
             RewardPointRedemption.objects.create(user_profile=request.user, value=redemptions[event_id], event=event)
+    return True
 
 
 def can_reward_points_be_used_by(user):

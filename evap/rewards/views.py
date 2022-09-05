@@ -2,7 +2,6 @@ from datetime import datetime
 
 from django.contrib import messages
 from django.core.exceptions import BadRequest, SuspiciousOperation
-from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import get_language
@@ -17,29 +16,15 @@ from evap.rewards.forms import RewardPointRedemptionEventForm
 from evap.rewards.models import (
     NoPointsSelected,
     NotEnoughPoints,
+    OutdatedRedemptionData,
     RedemptionEventExpired,
     RewardPointGranting,
     RewardPointRedemption,
     RewardPointRedemptionEvent,
     SemesterActivation,
 )
-from evap.rewards.tools import (
-    grant_eligible_reward_points_for_semester,
-    redeemed_points_of_user,
-    reward_points_of_user,
-    save_redemptions,
-)
+from evap.rewards.tools import grant_eligible_reward_points_for_semester, reward_points_of_user, save_redemptions
 from evap.staff.views import semester_view
-
-
-@transaction.atomic
-def check_consistent_previous_redemption_counts(request):
-    list(request.user.reward_point_grantings.select_for_update())
-    list(request.user.reward_point_redemptions.select_for_update())
-    try:
-        return int(request.POST["previous_redeemed_points"]) == redeemed_points_of_user(request.user)
-    except (KeyError, ValueError, TypeError) as e:
-        raise BadRequest("Invalid redeemed-points field in redemption request") from e
 
 
 def redeem_reward_points(request):
@@ -49,30 +34,26 @@ def redeem_reward_points(request):
             if key.startswith("points-"):
                 event_id = int(key.rpartition("-")[2])
                 redemptions[event_id] = int(value)
-    except ValueError as e:
+        previous_redeemed_points = int(request.POST["previous_redeemed_points"])
+    except (ValueError, KeyError, TypeError) as e:
         raise BadRequest from e
 
     try:
-        save_redemptions(request, redemptions)
+        save_redemptions(request, redemptions, previous_redeemed_points)
         messages.success(request, _("You successfully redeemed your points."))
     except (NoPointsSelected, NotEnoughPoints, RedemptionEventExpired) as error:
         messages.warning(request, error)
+    except OutdatedRedemptionData as error:
+        messages.error(request, error)
+        return 409
+    return 200
 
 
 @reward_user_required
 def index(request):
     status = 200
     if request.method == "POST":
-        if check_consistent_previous_redemption_counts(request):
-            redeem_reward_points(request)
-        else:
-            messages.error(
-                request,
-                _(
-                    "It appears that your browser sent multiple redemption requests. You can see all successful redemptions below."
-                ),
-            )
-            status = 409
+        status = redeem_reward_points(request)
     total_points_available = reward_points_of_user(request.user)
     reward_point_grantings = RewardPointGranting.objects.filter(user_profile=request.user)
     reward_point_redemptions = RewardPointRedemption.objects.filter(user_profile=request.user)
