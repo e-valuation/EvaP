@@ -82,7 +82,6 @@ class TestIndexView(WebTest):
     def helper_post_redemption_request(self, redemption_params, additional_params=None, status=400):
         if additional_params is None:
             additional_params = {
-                "previous_reward_points": reward_points_of_user(self.student),
                 "previous_redeemed_points": redeemed_points_of_user(self.student),
             }
         return self.app.post(
@@ -99,11 +98,7 @@ class TestIndexView(WebTest):
         self.helper_post_redemption_request(redemption_params={f"points-{self.event1.pk}": 1}, additional_params={})
         self.helper_post_redemption_request(
             redemption_params={f"points-{self.event1.pk}": 1},
-            additional_params={"previous_reward_points": "asd", "previous_redeemed_points": 0},
-        )
-        self.helper_post_redemption_request(
-            redemption_params={f"points-{self.event1.pk}": 1},
-            additional_params={"previous_reward_points": 0, "previous_redeemed_points": "asd"},
+            additional_params={"previous_redeemed_points": "asd"},
         )
         self.assertFalse(RewardPointRedemption.objects.filter(user_profile=self.student).exists())
 

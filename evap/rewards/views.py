@@ -37,11 +37,9 @@ def check_consistent_previous_redemption_counts(request):
     list(request.user.reward_point_grantings.select_for_update())
     list(request.user.reward_point_redemptions.select_for_update())
     try:
-        reward = int(request.POST["previous_reward_points"])
-        redeemed = int(request.POST["previous_redeemed_points"])
+        return int(request.POST["previous_redeemed_points"]) == redeemed_points_of_user(request.user)
     except (KeyError, ValueError, TypeError) as e:
-        raise BadRequest("Invalid redeemed-points or left-points field in redemption request") from e
-    return reward == reward_points_of_user(request.user) and redeemed == redeemed_points_of_user(request.user)
+        raise BadRequest("Invalid redeemed-points field in redemption request") from e
 
 
 def redeem_reward_points(request):
