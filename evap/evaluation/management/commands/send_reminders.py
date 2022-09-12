@@ -26,7 +26,8 @@ def get_sorted_evaluation_url_tuples_with_urgent_review() -> List[Tuple[Evaluati
         for evaluation in Evaluation.objects.filter(state=Evaluation.State.EVALUATED)
         if evaluation.textanswer_review_state == Evaluation.TextAnswerReviewState.REVIEW_URGENT
     ]
-    # type: ignore Mypy complains: Cannot infer type of lambda
+    # Mypy complains: Cannot infer type of lambda
+    # type: ignore
     evaluation_url_tuples = sorted(evaluation_url_tuples, key=lambda evaluation, __: evaluation.full_name)
     return evaluation_url_tuples
 
