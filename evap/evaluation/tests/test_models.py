@@ -673,8 +673,8 @@ class TestUserProfile(TestCase):
     def test_correct_sorting(self):
         baker.make(
             UserProfile,
-            last_name=iter(["x","Y",None,None]),
-            first_name=iter(["x","x","a",None]),
+            last_name=iter(["x", "Y", None, None]),
+            first_name=iter(["x", "x", "a", None]),
             email=iter(["4xx@example.com", "3xy@example.com", "2a@example.com", "1unnamed@example.com"]),
             _quantity=4,
             _bulk_create=True,
