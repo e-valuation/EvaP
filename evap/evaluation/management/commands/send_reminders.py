@@ -1,14 +1,34 @@
 import datetime
 import logging
+from typing import List, Tuple
 
 from django.conf import settings
+from django.conf.settings import PAGE_URL
 from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
+from django.urls import reverse
 
 from evap.evaluation.management.commands.tools import log_exceptions
 from evap.evaluation.models import EmailTemplate, Evaluation
 
 logger = logging.getLogger(__name__)
+
+
+def get_sorted_evaluation_url_tuples_with_urgent_review(cls) -> List[Tuple["Evaluation", str]]:
+    evaluation_url_tuples = [
+        (
+            evaluation,
+            PAGE_URL
+            + reverse(
+                "staff:evaluation_textanswers",
+                kwargs={"semester_id": evaluation.course.semester.id, "evaluation_id": evaluation.id},
+            ),
+        )
+        for evaluation in Evaluation.objects.filter(state=Evaluation.State.EVALUATED)
+        if evaluation.textanswer_review_state == Evaluation.TextAnswerReviewState.REVIEW_URGENT
+    ]
+    evaluation_url_tuples = sorted(evaluation_url_tuples, key=lambda evaluation, __: evaluation.full_name)
+    return evaluation_url_tuples
 
 
 @log_exceptions
@@ -49,7 +69,7 @@ class Command(BaseCommand):
     @staticmethod
     def send_textanswer_reminders():
         if datetime.date.today().weekday() in settings.TEXTANSWER_REVIEW_REMINDER_WEEKDAYS:
-            evaluation_url_tuples = Evaluation.get_sorted_evaluation_url_tuples_with_urgent_review()
+            evaluation_url_tuples = get_sorted_evaluation_url_tuples_with_urgent_review()
             if not evaluation_url_tuples:
                 logger.info("no evaluations require a reminder about text answer review.")
                 return
