@@ -13,8 +13,8 @@ from evap.evaluation.models import EmailTemplate, Evaluation
 logger = logging.getLogger(__name__)
 
 
-def get_sorted_evaluation_url_tuples_with_urgent_review() -> List[Tuple["Evaluation", str]]:
-    evaluation_url_tuples = [
+def get_sorted_evaluation_url_tuples_with_urgent_review() -> List[Tuple[Evaluation, str]]:
+    evaluation_url_tuples: List[Tuple[Evaluation, str]] = [
         (
             evaluation,
             settings.PAGE_URL
@@ -26,6 +26,7 @@ def get_sorted_evaluation_url_tuples_with_urgent_review() -> List[Tuple["Evaluat
         for evaluation in Evaluation.objects.filter(state=Evaluation.State.EVALUATED)
         if evaluation.textanswer_review_state == Evaluation.TextAnswerReviewState.REVIEW_URGENT
     ]
+    # type: ignore Mypy complains: Cannot infer type of lambda
     evaluation_url_tuples = sorted(evaluation_url_tuples, key=lambda evaluation, __: evaluation.full_name)
     return evaluation_url_tuples
 
