@@ -1,5 +1,6 @@
-// @ts-ignore
-window.$ = require("../../../js/jquery-2.1.3.min");
+/**
+ * @jest-environment jsdom
+ */
 
 import { testable } from "src/csrf-utils";
 
