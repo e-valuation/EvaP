@@ -3,7 +3,6 @@ import logging
 from typing import List, Tuple
 
 from django.conf import settings
-from django.conf.settings import PAGE_URL
 from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
 from django.urls import reverse
@@ -18,7 +17,7 @@ def get_sorted_evaluation_url_tuples_with_urgent_review(cls) -> List[Tuple["Eval
     evaluation_url_tuples = [
         (
             evaluation,
-            PAGE_URL
+            settings.PAGE_URL
             + reverse(
                 "staff:evaluation_textanswers",
                 kwargs={"semester_id": evaluation.course.semester.id, "evaluation_id": evaluation.id},
