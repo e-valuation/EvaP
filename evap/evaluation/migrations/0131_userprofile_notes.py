@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0128_django_40_noop'),
+        ('evaluation', '0130_alter_textanswer_review_decision'),
     ]
 
     operations = [
