@@ -1,4 +1,4 @@
-import { getCookie } from "./utils";
+import { getCookie } from "./utils.js";
 
 const csrftoken = getCookie("csrftoken")!;
 export const CSRF_HEADERS = { "X-CSRFToken": csrftoken };
