@@ -955,13 +955,13 @@ class EvaluationFormTests(TestCase):
         form = EvaluationForm(form_data, instance=evaluation, semester=semester)
         self.assertTrue(form.is_valid())
         with patch("evap.results.views._delete_course_template_cache_impl") as delete_call, patch(
-            "evap.results.views.warm_up_template_cache"
-        ) as warmup_call:
+            "evap.results.views.update_template_cache"
+        ) as update_call:
             # save without changes
             form.save()
             self.assertEqual(Evaluation.objects.get(pk=evaluation.pk).course, course1)
             self.assertEqual(delete_call.call_count, 0)
-            self.assertEqual(warmup_call.call_count, 0)
+            self.assertEqual(update_call.call_count, 0)
 
             # change course and save
             form_data = get_form_data_from_instance(EvaluationForm, evaluation)
@@ -971,7 +971,7 @@ class EvaluationFormTests(TestCase):
             form.save()
             self.assertEqual(Evaluation.objects.get(pk=evaluation.pk).course, course2)
             self.assertEqual(delete_call.call_count, 2)
-            self.assertEqual(warmup_call.call_count, 2)
+            self.assertEqual(update_call.call_count, 2)
 
     def test_locked_questionnaire(self):
         """

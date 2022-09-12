@@ -20,3 +20,7 @@ def notebook_form(request):
     if request.user.is_authenticated:
         return {"notebook_form": NotebookForm(instance=request.user)}
     return {}
+
+
+def allow_anonymous_feedback_messages(request):
+    return {"allow_anonymous_feedback_messages": settings.ALLOW_ANONYMOUS_FEEDBACK_MESSAGES}

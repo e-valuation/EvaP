@@ -32,7 +32,7 @@ from evap.evaluation.tests.tools import (
 )
 from evap.results.exporters import TextAnswerExporter
 from evap.results.tools import cache_results
-from evap.results.views import get_evaluations_with_prefetched_data, warm_up_template_cache
+from evap.results.views import get_evaluations_with_prefetched_data, update_template_cache
 from evap.staff.tests.utils import WebTestStaffMode, helper_exit_staff_mode, run_in_staff_mode
 
 
@@ -283,7 +283,7 @@ class TestResultsView(WebTest):
 
         contributions = [e.general_contribution for e in published]
         baker.make(RatingAnswerCounter, contribution=iter(contributions), answer=2, count=2, _quantity=len(published))
-        warm_up_template_cache(published)
+        update_template_cache(published)
 
         page = self.app.get(self.url, user=student)
         decoded = page.body.decode()
@@ -692,9 +692,13 @@ class TestResultsTextanswerVisibilityForManager(WebTestStaffMode):
 
     def test_textanswer_visibility_for_manager_before_publish(self):
         evaluation = Evaluation.objects.get(id=1)
+        voter_count = evaluation._voter_count
+        participant_count = evaluation._participant_count
         evaluation._voter_count = 0  # set these to 0 to make unpublishing work
         evaluation._participant_count = 0
         evaluation.unpublish()
+        evaluation._voter_count = voter_count  # reset to original values
+        evaluation._participant_count = participant_count
         evaluation.save()
 
         page = self.app.get("/results/semester/1/evaluation/1?view=full", user=self.manager)

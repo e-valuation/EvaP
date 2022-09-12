@@ -557,7 +557,7 @@ class TestExporters(TestCase):
             question=iter(questions[idx] for idx in [0, 1, 2, 2, 0]),
             contribution__evaluation=evaluation,
             contribution__questionnaires=iter(questions[idx].questionnaire for idx in [0, 1, 2, 2, 0]),
-            state=TextAnswer.State.PUBLISHED,
+            review_decision=TextAnswer.ReviewDecision.PUBLIC,
             _quantity=5,
         )
 

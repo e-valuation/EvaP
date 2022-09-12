@@ -13,7 +13,7 @@
             <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
             <title>{% block title %}EvaP{% endblock %}</title>
 
-            <link rel="stylesheet" href="{% static 'css/select2.min.css' %}" />
+            <link rel="stylesheet" href="{% static 'css/tom-select.bootstrap5.min.css' %}" />
             <link rel="stylesheet" href="{% static 'css/bootstrap-datetimepicker.min.css' %}" />
             <link rel="stylesheet" href="{% static 'css/evap.css' %}" />
             {% if debug %}
@@ -73,9 +73,7 @@
         {% include 'footer.html' %}
 
         <script type="text/javascript" src="{% static 'js/jquery-2.1.3.min.js' %}"></script>
-        <script type="text/javascript" src="{% static 'js/select2.min.js' %}"></script>
-        <script type="text/javascript" src="{% static 'js/locale/select2_de.js' %}"></script>
-        <script type="text/javascript" src="{% static 'js/locale/select2_en.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/tom-select.complete.min.js' %}"></script>
         <script type="text/javascript" src="{% static 'js/plugins/jquery.formset.js' %}"></script>
         <script type="text/javascript" src="{% static 'js/Sortable.min.js' %}"></script>
 
@@ -96,6 +94,7 @@
             };
             activateTooltips();
 
+
             for(const offCanvasElement of document.querySelectorAll('.offcanvas')) {
                 new bootstrap.Offcanvas(offcanvasEl);
             }
@@ -105,53 +104,80 @@
             // django-dynamic-formsets' "add another" button, so we take a copy of a non-select2'd form here
             var templateForm = $(".select2tr").last().clone();
 
+
             // later we use this class to give this to django-dynamic-formsets
-            // as template and to make sure it does not get select2'd
+            // as template and to make sure it does not get tomselect'd
             templateForm.addClass("form-template").css("display", "none");
             // for some reason django-dynamic-formsets does not hide the checkbox like it should
             templateForm.find(':checkbox').last().attr("type", "hidden");
             // For some reason, django validates this template if it's part of the form, so we insert the copy outside of the form.
-            templateForm.insertAfter($('.select2form'));
+            templateForm.insertAfter($('.tomselectform'));
 
-            // put this into a function for later re-use
-            applySelect2 = function(elem, parent = $(document.body)) {
-                elem.each(function() {
-                    $(this).select2({
-                        language: "{{ LANGUAGE_CODE }}",
+            // used in derived templates. Tag inputs are multi-inputs where users can add options
+            const tagTomSelectOptions = {
+                create: true,
+                createOnBlur: true,
+                dropdownParent: document.createElement("div"),  // To make it invisible
+                delimiter: '', // we don't want the default "comma creates entry" behavior
+            };
+
+            class MinimumInputLengthTomSelect extends TomSelect {
+                constructor(...args) {
+                    super(...args);
+                    this.settings.shouldLoad = () => true;  // Otherwise, for empty inputs, no dropdown would be shown.
+                }
+                // hacky solution, comes from
+                // https://github.com/orchidjs/tom-select/discussions/376
+                // ( via https://stackoverflow.com/questions/72233401/ )
+                search(query) {
+                    if(query.length < this.settings.minimumInputLength) {
+                        return this.sifter.prepareSearch(query, {});
+                    }
+                    return super.search(query);
+                }
+            }
+
+            applyTomSelect = function(elements, additionalOptions = {}) {
+                elements.forEach((element) => {
+                    const minimumInputLength = element.options.length >= 50 ? 3 : 0;
+
+                    element.tomselect?.destroy();
+                    element.classList.remove("form-select");  // TomSelect applies their own matching classes / styles
+                    if(element.parentElement.classList.contains("is-invalid")) {  // hotfix for our wrongly placed is-invalid
+                        element.parentElement.classList.remove("is-invalid");
+                        element.classList.add("is-invalid");
+                    }
+                    const baseOptions = {
+                        createOnBlur: true,
                         placeholder: "{% trans 'Please select...' %}",
-                        minimumResultsForSearch: 15,
-                        minimumInputLength: $(this).children('option').length > 50 ? 3 : 0,
-                        allowClear: this.multiple,
-                        dropdownParent: parent
-                    });
+                        hidePlaceholder: true,
+                        minimumInputLength,
+                        render: {
+                            option_create: (data, escape) => `<div class="create">${ escape(data.input) }</div>`,
+                            no_results: (data, escape) => {
+                                if(data.input.length < minimumInputLength) {
+                                    return `<div class="no-results">{% trans "Please enter ${ minimumInputLength } characters or more..." %}</div>`;
+                                } else {
+                                    return '<div class="no-results">{% trans "No results found" %}</div>';
+                                }
+                            }
+                        },
+                        closeAfterSelect: true, // also clears search input on enter.
+                        plugins: {},
+                    };
+                    if(element.hasAttribute("data-tomselect-fullwidth")) {
+                        // span needed to the "remove this icon" button is right-aligned
+                        baseOptions.render.item = (data, escape) => `<div class="w-100"><span class="w-100">${ escape(data.text) }</span></div>`;
+                    }
+                    if(element.multiple) {
+                        baseOptions.plugins.clear_button = {"title": "{% trans 'Remove all items' %}"};
+                        baseOptions.plugins.remove_button = {"title": "{% trans 'Remove this item' %}"};
+                    }
+                    new MinimumInputLengthTomSelect(element, Object.assign({}, baseOptions, additionalOptions));
                 });
             };
-            applySelect2($('select').not('.form-template select').not('[disabled]').not('.no-select2').not('#id_delegate_to'));
-            // handle delegation modal, which includes a dropdown select field
-            applySelect2($('select#id_delegate_to'), $('#delegateSelectionModal'));
+            applyTomSelect(document.querySelectorAll("select:not(.form-template select):not(.no-tomselect)"));
 
-            // don't use the placeholder text on disabled select2 elements
-            applySelect2Disabled = function(elem) {
-                elem.select2();
-            };
-            applySelect2Disabled($('select[disabled]').not('.form-template select'));
-
-            // fix Bootstrap bug that selecting toggle buttons via keyboard controls is only visually
-            // https://github.com/twbs/bootstrap/issues/26855
-            $(document).on("click", '[data-bs-toggle^="button"] input[type="radio"]', function(event) {
-                // Bootstrap will call event.preventDefault() which results into a reset of the radio buttons before the keyboard input.
-                // To work around this, we set the method to one without side effects.
-                event.preventDefault = () => true;
-            });
-
-            // fix scrolling to required field when the browser does form validation
-            // taken from http://stackoverflow.com/questions/19814673/html5-input-required-scroll-to-input-with-fixed-navbar-on-submit
-            var delay = 0;
-            var offset = 150;
-            document.addEventListener('invalid', function(e){
-               $(e.target).addClass("invalid");
-               $('html, body').animate({scrollTop: $($(".invalid")[0]).offset().top - offset }, delay);
-            }, true);
             document.addEventListener('change', function(e){
                $(e.target).removeClass("invalid")
             }, true);

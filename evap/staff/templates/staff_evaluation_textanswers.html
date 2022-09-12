@@ -21,8 +21,8 @@
                 <a href="{% url 'staff:evaluation_textanswers' semester.id evaluation.id %}?view=full" role="button" class="btn btn-sm btn-light{% if view == 'full' %} active{% endif %}">
                     {% trans 'Full' %}
                 </a>
-                <a href="{% url 'staff:evaluation_textanswers' semester.id evaluation.id %}?view=unreviewed" role="button" class="btn btn-sm btn-light{% if view == 'unreviewed' %} active{% endif %}">
-                    {% trans 'Unreviewed' %}
+                <a href="{% url 'staff:evaluation_textanswers' semester.id evaluation.id %}?view=undecided" role="button" class="btn btn-sm btn-light{% if view == 'undecided' %} active{% endif %}">
+                    {% trans 'Undecided' %}
                 </a>
             </div>
         </div>
@@ -36,6 +36,6 @@
         {% include 'evaluation_badges.html' with mode='manager' %}
     </div>
     <div class="callout callout-warning">
-        {% blocktrans %}If you select "no" as publishing option for a text answer on this page, the respective answer will be deleted irrevocably when publishing the evaluation's results. If you should edit an answer, the original answer will also be deleted when publishing the evaluation's results.{% endblocktrans %}
+        {% blocktrans %}If you select "delete" for a text answer on this page, the respective answer will be deleted irrevocably when publishing the evaluation's results. If you edit an answer, the original answer will also be deleted when publishing the evaluation's results.{% endblocktrans %}
     </div>
 {% endblock %}

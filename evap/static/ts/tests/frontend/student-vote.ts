@@ -17,16 +17,10 @@ async function query(page: Page): Promise<TextResultsPublishConfirmationElements
     };
 }
 
-async function queryClosest(element: ElementHandle, selector: string): Promise<ElementHandle> {
+async function queryClosest(element: ElementHandle, selector: string): Promise<ElementHandle<Node>> {
     return element.evaluateHandle((element, selector) => {
         return element.closest(selector);
     }, selector).then(handle => handle.asElement()!);
-}
-
-async function queryParent(element: ElementHandle): Promise<ElementHandle> {
-    return element.evaluateHandle(element => {
-        return element.parentElement;
-    }).then(handle => handle.asElement()!);
 }
 
 test("checking top confirm checkbox checks and hides bottom", pageHandler(
@@ -83,6 +77,6 @@ test("skipping contributor clears warning", pageHandler(
         const button = (await page.$("[data-mark-no-answers-for]"))!;
         const voteArea = (await queryClosest(button, ".card").then(card => card.$(".collapse")))!;
         await button.click();
-        await expect(await voteArea.$$(".choice-error")).toHaveLength(0);
+        expect(await voteArea.$$(".choice-error")).toHaveLength(0);
     },
 ));

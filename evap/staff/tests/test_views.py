@@ -2,7 +2,7 @@ import datetime
 import os
 from abc import ABC, abstractmethod
 from io import BytesIO
-from typing import Tuple, Type
+from typing import Literal, Tuple, Type, Union
 from unittest.mock import PropertyMock, patch
 
 import openpyxl
@@ -319,14 +319,18 @@ class TestUserMergeView(WebTestStaffModeWith200Check):
             "in the column of the voter and in the column of the merged data",
         )
 
+    def test_shows_swap_users_option(self):
+        page = self.app.get(self.url, user=self.manager)
+        self.assertContains(page, f"/staff/user/{self.other_user.pk}/merge/{self.main_user.pk}")
+
 
 class TestUserBulkUpdateView(WebTestStaffMode):
     url = "/staff/user/bulk_update"
     filename = os.path.join(settings.BASE_DIR, "staff/fixtures/test_user_bulk_update_file.txt")
-    filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
 
     @classmethod
     def setUpTestData(cls):
+        cls.random_excel_file_content = excel_data.random_file_content
         cls.manager = make_manager()
 
     def test_testrun_deletes_no_users(self):
@@ -351,8 +355,8 @@ class TestUserBulkUpdateView(WebTestStaffMode):
 
         error_string = (
             "Multiple users match the email testuser1@institution.example.com:"
-            + "<br />Elisabeth Fröhlich (testuser1@institution.example.com)"
-            + "<br />Tony Kuchenbuch (testuser1@internal.example.com)"
+            "<br />Elisabeth Fröhlich (testuser1@institution.example.com)"
+            "<br />Tony Kuchenbuch (testuser1@internal.example.com)"
         )
         button_substring = 'value="bulk_update"'
 
@@ -457,7 +461,7 @@ class TestUserBulkUpdateView(WebTestStaffMode):
     def test_wrong_files_dont_crash(self):
         page = self.app.get(self.url, user=self.manager)
         form = page.forms["user-bulk-update-form"]
-        form["user_file"] = (self.filename_random,)
+        form["user_file"] = ("import.xls", self.random_excel_file_content)
         reply = form.submit(name="operation", value="test", status=200)
         self.assertIn("An error happened when processing the file", reply)
 
@@ -473,12 +477,15 @@ class TestUserBulkUpdateView(WebTestStaffMode):
 
 class TestUserImportView(WebTestStaffMode):
     url = "/staff/user/import"
-    filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xlsx")
-    filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xlsx")
-    filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
 
     @classmethod
     def setUpTestData(cls):
+        cls.valid_excel_file_content = excel_data.create_memory_excel_file(excel_data.valid_user_import_filedata)
+        cls.missing_values_excel_file_content = excel_data.create_memory_excel_file(
+            excel_data.missing_values_user_import_filedata
+        )
+        cls.random_excel_file_content = excel_data.random_file_content
+
         cls.manager = make_manager()
 
     @render_pages
@@ -493,7 +500,7 @@ class TestUserImportView(WebTestStaffMode):
         """
         page = self.app.get(self.url, user=self.manager)
         form = page.forms["user-import-form"]
-        form["excel_file"] = (self.filename_valid,)
+        form["excel_file"] = ("import.xls", self.valid_excel_file_content)
         page = form.submit(name="operation", value="test")
 
         self.assertContains(
@@ -519,11 +526,19 @@ class TestUserImportView(WebTestStaffMode):
         original_user_count = UserProfile.objects.count()
 
         form = page.forms["user-import-form"]
-        form["excel_file"] = (self.filename_invalid,)
+        form["excel_file"] = ("import.xls", self.missing_values_excel_file_content)
 
         reply = form.submit(name="operation", value="test")
 
-        self.assertContains(reply, "Sheet &quot;Sheet1&quot;, row 2: Email address is missing.")
+        self.assertContains(
+            reply,
+            "Sheet &quot;Sheet 1&quot;, row 2: User missing.firstname@institution.example.com: First name is missing.",
+        )
+        self.assertContains(
+            reply,
+            "Sheet &quot;Sheet 1&quot;, row 3: User missing.lastname@institution.example.com: Last name is missing.",
+        )
+        self.assertContains(reply, "Sheet &quot;Sheet 1&quot;, row 4: Email address is missing.")
         self.assertContains(reply, "Errors occurred while parsing the input data. No data was imported.")
         self.assertNotContains(reply, "Import previously uploaded file")
 
@@ -538,14 +553,14 @@ class TestUserImportView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["user-import-form"]
-        form["excel_file"] = (self.filename_valid,)
+        form["excel_file"] = ("import.xls", self.valid_excel_file_content)
 
         reply = form.submit(name="operation", value="test")
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
-            f" -  None None, lucilia.manilium@institution.example.com (existing) [{user_edit_link(user.pk)}]<br />"
-            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
+            f" -  None None, lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}] (existing)<br />"
+            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (import)",
         )
 
         helper_delete_all_import_files(self.manager.id)
@@ -554,7 +569,7 @@ class TestUserImportView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["user-import-form"]
-        form["excel_file"] = (self.filename_valid,)
+        form["excel_file"] = ("import.xls", self.valid_excel_file_content)
 
         form.submit(name="operation", value="hackit", status=400)
 
@@ -750,7 +765,11 @@ class TestSemesterDeleteView(DeleteViewTestMixin, WebTestStaffMode):
         evaluation = baker.make(Evaluation, course__semester=self.instance, state=Evaluation.State.PUBLISHED)
         responsible_contribution = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile))
         baker.make(RatingAnswerCounter, contribution=responsible_contribution)
-        baker.make(TextAnswer, contribution=evaluation.general_contribution, state=TextAnswer.State.PUBLISHED)
+        baker.make(
+            TextAnswer,
+            contribution=evaluation.general_contribution,
+            review_decision=TextAnswer.ReviewDecision.PUBLIC,
+        )
 
         self.instance.archive()
         self.instance.delete_grade_documents()
@@ -903,10 +922,10 @@ class TestSemesterDeleteGradeDocumentsView(DeleteViewTestMixin, WebTestStaffMode
 
 
 class TestSemesterImportView(WebTestStaffMode):
-    filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
-
     @classmethod
     def setUpTestData(cls):
+        cls.random_excel_file_content = excel_data.random_file_content
+
         cls.manager = make_manager()
         semester = baker.make(Semester)
         cls.url = f"/staff/semester/{semester.pk}/import"
@@ -983,20 +1002,24 @@ class TestSemesterImportView(WebTestStaffMode):
         general_error = "Errors occurred while parsing the input data. No data was imported."
         self.assertContains(reply, general_error)
         degree_error = (
-            "Error: No degree is associated with the import name &quot;Diploma&quot;. "
+            "Sheet &quot;MA Belegungen&quot;, row 8 and 1 other place: "
+            "No degree is associated with the import name &quot;Diploma&quot;. "
             "Please manually create it first."
         )
         self.assertContains(reply, degree_error)
         course_type_error = (
-            "Error: No course type is associated with the import name &quot;Praktikum&quot;. "
+            "Sheet &quot;MA Belegungen&quot;, row 11 and 1 other place: "
+            "No course type is associated with the import name &quot;Praktikum&quot;. "
             "Please manually create it first."
         )
         self.assertContains(reply, course_type_error)
-        is_graded_error = "&quot;is_graded&quot; of course Deal is maybe, but must be yes or no"
+        is_graded_error = (
+            "Sheet &quot;MA Belegungen&quot;, row 5: &quot;is_graded&quot; is maybe, but must be yes or no"
+        )
         self.assertContains(reply, is_graded_error)
         user_error = (
             "Sheet &quot;MA Belegungen&quot;, row 3: The users&#x27;s data"
-            " (email: bastius.quid@external.example.com) differs from it&#x27;s data in a previous row."
+            " (email: bastius.quid@external.example.com) is different to a previous row."
         )
         self.assertContains(reply, user_error)
         self.assertContains(reply, "Sheet &quot;MA Belegungen&quot;, row 7: Email address is missing.")
@@ -1033,8 +1056,8 @@ class TestSemesterImportView(WebTestStaffMode):
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
-            f" -  None None, lucilia.manilium@institution.example.com (existing) [{user_edit_link(user.pk)}]<br />"
-            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
+            f" -  None None, lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}] (existing)<br />"
+            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (import)",
         )
         helper_delete_all_import_files(self.manager.id)
 
@@ -1756,6 +1779,8 @@ class TestCourseDeleteView(DeleteViewTestMixin, WebTestStaffMode):
     ]
 )
 class TestEvaluationEditView(WebTestStaffMode):
+    render_pages_url = "/staff/semester/PK/evaluation/PK/edit"
+
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
@@ -1796,6 +1821,12 @@ class TestEvaluationEditView(WebTestStaffMode):
         )
         cls.contribution1.questionnaires.set([cls.contributor_questionnaire])
         cls.contribution2.questionnaires.set([cls.contributor_questionnaire])
+
+    @render_pages
+    def render_pages(self):
+        return {
+            "normal": self.app.get(self.url, user=self.manager).content,
+        }
 
     def test_edit_evaluation(self):
         page = self.app.get(self.url, user=self.manager)
@@ -1994,13 +2025,16 @@ class TestEvaluationPreviewView(WebTestStaffModeWith200Check):
 
 
 class TestEvaluationImportPersonsView(WebTestStaffMode):
-    filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xlsx")
-    filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xlsx")
-    filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
-
     @classmethod
     def setUpTestData(cls):
+        cls.valid_excel_file_content = excel_data.create_memory_excel_file(excel_data.valid_user_import_filedata)
+        cls.missing_values_excel_file_content = excel_data.create_memory_excel_file(
+            excel_data.missing_values_user_import_filedata
+        )
+        cls.random_excel_file_content = excel_data.random_file_content
+
         semester = baker.make(Semester)
+
         cls.manager = make_manager()
         profiles1 = baker.make(UserProfile, _bulk_create=True, _quantity=31)
         cls.evaluation = baker.make(Evaluation, course__semester=semester, participants=profiles1)
@@ -2022,7 +2056,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         original_participant_count = self.evaluation.participants.count()
 
         form = page.forms["participant-import-form"]
-        form["pe-excel_file"] = (self.filename_valid,)
+        form["pe-excel_file"] = ("import.xls", self.valid_excel_file_content)
         page = form.submit(name="operation", value="test-participants")
 
         self.assertContains(page, "Import previously uploaded file")
@@ -2039,7 +2073,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         page = self.app.get(self.url2, user=self.manager)
 
         form = page.forms["participant-import-form"]
-        form["pe-excel_file"] = (self.filename_valid,)
+        form["pe-excel_file"] = ("import.xls", self.valid_excel_file_content)
         page = form.submit(name="operation", value="test-participants")
 
         self.assertNotEqual(self.evaluation2.participants.count(), 2)
@@ -2081,7 +2115,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         original_contributor_count = UserProfile.objects.filter(contributions__evaluation=self.evaluation).count()
 
         form = page.forms["contributor-import-form"]
-        form["ce-excel_file"] = (self.filename_valid,)
+        form["ce-excel_file"] = ("import.xls", self.valid_excel_file_content)
         page = form.submit(name="operation", value="test-contributors")
 
         self.assertContains(page, "Import previously uploaded file")
@@ -2103,7 +2137,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         page = self.app.get(self.url2, user=self.manager)
 
         form = page.forms["contributor-import-form"]
-        form["ce-excel_file"] = (self.filename_valid,)
+        form["ce-excel_file"] = ("import.xls", self.valid_excel_file_content)
         page = form.submit(name="operation", value="test-contributors")
 
         self.assertNotEqual(UserProfile.objects.filter(contributions__evaluation=self.evaluation2).count(), 2)
@@ -2151,11 +2185,19 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["participant-import-form"]
-        form["pe-excel_file"] = (self.filename_invalid,)
+        form["pe-excel_file"] = ("import.xls", self.missing_values_excel_file_content)
 
         reply = form.submit(name="operation", value="test-participants")
 
-        self.assertContains(reply, "Sheet &quot;Sheet1&quot;, row 2: Email address is missing.")
+        self.assertContains(
+            reply,
+            "Sheet &quot;Sheet 1&quot;, row 2: User missing.firstname@institution.example.com: First name is missing.",
+        )
+        self.assertContains(
+            reply,
+            "Sheet &quot;Sheet 1&quot;, row 3: User missing.lastname@institution.example.com: Last name is missing.",
+        )
+        self.assertContains(reply, "Sheet &quot;Sheet 1&quot;, row 4: Email address is missing.")
         self.assertContains(reply, "Errors occurred while parsing the input data. No data was imported.")
         self.assertNotContains(reply, "Import previously uploaded file")
 
@@ -2165,14 +2207,14 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["participant-import-form"]
-        form["pe-excel_file"] = (self.filename_valid,)
+        form["pe-excel_file"] = ("import.xls", self.valid_excel_file_content)
 
         reply = form.submit(name="operation", value="test-participants")
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
-            f" -  None None, lucilia.manilium@institution.example.com (existing) [{user_edit_link(user.pk)}]<br />"
-            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
+            f" -  None None, lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}] (existing)<br />"
+            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (import)",
         )
         self.assertContains(reply, "Import previously uploaded file")
         helper_delete_all_import_files(self.manager.id)
@@ -2181,11 +2223,19 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["contributor-import-form"]
-        form["ce-excel_file"] = (self.filename_invalid,)
+        form["ce-excel_file"] = ("import.xls", self.missing_values_excel_file_content)
 
         reply = form.submit(name="operation", value="test-contributors")
 
-        self.assertContains(reply, "Sheet &quot;Sheet1&quot;, row 2: Email address is missing.")
+        self.assertContains(
+            reply,
+            "Sheet &quot;Sheet 1&quot;, row 2: User missing.firstname@institution.example.com: First name is missing.",
+        )
+        self.assertContains(
+            reply,
+            "Sheet &quot;Sheet 1&quot;, row 3: User missing.lastname@institution.example.com: Last name is missing.",
+        )
+        self.assertContains(reply, "Sheet &quot;Sheet 1&quot;, row 4: Email address is missing.")
         self.assertContains(reply, "Errors occurred while parsing the input data. No data was imported.")
         self.assertNotContains(reply, "Import previously uploaded file")
 
@@ -2195,14 +2245,14 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["contributor-import-form"]
-        form["ce-excel_file"] = (self.filename_valid,)
+        form["ce-excel_file"] = ("import.xls", self.valid_excel_file_content)
 
         reply = form.submit(name="operation", value="test-contributors")
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
-            f" -  None None, lucilia.manilium@institution.example.com (existing) [{user_edit_link(user.pk)}]<br />"
-            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
+            f" -  None None, lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}] (existing)<br />"
+            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (import)",
         )
         self.assertContains(reply, "Import previously uploaded file")
         helper_delete_all_import_files(self.manager.id)
@@ -2211,7 +2261,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["participant-import-form"]
-        form["pe-excel_file"] = (self.filename_valid,)
+        form["pe-excel_file"] = ("import.xls", self.valid_excel_file_content)
 
         form.submit(name="operation", value="hackit", status=400)
 
@@ -2299,6 +2349,14 @@ class TestEvaluationTextAnswerView(WebTest):
         )
         cls.answer = "should show up"
         baker.make(TextAnswer, contribution=contribution, question=question, answer=cls.answer)
+        cls.reviewed_answer = "someone reviewed me already"
+        baker.make(
+            TextAnswer,
+            contribution=contribution,
+            question=question,
+            answer=cls.reviewed_answer,
+            review_decision=TextAnswer.ReviewDecision.PUBLIC,
+        )
 
         cls.evaluation2 = baker.make(
             Evaluation,
@@ -2340,12 +2398,21 @@ class TestEvaluationTextAnswerView(WebTest):
         with run_in_staff_mode(self):
             page = self.app.get(self.url, user=self.manager, status=200)
             self.assertContains(page, self.answer)
+            self.assertContains(page, self.reviewed_answer)
 
     def test_textanswers_full_view(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation)
         with run_in_staff_mode(self):
             page = self.app.get(self.url + "?view=full", user=self.manager, status=200)
             self.assertContains(page, self.answer)
+            self.assertContains(page, self.reviewed_answer)
+
+    def test_textanswers_undecided_view(self):
+        let_user_vote_for_evaluation(self.student2, self.evaluation)
+        with run_in_staff_mode(self):
+            page = self.app.get(self.url + "?view=undecided", user=self.manager, status=200)
+            self.assertContains(page, self.answer)
+            self.assertNotContains(page, self.reviewed_answer)
 
     # use offset of more than 25 hours to make sure the test doesn't fail even on combined time zone change and leap second
     @override_settings(EVALUATION_END_OFFSET_HOURS=26)
@@ -2919,40 +2986,50 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         cls.text_question = baker.make(Question, questionnaire=top_general_questionnaire, type=Question.TEXT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
 
-    def assert_transition(self, old_state, expected_new_state, action, status=200):
+    def assert_transition(
+        self,
+        action: str,
+        old_decision: TextAnswer.ReviewDecision,
+        expected_new_decision: Union[TextAnswer.ReviewDecision, Literal["unchanged"]] = "unchanged",
+        *,
+        status: int = 204,
+    ):
+        expected_new_decision = old_decision if expected_new_decision == "unchanged" else expected_new_decision
+
         with run_in_staff_mode(self):
-            textanswer = baker.make(TextAnswer, state=old_state)
+            textanswer = baker.make(TextAnswer, review_decision=old_decision)
+            params = {"answer_id": textanswer.id, "action": action, "evaluation_id": self.evaluation.pk}
+            response = self.app.post(self.url, params=params, user=self.manager, status=status)
 
-            params = {"id": textanswer.id, "action": action, "evaluation_id": self.evaluation.pk}
-            self.app.post(self.url, params=params, user=self.manager, status=status)
-
-            if status == 200:
-                textanswer.refresh_from_db()
-                self.assertEqual(textanswer.state, expected_new_state)
+            textanswer.refresh_from_db()
+            self.assertEqual(textanswer.review_decision, expected_new_decision)
+            return response
 
     def test_review_actions(self):
         # in an evaluation with only one voter reviewing should fail
-        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", status=403)
+        self.assert_transition("publish", TextAnswer.ReviewDecision.UNDECIDED, status=403)
 
         let_user_vote_for_evaluation(self.student2, self.evaluation)
 
         # now reviewing should work
-        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
-        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.HIDDEN, "hide")
-        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PRIVATE, "make_private")
-        self.assert_transition(TextAnswer.State.PUBLISHED, TextAnswer.State.NOT_REVIEWED, "unreview")
+        self.assert_transition("publish", TextAnswer.ReviewDecision.UNDECIDED, TextAnswer.ReviewDecision.PUBLIC)
+        self.assert_transition("delete", TextAnswer.ReviewDecision.UNDECIDED, TextAnswer.ReviewDecision.DELETED)
+        self.assert_transition("make_private", TextAnswer.ReviewDecision.UNDECIDED, TextAnswer.ReviewDecision.PRIVATE)
+        self.assert_transition("unreview", TextAnswer.ReviewDecision.PUBLIC, TextAnswer.ReviewDecision.UNDECIDED)
 
         # textanswer_edit action should not change the state, but give a link to edit page
-        with patch("evap.staff.views.reverse") as reverse_mock:
-            self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.NOT_REVIEWED, "textanswer_edit")
-            reverse_mock.assert_called_once()
-            self.assertEqual(reverse_mock.call_args_list[0][0][0], "staff:evaluation_textanswer_edit")
+        response = self.assert_transition(
+            "textanswer_edit",
+            TextAnswer.ReviewDecision.UNDECIDED,
+            status=302,
+        )
+        self.assertRegex(response.location, r"/staff/semester/\d+/evaluation/\d+/textanswer/[0-9a-f\-]+/edit$")
 
     def test_invalid_action(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation)
-        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "", status=400)
-        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "123", status=400)
-        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "dummy", status=400)
+        self.assert_transition("", TextAnswer.ReviewDecision.UNDECIDED, status=400)
+        self.assert_transition("123", TextAnswer.ReviewDecision.UNDECIDED, status=400)
+        self.assert_transition("dummy", TextAnswer.ReviewDecision.UNDECIDED, status=400)
 
     def test_finishing_review_updates_results(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation, create_answers=True)
@@ -2967,7 +3044,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         self.assertEqual(len(textresult.answers), 0)
 
         textanswer = self.evaluation.unreviewed_textanswer_set[0]
-        textanswer.state = TextAnswer.State.PUBLISHED
+        textanswer.review_decision = TextAnswer.ReviewDecision.PUBLIC
         textanswer.save()
         self.evaluation.end_review()
         self.evaluation.save()
@@ -2980,15 +3057,15 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
 
     def test_published(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation)
-        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
+        self.assert_transition("publish", TextAnswer.ReviewDecision.UNDECIDED, TextAnswer.ReviewDecision.PUBLIC)
         Evaluation.objects.filter(id=self.evaluation.id).update(state=Evaluation.State.PUBLISHED)
-        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", status=403)
+        self.assert_transition("publish", TextAnswer.ReviewDecision.UNDECIDED, status=403)
 
     def test_archived(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation)
-        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
+        self.assert_transition("publish", TextAnswer.ReviewDecision.UNDECIDED, TextAnswer.ReviewDecision.PUBLIC)
         Semester.objects.filter(id=self.evaluation.course.semester.id).update(results_are_archived=True)
-        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", status=403)
+        self.assert_transition("publish", TextAnswer.ReviewDecision.UNDECIDED, status=403)
 
 
 class TestEvaluationTextAnswersSkip(WebTestStaffMode):

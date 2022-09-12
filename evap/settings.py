@@ -132,6 +132,7 @@ CACHES = {
 }
 
 CONTACT_EMAIL = "webmaster@localhost"
+ALLOW_ANONYMOUS_FEEDBACK_MESSAGES = True
 
 # Config for mail system
 DEFAULT_FROM_EMAIL = "webmaster@localhost"
@@ -236,6 +237,7 @@ _TEMPLATE_OPTIONS = {
         "evap.context_processors.slogan",
         "evap.context_processors.debug",
         "evap.context_processors.notebook_form",
+        "evap.context_processors.allow_anonymous_feedback_messages",
     ],
     "builtins": ["django.templatetags.i18n"],
 }
@@ -326,11 +328,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static_collected")
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 MEDIA_ROOT = os.path.join(BASE_DIR, "upload")
-
-# the backend used for downloading attachments
-# see https://github.com/moggers87/django-sendfile2 for further information
-SENDFILE_BACKEND = "django_sendfile.backends.simple"
-SENDFILE_ROOT = MEDIA_ROOT
 
 
 ### Slogans

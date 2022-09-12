@@ -392,3 +392,30 @@ class TestPrecommitCommand(TestCase):
         mock_call_command.assert_any_call("typecheck")
         mock_call_command.assert_any_call("lint")
         mock_call_command.assert_any_call("format")
+
+
+@override_settings(TEXTANSWER_REVIEW_REMINDER_WEEKDAYS=range(0, 7))
+class TestSendTextanswerRemindersCommand(TestCase):
+    def test_send_reminder(self):
+        make_manager()
+        evaluation = baker.make(
+            Evaluation,
+            state=Evaluation.State.EVALUATED,
+            wait_for_grade_upload_before_publishing=False,
+            can_publish_text_results=True,
+        )
+        baker.make(
+            TextAnswer,
+            contribution=evaluation.general_contribution,
+            review_decision=TextAnswer.ReviewDecision.UNDECIDED,
+        )
+
+        management.call_command("send_reminders")
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn(evaluation.name, mail.outbox[0].body)
+
+    def test_send_no_reminder_if_not_needed(self):
+        make_manager()
+        management.call_command("send_reminders")
+        self.assertEqual(len(mail.outbox), 0)

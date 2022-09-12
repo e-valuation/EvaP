@@ -21,15 +21,6 @@ from evap.grades.models import GradeDocument
 from evap.results.tools import STATES_WITH_RESULTS_CACHING, cache_results
 
 
-def forward_messages(request, success_messages, warnings):
-    for message in success_messages:
-        messages.success(request, message)
-
-    for category in warnings:
-        for warning in warnings[category]:
-            messages.warning(request, warning)
-
-
 class ImportType(Enum):
     USER = "user"
     CONTRIBUTOR = "contributor"
@@ -343,7 +334,7 @@ def find_unreviewed_evaluations(semester, excluded):
             .exclude(state=Evaluation.State.PUBLISHED)
             .exclude(vote_end_date__gte=exclude_date)
             .exclude(can_publish_text_results=False)
-            .filter(contributions__textanswer_set__state=TextAnswer.State.NOT_REVIEWED)
+            .filter(contributions__textanswer_set__review_decision=TextAnswer.ReviewDecision.UNDECIDED)
             .annotate(num_unreviewed_textanswers=Count("contributions__textanswer_set"))
         ),
         key=lambda e: (-e.grading_process_is_finished, e.vote_end_date, -e.num_unreviewed_textanswers),

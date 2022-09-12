@@ -10,6 +10,7 @@
 html {
     position: relative;
     min-height: 100%;
+    scroll-padding-top: 150px; // so scrolled-to elements are not hidden by navbar.
 }
 
 body {
