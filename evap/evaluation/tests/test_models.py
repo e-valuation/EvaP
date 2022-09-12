@@ -670,7 +670,7 @@ class TestUserProfile(TestCase):
         sorted_evaluations = student.get_sorted_due_evaluations()
         self.assertEqual(sorted_evaluations, [(evaluations[1], 0), (evaluations[0], 0), (evaluations[2], 1)])
 
-    def test_can_be_sorted(self):
+    def test_correct_sorting(self):
         baker.make(
             UserProfile,
             last_name=iter(["B", "A", None]),

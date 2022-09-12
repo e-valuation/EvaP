@@ -857,6 +857,7 @@ def semester_grade_reminder(request, semester_id):
     courses.sort(key=lambda course: course.name)
 
     responsibles = UserProfile.objects.filter(courses_responsible_for=courses).distinct()
+    assert False
 
     responsible_list = [
         (responsible, [course for course in courses if responsible in course.responsibles.all()])
