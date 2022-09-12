@@ -1,6 +1,3 @@
-// @ts-ignore
-window.$ = require("../../../js/jquery-2.1.3.min");
-
 import { testable } from "src/csrf-utils";
 
 const { isMethodCsrfSafe } = testable;
