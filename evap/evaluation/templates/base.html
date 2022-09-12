@@ -200,9 +200,13 @@
             function setSpinnerIcon(id) {
                 $("#" + id).empty().removeClass().addClass('fas fa-spinner fa-spin');
             };
+        </script>
 
+        <script type="module">
             // Notebook logic
-            if (document.cookie.split(';').some((item) => item.includes('evap_notebook_open=true'))) {
+
+            import { getCookie, setCookie} from "{% static 'js/utils.js' %}";
+            if (getCookie('evap_notebook_open') == "true") {
                 new bootstrap.Collapse(document.querySelector('#notebook'));
                 new bootstrap.Collapse(document.querySelector('#notebookButton'));  
                 onShowNotebook();
@@ -211,12 +215,12 @@
             // make evap go away for notebook
             $('#notebook').on('show.bs.collapse', function () {
                 onShowNotebook();
-                setNotebookCookieIsHidden(true);
+                setCookie("evap_notebook_open", "true");
             });
 
             $('#notebook').on('hidden.bs.collapse', function () {
                 onHideNotebook()
-                setNotebookCookieIsHidden(false);
+                setCookie("evap_notebook_open", "false");
             });
 
             function onShowNotebook()
@@ -229,12 +233,6 @@
             {
                 document.getElementById("evapContent").classList.remove("notebook-margin");
                 document.getElementById("notebook").classList.remove("notebook-container");
-            }
-
-            function setNotebookCookieIsHidden(value) {
-                let date = new Date();
-                date.setTime(date.getTime() + (30 * 24 * 60 * 60 * 1000));
-                document.cookie = "evap_notebook_open=" + value + "; expires=" + date.toUTCString() + "; SameSite=Lax; path=/";
             }
         </script>
 
