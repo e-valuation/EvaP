@@ -356,10 +356,7 @@ class Course(LoggedModel):
 
     @cached_property
     def responsibles_names(self):
-        ordered_responsibles = sorted(
-            self.responsibles.all(), key=lambda responsible: (responsible.last_name, responsible.full_name)
-        )
-        return ", ".join([responsible.full_name for responsible in ordered_responsibles])
+        return ", ".join([responsible.full_name for responsible in self.responsibles.all()])
 
     @property
     def has_external_responsible(self):
@@ -1547,7 +1544,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True, verbose_name=_("active"))
 
     class Meta:
-        ordering = [Lower(Concat("last_name","first_name","email"))]
+        ordering = [Lower(Concat("last_name", "first_name", "email"))]
         verbose_name = _("user")
         verbose_name_plural = _("users")
 
