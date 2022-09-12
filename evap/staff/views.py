@@ -820,10 +820,7 @@ def semester_preparation_reminder(request, semester_id):
     ).prefetch_related("course__degrees")
 
     prepared_evaluations = semester.evaluations.filter(state=Evaluation.State.PREPARED)
-    responsibles = list(
-        set(responsible for evaluation in prepared_evaluations for responsible in evaluation.course.responsibles.all())
-    )
-    responsibles.sort(key=lambda responsible: (responsible.last_name, responsible.first_name))
+    responsibles = UserProfile.objects.filter(courses_responsible_for__evaluations__in=prepared_evaluations).distinct()
 
     responsible_list = [
         (
@@ -859,8 +856,7 @@ def semester_grade_reminder(request, semester_id):
     courses = [course for course in courses if not course.final_grade_documents.exists()]
     courses.sort(key=lambda course: course.name)
 
-    responsibles = list(set(responsible for course in courses for responsible in course.responsibles.all()))
-    responsibles.sort(key=lambda responsible: (responsible.last_name.lower(), responsible.first_name.lower()))
+    responsibles = UserProfile.objects.filter(courses_responsible_for=courses).distinct()
 
     responsible_list = [
         (responsible, [course for course in courses if responsible in course.responsibles.all()])
