@@ -1,4 +1,3 @@
-// based on: https://docs.djangoproject.com/en/3.1/ref/csrf/#ajax
 import { getCookie } from "./utils.js";
 
 const csrftoken = getCookie("csrftoken")!;
@@ -20,6 +19,5 @@ $.ajaxSetup({
 });
 
 export const testable = {
-    getCookie,
     isMethodCsrfSafe,
 };

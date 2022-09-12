@@ -12,6 +12,7 @@ export const sleep = (ms: number): Promise<number> => {
     return new Promise(resolve => window.setTimeout(resolve, ms));
 };
 
+// based on: https://docs.djangoproject.com/en/3.1/ref/csrf/#ajax
 export function getCookie(name: string): string | null {
     if (document.cookie !== "") {
         const cookie = document.cookie
@@ -28,3 +29,7 @@ export function getCookie(name: string): string | null {
 export function setCookie(key: string, value: string) {
     document.cookie = key + "=" + value;
 }
+
+export const testable = {
+    getCookie,
+};
