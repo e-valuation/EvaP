@@ -673,14 +673,14 @@ class TestUserProfile(TestCase):
     def test_correct_sorting(self):
         baker.make(
             UserProfile,
-            last_name=iter(["B", "A", None]),
-            first_name=iter(["X", None, None]),
-            email=iter(["ax@example.com", "b@example.com", "unnamed@example.com"]),
-            _quantity=3,
+            last_name=iter(["x","Y",None,None]),
+            first_name=iter(["x","x","a",None]),
+            email=iter(["4xx@example.com", "3xy@example.com", "2a@example.com", "1unnamed@example.com"]),
+            _quantity=4,
             _bulk_create=True,
         )
         email_list = [user.email for user in UserProfile.objects.all()]
-        self.assertEqual(email_list, ["b@example.com", "ax@example.com", "unnamed@example.com"])
+        self.assertEqual(email_list, ["4xx@example.com", "3xy@example.com", "2a@example.com", "1unnamed@example.com"])
 
 
 class ParticipationArchivingTests(TestCase):
