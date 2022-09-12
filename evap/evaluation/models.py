@@ -356,7 +356,7 @@ class Course(LoggedModel):
 
     @cached_property
     def responsibles_names(self):
-        return ", ".join([responsible.full_name for responsible in self.responsibles.all()])
+        return ", ".join(responsible.full_name for responsible in self.responsibles.all())
 
     @property
     def has_external_responsible(self):

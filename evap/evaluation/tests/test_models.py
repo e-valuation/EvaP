@@ -679,8 +679,7 @@ class TestUserProfile(TestCase):
             _quantity=3,
             _bulk_create=True,
         )
-        user_list = list(UserProfile.objects.all())
-        email_list = [user.email for user in user_list]
+        email_list = [user.email for user in UserProfile.objects.all()]
         self.assertEqual(email_list, ["b@example.com", "ax@example.com", "unnamed@example.com"])
 
 
