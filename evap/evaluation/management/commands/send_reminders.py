@@ -13,7 +13,7 @@ from evap.evaluation.models import EmailTemplate, Evaluation
 logger = logging.getLogger(__name__)
 
 
-def get_sorted_evaluation_url_tuples_with_urgent_review(cls) -> List[Tuple["Evaluation", str]]:
+def get_sorted_evaluation_url_tuples_with_urgent_review() -> List[Tuple["Evaluation", str]]:
     evaluation_url_tuples = [
         (
             evaluation,
