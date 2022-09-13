@@ -24,9 +24,9 @@
             "**/tests/frontend/**/*.ts"
         ],
         "moduleDirectories": [
+            "<rootDir>",
             "node_modules",
-            "../js",
-            "src"
+            "../js"
         ],
         "transform": {
             "^.+\\.ts$": "ts-jest"
