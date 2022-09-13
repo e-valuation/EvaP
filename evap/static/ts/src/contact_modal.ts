@@ -1,7 +1,7 @@
 declare const bootstrap: typeof import("bootstrap");
 
 import { selectOrError, sleep, assert } from "./utils.js";
-import { CSRF_HEADERS } from "./csrf-utils.js";
+import { CSRF_HEADERS } from "./utils.js";
 
 const SUCCESS_MESSAGE_TIMEOUT = 3000;
 
