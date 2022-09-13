@@ -1,4 +1,4 @@
-import { testable } from "src/text-answer-warnings";
+import { testable } from "ts/src/text-answer-warnings";
 
 test("normalize converts to lower case", () => {
     expect(testable.normalize("This is MY comment")).toBe("this is my comment");

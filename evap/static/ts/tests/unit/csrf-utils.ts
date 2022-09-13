@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { testable } from "src/csrf-utils";
+import { testable } from "ts/src/csrf-utils";
 
 const { isMethodCsrfSafe } = testable;
 
