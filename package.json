@@ -18,14 +18,14 @@
     },
     "jest": {
         "testRunner": "jest-jasmine2",
-        "rootDir": "evap/static",
+        "rootDir": "evap/static/ts",
         "testMatch": [
             "**/tests/unit/**/*.ts",
             "**/tests/frontend/**/*.ts"
         ],
         "moduleDirectories": [
             "node_modules",
-            "js/"
+            "../js/"
         ],
         "transform": {
             "^.+\\.ts$": "ts-jest"
