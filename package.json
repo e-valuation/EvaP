@@ -24,8 +24,8 @@
             "**/tests/frontend/**/*.ts"
         ],
         "moduleDirectories": [
-            "<rootDir>",
-            "node_modules"
+            "node_modules",
+            "evap/static/ts"
         ],
         "transform": {
             "^.+\\.ts$": "ts-jest"
