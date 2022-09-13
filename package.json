@@ -26,7 +26,8 @@
         "moduleDirectories": [
             "<rootDir>",
             "node_modules",
-            "../js"
+            "../js",
+            "src"
         ],
         "transform": {
             "^.+\\.ts$": "ts-jest"
