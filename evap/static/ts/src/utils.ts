@@ -24,11 +24,11 @@ export function getCookie(name: string): string | null {
         }
     }
     return null;
-}
+};
 
 export function setCookie(key: string, value: string) {
     document.cookie = key + "=" + value;
-}
+};
 
 export const testable = {
     getCookie,
