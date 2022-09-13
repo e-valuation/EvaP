@@ -13,7 +13,7 @@
 // @ts-ignore
 window.$ = require("../../../js/jquery-2.1.3.min");
 
-import { testable } from "src/utils.js";
+import { testable } from "src/utils";
 
 const { getCookie } = testable;
 
