@@ -25,14 +25,19 @@
         ],
         "moduleDirectories": [
             "node_modules",
-            "evap/static/ts",
-            "evap/static/js"
+            "evap/static/ts"
         ],
         "transform": {
             "^.+\\.ts$": "ts-jest"
         },
         "globalSetup": "jest-environment-puppeteer/setup",
         "globalTeardown": "jest-environment-puppeteer/teardown",
-        "testEnvironment": "jest-environment-puppeteer"
+        "testEnvironment": "jest-environment-puppeteer",
+        "extensionsToTreatAsEsm": [".ts"],
+        "globals": {
+            "ts-jest": {
+                "useESM": true
+            }
+        }
     }
 }
