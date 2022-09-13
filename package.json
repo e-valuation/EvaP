@@ -25,8 +25,7 @@
         ],
         "moduleDirectories": [
             "node_modules",
-            "evap/static/ts/src",
-            "."
+            "src/"
         ],
         "transform": {
             "^.+\\.ts$": "ts-jest"
