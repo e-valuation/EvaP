@@ -32,9 +32,6 @@
         },
         "globalSetup": "jest-environment-puppeteer/setup",
         "globalTeardown": "jest-environment-puppeteer/teardown",
-        "testEnvironment": "jest-environment-puppeteer",
-        "moduleNameMapper": {
-            "utils": "../js/utils.js"
-        }
+        "testEnvironment": "jest-environment-puppeteer"
     }
 }
