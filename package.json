@@ -28,7 +28,8 @@
             "evap/static/ts"
         ],
         "modulePaths": [
-            "../js"
+            "<rootDir>",
+            "evap/static/js"
           ],
         "transform": {
             "^.+\\.ts$": "ts-jest"
