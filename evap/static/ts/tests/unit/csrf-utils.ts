@@ -2,7 +2,6 @@
  * @jest-environment jsdom
  */
 
-import { getCookie } from "src/utils";
 import { testable } from "src/csrf-utils";
 
 const { isMethodCsrfSafe } = testable;
