@@ -367,7 +367,7 @@ class TestFormatCommand(TestCase):
             [
                 call(["black", "evap"], check=False),
                 call(["isort", "."], check=False),
-                call(["npx", "prettier", "--write", "evap/static/ts/src"], check=False),
+                call(["npx", "prettier", "--write", "evap/static/ts/**/*.ts"], check=False),
             ]
         )
 
