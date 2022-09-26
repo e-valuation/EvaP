@@ -401,8 +401,19 @@ export class QuickReviewSlider {
         }
 
         if (nextActiveElement) {
-            // First, translate nextActiveElement to the left or right and
-            // then, in the next frame, move it back to the middle
+            // We want to slide `nextActiveElement` into the middle from
+            // `direction`. To do so, we use a transition on the `transform`
+            // and `opacity` properties of the element. Initially, when the
+            // element is not `.active`, its opacity is zero. After adding the
+            // `to-*` class, the element is in the correct initial position.
+            // Now, when adding the `active` class, CSS handles the transition
+            // to move it into the middle. Note that we explicitly add the
+            // `active` class later so that both class additions are processed
+            // separately. Otherwise, the element could still have the opposite
+            // `to-*` at the time of running this code which could make the
+            // browser skip the effect of adding the correct `to-*` class. The
+            // switch from, for example, `to-left` to `to-right` is fine,
+            // because the element has zero opacity until we add `.active`.
             nextActiveElement.classList.remove("to-left", "to-right");
             nextActiveElement.classList.add(`to-${direction}`);
             requestAnimationFrame(() => nextActiveElement.classList.add("active"));
