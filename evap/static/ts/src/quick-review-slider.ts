@@ -352,7 +352,8 @@ export class QuickReviewSlider {
         );
         this.answerSlides = Array.from(decided).concat(Array.from(undecided));
 
-        const startIndex = where === StartOverWhere.Undecided && undecided.length > 0 ? decided.length : 0;
+        const startOverOnUndecided = where === StartOverWhere.Undecided && undecided.length > 0;
+        const startIndex = startOverOnUndecided ? decided.length : 0;
         this.slideTo(startIndex);
         this.updateButtons();
     };
