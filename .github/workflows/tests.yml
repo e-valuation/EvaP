@@ -129,7 +129,7 @@ jobs:
         run: isort . --check --diff
       - run: ls -laR evap/static/ts
       - name: Check TypeScript formatting
-        run: npx prettier --list-different --loglevel debug --config evap/static/ts/.prettierrc.json 'evap/static/ts/**/*.ts'
+        run: npx prettier --list-different --loglevel debug 'evap/static/ts/**/*.ts'
 
 
   backup-process:
