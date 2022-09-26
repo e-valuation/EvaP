@@ -25,22 +25,13 @@ test("parse cookie", () => {
     expect(getCookie("qux")).toBe(null);
 });
 
-test.each([
-    "GET",
-    "HEAD",
-    "OPTIONS",
-    "TRACE",
-])("method %s is considered safe", method => {
+test.each(["GET", "HEAD", "OPTIONS", "TRACE"])("method %s is considered safe", method => {
     expect(isMethodCsrfSafe(method)).toBe(true);
 });
 
-test.each([
-    "POST",
-    "PUT",
-    "DELETE",
-])("method %s is considered unsafe", method => {
+test.each(["POST", "PUT", "DELETE"])("method %s is considered unsafe", method => {
     expect(isMethodCsrfSafe(method)).toBe(false);
-})
+});
 
 test("send csrf token in request", () => {
     const mock = {
