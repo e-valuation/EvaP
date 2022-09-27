@@ -77,9 +77,10 @@
         <script type="text/javascript" src="{% static 'js/plugins/jquery.formset.js' %}"></script>
         <script type="text/javascript" src="{% static 'js/Sortable.min.js' %}"></script>
 
+        <script type="module" src="{% static 'js/notebook.js' %}"></script>
         <script type="module" src="{% static 'js/utils.js' %}"></script>
-
         <script type="module" src="{% static 'js/base-template.js' %}"></script>
+
         <script type="text/javascript">
             activateTooltips = function(selector = "") {
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll(selector + ' [data-bs-toggle="tooltip"]'))
@@ -200,40 +201,6 @@
             function setSpinnerIcon(id) {
                 $("#" + id).empty().removeClass().addClass('fas fa-spinner fa-spin');
             };
-        </script>
-
-        <script type="module">
-            // Notebook logic
-
-            import { getCookie, setCookie} from "{% static 'js/utils.js' %}";
-            if (getCookie('evap_notebook_open') == "true") {
-                new bootstrap.Collapse(document.querySelector('#notebook'));
-                new bootstrap.Collapse(document.querySelector('#notebookButton'));  
-                onShowNotebook();
-            };
-
-            // make evap go away for notebook
-            $('#notebook').on('show.bs.collapse', function () {
-                onShowNotebook();
-                setCookie("evap_notebook_open", "true");
-            });
-
-            $('#notebook').on('hidden.bs.collapse', function () {
-                onHideNotebook()
-                setCookie("evap_notebook_open", "false");
-            });
-
-            function onShowNotebook()
-            {
-                document.getElementById("evapContent").classList.add("notebook-margin");
-                document.getElementById("notebook").classList.add("notebook-container");
-            }
-
-            function onHideNotebook()
-            {
-                document.getElementById("evapContent").classList.remove("notebook-margin");
-                document.getElementById("notebook").classList.remove("notebook-container");
-            }
         </script>
 
         {% block additional_javascript %}{% endblock %}
