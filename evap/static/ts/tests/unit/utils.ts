@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
- Object.defineProperty(document, "cookie", {
+Object.defineProperty(document, "cookie", {
     get: () =>
         `foo=${encodeURIComponent("F00")}; ` +
         `csrftoken=${encodeURIComponent("token")}; ` +
