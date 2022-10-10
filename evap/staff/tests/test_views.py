@@ -878,7 +878,7 @@ class TestSendReviewReminderTemplate(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.evaluation = baker.make(Evaluation, course__responsibles=[], state=Evaluation.State.EVALUATED)
+        cls.evaluation = baker.make(Evaluation, state=Evaluation.State.EVALUATED)
 
     def test_form(self):
         evaluation_url_tuples = [(self.evaluation, "http://example.com/evaluation/42")]
