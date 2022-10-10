@@ -556,6 +556,8 @@ class TestUserImportView(WebTestStaffMode):
         form["excel_file"] = ("import.xls", self.valid_excel_file_content)
 
         reply = form.submit(name="operation", value="test")
+
+        self.assertContains(reply, "Name mismatches")
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
@@ -1075,6 +1077,7 @@ class TestSemesterImportView(WebTestStaffMode):
         )
 
         reply = form.submit(name="operation", value="test")
+        self.assertContains(reply, "Name mismatches")
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
@@ -2270,6 +2273,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         form["ce-excel_file"] = ("import.xls", self.valid_excel_file_content)
 
         reply = form.submit(name="operation", value="test-contributors")
+        self.assertContains(reply, "Name mismatches")
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
