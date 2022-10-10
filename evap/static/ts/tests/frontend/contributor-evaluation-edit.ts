@@ -3,19 +3,12 @@ import { ElementHandle } from "puppeteer";
 import { assert, assertDefined } from "../../src/utils";
 
 import { pageHandler } from "../utils/page";
-
-const content = `
-*,
-*::after,
-*::before {
-    transition-delay: 0s !important;
-    transition-duration: 0s !important;
-}`;
+import { DISABLE_ANIMATIONS_CSS } from "../utils/constants";
 
 test(
     "contact-modal-opens",
     pageHandler("/contributor/evaluation/PK/edit/normal.html", async page => {
-        await page.addStyleTag({ content });
+        await page.addStyleTag({ content: DISABLE_ANIMATIONS_CSS });
 
         const modalVisible = async (modalHandle: ElementHandle) =>
             await page.evaluate(modal => {
@@ -56,7 +49,7 @@ test(
 test(
     "contact-modal-opens-with-allow-editors-to-edit",
     pageHandler("/contributor/evaluation/PK/edit/allow_editors_to_edit.html", async page => {
-        await page.addStyleTag({ content });
+        await page.addStyleTag({ content: DISABLE_ANIMATIONS_CSS });
 
         const modalVisible = async (modalHandle: ElementHandle) =>
             await page.evaluate(modal => {
