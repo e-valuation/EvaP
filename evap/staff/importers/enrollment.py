@@ -7,6 +7,7 @@ from django.conf import settings
 from django.db import transaction
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext as _
+from django.utils.translation import ngettext, pgettext
 from typing_extensions import TypeGuard
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
@@ -33,6 +34,9 @@ from .user import (
     update_existing_and_create_new_user_profiles,
 )
 
+
+def make_count_word(count):
+    return pgettext("count", "no") if count == 0 else str(count)
 
 @dataclass
 class InvalidValue:
@@ -646,9 +650,13 @@ def import_enrollments(
         if test_run:
             importer_log.add_success(_("The test run showed no errors. No data was imported yet."))
             msg = format_html(
-                _("The import run will create {evaluation_count} courses/evaluations and {user_count} users:{users}"),
-                evaluation_count=new_course_count,
-                user_count=len(new_user_profiles),
+                _("The import run will create {evaluation_string} and {user_string}:{users}"),
+                evaluation_string=ngettext(
+                    "one course/evaluation", "{count} courses/evaluations", new_course_count
+                ).format(count=make_count_word(new_course_count)),
+                user_string=ngettext("one user", "{count} users", len(new_user_profiles)).format(
+                    count=make_count_word(len(new_user_profiles))
+                ),
                 users=create_user_list_html_string_for_message(new_user_profiles),
             )
             importer_log.add_success(msg)
@@ -660,12 +668,23 @@ def import_enrollments(
             store_participations_in_db(parsed_rows)
 
             msg = format_html(
-                _("Successfully created {} courses/evaluations, {} participants and {} contributors:{}"),
-                new_course_count,
-                new_participants_count,
-                new_responsibles_count,
-                create_user_list_html_string_for_message(new_user_profiles),
+                _("Successfully created {evaluation_string}, {participant_string} and {contributor_string}"),
+                evaluation_string=ngettext(
+                    "one course/evaluation", "{count} courses/evaluations", new_course_count
+                ).format(count=make_count_word(new_course_count)),
+                participant_string=ngettext("one participant", "{count} participants", new_participants_count).format(
+                    count=make_count_word(new_participants_count)
+                ),
+                contributor_string=ngettext("one contributor", "{count} contributors", new_responsibles_count).format(
+                    count=make_count_word(new_responsibles_count)
+                ),
             )
+
+            if new_participants_count or new_responsibles_count:
+                msg = format_html(
+                    "{msg}: {list}", msg=msg, list=create_user_list_html_string_for_message(new_user_profiles)
+                )
+
             importer_log.add_success(msg)
 
     return importer_log

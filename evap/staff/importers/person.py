@@ -1,3 +1,4 @@
+from gettext import ngettext
 from typing import Iterable
 
 from django.utils.html import format_html
@@ -19,21 +20,39 @@ def add_participants_to(
 
     if already_related:
         msg = format_html(
-            _("The following {} users are already participants in evaluation {}:"),
-            len(already_related),
-            evaluation.full_name,
+            "{sentence}: {list}",
+            sentence=ngettext(
+                "The following user is already participating in evaluation {name}",
+                "The following {user_count} are already participating in evaluation {name}",
+                len(already_related),
+            ).format(user_count=len(already_related), name=evaluation.full_name),
+            list=create_user_list_html_string_for_message(already_related),
         )
-        msg += create_user_list_html_string_for_message(already_related)
+
         importer_log.add_warning(msg)
 
-    if not test_run:
-        evaluation.participants.add(*users_to_add)
-        msg = format_html(_("{} participants added to the evaluation {}:"), len(users_to_add), evaluation.full_name)
+    if len(users_to_add) == 0:
+        if test_run:
+            msg = format_html(_("No participants would be added to the evaluation {}"), evaluation.full_name)
+        else:
+            msg = format_html(_("No participants added to the evaluation {}"), evaluation.full_name)
+
     else:
-        msg = format_html(
-            _("{} participants would be added to the evaluation {}:"), len(users_to_add), evaluation.full_name
-        )
-    msg += create_user_list_html_string_for_message(users_to_add)
+        if not test_run:
+            evaluation.participants.add(*users_to_add)
+            msg = ngettext(
+                "One participant added to the evaluation {name}",
+                "{user_count} participants added to the evaluation {name}",
+                len(users_to_add),
+            ).format(user_count=len(users_to_add), name=evaluation.full_name)
+        else:
+            msg = ngettext(
+                "One participant would be added to the evaluation {name}",
+                "{user_count} participants would be added to the evaluation {name}",
+                len(users_to_add),
+            ).format(user_count=len(users_to_add), name=evaluation.full_name)
+
+        msg = format_html("{msg}: {list}", msg=msg, list=create_user_list_html_string_for_message(users_to_add))
 
     importer_log.add_success(msg)
 
@@ -45,25 +64,41 @@ def add_contributors_to(
     already_related = {contribution.contributor for contribution in already_related_contributions}
     if already_related:
         msg = format_html(
-            _("The following {} users are already contributing to evaluation {}:"),
-            len(already_related),
-            evaluation.full_name,
+            "{sentence}: {list}",
+            sentence=ngettext(
+                "The following user is already contributing to evaluation {name}",
+                "The following {user_count} users are already contributing to evaluation {name}",
+                len(already_related),
+            ).format(user_count=len(already_related), name=evaluation.full_name),
+            list=create_user_list_html_string_for_message(already_related),
         )
-        msg += create_user_list_html_string_for_message(already_related)
         importer_log.add_warning(msg)
 
     users_to_add = [user for user in users if not user.pk or user not in already_related]
 
-    if not test_run:
-        for user in users_to_add:
-            order = Contribution.objects.filter(evaluation=evaluation).count()
-            Contribution.objects.create(evaluation=evaluation, contributor=user, order=order)
-        msg = format_html(_("{} contributors added to the evaluation {}:"), len(users_to_add), evaluation.full_name)
+    if len(users_to_add) == 0:
+        if test_run:
+            msg = format_html(_("No contributors would be added to the evaluation {}."), evaluation.full_name)
+        else:
+            msg = format_html(_("No contributors added to the evaluation {}."), evaluation.full_name)
     else:
-        msg = format_html(
-            _("{} contributors would be added to the evaluation {}:"), len(users_to_add), evaluation.full_name
-        )
-    msg += create_user_list_html_string_for_message(users_to_add)
+        if not test_run:
+            for user in users_to_add:
+                order = Contribution.objects.filter(evaluation=evaluation).count()
+                Contribution.objects.create(evaluation=evaluation, contributor=user, order=order)
+            msg = ngettext(
+                "One contributor added to the evaluation {name}",
+                "{user_count} contributors added to the evaluation {name}",
+                len(users_to_add),
+            ).format(user_count=len(users_to_add), name=evaluation.full_name)
+
+        else:
+            msg = ngettext(
+                "One contributor would be added to the evaluation {name}",
+                "{user_count} contributors would be added to the evaluation {name}",
+                len(users_to_add),
+            ).format(user_count=len(users_to_add), name=evaluation.full_name)
+    msg = format_html("{msg}: {list}", msg=msg, list=create_user_list_html_string_for_message(users_to_add))
     importer_log.add_success(msg)
 
 
