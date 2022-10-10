@@ -3,7 +3,7 @@ import os
 from abc import ABC, abstractmethod
 from io import BytesIO
 from typing import Literal, Tuple, Type, Union
-from unittest.mock import MagicMock, PropertyMock, patch
+from unittest.mock import PropertyMock, patch
 
 import openpyxl
 import xlrd
