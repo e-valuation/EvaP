@@ -869,6 +869,28 @@ class TestSemesterPreparationReminderView(WebTestStaffModeWith200Check):
         self.assertEqual(email_template_mock.send_to_user.call_args_list[0][0][:4], expected)
 
 
+class TestGradeReminderView(WebTestStaffMode):
+    @classmethod
+    def setUpTestData(cls):
+        cls.manager = make_manager()
+        cls.responsible = baker.make(UserProfile, first_name="Bastius", last_name="Quid")
+        cls.evaluation = baker.make(
+            Evaluation,
+            course__name_en="How to make a sandwich",
+            course__responsibles=[cls.responsible],
+            course__gets_no_grade_documents=False,
+            state=Evaluation.State.EVALUATED,
+            wait_for_grade_upload_before_publishing=True,
+        )
+        cls.url = f"/staff/semester/{cls.evaluation.course.semester.pk}/grade_reminder"
+
+    def test_reminders_are_shown(self):
+        page = self.app.get(self.url, user=self.manager)
+
+        self.assertContains(page, "Bastius Quid")
+        self.assertContains(page, "How to make a sandwich")
+
+
 class TestSendReminderView(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
