@@ -72,6 +72,14 @@ class TestUserImport(TestCase):
         self.assertTrue(UserProfile.objects.filter(email="lucilia.manilium@institution.example.com").exists())
         self.assertTrue(UserProfile.objects.filter(email="bastius.quid@external.example.com").exists())
 
+    @patch("evap.staff.importers.user.clean_email", new=(lambda email: "cleaned_" + email))
+    def test_emails_are_cleaned(self):
+        original_user_count = UserProfile.objects.count()
+        __, __ = import_users(self.valid_excel_file_content, test_run=False)
+        self.assertEqual(UserProfile.objects.count(), 2 + original_user_count)
+        self.assertTrue(UserProfile.objects.filter(email="cleaned_lucilia.manilium@institution.example.com").exists())
+        self.assertTrue(UserProfile.objects.filter(email="cleaned_bastius.quid@external.example.com").exists())
+
     def test_duplicate_warning(self):
         user = baker.make(UserProfile, first_name="Lucilia", last_name="Manilium", email="luma@institution.example.com")
 
@@ -315,6 +323,23 @@ class TestEnrollmentImport(TestCase):
         self.assertEqual(Evaluation.objects.all().count(), 23)
         expected_user_count = old_user_count + 23
         self.assertEqual(UserProfile.objects.all().count(), expected_user_count)
+
+    @patch("evap.staff.importers.user.clean_email", new=(lambda email: "cleaned_" + email))
+    @patch("evap.staff.importers.enrollment.clean_email", new=(lambda email: "cleaned_" + email))
+    def test_emails_are_cleaned(self):
+        import_enrollments(self.default_excel_content, self.semester, None, None, test_run=True)
+
+        old_user_count = UserProfile.objects.all().count()
+
+        import_enrollments(
+            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+        )
+        expected_user_count = old_user_count + 23
+        self.assertEqual(UserProfile.objects.all().count(), expected_user_count)
+
+        self.assertTrue(UserProfile.objects.filter(email="cleaned_bastius.quid@external.example.com").exists())
+        self.assertTrue(UserProfile.objects.filter(email="cleaned_diam.synephebos@institution.example.com").exists())
+        self.assertTrue(UserProfile.objects.filter(email="cleaned_111@institution.example.com").exists())
 
     def test_degrees_are_merged(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_degree_merge_filedata)

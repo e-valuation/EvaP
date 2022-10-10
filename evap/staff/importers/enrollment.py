@@ -10,7 +10,7 @@ from django.utils.translation import gettext as _
 from typing_extensions import TypeGuard
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
-from evap.evaluation.tools import ilen
+from evap.evaluation.tools import clean_email, ilen
 from evap.staff.tools import create_user_list_html_string_for_message
 
 from .base import (
@@ -57,6 +57,11 @@ class CourseData:
 
     # An existing course that this imported one should be merged with. See #1596
     merge_into_course: MaybeInvalid[Optional[Course]] = invalid_value
+
+    def __post_init__(self):
+        self.name_de = self.name_de.strip()
+        self.name_en = self.name_en.strip()
+        self.responsible_email = clean_email(self.responsible_email)
 
     def equals_when_ignoring_degrees(self, other) -> bool:
         def key(data):
@@ -250,12 +255,12 @@ class EnrollmentInputRowMapper:
             self.invalid_is_graded_tracker.add_location_for_key(row.location, e.invalid_is_graded)
 
         course_data = CourseData(
-            name_de=row.evaluation_name_de.strip(),
-            name_en=row.evaluation_name_en.strip(),
+            name_de=row.evaluation_name_de,
+            name_en=row.evaluation_name_en,
             degrees=degrees,
             course_type=course_type,
             is_graded=is_graded,
-            responsible_email=row.responsible_email.strip(),
+            responsible_email=row.responsible_email,
         )
 
         return EnrollmentParsedRow(
