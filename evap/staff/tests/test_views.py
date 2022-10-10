@@ -880,16 +880,13 @@ class TestSendReviewReminderTemplate(WebTestStaffMode):
         cls.manager = make_manager()
         cls.evaluation = baker.make(Evaluation, state=Evaluation.State.EVALUATED)
 
-    def test_form(self):
+    @patch('evap.evaluation.models.Template.render')
+    def test_form(self, template_mock):
         evaluation_url_tuples = [(self.evaluation, "http://example.com/evaluation/42")]
 
-        mock_template = MagicMock()
-        with patch.object(EmailTemplate.objects, "get", MagicMock(return_value=mock_template)):
-            with patch.object(mock_template, "send_to_user", MagicMock()) as send_mock:
-                EmailTemplate.send_textanswer_reminder_to_user(self.manager, evaluation_url_tuples)
-                self.assertEqual(1, send_mock.call_count)
-                first_call = send_mock.call_args_list[0]
-                self.assertEqual(evaluation_url_tuples, first_call.args[2]["evaluation_url_tuples"])
+        EmailTemplate.send_textanswer_reminder_to_user(self.manager, evaluation_url_tuples)
+        last_render = template_mock.call_args_list[-1]
+        self.assertEqual(evaluation_url_tuples, last_render.args[0].get('evaluation_url_tuples'))
 
 
 class TestSemesterArchiveParticipationsView(WebTestStaffMode):
