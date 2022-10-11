@@ -16,7 +16,7 @@ from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
 from django.db.models import Count, Manager, OuterRef, Q, Subquery
-from django.db.models.functions import Coalesce
+from django.db.models.functions import Coalesce, Lower
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
 from django.template.defaultfilters import linebreaksbr
@@ -356,10 +356,7 @@ class Course(LoggedModel):
 
     @cached_property
     def responsibles_names(self):
-        ordered_responsibles = sorted(
-            self.responsibles.all(), key=lambda responsible: (responsible.last_name, responsible.full_name)
-        )
-        return ", ".join([responsible.full_name for responsible in ordered_responsibles])
+        return ", ".join(responsible.full_name for responsible in self.responsibles.all())
 
     @property
     def has_external_responsible(self):
@@ -744,7 +741,7 @@ class Evaluation(LoggedModel):
         if not self.can_publish_text_results:
             self.textanswer_set.delete()
         else:
-            self.textanswer_set.filter(state=TextAnswer.State.HIDDEN).delete()
+            self.textanswer_set.filter(review_decision=TextAnswer.ReviewDecision.DELETED).delete()
             self.textanswer_set.update(original_answer=None)
 
     @transition(field=state, source=State.PUBLISHED, target=State.REVIEWED)
@@ -778,6 +775,9 @@ class Evaluation(LoggedModel):
 
     @cached_property
     def general_contribution(self):
+        if self.pk is None:
+            return None
+
         try:
             return self.contributions.get(contributor=None)
         except Contribution.DoesNotExist:
@@ -864,11 +864,11 @@ class Evaluation(LoggedModel):
 
     @property
     def unreviewed_textanswer_set(self):
-        return self.textanswer_set.filter(state=TextAnswer.State.NOT_REVIEWED)
+        return self.textanswer_set.filter(review_decision=TextAnswer.ReviewDecision.UNDECIDED)
 
     @property
     def reviewed_textanswer_set(self):
-        return self.textanswer_set.exclude(state=TextAnswer.State.NOT_REVIEWED)
+        return self.textanswer_set.exclude(review_decision=TextAnswer.ReviewDecision.UNDECIDED)
 
     @cached_property
     def num_reviewed_textanswers(self):
@@ -1062,7 +1062,7 @@ class Contribution(LoggedModel):
         RatingAnswerCounter.objects.filter(contribution=self, question__questionnaire__in=questionnaires).delete()
 
 
-class Question(models.Model):  # pylint: disable=no-init
+class Question(models.Model):
     """A question including a type."""
 
     TEXT = 0
@@ -1410,14 +1410,22 @@ class TextAnswer(Answer):
     # If the text answer was changed during review, original_answer holds the original text. Otherwise, it's null.
     original_answer = models.TextField(verbose_name=_("original answer"), blank=True, null=True)
 
-    class State(models.TextChoices):
-        HIDDEN = "HI", _("hidden")
-        PUBLISHED = "PU", _("published")
-        PRIVATE = "PR", _("private")
-        NOT_REVIEWED = "NR", _("not reviewed")
+    class ReviewDecision(models.TextChoices):
+        """
+        When publishing evaluation results, this answer should be ...
+        """
 
-    state = models.CharField(
-        max_length=2, choices=State.choices, verbose_name=_("state of answer"), default=State.NOT_REVIEWED
+        PUBLIC = "PU", _("public")
+        PRIVATE = "PR", _("private")  # This answer should only be displayed to the contributor the question was about
+        DELETED = "DE", _("deleted")
+
+        UNDECIDED = "UN", _("undecided")
+
+    review_decision = models.CharField(
+        max_length=2,
+        choices=ReviewDecision.choices,
+        verbose_name=_("review decision for the answer"),
+        default=ReviewDecision.UNDECIDED,
     )
 
     class Meta:
@@ -1428,36 +1436,29 @@ class TextAnswer(Answer):
         verbose_name_plural = _("text answers")
 
     @property
-    def is_hidden(self):
-        return self.state == self.State.HIDDEN
+    def will_be_deleted(self):
+        return self.review_decision == self.ReviewDecision.DELETED
 
     @property
-    def is_private(self):
-        return self.state == self.State.PRIVATE
+    def will_be_private(self):
+        return self.review_decision == self.ReviewDecision.PRIVATE
 
     @property
-    def is_published(self):
-        return self.state == self.State.PUBLISHED
+    def will_be_public(self):
+        return self.review_decision == self.ReviewDecision.PUBLIC
+
+    # Once evaluation results are published, the review decision is executed
+    # and thus, an answer _is_ private or _is_ public from that point on.
+    is_private = will_be_private
+    is_public = will_be_public
 
     @property
     def is_reviewed(self):
-        return self.state != self.State.NOT_REVIEWED
+        return self.review_decision != self.ReviewDecision.UNDECIDED
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         assert self.answer != self.original_answer
-
-    def publish(self):
-        self.state = self.State.PUBLISHED
-
-    def hide(self):
-        self.state = self.State.HIDDEN
-
-    def make_private(self):
-        self.state = self.State.PRIVATE
-
-    def unreview(self):
-        self.state = self.State.NOT_REVIEWED
 
 
 class FaqSection(models.Model):
@@ -1543,7 +1544,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True, verbose_name=_("active"))
 
     class Meta:
-        ordering = ["last_name", "first_name", "email"]
+        ordering = [Lower("last_name"), Lower("first_name"), Lower("email")]
         verbose_name = _("user")
         verbose_name_plural = _("users")
 
@@ -1553,6 +1554,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     objects = UserProfileManager()
 
     def save(self, *args, **kwargs):
+        # This is not guaranteed to be called on every insert. For example, the importers use bulk insertion.
+
         self.email = clean_email(self.email)
         super().save(*args, **kwargs)
 
@@ -1992,15 +1995,7 @@ class EmailTemplate(models.Model):
             template.send_to_user(participant, {}, body_params, use_cc=True)
 
     @classmethod
-    def send_textanswer_reminder(cls):
+    def send_textanswer_reminder_to_user(cls, user: UserProfile, evaluations: List[Evaluation]):
+        body_params = {"user": user, "evaluations": evaluations}
         template = cls.objects.get(name=cls.TEXT_ANSWER_REVIEW_REMINDER)
-        evaluations = [
-            evaluation
-            for evaluation in Evaluation.objects.filter(state=Evaluation.State.EVALUATED)
-            if evaluation.textanswer_review_state == Evaluation.TextAnswerReviewState.REVIEW_URGENT
-        ]
-        evaluations = sorted(evaluations, key=lambda evaluation: evaluation.full_name)
-        managers = Group.objects.get(name="Manager").user_set.all()
-        for manager in managers:
-            body_params = {"user": manager, "evaluations": evaluations}
-            template.send_to_user(manager, {}, body_params, use_cc=False)
+        template.send_to_user(user, {}, body_params, use_cc=False)

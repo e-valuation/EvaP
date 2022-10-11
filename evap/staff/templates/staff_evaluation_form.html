@@ -19,7 +19,7 @@
             {% include 'course_badges.html' with course=evaluation.course %}
         </div>
     {% endif %}
-    <form id="evaluation-form" method="POST" class="form-horizontal multiselect-form select2form">
+    <form id="evaluation-form" method="POST" class="form-horizontal multiselect-form tomselectform">
         {% csrf_token %}
 
         <div class="card mb-3">

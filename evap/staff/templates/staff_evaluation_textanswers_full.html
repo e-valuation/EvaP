@@ -10,7 +10,7 @@
         <div class="card-body">
             {% if evaluation_sections %}
                 {% with evaluation_sections as sections %}
-                    {% include 'staff_evaluation_textanswers_section.html' %}
+                    {% include 'staff_evaluation_textanswers_section.html' with evaluation_id=evaluation.id %}
                 {% endwith %}
             {% else %}
                 <span class="fst-italic">{% trans 'No text answers' %}</span>
@@ -25,7 +25,7 @@
         <div class="card-body">
             {% if contributor_sections %}
                 {% with contributor_sections as sections %}
-                    {% include 'staff_evaluation_textanswers_section.html' %}
+                    {% include 'staff_evaluation_textanswers_section.html' with evaluation_id=evaluation.id %}
                 {% endwith %}
             {% else %}
                 <span class="fst-italic">{% trans 'No text answers' %}</span>
@@ -36,23 +36,8 @@
 
 {% block additional_javascript %}
     <script type="text/javascript">
-        function press(id, action) {
-            if($("#"+id+"-"+action).hasClass("active")) {
-                action = "unreview";
-            }
-            updateState(id, action);
-            var parameters = {"id": id, "action": action, "evaluation_id": {{ evaluation.id }}};
-            $.ajax({
-                type: "POST",
-                url: "{% url 'staff:evaluation_textanswers_update_publish' %}",
-                data: parameters,
-                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
-            });
-        }
-
-        function updateState(id, action) {
-            $("#"+id+"-buttons").children().removeClass("active");
-            $("#"+id+"-"+action).addClass("active");
-        }
+        document
+            .querySelectorAll(".full-update-textanswer-form input[type='radio']")
+            .forEach(radio => radio.addEventListener("change", () => radio.form.submit()));
     </script>
 {% endblock %}

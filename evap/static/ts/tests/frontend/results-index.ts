@@ -1,9 +1,9 @@
-import {Page} from "puppeteer";
+import { Page } from "puppeteer";
 
 import { pageHandler } from "../utils/page";
 import "../utils/matchers";
 
-async function fetchVisibleRows(page: Page): Promise<[string, string][]> {
+async function fetchVisibleRows(page: Page): Promise<string[][]> {
     return await page.$$eval(".heading-row", rows => {
         return rows.map(row => {
             const evaluationName = row.querySelector(".evaluation-name")!.textContent!.trim();
@@ -13,10 +13,9 @@ async function fetchVisibleRows(page: Page): Promise<[string, string][]> {
     });
 }
 
-
-test("initially sort by evaluation and semester", pageHandler(
-    "results/student.html",
-    async page => {
+test(
+    "initially sort by evaluation and semester",
+    pageHandler("results/student.html", async page => {
         expect(await fetchVisibleRows(page)).toEqual([
             ["Course A", "ST 14"],
             ["Course A", "WT 13/14"],
@@ -25,24 +24,22 @@ test("initially sort by evaluation and semester", pageHandler(
             ["Course D", "ST 14"],
             ["Course E", "ST 13"],
         ]);
-    },
-));
+    }),
+);
 
-test("filter with search input", pageHandler(
-    "results/student.html",
-    async page => {
+test(
+    "filter with search input",
+    pageHandler("results/student.html", async page => {
         await page.type("input[name=search]", "Exam");
         await page.waitForTimeout(200);
 
-        expect(await fetchVisibleRows(page)).toEqual([
-            ["Course A", "ST 13"],
-        ]);
-    },
-));
+        expect(await fetchVisibleRows(page)).toEqual([["Course A", "ST 13"]]);
+    }),
+);
 
-test("filter with degree checkbox", pageHandler(
-    "results/student.html",
-    async page => {
+test(
+    "filter with degree checkbox",
+    pageHandler("results/student.html", async page => {
         await page.click("input[name=degree][data-filter='Bachelor A']");
 
         expect(await fetchVisibleRows(page)).toEqual([
@@ -51,36 +48,36 @@ test("filter with degree checkbox", pageHandler(
             ["Course A", "ST 13"],
             ["Course C", "ST 14"],
         ]);
-    }
-));
+    }),
+);
 
-test("filter with course type checkbox", pageHandler(
-    "results/student.html",
-    async page => {
+test(
+    "filter with course type checkbox",
+    pageHandler("results/student.html", async page => {
         await page.click("input[name=courseType][data-filter=Seminar]");
 
         expect(await fetchVisibleRows(page)).toEqual([
             ["Course C", "ST 14"],
             ["Course E", "ST 13"],
         ]);
-    }
-));
+    }),
+);
 
-test("filter with semester checkbox", pageHandler(
-    "results/student.html",
-    async page => {
+test(
+    "filter with semester checkbox",
+    pageHandler("results/student.html", async page => {
         await page.click("input[name=semester][data-filter='ST 13']");
 
         expect(await fetchVisibleRows(page)).toEqual([
             ["Course A", "ST 13"],
             ["Course E", "ST 13"],
         ]);
-    }
-));
+    }),
+);
 
-test("clear filters", pageHandler(
-    "results/student.html",
-    async page => {
+test(
+    "clear filters",
+    pageHandler("results/student.html", async page => {
         const searchInput = (await page.$("input[name=search]"))!;
         const degreeCheckbox = (await page.$("input[name=degree][data-filter='Bachelor A']"))!;
         const courseTypeCheckbox = (await page.$("input[name=courseType][data-filter=Lecture]"))!;
@@ -97,5 +94,5 @@ test("clear filters", pageHandler(
         await expect(degreeCheckbox).not.toBeChecked();
         await expect(courseTypeCheckbox).not.toBeChecked();
         await expect(semesterCheckbox).not.toBeChecked();
-    },
-));
+    }),
+);

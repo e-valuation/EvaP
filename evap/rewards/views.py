@@ -10,7 +10,7 @@ from django.views.decorators.http import require_POST
 
 from evap.evaluation.auth import manager_required, reward_user_required
 from evap.evaluation.models import Semester
-from evap.evaluation.tools import FileResponse, get_object_from_dict_pk_entry_or_logged_40x
+from evap.evaluation.tools import AttachmentResponse, get_object_from_dict_pk_entry_or_logged_40x
 from evap.rewards.exporters import RewardsExporter
 from evap.rewards.forms import RewardPointRedemptionEventForm
 from evap.rewards.models import (
@@ -63,7 +63,6 @@ def index(request):
         reward_point_actions=reward_point_actions,
         total_points_available=total_points_available,
         events=events,
-        point_selection=range(0, total_points_available + 1),
     )
     return render(request, "rewards_index.html", template_data)
 
@@ -119,7 +118,7 @@ def reward_point_redemption_event_export(request, event_id):
     event = get_object_or_404(RewardPointRedemptionEvent, id=event_id)
 
     filename = _("RewardPoints") + f"-{event.date}-{event.name}-{get_language()}.xls"
-    response = FileResponse(filename, content_type="application/vnd.ms-excel")
+    response = AttachmentResponse(filename, content_type="application/vnd.ms-excel")
 
     RewardsExporter().export(response, event.redemptions_by_user())
 

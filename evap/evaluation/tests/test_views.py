@@ -2,6 +2,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.test import override_settings
+from django.utils import translation
 from django_webtest import WebTest
 from model_bakery import baker
 
@@ -13,6 +14,7 @@ from evap.evaluation.tests.tools import WebTestWith200Check, create_evaluation_w
 class TestIndexView(WebTest):
     url = "/"
 
+    @override_settings(ACTIVATE_OPEN_ID_LOGIN=False)
     def test_passworduser_login(self):
         """Tests whether a user can login with an incorrect and a correct password."""
         baker.make(UserProfile, email="password.user", password=make_password("evap"))
@@ -24,6 +26,7 @@ class TestIndexView(WebTest):
         password_form["password"] = "evap"  # nosec
         password_form.submit(status=302)
 
+    @override_settings(ACTIVATE_OPEN_ID_LOGIN=False)
     def test_login_for_staff_users_correctly_redirects(self):
         """Regression test for #1523: Access denied on manager login"""
         internal_email = (
@@ -44,6 +47,7 @@ class TestIndexView(WebTest):
         self.assertRedirects(response, self.url, fetch_redirect_response=False)
         self.assertRedirects(response.follow(), "/results/")
 
+    @override_settings(ACTIVATE_OPEN_ID_LOGIN=False)
     def test_login_view_respects_redirect_parameter(self):
         """Regression test for #1658: redirect after login"""
         internal_email = "manager@institution.example.com"
@@ -89,16 +93,38 @@ class TestFAQView(WebTestWith200Check):
 
 class TestContactEmail(WebTest):
     csrf_checks = False
+    url = "/contact"
 
+    @override_settings(ALLOW_ANONYMOUS_FEEDBACK_MESSAGES=True)
     def test_sends_mail(self):
         user = baker.make(UserProfile, email="user@institution.example.com")
+        # normal email
         self.app.post(
-            "/contact",
-            params={"message": "feedback message", "title": "some title", "sender_email": "unique@mail.de"},
+            self.url,
+            params={"message": "feedback message", "title": "some title", "anonymous": "false"},
             user=user,
         )
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertTrue(mail.outbox[0].reply_to == ["user@institution.example.com"])
+        # anonymous email
+        self.app.post(
+            self.url,
+            params={"message": "feedback message", "title": "some title", "anonymous": "true"},
+            user=user,
+        )
+
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertEqual(mail.outbox[0].reply_to, ["user@institution.example.com"])
+        self.assertEqual(mail.outbox[1].reply_to, [])
+
+    @override_settings(ALLOW_ANONYMOUS_FEEDBACK_MESSAGES=False)
+    def test_anonymous_not_allowed(self):
+        user = baker.make(UserProfile, email="user@institution.example.com")
+        self.app.post(
+            self.url,
+            params={"message": "feedback message", "title": "some title", "anonymous": "true"},
+            user=user,
+            status=400,
+        )
+        self.assertEqual(len(mail.outbox), 0)
 
 
 class TestChangeLanguageView(WebTest):
@@ -113,6 +139,8 @@ class TestChangeLanguageView(WebTest):
         user.refresh_from_db()
         self.assertEqual(user.language, "en")
 
+        translation.activate("en")  # for following tests
+
 
 class TestProfileView(WebTest):
     url = "/profile"
@@ -121,6 +149,10 @@ class TestProfileView(WebTest):
     def setUpTestData(cls):
         result = create_evaluation_with_responsible_and_editor()
         cls.responsible = result["responsible"]
+
+    def test_requires_login(self):
+        response = self.app.get(self.url, user=None, status=302)
+        self.assertRedirects(response, f"/?next={self.url}", fetch_redirect_response=False)
 
     def test_save_settings(self):
         user = baker.make(UserProfile)

@@ -28,7 +28,7 @@ from evap.results.tools import cache_results, get_results
 from evap.staff.forms import (
     ContributionCopyForm,
     ContributionForm,
-    ContributionFormSet,
+    ContributionFormset,
     CourseCopyForm,
     CourseForm,
     EvaluationCopyForm,
@@ -270,7 +270,7 @@ class ContributionCopyFormTests(TestCase):
 
 
 class ContributionFormsetTests(TestCase):
-    def test_contribution_form_set(self):
+    def test_contribution_formset(self):
         """
         Tests the ContributionFormset with various input data sets.
         """
@@ -280,8 +280,8 @@ class ContributionFormsetTests(TestCase):
         baker.make(UserProfile)
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
 
-        ContributionFormset = inlineformset_factory(
-            Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0
+        InlineContributionFormset = inlineformset_factory(
+            Evaluation, Contribution, formset=ContributionFormset, form=ContributionForm, extra=0
         )
 
         data = to_querydict(
@@ -298,14 +298,14 @@ class ContributionFormsetTests(TestCase):
         )
         # no contributor
         self.assertFalse(
-            ContributionFormset(
+            InlineContributionFormset(
                 instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data.copy()
             ).is_valid()
         )
         # valid
         data["contributions-0-contributor"] = user1.pk
         self.assertTrue(
-            ContributionFormset(
+            InlineContributionFormset(
                 instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data.copy()
             ).is_valid()
         )
@@ -316,7 +316,7 @@ class ContributionFormsetTests(TestCase):
         data["contributions-1-order"] = 1
         data["contributions-1-textanswer_visibility"] = Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
         data["contributions-1-role"] = Contribution.Role.EDITOR
-        formset = ContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data)
+        formset = InlineContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data)
         self.assertFalse(formset.is_valid())
         # regression for https://github.com/e-valuation/EvaP/issues/1082
         # assert same error message with and without questionnaire
@@ -326,7 +326,7 @@ class ContributionFormsetTests(TestCase):
         )
 
         data["contributions-1-questionnaires"] = questionnaire.pk
-        formset = ContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data)
+        formset = InlineContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data)
         self.assertFalse(formset.is_valid())
         self.assertEqual(
             formset.non_form_errors(),
@@ -336,7 +336,7 @@ class ContributionFormsetTests(TestCase):
         # two contributors
         data["contributions-1-contributor"] = user2.pk
         self.assertTrue(
-            ContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data).is_valid()
+            InlineContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data).is_valid()
         )
 
     def test_dont_validate_deleted_contributions(self):
@@ -350,8 +350,8 @@ class ContributionFormsetTests(TestCase):
         baker.make(UserProfile)
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
 
-        contribution_formset = inlineformset_factory(
-            Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0
+        InlineContributionFormset = inlineformset_factory(
+            Evaluation, Contribution, formset=ContributionFormset, form=ContributionForm, extra=0
         )
 
         # Here we have two editors (one of them deleted with no questionnaires), and a deleted contributor with no questionnaires.
@@ -383,14 +383,14 @@ class ContributionFormsetTests(TestCase):
         )
 
         # Without deletion, this form should be invalid
-        formset = contribution_formset(instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data)
+        formset = InlineContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data)
         self.assertFalse(formset.is_valid())
 
         data["contributions-0-DELETE"] = "on"
         data["contributions-2-DELETE"] = "on"
 
         # With deletion, it should be valid
-        formset = contribution_formset(instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data)
+        formset = InlineContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data)
         self.assertTrue(formset.is_valid())
 
     @staticmethod
@@ -404,8 +404,8 @@ class ContributionFormsetTests(TestCase):
         user1 = baker.make(UserProfile)
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
 
-        contribution_formset = inlineformset_factory(
-            Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0
+        InlineContributionFormset = inlineformset_factory(
+            Evaluation, Contribution, formset=ContributionFormset, form=ContributionForm, extra=0
         )
 
         data = to_querydict(
@@ -430,14 +430,14 @@ class ContributionFormsetTests(TestCase):
 
         # delete extra formset
         data["contributions-1-DELETE"] = "on"
-        formset = contribution_formset(instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data)
+        formset = InlineContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data)
         formset.is_valid()
         data["contributions-1-DELETE"] = ""
 
         # delete first, change data in extra formset
         data["contributions-0-DELETE"] = "on"
         data["contributions-1-role"] = Contribution.Role.EDITOR
-        formset = contribution_formset(instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data)
+        formset = InlineContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data)
         formset.is_valid()
 
     def test_take_deleted_contributions_into_account(self):
@@ -458,8 +458,8 @@ class ContributionFormsetTests(TestCase):
             questionnaires=[questionnaire],
         )
 
-        contribution_formset = inlineformset_factory(
-            Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0
+        InlineContributionFormset = inlineformset_factory(
+            Evaluation, Contribution, formset=ContributionFormset, form=ContributionForm, extra=0
         )
 
         data = to_querydict(
@@ -485,7 +485,7 @@ class ContributionFormsetTests(TestCase):
             }
         )
 
-        formset = contribution_formset(instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data)
+        formset = InlineContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data)
         self.assertTrue(formset.is_valid())
 
     def test_there_can_be_no_contributions(self):
@@ -494,8 +494,8 @@ class ContributionFormsetTests(TestCase):
         Regression test for #1347
         """
         evaluation = baker.make(Evaluation)
-        contribution_formset = inlineformset_factory(
-            Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0
+        InlineContributionFormset = inlineformset_factory(
+            Evaluation, Contribution, formset=ContributionFormset, form=ContributionForm, extra=0
         )
 
         data = to_querydict(
@@ -506,7 +506,7 @@ class ContributionFormsetTests(TestCase):
             }
         )
 
-        formset = contribution_formset(instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data)
+        formset = InlineContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data)
         self.assertTrue(formset.is_valid())
 
     def test_hidden_and_managers_only(self):
@@ -531,10 +531,10 @@ class ContributionFormsetTests(TestCase):
             Contribution, evaluation=evaluation, contributor=baker.make(UserProfile), questionnaires=[]
         )
 
-        inline_contribution_formset = inlineformset_factory(
-            Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1
+        InlineContributionFormset = inlineformset_factory(
+            Evaluation, Contribution, formset=ContributionFormset, form=ContributionForm, extra=1
         )
-        formset = inline_contribution_formset(instance=evaluation, form_kwargs={"evaluation": evaluation})
+        formset = InlineContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation})
 
         expected = {questionnaire, questionnaire_managers_only}
         self.assertEqual(expected, set(formset.forms[0].fields["questionnaires"].queryset))
@@ -543,10 +543,10 @@ class ContributionFormsetTests(TestCase):
         # Suppose we had a hidden questionnaire already selected, that should be shown as well.
         contribution1.questionnaires.set([questionnaire_hidden])
 
-        inline_contribution_formset = inlineformset_factory(
-            Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1
+        InlineContributionFormset = inlineformset_factory(
+            Evaluation, Contribution, formset=ContributionFormset, form=ContributionForm, extra=1
         )
-        formset = inline_contribution_formset(instance=evaluation, form_kwargs={"evaluation": evaluation})
+        formset = InlineContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation})
 
         expected = {questionnaire, questionnaire_managers_only, questionnaire_hidden}
         self.assertEqual(expected, set(formset.forms[0].fields["questionnaires"].queryset))
@@ -576,10 +576,10 @@ class ContributionFormsetTests(TestCase):
             _fill_optional=["contributor"],
         )
 
-        contribution_formset = inlineformset_factory(
-            Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1
+        InlineContributionFormset = inlineformset_factory(
+            Evaluation, Contribution, formset=ContributionFormset, form=ContributionForm, extra=1
         )
-        formset = contribution_formset(instance=evaluation, form_kwargs={"evaluation": evaluation})
+        formset = InlineContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation})
         self.assertTrue(formset.forms[0].show_delete_button)
         self.assertTrue(formset.forms[1].show_delete_button)
 
@@ -624,8 +624,8 @@ class ContributionFormsetTests(TestCase):
             set(RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation)), {rac_1, rac_2, rac_3, rac_4}
         )
 
-        contribution_formset = inlineformset_factory(
-            Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0
+        InlineContributionFormset = inlineformset_factory(
+            Evaluation, Contribution, formset=ContributionFormset, form=ContributionForm, extra=0
         )
         data = to_querydict(
             {
@@ -648,7 +648,7 @@ class ContributionFormsetTests(TestCase):
                 "contributions-1-contributor": contribution_2.contributor.pk,
             }
         )
-        formset = contribution_formset(instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data)
+        formset = InlineContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data)
         formset.save()
 
         self.assertEqual(set(TextAnswer.objects.filter(contribution__evaluation=evaluation)), {ta_1, ta_2, ta_4})
@@ -678,8 +678,8 @@ class ContributionFormset775RegressionTests(TestCase):
         )
         cls.contribution2 = baker.make(Contribution, contributor=cls.user2, evaluation=cls.evaluation)
 
-        cls.contribution_formset = inlineformset_factory(
-            Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0
+        cls.InlineContributionFormset = inlineformset_factory(
+            Evaluation, Contribution, formset=ContributionFormset, form=ContributionForm, extra=0
         )
 
     def setUp(self):
@@ -706,7 +706,7 @@ class ContributionFormset775RegressionTests(TestCase):
         )
 
     def test_swap_contributors(self):
-        formset = self.contribution_formset(
+        formset = self.InlineContributionFormset(
             instance=self.evaluation, form_kwargs={"evaluation": self.evaluation}, data=self.data
         )
         self.assertTrue(formset.is_valid())
@@ -714,7 +714,7 @@ class ContributionFormset775RegressionTests(TestCase):
         # swap contributors, should still be valid
         self.data["contributions-0-contributor"] = self.user2.pk
         self.data["contributions-1-contributor"] = self.user1.pk
-        formset = self.contribution_formset(
+        formset = self.InlineContributionFormset(
             instance=self.evaluation, form_kwargs={"evaluation": self.evaluation}, data=self.data
         )
         self.assertTrue(formset.is_valid())
@@ -725,7 +725,7 @@ class ContributionFormset775RegressionTests(TestCase):
         self.data["contributions-0-contributor"] = self.user2.pk
         self.data["contributions-1-contributor"] = self.user2.pk
         self.data["contributions-1-DELETE"] = "on"
-        formset = self.contribution_formset(
+        formset = self.InlineContributionFormset(
             instance=self.evaluation, form_kwargs={"evaluation": self.evaluation}, data=self.data
         )
         self.assertTrue(formset.is_valid())
@@ -742,7 +742,7 @@ class ContributionFormset775RegressionTests(TestCase):
         self.data["contributions-2-order"] = -1
         self.data["contributions-2-role"] = Contribution.Role.CONTRIBUTOR
         self.data["contributions-2-textanswer_visibility"] = Contribution.TextAnswerVisibility.OWN_TEXTANSWERS
-        formset = self.contribution_formset(
+        formset = self.InlineContributionFormset(
             instance=self.evaluation, form_kwargs={"evaluation": self.evaluation}, data=self.data
         )
         self.assertTrue(formset.is_valid())
@@ -760,7 +760,7 @@ class ContributionFormset775RegressionTests(TestCase):
         self.data["contributions-1-role"] = Contribution.Role.CONTRIBUTOR
         self.data["contributions-1-textanswer_visibility"] = Contribution.TextAnswerVisibility.OWN_TEXTANSWERS
 
-        formset = self.contribution_formset(
+        formset = self.InlineContributionFormset(
             instance=self.evaluation, form_kwargs={"evaluation": self.evaluation}, data=self.data
         )
         self.assertTrue(formset.is_valid())
@@ -773,7 +773,7 @@ class ContributionFormset775RegressionTests(TestCase):
 
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
         self.data.appendlist("contributions-0-questionnaires", questionnaire.pk)
-        formset = self.contribution_formset(
+        formset = self.InlineContributionFormset(
             instance=self.evaluation, form_kwargs={"evaluation": self.evaluation}, data=self.data
         )
         formset.save()
@@ -866,17 +866,17 @@ class EvaluationFormTests(TestCase):
         form = EvaluationForm(form_data, instance=evaluation1, semester=evaluation1.course.semester)
         self.assertFalse(form.is_valid())
 
-    def helper_date_validation(self, EvaluationFormClass, start_date, end_date, expected_result):
+    def helper_date_validation(self, evaluation_form_cls, start_date, end_date, expected_result):
         evaluation = Evaluation.objects.get()
 
-        form_data = get_form_data_from_instance(EvaluationFormClass, evaluation)
+        form_data = get_form_data_from_instance(evaluation_form_cls, evaluation)
         form_data["vote_start_datetime"] = start_date
         form_data["vote_end_date"] = end_date
 
-        if EvaluationFormClass == EvaluationForm:
+        if evaluation_form_cls == EvaluationForm:
             form = EvaluationForm(form_data, instance=evaluation, semester=evaluation.course.semester)
         else:
-            form = EvaluationFormClass(form_data, instance=evaluation)
+            form = evaluation_form_cls(form_data, instance=evaluation)
         self.assertEqual(form.is_valid(), expected_result)
 
     def test_contributor_evaluation_form_date_validation(self):
@@ -955,13 +955,13 @@ class EvaluationFormTests(TestCase):
         form = EvaluationForm(form_data, instance=evaluation, semester=semester)
         self.assertTrue(form.is_valid())
         with patch("evap.results.views._delete_course_template_cache_impl") as delete_call, patch(
-            "evap.results.views.warm_up_template_cache"
-        ) as warmup_call:
+            "evap.results.views.update_template_cache"
+        ) as update_call:
             # save without changes
             form.save()
             self.assertEqual(Evaluation.objects.get(pk=evaluation.pk).course, course1)
             self.assertEqual(delete_call.call_count, 0)
-            self.assertEqual(warmup_call.call_count, 0)
+            self.assertEqual(update_call.call_count, 0)
 
             # change course and save
             form_data = get_form_data_from_instance(EvaluationForm, evaluation)
@@ -971,7 +971,7 @@ class EvaluationFormTests(TestCase):
             form.save()
             self.assertEqual(Evaluation.objects.get(pk=evaluation.pk).course, course2)
             self.assertEqual(delete_call.call_count, 2)
-            self.assertEqual(warmup_call.call_count, 2)
+            self.assertEqual(update_call.call_count, 2)
 
     def test_locked_questionnaire(self):
         """

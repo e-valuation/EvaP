@@ -2,7 +2,6 @@ from collections import defaultdict
 from statistics import median
 
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
 from django.core.cache import caches
 from django.core.cache.utils import make_template_fragment_key
 from django.core.exceptions import BadRequest, PermissionDenied
@@ -13,7 +12,7 @@ from django.utils import translation
 
 from evap.evaluation.auth import internal_required
 from evap.evaluation.models import Course, CourseType, Degree, Evaluation, Semester, UserProfile
-from evap.evaluation.tools import FileResponse, unordered_groupby
+from evap.evaluation.tools import AttachmentResponse, unordered_groupby
 from evap.results.exporters import TextAnswerExporter
 from evap.results.tools import (
     STATES_WITH_RESULT_TEMPLATE_CACHING,
@@ -59,67 +58,50 @@ def _delete_course_template_cache_impl(course):
     caches["results"].delete(get_course_result_template_fragment_cache_key(course.id, "de"))
 
 
-def warm_up_template_cache(evaluations):
+def update_template_cache(evaluations):
+    assert all(evaluation.state in STATES_WITH_RESULT_TEMPLATE_CACHING for evaluation in evaluations)
     evaluations = get_evaluations_with_course_result_attributes(get_evaluations_with_prefetched_data(evaluations))
     courses_to_render = {evaluation.course for evaluation in evaluations if evaluation.course.evaluation_count > 1}
 
     current_language = translation.get_language()
 
-    results_index_course_template = get_template("results_index_course.html", using="CachedEngine")
-    results_index_evaluation_template = get_template("results_index_evaluation.html", using="CachedEngine")
+    results_index_course_template = get_template("results_index_course_impl.html", using="CachedEngine")
+    results_index_evaluation_template = get_template("results_index_evaluation_impl.html", using="CachedEngine")
 
     try:
-        for course in courses_to_render:
-            translation.activate("en")
-            results_index_course_template.render(dict(course=course))
+        for lang in ["en", "de"]:
+            translation.activate(lang)
 
-            translation.activate("de")
-            results_index_course_template.render(dict(course=course))
+            for course in courses_to_render:
+                caches["results"].set(
+                    get_course_result_template_fragment_cache_key(course.id, lang),
+                    results_index_course_template.render(dict(course=course)),
+                )
 
-            assert get_course_result_template_fragment_cache_key(course.id, "en") in caches["results"]
-            assert get_course_result_template_fragment_cache_key(course.id, "de") in caches["results"]
+            for evaluation in evaluations:
+                assert evaluation.state in STATES_WITH_RESULT_TEMPLATE_CACHING
+                is_subentry = evaluation.course.evaluation_count > 1
+                base_args = dict(evaluation=evaluation, is_subentry=is_subentry)
 
-        for evaluation in evaluations:
-            assert evaluation.state in STATES_WITH_RESULT_TEMPLATE_CACHING
-            is_subentry = evaluation.course.evaluation_count > 1
+                caches["results"].set(
+                    get_evaluation_result_template_fragment_cache_key(evaluation.id, lang, True),
+                    results_index_evaluation_template.render(dict(**base_args, links_to_results_page=True)),
+                )
+                caches["results"].set(
+                    get_evaluation_result_template_fragment_cache_key(evaluation.id, lang, False),
+                    results_index_evaluation_template.render(dict(**base_args, links_to_results_page=False)),
+                )
 
-            translation.activate("en")
-            results_index_evaluation_template.render(
-                dict(evaluation=evaluation, links_to_results_page=True, is_subentry=is_subentry)
-            )
-            results_index_evaluation_template.render(
-                dict(evaluation=evaluation, links_to_results_page=False, is_subentry=is_subentry)
-            )
-
-            translation.activate("de")
-            results_index_evaluation_template.render(
-                dict(evaluation=evaluation, links_to_results_page=True, is_subentry=is_subentry)
-            )
-            results_index_evaluation_template.render(
-                dict(evaluation=evaluation, links_to_results_page=False, is_subentry=is_subentry)
-            )
-
-            assert get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", True) in caches["results"]
-            assert get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", False) in caches["results"]
-            assert get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", True) in caches["results"]
-            assert get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", False) in caches["results"]
     finally:
         translation.activate(current_language)  # reset to previously set language to prevent unwanted side effects
 
 
-def update_template_cache(evaluations):
-    for evaluation in evaluations:
-        assert evaluation.state in STATES_WITH_RESULT_TEMPLATE_CACHING
-        _delete_template_cache_impl(evaluation)
-        warm_up_template_cache([evaluation])
-
-
 def update_template_cache_of_published_evaluations_in_course(course):
-    course_evaluations = course.evaluations.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING)
-    for course_evaluation in course_evaluations:
-        _delete_evaluation_template_cache_impl(course_evaluation)
+    # Delete template caches for evaluations that no longer need to be cached (e.g. after unpublishing)
     _delete_course_template_cache_impl(course)
-    warm_up_template_cache(course_evaluations)
+
+    course_evaluations = course.evaluations.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING)
+    update_template_cache(course_evaluations)
 
 
 def get_evaluations_with_prefetched_data(evaluations):
@@ -179,7 +161,6 @@ def index(request):
     return render(request, "results_index.html", template_data)
 
 
-@login_required
 def evaluation_detail(request, semester_id, evaluation_id):
     # pylint: disable=too-many-locals
     semester = get_object_or_404(Semester, id=semester_id)
@@ -440,7 +421,7 @@ def evaluation_text_answers_export(request, evaluation_id):
 
     filename = f"Evaluation-Text-Answers-{evaluation.course.semester.short_name}-{evaluation.full_name}-{translation.get_language()}.xls"
 
-    response = FileResponse(filename, content_type="application/vnd.ms-excel")
+    response = AttachmentResponse(filename, content_type="application/vnd.ms-excel")
 
     TextAnswerExporter(
         evaluation.full_name,

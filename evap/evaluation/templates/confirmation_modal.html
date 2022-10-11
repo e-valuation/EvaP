@@ -8,11 +8,13 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                {{ question|safe }}
-            </div>
-            <div class="modal-footer">
-                <button type="button" id="btn-action-{{ modal_id }}" class="btn btn-{{ btn_type }}" data-bs-dismiss="modal">{{ action_text }}</button>
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% trans 'Cancel' %}</button>
+                <div class="mb-4">
+                    {{ question|safe }}
+                </div>
+                <div class="modal-submit-group">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% trans 'Cancel' %}</button>
+                    <button type="button" id="btn-action-{{ modal_id }}" class="btn btn-{{ btn_type }} ms-2" data-bs-dismiss="modal">{{ action_text }}</button>
+                </div>
             </div>
         </div>
     </div>

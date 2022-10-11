@@ -21,12 +21,11 @@
             {% blocktrans %}You cannot edit this evaluation because it has already been approved.{% endblocktrans %}
         {% endif %}
     </div>
-
     <h3>
         {{ evaluation.full_name }} ({{ evaluation.course.semester.name }})
     </h3>
 
-    <form method="POST" class="form-horizontal multiselect-form select2form" id="evaluation-form">
+    <form method="POST" class="form-horizontal multiselect-form tomselectform" id="evaluation-form">
         {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">
@@ -65,13 +64,13 @@
                     <h5 class="card-title me-auto">{% trans 'Evaluation data' %}</h5>
                     {% if evaluation.allow_editors_to_edit %}
                         <div>
-                            <button type="button" class="btn btn-sm btn-light mb-3" onclick="createAccountRequestModalShow();" id="createAccountRequestModalButtonInEvaluationForm">
+                            <button type="button" class="btn btn-sm btn-light mb-3 createAccountRequestModalShowButton">
                                 {% trans 'Request creation of new account' %}
                             </button>
                         </div>
                     {% else %}
                         <div>
-                            <button type="button" class="btn btn-sm btn-light" onclick="changeEvaluationRequestModalShow();" id="changeEvaluationDataRequestModalButton">
+                            <button type="button" class="btn btn-sm btn-light changeEvaluationRequestModalShowButton">
                                 {% trans 'Request changes' %}
                             </button>
                         </div>

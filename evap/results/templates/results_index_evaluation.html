@@ -1,78 +1,8 @@
 {% load cache %}
 {% load i18n %}
-
-{% load evaluation_filters %}
 {% load results_templatetags %}
-
 {% get_current_language as LANGUAGE_CODE %}
 
 {% cache evaluation|evaluation_results_cache_timeout evaluation_result_template_fragment evaluation.id LANGUAGE_CODE links_to_results_page using="results" %}
-
-<{% if links_to_results_page %}a href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}"{% else %}div{% endif %}
-        class="results-grid-row {% if not is_subentry %}heading-row{% else %}evaluation-row{% endif %}
-            {% if links_to_results_page %} hover-row{% endif %}
-            {% if evaluation.State.IN_EVALUATION <= evaluation.state and evaluation.state < evaluation.State.PUBLISHED %}
-                preview-row
-            {% endif %}">
-    <div data-col="name"{% if not is_subentry %} data-order="{{ evaluation.course.name|lower }}"{% endif %}>
-        <div>
-            {% if is_subentry %}
-                {% include 'evaluation_badges.html' with mode='subentry' %}
-            {% else %}
-                {% include 'evaluation_badges.html' %}
-            {% endif %}
-        </div>
-        <span class="evaluation-name">
-            {% if is_subentry %}
-                {% if evaluation.name %}
-                    {{ evaluation.name }}
-                {% else %}
-                    {{ evaluation.course.name }}
-                {% endif %}
-            {% else %}
-                {{ evaluation.full_name }}
-            {% endif %}
-            {% if evaluation.is_single_result %} ({{ evaluation.vote_start_datetime|date }}){% endif %}
-            {% if evaluation.state == evaluation.State.IN_EVALUATION %}
-                <span data-bs-toggle="tooltip" data-bs-placement="top" class="fas fa-play icon-gray" title="{% trans 'This evaluation is still running' %}"></span>
-            {% elif evaluation.state == evaluation.State.EVALUATED %}
-                <span data-bs-toggle="tooltip" data-bs-placement="top" class="fas fa-chart-simple icon-yellow" title="{% trans 'Results not yet published' %}"></span>
-            {% elif evaluation.state == evaluation.State.REVIEWED %}
-                {% if evaluation.is_single_result or evaluation.grading_process_is_finished %}
-                    <span data-bs-toggle="tooltip" data-bs-placement="top" class="fas fa-chart-simple icon-red" title="{% trans 'Results not yet published although grading process is finished' %}"></span>
-                {% else %}
-                    <span data-bs-toggle="tooltip" data-bs-placement="top" class="fas fa-chart-simple icon-yellow" title="{% trans 'Results not yet published' %}"></span>
-                {% endif %}
-            {% endif %}
-        </span>
-    </div>
-    {% if not is_subentry %}
-        <div data-col="semester" data-order="{{ evaluation.course.semester.id }}" class="text-center semester-short-name">
-            {{ evaluation.course.semester.short_name }}
-        </div>
-    {% endif %}
-    {% if not is_subentry %}
-        <div data-col="responsible" data-order="{{ evaluation.course.responsibles.first.last_name|lower }}">
-            {{ evaluation.course.responsibles_names }}
-        </div>
-    {% endif %}
-    {% if evaluation.is_single_result %}
-        <div data-col="participants" class="text-center"><span class="fas fa-user"></span>&nbsp;{{ evaluation.single_result_rating_result.count_sum }}</div>
-    {% else %}
-        {% with num_participants=evaluation.num_participants num_voters=evaluation.num_voters %}
-            <div data-col="participants">{% include 'progress_bar.html' with done=num_voters total=num_participants %}</div>
-        {% endwith %}
-    {% endif %}
-
-    <div data-col="result"{% if not is_subentry %} data-order="{% if evaluation.is_single_result %}{{ evaluation.single_result_rating_result.average }}{% else %}{{ evaluation.avg_grade|default:7 }}{% endif %}"{% endif %}>
-        {% if not evaluation.can_staff_see_average_grade %}
-            <div class="d-flex" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Evaluation result is not yet available.' %}">
-                {% include "distribution_with_grade_disabled.html" with icon="fas fa-hourglass" %}
-            </div>
-        {% else %}
-            {% include 'evaluation_result_widget.html' with course_or_evaluation=evaluation %}
-        {% endif %}
-    </div>
-</{% if links_to_results_page %}a{% else %}div{% endif %}>
-
+{% include 'results_index_evaluation_impl.html' %}
 {% endcache %}

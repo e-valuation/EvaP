@@ -32,7 +32,7 @@ from evap.evaluation.tests.tools import (
 )
 from evap.results.exporters import TextAnswerExporter
 from evap.results.tools import cache_results
-from evap.results.views import get_evaluations_with_prefetched_data, warm_up_template_cache
+from evap.results.views import get_evaluations_with_prefetched_data, update_template_cache
 from evap.staff.tests.utils import WebTestStaffMode, helper_exit_staff_mode, run_in_staff_mode
 
 
@@ -170,7 +170,7 @@ class TestResultsView(WebTest):
 
     @patch("evap.evaluation.models.Evaluation.can_be_seen_by", new=(lambda self, user: True))
     def test_order(self):
-        student = baker.make(UserProfile, email="student@institution.example.com")
+        student = baker.make(UserProfile, email="student@institution.example.com", language="de")
 
         course = baker.make(Course)
         evaluation1 = baker.make(
@@ -189,12 +189,12 @@ class TestResultsView(WebTest):
         )
 
         page = self.app.get(self.url, user=student).body.decode()
-        self.assertLess(page.index(evaluation1.name_en), page.index(evaluation2.name_en))
+        self.assertGreater(page.index(evaluation1.name_de), page.index(evaluation2.name_de))
 
-        student.language = "de"
+        student.language = "en"
         student.save()
         page = self.app.get(self.url, user=student).body.decode()
-        self.assertGreater(page.index(evaluation1.name_de), page.index(evaluation2.name_de))
+        self.assertLess(page.index(evaluation1.name_en), page.index(evaluation2.name_en))
 
     # using LocMemCache so the cache queries don't show up in the query count that's measured here
     @override_settings(
@@ -283,7 +283,7 @@ class TestResultsView(WebTest):
 
         contributions = [e.general_contribution for e in published]
         baker.make(RatingAnswerCounter, contribution=iter(contributions), answer=2, count=2, _quantity=len(published))
-        warm_up_template_cache(published)
+        update_template_cache(published)
 
         page = self.app.get(self.url, user=student)
         decoded = page.body.decode()
@@ -556,20 +556,15 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
     @classmethod
     def setUpTestData(cls):
         make_manager()
-        cls.semester = baker.make(Semester, id=2)
         responsible = baker.make(UserProfile, email="responsible@institution.example.com")
         cls.student1 = baker.make(UserProfile, email="student1@institution.example.com")
         cls.student2 = baker.make(UserProfile, email="student2@example.com")
         students = baker.make(UserProfile, _bulk_create=True, _quantity=10)
         students.extend([cls.student1, cls.student2])
 
-        cls.evaluation = baker.make(
-            Evaluation,
-            id=22,
-            state=Evaluation.State.IN_EVALUATION,
-            course=baker.make(Course, semester=cls.semester),
-            participants=students,
-        )
+        cls.evaluation = baker.make(Evaluation, state=Evaluation.State.IN_EVALUATION, participants=students)
+        cls.url = f"/results/semester/{cls.evaluation.course.semester.pk}/evaluation/{cls.evaluation.pk}"
+
         questionnaire = baker.make(Questionnaire)
         cls.question_grade = baker.make(Question, questionnaire=questionnaire, type=Question.GRADE)
         baker.make(Question, questionnaire=questionnaire, type=Question.LIKERT)
@@ -579,7 +574,7 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
         )
 
     def helper_test_answer_visibility_one_voter(self, user_email, expect_page_not_visible=False):
-        page = self.app.get("/results/semester/2/evaluation/22", user=user_email, expect_errors=expect_page_not_visible)
+        page = self.app.get(self.url, user=user_email, expect_errors=expect_page_not_visible)
         if expect_page_not_visible:
             self.assertEqual(page.status_code, 403)
         else:
@@ -592,7 +587,7 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
             self.assertEqual(number_of_disabled_grade_badges, 5)
 
     def helper_test_answer_visibility_two_voters(self, user_email):
-        page = self.app.get("/results/semester/2/evaluation/22", user=user_email)
+        page = self.app.get(self.url, user=user_email)
         number_of_grade_badges = str(page).count("badge-grade")
         self.assertEqual(number_of_grade_badges, 5)  # 1 evaluation overview and 4 questions
         number_of_visible_grade_badges = str(page).count("background-color")
@@ -696,9 +691,13 @@ class TestResultsTextanswerVisibilityForManager(WebTestStaffMode):
 
     def test_textanswer_visibility_for_manager_before_publish(self):
         evaluation = Evaluation.objects.get(id=1)
+        voter_count = evaluation._voter_count
+        participant_count = evaluation._participant_count
         evaluation._voter_count = 0  # set these to 0 to make unpublishing work
         evaluation._participant_count = 0
         evaluation.unpublish()
+        evaluation._voter_count = voter_count  # reset to original values
+        evaluation._participant_count = participant_count
         evaluation.save()
 
         page = self.app.get("/results/semester/1/evaluation/1?view=full", user=self.manager)
@@ -897,22 +896,19 @@ class TestResultsTextanswerVisibility(WebTest):
 class TestResultsOtherContributorsListOnExportView(WebTest):
     @classmethod
     def setUpTestData(cls):
-        cls.semester = baker.make(Semester, id=2)
-        responsible = baker.make(UserProfile, email="responsible@institution.example.com")
-        cls.evaluation = baker.make(
-            Evaluation,
-            state=Evaluation.State.PUBLISHED,
-            course=baker.make(Course, semester=cls.semester, responsibles=[responsible]),
-        )
+        cls.responsible = baker.make(UserProfile, email="responsible@institution.example.com")
+
+        evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED)
+        cls.url = f"/results/semester/{evaluation.course.semester.id}/evaluation/{evaluation.id}?view=export"
 
         questionnaire = baker.make(Questionnaire)
         baker.make(Question, questionnaire=questionnaire, type=Question.LIKERT)
-        cls.evaluation.general_contribution.questionnaires.set([questionnaire])
+        evaluation.general_contribution.questionnaires.set([questionnaire])
 
         baker.make(
             Contribution,
-            evaluation=cls.evaluation,
-            contributor=responsible,
+            evaluation=evaluation,
+            contributor=cls.responsible,
             questionnaires=[questionnaire],
             role=Contribution.Role.EDITOR,
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
@@ -920,7 +916,7 @@ class TestResultsOtherContributorsListOnExportView(WebTest):
         cls.other_contributor_1 = baker.make(UserProfile, email="other_contributor_1@institution.example.com")
         baker.make(
             Contribution,
-            evaluation=cls.evaluation,
+            evaluation=evaluation,
             contributor=cls.other_contributor_1,
             questionnaires=[questionnaire],
             textanswer_visibility=Contribution.TextAnswerVisibility.OWN_TEXTANSWERS,
@@ -928,16 +924,15 @@ class TestResultsOtherContributorsListOnExportView(WebTest):
         cls.other_contributor_2 = baker.make(UserProfile, email="other_contributor_2@institution.example.com")
         baker.make(
             Contribution,
-            evaluation=cls.evaluation,
+            evaluation=evaluation,
             contributor=cls.other_contributor_2,
             questionnaires=[questionnaire],
             textanswer_visibility=Contribution.TextAnswerVisibility.OWN_TEXTANSWERS,
         )
-        cache_results(cls.evaluation)
+        cache_results(evaluation)
 
     def test_contributor_list(self):
-        url = f"/results/semester/{self.semester.id}/evaluation/{self.evaluation.id}?view=export"
-        page = self.app.get(url, user="responsible@institution.example.com")
+        page = self.app.get(self.url, user=self.responsible)
         self.assertIn(f"<li>{self.other_contributor_1.full_name}</li>", page)
         self.assertIn(f"<li>{self.other_contributor_2.full_name}</li>", page)
 

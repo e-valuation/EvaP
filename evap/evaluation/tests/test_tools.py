@@ -1,14 +1,11 @@
-import builtins
 from unittest.mock import patch
 from uuid import UUID
 
-from django.conf import settings
 from django.core import management
 from django.core.exceptions import SuspiciousOperation
 from django.db.models import prefetch_related_objects
 from django.http import Http404
 from django.test.testcases import TestCase
-from django.urls import reverse
 from django.utils import translation
 from model_bakery import baker
 
@@ -21,31 +18,26 @@ from evap.evaluation.tools import (
 )
 
 
-class TestLanguageSignalReceiver(WebTest):
-    def test_signal_sets_language_if_none(self):
-        """
-        Check that a user gets the default language set if they have none
-        """
+class TestLanguageMiddleware(WebTest):
+    def test_sets_language_if_none(self):
+        translation.activate("de")
         user = baker.make(UserProfile, language=None, email="user@institution.example.com")
-        user.ensure_valid_login_key()
+
+        # Django's LocaleMiddleware should overwrite the active translation with what matches the user (-> "en")
+        self.app.get("/", user=user)
+        user.refresh_from_db()
+        self.assertEqual(user.language, "en")
+        self.assertEqual(translation.get_language(), "en")
+
+    def test_respects_stored_language(self):
+        user = baker.make(UserProfile, language="de", email="user@institution.example.com")
 
         self.app.get("/", user=user)
-
-        user.refresh_from_db()
-        self.assertEqual(user.language, settings.LANGUAGE_CODE)
-
-    def test_signal_doesnt_set_language(self):
-        """
-        Activate 'en' as langauge and check, that user does not get this langauge as he has one.
-        """
-        translation.activate("en")
-        user = baker.make(UserProfile, language="de", email="user@institution.example.com")
-        user.ensure_valid_login_key()
-
-        self.app.get(reverse("evaluation:login_key_authentication", args=[user.login_key]))
-
         user.refresh_from_db()
         self.assertEqual(user.language, "de")
+        self.assertEqual(translation.get_language(), "de")
+
+        translation.activate("en")  # for following tests
 
 
 class SaboteurException(Exception):
@@ -67,22 +59,6 @@ class TestLogExceptionsDecorator(TestCase):
 
         self.assertTrue(mock_logger.called)
         self.assertIn("failed. Traceback follows:", mock_logger.call_args[0][0])
-
-
-class TestPythonVersion(TestCase):
-    def test_dict_unpacking(self):
-        """python >= 3.5"""
-        test_dict = {"a": 1, "b": 2}
-        self.assertEqual({**test_dict, "b": 3, "c": 4}, {"a": 1, "b": 3, "c": 4})
-
-    def test_format_strings(self):
-        """python >= 3.6"""
-        world = "World"
-        self.assertEqual(f"Hello {world}", "Hello World")
-
-    def test_breakpoint_available(self):
-        """python >= 3.7"""
-        self.assertTrue(hasattr(builtins, "breakpoint"))
 
 
 class TestHelperMethods(WebTest):

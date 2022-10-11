@@ -183,12 +183,12 @@ class LoggedModel(models.Model):
 
         return changes
 
-    def log_m2m_change(self, field_name, action_type: FieldActionType, change_list):
+    def log_m2m_change(self, field_name, action_type: FieldActionType, change_list, **kwargs):
         # This might be called multiple times with cumulating changes
         # But this is fine, since the old changes will be included in the latest log update
         # See https://github.com/e-valuation/EvaP/issues/1594
         self._m2m_changes[field_name][action_type] += change_list
-        self._update_log(self._m2m_changes, InstanceActionType.CHANGE)
+        self._update_log(self._m2m_changes, InstanceActionType.CHANGE, **kwargs)
 
     def log_instance_create(self):
         changes = self._get_change_data(InstanceActionType.CREATE)
@@ -202,32 +202,40 @@ class LoggedModel(models.Model):
         changes = self._get_change_data(InstanceActionType.DELETE)
         self._update_log(changes, InstanceActionType.DELETE)
 
-    def _update_log(self, changes, action_type: InstanceActionType):
+    def _create_log_entry(self, action_type=InstanceActionType.CREATE):
+        try:
+            user = self.thread.request.user
+            request_id = self.thread.request_id
+        except AttributeError:
+            user = None
+            request_id = None
+
+        attach_to_model, attached_to_object_id = self.object_to_attach_logentries_to
+        attached_to_object_type = ContentType.objects.get_for_model(attach_to_model)
+        return LogEntry(
+            content_object=self,
+            attached_to_object_type=attached_to_object_type,
+            attached_to_object_id=attached_to_object_id,
+            user=user,
+            request_id=request_id,
+            action_type=action_type,
+        )
+
+    def _attach_log_entry_if_not_exists(self, *args, **kwargs):
+        if not self._logentry:
+            self._logentry = self._create_log_entry(*args, **kwargs)
+
+    def _update_log(self, changes, action_type: InstanceActionType, store_in_db=True):
         if not changes:
             return
 
-        if not self._logentry:
-            try:
-                user = self.thread.request.user
-                request_id = self.thread.request_id
-            except AttributeError:
-                user = None
-                request_id = None
-            attach_to_model, attached_to_object_id = self.object_to_attach_logentries_to
-            attached_to_object_type = ContentType.objects.get_for_model(attach_to_model)
-            self._logentry = LogEntry(
-                content_object=self,
-                attached_to_object_type=attached_to_object_type,
-                attached_to_object_id=attached_to_object_id,
-                user=user,
-                request_id=request_id,
-                action_type=action_type,
-                data=changes,
-            )
-        else:
-            self._logentry.data.update(changes)
+        self._attach_log_entry_if_not_exists(action_type)
+        # if adding more changes here, make sure you update all bulk_update calls that explicitly need to list changed
+        # fields, too.
+        self._logentry.data.update(changes)
 
-        self._logentry.save()
+        if store_in_db:
+            self._logentry.save()
 
     def save(self, *args, **kw):
         # Are we creating a new instance?
@@ -246,6 +254,35 @@ class LoggedModel(models.Model):
         self.log_instance_delete()
         self.related_logentries().delete()
         super().delete(*args, **kw)
+
+    @staticmethod
+    def update_log_after_bulk_create(instances):
+        for instance in instances:
+            instance._logentry = instance._create_log_entry()
+
+        log_entries = [instance._logentry for instance in instances]
+        LogEntry.objects.bulk_create(log_entries)
+
+    @staticmethod
+    def update_log_after_m2m_bulk_create(
+        from_instances, through_instances, from_pk_attribute: str, to_pk_attribute: str, m2m_field: str
+    ):
+        added_related = defaultdict(list)
+        for instance in through_instances:
+            from_pk = getattr(instance, from_pk_attribute)
+            to_pk = getattr(instance, to_pk_attribute)
+            added_related[from_pk].append(to_pk)
+
+        for instance in from_instances:
+            instance.log_m2m_change(m2m_field, FieldActionType.M2M_ADD, added_related[instance.pk], store_in_db=False)
+
+        logentries = [instance._logentry for instance in from_instances]
+
+        to_create = [logentry for logentry in logentries if logentry.pk is None]
+        to_update = [logentry for logentry in logentries if logentry.pk is not None]
+
+        LogEntry.objects.bulk_create(to_create)
+        LogEntry.objects.bulk_update(to_update, ["data"])
 
     def related_logentries(self):
         """

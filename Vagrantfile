@@ -5,8 +5,9 @@ Vagrant.require_version ">= 1.8.1"
 
 Vagrant.configure("2") do |config|
   config.vm.provider :virtualbox do |v, override|
-    override.vm.box = "ubuntu/bionic64"
-    override.vm.box_version = "= 20210928.0.0 "
+    v.memory = 2048
+    override.vm.box = "ubuntu/focal64"
+    override.vm.box_version = "= 20220426.0.0 "
     override.vm.provision "shell", path: "deployment/provision_vagrant_vm.sh"
 
     # disable logfile
@@ -18,7 +19,7 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.provider :docker do |d, override|
-    d.image = "ubuntu:bionic"
+    d.image = "ubuntu:focal"
     # Docker container really are supposed to be used differently. Hacky way to make it into a "VM".
     d.cmd = ["tail", "-f", "/dev/null"]
 

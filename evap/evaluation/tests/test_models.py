@@ -343,7 +343,7 @@ class TestEvaluations(WebTest):
         evaluation.publish()
         self.assertEqual(evaluation.textanswer_set.count(), 1)
 
-    def test_hidden_textanswers_get_deleted_on_publish(self):
+    def test_textanswers_to_delete_get_deleted_on_publish(self):
         student = baker.make(UserProfile)
         student2 = baker.make(UserProfile)
         evaluation = baker.make(
@@ -360,8 +360,14 @@ class TestEvaluations(WebTest):
             TextAnswer,
             question=question,
             contribution=evaluation.general_contribution,
-            answer=iter(["hidden", "published", "private"]),
-            state=iter([TextAnswer.State.HIDDEN, TextAnswer.State.PUBLISHED, TextAnswer.State.PRIVATE]),
+            answer=iter(["deleted", "public", "private"]),
+            review_decision=iter(
+                [
+                    TextAnswer.ReviewDecision.DELETED,
+                    TextAnswer.ReviewDecision.PUBLIC,
+                    TextAnswer.ReviewDecision.PRIVATE,
+                ]
+            ),
             _quantity=3,
             _bulk_create=True,
         )
@@ -369,7 +375,7 @@ class TestEvaluations(WebTest):
         self.assertEqual(evaluation.textanswer_set.count(), 3)
         evaluation.publish()
         self.assertEqual(evaluation.textanswer_set.count(), 2)
-        self.assertFalse(TextAnswer.objects.filter(answer="hidden").exists())
+        self.assertFalse(TextAnswer.objects.filter(answer="deleted").exists())
 
     def test_original_textanswers_get_deleted_on_publish(self):
         student = baker.make(UserProfile)
@@ -390,7 +396,7 @@ class TestEvaluations(WebTest):
             contribution=evaluation.general_contribution,
             answer="published answer",
             original_answer="original answer",
-            state=TextAnswer.State.PUBLISHED,
+            review_decision=TextAnswer.ReviewDecision.PUBLIC,
         )
 
         self.assertEqual(evaluation.textanswer_set.count(), 1)
@@ -454,7 +460,6 @@ class TestEvaluations(WebTest):
             caches["results"].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", False))
         )
 
-    # pylint: disable=invalid-name
     def assert_textanswer_review_state(
         self,
         evaluation,
@@ -520,7 +525,7 @@ class TestEvaluations(WebTest):
             evaluation.TextAnswerReviewState.REVIEW_URGENT,  # grades were uploaded
         )
 
-        textanswer.state = TextAnswer.State.PUBLISHED
+        textanswer.review_decision = TextAnswer.ReviewDecision.PUBLIC
         textanswer.save()
         del evaluation.num_reviewed_textanswers  # reset cached_property cache
 
@@ -664,6 +669,18 @@ class TestUserProfile(TestCase):
 
         sorted_evaluations = student.get_sorted_due_evaluations()
         self.assertEqual(sorted_evaluations, [(evaluations[1], 0), (evaluations[0], 0), (evaluations[2], 1)])
+
+    def test_correct_sorting(self):
+        baker.make(
+            UserProfile,
+            last_name=iter(["Y", "x", None, None]),
+            first_name=iter(["x", "x", "a", None]),
+            email=iter(["3xy@example.com", "4xx@example.com", "2a@example.com", "1unnamed@example.com"]),
+            _quantity=4,
+            _bulk_create=True,
+        )
+        email_list = [user.email for user in UserProfile.objects.all()]
+        self.assertEqual(email_list, ["4xx@example.com", "3xy@example.com", "2a@example.com", "1unnamed@example.com"])
 
 
 class ParticipationArchivingTests(TestCase):

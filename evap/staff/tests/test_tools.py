@@ -7,7 +7,12 @@ from model_bakery import baker
 from evap.evaluation.models import Contribution, Course, Evaluation, UserProfile
 from evap.evaluation.tests.tools import WebTest
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption
-from evap.staff.tools import delete_navbar_cache_for_users, merge_users, remove_user_from_represented_and_ccing_users
+from evap.staff.tools import (
+    delete_navbar_cache_for_users,
+    merge_users,
+    remove_user_from_represented_and_ccing_users,
+    user_edit_link,
+)
 
 
 class NavbarCacheTest(WebTest):
@@ -41,8 +46,8 @@ class MergeUsersTest(TestCase):
         cls.user1 = baker.make(UserProfile, email="test1@institution.example.com")
         cls.user2 = baker.make(UserProfile, email="test2@institution.example.com")
         cls.user3 = baker.make(UserProfile, email="test3@institution.example.com")
-        cls.group1 = baker.make(Group, pk=4)
-        cls.group2 = baker.make(Group, pk=5)
+        cls.group1 = Group.objects.get(name="Reviewer")
+        cls.group2 = Group.objects.get(name="Grade publisher")
         cls.main_user = baker.make(
             UserProfile,
             title="Dr.",
@@ -257,3 +262,9 @@ class RemoveUserFromRepresentedAndCCingUsersTest(TestCase):
         self.assertEqual([set(user1.delegates.all()), set(user1.cc_users.all())], [{delete_user}, {delete_user}])
         self.assertEqual([set(user2.delegates.all()), set(user2.cc_users.all())], [{delete_user}, {delete_user}])
         self.assertEqual(len(messages), 4)
+
+
+class UserEditLinkTest(TestCase):
+    def test_user_edit_link(self):
+        user = baker.make(UserProfile)
+        self.assertIn(f"/staff/user/{user.id}/edit", user_edit_link(user.id))

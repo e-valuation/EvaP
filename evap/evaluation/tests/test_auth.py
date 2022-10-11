@@ -146,6 +146,7 @@ class LoginTestsWithCSRF(WebTest):
         cls.staff_user.set_password(cls.staff_user_password)
         cls.staff_user.save()
 
+    @override_settings(ACTIVATE_OPEN_ID_LOGIN=False)
     def test_entering_staff_mode_after_logout_and_login(self):
         """
         Asserts that managers can enter the staff mode after logging out and logging in again.

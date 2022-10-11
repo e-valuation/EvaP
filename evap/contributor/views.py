@@ -20,15 +20,15 @@ from evap.evaluation.models import (
     UserProfile,
 )
 from evap.evaluation.tools import (
-    FileResponse,
+    AttachmentResponse,
     get_object_from_dict_pk_entry_or_logged_40x,
     get_parameter_from_url_or_session,
     sort_formset,
 )
 from evap.results.exporters import ResultsExporter
 from evap.results.tools import annotate_distributions_and_grades, get_evaluations_with_course_result_attributes
-from evap.staff.forms import ContributionFormSet
-from evap.student.views import get_valid_form_groups_or_render_vote_page
+from evap.staff.forms import ContributionFormset
+from evap.student.views import render_vote_page
 
 
 @responsible_or_contributor_or_delegate_required
@@ -125,7 +125,7 @@ def evaluation_view(request, evaluation_id):
         raise PermissionDenied
 
     InlineContributionFormset = inlineformset_factory(
-        Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=0
+        Evaluation, Contribution, formset=ContributionFormset, form=EditorContributionForm, extra=0
     )
 
     form = EvaluationForm(request.POST or None, instance=evaluation)
@@ -155,9 +155,9 @@ def render_preview(request, formset, evaluation_form, evaluation):
             formset.save()
             request.POST = None  # this prevents errors rendered in the vote form
 
-            preview_response = get_valid_form_groups_or_render_vote_page(
+            preview_response = render_vote_page(
                 request, evaluation, preview=True, for_rendering_in_modal=True
-            )[1].content.decode()
+            ).content.decode()
             raise IntegrityError  # rollback transaction to discard the database writes
     except IntegrityError:
         pass
@@ -177,7 +177,7 @@ def evaluation_edit(request, evaluation_id):
     preview = post_operation == "preview"
 
     InlineContributionFormset = inlineformset_factory(
-        Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1
+        Evaluation, Contribution, formset=ContributionFormset, form=EditorContributionForm, extra=1
     )
     evaluation_form = EvaluationForm(request.POST or None, instance=evaluation)
     formset = InlineContributionFormset(
@@ -240,7 +240,7 @@ def evaluation_preview(request, evaluation_id):
     ):
         raise PermissionDenied
 
-    return get_valid_form_groups_or_render_vote_page(request, evaluation, preview=True)[1]
+    return render_vote_page(request, evaluation, preview=True)
 
 
 @require_POST
@@ -279,7 +279,7 @@ def evaluation_direct_delegation(request, evaluation_id):
 
 def export_contributor_results(contributor):
     filename = f"Evaluation_{contributor.full_name}.xls"
-    response = FileResponse(filename, content_type="application/vnd.ms-excel")
+    response = AttachmentResponse(filename, content_type="application/vnd.ms-excel")
     ResultsExporter().export(
         response,
         Semester.objects.all(),

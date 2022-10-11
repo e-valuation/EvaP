@@ -3,9 +3,7 @@ from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, UserProfile
-from evap.evaluation.tests.tools import WebTestWith200Check, create_evaluation_with_responsible_and_editor
-
-TESTING_EVALUATION_ID = 2
+from evap.evaluation.tests.tools import WebTestWith200Check, create_evaluation_with_responsible_and_editor, render_pages
 
 
 class TestContributorDirectDelegationView(WebTest):
@@ -82,16 +80,15 @@ class TestContributorView(WebTestWith200Check):
 
 
 class TestContributorEvaluationView(WebTestWith200Check):
-    url = f"/contributor/evaluation/{TESTING_EVALUATION_ID}"
-
     @classmethod
     def setUpTestData(cls):
-        result = create_evaluation_with_responsible_and_editor(evaluation_id=TESTING_EVALUATION_ID)
+        result = create_evaluation_with_responsible_and_editor()
         cls.responsible = result["responsible"]
         cls.editor = result["editor"]
+        cls.evaluation = result["evaluation"]
 
         cls.test_users = [cls.editor, cls.responsible]
-        cls.evaluation = Evaluation.objects.get(pk=TESTING_EVALUATION_ID)
+        cls.url = f"/contributor/evaluation/{cls.evaluation.pk}"
 
     def test_wrong_state(self):
         self.evaluation.revert_to_new()
@@ -112,38 +109,59 @@ class TestContributorEvaluationView(WebTestWith200Check):
 
 
 class TestContributorEvaluationPreviewView(WebTestWith200Check):
-    url = f"/contributor/evaluation/{TESTING_EVALUATION_ID}/preview"
-
     @classmethod
     def setUpTestData(cls):
-        result = create_evaluation_with_responsible_and_editor(evaluation_id=TESTING_EVALUATION_ID)
+        result = create_evaluation_with_responsible_and_editor()
         cls.responsible = result["responsible"]
         cls.test_users = [result["editor"], result["responsible"]]
-
-        cls.evaluation = Evaluation.objects.get(pk=TESTING_EVALUATION_ID)
+        cls.evaluation = result["evaluation"]
+        cls.url = f"/contributor/evaluation/{cls.evaluation.pk}/preview"
 
     def test_wrong_state(self):
         self.evaluation.revert_to_new()
         self.evaluation.save()
         self.app.get(self.url, user=self.responsible, status=403)
 
+    def test_without_questionnaires_assigned(self):
+        # regression test for #1747
+        self.evaluation.general_contribution.questionnaires.set([])
+        self.app.get(self.url, user=self.responsible, status=200)
+
 
 class TestContributorEvaluationEditView(WebTest):
-    url = f"/contributor/evaluation/{TESTING_EVALUATION_ID}/edit"
+    render_pages_url = "/contributor/evaluation/PK/edit"
 
     @classmethod
     def setUpTestData(cls):
-        result = create_evaluation_with_responsible_and_editor(evaluation_id=TESTING_EVALUATION_ID)
+        result = create_evaluation_with_responsible_and_editor()
         cls.responsible = result["responsible"]
         cls.editor = result["editor"]
-        cls.evaluation = Evaluation.objects.get(pk=TESTING_EVALUATION_ID)
+        cls.evaluation = result["evaluation"]
+        cls.url = f"/contributor/evaluation/{cls.evaluation.pk}/edit"
+
+    @render_pages
+    def render_pages(self):
+        self.evaluation.allow_editors_to_edit = False
+        self.evaluation.save()
+
+        content_without_allow_editors_to_edit = self.app.get(self.url, user=self.editor).content
+
+        self.evaluation.allow_editors_to_edit = True
+        self.evaluation.save()
+
+        content_with_allow_editors_to_edit = self.app.get(self.url, user=self.editor).content
+
+        return {
+            "normal": content_without_allow_editors_to_edit,
+            "allow_editors_to_edit": content_with_allow_editors_to_edit,
+        }
 
     def test_not_authenticated(self):
         """
         Asserts that an unauthorized user gets redirected to the login page.
         """
         response = self.app.get(self.url)
-        self.assertRedirects(response, f"/?next=/contributor/evaluation/{TESTING_EVALUATION_ID}/edit")
+        self.assertRedirects(response, f"/?next=/contributor/evaluation/{self.evaluation.pk}/edit")
 
     def test_wrong_usergroup(self):
         """
@@ -196,7 +214,6 @@ class TestContributorEvaluationEditView(WebTest):
             Evaluation,
             course=baker.make(Course, responsibles=[responsible]),
             state=Evaluation.State.PREPARED,
-            pk=TESTING_EVALUATION_ID + 1,
         )
         evaluation.general_contribution.questionnaires.set([locked_questionnaire])
 

@@ -10,6 +10,7 @@ from django.core.cache.utils import make_template_fragment_key
 from django.core.exceptions import SuspiciousOperation
 from django.db import transaction
 from django.db.models import Count
+from django.urls import reverse
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _
 
@@ -18,15 +19,6 @@ from evap.evaluation.models_logging import LogEntry
 from evap.evaluation.tools import clean_email, is_external_email
 from evap.grades.models import GradeDocument
 from evap.results.tools import STATES_WITH_RESULTS_CACHING, cache_results
-
-
-def forward_messages(request, success_messages, warnings):
-    for message in success_messages:
-        messages.success(request, message)
-
-    for category in warnings:
-        for warning in warnings[category]:
-            messages.warning(request, warning)
 
 
 class ImportType(Enum):
@@ -341,7 +333,7 @@ def find_unreviewed_evaluations(semester, excluded):
             .exclude(state=Evaluation.State.PUBLISHED)
             .exclude(vote_end_date__gte=exclude_date)
             .exclude(can_publish_text_results=False)
-            .filter(contributions__textanswer_set__state=TextAnswer.State.NOT_REVIEWED)
+            .filter(contributions__textanswer_set__review_decision=TextAnswer.ReviewDecision.UNDECIDED)
             .annotate(num_unreviewed_textanswers=Count("contributions__textanswer_set"))
         ),
         key=lambda e: (-e.grading_process_is_finished, e.vote_end_date, -e.num_unreviewed_textanswers),
@@ -370,3 +362,11 @@ def remove_user_from_represented_and_ccing_users(user, ignored_users=None, test_
             cc_user.cc_users.remove(user)
             remove_messages.append(_("Removed {} from the CC users of {}.").format(user.full_name, cc_user.full_name))
     return remove_messages
+
+
+def user_edit_link(user_id):
+    return format_html(
+        '<a href="{}" target=_blank><span class="fas fa-user-pen"></span> {}</a>',
+        reverse("staff:user_edit", kwargs={"user_id": user_id}),
+        _("edit user"),
+    )

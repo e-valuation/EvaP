@@ -25,16 +25,15 @@ load-plugins = ["pylint_django"]
 django-settings-module = "evap.settings"
 
 [tool.pylint.basic]
-variable-rgx = "[A-Za-z_][A-Za-z0-9_]{2,60}$"
-argument-rgx = "[A-Za-z_][A-Za-z0-9_]{0,40}$"
-function-rgx = "[a-z_][a-z0-9_]{2,60}$"
-attr-rgx = "[a-z_][a-z0-9_]{1,60}$"
+# For most code: snake_case, or PascalCaseFormset, because django does it that way.
+# see https://docs.djangoproject.com/en/4.0/topics/forms/formsets/
+# For migrations, models are assigned as local variables. Until pylint supports configuration-per-directory, we also
+# need to allow that here (their issue 618)
+variable-rgx = "(^[a-z0-9_]+$)|(^[A-Za-z]+$)"
+argument-rgx = "(^[a-z0-9_]+$)|(^[A-Za-z]+$)"
 
-# Allow longer names in tests as test_* methods are usually named a bit more verbose
-method-rgx = "([a-z_][a-z0-9_]{2,60}$)|(test_[a-z0-9_]{2,80}$)"
-
-# allowing exactly four digits at the beginning for migrations
-module-rgx = "([0-9]{4})?([a-z_][a-z0-9_]*)$"
+# Allow 4 leading digits for migrations
+module-rgx = "^([0-9]{4})?([a-z_][a-z0-9_]+)$"
 
 good-names = [ "i", "j", "k", "ex", "Run", "_", "__", "e", "logger", "setUpTestData", "setUp", "tearDown"]
 
@@ -47,6 +46,8 @@ disable = [
     "locally-disabled",               # we allow locally disabling some checks if we think it makes sense to do that.
     "suppressed-message",
     "line-too-long",                  # black does code formatting for us
+    "ungrouped-imports",              # isort
+    "wrong-import-order",             # isort
     "too-many-public-methods",        # reported for some models, that won't change
     "too-few-public-methods",         # noisy, e.g. exception classes, mixins etc
     "no-member",                      # false positives, deals badly with django classes
@@ -57,6 +58,7 @@ disable = [
     "too-many-lines",                 # we don't currently think that splitting up views.py or test_views.py creates any value
     "too-many-arguments",             # we can't determine a good limit here. reviews should spot bad cases of this.
     "duplicate-code",                 # Mostly imports and test setup.
+    "cyclic-import",                  # We use these inside methods that require models from multiple apps. Tests will catch actual errors.
 ]
 
 ##############################################
@@ -89,7 +91,6 @@ module = [
     "model_bakery.*",
     "xlrd.*",
     "xlwt.*",
-    "xlutils.*",
 
     "evap.staff.fixtures.*",
 ]

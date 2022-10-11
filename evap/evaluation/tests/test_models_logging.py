@@ -60,6 +60,14 @@ class TestLoggedModel(TestCase):
         course = baker.make(Course)
         self.assertEqual(course.related_logentries().count(), 1)
 
+    def test_bulk_creation(self):
+        course = baker.make(Course)
+        evaluation = baker.prepare(Evaluation, course=course)
+        Evaluation.objects.bulk_create([evaluation])
+        Evaluation.update_log_after_bulk_create([evaluation])
+
+        self.assertEqual(evaluation.related_logentries().count(), 1)
+
     def test_related_logged_model_creation(self):
         self.assertEqual(self.evaluation.related_logentries().count(), 2)
         contribution = baker.make(Contribution, evaluation=self.evaluation)
@@ -74,6 +82,44 @@ class TestLoggedModel(TestCase):
         self.assertEqual(self.evaluation.related_logentries().count(), 3)
         self.assertEqual(
             self.evaluation.related_logentries().order_by("id").last().data["questionnaires"]["add"], [questionnaire.id]
+        )
+
+    def test_m2m_bulk_creation(self):
+        self.assertEqual(self.evaluation.related_logentries().count(), 2)
+
+        participant1 = baker.make(UserProfile)
+        through1 = Evaluation.participants.through(evaluation=self.evaluation, userprofile=participant1)
+
+        Evaluation.participants.through.objects.bulk_create([through1])
+        Evaluation.update_log_after_m2m_bulk_create(
+            [self.evaluation],  # this already has a logentry attached, it should be updated
+            [through1],
+            "evaluation_id",
+            "userprofile_id",
+            "participants",
+        )
+        self.assertEqual(self.evaluation.related_logentries().count(), 2)
+        self.assertEqual(
+            self.evaluation.related_logentries().order_by("id").first().data["participants"]["add"],
+            [participant1.pk],
+        )
+
+        evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
+        participant2 = baker.make(UserProfile)
+        through2 = Evaluation.participants.through(evaluation=evaluation, userprofile=participant2)
+
+        Evaluation.participants.through.objects.bulk_create([through2])
+        Evaluation.update_log_after_m2m_bulk_create(
+            [evaluation],  # no logentry so far
+            [through2],
+            "evaluation_id",
+            "userprofile_id",
+            "participants",
+        )
+        self.assertEqual(self.evaluation.related_logentries().count(), 3)
+        self.assertEqual(
+            self.evaluation.related_logentries().order_by("id").last().data["participants"]["add"],
+            [participant2.pk],
         )
 
     def test_none_value_not_included(self):

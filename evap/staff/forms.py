@@ -75,7 +75,7 @@ class BoundCharArrayField(forms.BoundField):
         return super().as_widget(widget, attrs, only_initial)
 
 
-class ModelWithImportNamesFormSet(forms.BaseModelFormSet):
+class ModelWithImportNamesFormset(forms.BaseModelFormSet):
     """
     A form set which validates that import names are not duplicated
     """
@@ -579,6 +579,9 @@ class ContributionForm(forms.ModelForm):
         fields = ("evaluation", "contributor", "questionnaires", "role", "textanswer_visibility", "label", "order")
         widgets = {
             "order": forms.HiddenInput(),
+            # RadioSelects are necessary so each value gets a id_for_label, see #1769.
+            "role": forms.RadioSelect(),
+            "textanswer_visibility": forms.RadioSelect(),
         }
 
     def __init__(self, *args, evaluation=None, **kwargs):
@@ -749,7 +752,7 @@ class QuestionnaireForm(forms.ModelForm):
         return questionnaire_instance
 
 
-class AtLeastOneFormSet(BaseInlineFormSet):
+class AtLeastOneFormset(BaseInlineFormSet):
     def clean(self):
         super().clean()
         count = 0
@@ -761,11 +764,12 @@ class AtLeastOneFormSet(BaseInlineFormSet):
             raise forms.ValidationError(_("You must have at least one of these."))
 
 
-class ContributionFormSet(BaseInlineFormSet):
+class ContributionFormset(BaseInlineFormSet):
     def __init__(self, data=None, **kwargs):
         data = self.handle_moved_contributors(data, **kwargs)
         super().__init__(data, **kwargs)
-        self.queryset = self.instance.contributions.exclude(contributor=None)
+        if self.instance.pk is not None:
+            self.queryset = self.instance.contributions.exclude(contributor=None)
 
     def handle_deleted_and_added_contributions(self):
         """
@@ -859,7 +863,7 @@ class ContributionFormSet(BaseInlineFormSet):
         super().clean()
 
 
-class ContributionCopyFormSet(ContributionFormSet):
+class ContributionCopyFormset(ContributionFormset):
     def __init__(self, data, instance, new_instance):
         # First, pass the old evaluation instance to create a ContributionCopyForm for each contribution
         super().__init__(data, instance=instance, form_kwargs={"evaluation": new_instance})

@@ -50,23 +50,24 @@ class TestReloadTestdataCommand(TestCase):
         mock_call_command.assert_any_call("migrate")
         mock_call_command.assert_any_call("flush", interactive=False)
         mock_call_command.assert_any_call("loaddata", "test_data")
-        mock_call_command.assert_any_call("clear_cache")
+        mock_call_command.assert_any_call("clear_cache", "--all", "-v=1")
         mock_call_command.assert_any_call("refresh_results_cache")
-        mock_call_command.assert_any_call("clear_cache", "--cache=sessions")
 
-        self.assertEqual(mock_call_command.call_count, 7)
+        self.assertEqual(mock_call_command.call_count, 6)
 
 
 class TestRunCommand(TestCase):
-    @staticmethod
-    def test_calls_runserver():
-        with patch("django.core.management.execute_from_command_line") as mock:
-            management.call_command("run", stdout=StringIO())
+    def test_calls_runserver(self):
+        with patch("django.core.management.execute_from_command_line") as execute_mock:
+            with patch("subprocess.Popen") as popen_mock:
+                management.call_command("run", stdout=StringIO())
 
-        mock.assert_has_calls(
+        execute_mock.assert_called_once_with(["manage.py", "runserver", "0.0.0.0:8000"])
+        self.assertEqual(popen_mock.call_count, 2)
+        popen_mock.assert_has_calls(
             [
-                call(["manage.py", "scss"]),
-                call(["manage.py", "ts", "compile"]),
-                call(["manage.py", "runserver", "0.0.0.0:8000"]),
-            ]
+                call(["./manage.py", "scss"]),
+                call(["./manage.py", "ts", "compile"]),
+            ],
+            any_order=True,
         )

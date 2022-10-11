@@ -13,7 +13,7 @@
                         <tr>
                             <th style="width: 80%">{% trans 'Text answer' %}</th>
                             <th style="width: 5%"></th>
-                            <th style="width: 15%">{% trans 'Publish' %}</th>
+                            <th style="width: 15%">{% trans 'Decision' %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -32,11 +32,26 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <div id="{{ answer.id }}-buttons" class="btn-group">
-                                        <button type="button" id="{{ answer.id }}-publish" onclick="press('{{ answer.id }}', 'publish');" class="btn btn-sm btn-light{% if answer.is_published %} active{% endif %}">{% trans 'yes' %}</button>
-                                        {% if contributor %}<button type="button" id="{{ answer.id }}-make_private" onclick="press('{{ answer.id }}', 'make_private');" class="btn btn-sm btn-light{% if answer.is_private %} active{% endif %}">{% trans 'private' %}</button>{% endif %}
-                                        <button type="button" id="{{ answer.id }}-hide" onclick="press('{{ answer.id }}', 'hide');" class="btn btn-sm btn-light{% if answer.is_hidden %} active{% endif %}">{% trans 'no' %}</button>
-                                    </div>
+                                    <form class="full-update-textanswer-form" method="POST" action="{% url 'staff:evaluation_textanswers_update_publish' %}">
+                                        {% csrf_token %}
+
+                                        <input type="hidden" name="answer_id" value="{{ answer.id }}" />
+                                        <input type="hidden" name="evaluation_id" value="{{ evaluation_id }}" />
+
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <input type="radio" class="btn-check" name="action" value="publish" id="{{ answer.id }}-radio-publish" autocomplete="off" {% if answer.will_be_public %}checked{% endif %}>
+                                            <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-publish">{% trans 'Publish' %}</label>
+
+                                            <input type="radio" class="btn-check" name="action" value="make_private" id="{{ answer.id }}-radio-private" autocomplete="off" {% if answer.will_be_private %}checked{% endif %} {% if not contributor %}disabled{% endif %}>
+                                            <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-private">{% trans 'Private' %}</label>
+
+                                            <input type="radio" class="btn-check" name="action" value="unreview" id="{{ answer.id }}-radio-undecided" autocomplete="off" {% if not answer.is_reviewed %}checked{% endif %}>
+                                            <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-undecided">{% trans 'Undecided' %}</label>
+
+                                            <input type="radio" class="btn-check" name="action" value="delete" id="{{ answer.id }}-radio-delete" autocomplete="off" {% if answer.will_be_deleted %}checked{% endif %}>
+                                            <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-delete">{% trans 'Delete' %}</label>
+                                        </div>
+                                    </form>
                                 </td>
                             </tr>
                         {% endfor %}

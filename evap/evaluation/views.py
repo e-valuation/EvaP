@@ -3,7 +3,7 @@ from datetime import date, timedelta
 
 from django.conf import settings
 from django.contrib import auth, messages
-from django.contrib.auth.decorators import login_required
+from django.core.exceptions import SuspiciousOperation
 from django.core.mail import EmailMessage
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
@@ -159,19 +159,24 @@ def legal_notice(request):
 
 
 @require_POST
-@login_required
 def contact(request):
+    sent_anonymous = request.POST.get("anonymous") == "true"
+    if sent_anonymous and not settings.ALLOW_ANONYMOUS_FEEDBACK_MESSAGES:
+        raise SuspiciousOperation("Anonymous feedback messages are not allowed, however received one from user!")
     message = request.POST.get("message")
     title = request.POST.get("title")
-    email = request.user.email or f"User {request.user.id}"
-    subject = f"[EvaP] Message from {email}"
-
+    if sent_anonymous:
+        sender = "anonymous user"
+        subject = "[EvaP] Anonymous message"
+    else:
+        sender = request.user.email or f"User {request.user.id}"
+        subject = f"[EvaP] Message from {sender}"
     if message:
         mail = EmailMessage(
             subject=subject,
-            body=f"{title}\n{request.user.email}\n\n{message}",
+            body=f"{title}\n{sender}\n\n{message}",
             to=[settings.CONTACT_EMAIL],
-            reply_to=[request.user.email],
+            reply_to=[] if sent_anonymous else [sender],
         )
         try:
             mail.send()
@@ -195,7 +200,6 @@ def set_lang(request):
     return set_language(request)
 
 
-@login_required
 def profile_edit(request):
     user = request.user
     if user.is_editor:

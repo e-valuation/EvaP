@@ -13,12 +13,39 @@ duplicate_user_import_filedata = {
     ]
 }
 
+mismatching_user_import_filedata = {
+    'Users': [
+        ['Title', 'First Name', 'Last Name', 'Email'],
+        ['', 'Lucilia', 'Manilium', 'lucilia.manilium@institution.example.com'],
+        ['', 'Bastius', 'Quid', 'bastius.quid@external.example.com'],
+        ['Dr.', 'Bastius', 'Quid', 'bastius.quid@external.example.com']
+    ]
+}
+
 numerical_data_in_user_data_filedata = {
     'Users': [
         ['Title', 'First Name', 'Last Name', 'Email'],
         ['', 'Lucilia', 'Manilium', 'lucilia.manilium@institution.example.com'],
         [3.14, 'Bastius', 'Quid', 'bastius.quid@external.example.com'],
         ['', 'Gustav', 42, 'gustav42@external.example.com']
+    ]
+}
+
+valid_user_import_filedata = {
+    'Skipped Sheet': [["Just", "Some", "Comments"]],
+    'Users': [
+        ['Title', 'First name', 'Last name', 'Email'],
+        ['', 'Lucilia', 'Manilium', 'lucilia.manilium@institution.example.com'],
+        ['', 'Bastius', 'Quid', 'bastius.quid@external.example.com'],
+    ]
+}
+
+missing_values_user_import_filedata = {
+    'Sheet 1': [
+        ['Title', 'First Name', 'Last Name', 'Email'],
+        ['', '', 'Manilium', 'missing.firstname@institution.example.com'],
+        ['', 'Lucilia', '', 'missing.lastname@institution.example.com'],
+        ['', 'Bastius', 'Quid', ''],
     ]
 }
 
@@ -162,6 +189,15 @@ valid_user_courses_import_filedata = {
     ]
 }
 
+random_file_content = "Hallo Welt\n".encode()
+
+
+wrong_column_count_excel_data = {
+    'Sheet 1': [
+        ["Only", "Three", "Columns"],
+        ["Some", "Content", "Here"],
+    ]
+}
 # fmt: on
 
 

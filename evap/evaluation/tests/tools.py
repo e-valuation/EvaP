@@ -96,8 +96,9 @@ def render_pages(test_item):
 
         static_directory = settings.STATICFILES_DIRS[0]
 
+        url = getattr(self, "render_pages_url", self.url)
         # Remove the leading slash from the url to prevent that an absolute path is created
-        directory = os.path.join(static_directory, "ts", "rendered", self.url[1:])
+        directory = os.path.join(static_directory, "ts", "rendered", url[1:])
         os.makedirs(directory, exist_ok=True)
 
         for name, content in pages.items():
@@ -116,13 +117,13 @@ class WebTestWith200Check(WebTest):
             self.app.get(self.url, user=user, status=200)
 
 
-def get_form_data_from_instance(FormClass, instance, **kwargs):
-    assert FormClass._meta.model == type(instance)
-    form = FormClass(instance=instance, **kwargs)
+def get_form_data_from_instance(form_cls, instance, **kwargs):
+    assert form_cls._meta.model == type(instance)
+    form = form_cls(instance=instance, **kwargs)
     return {field.html_name: field.value() for field in form}
 
 
-def create_evaluation_with_responsible_and_editor(evaluation_id=None):
+def create_evaluation_with_responsible_and_editor():
     responsible = baker.make(UserProfile, email="responsible@institution.example.com")
     editor = baker.make(UserProfile, email="editor@institution.example.com")
 
@@ -134,9 +135,6 @@ def create_evaluation_with_responsible_and_editor(evaluation_id=None):
         vote_start_datetime=in_one_hour,
         vote_end_date=tomorrow,
     )
-
-    if evaluation_id:
-        evaluation_params["id"] = evaluation_id
 
     evaluation = baker.make(Evaluation, **evaluation_params)
     contribution = baker.make(

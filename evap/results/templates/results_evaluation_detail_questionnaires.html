@@ -23,7 +23,7 @@
                 {% if question_result.additional_text_result %}
                     <div class="col-question col-lg-broad col-lg-4"></div>
                     <div class="col-answer col-lg-broad col-lg-8 d-flex pt-0 break-word">
-                        {% include 'textanswer_list.html' with question_result=question_result.additional_text_result %}
+                        {% include 'textanswer_list.html' with question_result=question_result.additional_text_result num_voters=evaluation.num_voters num_answers=question_result.additional_text_result.answers|length %}
                     </div>
                 {% endif %}
             </div>
@@ -33,7 +33,7 @@
                         {{ question_result.question.text }}
                 </div>
                 <div class="col-answer col-lg-broad col-lg-8 d-flex break-word">
-                    {% include 'textanswer_list.html' with question_result=question_result %}
+                    {% include 'textanswer_list.html' with question_result=question_result num_voters=evaluation.num_voters num_answers=question_result.answers|length %}
                 </div>
             </div>
         {% endif %}
