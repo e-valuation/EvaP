@@ -79,26 +79,33 @@ class TestIndexView(WebTest):
         self.assertContains(response, "event expired already.")
         self.assertEqual(5, reward_points_of_user(self.student))
 
-    def post_invalid_redemption_request(self, redemption_params, additional_params=None):
+    def post_redemption_request(self, redemption_params, additional_params=None, status=200):
         if additional_params is None:
             additional_params = {
                 "previous_redeemed_points": redeemed_points_of_user(self.student),
             }
-        return self.app.post(self.url, params={**redemption_params, **additional_params}, user=self.student, status=400)
+        return self.app.post(
+            self.url, params={**redemption_params, **additional_params}, user=self.student, status=status
+        )
 
     def test_invalid_post_parameters(self):
-        self.post_invalid_redemption_request({"points-asd": 2})
-        self.post_invalid_redemption_request({"points-": 2})
-        self.post_invalid_redemption_request({f"points-{self.event1.pk}": ""})
-        self.post_invalid_redemption_request({f"points-{self.event1.pk}": "asd"})
+        self.post_redemption_request({f"points-{self.event1.pk}": 2})
+        self.post_redemption_request({"points-asd": 2}, status=400)
+        self.post_redemption_request({"points-": 2}, status=400)
+        self.post_redemption_request({f"points-{self.event1.pk}": ""}, status=400)
+        self.post_redemption_request({f"points-{self.event1.pk}": "asd"}, status=400)
 
         # redemption without or with invalid point parameters
-        self.post_invalid_redemption_request(redemption_params={f"points-{self.event1.pk}": 1}, additional_params={})
-        self.post_invalid_redemption_request(
+        self.post_redemption_request(
+            redemption_params={f"points-{self.event1.pk}": 1}, additional_params={}, status=400
+        )
+        self.post_redemption_request(
             redemption_params={f"points-{self.event1.pk}": 1},
             additional_params={"previous_redeemed_points": "asd"},
+            status=400,
         )
-        self.assertFalse(RewardPointRedemption.objects.filter(user_profile=self.student).exists())
+
+        self.assertEqual(1, RewardPointRedemption.objects.filter(user_profile=self.student).count())
 
     def test_inconsistent_previous_redemption_counts(self):
         response1 = self.app.get(self.url, user=self.student)
