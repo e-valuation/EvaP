@@ -26,13 +26,14 @@ from evap.rewards.models import (
 
 @login_required
 @transaction.atomic
-def save_redemptions(request, redemptions: Dict[int, int], previous_reward_points):
+def save_redemptions(request, redemptions: Dict[int, int], previous_redeemed_points: int):
     # lock these rows to prevent race conditions
     list(request.user.reward_point_grantings.select_for_update())
     list(request.user.reward_point_redemptions.select_for_update())
 
     # check consistent previous redeemed points
-    if previous_reward_points != redeemed_points_of_user(request.user):
+    # do not validate reward points, to allow receiving points after page load
+    if previous_redeemed_points != redeemed_points_of_user(request.user):
         raise OutdatedRedemptionData(
             _(
                 "It appears that your browser sent multiple redemption requests. You can see all successful redemptions below."

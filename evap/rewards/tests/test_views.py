@@ -79,24 +79,22 @@ class TestIndexView(WebTest):
         self.assertContains(response, "event expired already.")
         self.assertEqual(5, reward_points_of_user(self.student))
 
-    def helper_post_redemption_request(self, redemption_params, additional_params=None, status=400):
+    def post_invalid_redemption_request(self, redemption_params, additional_params=None):
         if additional_params is None:
             additional_params = {
                 "previous_redeemed_points": redeemed_points_of_user(self.student),
             }
-        return self.app.post(
-            self.url, params={**redemption_params, **additional_params}, user=self.student, status=status
-        )
+        return self.app.post(self.url, params={**redemption_params, **additional_params}, user=self.student, status=400)
 
     def test_invalid_post_parameters(self):
-        self.helper_post_redemption_request({"points-asd": 2})
-        self.helper_post_redemption_request({"points-": 2})
-        self.helper_post_redemption_request({f"points-{self.event1.pk}": ""})
-        self.helper_post_redemption_request({f"points-{self.event1.pk}": "asd"})
+        self.post_invalid_redemption_request({"points-asd": 2})
+        self.post_invalid_redemption_request({"points-": 2})
+        self.post_invalid_redemption_request({f"points-{self.event1.pk}": ""})
+        self.post_invalid_redemption_request({f"points-{self.event1.pk}": "asd"})
 
         # redemption without or with invalid point parameters
-        self.helper_post_redemption_request(redemption_params={f"points-{self.event1.pk}": 1}, additional_params={})
-        self.helper_post_redemption_request(
+        self.post_invalid_redemption_request(redemption_params={f"points-{self.event1.pk}": 1}, additional_params={})
+        self.post_invalid_redemption_request(
             redemption_params={f"points-{self.event1.pk}": 1},
             additional_params={"previous_redeemed_points": "asd"},
         )
