@@ -106,3 +106,10 @@ python_files = ["tests.py", "test_*.py", "*_tests.py"]
 testpaths = ["evap"]
 norecursedirs=["locale", "logs", "static", "static_collected", "upload"]
 addopts = "--reuse-db"
+
+[tool.djlint]
+profile="django"
+use_gitignore=true # it seems like this does not work, hence the next line
+extend_exclude="evap/static_collected,evap/static"
+preserve_blank_lines=true
+max_line_length=140
