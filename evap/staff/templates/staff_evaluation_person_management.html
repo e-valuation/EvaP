@@ -9,7 +9,10 @@
 
     <div class="row mb-3">
         <div class="col">
-            <form id="participant-import-form" method="POST" enctype="multipart/form-data" class="form-vertical h-100">
+            <form id="participant-import-form"
+                  method="POST"
+                  enctype="multipart/form-data"
+                  class="form-vertical h-100">
                 {% csrf_token %}
                 <div class="card">
                     <div class="card-body h-100">
@@ -17,19 +20,46 @@
                         <h6 class="card-subtitle mb-2 text-muted">{% trans 'From Excel file' %}</h6>
                         <p class="card-text">
                             {% trans 'Upload Excel file with participant data' %} (<a href="{% url 'staff:download_sample_file' 'sample_user.xlsx' %}">{% trans 'Download sample file' %}</a>,
-                            <button type="button" class="btn-link" onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">{% trans 'Copy headers to clipboard' %}</button>).
+                            <button type="button"
+                                    class="btn-link"
+                                    onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">
+                                {% trans 'Copy headers to clipboard' %}
+                            </button>
+                            ).
                             {% trans 'This will create all containing users.' %}
                         </p>
                         {% include 'bootstrap_form.html' with form=participant_excel_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
                         {% if not participant_test_passed %}
-                            <button name="operation" value="test-participants" type="submit" class="btn btn-sm btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
+                            <button name="operation"
+                                    value="test-participants"
+                                    type="submit"
+                                    class="btn btn-sm btn-light form-submit-btn">
+                                {% trans 'Upload and test' %}
+                            </button>
                         {% else %}
-                            <button name="operation" value="test-participants" type="submit" class="btn btn-sm btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
+                            <button name="operation"
+                                    value="test-participants"
+                                    type="submit"
+                                    class="btn btn-sm btn-light form-submit-btn">
+                                {% trans 'Upload and test' %}
+                            </button>
                             <div class="mt-2">
-                                <button name="operation" value="import-participants" type="button" onclick="importParticipantsModalShow('import-participants');" class="btn btn-sm btn-primary me-1 form-submit-btn";>{% trans 'Import previously uploaded file' %}</button>
-                                <button name="operation" value="import-replace-participants" type="button" onclick="replaceParticipantsModalShow('import-replace-participants');" class="btn btn-sm btn-danger form-submit-btn">{% trans 'Replace participants' %}</button>
+                                <button name="operation"
+                                        value="import-participants"
+                                        type="button"
+                                        onclick="importParticipantsModalShow('import-participants');"
+                                        class="btn btn-sm btn-primary me-1 form-submit-btn">
+                                    {% trans 'Import previously uploaded file' %}
+                                </button>
+                                <button name="operation"
+                                        value="import-replace-participants"
+                                        type="button"
+                                        onclick="replaceParticipantsModalShow('import-replace-participants');"
+                                        class="btn btn-sm btn-danger form-submit-btn">
+                                    {% trans 'Replace participants' %}
+                                </button>
                             </div>
                         {% endif %}
                     </div>
@@ -37,18 +67,33 @@
             </form>
         </div>
         <div class="col">
-            <form id="participant-copy-form" method="POST" enctype="multipart/form-data" class="form-vertical h-100">
+            <form id="participant-copy-form"
+                  method="POST"
+                  enctype="multipart/form-data"
+                  class="form-vertical h-100">
                 {% csrf_token %}
                 <div class="card h-100">
                     <div class="card-body">
                         <h4 class="card-title">{% trans 'Copy participants' %}</h4>
-                    <h6 class="card-subtitle mb-2 text-muted">{% trans 'From other evaluation' %}</h6>
+                        <h6 class="card-subtitle mb-2 text-muted">{% trans 'From other evaluation' %}</h6>
                         <p class="card-text">{% trans 'Copy participants from another evaluation.' %}</p>
                         {% include 'bootstrap_form.html' with form=participant_copy_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
-                        <button name="operation" value="copy-participants" type="button" onclick="copyParticipantsModalShow('copy-participants');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Copy participants' %}</button>
-                        <button name="operation" value="copy-replace-participants" type="button" onclick="copyReplaceParticipantsModalShow('copy-replace-participants');" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace participants' %}</button>
+                        <button name="operation"
+                                value="copy-participants"
+                                type="button"
+                                onclick="copyParticipantsModalShow('copy-participants');"
+                                class="btn btn-sm btn-primary form-submit-btn">
+                            {% trans 'Copy participants' %}
+                        </button>
+                        <button name="operation"
+                                value="copy-replace-participants"
+                                type="button"
+                                onclick="copyReplaceParticipantsModalShow('copy-replace-participants');"
+                                class="btn btn-sm btn-danger ms-1 form-submit-btn">
+                            {% trans 'Replace participants' %}
+                        </button>
                     </div>
                 </div>
             </form>
@@ -57,7 +102,10 @@
 
     <div class="row mb-3">
         <div class="col">
-            <form id="contributor-import-form" method="POST" enctype="multipart/form-data" class="form-vertical h-100">
+            <form id="contributor-import-form"
+                  method="POST"
+                  enctype="multipart/form-data"
+                  class="form-vertical h-100">
                 {% csrf_token %}
                 <div class="card h-100">
                     <div class="card-body">
@@ -66,19 +114,46 @@
                         <p class="card-text">
                             {% trans 'Upload Excel file with contributor data' %}
                             (<a href="{% url 'staff:download_sample_file' 'sample_user.xlsx' %}">{% trans 'Download sample file' %}</a>,
-                            <button type="button" class="btn-link" onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">{% trans 'Copy headers to clipboard' %}</button>).
+                            <button type="button"
+                                    class="btn-link"
+                                    onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">
+                                {% trans 'Copy headers to clipboard' %}
+                            </button>
+                            ).
                             {% trans 'This will create all containing users.' %}
                         </p>
                         {% include 'bootstrap_form.html' with form=contributor_excel_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
                         {% if not contributor_test_passed %}
-                            <button name="operation" value="test-contributors" type="submit" class="btn btn-sm btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
+                            <button name="operation"
+                                    value="test-contributors"
+                                    type="submit"
+                                    class="btn btn-sm btn-light form-submit-btn">
+                                {% trans 'Upload and test' %}
+                            </button>
                         {% else %}
-                            <button name="operation" value="test-contributors" type="submit" class="btn btn-sm btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
+                            <button name="operation"
+                                    value="test-contributors"
+                                    type="submit"
+                                    class="btn btn-sm btn-light form-submit-btn">
+                                {% trans 'Upload and test' %}
+                            </button>
                             <div class="mt-2">
-                                <button name="operation" value="import-contributors" type="button" onclick="importContributorsModalShow('import-contributors');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
-                                <button name="operation" value="import-replace-contributors" type="button" onclick="replaceContributorsModalShow('import-replace-contributors');" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace contributors' %}</button>
+                                <button name="operation"
+                                        value="import-contributors"
+                                        type="button"
+                                        onclick="importContributorsModalShow('import-contributors');"
+                                        class="btn btn-sm btn-primary form-submit-btn">
+                                    {% trans 'Import previously uploaded file' %}
+                                </button>
+                                <button name="operation"
+                                        value="import-replace-contributors"
+                                        type="button"
+                                        onclick="replaceContributorsModalShow('import-replace-contributors');"
+                                        class="btn btn-sm btn-danger ms-1 form-submit-btn">
+                                    {% trans 'Replace contributors' %}
+                                </button>
                             </div>
                         {% endif %}
                     </div>
@@ -86,18 +161,33 @@
             </form>
         </div>
         <div class="col">
-            <form id="contributor-copy-form" method="POST" enctype="multipart/form-data" class="form-vertical h-100">
+            <form id="contributor-copy-form"
+                  method="POST"
+                  enctype="multipart/form-data"
+                  class="form-vertical h-100">
                 {% csrf_token %}
                 <div class="card h-100">
                     <div class="card-body">
                         <h4 class="card-title">{% trans 'Copy contributors' %}</h4>
-                    <h6 class="card-subtitle mb-2 text-muted">{% trans 'From other evaluation' %}</h6>
+                        <h6 class="card-subtitle mb-2 text-muted">{% trans 'From other evaluation' %}</h6>
                         <p class="card-text">{% trans 'Copy contributors from another evaluation.' %}</p>
                         {% include 'bootstrap_form.html' with form=contributor_copy_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
-                        <button name="operation" value="copy-contributors" type="button" onclick="copyContributorsModalShow('copy-contributors');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Copy contributors' %}</button>
-                        <button name="operation" value="copy-replace-contributors" type="button" onclick="copyReplaceContributorsModalShow('copy-replace-contributors');" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace contributors' %}</button>
+                        <button name="operation"
+                                value="copy-contributors"
+                                type="button"
+                                onclick="copyContributorsModalShow('copy-contributors');"
+                                class="btn btn-sm btn-primary form-submit-btn">
+                            {% trans 'Copy contributors' %}
+                        </button>
+                        <button name="operation"
+                                value="copy-replace-contributors"
+                                type="button"
+                                onclick="copyReplaceContributorsModalShow('copy-replace-contributors');"
+                                class="btn btn-sm btn-danger ms-1 form-submit-btn">
+                            {% trans 'Replace contributors' %}
+                        </button>
                     </div>
                 </div>
             </form>
@@ -106,17 +196,29 @@
 
     <div class="row">
         <div class="col">
-            <form id="login-key-export-form" method="POST" class="form-vertical" action="{% url 'staff:evaluation_login_key_export' semester.id evaluation.id %}">
+            <form id="login-key-export-form"
+                  method="POST"
+                  class="form-vertical"
+                  action="{% url 'staff:evaluation_login_key_export' semester.id evaluation.id %}">
                 {% csrf_token %}
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">{% trans 'Export login keys' %}</h4>
-                        <h6 class="card-subtitle mb-2 text-muted">{% trans 'To CSV file' %}</h6>
-                        <p class="card-text">{% trans 'This will create a CSV file containing login keys for all external participants.' %}</p>
+                        <h4 class="card-title">
+                            {% trans 'Export login keys' %}
+                        </h4>
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            {% trans 'To CSV file' %}
+                        </h6>
+                        <p class="card-text">
+                            {% trans 'This will create a CSV file containing login keys for all external participants.' %}
+                        </p>
                     </div>
                     <div class="card-footer text-center">
-                        <button name="operation" value="export-login-keys" type="submit" class="btn btn-sm btn-primary form-submit-btn"
-                        {% if not evaluation.has_external_participant %} disabled data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans "This evaluation has no external participants." %}"{% endif %}>
+                        <button name="operation"
+                                value="export-login-keys"
+                                type="submit"
+                                class="btn btn-sm btn-primary form-submit-btn"
+                                {% if not evaluation.has_external_participant %} disabled data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans "This evaluation has no external participants." %}"{% endif %}>
                             {% trans 'Export login keys' %}
                         </button>
                     </div>
@@ -127,7 +229,7 @@
 {% endblock %}
 
 {% block modals %}
-{{ block.super }}
+    {{ block.super }}
     {% trans 'Import participants' as title %}
     {% blocktrans asvar question %}Do you really want to import the Excel file with participant data?{% endblocktrans %}
     {% trans 'Import participants' as action_text %}

@@ -10,44 +10,68 @@
         {{ semester.name }}
         {% if request.user.is_manager %}
             &nbsp;
-            <a href="{% url 'staff:semester_edit' semester.id %}" class="btn btn-sm btn-secondary">{% trans 'Edit' %}</a>
-            <button
-                onClick="makeActiveSemesterModalShow({{ semester.id }})" class="btn btn-sm btn-light"
-                id="makeActiveSemesterButton" type="button"
-                {% if semester.is_active %}
-                    disabled
-                    data-bs-toggle="tooltip" data-bs-placement="top"
-                    title="{% blocktrans %}This is the active semester{% endblocktrans %}"
-                {% endif %}>
+            <a href="{% url 'staff:semester_edit' semester.id %}"
+               class="btn btn-sm btn-secondary">{% trans 'Edit' %}</a>
+            <button onClick="makeActiveSemesterModalShow({{ semester.id }})"
+                    class="btn btn-sm btn-light"
+                    id="makeActiveSemesterButton"
+                    type="button"
+                    {% if semester.is_active %} disabled data-bs-toggle="tooltip" data-bs-placement="top" title="{% blocktrans %}This is the active semester{% endblocktrans %}" {% endif %}>
                 {% trans 'Make active' %}
             </button>
-            <button type="button" id="deleteSemesterButton"{% if not semester.can_be_deleted_by_manager %} disabled{% endif %} onclick="deleteSemesterModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-danger">{% trans 'Delete' %}</button>
+            <button type="button"
+                    id="deleteSemesterButton"
+                    {% if not semester.can_be_deleted_by_manager %} disabled{% endif %}
+                    onclick="deleteSemesterModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');"
+                    class="btn btn-sm btn-danger">
+                {% trans 'Delete' %}
+            </button>
         {% endif %}
     </h3>
 
     {% if request.user.is_manager %}
         <div class="card collapsible mb-3">
             <div class="card-header d-flex">
-                <a class="collapse-toggle{% if not semester.participations_are_archived and not semester.grade_documents_are_deleted and not semester.results_are_archived %} collapsed{% endif %}" data-bs-toggle="collapse" href="#archivingCard">{% trans 'Archiving' %}</a>
+                <a class="collapse-toggle{% if not semester.participations_are_archived and not semester.grade_documents_are_deleted and not semester.results_are_archived %} collapsed{% endif %}"
+                   data-bs-toggle="collapse"
+                   href="#archivingCard">{% trans 'Archiving' %}</a>
             </div>
-            <div class="collapse{% if semester.participations_are_archived or semester.grade_documents_are_deleted or semester.results_are_archived %} show{% endif %}" id="archivingCard">
+            <div class="collapse{% if semester.participations_are_archived or semester.grade_documents_are_deleted or semester.results_are_archived %} show{% endif %}"
+                 id="archivingCard">
                 <div class="card-body">
                     {% if semester.participations_can_be_archived %}
-                        <button type="button" onclick="archiveParticipationsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning">{% trans 'Archive participations' %}</button>
+                        <button type="button"
+                                onclick="archiveParticipationsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');"
+                                class="btn btn-sm btn-warning">
+                            {% trans 'Archive participations' %}
+                        </button>
                     {% elif semester.participations_are_archived %}
                         <button type="button" disabled class="btn btn-sm btn-success">{% trans 'Participations have been archived' %}</button>
                     {% else %}
-                        <button type="button" disabled class="btn btn-sm btn-warning"
-                            data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'The participations in this semester can not be archived.' %}">
-                            {% trans 'Archive participations' %}</button>
+                        <button type="button"
+                                disabled
+                                class="btn btn-sm btn-warning"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="{% trans 'The participations in this semester can not be archived.' %}">
+                            {% trans 'Archive participations' %}
+                        </button>
                     {% endif %}
                     {% if semester.grade_documents_can_be_deleted %}
-                        <button type="button" onclick="deleteGradeDocumentsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning">{% trans 'Delete grade documents' %}</button>
+                        <button type="button"
+                                onclick="deleteGradeDocumentsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');"
+                                class="btn btn-sm btn-warning">
+                            {% trans 'Delete grade documents' %}
+                        </button>
                     {% elif semester.grade_documents_are_deleted %}
                         <button type="button" class="btn btn-sm btn-success disabled">{% trans 'Grade documents have been deleted' %}</button>
                     {% endif %}
                     {% if semester.results_can_be_archived %}
-                        <button type="button" onclick="archiveResultsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning">{% trans 'Archive results' %}</button>
+                        <button type="button"
+                                onclick="archiveResultsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');"
+                                class="btn btn-sm btn-warning">
+                            {% trans 'Archive results' %}
+                        </button>
                     {% elif semester.results_are_archived %}
                         <button type="button" disabled class="btn btn-sm btn-success">{% trans 'Results have been archived' %}</button>
                     {% endif %}
@@ -58,18 +82,33 @@
 
     <div class="card collapsible mb-3">
         <div class="card-header d-flex">
-            <a class="collapse-toggle collapsed" data-bs-toggle="collapse" href="#overviewCard" aria-expanded="false" aria-controls="overviewCard" onclick="saveCollapseState()">{% trans 'Overview' %}</a>
+            <a class="collapse-toggle collapsed"
+               data-bs-toggle="collapse"
+               href="#overviewCard"
+               aria-expanded="false"
+               aria-controls="overviewCard"
+               onclick="saveCollapseState()">{% trans 'Overview' %}</a>
             {% if request.user.is_manager %}
                 <div class="ms-auto">
                     {% if not semester.participations_are_archived %}
-                        <a href="{% url 'staff:semester_preparation_reminder' semester.id %}" class="btn btn-sm btn-light">{% trans 'Preparation reminder' %}</a>
-                        <a href="{% url 'staff:semester_grade_reminder' semester.id %}" class="btn btn-sm btn-light ms-2">{% trans 'Grade publish reminder' %}</a>
+                        <a href="{% url 'staff:semester_preparation_reminder' semester.id %}"
+                           class="btn btn-sm btn-light">{% trans 'Preparation reminder' %}</a>
+                        <a href="{% url 'staff:semester_grade_reminder' semester.id %}"
+                           class="btn btn-sm btn-light ms-2">{% trans 'Grade publish reminder' %}</a>
                     {% endif %}
                     <div class="btn-switch ms-2">
                         <div class="btn-switch-label">{% trans 'Reward points active' %}</div>
                         <div class="btn-switch btn-group icon-buttons">
-                            <button type="button" onclick="activateRewardPointsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-light{% if rewards_active %} active{% endif %}"><span class="fas fa-check" aria-hidden="true"></span></button>
-                            <button type="button" onclick="deactivateRewardPoints()" class="btn btn-sm btn-light{% if not rewards_active %} active{% endif %}"><span class="fas fa-xmark" aria-hidden="true"></span></button>
+                            <button type="button"
+                                    onclick="activateRewardPointsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');"
+                                    class="btn btn-sm btn-light{% if rewards_active %} active{% endif %}">
+                                <span class="fas fa-check" aria-hidden="true"></span>
+                            </button>
+                            <button type="button"
+                                    onclick="deactivateRewardPoints()"
+                                    class="btn btn-sm btn-light{% if not rewards_active %} active{% endif %}">
+                                <span class="fas fa-xmark" aria-hidden="true"></span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -89,25 +128,21 @@
                     </thead>
                     <tbody>
                         {% for degree, stats in degree_stats.items %}
-                        <tr{% if degree == 'total' %} class="table-total-stats"{% endif %}>
-                            <td>
-                                {% if degree == 'total' %}{% trans 'Total' %}{% else %}{{ degree }}{% endif %}
-                            </td>
-                            <td>
-                                {% if stats.num_evaluations != 0 %}
-                                    {{ stats.first_start }} &ndash; {{ stats.last_end }}
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% include 'progress_bar.html' with done=stats.num_evaluations_evaluated total=stats.num_evaluations %}
-                            </td>
-                            <td>
-                                {% include 'progress_bar.html' with done=stats.num_textanswers_reviewed total=stats.num_textanswers %}
-                            </td>
-                            <td>
-                                {% include 'progress_bar.html' with done=stats.num_votes total=stats.num_enrollments_in_evaluation %}
-                            </td>
-                        </tr>
+                            <tr{% if degree == 'total' %} class="table-total-stats"{% endif %}>
+                                <td>
+                                    {% if degree == 'total' %}
+                                        {% trans 'Total' %}
+                                    {% else %}
+                                        {{ degree }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if stats.num_evaluations != 0 %}{{ stats.first_start }} &ndash; {{ stats.last_end }}{% endif %}
+                                </td>
+                                <td>{% include 'progress_bar.html' with done=stats.num_evaluations_evaluated total=stats.num_evaluations %}</td>
+                                <td>{% include 'progress_bar.html' with done=stats.num_textanswers_reviewed total=stats.num_textanswers %}</td>
+                                <td>{% include 'progress_bar.html' with done=stats.num_votes total=stats.num_enrollments_in_evaluation %}</td>
+                            </tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -119,12 +154,22 @@
         <div class="card-header d-flex">
             <ul class="nav nav-pills" role="tablist">
                 <li class="nav-item">
-                    <a class="nav-link active" id="evaluationsTab" data-bs-toggle="pill" href="#evaluations" role="tab" onclick="saveSelectedTab('evaluations');">
+                    <a class="nav-link active"
+                       id="evaluationsTab"
+                       data-bs-toggle="pill"
+                       href="#evaluations"
+                       role="tab"
+                       onclick="saveSelectedTab('evaluations');">
                         <span class="fas fa-clipboard-check"></span> {% trans 'Evaluations' %}
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="coursesTab" data-bs-toggle="pill" href="#courses" role="tab" onclick="saveSelectedTab('courses');">
+                    <a class="nav-link"
+                       id="coursesTab"
+                       data-bs-toggle="pill"
+                       href="#courses"
+                       role="tab"
+                       onclick="saveSelectedTab('courses');">
                         <span class="fas fa-chalkboard-user"></span> {% trans 'Courses' %}
                     </a>
                 </li>
@@ -132,20 +177,32 @@
             {% if request.user.is_manager %}
                 <div class="ms-auto">
                     {% if not semester.participations_are_archived %}
-                        <a class="btn btn-sm btn-light" href="{% url 'staff:semester_import' semester.id %}">
+                        <a class="btn btn-sm btn-light"
+                           href="{% url 'staff:semester_import' semester.id %}">
                             {% trans 'Import' %}
                         </a>
                     {% endif %}
                     <div class="btn-group ms-2" role="group">
-                        <button type="button" id="btnExport" class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Export' %}</button>
+                        <button type="button"
+                                id="btnExport"
+                                class="btn btn-sm btn-light dropdown-toggle"
+                                data-bs-toggle="dropdown"
+                                aria-haspopup="true"
+                                aria-expanded="false">
+                            {% trans 'Export' %}
+                        </button>
                         <div class="dropdown-menu" aria-labelledby="btnExport">
-                            <a class="dropdown-item" href="{% url 'staff:semester_export' semester.id %}">{% trans 'Export results' %}</a>
-                            <a class="dropdown-item" href="{% url 'staff:semester_raw_export' semester.id %}">{% trans 'Export raw evaluation data' %}</a>
-                            <a class="dropdown-item" href="{% url 'staff:semester_participation_export' semester.id %}">{% trans 'Export participation data' %}</a>
+                            <a class="dropdown-item"
+                               href="{% url 'staff:semester_export' semester.id %}">{% trans 'Export results' %}</a>
+                            <a class="dropdown-item"
+                               href="{% url 'staff:semester_raw_export' semester.id %}">{% trans 'Export raw evaluation data' %}</a>
+                            <a class="dropdown-item"
+                               href="{% url 'staff:semester_participation_export' semester.id %}">{% trans 'Export participation data' %}</a>
                         </div>
                     </div>
                     {% if not semester.participations_are_archived %}
-                        <a href="{% url 'staff:semester_questionnaire_assign' semester.id %}" class="btn btn-sm btn-light ms-2">{% trans 'Assign questionnaires' %}</a>
+                        <a href="{% url 'staff:semester_questionnaire_assign' semester.id %}"
+                           class="btn btn-sm btn-light ms-2">{% trans 'Assign questionnaires' %}</a>
                     {% endif %}
                 </div>
             {% endif %}
@@ -155,103 +212,166 @@
                 <div class="row align-items-center mb-3">
                     <div class="col-9">
                         {% if request.user.is_manager %}
-                            <a class="btn btn-sm btn-dark" href="{% url 'staff:evaluation_create' semester.id %}">
+                            <a class="btn btn-sm btn-dark"
+                               href="{% url 'staff:evaluation_create' semester.id %}">
                                 {% trans 'Create evaluation' %}
                             </a>
-                            <a class="btn btn-sm btn-dark ms-2" href="{% url 'staff:single_result_create' semester.id %}">
+                            <a class="btn btn-sm btn-dark ms-2"
+                               href="{% url 'staff:single_result_create' semester.id %}">
                                 {% trans 'Create single result' %}
                             </a>
                         {% endif %}
                     </div>
                     <div class="col-3">
                         <div class="input-group">
-                            <input type="search" name="search-evaluation" class="form-control" placeholder="{% trans 'Search...' %}" />
-                            <button class="btn btn-light text-secondary" type="button" data-reset="search-evaluation" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Clear search filter' %}">
+                            <input type="search"
+                                   name="search-evaluation"
+                                   class="form-control"
+                                   placeholder="{% trans 'Search...' %}"/>
+                            <button class="btn btn-light text-secondary"
+                                    type="button"
+                                    data-reset="search-evaluation"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="{% trans 'Clear search filter' %}">
                                 <span class="fas fa-delete-left"></span>
                             </button>
                         </div>
                     </div>
                 </div>
                 <div class="btn-switch mb-2" id="evaluation-filter-buttons">
-                    <div class="btn-switch-label my-auto pe-0">{% trans 'Filter' %}</div>
+                    <div class="btn-switch-label my-auto pe-0">
+                        {% trans 'Filter' %}
+                    </div>
                     <div>
                         <div class="btn-switch btn-group icon-buttons">
                             {% for approval_state in approval_states %}
                                 {% with approval_state_values=approval_state|approval_state_values %}
-                                    <button type="button" class="btn btn-sm btn-light" data-filter="{{ approval_state }}"
-                                        data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
-                                        title="{{ approval_state_values.description }}">
+                                    <button type="button"
+                                            class="btn btn-sm btn-light"
+                                            data-filter="{{ approval_state }}"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            data-container=".btn-switch"
+                                            title="{{ approval_state_values.description }}">
                                         <span class="{{ approval_state_values.icon }}"></span>
                                     </button>
                                 {% endwith %}
                             {% endfor %}
                         </div>
                         <div class="btn-switch btn-group icon-buttons">
-                            <button type="button" class="btn btn-sm btn-light" data-filter="evaluation_not_yet_started"
-                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
-                                title="{% trans 'Evaluation did not start yet' %}">
+                            <button type="button"
+                                    class="btn btn-sm btn-light"
+                                    data-filter="evaluation_not_yet_started"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    data-container=".btn-switch"
+                                    title="{% trans 'Evaluation did not start yet' %}">
                                 <span class="fas fa-pause icon-gray"></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="in_evaluation"
-                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
-                                title="{% trans 'In evaluation' %}">
+                            <button type="button"
+                                    class="btn btn-sm btn-light"
+                                    data-filter="in_evaluation"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    data-container=".btn-switch"
+                                    title="{% trans 'In evaluation' %}">
                                 <span class="fas fa-play icon-gray"></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="evaluated"
-                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
-                                title="{% trans 'Evaluated' %}">
+                            <button type="button"
+                                    class="btn btn-sm btn-light"
+                                    data-filter="evaluated"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    data-container=".btn-switch"
+                                    title="{% trans 'Evaluated' %}">
                                 <span class="fas fa-stop icon-green"></span>
                             </button>
                         </div>
                         <div class="btn-switch btn-group icon-buttons">
-                            <button type="button" class="btn btn-sm btn-light" data-filter="no_review"
-                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
-                                title="{% trans 'No text answers available or evaluation not yet finished' %}">
+                            <button type="button"
+                                    class="btn btn-sm btn-light"
+                                    data-filter="no_review"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    data-container=".btn-switch"
+                                    title="{% trans 'No text answers available or evaluation not yet finished' %}">
                                 <span class="fas fa-comment icon-gray"></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="unreviewed_textanswers_urgent"
-                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
-                                title="{% trans 'Text answers awaiting urgent review because grading process is finished' %}">
+                            <button type="button"
+                                    class="btn btn-sm btn-light"
+                                    data-filter="unreviewed_textanswers_urgent"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    data-container=".btn-switch"
+                                    title="{% trans 'Text answers awaiting urgent review because grading process is finished' %}">
                                 <span class="fas fa-comment icon-red"></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="unreviewed_textanswers"
-                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
-                                title="{% trans 'Text answers awaiting review' %}">
+                            <button type="button"
+                                    class="btn btn-sm btn-light"
+                                    data-filter="unreviewed_textanswers"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    data-container=".btn-switch"
+                                    title="{% trans 'Text answers awaiting review' %}">
                                 <span class="fas fa-comment icon-yellow"></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="textanswers_reviewed"
-                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
-                                title="{% trans 'Text answers reviewed' %}">
+                            <button type="button"
+                                    class="btn btn-sm btn-light"
+                                    data-filter="textanswers_reviewed"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    data-container=".btn-switch"
+                                    title="{% trans 'Text answers reviewed' %}">
                                 <span class="fas fa-comment icon-green"></span>
                             </button>
                         </div>
                         <div class="btn-switch btn-group icon-buttons">
-                            <button type="button" class="btn btn-sm btn-light" data-filter="evaluation_not_finished"
-                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
-                                title="{% trans 'Evaluation not finished' %}">
+                            <button type="button"
+                                    class="btn btn-sm btn-light"
+                                    data-filter="evaluation_not_finished"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    data-container=".btn-switch"
+                                    title="{% trans 'Evaluation not finished' %}">
                                 <span class="fas fa-chart-simple icon-gray"></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="results_not_published"
-                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
-                                title="{% trans 'Results not yet published although grading process is finished' %}">
+                            <button type="button"
+                                    class="btn btn-sm btn-light"
+                                    data-filter="results_not_published"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    data-container=".btn-switch"
+                                    title="{% trans 'Results not yet published although grading process is finished' %}">
                                 <span class="fas fa-chart-simple icon-red"></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="results_not_yet_published"
-                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
-                                title="{% trans 'Results not yet published' %}">
+                            <button type="button"
+                                    class="btn btn-sm btn-light"
+                                    data-filter="results_not_yet_published"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    data-container=".btn-switch"
+                                    title="{% trans 'Results not yet published' %}">
                                 <span class="fas fa-chart-simple icon-yellow"></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="results_published"
-                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
-                                title="{% trans 'Results published' %}">
+                            <button type="button"
+                                    class="btn btn-sm btn-light"
+                                    data-filter="results_published"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    data-container=".btn-switch"
+                                    title="{% trans 'Results published' %}">
                                 <span class="fas fa-chart-simple icon-green"></span>
                             </button>
                         </div>
                     </div>
                 </div>
-                <form id="evaluation_operation_form" method="GET" action="{% url 'staff:semester_evaluation_operation' semester.id %}">
+                <form id="evaluation_operation_form"
+                      method="GET"
+                      action="{% url 'staff:semester_evaluation_operation' semester.id %}">
                     {% if num_evaluations > 0 %}
-                        <table id="evaluation-table" class="table table-striped table-narrow table-vertically-aligned">
+                        <table id="evaluation-table"
+                               class="table table-striped table-narrow table-vertically-aligned">
                             <colgroup>
                                 <col style="width: 2.75em" />
                                 <col style="width: 1.25em" />
@@ -265,70 +385,113 @@
                             </colgroup>
                             <thead>
                                 <tr>
-                                    <th></th>
-                                    <th class="col-order" data-col="state-approval"></th>
-                                    <th class="col-order" data-col="state-evaluating"></th>
-                                    <th class="col-order" data-col="state-textanswers"></th>
-                                    <th class="col-order" data-col="state-results"></th>
-                                    <th class="col-order" data-col="name">{% trans 'Name' %}</th>
-                                    <th class="col-order" data-col="period">{% trans 'Evaluation period' %}</th>
-                                    <th></th>
-                                    <th></th>
+                                    <th>
+                                    </th>
+                                    <th class="col-order" data-col="state-approval">
+                                    </th>
+                                    <th class="col-order" data-col="state-evaluating">
+                                    </th>
+                                    <th class="col-order" data-col="state-textanswers">
+                                    </th>
+                                    <th class="col-order" data-col="state-results">
+                                    </th>
+                                    <th class="col-order" data-col="name">
+                                        {% trans 'Name' %}
+                                    </th>
+                                    <th class="col-order" data-col="period">
+                                        {% trans 'Evaluation period' %}
+                                    </th>
+                                    <th>
+                                    </th>
+                                    <th>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
-                            {% for evaluation in evaluations %}
-                                <tr id="evaluation-row-{{ evaluation.id }}">
-                                    {% include 'staff_semester_view_evaluation.html' with semester=semester evaluation=evaluation info_only=False %}
-                                </tr>
-                            {% endfor %}
+                                {% for evaluation in evaluations %}
+                                    <tr id="evaluation-row-{{ evaluation.id }}">
+                                        {% include 'staff_semester_view_evaluation.html' with semester=semester evaluation=evaluation info_only=False %}
+                                    </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     {% else %}
                         <table class="table table-striped table-narrow table-vertically-aligned">
                             <tbody>
-                                <tr><td><i>{% trans 'There are no evaluations in this semester.' %}</i></td></tr>
+                                <tr>
+                                    <td>
+                                        <i>{% trans 'There are no evaluations in this semester.' %}</i>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     {% endif %}
 
                     {% if request.user.is_manager and not semester.participations_are_archived %}
                         <div class="my-2">
-                            <button type="button" class="btn btn-sm btn-secondary"
-                                onclick="$('#evaluation_operation_form td').prev().find(':checkbox').prop('checked', true);">
+                            <button type="button"
+                                    class="btn btn-sm btn-secondary"
+                                    onclick="$('#evaluation_operation_form td').prev().find(':checkbox').prop('checked', true);">
                                 {% trans 'Select all' %}
                             </button>
-                            <button type="button" class="btn btn-sm btn-secondary"
-                                onclick="$('#evaluation_operation_form :checkbox').prop('checked', false);">{% trans 'Select none' %}
+                            <button type="button"
+                                    class="btn btn-sm btn-secondary"
+                                    onclick="$('#evaluation_operation_form :checkbox').prop('checked', false);">
+                                {% trans 'Select none' %}
                             </button>
                         </div>
                         <div>
-                            <button name="target_state" value="{{ Evaluation.State.PREPARED }}" type="submit" class="btn btn-sm btn-light"
-                                data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Evaluations in preparation or approved by editors' %}">
+                            <button name="target_state"
+                                    value="{{ Evaluation.State.PREPARED }}"
+                                    type="submit"
+                                    class="btn btn-sm btn-light"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="{% trans 'Evaluations in preparation or approved by editors' %}">
                                 <span class="{{ Evaluation.State.NEW|approval_state_icon }}"></span>
                                 <span class="{{ Evaluation.State.EDITOR_APPROVED|approval_state_icon }}"></span>
                                 {% trans 'Ask for editor review' %}
                             </button>
-                            <button name="target_state" value="{{ Evaluation.State.NEW }}" type="submit" class="btn btn-sm btn-light"
-                                data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Evaluations awaiting editor review, approved by editor or approved by manager' %}">
+                            <button name="target_state"
+                                    value="{{ Evaluation.State.NEW }}"
+                                    type="submit"
+                                    class="btn btn-sm btn-light"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="{% trans 'Evaluations awaiting editor review, approved by editor or approved by manager' %}">
                                 <span class="{{ Evaluation.State.PREPARED|approval_state_icon }}"></span>
                                 <span class="{{ Evaluation.State.EDITOR_APPROVED|approval_state_icon }}"></span>
                                 <span class="{{ Evaluation.State.APPROVED|approval_state_icon }}"></span>
                                 {% trans 'Revert to preparation' %}
                             </button>
-                            <button name="target_state" value="{{ Evaluation.State.IN_EVALUATION }}" type="submit" class="btn btn-sm btn-light"
-                                data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Evaluations waiting for evaluation period to start' %}">
+                            <button name="target_state"
+                                    value="{{ Evaluation.State.IN_EVALUATION }}"
+                                    type="submit"
+                                    class="btn btn-sm btn-light"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="{% trans 'Evaluations waiting for evaluation period to start' %}">
                                 <span class="fas fa-pause icon-gray"></span>
                                 {% trans 'Start evaluation' %}
                             </button>
-                            <button name="target_state" value="{{ Evaluation.State.PUBLISHED }}" type="submit" class="btn btn-sm btn-light"
-                                data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Unpublished evaluations' %}">
+                            <button name="target_state"
+                                    value="{{ Evaluation.State.PUBLISHED }}"
+                                    type="submit"
+                                    class="btn btn-sm btn-light"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="{% trans 'Unpublished evaluations' %}">
                                 <span class="fas fa-chart-simple icon-yellow"></span>
                                 <span class="fas fa-chart-simple icon-red"></span>
                                 {% trans 'Publish' %}
                             </button>
-                            <button name="target_state" value="{{ Evaluation.State.REVIEWED }}" type="submit" class="btn btn-sm btn-light"
-                                data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Published evaluations' %}">
+                            <button name="target_state"
+                                    value="{{ Evaluation.State.REVIEWED }}"
+                                    type="submit"
+                                    class="btn btn-sm btn-light"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="{% trans 'Published evaluations' %}">
                                 <span class="fas fa-chart-simple icon-green"></span>
                                 {% trans 'Unpublish' %}
                             </button>
@@ -340,22 +503,32 @@
                 <div class="row align-items-center mb-3">
                     <div class="col-9">
                         {% if request.user.is_manager %}
-                            <a class="btn btn-sm btn-dark" href="{% url 'staff:course_create' semester.id %}">
+                            <a class="btn btn-sm btn-dark"
+                               href="{% url 'staff:course_create' semester.id %}">
                                 {% trans 'Create course' %}
                             </a>
                         {% endif %}
                     </div>
                     <div class="col-3">
                         <div class="input-group">
-                            <input type="search" name="search-course" class="form-control" placeholder="{% trans 'Search...' %}" />
-                            <button class="btn btn-light text-secondary" type="button" data-reset="search-course" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Clear search filter' %}">
+                            <input type="search"
+                                   name="search-course"
+                                   class="form-control"
+                                   placeholder="{% trans 'Search...' %}"/>
+                            <button class="btn btn-light text-secondary"
+                                    type="button"
+                                    data-reset="search-course"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="{% trans 'Clear search filter' %}">
                                 <span class="fas fa-delete-left"></span>
                             </button>
                         </div>
                     </div>
                 </div>
                 {% if courses %}
-                    <table id="course-table" class="table table-striped table-narrow table-vertically-aligned">
+                    <table id="course-table"
+                           class="table table-striped table-narrow table-vertically-aligned">
                         <colgroup>
                             <col />
                             <col style="width: 14em" />
@@ -364,10 +537,17 @@
                         </colgroup>
                         <thead>
                             <tr>
-                                <th class="col-order" data-col="name">{% trans 'Course' %}</th>
-                                <th class="col-order" data-col="responsible">{% trans 'Responsible' %}</th>
-                                <th class="col-order" data-col="evaluation-count">{% trans '#Evaluations' %}</th>
-                                <th></th>
+                                <th class="col-order" data-col="name">
+                                    {% trans 'Course' %}
+                                </th>
+                                <th class="col-order" data-col="responsible">
+                                    {% trans 'Responsible' %}
+                                </th>
+                                <th class="col-order" data-col="evaluation-count">
+                                    {% trans '#Evaluations' %}
+                                </th>
+                                <th>
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -379,12 +559,14 @@
                                         </div>
                                         {% include 'course_badges.html' %}
                                     </td>
-                                    <td data-col="responsible" data-order="{{ course.responsibles.first.last_name|lower }}">
+                                    <td data-col="responsible"
+                                        data-order="{{ course.responsibles.first.last_name|lower }}">
                                         <div class="fst-italic">
                                             {{ course.responsibles_names }}
                                         </div>
                                     </td>
-                                    <td data-col="evaluation-count" data-order="{{ course.evaluations.count }}">
+                                    <td data-col="evaluation-count"
+                                        data-order="{{ course.evaluations.count }}">
                                         {% if course.evaluations.count == 0 %}
                                             <span class="badge bg-warning">{% trans 'No evaluations' %}</span>
                                         {% else %}
@@ -393,24 +575,32 @@
                                     </td>
                                     <td class="icon-buttons">
                                         {% if request.user.is_manager %}
-                                            <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
-                                                href="{% url 'staff:evaluation_create' semester.id course.id %}"
-                                                title="{% trans 'Create evaluation for this course' %}">
+                                            <a class="btn btn-sm btn-dark"
+                                               data-bs-toggle="tooltip"
+                                               href="{% url 'staff:evaluation_create' semester.id course.id %}"
+                                               title="{% trans 'Create evaluation for this course' %}">
                                                 <span class="fas fa-clipboard-check"></span>
                                             </a>
-                                            <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
-                                                href="{% url 'staff:single_result_create' semester.id course.id %}"
-                                                title="{% trans 'Create single result for this course' %}">
+                                            <a class="btn btn-sm btn-dark"
+                                               data-bs-toggle="tooltip"
+                                               href="{% url 'staff:single_result_create' semester.id course.id %}"
+                                               title="{% trans 'Create single result for this course' %}">
                                                 <span class="fas fa-square-poll-vertical"></span>
-                                        </a>
-                                        <a class="btn btn-sm btn-dark" data-toggle="tooltip"
-                                            href="{% url 'staff:course_copy' semester.id course.id %}"
-                                            title="{% trans 'Copy course' %}">
-                                            <span class="fas fa-copy"></span>
+                                            </a>
+                                            <a class="btn btn-sm btn-dark"
+                                               data-toggle="tooltip"
+                                               href="{% url 'staff:course_copy' semester.id course.id %}"
+                                               title="{% trans 'Copy course' %}">
+                                                <span class="fas fa-copy"></span>
                                             </a>
                                         {% endif %}
                                         {% if course.can_be_deleted_by_manager %}
-                                            <button type="button" onclick="deleteCourseModalShow({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
+                                            <button type="button"
+                                                    onclick="deleteCourseModalShow({{ course.id }}, '{{ course.name|escapejs }}');"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    data-bs-toggle="tooltip"
+                                                    data-bs-placement="top"
+                                                    title="{% trans 'Delete' %}">
                                                 <span class="fas fa-trash" aria-hidden="true"></span>
                                             </button>
                                         {% endif %}
@@ -422,7 +612,11 @@
                 {% else %}
                     <table class="table table-striped table-narrow table-vertically-aligned">
                         <tbody>
-                            <tr><td><i>{% trans 'There are no courses in this semester.' %}</i></td></tr>
+                            <tr>
+                                <td>
+                                    <i>{% trans 'There are no courses in this semester.' %}</i>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 {% endif %}

@@ -15,10 +15,18 @@
             <div class="card h-100">
                 <div class="card-body">
                     <ul>
-                        <li><a href="{% url 'staff:user_list' %}" class="">{% trans 'User list' %}</a></li>
-                        <li><a href="{% url 'staff:user_import' %}" class="">{% trans 'Import users' %}</a></li>
-                        <li><a href="{% url 'staff:user_merge_selection' %}" class="">{% trans 'Merge users' %}</a></li>
-                        <li><a href="{% url 'staff:user_bulk_update' %}" class="">{% trans 'Bulk update users' %}</a></li>
+                        <li>
+                            <a href="{% url 'staff:user_list' %}" class="">{% trans 'User list' %}</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'staff:user_import' %}" class="">{% trans 'Import users' %}</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'staff:user_merge_selection' %}" class="">{% trans 'Merge users' %}</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'staff:user_bulk_update' %}" class="">{% trans 'Bulk update users' %}</a>
+                        </li>
                     </ul>
                     <a href="{% url 'staff:user_create' %}" class="btn btn-sm btn-dark mt-2">{% trans 'Create new user' %}</a>
                 </div>
@@ -34,7 +42,9 @@
                     </form>
                 </div>
                 <div class="card-footer text-center card-submit-area d-flex">
-                    <button type="submit" form="user-edit-form" class="btn btn-primary mx-auto my-auto">{% trans 'Edit' %}</button>
+                    <button type="submit"
+                            form="user-edit-form"
+                            class="btn btn-primary mx-auto my-auto">{% trans 'Edit' %}</button>
                 </div>
             </div>
         </div>

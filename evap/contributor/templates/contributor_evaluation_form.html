@@ -2,7 +2,9 @@
 
 {% load evaluation_filters %}
 
-{% block title %}{% trans 'Your EvaP' %} - {{ block.super }}{% endblock %}
+{% block title %}
+    {% trans 'Your EvaP' %} - {{ block.super }}
+{% endblock %}
 
 {% block breadcrumb_bar %}
     <ul class="breadcrumb">
@@ -21,11 +23,11 @@
             {% blocktrans %}You cannot edit this evaluation because it has already been approved.{% endblocktrans %}
         {% endif %}
     </div>
-    <h3>
-        {{ evaluation.full_name }} ({{ evaluation.course.semester.name }})
-    </h3>
+    <h3>{{ evaluation.full_name }} ({{ evaluation.course.semester.name }})</h3>
 
-    <form method="POST" class="form-horizontal multiselect-form tomselectform" id="evaluation-form">
+    <form method="POST"
+          class="form-horizontal multiselect-form tomselectform"
+          id="evaluation-form">
         {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">
@@ -45,9 +47,7 @@
                 <div class="d-flex">
                     <label class="col-md-3 pe-4 form-label">{% trans 'Degrees' %}</label>
                     <div class="col-md-7 form-static-text">
-                        {% for degree in evaluation.course.degrees.all %}
-                            <span class="badge bg-primary">{{ degree }}</span>
-                        {% endfor %}
+                        {% for degree in evaluation.course.degrees.all %}<span class="badge bg-primary">{{ degree }}</span>{% endfor %}
                     </div>
                 </div>
                 <div class="d-flex">
@@ -64,15 +64,15 @@
                     <h5 class="card-title me-auto">{% trans 'Evaluation data' %}</h5>
                     {% if evaluation.allow_editors_to_edit %}
                         <div>
-                            <button type="button" class="btn btn-sm btn-light mb-3 createAccountRequestModalShowButton">
+                            <button type="button"
+                                    class="btn btn-sm btn-light mb-3 createAccountRequestModalShowButton">
                                 {% trans 'Request creation of new account' %}
                             </button>
                         </div>
                     {% else %}
                         <div>
-                            <button type="button" class="btn btn-sm btn-light changeEvaluationRequestModalShowButton">
-                                {% trans 'Request changes' %}
-                            </button>
+                            <button type="button"
+                                    class="btn btn-sm btn-light changeEvaluationRequestModalShowButton">{% trans 'Request changes' %}</button>
                         </div>
                     {% endif %}
                 </div>
@@ -80,9 +80,7 @@
             </div>
         </div>
         <div class="card mb-3">
-            <div class="card-body">
-                {% include 'contribution_formset.html' with formset=formset staff=False editable=editable %}
-            </div>
+            <div class="card-body">{% include 'contribution_formset.html' with formset=formset staff=False editable=editable %}</div>
         </div>
 
         <div class="card card-submit-area card-submit-area-3 text-center mb-3">
@@ -92,24 +90,38 @@
                     <button name="operation" value="save" type="submit" class="btn btn-primary">{% trans 'Save' %}</button>
                     {# webtest does not allow submission with value "approve" if no such button exists #}
                     <button style="display: none" name="operation" value="approve" type="submit"></button>
-                    <button type="button" onclick="approveEvaluationModalShow(0, '');" class="btn btn-success">{% trans 'Save and approve' %}</button>
+                    <button type="button"
+                            onclick="approveEvaluationModalShow(0, '');"
+                            class="btn btn-success">{% trans 'Save and approve' %}</button>
                 {% endif %}
-                <a href="{% url 'contributor:index' %}" class="btn btn-light">{% if edit %}{% trans 'Cancel' %}{% else %}{% trans 'Back' %}{% endif %}</a>
+                <a href="{% url 'contributor:index' %}" class="btn btn-light">
+                    {% if edit %}
+                        {% trans 'Cancel' %}
+                    {% else %}
+                        {% trans 'Back' %}
+                    {% endif %}
+                </a>
             </div>
         </div>
     </form>
 
     {% if preview_html %}
-        <div class="modal fade" id="previewModal" tabindex="-1" role="dialog" aria-labelledby="previewModalLabel" aria-hidden="true">
+        <div class="modal fade"
+             id="previewModal"
+             tabindex="-1"
+             role="dialog"
+             aria-labelledby="previewModalLabel"
+             aria-hidden="true">
             <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="previewModalLabel">{% trans 'Preview' %}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
-                        {{ preview_html|safe }}
-                    </div>
+                    <div class="modal-body">{{ preview_html|safe }}</div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% trans 'Close' %}</button>
                     </div>

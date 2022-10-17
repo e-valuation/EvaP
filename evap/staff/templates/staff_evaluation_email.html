@@ -5,7 +5,9 @@
 {% block content %}
     {{ block.super }}
     {% if form.errors %}
-        <div class="alert alert-danger" role="alert">{% blocktrans %}Please fill out all required fields and select at least one recipient group.{% endblocktrans %}</div>
+        <div class="alert alert-danger" role="alert">
+            {% blocktrans %}Please fill out all required fields and select at least one recipient group.{% endblocktrans %}
+        </div>
     {% endif %}
     <form id="evaluation-email-form" method="POST" class="form-horizontal">
         {% csrf_token %}
@@ -22,13 +24,23 @@
                                             <div class="col-md-7{% if field.errors %} is-invalid{% endif %}">
                                                 <div class="btn-group btn-group-toggle mb-1" data-bs-toggle="buttons">
                                                     {% for choice in field %}
-                                                        <input id="{{ choice.id_for_label }}" class="btn-check" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}" autocomplete="off"{% if choice.data.value in field.value %} checked{% endif %} />
-                                                        <label class="btn btn-sm btn-outline-primary{% if field.errors %} error-label{% endif %}" for="{{ choice.id_for_label }}">
+                                                        <input id="{{ choice.id_for_label }}"
+                                                               class="btn-check"
+                                                               name="{{ choice.data.name }}"
+                                                               type="checkbox"
+                                                               value="{{ choice.data.value }}"
+                                                               autocomplete="off"
+                                                               {% if choice.data.value in field.value %} checked{% endif %}/>
+                                                        <label class="btn btn-sm btn-outline-primary{% if field.errors %} error-label{% endif %}"
+                                                               for="{{ choice.id_for_label }}">
                                                             {{ choice.choice_label }} {{ choice.id }}
                                                         </label>
                                                     {% endfor %}
                                                 </div>
-                                                <button name="export" type="submit" formnovalidate class="btn btn-sm btn-secondary">{% trans 'Show Recipients' %}</button>
+                                                <button name="export"
+                                                        type="submit"
+                                                        formnovalidate
+                                                        class="btn btn-sm btn-secondary">{% trans 'Show Recipients' %}</button>
                                             </div>
                                         </div>
                                     {% else %}

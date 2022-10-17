@@ -1,9 +1,7 @@
 {% extends 'staff_base.html' %}
 
 {% block title %}
-    {% if semester %}
-        {{ semester.name }} -
-    {% endif %}
+    {% if semester %}{{ semester.name }} -{% endif %}
     {{ block.super }}
 {% endblock %}
 
@@ -14,7 +12,9 @@
         {% if disable_breadcrumb_semester %}
             <li class="breadcrumb-item">{{ semester.name }}</li>
         {% else %}
-            <li class="breadcrumb-item"><a href="{% url 'staff:semester_view' semester.id %}">{{ semester.name }}</a></li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'staff:semester_view' semester.id %}">{{ semester.name }}</a>
+            </li>
         {% endif %}
     {% endif %}
 {% endblock %}

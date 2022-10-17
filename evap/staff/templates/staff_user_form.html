@@ -4,7 +4,9 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'staff:user_index' %}">{% trans 'Users' %}</a></li>
+    <li class="breadcrumb-item">
+        <a href="{% url 'staff:user_index' %}">{% trans 'Users' %}</a>
+    </li>
     {% if form.instance.id %}
         <li class="breadcrumb-item">{{ form.instance.full_name }}</li>
     {% else %}
@@ -14,15 +16,22 @@
 
 {% block content %}
     {{ block.super }}
-    <h3>{% if form.instance.id %}{% trans 'Edit user' %}{% else %}{% trans 'Create user' %}{% endif %}</h3>
+    <h3>
+        {% if form.instance.id %}
+            {% trans 'Edit user' %}
+        {% else %}
+            {% trans 'Create user' %}
+        {% endif %}
+    </h3>
 
-    <form id="user-form" method="POST" enctype="multipart/form-data" class="form-horizontal multiselect-form">
+    <form id="user-form"
+          method="POST"
+          enctype="multipart/form-data"
+          class="form-horizontal multiselect-form">
         {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">
-                <div class="ms-auto col-sm-9 mb-3">
-                    {% include 'staff_user_badges.html' with user=form.instance %}
-                </div>
+                <div class="ms-auto col-sm-9 mb-3">{% include 'staff_user_badges.html' with user=form.instance %}</div>
                 {% include 'bootstrap_form.html' with form=form %}
             </div>
         </div>
@@ -46,7 +55,8 @@
                         <div class="d-flex">
                             <h5 class="card-title me-auto">{% trans 'Export evaluation results' %}</h5>
                             <div>
-                                <a href="{% url 'staff:export_contributor_results' form.instance.id %}" class="btn btn-sm btn-light">{% trans 'Export all results' %}</a>
+                                <a href="{% url 'staff:export_contributor_results' form.instance.id %}"
+                                   class="btn btn-sm btn-light">{% trans 'Export all results' %}</a>
                             </div>
                         </div>
                         <ul>
@@ -57,9 +67,7 @@
                                     {% for evaluation in semester_evaluations.list %}
                                         <li>
                                             {% if evaluation|can_results_page_be_seen_by:form.instance %}
-                                                <a href="{% url 'results:evaluation_detail' semester_evaluations.grouper.id evaluation.id %}?view=export&contributor_id={{ form.instance.id }}">
-                                                    {{ evaluation.full_name }}
-                                                </a>
+                                                <a href="{% url 'results:evaluation_detail' semester_evaluations.grouper.id evaluation.id %}?view=export&contributor_id={{ form.instance.id }}">{{ evaluation.full_name }}</a>
                                             {% else %}
                                                 {{ evaluation.full_name }}
                                             {% endif %}
@@ -76,27 +84,29 @@
             <div class="card-body">
                 <button type="submit" class="btn btn-primary">{% trans 'Save user' %}</button>
                 {% if form.instance and form.instance.can_be_deleted_by_manager %}
-                    <button type="button" class="btn btn-danger" onclick="deleteModalShow({{ form.instance.id }}, '{{ form.instance.full_name|escapejs }}');">
+                    <button type="button"
+                            class="btn btn-danger"
+                            onclick="deleteModalShow({{ form.instance.id }}, '{{ form.instance.full_name|escapejs }}');">
                         {% trans 'Delete user' %}
                     </button>
                 {% else %}
-                    <span tabindex="0" data-bs-toggle="tooltip" title="{% blocktrans %}This user contributes to an evaluation, participates in an evaluation whose participations haven't been archived yet or has special rights and as such cannot be deleted.{% endblocktrans %}">
-                    <button type="button" disabled class="btn btn-danger">
-                        {% trans 'Delete user' %}
-                    </button>
-                {% endif %}
+                    <span tabindex="0"
+                          data-bs-toggle="tooltip"
+                          title="{% blocktrans %}This user contributes to an evaluation, participates in an evaluation whose participations haven't been archived yet or has special rights and as such cannot be deleted.{% endblocktrans %}">
+                        <button type="button" disabled class="btn btn-danger">{% trans 'Delete user' %}</button>
+                    {% endif %}
+                </div>
             </div>
-        </div>
-    </form>
-{% endblock %}
+        </form>
+    {% endblock %}
 
-{% block modals %}
-    {{ block.super }}
-    {% trans 'Delete user' as title %}
-    {% trans 'Do you really want to delete the user <strong data-label=""></strong>?<br/>This person will also be removed from every other user having this person as a delegated or CC-user.' as question %}
-    {% trans 'Delete user' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='deleteModal' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
+    {% block modals %}
+        {{ block.super }}
+        {% trans 'Delete user' as title %}
+        {% trans 'Do you really want to delete the user <strong data-label=""></strong>?<br/>This person will also be removed from every other user having this person as a delegated or CC-user.' as question %}
+        {% trans 'Delete user' as action_text %}
+        {% include 'confirmation_modal.html' with modal_id='deleteModal' title=title question=question action_text=action_text btn_type='danger' %}
+        <script type="text/javascript">
         function deleteModalAction(dataId) {
             $.ajax({
                 type: "POST",
@@ -106,5 +116,5 @@
                 error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
             });
         };
-    </script>
-{% endblock %}
+        </script>
+    {% endblock %}

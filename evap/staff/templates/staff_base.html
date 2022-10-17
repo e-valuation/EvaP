@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 
-{% block title %}{% trans 'Manage' %} - {{ block.super }}{% endblock %}
+{% block title %}
+    {% trans 'Manage' %} - {{ block.super }}
+{% endblock %}
 
 {% block breadcrumb_bar %}
     <ul class="breadcrumb">
@@ -8,7 +10,9 @@
             {% if disable_breadcrumb_manager or not user.is_manager %}
                 <li class="breadcrumb-item">{% trans 'Manage' %}</li>
             {% else %}
-                <li class="breadcrumb-item"><a href="{% url 'staff:index' %}">{% trans 'Manage' %}</a></li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'staff:index' %}">{% trans 'Manage' %}</a>
+                </li>
             {% endif %}
         {% endblock %}
     </ul>

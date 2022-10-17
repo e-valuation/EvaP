@@ -4,7 +4,9 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'staff:user_index' %}">{% trans 'Users' %}</a></li>
+    <li class="breadcrumb-item">
+        <a href="{% url 'staff:user_index' %}">{% trans 'Users' %}</a>
+    </li>
     <li class="breadcrumb-item">{% trans 'Import users' %}</li>
 {% endblock %}
 
@@ -14,14 +16,22 @@
 
     {% include 'staff_message_rendering_template.html' with importer_log=importer_log %}
 
-    <form id="user-import-form" method="POST" enctype="multipart/form-data" class="form-horizontal">
+    <form id="user-import-form"
+          method="POST"
+          enctype="multipart/form-data"
+          class="form-horizontal">
         {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">
                 <p>
                     {% trans 'Upload Excel file' %}
                     (<a href="{% url 'staff:download_sample_file' 'sample_user.xlsx' %}">{% trans 'Download sample file' %}</a>,
-                    <button type="button" class="btn-link" onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">{% trans 'Copy headers to clipboard' %}</button>).
+                    <button type="button"
+                            class="btn-link"
+                            onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">
+                        {% trans 'Copy headers to clipboard' %}
+                    </button>
+                    ).
                     {% trans 'This will create all contained users.' %}
                 </p>
                 {% include 'bootstrap_form.html' with form=excel_form %}
@@ -30,10 +40,22 @@
         <div class="card card-submit-area{% if test_passed %} card-submit-area-2{% endif %} text-center mb-3">
             <div class="card-body">
                 {% if not test_passed %}
-                    <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
+                    <button name="operation"
+                            value="test"
+                            type="submit"
+                            class="btn btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
                 {% else %}
-                    <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
-                    <button name="operation" value="import" type="button" onclick="importUserModalShow('import');" class="btn btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
+                    <button name="operation"
+                            value="test"
+                            type="submit"
+                            class="btn btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
+                    <button name="operation"
+                            value="import"
+                            type="button"
+                            onclick="importUserModalShow('import');"
+                            class="btn btn-primary form-submit-btn">
+                        {% trans 'Import previously uploaded file' %}
+                    </button>
                 {% endif %}
             </div>
         </div>
@@ -41,7 +63,7 @@
 {% endblock %}
 
 {% block modals %}
-{{ block.super }}
+    {{ block.super }}
     {% trans 'Import Users' as title %}
     {% blocktrans asvar question %}Do you really want to import the users from the Excel file?{% endblocktrans %}
     {% trans 'Import Users' as action_text %}

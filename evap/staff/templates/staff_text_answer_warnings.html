@@ -11,13 +11,16 @@
 {% block content %}
     {{ block.super }}
 
-    <form id="text-answer-warnings-form" method="POST" class="form-horizontal tomselectform">
+    <form id="text-answer-warnings-form"
+          method="POST"
+          class="form-horizontal tomselectform">
         {% csrf_token %}
         {{ formset.management_form }}
 
         <div class="card mb-3">
             <div class="card-body">
-                <table id="text-answer-warnings-table" class="table table-vertically-aligned">
+                <table id="text-answer-warnings-table"
+                       class="table table-vertically-aligned">
                     <colgroup>
                         <col />
                         <col />
@@ -41,20 +44,12 @@
                                     <span class="movable-icon fas fa-up-down"></span>
                                 </td>
                                 <td>
-                                    {% for hidden in form.hidden_fields %}
-                                        {{ hidden }}
-                                    {% endfor %}
+                                    {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
                                     {% include 'bootstrap_form_field_widget.html' with field=form.trigger_strings %}
                                 </td>
-                                <td>
-                                    {% include 'bootstrap_form_field_widget.html' with field=form.warning_text_de %}
-                                </td>
-                                <td>
-                                    {% include 'bootstrap_form_field_widget.html' with field=form.warning_text_en %}
-                                </td>
-                                <td class="align-end">
-                                    {% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}
-                                </td>
+                                <td>{% include 'bootstrap_form_field_widget.html' with field=form.warning_text_de %}</td>
+                                <td>{% include 'bootstrap_form_field_widget.html' with field=form.warning_text_en %}</td>
+                                <td class="align-end">{% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -67,18 +62,12 @@
             </div>
         </div>
         <div class="card">
-            <div class="card-header">
-                {% trans 'Preview' %}
-            </div>
+            <div class="card-header">{% trans 'Preview' %}</div>
             <div class="card-body">
-                <p>
-                    {% trans 'Changes of the form above are only reflected after the form has been saved.' %}
-                </p>
+                <p>{% trans 'Changes of the form above are only reflected after the form has been saved.' %}</p>
                 <div class="row">
                     <div class="col-question col-lg-4 col-xl-5 d-flex flex-column">
-                        <label for="preview-textarea">
-                            {% trans 'Test textarea' %}
-                        </label>
+                        <label for="preview-textarea">{% trans 'Test textarea' %}</label>
                         {% include 'student_text_answer_warnings.html' with text_answer_warnings=text_answer_warnings %}
                     </div>
                     <div class="col-answer col-lg-8 col-xl-7 d-flex">

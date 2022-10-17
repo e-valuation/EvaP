@@ -11,17 +11,23 @@
 {% block content %}
     {{ block.super }}
 
-    <form id="template-form" method="POST" enctype="multipart/form-data" class="form-horizontal multiselect-form">
+    <form id="template-form"
+          method="POST"
+          enctype="multipart/form-data"
+          class="form-horizontal multiselect-form">
         {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body row">
-                <div class="col-9">
-                    {% include 'bootstrap_form.html' with form=form email_form=True fields_as_pills=form.visible_fields|slice:"-2:" %}
-                </div>
+                <div class="col-9">{% include 'bootstrap_form.html' with form=form email_form=True fields_as_pills=form.visible_fields|slice:"-2:" %}</div>
                 <div class="col-3">
                     <p>{% trans 'The following variables are available for this email template:' %}</p>
                     {% for variable in available_variables %}
-                        <button type="button" class="btn btn-sm btn-link text-dark pe-1" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Copy to clipboard' %}" onClick="copyToClipboard('{{ variable }}')">
+                        <button type="button"
+                                class="btn btn-sm btn-link text-dark pe-1"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="{% trans 'Copy to clipboard' %}"
+                                onClick="copyToClipboard('{{ variable }}')">
                             <span class="fas fa-clipboard"></span>
                         </button>
                         <code>{{ variable }}</code>

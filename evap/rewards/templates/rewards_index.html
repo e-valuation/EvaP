@@ -2,7 +2,9 @@
 
 {% load evaluation_filters %}
 
-{% block title %}{% trans 'Rewards' %} - {{ block.super }}{% endblock %}
+{% block title %}
+    {% trans 'Rewards' %} - {{ block.super }}
+{% endblock %}
 
 {% block content %}
     {{ block.super }}
@@ -12,14 +14,17 @@
     </div>
 
     <div class="card card-outline-primary mb-3">
-        <div class="card-header">
-            {% trans 'Redeem points' %}
-        </div>
+        <div class="card-header">{% trans 'Redeem points' %}</div>
         <div class="card-body">
-            <p><b>{% trans 'Total points available' %}: {{ total_points_available }}</b></p>
+            <p>
+                <b>{% trans 'Total points available' %}: {{ total_points_available }}</b>
+            </p>
             {% if total_points_available > 0 %}
                 {% if events %}
-                    <form id="reward-redemption-form" action="#" method="POST" class="form-horizontal multiselect-form">
+                    <form id="reward-redemption-form"
+                          action="#"
+                          method="POST"
+                          class="form-horizontal multiselect-form">
                         {% csrf_token %}
 
                         <table class="table table-striped table-vertically-aligned mb-3">
@@ -38,7 +43,13 @@
                                         <td>{{ event.name }}</td>
                                         <td>{{ event.redeem_end_date }}</td>
                                         <td>
-                                            <input class="form-control" id="id_points-{{ event.id }}" name="points-{{ event.id }}" type="number" value="0" min="0" max="{{ total_points_available }}">
+                                            <input class="form-control"
+                                                   id="id_points-{{ event.id }}"
+                                                   name="points-{{ event.id }}"
+                                                   type="number"
+                                                   value="0"
+                                                   min="0"
+                                                   max="{{ total_points_available }}">
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -49,7 +60,9 @@
                         </span>
                     </form>
                 {% else %}
-                    <p class="fst-italic">{% blocktrans %}Currently there are no events available for which you can redeem points. We'll send you a message when this changes.{% endblocktrans %}</p>
+                    <p class="fst-italic">
+                        {% blocktrans %}Currently there are no events available for which you can redeem points. We'll send you a message when this changes.{% endblocktrans %}
+                    </p>
                 {% endif %}
             {% else %}
                 <p class="fst-italic">{% blocktrans %}You don't have any reward points that you could redeem.{% endblocktrans %}</p>
@@ -58,9 +71,7 @@
     </div>
 
     <div class="card">
-        <div class="card-header">
-            {% trans 'Reward points history' %}
-        </div>
+        <div class="card-header">{% trans 'Reward points history' %}</div>
         <div class="card-body">
             {% if reward_point_actions %}
                 <table class="table table-striped">

@@ -4,7 +4,9 @@
 {% load results_templatetags %}
 {% load evaluation_filters %}
 
-{% block title %}{% trans 'Results' %} - {{ block.super }}{% endblock %}
+{% block title %}
+    {% trans 'Results' %} - {{ block.super }}
+{% endblock %}
 
 {% block content %}
     {{ block.super }}
@@ -20,17 +22,23 @@
             </h5>
             <div class="row">
                 <div class="col-12 col-lg">
-                    <input type="search" name="search" class="form-control mb-3" placeholder="{% trans 'Search...' %}" />
+                    <input type="search"
+                           name="search"
+                           class="form-control mb-3"
+                           placeholder="{% trans 'Search...' %}"/>
                 </div>
                 <div class="col-6 col-sm-4 col-md">
                     <h6 class="card-subtitle mb-1">{% trans 'Degrees' %}</h6>
                     <div id="degree-select" class="result-filter-list">
                         {% for degree in degrees %}
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="{{ degree.id }}" data-filter="{{ degree.name }}" name="degree" id="degree-{{ degree.id }}" />
-                                <label class="form-check-label w-100" for="degree-{{ degree.id }}">
-                                    {{ degree.name }}
-                                </label>
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       value="{{ degree.id }}"
+                                       data-filter="{{ degree.name }}"
+                                       name="degree"
+                                       id="degree-{{ degree.id }}"/>
+                                <label class="form-check-label w-100" for="degree-{{ degree.id }}">{{ degree.name }}</label>
                             </div>
                         {% endfor %}
                     </div>
@@ -40,10 +48,13 @@
                     <div id="course-type-select" class="result-filter-list">
                         {% for course_type in course_types %}
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="{{ course_type.id }}" data-filter="{{ course_type.name }}" name="courseType" id="courseType-{{ course_type.id }}" />
-                                <label class="form-check-label w-100" for="courseType-{{ course_type.id }}">
-                                    {{ course_type.name }}
-                                </label>
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       value="{{ course_type.id }}"
+                                       data-filter="{{ course_type.name }}"
+                                       name="courseType"
+                                       id="courseType-{{ course_type.id }}"/>
+                                <label class="form-check-label w-100" for="courseType-{{ course_type.id }}">{{ course_type.name }}</label>
                             </div>
                         {% endfor %}
                     </div>
@@ -53,10 +64,13 @@
                     <div id="semester-select" class="result-filter-list">
                         {% for semester in semesters %}
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="{{ semester.id }}" data-filter="{{ semester.short_name }}" name="semester" id="semester-{{ semester.id }}" />
-                                <label class="form-check-label w-100" for="semester-{{ semester.id }}">
-                                    {{ semester.name }}
-                                </label>
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       value="{{ semester.id }}"
+                                       data-filter="{{ semester.short_name }}"
+                                       name="semester"
+                                       id="semester-{{ semester.id }}"/>
+                                <label class="form-check-label w-100" for="semester-{{ semester.id }}">{{ semester.name }}</label>
                             </div>
                         {% endfor %}
                     </div>
@@ -82,21 +96,40 @@
             </div>
             <div class="d-flex d-lg-none">
                 <div class="me-2 btn-group icon-buttons" data-bs-toggle="buttons">
-                    <input id="sort-order-asc" class="btn-check" type="radio" name="result-sort-order" value="asc" checked />
+                    <input id="sort-order-asc"
+                           class="btn-check"
+                           type="radio"
+                           name="result-sort-order"
+                           value="asc"
+                           checked/>
                     <label class="btn btn-outline-primary btn-lg" for="sort-order-asc">
                         <span class="fas fa-arrow-down-a-z"></span>
                     </label>
-                    <input id="sort-order-desc" class="btn-check" type="radio" name="result-sort-order" value="desc" />
+                    <input id="sort-order-desc"
+                           class="btn-check"
+                           type="radio"
+                           name="result-sort-order"
+                           value="desc"/>
                     <label class="btn btn-outline-primary btn-lg" for="sort-order-desc">
                         <span class="fas fa-arrow-up-z-a-alt"></span>
                     </label>
                 </div>
                 <select name="result-sort-column" class="form-select no-tomselect">
-                    <option value="name-semester">{% trans 'Evaluation and semester' %}</option>
-                    <option value="name">{% trans 'Evaluation' %}</option>
-                    <option value="semester">{% trans 'Semester' %}</option>
-                    <option value="responsible">{% trans 'Responsible' %}</option>
-                    <option value="result">{% trans 'Distribution and average grade' %}</option>
+                    <option value="name-semester">
+                        {% trans 'Evaluation and semester' %}
+                    </option>
+                    <option value="name">
+                        {% trans 'Evaluation' %}
+                    </option>
+                    <option value="semester">
+                        {% trans 'Semester' %}
+                    </option>
+                    <option value="responsible">
+                        {% trans 'Responsible' %}
+                    </option>
+                    <option value="result">
+                        {% trans 'Distribution and average grade' %}
+                    </option>
                 </select>
             </div>
         </div>

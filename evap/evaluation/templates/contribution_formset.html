@@ -5,7 +5,9 @@
         <h5 class="card-title me-auto">{% trans 'Contributors' %}</h5>
         {% if not manager %}
             <div>
-                <button type="button" class="btn btn-sm btn-light" id="createAccountRequestModalShowButton">
+                <button type="button"
+                        class="btn btn-sm btn-light"
+                        id="createAccountRequestModalShowButton">
                     {% trans 'Request creation of new account' %}
                 </button>
             </div>
@@ -33,16 +35,21 @@
                     </td>
 
                     <td>
-                        {% for field in form.hidden_fields %}
-                            {{ field }}
-                        {% endfor %}
+                        {% for field in form.hidden_fields %}{{ field }}{% endfor %}
                         {% include 'bootstrap_form_errors.html' with errors=form.contributor.errors %}
                         {{ form.contributor }}
-                        <div class="form-check mt-2" data-bs-toggle="tooltip" data-bs-placement="right" title="{% blocktrans %}Select this option if no questions about this person shall be included in the evaluation. This can be used if the person does not visibly contribute and is solely added to receive permissions for editing the evaluation or viewing text answers.{% endblocktrans %}">
-                            <input class="form-check-input" id="{{ form.does_not_contribute.id_for_label }}" name="{{ form.does_not_contribute.html_name }}"
-                                type="checkbox"{% if form.does_not_contribute.value %} checked{% endif %}
-                                {% if form.does_not_contribute.field.disabled %} disabled{% endif %} />
-                            <label class="form-check-label" for="{{ form.does_not_contribute.id_for_label }}">{{ form.does_not_contribute.label }}</label>
+                        <div class="form-check mt-2"
+                             data-bs-toggle="tooltip"
+                             data-bs-placement="right"
+                             title="{% blocktrans %}Select this option if no questions about this person shall be included in the evaluation. This can be used if the person does not visibly contribute and is solely added to receive permissions for editing the evaluation or viewing text answers.{% endblocktrans %}">
+                            <input class="form-check-input"
+                                   id="{{ form.does_not_contribute.id_for_label }}"
+                                   name="{{ form.does_not_contribute.html_name }}"
+                                   type="checkbox"
+                                   {% if form.does_not_contribute.value %} checked{% endif %}
+                                   {% if form.does_not_contribute.field.disabled %} disabled{% endif %}/>
+                            <label class="form-check-label"
+                                   for="{{ form.does_not_contribute.id_for_label }}">{{ form.does_not_contribute.label }}</label>
                         </div>
                         {% include 'bootstrap_form_errors.html' with errors=form.does_not_contribute.errors %}
                     </td>
@@ -50,15 +57,21 @@
                         {% include 'questionnaires_widget.html' with field=form.questionnaires questionnaires_with_answers=questionnaires_with_answers_per_contributor|get:form.instance.contributor %}
                     </td>
                     <td>
-                        {% trans 'Responsibility' %}:<br />
+                        {% trans 'Responsibility' %}:
+                        <br />
                         {% include 'role_buttons.html' with form=form %}
-                        <br /><br />
-                        {% trans 'Text answer visibility' %}:<br />
+                        <br />
+                        <br />
+                        {% trans 'Text answer visibility' %}:
+                        <br />
                         {% include 'textanswer_visibility_buttons.html' with form=form %}
-                        <br /><br />
+                        <br />
+                        <br />
                         <span class="{% if form.label.errors %}error-label{% endif %}">{% trans 'Label' %}:
-                            <span data-bs-toggle="tooltip" data-bs-placement="right" class="fas fa-circle-info"
-                                title="{% blocktrans %}This text will be shown next to the contributor's name in the questionnaire.{% endblocktrans %}">
+                            <span data-bs-toggle="tooltip"
+                                  data-bs-placement="right"
+                                  class="fas fa-circle-info"
+                                  title="{% blocktrans %}This text will be shown next to the contributor's name in the questionnaire.{% endblocktrans %}">
                             </span>
                         </span>
                         <br />

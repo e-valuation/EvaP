@@ -10,7 +10,8 @@
 
     {% if show_automated_publishing_info %}
         <div class="callout callout-info">
-            <b>{% trans 'Automated publishing' %}</b><br />
+            <b>{% trans 'Automated publishing' %}</b>
+            <br />
             {% blocktrans %}After this file with final grades was uploaded, the evaluation results will be published automatically once the evaluation ends. If the evaluation has already ended, it will be published immediately. All contributors and participants will receive an email informing them about the published evaluation results and the available grade file document.{% endblocktrans %}
         </div>
     {% endif %}
@@ -25,9 +26,7 @@
     <form method="POST" class="form-horizontal" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="card mb-3">
-            <div class="card-body">
-                {% include 'bootstrap_form.html' with form=form %}
-            </div>
+            <div class="card-body">{% include 'bootstrap_form.html' with form=form %}</div>
         </div>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">

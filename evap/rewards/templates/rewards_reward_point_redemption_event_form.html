@@ -2,18 +2,20 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'rewards:reward_point_redemption_events' %}">{% trans 'Reward Point Redemption Events' %}</a></li>
+    <li class="breadcrumb-item">
+        <a href="{% url 'rewards:reward_point_redemption_events' %}">{% trans 'Reward Point Redemption Events' %}</a>
+    </li>
     <li class="breadcrumb-item">{% trans 'Edit event' %}</li>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
-    <form id="reward-point-redemption-event-form" method="POST" class="form-horizontal">
+    <form id="reward-point-redemption-event-form"
+          method="POST"
+          class="form-horizontal">
         {% csrf_token %}
         <div class="card mb-3">
-            <div class="card-body">
-                {% include 'bootstrap_form.html' with form=form %}
-            </div>
+            <div class="card-body">{% include 'bootstrap_form.html' with form=form %}</div>
         </div>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
@@ -23,6 +25,6 @@
     </form>
 {% endblock %}
 
- {% block additional_javascript %}
- {% include 'bootstrap_datetimepicker.html' %}
- {% endblock %}
+{% block additional_javascript %}
+    {% include 'bootstrap_datetimepicker.html' %}
+{% endblock %}

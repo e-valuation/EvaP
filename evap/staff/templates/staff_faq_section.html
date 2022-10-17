@@ -2,7 +2,9 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'staff:faq_index' %}">{% trans 'FAQ Sections' %}</a></li>
+    <li class="breadcrumb-item">
+        <a href="{% url 'staff:faq_index' %}">{% trans 'FAQ Sections' %}</a>
+    </li>
     <li class="breadcrumb-item">{{ section.title }}</li>
 {% endblock %}
 
@@ -25,25 +27,23 @@
                         </tr>
                     </thead>
                     <tbody>
-                    {% for form in formset %}
-                        <tr class="sortable">
-                            {% for hidden in form.hidden_fields %}
-                                {{ hidden }}
-                            {% endfor %}
-                            <td class="movable">
-                                <span class="movable-icon fas fa-up-down"></span>
-                            </td>
-                            <td>
-                                {% include 'bootstrap_form_field_widget.html' with field=form.question_de %}
-                                {% include 'bootstrap_form_field_widget.html' with field=form.answer_de %}
-                            </td>
-                            <td>
-                                {% include 'bootstrap_form_field_widget.html' with field=form.question_en %}
-                                {% include 'bootstrap_form_field_widget.html' with field=form.answer_en %}
-                            </td>
-                            <td>{% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}</td>
-                        </tr>
-                    {% endfor %}
+                        {% for form in formset %}
+                            <tr class="sortable">
+                                {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                                <td class="movable">
+                                    <span class="movable-icon fas fa-up-down"></span>
+                                </td>
+                                <td>
+                                    {% include 'bootstrap_form_field_widget.html' with field=form.question_de %}
+                                    {% include 'bootstrap_form_field_widget.html' with field=form.answer_de %}
+                                </td>
+                                <td>
+                                    {% include 'bootstrap_form_field_widget.html' with field=form.question_en %}
+                                    {% include 'bootstrap_form_field_widget.html' with field=form.answer_en %}
+                                </td>
+                                <td>{% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}</td>
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>

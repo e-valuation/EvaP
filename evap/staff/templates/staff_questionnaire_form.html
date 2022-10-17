@@ -3,11 +3,11 @@
 {% block content %}
     {{ block.super }}
     {% if not editable %}
-        <div class="callout callout-info">
-            {% trans 'Some fields are disabled as this questionnaire is already in use.' %}
-        </div>
+        <div class="callout callout-info">{% trans 'Some fields are disabled as this questionnaire is already in use.' %}</div>
     {% endif %}
-    <form id="questionnaire-form" method="POST" class="form-horizontal tomselectform">
+    <form id="questionnaire-form"
+          method="POST"
+          class="form-horizontal tomselectform">
         {% csrf_token %}
         <fieldset>
             <div class="card mb-3">
@@ -39,9 +39,7 @@
                                 {% include 'bootstrap_form_errors.html' with errors=form_element.non_field_errors %}
 
                                 <tr class="tomselecttr sortable">
-                                    {% for hidden in form_element.hidden_fields %}
-                                        {{ hidden }}
-                                    {% endfor %}
+                                    {% for hidden in form_element.hidden_fields %}{{ hidden }}{% endfor %}
                                     {% if editable %}
                                         <td class="movable">
                                             <span class="movable-icon fas fa-up-down"></span>
@@ -54,10 +52,17 @@
                                     <td class="question-type">
                                         {% include 'bootstrap_form_field_widget.html' with field=form_element.type %}
                                         <div class="form-check mt-1">
-                                            <input class="form-check-input allow-textanswer-checkbox" id="{{ form_element.allows_additional_textanswers.id_for_label }}" name="{{ form_element.allows_additional_textanswers.html_name }}"
-                                                type="checkbox" data-keep="true" {% if form_element.allows_additional_textanswers.value %} checked{% endif %}
-                                                {% if form_element.allows_additional_textanswers.field.disabled %} disabled{% endif %} />
-                                            <label class="form-check-label" for="{{ form_element.allows_additional_textanswers.id_for_label }}">{{ form_element.allows_additional_textanswers.label }}</label>
+                                            <input class="form-check-input allow-textanswer-checkbox"
+                                                   id="{{ form_element.allows_additional_textanswers.id_for_label }}"
+                                                   name="{{ form_element.allows_additional_textanswers.html_name }}"
+                                                   type="checkbox"
+                                                   data-keep="true"
+                                                   {% if form_element.allows_additional_textanswers.value %} checked{% endif %}
+                                                   {% if form_element.allows_additional_textanswers.field.disabled %} disabled{% endif %}/>
+                                            <label class="form-check-label"
+                                                   for="{{ form_element.allows_additional_textanswers.id_for_label }}">
+                                                {{ form_element.allows_additional_textanswers.label }}
+                                            </label>
                                         </div>
                                     </td>
                                     <td>{% include 'bootstrap_form_field_widget.html' with field=form_element.DELETE %}</td>

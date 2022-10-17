@@ -7,19 +7,17 @@
 
 {% block content %}
     {{ block.super }}
-    <h3>
-        {% trans 'Grade publish reminder' %} ({{ semester.name }})
-    </h3>
+    <h3>{% trans 'Grade publish reminder' %} ({{ semester.name }})</h3>
     <div class="card">
         <div class="card-body">
             {% for responsible, courses in responsible_list %}
-                <b>{{ responsible.full_name }}</b><br />
+                <b>{{ responsible.full_name }}</b>
+                <br />
                 {% for course in courses %}
-                    - {{ course.name }} (<span class="fst-italic">{{ course.type }}</span>)<br />
-                {% endfor %}
-                {% if not forloop.last %}
+                    - {{ course.name }} (<span class="fst-italic">{{ course.type }}</span>)
                     <br />
-                {% endif %}
+                {% endfor %}
+                {% if not forloop.last %}<br />{% endif %}
             {% endfor %}
         </div>
     </div>

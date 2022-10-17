@@ -6,25 +6,34 @@
     {{ block.super }}
     <div class="row mb-3 align-items-center">
         <div class="col">
-            <a href="{% url 'staff:questionnaire_create' %}" class="btn btn-sm btn-dark">{% trans 'Create new questionnaire' %}</a>
+            <a href="{% url 'staff:questionnaire_create' %}"
+               class="btn btn-sm btn-dark">{% trans 'Create new questionnaire' %}</a>
         </div>
         <div class="col-auto">
             <div class="btn-switch btn-switch-light">
                 <div class="btn-switch-label">{% trans 'Hidden questionnaires' %}</div>
                 <div class="btn-switch btn-group">
-                    <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=false" role="button" class="btn btn-sm btn-light{% if not filter_questionnaires %} active{% endif %}">
-                    {% trans 'Show' %}
-                    </a>
-                    <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=true" role="button" class="btn btn-sm btn-light{% if filter_questionnaires %} active{% endif %}">
-                        {% trans 'Hide' %}
-                    </a>
+                    <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=false"
+                       role="button"
+                       class="btn btn-sm btn-light{% if not filter_questionnaires %} active{% endif %}">{% trans 'Show' %}</a>
+                    <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=true"
+                       role="button"
+                       class="btn btn-sm btn-light{% if filter_questionnaires %} active{% endif %}">{% trans 'Hide' %}</a>
                 </div>
             </div>
         </div>
         <div class="col-3">
             <div class="input-group">
-                <input type="search" name="search" class="form-control" placeholder="{% trans 'Search...' %}" />
-                <button class="btn btn-light text-secondary" type="button" data-reset="search" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Clear filter' %}">
+                <input type="search"
+                       name="search"
+                       class="form-control"
+                       placeholder="{% trans 'Search...' %}"/>
+                <button class="btn btn-light text-secondary"
+                        type="button"
+                        data-reset="search"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="{% trans 'Clear filter' %}">
                     <span class="fas fa-delete-left"></span>
                 </button>
             </div>
@@ -39,9 +48,7 @@
         {% trans 'Bottom general questionnaires' as headline %}
         {% include 'staff_questionnaire_index_list.html' with questionnaires=general_questionnaires_bottom headline=headline extra_classes='' type='bottom' %}
     {% else %}
-        <p>
-            {% trans 'There are no questionnaires yet.' %}
-        </p>
+        <p>{% trans 'There are no questionnaires yet.' %}</p>
     {% endif %}
 {% endblock %}
 

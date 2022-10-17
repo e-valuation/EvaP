@@ -9,12 +9,12 @@
             {% trans 'Create single result' %}
         {% endif %}
     </h3>
-    <form id="single-result-form" method="POST" class="form-horizontal multiselect-form">
+    <form id="single-result-form"
+          method="POST"
+          class="form-horizontal multiselect-form">
         {% csrf_token %}
         <div class="card mb-3">
-            <div class="card-body">
-                {% include 'bootstrap_form.html' with form=form %}
-            </div>
+            <div class="card-body">{% include 'bootstrap_form.html' with form=form %}</div>
         </div>
 
         {% if editable %}
@@ -28,5 +28,5 @@
 {% endblock %}
 
 {% block additional_javascript %}
-{% include "bootstrap_datetimepicker.html"  %}
+    {% include "bootstrap_datetimepicker.html"  %}
 {% endblock %}

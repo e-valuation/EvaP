@@ -4,7 +4,9 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'staff:user_index' %}">{% trans 'Users' %}</a></li>
+    <li class="breadcrumb-item">
+        <a href="{% url 'staff:user_index' %}">{% trans 'Users' %}</a>
+    </li>
     <li class="breadcrumb-item">{% trans 'User list' %}</li>
 {% endblock %}
 
@@ -15,20 +17,28 @@
             <div class="btn-switch btn-switch-light">
                 <div class="btn-switch-label">{% trans 'Inactive users' %}</div>
                 <div class="btn-switch btn-group">
-                    <a href="{% url 'staff:user_list' %}?filter_users=false" role="button" class="btn btn-sm btn-light{% if not filter_users %} active{% endif %}">
-                        {% trans 'Show' %}
-                    </a>
-                    <a href="{% url 'staff:user_list' %}?filter_users=true" role="button" class="btn btn-sm btn-light{% if filter_users %} active{% endif %}">
-                        {% trans 'Hide' %}
-                    </a>
+                    <a href="{% url 'staff:user_list' %}?filter_users=false"
+                       role="button"
+                       class="btn btn-sm btn-light{% if not filter_users %} active{% endif %}">{% trans 'Show' %}</a>
+                    <a href="{% url 'staff:user_list' %}?filter_users=true"
+                       role="button"
+                       class="btn btn-sm btn-light{% if filter_users %} active{% endif %}">{% trans 'Hide' %}</a>
                 </div>
             </div>
         </div>
         <div class="col-3 ms-auto">
             <div class="input-group">
-                <input type="search" name="search" class="form-control" placeholder="{% trans 'Search...' %}" />
+                <input type="search"
+                       name="search"
+                       class="form-control"
+                       placeholder="{% trans 'Search...' %}"/>
                 <div class="input-group-append">
-                    <button class="btn btn-light text-secondary" type="button" data-reset="search" data-toggle="tooltip" data-placement="top" title="{% trans 'Clear search filter' %}">
+                    <button class="btn btn-light text-secondary"
+                            type="button"
+                            data-reset="search"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="{% trans 'Clear search filter' %}">
                         <span class="fas fa-backspace"></span>
                     </button>
                 </div>
@@ -49,12 +59,17 @@
                 </thead>
                 <tbody>
                     {% for user in users %}
-                        <tr id="user-row-{{ user.id }}" class="hover-row hover-row-info" data-url="{% url 'staff:user_edit' user.id %}">
+                        <tr id="user-row-{{ user.id }}"
+                            class="hover-row hover-row-info"
+                            data-url="{% url 'staff:user_edit' user.id %}">
                             <td>{{ user.full_name }}</td>
-                            <td>{% if user.email %}{{ user.email }}{% endif %}</td>
+                            <td>
+                                {% if user.email %}{{ user.email }}{% endif %}
+                            </td>
                             <td>{% include 'staff_user_badges.html' with user=user %}</td>
                             <td class="text-end">
-                                <a href="{% url 'staff:user_edit' user.id %}" class="btn btn-primary btn-sm btn-row-hover"><span class="fas fa-pencil-alt"></span></a>
+                                <a href="{% url 'staff:user_edit' user.id %}"
+                                   class="btn btn-primary btn-sm btn-row-hover"><span class="fas fa-pencil-alt"></span></a>
                             </td>
                         </tr>
                     {% endfor %}

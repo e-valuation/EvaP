@@ -5,9 +5,7 @@
 
     <form id="evaluation-operation-form" method="POST" class="form-horizontal">
         {% csrf_token %}
-        {% for evaluation in evaluations %}
-            <input type="hidden" name="evaluation" value="{{ evaluation.id }}" />
-        {% endfor %}
+        {% for evaluation in evaluations %}<input type="hidden" name="evaluation" value="{{ evaluation.id }}" />{% endfor %}
 
         <div class="card mb-3">
             <div class="card-body">
@@ -25,11 +23,11 @@
                         <col style="width: 9em" />
                     </colgroup>
                     <tbody>
-                    {% for evaluation in evaluations %}
-                        <tr>
-                            {% include 'staff_semester_view_evaluation.html' with semester=semester evaluation=evaluation info_only=True %}
-                        </tr>
-                    {% endfor %}
+                        {% for evaluation in evaluations %}
+                            <tr>
+                                {% include 'staff_semester_view_evaluation.html' with semester=semester evaluation=evaluation info_only=True %}
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -38,9 +36,7 @@
         {% if show_email_checkbox %}
             <div class="row mb-3">
                 {% if email_template %}
-                    <div class="col">
-                        {% include "staff_email_preview_form.html" with email_template=email_template id_suffix="" heading="" %}
-                    </div>
+                    <div class="col">{% include "staff_email_preview_form.html" with email_template=email_template id_suffix="" heading="" %}</div>
                 {% else %}
                     <div class="col">
                         {% trans 'Notify Contributors' as heading %}
@@ -58,7 +54,8 @@
         <div class="card card-submit-area card-submit-area-2 text-center mb-3">
             <div class="card-body">
                 <button type="submit" class="btn btn-primary">{% trans 'Confirm' %}</button>
-                <a href="{% url 'staff:semester_view' semester.id %}" class="btn btn-light">{% trans 'Cancel' %}</a>
+                <a href="{% url 'staff:semester_view' semester.id %}"
+                   class="btn btn-light">{% trans 'Cancel' %}</a>
             </div>
         </div>
     </form>

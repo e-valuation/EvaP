@@ -3,7 +3,14 @@
 {% for questionnaire, contributor, label, is_responsible, results in sections %}
     <div class="card{% if not forloop.last %} mb-3{% endif %}">
         <div class="card-header">
-            {{ questionnaire.public_name }}{% if contributor %}: {{ contributor.full_name }}{% if is_responsible %} ({% trans 'responsible' %}){% endif %}{% if label %} &ndash; <span class="fst-italic">{{ label }}</span>{% endif %}{% endif %}
+            {{ questionnaire.public_name }}
+            {% if contributor %}
+                : {{ contributor.full_name }}
+                {% if is_responsible %}
+                    ({% trans 'responsible' %})
+                {% endif %}
+                {% if label %}&ndash; <span class="fst-italic">{{ label }}</span>{% endif %}
+            {% endif %}
         </div>
         <div class="card-body">
             {% for result in results %}
@@ -28,27 +35,55 @@
                                 </td>
                                 <td>
                                     {% if user.is_manager %}
-                                        <a class="btn btn-sm btn-outline-secondary" href="{% url 'staff:evaluation_textanswer_edit' semester.id evaluation.id answer.id %}"><span class="fas fa-pencil"></a>
+                                        <a class="btn btn-sm btn-outline-secondary"
+                                           href="{% url 'staff:evaluation_textanswer_edit' semester.id evaluation.id answer.id %}"><span class="fas fa-pencil"></a>
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <form class="full-update-textanswer-form" method="POST" action="{% url 'staff:evaluation_textanswers_update_publish' %}">
+                                    <form class="full-update-textanswer-form"
+                                          method="POST"
+                                          action="{% url 'staff:evaluation_textanswers_update_publish' %}">
                                         {% csrf_token %}
 
                                         <input type="hidden" name="answer_id" value="{{ answer.id }}" />
                                         <input type="hidden" name="evaluation_id" value="{{ evaluation_id }}" />
 
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <input type="radio" class="btn-check" name="action" value="publish" id="{{ answer.id }}-radio-publish" autocomplete="off" {% if answer.will_be_public %}checked{% endif %}>
+                                            <input type="radio"
+                                                   class="btn-check"
+                                                   name="action"
+                                                   value="publish"
+                                                   id="{{ answer.id }}-radio-publish"
+                                                   autocomplete="off"
+                                                   {% if answer.will_be_public %}checked{% endif %}>
                                             <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-publish">{% trans 'Publish' %}</label>
 
-                                            <input type="radio" class="btn-check" name="action" value="make_private" id="{{ answer.id }}-radio-private" autocomplete="off" {% if answer.will_be_private %}checked{% endif %} {% if not contributor %}disabled{% endif %}>
+                                            <input type="radio"
+                                                   class="btn-check"
+                                                   name="action"
+                                                   value="make_private"
+                                                   id="{{ answer.id }}-radio-private"
+                                                   autocomplete="off"
+                                                   {% if answer.will_be_private %}checked{% endif %}
+                                                   {% if not contributor %}disabled{% endif %}>
                                             <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-private">{% trans 'Private' %}</label>
 
-                                            <input type="radio" class="btn-check" name="action" value="unreview" id="{{ answer.id }}-radio-undecided" autocomplete="off" {% if not answer.is_reviewed %}checked{% endif %}>
+                                            <input type="radio"
+                                                   class="btn-check"
+                                                   name="action"
+                                                   value="unreview"
+                                                   id="{{ answer.id }}-radio-undecided"
+                                                   autocomplete="off"
+                                                   {% if not answer.is_reviewed %}checked{% endif %}>
                                             <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-undecided">{% trans 'Undecided' %}</label>
 
-                                            <input type="radio" class="btn-check" name="action" value="delete" id="{{ answer.id }}-radio-delete" autocomplete="off" {% if answer.will_be_deleted %}checked{% endif %}>
+                                            <input type="radio"
+                                                   class="btn-check"
+                                                   name="action"
+                                                   value="delete"
+                                                   id="{{ answer.id }}-radio-delete"
+                                                   autocomplete="off"
+                                                   {% if answer.will_be_deleted %}checked{% endif %}>
                                             <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-delete">{% trans 'Delete' %}</label>
                                         </div>
                                     </form>

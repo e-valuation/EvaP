@@ -1,12 +1,17 @@
 {% load evaluation_filters %}
 
 
-<input id="{{ choice.id_for_label }}" class="btn-check" name="{{ choice.data.name }}" type="radio" value="{{ choice.data.value }}"
-        autocomplete="off" {% if choice.data.selected %}checked{% endif %} />
-<label class="btn btn-sm btn-outline-primary
-        {% if formelement.field.disabled or disabled %} disabled{% endif %}
-
-        {% if formelement.errors %} choice-error{% endif %}"
-        for="{{ choice.id_for_label }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ tooltip }}">
+<input id="{{ choice.id_for_label }}"
+       class="btn-check"
+       name="{{ choice.data.name }}"
+       type="radio"
+       value="{{ choice.data.value }}"
+       autocomplete="off"
+       {% if choice.data.selected %}checked{% endif %}/>
+<label class="btn btn-sm btn-outline-primary {% if formelement.field.disabled or disabled %} disabled{% endif %}  {% if formelement.errors %} choice-error{% endif %}"
+       for="{{ choice.id_for_label }}"
+       data-bs-toggle="tooltip"
+       data-bs-placement="top"
+       title="{{ tooltip }}">
     {{ choice.choice_label }}
 </label>

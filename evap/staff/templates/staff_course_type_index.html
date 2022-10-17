@@ -9,10 +9,14 @@
     {{ block.super }}
 
     <div class="mb-3">
-        <a href="{% url 'staff:course_type_merge_selection' %}" class="btn btn-sm btn-secondary">{% trans 'Merge course types' %}</a>
+        <a href="{% url 'staff:course_type_merge_selection' %}"
+           class="btn btn-sm btn-secondary">{% trans 'Merge course types' %}</a>
     </div>
 
-    <form id="course-type-form" method="POST" enctype="multipart/form-data" class="form-horizontal tomselectform">
+    <form id="course-type-form"
+          method="POST"
+          enctype="multipart/form-data"
+          class="form-horizontal tomselectform">
         {% csrf_token %}
         {{ formset.management_form }}
 
@@ -35,23 +39,21 @@
                                     <span class="movable-icon fas fa-up-down"></span>
                                 </td>
                                 <td>
-                                    {% for hidden in form.hidden_fields %}
-                                        {{ hidden }}
-                                    {% endfor %}
+                                    {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
                                     {% include 'bootstrap_form_field_widget.html' with field=form.name_de %}
                                 </td>
-                                <td>
-                                    {% include 'bootstrap_form_field_widget.html' with field=form.name_en %}
-                                </td>
-                                <td>
-                                    {% include 'bootstrap_form_field_widget.html' with field=form.import_names %}
-                                </td>
+                                <td>{% include 'bootstrap_form_field_widget.html' with field=form.name_en %}</td>
+                                <td>{% include 'bootstrap_form_field_widget.html' with field=form.import_names %}</td>
                                 <td>
                                     {% if form.instance.can_be_deleted_by_manager %}
                                         {% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}
                                     {% else %}
-                                        <button type="button" disabled class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="left"
-                                            title="{% trans 'This course type cannot be deleted because it is used for at least one course.' %}">
+                                        <button type="button"
+                                                disabled
+                                                class="btn btn-sm btn-danger"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="left"
+                                                title="{% trans 'This course type cannot be deleted because it is used for at least one course.' %}">
                                             <span class="fas fa-trash"></span>
                                         </button>
                                     {% endif %}

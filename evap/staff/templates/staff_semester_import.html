@@ -13,14 +13,21 @@
 
     {% include 'staff_message_rendering_template.html' with importer_log=importer_log %}
 
-    <form id="semester-import-form" method="POST" enctype="multipart/form-data" class="form-horizontal">
+    <form id="semester-import-form"
+          method="POST"
+          enctype="multipart/form-data"
+          class="form-horizontal">
         <div class="card mb-3">
             <div class="card-body">
                 <p>
                     {% trans 'Upload Excel file' %}
                     (<a href="{% url 'staff:download_sample_file' 'sample.xlsx' %}">{% trans 'Download sample file' %}</a>,
-                    <button type="button" class="btn-link" onClick="copyHeaders(['Degree', 'Participant last name', 'Participant first name', 'Participant email address', 'Course kind', 'Course is graded', 'Course name (de)', 'Course name (en)', 'Responsible title', 'Responsible last name', 'Responsible first name', 'Responsible email address'])">
-                        {% trans 'Copy headers to clipboard' %}</button>).
+                    <button type="button"
+                            class="btn-link"
+                            onClick="copyHeaders(['Degree', 'Participant last name', 'Participant first name', 'Participant email address', 'Course kind', 'Course is graded', 'Course name (de)', 'Course name (en)', 'Responsible title', 'Responsible last name', 'Responsible first name', 'Responsible email address'])">
+                        {% trans 'Copy headers to clipboard' %}
+                    </button>
+                    ).
                     {% trans 'This will create all containing participants, contributors and courses and connect them. It will also set the entered values as default for all evaluations.' %}
                 </p>
                 {% csrf_token %}
@@ -31,10 +38,22 @@
         <div class="card card-submit-area{% if test_passed %} card-submit-area-2{% endif %} text-center mb-3">
             <div class="card-body">
                 {% if not test_passed %}
-                    <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
+                    <button name="operation"
+                            value="test"
+                            type="submit"
+                            class="btn btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
                 {% else %}
-                    <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
-                    <button name="operation" value="import" type="button" onclick="importSemesterModalShow('import');" class="btn btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
+                    <button name="operation"
+                            value="test"
+                            type="submit"
+                            class="btn btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
+                    <button name="operation"
+                            value="import"
+                            type="button"
+                            onclick="importSemesterModalShow('import');"
+                            class="btn btn-primary form-submit-btn">
+                        {% trans 'Import previously uploaded file' %}
+                    </button>
                 {% endif %}
             </div>
         </div>
@@ -42,7 +61,7 @@
 {% endblock %}
 
 {% block modals %}
-{{ block.super }}
+    {{ block.super }}
     {% trans 'Import semester data' as title %}
     {% trans 'Do you really want to import semester data from the Excel file?' as question %}
     {% trans 'Import semester data' as action_text %}

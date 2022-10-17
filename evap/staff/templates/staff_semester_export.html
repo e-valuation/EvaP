@@ -11,14 +11,18 @@
     {{ block.super }}
     <h3>{% trans 'Export' %} {{ semester.name }}</h3>
 
-    <form id="semester-export-form" method="POST" class="form-horizontal multiselect-form">
+    <form id="semester-export-form"
+          method="POST"
+          class="form-horizontal multiselect-form">
         {% csrf_token %}
 
         {{ formset.management_form }}
 
         <div class="card mb-3">
             <div class="card-body">
-                <p>{% trans 'Select the degrees and course types you want to export. An export will include all evaluations of courses that have at least one of the selected degrees and one of the selected course types. Add multiple lines to create an export file with multiple sheets.' %}</p>
+                <p>
+                    {% trans 'Select the degrees and course types you want to export. An export will include all evaluations of courses that have at least one of the selected degrees and one of the selected course types. Add multiple lines to create an export file with multiple sheets.' %}
+                </p>
                 <table id="exportsheets-table" class="table">
                     <thead>
                         <tr>
@@ -31,15 +35,9 @@
                         {% for form in formset %}
                             {% include 'bootstrap_form_errors.html' with errors=form.non_field_errors %}
                             <tr class="sortable">
-                                {% for field in form.hidden_fields %}
-                                    {{ field }}
-                                {% endfor %}
-                                <td>
-                                    {% include 'multiple_checkbox_widget.html' with field=form.selected_degrees %}
-                                </td>
-                                <td>
-                                    {% include 'multiple_checkbox_widget.html' with field=form.selected_course_types %}
-                                </td>
+                                {% for field in form.hidden_fields %}{{ field }}{% endfor %}
+                                <td>{% include 'multiple_checkbox_widget.html' with field=form.selected_degrees %}</td>
+                                <td>{% include 'multiple_checkbox_widget.html' with field=form.selected_course_types %}</td>
                                 <td>{% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}</td>
                             </tr>
                         {% endfor %}
@@ -50,13 +48,19 @@
         <div class="card mb-3">
             <div class="card-body">
                 <div class="form-check">
-                    <input class="form-check-input" id="include_unpublished" type="checkbox" name="include_unpublished" />
+                    <input class="form-check-input"
+                           id="include_unpublished"
+                           type="checkbox"
+                           name="include_unpublished"/>
                     <label class="form-check-label" for="include_unpublished">
                         {% trans 'Include unpublished evaluations where the evaluation period ended in the export' %}
                     </label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" id="include_not_enough_voters" type="checkbox" name="include_not_enough_voters" />
+                    <input class="form-check-input"
+                           id="include_not_enough_voters"
+                           type="checkbox"
+                           name="include_not_enough_voters"/>
                     <label class="form-check-label" for="include_not_enough_voters">
                         {% trans 'Include evaluations where not enough votes were given in the export' %}
                     </label>

@@ -5,9 +5,7 @@
     <form id="semester-form" method="POST" class="form-horizontal">
         {% csrf_token %}
         <div class="card mb-3">
-            <div class="card-body">
-                {% include 'bootstrap_form.html' with form=form %}
-            </div>
+            <div class="card-body">{% include 'bootstrap_form.html' with form=form %}</div>
         </div>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">

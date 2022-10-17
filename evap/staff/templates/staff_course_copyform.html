@@ -2,16 +2,14 @@
 
 {% block content %}
     {{ block.super }}
-    <h3>
-        {% trans 'Create copy of course' %}
-    </h3>
-    <form id="course-form" method="POST" class="form-horizontal multiselect-form tomselectform">
+    <h3>{% trans 'Create copy of course' %}</h3>
+    <form id="course-form"
+          method="POST"
+          class="form-horizontal multiselect-form tomselectform">
         {% csrf_token %}
 
         <div class="card mb-3">
-            <div class="card-body">
-                {% include 'bootstrap_form.html' with form=course_form %}
-            </div>
+            <div class="card-body">{% include 'bootstrap_form.html' with form=course_form %}</div>
         </div>
 
         <div class="card mb-3">
@@ -19,11 +17,7 @@
                 <h5 class="card-title">{% trans 'Evaluations that will be copied' %}</h5>
                 {% if course.evaluations.count > 0 %}
                     <ul>
-                        {% for evaluation in evaluations %}
-                            <li>
-                                {{ evaluation.full_name }}
-                            </li>
-                        {% endfor %}
+                        {% for evaluation in evaluations %}<li>{{ evaluation.full_name }}</li>{% endfor %}
                     </ul>
                 {% else %}
                     <span class="fst-italic">{% trans 'There are no evaluations for this course.' %}</span>

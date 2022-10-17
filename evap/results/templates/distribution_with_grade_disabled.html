@@ -1,9 +1,11 @@
 {% load evaluation_filters %}
 
 <div class="distribution-bar-container">
-    <div class="distribution-bar distribution-bar-disabled text-center"><span class="{{ icon }}"></span></div>
-    {% if weight_info %}
-        <span class="right">{{ weight_info }}</span>
-    {% endif %}
+    <div class="distribution-bar distribution-bar-disabled text-center">
+        <span class="{{ icon }}"></span>
+    </div>
+    {% if weight_info %}<span class="right">{{ weight_info }}</span>{% endif %}
 </div>
-<div class="badge-grade badge-disabled ms-2"><span class="{{ icon }}"></span></div>
+<div class="badge-grade badge-disabled ms-2">
+    <span class="{{ icon }}"></span>
+</div>
