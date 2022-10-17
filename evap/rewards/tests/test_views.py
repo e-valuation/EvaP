@@ -89,7 +89,6 @@ class TestIndexView(WebTest):
         )
 
     def test_invalid_post_parameters(self):
-        self.post_redemption_request({f"points-{self.event1.pk}": 2})
         self.post_redemption_request({"points-asd": 2}, status=400)
         self.post_redemption_request({"points-": 2}, status=400)
         self.post_redemption_request({f"points-{self.event1.pk}": ""}, status=400)
@@ -104,8 +103,10 @@ class TestIndexView(WebTest):
             additional_params={"previous_redeemed_points": "asd"},
             status=400,
         )
+        self.assertFalse(RewardPointRedemption.objects.filter(user_profile=self.student).exists())
 
-        self.assertEqual(1, RewardPointRedemption.objects.filter(user_profile=self.student).count())
+        # now, a correct request succeeds
+        self.post_redemption_request({f"points-{self.event1.pk}": 2})
 
     def test_inconsistent_previous_redemption_counts(self):
         response1 = self.app.get(self.url, user=self.student)
