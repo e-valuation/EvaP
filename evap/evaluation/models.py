@@ -1515,6 +1515,22 @@ class FaqQuestion(models.Model):
         verbose_name_plural = _("questions")
 
 
+class Infotext(models.Model):
+    """Infotext to display at the student index and contributor index pages"""
+
+    title_de = models.CharField(max_length=255, verbose_name=_("title (german)"))
+    title_en = models.CharField(max_length=255, verbose_name=_("title (english)"))
+    title = translate(en="title_en", de="title_de")
+
+    content_de = models.TextField(verbose_name=_("content (german)"))
+    content_en = models.TextField(verbose_name=_("content (english)"))
+    content = translate(en="content_en", de="content_de")
+
+    class Meta:
+        verbose_name = _("infotext")
+        verbose_name_plural = _("infotexts")
+
+
 class UserProfileManager(BaseUserManager):
     def create_user(self, email, password=None, first_name=None, last_name=None):
         user = self.model(email=self.normalize_email(email), first_name=first_name, last_name=last_name)

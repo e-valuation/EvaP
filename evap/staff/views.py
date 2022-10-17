@@ -77,6 +77,7 @@ from evap.staff.forms import (
     FaqQuestionForm,
     FaqSectionForm,
     ImportForm,
+    InfotextForm,
     ModelWithImportNamesFormset,
     QuestionForm,
     QuestionnaireForm,
@@ -2274,6 +2275,17 @@ def faq_section(request, section_id):
 
     template_data = {"formset": formset, "section": section, "questions": questions}
     return render(request, "staff_faq_section.html", template_data)
+
+
+@manager_required
+def edit_infotexts(request):
+    student_form = InfotextForm()
+    contributor_form = InfotextForm()
+    return render(
+        request,
+        "staff_edit_infotexts.html",
+        dict(student_infotext_form=student_form, contributor_infotext_form=contributor_form),
+    )
 
 
 @manager_required

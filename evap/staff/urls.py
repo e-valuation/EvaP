@@ -84,6 +84,8 @@ urlpatterns = [
     path("faq/", views.faq_index, name="faq_index"),
     path("faq/<int:section_id>", views.faq_section, name="faq_section"),
 
+    path("edit_infotexts/", views.edit_infotexts, name="edit_infotexts"),
+
     path("download_sample_file/<str:filename>", views.download_sample_file, name="download_sample_file"),
 
     path("export_contributor_results/<int:contributor_id>", views.export_contributor_results_view, name="export_contributor_results"),
