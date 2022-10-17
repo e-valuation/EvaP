@@ -9,7 +9,6 @@
 
 declare const bootstrap: typeof import("bootstrap");
 
-import { CSRF_HEADERS } from "./csrf-utils.js";
 import {
     assert,
     assertDefined,
@@ -18,6 +17,7 @@ import {
     isVisible,
     saneParseInt,
     selectOrError,
+    CSRF_HEADERS,
 } from "./utils.js";
 
 type SubmitterElement = HTMLInputElement | HTMLButtonElement;
