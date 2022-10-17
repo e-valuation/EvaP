@@ -2,7 +2,6 @@ from collections import defaultdict
 from statistics import median
 
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
 from django.core.cache import caches
 from django.core.cache.utils import make_template_fragment_key
 from django.core.exceptions import BadRequest, PermissionDenied
@@ -162,7 +161,6 @@ def index(request):
     return render(request, "results_index.html", template_data)
 
 
-@login_required
 def evaluation_detail(request, semester_id, evaluation_id):
     # pylint: disable=too-many-locals
     semester = get_object_or_404(Semester, id=semester_id)

@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { Browser, Page } from "puppeteer";
-import { Global } from "@jest/types/"
+import { Global } from "@jest/types/";
 import DoneFn = Global.DoneFn;
 
 const contentTypeByExtension: Map<string, string> = new Map([
@@ -53,7 +53,6 @@ export function pageHandler(fileName: string, fn: (page: Page) => void): (done?:
         const context = await browser.defaultBrowserContext();
         await context.overridePermissions("file:", ["clipboard-read"]);
 
-
         const page = await createPage(browser);
         page.on("pageerror", async error => {
             await finish(new Error(error.message));
@@ -66,10 +65,8 @@ export function pageHandler(fileName: string, fn: (page: Page) => void): (done?:
             await fn(page);
             await finish();
         } catch (error) {
-            if (error instanceof Error)
-                await finish(error);
-            else
-                throw error;
+            if (error instanceof Error) await finish(error);
+            else throw error;
         }
     };
 }

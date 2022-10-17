@@ -153,6 +153,10 @@ class TestProfileView(WebTest):
         result = create_evaluation_with_responsible_and_editor()
         cls.responsible = result["responsible"]
 
+    def test_requires_login(self):
+        response = self.app.get(self.url, user=None, status=302)
+        self.assertRedirects(response, f"/?next={self.url}", fetch_redirect_response=False)
+
     def test_save_settings(self):
         user = baker.make(UserProfile)
         page = self.app.get(self.url, user=self.responsible, status=200)

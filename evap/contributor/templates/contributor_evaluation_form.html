@@ -64,13 +64,13 @@
                     <h5 class="card-title me-auto">{% trans 'Evaluation data' %}</h5>
                     {% if evaluation.allow_editors_to_edit %}
                         <div>
-                            <button type="button" class="btn btn-sm btn-light mb-3" onclick="createAccountRequestModalShow();">
+                            <button type="button" class="btn btn-sm btn-light mb-3 createAccountRequestModalShowButton">
                                 {% trans 'Request creation of new account' %}
                             </button>
                         </div>
                     {% else %}
                         <div>
-                            <button type="button" class="btn btn-sm btn-light" onclick="changeEvaluationRequestModalShow();">
+                            <button type="button" class="btn btn-sm btn-light changeEvaluationRequestModalShowButton">
                                 {% trans 'Request changes' %}
                             </button>
                         </div>

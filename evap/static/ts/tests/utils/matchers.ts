@@ -34,10 +34,12 @@ async function createElementMessage(
     return () => {
         const optionallyNot = this.isNot ? "not " : "";
         const receivedLine = value ? `\nReceived: ${this.utils.printReceived(value)}` : "";
-        return this.utils.matcherHint(matcherName, undefined, undefined, {isNot: this.isNot}) +
-        "\n\n" +
-        `Expected ${this.utils.RECEIVED_COLOR(tagDescription)} to ${optionallyNot}${expectation}` +
-        receivedLine
+        return (
+            this.utils.matcherHint(matcherName, undefined, undefined, { isNot: this.isNot }) +
+            "\n\n" +
+            `Expected ${this.utils.RECEIVED_COLOR(tagDescription)} to ${optionallyNot}${expectation}` +
+            receivedLine
+        );
     };
 }
 
@@ -46,11 +48,7 @@ expect.extend({
         const pass = await received.evaluate(element => {
             return (element as HTMLInputElement).checked;
         });
-        const message = await createElementMessage.call(this,
-            "toBeChecked",
-            "be checked",
-            received,
-        );
+        const message = await createElementMessage.call(this, "toBeChecked", "be checked", received);
         return { message, pass };
     },
 
@@ -59,7 +57,8 @@ expect.extend({
             return [...element.classList];
         });
         const pass = classList.includes(className);
-        const message = await createElementMessage.call(this,
+        const message = await createElementMessage.call(
+            this,
             "toHaveClass",
             `have the class ${this.utils.printExpected(className)}`,
             received,
@@ -67,5 +66,5 @@ expect.extend({
         );
 
         return { message, pass };
-    }
+    },
 });

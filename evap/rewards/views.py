@@ -63,7 +63,6 @@ def index(request):
         reward_point_actions=reward_point_actions,
         total_points_available=total_points_available,
         events=events,
-        point_selection=range(0, total_points_available + 1),
     )
     return render(request, "rewards_index.html", template_data)
 

@@ -1,5 +1,7 @@
 {% extends 'staff_evaluation_textanswers.html' %}
 
+{% load static %}
+
 {% block content %}
     {{ block.super }}
 
@@ -167,7 +169,14 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script type="text/javascript">
-        {% include "quick-review.js" %}
+    <script type="module">
+        import { QuickReviewSlider } from "{% static 'js/quick-review-slider.js' %}";
+
+        const slider = new QuickReviewSlider(
+            document.querySelector(".slider"),
+            document.querySelector("#textanswer-update-form"),
+            "{% url 'staff:evaluation_textanswers_skip' %}",
+        );
+        slider.attach();
     </script>
 {% endblock %}

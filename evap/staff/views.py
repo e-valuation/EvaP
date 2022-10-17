@@ -848,15 +848,20 @@ def semester_preparation_reminder(request, semester_id):
 def semester_grade_reminder(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
-    courses = semester.courses.filter(
-        evaluations__state__gte=Evaluation.State.EVALUATED,
-        evaluations__wait_for_grade_upload_before_publishing=True,
-        gets_no_grade_documents=False,
-    ).distinct()
+    courses = (
+        semester.courses.filter(
+            evaluations__state__gte=Evaluation.State.EVALUATED,
+            evaluations__wait_for_grade_upload_before_publishing=True,
+            gets_no_grade_documents=False,
+        )
+        .distinct()
+        .prefetch_related("responsibles")
+    )
+
     courses = [course for course in courses if not course.final_grade_documents.exists()]
     courses.sort(key=lambda course: course.name)
 
-    responsibles = UserProfile.objects.filter(courses_responsible_for=courses).distinct()
+    responsibles = UserProfile.objects.filter(courses_responsible_for__in=courses).distinct()
 
     responsible_list = [
         (responsible, [course for course in courses if responsible in course.responsibles.all()])
