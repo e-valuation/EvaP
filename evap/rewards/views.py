@@ -28,6 +28,7 @@ from evap.staff.views import semester_view
 
 @reward_user_required
 def index(request):
+    status = 200
     if request.method == "POST":
         redemptions = {}
         try:
@@ -43,6 +44,7 @@ def index(request):
             messages.success(request, _("You successfully redeemed your points."))
         except (NoPointsSelected, NotEnoughPoints, RedemptionEventExpired) as error:
             messages.warning(request, error)
+            status = 400
 
     total_points_available = reward_points_of_user(request.user)
     reward_point_grantings = RewardPointGranting.objects.filter(user_profile=request.user)
@@ -64,7 +66,7 @@ def index(request):
         total_points_available=total_points_available,
         events=events,
     )
-    return render(request, "rewards_index.html", template_data)
+    return render(request, "rewards_index.html", template_data, status=status)
 
 
 @manager_required
