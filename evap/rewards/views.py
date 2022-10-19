@@ -28,6 +28,7 @@ from evap.staff.views import semester_view
 
 @reward_user_required
 def index(request):
+    # pylint: disable=too-many-locals
     status = 200
     if request.method == "POST":
         redemptions = {}

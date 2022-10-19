@@ -60,7 +60,6 @@ class TestIndexView(WebTest):
         self.assertContains(response, "You successfully redeemed your points.")
         self.assertEqual(0, reward_points_of_user(self.student))
 
-    # pylint: disable=too-many-locals
     def test_redeem_too_many_points(self):
         response = self.app.get(self.url, user=self.student)
         form = response.forms["reward-redemption-form"]
@@ -70,7 +69,6 @@ class TestIndexView(WebTest):
         self.assertContains(response, "have enough reward points.", status_code=400)
         self.assertEqual(5, reward_points_of_user(self.student))
 
-    # pylint: disable=too-many-locals
     def test_redeem_points_for_expired_event(self):
         """Regression test for #846"""
         response = self.app.get(self.url, user=self.student)
