@@ -40,19 +40,19 @@ def add_participants_to(
     else:
         if not test_run:
             evaluation.participants.add(*users_to_add)
-            msg = ngettext(
+            message = ngettext(
                 "One participant added to the evaluation {name}",
                 "{user_count} participants added to the evaluation {name}",
                 len(users_to_add),
             ).format(user_count=len(users_to_add), name=evaluation.full_name)
         else:
-            msg = ngettext(
+            message = ngettext(
                 "One participant would be added to the evaluation {name}",
                 "{user_count} participants would be added to the evaluation {name}",
                 len(users_to_add),
             ).format(user_count=len(users_to_add), name=evaluation.full_name)
 
-        msg = format_html("{msg}: {list}", msg=msg, list=create_user_list_html_string_for_message(users_to_add))
+        msg = format_html("{message}: {list}", message=message, list=create_user_list_html_string_for_message(users_to_add))
 
     importer_log.add_success(msg)
 
@@ -86,19 +86,19 @@ def add_contributors_to(
             for user in users_to_add:
                 order = Contribution.objects.filter(evaluation=evaluation).count()
                 Contribution.objects.create(evaluation=evaluation, contributor=user, order=order)
-            msg = ngettext(
+            message = ngettext(
                 "One contributor added to the evaluation {name}",
                 "{user_count} contributors added to the evaluation {name}",
                 len(users_to_add),
             ).format(user_count=len(users_to_add), name=evaluation.full_name)
 
         else:
-            msg = ngettext(
+            message = ngettext(
                 "One contributor would be added to the evaluation {name}",
                 "{user_count} contributors would be added to the evaluation {name}",
                 len(users_to_add),
             ).format(user_count=len(users_to_add), name=evaluation.full_name)
-    msg = format_html("{msg}: {list}", msg=msg, list=create_user_list_html_string_for_message(users_to_add))
+        msg = format_html("{message}: {list}", message=message, list=create_user_list_html_string_for_message(users_to_add))
     importer_log.add_success(msg)
 
 
