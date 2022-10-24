@@ -16,6 +16,7 @@ from evap.rewards.forms import RewardPointRedemptionEventForm
 from evap.rewards.models import (
     NoPointsSelected,
     NotEnoughPoints,
+    OutdatedRedemptionData,
     RedemptionEventExpired,
     RewardPointGranting,
     RewardPointRedemption,
@@ -26,27 +27,34 @@ from evap.rewards.tools import grant_eligible_reward_points_for_semester, reward
 from evap.staff.views import semester_view
 
 
+def redeem_reward_points(request):
+    redemptions = {}
+    try:
+        for key, value in request.POST.items():
+            if key.startswith("points-"):
+                event_id = int(key.rpartition("-")[2])
+                redemptions[event_id] = int(value)
+        previous_redeemed_points = int(request.POST["previous_redeemed_points"])
+    except (ValueError, KeyError, TypeError) as e:
+        raise BadRequest from e
+
+    try:
+        save_redemptions(request, redemptions, previous_redeemed_points)
+        messages.success(request, _("You successfully redeemed your points."))
+    except (NoPointsSelected, NotEnoughPoints, RedemptionEventExpired) as error:
+        messages.warning(request, error)
+        return 400
+    except OutdatedRedemptionData as error:
+        messages.error(request, error)
+        return 409
+    return 200
+
+
 @reward_user_required
 def index(request):
-    # pylint: disable=too-many-locals
     status = 200
     if request.method == "POST":
-        redemptions = {}
-        try:
-            for key, value in request.POST.items():
-                if key.startswith("points-"):
-                    event_id = int(key.rpartition("-")[2])
-                    redemptions[event_id] = int(value)
-        except ValueError as e:
-            raise BadRequest from e
-
-        try:
-            save_redemptions(request, redemptions)
-            messages.success(request, _("You successfully redeemed your points."))
-        except (NoPointsSelected, NotEnoughPoints, RedemptionEventExpired) as error:
-            messages.warning(request, error)
-            status = 400
-
+        status = redeem_reward_points(request)
     total_points_available = reward_points_of_user(request.user)
     reward_point_grantings = RewardPointGranting.objects.filter(user_profile=request.user)
     reward_point_redemptions = RewardPointRedemption.objects.filter(user_profile=request.user)
@@ -65,6 +73,7 @@ def index(request):
     template_data = dict(
         reward_point_actions=reward_point_actions,
         total_points_available=total_points_available,
+        total_points_spent=sum(redemption.value for redemption in reward_point_redemptions),
         events=events,
     )
     return render(request, "rewards_index.html", template_data, status=status)

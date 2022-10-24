@@ -14,6 +14,7 @@ from evap.evaluation.models import Evaluation, Semester, UserProfile
 from evap.rewards.models import (
     NoPointsSelected,
     NotEnoughPoints,
+    OutdatedRedemptionData,
     RedemptionEventExpired,
     RewardPointGranting,
     RewardPointRedemption,
@@ -23,10 +24,19 @@ from evap.rewards.models import (
 
 
 @transaction.atomic
-def save_redemptions(request, redemptions: Dict[int, int]):
+def save_redemptions(request, redemptions: Dict[int, int], previous_redeemed_points: int):
     # lock these rows to prevent race conditions
     list(request.user.reward_point_grantings.select_for_update())
     list(request.user.reward_point_redemptions.select_for_update())
+
+    # check consistent previous redeemed points
+    # do not validate reward points, to allow receiving points after page load
+    if previous_redeemed_points != redeemed_points_of_user(request.user):
+        raise OutdatedRedemptionData(
+            _(
+                "It appears that your browser sent multiple redemption requests. You can see all successful redemptions below."
+            )
+        )
 
     total_points_available = reward_points_of_user(request.user)
     total_points_redeemed = sum(redemptions.values())
@@ -58,6 +68,10 @@ def reward_points_of_user(user):
         count -= redemption.value
 
     return count
+
+
+def redeemed_points_of_user(user):
+    return RewardPointRedemption.objects.filter(user_profile=user).aggregate(Sum("value"))["value__sum"] or 0
 
 
 def is_semester_activated(semester):
