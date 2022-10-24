@@ -5,7 +5,7 @@
 {% block content %}
     {{ block.super }}
 
-    {% include 'staff_message_rendering_template.html' with errors=errors warnings=warnings success_messages=success_messages %}
+    {% include 'staff_message_rendering_template.html' with importer_log=importer_log %}
 
     <div class="row mb-3">
         <div class="col">

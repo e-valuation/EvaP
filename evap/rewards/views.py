@@ -43,6 +43,7 @@ def redeem_reward_points(request):
         messages.success(request, _("You successfully redeemed your points."))
     except (NoPointsSelected, NotEnoughPoints, RedemptionEventExpired) as error:
         messages.warning(request, error)
+        return 400
     except OutdatedRedemptionData as error:
         messages.error(request, error)
         return 409
@@ -74,7 +75,6 @@ def index(request):
         total_points_available=total_points_available,
         total_points_spent=sum(redemption.value for redemption in reward_point_redemptions),
         events=events,
-        point_selection=range(0, total_points_available + 1),
     )
     return render(request, "rewards_index.html", template_data, status=status)
 

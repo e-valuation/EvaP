@@ -1,11 +1,10 @@
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse
+from django.http import FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET, require_POST
-from django_sendfile import sendfile
 
 from evap.evaluation.auth import (
     grade_downloader_required,
@@ -152,7 +151,7 @@ def download_grades(request, grade_document_id):
     if grade_document.course.semester.grade_documents_are_deleted:
         raise PermissionDenied
 
-    return sendfile(request, grade_document.file.path, attachment=True, attachment_filename=grade_document.filename())
+    return FileResponse(grade_document.file.open(), filename=grade_document.filename(), as_attachment=True)
 
 
 @grade_publisher_required

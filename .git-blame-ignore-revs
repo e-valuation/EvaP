@@ -1,2 +1,6 @@
 # run black code formatter
 4e27f4f92663c583b5d00935565b2cdb38a8bccc
+# run prettier on ts/src/ directory
+822b3f38dce85fe3785965f120e5eb1accebd495
+# run prettier on all other typescript files
+02ea57d2c33eb2801414982662acd8582e361d10

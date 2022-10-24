@@ -10,7 +10,7 @@ export class ContactModalLogic {
     private readonly successMessageModal: bootstrap.Modal;
     private readonly actionButtonElement: HTMLButtonElement;
     private readonly messageTextElement: HTMLInputElement;
-    private readonly showButtonElement: HTMLElement;
+    private readonly showButtonElements: Array<HTMLElement>;
     private readonly title: string;
 
     // may be null if anonymous feedback is not enabled
@@ -23,7 +23,7 @@ export class ContactModalLogic {
         this.actionButtonElement = selectOrError("#" + modalId + "ActionButton");
         this.messageTextElement = selectOrError("#" + modalId + "MessageText");
         this.anonymousRadioElement = document.querySelector<HTMLInputElement>("#" + modalId + "AnonymousName");
-        this.showButtonElement = selectOrError("#" + modalId + "ShowButton");
+        this.showButtonElements = Array.from(document.querySelectorAll(`#${modalId}ShowButton, .${modalId}ShowButton`));
     }
 
     public attach = (): void => {
@@ -60,8 +60,10 @@ export class ContactModalLogic {
             this.actionButtonElement.disabled = false;
         });
 
-        this.showButtonElement.addEventListener("click", () => {
-            this.modal.show();
-        });
+        this.showButtonElements.forEach(button =>
+            button.addEventListener("click", () => {
+                this.modal.show();
+            }),
+        );
     };
 }

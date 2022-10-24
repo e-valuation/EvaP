@@ -3,7 +3,6 @@ from typing import Dict
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.db import models, transaction
 from django.db.models import Sum
 from django.dispatch import receiver
@@ -24,7 +23,6 @@ from evap.rewards.models import (
 )
 
 
-@login_required
 @transaction.atomic
 def save_redemptions(request, redemptions: Dict[int, int], previous_redeemed_points: int):
     # lock these rows to prevent race conditions
@@ -96,7 +94,7 @@ def grant_reward_points_if_eligible(user, semester):
         or 0
     )
     progress = float(required_evaluations.filter(voters=user).count()) / float(required_evaluations.count())
-    target_points = max([points for threshold, points in settings.REWARD_POINTS if threshold <= progress], default=0)
+    target_points = max((points for threshold, points in settings.REWARD_POINTS if threshold <= progress), default=0)
     missing_points = target_points - granted_points
 
     if missing_points > 0:

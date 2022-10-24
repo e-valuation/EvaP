@@ -768,7 +768,8 @@ class ContributionFormset(BaseInlineFormSet):
     def __init__(self, data=None, **kwargs):
         data = self.handle_moved_contributors(data, **kwargs)
         super().__init__(data, **kwargs)
-        self.queryset = self.instance.contributions.exclude(contributor=None)
+        if self.instance.pk is not None:
+            self.queryset = self.instance.contributions.exclude(contributor=None)
 
     def handle_deleted_and_added_contributions(self):
         """

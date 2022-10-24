@@ -12,7 +12,7 @@
     {{ block.super }}
     <h3>{% trans 'Import users' %}</h3>
 
-    {% include 'staff_message_rendering_template.html' with errors=errors warnings=warnings success_messages=success_messages %}
+    {% include 'staff_message_rendering_template.html' with importer_log=importer_log %}
 
     <form id="user-import-form" method="POST" enctype="multipart/form-data" class="form-horizontal">
         {% csrf_token %}

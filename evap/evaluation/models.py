@@ -16,7 +16,7 @@ from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
 from django.db.models import Count, Manager, OuterRef, Q, Subquery
-from django.db.models.functions import Coalesce
+from django.db.models.functions import Coalesce, Lower
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
 from django.template.defaultfilters import linebreaksbr
@@ -356,10 +356,7 @@ class Course(LoggedModel):
 
     @cached_property
     def responsibles_names(self):
-        ordered_responsibles = sorted(
-            self.responsibles.all(), key=lambda responsible: (responsible.last_name, responsible.full_name)
-        )
-        return ", ".join([responsible.full_name for responsible in ordered_responsibles])
+        return ", ".join(responsible.full_name for responsible in self.responsibles.all())
 
     @property
     def has_external_responsible(self):
@@ -778,6 +775,9 @@ class Evaluation(LoggedModel):
 
     @cached_property
     def general_contribution(self):
+        if self.pk is None:
+            return None
+
         try:
             return self.contributions.get(contributor=None)
         except Contribution.DoesNotExist:
@@ -1544,7 +1544,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True, verbose_name=_("active"))
 
     class Meta:
-        ordering = ["last_name", "first_name", "email"]
+        ordering = [Lower("last_name"), Lower("first_name"), Lower("email")]
         verbose_name = _("user")
         verbose_name_plural = _("users")
 
@@ -1554,6 +1554,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     objects = UserProfileManager()
 
     def save(self, *args, **kwargs):
+        # This is not guaranteed to be called on every insert. For example, the importers use bulk insertion.
+
         self.email = clean_email(self.email)
         super().save(*args, **kwargs)
 

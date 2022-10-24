@@ -222,6 +222,9 @@ class Command(BaseCommand):
             text_answer.answer = self.lorem(text_answer.answer, lorem_ipsum)
             if text_answer.original_answer:
                 text_answer.original_answer = self.lorem(text_answer.original_answer, lorem_ipsum)
+                # answer and original answer must not be the same (see #1798)
+                if text_answer.answer == text_answer.original_answer:
+                    text_answer.original_answer += " ipsum"
             text_answer.save()
 
         self.stdout.write("Shuffling rating answer counter counts...")

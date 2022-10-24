@@ -65,8 +65,8 @@ class TestIndexView(WebTest):
         form = response.forms["reward-redemption-form"]
         form.set(f"points-{self.event1.pk}", 3)
         form.set(f"points-{self.event2.pk}", 3)
-        response = form.submit()
-        self.assertContains(response, "have enough reward points.")
+        response = form.submit(status=400)
+        self.assertContains(response, "have enough reward points.", status_code=400)
         self.assertEqual(5, reward_points_of_user(self.student))
 
     def test_redeem_points_for_expired_event(self):
@@ -75,8 +75,8 @@ class TestIndexView(WebTest):
         form = response.forms["reward-redemption-form"]
         form.set(f"points-{self.event2.pk}", 1)
         RewardPointRedemptionEvent.objects.update(redeem_end_date=date.today() - timedelta(days=1))
-        response = form.submit()
-        self.assertContains(response, "event expired already.")
+        response = form.submit(status=400)
+        self.assertContains(response, "event expired already.", status_code=400)
         self.assertEqual(5, reward_points_of_user(self.student))
 
     def post_redemption_request(self, redemption_params, additional_params=None, status=200):

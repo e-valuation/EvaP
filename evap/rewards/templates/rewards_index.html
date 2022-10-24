@@ -29,7 +29,7 @@
                                     <th style="width: 20%">{% trans 'Date' %}</th>
                                     <th style="width: 40%">{% trans 'Event' %}</th>
                                     <th style="width: 20%">{% trans 'Available until' %}</th>
-                                    <th style="width: 20%" class="text-end">{% trans 'Redeem points' %}</th>
+                                    <th style="width: 20%">{% trans 'Redeem points' %}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -38,12 +38,8 @@
                                         <td>{{ event.date }}</td>
                                         <td>{{ event.name }}</td>
                                         <td>{{ event.redeem_end_date }}</td>
-                                        <td class="text-end">
-                                            <select class="form-select" id="id_points-{{ event.id }}" name="points-{{ event.id }}" style="width:5em">
-                                                {% for p in point_selection %}
-                                                    <option value="{{ p }}">{{ p }}</option>
-                                                {% endfor %}
-                                            </select>
+                                        <td>
+                                            <input class="form-control" id="id_points-{{ event.id }}" name="points-{{ event.id }}" type="number" value="0" min="0" max="{{ total_points_available }}">
                                         </td>
                                     </tr>
                                 {% endfor %}
