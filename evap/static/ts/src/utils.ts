@@ -32,7 +32,7 @@ export function getCookie(name: string): string | null {
 }
 
 export function setCookie(key: string, value: string): void {
-    document.cookie = key + "=" + value;
+    document.cookie = key + "=" + value + ";SameSite=strict";
 }
 
 export const testable = {
