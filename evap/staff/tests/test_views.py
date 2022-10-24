@@ -2561,7 +2561,7 @@ class TestEvaluationTextAnswerEditView(WebTestStaffMode):
 
         cls.url = reverse(
             "staff:evaluation_textanswer_edit",
-            args=(cls.evaluation.course.semester.pk, cls.evaluation.pk, cls.textanswer.pk),
+            args=(cls.textanswer.pk),
         )
 
     def test_textanswers_showing_up(self):
@@ -3019,8 +3019,8 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         expected_new_decision = old_decision if expected_new_decision == "unchanged" else expected_new_decision
 
         with run_in_staff_mode(self):
-            textanswer = baker.make(TextAnswer, review_decision=old_decision)
-            params = {"answer_id": textanswer.id, "action": action, "evaluation_id": self.evaluation.pk}
+            textanswer = baker.make(TextAnswer, contribution__evaluation=self.evaluation, review_decision=old_decision)
+            params = {"answer_id": textanswer.id, "action": action}
             response = self.app.post(self.url, params=params, user=self.manager, status=status)
 
             textanswer.refresh_from_db()

@@ -31,7 +31,6 @@ urlpatterns = [
     path("semester/<int:semester_id>/evaluation/<int:evaluation_id>/person_management", views.evaluation_person_management, name="evaluation_person_management"),
     path("semester/<int:semester_id>/evaluation/<int:evaluation_id>/login_key_export", views.evaluation_login_key_export, name="evaluation_login_key_export"),
     path("semester/<int:semester_id>/evaluation/<int:evaluation_id>/textanswers", views.evaluation_textanswers, name="evaluation_textanswers"),
-    path("semester/<int:semester_id>/evaluation/<int:evaluation_id>/textanswer/<uuid:textanswer_id>/edit", views.evaluation_textanswer_edit, name="evaluation_textanswer_edit"),
     path("semester/<int:semester_id>/evaluationoperation", views.semester_evaluation_operation, name="semester_evaluation_operation"),
     path("semester/<int:semester_id>/singleresult/create", views.single_result_create, name="single_result_create"),
     path("semester/<int:semester_id>/singleresult/create/<int:course_id>", views.single_result_create, name="single_result_create"),
@@ -45,6 +44,7 @@ urlpatterns = [
     path("semester/evaluation_delete", views.evaluation_delete, name="evaluation_delete"),
     path("semester/make_active", views.semester_make_active, name="semester_make_active"),
 
+    path("textanswer/<uuid:textanswer_id>/edit", views.evaluation_textanswer_edit, name="evaluation_textanswer_edit"),
     path("textanswers/update_publish", views.evaluation_textanswers_update_publish, name="evaluation_textanswers_update_publish"),
     path("textanswers/skip", views.evaluation_textanswers_skip, name="evaluation_textanswers_skip"),
 

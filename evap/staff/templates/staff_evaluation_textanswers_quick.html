@@ -34,8 +34,6 @@
     <form method="POST" action="{% url 'staff:evaluation_textanswers_update_publish' %}" id="textanswer-update-form">
         {% csrf_token %}
 
-        <input type="hidden" name="evaluation_id" value="{{ evaluation.id }}" />
-
         <div class="card card-outline-primary slider">
             <div class="card-header">
                 {% trans 'Text answers' %}
