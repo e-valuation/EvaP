@@ -17,8 +17,9 @@ import {
     isVisible,
     saneParseInt,
     selectOrError,
-    CSRF_HEADERS,
 } from "./utils.js";
+
+import { CSRF_HEADERS } from "./csrf-utils.js";
 
 type SubmitterElement = HTMLInputElement | HTMLButtonElement;
 type SlideDirection = "left" | "right";
