@@ -52,7 +52,9 @@ def add_participants_to(
                 len(users_to_add),
             ).format(user_count=len(users_to_add), name=evaluation.full_name)
 
-        msg = format_html("{message}: {list}", message=message, list=create_user_list_html_string_for_message(users_to_add))
+        msg = format_html(
+            "{message}: {list}", message=message, list=create_user_list_html_string_for_message(users_to_add)
+        )
 
     importer_log.add_success(msg)
 
@@ -98,7 +100,9 @@ def add_contributors_to(
                 "{user_count} contributors would be added to the evaluation {name}",
                 len(users_to_add),
             ).format(user_count=len(users_to_add), name=evaluation.full_name)
-        msg = format_html("{message}: {list}", message=message, list=create_user_list_html_string_for_message(users_to_add))
+        msg = format_html(
+            "{message}: {list}", message=message, list=create_user_list_html_string_for_message(users_to_add)
+        )
     importer_log.add_success(msg)
 
 
