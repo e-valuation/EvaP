@@ -33,10 +33,9 @@ def add_participants_to(
 
     if len(users_to_add) == 0:
         if test_run:
-            msg = format_html(_("No participants would be added to the evaluation {}"), evaluation.full_name)
+            msg = format_html(_("No participants would be added to the evaluation {}."), evaluation.full_name)
         else:
-            msg = format_html(_("No participants added to the evaluation {}"), evaluation.full_name)
-
+            msg = format_html(_("No participants added to the evaluation {}."), evaluation.full_name)
     else:
         if not test_run:
             evaluation.participants.add(*users_to_add)

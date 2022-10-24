@@ -35,7 +35,7 @@ from .user import (
 )
 
 
-def make_count_word(count):
+def make_count_word(count: int) -> str:
     return pgettext("count", "no") if count == 0 else str(count)
 
 @dataclass
@@ -650,15 +650,23 @@ def import_enrollments(
         if test_run:
             importer_log.add_success(_("The test run showed no errors. No data was imported yet."))
             msg = format_html(
-                _("The import run will create {evaluation_string} and {user_string}:{users}"),
+                _("The import run will create {evaluation_string} and {user_string}"),
                 evaluation_string=ngettext(
                     "one course/evaluation", "{count} courses/evaluations", new_course_count
                 ).format(count=make_count_word(new_course_count)),
                 user_string=ngettext("one user", "{count} users", len(new_user_profiles)).format(
                     count=make_count_word(len(new_user_profiles))
                 ),
-                users=create_user_list_html_string_for_message(new_user_profiles),
             )
+            if new_user_profiles:
+                msg = format_html(
+                    "{msg}: {list}",
+                    msg=msg,
+                    list=create_user_list_html_string_for_message(new_user_profiles),
+                )
+            else:
+                msg = format_html("{msg}.", msg=msg)
+
             importer_log.add_success(msg)
         else:
             assert vote_start_datetime is not None, "Import-run requires vote_start_datetime"
@@ -684,6 +692,8 @@ def import_enrollments(
                 msg = format_html(
                     "{msg}: {list}", msg=msg, list=create_user_list_html_string_for_message(new_user_profiles)
                 )
+            else:
+                msg = format_html("{msg}.", msg=msg)
 
             importer_log.add_success(msg)
 
