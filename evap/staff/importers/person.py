@@ -33,20 +33,20 @@ def add_participants_to(
 
     if len(users_to_add) == 0:
         if test_run:
-            msg = format_html(_("No participants would be added to the evaluation {}."), evaluation.full_name)
+            msg = format_html(_("0 participants would be added to the evaluation {}."), evaluation.full_name)
         else:
-            msg = format_html(_("No participants added to the evaluation {}."), evaluation.full_name)
+            msg = format_html(_("0 participants added to the evaluation {}."), evaluation.full_name)
     else:
         if not test_run:
             evaluation.participants.add(*users_to_add)
             message = ngettext(
-                "One participant added to the evaluation {name}",
+                "1 participant added to the evaluation {name}",
                 "{user_count} participants added to the evaluation {name}",
                 len(users_to_add),
             ).format(user_count=len(users_to_add), name=evaluation.full_name)
         else:
             message = ngettext(
-                "One participant would be added to the evaluation {name}",
+                "1 participant would be added to the evaluation {name}",
                 "{user_count} participants would be added to the evaluation {name}",
                 len(users_to_add),
             ).format(user_count=len(users_to_add), name=evaluation.full_name)
@@ -79,23 +79,23 @@ def add_contributors_to(
 
     if len(users_to_add) == 0:
         if test_run:
-            msg = format_html(_("No contributors would be added to the evaluation {}."), evaluation.full_name)
+            msg = format_html(_("0 contributors would be added to the evaluation {}."), evaluation.full_name)
         else:
-            msg = format_html(_("No contributors added to the evaluation {}."), evaluation.full_name)
+            msg = format_html(_("0 contributors added to the evaluation {}."), evaluation.full_name)
     else:
         if not test_run:
             for user in users_to_add:
                 order = Contribution.objects.filter(evaluation=evaluation).count()
                 Contribution.objects.create(evaluation=evaluation, contributor=user, order=order)
             message = ngettext(
-                "One contributor added to the evaluation {name}",
+                "1 contributor added to the evaluation {name}",
                 "{user_count} contributors added to the evaluation {name}",
                 len(users_to_add),
             ).format(user_count=len(users_to_add), name=evaluation.full_name)
 
         else:
             message = ngettext(
-                "One contributor would be added to the evaluation {name}",
+                "1 contributor would be added to the evaluation {name}",
                 "{user_count} contributors would be added to the evaluation {name}",
                 len(users_to_add),
             ).format(user_count=len(users_to_add), name=evaluation.full_name)

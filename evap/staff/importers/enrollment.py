@@ -652,10 +652,10 @@ def import_enrollments(
             msg = format_html(
                 _("The import run will create {evaluation_string} and {user_string}"),
                 evaluation_string=ngettext(
-                    "one course/evaluation", "{count} courses/evaluations", new_course_count
-                ).format(count=make_count_word(new_course_count)),
-                user_string=ngettext("one user", "{count} users", len(new_user_profiles)).format(
-                    count=make_count_word(len(new_user_profiles))
+                    "1 course/evaluation", "{count} courses/evaluations", new_course_count
+                ).format(count=str(new_course_count)),
+                user_string=ngettext("1 user", "{count} users", len(new_user_profiles)).format(
+                    count=str(len(new_user_profiles))
                 ),
             )
             if new_user_profiles:
@@ -678,13 +678,13 @@ def import_enrollments(
             msg = format_html(
                 _("Successfully created {evaluation_string}, {participant_string} and {contributor_string}"),
                 evaluation_string=ngettext(
-                    "one course/evaluation", "{count} courses/evaluations", new_course_count
-                ).format(count=make_count_word(new_course_count)),
-                participant_string=ngettext("one participant", "{count} participants", new_participants_count).format(
-                    count=make_count_word(new_participants_count)
+                    "1 course/evaluation", "{count} courses/evaluations", new_course_count
+                ).format(count=str(new_course_count)),
+                participant_string=ngettext("1 participant", "{count} participants", new_participants_count).format(
+                    count=str(new_participants_count)
                 ),
-                contributor_string=ngettext("one contributor", "{count} contributors", new_responsibles_count).format(
-                    count=make_count_word(new_responsibles_count)
+                contributor_string=ngettext("1 contributor", "{count} contributors", new_responsibles_count).format(
+                    count=str(new_responsibles_count)
                 ),
             )
 
