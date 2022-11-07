@@ -1527,7 +1527,7 @@ def evaluation_textanswers_skip(request):
     return HttpResponse()
 
 
-def check_textanswer_review_permissions(evaluation: Evaluation) -> None:
+def assert_textanswer_review_permissions(evaluation: Evaluation) -> None:
     if evaluation.state == Evaluation.State.PUBLISHED:
         raise PermissionDenied
     if evaluation.course.semester.results_are_archived:
@@ -1543,7 +1543,7 @@ def evaluation_textanswers_update_publish(request):
     evaluation = answer.contribution.evaluation
     action = request.POST.get("action", None)
 
-    check_textanswer_review_permissions(evaluation)
+    assert_textanswer_review_permissions(evaluation)
 
     if action == "textanswer_edit":
         return redirect("staff:evaluation_textanswer_edit", answer.pk)
@@ -1575,7 +1575,7 @@ def evaluation_textanswers_update_publish(request):
 def evaluation_textanswer_edit(request, textanswer_id):
     textanswer = get_object_or_404(TextAnswer, id=textanswer_id)
     evaluation = textanswer.contribution.evaluation
-    check_textanswer_review_permissions(evaluation)
+    assert_textanswer_review_permissions(evaluation)
 
     form = TextAnswerForm(request.POST or None, instance=textanswer)
 
