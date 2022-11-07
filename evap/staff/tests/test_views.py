@@ -2561,7 +2561,7 @@ class TestEvaluationTextAnswerEditView(WebTestStaffMode):
 
         cls.url = reverse(
             "staff:evaluation_textanswer_edit",
-            args=(cls.textanswer.pk),
+            args=[cls.textanswer.pk],
         )
 
     def test_textanswers_showing_up(self):
@@ -3045,7 +3045,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
             TextAnswer.ReviewDecision.UNDECIDED,
             status=302,
         )
-        self.assertRegex(response.location, r"/staff/semester/\d+/evaluation/\d+/textanswer/[0-9a-f\-]+/edit$")
+        self.assertRegex(response.location, r"/staff/textanswer/[0-9a-f\-]+/edit$")
 
     def test_invalid_action(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation)
