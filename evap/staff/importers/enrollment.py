@@ -7,7 +7,7 @@ from django.conf import settings
 from django.db import transaction
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext as _
-from django.utils.translation import ngettext, pgettext
+from django.utils.translation import ngettext
 from typing_extensions import TypeGuard
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
