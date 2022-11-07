@@ -111,7 +111,11 @@ class ImportForm(forms.Form):
 class UserImportForm(forms.Form):
     use_required_attribute = False
 
-    excel_file = forms.FileField(label=_("Excel file"), required=False)
+    excel_file = forms.FileField(
+        label=_("Excel file"),
+        required=False,
+        widget=forms.FileInput(attrs={"accept": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),
+    )
 
 
 class EvaluationParticipantCopyForm(forms.Form):
