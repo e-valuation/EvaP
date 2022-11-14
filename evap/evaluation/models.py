@@ -1526,8 +1526,13 @@ class Infotext(models.Model):
     content_en = models.TextField(verbose_name=_("content (english)"), blank=True)
     content = translate(en="content_en", de="content_de")
 
+    class LinkedPage(models.TextChoices):
+        STUDENT_INDEX = ("SI", "Student index page")
+        CONTRIBUTOR_INDEX = ("CI", "Contributor index page")
+        GRADES_OVERVIEW = ("GO", "Grades overview page")
+
     linked_page = models.CharField(
-        choices=[("SI", "Student index page"), ("CI", "Contributor index page"), ("GO", "Grades overview page")],
+        choices=LinkedPage.choices,
         verbose_name="linked page for the infotext to be visible on",
         max_length=2,
     )

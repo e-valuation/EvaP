@@ -1,6 +1,9 @@
 {% extends 'grades_base.html' %}
 
 {% block content %}
+
+    {% include 'infotext.html' %}
+
     <h3>{% trans 'Semesters' %}</h3>
     <div class="card mb-3">
         <div class="card-body">
@@ -15,4 +18,8 @@
             {% endif %}
         </div>
     </div>
+{% endblock %}
+
+{% block additional_javascript %}
+    {% include 'infobox_js.html' with id=infotext.linked_page %}
 {% endblock %}

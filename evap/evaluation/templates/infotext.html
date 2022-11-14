@@ -1,0 +1,13 @@
+{% if infotext.title and infotext.content %}
+    <div id="{{ infotext.linked_page }}" class="callout callout-info callout-closable">
+        <div class="callout-header d-flex">
+            <span class="fas fa-circle-info callout-icon"></span>
+            <span>{{ infotext.title }}</span>
+            <button type="button" class="btn-close callout-closable-close ms-auto" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+        </div>
+        <div class="callout-content small">
+            {{ infotext.content|safe }}
+        </div>
+    </div>
+{% endif %}
