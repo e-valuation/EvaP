@@ -1224,7 +1224,6 @@ BipolarChoices = NamedTuple(
     ],
 )
 
-
 NO_ANSWER = 6
 BASE_UNIPOLAR_CHOICES = {
     "css_class": "vote-type-unipolar",
@@ -1518,13 +1517,19 @@ class FaqQuestion(models.Model):
 class Infotext(models.Model):
     """Infotext to display at the student index and contributor index pages"""
 
-    title_de = models.CharField(max_length=255, verbose_name=_("title (german)"))
-    title_en = models.CharField(max_length=255, verbose_name=_("title (english)"))
-    title = translate(en="title_en", de="title_de")
+    title_de = models.CharField(max_length=255, verbose_name=_("title (german)"), blank=True)
+    title_en = models.CharField(max_length=255, verbose_name=_("title (english)"), blank=True)
+    title = translate(en="title_en", de="title_de", blank=True)
 
-    content_de = models.TextField(verbose_name=_("content (german)"))
-    content_en = models.TextField(verbose_name=_("content (english)"))
+    content_de = models.TextField(verbose_name=_("content (german)"), blank=True)
+    content_en = models.TextField(verbose_name=_("content (english)"), blank=True)
     content = translate(en="content_en", de="content_de")
+
+    linked_page = models.CharField(
+        choices=[('SI', 'Student index page'), ('CI', 'Contributor index page'), ('GO', 'Grades overview page')],
+        verbose_name="linked page for the infotext to be visible on",
+        max_length=2,
+    )
 
     class Meta:
         verbose_name = _("infotext")

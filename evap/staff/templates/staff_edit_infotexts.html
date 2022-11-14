@@ -20,17 +20,17 @@
 
 
                     <h6 style="grid-column: 1/-1; text-align: center">
-                        {% trans 'Student index infotext' %}
+                        {% trans 'ABC' %}
                     </h6>
 
                     <div>
-                        {% include 'bootstrap_form_field_widget.html' with field=student_infotext_form.title_de %}
-                        {% include 'bootstrap_form_field_widget.html' with field=student_infotext_form.content_de %}
+                        {% include 'bootstrap_form_field_widget.html' with field=infotext.title_de %}
+                        {% include 'bootstrap_form_field_widget.html' with field=infotext.content_de %}
                     </div>
 
                     <div>
-                        {% include 'bootstrap_form_field_widget.html' with field=student_infotext_form.title_en %}
-                        {% include 'bootstrap_form_field_widget.html' with field=student_infotext_form.content_en %}
+                        {% include 'bootstrap_form_field_widget.html' with field=infotext.title_en %}
+                        {% include 'bootstrap_form_field_widget.html' with field=infotext.content_en %}
                     </div>
 
 
@@ -46,7 +46,6 @@
                     {% include 'bootstrap_form_field_widget.html' with field=contributor_infotext_form.content_en %}
                 </div>-->
 
-
                 <table id="question_table" class="table">
                     <thead>
                     <tr>
@@ -55,37 +54,29 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <td colspan="2" style="font-weight: bold; border-bottom-width: 0" class="text-center pb-0 pt-2">
-                            {% trans 'Student index infotext' %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            {% include 'bootstrap_form_field_widget.html' with field=student_infotext_form.title_de %}
-                            {% include 'bootstrap_form_field_widget.html' with field=student_infotext_form.content_de %}
-                        </td>
-                        <td>
-                            {% include 'bootstrap_form_field_widget.html' with field=student_infotext_form.title_en %}
-                            {% include 'bootstrap_form_field_widget.html' with field=student_infotext_form.content_en %}
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td colspan="2" style="font-weight: bold; border-bottom-width: 0" class="text-center pb-0 pt-2">
-                            {% trans 'Contributor index infotext' %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            {% include 'bootstrap_form_field_widget.html' with field=contributor_infotext_form.title_de %}
-                            {% include 'bootstrap_form_field_widget.html' with field=contributor_infotext_form.content_de %}
-                        </td>
-                        <td>
-                            {% include 'bootstrap_form_field_widget.html' with field=contributor_infotext_form.title_en %}
-                            {% include 'bootstrap_form_field_widget.html' with field=contributor_infotext_form.content_en %}
-                        </td>
-                    </tr>
+                    {% for form in forms %}
+                        {% for hidden in form.hidden_fields %}
+                            {{ hidden }}
+                        {% endfor %}
+                        <tr>
+                            <td colspan="2" style="font-weight: bold; border-bottom-width: 0"
+                                class="text-center pb-0 pt-3">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                {% include 'bootstrap_form_field_widget.html' with field=form.title_de %}
+                                {% include 'bootstrap_form_field_widget.html' with field=form.content_de %}
+                            </td>
+                            <td>
+                                {% include 'bootstrap_form_field_widget.html' with field=form.title_en %}
+                                {% include 'bootstrap_form_field_widget.html' with field=form.content_en %}
+                            </td>
+                            <td>
+                                {% include 'bootstrap_form_field_widget.html' with field=form.linked_page %}
+                            </td>
+                        </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>

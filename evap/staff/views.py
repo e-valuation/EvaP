@@ -42,6 +42,7 @@ from evap.evaluation.models import (
     Semester,
     TextAnswer,
     UserProfile,
+    Infotext,
 )
 from evap.evaluation.tools import (
     AttachmentResponse,
@@ -260,7 +261,7 @@ class EvaluationOperation:
 
     @staticmethod
     def apply(
-        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
+            request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
     ):
         raise NotImplementedError
 
@@ -282,7 +283,7 @@ class RevertToNewOperation(EvaluationOperation):
 
     @staticmethod
     def apply(
-        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
+            request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
     ):
         assert email_template_contributor is None
         assert email_template_participant is None
@@ -318,7 +319,7 @@ class ReadyForEditorsOperation(EvaluationOperation):
 
     @staticmethod
     def apply(
-        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
+            request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
     ):
         assert email_template_contributor is None
         assert email_template_participant is None
@@ -374,7 +375,7 @@ class BeginEvaluationOperation(EvaluationOperation):
 
     @staticmethod
     def apply(
-        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
+            request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
     ):
         assert email_template_contributor is None
         assert email_template_participant is None
@@ -412,7 +413,7 @@ class UnpublishOperation(EvaluationOperation):
 
     @staticmethod
     def apply(
-        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
+            request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
     ):
         assert email_template_contributor is None
         assert email_template_participant is None
@@ -447,7 +448,7 @@ class PublishOperation(EvaluationOperation):
 
     @staticmethod
     def apply(
-        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
+            request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
     ):
         assert email_template is None
 
@@ -551,8 +552,8 @@ def semester_evaluation_operation(request, semester_id):
         "email_template_contributor": email_template_contributor,
         "email_template_participant": email_template_participant,
         "show_email_checkbox": email_template is not None
-        or email_template_contributor is not None
-        or email_template_participant is not None,
+                            or email_template_contributor is not None
+                            or email_template_participant is not None,
     }
 
     return render(request, "staff_evaluation_operation.html", template_data)
@@ -1191,8 +1192,8 @@ def helper_evaluation_edit(request, semester, evaluation):
             raise SuspiciousOperation("Modifying this evaluation is not allowed.")
 
         if (
-            Evaluation.State.EVALUATED <= evaluation.state <= Evaluation.State.REVIEWED
-            and evaluation.is_in_evaluation_period
+                Evaluation.State.EVALUATED <= evaluation.state <= Evaluation.State.REVIEWED
+                and evaluation.is_in_evaluation_period
         ):
             evaluation.reopen_evaluation()
 
@@ -1333,16 +1334,16 @@ def evaluation_person_management(request, semester_id, evaluation_id):
     if request.method == "POST":
         operation = request.POST.get("operation")
         if operation not in (
-            "test-participants",
-            "import-participants",
-            "copy-participants",
-            "import-replace-participants",
-            "copy-replace-participants",
-            "test-contributors",
-            "import-contributors",
-            "copy-contributors",
-            "import-replace-contributors",
-            "copy-replace-contributors",
+                "test-participants",
+                "import-participants",
+                "copy-participants",
+                "import-replace-participants",
+                "copy-replace-participants",
+                "test-contributors",
+                "import-contributors",
+                "copy-contributors",
+                "import-replace-contributors",
+                "copy-replace-contributors",
         ):
             raise SuspiciousOperation("Invalid POST operation")
 
@@ -1581,9 +1582,9 @@ def evaluation_textanswer_edit(request, textanswer_id):
         form.save()
         # jump to edited answer
         url = (
-            reverse("staff:evaluation_textanswers", args=[evaluation.course.semester.id, evaluation.id])
-            + "#"
-            + str(textanswer.id)
+                reverse("staff:evaluation_textanswers", args=[evaluation.course.semester.id, evaluation.id])
+                + "#"
+                + str(textanswer.id)
         )
         return HttpResponseRedirect(url)
 
@@ -2279,12 +2280,21 @@ def faq_section(request, section_id):
 
 @manager_required
 def edit_infotexts(request):
-    student_form = InfotextForm()
-    contributor_form = InfotextForm()
+    # forms: Dict[str, InfotextForm] = {}
+
+    InfoTextFormSet = modelformset_factory(Infotext, form=InfotextForm, extra=0)
+
+    formset = InfoTextFormSet(request.POST or None, queryset=Infotext.objects.all())
+
+    if formset.is_valid():
+        formset.save()
+        messages.success(request, _("Successfully updated the FAQ questions."))
+        return redirect("staff:faq_index")
+
     return render(
         request,
         "staff_edit_infotexts.html",
-        dict(student_infotext_form=student_form, contributor_infotext_form=contributor_form),
+        dict(forms=formset),
     )
 
 
