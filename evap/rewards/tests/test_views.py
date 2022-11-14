@@ -69,6 +69,14 @@ class TestIndexView(WebTest):
         self.assertContains(response, "have enough reward points.", status_code=400)
         self.assertEqual(5, reward_points_of_user(self.student))
 
+    def test_redeem_zero_points(self):
+        response = self.app.get(self.url, user=self.student)
+        form = response.forms["reward-redemption-form"]
+        form.set(f"points-{self.event1.pk}", 0)
+        response = form.submit(status=400)
+        self.assertContains(response, "cannot redeem 0 points.", status_code=400)
+        self.assertEqual(5, reward_points_of_user(self.student))
+
     def test_redeem_points_for_expired_event(self):
         """Regression test for #846"""
         response = self.app.get(self.url, user=self.student)

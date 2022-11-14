@@ -45,15 +45,15 @@ def redeem_reward_points(request):
         error_string = ""
         status_code = 400
         if isinstance(error, NoPointsSelected):
-            error_string = "You cannot redeem 0 points."
+            error_string = _("You cannot redeem 0 points.")
         elif isinstance(error, NotEnoughPoints):
-            error_string = "You don't have enough reward points."
+            error_string = _("You don't have enough reward points.")
         elif isinstance(error, RedemptionEventExpired):
-            error_string = "Sorry, the deadline for this event expired already."
+            error_string = _("Sorry, the deadline for this event expired already.")
         elif isinstance(error, OutdatedRedemptionData):
             status_code = 409
-            error_string = "It appears that your browser sent multiple redemption requests. You can see all successful redemptions below."
-        messages.warning(request, _(error_string))
+            error_string = _("It appears that your browser sent multiple redemption requests. You can see all successful redemptions below.")
+        messages.warning(request, error_string)
         return status_code
     return 200
 
