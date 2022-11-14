@@ -52,7 +52,9 @@ def redeem_reward_points(request):
             error_string = _("Sorry, the deadline for this event expired already.")
         elif isinstance(error, OutdatedRedemptionData):
             status_code = 409
-            error_string = _("It appears that your browser sent multiple redemption requests. You can see all successful redemptions below.")
+            error_string = _(
+                "It appears that your browser sent multiple redemption requests. You can see all successful redemptions below."
+            )
         messages.warning(request, error_string)
         return status_code
     return 200
