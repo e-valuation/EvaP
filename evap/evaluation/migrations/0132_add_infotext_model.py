@@ -79,11 +79,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Infotext',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, verbose_name='ID')),
-                ('title_de', models.CharField(max_length=255, verbose_name='title (german)')),
-                ('title_en', models.CharField(max_length=255, verbose_name='title (english)')),
-                ('content_de', models.TextField(verbose_name='content (german)')),
-                ('content_en', models.TextField(verbose_name='content (english)')),
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('title_de', models.CharField(max_length=255, blank=True, verbose_name='title (german)')),
+                ('title_en', models.CharField(max_length=255, blank=True, verbose_name='title (english)')),
+                ('content_de', models.TextField(blank=True, verbose_name='content (german)')),
+                ('content_en', models.TextField(blank=True, verbose_name='content (english)')),
                 ('linked_page', models.CharField(choices=[('SI', 'Student index page'), ('CI', 'Contributor index page'), ('GO', 'Grades overview page')], max_length=2, unique=True, null=False, blank=False, verbose_name='linked page for the infotext to be visible on')),
             ],
             options={

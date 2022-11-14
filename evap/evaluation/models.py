@@ -1224,7 +1224,6 @@ BipolarChoices = NamedTuple(
     ],
 )
 
-
 NO_ANSWER = 6
 BASE_UNIPOLAR_CHOICES = {
     "css_class": "vote-type-unipolar",
@@ -1535,6 +1534,9 @@ class Infotext(models.Model):
         choices=LinkedPage.choices,
         verbose_name="linked page for the infotext to be visible on",
         max_length=2,
+        unique=True,
+        null=False,
+        blank=False,
     )
 
     class Meta:
