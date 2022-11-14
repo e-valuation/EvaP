@@ -1,3 +1,4 @@
+from copy import deepcopy
 from datetime import date, datetime
 from unittest.mock import patch
 
@@ -693,6 +694,60 @@ class TestEnrollmentImport(TestCase):
         with patch("evap.staff.importers.user.UserDataMismatchChecker.check_userdata") as mock:
             import_enrollments(excel_content, self.semester, None, None, test_run=True)
             self.assertGreater(mock.call_count, 50)
+
+    def test_duplicate_participation(self):
+        input_data = deepcopy(excel_data.test_enrollment_data_filedata)
+        # create a duplicate participation by duplicating a line
+        input_data["MA Belegungen"].append(input_data["MA Belegungen"][1])
+        excel_content = excel_data.create_memory_excel_file(input_data)
+
+        importer_log = import_enrollments(excel_content, self.semester, None, None, test_run=True)
+        self.assertEqual(importer_log.errors_by_category(), {})
+        self.assertEqual(importer_log.warnings_by_category(), {})
+
+        old_user_count = UserProfile.objects.all().count()
+
+        importer_log = import_enrollments(
+            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+        )
+        self.assertEqual(importer_log.errors_by_category(), {})
+        self.assertEqual(importer_log.warnings_by_category(), {})
+
+        self.assertEqual(Evaluation.objects.all().count(), 23)
+        expected_user_count = old_user_count + 23
+        self.assertEqual(UserProfile.objects.all().count(), expected_user_count)
+
+    def test_existing_participation(self):
+        _, existing_evaluation = self.create_existing_course()
+        user = baker.make(
+            UserProfile, first_name="Lucilia", last_name="Manilium", email="lucilia.manilium@institution.example.com"
+        )
+        existing_evaluation.participants.add(user)
+
+        importer_log = import_enrollments(self.default_excel_content, self.semester, None, None, test_run=True)
+
+        expected_warnings = ["Course Shake: 1 participants from the import file already participate in the evaluation."]
+        self.assertEqual(
+            [
+                msg.message
+                for msg in importer_log.warnings_by_category()[ImporterLogEntry.Category.ALREADY_PARTICIPATING]
+            ],
+            expected_warnings,
+        )
+        self.assertFalse(importer_log.has_errors())
+
+        importer_log = import_enrollments(
+            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+        )
+
+        self.assertEqual(
+            [
+                msg.message
+                for msg in importer_log.warnings_by_category()[ImporterLogEntry.Category.ALREADY_PARTICIPATING]
+            ],
+            expected_warnings,
+        )
+        self.assertFalse(importer_log.has_errors())
 
 
 class TestPersonImport(TestCase):

@@ -41,10 +41,11 @@ class ImporterLogEntry:
         DUPL = _CATEGORY_TUPLE("duplicate", gettext_lazy("Possible duplicates"), 9)
         EXISTS = _CATEGORY_TUPLE("existing", gettext_lazy("Existing courses"), 10)
         IGNORED = _CATEGORY_TUPLE("ignored", gettext_lazy("Ignored duplicates"), 11)
+        ALREADY_PARTICIPATING = _CATEGORY_TUPLE("already_participating", gettext_lazy("Existing participants"), 12)
 
-        DEGREE = _CATEGORY_TUPLE("degree", gettext_lazy("Degree mismatches"), 12)
+        DEGREE = _CATEGORY_TUPLE("degree", gettext_lazy("Degree mismatches"), 13)
         TOO_MANY_ENROLLMENTS = _CATEGORY_TUPLE(
-            "too_many_enrollments", gettext_lazy("Unusually high number of enrollments"), 13
+            "too_many_enrollments", gettext_lazy("Unusually high number of enrollments"), 14
         )
 
     level: Level
