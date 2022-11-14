@@ -476,7 +476,7 @@ class TestEnrollmentImport(TestCase):
             [msg.message for msg in importer_log_test.errors_by_category()[ImporterLogEntry.Category.COURSE]],
             [
                 'Sheet "MA Belegungen", row 18: The German name for course "Bought" is already used for another course in the import file.',
-                'Sheet "MA Belegungen", row 20: The data of course "Cost" differs from its data in a previous row.',
+                'Sheet "MA Belegungen", row 20: The data of course "Cost" differs from its data in the columns (responsible_email) in a previous row.',
             ],
         )
         self.assertEqual(

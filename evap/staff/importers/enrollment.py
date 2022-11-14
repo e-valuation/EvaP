@@ -63,11 +63,8 @@ class CourseData:
         self.name_en = self.name_en.strip()
         self.responsible_email = clean_email(self.responsible_email)
 
-    def equals_when_ignoring_degrees(self, other) -> bool:
-        def key(data):
-            return (data.name_de, data.name_en, data.course_type, data.is_graded, data.responsible_email)
-
-        return key(self) == key(other)
+    def differing_fields(self, other) -> Set[str]:
+        return {field.name for field in fields(self) if getattr(self, field.name) != getattr(other, field.name)}
 
 
 class ValidCourseData(CourseData):
@@ -537,15 +534,19 @@ class CourseDataMismatchChecker(Checker):
         stored = self.course_data_by_name_en.setdefault(course_data.name_en, course_data)
 
         # degrees would be merged if course data is equal otherwise.
-        if not course_data.equals_when_ignoring_degrees(stored):
-            self.tracker.add_location_for_key(location, course_data.name_en)
+        differing_fields = course_data.differing_fields(stored) - {"degrees"}
+        if differing_fields:
+            self.tracker.add_location_for_key(location, (course_data.name_en, tuple(differing_fields)))
 
     def finalize(self) -> None:
-        for key, location_string in self.tracker.aggregated_keys_and_location_strings():
+        for (course_name, differing_fields), location_string in self.tracker.aggregated_keys_and_location_strings():
             self.importer_log.add_error(
-                _('{location}: The data of course "{name}" differs from its data in a previous row.').format(
+                _(
+                    '{location}: The data of course "{name}" differs from its data in the columns ({columns}) in a previous row.'
+                ).format(
                     location=location_string,
-                    name=key,
+                    name=course_name,
+                    columns=", ".join(differing_fields),
                 ),
                 category=ImporterLogEntry.Category.COURSE,
             )
@@ -683,7 +684,7 @@ def normalize_rows(
 
         assert all_fields_valid(row.course_data)
         course_data = course_data_by_name_en.setdefault(row.course_data.name_en, row.course_data)
-        assert course_data.equals_when_ignoring_degrees(row.course_data)
+        assert course_data.differing_fields(row.course_data) <= {"degrees"}
 
         # Not a checker to keep merging and notifying about the merge together.
         if not row.course_data.degrees.issubset(course_data.degrees):
