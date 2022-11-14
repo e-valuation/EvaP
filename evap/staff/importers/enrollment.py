@@ -688,7 +688,7 @@ def import_enrollments(
                 ),
             )
 
-            if new_participants_count or new_responsibles_count:
+            if new_user_profiles:
                 msg = format_html(
                     "{msg}: {list}", msg=msg, list=create_user_list_html_string_for_message(new_user_profiles)
                 )
