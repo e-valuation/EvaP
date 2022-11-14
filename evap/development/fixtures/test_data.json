@@ -108057,6 +108057,39 @@
   }
 },
 {
+  "model": "evaluation.infotext",
+  "pk": 1,
+  "fields": {
+    "title_de": "Informationen für Mitwirkende",
+    "title_en": "Information for contributors",
+    "content_de": "<b>Stellvertretende</b><br>\nLehrende können Stellvertretende definieren, die ihnen bei der Vorbereitung der Evaluierung helfen.\n<a href=\"/profile\">Sie können Stellvertretende auf Ihrer Einstellungsseite definieren.</a><br>\nEvaluierungen von Lehrenden, von denen Sie als Stellvertreter·in definiert wurden, sind unten mit einem Label markiert.<br>\n<em>Mehr Infos: <a href=\"/faq#faq-15-q\">FAQ/Stellvertretende</a></em><br>\n<br>\n<b>Zustand der Evaluierungen</b><br>\nSie können nur Evaluierungen im Zustand \"vorbereitet\" bearbeiten. Nachdem Sie eine Evaluierung bestätigt haben, wechselt diese automatisch in den Zustand \"von Bearbeiter·in bestätigt\" und Ihre Vorbereitung ist abgeschlossen.<br>\n<em>Mehr Infos: <a href=\"/faq#faq-18-q\">FAQ/Zustände</a></em><br>\n<br>\n<b>Evaluierungs-Ergebnisse</b><br>\nTextantworten werden den bewerteten Personen und den Verantwortlichen der Veranstaltung angezeigt. Antworten auf Abstimmungsfragen werden für alle Nutzer·innen der Plattform veröffentlicht, wenn mindestens zwei Personen an der Evaluierung teilgenommen haben. Durchschnittsnoten werden berechnet, wenn die Teilnahmequote mindestens 20 Prozent beträgt.<br>\n<em>Mehr Infos: <a href=\"/faq#faq-3-s\">FAQ/Ergebnisse</a></em>",
+    "content_en": "<b>Delegates</b><br>\nLecturers can assign delegates to help them with the preparation of the evaluation.\n<a href=\"/profile\">You can assign your own delegates on your profile page.</a><br>\nEvaluations from lecturers who set you as a delegate are marked with a label below.<br>\n<em>More details: <a href=\"/faq#faq-15-q\">FAQ/Delegates</a></em><br>\n<br>\n<b>States of the evaluations</b><br>\nYou can only edit evaluations which are in the state \"prepared\". After you approved an evaluation it will automatically change to the state \"editor approved\" and your preparation is finished.<br>\n<em>More details: <a href=\"/faq#faq-18-q\">FAQ/States</a></em><br>\n<br>\n<b>Evaluation Results</b><br>\nText answers will be shown to the people who were evaluated and to the people responsible for the course. Voting answers will be published for all users of the platform if at least two people participated in the evaluation. The average grade is calculated if the participation rate is at least 20 percent.<br>\n<em>More details: <a href=\"/faq#faq-3-s\">FAQ/Results</a></em>",
+    "linked_page": "CI"
+  }
+},
+{
+  "model": "evaluation.infotext",
+  "pk": 2,
+  "fields": {
+    "title_de": "Informationen zur Evaluierung",
+    "title_en": "Information about the evaluation",
+    "content_de": "<b>Anonymität</b><br>\nDeine abgegebenen Stimmen und Textantworten können dir technisch nicht zugeordnet werden. Dir sollte aber bewusst sein, dass dich Mitwirkende insbesondere in kleinen Veranstaltungen an deinem Schreibstil erkennen könnten.<br>\n<em>Mehr Infos: <a href=\"/faq#faq-21-q\">FAQ/Anonymität</a></em><br>\n<br>\n<b>Verweise auf andere Antworten</b><br>\nLehrende können sich keine kompletten Fragebögen ansehen. Wenn du in einer Textantwort schreibst \"wie oben schon erwähnt\", können sie die zugehörige Antwort nicht finden.<br>\n<em>Mehr Infos: <a href=\"/faq#faq-24-q\">FAQ/Verweise</a></em><br>\n<br>\n<b>Evaluierungs-Ergebnisse</b><br>\nTextantworten werden den bewerteten Personen und den Verantwortlichen der Veranstaltung angezeigt. Antworten auf Abstimmungsfragen werden für alle Nutzer·innen der Plattform veröffentlicht, wenn mindestens zwei Personen an der Evaluierung teilgenommen haben. Durchschnittsnoten werden berechnet, wenn die Teilnahmequote mindestens 20 Prozent beträgt.<br>\n<em>Mehr Infos: <a href=\"/faq#faq-3-s\">FAQ/Ergebnisse</a></em>",
+    "content_en": "<b>Anonymity</b><br>\nYour votes and text answers can't be related to you. But you should be aware that your style of writing might allow lecturers to guess who wrote the text answer, especially in small courses.<br>\n<em>More details: <a href=\"/faq#faq-21-q\">FAQ/Anonymity</a></em><br>\n<br>\n<b>References to other answers</b><br>\nLecturers can't see completed questionnaires as a whole. If you would write \"see above\", the lecturer can't find the respective answer.<br>\n<em>More details: <a href=\"/faq#faq-24-q\">FAQ/Reference</a></em><br>\n<br>\n<b>Evaluation Results</b><br>\nText answers will be shown to the people who were evaluated and to the people responsible for the course. Voting answers will be published for all users of the platform if at least two people participated in the evaluation. The average grade is calculated if the participation rate is at least 20 percent.<br>\n<em>More details: <a href=\"/faq#faq-3-s\">FAQ/Results</a></em>",
+    "linked_page": "SI"
+  }
+},
+{
+  "model": "evaluation.infotext",
+  "pk": 3,
+  "fields": {
+    "title_de": "",
+    "title_en": "",
+    "content_de": "",
+    "content_en": "",
+    "linked_page": "GO"
+  }
+},
+{
   "model": "evaluation.userprofile",
   "fields": {
     "password": "pbkdf2_sha256$12000$lRV0h1V7qLSK$pKzYyUhT7l65JxoIv7Du3btUHYzfGCZ81JFtbF9ymOY=",

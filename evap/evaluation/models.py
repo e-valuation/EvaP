@@ -1224,6 +1224,7 @@ BipolarChoices = NamedTuple(
     ],
 )
 
+
 NO_ANSWER = 6
 BASE_UNIPOLAR_CHOICES = {
     "css_class": "vote-type-unipolar",
@@ -1526,7 +1527,7 @@ class Infotext(models.Model):
     content = translate(en="content_en", de="content_de")
 
     linked_page = models.CharField(
-        choices=[('SI', 'Student index page'), ('CI', 'Contributor index page'), ('GO', 'Grades overview page')],
+        choices=[("SI", "Student index page"), ("CI", "Contributor index page"), ("GO", "Grades overview page")],
         verbose_name="linked page for the infotext to be visible on",
         max_length=2,
     )

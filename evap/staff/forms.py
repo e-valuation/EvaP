@@ -1067,7 +1067,7 @@ class FaqQuestionForm(forms.ModelForm):
 class InfotextForm(forms.ModelForm):
     class Meta:
         model = Infotext
-        fields = ("title_de", "title_en", "content_de", "content_en", "linked_page")
+        fields = ("title_de", "title_en", "content_de", "content_en")
 
 
 class TextAnswerForm(forms.ModelForm):

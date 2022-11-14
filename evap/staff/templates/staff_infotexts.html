@@ -10,42 +10,9 @@
 
     <form method="POST" class="form-horizontal" enctype="multipart/form-data">
         {% csrf_token %}
-
+        {{ formset.management_form }}
         <div class="card mb-3">
             <div class="card-body">
-                <!-- Grid approach
-                <div style="display: grid; grid-template-columns: 50% 50%">
-                    <h5 class="text-center">{% trans 'Title/Content (German)' %}</h5>
-                    <h5 class="text-center">{% trans 'Title/Content (English)' %}</h5>
-
-
-                    <h6 style="grid-column: 1/-1; text-align: center">
-                        {% trans 'ABC' %}
-                    </h6>
-
-                    <div>
-                        {% include 'bootstrap_form_field_widget.html' with field=infotext.title_de %}
-                        {% include 'bootstrap_form_field_widget.html' with field=infotext.content_de %}
-                    </div>
-
-                    <div>
-                        {% include 'bootstrap_form_field_widget.html' with field=infotext.title_en %}
-                        {% include 'bootstrap_form_field_widget.html' with field=infotext.content_en %}
-                    </div>
-
-
-                    <h6 style="grid-column: 1/-1" class="text-center">
-                        {% trans 'Contributor index infotext' %}
-                    </h6>
-
-
-                    {% include 'bootstrap_form_field_widget.html' with field=contributor_infotext_form.title_de %}
-                    {% include 'bootstrap_form_field_widget.html' with field=contributor_infotext_form.title_en %}
-
-                    {% include 'bootstrap_form_field_widget.html' with field=contributor_infotext_form.content_de %}
-                    {% include 'bootstrap_form_field_widget.html' with field=contributor_infotext_form.content_en %}
-                </div>-->
-
                 <table id="question_table" class="table">
                     <thead>
                     <tr>
@@ -54,7 +21,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for form in forms %}
+                    {% for form in formset %}
                         {% for hidden in form.hidden_fields %}
                             {{ hidden }}
                         {% endfor %}
@@ -71,9 +38,6 @@
                             <td>
                                 {% include 'bootstrap_form_field_widget.html' with field=form.title_en %}
                                 {% include 'bootstrap_form_field_widget.html' with field=form.content_en %}
-                            </td>
-                            <td>
-                                {% include 'bootstrap_form_field_widget.html' with field=form.linked_page %}
                             </td>
                         </tr>
                     {% endfor %}
