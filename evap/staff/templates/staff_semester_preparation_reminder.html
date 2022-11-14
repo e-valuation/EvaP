@@ -49,7 +49,7 @@
                                     {% with approval_state_values=evaluation.state|approval_state_values %}
                                         <span class="{{ approval_state_values.icon }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ approval_state_values.description }}"></span>
                                     {% endwith %}
-                                    <a href="{% url 'staff:evaluation_edit' semester.id evaluation.id %}">{{ evaluation.full_name }}</a><br />
+                                    <a href="{% url 'staff:evaluation_edit' evaluation.id %}">{{ evaluation.full_name }}</a><br />
                                     {% include 'evaluation_badges.html' with mode='manager' %}
                                 </th>
                                 <td>{% include 'staff_evaluation_evaluation_period.html' with state=evaluation.state start_only=True %}</td>
