@@ -1,6 +1,8 @@
+from collections import abc
 from gettext import ngettext
 from typing import Iterable
 
+from django.utils import safestring
 from django.utils.html import format_html
 
 from evap.evaluation.models import Contribution, Evaluation, UserProfile
@@ -8,6 +10,16 @@ from evap.staff.tools import ImportType, create_user_list_html_string_for_messag
 
 from .base import ImporterLog
 from .user import import_users
+
+
+def append_user_list(message: str, user_profiles: abc.Collection) -> safestring.SafeString:
+    if not user_profiles:
+        return format_html("{message}.", message=message)
+    return format_html(
+        "{message}: {list}",
+        message=message,
+        list=create_user_list_html_string_for_message(user_profiles),
+    )
 
 
 def add_participants_to(
@@ -44,7 +56,7 @@ def add_participants_to(
             len(users_to_add),
         ).format(user_count=len(users_to_add), name=evaluation.full_name)
 
-    msg = format_html("{message}: {list}", message=message, list=create_user_list_html_string_for_message(users_to_add))
+    msg = append_user_list(message, users_to_add)
 
     importer_log.add_success(msg)
 
@@ -84,7 +96,7 @@ def add_contributors_to(
             "{user_count} contributors would be added to the evaluation {name}",
             len(users_to_add),
         ).format(user_count=len(users_to_add), name=evaluation.full_name)
-    msg = format_html("{message}: {list}", message=message, list=create_user_list_html_string_for_message(users_to_add))
+    msg = append_user_list(message, users_to_add)
     importer_log.add_success(msg)
 
 

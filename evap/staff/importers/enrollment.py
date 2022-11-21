@@ -1,10 +1,11 @@
-from collections import defaultdict
+from collections import abc, defaultdict
 from dataclasses import dataclass, fields
 from datetime import date, datetime
 from typing import DefaultDict, Dict, Iterable, List, Optional, Set, Tuple, TypeVar, Union
 
 from django.conf import settings
 from django.db import transaction
+from django.utils import safestring
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
@@ -605,6 +606,16 @@ class CourseDataAdapter(RowCheckerMixin):
         self.course_data_checker.finalize()
 
 
+def append_user_list(message: str, user_profiles: abc.Collection) -> safestring.SafeString:
+    if not user_profiles:
+        return format_html("{message}.", message=message)
+    return format_html(
+        "{message}: {list}",
+        message=message,
+        list=create_user_list_html_string_for_message(user_profiles),
+    )
+
+
 @transaction.atomic
 def import_enrollments(
     excel_content: bytes,
@@ -658,16 +669,7 @@ def import_enrollments(
                     count=str(len(new_user_profiles))
                 ),
             )
-            if new_user_profiles:
-                msg = format_html(
-                    "{msg}: {list}",
-                    msg=msg,
-                    list=create_user_list_html_string_for_message(new_user_profiles),
-                )
-            else:
-                msg = format_html("{msg}.", msg=msg)
 
-            importer_log.add_success(msg)
         else:
             assert vote_start_datetime is not None, "Import-run requires vote_start_datetime"
             assert vote_end_date is not None, "Import-run requires vote_end-date"
@@ -679,23 +681,17 @@ def import_enrollments(
                 _("Successfully created {evaluation_string}, {participant_string} and {contributor_string}"),
                 evaluation_string=ngettext(
                     "1 course/evaluation", "{count} courses/evaluations", new_course_count
-                ).format(count=str(new_course_count)),
+                ).format(count=new_course_count),
                 participant_string=ngettext("1 participant", "{count} participants", new_participants_count).format(
-                    count=str(new_participants_count)
+                    count=new_participants_count
                 ),
                 contributor_string=ngettext("1 contributor", "{count} contributors", new_responsibles_count).format(
                     count=str(new_responsibles_count)
                 ),
             )
 
-            if new_user_profiles:
-                msg = format_html(
-                    "{msg}: {list}", msg=msg, list=create_user_list_html_string_for_message(new_user_profiles)
-                )
-            else:
-                msg = format_html("{msg}.", msg=msg)
-
-            importer_log.add_success(msg)
+        msg = append_user_list(msg, new_user_profiles)
+        importer_log.add_success(msg)
 
     return importer_log
 
