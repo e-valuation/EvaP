@@ -34,7 +34,9 @@ from .user import (
 )
 
 
+@dataclass
 class InvalidValue:
+    # We make this a dataclass to make sure all instances compare equal.
     pass
 
 
