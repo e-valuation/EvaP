@@ -42,7 +42,6 @@ def redeem_reward_points(request):
         save_redemptions(request, redemptions, previous_redeemed_points)
         messages.success(request, _("You successfully redeemed your points."))
     except (NoPointsSelected, NotEnoughPoints, RedemptionEventExpired, OutdatedRedemptionData) as error:
-        error_string = ""
         status_code = 400
         if isinstance(error, NoPointsSelected):
             error_string = _("You cannot redeem 0 points.")

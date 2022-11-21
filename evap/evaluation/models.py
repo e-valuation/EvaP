@@ -15,7 +15,7 @@ from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
-from django.db.models import Count, Manager, OuterRef, Q, Subquery
+from django.db.models import Count, Manager, OuterRef, Q, Subquery, CheckConstraint
 from django.db.models.functions import Coalesce, Lower
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
