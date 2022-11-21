@@ -348,6 +348,10 @@ class TestSendRemindersCommand(TestCase):
             management.call_command("send_reminders")
 
         self.assertEqual(mock.call_count, 1)
+        self.assertEqual(
+            mock.call_args_list[0][0][2].get("evaluation_url_tuples"),
+            [(evaluation, f'{settings.PAGE_URL}/staff/semester/21/evaluation/{evaluation.id}/textanswers')]
+        )
 
 
 class TestLintCommand(TestCase):

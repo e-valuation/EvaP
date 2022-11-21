@@ -874,21 +874,6 @@ class TestSendReminderView(WebTestStaffMode):
         self.assertIn("uiae", mail.outbox[0].body)
 
 
-class TestSendReviewReminderTemplate(WebTestStaffMode):
-    @classmethod
-    def setUpTestData(cls):
-        cls.manager = make_manager()
-        cls.evaluation = baker.make(Evaluation, state=Evaluation.State.EVALUATED)
-
-    @patch("evap.evaluation.models.Template.render")
-    def test_form(self, template_mock):
-        evaluation_url_tuples = [(self.evaluation, "http://example.com/evaluation/42")]
-
-        EmailTemplate.send_textanswer_reminder_to_user(self.manager, evaluation_url_tuples)
-        last_render = template_mock.call_args_list[-1]
-        self.assertEqual(evaluation_url_tuples, last_render.args[0].get("evaluation_url_tuples"))
-
-
 class TestSemesterArchiveParticipationsView(WebTestStaffMode):
     csrf_checks = False
     url = reverse("staff:semester_archive_participations")
