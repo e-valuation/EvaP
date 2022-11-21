@@ -1667,6 +1667,18 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     is_active = models.BooleanField(default=True, verbose_name=_("active"))
 
+    class StartPage(models.TextChoices):
+        UNDEFINED = "UN", _("undefined")
+        STUDENT = "ST", _("student")
+        CONTRIBUTOR = "CO", _("contributor")
+
+    startpage = models.CharField(
+        max_length=2,
+        choices=StartPage.choices,
+        verbose_name=_("start page of the user"),
+        default=StartPage.UNDEFINED,
+    )
+
     class Meta:
         # keep in sync with ordering_key
         ordering = [
@@ -1826,6 +1838,10 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     @cached_property
     def is_responsible_or_contributor_or_delegate(self):
         return self.is_responsible or self.is_contributor or self.is_delegate
+
+    @cached_property
+    def show_startpage_button(self):
+        return self.is_student and self.is_responsible_or_contributor_or_delegate
 
     @property
     def is_external(self):
