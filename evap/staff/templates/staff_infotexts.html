@@ -16,8 +16,8 @@
                 <table class="table">
                     <thead>
                     <tr>
-                        <th style="width: 45%">{% trans 'Title/Content (German)' %}</th>
-                        <th style="width: 45%">{% trans 'Title/Content (English)' %}</th>
+                        <th>{% trans 'Title/Content (German)' %}</th>
+                        <th>{% trans 'Title/Content (English)' %}</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -26,8 +26,8 @@
                             {{ hidden }}
                         {% endfor %}
                         <tr>
-                            <td colspan="2" style="font-weight: bold; border-bottom-width: 0"
-                                class="text-center pb-0 pt-3">
+                            <td colspan="2"
+                                class="spanning-title-row">
                                 {% trans form.instance.get_linked_page_display %}
                             </td>
                         </tr>

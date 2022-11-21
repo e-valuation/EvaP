@@ -111,7 +111,7 @@ def index(request):
         "can_download_grades": request.user.can_download_grades,
         "unfinished_evaluations": unfinished_evaluations,
         "evaluation_end_warning_period": settings.EVALUATION_END_WARNING_PERIOD,
-        "infotext": Infotext.objects.filter(linked_page=Infotext.Page.STUDENT_INDEX).first(),
+        "infotext": Infotext.objects.get(linked_page=Infotext.Page.STUDENT_INDEX),
     }
 
     return render(request, "student_index.html", template_data)

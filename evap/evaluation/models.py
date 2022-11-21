@@ -1515,7 +1515,7 @@ class FaqQuestion(models.Model):
 
 
 class Infotext(models.Model):
-    """Infotext to display at the student index and contributor index pages"""
+    """Infotext to display, e.g. at the student index and contributor index pages"""
 
     title_de = models.CharField(max_length=255, verbose_name=_("title (german)"), blank=True)
     title_en = models.CharField(max_length=255, verbose_name=_("title (english)"), blank=True)
@@ -1528,7 +1528,7 @@ class Infotext(models.Model):
     class LinkedPage(models.TextChoices):
         STUDENT_INDEX = ("student_index", "Student index page")
         CONTRIBUTOR_INDEX = ("contributor_index", "Contributor index page")
-        GRADES_PAGES = ("grades_pages", "Grades pages")
+        GRADES_PAGES = ("grades_pages", "Grades publishing pages")
 
     linked_page = models.CharField(
         choices=LinkedPage.choices,

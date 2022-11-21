@@ -130,3 +130,11 @@ tr.evaluation-row:not(.heading-row) {
 .table-headerless tr:last-child td {
     border-bottom-width: 0;
 }
+
+tr .spanning-title-row {
+    font-weight: bold;
+    border-bottom-width: 0;
+    padding-top: 1rem;
+    padding-bottom: 0;
+    text-align: center;
+}
