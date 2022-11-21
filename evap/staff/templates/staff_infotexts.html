@@ -8,12 +8,12 @@
 {% block content %}
     {{ block.super }}
 
-    <form method="POST" class="form-horizontal" enctype="multipart/form-data">
+    <form method="POST" class="form-horizontal" enctype="multipart/form-data" id="infotext-formset">
         {% csrf_token %}
         {{ formset.management_form }}
         <div class="card mb-3">
             <div class="card-body">
-                <table id="question_table" class="table">
+                <table class="table">
                     <thead>
                     <tr>
                         <th style="width: 45%">{% trans 'Title/Content (German)' %}</th>
@@ -28,6 +28,7 @@
                         <tr>
                             <td colspan="2" style="font-weight: bold; border-bottom-width: 0"
                                 class="text-center pb-0 pt-3">
+                                {% trans form.instance.get_linked_page_display %}
                             </td>
                         </tr>
                         <tr>

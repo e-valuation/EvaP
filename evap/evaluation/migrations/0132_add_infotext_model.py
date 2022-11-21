@@ -1,7 +1,10 @@
 from django.db import migrations, models
-
+from evap.evaluation.models import Infotext
 
 def create_infotexts(apps, _schema_editor):
+    infotext = apps.get_model("evaluation", "Infotext")
+
+
     infotexts = [
         (
             "Information for contributors",
@@ -30,7 +33,7 @@ Sie können nur Evaluierungen im Zustand "vorbereitet" bearbeiten. Nachdem Sie e
 <b>Evaluierungs-Ergebnisse</b><br>
 Textantworten werden den bewerteten Personen und den Verantwortlichen der Veranstaltung angezeigt. Antworten auf Abstimmungsfragen werden für alle Nutzer·innen der Plattform veröffentlicht, wenn mindestens zwei Personen an der Evaluierung teilgenommen haben. Durchschnittsnoten werden berechnet, wenn die Teilnahmequote mindestens 20 Prozent beträgt.<br>
 <em>Mehr Infos: <a href="/faq#faq-3-s">FAQ/Ergebnisse</a></em>""",
-            "CI",
+            Infotext.LinkedPage.CONTRIBUTOR_INDEX,
         ),
         (
             "Information about the evaluation",
@@ -57,15 +60,13 @@ Lehrende können sich keine kompletten Fragebögen ansehen. Wenn du in einer Tex
 <b>Evaluierungs-Ergebnisse</b><br>
 Textantworten werden den bewerteten Personen und den Verantwortlichen der Veranstaltung angezeigt. Antworten auf Abstimmungsfragen werden für alle Nutzer·innen der Plattform veröffentlicht, wenn mindestens zwei Personen an der Evaluierung teilgenommen haben. Durchschnittsnoten werden berechnet, wenn die Teilnahmequote mindestens 20 Prozent beträgt.<br>
 <em>Mehr Infos: <a href="/faq#faq-3-s">FAQ/Ergebnisse</a></em>""",
-            "SI",
+            Infotext.LinkedPage.STUDENT_INDEX,
         ),
-        ("", "", "", "", "GO"),
+        ("", "", "", "", Infotext.LinkedPage.GRADES_PAGES),
     ]
 
-    Infotext = apps.get_model("evaluation", "Infotext")
-
     for title_en, title_de, content_en, content_de, linked_page in infotexts:
-        Infotext.objects.create(title_en=title_en, title_de=title_de, content_en=content_en, content_de=content_de,
+        infotext.objects.create(title_en=title_en, title_de=title_de, content_en=content_en, content_de=content_de,
                                 linked_page=linked_page)
 
 
@@ -84,7 +85,7 @@ class Migration(migrations.Migration):
                 ('title_en', models.CharField(max_length=255, blank=True, verbose_name='title (english)')),
                 ('content_de', models.TextField(blank=True, verbose_name='content (german)')),
                 ('content_en', models.TextField(blank=True, verbose_name='content (english)')),
-                ('linked_page', models.CharField(choices=[('SI', 'Student index page'), ('CI', 'Contributor index page'), ('GO', 'Grades overview page')], max_length=2, unique=True, null=False, blank=False, verbose_name='linked page for the infotext to be visible on')),
+                ('linked_page', models.CharField(choices=[('student_index', 'Student index page'), ('contributor_index', 'Contributor index page'), ('grades_pages', 'Grades pages')], max_length=30, unique=True, null=False, blank=False, verbose_name='linked page for the infotext to be visible on')),
             ],
             options={
                 'verbose_name': 'infotext',

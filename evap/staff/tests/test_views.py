@@ -26,6 +26,7 @@ from evap.evaluation.models import (
     EmailTemplate,
     Evaluation,
     FaqQuestion,
+    Infotext,
     Question,
     Questionnaire,
     RatingAnswerCounter,
@@ -144,6 +145,22 @@ class TestStaffInfotextEditView(WebTestStaffModeWith200Check):
     def setUpTestData(cls):
         cls.test_users = [make_manager()]
         cls.url = "/staff/infotexts/"
+
+    def test_infotext_edit(self):
+        page = self.app.get(self.url, user=self.test_users[0])
+        formset = page.forms["infotext-formset"]
+        formset["form-0-content_de"] = "sample text abc"
+        formset["form-0-content_en"] = "sample text def"
+        formset["form-0-title_de"] = "sample text hij"
+        formset["form-0-title_en"] = "sample text klm"
+        form_id = formset["form-0-id"]
+        formset.submit()
+
+        infotext = Infotext.objects.get(id=form_id.value)
+        self.assertEqual(infotext.content_de, "sample text abc")
+        self.assertEqual(infotext.content_en, "sample text def")
+        self.assertEqual(infotext.title_de, "sample text hij")
+        self.assertEqual(infotext.title_en, "sample text klm")
 
 
 class TestUserIndexView(WebTestStaffMode):

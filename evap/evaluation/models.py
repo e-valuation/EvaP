@@ -1526,14 +1526,14 @@ class Infotext(models.Model):
     content = translate(en="content_en", de="content_de")
 
     class LinkedPage(models.TextChoices):
-        STUDENT_INDEX = ("SI", "Student index page")
-        CONTRIBUTOR_INDEX = ("CI", "Contributor index page")
-        GRADES_OVERVIEW = ("GO", "Grades overview page")
+        STUDENT_INDEX = ("student_index", "Student index page")
+        CONTRIBUTOR_INDEX = ("contributor_index", "Contributor index page")
+        GRADES_PAGES = ("grades_pages", "Grades pages")
 
     linked_page = models.CharField(
         choices=LinkedPage.choices,
         verbose_name="linked page for the infotext to be visible on",
-        max_length=2,
+        max_length=30,
         unique=True,
         null=False,
         blank=False,

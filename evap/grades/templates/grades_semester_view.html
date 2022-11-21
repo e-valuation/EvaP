@@ -122,6 +122,8 @@
 {% endblock %}
 
 {% block additional_javascript %}
+    {{ block.super }}
+
     <script type="module">
         import {TableGrid} from "{% static 'js/datagrid.js' %}";
         const table = document.querySelector(".grade-course-table");
