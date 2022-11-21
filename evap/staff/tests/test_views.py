@@ -143,7 +143,7 @@ class TestStaffInfotextEditView(WebTestStaffModeWith200Check):
     @classmethod
     def setUpTestData(cls):
         cls.test_users = [make_manager()]
-        cls.url = f"/staff/infotexts/"
+        cls.url = "/staff/infotexts/"
 
 
 class TestUserIndexView(WebTestStaffMode):
