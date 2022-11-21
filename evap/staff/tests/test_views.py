@@ -139,6 +139,13 @@ class TestStaffFAQEditView(WebTestStaffModeWith200Check):
         cls.url = f"/staff/faq/{faq_question.section.pk}"
 
 
+class TestStaffInfotextEditView(WebTestStaffModeWith200Check):
+    @classmethod
+    def setUpTestData(cls):
+        cls.test_users = [make_manager()]
+        cls.url = f"/staff/infotexts/"
+
+
 class TestUserIndexView(WebTestStaffMode):
     url = "/staff/user/"
 
