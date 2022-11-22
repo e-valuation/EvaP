@@ -1528,7 +1528,7 @@ class Infotext(models.Model):
     class LinkedPage(models.TextChoices):
         STUDENT_INDEX = ("student_index", "Student index page")
         CONTRIBUTOR_INDEX = ("contributor_index", "Contributor index page")
-        GRADES_PAGES = ("grades_pages", "Grades publishing pages")
+        GRADES_PAGES = ("grades_pages", "Grade publishing pages")
 
     linked_page = models.CharField(
         choices=LinkedPage.choices,
