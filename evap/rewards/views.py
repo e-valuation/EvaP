@@ -54,7 +54,7 @@ def redeem_reward_points(request):
             error_string = _(
                 "It appears that your browser sent multiple redemption requests. You can see all successful redemptions below."
             )
-        messages.warning(request, error_string)
+        messages.error(request, error_string)
         return status_code
     return 200
 
