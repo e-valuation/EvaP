@@ -15,7 +15,7 @@ from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
-from django.db.models import Count, Manager, OuterRef, Q, Subquery
+from django.db.models import CheckConstraint, Count, Manager, OuterRef, Q, Subquery
 from django.db.models.functions import Coalesce, Lower
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
@@ -1525,6 +1525,9 @@ class Infotext(models.Model):
     content_en = models.TextField(verbose_name=_("content (english)"), blank=True)
     content = translate(en="content_en", de="content_de")
 
+    def empty(self):
+        return not self.title or not self.content
+
     class LinkedPage(models.TextChoices):
         STUDENT_INDEX = ("student_index", "Student index page")
         CONTRIBUTOR_INDEX = ("contributor_index", "Contributor index page")
@@ -1542,6 +1545,15 @@ class Infotext(models.Model):
     class Meta:
         verbose_name = _("infotext")
         verbose_name_plural = _("infotexts")
+
+        constraints = (
+            CheckConstraint(
+                name="infotexts_not_half_empty",
+                violation_error_message="Please supply either all or no fields for an infotext.",
+                check=Q(title_de="", content_de="", title_en="", content_en="")
+                | ~Q(title_de="", content_de="", title_en="", content_en="", _connector=Q.OR),
+            ),
+        )
 
 
 class UserProfileManager(BaseUserManager):

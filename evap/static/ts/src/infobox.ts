@@ -25,12 +25,12 @@ export class InfoboxLogic {
             setTimeout(() => {
                 this.infobox.classList.replace("closing", "closed");
             }, OPEN_CLOSE_TIMEOUT);
-            event.stopPropagation();
+            event.stopPropagation(); // prevent immediate reopening
             localStorage[this.storageKey] = "hide";
         });
 
         // open the infobox and save state
-        this.infobox.addEventListener("click", async event => {
+        this.infobox.addEventListener("click", async _ => {
             if (this.infobox.className.includes("closed")) {
                 this.infobox.classList.replace("closed", "opening");
                 setTimeout(() => {

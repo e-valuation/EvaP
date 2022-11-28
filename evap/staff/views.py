@@ -2280,13 +2280,15 @@ def faq_section(request, section_id):
 
 @manager_required
 def infotexts(request):
-    InfoTextFormSet = modelformset_factory(Infotext, form=InfotextForm, extra=0)
+    InfoTextFormSet = modelformset_factory(Infotext, form=InfotextForm, edit_only=True, extra=0)
     formset = InfoTextFormSet(request.POST or None, queryset=Infotext.objects.all())
 
     if formset.is_valid():
         formset.save()
         messages.success(request, _("Successfully updated the infotext entries."))
         return redirect("staff:infotexts")
+    elif formset.errors:
+        messages.error(request, _("Please supply either all or no fields for an infotext."))
 
     return render(
         request,

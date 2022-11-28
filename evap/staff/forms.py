@@ -1069,6 +1069,14 @@ class InfotextForm(forms.ModelForm):
         model = Infotext
         fields = ("title_de", "title_en", "content_de", "content_en")
 
+    def validate_unique(self):
+        super().validate_unique()
+        # if not all(cleaned_data.values()) and any(cleaned_data.values()):
+        if self.errors:
+            for field in self.fields:
+                if not self.cleaned_data.get(field):
+                    self.add_error(field, "")
+
 
 class TextAnswerForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
