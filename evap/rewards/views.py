@@ -137,10 +137,12 @@ def reward_point_redemption_event_export(request, event_id):
     return response
 
 
+@require_POST
 @manager_required
-def semester_activation(request, semester_id, active):
+def semester_activation_edit(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    active = active == "on"
+    status = request.POST.get("activation_status")
+    active = status == "on"
 
     SemesterActivation.objects.update_or_create(semester=semester, defaults={"is_active": active})
     if active:

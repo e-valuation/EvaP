@@ -4,8 +4,12 @@
 {% load evaluation_filters %}
 
 {% block content %}
-    {{ block.super }}
 
+    {{ block.super }}
+    <form id="form_activation_status" method="post" action="{% url 'rewards:semester_activation_edit' semester.id%}">
+        <input type="hidden" id="activation_status" name="activation_status">
+        {% csrf_token %}
+    </form>
     <h3>
         {{ semester.name }}
         {% if request.user.is_manager %}
@@ -549,23 +553,15 @@
     {% trans 'Activate reward points' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='activateRewardPointsModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
-        function activateRewardPointsModalAction(dataId) {
-            $.ajax({
-                type: "POST",
-                url: "{% url 'rewards:semester_activation' semester.id 'on' %}",
-                data: {},
-                success: function(){ location.reload(); },
-                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
-            });
+        function setRewardPointActivationStatus(status) {
+            document.getElementById("activation_status").value = status;
+            document.getElementById("form_activation_status").submit();
+        }
+        function activateRewardPointsModalAction() {
+            setRewardPointActivationStatus("on");
         };
         function deactivateRewardPoints() {
-            $.ajax({
-                type: "POST",
-                url: "{% url 'rewards:semester_activation' semester.id 'off' %}",
-                data: {},
-                success: function(){ location.reload(); },
-                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
-            });
+            setRewardPointActivationStatus("off");
         }
     </script>
 {% endblock %}
