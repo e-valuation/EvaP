@@ -205,21 +205,30 @@ class TestSemesterActivationView(WebTestStaffMode):
             course=course,
         )
 
-        cls.url = f"/rewards/reward_semester_activation/{cls.semester.pk}/"
+        cls.url = f"/rewards/reward_semester_activation/{cls.semester.pk}/edit"
 
     def test_activate(self):
         baker.make(SemesterActivation, semester=self.semester, is_active=False)
-        self.app.post(self.url + "on", user=self.manager)
+        response = self.app.post(self.url, user=self.manager)
+        form = response.forms["form_activation_status"]
+        form.set("activation_status", "on")
+        form.submit()
         self.assertTrue(is_semester_activated(self.semester))
 
     def test_deactivate(self):
         baker.make(SemesterActivation, semester=self.semester, is_active=True)
-        self.app.post(self.url + "off", user=self.manager)
+        response = self.app.post(self.url, user=self.manager)
+        form = response.forms["form_activation_status"]
+        form.set("activation_status", "off")
+        form.submit()
         self.assertFalse(is_semester_activated(self.semester))
 
     def test_activate_after_voting(self):
         baker.make(SemesterActivation, semester=self.semester, is_active=False)
         self.assertEqual(0, reward_points_of_user(self.student))
-        response = self.app.post(self.url + "on", user=self.manager)
+        response = self.app.post(self.url, user=self.manager)
+        form = response.forms["form_activation_status"]
+        form.set("activation_status", "on")
+        response = form.submit()
         self.assertContains(response, "3 reward points were granted")
         self.assertEqual(3, reward_points_of_user(self.student))
