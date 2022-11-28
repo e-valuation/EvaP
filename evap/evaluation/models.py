@@ -1549,7 +1549,7 @@ class Infotext(models.Model):
         constraints = (
             CheckConstraint(
                 name="infotexts_not_half_empty",
-                violation_error_message="Please supply either all or no fields for an infotext.",
+                violation_error_message="Please supply either all or no fields for this infotext.",
                 check=Q(title_de="", content_de="", title_en="", content_en="")
                 | ~Q(title_de="", content_de="", title_en="", content_en="", _connector=Q.OR),
             ),

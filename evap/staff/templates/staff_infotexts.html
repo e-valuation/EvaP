@@ -31,6 +31,15 @@
                                 {% trans form.instance.get_linked_page_display %}
                             </td>
                         </tr>
+
+                        {% for error in form.non_field_errors %}
+                            <tr>
+                                <td colspan="2">
+                                        <span class="error-label">{{ error|escape }}</span>{% if not forloop.last %}<br />{% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+
                         <tr>
                             <td>
                                 {% include 'bootstrap_form_field_widget.html' with field=form.title_de %}
