@@ -59,7 +59,7 @@ invalid_enrollment_data_filedata = {
         ['Master', 'Synephebos', 'Diam', 'diam.synephebos@institution.example.com', 'Seminar', 'no', 'Kaufen', 'Buy', 'Dr.', 'Romano', 'Electram', '111@external.example.com'],
         ['Master', 'Synephebos', 'Diam', '', 'Seminar', 'no', 'Zerplatzen', 'Burst', 'Dr.', 'Sadipscing', 'Elitr', '234@external.example.com'],
         ['Diploma', 'Synephebos', 'Diam', 'diam.synephebos@institution.example.com', 'Vorlesung', 'yes', 'Schneiden', 'Cut', 'Dr.', 'Sic', 'Graecis', '890@external.example.com'],
-        ['Master', 'Synephebos', 'Diam', 'diam.synephebos@institution.example.com', 'Seminar', 'no', 'Kommen', 'Come', 'Prof. Dr.', 'Takimata', 'Labore', '678@internal.example.com'],
+        ['Bachelor', 'Synephebos', 'Diam', 'diam.synephebos@institution.example.com', 'Seminar', 'no', 'Kommen', 'Come', 'Prof. Dr.', 'Takimata', 'Labore', '678@internal.example.com'],
         ['Master', 'Synephebos', 'Diam', 'diam.synephebos@institution.example.com', 'Seminar', 'no', 'Kosten', 'Cost', 'Dr.', 'Aliquyam', 'Sanctus', ''],
         ['Master', 'Synephebos', 'Diam', 'diam.synephebos@institution.example.com', 'Praktikum', 'no', 'Wählen', 'Choose', 'Prof. Dr.', 'Dolor', 'Sit', 'asd@external.example.com'],
         ['Master', 'Lorem', 'Ipsum', 'ipsum.lorem@institution.example.com', 'Vorlesung', 'no', 'Schlagen', 'Beat', 'Prof. Dr.', 'Amet', 'Consetetur', '123@external.example.com'],
@@ -153,7 +153,7 @@ test_enrollment_data_error_merge_filedata = {
     'MA Belegungen': [
         ['Degree', 'Student last name', 'Student first name', 'Student email address', 'Course kind', 'Course is graded', 'Course name (de)', 'Course name (en)', 'Responsible title', 'Responsible last name', 'Responsible first name', 'Responsible email address'],
         ['Grandmaster', 'Quid', 'Bastius', 'bastius.quid@external.example.com', 'jaminar', 'probably not', 'Bauen', 'Build', '', 'Sed', 'Diam', '345@external.example.com'],
-        ['Beginner,Bachelor', 'Lorem', 'Ipsum', 'ipsum.lorem@institution.example.com', 'jaminar', 'probably not', 'Bauen', 'Build', '', 'Sed', 'Diam', '345@external.example.com'],
+        ['Beginner', 'Lorem', 'Ipsum', 'ipsum.lorem@institution.example.com', 'jaminar', 'probably not', 'Bauen', 'Build', '', 'Sed', 'Diam', '345@external.example.com'],
     ],
 }
 

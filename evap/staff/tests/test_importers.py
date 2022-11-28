@@ -375,14 +375,7 @@ class TestEnrollmentImport(TestCase):
         success_messages_test = [msg.message for msg in importer_log_test.success_messages()]
         self.assertIn("The import run will create 1 courses/evaluations and 3 users", "".join(success_messages_test))
         self.assertEqual(importer_log_test.errors_by_category(), {})
-        self.assertEqual(
-            [msg.message for msg in importer_log_test.warnings_by_category()[ImporterLogEntry.Category.DEGREE]],
-            [
-                'Sheet "MA Belegungen", row 3: The degree of course "Build" differs from its degrees in previous rows. '
-                "All degrees have been set for the course."
-            ],
-        )
-        self.assertEqual(len(importer_log_test.warnings_by_category()), 1)
+        self.assertEqual(importer_log_test.warnings_by_category(), {})
 
         importer_log_notest = import_enrollments(
             excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
@@ -392,14 +385,36 @@ class TestEnrollmentImport(TestCase):
             "Successfully created 1 courses/evaluations, 2 participants and 1 contributors",
             "".join(success_messages_notest),
         )
-        self.assertEqual(importer_log_test.errors_by_category(), {})
-        self.assertEqual(importer_log_test.warnings_by_category(), importer_log_test.warnings_by_category())
+        self.assertEqual(importer_log_notest.errors_by_category(), {})
+        self.assertEqual(importer_log_notest.warnings_by_category(), importer_log_test.warnings_by_category())
 
         self.assertEqual(Course.objects.all().count(), 1)
         self.assertEqual(Evaluation.objects.all().count(), 1)
 
         course = Course.objects.get(name_de="Bauen")
         self.assertSetEqual(set(course.degrees.all()), set(Degree.objects.filter(name_de__in=["Master", "Bachelor"])))
+
+    def test_user_degree_mismatch_error(self):
+        import_sheets = deepcopy(excel_data.test_enrollment_data_filedata)
+        assert import_sheets["MA Belegungen"][2][0] == "Master"
+        import_sheets["MA Belegungen"][2][0] = "Bachelor"
+        excel_content = excel_data.create_memory_excel_file(import_sheets)
+
+        importer_log_test = import_enrollments(
+            excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=True
+        )
+
+        importer_log_notest = import_enrollments(
+            excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+        )
+
+        self.assertEqual(importer_log_test.messages, importer_log_notest.messages)
+
+        self.assertEqual(1, len(importer_log_test.errors_by_category()[ImporterLogEntry.Category.DEGREE]))
+        self.assertEqual(
+            importer_log_test.errors_by_category()[ImporterLogEntry.Category.DEGREE][0].message,
+            'Sheet "MA Belegungen", row 3: The user "bastius.quid@external.example.com" has a different degree than in a previous row.',
+        )
 
     def test_errors_are_merged(self):
         """Whitebox regression test for #1711. Importers were rewritten afterwards, so this test has limited meaning now."""
@@ -525,10 +540,16 @@ class TestEnrollmentImport(TestCase):
             ['Sheet "MA Belegungen", row 5: "is_graded" is maybe, but must be yes or no'],
         )
         self.assertEqual(
+            [msg.message for msg in importer_log_test.errors_by_category()[ImporterLogEntry.Category.DEGREE]],
+            [
+                'Sheet "MA Belegungen", row 9: The user "diam.synephebos@institution.example.com" has a different degree than in a previous row.',
+            ],
+        )
+        self.assertEqual(
             [msg.message for msg in importer_log_test.errors_by_category()[ImporterLogEntry.Category.RESULT]],
             ["Errors occurred while parsing the input data. No data was imported."],
         )
-        self.assertEqual(len(importer_log_test.errors_by_category()), 6)
+        self.assertEqual(len(importer_log_test.errors_by_category()), 7)
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_duplicate_course_error(self):
