@@ -92,5 +92,22 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'infotexts',
             },
         ),
+        migrations.AddConstraint(
+            model_name="infotext",
+            constraint=models.CheckConstraint(
+                check=models.Q(
+                    models.Q(("content_de", ""), ("content_en", ""), ("title_de", ""), ("title_en", "")),
+                    models.Q(
+                        models.Q(
+                            ("content_de", ""), ("content_en", ""), ("title_de", ""), ("title_en", ""), _connector="OR"
+                        ),
+                        _negated=True,
+                    ),
+                    _connector="OR",
+                ),
+                name="infotexts_not_half_empty",
+                violation_error_message="Please supply either all or no fields for an infotext.",
+            ),
+        ),
         migrations.RunPython(create_infotexts, reverse_code=lambda a, b: None)
     ]
