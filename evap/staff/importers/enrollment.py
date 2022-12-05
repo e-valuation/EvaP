@@ -1,11 +1,10 @@
-from collections import abc, defaultdict
+from collections import defaultdict
 from dataclasses import dataclass, fields
 from datetime import date, datetime
 from typing import DefaultDict, Dict, Iterable, List, Optional, Set, Tuple, TypeVar, Union
 
 from django.conf import settings
 from django.db import transaction
-from django.utils import safestring
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
@@ -13,7 +12,7 @@ from typing_extensions import TypeGuard
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
 from evap.evaluation.tools import clean_email, ilen, unordered_groupby
-from evap.staff.tools import create_user_list_html_string_for_message
+from evap.staff.tools import append_user_list
 
 from .base import (
     Checker,
@@ -604,16 +603,6 @@ class CourseDataAdapter(RowCheckerMixin):
 
     def finalize(self) -> None:
         self.course_data_checker.finalize()
-
-
-def append_user_list(message: str, user_profiles: abc.Collection) -> safestring.SafeString:
-    if not user_profiles:
-        return format_html("{message}.", message=message)
-    return format_html(
-        "{message}: {list}",
-        message=message,
-        list=create_user_list_html_string_for_message(user_profiles),
-    )
 
 
 @transaction.atomic

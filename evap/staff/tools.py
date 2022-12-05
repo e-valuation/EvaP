@@ -1,4 +1,5 @@
 import os
+from collections.abc import Collection
 from datetime import date, datetime, timedelta
 from enum import Enum
 
@@ -10,6 +11,7 @@ from django.db import transaction
 from django.db.models import Count
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
+from django.utils.safestring import SafeString
 from django.utils.translation import gettext_lazy as _
 
 from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer, UserProfile
@@ -63,6 +65,16 @@ def get_import_file_content_or_raise(user_id, import_type):
 
 def create_user_list_html_string_for_message(users):
     return format_html_join("", "<br />{} {} ({})", ((user.first_name, user.last_name, user.email) for user in users))
+
+
+def append_user_list(message: str, user_profiles: Collection) -> SafeString:
+    if not user_profiles:
+        return format_html("{message}.", message=message)
+    return format_html(
+        "{message}: {list}",
+        message=message,
+        list=create_user_list_html_string_for_message(user_profiles),
+    )
 
 
 def find_matching_internal_user_for_email(request, email):

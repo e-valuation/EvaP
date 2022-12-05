@@ -1,25 +1,11 @@
-from collections import abc
 from gettext import ngettext
 from typing import Iterable
 
-from django.utils import safestring
-from django.utils.html import format_html
-
 from evap.evaluation.models import Contribution, Evaluation, UserProfile
-from evap.staff.tools import ImportType, create_user_list_html_string_for_message
+from evap.staff.tools import ImportType, append_user_list
 
 from .base import ImporterLog
 from .user import import_users
-
-
-def append_user_list(message: str, user_profiles: abc.Collection) -> safestring.SafeString:
-    if not user_profiles:
-        return format_html("{message}.", message=message)
-    return format_html(
-        "{message}: {list}",
-        message=message,
-        list=create_user_list_html_string_for_message(user_profiles),
-    )
 
 
 def add_participants_to(
@@ -30,15 +16,12 @@ def add_participants_to(
     users_to_add = [user for user in users if user not in evaluation_participants]
 
     if already_related:
-        msg = format_html(
-            "{sentence}: {list}",
-            sentence=ngettext(
-                "The following user is already participating in evaluation {name}",
-                "The following {user_count} users are already participating in evaluation {name}",
-                len(already_related),
-            ).format(user_count=len(already_related), name=evaluation.full_name),
-            list=create_user_list_html_string_for_message(already_related),
-        )
+        msg = ngettext(
+            "The following user is already participating in evaluation {name}",
+            "The following {user_count} users are already participating in evaluation {name}",
+            len(already_related),
+        ).format(user_count=len(already_related), name=evaluation.full_name)
+        msg = append_user_list(msg, already_related)
 
         importer_log.add_warning(msg)
 
@@ -67,15 +50,13 @@ def add_contributors_to(
     already_related_contributions = Contribution.objects.filter(evaluation=evaluation, contributor__in=users)
     already_related = {contribution.contributor for contribution in already_related_contributions}
     if already_related:
-        msg = format_html(
-            "{sentence}: {list}",
-            sentence=ngettext(
-                "The following user is already contributing to evaluation {name}",
-                "The following {user_count} users are already contributing to evaluation {name}",
-                len(already_related),
-            ).format(user_count=len(already_related), name=evaluation.full_name),
-            list=create_user_list_html_string_for_message(already_related),
-        )
+        msg = ngettext(
+            "The following user is already contributing to evaluation {name}",
+            "The following {user_count} users are already contributing to evaluation {name}",
+            len(already_related),
+        ).format(user_count=len(already_related), name=evaluation.full_name)
+        msg = append_user_list(msg, already_related)
+
         importer_log.add_warning(msg)
 
     users_to_add = [user for user in users if not user.pk or user not in already_related]
@@ -96,7 +77,9 @@ def add_contributors_to(
             "{user_count} contributors would be added to the evaluation {name}",
             len(users_to_add),
         ).format(user_count=len(users_to_add), name=evaluation.full_name)
+
     msg = append_user_list(message, users_to_add)
+
     importer_log.add_success(msg)
 
 
