@@ -1071,7 +1071,6 @@ class InfotextForm(forms.ModelForm):
 
     def validate_unique(self):
         super().validate_unique()
-        # if not all(cleaned_data.values()) and any(cleaned_data.values()):
         if self.errors:
             for field in self.fields:
                 if not self.cleaned_data.get(field):

@@ -106,7 +106,7 @@ class Migration(migrations.Migration):
                     _connector="OR",
                 ),
                 name="infotexts_not_half_empty",
-                violation_error_message="Please supply either all or no fields for an infotext.",
+                violation_error_message="Please supply either all or no fields for this infotext.",
             ),
         ),
         migrations.RunPython(create_infotexts, reverse_code=lambda a, b: None)

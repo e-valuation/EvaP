@@ -2288,7 +2288,9 @@ def infotexts(request):
         messages.success(request, _("Successfully updated the infotext entries."))
         return redirect("staff:infotexts")
     if formset.errors:
-        messages.error(request,  _("The form was not saved. Please resolve the errors shown below."))
+        messages.error(
+            request, _("The form was not saved and no infotexts were changed. Please resolve the errors shown below.")
+        )
 
     return render(
         request,
