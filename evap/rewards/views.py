@@ -41,12 +41,21 @@ def redeem_reward_points(request):
     try:
         save_redemptions(request, redemptions, previous_redeemed_points)
         messages.success(request, _("You successfully redeemed your points."))
-    except (NoPointsSelected, NotEnoughPoints, RedemptionEventExpired) as error:
-        messages.warning(request, error)
-        return 400
-    except OutdatedRedemptionData as error:
-        messages.error(request, error)
-        return 409
+    except (NoPointsSelected, NotEnoughPoints, RedemptionEventExpired, OutdatedRedemptionData) as error:
+        status_code = 400
+        if isinstance(error, NoPointsSelected):
+            error_string = _("You cannot redeem 0 points.")
+        elif isinstance(error, NotEnoughPoints):
+            error_string = _("You don't have enough reward points.")
+        elif isinstance(error, RedemptionEventExpired):
+            error_string = _("Sorry, the deadline for this event expired already.")
+        elif isinstance(error, OutdatedRedemptionData):
+            status_code = 409
+            error_string = _(
+                "It appears that your browser sent multiple redemption requests. You can see all successful redemptions below."
+            )
+        messages.error(request, error_string)
+        return status_code
     return 200
 
 
