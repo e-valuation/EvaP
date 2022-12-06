@@ -10,6 +10,7 @@ def development_components(request):
     theme_colors = ["primary", "secondary", "success", "info", "warning", "danger", "light", "dark"]
     template_data = {
         "theme_colors": theme_colors,
+        "infotext": dict(linked_page="sample_page", title="Information", content="Give the user some explanation."),
     }
     return render(request, "development_components.html", template_data)
 

@@ -140,27 +140,63 @@ class TestStaffFAQEditView(WebTestStaffModeWith200Check):
         cls.url = f"/staff/faq/{faq_question.section.pk}"
 
 
-class TestStaffInfotextEditView(WebTestStaffModeWith200Check):
+class TestStaffInfotextEditView(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
-        cls.test_users = [make_manager()]
+        cls.manager = make_manager()
         cls.url = "/staff/infotexts/"
 
-    def test_infotext_edit(self):
-        page = self.app.get(self.url, user=self.test_users[0])
+    def test_infotext_edit_success(self):
+        page = self.app.get(self.url, user=self.manager)
         formset = page.forms["infotext-formset"]
+
+        # fill formset with valid data
         formset["form-0-content_de"] = "sample text abc"
         formset["form-0-content_en"] = "sample text def"
         formset["form-0-title_de"] = "sample text hij"
         formset["form-0-title_en"] = "sample text klm"
-        form_id = formset["form-0-id"]
+
+        formset["form-1-content_de"] = ""
+        formset["form-1-content_en"] = ""
+        formset["form-1-title_de"] = ""
+        formset["form-1-title_en"] = ""
+
+        filled_form_id = formset["form-0-id"]
+        empty_form_id = formset["form-1-id"]
         formset.submit()
 
-        infotext = Infotext.objects.get(id=form_id.value)
+        # check, that content arrived at database
+        infotext = Infotext.objects.get(id=filled_form_id.value)
         self.assertEqual(infotext.content_de, "sample text abc")
         self.assertEqual(infotext.content_en, "sample text def")
         self.assertEqual(infotext.title_de, "sample text hij")
         self.assertEqual(infotext.title_en, "sample text klm")
+
+        infotext = Infotext.objects.get(id=empty_form_id.value)
+        self.assertTrue(infotext.is_empty())
+
+        page = self.app.get(self.url, user=self.manager)
+        formset = page.forms["infotext-formset"]
+        # submit invalid data
+        formset["form-0-content_de"] = ""
+        formset["form-0-content_en"] = ""
+        formset["form-0-title_de"] = ""
+        formset["form-0-title_en"] = ""
+        empty_form_id = formset["form-0-id"]
+
+        formset["form-1-content_de"] = "this is an invalid infotext"
+        formset["form-1-content_en"] = ""
+        formset["form-1-title_de"] = ""
+        formset["form-1-title_en"] = "no translation given"
+        filled_form_id = formset["form-1-id"]
+        formset.submit()
+
+        # assert no infotexts changed
+        infotext = Infotext.objects.get(id=empty_form_id.value)
+        self.assertFalse(infotext.is_empty())
+
+        infotext = Infotext.objects.get(id=filled_form_id.value)
+        self.assertTrue(infotext.is_empty())
 
 
 class TestUserIndexView(WebTestStaffMode):
