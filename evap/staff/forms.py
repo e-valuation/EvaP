@@ -1071,6 +1071,8 @@ class InfotextForm(forms.ModelForm):
 
     def validate_unique(self):
         super().validate_unique()
+
+        # add empty error to all empty fields to show the user that they are required
         if self.errors:
             for field in self.fields:
                 if not self.cleaned_data.get(field):
