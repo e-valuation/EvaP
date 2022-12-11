@@ -79,7 +79,6 @@ def course_view(request, semester_id, course_id):
         "grade_documents": course.grade_documents.all(),
         "disable_if_archived": "disabled" if semester.grade_documents_are_deleted else "",
         "disable_breadcrumb_course": True,
-        "infotext": Infotext.objects.get(linked_page=Infotext.Page.GRADES_PAGES),
     }
     return render(request, "grades_course_view.html", template_data)
 
