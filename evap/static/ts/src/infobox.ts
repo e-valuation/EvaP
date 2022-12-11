@@ -34,7 +34,7 @@ export class InfoboxLogic {
             if (this.infobox.className.includes("closed")) {
                 this.infobox.classList.replace("closed", "opening");
                 setTimeout(() => {
-                    this.infobox.classList.replace("opening", "opened");
+                    this.infobox.classList.remove("opening");
                 }, OPEN_CLOSE_TIMEOUT);
                 localStorage[this.storageKey] = "show";
             }
