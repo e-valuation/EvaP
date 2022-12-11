@@ -33,7 +33,7 @@ Sie können nur Evaluierungen im Zustand "vorbereitet" bearbeiten. Nachdem Sie e
 <b>Evaluierungs-Ergebnisse</b><br>
 Textantworten werden den bewerteten Personen und den Verantwortlichen der Veranstaltung angezeigt. Antworten auf Abstimmungsfragen werden für alle Nutzer·innen der Plattform veröffentlicht, wenn mindestens zwei Personen an der Evaluierung teilgenommen haben. Durchschnittsnoten werden berechnet, wenn die Teilnahmequote mindestens 20 Prozent beträgt.<br>
 <em>Mehr Infos: <a href="/faq#faq-3-s">FAQ/Ergebnisse</a></em>""",
-            Infotext.LinkedPage.CONTRIBUTOR_INDEX,
+            Infotext.Page.CONTRIBUTOR_INDEX,
         ),
         (
             "Information about the evaluation",
@@ -60,14 +60,14 @@ Lehrende können sich keine kompletten Fragebögen ansehen. Wenn du in einer Tex
 <b>Evaluierungs-Ergebnisse</b><br>
 Textantworten werden den bewerteten Personen und den Verantwortlichen der Veranstaltung angezeigt. Antworten auf Abstimmungsfragen werden für alle Nutzer·innen der Plattform veröffentlicht, wenn mindestens zwei Personen an der Evaluierung teilgenommen haben. Durchschnittsnoten werden berechnet, wenn die Teilnahmequote mindestens 20 Prozent beträgt.<br>
 <em>Mehr Infos: <a href="/faq#faq-3-s">FAQ/Ergebnisse</a></em>""",
-            Infotext.LinkedPage.STUDENT_INDEX,
+            Infotext.Page.STUDENT_INDEX,
         ),
-        ("", "", "", "", Infotext.LinkedPage.GRADES_PAGES),
+        ("", "", "", "", Infotext.Page.GRADES_PAGES),
     ]
 
-    for title_en, title_de, content_en, content_de, linked_page in infotexts:
+    for title_en, title_de, content_en, content_de, page in infotexts:
         infotext.objects.create(title_en=title_en, title_de=title_de, content_en=content_en, content_de=content_de,
-                                linked_page=linked_page)
+                                page=page)
 
 
 class Migration(migrations.Migration):
