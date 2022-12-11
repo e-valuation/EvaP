@@ -1515,7 +1515,7 @@ class FaqQuestion(models.Model):
 
 
 class Infotext(models.Model):
-    """Infotext to display, e.g. at the student index and contributor index pages"""
+    """Infotext to display, e.g., at the student index and contributor index pages"""
 
     title_de = models.CharField(max_length=255, verbose_name=_("title (german)"), blank=True)
     title_en = models.CharField(max_length=255, verbose_name=_("title (english)"), blank=True)
