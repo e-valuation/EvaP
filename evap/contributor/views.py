@@ -109,7 +109,7 @@ def index(request):
         "semester_list": semester_list,
         "show_delegated": show_delegated,
         "delegate_selection_form": DelegateSelectionForm(),
-        "infotext": Infotext.objects.get(linked_page=Infotext.Page.CONTRIBUTOR_INDEX),
+        "infotext": Infotext.objects.get(page=Infotext.Page.CONTRIBUTOR_INDEX),
     }
     return render(request, "contributor_index.html", template_data)
 

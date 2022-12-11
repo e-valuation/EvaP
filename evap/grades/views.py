@@ -25,7 +25,7 @@ def index(request):
     template_data = {
         "semesters": Semester.objects.filter(grade_documents_are_deleted=False),
         "disable_breadcrumb_grades": True,
-        "infotext": Infotext.objects.get(linked_page=Infotext.Page.GRADES_PAGES),
+        "infotext": Infotext.objects.get(page=Infotext.Page.GRADES_PAGES),
     }
     return render(request, "grades_index.html", template_data)
 
@@ -61,7 +61,7 @@ def semester_view(request, semester_id):
         "courses": courses,
         "disable_if_archived": "disabled" if semester.grade_documents_are_deleted else "",
         "disable_breadcrumb_semester": True,
-        "infotext": Infotext.objects.get(linked_page=Infotext.Page.GRADES_PAGES),
+        "infotext": Infotext.objects.get(page=Infotext.Page.GRADES_PAGES),
     }
     return render(request, "grades_semester_view.html", template_data)
 

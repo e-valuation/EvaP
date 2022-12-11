@@ -1528,14 +1528,14 @@ class Infotext(models.Model):
     def is_empty(self):
         return not self.title or not self.content
 
-    class LinkedPage(models.TextChoices):
+    class Page(models.TextChoices):
         STUDENT_INDEX = ("student_index", "Student index page")
         CONTRIBUTOR_INDEX = ("contributor_index", "Contributor index page")
         GRADES_PAGES = ("grades_pages", "Grade publishing pages")
 
-    linked_page = models.CharField(
-        choices=LinkedPage.choices,
-        verbose_name="linked page for the infotext to be visible on",
+    page = models.CharField(
+        choices=Page.choices,
+        verbose_name="page for the infotext to be visible on",
         max_length=30,
         unique=True,
         null=False,

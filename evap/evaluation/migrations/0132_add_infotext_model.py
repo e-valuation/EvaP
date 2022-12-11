@@ -85,7 +85,7 @@ class Migration(migrations.Migration):
                 ('title_en', models.CharField(max_length=255, blank=True, verbose_name='title (english)')),
                 ('content_de', models.TextField(blank=True, verbose_name='content (german)')),
                 ('content_en', models.TextField(blank=True, verbose_name='content (english)')),
-                ('linked_page', models.CharField(choices=[('student_index', 'Student index page'), ('contributor_index', 'Contributor index page'), ('grades_pages', 'Grade publishing pages')], max_length=30, unique=True, null=False, blank=False, verbose_name='linked page for the infotext to be visible on')),
+                ('page', models.CharField(choices=[('student_index', 'Student index page'), ('contributor_index', 'Contributor index page'), ('grades_pages', 'Grade publishing pages')], max_length=30, unique=True, null=False, blank=False, verbose_name='page for the infotext to be visible on')),
             ],
             options={
                 'verbose_name': 'infotext',

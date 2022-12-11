@@ -1,7 +1,7 @@
 {% load static %}
 
 {% if infotext and not infotext.is_empty %}
-    <div id="{{ infotext.linked_page }}" class="infobox callout callout-info callout-closable">
+    <div id="{{ infotext.page }}" class="infobox callout callout-info callout-closable">
         <div class="callout-header d-flex">
             <span class="fas fa-circle-info callout-icon"></span>
             <span>{{ infotext.title }}</span>
@@ -16,6 +16,6 @@
     <script type="module">
         import {InfoboxLogic} from "{% static 'js/infobox.js' %}";
 
-        new InfoboxLogic("{{ infotext.linked_page }}").attach();
+        new InfoboxLogic("{{ infotext.page }}").attach();
     </script>
 {% endif %}
