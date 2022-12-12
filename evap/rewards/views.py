@@ -152,4 +152,4 @@ def semester_activation_edit(request, semester_id):
     if active:
         grant_eligible_reward_points_for_semester(request, semester)
     messages.get_messages(request).used = False
-    return redirect("staff:semester_view", semester_id) #semester_view(request=request, semester_id=semester_id)
+    return redirect("staff:semester_view", semester_id)  # semester_view(request=request, semester_id=semester_id)

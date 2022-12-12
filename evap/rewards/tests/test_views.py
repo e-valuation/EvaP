@@ -209,24 +209,22 @@ class TestSemesterActivationView(WebTestStaffMode):
 
     def test_invalid(self):
         baker.make(SemesterActivation, semester=self.semester, is_active=False)
-        response = self.app.post(self.url, user=self.manager, params={"activation_status": "invalid"}, status=400)
+        self.app.post(self.url, user=self.manager, params={"activation_status": "invalid"}, status=400)
         self.assertFalse(is_semester_activated(self.semester))
+
     def test_activate(self):
         baker.make(SemesterActivation, semester=self.semester, is_active=False)
-        response = self.app.post(self.url, user=self.manager, params={"activation_status": "on"})
+        self.app.post(self.url, user=self.manager, params={"activation_status": "on"})
         self.assertTrue(is_semester_activated(self.semester))
 
     def test_deactivate(self):
         baker.make(SemesterActivation, semester=self.semester, is_active=True)
-        response = self.app.post(self.url, user=self.manager, params={"activation_status": "off"})
+        self.app.post(self.url, user=self.manager, params={"activation_status": "off"})
         self.assertFalse(is_semester_activated(self.semester))
 
     def test_activate_after_voting(self):
         baker.make(SemesterActivation, semester=self.semester, is_active=False)
         self.assertEqual(0, reward_points_of_user(self.student))
-        response = self.app.post(self.url, user=self.manager, params={"activation_status": "on"})
-        #form = response.forms["form_activation_status"]
-        #form.set("activation_status", "on")
-        #response = form.submit()
-        self.assertContains(response, "3 reward points were granted", status_code=302)
+        response = self.app.post(self.url, user=self.manager, params={"activation_status": "on"}).follow()
+        self.assertContains(response, "3 reward points were granted")
         self.assertEqual(3, reward_points_of_user(self.student))
