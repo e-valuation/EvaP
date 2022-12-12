@@ -13,9 +13,6 @@ export class InfoboxLogic {
         this.infobox = selectOrError("#" + infobox_id);
         this.closeButton = selectOrError("#" + infobox_id + " .callout-closable-close");
         this.storageKey = "infobox_" + infobox_id;
-
-        // set infobox to hidden, if user closed it before
-        if (localStorage[this.storageKey] === "hide") this.infobox.classList.add("closed");
     }
 
     public attach = (): void => {
