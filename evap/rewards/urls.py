@@ -13,5 +13,5 @@ urlpatterns = [
     path("reward_point_redemption_event/<int:event_id>/export", views.reward_point_redemption_event_export, name="reward_point_redemption_event_export"),
     path("reward_point_redemption_event/delete", views.reward_point_redemption_event_delete, name="reward_point_redemption_event_delete"),
 
-    path("reward_semester_activation/<int:semester_id>/edit", views.semester_activation_edit, name="semester_activation_edit"),
+    path("semester_activation/<int:semester_id>/edit", views.semester_activation_edit, name="semester_activation_edit"),
 ]

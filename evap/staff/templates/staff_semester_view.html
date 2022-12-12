@@ -7,7 +7,7 @@
 
     {{ block.super }}
     <form id="form_activation_status" method="post" action="{% url 'rewards:semester_activation_edit' semester.id%}">
-        <input type="hidden" id="activation_status" name="activation_status">
+        <input type="hidden" id="activation_status" name="activation_status" value="on"> {# FIXME #}
         {% csrf_token %}
     </form>
     <h3>
@@ -73,7 +73,7 @@
                         <div class="btn-switch-label">{% trans 'Reward points active' %}</div>
                         <div class="btn-switch btn-group icon-buttons">
                             <button type="button" onclick="activateRewardPointsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-light{% if rewards_active %} active{% endif %}"><span class="fas fa-check" aria-hidden="true"></span></button>
-                            <button type="button" onclick="deactivateRewardPoints()" class="btn btn-sm btn-light{% if not rewards_active %} active{% endif %}"><span class="fas fa-xmark" aria-hidden="true"></span></button>
+                            <button type="submit" name="activation_status" value="off" form="form_activation_status" class="btn btn-sm btn-light{% if not rewards_active %} active{% endif %}"><span class="fas fa-xmark" aria-hidden="true"></span></button>
                         </div>
                     </div>
                 </div>
@@ -553,15 +553,8 @@
     {% trans 'Activate reward points' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='activateRewardPointsModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
-        function setRewardPointActivationStatus(status) {
-            document.getElementById("activation_status").value = status;
-            document.getElementById("form_activation_status").submit();
-        }
         function activateRewardPointsModalAction() {
-            setRewardPointActivationStatus("on");
-        };
-        function deactivateRewardPoints() {
-            setRewardPointActivationStatus("off");
+            document.getElementById("form_activation_status").requestSubmit(); {# FIXME #}
         }
     </script>
 {% endblock %}

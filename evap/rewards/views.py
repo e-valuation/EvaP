@@ -142,10 +142,14 @@ def reward_point_redemption_event_export(request, event_id):
 def semester_activation_edit(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     status = request.POST.get("activation_status")
-    active = status == "on"
-
+    if status == "on":
+        active = True
+    elif status == "off":
+        active = False
+    else:
+        raise SuspiciousOperation("Invalid activation keyword")
     SemesterActivation.objects.update_or_create(semester=semester, defaults={"is_active": active})
     if active:
         grant_eligible_reward_points_for_semester(request, semester)
-
-    return semester_view(request=request, semester_id=semester_id)
+    messages.get_messages(request).used = False
+    return redirect("staff:semester_view", semester_id) #semester_view(request=request, semester_id=semester_id)
