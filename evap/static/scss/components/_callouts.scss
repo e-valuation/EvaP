@@ -94,10 +94,19 @@
 }
 
 .infobox.callout {
-  max-width: 100%;
+    min-width: 100%;
 
-  // enlarge infobox to max size
-  .callout-content {
-    width: 1300px;
-  }
+    &.closing,
+    &.closed {
+        min-width: 0;
+    }
+
+    // override transitions to include min-width
+    &.closing {
+        transition: border-radius 1s ease 1s, border-left-width 1s ease 1s, padding 1s ease-in-out, min-width 1s ease 1s;
+    }
+
+    &.opening {
+        transition: border-radius 1s ease, border-left-width 1s ease, padding 1s ease-in-out, min-width 1s ease;
+    }
 }
