@@ -653,9 +653,9 @@ def import_enrollments(
                 _("The import run will create {evaluation_string} and {user_string}"),
                 evaluation_string=ngettext(
                     "1 course/evaluation", "{count} courses/evaluations", new_course_count
-                ).format(count=str(new_course_count)),
+                ).format(count=new_course_count),
                 user_string=ngettext("1 user", "{count} users", len(new_user_profiles)).format(
-                    count=str(len(new_user_profiles))
+                    count=len(new_user_profiles)
                 ),
             )
 
@@ -675,7 +675,7 @@ def import_enrollments(
                     count=new_participants_count
                 ),
                 contributor_string=ngettext("1 contributor", "{count} contributors", new_responsibles_count).format(
-                    count=str(new_responsibles_count)
+                    count=new_responsibles_count
                 ),
             )
 

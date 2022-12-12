@@ -1,5 +1,6 @@
-from gettext import ngettext
 from typing import Iterable
+
+from django.utils.translation import ngettext
 
 from evap.evaluation.models import Contribution, Evaluation, UserProfile
 from evap.staff.tools import ImportType, append_user_list
@@ -70,7 +71,6 @@ def add_contributors_to(
             "{user_count} contributors added to the evaluation {name}",
             len(users_to_add),
         ).format(user_count=len(users_to_add), name=evaluation.full_name)
-
     else:
         message = ngettext(
             "1 contributor would be added to the evaluation {name}",
