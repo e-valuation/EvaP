@@ -94,12 +94,7 @@
 }
 
 .infobox.callout {
-  // let it be resized with parent
-  display: flex;
-  flex-direction: column;
-
-  // reduce size when closed
-  max-width: fit-content;
+  max-width: 100%;
 
   // enlarge infobox to max size
   .callout-content {
