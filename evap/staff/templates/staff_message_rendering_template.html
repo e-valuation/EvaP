@@ -8,12 +8,12 @@
 {% for category, errorlist in importer_log.errors_by_category.items %}
     <div class="card collapsible card-outline-danger mb-3">
         <div class="card-header">
-            <a class="collapse-toggle" data-bs-toggle="collapse" href="#{{ category.id }}Card" aria-expanded="false"
-                    aria-controls="{{ category.id }}Card">
-                {{ category.display_name }}
+            <a class="collapse-toggle" data-bs-toggle="collapse" href="#{{ category.value.id }}Card" aria-expanded="false"
+                    aria-controls="{{ category.value.id }}Card">
+                {{ category.value.display_name }}
             </a>
         </div>
-        <div class="collapse show" id="{{ category.id }}Card">
+        <div class="collapse show" id="{{ category.value.id }}Card">
             <div class="card-body">
                 {% for error in errorlist %}
                     <div class="alert alert-danger alert-dismissible">
@@ -29,12 +29,12 @@
 {% for category, warninglist in importer_log.warnings_by_category.items %}
     <div class="card card-outline-warning collapsible mb-3">
         <div class="card-header">
-            <a class="collapse-toggle" data-bs-toggle="collapse" href="#{{ category.id }}Card" aria-expanded="false"
-                    aria-controls="{{ category.id }}Card">
-                {{ category.display_name }}
+            <a class="collapse-toggle" data-bs-toggle="collapse" href="#{{ category.value.id }}Card" aria-expanded="false"
+                    aria-controls="{{ category.value.id }}Card">
+                {{ category.value.display_name }}
             </a>
         </div>
-        <div class="collapse show" id="{{ category.id }}Card">
+        <div class="collapse show" id="{{ category.value.id }}Card">
             <div class="card-body">
                 {% for warning in warninglist %}
                     <div class="alert alert-warning alert-dismissible">
