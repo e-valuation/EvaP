@@ -66,7 +66,7 @@
                             {% for evaluation in evaluations|dictsort:"name" %}
                                 <tr {# staff users should be able to access evaluations through the student index only if it actually has published results #}
                                     {% if evaluation.state == evaluation.State.IN_EVALUATION and evaluation.participates_in and not evaluation.voted_for and evaluation.is_in_evaluation_period %}
-                                        class="hover-row hover-row-info" data-url="{% url 'student:vote' evaluation.id %}"
+                                        class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} hover-row hover-row-info" data-url="{% url 'student:vote' evaluation.id %}"
                                     {% elif evaluation.state == evaluation.State.PUBLISHED and evaluation.can_publish_rating_results and not semester.results_are_archived and evaluation|can_results_page_be_seen_by:request.user %}
                                         class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} hover-row results-row" data-url="{% url 'results:evaluation_detail' semester.id evaluation.id %}"
                                     {% else %}

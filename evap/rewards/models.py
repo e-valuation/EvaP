@@ -15,6 +15,10 @@ class NotEnoughPoints(Exception):
     """An attempt has been made to redeem more points than available."""
 
 
+class OutdatedRedemptionData(Exception):
+    """A redemption request has been sent with outdated data, e.g. when a request has been sent twice."""
+
+
 class RedemptionEventExpired(Exception):
     """An attempt has been made to redeem more points for an event whose redeem_end_date lies in the past."""
 

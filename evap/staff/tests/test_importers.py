@@ -1,3 +1,4 @@
+from copy import deepcopy
 from datetime import date, datetime
 from unittest.mock import patch
 
@@ -71,6 +72,14 @@ class TestUserImport(TestCase):
         self.assertTrue(isinstance(user_list[0], UserProfile))
         self.assertTrue(UserProfile.objects.filter(email="lucilia.manilium@institution.example.com").exists())
         self.assertTrue(UserProfile.objects.filter(email="bastius.quid@external.example.com").exists())
+
+    @patch("evap.staff.importers.user.clean_email", new=(lambda email: "cleaned_" + email))
+    def test_emails_are_cleaned(self):
+        original_user_count = UserProfile.objects.count()
+        __, __ = import_users(self.valid_excel_file_content, test_run=False)
+        self.assertEqual(UserProfile.objects.count(), 2 + original_user_count)
+        self.assertTrue(UserProfile.objects.filter(email="cleaned_lucilia.manilium@institution.example.com").exists())
+        self.assertTrue(UserProfile.objects.filter(email="cleaned_bastius.quid@external.example.com").exists())
 
     def test_duplicate_warning(self):
         user = baker.make(UserProfile, first_name="Lucilia", last_name="Manilium", email="luma@institution.example.com")
@@ -316,6 +325,23 @@ class TestEnrollmentImport(TestCase):
         expected_user_count = old_user_count + 23
         self.assertEqual(UserProfile.objects.all().count(), expected_user_count)
 
+    @patch("evap.staff.importers.user.clean_email", new=(lambda email: "cleaned_" + email))
+    @patch("evap.staff.importers.enrollment.clean_email", new=(lambda email: "cleaned_" + email))
+    def test_emails_are_cleaned(self):
+        import_enrollments(self.default_excel_content, self.semester, None, None, test_run=True)
+
+        old_user_count = UserProfile.objects.all().count()
+
+        import_enrollments(
+            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+        )
+        expected_user_count = old_user_count + 23
+        self.assertEqual(UserProfile.objects.all().count(), expected_user_count)
+
+        self.assertTrue(UserProfile.objects.filter(email="cleaned_bastius.quid@external.example.com").exists())
+        self.assertTrue(UserProfile.objects.filter(email="cleaned_diam.synephebos@institution.example.com").exists())
+        self.assertTrue(UserProfile.objects.filter(email="cleaned_111@institution.example.com").exists())
+
     def test_degrees_are_merged(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_degree_merge_filedata)
 
@@ -450,7 +476,7 @@ class TestEnrollmentImport(TestCase):
             [msg.message for msg in importer_log_test.errors_by_category()[ImporterLogEntry.Category.COURSE]],
             [
                 'Sheet "MA Belegungen", row 18: The German name for course "Bought" is already used for another course in the import file.',
-                'Sheet "MA Belegungen", row 20: The data of course "Cost" differs from its data in a previous row.',
+                'Sheet "MA Belegungen", row 20: The data of course "Cost" differs from its data in the columns (responsible_email) in a previous row.',
             ],
         )
         self.assertEqual(
@@ -668,6 +694,60 @@ class TestEnrollmentImport(TestCase):
         with patch("evap.staff.importers.user.UserDataMismatchChecker.check_userdata") as mock:
             import_enrollments(excel_content, self.semester, None, None, test_run=True)
             self.assertGreater(mock.call_count, 50)
+
+    def test_duplicate_participation(self):
+        input_data = deepcopy(excel_data.test_enrollment_data_filedata)
+        # create a duplicate participation by duplicating a line
+        input_data["MA Belegungen"].append(input_data["MA Belegungen"][1])
+        excel_content = excel_data.create_memory_excel_file(input_data)
+
+        importer_log = import_enrollments(excel_content, self.semester, None, None, test_run=True)
+        self.assertEqual(importer_log.errors_by_category(), {})
+        self.assertEqual(importer_log.warnings_by_category(), {})
+
+        old_user_count = UserProfile.objects.all().count()
+
+        importer_log = import_enrollments(
+            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+        )
+        self.assertEqual(importer_log.errors_by_category(), {})
+        self.assertEqual(importer_log.warnings_by_category(), {})
+
+        self.assertEqual(Evaluation.objects.all().count(), 23)
+        expected_user_count = old_user_count + 23
+        self.assertEqual(UserProfile.objects.all().count(), expected_user_count)
+
+    def test_existing_participation(self):
+        _, existing_evaluation = self.create_existing_course()
+        user = baker.make(
+            UserProfile, first_name="Lucilia", last_name="Manilium", email="lucilia.manilium@institution.example.com"
+        )
+        existing_evaluation.participants.add(user)
+
+        importer_log = import_enrollments(self.default_excel_content, self.semester, None, None, test_run=True)
+
+        expected_warnings = ["Course Shake: 1 participants from the import file already participate in the evaluation."]
+        self.assertEqual(
+            [
+                msg.message
+                for msg in importer_log.warnings_by_category()[ImporterLogEntry.Category.ALREADY_PARTICIPATING]
+            ],
+            expected_warnings,
+        )
+        self.assertFalse(importer_log.has_errors())
+
+        importer_log = import_enrollments(
+            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+        )
+
+        self.assertEqual(
+            [
+                msg.message
+                for msg in importer_log.warnings_by_category()[ImporterLogEntry.Category.ALREADY_PARTICIPATING]
+            ],
+            expected_warnings,
+        )
+        self.assertFalse(importer_log.has_errors())
 
 
 class TestPersonImport(TestCase):

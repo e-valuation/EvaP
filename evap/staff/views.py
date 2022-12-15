@@ -1527,13 +1527,7 @@ def evaluation_textanswers_skip(request):
     return HttpResponse()
 
 
-@require_POST
-@reviewer_required
-def evaluation_textanswers_update_publish(request):
-    answer = get_object_from_dict_pk_entry_or_logged_40x(TextAnswer, request.POST, "answer_id")
-    evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
-    action = request.POST.get("action", None)
-
+def assert_textanswer_review_permissions(evaluation: Evaluation) -> None:
     if evaluation.state == Evaluation.State.PUBLISHED:
         raise PermissionDenied
     if evaluation.course.semester.results_are_archived:
@@ -1541,8 +1535,18 @@ def evaluation_textanswers_update_publish(request):
     if not evaluation.can_publish_text_results:
         raise PermissionDenied
 
+
+@require_POST
+@reviewer_required
+def evaluation_textanswers_update_publish(request):
+    answer = get_object_from_dict_pk_entry_or_logged_40x(TextAnswer, request.POST, "answer_id")
+    evaluation = answer.contribution.evaluation
+    action = request.POST.get("action", None)
+
+    assert_textanswer_review_permissions(evaluation)
+
     if action == "textanswer_edit":
-        return redirect("staff:evaluation_textanswer_edit", evaluation.course.semester.id, evaluation.pk, answer.pk)
+        return redirect("staff:evaluation_textanswer_edit", answer.pk)
 
     review_decision_for_action = {
         "publish": TextAnswer.ReviewDecision.PUBLIC,
@@ -1568,27 +1572,24 @@ def evaluation_textanswers_update_publish(request):
 
 
 @manager_required
-def evaluation_textanswer_edit(request, semester_id, evaluation_id, textanswer_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-    if semester.results_are_archived:
-        raise PermissionDenied
-    evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
+def evaluation_textanswer_edit(request, textanswer_id):
+    textanswer = get_object_or_404(TextAnswer, id=textanswer_id)
+    evaluation = textanswer.contribution.evaluation
+    assert_textanswer_review_permissions(evaluation)
 
-    if evaluation.state == Evaluation.State.PUBLISHED:
-        raise PermissionDenied
-    if not evaluation.can_publish_text_results:
-        raise PermissionDenied
-
-    textanswer = get_object_or_404(TextAnswer, id=textanswer_id, contribution__evaluation=evaluation)
     form = TextAnswerForm(request.POST or None, instance=textanswer)
 
     if form.is_valid():
         form.save()
         # jump to edited answer
-        url = reverse("staff:evaluation_textanswers", args=[semester_id, evaluation_id]) + "#" + str(textanswer.id)
+        url = (
+            reverse("staff:evaluation_textanswers", args=[evaluation.course.semester.id, evaluation.id])
+            + "#"
+            + str(textanswer.id)
+        )
         return HttpResponseRedirect(url)
 
-    template_data = dict(semester=semester, evaluation=evaluation, form=form, textanswer=textanswer)
+    template_data = dict(semester=evaluation.course.semester, evaluation=evaluation, form=form, textanswer=textanswer)
     return render(request, "staff_evaluation_textanswer_edit.html", template_data)
 
 
@@ -2212,9 +2213,10 @@ def template_edit(request, template_id):
         EmailTemplate.EDITOR_REVIEW_REMINDER,
         EmailTemplate.PUBLISHING_NOTICE_CONTRIBUTOR,
         EmailTemplate.PUBLISHING_NOTICE_PARTICIPANT,
-        EmailTemplate.TEXT_ANSWER_REVIEW_REMINDER,
     ]:
         available_variables += ["evaluations"]
+    elif template.name == EmailTemplate.TEXT_ANSWER_REVIEW_REMINDER:
+        available_variables += ["evaluation_url_tuples"]
     elif template.name == EmailTemplate.EVALUATION_STARTED:
         available_variables += ["evaluations", "due_evaluations"]
     elif template.name == EmailTemplate.DIRECT_DELEGATION:
