@@ -15,5 +15,7 @@
 {% endblock %}
 
 {% block content %}
-    {% include 'infobox.html' %}
+    {% if infobox %}
+        {% include 'infobox.html' %}
+    {% endif %}
 {% endblock %}

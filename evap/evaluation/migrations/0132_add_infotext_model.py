@@ -1,5 +1,13 @@
 from django.db import migrations, models
+from evap.evaluation.models import Infotext
 
+
+def create_infotexts(apps, _schema_editor):
+    infotext = apps.get_model("evaluation", "Infotext")
+
+    infotext.objects.create(title_en="", title_de="", content_en="", content_de="", page=Infotext.Page.CONTRIBUTOR_INDEX)
+    infotext.objects.create(title_en="", title_de="", content_en="", content_de="", page=Infotext.Page.STUDENT_INDEX)
+    infotext.objects.create(title_en="", title_de="", content_en="", content_de="", page=Infotext.Page.GRADES_PAGES)
 
 class Migration(migrations.Migration):
 
@@ -40,4 +48,5 @@ class Migration(migrations.Migration):
                 violation_error_message="Please supply either all or no fields for this infotext.",
             ),
         ),
+        migrations.RunPython(create_infotexts, reverse_code=lambda a, b: None)
     ]

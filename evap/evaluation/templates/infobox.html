@@ -1,6 +1,6 @@
 {% load static %}
 
-{% if infotext and not infotext.is_empty %}
+{% if not infotext.is_empty %}
     <div id="{{ infotext.page }}" class="infobox callout callout-info callout-closable">
         <div class="callout-header d-flex">
             <span class="fas fa-circle-info callout-icon"></span>
