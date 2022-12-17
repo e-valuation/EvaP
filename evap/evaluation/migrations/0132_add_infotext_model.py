@@ -9,6 +9,7 @@ def create_infotexts(apps, _schema_editor):
     infotext.objects.create(title_en="", title_de="", content_en="", content_de="", page=Infotext.Page.STUDENT_INDEX)
     infotext.objects.create(title_en="", title_de="", content_en="", content_de="", page=Infotext.Page.GRADES_PAGES)
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
