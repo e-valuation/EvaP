@@ -149,6 +149,7 @@ def get_evaluations_with_prefetched_data(semester):
             ),
             "course__degrees",
             "course__responsibles",
+            "course__semester",
         )
         .annotate(
             num_contributors=Count("contributions", filter=~Q(contributions__contributor=None), distinct=True),
@@ -180,7 +181,9 @@ def semester_view(request, semester_id) -> HttpResponse:
 
     evaluations = get_evaluations_with_prefetched_data(semester)
     evaluations = sorted(evaluations, key=lambda cr: cr.full_name)
-    courses = Course.objects.filter(semester=semester)
+    courses = Course.objects.filter(semester=semester).prefetch_related(
+        "type", "degrees", "responsibles", "evaluations"
+    )
 
     # semester statistics (per degree)
     @dataclass
