@@ -321,7 +321,7 @@ class CourseMergeLogic:
         """Course with same name_en, but different name_de exists"""
 
     def __init__(self, semester: Semester):
-        courses = Course.objects.filter(semester=semester).prefetch_related("responsibles", "evaluations")
+        courses = Course.objects.filter(semester=semester).prefetch_related("type", "responsibles", "evaluations")
 
         assert ("semester", "name_de") in Course._meta.unique_together
         self.courses_by_name_de = {course.name_de: course for course in courses}
@@ -341,7 +341,7 @@ class CourseMergeLogic:
 
         if len(merge_candidate.evaluations.all()) != 1:
             hindrances.append(_("the existing course does not have exactly one evaluation"))
-        elif merge_candidate.evaluations.get().wait_for_grade_upload_before_publishing != course_data.is_graded:
+        elif merge_candidate.evaluations.all()[0].wait_for_grade_upload_before_publishing != course_data.is_graded:
             hindrances.append(_("the evaluation of the existing course has a mismatching grading specification"))
 
         return hindrances
