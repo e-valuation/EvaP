@@ -361,6 +361,9 @@ class Course(LoggedModel):
 
     @property
     def all_evaluations_finished(self):
+        if is_many_prefetched(self, "evaluations"):
+            return all(evaluation.state >= Evaluation.State.EVALUATED for evaluation in self.evaluations.all())
+
         return not self.evaluations.exclude(state__gte=Evaluation.State.EVALUATED).exists()
 
 

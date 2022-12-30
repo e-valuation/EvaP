@@ -1,3 +1,4 @@
+from django.db.models.query import QuerySet
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
@@ -5,6 +6,7 @@ from django.http import FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET, require_POST
+from typing import Tuple, List
 
 from evap.evaluation.auth import (
     grade_downloader_required,
@@ -12,7 +14,7 @@ from evap.evaluation.auth import (
     grade_publisher_required,
 )
 from evap.evaluation.models import Course, EmailTemplate, Evaluation, Semester
-from evap.evaluation.tools import get_object_from_dict_pk_entry_or_logged_40x
+from evap.evaluation.tools import get_object_from_dict_pk_entry_or_logged_40x, ilen
 from evap.grades.forms import GradeDocumentForm
 from evap.grades.models import GradeDocument
 
@@ -26,14 +28,17 @@ def index(request):
     return render(request, "grades_index.html", template_data)
 
 
-def prefetch_data(courses):
-    courses = courses.prefetch_related("degrees", "responsibles")
+def course_grade_document_count_tuples(courses: QuerySet[Course]) -> List[Tuple[Course, int, int]]:
+    courses = courses.prefetch_related("degrees", "responsibles", "evaluations", "grade_documents")
 
-    course_data = []
-    for course in courses:
-        course_data.append((course, course.midterm_grade_documents.count(), course.final_grade_documents.count()))
-
-    return course_data
+    return [
+        (
+            course,
+            ilen(gd for gd in course.grade_documents.all() if gd.type == GradeDocument.Type.MIDTERM_GRADES),
+            ilen(gd for gd in course.grade_documents.all() if gd.type == GradeDocument.Type.FINAL_GRADES),
+        )
+        for course in courses
+    ]
 
 
 @grade_publisher_required
@@ -47,7 +52,7 @@ def semester_view(request, semester_id):
         .exclude(evaluations__state=Evaluation.State.NEW)
         .distinct()
     )
-    courses = prefetch_data(courses)
+    courses = course_grade_document_count_tuples(courses)
 
     template_data = dict(
         semester=semester,
