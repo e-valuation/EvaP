@@ -1,12 +1,13 @@
-from django.db.models.query import QuerySet
+from typing import List, Tuple
+
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.db.models.query import QuerySet
 from django.http import FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET, require_POST
-from typing import Tuple, List
 
 from evap.evaluation.auth import (
     grade_downloader_required,
