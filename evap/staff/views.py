@@ -1596,8 +1596,9 @@ def evaluation_preview(request, semester_id, evaluation_id):
 def questionnaire_index(request):
     filter_questionnaires = get_parameter_from_url_or_session(request, "filter_questionnaires")
 
-    general_questionnaires = Questionnaire.objects.general_questionnaires()
-    contributor_questionnaires = Questionnaire.objects.contributor_questionnaires()
+    prefetch_list = ("questions", "contributions__evaluation")
+    general_questionnaires = Questionnaire.objects.general_questionnaires().prefetch_related(*prefetch_list)
+    contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().prefetch_related(*prefetch_list)
 
     if filter_questionnaires:
         general_questionnaires = general_questionnaires.exclude(visibility=Questionnaire.Visibility.HIDDEN)

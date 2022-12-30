@@ -47,6 +47,14 @@ def is_many_prefetched(instance, attribute_name):
     return hasattr(instance, "_prefetched_objects_cache") and attribute_name in instance._prefetched_objects_cache
 
 
+def is_single_prefetched(instance, attribute_name):
+    """
+    Is the given foreign key attribute cached / prefetched? Can be used to determine whether direct access is cheaper
+    than a separate database query
+    """
+    return attribute_name in instance._state.field_cache
+
+
 def discard_cached_related_objects(instance):
     """
     Discard all cached related objects (for ForeignKey and M2M Fields). Useful

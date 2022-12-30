@@ -219,6 +219,12 @@ class Questionnaire(models.Model):
 
     @property
     def can_be_edited_by_manager(self):
+        if is_many_prefetched(self, "contributions"):
+            if all(is_single_prefetched(contribution, "evaluation") for contribution in self.contributions.all()):
+                return all(
+                    contribution.evaluation.state == Evaluation.State.NEW for contribution in self.contributions.all()
+                )
+
         return not self.contributions.exclude(evaluation__state=Evaluation.State.NEW).exists()
 
     @property
