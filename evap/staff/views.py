@@ -150,6 +150,7 @@ def get_evaluations_with_prefetched_data(semester):
             "course__degrees",
             "course__responsibles",
             "course__semester",
+            "contributions__questionnaires",
         )
         .annotate(
             num_contributors=Count("contributions", filter=~Q(contributions__contributor=None), distinct=True),

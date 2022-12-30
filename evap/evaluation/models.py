@@ -556,8 +556,15 @@ class Evaluation(LoggedModel):
 
     @property
     def all_contributions_have_questionnaires(self):
+        if is_prefetched(self, "contributions"):
+            if not self.contributions:
+                return False
+
+            if is_prefetched(self.contributions[0], "questionnaires"):
+                return all(len(contribution.questionnaires) > 0 for contribution in self.contributions)
+
         return (
-            self.general_contribution
+            self.general_contribution is not None
             and not self.contributions.annotate(Count("questionnaires")).filter(questionnaires__count=0).exists()
         )
 
