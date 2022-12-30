@@ -14,7 +14,7 @@ from evap.evaluation.tests.tools import WebTest
 from evap.evaluation.tools import (
     discard_cached_related_objects,
     get_object_from_dict_pk_entry_or_logged_40x,
-    is_m2m_prefetched,
+    is_many_prefetched,
 )
 
 
@@ -62,20 +62,20 @@ class TestLogExceptionsDecorator(TestCase):
 
 
 class TestHelperMethods(WebTest):
-    def test_is_m2m_prefetched(self):
+    def test_is_many_prefetched(self):
         evaluation = baker.make(Evaluation)
         baker.make(Contribution, evaluation=evaluation)
 
-        self.assertFalse(is_m2m_prefetched(evaluation, "contributions"))
+        self.assertFalse(is_many_prefetched(evaluation, "contributions"))
 
         prefetch_related_objects([evaluation], "contributions")
-        self.assertTrue(is_m2m_prefetched(evaluation, "contributions"))
+        self.assertTrue(is_many_prefetched(evaluation, "contributions"))
 
         evaluation.refresh_from_db(fields=["contributions"])
-        self.assertFalse(is_m2m_prefetched(evaluation, "contributions"))
+        self.assertFalse(is_many_prefetched(evaluation, "contributions"))
 
         evaluation = Evaluation.objects.filter(pk=evaluation.pk).prefetch_related("contributions").first()
-        self.assertTrue(is_m2m_prefetched(evaluation, "contributions"))
+        self.assertTrue(is_many_prefetched(evaluation, "contributions"))
 
     def test_discard_cached_related_objects_discards_cached_foreign_key_instances(self):
         evaluation = baker.make(Evaluation, course__name_en="old_name")

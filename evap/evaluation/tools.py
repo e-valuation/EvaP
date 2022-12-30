@@ -39,10 +39,10 @@ def get_object_from_dict_pk_entry_or_logged_40x(model_cls: Type[M], dict_obj: Ma
         raise SuspiciousOperation from e
 
 
-def is_m2m_prefetched(instance, attribute_name):
+def is_many_prefetched(instance, attribute_name):
     """
-    Is the given M2M-attribute prefetched? Can be used to do ordering or counting
-    in python and avoid additional database queries
+    Is the given M2M or inverse foreign key attribute prefetched? Can be used to do ordering or counting in python and
+    avoid additional database queries
     """
     return hasattr(instance, "_prefetched_objects_cache") and attribute_name in instance._prefetched_objects_cache
 

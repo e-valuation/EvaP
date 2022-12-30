@@ -35,7 +35,7 @@ from evap.evaluation.tools import (
     clean_email,
     date_to_datetime,
     is_external_email,
-    is_m2m_prefetched,
+    is_many_prefetched,
     translate,
     vote_end_datetime,
 )
@@ -601,7 +601,7 @@ class Evaluation(LoggedModel):
         if self._participant_count is not None:
             return self._participant_count
 
-        if is_m2m_prefetched(self, "participants"):
+        if is_many_prefetched(self, "participants"):
             return len(self.participants.all())
 
         return self.participants.count()
