@@ -723,8 +723,9 @@ def update_existing_and_create_new_courses(
         for course_data in course_data_iterable
         if not course_data.merge_into_course
     ]
-    Course.objects.bulk_create(new_course_objects)
-    Course.update_log_after_bulk_create(new_course_objects)
+
+    for course in new_course_objects:
+        course.save()
 
     # Create one evaluation per newly created course
     evaluation_objects = [
@@ -736,24 +737,16 @@ def update_existing_and_create_new_courses(
         )
         for course in new_course_objects
     ]
-    Evaluation.objects.bulk_create(evaluation_objects)
-    Evaluation.update_log_after_bulk_create(evaluation_objects)
+
+    for evaluation in evaluation_objects:
+        evaluation.save()
 
     # Create M2M entries for the responsibles of the newly created courses
     responsible_emails = {course_data.responsible_email for course_data in course_data_iterable}
     responsible_objs_by_email = {obj.email: obj for obj in UserProfile.objects.filter(email__in=responsible_emails)}
 
-    responsibles_through_objects = [
-        Course.responsibles.through(
-            course=course,
-            userprofile=responsible_objs_by_email[course_data_by_name_en[course.name_en].responsible_email],
-        )
-        for course in new_course_objects
-    ]
-    Course.responsibles.through.objects.bulk_create(responsibles_through_objects)
-    Course.update_log_after_m2m_bulk_create(
-        new_course_objects, responsibles_through_objects, "course_id", "userprofile_id", "responsibles"
-    )
+    for course in new_course_objects:
+        course.responsibles.add(responsible_objs_by_email[course_data_by_name_en[course.name_en].responsible_email])
 
     # Create Contributions for the responsibles of the newly created courses
     evaluation_objects_by_course = {evaluation.course: evaluation for evaluation in evaluation_objects}
@@ -766,33 +759,21 @@ def update_existing_and_create_new_courses(
         )
         for course in new_course_objects
     ]
-    Contribution.objects.bulk_create(contribution_objects)
-    Contribution.update_log_after_bulk_create(contribution_objects)
+
+    for obj in contribution_objects:
+        obj.save()
 
     # Create M2M entries for the degrees of the newly created courses
-    degree_through_objects = [
-        Course.degrees.through(course_id=course.id, degree_id=degree_obj.id)
-        for course in new_course_objects
-        for degree_obj in course_data_by_name_en[course.name_en].degrees
-    ]
-    Course.degrees.through.objects.bulk_create(degree_through_objects)
-    Course.update_log_after_m2m_bulk_create(
-        new_course_objects, degree_through_objects, "course_id", "degree_id", "degrees"
-    )
+    for course in new_course_objects:
+        course.degrees.add(*course_data_by_name_en[course.name_en].degrees)
 
-    # Create M2M entries for the degrees of the courses that are updated
     courses_to_update = semester.courses.filter(
         name_en__in=[course_data.name_en for course_data in course_data_iterable if course_data.merge_into_course]
     )
-    degree_through_objects = [
-        Course.degrees.through(course_id=course.id, degree_id=degree_obj.id)
-        for course in courses_to_update
-        for degree_obj in course_data_by_name_en[course.name_en].degrees
-    ]
-    Course.degrees.through.objects.bulk_create(degree_through_objects, ignore_conflicts=True)
-    Course.update_log_after_m2m_bulk_create(
-        courses_to_update, degree_through_objects, "course_id", "degree_id", "degrees"
-    )
+
+    # Create M2M entries for the degrees of the courses that are updated
+    for course in courses_to_update:
+        course.degrees.add(*course_data_by_name_en[course.name_en].degrees)
 
 
 def store_participations_in_db(enrollment_rows: Iterable[EnrollmentParsedRow]):
@@ -807,30 +788,11 @@ def store_participations_in_db(enrollment_rows: Iterable[EnrollmentParsedRow]):
         for evaluation in Evaluation.objects.select_related("course").filter(course__name_en__in=course_names_en)
     }
 
-    course_id_participant_id_pairs_in_file = {
-        (evaluations_by_course_name_en[row.course_data.name_en].pk, users_by_email[row.student_data.email].pk)
-        for row in enrollment_rows
-    }
-
-    existing_course_id_participant_id_pairs = {
-        (participation.evaluation_id, participation.userprofile_id)
-        for participation in Evaluation.participants.through.objects.filter(
-            evaluation__in=evaluations_by_course_name_en.values()
+    participants_by_evaluation = defaultdict(list)
+    for row in enrollment_rows:
+        participants_by_evaluation[evaluations_by_course_name_en[row.course_data.name_en]].append(
+            users_by_email[row.student_data.email]
         )
-    }
 
-    course_id_participant_id_pairs = course_id_participant_id_pairs_in_file - existing_course_id_participant_id_pairs
-
-    participants_through_objects = [
-        Evaluation.participants.through(evaluation_id=evaluation_id, userprofile_id=userprofile_id)
-        for (evaluation_id, userprofile_id) in course_id_participant_id_pairs
-    ]
-
-    Evaluation.participants.through.objects.bulk_create(participants_through_objects)
-    Evaluation.update_log_after_m2m_bulk_create(
-        evaluations_by_course_name_en.values(),
-        participants_through_objects,
-        "evaluation_id",
-        "userprofile_id",
-        "participants",
-    )
+    for evaluation, participants in participants_by_evaluation.items():
+        evaluation.participants.add(*participants)

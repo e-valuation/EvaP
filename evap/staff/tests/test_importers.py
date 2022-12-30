@@ -223,7 +223,7 @@ class TestUserImport(TestCase):
         )
 
     @override_settings(DEBUG=False)
-    @patch("evap.evaluation.models.UserProfile.objects.bulk_create")
+    @patch("evap.evaluation.models.UserProfile.save")
     def test_unhandled_exception(self, mocked_db_access):
         mocked_db_access.side_effect = Exception("Contact your database admin right now!")
         result, importer_log = import_users(self.valid_excel_file_content, test_run=False)

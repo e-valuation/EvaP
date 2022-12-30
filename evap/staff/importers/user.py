@@ -385,5 +385,8 @@ def update_existing_and_create_new_user_profiles(
     existing_user_profiles: Iterable[UserProfile],
     new_user_profiles: Iterable[UserProfile],
 ):
-    UserProfile.objects.bulk_update(existing_user_profiles, UserData.bulk_update_fields())
-    UserProfile.objects.bulk_create(new_user_profiles)
+    for user_profile in existing_user_profiles:
+        user_profile.save()
+
+    for user_profile in new_user_profiles:
+        user_profile.save()
