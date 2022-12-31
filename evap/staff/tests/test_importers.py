@@ -1,6 +1,7 @@
 from copy import deepcopy
 from datetime import date, datetime
 from unittest.mock import patch
+from typing import Iterable
 
 from django.core.exceptions import ValidationError
 from django.forms.models import model_to_dict
@@ -9,8 +10,35 @@ from model_bakery import baker
 
 import evap.staff.fixtures.excel_files_test_data as excel_data
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
-from evap.staff.importers import ImporterLogEntry, import_enrollments, import_persons_from_evaluation, import_users
+from evap.staff.importers import (
+    ImporterLog,
+    ImporterLogEntry,
+    import_enrollments,
+    import_persons_from_evaluation,
+    import_users,
+)
+from evap.staff.importers.base import InputRow, ExcelFileLocation, ExcelFileRowMapper
 from evap.staff.tools import ImportType, user_edit_link
+
+
+class TestExcelFileRowMapper(TestCase):
+    class SingleColumnInputRow(InputRow):
+        column_count = 1
+
+        def __init__(self, location: ExcelFileLocation, *cells: Iterable[str]):
+            assert len(cells) == 1
+            self.value = cells[0]
+            self.location = location
+
+    def test_skip_first_n_rows_handled_correctly(self):
+        workbook_data = {"SheetName": [[str(i)] for i in range(10)]}
+        workbook_file_contents = excel_data.create_memory_excel_file(workbook_data)
+
+        mapper = ExcelFileRowMapper(skip_first_n_rows=3, row_cls=self.SingleColumnInputRow, importer_log=ImporterLog())
+        rows = mapper.map(workbook_file_contents)
+
+        self.assertEqual(rows[0].location, ExcelFileLocation("SheetName", 3))
+        self.assertEqual(rows[0].value, "3")
 
 
 class TestUserImport(TestCase):
