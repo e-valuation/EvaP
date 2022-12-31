@@ -1,6 +1,6 @@
 from copy import deepcopy
+from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Iterable
 from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
@@ -22,13 +22,11 @@ from evap.staff.tools import ImportType, user_edit_link
 
 
 class TestExcelFileRowMapper(TestCase):
+    @dataclass
     class SingleColumnInputRow(InputRow):
         column_count = 1
-
-        def __init__(self, location: ExcelFileLocation, *cells: Iterable[str]):
-            assert len(cells) == 1
-            self.value = cells[0]
-            self.location = location
+        location: ExcelFileLocation
+        value: str
 
     def test_skip_first_n_rows_handled_correctly(self):
         workbook_data = {"SheetName": [[str(i)] for i in range(10)]}
