@@ -1,7 +1,7 @@
 from copy import deepcopy
 from datetime import date, datetime
-from unittest.mock import patch
 from typing import Iterable
+from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
 from django.forms.models import model_to_dict
@@ -17,7 +17,7 @@ from evap.staff.importers import (
     import_persons_from_evaluation,
     import_users,
 )
-from evap.staff.importers.base import InputRow, ExcelFileLocation, ExcelFileRowMapper
+from evap.staff.importers.base import ExcelFileLocation, ExcelFileRowMapper, InputRow
 from evap.staff.tools import ImportType, user_edit_link
 
 
