@@ -339,9 +339,10 @@ class CourseMergeLogic:
         if len(responsibles) != 1 or responsibles[0].email != course_data.responsible_email:
             hindrances.append(_("the responsibles of the course do not match"))
 
-        if len(merge_candidate.evaluations.all()) != 1:
+        merge_candidate_evaluations = merge_candidate.evaluations.all()
+        if len(merge_candidate_evaluations) != 1:
             hindrances.append(_("the existing course does not have exactly one evaluation"))
-        elif merge_candidate.evaluations.all()[0].wait_for_grade_upload_before_publishing != course_data.is_graded:
+        elif merge_candidate_evaluations[0].wait_for_grade_upload_before_publishing != course_data.is_graded:
             hindrances.append(_("the evaluation of the existing course has a mismatching grading specification"))
 
         return hindrances
