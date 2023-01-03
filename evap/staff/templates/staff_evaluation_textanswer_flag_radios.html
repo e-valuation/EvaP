@@ -1,0 +1,40 @@
+<div class="btn-group icon-buttons" role="group">
+    <!--
+        Note: Firefox caches the state of inputs (not spec compliant), but we
+        can disable that using `autocomplete=off` (not spec compliant). I don't
+        want to think about input caching.
+    -->
+    <input
+        {% if form %}form={{ form }}{% endif %}
+        type="radio"
+        name="is_flagged"
+        value="false"
+        id="radio-flag-false-{{ id }}"
+        class="btn-check"
+        autocomplete="off"
+        {% if not is_initially_flagged %}checked{% endif %}
+    />
+    <label
+        for="radio-flag-false-{{ id }}"
+        class="btn btn-sm btn-light for-above"
+    >
+        <span class="far fa-circle"></span>
+    </label>
+
+    <input
+        {% if form %}form={{ form }}{% endif %}
+        type="radio"
+        name="is_flagged"
+        value="true"
+        id="radio-flag-true-{{ id }}"
+        class="btn-check"
+        autocomplete="off"
+        {% if is_initially_flagged %}checked{% endif %}
+    />
+    <label
+        for="radio-flag-true-{{ id }}"
+        class="btn btn-sm btn-light for-above"
+    >
+        <span class="fas fa-flag"></span>
+    </label>
+</div>

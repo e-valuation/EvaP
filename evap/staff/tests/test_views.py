@@ -3192,6 +3192,69 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         self.assert_transition("publish", TextAnswer.ReviewDecision.UNDECIDED, status=403)
 
 
+class TestEvaluationTextanswersUpdateFlagView(WebTest):
+    url = reverse("staff:evaluation_textanswers_update_flag")
+    csrf_checks = False
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.manager = make_manager()
+        cls.answer = baker.make(TextAnswer, contribution__evaluation__can_publish_text_results=True)
+
+    def test_post_update(self):
+        with run_in_staff_mode(self):
+            self.assertFalse(self.answer.is_flagged)
+
+            # Add flag
+            self.app.post(
+                self.url,
+                user=self.manager,
+                status=204,
+                params={"answer_id": self.answer.pk, "is_flagged": "true"},
+            )
+            self.answer.refresh_from_db()
+            self.assertTrue(self.answer.is_flagged)
+
+            # Do it again
+            self.app.post(
+                self.url,
+                user=self.manager,
+                status=204,
+                params={"answer_id": self.answer.pk, "is_flagged": "true"},
+            )
+            self.answer.refresh_from_db()
+            self.assertTrue(self.answer.is_flagged)
+
+            # Remove flag
+            self.app.post(
+                self.url,
+                user=self.manager,
+                status=204,
+                params={"answer_id": self.answer.pk, "is_flagged": "false"},
+            )
+            self.answer.refresh_from_db()
+            self.assertFalse(self.answer.is_flagged)
+
+    def test_unknown_values(self):
+        with run_in_staff_mode(self):
+            self.app.post(self.url, user=self.manager, status=400, params={"answer_id": self.answer.pk})
+            self.answer.refresh_from_db()
+            self.assertFalse(self.answer.is_flagged)
+
+            def helper(is_flagged_str, expect_success):
+                self.app.post(
+                    self.url,
+                    user=self.manager,
+                    status=204 if expect_success else 400,
+                    params={"answer_id": self.answer.pk, "is_flagged": is_flagged_str},
+                )
+                self.answer.refresh_from_db()
+                self.assertEqual(self.answer.is_flagged, expect_success)
+
+            for is_flagged_str, expect_success in [("True", False), ("False", False), ("", False), ("true", True)]:
+                helper(is_flagged_str, expect_success)
+
+
 class TestEvaluationTextAnswersSkip(WebTestStaffMode):
     csrf_checks = False
     url = reverse("staff:evaluation_textanswers_skip")

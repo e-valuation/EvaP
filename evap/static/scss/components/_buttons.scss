@@ -12,7 +12,8 @@
     box-shadow: 0 0 0 $btn-focus-width rgba($dark-gray, 0.5);
 }
 .btn-light.active,
-.btn-light:active {
+.btn-light:active,
+input:checked + label.btn-light.for-above {
     border-color: $dark-gray;
     background-color: $light-gray;
     box-shadow: inset 0 0 5px $dark-gray;

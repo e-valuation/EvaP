@@ -48,6 +48,7 @@ urlpatterns = [
     path("evaluation/<int:evaluation_id>/textanswers", views.evaluation_textanswers, name="evaluation_textanswers"),
     path("textanswer/<uuid:textanswer_id>/edit", views.evaluation_textanswer_edit, name="evaluation_textanswer_edit"),
     path("textanswers/update_publish", views.evaluation_textanswers_update_publish, name="evaluation_textanswers_update_publish"),
+    path("textanswers/update_flag", views.evaluation_textanswers_update_flag, name="evaluation_textanswers_update_flag"),
     path("textanswers/skip", views.evaluation_textanswers_skip, name="evaluation_textanswers_skip"),
 
     path("questionnaire/", views.questionnaire_index, name="questionnaire_index"),
