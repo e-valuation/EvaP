@@ -102,7 +102,6 @@ from evap.staff.tools import (
     ImportType,
     bulk_update_users,
     delete_import_file,
-    delete_navbar_cache_for_users,
     find_unreviewed_evaluations,
     get_import_file_content_or_raise,
     import_file_exists,
@@ -557,10 +556,6 @@ def semester_create(request):
 
     if form.is_valid():
         semester = form.save()
-        delete_navbar_cache_for_users(
-            [user for user in UserProfile.objects.all() if user.is_reviewer or user.is_grade_publisher]
-        )
-
         messages.success(request, _("Successfully created semester."))
         return redirect("staff:semester_view", semester.id)
 
@@ -606,9 +601,6 @@ def semester_delete(request):
     Evaluation.objects.filter(course__semester=semester).delete()
     Course.objects.filter(semester=semester).delete()
     semester.delete()
-    delete_navbar_cache_for_users(
-        [user for user in UserProfile.objects.all() if user.is_reviewer or user.is_grade_publisher]
-    )
     return redirect("staff:index")
 
 
@@ -652,7 +644,6 @@ def semester_import(request, semester_id):
                 )
                 importer_log.forward_messages_to_django(request)
                 delete_import_file(request.user.id, import_type)
-                delete_navbar_cache_for_users(UserProfile.objects.all())
                 return redirect("staff:semester_view", semester_id)
 
     test_passed = import_file_exists(request.user.id, import_type)
@@ -910,7 +901,6 @@ def semester_delete_grade_documents(request):
     if not semester.grade_documents_can_be_deleted:
         raise SuspiciousOperation("Deleting grade documents for this semester is not allowed")
     semester.delete_grade_documents()
-    delete_navbar_cache_for_users(UserProfile.objects.all())
     return HttpResponse()  # 200 OK
 
 
@@ -923,7 +913,6 @@ def semester_archive_results(request):
     if not semester.results_can_be_archived:
         raise SuspiciousOperation("Archiving results for this semester is not allowed")
     semester.archive_results()
-    delete_navbar_cache_for_users(UserProfile.objects.all())
     return HttpResponse()  # 200 OK
 
 
@@ -1211,9 +1200,6 @@ def helper_evaluation_edit(request, semester, evaluation):
                 messages.success(request, _("Successfully approved evaluation."))
         else:
             messages.success(request, _("Successfully updated evaluation."))
-
-        delete_navbar_cache_for_users(evaluation.participants.all())
-        delete_navbar_cache_for_users(UserProfile.objects.filter(contributions__evaluation=evaluation))
 
         return redirect("staff:semester_view", semester.id)
 
@@ -2093,7 +2079,6 @@ def user_edit(request, user_id):
 
     if form.is_valid():
         form.save()
-        delete_navbar_cache_for_users([user])
         messages.success(request, _("Successfully updated user."))
         for message in form.remove_messages:
             messages.warning(request, message)
