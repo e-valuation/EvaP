@@ -367,6 +367,9 @@ class TestEnrollmentImport(ImporterTestCase):
         self.assertEqual(importer_log.warnings_by_category(), {})
 
         self.assertEqual(Evaluation.objects.all().count(), 23)
+        for evaluation in Evaluation.objects.all():
+            self.assertIsNotNone(evaluation.general_contribution)
+
         expected_user_count = old_user_count + 23
         self.assertEqual(UserProfile.objects.all().count(), expected_user_count)
 
