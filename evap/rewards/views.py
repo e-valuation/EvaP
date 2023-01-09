@@ -24,7 +24,6 @@ from evap.rewards.models import (
     SemesterActivation,
 )
 from evap.rewards.tools import grant_eligible_reward_points_for_semester, reward_points_of_user, save_redemptions
-from evap.staff.views import semester_view
 
 
 def redeem_reward_points(request):
