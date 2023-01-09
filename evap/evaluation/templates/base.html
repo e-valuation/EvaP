@@ -37,9 +37,7 @@
         {% endblock %}
 
         <div class="sticky-top d-print-none">
-            {% cache 3600 navbar request.user.email LANGUAGE_CODE %}
-                {% include_navbar user LANGUAGE_CODE %}
-            {% endcache %}
+            {% include_navbar user LANGUAGE_CODE %}
 
             {% block breadcrumb_bar %}
             {% endblock %}
