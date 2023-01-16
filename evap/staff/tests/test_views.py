@@ -1677,7 +1677,9 @@ class TestEvaluationCopyView(WebTestStaffMode):
         )
         cls.general_questionnaires = baker.make(Questionnaire, _bulk_create=True, _quantity=5)
         cls.evaluation.general_contribution.questionnaires.set(cls.general_questionnaires)
-        baker.make(Contribution, evaluation=cls.evaluation, _fill_optional=["contributor"], _quantity=3)
+        baker.make(
+            Contribution, evaluation=cls.evaluation, _fill_optional=["contributor"], _quantity=3, _bulk_create=True
+        )
         cls.url = f"/staff/semester/{cls.semester.id}/evaluation/{cls.evaluation.id}/copy"
 
     def test_copy_forms_are_used(self):
@@ -1724,12 +1726,13 @@ class TestCourseCopyView(WebTestStaffMode):
             name_de="Das Original",
             name_en="The Original",
         )
-        cls.general_questionnaires = baker.make(Questionnaire, _quantity=5)
+        cls.general_questionnaires = baker.make(Questionnaire, _quantity=5, _bulk_create=True)
         cls.evaluation.general_contribution.questionnaires.set(cls.general_questionnaires)
         baker.make(
             Contribution,
             evaluation=cls.evaluation,
             _quantity=3,
+            _bulk_create=True,
             _fill_optional=["contributor"],
         )
         cls.url = f"/staff/semester/{cls.semester.id}/course/{cls.course.id}/copy"
@@ -2002,7 +2005,9 @@ class TestEvaluationDeleteView(WebTestStaffMode):
     def test_single_result_deletion(self):
         self.evaluation.is_single_result = True
         self.evaluation.save()
-        counters = baker.make(RatingAnswerCounter, contribution__evaluation=self.evaluation, _quantity=5)
+        counters = baker.make(
+            RatingAnswerCounter, contribution__evaluation=self.evaluation, _quantity=5, _bulk_create=True
+        )
 
         self.app.post(self.url, user=self.manager, params=self.post_params, status=200)
 
