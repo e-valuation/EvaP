@@ -216,10 +216,11 @@ class ExcelFileRowMapper:
                     )
                 )
 
-            for row_index in range(self.skip_first_n_rows, sheet.max_row):
-                # We use 0-based indexing, openpyxl uses 1-based indexing.
-                row = [cell.value for cell in sheet[row_index + 1]]
-                location = ExcelFileLocation(sheet.title, row_index)
+            # openpyxl uses 1-based indexing.
+            for row_number, row in enumerate(
+                sheet.iter_rows(min_row=self.skip_first_n_rows + 1, values_only=True), start=self.skip_first_n_rows
+            ):
+                location = ExcelFileLocation(sheet.title, row_number)
 
                 if not all(isinstance(cell, str) or cell is None for cell in row):
                     self.importer_log.add_error(

@@ -1,4 +1,5 @@
 from copy import deepcopy
+from dataclasses import dataclass
 from datetime import date, datetime
 from unittest.mock import patch
 
@@ -9,8 +10,33 @@ from model_bakery import baker
 
 import evap.staff.fixtures.excel_files_test_data as excel_data
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
-from evap.staff.importers import ImporterLogEntry, import_enrollments, import_persons_from_evaluation, import_users
+from evap.staff.importers import (
+    ImporterLog,
+    ImporterLogEntry,
+    import_enrollments,
+    import_persons_from_evaluation,
+    import_users,
+)
+from evap.staff.importers.base import ExcelFileLocation, ExcelFileRowMapper, InputRow
 from evap.staff.tools import ImportType, user_edit_link
+
+
+class TestExcelFileRowMapper(TestCase):
+    @dataclass
+    class SingleColumnInputRow(InputRow):
+        column_count = 1
+        location: ExcelFileLocation
+        value: str
+
+    def test_skip_first_n_rows_handled_correctly(self):
+        workbook_data = {"SheetName": [[str(i)] for i in range(10)]}
+        workbook_file_contents = excel_data.create_memory_excel_file(workbook_data)
+
+        mapper = ExcelFileRowMapper(skip_first_n_rows=3, row_cls=self.SingleColumnInputRow, importer_log=ImporterLog())
+        rows = mapper.map(workbook_file_contents)
+
+        self.assertEqual(rows[0].location, ExcelFileLocation("SheetName", 3))
+        self.assertEqual(rows[0].value, "3")
 
 
 class TestUserImport(TestCase):
