@@ -127,10 +127,6 @@ class Semester(models.Model):
         self.save()
 
     @classmethod
-    def get_all_with_unarchived_results(cls):
-        return cls.objects.filter(results_are_archived=False).distinct()
-
-    @classmethod
     def get_all_with_published_unarchived_results(cls):
         return cls.objects.filter(
             courses__evaluations__state=Evaluation.State.PUBLISHED, results_are_archived=False

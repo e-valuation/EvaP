@@ -5,8 +5,6 @@ from enum import Enum
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import Group
-from django.core.cache import cache
-from django.core.cache.utils import make_template_fragment_key
 from django.core.exceptions import SuspiciousOperation
 from django.db import transaction
 from django.db.models import Count
@@ -61,15 +59,6 @@ def get_import_file_content_or_raise(user_id, import_type):
         raise SuspiciousOperation("No test run performed previously.")
     with open(filename, "rb") as file:
         return file.read()
-
-
-def delete_navbar_cache_for_users(users):
-    # delete navbar cache from base.html
-    for user in users:
-        key = make_template_fragment_key("navbar", [user.email, "de"])
-        cache.delete(key)
-        key = make_template_fragment_key("navbar", [user.email, "en"])
-        cache.delete(key)
 
 
 def create_user_list_html_string_for_message(users):

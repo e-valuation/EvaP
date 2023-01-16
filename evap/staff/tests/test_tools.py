@@ -1,43 +1,10 @@
 from django.contrib.auth.models import Group
-from django.core.cache import cache
-from django.core.cache.utils import make_template_fragment_key
 from django.test import TestCase
 from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Course, Evaluation, UserProfile
-from evap.evaluation.tests.tools import WebTest
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption
-from evap.staff.tools import (
-    delete_navbar_cache_for_users,
-    merge_users,
-    remove_user_from_represented_and_ccing_users,
-    user_edit_link,
-)
-
-
-class NavbarCacheTest(WebTest):
-    def test_navbar_cache_deletion_for_users(self):
-        user1 = baker.make(UserProfile, email="user1@institution.example.com")
-        user2 = baker.make(UserProfile, email="user2@institution.example.com")
-
-        # create navbar caches for anonymous user, user1 and user2
-        self.app.get("/")
-        self.app.get("/results/", user="user1@institution.example.com")
-        self.app.get("/results/", user="user2@institution.example.com")
-
-        cache_key1 = make_template_fragment_key("navbar", [user1.email, "en"])
-        cache_key2 = make_template_fragment_key("navbar", [user2.email, "en"])
-        cache_key_anonymous = make_template_fragment_key("navbar", ["", "en"])
-
-        self.assertIsNotNone(cache.get(cache_key1))
-        self.assertIsNotNone(cache.get(cache_key2))
-        self.assertIsNotNone(cache.get(cache_key_anonymous))
-
-        delete_navbar_cache_for_users([user2])
-
-        self.assertIsNotNone(cache.get(cache_key1))
-        self.assertIsNone(cache.get(cache_key2))
-        self.assertIsNotNone(cache.get(cache_key_anonymous))
+from evap.staff.tools import merge_users, remove_user_from_represented_and_ccing_users, user_edit_link
 
 
 class MergeUsersTest(TestCase):
