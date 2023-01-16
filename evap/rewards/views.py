@@ -24,7 +24,6 @@ from evap.rewards.models import (
     SemesterActivation,
 )
 from evap.rewards.tools import grant_eligible_reward_points_for_semester, reward_points_of_user, save_redemptions
-from evap.staff.views import semester_view
 
 
 def redeem_reward_points(request):
@@ -146,13 +145,18 @@ def reward_point_redemption_event_export(request, event_id):
     return response
 
 
+@require_POST
 @manager_required
-def semester_activation(request, semester_id, active):
+def semester_activation_edit(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    active = active == "on"
-
+    status = request.POST.get("activation_status")
+    if status == "on":
+        active = True
+    elif status == "off":
+        active = False
+    else:
+        raise SuspiciousOperation("Invalid activation keyword")
     SemesterActivation.objects.update_or_create(semester=semester, defaults={"is_active": active})
     if active:
         grant_eligible_reward_points_for_semester(request, semester)
-
-    return semester_view(request=request, semester_id=semester_id)
+    return redirect("staff:semester_view", semester_id)
