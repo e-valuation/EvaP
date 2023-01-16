@@ -218,7 +218,7 @@ def semester_view(request, semester_id) -> HttpResponse:
                 stats.last_end = max(stats.last_end, evaluation.vote_end_date)
     degree_stats = OrderedDict(sorted(degree_stats.items(), key=lambda x: x[0].order))
 
-    degree_stats_with_total: Dict[Union[Degree, str], Stats] = cast(Dict[Union[Degree, str], Stats], degree_stats)
+    degree_stats_with_total = cast(Dict[Union[Degree, str], Stats], degree_stats)
     degree_stats_with_total["total"] = total_stats
 
     template_data = dict(
