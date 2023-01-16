@@ -377,6 +377,9 @@ OIDC_OP_JWKS_ENDPOINT = "https://example.com/certs"
 # Create a localsettings.py if you want to locally override settings
 # and don't want the changes to appear in 'git status'.
 try:
+    # type:ignore
+    # the import can overwrite locals with a slightly different type (e.g. DATABASES), which is fine.
+
     # if a localsettings file exists (vagrant), this will cause wildcard-import errors
     # if it does not, (GitHub), it would cause useless-suppression
     from evap.localsettings import *  # pylint: disable=unused-wildcard-import,wildcard-import,useless-suppression
