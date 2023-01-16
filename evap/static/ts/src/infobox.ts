@@ -11,7 +11,7 @@ export class InfoboxLogic {
 
     constructor(infobox_id: string) {
         this.infobox = selectOrError("#" + infobox_id);
-        this.closeButton = selectOrError("#" + infobox_id + " .callout-closable-close");
+        this.closeButton = selectOrError("#" + infobox_id + " .callout-infobox-close");
         this.storageKey = "infobox_" + infobox_id;
     }
 

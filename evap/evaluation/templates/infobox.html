@@ -1,11 +1,11 @@
 {% load static %}
 
 {% if not infotext.is_empty %}
-    <div id="{{ infotext.page }}" class="infobox callout callout-info callout-closable">
+    <div id="{{ infotext.page }}" class="infobox callout callout-info callout-infobox">
         <div class="callout-header d-flex">
             <span class="fas fa-circle-info callout-icon"></span>
             <span>{{ infotext.title }}</span>
-            <button type="button" class="btn-close callout-closable-close ms-auto"
+            <button type="button" class="btn-close callout-infobox-close ms-auto"
                     aria-label="Close"></button>
         </div>
         <div class="callout-content small">

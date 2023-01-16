@@ -50,24 +50,10 @@
     }
 }
 
-@mixin callout-open($extra_transition...) {
-    $transition: border-radius 1s ease, border-left-width 1s ease, padding 1s ease-in-out;
-    @if length($extra_transition) > 0 {
-        $transition: append($transition, $extra_transition);
-    }
-    transition: $transition;
-}
 
-@mixin callout-close($extra_transition...) {
-    $transition: border-radius 1s ease 1s, border-left-width 1s ease 1s, padding 1s ease-in-out;
-    @if length($extra_transition) > 0 {
-        $transition: append($transition, $extra_transition);
-    }
-    transition: $transition;
-}
-
-.callout-closable {
+.callout-infobox {
     display: inline-block;
+    min-width: 100%;
     transition: background-color 0.15s ease-in-out;
 
     &.closed:hover,
@@ -80,6 +66,7 @@
         border-radius: .2rem;
         border-left-width: 0;
         padding: 4px 8px 4px 8px;
+        min-width: 0;
 
         .callout-content {
             max-height: 0;
@@ -87,13 +74,13 @@
             padding-top: 0;
         }
 
-        .callout-closable-close {
+        .callout-infobox-close {
             display: none;
         }
     }
 
     &.closing {
-        @include callout-close();
+        transition: border-radius 1s ease 1s, border-left-width 1s ease 1s, padding 1s ease-in-out, min-width 1s ease 1s;
 
         .callout-content {
             transition: max-width 1s ease 1s, padding-top 1s ease, max-height 1s ease;
@@ -101,28 +88,10 @@
     }
 
     &.opening {
-        @include callout-open();
+        transition: border-radius 1s ease, border-left-width 1s ease, padding 1s ease-in-out, min-width 1s ease;
 
         .callout-content {
             transition: max-width 1s ease, padding-top 1s ease 1s, max-height 1s ease 1s;
         }
-    }
-}
-
-.infobox.callout {
-    min-width: 100%;
-
-    &.closing,
-    &.closed {
-        min-width: 0;
-    }
-
-    // override transitions to include min-width
-    &.closing {
-        @include callout-close(min-width 1s ease 1s);
-    }
-
-    &.opening {
-        @include callout-open(min-width 1s ease);
     }
 }
