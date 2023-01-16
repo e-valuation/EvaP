@@ -1,7 +1,7 @@
 {% load static %}
 {% load evaluation_filters %}
 
-<nav class="navbar navbar-dark {% if debug %}bg-debug{% else %}bg-dark{% endif %} {% if user.is_participant and user.is_responsible_or_contributor_or_delegate or user.is_reviewer %}navbar-expand-xl{% else %}navbar-expand-lg{% endif %} ps-0">
+<nav class="navbar {% if debug %}bg-debug {% endif %}{% if user.is_participant and user.is_responsible_or_contributor_or_delegate or user.is_reviewer %}navbar-expand-xl{% else %}navbar-expand-lg{% endif %} ps-0">
     <a class="d-block
         {% if user.is_participant and user.is_responsible_or_contributor_or_delegate or user.is_reviewer %}
             d-xl-none
