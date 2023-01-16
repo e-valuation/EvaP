@@ -6,8 +6,8 @@
 {% block content %}
 
     {{ block.super }}
-    <form id="form_activation_status" method="post" action="{% url 'rewards:semester_activation_edit' semester.id%}">
-        <input type="hidden" id="activation_status" name="activation_status" value="on"> {# FIXME #}
+    <form id="form_activation_status" method="post" action="{% url 'rewards:semester_activation_edit' semester.id %}">
+        <input type="hidden" id="activation_status" name="activation_status" value="on">
         {% csrf_token %}
     </form>
     <h3>
@@ -554,7 +554,7 @@
     {% include 'confirmation_modal.html' with modal_id='activateRewardPointsModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
         function activateRewardPointsModalAction() {
-            document.getElementById("form_activation_status").requestSubmit(); {# FIXME #}
+            document.getElementById("form_activation_status").requestSubmit();
         }
     </script>
 {% endblock %}
