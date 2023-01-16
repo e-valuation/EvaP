@@ -277,8 +277,8 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore
 
     def __init__(self, data=None, *, instance: Course):
         self.old_course = instance
-        opts = self._meta  # type: ignore
-        initial = forms.models.model_to_dict(instance, opts.fields, opts.exclude)  # type: ignore
+        opts = self._meta
+        initial = forms.models.model_to_dict(instance, opts.fields, opts.exclude)
         super().__init__(data=data, initial=initial)
         self._set_responsibles_queryset(instance)
 
