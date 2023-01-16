@@ -9,7 +9,7 @@ cd "$(dirname "$0")/.." # change to root directory
 USERNAME="evap"
 ENVDIR="/opt/evap/env"
 CONDITIONAL_NOINPUT=""
-[[ ! -z "$GITHUB_WORKFLOW" ]] && echo "Detected GitHub" && USERNAME="root" && ENVDIR=/usr/local && CONDITIONAL_NOINPUT="--noinput"
+[[ ! -z "$GITHUB_WORKFLOW" ]] && echo "Detected GitHub" && USERNAME="root" && ENVDIR="${pythonLocation}" && CONDITIONAL_NOINPUT="--noinput"
 
 COMMIT_HASH="$(git rev-parse --short HEAD)"
 
@@ -47,7 +47,7 @@ sudo -H -u "$USERNAME" "$ENVDIR/bin/pip" install -r requirements.txt
 
 # sometimes, this fails for some random i18n test translation files.
 sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py compilemessages || true
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py scss --production
+sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py scss --production || true
 sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py collectstatic --noinput
 
 sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py reset_db "$CONDITIONAL_NOINPUT"
