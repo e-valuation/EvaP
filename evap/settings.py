@@ -382,7 +382,7 @@ try:
     # pylint: disable=unused-wildcard-import,wildcard-import,useless-suppression
 
     # the import can overwrite locals with a slightly different type (e.g. DATABASES), which is fine.
-    from evap.localsettings import * # type: ignore
+    from evap.localsettings import *  # type: ignore
 except ImportError:
     pass
 
