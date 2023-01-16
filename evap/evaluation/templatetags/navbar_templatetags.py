@@ -2,7 +2,7 @@ from django.db.models import Q
 from django.template import Library
 
 from evap.evaluation.models import Semester
-from evap.settings import DEBUG, LANGUAGES  # type: ignore
+from evap.settings import DEBUG, LANGUAGES
 
 register = Library()
 

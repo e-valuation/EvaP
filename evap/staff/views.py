@@ -3,7 +3,7 @@ import itertools
 from collections import OrderedDict, defaultdict, namedtuple
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Any, Container, Dict, Optional
+from typing import Any, Container, Dict, Optional, Union, cast
 
 import openpyxl
 from django.conf import settings
@@ -22,6 +22,7 @@ from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy, ngettext
 from django.views.decorators.http import require_POST
+from django_stubs_ext import StrOrPromise
 
 from evap.contributor.views import export_contributor_results
 from evap.evaluation.auth import manager_required, reviewer_required, staff_permission_required
@@ -171,7 +172,7 @@ def get_evaluations_with_prefetched_data(semester):
 
 
 @reviewer_required
-def semester_view(request, semester_id):
+def semester_view(request, semester_id) -> HttpResponse:
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.results_are_archived and not request.user.is_manager:
         raise PermissionDenied
@@ -194,7 +195,7 @@ def semester_view(request, semester_id):
         first_start: datetime = datetime(9999, 1, 1)
         last_end: date = date(2000, 1, 1)
 
-    degree_stats = defaultdict(Stats)
+    degree_stats: Dict[Degree, Stats] = defaultdict(Stats)
     total_stats = Stats()
     for evaluation in evaluations:
         if evaluation.is_single_result:
@@ -215,7 +216,9 @@ def semester_view(request, semester_id):
                 stats.first_start = min(stats.first_start, evaluation.vote_start_datetime)
                 stats.last_end = max(stats.last_end, evaluation.vote_end_date)
     degree_stats = OrderedDict(sorted(degree_stats.items(), key=lambda x: x[0].order))
-    degree_stats["total"] = total_stats
+
+    degree_stats_with_total = cast(Dict[Union[Degree, str], Stats], degree_stats)
+    degree_stats_with_total["total"] = total_stats
 
     template_data = dict(
         semester=semester,
@@ -224,7 +227,7 @@ def semester_view(request, semester_id):
         disable_breadcrumb_semester=True,
         rewards_active=rewards_active,
         num_evaluations=len(evaluations),
-        degree_stats=degree_stats,
+        degree_stats=degree_stats_with_total,
         courses=courses,
         approval_states=[
             Evaluation.State.NEW,
@@ -240,7 +243,7 @@ class EvaluationOperation:
     email_template_name: Optional[str] = None
     email_template_contributor_name: Optional[str] = None
     email_template_participant_name: Optional[str] = None
-    confirmation_message: Optional[str] = None
+    confirmation_message: Optional[StrOrPromise] = None
 
     @staticmethod
     def applicable_to(evaluation):

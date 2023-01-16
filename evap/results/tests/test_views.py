@@ -510,7 +510,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         url = f"/results/semester/{self.semester.id}/evaluation/{evaluation.id}"
         self.app.get(url, user=self.manager)
 
-    def test_unpublished_single_results_show_results(self):
+    def test_unpublished_single_results_show_results(self) -> None:
         """Regression test for #1621"""
         # make regular evaluation with some answers
         participants = baker.make(UserProfile, _bulk_create=True, _quantity=20)

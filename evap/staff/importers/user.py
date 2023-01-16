@@ -369,6 +369,7 @@ def get_user_profile_objects(users: Iterable[UserData]) -> Tuple[List[UserProfil
 
     existing_objects = list(UserProfile.objects.filter(email__in=user_data_by_email.keys()))
     for obj in existing_objects:
+        assert obj.email is not None  # for mypy
         user_data_by_email[obj.email].apply_to_and_make_active(obj)
 
     existing_emails = {obj.email for obj in existing_objects}

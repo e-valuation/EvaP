@@ -3,7 +3,7 @@ import time
 from django.contrib import messages
 from django.utils.translation import gettext as _
 
-from evap.settings import STAFF_MODE_INFO_TIMEOUT, STAFF_MODE_TIMEOUT  # type: ignore
+from evap.settings import STAFF_MODE_INFO_TIMEOUT, STAFF_MODE_TIMEOUT
 
 
 def staff_mode_middleware(get_response):
