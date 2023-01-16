@@ -325,7 +325,7 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore
     }
 
     @transaction.atomic()
-    def save(self, commit=True):
+    def save(self, commit=True) -> Course:
         new_course: Course = super().save()
         # we need to create copies of evaluations and their participation as well
         for old_evaluation in self.old_course.evaluations.exclude(is_single_result=True):

@@ -28,6 +28,7 @@ from django.utils.safestring import SafeData
 from django.utils.translation import gettext_lazy as _
 from django_fsm import FSMIntegerField, transition
 from django_fsm.signals import post_transition
+from django_stubs_ext import StrOrPromise
 
 from evap.evaluation.models_logging import FieldAction, LoggedModel
 from evap.evaluation.tools import (
@@ -1195,7 +1196,7 @@ Choices = NamedTuple(
         ("values", Tuple[Number]),
         ("colors", Tuple[str]),
         ("grades", Tuple[Number]),
-        ("names", List[str]),
+        ("names", List[StrOrPromise]),
     ],
 )
 BipolarChoices = NamedTuple(
@@ -1205,9 +1206,9 @@ BipolarChoices = NamedTuple(
         ("values", Tuple[Number]),
         ("colors", Tuple[str]),
         ("grades", Tuple[Number]),
-        ("names", List[str]),
-        ("plus_name", str),
-        ("minus_name", str),
+        ("names", List[StrOrPromise]),
+        ("plus_name", StrOrPromise),
+        ("minus_name", StrOrPromise),
     ],
 )
 
@@ -1449,8 +1450,13 @@ class TextAnswer(Answer):
 
     # Once evaluation results are published, the review decision is executed
     # and thus, an answer _is_ private or _is_ public from that point on.
-    is_private = will_be_private
-    is_public = will_be_public
+    @property
+    def is_public(self):
+        return self.will_be_public
+
+    @property
+    def is_private(self):
+        return self.will_be_private
 
     @property
     def is_reviewed(self):

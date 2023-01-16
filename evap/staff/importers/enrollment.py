@@ -499,7 +499,7 @@ class ExistingParticipationChecker(Checker, RowCheckerMixin):
         seen_evaluation_names = self.participant_emails_per_course_name_en.keys()
 
         existing_participation_pairs = [
-            (participation.evaluation.course.name_en, participation.userprofile.email)
+            (participation.evaluation.course.name_en, participation.userprofile.email)  # type: ignore
             for participation in Evaluation.participants.through.objects.filter(
                 evaluation__course__name_en__in=seen_evaluation_names, userprofile__email__in=seen_user_emails
             ).prefetch_related("userprofile", "evaluation__course")

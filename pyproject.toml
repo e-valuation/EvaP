@@ -59,6 +59,7 @@ disable = [
     "too-many-arguments",             # we can't determine a good limit here. reviews should spot bad cases of this.
     "duplicate-code",                 # Mostly imports and test setup.
     "cyclic-import",                  # We use these inside methods that require models from multiple apps. Tests will catch actual errors.
+    "unsupported-binary-operation",   # broken in pylint 2.15: https://github.com/PyCQA/pylint/issues/7381
 ]
 
 ##############################################
