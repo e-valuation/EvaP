@@ -4,8 +4,8 @@
 {% load evaluation_filters %}
 
 {% block content %}
-
     {{ block.super }}
+
     <form id="form_activation_status" method="post" action="{% url 'rewards:semester_activation_edit' semester.id %}">
         <input type="hidden" id="activation_status" name="activation_status" value="on">
         {% csrf_token %}

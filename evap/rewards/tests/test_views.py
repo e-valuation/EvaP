@@ -211,6 +211,8 @@ class TestSemesterActivationView(WebTestStaffMode):
         baker.make(SemesterActivation, semester=self.semester, is_active=False)
         self.app.post(self.url, user=self.manager, params={"activation_status": "invalid"}, status=400)
         self.assertFalse(is_semester_activated(self.semester))
+        self.app.post(self.url, user=self.manager, status=400)
+        self.assertFalse(is_semester_activated(self.semester))
 
     def test_activate(self):
         baker.make(SemesterActivation, semester=self.semester, is_active=False)
