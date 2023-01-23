@@ -67,7 +67,7 @@ def create_user_list_html_string_for_message(users):
     return format_html_join("", "<br />{} {} ({})", ((user.first_name, user.last_name, user.email) for user in users))
 
 
-def append_user_list_if_not_empty(message: str, user_profiles: Collection) -> SafeString:
+def append_user_list_if_not_empty(message: str, user_profiles: Collection) -> str:
     if not user_profiles:
         return _("{message}.").format(message=message)
     return _("{message}: {list}").format(
