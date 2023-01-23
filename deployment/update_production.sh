@@ -44,8 +44,8 @@ sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py dumpdata --natural-foreign
 sudo -H -u "$USERNAME" "$ENVDIR/bin/pip" install -r requirements.txt
 # sometimes, this fails for some random i18n test translation files.
 sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py compilemessages || true
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py scss --production || true
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py ts compile --fresh || true
+sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py scss --production
+sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py ts compile --fresh
 sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py collectstatic --noinput
 sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py migrate
 sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py clear_cache --all -v=1

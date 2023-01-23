@@ -47,7 +47,7 @@ sudo -H -u "$USERNAME" "$ENVDIR/bin/pip" install -r requirements.txt
 
 # sometimes, this fails for some random i18n test translation files.
 sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py compilemessages || true
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py scss --production || true
+sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py scss --production
 sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py collectstatic --noinput
 
 sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py reset_db "$CONDITIONAL_NOINPUT"
