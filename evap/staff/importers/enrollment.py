@@ -35,9 +35,6 @@ from .user import (
 )
 
 
-def make_count_word(count: int) -> str:
-    return pgettext("count", "no") if count == 0 else str(count)
-
 @dataclass
 class InvalidValue:
     # We make this a dataclass to make sure all instances compare equal.

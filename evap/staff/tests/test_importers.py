@@ -368,6 +368,7 @@ class TestEnrollmentImport(TestCase):
         self.assertTrue(UserProfile.objects.filter(email="cleaned_bastius.quid@external.example.com").exists())
         self.assertTrue(UserProfile.objects.filter(email="cleaned_diam.synephebos@institution.example.com").exists())
         self.assertTrue(UserProfile.objects.filter(email="cleaned_111@institution.example.com").exists())
+
     def test_import_with_empty_excel(self):
 
         importer_log = import_enrollments(self.empty_excel_content, self.semester, None, None, test_run=True)

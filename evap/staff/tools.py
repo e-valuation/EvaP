@@ -70,8 +70,8 @@ def create_user_list_html_string_for_message(users):
 def append_user_list_if_not_empty(message: str, user_profiles: Collection) -> SafeString:
     if not user_profiles:
         return _("{message}.").format(message=message)
-    return _(
-        "{message}: {list}").format(message=message,
+    return _("{message}: {list}").format(
+        message=message,
         list=create_user_list_html_string_for_message(user_profiles),
     )
 
