@@ -9,7 +9,7 @@ cd "$(dirname "$0")/.." # change to root directory
 USERNAME="evap"
 ENVDIR="/opt/evap/env"
 CONDITIONAL_NOINPUT=""
-[[ ! -z "$GITHUB_WORKFLOW" ]] && echo "Detected GitHub" && USERNAME="root" && ENVDIR="${pythonLocation}" && CONDITIONAL_NOINPUT="--noinput"
+[[ ! -z "$GITHUB_WORKFLOW" ]] && echo "Detected GitHub" && USERNAME="root" && ENVDIR="${VIRTUAL_ENV}" && CONDITIONAL_NOINPUT="--noinput"
 
 COMMIT_HASH="$(git rev-parse --short HEAD)"
 

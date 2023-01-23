@@ -11,7 +11,7 @@ TIMESTAMP="$(date +%Y-%m-%d_%H:%M:%S)"
 
 USERNAME="evap"
 ENVDIR="/opt/evap/env"
-[[ ! -z "$GITHUB_WORKFLOW" ]] && echo "Detected GitHub" && USERNAME="root" && ENVDIR="${pythonLocation}"
+[[ ! -z "$GITHUB_WORKFLOW" ]] && echo "Detected GitHub" && USERNAME="root" && ENVDIR="${VIRTUAL_ENV}"
 
 # argument 1 is the title for the backupfile.
 if [ $# -eq 1 ]
