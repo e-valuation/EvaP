@@ -11,7 +11,6 @@ from django.db import transaction
 from django.db.models import Count
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
-from django.utils.safestring import SafeString
 from django.utils.translation import gettext_lazy as _
 
 from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer, UserProfile
