@@ -48,6 +48,8 @@ class ImporterLogEntry:
             "too_many_enrollments", gettext_lazy("Unusually high number of enrollments"), 14
         )
 
+        SIMILAR_COURSE_NAMES = _CATEGORY_TUPLE("similar_course_names", gettext_lazy("Similar course names"), 15)
+
     level: Level
     category: Category
     message: str
@@ -273,6 +275,9 @@ class FirstLocationAndCountTracker:
                 )
 
             yield key, location_string
+
+    def keys(self) -> Iterable[Any]:
+        return self.first_location_by_key.keys()
 
 
 class Checker:

@@ -1,3 +1,4 @@
+import difflib
 from collections import defaultdict
 from dataclasses import dataclass, fields
 from datetime import date, datetime
@@ -471,6 +472,46 @@ class CourseNameChecker(Checker):
             )
 
 
+class SimilarCourseNameChecker(Checker):
+    """
+    Searches for courses that have names with small edit distance and warns about them to make users aware of possible
+    typos.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.course_en_tracker: FirstLocationAndCountTracker = FirstLocationAndCountTracker()
+        self.course_de_tracker: FirstLocationAndCountTracker = FirstLocationAndCountTracker()
+
+    def check_course_data(self, course_data: CourseData, location: ExcelFileLocation) -> None:
+        self.course_en_tracker.add_location_for_key(location, course_data.name_en)
+        self.course_de_tracker.add_location_for_key(location, course_data.name_de)
+
+    def finalize(self) -> None:
+        warning_texts = []
+
+        for tracker in [self.course_en_tracker, self.course_de_tracker]:
+            for needle_name, location_string in tracker.aggregated_keys_and_location_strings():
+                matches = difflib.get_close_matches(
+                    needle_name,
+                    (name for name in tracker.keys() if name > needle_name),
+                    n=1,
+                    cutoff=settings.IMPORTER_COURSE_NAME_SIMILARITY_WARNING_THRESHOLD,
+                )
+                if matches:
+                    warning_texts.append(
+                        _('{location}: The course names "{name1}" and "{name2}" have a low edit distance.').format(
+                            location=location_string,
+                            name1=needle_name,
+                            name2=matches[0],
+                        )
+                    )
+
+        for warning_text in warning_texts:
+            self.importer_log.add_warning(warning_text, category=ImporterLogEntry.Category.SIMILAR_COURSE_NAMES)
+
+
 class ExistingParticipationChecker(Checker, RowCheckerMixin):
     """Warn if users are already stored as participants for a course in the database"""
 
@@ -652,6 +693,7 @@ def import_enrollments(
             UserDegreeMismatchChecker(test_run, importer_log),
             CourseDataAdapter(CourseNameChecker(test_run, importer_log, semester=semester)),
             CourseDataAdapter(CourseDataMismatchChecker(test_run, importer_log)),
+            CourseDataAdapter(SimilarCourseNameChecker(test_run, importer_log)),
             UserDataAdapter(UserDataEmptyFieldsChecker(test_run, importer_log)),
             UserDataAdapter(UserDataMismatchChecker(test_run, importer_log)),
             UserDataAdapter(UserDataValidationChecker(test_run, importer_log)),

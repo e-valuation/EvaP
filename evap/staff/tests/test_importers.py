@@ -796,6 +796,31 @@ class TestEnrollmentImport(TestCase):
         )
         self.assertFalse(importer_log.has_errors())
 
+    @override_settings(IMPORTER_COURSE_NAME_SIMILARITY_WARNING_THRESHOLD=0.8)
+    def test_course_name_with_typo(self):
+        # Add a typo in one english course name as well
+        input_data = deepcopy(excel_data.test_enrollment_data_filedata)
+        self.assertEqual(input_data["MA Belegungen"][1][7], "Build")
+        input_data["MA Belegungen"][1][7] = "Biuld"
+
+        excel_content = excel_data.create_memory_excel_file(input_data)
+
+        importer_log_test = import_enrollments(excel_content, self.semester, None, None, test_run=True)
+        importer_log_notest = import_enrollments(excel_content, self.semester, None, None, test_run=False)
+
+        self.assertEqual(importer_log_test.warnings_by_category(), importer_log_notest.warnings_by_category())
+        self.assertListEqual(
+            [
+                'Sheet "MA Belegungen", row 2: The course names "Biuld" and "Build" have a low edit distance.',
+                'Sheet "BA Belegungen", row 3: The course names "Singen" and "Sinken" have a low edit distance.',
+                'Sheet "BA Belegungen", row 12: The course names "Schlafen" and "Schlagen" have a low edit distance.',
+            ],
+            [
+                msg.message
+                for msg in importer_log_test.warnings_by_category()[ImporterLogEntry.Category.SIMILAR_COURSE_NAMES]
+            ],
+        )
+
 
 class TestPersonImport(TestCase):
     @classmethod
