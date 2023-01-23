@@ -3,7 +3,7 @@ from typing import Iterable
 from django.utils.translation import ngettext
 
 from evap.evaluation.models import Contribution, Evaluation, UserProfile
-from evap.staff.tools import ImportType, append_user_list
+from evap.staff.tools import ImportType, append_user_list_if_not_empty
 
 from .base import ImporterLog
 from .user import import_users
@@ -22,7 +22,7 @@ def add_participants_to(
             "The following {user_count} users are already participating in evaluation {name}",
             len(already_related),
         ).format(user_count=len(already_related), name=evaluation.full_name)
-        msg = append_user_list(msg, already_related)
+        msg = append_user_list_if_not_empty(msg, already_related)
 
         importer_log.add_warning(msg)
 
@@ -40,7 +40,7 @@ def add_participants_to(
             len(users_to_add),
         ).format(user_count=len(users_to_add), name=evaluation.full_name)
 
-    msg = append_user_list(message, users_to_add)
+    msg = append_user_list_if_not_empty(message, users_to_add)
 
     importer_log.add_success(msg)
 
@@ -56,7 +56,7 @@ def add_contributors_to(
             "The following {user_count} users are already contributing to evaluation {name}",
             len(already_related),
         ).format(user_count=len(already_related), name=evaluation.full_name)
-        msg = append_user_list(msg, already_related)
+        msg = append_user_list_if_not_empty(msg, already_related)
 
         importer_log.add_warning(msg)
 
@@ -78,7 +78,7 @@ def add_contributors_to(
             len(users_to_add),
         ).format(user_count=len(users_to_add), name=evaluation.full_name)
 
-    msg = append_user_list(message, users_to_add)
+    msg = append_user_list_if_not_empty(message, users_to_add)
 
     importer_log.add_success(msg)
 

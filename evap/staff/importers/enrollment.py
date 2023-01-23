@@ -12,7 +12,7 @@ from typing_extensions import TypeGuard
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
 from evap.evaluation.tools import clean_email, ilen, unordered_groupby
-from evap.staff.tools import append_user_list
+from evap.staff.tools import append_user_list_if_not_empty
 
 from .base import (
     Checker,
@@ -649,8 +649,7 @@ def import_enrollments(
         importer_log.raise_if_has_errors()
         if test_run:
             importer_log.add_success(_("The test run showed no errors. No data was imported yet."))
-            msg = format_html(
-                _("The import run will create {evaluation_string} and {user_string}"),
+            msg = _("The import run will create {evaluation_string} and {user_string}").format(
                 evaluation_string=ngettext(
                     "1 course/evaluation", "{count} courses/evaluations", new_course_count
                 ).format(count=new_course_count),
@@ -666,8 +665,7 @@ def import_enrollments(
             update_existing_and_create_new_courses(course_data_list, semester, vote_start_datetime, vote_end_date)
             store_participations_in_db(parsed_rows)
 
-            msg = format_html(
-                _("Successfully created {evaluation_string}, {participant_string} and {contributor_string}"),
+            msg = _("Successfully created {evaluation_string}, {participant_string} and {contributor_string}").format(
                 evaluation_string=ngettext(
                     "1 course/evaluation", "{count} courses/evaluations", new_course_count
                 ).format(count=new_course_count),
@@ -679,7 +677,7 @@ def import_enrollments(
                 ),
             )
 
-        msg = append_user_list(msg, new_user_profiles)
+        msg = append_user_list_if_not_empty(msg, new_user_profiles)
         importer_log.add_success(msg)
 
     return importer_log
