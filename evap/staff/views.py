@@ -1216,7 +1216,7 @@ def helper_evaluation_edit(request, semester, evaluation):
     ]
 
     questionnaires_with_answers_per_contributor = defaultdict(list)
-    for (contributor, questionnaire) in contributor_questionnaire_pairs:
+    for contributor, questionnaire in contributor_questionnaire_pairs:
         questionnaires_with_answers_per_contributor[contributor].append(questionnaire)
 
     if evaluation_form.errors or formset.errors:

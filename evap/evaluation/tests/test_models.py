@@ -468,7 +468,6 @@ class TestEvaluations(WebTest):
         expected_value_with_wait_for_grade_upload_before_publishing,
         expected_value_after_grade_upload,
     ):
-
         self.assertEqual(evaluation.textanswer_review_state, expected_default_value)
 
         evaluation.course.gets_no_grade_documents = True
