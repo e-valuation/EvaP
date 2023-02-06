@@ -35,7 +35,7 @@ from evap.evaluation.tools import (
     clean_email,
     date_to_datetime,
     is_external_email,
-    is_m2m_prefetched,
+    is_prefetched,
     translate,
     vote_end_datetime,
 )
@@ -219,6 +219,12 @@ class Questionnaire(models.Model):
 
     @property
     def can_be_edited_by_manager(self):
+        if is_prefetched(self, "contributions"):
+            if all(is_prefetched(contribution, "evaluation") for contribution in self.contributions.all()):
+                return all(
+                    contribution.evaluation.state == Evaluation.State.NEW for contribution in self.contributions.all()
+                )
+
         return not self.contributions.exclude(evaluation__state=Evaluation.State.NEW).exists()
 
     @property
@@ -361,6 +367,9 @@ class Course(LoggedModel):
 
     @property
     def all_evaluations_finished(self):
+        if is_prefetched(self, "evaluations"):
+            return all(evaluation.state >= Evaluation.State.EVALUATED for evaluation in self.evaluations.all())
+
         return not self.evaluations.exclude(state__gte=Evaluation.State.EVALUATED).exists()
 
 
@@ -547,8 +556,15 @@ class Evaluation(LoggedModel):
 
     @property
     def all_contributions_have_questionnaires(self):
+        if is_prefetched(self, "contributions"):
+            if not self.contributions:
+                return False
+
+            if is_prefetched(self.contributions[0], "questionnaires"):
+                return all(len(contribution.questionnaires) > 0 for contribution in self.contributions)
+
         return (
-            self.general_contribution
+            self.general_contribution is not None
             and not self.contributions.annotate(Count("questionnaires")).filter(questionnaires__count=0).exists()
         )
 
@@ -601,7 +617,7 @@ class Evaluation(LoggedModel):
         if self._participant_count is not None:
             return self._participant_count
 
-        if is_m2m_prefetched(self, "participants"):
+        if is_prefetched(self, "participants"):
             return len(self.participants.all())
 
         return self.participants.count()
