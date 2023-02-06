@@ -1546,11 +1546,10 @@ class Infotext(models.Model):
         verbose_name = _("infotext")
         verbose_name_plural = _("infotexts")
 
-        # django-stubs does not understand violation_error_message before 1.13.0: https://github.com/typeddjango/django-stubs/issues/1262
         constraints = (
             CheckConstraint(
                 name="infotexts_not_half_empty",
-                violation_error_message="Please supply either all or no fields for this infotext.",  # type: ignore[call-arg]
+                violation_error_message="Please supply either all or no fields for this infotext.",
                 check=Q(title_de="", content_de="", title_en="", content_en="")
                 | ~Q(title_de="", content_de="", title_en="", content_en="", _connector=Q.OR),
             ),
