@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 import logging
 import os
 import sys
-from typing import List, Tuple
+from typing import Any, List, Tuple
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -240,7 +240,8 @@ _TEMPLATE_OPTIONS = {
     "builtins": ["django.templatetags.i18n"],
 }
 
-TEMPLATES = [
+
+TEMPLATES: Any = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "APP_DIRS": True,
