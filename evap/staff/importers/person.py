@@ -3,6 +3,7 @@ from typing import Iterable
 from django.utils.translation import ngettext
 
 from evap.evaluation.models import Contribution, Evaluation, UserProfile
+from evap.evaluation.tools import assert_not_none
 from evap.staff.tools import ImportType, append_user_list_if_not_empty
 
 from .base import ImporterLog
@@ -49,7 +50,7 @@ def add_contributors_to(
     evaluation: Evaluation, users: Iterable[UserProfile], test_run: bool, importer_log: ImporterLog
 ):
     already_related_contributions = Contribution.objects.filter(evaluation=evaluation, contributor__in=users)
-    already_related = {contribution.contributor for contribution in already_related_contributions}
+    already_related = {assert_not_none(contribution.contributor) for contribution in already_related_contributions}
     if already_related:
         msg = ngettext(
             "The following user is already contributing to evaluation {name}",

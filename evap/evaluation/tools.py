@@ -13,6 +13,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import get_language
 
 M = TypeVar("M", bound=Model)
+T = TypeVar("T")
 Key = TypeVar("Key")
 Value = TypeVar("Value")
 
@@ -121,6 +122,11 @@ def capitalize_first(string):
 
 def ilen(iterable):
     return sum(1 for _ in iterable)
+
+
+def assert_not_none(value: Optional[T]) -> T:
+    assert value is not None
+    return value
 
 
 class AttachmentResponse(HttpResponse):

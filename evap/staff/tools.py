@@ -1,7 +1,7 @@
 import os
-from typing import Iterable
 from datetime import date, datetime, timedelta
 from enum import Enum
+from typing import Iterable
 
 from django.conf import settings
 from django.contrib import messages
@@ -10,8 +10,7 @@ from django.core.exceptions import SuspiciousOperation
 from django.db import transaction
 from django.db.models import Count
 from django.urls import reverse
-from django.utils.html import format_html, format_html_join, escape
-
+from django.utils.html import escape, format_html, format_html_join
 from django.utils.safestring import SafeString
 from django.utils.translation import gettext_lazy as _
 
