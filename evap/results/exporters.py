@@ -19,7 +19,6 @@ from evap.results.tools import (
 
 
 class ResultsExporter(ExcelExporter):
-
     CUSTOM_COLOR_START = 8
     NUM_GRADE_COLORS = 21  # 1.0 to 5.0 in 0.2 steps
     STEP = 0.2  # we only have a limited number of custom colors
