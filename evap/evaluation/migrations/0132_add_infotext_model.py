@@ -2,7 +2,7 @@ from django.db import migrations, models
 from evap.evaluation.models import Infotext
 
 
-def create_infotexts(apps,  _schema_editor):
+def create_infotexts(apps, _schema_editor):
     infotext = apps.get_model("evaluation", "Infotext")
 
     for page in Infotext.Page:
