@@ -5,9 +5,8 @@ from evap.evaluation.models import Infotext
 def create_infotexts(apps, _schema_editor):
     infotext = apps.get_model("evaluation", "Infotext")
 
-    infotext.objects.create(title_en="", title_de="", content_en="", content_de="", page=Infotext.Page.CONTRIBUTOR_INDEX)
-    infotext.objects.create(title_en="", title_de="", content_en="", content_de="", page=Infotext.Page.STUDENT_INDEX)
-    infotext.objects.create(title_en="", title_de="", content_en="", content_de="", page=Infotext.Page.GRADES_PAGES)
+    for page in Infotext.Page:
+        infotext.objects.create(title_en="", title_de="", content_en="", content_de="", page=page)
 
 
 class Migration(migrations.Migration):
