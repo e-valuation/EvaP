@@ -162,6 +162,10 @@ jobs:
         run: apt update && apt install sudo
       - name: Check out repository code
         uses: actions/checkout@v2
+      - name: GitHub actions has wrong file ownership here, the checkout actions has a problem here (see their 1049)
+        run: |
+          git config --global --add safe.directory '*'
+          sudo -H -u root git config --global --add safe.directory '*'
       - name: Install dependencies
         run: pip install -r requirements-dev.txt
       - name: Add localsettings
