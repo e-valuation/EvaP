@@ -1,5 +1,5 @@
 import os
-from collections.abc import Collection
+from typing import Iterable
 from datetime import date, datetime, timedelta
 from enum import Enum
 
@@ -10,7 +10,9 @@ from django.core.exceptions import SuspiciousOperation
 from django.db import transaction
 from django.db.models import Count
 from django.urls import reverse
-from django.utils.html import format_html, format_html_join
+from django.utils.html import format_html, format_html_join, escape
+
+from django.utils.safestring import SafeString
 from django.utils.translation import gettext_lazy as _
 
 from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer, UserProfile
@@ -66,13 +68,20 @@ def create_user_list_html_string_for_message(users):
     return format_html_join("", "<br />{} {} ({})", ((user.first_name, user.last_name, user.email) for user in users))
 
 
-def append_user_list_if_not_empty(message: str, user_profiles: Collection) -> str:
+def append_user_list_if_not_empty(message: str, user_profiles: Iterable[UserProfile]) -> SafeString:
+    message = conditional_escape(message)
     if not user_profiles:
-        return _("{message}.").format(message=message)
-    return _("{message}: {list}").format(
-        message=message,
-        list=create_user_list_html_string_for_message(user_profiles),
-    )
+        return message + escape(".")
+    return message + escape(": ") + create_user_list_html_string_for_message(user_profiles)
+
+
+def conditional_escape(s: str) -> SafeString:
+    """
+    Like Django's `conditional_escape`, but only handles `str` and `SafeString`.
+    """
+    if isinstance(s, SafeString):
+        return s
+    return escape(s)
 
 
 def find_matching_internal_user_for_email(request, email):

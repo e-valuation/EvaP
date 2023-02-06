@@ -370,11 +370,10 @@ class TestEnrollmentImport(TestCase):
         self.assertTrue(UserProfile.objects.filter(email="cleaned_111@institution.example.com").exists())
 
     def test_import_with_empty_excel(self):
-
         importer_log = import_enrollments(self.empty_excel_content, self.semester, None, None, test_run=True)
 
         success_messages = [msg.message for msg in importer_log.success_messages()]
-        self.assertIn("The import run will create 0 courses/evaluations and 0 users.", "".join(success_messages))
+        self.assertIn("The import run will create 0 courses/evaluations and 0 users.", success_messages)
 
         importer_log = import_enrollments(
             self.empty_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
@@ -382,7 +381,7 @@ class TestEnrollmentImport(TestCase):
         success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn(
             "Successfully created 0 courses/evaluations, 0 participants and 0 contributors.",
-            "".join(success_messages),
+            success_messages,
         )
 
     def test_degrees_are_merged(self):
