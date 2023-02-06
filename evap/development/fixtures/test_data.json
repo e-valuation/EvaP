@@ -108058,7 +108058,7 @@
 },
 {
   "model": "evaluation.infotext",
-  "pk": 1,
+  "pk": 2,
   "fields": {
     "title_de": "Informationen für Mitwirkende",
     "title_en": "Information for contributors",
@@ -108069,7 +108069,7 @@
 },
 {
   "model": "evaluation.infotext",
-  "pk": 2,
+  "pk": 1,
   "fields": {
     "title_de": "Informationen zur Evaluierung",
     "title_en": "Information about the evaluation",
