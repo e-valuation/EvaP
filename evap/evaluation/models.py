@@ -1526,7 +1526,7 @@ class Infotext(models.Model):
     content = translate(en="content_en", de="content_de")
 
     def is_empty(self):
-        return not self.title or not self.content
+        return not (self.title or self.content)
 
     class Page(models.TextChoices):
         STUDENT_INDEX = ("student_index", "Student index page")
