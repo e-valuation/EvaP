@@ -1141,7 +1141,7 @@ class Question(models.Model):
         if self.is_rating_question:
             return RatingAnswerCounter
 
-        raise Exception(f"Unknown answer type: {self.type!r}")
+        assert False, f"Unknown answer type: {self.type!r}"
 
     @property
     def is_likert_question(self):
