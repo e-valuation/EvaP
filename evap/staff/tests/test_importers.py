@@ -99,7 +99,7 @@ class TestUserImport(TestCase):
         self.assertTrue(UserProfile.objects.filter(email="lucilia.manilium@institution.example.com").exists())
         self.assertTrue(UserProfile.objects.filter(email="bastius.quid@external.example.com").exists())
 
-    @patch("evap.staff.importers.user.clean_email", new=(lambda email: "cleaned_" + email))
+    @patch("evap.staff.importers.user.clean_email", new=lambda email: "cleaned_" + email)
     def test_emails_are_cleaned(self):
         original_user_count = UserProfile.objects.count()
         __, __ = import_users(self.valid_excel_file_content, test_run=False)
@@ -351,8 +351,8 @@ class TestEnrollmentImport(TestCase):
         expected_user_count = old_user_count + 23
         self.assertEqual(UserProfile.objects.all().count(), expected_user_count)
 
-    @patch("evap.staff.importers.user.clean_email", new=(lambda email: "cleaned_" + email))
-    @patch("evap.staff.importers.enrollment.clean_email", new=(lambda email: "cleaned_" + email))
+    @patch("evap.staff.importers.user.clean_email", new=lambda email: "cleaned_" + email)
+    @patch("evap.staff.importers.enrollment.clean_email", new=lambda email: "cleaned_" + email)
     def test_emails_are_cleaned(self):
         import_enrollments(self.default_excel_content, self.semester, None, None, test_run=True)
 

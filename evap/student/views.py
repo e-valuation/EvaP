@@ -68,13 +68,13 @@ def index(request):
 
     semesters = Semester.objects.all()
     semester_list = [
-        dict(
-            semester_name=semester.name,
-            id=semester.id,
-            results_are_archived=semester.results_are_archived,
-            grade_documents_are_deleted=semester.grade_documents_are_deleted,
-            evaluations=[evaluation for evaluation in evaluations if evaluation.course.semester_id == semester.id],
-        )
+        {
+            "semester_name": semester.name,
+            "id": semester.id,
+            "results_are_archived": semester.results_are_archived,
+            "grade_documents_are_deleted": semester.grade_documents_are_deleted,
+            "evaluations": [evaluation for evaluation in evaluations if evaluation.course.semester_id == semester.id],
+        }
         for semester in semesters
     ]
 
@@ -106,12 +106,12 @@ def index(request):
 
     unfinished_evaluations.sort(key=sorter)
 
-    template_data = dict(
-        semester_list=semester_list,
-        can_download_grades=request.user.can_download_grades,
-        unfinished_evaluations=unfinished_evaluations,
-        evaluation_end_warning_period=settings.EVALUATION_END_WARNING_PERIOD,
-    )
+    template_data = {
+        "semester_list": semester_list,
+        "can_download_grades": request.user.can_download_grades,
+        "unfinished_evaluations": unfinished_evaluations,
+        "evaluation_end_warning_period": settings.EVALUATION_END_WARNING_PERIOD,
+    }
 
     return render(request, "student_index.html", template_data)
 
@@ -161,23 +161,23 @@ def render_vote_page(request, evaluation, preview, for_rendering_in_modal=False)
         evaluation_form_group_top += evaluation_form_group_bottom
         evaluation_form_group_bottom = []
 
-    template_data = dict(
-        errors_exist=any(
+    template_data = {
+        "errors_exist": any(
             any(form.errors for form in form_group)
             for form_group in [*(form_groups.values()), evaluation_form_group_top, evaluation_form_group_bottom]
         ),
-        evaluation_form_group_top=evaluation_form_group_top,
-        evaluation_form_group_bottom=evaluation_form_group_bottom,
-        contributor_form_groups=contributor_form_groups,
-        evaluation=evaluation,
-        small_evaluation_size_warning=evaluation.num_participants <= settings.SMALL_COURSE_SIZE,
-        preview=preview,
-        success_magic_string=SUCCESS_MAGIC_STRING,
-        success_redirect_url=reverse("student:index"),
-        for_rendering_in_modal=for_rendering_in_modal,
-        general_contribution_textanswers_visible_to=textanswers_visible_to(evaluation.general_contribution),
-        text_answer_warnings=TextAnswerWarning.objects.all(),
-    )
+        "evaluation_form_group_top": evaluation_form_group_top,
+        "evaluation_form_group_bottom": evaluation_form_group_bottom,
+        "contributor_form_groups": contributor_form_groups,
+        "evaluation": evaluation,
+        "small_evaluation_size_warning": evaluation.num_participants <= settings.SMALL_COURSE_SIZE,
+        "preview": preview,
+        "success_magic_string": SUCCESS_MAGIC_STRING,
+        "success_redirect_url": reverse("student:index"),
+        "for_rendering_in_modal": for_rendering_in_modal,
+        "general_contribution_textanswers_visible_to": textanswers_visible_to(evaluation.general_contribution),
+        "text_answer_warnings": TextAnswerWarning.objects.all(),
+    }
     return render(request, "student_vote.html", template_data)
 
 
