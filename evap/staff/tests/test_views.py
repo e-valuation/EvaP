@@ -175,13 +175,14 @@ class TestStaffInfotextEditView(WebTestStaffMode):
         infotext = Infotext.objects.get(id=empty_form_id.value)
         self.assertTrue(infotext.is_empty())
 
+    def test_infotext_edit_fail(self):
         page = self.app.get(self.url, user=self.manager)
         formset = page.forms["infotext-formset"]
         # submit invalid data
-        formset["form-0-content_de"] = ""
-        formset["form-0-content_en"] = ""
-        formset["form-0-title_de"] = ""
-        formset["form-0-title_en"] = ""
+        formset["form-0-content_de"] = "sample text abc"
+        formset["form-0-content_en"] = "sample text def"
+        formset["form-0-title_de"] = "sample text hij"
+        formset["form-0-title_en"] = "sample text klm"
         empty_form_id = formset["form-0-id"]
 
         formset["form-1-content_de"] = "this is an invalid infotext"
@@ -193,7 +194,7 @@ class TestStaffInfotextEditView(WebTestStaffMode):
 
         # assert no infotexts changed
         infotext = Infotext.objects.get(id=empty_form_id.value)
-        self.assertFalse(infotext.is_empty())
+        self.assertTrue(infotext.is_empty())
 
         infotext = Infotext.objects.get(id=filled_form_id.value)
         self.assertTrue(infotext.is_empty())
