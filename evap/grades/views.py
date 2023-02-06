@@ -22,10 +22,10 @@ from evap.grades.models import GradeDocument
 
 @grade_publisher_required
 def index(request):
-    template_data = dict(
-        semesters=Semester.objects.filter(grade_documents_are_deleted=False),
-        disable_breadcrumb_grades=True,
-    )
+    template_data = {
+        "semesters": Semester.objects.filter(grade_documents_are_deleted=False),
+        "disable_breadcrumb_grades": True,
+    }
     return render(request, "grades_index.html", template_data)
 
 
@@ -55,12 +55,12 @@ def semester_view(request, semester_id):
     )
     courses = course_grade_document_count_tuples(courses)
 
-    template_data = dict(
-        semester=semester,
-        courses=courses,
-        disable_if_archived="disabled" if semester.grade_documents_are_deleted else "",
-        disable_breadcrumb_semester=True,
-    )
+    template_data = {
+        "semester": semester,
+        "courses": courses,
+        "disable_if_archived": "disabled" if semester.grade_documents_are_deleted else "",
+        "disable_breadcrumb_semester": True,
+    }
     return render(request, "grades_semester_view.html", template_data)
 
 
@@ -71,13 +71,13 @@ def course_view(request, semester_id, course_id):
         raise PermissionDenied
     course = get_object_or_404(Course, id=course_id, semester=semester)
 
-    template_data = dict(
-        semester=semester,
-        course=course,
-        grade_documents=course.grade_documents.all(),
-        disable_if_archived="disabled" if semester.grade_documents_are_deleted else "",
-        disable_breadcrumb_course=True,
-    )
+    template_data = {
+        "semester": semester,
+        "course": course,
+        "grade_documents": course.grade_documents.all(),
+        "disable_if_archived": "disabled" if semester.grade_documents_are_deleted else "",
+        "disable_breadcrumb_course": True,
+    }
     return render(request, "grades_course_view.html", template_data)
 
 
@@ -124,13 +124,13 @@ def upload_grades(request, semester_id, course_id):
         messages.success(request, _("Successfully uploaded grades."))
         return redirect("grades:course_view", semester.id, course.id)
 
-    template_data = dict(
-        semester=semester,
-        course=course,
-        form=form,
-        final_grades=final_grades,
-        show_automated_publishing_info=final_grades,
-    )
+    template_data = {
+        "semester": semester,
+        "course": course,
+        "form": form,
+        "final_grades": final_grades,
+        "show_automated_publishing_info": final_grades,
+    }
     return render(request, "grades_upload_form.html", template_data)
 
 
@@ -179,13 +179,13 @@ def edit_grades(request, semester_id, course_id, grade_document_id):
         messages.success(request, _("Successfully updated grades."))
         return redirect("grades:course_view", semester.id, course.id)
 
-    template_data = dict(
-        semester=semester,
-        course=course,
-        form=form,
-        show_automated_publishing_info=False,
-        final_grades=final_grades,
-    )
+    template_data = {
+        "semester": semester,
+        "course": course,
+        "form": form,
+        "show_automated_publishing_info": False,
+        "final_grades": final_grades,
+    }
     return render(request, "grades_upload_form.html", template_data)
 
 

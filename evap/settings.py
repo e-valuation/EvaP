@@ -250,7 +250,7 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "APP_DIRS": True,
-        "OPTIONS": dict(**_TEMPLATE_OPTIONS, debug=False),
+        "OPTIONS": {**_TEMPLATE_OPTIONS, "debug": False},
         "NAME": "CachedEngine",  # used for bulk-filling caches
     },
 ]
