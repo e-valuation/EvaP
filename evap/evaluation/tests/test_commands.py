@@ -8,6 +8,7 @@ from unittest.mock import call, patch
 
 from django.conf import settings
 from django.core import mail, management
+from django.core.management import CommandError
 from django.db.models import Sum
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -213,9 +214,8 @@ class TestScssCommand(TestCase):
         mock_subprocess_run.side_effect = FileNotFoundError()
 
         stderr = StringIO()
-        management.call_command("scss", stderr=stderr)
-
-        self.assertEqual(stderr.getvalue(), "Could not find sass command\n\n")
+        with self.assertRaisesMessage(CommandError, "Could not find sass command"):
+            management.call_command("scss", stderr=stderr)
 
 
 class TestTsCommend(TestCase):
