@@ -13,16 +13,16 @@ def include_navbar(user, language):
         Q(results_are_archived=False) | Q(grade_documents_are_deleted=False)
     )
 
-    semesters_with_unarchived_results = {
+    semesters_with_unarchived_results = [
         semester
         for semester in semesters_with_unarchived_results_or_grade_documents
         if not semester.results_are_archived
-    }
-    semesters_with_grade_documents = {
+    ]
+    semesters_with_grade_documents = [
         semester
         for semester in semesters_with_unarchived_results_or_grade_documents
         if not semester.grade_documents_are_deleted
-    }
+    ]
 
     return {
         "user": user,
