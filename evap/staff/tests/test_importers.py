@@ -41,7 +41,6 @@ class TestExcelFileRowMapper(TestCase):
 
 
 class ImporterTestCase(TestCase):
-    # pylint: disable=invalid-name
     def assertErrorIs(self, importer_log: ImporterLog, category: ImporterLogEntry.Category, message: str):
         self.assertErrorsAre(importer_log, {category: [message]})
 
