@@ -23,6 +23,7 @@ body, .fixed-top, .fixed-bottom, .is-fixed, .sticky-top {
 // make buttons that really look like links
 .btn-link {
     padding: 0;
+    vertical-align: baseline;
     border: none;
     background-color: transparent;
 }

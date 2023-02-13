@@ -17,7 +17,7 @@
                         <h6 class="card-subtitle mb-2 text-muted">{% trans 'From Excel file' %}</h6>
                         <p class="card-text">
                             {% trans 'Upload Excel file with participant data' %} (<a href="{% url 'staff:download_sample_file' 'sample_user.xlsx' %}">{% trans 'Download sample file' %}</a>,
-                            <button type="button" class="btn-link" onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">{% trans 'Copy headers to clipboard' %}</button>).
+                            <button type="button" class="btn btn-link" onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">{% trans 'Copy headers to clipboard' %}</button>).
                             {% trans 'This will create all containing users.' %}
                         </p>
                         {% include 'bootstrap_form.html' with form=participant_excel_form wide=True %}
@@ -66,7 +66,7 @@
                         <p class="card-text">
                             {% trans 'Upload Excel file with contributor data' %}
                             (<a href="{% url 'staff:download_sample_file' 'sample_user.xlsx' %}">{% trans 'Download sample file' %}</a>,
-                            <button type="button" class="btn-link" onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">{% trans 'Copy headers to clipboard' %}</button>).
+                            <button type="button" class="btn btn-link" onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">{% trans 'Copy headers to clipboard' %}</button>).
                             {% trans 'This will create all containing users.' %}
                         </p>
                         {% include 'bootstrap_form.html' with form=contributor_excel_form wide=True %}
