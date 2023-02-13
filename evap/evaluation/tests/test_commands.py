@@ -213,9 +213,8 @@ class TestScssCommand(TestCase):
     def test_scss_called_with_no_sass_installed(self, mock_subprocess_run):
         mock_subprocess_run.side_effect = FileNotFoundError()
 
-        stderr = StringIO()
         with self.assertRaisesMessage(CommandError, "Could not find sass command"):
-            management.call_command("scss", stderr=stderr)
+            management.call_command("scss")
 
 
 class TestTsCommend(TestCase):
@@ -260,6 +259,13 @@ class TestTsCommend(TestCase):
                 call(["npx", "jest"], check=True),
             ]
         )
+
+    @patch("subprocess.run")
+    def test_ts_called_with_no_npm_installed(self, mock_subprocess_run):
+        mock_subprocess_run.side_effect = FileNotFoundError()
+
+        with self.assertRaisesMessage(CommandError, "Could not find npx command"):
+            management.call_command("ts", "compile")
 
 
 class TestUpdateEvaluationStatesCommand(TestCase):
