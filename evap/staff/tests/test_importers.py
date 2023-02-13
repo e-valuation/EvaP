@@ -165,7 +165,7 @@ class TestUserImport(ImporterTestCase):
         self.assertEqual(
             [msg.message for msg in importer_log_test.errors_by_category()[ImporterLogEntry.Category.USER]],
             [
-                'Sheet "Users", row 4: The users\'s data (email: bastius.quid@external.example.com) is different to a previous row.'
+                'Sheet "Users", row 4: The data of user "bastius.quid@external.example.com" differs from their data in a previous row.'
             ],
         )
 
@@ -424,7 +424,7 @@ class TestEnrollmentImport(ImporterTestCase):
         self.assertErrorIs(
             importer_log_test,
             ImporterLogEntry.Category.DEGREE,
-            'Sheet "MA Belegungen", row 3: The user "bastius.quid@external.example.com" has a different degree than in a previous row.',
+            'Sheet "MA Belegungen", row 3: The degree of user "bastius.quid@external.example.com" differs from their degree in a previous row.',
         )
 
     def test_errors_are_merged(self):
@@ -520,7 +520,7 @@ class TestEnrollmentImport(ImporterTestCase):
         self.assertCountEqual(
             [msg.message for msg in importer_log_test.errors_by_category()[ImporterLogEntry.Category.USER]],
             [
-                'Sheet "MA Belegungen", row 3: The users\'s data (email: bastius.quid@external.example.com) is different to a previous row.',
+                'Sheet "MA Belegungen", row 3: The data of user "bastius.quid@external.example.com" differs from their data in a previous row.',
                 'Sheet "MA Belegungen", row 7: Email address is missing.',
                 'Sheet "MA Belegungen", row 10: Email address is missing.',
             ],
@@ -554,7 +554,7 @@ class TestEnrollmentImport(ImporterTestCase):
         self.assertEqual(
             [msg.message for msg in importer_log_test.errors_by_category()[ImporterLogEntry.Category.DEGREE]],
             [
-                'Sheet "MA Belegungen", row 9: The user "diam.synephebos@institution.example.com" has a different degree than in a previous row.',
+                'Sheet "MA Belegungen", row 9: The degree of user "diam.synephebos@institution.example.com" differs from their degree in a previous row.',
             ],
         )
         self.assertEqual(

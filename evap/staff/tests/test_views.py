@@ -1043,8 +1043,8 @@ class TestSemesterImportView(WebTestStaffMode):
         )
         self.assertContains(reply, is_graded_error)
         user_error = (
-            "Sheet &quot;MA Belegungen&quot;, row 3: The users&#x27;s data"
-            " (email: bastius.quid@external.example.com) is different to a previous row."
+            "Sheet &quot;MA Belegungen&quot;, row 3: The data of user"
+            " &quot;bastius.quid@external.example.com&quot; differs from their data in a previous row."
         )
         self.assertContains(reply, user_error)
         self.assertContains(reply, "Sheet &quot;MA Belegungen&quot;, row 7: Email address is missing.")

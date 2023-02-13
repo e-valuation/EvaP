@@ -149,10 +149,10 @@ class UserDataMismatchChecker(Checker):
 
     def finalize(self) -> None:
         # Mismatches to older rows in the file
-        for user_email, location in self.in_file_mismatch_tracker.aggregated_keys_and_location_strings():
+        for email, location in self.in_file_mismatch_tracker.aggregated_keys_and_location_strings():
             self.importer_log.add_error(
-                _("{location}: The users's data (email: {user_email}) is different to a previous row.").format(
-                    location=location, user_email=user_email
+                _('{location}: The data of user "{email}" differs from their data in a previous row.').format(
+                    location=location, email=email
                 ),
                 category=ImporterLogEntry.Category.USER,
             )

@@ -614,7 +614,7 @@ class UserDegreeMismatchChecker(Checker, RowCheckerMixin):
     def finalize(self) -> None:
         for student_email, location_string in self.tracker.aggregated_keys_and_location_strings():
             self.importer_log.add_error(
-                _('{location}: The user "{email}" has a different degree than in a previous row.').format(
+                _('{location}: The degree of user "{email}" differs from their degree in a previous row.').format(
                     location=location_string,
                     email=student_email,
                 ),
