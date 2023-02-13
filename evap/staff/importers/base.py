@@ -138,7 +138,7 @@ class ConvertExceptionsToMessages:
     """Shared catch-all exception handlers between importers"""
 
     def __init__(self, importer_log: ImporterLog):
-        self.importer_log: ImporterLog = importer_log
+        self.importer_log = importer_log
 
     def __enter__(self):
         pass

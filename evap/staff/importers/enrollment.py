@@ -86,7 +86,7 @@ def all_fields_valid(course_data: CourseData) -> TypeGuard[ValidCourseData]:
 class DegreeImportMapper:
     class InvalidDegreeNameException(Exception):
         def __init__(self, *args, invalid_degree_name: str, **kwargs):
-            self.invalid_degree_name: str = invalid_degree_name
+            self.invalid_degree_name = invalid_degree_name
             super().__init__(*args, **kwargs)
 
     def __init__(self) -> None:
@@ -189,9 +189,9 @@ class EnrollmentInputRowMapper:
     def __init__(self, importer_log: ImporterLog):
         self.importer_log: ImporterLog = importer_log
 
-        self.course_type_mapper: CourseTypeImportMapper = CourseTypeImportMapper()
-        self.degree_mapper: DegreeImportMapper = DegreeImportMapper()
-        self.is_graded_mapper: IsGradedImportMapper = IsGradedImportMapper()
+        self.course_type_mapper = CourseTypeImportMapper()
+        self.degree_mapper = DegreeImportMapper()
+        self.is_graded_mapper = IsGradedImportMapper()
 
         self.invalid_degrees_tracker: Optional[FirstLocationAndCountTracker] = None
         self.invalid_course_types_tracker: Optional[FirstLocationAndCountTracker] = None
@@ -383,13 +383,13 @@ class CourseNameChecker(Checker):
         super().__init__(*args, **kwargs)
 
         self.course_merge_logic = CourseMergeLogic(semester)
-        self.course_merged_tracker: FirstLocationAndCountTracker = FirstLocationAndCountTracker()
-        self.course_merge_impossible_tracker: FirstLocationAndCountTracker = FirstLocationAndCountTracker()
-        self.name_de_collision_tracker: FirstLocationAndCountTracker = FirstLocationAndCountTracker()
-        self.name_en_collision_tracker: FirstLocationAndCountTracker = FirstLocationAndCountTracker()
+        self.course_merged_tracker = FirstLocationAndCountTracker()
+        self.course_merge_impossible_tracker = FirstLocationAndCountTracker()
+        self.name_de_collision_tracker = FirstLocationAndCountTracker()
+        self.name_en_collision_tracker = FirstLocationAndCountTracker()
 
         self.name_en_by_name_de: Dict[str, str] = {}
-        self.name_de_mismatch_tracker: FirstLocationAndCountTracker = FirstLocationAndCountTracker()
+        self.name_de_mismatch_tracker = FirstLocationAndCountTracker()
 
     def check_course_data(self, course_data: CourseData, location: ExcelFileLocation) -> None:
         try:
@@ -481,8 +481,8 @@ class SimilarCourseNameChecker(Checker):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.course_en_tracker: FirstLocationAndCountTracker = FirstLocationAndCountTracker()
-        self.course_de_tracker: FirstLocationAndCountTracker = FirstLocationAndCountTracker()
+        self.course_en_tracker = FirstLocationAndCountTracker()
+        self.course_de_tracker = FirstLocationAndCountTracker()
 
     def check_course_data(self, course_data: CourseData, location: ExcelFileLocation) -> None:
         self.course_en_tracker.add_location_for_key(location, course_data.name_en)
@@ -561,7 +561,7 @@ class CourseDataMismatchChecker(Checker):
         super().__init__(*args, **kwargs)
 
         self.course_data_by_name_en: Dict[str, CourseData] = {}
-        self.tracker: FirstLocationAndCountTracker = FirstLocationAndCountTracker()
+        self.tracker = FirstLocationAndCountTracker()
 
     def check_course_data(self, course_data: CourseData, location: ExcelFileLocation) -> None:
         if not all_fields_valid(course_data):
@@ -595,7 +595,7 @@ class UserDegreeMismatchChecker(Checker, RowCheckerMixin):
         super().__init__(*args, **kwargs)
 
         self.degree_by_email: Dict[str, Degree] = {}
-        self.tracker: FirstLocationAndCountTracker = FirstLocationAndCountTracker()
+        self.tracker = FirstLocationAndCountTracker()
 
     def check_row(self, row: EnrollmentParsedRow):
         if row.student_data.email == "":

@@ -136,7 +136,7 @@ class UserDataMismatchChecker(Checker):
         # maps user's mail to UserData instance where it was first seen to have O(1) lookup
         self.users: Dict[str, UserData] = {}
 
-        self.in_file_mismatch_tracker: FirstLocationAndCountTracker = FirstLocationAndCountTracker()
+        self.in_file_mismatch_tracker = FirstLocationAndCountTracker()
 
     def check_userdata(self, user_data: UserData, location: ExcelFileLocation):
         if user_data.email == "":
@@ -282,7 +282,7 @@ class DuplicateUserDataChecker(Checker):
         super().__init__(*args, **kwargs)
         self.first_location_by_user_data: Dict[UserData, ExcelFileLocation] = {}
 
-        self.tracker: FirstLocationAndCountTracker = FirstLocationAndCountTracker()
+        self.tracker = FirstLocationAndCountTracker()
 
     def check_userdata(self, user_data: UserData, location: ExcelFileLocation):
         if user_data not in self.first_location_by_user_data:
