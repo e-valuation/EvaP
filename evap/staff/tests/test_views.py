@@ -53,7 +53,7 @@ from evap.staff.tests.utils import (
     helper_set_dynamic_choices_field_value,
     run_in_staff_mode,
 )
-from evap.staff.tools import user_edit_link
+from evap.staff.tools import fill_infotext_formset, user_edit_link
 from evap.staff.views import get_evaluations_with_prefetched_data
 from evap.student.models import TextAnswerWarning
 
@@ -150,16 +150,8 @@ class TestStaffInfotextEditView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
         formset = page.forms["infotext-formset"]
 
-        # fill formset with valid data
-        formset["form-0-content_de"] = "sample text abc"
-        formset["form-0-content_en"] = "sample text def"
-        formset["form-0-title_de"] = "sample text hij"
-        formset["form-0-title_en"] = "sample text klm"
-
-        formset["form-1-content_de"] = ""
-        formset["form-1-content_en"] = ""
-        formset["form-1-title_de"] = ""
-        formset["form-1-title_en"] = ""
+        fill_infotext_formset(formset, 0, "abc", "def", "ghi", "jkl")
+        fill_infotext_formset(formset, 1)
 
         filled_form_id = formset["form-0-id"]
         empty_form_id = formset["form-1-id"]
@@ -167,10 +159,10 @@ class TestStaffInfotextEditView(WebTestStaffMode):
 
         # check, that content arrived at database
         infotext = Infotext.objects.get(id=filled_form_id.value)
-        self.assertEqual(infotext.content_de, "sample text abc")
-        self.assertEqual(infotext.content_en, "sample text def")
-        self.assertEqual(infotext.title_de, "sample text hij")
-        self.assertEqual(infotext.title_en, "sample text klm")
+        self.assertEqual(infotext.title_de, "abc")
+        self.assertEqual(infotext.title_en, "def")
+        self.assertEqual(infotext.content_de, "ghi")
+        self.assertEqual(infotext.content_en, "jkl")
 
         infotext = Infotext.objects.get(id=empty_form_id.value)
         self.assertTrue(infotext.is_empty())
@@ -178,17 +170,12 @@ class TestStaffInfotextEditView(WebTestStaffMode):
     def test_infotext_edit_fail(self):
         page = self.app.get(self.url, user=self.manager)
         formset = page.forms["infotext-formset"]
-        # submit invalid data
-        formset["form-0-content_de"] = "sample text abc"
-        formset["form-0-content_en"] = "sample text def"
-        formset["form-0-title_de"] = "sample text hij"
-        formset["form-0-title_en"] = "sample text klm"
-        empty_form_id = formset["form-0-id"]
 
-        formset["form-1-content_de"] = "this is an invalid infotext"
-        formset["form-1-content_en"] = ""
-        formset["form-1-title_de"] = ""
-        formset["form-1-title_en"] = "no translation given"
+        # submit invalid data
+        fill_infotext_formset(formset, 0, "abc", "def", "ghi", "jkl")
+        fill_infotext_formset(formset, 1, "invalid infotext", "", "", "no translations")
+
+        empty_form_id = formset["form-0-id"]
         filled_form_id = formset["form-1-id"]
         formset.submit()
 
