@@ -2291,7 +2291,7 @@ def infotexts(request):
     return render(
         request,
         "staff_infotexts.html",
-        dict(formset=formset),
+        {"formset": formset},
     )
 
 
