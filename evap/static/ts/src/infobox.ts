@@ -1,4 +1,8 @@
+declare const bootstrap: typeof import("bootstrap");
+
 import { selectOrError } from "./utils.js";
+
+const OPEN_CLOSE_TIMEOUT = 2000;
 
 export class InfoboxLogic {
     private readonly infobox: HTMLDivElement;
@@ -14,17 +18,21 @@ export class InfoboxLogic {
     public attach = (): void => {
         // close the infobox and save state
         this.closeButton.addEventListener("click", async event => {
-            if (!this.infobox.className.includes("closed")) {
-                this.infobox.classList.add("closed");
-                event.stopPropagation(); // prevent immediate reopening: close button is part of the header, which is used as the open button
-                localStorage[this.storageKey] = "hide";
-            }
+            this.infobox.classList.add("closing");
+            setTimeout(() => {
+                this.infobox.classList.replace("closing", "closed");
+            }, OPEN_CLOSE_TIMEOUT);
+            event.stopPropagation(); // prevent immediate reopening: close button is in header, which is the open button
+            localStorage[this.storageKey] = "hide";
         });
 
         // open the infobox and save state
         this.infobox.addEventListener("click", async _ => {
             if (this.infobox.className.includes("closed")) {
-                this.infobox.classList.remove("closed");
+                this.infobox.classList.replace("closed", "opening");
+                setTimeout(() => {
+                    this.infobox.classList.remove("opening");
+                }, OPEN_CLOSE_TIMEOUT);
                 localStorage[this.storageKey] = "show";
             }
         });
