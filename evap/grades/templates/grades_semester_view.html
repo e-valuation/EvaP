@@ -42,7 +42,7 @@
                                 <td data-col="name" data-order="{{ course.name|lower }}">
                                     <a href="{% url 'grades:course_view' semester.id course.id %}">{{ course.name }}</a>
                                     <br />
-                                    {% include 'evaluation_badges.html' with mode='grades' %}
+                                    {% include 'course_badges.html' %}
                                 </td>
                                 <td data-col="responsible" data-order="{{ course.responsibles.first.last_name|lower }}">
                                     {{ course.responsibles_names }}
