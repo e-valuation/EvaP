@@ -115,10 +115,12 @@
                         <p class="card-text">{% trans 'This will create a CSV file containing login keys for all external participants.' %}</p>
                     </div>
                     <div class="card-footer text-center">
-                        <button name="operation" value="export-login-keys" type="submit" class="btn btn-sm btn-primary form-submit-btn"
-                        {% if not evaluation.has_external_participant %} disabled data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans "This evaluation has no external participants." %}"{% endif %}>
-                            {% trans 'Export login keys' %}
-                        </button>
+                        <div{% if not evaluation.has_external_participant %} data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans "This evaluation has no external participants." %}"{% endif %}>
+                            <button name="operation" value="export-login-keys" type="submit" class="btn btn-sm btn-primary form-submit-btn"
+                            {% if not evaluation.has_external_participant %} disabled{% endif %}>
+                                {% trans 'Export login keys' %}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </form>
