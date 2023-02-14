@@ -3,7 +3,7 @@ import itertools
 from collections import OrderedDict, defaultdict, namedtuple
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Any, Container, Dict, Optional, Union, cast
+from typing import Any, Container, Dict, Optional, Tuple, Type, Union, cast
 
 import openpyxl
 from django.conf import settings
@@ -475,27 +475,36 @@ EVALUATION_OPERATIONS = {
 }
 
 
-@manager_required
-def semester_evaluation_operation(request, semester_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-    if semester.participations_are_archived:
-        raise PermissionDenied
-
+def target_state_and_operation_from_str(target_state_str: str) -> Tuple[int, Type[EvaluationOperation]]:
     try:
-        target_state = int(request.GET["target_state"])
+        target_state = int(target_state_str)
     except (KeyError, ValueError, TypeError) as err:
         raise SuspiciousOperation("Could not parse target_state") from err
 
     if target_state not in EVALUATION_OPERATIONS:
-        raise SuspiciousOperation("Unknown target state: " + str(target_state))
+        raise SuspiciousOperation(f"Unknown target state: {target_state}")
+
+    return target_state, EVALUATION_OPERATIONS[target_state]
+
+
+@manager_required
+def evaluation_operation(request, semester_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    if semester.participations_are_archived:
+        raise PermissionDenied
 
     evaluation_ids = (request.GET if request.method == "GET" else request.POST).getlist("evaluation")
     evaluations = list(
-        annotate_evaluations_with_grade_document_counts(Evaluation.objects.filter(id__in=evaluation_ids))
+        annotate_evaluations_with_grade_document_counts(
+            Evaluation.objects.filter(id__in=evaluation_ids).prefetch_related("course__semester")
+        )
     )
+    if any(evaluation.course.semester != semester for evaluation in evaluations):
+        raise SuspiciousOperation
+
     evaluations.sort(key=lambda evaluation: evaluation.full_name)
 
-    operation = EVALUATION_OPERATIONS[target_state]
+    target_state, operation = target_state_and_operation_from_str(request.GET["target_state"])
 
     if request.method == "POST":
         email_template = None
@@ -521,7 +530,7 @@ def semester_evaluation_operation(request, semester_id):
             )
 
         operation.apply(request, evaluations, email_template, email_template_contributor, email_template_participant)
-        return redirect("staff:semester_view", semester_id)
+        return redirect("staff:semester_view", semester.id)
 
     applicable_evaluations = list(filter(operation.applicable_to, evaluations))
     difference = len(evaluations) - len(applicable_evaluations)
@@ -529,7 +538,7 @@ def semester_evaluation_operation(request, semester_id):
         messages.warning(request, operation.warning_for_inapplicables(difference))
     if not applicable_evaluations:  # no evaluations where applicable or none were selected
         messages.warning(request, _("Please select at least one evaluation."))
-        return redirect("staff:semester_view", semester_id)
+        return redirect("staff:semester_view", semester.id)
 
     email_template = None
     email_template_contributor = None
@@ -942,9 +951,9 @@ def course_create(request, semester_id):
 
         messages.success(request, _("Successfully created course."))
         if operation == "save_create_evaluation":
-            return redirect("staff:evaluation_create", semester_id, course.id)
+            return redirect("staff:evaluation_create_for_course", course.id)
         if operation == "save_create_single_result":
-            return redirect("staff:single_result_create", semester_id, course.id)
+            return redirect("staff:single_result_create_for_course", course.id)
         return redirect("staff:semester_view", semester_id)
 
     return render(
@@ -953,9 +962,8 @@ def course_create(request, semester_id):
 
 
 @manager_required
-def course_copy(request, semester_id, course_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(Course, id=course_id, semester=semester)
+def course_copy(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
     course_form = CourseCopyForm(request.POST or None, instance=course)
 
     if course_form.is_valid():
@@ -983,7 +991,7 @@ def course_copy(request, semester_id, course_id):
         {
             "course": course,
             "evaluations": evaluations,
-            "semester": semester,
+            "semester": course.semester,
             "course_form": course_form,
             "editable": True,
             "disable_breadcrumb_course": True,
@@ -992,9 +1000,8 @@ def course_copy(request, semester_id, course_id):
 
 
 @manager_required
-def course_edit(request, semester_id, course_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(Course, id=course_id, semester=semester)
+def course_edit(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
 
     course_form = CourseForm(request.POST or None, instance=course)
     editable = course.can_be_edited_by_manager
@@ -1014,15 +1021,15 @@ def course_edit(request, semester_id, course_id):
 
         messages.success(request, _("Successfully updated course."))
         if operation == "save_create_evaluation":
-            return redirect("staff:evaluation_create", semester_id, course.id)
+            return redirect("staff:evaluation_create_for_course", course.id)
         if operation == "save_create_single_result":
-            return redirect("staff:single_result_create", semester_id, course.id)
+            return redirect("staff:single_result_create_for_course", course.id)
 
-        return redirect("staff:semester_view", semester.id)
+        return redirect("staff:semester_view", course.semester.id)
 
     template_data = {
         "course": course,
-        "semester": semester,
+        "semester": course.semester,
         "course_form": course_form,
         "editable": editable,
         "disable_breadcrumb_course": True,
@@ -1040,15 +1047,13 @@ def course_delete(request):
     return HttpResponse()  # 200 OK
 
 
-@manager_required
-def evaluation_create(request, semester_id, course_id=None):
-    semester = get_object_or_404(Semester, id=semester_id)
+def evaluation_create_impl(request, semester: Semester, course: Optional[Course]):
+    if course is not None:
+        assert course.semester == semester
     if semester.participations_are_archived:
         raise PermissionDenied
+    evaluation = Evaluation(course=course)
 
-    evaluation = Evaluation()
-    if course_id:
-        evaluation.course = get_object_or_404(Course, id=course_id)
     InlineContributionFormset = inlineformset_factory(
         Evaluation, Contribution, formset=ContributionFormset, form=ContributionForm, extra=1
     )
@@ -1064,7 +1069,7 @@ def evaluation_create(request, semester_id, course_id=None):
         update_template_cache_of_published_evaluations_in_course(evaluation.course)
 
         messages.success(request, _("Successfully created evaluation."))
-        return redirect("staff:semester_view", semester_id)
+        return redirect("staff:semester_view", semester.id)
 
     return render(
         request,
@@ -1082,9 +1087,20 @@ def evaluation_create(request, semester_id, course_id=None):
 
 
 @manager_required
-def evaluation_copy(request, semester_id, evaluation_id):
+def evaluation_create_for_semester(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
+    return evaluation_create_impl(request, semester, None)
+
+
+@manager_required
+def evaluation_create_for_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    return evaluation_create_impl(request, course.semester, course)
+
+
+@manager_required
+def evaluation_copy(request, evaluation_id):
+    evaluation = get_object_or_404(Evaluation, id=evaluation_id)
 
     form = EvaluationCopyForm(request.POST or None, evaluation)
 
@@ -1099,13 +1115,13 @@ def evaluation_copy(request, semester_id, evaluation_id):
         update_template_cache_of_published_evaluations_in_course(copied_evaluation.course)
 
         messages.success(request, _("Successfully created evaluation."))
-        return redirect("staff:semester_view", semester_id)
+        return redirect("staff:semester_view", evaluation.course.semester.pk)
 
     return render(
         request,
         "staff_evaluation_form.html",
         {
-            "semester": semester,
+            "semester": evaluation.course.semester,
             "evaluation_form": form,
             "formset": formset,
             "manager": True,
@@ -1116,15 +1132,12 @@ def evaluation_copy(request, semester_id, evaluation_id):
     )
 
 
-@manager_required
-def single_result_create(request, semester_id, course_id=None):
-    semester = get_object_or_404(Semester, id=semester_id)
+def single_result_create_impl(request, semester: Semester, course: Optional[Course]):
+    if course is not None:
+        assert course.semester == semester
     if semester.participations_are_archived:
         raise PermissionDenied
-
-    evaluation = Evaluation()
-    if course_id:
-        evaluation.course = get_object_or_404(Course, id=course_id)
+    evaluation = Evaluation(course=course)
 
     form = SingleResultForm(request.POST or None, instance=evaluation, semester=semester)
 
@@ -1133,26 +1146,37 @@ def single_result_create(request, semester_id, course_id=None):
         update_template_cache_of_published_evaluations_in_course(evaluation.course)
 
         messages.success(request, _("Successfully created single result."))
-        return redirect("staff:semester_view", semester_id)
+        return redirect("staff:semester_view", semester.pk)
 
     return render(request, "staff_single_result_form.html", {"semester": semester, "form": form, "editable": True})
 
 
 @manager_required
-def evaluation_edit(request, semester_id, evaluation_id):
+def single_result_create_for_semester(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
+    return single_result_create_impl(request, semester, None)
+
+
+@manager_required
+def single_result_create_for_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    return single_result_create_impl(request, course.semester, course)
+
+
+@manager_required
+def evaluation_edit(request, evaluation_id):
+    evaluation = get_object_or_404(Evaluation, id=evaluation_id)
 
     if request.method == "POST" and not evaluation.can_be_edited_by_manager:
         raise SuspiciousOperation("Modifying this evaluation is not allowed.")
 
     if evaluation.is_single_result:
-        return helper_single_result_edit(request, semester, evaluation)
-    return helper_evaluation_edit(request, semester, evaluation)
+        return helper_single_result_edit(request, evaluation)
+    return helper_evaluation_edit(request, evaluation)
 
 
 @manager_required
-def helper_evaluation_edit(request, semester, evaluation):
+def helper_evaluation_edit(request, evaluation):
     # Show a message when reward points are granted during the lifetime of the calling view.
     # The @receiver will only live as long as the request is processed
     # as the callback is captured by a weak reference in the Django Framework
@@ -1175,7 +1199,7 @@ def helper_evaluation_edit(request, semester, evaluation):
         Evaluation, Contribution, formset=ContributionFormset, form=ContributionForm, extra=1 if editable else 0
     )
 
-    evaluation_form = EvaluationForm(request.POST or None, instance=evaluation, semester=semester)
+    evaluation_form = EvaluationForm(request.POST or None, instance=evaluation, semester=evaluation.course.semester)
     formset = InlineContributionFormset(
         request.POST or None, instance=evaluation, form_kwargs={"evaluation": evaluation}
     )
@@ -1210,7 +1234,7 @@ def helper_evaluation_edit(request, semester, evaluation):
         else:
             messages.success(request, _("Successfully updated evaluation."))
 
-        return redirect("staff:semester_view", semester.id)
+        return redirect("staff:semester_view", evaluation.course.semester.id)
 
     assert set(Answer.__subclasses__()) == {TextAnswer, RatingAnswerCounter}
     contributor_questionnaire_pairs = [
@@ -1230,7 +1254,7 @@ def helper_evaluation_edit(request, semester, evaluation):
     sort_formset(request, formset)
     template_data = {
         "evaluation": evaluation,
-        "semester": semester,
+        "semester": evaluation.course.semester,
         "evaluation_form": evaluation_form,
         "formset": formset,
         "manager": True,
@@ -1242,7 +1266,8 @@ def helper_evaluation_edit(request, semester, evaluation):
 
 
 @manager_required
-def helper_single_result_edit(request, semester, evaluation):
+def helper_single_result_edit(request, evaluation):
+    semester = evaluation.course.semester
     form = SingleResultForm(request.POST or None, instance=evaluation, semester=semester)
 
     if form.is_valid():
@@ -1275,9 +1300,8 @@ def evaluation_delete(request):
 
 
 @manager_required
-def evaluation_email(request, semester_id, evaluation_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-    evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
+def evaluation_email(request, evaluation_id):
+    evaluation = get_object_or_404(Evaluation, id=evaluation_id)
     export = "export" in request.POST
     form = EvaluationEmailForm(request.POST or None, evaluation=evaluation, export=export)
 
@@ -1286,14 +1310,18 @@ def evaluation_email(request, semester_id, evaluation_id):
             email_addresses = "; ".join(form.email_addresses())
             messages.info(request, _("Recipients: ") + "\n" + email_addresses)
             return render(
-                request, "staff_evaluation_email.html", {"semester": semester, "evaluation": evaluation, "form": form}
+                request,
+                "staff_evaluation_email.html",
+                {"semester": evaluation.course.semester, "evaluation": evaluation, "form": form},
             )
         form.send(request)
         messages.success(request, _("Successfully sent emails for '%s'.") % evaluation.full_name)
-        return redirect("staff:semester_view", semester_id)
+        return redirect("staff:semester_view", evaluation.course.semester.pk)
 
     return render(
-        request, "staff_evaluation_email.html", {"semester": semester, "evaluation": evaluation, "form": form}
+        request,
+        "staff_evaluation_email.html",
+        {"semester": evaluation.course.semester, "evaluation": evaluation, "form": form},
     )
 
 
@@ -1312,12 +1340,11 @@ def helper_delete_users_from_evaluation(evaluation, operation):
 
 @manager_required
 @transaction.atomic
-def evaluation_person_management(request, semester_id, evaluation_id):
+def evaluation_person_management(request, evaluation_id):
     # This view indeed handles 4 tasks. However, they are tightly coupled, splitting them up
     # would lead to more code duplication. Thus, we decided to leave it as is for now
     # pylint: disable=too-many-locals
-    semester = get_object_or_404(Semester, id=semester_id)
-    evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
+    evaluation = get_object_or_404(Evaluation, id=evaluation_id)
     if evaluation.participations_are_archived:
         raise PermissionDenied
 
@@ -1386,7 +1413,7 @@ def evaluation_person_management(request, semester_id, evaluation_id):
                 )
 
             importer_log.forward_messages_to_django(request)
-            return redirect("staff:semester_view", semester_id)
+            return redirect("staff:semester_view", evaluation.course.semester.pk)
 
     participant_test_passed = import_file_exists(request.user.id, ImportType.PARTICIPANT)
     contributor_test_passed = import_file_exists(request.user.id, ImportType.CONTRIBUTOR)
@@ -1395,7 +1422,7 @@ def evaluation_person_management(request, semester_id, evaluation_id):
         request,
         "staff_evaluation_person_management.html",
         {
-            "semester": semester,
+            "semester": evaluation.course.semester,
             "evaluation": evaluation,
             "participant_excel_form": participant_excel_form,
             "participant_copy_form": participant_copy_form,
@@ -1409,11 +1436,10 @@ def evaluation_person_management(request, semester_id, evaluation_id):
 
 
 @manager_required
-def evaluation_login_key_export(_request, semester_id, evaluation_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-    evaluation = get_object_or_404(Evaluation, course__semester=semester, id=evaluation_id)
+def evaluation_login_key_export(_request, evaluation_id):
+    evaluation = get_object_or_404(Evaluation, id=evaluation_id)
 
-    filename = f"Login_keys-{evaluation.full_name}-{semester.short_name}.csv"
+    filename = f"Login_keys-{evaluation.full_name}-{evaluation.course.semester.short_name}.csv"
     response = AttachmentResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
@@ -1475,11 +1501,11 @@ def get_evaluation_and_contributor_textanswer_sections(evaluation, filter_textan
 
 
 @reviewer_required
-def evaluation_textanswers(request, semester_id, evaluation_id):
-    semester = get_object_or_404(Semester, id=semester_id)
+def evaluation_textanswers(request, evaluation_id):
+    evaluation = get_object_or_404(Evaluation, id=evaluation_id)
+    semester = evaluation.course.semester
     if semester.results_are_archived:
         raise PermissionDenied
-    evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
 
     if evaluation.state == Evaluation.State.PUBLISHED:
         raise PermissionDenied
@@ -1579,11 +1605,7 @@ def evaluation_textanswer_edit(request, textanswer_id):
     if form.is_valid():
         form.save()
         # jump to edited answer
-        url = (
-            reverse("staff:evaluation_textanswers", args=[evaluation.course.semester.id, evaluation.id])
-            + "#"
-            + str(textanswer.id)
-        )
+        url = reverse("staff:evaluation_textanswers", args=[evaluation.pk]) + "#" + str(textanswer.id)
         return HttpResponseRedirect(url)
 
     template_data = {
@@ -1596,11 +1618,10 @@ def evaluation_textanswer_edit(request, textanswer_id):
 
 
 @reviewer_required
-def evaluation_preview(request, semester_id, evaluation_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-    if semester.results_are_archived and not request.user.is_manager:
+def evaluation_preview(request, evaluation_id):
+    evaluation = get_object_or_404(Evaluation, id=evaluation_id)
+    if evaluation.course.semester.results_are_archived and not request.user.is_manager:
         raise PermissionDenied
-    evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
 
     return render_vote_page(request, evaluation, preview=True)
 
