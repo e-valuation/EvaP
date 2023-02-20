@@ -8,11 +8,12 @@ from django.conf import settings
 from django.db import transaction
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 from typing_extensions import TypeGuard
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
 from evap.evaluation.tools import clean_email, ilen, unordered_groupby
-from evap.staff.tools import create_user_list_html_string_for_message
+from evap.staff.tools import append_user_list_if_not_empty
 
 from .base import (
     Checker,
@@ -547,8 +548,10 @@ class ExistingParticipationChecker(Checker, RowCheckerMixin):
 
             if colliding_participant_emails:
                 self.importer_log.add_warning(
-                    _(
-                        "Course {course_name}: {participant_count} participants from the import file already participate in the evaluation."
+                    ngettext(
+                        "Course {course_name}: 1 participant from the import file already participates in the evaluation.",
+                        "Course {course_name}: {participant_count} participants from the import file already participate in the evaluation.",
+                        len(colliding_participant_emails),
                     ).format(course_name=course_name_en, participant_count=len(colliding_participant_emails)),
                     category=ImporterLogEntry.Category.ALREADY_PARTICIPATING,
                 )
@@ -714,13 +717,15 @@ def import_enrollments(
         importer_log.raise_if_has_errors()
         if test_run:
             importer_log.add_success(_("The test run showed no errors. No data was imported yet."))
-            msg = format_html(
-                _("The import run will create {evaluation_count} courses/evaluations and {user_count} users:{users}"),
-                evaluation_count=new_course_count,
-                user_count=len(new_user_profiles),
-                users=create_user_list_html_string_for_message(new_user_profiles),
+            msg = _("The import run will create {evaluation_string} and {user_string}").format(
+                evaluation_string=ngettext(
+                    "1 course/evaluation", "{count} courses/evaluations", new_course_count
+                ).format(count=new_course_count),
+                user_string=ngettext("1 user", "{count} users", len(new_user_profiles)).format(
+                    count=len(new_user_profiles)
+                ),
             )
-            importer_log.add_success(msg)
+
         else:
             assert vote_start_datetime is not None, "Import-run requires vote_start_datetime"
             assert vote_end_date is not None, "Import-run requires vote_end-date"
@@ -728,14 +733,20 @@ def import_enrollments(
             update_existing_and_create_new_courses(course_data_list, semester, vote_start_datetime, vote_end_date)
             store_participations_in_db(parsed_rows)
 
-            msg = format_html(
-                _("Successfully created {} courses/evaluations, {} participants and {} contributors:{}"),
-                new_course_count,
-                new_participants_count,
-                new_responsibles_count,
-                create_user_list_html_string_for_message(new_user_profiles),
+            msg = _("Successfully created {evaluation_string}, {participant_string} and {contributor_string}").format(
+                evaluation_string=ngettext(
+                    "1 course/evaluation", "{count} courses/evaluations", new_course_count
+                ).format(count=new_course_count),
+                participant_string=ngettext("1 participant", "{count} participants", new_participants_count).format(
+                    count=new_participants_count
+                ),
+                contributor_string=ngettext("1 contributor", "{count} contributors", new_responsibles_count).format(
+                    count=new_responsibles_count
+                ),
             )
-            importer_log.add_success(msg)
+
+        msg = append_user_list_if_not_empty(msg, new_user_profiles)
+        importer_log.add_success(msg)
 
     return importer_log
 

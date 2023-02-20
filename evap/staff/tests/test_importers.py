@@ -317,6 +317,7 @@ class TestEnrollmentImport(ImporterTestCase):
         Degree.objects.filter(name_de="Bachelor").update(import_names=["Bachelor", "B. Sc."])
         Degree.objects.filter(name_de="Master").update(import_names=["Master", "M. Sc."])
         cls.default_excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
+        cls.empty_excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_empty_filedata)
 
     def create_existing_course(self):
         existing_course = baker.make(
@@ -384,12 +385,29 @@ class TestEnrollmentImport(ImporterTestCase):
         self.assertTrue(UserProfile.objects.filter(email="cleaned_diam.synephebos@institution.example.com").exists())
         self.assertTrue(UserProfile.objects.filter(email="cleaned_111@institution.example.com").exists())
 
+    def test_import_with_empty_excel(self):
+        importer_log = import_enrollments(self.empty_excel_content, self.semester, None, None, test_run=True)
+
+        success_messages = [msg.message for msg in importer_log.success_messages()]
+        self.assertIn("The import run will create 0 courses/evaluations and 0 users.", success_messages)
+        self.assertEqual(importer_log.errors_by_category(), {})
+
+        importer_log = import_enrollments(
+            self.empty_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+        )
+        success_messages = [msg.message for msg in importer_log.success_messages()]
+        self.assertIn(
+            "Successfully created 0 courses/evaluations, 0 participants and 0 contributors.",
+            success_messages,
+        )
+        self.assertEqual(importer_log.errors_by_category(), {})
+
     def test_degrees_are_merged(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_degree_merge_filedata)
 
         importer_log_test = import_enrollments(excel_content, self.semester, None, None, test_run=True)
         success_messages_test = [msg.message for msg in importer_log_test.success_messages()]
-        self.assertIn("The import run will create 1 courses/evaluations and 3 users", "".join(success_messages_test))
+        self.assertIn("The import run will create 1 course/evaluation and 3 users", "".join(success_messages_test))
         self.assertFalse(importer_log_test.has_errors())
         self.assertEqual(importer_log_test.warnings_by_category(), {})
 
@@ -398,7 +416,7 @@ class TestEnrollmentImport(ImporterTestCase):
         )
         success_messages_notest = [msg.message for msg in importer_log_notest.success_messages()]
         self.assertIn(
-            "Successfully created 1 courses/evaluations, 2 participants and 1 contributors",
+            "Successfully created 1 course/evaluation, 2 participants and 1 contributor",
             "".join(success_messages_notest),
         )
         self.assertFalse(importer_log_notest.has_errors())
@@ -610,7 +628,7 @@ class TestEnrollmentImport(ImporterTestCase):
 
         importer_log = import_enrollments(excel_content, self.semester, None, None, test_run=True)
         success_messages = [msg.message for msg in importer_log.success_messages()]
-        self.assertIn("The import run will create 1 courses/evaluations and 3 users", "".join(success_messages))
+        self.assertIn("The import run will create 1 course/evaluation and 3 users", "".join(success_messages))
         self.assertFalse(importer_log.has_errors())
 
     def test_existing_course_is_not_recreated(self):
@@ -795,7 +813,7 @@ class TestEnrollmentImport(ImporterTestCase):
 
         importer_log = import_enrollments(self.default_excel_content, self.semester, None, None, test_run=True)
 
-        expected_warnings = ["Course Shake: 1 participants from the import file already participate in the evaluation."]
+        expected_warnings = ["Course Shake: 1 participant from the import file already participates in the evaluation."]
         self.assertEqual(
             [
                 msg.message
@@ -871,7 +889,7 @@ class TestPersonImport(ImporterTestCase):
         success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("0 contributors would be added to the evaluation", "".join(success_messages))
         self.assertIn(
-            "The following 1 users are already contributing to evaluation",
+            "The following user is already contributing to evaluation",
             [msg.message for msg in importer_log.warnings_by_category()[ImporterLogEntry.Category.GENERAL]][0],
         )
         self.assertFalse(importer_log.has_errors())
@@ -882,7 +900,7 @@ class TestPersonImport(ImporterTestCase):
         success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("0 contributors added to the evaluation", "".join(success_messages))
         self.assertIn(
-            "The following 1 users are already contributing to evaluation",
+            "The following user is already contributing to evaluation",
             [msg.message for msg in importer_log.warnings_by_category()[ImporterLogEntry.Category.GENERAL]][0],
         )
         self.assertFalse(importer_log.has_errors())
@@ -900,7 +918,7 @@ class TestPersonImport(ImporterTestCase):
         )
         self.assertFalse(importer_log.has_errors())
         success_messages = [msg.message for msg in importer_log.success_messages()]
-        self.assertIn("1 contributors would be added to the evaluation", "".join(success_messages))
+        self.assertIn("1 contributor would be added to the evaluation", "".join(success_messages))
         self.assertIn(f"{self.contributor2.email}", "".join(success_messages))
 
         self.assertEqual(self.evaluation1.contributions.count(), 2)
@@ -910,7 +928,7 @@ class TestPersonImport(ImporterTestCase):
         )
         self.assertFalse(importer_log.has_errors())
         success_messages = [msg.message for msg in importer_log.success_messages()]
-        self.assertIn("1 contributors added to the evaluation", "".join(success_messages))
+        self.assertIn("1 contributor added to the evaluation", "".join(success_messages))
         self.assertIn(f"{self.contributor2.email}", "".join(success_messages))
 
         self.assertEqual(self.evaluation1.contributions.count(), 3)
@@ -927,7 +945,7 @@ class TestPersonImport(ImporterTestCase):
         success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("0 participants would be added to the evaluation", "".join(success_messages))
         self.assertIn(
-            "The following 1 users are already participants in evaluation",
+            "The following user is already participating in evaluation",
             [msg.message for msg in importer_log.warnings_by_category()[ImporterLogEntry.Category.GENERAL]][0],
         )
 
@@ -938,7 +956,7 @@ class TestPersonImport(ImporterTestCase):
         success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("0 participants added to the evaluation", "".join(success_messages))
         self.assertIn(
-            "The following 1 users are already participants in evaluation",
+            "The following user is already participating in evaluation",
             [msg.message for msg in importer_log.warnings_by_category()[ImporterLogEntry.Category.GENERAL]][0],
         )
 
@@ -951,7 +969,7 @@ class TestPersonImport(ImporterTestCase):
         )
         self.assertFalse(importer_log.has_errors())
         success_messages = [msg.message for msg in importer_log.success_messages()]
-        self.assertIn("1 participants would be added to the evaluation", "".join(success_messages))
+        self.assertIn("1 participant would be added to the evaluation", "".join(success_messages))
         self.assertIn(f"{self.participant2.email}", "".join(success_messages))
 
         importer_log = import_persons_from_evaluation(
@@ -959,7 +977,7 @@ class TestPersonImport(ImporterTestCase):
         )
         self.assertFalse(importer_log.has_errors())
         success_messages = [msg.message for msg in importer_log.success_messages()]
-        self.assertIn("1 participants added to the evaluation", "".join(success_messages))
+        self.assertIn("1 participant added to the evaluation", "".join(success_messages))
         self.assertIn(f"{self.participant2.email}", "".join(success_messages))
 
         self.assertEqual(self.evaluation1.participants.count(), 2)

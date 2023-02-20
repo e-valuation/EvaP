@@ -1,10 +1,16 @@
 from django.contrib.auth.models import Group
 from django.test import TestCase
+from django.utils.html import escape
 from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Course, Evaluation, UserProfile
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption
-from evap.staff.tools import merge_users, remove_user_from_represented_and_ccing_users, user_edit_link
+from evap.staff.tools import (
+    conditional_escape,
+    merge_users,
+    remove_user_from_represented_and_ccing_users,
+    user_edit_link,
+)
 
 
 class MergeUsersTest(TestCase):
@@ -235,3 +241,10 @@ class UserEditLinkTest(TestCase):
     def test_user_edit_link(self):
         user = baker.make(UserProfile)
         self.assertIn(f"/staff/user/{user.id}/edit", user_edit_link(user.id))
+
+
+class ConditionalEscapeTest(TestCase):
+    def test_conditional_escape(self):
+        self.assertEqual(conditional_escape("<script>"), "&lt;script&gt;")
+        self.assertEqual(conditional_escape(escape("<script>")), "&lt;script&gt;")
+        self.assertEqual(conditional_escape("safe"), "safe")
