@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 import logging
 import os
 import sys
-from typing import List, Tuple
+from typing import Any, List, Tuple
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -78,6 +78,9 @@ IMPORTER_GRADED_NO = "no"
 
 # the importer will warn if any participant has more enrollments than this number
 IMPORTER_MAX_ENROLLMENTS = 7
+
+# Cutoff value passed to difflib.get_close_matches() to find typos in course names. Lower values are slower.
+IMPORTER_COURSE_NAME_SIMILARITY_WARNING_THRESHOLD = 0.9
 
 # the default descriptions for grade documents
 DEFAULT_FINAL_GRADES_DESCRIPTION_EN = "Final grades"
@@ -240,7 +243,8 @@ _TEMPLATE_OPTIONS = {
     "builtins": ["django.templatetags.i18n"],
 }
 
-TEMPLATES = [
+
+TEMPLATES: Any = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "APP_DIRS": True,
@@ -250,7 +254,7 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "APP_DIRS": True,
-        "OPTIONS": dict(**_TEMPLATE_OPTIONS, debug=False),
+        "OPTIONS": {**_TEMPLATE_OPTIONS, "debug": False},
         "NAME": "CachedEngine",  # used for bulk-filling caches
     },
 ]

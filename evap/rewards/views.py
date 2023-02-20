@@ -78,12 +78,12 @@ def index(request):
 
     reward_point_actions.sort(key=lambda action: action[0], reverse=True)
 
-    template_data = dict(
-        reward_point_actions=reward_point_actions,
-        total_points_available=total_points_available,
-        total_points_spent=sum(redemption.value for redemption in reward_point_redemptions),
-        events=events,
-    )
+    template_data = {
+        "reward_point_actions": reward_point_actions,
+        "total_points_available": total_points_available,
+        "total_points_spent": sum(redemption.value for redemption in reward_point_redemptions),
+        "events": events,
+    }
     return render(request, "rewards_index.html", template_data, status=status)
 
 
@@ -91,7 +91,7 @@ def index(request):
 def reward_point_redemption_events(request):
     upcoming_events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now()).order_by("date")
     past_events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__lt=datetime.now()).order_by("-date")
-    template_data = dict(upcoming_events=upcoming_events, past_events=past_events)
+    template_data = {"upcoming_events": upcoming_events, "past_events": past_events}
     return render(request, "rewards_reward_point_redemption_events.html", template_data)
 
 
@@ -105,7 +105,7 @@ def reward_point_redemption_event_create(request):
         messages.success(request, _("Successfully created event."))
         return redirect("rewards:reward_point_redemption_events")
 
-    return render(request, "rewards_reward_point_redemption_event_form.html", dict(form=form))
+    return render(request, "rewards_reward_point_redemption_event_form.html", {"form": form})
 
 
 @manager_required
@@ -119,7 +119,7 @@ def reward_point_redemption_event_edit(request, event_id):
         messages.success(request, _("Successfully updated event."))
         return redirect("rewards:reward_point_redemption_events")
 
-    return render(request, "rewards_reward_point_redemption_event_form.html", dict(event=event, form=form))
+    return render(request, "rewards_reward_point_redemption_event_form.html", {"event": event, "form": form})
 
 
 @require_POST

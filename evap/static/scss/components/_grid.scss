@@ -63,7 +63,7 @@
 }
 
 #results-grid > :not(:first-child) {
-    border-top: 2 * $table-border-width solid $table-border-color;
+    border-top: calc(2 * $table-border-width) solid $table-border-color;
 
     @include media-breakpoint-up(lg) {
         border-top-width: $table-border-width;

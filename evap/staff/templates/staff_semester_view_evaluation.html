@@ -79,8 +79,8 @@
 <td data-col="name" data-order="{{ evaluation.full_name }}">
     <div>
     {% if not info_only and request.user.is_manager %}
-        <a href="{% url 'staff:evaluation_edit' semester.id evaluation.id %}">{{ evaluation.full_name }}</a>
-        <a class="small no-underline" href="{% url 'staff:course_edit' semester.id evaluation.course.id %}" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Edit course' %}">
+        <a href="{% url 'staff:evaluation_edit' evaluation.id %}">{{ evaluation.full_name }}</a>
+        <a class="small no-underline" href="{% url 'staff:course_edit' evaluation.course.id %}" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Edit course' %}">
             <span class="fas fa-chalkboard-user"></span>
         </a>
     {% else %}
@@ -94,7 +94,7 @@
                 ({{ evaluation.num_contributors }} <span class="fas fa-person-chalkboard"></span>)
             </span>
         {% else %}
-            <a class="small no-underline" href="{% url 'staff:evaluation_person_management' semester.id evaluation.id %}" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Manage contributors' %}">
+            <a class="small no-underline" href="{% url 'staff:evaluation_person_management' evaluation.id %}" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Manage contributors' %}">
                 ({{ evaluation.num_contributors }} <span class="fas fa-person-chalkboard"></span>)
             </a>
         {% endif %}
@@ -130,7 +130,7 @@
                 </span>
             {% endif %}
             {% if evaluation.num_textanswers > 0 and state != evaluation.State.PUBLISHED and not info_only %}
-                <a class="no-underline" href="{% url 'staff:evaluation_textanswers' semester.id evaluation.id %}" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Review text answers' %}">
+                <a class="no-underline" href="{% url 'staff:evaluation_textanswers' evaluation.id %}" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Review text answers' %}">
                     {% include 'progress_bar.html' with done=evaluation.num_reviewed_textanswers total=evaluation.num_textanswers icon='comment' %}
                 </a>
             {% elif info_only %}
@@ -150,7 +150,7 @@
                         {% blocktrans with midterm=evaluation.midterm_grade_documents_count final=evaluation.final_grade_documents_count %}M: {{ midterm }}, F: {{ final }}{% endblocktrans %}
                     </span>
                 {% else %}
-                    <a href="{% url 'grades:course_view' semester.id evaluation.course.id %}" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Grade documents (Midterm, Final)' %}">
+                    <a href="{% url 'grades:course_view' evaluation.course.id %}" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Grade documents (Midterm, Final)' %}">
                         <span class="fas fa-file"></span>
                         {% blocktrans with midterm=evaluation.midterm_grade_documents_count final=evaluation.final_grade_documents_count %}M: {{ midterm }}, F: {{ final }}{% endblocktrans %}
                     </a>
@@ -177,7 +177,7 @@
     </td>
 {% else %}
     <td>
-        <a class="no-underline{% if evaluation.num_participants == 0 %} text-danger{% endif %}" href="{% url 'staff:evaluation_person_management' semester.id evaluation.id %}" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Manage participants' %}">
+        <a class="no-underline{% if evaluation.num_participants == 0 %} text-danger{% endif %}" href="{% url 'staff:evaluation_person_management' evaluation.id %}" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Manage participants' %}">
             <span class="fas fa-user"></span> {{ evaluation.num_participants }}
         </a>
     </td>
@@ -185,17 +185,17 @@
 <td class="icon-buttons">
     {% if not info_only %}
         {% if not evaluation.is_single_result and request.user.is_manager %}
-            <a href="{% url 'staff:evaluation_copy' semester.id evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" title="{% trans "Copy" %}">
+            <a href="{% url 'staff:evaluation_copy' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" title="{% trans "Copy" %}">
                 <span class="fas fa-copy"></span>
             </a>
         {% endif %}
         {% if request.user.is_manager %}
-            <a href="{% url 'staff:evaluation_email' semester.id evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Send email' %}">
+            <a href="{% url 'staff:evaluation_email' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Send email' %}">
                 <span class="fas fa-envelope" aria-hidden="true"></span>
             </a>
         {% endif %}
         {% if state < evaluation.State.IN_EVALUATION %}
-            <a href="{% url 'staff:evaluation_preview' semester.id evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Preview' %}">
+            <a href="{% url 'staff:evaluation_preview' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Preview' %}">
                 <span class="fas fa-eye" aria-hidden="true"></span>
             </a>
         {% elif state < evaluation.State.PUBLISHED and evaluation|can_results_page_be_seen_by:request.user %}

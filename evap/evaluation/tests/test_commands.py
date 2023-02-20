@@ -353,7 +353,7 @@ class TestSendRemindersCommand(TestCase):
             [
                 (
                     evaluation,
-                    f"{settings.PAGE_URL}/staff/semester/{evaluation.course.semester.id}/evaluation/{evaluation.id}/textanswers",
+                    f"{settings.PAGE_URL}/staff/evaluation/{evaluation.id}/textanswers",
                 )
             ],
         )

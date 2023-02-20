@@ -36,10 +36,18 @@
 
     .left {
         left: $distance;
+
+        .pole-icon {
+            vertical-align: -0.15rem;
+        }
     }
 
     .right {
         right: $distance;
+
+        .pole-icon {
+            vertical-align: -0.25rem;
+        }
     }
 
     .pole-icon {

@@ -88,11 +88,11 @@ def index(request):
         # set test cookie to verify whether they work in the next step
         request.session.set_test_cookie()
 
-        template_data = dict(
-            new_key_form=new_key_form,
-            login_email_form=login_email_form,
-            openid_active=settings.ACTIVATE_OPEN_ID_LOGIN,
-        )
+        template_data = {
+            "new_key_form": new_key_form,
+            "login_email_form": login_email_form,
+            "openid_active": settings.ACTIVATE_OPEN_ID_LOGIN,
+        }
         return render(request, "index.html", template_data)
 
     # check for redirect variable
@@ -146,7 +146,7 @@ def login_key_authentication(request, key):
 
 @no_login_required
 def faq(request):
-    return render(request, "faq.html", dict(sections=FaqSection.objects.all()))
+    return render(request, "faq.html", {"sections": FaqSection.objects.all()})
 
 
 @no_login_required
@@ -210,19 +210,17 @@ def profile_edit(request):
         return render(
             request,
             "profile.html",
-            dict(
-                user=user,
-                form=form,
-                delegate_of=user.represented_users.all(),
-                cc_users=user.cc_users.all(),
-                ccing_users=user.ccing_users.all(),
-            ),
+            {
+                "user": user,
+                "form": form,
+                "delegate_of": user.represented_users.all(),
+                "cc_users": user.cc_users.all(),
+                "ccing_users": user.ccing_users.all(),
+            },
         )
 
     return render(
         request,
         "profile.html",
-        dict(
-            user=user,
-        ),
+        {"user": user},
     )

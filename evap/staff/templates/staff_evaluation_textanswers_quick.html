@@ -137,7 +137,7 @@
                 <div class="lcr-center d-none" data-action-set="summary">
                     {% if next_evaluations %}
                         {% for next_evaluation in next_evaluations %}
-                            <a href="{% url 'staff:evaluation_textanswers' next_evaluation.course.semester.id next_evaluation.id %}" data-next-evaluation-index="{{ forloop.counter0 }}" data-evaluation="{{ next_evaluation.pk }}" data-url="next-evaluation" class="btn btn-sm btn-primary">
+                            <a href="{% url 'staff:evaluation_textanswers' next_evaluation.id %}" data-next-evaluation-index="{{ forloop.counter0 }}" data-evaluation="{{ next_evaluation.pk }}" data-url="next-evaluation" class="btn btn-sm btn-primary">
                                 {% trans 'Review next evaluation' %}
                             </a>
                         {% endfor %}

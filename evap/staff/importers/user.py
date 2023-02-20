@@ -136,7 +136,7 @@ class UserDataMismatchChecker(Checker):
         # maps user's mail to UserData instance where it was first seen to have O(1) lookup
         self.users: Dict[str, UserData] = {}
 
-        self.in_file_mismatch_tracker: FirstLocationAndCountTracker = FirstLocationAndCountTracker()
+        self.in_file_mismatch_tracker = FirstLocationAndCountTracker()
 
     def check_userdata(self, user_data: UserData, location: ExcelFileLocation):
         if user_data.email == "":
@@ -149,10 +149,10 @@ class UserDataMismatchChecker(Checker):
 
     def finalize(self) -> None:
         # Mismatches to older rows in the file
-        for user_email, location in self.in_file_mismatch_tracker.aggregated_keys_and_location_strings():
+        for email, location in self.in_file_mismatch_tracker.aggregated_keys_and_location_strings():
             self.importer_log.add_error(
-                _("{location}: The users's data (email: {user_email}) is different to a previous row.").format(
-                    location=location, user_email=user_email
+                _('{location}: The data of user "{email}" differs from their data in a previous row.').format(
+                    location=location, email=email
                 ),
                 category=ImporterLogEntry.Category.USER,
             )
@@ -282,7 +282,7 @@ class DuplicateUserDataChecker(Checker):
         super().__init__(*args, **kwargs)
         self.first_location_by_user_data: Dict[UserData, ExcelFileLocation] = {}
 
-        self.tracker: FirstLocationAndCountTracker = FirstLocationAndCountTracker()
+        self.tracker = FirstLocationAndCountTracker()
 
     def check_userdata(self, user_data: UserData, location: ExcelFileLocation):
         if user_data not in self.first_location_by_user_data:

@@ -129,12 +129,12 @@ def create_evaluation_with_responsible_and_editor():
 
     in_one_hour = (timezone.now() + timedelta(hours=1)).replace(second=0, microsecond=0)
     tomorrow = (timezone.now() + timedelta(days=1)).date
-    evaluation_params = dict(
-        state=Evaluation.State.PREPARED,
-        course=baker.make(Course, degrees=[baker.make(Degree)], responsibles=[responsible]),
-        vote_start_datetime=in_one_hour,
-        vote_end_date=tomorrow,
-    )
+    evaluation_params = {
+        "state": Evaluation.State.PREPARED,
+        "course": baker.make(Course, degrees=[baker.make(Degree)], responsibles=[responsible]),
+        "vote_start_datetime": in_one_hour,
+        "vote_end_date": tomorrow,
+    }
 
     evaluation = baker.make(Evaluation, **evaluation_params)
     contribution = baker.make(
