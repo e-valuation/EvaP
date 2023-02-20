@@ -374,6 +374,7 @@ class TestEnrollmentImport(TestCase):
 
         success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("The import run will create 0 courses/evaluations and 0 users.", success_messages)
+        self.assertEqual(importer_log.errors_by_category(), {})
 
         importer_log = import_enrollments(
             self.empty_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
@@ -383,6 +384,7 @@ class TestEnrollmentImport(TestCase):
             "Successfully created 0 courses/evaluations, 0 participants and 0 contributors.",
             success_messages,
         )
+        self.assertEqual(importer_log.errors_by_category(), {})
 
     def test_degrees_are_merged(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_degree_merge_filedata)

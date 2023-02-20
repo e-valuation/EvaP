@@ -63,7 +63,7 @@ def get_import_file_content_or_raise(user_id, import_type):
         return file.read()
 
 
-def create_user_list_html_string_for_message(users):
+def create_user_list_html_string_for_message(users: Iterable[UserProfile]) -> SafeString:
     return format_html_join("", "<br />{} {} ({})", ((user.first_name, user.last_name, user.email) for user in users))
 
 
@@ -76,7 +76,7 @@ def append_user_list_if_not_empty(message: str, user_profiles: Iterable[UserProf
 
 def conditional_escape(s: str) -> SafeString:
     """
-    Like Django's `conditional_escape`, but only handles `str` and `SafeString`.
+    Like Django's `conditional_escape`, but only distincs `str` and `SafeString` and thus always returns SafeString. Django's version also allows third-party classes and does not always return SafeString.
     """
     if isinstance(s, SafeString):
         return s
