@@ -548,8 +548,10 @@ class ExistingParticipationChecker(Checker, RowCheckerMixin):
 
             if colliding_participant_emails:
                 self.importer_log.add_warning(
-                    _(
-                        "Course {course_name}: {participant_count} participants from the import file already participate in the evaluation."
+                    ngettext(
+                        "Course {course_name}: 1 participant from the import file already participate in the evaluation.",
+                        "Course {course_name}: {participant_count} participants from the import file already participate in the evaluation.",
+                        len(colliding_participant_emails),
                     ).format(course_name=course_name_en, participant_count=len(colliding_participant_emails)),
                     category=ImporterLogEntry.Category.ALREADY_PARTICIPATING,
                 )

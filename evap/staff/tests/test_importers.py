@@ -813,7 +813,7 @@ class TestEnrollmentImport(ImporterTestCase):
 
         importer_log = import_enrollments(self.default_excel_content, self.semester, None, None, test_run=True)
 
-        expected_warnings = ["Course Shake: 1 participants from the import file already participate in the evaluation."]
+        expected_warnings = ["Course Shake: 1 participant from the import file already participate in the evaluation."]
         self.assertEqual(
             [
                 msg.message
