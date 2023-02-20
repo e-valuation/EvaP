@@ -79,6 +79,9 @@ IMPORTER_GRADED_NO = "no"
 # the importer will warn if any participant has more enrollments than this number
 IMPORTER_MAX_ENROLLMENTS = 7
 
+# Cutoff value passed to difflib.get_close_matches() to find typos in course names. Lower values are slower.
+IMPORTER_COURSE_NAME_SIMILARITY_WARNING_THRESHOLD = 0.9
+
 # the default descriptions for grade documents
 DEFAULT_FINAL_GRADES_DESCRIPTION_EN = "Final grades"
 DEFAULT_MIDTERM_GRADES_DESCRIPTION_EN = "Midterm grades"
