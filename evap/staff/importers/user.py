@@ -8,10 +8,11 @@ from django.db import transaction
 from django.db.models import Q
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
 from evap.evaluation.models import UserProfile
 from evap.evaluation.tools import clean_email, unordered_groupby
-from evap.staff.tools import create_user_list_html_string_for_message, user_edit_link
+from evap.staff.tools import append_user_list_if_not_empty, user_edit_link
 
 from .base import (
     Checker,
@@ -344,19 +345,23 @@ def import_users(excel_content: bytes, test_run: bool) -> Tuple[List[UserProfile
 
         if test_run:
             importer_log.add_success(_("The test run showed no errors. No data was imported yet."))
-            msg = format_html(
-                _("The import run will create {} users:{}"),
+            msg = ngettext(
+                "The import run will create 1 user",
+                "The import run will create {user_count} users",
                 len(new_user_profiles),
-                create_user_list_html_string_for_message(new_user_profiles),
-            )
+            ).format(user_count=len(new_user_profiles))
+            msg = append_user_list_if_not_empty(msg, new_user_profiles)
+
             importer_log.add_success(msg)
         else:
             update_existing_and_create_new_user_profiles(existing_user_profiles, new_user_profiles)
-            msg = format_html(
-                _("Successfully created {} users:{}"),
+            msg = ngettext(
+                "Successfully created 1 user",
+                "Successfully created {user_count} users",
                 len(new_user_profiles),
-                create_user_list_html_string_for_message(new_user_profiles),
-            )
+            ).format(user_count=len(new_user_profiles))
+            msg = append_user_list_if_not_empty(msg, new_user_profiles)
+
             importer_log.add_success(msg)
 
         return resulting_user_profiles, importer_log

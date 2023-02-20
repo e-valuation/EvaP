@@ -71,7 +71,7 @@ def append_user_list_if_not_empty(message: str, user_profiles: Iterable[UserProf
     message = conditional_escape(message)
     if not user_profiles:
         return message + escape(".")
-    return message + escape(": ") + create_user_list_html_string_for_message(user_profiles)
+    return message + escape(":") + create_user_list_html_string_for_message(user_profiles)
 
 
 def conditional_escape(s: str) -> SafeString:
