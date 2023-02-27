@@ -14,7 +14,7 @@ from django.db.models import BooleanField, Case, Count, ExpressionWrapper, Integ
 from django.dispatch import receiver
 from django.forms import formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
-from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import format_html
@@ -1462,7 +1462,6 @@ def get_evaluation_and_contributor_textanswer_sections(
     evaluation: Evaluation,
     textanswer_filter: Q,
 ) -> Tuple[List[TextAnswerSection], List[TextAnswerSection]]:
-
     evaluation_sections = []
     contributor_sections = []
     evaluation_responsibles = list(evaluation.course.responsibles.all())
@@ -1506,7 +1505,7 @@ def get_evaluation_and_contributor_textanswer_sections(
 
 
 @reviewer_required
-def evaluation_textanswers(request, evaluation_id):
+def evaluation_textanswers(request: HttpRequest, evaluation_id: int) -> HttpResponse:
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
     semester = evaluation.course.semester
     if semester.results_are_archived:
