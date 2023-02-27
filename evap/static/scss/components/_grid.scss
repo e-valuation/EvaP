@@ -2,6 +2,11 @@
     background-color: $table-striped-bg;
 }
 
+// CSS Grid needs it the exact other way around as the title also has the row class
+.grid-striped .row:nth-of-type(even) {
+    background-color: $table-striped-bg;
+}
+
 .lcr-left {
     flex: 1;
 }
@@ -43,6 +48,10 @@
         padding-top: 0.75rem;
         padding-bottom: 0.75rem;
     }
+}
+
+.col-fit-content {
+    flex: 0 0 fit-content;
 }
 
 %grid-row {

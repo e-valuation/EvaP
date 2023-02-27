@@ -8,64 +8,60 @@
         <div class="card-body">
             {% for result in results %}
                 <p>{{ result.question.text }}</p>
-                <table class="table table-striped{% if not forloop.last %} mb-4{% endif %}">
-                    <thead>
-                        <tr>
-                            <th style="width: 75%">{% trans 'Text answer' %}</th>
-                            <th style="width: 5%"></th>
-                            <th style="width: 15%">{% trans 'Decision' %}</th>
-                            <th style="width: 5%">{% trans 'Flag' %}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for answer in result.answers %}
-                            <tr id="{{ answer.id }}">
-                                <td class="text-answer">
-                                    {{ answer.answer|linebreaksbr }}
-                                    {% if answer.original_answer %}
-                                        <br />
-                                        <span class="textanswer-original">({{ answer.original_answer|linebreaksbr }})</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if user.is_manager %}
-                                        <a class="btn btn-sm btn-outline-secondary" href="{% url 'staff:evaluation_textanswer_edit' answer.id %}"><span class="fas fa-pencil"></a>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <form class="full-update-textanswer-form" method="POST" action="{% url 'staff:evaluation_textanswers_update_publish' %}">
-                                        {% csrf_token %}
+                <div class="grid-striped container{% if not forloop.last %} mb-4{% endif %}">
+                    <div class="row flex-nowrap fw-bold">
+                            <div class="col p-2">{% trans 'Text answer' %}</div>
+                            <div class="col-fit-content p-2"></div>
+                            <div class="col-fit-content p-2">{% trans 'Decision' %}</div>
+                            <div class="col p-2">{% trans 'Flag' %}</div>
+                    </div>
+                    {% for answer in result.answers %}
+                        <div class="row flex-nowrap" id="{{ answer.id }}">
+                            <div class="text-answer col p-2">
+                                {{ answer.answer|linebreaksbr }}
+                                {% if answer.original_answer %}
+                                    <br />
+                                    <span class="textanswer-original">({{ answer.original_answer|linebreaksbr }})</span>
+                                {% endif %}
+                            </div>
+                            <div class="col-fit-content p-2">
+                                {% if user.is_manager %}
+                                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'staff:evaluation_textanswer_edit' answer.id %}"><span class="fas fa-pencil"></a>
+                                {% endif %}
+                            </div>
+                            <div class="col-fit-content p-2">
+                                <form class="full-update-textanswer-form" method="POST" action="{% url 'staff:evaluation_textanswers_update_publish' %}">
+                                    {% csrf_token %}
 
-                                        <input type="hidden" name="answer_id" value="{{ answer.id }}" />
+                                    <input type="hidden" name="answer_id" value="{{ answer.id }}" />
 
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            <input type="radio" class="btn-check" name="action" value="publish" id="{{ answer.id }}-radio-publish" autocomplete="off" {% if answer.will_be_public %}checked{% endif %}>
-                                            <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-publish">{% trans 'Publish' %}</label>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <input type="radio" class="btn-check" name="action" value="publish" id="{{ answer.id }}-radio-publish" autocomplete="off" {% if answer.will_be_public %}checked{% endif %}>
+                                        <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-publish">{% trans 'Publish' %}</label>
 
-                                            <input type="radio" class="btn-check" name="action" value="make_private" id="{{ answer.id }}-radio-private" autocomplete="off" {% if answer.will_be_private %}checked{% endif %} {% if not contributor %}disabled{% endif %}>
-                                            <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-private">{% trans 'Private' %}</label>
+                                        <input type="radio" class="btn-check" name="action" value="make_private" id="{{ answer.id }}-radio-private" autocomplete="off" {% if answer.will_be_private %}checked{% endif %} {% if not contributor %}disabled{% endif %}>
+                                        <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-private">{% trans 'Private' %}</label>
 
-                                            <input type="radio" class="btn-check" name="action" value="unreview" id="{{ answer.id }}-radio-undecided" autocomplete="off" {% if not answer.is_reviewed %}checked{% endif %}>
-                                            <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-undecided">{% trans 'Undecided' %}</label>
+                                        <input type="radio" class="btn-check" name="action" value="unreview" id="{{ answer.id }}-radio-undecided" autocomplete="off" {% if not answer.is_reviewed %}checked{% endif %}>
+                                        <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-undecided">{% trans 'Undecided' %}</label>
 
-                                            <input type="radio" class="btn-check" name="action" value="delete" id="{{ answer.id }}-radio-delete" autocomplete="off" {% if answer.will_be_deleted %}checked{% endif %}>
-                                            <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-delete">{% trans 'Delete' %}</label>
-                                        </div>
-                                    </form>
-                                </td>
-                                <td class="text-center">
-                                    <form class="full-textanswer-flag-form" method="POST" action="{% url 'staff:evaluation_textanswers_update_flag' %}">
-                                        {% csrf_token %}
+                                        <input type="radio" class="btn-check" name="action" value="delete" id="{{ answer.id }}-radio-delete" autocomplete="off" {% if answer.will_be_deleted %}checked{% endif %}>
+                                        <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-delete">{% trans 'Delete' %}</label>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="text-center">
+                                <form class="full-textanswer-flag-form" method="POST" action="{% url 'staff:evaluation_textanswers_update_flag' %}">
+                                    {% csrf_token %}
 
-                                        <input type="hidden" name="answer_id" value="{{ answer.id }}" />
+                                    <input type="hidden" name="answer_id" value="{{ answer.id }}" />
 
-                                        {% include "staff_evaluation_textanswer_flag_radios.html" with is_initially_flagged=answer.is_flagged id=answer.id %}
-                                    </form>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                                    {% include "staff_evaluation_textanswer_flag_radios.html" with is_initially_flagged=answer.is_flagged id=answer.id %}
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
             {% endfor %}
         </div>
     </div>
