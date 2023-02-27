@@ -3,6 +3,8 @@ from django.template import Library
 from evap.evaluation.models import Infotext
 
 register = Library()
+
+
 @register.inclusion_tag("infobox.html")
 def show_infotext(page_name):
     to_page_id = {

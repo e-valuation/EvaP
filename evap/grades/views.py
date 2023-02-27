@@ -14,7 +14,7 @@ from evap.evaluation.auth import (
     grade_publisher_or_manager_required,
     grade_publisher_required,
 )
-from evap.evaluation.models import Course, EmailTemplate, Evaluation, Infotext, Semester
+from evap.evaluation.models import Course, EmailTemplate, Evaluation, Semester
 from evap.evaluation.tools import get_object_from_dict_pk_entry_or_logged_40x, ilen
 from evap.grades.forms import GradeDocumentForm
 from evap.grades.models import GradeDocument

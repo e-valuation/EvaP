@@ -16,7 +16,6 @@ from evap.evaluation.models import (
     Degree,
     EmailTemplate,
     Evaluation,
-    Infotext,
     Semester,
     UserProfile,
 )
