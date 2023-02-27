@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+{% load infotext_templatetags %}
 {% load results_templatetags %}
 {% load evaluation_filters %}
 
@@ -8,7 +9,7 @@
 {% block content %}
     {{ block.super }}
 
-    {% include 'infobox.html' %}
+    {% show_infotext 'contributor_index' %}
 
     <div class="d-flex mb-3">
         <div class="ms-auto d-print-none">

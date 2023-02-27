@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+{% load infotext_templatetags %}
 {% load evaluation_filters %}
 
 {% block title %}{% trans 'Evaluation' %} - {{ block.super }}{% endblock %}
@@ -7,7 +8,7 @@
 {% block content %}
     {{ block.super }}
 
-    {% include 'infobox.html' %}
+    {% show_infotext "student_index" %}
 
     {% if unfinished_evaluations %}
         <div class="card card-outline-primary mb-3">

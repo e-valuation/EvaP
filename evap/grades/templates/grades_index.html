@@ -1,7 +1,9 @@
 {% extends 'grades_base.html' %}
 
+{% load infotext_templatetags %}
+
 {% block content %}
-    {{ block.super }}
+    {% show_infotext "grades_pages" %}
 
     <h3>{% trans 'Semesters' %}</h3>
     <div class="card mb-3">

@@ -1,9 +1,10 @@
 {% extends 'grades_semester_base.html' %}
 
+{% load infotext_templatetags %}
 {% load static %}
 
 {% block content %}
-    {{ block.super }}
+    {% show_infotext "grades_pages" %}
 
     <div class="row mb-3 align-items-center">
         <h3 class="col-9 mb-0">
