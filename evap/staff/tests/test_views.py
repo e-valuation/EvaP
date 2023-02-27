@@ -150,7 +150,7 @@ class TestStaffInfotextEditView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
         formset = page.forms["infotext-formset"]
 
-        fill_infotext_formset(formset, 0, "abc", "def", "ghi", "jkl")
+        fill_infotext_formset(formset, 0, title_de="abc", title_en="def", content_de="ghi", content_en="jkl")
         fill_infotext_formset(formset, 1)
 
         filled_form_id = formset["form-0-id"]
@@ -172,8 +172,8 @@ class TestStaffInfotextEditView(WebTestStaffMode):
         formset = page.forms["infotext-formset"]
 
         # submit invalid data
-        fill_infotext_formset(formset, 0, "abc", "def", "ghi", "jkl")
-        fill_infotext_formset(formset, 1, "invalid infotext", "", "", "no translations")
+        fill_infotext_formset(formset, 0, title_de="abc", title_en="def", content_de="ghi", content_en="jkl")
+        fill_infotext_formset(formset, 1, title_de="invalid infotext", content_en="no translations")
 
         empty_form_id = formset["form-0-id"]
         filled_form_id = formset["form-1-id"]
