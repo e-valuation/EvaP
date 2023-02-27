@@ -23,6 +23,8 @@ Vagrant.configure("2") do |config|
     # Docker container really are supposed to be used differently. Hacky way to make it into a "VM".
     d.cmd = ["tail", "-f", "/dev/null"]
 
+    d.create_args = ["--cap-add=SYS_ADMIN", "--security-opt=apparmor:unconfined"]
+
     # Workaround for no SSH server as long as https://github.com/hashicorp/vagrant/issues/8145 is still open
     override.trigger.before :provision do |trigger|
       trigger.ruby do |env, machine| system("vagrant docker-exec -it -- /evap/deployment/provision_vagrant_vm.sh") end

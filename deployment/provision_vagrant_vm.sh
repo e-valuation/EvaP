@@ -6,6 +6,7 @@ MOUNTPOINT="/evap"
 USER="evap"
 REPO_FOLDER="/opt/evap"
 ENV_FOLDER="/home/$USER/venv"
+NODE_MODULES_FOLDER="/home/$USER/node_modules"
 EVAP_PYTHON=python3.8
 
 # force apt to not ask, just do defaults.
@@ -101,8 +102,15 @@ wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh --no-verbos
 # setup evap
 cd "$MOUNTPOINT"
 sudo -H -u $USER git submodule update --init
+
+sudo -H -u $USER mkdir node_modules
+sudo -H -u $USER mkdir ${NODE_MODULES_FOLDER}
+sudo mount --bind ${NODE_MODULES_FOLDER} ${MOUNTPOINT}/node_modules
+echo "sudo mount --bind ${NODE_MODULES_FOLDER} ${MOUNTPOINT}/node_modules" >> /home/$USER/.bashrc
+
 sudo -H -u $USER bash -c "source /home/$USER/.nvm/nvm.sh; nvm install --no-progress node; npm ci"
 echo "nvm use node" >> /home/$USER/.bashrc
+
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py migrate --noinput
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py collectstatic --noinput
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py compilemessages --locale de
