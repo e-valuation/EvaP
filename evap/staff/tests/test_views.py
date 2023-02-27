@@ -2554,6 +2554,20 @@ class TestEvaluationTextAnswerView(WebTest):
             # unfinished because still in EVALUATION_END_OFFSET_HOURS
             self.assertNotContains(page, self.evaluation2.full_name)
 
+    def test_exclude_evaluations_with_only_flagged(self):
+        let_user_vote_for_evaluation(self.student2, self.evaluation)
+
+        with run_in_staff_mode(self):
+            page = self.app.get(self.url, user=self.manager)
+            self.assertContains(page, self.evaluation2.full_name)
+
+        self.assertTrue(TextAnswer.objects.filter(contribution__evaluation=self.evaluation2).exists())
+        TextAnswer.objects.filter(contribution__evaluation=self.evaluation2).update(is_flagged=True)
+
+        with run_in_staff_mode(self):
+            page = self.app.get(self.url, user=self.manager)
+            self.assertNotContains(page, self.evaluation2.full_name)
+
     def test_suggested_evaluation_ordering(self):
         evaluations = baker.make(
             Evaluation,
