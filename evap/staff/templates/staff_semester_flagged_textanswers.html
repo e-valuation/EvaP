@@ -13,21 +13,20 @@
     <div class="card">
         <div class="card-body">
             {% if flagged_textanswers %}
-                <ul>
-                    {% regroup flagged_textanswers by contribution.evaluation as flagged_textanswers_by_evalaution %}
-                    {% for evaluation_flagged_textanswers in flagged_textanswers_by_evalaution %}
-                        <li>
-                            <a href="{% url 'staff:evaluation_textanswers' evaluation_flagged_textanswers.grouper.id %}?view=flagged">
-                                {{ evaluation_flagged_textanswers.grouper }}
-                            </a>
-                        </li>
-                        <ul>
-                            {% for textanswer in evaluation_flagged_textanswers.list %}
-                                <li>{{ textanswer.answer }}</li>
-                            {% endfor %}
-                        </ul>
-                    {% endfor %}
-                </ul>
+                {% regroup flagged_textanswers by contribution.evaluation as flagged_textanswers_by_evalaution %}
+
+                {% for evaluation_flagged_textanswers in flagged_textanswers_by_evalaution %}
+                    <h5 class="{% if not forloop.first %}mt-3{% endif %} mb-2">
+                        <a href="{% url 'staff:evaluation_textanswers' evaluation_flagged_textanswers.grouper.id %}?view=flagged">
+                            {{ evaluation_flagged_textanswers.grouper }}
+                        </a>
+                    </h5>
+                    <ul>
+                        {% for textanswer in evaluation_flagged_textanswers.list %}
+                            <li>{{ textanswer.answer }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
             {% else %}
                 <i>{% trans 'There are no flagged textanswers in this semester.' %}</i>
             {% endif %}
