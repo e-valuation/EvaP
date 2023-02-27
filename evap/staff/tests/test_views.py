@@ -2718,6 +2718,51 @@ class TestEvaluationTextAnswerEditView(WebTestStaffMode):
         self.app.get(self.url, user=self.manager, status=403)
 
 
+class TestSemesterFlaggedTextAnswersView(WebTestStaffMode):
+    def test_correct_answers_show_up(self):
+        semester = baker.make(Semester)
+
+        url = reverse("staff:semester_flagged_textanswers", args=[semester.pk])
+
+        manager = make_manager()
+        student = baker.make(UserProfile)
+        evaluations = baker.make(Evaluation, course__semester=semester, participants=[student], _quantity=3)
+        textanswers = [
+            [baker.make(TextAnswer, answer=f"Answer {i} {j}", contribution__evaluation=evaluation) for j in range(3)]
+            for i, evaluation in enumerate(evaluations)
+        ]
+
+        response = self.app.get(url, user=manager)
+        self.assertContains(response, "There are no flagged textanswers")
+
+        flagged_ids = [(0, 0), (0, 1), (1, 0)]
+        expected_texts = [
+            "Answer 0 0",
+            "Answer 0 1",
+            "Answer 1 0",
+            evaluations[0].full_name,
+            evaluations[1].full_name,
+        ]
+        unexpected_texts = [
+            "There are no flagged textanswers",
+            "Answer 0 2",
+            "Answer 1 1",
+            "Answer 2 0",
+            evaluations[2].full_name,
+        ]
+
+        for i, j in flagged_ids:
+            textanswers[i][j].is_flagged = True
+            textanswers[i][j].save()
+
+        response = self.app.get(url, user=manager)
+
+        for text in expected_texts:
+            self.assertContains(response, text)
+        for text in unexpected_texts:
+            self.assertNotContains(response, text)
+
+
 class TestQuestionnaireNewVersionView(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
