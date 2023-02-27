@@ -1,5 +1,3 @@
-declare const bootstrap: typeof import("bootstrap");
-
 import { selectOrError } from "./utils.js";
 
 const OPEN_CLOSE_TIMEOUT = 2000;
@@ -11,7 +9,7 @@ export class InfoboxLogic {
 
     constructor(infobox_id: string) {
         this.infobox = selectOrError("#" + infobox_id);
-        this.closeButton = selectOrError("#" + infobox_id + " .callout-infobox-close");
+        this.closeButton = selectOrError(".callout-infobox-close", this.infobox);
         this.storageKey = "infobox_" + infobox_id;
     }
 
