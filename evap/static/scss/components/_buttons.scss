@@ -19,7 +19,7 @@ input:checked + label.btn-light.for-above {
     box-shadow: inset 0 0 5px $dark-gray;
 }
 .btn-light:hover {
-    border-color: $dark-gray;
+    border-color: $dark-gray !important;
 }
 .btn-light:active,
 .btn-light.active,
