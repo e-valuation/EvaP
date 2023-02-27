@@ -1551,6 +1551,21 @@ def evaluation_textanswers(request: HttpRequest, evaluation_id: int) -> HttpResp
 
 
 @reviewer_required
+def semester_flagged_textanswers(request: HttpRequest, semester_id: int) -> HttpResponse:
+    semester = get_object_or_404(Semester, id=semester_id)
+    flagged_textanswers = TextAnswer.objects.filter(
+        is_flagged=True,
+        contribution__evaluation__course__semester=semester,
+    ).order_by("contribution__evaluation")
+
+    template_data = {
+        "semester": semester,
+        "flagged_textanswers": flagged_textanswers,
+    }
+    return render(request, "staff_semester_flagged_textanswers.html", template_data)
+
+
+@reviewer_required
 def evaluation_textanswers_skip(request):
     evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
     visited = request.session.get("review-skipped", set())

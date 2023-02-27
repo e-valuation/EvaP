@@ -46,6 +46,7 @@ urlpatterns = [
     path("course/<int:course_id>/singleresult/create", views.single_result_create_for_course, name="single_result_create_for_course"),
 
     path("evaluation/<int:evaluation_id>/textanswers", views.evaluation_textanswers, name="evaluation_textanswers"),
+    path("semester/<int:semester_id>/flagged_textanswers", views.semester_flagged_textanswers, name="semester_flagged_textanswers"),
     path("textanswer/<uuid:textanswer_id>/edit", views.evaluation_textanswer_edit, name="evaluation_textanswer_edit"),
     path("textanswers/update_publish", views.evaluation_textanswers_update_publish, name="evaluation_textanswers_update_publish"),
     path("textanswers/update_flag", views.evaluation_textanswers_update_flag, name="evaluation_textanswers_update_flag"),

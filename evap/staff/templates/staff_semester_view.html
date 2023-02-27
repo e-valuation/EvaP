@@ -133,8 +133,8 @@
                     </a>
                 </li>
             </ul>
-            {% if request.user.is_manager %}
-                <div class="ms-auto">
+            <div class="ms-auto">
+                {% if request.user.is_manager %}
                     {% if not semester.participations_are_archived %}
                         <a class="btn btn-sm btn-light" href="{% url 'staff:semester_import' semester.id %}">
                             {% trans 'Import' %}
@@ -151,8 +151,13 @@
                     {% if not semester.participations_are_archived %}
                         <a href="{% url 'staff:semester_questionnaire_assign' semester.id %}" class="btn btn-sm btn-light ms-2">{% trans 'Assign questionnaires' %}</a>
                     {% endif %}
-                </div>
-            {% endif %}
+                {% endif %}
+                {% if request.user.is_reviewer %}
+                    <a class="btn btn-sm btn-light ms-2" href="{% url 'staff:semester_flagged_textanswers' semester.id %}">
+                        {% trans 'Flagged textanswers' %}
+                    </a>
+                {% endif %}
+            </div>
         </div>
         <div class="card-body tab-content">
             <div class="tab-pane show active" id="evaluations" role="tabpanel">
