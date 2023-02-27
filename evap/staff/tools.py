@@ -340,7 +340,10 @@ def find_unreviewed_evaluations(semester, excluded):
             .exclude(state=Evaluation.State.PUBLISHED)
             .exclude(vote_end_date__gte=exclude_date)
             .exclude(can_publish_text_results=False)
-            .filter(contributions__textanswer_set__review_decision=TextAnswer.ReviewDecision.UNDECIDED)
+            .filter(
+                contributions__textanswer_set__review_decision=TextAnswer.ReviewDecision.UNDECIDED,
+                contributions__textanswer_set__is_flagged=False,
+            )
             .annotate(num_unreviewed_textanswers=Count("contributions__textanswer_set"))
         ),
         key=lambda e: (-e.grading_process_is_finished, e.vote_end_date, -e.num_unreviewed_textanswers),
