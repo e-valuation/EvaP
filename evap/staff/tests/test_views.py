@@ -2556,17 +2556,25 @@ class TestEvaluationTextAnswerView(WebTest):
 
     def test_exclude_evaluations_with_only_flagged(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation)
+        let_user_vote_for_evaluation(self.student2, self.evaluation2, create_answers=True)
+        self.assertGreaterEqual(TextAnswer.objects.filter(contribution__evaluation=self.evaluation2).count(), 2)
 
         with run_in_staff_mode(self):
             page = self.app.get(self.url, user=self.manager)
             self.assertContains(page, self.evaluation2.full_name)
 
-        self.assertTrue(TextAnswer.objects.filter(contribution__evaluation=self.evaluation2).exists())
         TextAnswer.objects.filter(contribution__evaluation=self.evaluation2).update(is_flagged=True)
-
         with run_in_staff_mode(self):
             page = self.app.get(self.url, user=self.manager)
             self.assertNotContains(page, self.evaluation2.full_name)
+
+        t1 = TextAnswer.objects.filter(contribution__evaluation=self.evaluation2).first()
+        t1.is_flagged = False
+        t1.save()
+
+        with run_in_staff_mode(self):
+            page = self.app.get(self.url, user=self.manager)
+            self.assertContains(page, self.evaluation2.full_name)
 
     def test_suggested_evaluation_ordering(self):
         evaluations = baker.make(
