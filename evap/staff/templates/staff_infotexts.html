@@ -11,35 +11,31 @@
     <form method="POST" class="form-horizontal" id="infotext-formset">
         {% csrf_token %}
         {{ formset.management_form }}
-        <div class="card mb-3">
-            <div class="card-body">
-                <table class="table">
-                    <thead>
+        {% for form in formset %}
+            <div class="card mb-3">
+                <div class="card-header">
+                    {% trans form.instance.get_page_display %}
+                </div>
+                <div class="card-body">
+                    {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
+                    <table class="table">
+                        <thead>
                         <tr>
                             <th>{% trans 'Title/Content (German)' %}</th>
                             <th>{% trans 'Title/Content (English)' %}</th>
                         </tr>
-                    </thead>
-                    <tbody>
-                    {% for form in formset %}
-                        {% for hidden in form.hidden_fields %}
-                            {{ hidden }}
-                        {% endfor %}
-                        <tr>
-                            <td colspan="2"
-                                class="spanning-title-row">
-                                {% trans form.instance.get_page_display %}
-                            </td>
-                        </tr>
-
+                        </thead>
+                        <tbody>
                         {% for error in form.non_field_errors %}
                             <tr>
                                 <td colspan="2">
-                                    <span class="error-label">{{ error|escape }}</span>{% if not forloop.last %}<br/>{% endif %}
+                                    <span class="error-label">{{ error|escape }}</span>{% if not forloop.last %}
+                                    <br/>{% endif %}
                                 </td>
                             </tr>
                         {% endfor %}
-
                         <tr>
                             <td>
                                 {% include 'bootstrap_form_field_widget.html' with field=form.title_de %}
@@ -50,11 +46,11 @@
                                 {% include 'bootstrap_form_field_widget.html' with field=form.content_en %}
                             </td>
                         </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
+        {% endfor %}
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
                 <button type="submit" class="btn btn-primary">{% trans 'Save infotexts' %}</button>
