@@ -1,5 +1,5 @@
 from django.db import migrations, models
-from evap.evaluation.models import Infotext
+from evap.evaluation.models import Infotext, NotHalfEmptyConstraint
 
 
 def create_infotexts(apps, _schema_editor):
@@ -10,7 +10,6 @@ def create_infotexts(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('evaluation', '0131_userprofile_ordering'),
     ]
@@ -24,7 +23,10 @@ class Migration(migrations.Migration):
                 ('title_en', models.CharField(max_length=255, blank=True, verbose_name='title (english)')),
                 ('content_de', models.TextField(blank=True, verbose_name='content (german)')),
                 ('content_en', models.TextField(blank=True, verbose_name='content (english)')),
-                ('page', models.CharField(choices=[('student_index', 'Student index page'), ('contributor_index', 'Contributor index page'), ('grades_pages', 'Grade publishing pages')], max_length=30, unique=True, null=False, blank=False, verbose_name='page for the infotext to be visible on')),
+                ('page', models.CharField(
+                    choices=[('student_index', 'Student index page'), ('contributor_index', 'Contributor index page'),
+                             ('grades_pages', 'Grade publishing pages')], max_length=30, unique=True, null=False,
+                    blank=False, verbose_name='page for the infotext to be visible on')),
             ],
             options={
                 'verbose_name': 'infotext',
@@ -33,19 +35,9 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name="infotext",
-            constraint=models.CheckConstraint(
-                check=models.Q(
-                    models.Q(("content_de", ""), ("content_en", ""), ("title_de", ""), ("title_en", "")),
-                    models.Q(
-                        models.Q(
-                            ("content_de", ""), ("content_en", ""), ("title_de", ""), ("title_en", ""), _connector="OR"
-                        ),
-                        _negated=True,
-                    ),
-                    _connector="OR",
-                ),
-                name="infotexts_not_half_empty",
-                violation_error_message="Please supply either all or no fields for this infotext.",
+            constraint=NotHalfEmptyConstraint(
+                fields=["title_de", "title_en", "content_de", "content_en"],
+                name="infotext_not_half_empty",
             ),
         ),
         migrations.RunPython(create_infotexts, reverse_code=lambda a, b: None)

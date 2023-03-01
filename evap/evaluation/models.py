@@ -1514,6 +1514,38 @@ class FaqQuestion(models.Model):
         verbose_name_plural = _("questions")
 
 
+class NotHalfEmptyConstraint(CheckConstraint):
+    fields: List[str] = []
+
+    def __init__(self, *, fields: List[str], name: str, **kwargs):
+        self.fields = fields
+        kwargs.pop("check", None)
+
+        super().__init__(
+            check=Q(**{field: "" for field in fields}) | ~Q(**{field: "" for field in fields}, _connector=Q.OR),
+            name=name,
+            **kwargs,
+        )
+
+    def deconstruct(self):
+        path, args, kwargs = super().deconstruct()
+        if self.fields:
+            kwargs["fields"] = self.fields
+        if self.check:
+            del kwargs["check"]
+        return path, args, kwargs
+
+    def validate(self, model, instance, exclude=None, using=None):
+        try:
+            super().validate(model, instance, exclude, using)
+        except ValidationError as e:
+            e.error_dict = {
+                field_name: ValidationError(instance._meta.get_field(field_name).error_messages["blank"], code="blank")
+                for field_name in filter(lambda field: getattr(instance, field) == "", self.fields)
+            }
+            raise e
+
+
 class Infotext(models.Model):
     """Infotext to display, e.g., at the student index and contributor index pages"""
 
@@ -1545,13 +1577,10 @@ class Infotext(models.Model):
     class Meta:
         verbose_name = _("infotext")
         verbose_name_plural = _("infotexts")
-
         constraints = (
-            CheckConstraint(
-                name="infotexts_not_half_empty",
-                violation_error_message="Please supply either all or no fields for this infotext.",
-                check=Q(title_de="", content_de="", title_en="", content_en="")
-                | ~Q(title_de="", content_de="", title_en="", content_en="", _connector=Q.OR),
+            NotHalfEmptyConstraint(
+                name="infotext_not_half_empty",
+                fields=["title_de", "title_en", "content_de", "content_en"],
             ),
         )
 
