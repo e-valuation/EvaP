@@ -4,6 +4,7 @@
 {% load static %}
 
 {% block content %}
+    {{ block.super }}
     {% show_infotext "grades_pages" %}
 
     <div class="row mb-3 align-items-center">
@@ -123,8 +124,6 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    {{ block.super }}
-
     <script type="module">
         import {TableGrid} from "{% static 'js/datagrid.js' %}";
         const table = document.querySelector(".grade-course-table");
