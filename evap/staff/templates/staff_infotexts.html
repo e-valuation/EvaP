@@ -16,38 +16,26 @@
                 <div class="card-header">
                     {% trans form.instance.get_page_display %}
                 </div>
-                <div class="card-body">
+                <div class="card-body" style="display: grid; grid-template-columns: auto auto; grid-column-gap: 10px">
                     {% for hidden in form.hidden_fields %}
                         {{ hidden }}
                     {% endfor %}
-                    <table class="table">
-                        <thead>
-                        <tr>
-                            <th>{% trans 'Title/Content (German)' %}</th>
-                            <th>{% trans 'Title/Content (English)' %}</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for error in form.non_field_errors %}
-                            <tr>
-                                <td colspan="2">
-                                    <span class="error-label">{{ error|escape }}</span>{% if not forloop.last %}
-                                    <br/>{% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        <tr>
-                            <td>
-                                {% include 'bootstrap_form_field_widget.html' with field=form.title_de %}
-                                {% include 'bootstrap_form_field_widget.html' with field=form.content_de %}
-                            </td>
-                            <td>
-                                {% include 'bootstrap_form_field_widget.html' with field=form.title_en %}
-                                {% include 'bootstrap_form_field_widget.html' with field=form.content_en %}
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
+                    <label class="card-subtitle">{% trans 'Title/Content (German)' %}</label>
+                    <label class="card-subtitle">{% trans 'Title/Content (English)' %}</label>
+
+                    <div class="mb-1 pt-2 border-bottom " style="grid-column: 1/-1;"></div>
+
+                    {% include 'bootstrap_form_field_widget.html' with field=form.title_de %}
+                    {% include 'bootstrap_form_field_widget.html' with field=form.title_en %}
+
+                    {% include 'bootstrap_form_field_widget.html' with field=form.content_de %}
+                    {% include 'bootstrap_form_field_widget.html' with field=form.content_en %}
+
+                    {% for error in form.non_field_errors %}
+                        <div style="grid-column: 1/-1">
+                            <span class="error-label">{{ error|escape }}</span>
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
         {% endfor %}
