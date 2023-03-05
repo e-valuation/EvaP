@@ -54,8 +54,8 @@ class Command(BaseCommand):
     def run_command(self, command):
         try:
             subprocess.run(command, check=True)  # nosec
-        except FileNotFoundError:
-            print(f"Could not find {command[0]} command", file=self.stderr)
+        except FileNotFoundError as e:
+            raise CommandError(f"Could not find {command[0]} command") from e
         except KeyboardInterrupt:
             pass
         except subprocess.CalledProcessError as e:
