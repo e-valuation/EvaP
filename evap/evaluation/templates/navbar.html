@@ -91,7 +91,7 @@
                             {% csrf_token %}
                             <input name="language" type="hidden" value="{{ language_code }}">
                             <button type="submit"{% if current_language == language_code %} disabled{% endif %} onclick="setSpinnerIcon('span-set-language-{{ language_code }}')"
-                                class="btn btn-sm btn-navbar{% if current_language == language_code %} active{% endif %}" title="{{ language_name }}">
+                                class="btn btn-sm btn-navbar{% if current_language == language_code %} active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ language_name }}">
                                 <span id="span-set-language-{{ language_code }}">{{ language_code|upper }}</span>
                             </button>
                         </form>
