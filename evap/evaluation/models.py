@@ -1588,7 +1588,9 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def full_name(self):
         if self.last_name:
             name = self.last_name
-            if self.first_name:
+            if self.display_name:
+                name = self.display_name + " " + name
+            elif self.first_name:
                 name = self.first_name + " " + name
             if self.title:
                 name = self.title + " " + name
