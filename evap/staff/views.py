@@ -2073,7 +2073,7 @@ def user_list(request):
             "ccing_users",
             "courses_responsible_for",
         )
-        .order_by("last_name", "first_name", "email")
+        .order_by(*UserProfile._meta.ordering)
     )
 
     return render(request, "staff_user_list.html", {"users": users, "filter_users": filter_users})

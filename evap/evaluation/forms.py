@@ -5,7 +5,8 @@ from django.contrib.auth import authenticate
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.debug import sensitive_variables
 
-from evap.evaluation.models import UserProfile
+from evap.evaluation.models import Evaluation, UserProfile
+from evap.results.tools import STATES_WITH_RESULTS_CACHING, cache_results
 
 logger = logging.getLogger(__name__)
 
@@ -118,3 +119,27 @@ class DelegatesForm(forms.ModelForm):
     def save(self, *args, **kw):
         super().save(*args, **kw)
         logger.info('User "%s" edited the settings.', self.instance.email)
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ("title", "first_name_chosen", "first_name_given", "last_name", "email")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in ("title", "first_name_given", "last_name", "email"):
+            self.fields[field].disabled = True
+
+    def save(self, *args, **kw):
+        super().save(*args, **kw)
+
+        if "first_name_chosen" in self.changed_data:
+            logger.info(
+                'User "%s" updated chosen first name to: "%s".', self.instance.email, self.instance.first_name_chosen
+            )
+            evaluations = Evaluation.objects.filter(
+                contributions__contributor=self.instance, state__in=STATES_WITH_RESULTS_CACHING
+            ).distinct()
+            for evaluation in evaluations:
+                cache_results(evaluation)

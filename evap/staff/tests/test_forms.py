@@ -170,7 +170,7 @@ class UserFormTests(TestCase):
         )
 
     def test_results_cache_refreshed(self):
-        contributor = baker.make(UserProfile, first_name="Peter")
+        contributor = baker.make(UserProfile, first_name_given="Peter")
         evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED)
         baker.make(Contribution, contributor=contributor, evaluation=evaluation)
 
@@ -178,7 +178,7 @@ class UserFormTests(TestCase):
         results_before = get_results(evaluation)
 
         form_data = get_form_data_from_instance(UserForm, contributor)
-        form_data["first_name"] = "Patrick"
+        form_data["first_name_given"] = "Patrick"
         form = UserForm(form_data, instance=contributor)
         form.save()
 
@@ -275,7 +275,7 @@ class ContributionFormsetTests(TestCase):
         Tests the ContributionFormset with various input data sets.
         """
         evaluation = baker.make(Evaluation)
-        user1 = baker.make(UserProfile, _fill_optional=["first_name", "last_name"])
+        user1 = baker.make(UserProfile, _fill_optional=["first_name_given", "last_name"])
         user2 = baker.make(UserProfile)
         baker.make(UserProfile)
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)

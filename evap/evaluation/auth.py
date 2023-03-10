@@ -216,14 +216,14 @@ class OpenIDAuthenticationBackend(OIDCAuthenticationBackend):
     def create_user(self, claims):
         user = self.UserModel.objects.create(
             email=claims.get("email"),
-            first_name=claims.get("given_name", ""),
+            first_name_given=claims.get("given_name", ""),
             last_name=claims.get("family_name", ""),
         )
         return user
 
     def update_user(self, user, claims):
-        if not user.first_name:
-            user.first_name = claims.get("given_name", "")
+        if not user.first_name_given:
+            user.first_name_given = claims.get("given_name", "")
             user.save()
         if not user.last_name:
             user.last_name = claims.get("family_name", "")

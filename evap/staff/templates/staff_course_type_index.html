@@ -12,7 +12,7 @@
         <a href="{% url 'staff:course_type_merge_selection' %}" class="btn btn-sm btn-secondary">{% trans 'Merge course types' %}</a>
     </div>
 
-    <form id="course-type-form" method="POST" enctype="multipart/form-data" class="form-horizontal tomselectform">
+    <form id="course-type-form" method="POST" class="form-horizontal tomselectform">
         {% csrf_token %}
         {{ formset.management_form }}
 
