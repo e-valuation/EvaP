@@ -8,8 +8,7 @@
 .btn-light {
     border-color: $medium-gray;
 }
-.btn-light:focus,
-.btn-light.focus {
+.btn-light:focus-visible {
     box-shadow: 0 0 0 $btn-focus-width rgba($dark-gray, 0.5);
 }
 .btn-light.active,
@@ -30,7 +29,7 @@
 .btn-light:not(:disabled):not(.disabled).active {
     border-color: $dark-gray;
 
-    &:focus {
+    &:focus-visible {
         box-shadow: inset 0 0 5px $dark-gray, 0 0 0 $btn-focus-width rgba($dark-gray, 0.5);
     }
 }
@@ -122,10 +121,6 @@ a:not([href]):not(.disabled) {
                 color: $white;
             }
 
-            &:focus {
-                box-shadow: none;
-            }
-
             &.active {
                 background-color: tint-color($darker-gray, 10%);
                 color: $medium-gray;
@@ -159,23 +154,21 @@ a:not([href]):not(.disabled) {
     max-width: 16em;
 }
 
-.vote-btn {
+.btn.vote-btn {
     width: 6rem;
     height: 2.5rem;
     padding: 0.25rem;
     font-size: 0.85rem;
     white-space: normal;
     line-height: 1rem;
-    border-color: $medium-gray;
+    border-color: $medium-gray !important;
 
     &:last-child {
         width: 3.5rem;
     }
 
-    &.focus,
-    &:focus {
-        outline: none;
-        box-shadow: 0 0 0 0.2rem rgba($evap-dark-blue, 0.5);
+    .btn-check:focus-visible + & {
+        box-shadow: 0 0 0 $input-btn-focus-width rgba($evap-dark-blue, 0.25);
     }
 
     .vote-type-bipolar &:not(:last-child) {
@@ -187,10 +180,9 @@ a:not([href]):not(.disabled) {
 textarea,
 button,
 a.collapse-toggle {
-    &.tab-selectable.focus,
-    &.tab-selectable:focus {
+    &.tab-selectable:focus-visible {
         outline: none;
-        box-shadow: 0 0 0 0.2rem rgba($evap-dark-blue, 0.5);
+        box-shadow: 0 0 0 $input-btn-focus-width rgba($evap-dark-blue, 0.25);
     }
 }
 
@@ -208,22 +200,27 @@ a.collapse-toggle {
 
 .vote-btn-text {
     position: relative;
-    top: -1px;
+    top: -1.2px;
 }
 
 @each $name, $color in $vote-colors {
-    .vote-btn-#{$name} {
+    .btn.vote-btn-#{$name} {
         background-color: $lighter-gray;
         color: shade-color($color, 40%);
 
         &:hover {
-            background-color: change-color($color, $lightness: 85%);
+            background-color: tint-color($color, 60%);
+            color: shade-color($color, 40%);
         }
     }
 
     .btn-check:checked + .vote-btn-#{$name} {
         background-color: $color;
-        color: change-color($color, $lightness: 30%);
+        color: shade-color($color, 60%);
+
+        &:hover {
+            background-color: tint-color($color, 30%);
+        }
     }
 }
 
@@ -258,7 +255,7 @@ a.collapse-toggle {
 
     box-shadow: inset 0 0 10px $dark-gray;
 
-    &:focus {
+    &:focus-visible {
         box-shadow: $btn-focus-box-shadow, inset 0 0 10px $dark-gray;
     }
 

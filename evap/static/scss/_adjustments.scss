@@ -9,6 +9,8 @@ body, .fixed-top, .fixed-bottom, .is-fixed, .sticky-top {
 // make collapsed card have no double bottom border
 // (bootstrap bug: https://github.com/twbs/bootstrap/issues/27108)
 .collapsible {
+    overflow: hidden;  // don't let background color overflow rounded border
+
     .card-header {
         border-bottom: none;
     }
@@ -21,6 +23,7 @@ body, .fixed-top, .fixed-bottom, .is-fixed, .sticky-top {
 // make buttons that really look like links
 .btn-link {
     padding: 0;
+    vertical-align: baseline;
     border: none;
     background-color: transparent;
 }

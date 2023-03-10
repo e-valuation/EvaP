@@ -26,7 +26,7 @@
                         <ul>
                             {% for evaluation in course.evaluations.all %}
                                 <li>
-                                    <a href="{% url 'staff:evaluation_edit' semester.id evaluation.id %}">
+                                    <a href="{% url 'staff:evaluation_edit' evaluation.id %}">
                                         {{ evaluation.full_name }}
                                     </a>
                                 </li>

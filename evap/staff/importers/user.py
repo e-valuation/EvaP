@@ -8,10 +8,11 @@ from django.db import transaction
 from django.db.models import Q
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
 from evap.evaluation.models import UserProfile
 from evap.evaluation.tools import clean_email, unordered_groupby
-from evap.staff.tools import create_user_list_html_string_for_message, user_edit_link
+from evap.staff.tools import append_user_list_if_not_empty, user_edit_link
 
 from .base import (
     Checker,
@@ -136,7 +137,7 @@ class UserDataMismatchChecker(Checker):
         # maps user's mail to UserData instance where it was first seen to have O(1) lookup
         self.users: Dict[str, UserData] = {}
 
-        self.in_file_mismatch_tracker: FirstLocationAndCountTracker = FirstLocationAndCountTracker()
+        self.in_file_mismatch_tracker = FirstLocationAndCountTracker()
 
     def check_userdata(self, user_data: UserData, location: ExcelFileLocation):
         if user_data.email == "":
@@ -149,10 +150,10 @@ class UserDataMismatchChecker(Checker):
 
     def finalize(self) -> None:
         # Mismatches to older rows in the file
-        for user_email, location in self.in_file_mismatch_tracker.aggregated_keys_and_location_strings():
+        for email, location in self.in_file_mismatch_tracker.aggregated_keys_and_location_strings():
             self.importer_log.add_error(
-                _("{location}: The users's data (email: {user_email}) is different to a previous row.").format(
-                    location=location, user_email=user_email
+                _('{location}: The data of user "{email}" differs from their data in a previous row.').format(
+                    location=location, email=email
                 ),
                 category=ImporterLogEntry.Category.USER,
             )
@@ -282,7 +283,7 @@ class DuplicateUserDataChecker(Checker):
         super().__init__(*args, **kwargs)
         self.first_location_by_user_data: Dict[UserData, ExcelFileLocation] = {}
 
-        self.tracker: FirstLocationAndCountTracker = FirstLocationAndCountTracker()
+        self.tracker = FirstLocationAndCountTracker()
 
     def check_userdata(self, user_data: UserData, location: ExcelFileLocation):
         if user_data not in self.first_location_by_user_data:
@@ -344,19 +345,23 @@ def import_users(excel_content: bytes, test_run: bool) -> Tuple[List[UserProfile
 
         if test_run:
             importer_log.add_success(_("The test run showed no errors. No data was imported yet."))
-            msg = format_html(
-                _("The import run will create {} users:{}"),
+            msg = ngettext(
+                "The import run will create 1 user",
+                "The import run will create {user_count} users",
                 len(new_user_profiles),
-                create_user_list_html_string_for_message(new_user_profiles),
-            )
+            ).format(user_count=len(new_user_profiles))
+            msg = append_user_list_if_not_empty(msg, new_user_profiles)
+
             importer_log.add_success(msg)
         else:
             update_existing_and_create_new_user_profiles(existing_user_profiles, new_user_profiles)
-            msg = format_html(
-                _("Successfully created {} users:{}"),
+            msg = ngettext(
+                "Successfully created 1 user",
+                "Successfully created {user_count} users",
                 len(new_user_profiles),
-                create_user_list_html_string_for_message(new_user_profiles),
-            )
+            ).format(user_count=len(new_user_profiles))
+            msg = append_user_list_if_not_empty(msg, new_user_profiles)
+
             importer_log.add_success(msg)
 
         return resulting_user_profiles, importer_log

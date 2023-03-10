@@ -40,9 +40,9 @@
                         {% for course, num_midterm_grades, num_final_grades in courses %}
                             <tr>
                                 <td data-col="name" data-order="{{ course.name|lower }}">
-                                    <a href="{% url 'grades:course_view' semester.id course.id %}">{{ course.name }}</a>
+                                    <a href="{% url 'grades:course_view' course.id %}">{{ course.name }}</a>
                                     <br />
-                                    {% include 'evaluation_badges.html' with mode='grades' %}
+                                    {% include 'course_badges.html' %}
                                 </td>
                                 <td data-col="responsible" data-order="{{ course.responsibles.first.last_name|lower }}">
                                     {{ course.responsibles_names }}
@@ -73,12 +73,12 @@
                                                     <span class="fas fa-upload"></span>
                                                 </button>
                                                 <div class="dropdown-menu" aria-labelledby="btnUpload{{ course.id }}">
-                                                    <a class="dropdown-item" href="{% url 'grades:upload_grades' semester.id course.id %}">{% trans 'Midterm grades' %}</a>
-                                                    <a class="dropdown-item" href="{% url 'grades:upload_grades' semester.id course.id %}?final=true">{% trans 'Final grades' %}</a>
+                                                    <a class="dropdown-item" href="{% url 'grades:upload_grades' course.id %}">{% trans 'Midterm grades' %}</a>
+                                                    <a class="dropdown-item" href="{% url 'grades:upload_grades' course.id %}?final=true">{% trans 'Final grades' %}</a>
                                                 </div>
                                             </div>
                                         {% else %}
-                                            <a href="{% url 'grades:course_view' semester.id course.id %}" class="btn btn-sm btn-light {{ disable_if_archived }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Change grade document' %}"><span class="fas fa-pencil"></span></a>
+                                            <a href="{% url 'grades:course_view' course.id %}" class="btn btn-sm btn-light {{ disable_if_archived }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Change grade document' %}"><span class="fas fa-pencil"></span></a>
                                         {% endif %}
                                     {% endif %}
                                 </td>

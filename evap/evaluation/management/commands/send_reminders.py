@@ -20,7 +20,7 @@ def get_sorted_evaluation_url_tuples_with_urgent_review() -> List[Tuple[Evaluati
             settings.PAGE_URL
             + reverse(
                 "staff:evaluation_textanswers",
-                kwargs={"semester_id": evaluation.course.semester.id, "evaluation_id": evaluation.id},
+                kwargs={"evaluation_id": evaluation.id},
             ),
         )
         for evaluation in Evaluation.objects.filter(state=Evaluation.State.EVALUATED)

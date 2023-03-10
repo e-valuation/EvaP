@@ -35,6 +35,7 @@ django-settings-module = "evap.settings"
 # need to allow that here (their issue 618)
 variable-rgx = "(^[a-z0-9_]+$)|(^[A-Za-z]+$)"
 argument-rgx = "(^[a-z0-9_]+$)|(^[A-Za-z]+$)"
+method-rgx = "(^[a-z0-9_]+$)|(^assert[A-Za-z]+$)"
 
 # Allow 4 leading digits for migrations
 module-rgx = "^([0-9]{4})?([a-z_][a-z0-9_]+)$"
