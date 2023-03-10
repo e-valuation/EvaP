@@ -1516,15 +1516,21 @@ class FaqQuestion(models.Model):
 
 
 class UserProfileManager(BaseUserManager):
-    def create_user(self, email, password=None, first_name=None, last_name=None):
-        user = self.model(email=self.normalize_email(email), first_name=first_name, last_name=last_name)
+    def create_user(self, email, password=None, first_name=None, last_name=None, display_name=None):
+        user = self.model(
+            email=self.normalize_email(email), first_name=first_name, last_name=last_name, display_name=display_name
+        )
         user.set_password(password)
         user.save()
         return user
 
-    def create_superuser(self, email, password, first_name=None, last_name=None):
+    def create_superuser(self, email, password, first_name=None, last_name=None, display_name=None):
         user = self.create_user(
-            password=password, email=self.normalize_email(email), first_name=first_name, last_name=last_name
+            password=password,
+            email=self.normalize_email(email),
+            first_name=first_name,
+            last_name=last_name,
+            display_name=display_name,
         )
         user.is_superuser = True
         user.save()
@@ -1539,6 +1545,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Title"))
     first_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("first name"))
     last_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("last name"))
+    display_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("display name"))
 
     language = models.CharField(max_length=8, blank=True, null=True, verbose_name=_("language"))
 

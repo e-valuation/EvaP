@@ -206,6 +206,7 @@ def merge_users(main_user, other_user, preview=False):
     merged_user = {}
     merged_user["is_active"] = main_user.is_active or other_user.is_active
     merged_user["title"] = main_user.title or other_user.title or ""
+    merged_user["display_name"] = main_user.display_name or other_user.display_name or ""
     merged_user["first_name"] = main_user.first_name or other_user.first_name or ""
     merged_user["last_name"] = main_user.last_name or other_user.last_name or ""
     merged_user["email"] = main_user.email or other_user.email or None

@@ -17,6 +17,10 @@
                             <td>{{ user.title|default_if_none:"" }}</td>
                         </tr>
                         <tr>
+                            <td><strong>{% trans 'Display Name' %}</strong></td>
+                            <td>{{ user.display_name|default_if_none:"" }}</td>
+                        </tr>
+                        <tr>
                             <td><strong>{% trans 'First name' %}</strong></td>
                             <td>{{ user.first_name|default_if_none:"" }}</td>
                         </tr>
