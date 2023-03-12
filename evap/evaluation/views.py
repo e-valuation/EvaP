@@ -15,6 +15,8 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.http import require_POST
 from django.views.i18n import set_language
 
+from django.db import connection
+
 from evap.evaluation.forms import DelegatesForm, LoginEmailForm, NewKeyForm
 from evap.evaluation.models import EmailTemplate, FaqSection, Semester
 from evap.middleware import no_login_required
@@ -184,6 +186,23 @@ def contact(request):
 
     return HttpResponseBadRequest()
 
+@require_POST
+def display_name(request):
+    email = request.POST.get("email")
+    print(email)
+    display_name = request.POST.get("displayName")
+    print(display_name)
+    if display_name:
+        try :
+            query = "UPDATE evaluation_userprofile SET display_name='{0}' WHERE email='{1}'".format(display_name, email)
+            cursor = connection.cursor()
+            cursor.execute(query)
+            return HttpResponse()
+        except Exception:
+            logger.exception("An exception occurred whensaving the following display name:\n%s\n", display_name)
+            raise
+
+    return HttpResponseBadRequest()
 
 @no_login_required
 @require_POST

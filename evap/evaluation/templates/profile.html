@@ -17,7 +17,7 @@
                             <td>{{ user.title|default_if_none:"" }}</td>
                         </tr>
                         <tr>
-                            <td><strong>{% trans 'Display Name' %}</strong></td>
+                            <td><strong>{% trans 'Display Name' %}</div></strong></td>
                             <td>{{ user.display_name|default_if_none:"" }}</td>
                         </tr>
                         <tr>
@@ -53,12 +53,16 @@
                     </table>
                 </div>
                 <div class="card-footer text-center">
+                    <button type="button" class="btn btn-light" id="editDisplayNameModalShowButton">
+                        {% trans 'Edit Display Name' %}
+                    </button>
                     <button type="button" class="btn btn-light" id="changeRequestModalShowButton">
                         {% trans 'Request changes' %}
                     </button>
                 </div>
             </div>
         </div>
+
         {% if user.is_editor %}
             <div class="col-6">
                 <form id="settings-form" method="POST" class="form-horizontal multiselect-form settings-form" enctype="multipart/form-data">
@@ -105,4 +109,8 @@
     {% trans 'Request user setting changes' as title %}
     {% trans 'Please tell us which of your settings we should change.' as teaser %}
     {% include 'contact_modal.html' with modal_id='changeRequestModal' user=request.user title=title teaser=teaser %}
+    {{ block.super }}
+    {% trans 'Edit Display Name' as title %}
+    {% trans 'Please tell us your preferred name.' as teaser %}
+    {% include 'edit_display_name_modal.html' with modal_id='editDisplayNameModal' user=request.user title=title teaser=teaser %}
 {% endblock %}
