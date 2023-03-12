@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib import auth, messages
 from django.core.exceptions import SuspiciousOperation
 from django.core.mail import EmailMessage
+from django.db import connection
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -14,8 +15,6 @@ from django.utils.translation import gettext as _
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.http import require_POST
 from django.views.i18n import set_language
-
-from django.db import connection
 
 from evap.evaluation.forms import DelegatesForm, LoginEmailForm, NewKeyForm
 from evap.evaluation.models import EmailTemplate, FaqSection, Semester
@@ -186,6 +185,7 @@ def contact(request):
 
     return HttpResponseBadRequest()
 
+
 @require_POST
 def display_name(request):
     email = request.POST.get("email")
@@ -193,7 +193,7 @@ def display_name(request):
     display_name = request.POST.get("displayName")
     print(display_name)
     if display_name:
-        try :
+        try:
             query = "UPDATE evaluation_userprofile SET display_name='{0}' WHERE email='{1}'".format(display_name, email)
             cursor = connection.cursor()
             cursor.execute(query)
@@ -203,6 +203,7 @@ def display_name(request):
             raise
 
     return HttpResponseBadRequest()
+
 
 @no_login_required
 @require_POST

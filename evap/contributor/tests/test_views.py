@@ -277,12 +277,12 @@ class TestContributorEvaluationEditView(WebTest):
         self.evaluation.save()
         page = self.app.get(self.url, user=self.responsible)
         self.assertEqual(page.body.decode().count("Request changes"), 1)
-        self.assertEqual(page.body.decode().count("Edit display name"), 1)
+        self.assertEqual(page.body.decode().count("Edit Display Name"), 0)
         self.assertEqual(page.body.decode().count("Request creation of new account"), 1)
 
         self.evaluation.allow_editors_to_edit = True
         self.evaluation.save()
         page = self.app.get(self.url, user=self.responsible)
         self.assertEqual(page.body.decode().count("Request changes"), 0)
-        self.assertEqual(page.body.decode().count("Edit display name"), 0)
+        self.assertEqual(page.body.decode().count("Edit Display Name"), 0)
         self.assertEqual(page.body.decode().count("Request creation of new account"), 2)
