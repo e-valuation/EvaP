@@ -35,6 +35,7 @@ from evap.evaluation.models import (
     Semester,
     TextAnswer,
     UserProfile,
+    VoteTimestamp,
 )
 from evap.evaluation.tests.tools import (
     FuzzyInt,
@@ -1302,6 +1303,26 @@ class TestSemesterParticipationDataExportView(WebTestStaffMode):
             "student@example.com;False;1;1;0;1;65\n"
         )
         self.assertEqual(response.content, expected_content.encode("utf-8"))
+
+
+class TestSemesterVoteTimestampsExport(WebTestStaffMode):
+    @classmethod
+    def setUpTestData(cls):
+        cls.manager = make_manager()
+        cls.semester = baker.make(Semester)
+        cls.evaluation = baker.make(Evaluation, course__semester=cls.semester)
+        cls.timestamp = baker.make(VoteTimestamp, evaluation=cls.evaluation)
+
+        cls.url = f"/staff/semester/{cls.semester.pk}/vote_timestamps_export"
+        cls.test_users = [cls.manager]
+
+    def test_view_downloads_csv_file(self):
+        response = self.app.get(self.url, user=self.manager)
+        expected_content = (
+            "Evaluation id;Timestamp;Course type;Course degrees;Vote end date\n"
+            + f"{self.evaluation.id};{self.timestamp.timestamp};{self.evaluation.course.type.name};{', '.join([degree.name for degree in self.evaluation.course.degrees.all()])};{self.evaluation.vote_end_datetime}\n"
+        ).encode("utf-8")
+        self.assertEqual(response.content, expected_content)
 
 
 class TestLoginKeyExportView(WebTestStaffMode):

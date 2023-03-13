@@ -44,6 +44,7 @@ from evap.evaluation.models import (
     Semester,
     TextAnswer,
     UserProfile,
+    VoteTimestamp,
 )
 from evap.evaluation.tools import (
     AttachmentResponse,
@@ -791,6 +792,40 @@ def semester_participation_export(_request, semester_id):
                 number_of_optional_evaluations_voted_for,
                 number_of_optional_evaluations,
                 earned_reward_points,
+            ]
+        )
+
+    return response
+
+
+@manager_required
+def vote_timestamps_export(__, semester_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    evaluations = semester.evaluations.all()
+    timestamps = VoteTimestamp.objects.filter(evaluation__in=evaluations)
+
+    filename = f"Timestamp-{semester.name}.csv"
+    response = AttachmentResponse(filename, content_type="text/csv")
+
+    writer = csv.writer(response, delimiter=";", lineterminator="\n")
+    writer.writerow(
+        [
+            _("Evaluation id"),
+            _("Timestamp"),
+            _("Course type"),
+            _("Course degrees"),
+            _("Vote end date"),
+        ]
+    )
+
+    for timestamp in timestamps:
+        writer.writerow(
+            [
+                timestamp.evaluation.id,
+                timestamp.timestamp,
+                timestamp.evaluation.course.type.name,
+                ", ".join([degree.name for degree in timestamp.evaluation.course.degrees.all()]),
+                timestamp.evaluation.vote_end_datetime,
             ]
         )
 

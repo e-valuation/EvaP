@@ -2139,3 +2139,10 @@ class EmailTemplate(models.Model):
         body_params = {"user": user, "evaluation_url_tuples": evaluation_url_tuples}
         template = cls.objects.get(name=cls.TEXT_ANSWER_REVIEW_REMINDER)
         template.send_to_user(user, {}, body_params, use_cc=False)
+
+
+class VoteTimestamp(models.Model):
+    """A timestamp, when a user voted for a course."""
+
+    evaluation = models.ForeignKey(Evaluation, models.PROTECT)
+    timestamp = models.DateTimeField(verbose_name=_("vote timestamp"), auto_now_add=True)

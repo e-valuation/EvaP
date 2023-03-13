@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from evap.evaluation.auth import participant_required
-from evap.evaluation.models import NO_ANSWER, Evaluation, RatingAnswerCounter, Semester, TextAnswer
+from evap.evaluation.models import NO_ANSWER, Evaluation, RatingAnswerCounter, Semester, TextAnswer, VoteTimestamp
 from evap.results.tools import (
     annotate_distributions_and_grades,
     get_evaluations_with_course_result_attributes,
@@ -229,6 +229,8 @@ def vote(request, evaluation_id):
                                 TextAnswer.objects.create(
                                     contribution=contribution, question=question, answer=textanswer_value
                                 )
+
+        VoteTimestamp.objects.create(evaluation=evaluation)
 
         # Update all answer rows to make sure no system columns give away which one was last modified
         # see https://github.com/e-valuation/EvaP/issues/1384
