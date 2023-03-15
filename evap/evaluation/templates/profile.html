@@ -11,29 +11,51 @@
             <div class="card">
                 <div class="card-body">
                     <h4 class="card-title mb-4">{% trans 'Personal information' %}</h4>
-
-                    <form id="profile-form" method="POST" enctype="multipart/form-data" class="form-horizontal multiselect-form">
-                        {% csrf_token %}
-
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                {% include 'bootstrap_form.html' with form=profile_form %}
+                        <form id="profile-form" method="POST" enctype="multipart/form-data" class="form-horizontal multiselect-form">
+                            {% csrf_token %}
+    
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    {% include 'bootstrap_form.html' with form=profile_form %}
+                                </div>
                             </div>
-                        </div>
-                    
-                        <div class="card-footer text-center">
-                            <button type="submit" class="btn btn-primary">
-                                {% trans 'Save changes' %}
-                            </button>
-                            <button type="button" class="btn btn-light" id="changeRequestModalShowButton">
-                                {% trans 'Request changes' %}
-                            </button>
-                        </div>
+
+                            <div class="card mb-3">
+                                <table>
+                                    {% if user.is_editor %}
+                                    <tr>
+                                        <td><strong>{% trans 'CC all my emails to' %}</strong></td>
+                                        <td>
+                                            {% for cc_user in cc_users %}
+                                                {{ cc_user.full_name }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>{% blocktrans %}You receive CC'ed emails for{% endblocktrans %}</strong></td>
+                                        <td>
+                                            {% for ccing_user in ccing_users %}
+                                                {{ ccing_user.full_name }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                                </table>
+                                
+                            </div>
+                        
+                            <div class="card-footer text-center">
+                                <button type="submit" class="btn btn-primary">
+                                    {% trans 'Save changes' %}
+                                </button>
+                                <button type="button" class="btn btn-light" id="changeRequestModalShowButton">
+                                    {% trans 'Request changes' %}
+                                </button>
+                            </div>
                     </form>
                 </div>
             </div>
         </div>
-
         {% if user.is_editor %}
             <div class="col-6">
                 <form id="settings-form" method="POST" class="form-horizontal multiselect-form settings-form" enctype="multipart/form-data">

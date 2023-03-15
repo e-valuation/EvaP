@@ -229,5 +229,5 @@ def profile_edit(request):
     return render(
         request,
         "profile.html",
-        {"user": user},
+        {"user": user, "profile_form": profile_form},
     )
