@@ -1,8 +1,9 @@
 # EvaP - Evaluation Platform
 
 [![Build Status](https://github.com/e-valuation/EvaP/workflows/EvaP%20Test%20Suite/badge.svg?branch=main)](https://github.com/e-valuation/EvaP/actions?query=workflow%3A%22EvaP+Test+Suite%22)
+[![Requirements Status](https://requires.io/github/e-valuation/EvaP/requirements.svg?branch=main)](https://requires.io/github/e-valuation/EvaP/requirements/?branch=main)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/2cf538781fdc4680a7103bcf96417a9a)](https://www.codacy.com/gh/e-valuation/EvaP/dashboard)
-[![codecov](https://codecov.io/gh/e-valuation/EvaP/branch/main/graph/badge.svg)](https://codecov.io/gh/e-valuation/EvaP)
+[![codecov](https://codecov.io/gh/e-valuation/EvaP/branch/master/graph/badge.svg)](https://codecov.io/gh/e-valuation/EvaP)
 
 
 ## What is EvaP?
@@ -14,7 +15,8 @@ For the documentation, please see our [wiki](https://github.com/e-valuation/EvaP
 
 ## Installation
 
-The easiest setup using [Vagrant](https://www.vagrantup.com) and [VirtualBox](https://www.virtualbox.org) is shown here. For manual installation instructions and production deployment please see the [wiki page on installation](https://github.com/e-valuation/EvaP/wiki/Installation).
+The easiest setup using [Vagrant](https://www.vagrantup.com) and [VirtualBox](https://www.virtualbox.org) is shown here. 
+Some Apples M1/M2 are not supported by VirtualBox, please jump down to the docker setup section. For manual installation instructions and production deployment please see the [wiki page on installation](https://github.com/e-valuation/EvaP/wiki/Installation).
 
 0. Install [git](https://git-scm.com/downloads), [Vagrant](https://www.vagrantup.com/downloads.html) and [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 
@@ -46,10 +48,18 @@ That's it!
 
 ### Docker
 We provide experimental support to run the development setup in a docker container using
+Please install Docker Desktop, **not** just the CLI docker engine. Vagrant does conflict with used ports from other docker containers, even if they are not in use. If you are encountering this issue during the build process you can change the `host` port in `Vagrantfile`.
 ```bash
 vagrant up --provider docker
 vagrant provision
 vagrant ssh
+```
+
+bash in container:
+```bash
+export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+export PUPPETEER_SKIP_DOWNLOAD=true
+npm install typescript
 ```
 
 
