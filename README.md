@@ -16,7 +16,7 @@ For the documentation, please see our [wiki](https://github.com/e-valuation/EvaP
 ## Installation
 
 The easiest setup using [Vagrant](https://www.vagrantup.com) and [VirtualBox](https://www.virtualbox.org) is shown here. 
-Some Apples M1/M2 are not supported by VirtualBox, please jump down to the docker setup section. For manual installation instructions and production deployment please see the [wiki page on installation](https://github.com/e-valuation/EvaP/wiki/Installation).
+Some CPUs like Apples M1/M2 are not supported by VirtualBox, please jump down to the docker setup section. For manual installation instructions and production deployment please see the [wiki page on installation](https://github.com/e-valuation/EvaP/wiki/Installation).
 
 0. Install [git](https://git-scm.com/downloads), [Vagrant](https://www.vagrantup.com/downloads.html) and [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 
@@ -46,7 +46,7 @@ vagrant ssh
 That's it!
 
 
-### Docker
+### Docker Setup
 We provide experimental support to run the development setup in a docker container using
 Please install Docker Desktop, **not** just the CLI docker engine. Vagrant does conflict with used ports from other docker containers, even if they are not in use. If you are encountering this issue during the build process you can change the `host` port in `Vagrantfile`.
 ```bash
