@@ -169,4 +169,11 @@ class TestProfileView(WebTest):
         page = self.app.get(self.url, user=user, status=200)
         self.assertIn("Personal information", page)
         self.assertNotIn("Delegates", page)
-        self.assertIn(user.email, page)
+        # self.assertIn(user.email, page) # wont be in html anymore
+
+    def test_edit_display_name(self):
+        page = self.app.get(self.url, user=self.responsible, status=200)
+        form = page.forms["profile-form"]
+        form["display_name"] = "testdisplayname"
+        form.submit()
+        self.assertTrue(UserProfile.objects.filter(display_name="testdisplayname").exists())

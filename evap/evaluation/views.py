@@ -5,7 +5,6 @@ from django.conf import settings
 from django.contrib import auth, messages
 from django.core.exceptions import SuspiciousOperation
 from django.core.mail import EmailMessage
-from django.db import connection
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -16,7 +15,7 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.http import require_POST
 from django.views.i18n import set_language
 
-from evap.evaluation.forms import DelegatesForm, LoginEmailForm, NewKeyForm
+from evap.evaluation.forms import DelegatesForm, LoginEmailForm, NewKeyForm, ProfileForm
 from evap.evaluation.models import EmailTemplate, FaqSection, Semester
 from evap.middleware import no_login_required
 
@@ -186,25 +185,6 @@ def contact(request):
     return HttpResponseBadRequest()
 
 
-@require_POST
-def display_name(request):
-    email = request.POST.get("email")
-    print(email)
-    display_name = request.POST.get("displayName")
-    print(display_name)
-    if display_name:
-        try:
-            query = "UPDATE evaluation_userprofile SET display_name='{0}' WHERE email='{1}'".format(display_name, email)
-            cursor = connection.cursor()
-            cursor.execute(query)
-            return HttpResponse()
-        except Exception:
-            logger.exception("An exception occurred whensaving the following display name:\n%s\n", display_name)
-            raise
-
-    return HttpResponseBadRequest()
-
-
 @no_login_required
 @require_POST
 def set_lang(request):
@@ -218,6 +198,12 @@ def set_lang(request):
 
 def profile_edit(request):
     user = request.user
+    profile_form = ProfileForm(request.POST or None, request.FILES or None, instance=user)
+    if profile_form.is_valid():
+        profile_form.save()
+        messages.success(request, _("Successfully updated your profile."))
+        return redirect("evaluation:profile_edit")
+
     if user.is_editor:
         form = DelegatesForm(request.POST or None, request.FILES or None, instance=user)
 
@@ -233,6 +219,7 @@ def profile_edit(request):
             {
                 "user": user,
                 "form": form,
+                "profile_form": profile_form,
                 "delegate_of": user.represented_users.all(),
                 "cc_users": user.cc_users.all(),
                 "ccing_users": user.ccing_users.all(),

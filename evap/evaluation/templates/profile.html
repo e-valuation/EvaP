@@ -11,54 +11,25 @@
             <div class="card">
                 <div class="card-body">
                     <h4 class="card-title mb-4">{% trans 'Personal information' %}</h4>
-                    <table class="table table-striped table-vertically-aligned">
-                        <tr>
-                            <td><strong>{% trans 'Title' %}</strong></td>
-                            <td>{{ user.title|default_if_none:"" }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>{% trans 'Display Name' %}</div></strong></td>
-                            <td>{{ user.display_name|default_if_none:"" }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>{% trans 'First name' %}</strong></td>
-                            <td>{{ user.first_name|default_if_none:"" }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>{% trans 'Last name' %}</strong></td>
-                            <td>{{ user.last_name|default_if_none:"" }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>{% trans 'Email' %}</strong></td>
-                            <td>{{ user.email|default_if_none:"" }}</td>
-                        </tr>
-                        {% if user.is_editor %}
-                            <tr>
-                                <td><strong>{% trans 'CC all my emails to' %}</strong></td>
-                                <td>
-                                    {% for cc_user in cc_users %}
-                                        {{ cc_user.full_name }}{% if not forloop.last %}, {% endif %}
-                                    {% endfor %}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>{% blocktrans %}You receive CC'ed emails for{% endblocktrans %}</strong></td>
-                                <td>
-                                    {% for ccing_user in ccing_users %}
-                                        {{ ccing_user.full_name }}{% if not forloop.last %}, {% endif %}
-                                    {% endfor %}
-                                </td>
-                            </tr>
-                        {% endif %}
-                    </table>
-                </div>
-                <div class="card-footer text-center">
-                    <button type="button" class="btn btn-light" id="editDisplayNameModalShowButton">
-                        {% trans 'Edit Display Name' %}
-                    </button>
-                    <button type="button" class="btn btn-light" id="changeRequestModalShowButton">
-                        {% trans 'Request changes' %}
-                    </button>
+
+                    <form id="profile-form" method="POST" enctype="multipart/form-data" class="form-horizontal multiselect-form">
+                        {% csrf_token %}
+
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                {% include 'bootstrap_form.html' with form=profile_form %}
+                            </div>
+                        </div>
+                    
+                        <div class="card-footer text-center">
+                            <button type="submit" class="btn btn-primary">
+                                {% trans 'Save changes' %}
+                            </button>
+                            <button type="button" class="btn btn-light" id="changeRequestModalShowButton">
+                                {% trans 'Request changes' %}
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -109,8 +80,4 @@
     {% trans 'Request user setting changes' as title %}
     {% trans 'Please tell us which of your settings we should change.' as teaser %}
     {% include 'contact_modal.html' with modal_id='changeRequestModal' user=request.user title=title teaser=teaser %}
-    {{ block.super }}
-    {% trans 'Edit Display Name' as title %}
-    {% trans 'Please tell us your preferred name.' as teaser %}
-    {% include 'edit_display_name_modal.html' with modal_id='editDisplayNameModal' user=request.user title=title teaser=teaser %}
 {% endblock %}

@@ -934,7 +934,7 @@ class UserForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ("title", "first_name", "last_name", "email", "delegates", "cc_users", "is_proxy_user")
+        fields = ("title", "display_name", "first_name", "last_name", "email", "delegates", "cc_users", "is_proxy_user")
         field_classes = {
             "delegates": UserModelMultipleChoiceField,
             "cc_users": UserModelMultipleChoiceField,
@@ -1020,7 +1020,7 @@ class UserForm(forms.ModelForm):
         )
 
         # refresh results cache
-        if any(attribute in self.changed_data for attribute in ["first_name", "last_name", "title"]):
+        if any(attribute in self.changed_data for attribute in ["first_name", "last_name", "title", "display_name"]):
             evaluations = Evaluation.objects.filter(
                 contributions__contributor=self.instance, state__in=STATES_WITH_RESULTS_CACHING
             ).distinct()

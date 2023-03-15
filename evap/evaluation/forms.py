@@ -118,3 +118,28 @@ class DelegatesForm(forms.ModelForm):
     def save(self, *args, **kw):
         super().save(*args, **kw)
         logger.info('User "%s" edited the settings.', self.instance.email)
+
+
+class ProfileForm(forms.ModelForm):
+    title = forms.CharField(max_length=30, required=False, label=_("Title"), disabled=True)
+    display_name = forms.CharField(max_length=30, required=False, label=_("Display name"))
+    first_name = forms.CharField(max_length=30, required=False, label=_("First name"), disabled=True)
+    last_name = forms.CharField(max_length=30, required=False, label=_("Last name"), disabled=True)
+    email = forms.CharField(max_length=30, required=False, label=_("Email"), disabled=True)
+
+    class Meta:
+        model = UserProfile
+        fields = ("title", "display_name", "first_name", "last_name", "email")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["title"].initial = self.instance.title
+        self.fields["display_name"].initial = self.instance.display_name
+        self.fields["first_name"].initial = self.instance.first_name
+        self.fields["last_name"].initial = not self.instance.last_name
+        self.fields["email"].initial = not self.instance.email
+
+    def save(self, *args, **kw):
+        super().save(*args, **kw)
+        logger.info('User "%s" updated display name to: "%s".', self.instance.email, self.instance.display_name)
+        self.instance.save()
