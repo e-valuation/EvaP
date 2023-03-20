@@ -47,7 +47,7 @@ That's it!
 
 ### Docker Setup
 We provide experimental support to run the development setup in a docker container using
-Please install Docker Desktop, **not** just the CLI docker engine. Vagrant does conflict with used ports from other docker containers, even if they are not in use. If you are encountering this issue during the build process you can change the `host` port in `Vagrantfile`.
+Please install [Vagrant](https://www.vagrantup.com) and [Docker Engine](https://docs.docker.com/engine/install/).
 ```bash
 vagrant up --provider docker
 vagrant provision
