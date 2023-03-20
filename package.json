@@ -13,7 +13,7 @@
         "puppeteer": "^19.7.2",
         "sass": "1.59.2",
         "ts-jest": "^28.0.7",
-        "typescript": "^4.7.4"
+        "typescript": "^5.0.2"
     },
     "jest": {
         "testRunner": "jest-jasmine2",
