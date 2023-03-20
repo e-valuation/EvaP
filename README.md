@@ -15,9 +15,9 @@ For the documentation, please see our [wiki](https://github.com/e-valuation/EvaP
 ## Installation
 
 The easiest setup using [Vagrant](https://www.vagrantup.com) and [VirtualBox](https://www.virtualbox.org) is shown here. 
-Some CPUs like Apples M1/M2 are not supported by VirtualBox, please jump down to the docker setup section. For manual installation instructions and production deployment please see the [wiki page on installation](https://github.com/e-valuation/EvaP/wiki/Installation).
+Some CPUs like Apples M1/M2 are not supported by VirtualBox, please follow the steps for docker. For manual installation instructions and production deployment please see the [wiki page on installation](https://github.com/e-valuation/EvaP/wiki/Installation).
 
-0. Install [git](https://git-scm.com/downloads), [Vagrant](https://www.vagrantup.com/downloads.html) and [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
+0. Install [git](https://git-scm.com/downloads), [Vagrant](https://www.vagrantup.com/downloads.html) and [VirtualBox](https://www.virtualbox.org/wiki/Downloads) or [Docker Engine](https://docs.docker.com/engine/install/)
 
 1. Fork the Evap repository (using the Fork-button in the upper right corner on GitHub)
 
@@ -34,7 +34,10 @@ Some CPUs like Apples M1/M2 are not supported by VirtualBox, please jump down to
 ```bash
 git clone --recurse-submodules https://github.com/<your_github_username>/EvaP.git
 cd EvaP
-vagrant up
+```
+For VirtualBox just use `vagrant up` and for Docker `vagrant up --provider docker && vagrant provision` to build and start the vm.
+Contiune for Docker and VirtualBox with:
+```bash
 vagrant ssh
 ./manage.py run
 ```
@@ -43,24 +46,6 @@ vagrant ssh
 
 
 That's it!
-
-
-### Docker Setup
-We provide experimental support to run the development setup in a docker container using
-Please install [Vagrant](https://www.vagrantup.com) and [Docker Engine](https://docs.docker.com/engine/install/).
-```bash
-vagrant up --provider docker
-vagrant provision
-vagrant ssh
-```
-
-bash in container:
-```bash
-export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-export PUPPETEER_SKIP_DOWNLOAD=true
-npm install typescript
-```
-
 
 ## Contributing
 
