@@ -10,7 +10,7 @@
         "jest-environment-puppeteer": "^8.0.2",
         "jest-jasmine2": "^29.5.0",
         "prettier": "^2.8.3",
-        "puppeteer": "^19.7.2",
+        "puppeteer": "^19.8.0",
         "sass": "1.60.0",
         "ts-jest": "^28.0.7",
         "typescript": "^5.0.2"
