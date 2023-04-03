@@ -14,10 +14,9 @@ For the documentation, please see our [wiki](https://github.com/e-valuation/EvaP
 
 ## Installation
 
-The easiest setup using [Vagrant](https://www.vagrantup.com) and [VirtualBox](https://www.virtualbox.org) is shown here. 
-Some CPUs like Apples M1/M2 are not supported by VirtualBox, please follow the steps for docker. For manual installation instructions and production deployment please see the [wiki page on installation](https://github.com/e-valuation/EvaP/wiki/Installation).
+The easiest setup using [Vagrant](https://www.vagrantup.com) and [VirtualBox](https://www.virtualbox.org) is shown here for ARM systems please use Docker.
 
-0. Install [git](https://git-scm.com/downloads), [Vagrant](https://www.vagrantup.com/downloads.html) and one of [VirtualBox](https://www.virtualbox.org/wiki/Downloads) or [Docker Engine](https://docs.docker.com/engine/install/)
+0. Install [git](https://git-scm.com/downloads), [Vagrant](https://www.vagrantup.com/downloads.html) and one of [VirtualBox](https://www.virtualbox.org/wiki/Downloads) or [Docker](https://docs.docker.com/engine/install/)
 
 1. Fork the Evap repository (using the Fork-button in the upper right corner on GitHub)
 
@@ -30,8 +29,8 @@ Some CPUs like Apples M1/M2 are not supported by VirtualBox, please follow the s
 
    * Symlink Privileges: Our setup script for the VM creates symlinks in the repository folder. This requires either [explicitly allowing your user account to create symlinks](https://superuser.com/a/105381) or simply running the commands in step 3 as administrator. Thus, we suggest doing step 3 in a Git Bash that was started using "Run as administrator". Generally, this is only required for the first time executing `vagrant up`.
 
-3. Run the following commands on the command line to clone the repository, create the Vagrant VM and run the Django development server:
-    Note: For Docker please replace `vagrant up` with `vagrant up --provider docker && vagrant provision`.
+3. Run the following commands on the command line to clone the repository, create the Vagrant VM and run the Django development server.
+    For Docker please replace `vagrant up` with `vagrant up --provider docker && vagrant provision`.
     ```bash
     git clone --recurse-submodules https://github.com/<your_github_username>/EvaP.git
     cd EvaP
