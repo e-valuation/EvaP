@@ -1,7 +1,8 @@
+/* eslint-disable  @typescript-eslint/no-non-null-assertion */
 declare const bootstrap: typeof import("bootstrap");
 import { getCookie, setCookie } from "./utils.js";
 
-let NOTEBOOK_COOKIE_NAME = "evap_notebook_open";
+const NOTEBOOK_COOKIE_NAME = "evap_notebook_open";
 
 if (getCookie("evap_notebook_open") == "true") {
     new bootstrap.Collapse(document.getElementById("notebook")!);
