@@ -14,9 +14,9 @@ For the documentation, please see our [wiki](https://github.com/e-valuation/EvaP
 
 ## Installation
 
-The easiest setup using [Vagrant](https://www.vagrantup.com) and [VirtualBox](https://www.virtualbox.org) is shown here for ARM systems please use Docker.
+The easiest setup using [Vagrant](https://www.vagrantup.com) and [VirtualBox](https://www.virtualbox.org) is shown here.
 
-0. Install [git](https://git-scm.com/downloads), [Vagrant](https://www.vagrantup.com/downloads.html) and one of [VirtualBox](https://www.virtualbox.org/wiki/Downloads) or [Docker](https://docs.docker.com/engine/install/)
+0. Install [git](https://git-scm.com/downloads), [Vagrant](https://www.vagrantup.com/downloads.html) and one of [VirtualBox](https://www.virtualbox.org/wiki/Downloads) (recommended) or [Docker](https://docs.docker.com/engine/install/) (for ARM systems)
 
 1. Fork the Evap repository (using the Fork-button in the upper right corner on GitHub)
 
