@@ -17,7 +17,7 @@ For the documentation, please see our [wiki](https://github.com/e-valuation/EvaP
 The easiest setup using [Vagrant](https://www.vagrantup.com) and [VirtualBox](https://www.virtualbox.org) is shown here. 
 Some CPUs like Apples M1/M2 are not supported by VirtualBox, please follow the steps for docker. For manual installation instructions and production deployment please see the [wiki page on installation](https://github.com/e-valuation/EvaP/wiki/Installation).
 
-0. Install [git](https://git-scm.com/downloads), [Vagrant](https://www.vagrantup.com/downloads.html) and [VirtualBox](https://www.virtualbox.org/wiki/Downloads) or [Docker Engine](https://docs.docker.com/engine/install/)
+0. Install [git](https://git-scm.com/downloads), [Vagrant](https://www.vagrantup.com/downloads.html) and one of [VirtualBox](https://www.virtualbox.org/wiki/Downloads) or [Docker Engine](https://docs.docker.com/engine/install/)
 
 1. Fork the Evap repository (using the Fork-button in the upper right corner on GitHub)
 
