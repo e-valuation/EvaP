@@ -81,7 +81,7 @@ class RatingResult:
     def average(self) -> Optional[float]:
         if not self.has_answers:
             return None
-        return sum(grade * count for count, grade in zip(self.counts, self.choices.grades)) / self.count_sum  # type: ignore
+        return sum(grade * count for count, grade in zip(self.counts, self.choices.grades)) / self.count_sum
 
     @property
     def has_answers(self) -> bool:

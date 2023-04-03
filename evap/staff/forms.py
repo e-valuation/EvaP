@@ -111,7 +111,11 @@ class ImportForm(forms.Form):
 class UserImportForm(forms.Form):
     use_required_attribute = False
 
-    excel_file = forms.FileField(label=_("Excel file"), required=False)
+    excel_file = forms.FileField(
+        label=_("Excel file"),
+        required=False,
+        widget=forms.FileInput(attrs={"accept": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),
+    )
 
 
 class EvaluationParticipantCopyForm(forms.Form):
@@ -273,8 +277,8 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore
 
     def __init__(self, data=None, *, instance: Course):
         self.old_course = instance
-        opts = self._meta  # type: ignore
-        initial = forms.models.model_to_dict(instance, opts.fields, opts.exclude)  # type: ignore
+        opts = self._meta
+        initial = forms.models.model_to_dict(instance, opts.fields, opts.exclude)
         super().__init__(data=data, initial=initial)
         self._set_responsibles_queryset(instance)
 
@@ -321,7 +325,7 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore
     }
 
     @transaction.atomic()
-    def save(self, commit=True):
+    def save(self, commit=True) -> Course:
         new_course: Course = super().save()
         # we need to create copies of evaluations and their participation as well
         for old_evaluation in self.old_course.evaluations.exclude(is_single_result=True):

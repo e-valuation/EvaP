@@ -15,6 +15,10 @@ class NotEnoughPoints(Exception):
     """An attempt has been made to redeem more points than available."""
 
 
+class OutdatedRedemptionData(Exception):
+    """A redemption request has been sent with outdated data, e.g. when a request has been sent twice."""
+
+
 class RedemptionEventExpired(Exception):
     """An attempt has been made to redeem more points for an event whose redeem_end_date lies in the past."""
 
@@ -26,12 +30,10 @@ class RewardPointRedemptionEvent(models.Model):
 
     @property
     def can_delete(self):
-        if RewardPointRedemption.objects.filter(event=self).exists():
-            return False
-        return True
+        return not self.reward_point_redemptions.exists()
 
     def redemptions_by_user(self):
-        redemptions = self.reward_point_redemptions.order_by("user_profile")
+        redemptions = self.reward_point_redemptions.order_by("user_profile").prefetch_related("user_profile")
         redemptions_dict = OrderedDict()
         for redemption in redemptions:
             if redemption.user_profile not in redemptions_dict:

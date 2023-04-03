@@ -28,13 +28,14 @@ from django.utils.safestring import SafeData
 from django.utils.translation import gettext_lazy as _
 from django_fsm import FSMIntegerField, transition
 from django_fsm.signals import post_transition
+from django_stubs_ext import StrOrPromise
 
 from evap.evaluation.models_logging import FieldAction, LoggedModel
 from evap.evaluation.tools import (
     clean_email,
     date_to_datetime,
     is_external_email,
-    is_m2m_prefetched,
+    is_prefetched,
     translate,
     vote_end_datetime,
 )
@@ -125,10 +126,6 @@ class Semester(models.Model):
             raise NotArchiveable()
         self.results_are_archived = True
         self.save()
-
-    @classmethod
-    def get_all_with_unarchived_results(cls):
-        return cls.objects.filter(results_are_archived=False).distinct()
 
     @classmethod
     def get_all_with_published_unarchived_results(cls):
@@ -222,6 +219,12 @@ class Questionnaire(models.Model):
 
     @property
     def can_be_edited_by_manager(self):
+        if is_prefetched(self, "contributions"):
+            if all(is_prefetched(contribution, "evaluation") for contribution in self.contributions.all()):
+                return all(
+                    contribution.evaluation.state == Evaluation.State.NEW for contribution in self.contributions.all()
+                )
+
         return not self.contributions.exclude(evaluation__state=Evaluation.State.NEW).exists()
 
     @property
@@ -364,6 +367,9 @@ class Course(LoggedModel):
 
     @property
     def all_evaluations_finished(self):
+        if is_prefetched(self, "evaluations"):
+            return all(evaluation.state >= Evaluation.State.EVALUATED for evaluation in self.evaluations.all())
+
         return not self.evaluations.exclude(state__gte=Evaluation.State.EVALUATED).exists()
 
 
@@ -550,8 +556,15 @@ class Evaluation(LoggedModel):
 
     @property
     def all_contributions_have_questionnaires(self):
+        if is_prefetched(self, "contributions"):
+            if not self.contributions:
+                return False
+
+            if is_prefetched(self.contributions[0], "questionnaires"):
+                return all(len(contribution.questionnaires) > 0 for contribution in self.contributions)
+
         return (
-            self.general_contribution
+            self.general_contribution is not None
             and not self.contributions.annotate(Count("questionnaires")).filter(questionnaires__count=0).exists()
         )
 
@@ -604,7 +617,7 @@ class Evaluation(LoggedModel):
         if self._participant_count is not None:
             return self._participant_count
 
-        if is_m2m_prefetched(self, "participants"):
+        if is_prefetched(self, "participants"):
             return len(self.participants.all())
 
         return self.participants.count()
@@ -1128,7 +1141,7 @@ class Question(models.Model):
         if self.is_rating_question:
             return RatingAnswerCounter
 
-        raise Exception(f"Unknown answer type: {self.type!r}")
+        assert False, f"Unknown answer type: {self.type!r}"
 
     @property
     def is_likert_question(self):
@@ -1195,7 +1208,7 @@ Choices = NamedTuple(
         ("values", Tuple[Number]),
         ("colors", Tuple[str]),
         ("grades", Tuple[Number]),
-        ("names", List[str]),
+        ("names", List[StrOrPromise]),
     ],
 )
 BipolarChoices = NamedTuple(
@@ -1205,9 +1218,9 @@ BipolarChoices = NamedTuple(
         ("values", Tuple[Number]),
         ("colors", Tuple[str]),
         ("grades", Tuple[Number]),
-        ("names", List[str]),
-        ("plus_name", str),
-        ("minus_name", str),
+        ("names", List[StrOrPromise]),
+        ("plus_name", StrOrPromise),
+        ("minus_name", StrOrPromise),
     ],
 )
 
@@ -1449,8 +1462,13 @@ class TextAnswer(Answer):
 
     # Once evaluation results are published, the review decision is executed
     # and thus, an answer _is_ private or _is_ public from that point on.
-    is_private = will_be_private
-    is_public = will_be_public
+    @property
+    def is_public(self):
+        return self.will_be_public
+
+    @property
+    def is_private(self):
+        return self.will_be_private
 
     @property
     def is_reviewed(self):
@@ -1997,7 +2015,7 @@ class EmailTemplate(models.Model):
             template.send_to_user(participant, {}, body_params, use_cc=True)
 
     @classmethod
-    def send_textanswer_reminder_to_user(cls, user: UserProfile, evaluations: List[Evaluation]):
-        body_params = {"user": user, "evaluations": evaluations}
+    def send_textanswer_reminder_to_user(cls, user: UserProfile, evaluation_url_tuples: List[Tuple[Evaluation, str]]):
+        body_params = {"user": user, "evaluation_url_tuples": evaluation_url_tuples}
         template = cls.objects.get(name=cls.TEXT_ANSWER_REVIEW_REMINDER)
         template.send_to_user(user, {}, body_params, use_cc=False)

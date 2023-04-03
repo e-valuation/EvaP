@@ -1,5 +1,3 @@
-# type: ignore
-
 """
 Django settings for EvaP project.
 
@@ -13,6 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 import logging
 import os
 import sys
+from typing import Any, List, Tuple
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -71,7 +70,7 @@ INSTITUTION_EMAIL_DOMAINS = ["institution.example.com"]
 # List of tuples defining email domains that should be replaced on saving UserProfiles.
 # Emails ending on the first value will have this part replaced by the second value.
 # e.g.: [("institution.example.com", "institution.com")]
-INSTITUTION_EMAIL_REPLACEMENTS = []
+INSTITUTION_EMAIL_REPLACEMENTS: List[Tuple[str, str]] = []
 
 # the importer accepts only these two strings in the 'graded' column
 IMPORTER_GRADED_YES = "yes"
@@ -79,6 +78,9 @@ IMPORTER_GRADED_NO = "no"
 
 # the importer will warn if any participant has more enrollments than this number
 IMPORTER_MAX_ENROLLMENTS = 7
+
+# Cutoff value passed to difflib.get_close_matches() to find typos in course names. Lower values are slower.
+IMPORTER_COURSE_NAME_SIMILARITY_WARNING_THRESHOLD = 0.9
 
 # the default descriptions for grade documents
 DEFAULT_FINAL_GRADES_DESCRIPTION_EN = "Final grades"
@@ -96,7 +98,7 @@ EVALUATION_END_WARNING_PERIOD = 5
 ### Installation specific settings
 
 # People who get emails on errors.
-ADMINS = [
+ADMINS: List[Tuple[str, str]] = [
     # ('Your Name', 'your_email@example.com'),
 ]
 
@@ -242,7 +244,8 @@ _TEMPLATE_OPTIONS = {
     "builtins": ["django.templatetags.i18n"],
 }
 
-TEMPLATES = [
+
+TEMPLATES: Any = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "APP_DIRS": True,
@@ -252,7 +255,7 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "APP_DIRS": True,
-        "OPTIONS": dict(**_TEMPLATE_OPTIONS, debug=False),
+        "OPTIONS": {**_TEMPLATE_OPTIONS, "debug": False},
         "NAME": "CachedEngine",  # used for bulk-filling caches
     },
 ]
@@ -381,7 +384,10 @@ OIDC_OP_JWKS_ENDPOINT = "https://example.com/certs"
 try:
     # if a localsettings file exists (vagrant), this will cause wildcard-import errors
     # if it does not, (GitHub), it would cause useless-suppression
-    from evap.localsettings import *  # pylint: disable=unused-wildcard-import,wildcard-import,useless-suppression
+    # pylint: disable=unused-wildcard-import,wildcard-import,useless-suppression
+
+    # the import can overwrite locals with a slightly different type (e.g. DATABASES), which is fine.
+    from evap.localsettings import *  # type: ignore
 except ImportError:
     pass
 

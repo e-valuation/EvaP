@@ -174,7 +174,9 @@ class LoggedModel(models.Model):
             }
             # as the instance is being deleted, we also need to pull out all m2m values
             m2m_field_names = [
-                field.name for field in type(self)._meta.many_to_many if field.name not in self.unlogged_fields
+                field.name
+                for field in type(self)._meta.get_fields()
+                if field.many_to_many and field.name not in self.unlogged_fields
             ]
             for field_name, related_objects in model_to_dict(self, m2m_field_names).items():
                 changes[field_name] = {FieldActionType.INSTANCE_DELETE: [obj.pk for obj in related_objects]}

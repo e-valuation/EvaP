@@ -14,6 +14,7 @@ from evap.evaluation.models import Evaluation, Semester, UserProfile
 from evap.rewards.models import (
     NoPointsSelected,
     NotEnoughPoints,
+    OutdatedRedemptionData,
     RedemptionEventExpired,
     RewardPointGranting,
     RewardPointRedemption,
@@ -23,25 +24,30 @@ from evap.rewards.models import (
 
 
 @transaction.atomic
-def save_redemptions(request, redemptions: Dict[int, int]):
+def save_redemptions(request, redemptions: Dict[int, int], previous_redeemed_points: int):
     # lock these rows to prevent race conditions
     list(request.user.reward_point_grantings.select_for_update())
     list(request.user.reward_point_redemptions.select_for_update())
+
+    # check consistent previous redeemed points
+    # do not validate reward points, to allow receiving points after page load
+    if previous_redeemed_points != redeemed_points_of_user(request.user):
+        raise OutdatedRedemptionData()
 
     total_points_available = reward_points_of_user(request.user)
     total_points_redeemed = sum(redemptions.values())
 
     if total_points_redeemed <= 0:
-        raise NoPointsSelected(_("You cannot redeem 0 points."))
+        raise NoPointsSelected()
 
     if total_points_redeemed > total_points_available:
-        raise NotEnoughPoints(_("You don't have enough reward points."))
+        raise NotEnoughPoints()
 
     for event_id in redemptions:
         if redemptions[event_id] > 0:
             event = get_object_or_404(RewardPointRedemptionEvent, pk=event_id)
             if event.redeem_end_date < date.today():
-                raise RedemptionEventExpired(_("Sorry, the deadline for this event expired already."))
+                raise RedemptionEventExpired()
 
             RewardPointRedemption.objects.create(user_profile=request.user, value=redemptions[event_id], event=event)
 
@@ -58,6 +64,10 @@ def reward_points_of_user(user):
         count -= redemption.value
 
     return count
+
+
+def redeemed_points_of_user(user):
+    return RewardPointRedemption.objects.filter(user_profile=user).aggregate(Sum("value"))["value__sum"] or 0
 
 
 def is_semester_activated(semester):

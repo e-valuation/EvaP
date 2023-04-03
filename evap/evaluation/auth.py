@@ -38,9 +38,10 @@ class EmailAuthenticationBackend(ModelBackend):
             user = UserProfile.objects.get(email=email)
         except UserProfile.DoesNotExist:
             return None
-        else:
-            if user.check_password(password):
-                return user
+
+        if user.check_password(password):
+            return user
+
         return None
 
 

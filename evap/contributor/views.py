@@ -93,22 +93,22 @@ def index(request):
 
     semesters = Semester.objects.all()
     semester_list = [
-        dict(
-            semester_name=semester.name,
-            id=semester.id,
-            is_active=semester.is_active,
-            evaluations=[
+        {
+            "semester_name": semester.name,
+            "id": semester.id,
+            "is_active": semester.is_active,
+            "evaluations": [
                 evaluation for evaluation in displayed_evaluations if evaluation.course.semester_id == semester.id
             ],
-        )
+        }
         for semester in semesters
     ]
 
-    template_data = dict(
-        semester_list=semester_list,
-        show_delegated=show_delegated,
-        delegate_selection_form=DelegateSelectionForm(),
-    )
+    template_data = {
+        "semester_list": semester_list,
+        "show_delegated": show_delegated,
+        "delegate_selection_form": DelegateSelectionForm(),
+    }
     return render(request, "contributor_index.html", template_data)
 
 
@@ -136,13 +136,13 @@ def evaluation_view(request, evaluation_id):
         for field in cform.fields.values():
             field.disabled = True
 
-    template_data = dict(
-        form=form,
-        formset=formset,
-        evaluation=evaluation,
-        editable=False,
-        questionnaires_with_answers_per_contributor={},
-    )
+    template_data = {
+        "form": form,
+        "formset": formset,
+        "evaluation": evaluation,
+        "editable": False,
+        "questionnaires_with_answers_per_contributor": {},
+    }
 
     return render(request, "contributor_evaluation_form.html", template_data)
 
@@ -217,14 +217,14 @@ def evaluation_edit(request, evaluation_id):
             messages.error(request, _("The form was not saved. Please resolve the errors shown below."))
 
     sort_formset(request, formset)
-    template_data = dict(
-        form=evaluation_form,
-        formset=formset,
-        evaluation=evaluation,
-        editable=True,
-        preview_html=preview_html,
-        questionnaires_with_answers_per_contributor={},
-    )
+    template_data = {
+        "form": evaluation_form,
+        "formset": formset,
+        "evaluation": evaluation,
+        "editable": True,
+        "preview_html": preview_html,
+        "questionnaires_with_answers_per_contributor": {},
+    }
     return render(request, "contributor_evaluation_form.html", template_data)
 
 

@@ -11,6 +11,7 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.db.models import Model
+from django.http import HttpResponse
 from django.test import override_settings
 from django.test.testcases import TestCase
 from django.urls import reverse
@@ -556,6 +557,8 @@ class TestUserImportView(WebTestStaffMode):
         form["excel_file"] = ("import.xls", self.valid_excel_file_content)
 
         reply = form.submit(name="operation", value="test")
+
+        self.assertContains(reply, "Name mismatches")
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
@@ -1040,8 +1043,8 @@ class TestSemesterImportView(WebTestStaffMode):
         )
         self.assertContains(reply, is_graded_error)
         user_error = (
-            "Sheet &quot;MA Belegungen&quot;, row 3: The users&#x27;s data"
-            " (email: bastius.quid@external.example.com) is different to a previous row."
+            "Sheet &quot;MA Belegungen&quot;, row 3: The data of user"
+            " &quot;bastius.quid@external.example.com&quot; differs from their data in a previous row."
         )
         self.assertContains(reply, user_error)
         self.assertContains(reply, "Sheet &quot;MA Belegungen&quot;, row 7: Email address is missing.")
@@ -1075,6 +1078,7 @@ class TestSemesterImportView(WebTestStaffMode):
         )
 
         reply = form.submit(name="operation", value="test")
+        self.assertContains(reply, "Name mismatches")
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
@@ -1260,7 +1264,7 @@ class TestLoginKeyExportView(WebTestStaffMode):
             participants=[cls.external_user, cls.internal_user],
             voters=[cls.external_user, cls.internal_user],
         )
-        cls.url = f"/staff/semester/{evaluation.course.semester.pk}/evaluation/{evaluation.pk}/login_key_export"
+        cls.url = reverse("staff:evaluation_login_key_export", args=[evaluation.pk])
 
     def test_login_key_export_works_as_expected(self):
         self.assertEqual(self.external_user.login_key, None)
@@ -1283,7 +1287,7 @@ class TestEvaluationOperationView(WebTestStaffMode):
         cls.semester = baker.make(Semester)
         cls.responsible = baker.make(UserProfile, email="responsible@example.com")
         cls.course = baker.make(Course, semester=cls.semester, responsibles=[cls.responsible])
-        cls.url = f"/staff/semester/{cls.semester.pk}/evaluationoperation"
+        cls.url = reverse("staff:evaluation_operation", args=[cls.semester.pk])
 
     def helper_publish_evaluation_with_publish_notifications_for(
         self, evaluation, contributors=True, participants=True
@@ -1503,6 +1507,27 @@ class TestEvaluationOperationView(WebTestStaffMode):
         email_to_responsible_b = next(email for email in actual_emails if email["user"] == responsible_b)
         self.assertEqual(email_to_responsible_b["body_params"], {"user": responsible_b, "evaluations": [evaluation_b]})
 
+    def test_operation_prepare_with_no_applicable_evaluations(self):
+        evaluation1 = baker.make(Evaluation, state=Evaluation.State.REVIEWED, course__semester=self.semester)
+        evaluation2 = baker.make(Evaluation, state=Evaluation.State.NEW, course__semester=self.semester)
+
+        # No evaluations at all
+        url_options = f"?target_state={Evaluation.State.PREPARED}"
+        response = self.app.get(self.url + url_options, user=self.manager).follow()
+        self.assertContains(response, "Please select at least one evaluation")
+
+        # No evaluations that the operation could be applied on
+        url_options = f"?evaluation={evaluation1.pk}&target_state={Evaluation.State.PREPARED}"
+        response = self.app.get(self.url + url_options, user=self.manager).follow()
+        self.assertContains(response, "Please select at least one evaluation")
+
+        # Works if operation can be applied to at least one
+        url_options = (
+            f"?evaluation={evaluation1.pk}&evaluation={evaluation2.pk}&target_state={Evaluation.State.PREPARED}"
+        )
+        response = self.app.get(self.url + url_options, user=self.manager)
+        self.assertNotContains(response, "Please select at least one evaluation")
+
     def test_operation_prepare_sends_email_with_editors_in_cc(self):
         editor_a = baker.make(UserProfile, email="editor-a@example.com")
         editor_b = baker.make(UserProfile, email="editor-b@example.com")
@@ -1543,6 +1568,20 @@ class TestEvaluationOperationView(WebTestStaffMode):
         self.app.get(f"{base_url}&target_state=", user=self.manager, status=400)
         self.app.get(f"{base_url}&target_state={Evaluation.State.IN_EVALUATION}", user=self.manager, status=200)
 
+    def test_semester_mismatch(self) -> None:
+        cases = [
+            (self.course, 200),
+            (baker.make(Course), 400),
+        ]
+
+        for course, status in cases:
+            evaluation = baker.make(Evaluation, state=Evaluation.State.NEW, course=course)
+            self.app.get(
+                f"{self.url}?evaluation={evaluation.pk}&target_state={Evaluation.State.PREPARED}",
+                user=self.manager,
+                status=status,
+            )
+
 
 class TestCourseCreateView(WebTestStaffMode):
     @classmethod
@@ -1552,21 +1591,26 @@ class TestCourseCreateView(WebTestStaffMode):
         cls.course_type = baker.make(CourseType)
         cls.degree = baker.make(Degree)
         cls.responsible = baker.make(UserProfile)
-        cls.url = f"/staff/semester/{cls.semester.pk}/course/create"
+        cls.url = reverse("staff:course_create", args=[cls.semester.pk])
+
+    def prepare_form(self, name_en, name_de):
+        response = self.app.get(self.url, user=self.manager, status=200)
+        form = response.forms["course-form"]
+        form["semester"] = self.semester.pk
+        form["type"] = self.course_type.pk
+        form["degrees"] = [self.degree.pk]
+        form["is_private"] = False
+        form["responsibles"] = [self.responsible.pk]
+        form["name_en"] = name_en
+        form["name_de"] = name_de
+        return form
 
     def test_course_create(self):
         """
         Tests the course creation view with one valid and one invalid input dataset.
         """
-        response = self.app.get(self.url, user=self.manager, status=200)
-        form = response.forms["course-form"]
-        form["semester"] = self.semester.pk
-        form["name_de"] = "dskr4jre35m6"
-        form["name_en"] = ""  # empty name to get a validation error
-        form["type"] = self.course_type.pk
-        form["degrees"] = [self.degree.pk]
-        form["is_private"] = False
-        form["responsibles"] = [self.responsible.pk]
+        # empty name_en to get a validation error
+        form = self.prepare_form(name_en="", name_de="dskr4jre35m6")
 
         response = form.submit("operation", value="save")
         self.assertIn("This field is required", response)
@@ -1577,16 +1621,39 @@ class TestCourseCreateView(WebTestStaffMode):
         form.submit("operation", value="save")
         self.assertEqual(Course.objects.get().name_de, "dskr4jre35m6")
 
+    @patch("evap.staff.views.redirect")
+    def test_operation_redirects(self, mock_redirect):
+        mock_redirect.side_effect = lambda *_args: HttpResponse()
+
+        self.prepare_form("a", "b").submit("operation", value="save")
+        self.assertEqual(mock_redirect.call_args.args[0], "staff:semester_view")
+
+        self.prepare_form("c", "d").submit("operation", value="save_create_evaluation")
+        self.assertEqual(mock_redirect.call_args.args[0], "staff:evaluation_create_for_course")
+
+        self.prepare_form("e", "f").submit("operation", value="save_create_single_result")
+        self.assertEqual(mock_redirect.call_args.args[0], "staff:single_result_create_for_course")
+
+        self.assertEqual(mock_redirect.call_count, 3)
+
 
 class TestSingleResultCreateView(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
         cls.course = baker.make(Course)
-        cls.url = f"/staff/semester/{cls.course.semester.pk}/singleresult/create"
+        cls.url_for_semester = reverse("staff:single_result_create_for_semester", args=[cls.course.semester.pk])
+        cls.url_for_course = reverse("staff:single_result_create_for_course", args=[cls.course.pk])
+
+    def test_urls_use_common_impl(self):
+        for url in [self.url_for_course, self.url_for_semester]:
+            with patch("evap.staff.views.single_result_create_impl") as mock:
+                mock.return_value = HttpResponse()
+                self.app.get(url, user=self.manager)
+                mock.assert_called_once()
 
     def test_course_is_prefilled(self):
-        response = self.app.get(f"{self.url}/{self.course.pk}", user=self.manager, status=200)
+        response = self.app.get(self.url_for_course, user=self.manager, status=200)
         form = response.context["form"]
         self.assertEqual(form["course"].initial, self.course.pk)
 
@@ -1594,7 +1661,7 @@ class TestSingleResultCreateView(WebTestStaffMode):
         """
         Tests the single result creation view with one valid and one invalid input dataset.
         """
-        response = self.app.get(self.url, user=self.manager, status=200)
+        response = self.app.get(self.url_for_semester, user=self.manager, status=200)
         form = response.forms["single-result-form"]
         form["course"] = self.course.pk
         form["name_de"] = "qwertz"
@@ -1619,10 +1686,18 @@ class TestEvaluationCreateView(WebTestStaffMode):
         cls.course = baker.make(Course)
         cls.q1 = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         cls.q2 = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
-        cls.url = f"/staff/semester/{cls.course.semester.pk}/evaluation/create"
+        cls.url_for_semester = reverse("staff:evaluation_create_for_semester", args=[cls.course.semester.pk])
+        cls.url_for_course = reverse("staff:evaluation_create_for_course", args=[cls.course.pk])
+
+    def test_urls_use_common_impl(self):
+        for url in [self.url_for_course, self.url_for_semester]:
+            with patch("evap.staff.views.evaluation_create_impl") as mock:
+                mock.return_value = HttpResponse()
+                self.app.get(url, user=self.manager)
+                mock.assert_called_once()
 
     def test_course_is_prefilled(self):
-        response = self.app.get(f"{self.url}/{self.course.pk}", user=self.manager, status=200)
+        response = self.app.get(self.url_for_course, user=self.manager, status=200)
         form = response.context["evaluation_form"]
         self.assertEqual(form["course"].initial, self.course.pk)
 
@@ -1630,7 +1705,7 @@ class TestEvaluationCreateView(WebTestStaffMode):
         """
         Tests the evaluation creation view with one valid and one invalid input dataset.
         """
-        response = self.app.get(self.url, user=self.manager, status=200)
+        response = self.app.get(self.url_for_semester, user=self.manager, status=200)
         form = response.forms["evaluation-form"]
         form["course"] = self.course.pk
         form["name_de"] = "lfo9e7bmxp1xi"
@@ -1674,8 +1749,10 @@ class TestEvaluationCopyView(WebTestStaffMode):
         )
         cls.general_questionnaires = baker.make(Questionnaire, _bulk_create=True, _quantity=5)
         cls.evaluation.general_contribution.questionnaires.set(cls.general_questionnaires)
-        baker.make(Contribution, evaluation=cls.evaluation, _fill_optional=["contributor"], _quantity=3)
-        cls.url = f"/staff/semester/{cls.semester.id}/evaluation/{cls.evaluation.id}/copy"
+        baker.make(
+            Contribution, evaluation=cls.evaluation, _fill_optional=["contributor"], _quantity=3, _bulk_create=True
+        )
+        cls.url = reverse("staff:evaluation_copy", args=[cls.evaluation.pk])
 
     def test_copy_forms_are_used(self):
         response = self.app.get(self.url, user=self.manager, status=200)
@@ -1721,15 +1798,16 @@ class TestCourseCopyView(WebTestStaffMode):
             name_de="Das Original",
             name_en="The Original",
         )
-        cls.general_questionnaires = baker.make(Questionnaire, _quantity=5)
+        cls.general_questionnaires = baker.make(Questionnaire, _quantity=5, _bulk_create=True)
         cls.evaluation.general_contribution.questionnaires.set(cls.general_questionnaires)
         baker.make(
             Contribution,
             evaluation=cls.evaluation,
             _quantity=3,
+            _bulk_create=True,
             _fill_optional=["contributor"],
         )
-        cls.url = f"/staff/semester/{cls.semester.id}/course/{cls.course.id}/copy"
+        cls.url = reverse("staff:course_copy", args=[cls.course.pk])
 
     def test_copy_forms_are_used(self):
         response = self.app.get(self.url, user=self.manager, status=200)
@@ -1771,16 +1849,34 @@ class TestCourseEditView(WebTestStaffMode):
             degrees=[baker.make(Degree)],
             responsibles=[baker.make(UserProfile)],
         )
-        cls.url = f"/staff/semester/{cls.course.semester.pk}/course/{cls.course.pk}/edit"
+        cls.url = reverse("staff:course_edit", args=[cls.course.pk])
 
-    def test_edit_course(self):
+    def prepare_form(self, name_en):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["course-form"]
-        form["name_en"] = "A different name"
-        form.submit("operation", value="save")
+        form["name_en"] = name_en
+        return form
+
+    def test_edit_course(self):
+        self.prepare_form(name_en="A different name").submit("operation", value="save")
         self.course = Course.objects.get(pk=self.course.pk)
         self.assertEqual(self.course.name_en, "A different name")
+
+    @patch("evap.staff.views.redirect")
+    def test_operation_redirects(self, mock_redirect):
+        mock_redirect.side_effect = lambda *_args: HttpResponse()
+
+        self.prepare_form("a").submit("operation", value="save")
+        self.assertEqual(mock_redirect.call_args.args[0], "staff:semester_view")
+
+        self.prepare_form("b").submit("operation", value="save_create_evaluation")
+        self.assertEqual(mock_redirect.call_args.args[0], "staff:evaluation_create_for_course")
+
+        self.prepare_form("c").submit("operation", value="save_create_single_result")
+        self.assertEqual(mock_redirect.call_args.args[0], "staff:single_result_create_for_course")
+
+        self.assertEqual(mock_redirect.call_count, 3)
 
 
 class TestCourseDeleteView(DeleteViewTestMixin, WebTestStaffMode):
@@ -1814,7 +1910,7 @@ class TestEvaluationEditView(WebTestStaffMode):
             vote_start_datetime=datetime.datetime(2099, 1, 1, 0, 0),
             vote_end_date=datetime.date(2099, 12, 31),
         )
-        cls.url = f"/staff/semester/{cls.evaluation.course.semester.pk}/evaluation/{cls.evaluation.pk}/edit"
+        cls.url = reverse("staff:evaluation_edit", args=[cls.evaluation.pk])
 
         baker.make(Questionnaire, questions=[baker.make(Question)])
         cls.general_question = baker.make(Question)
@@ -1999,7 +2095,9 @@ class TestEvaluationDeleteView(WebTestStaffMode):
     def test_single_result_deletion(self):
         self.evaluation.is_single_result = True
         self.evaluation.save()
-        counters = baker.make(RatingAnswerCounter, contribution__evaluation=self.evaluation, _quantity=5)
+        counters = baker.make(
+            RatingAnswerCounter, contribution__evaluation=self.evaluation, _quantity=5, _bulk_create=True
+        )
 
         self.app.post(self.url, user=self.manager, params=self.post_params, status=200)
 
@@ -2020,7 +2118,10 @@ class TestSingleResultEditView(WebTestStaffModeWith200Check):
         contribution = result["contribution"]
 
         cls.test_users = [make_manager()]
-        cls.url = f"/staff/semester/{evaluation.course.semester.id}/evaluation/{evaluation.id}/edit"
+        cls.url = reverse("staff:evaluation_edit", args=[evaluation.pk])
+
+        evaluation.is_single_result = True
+        evaluation.save()
 
         contribution.textanswer_visibility = Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
         contribution.questionnaires.set([Questionnaire.single_result_questionnaire()])
@@ -2038,7 +2139,7 @@ class TestEvaluationPreviewView(WebTestStaffModeWith200Check):
 
         cls.manager = make_manager()
         cls.test_users = [cls.manager]
-        cls.url = f"/staff/semester/{cls.evaluation.course.semester.pk}/evaluation/{cls.evaluation.pk}/preview"
+        cls.url = reverse("staff:evaluation_preview", args=[cls.evaluation.pk])
 
     def test_without_questionnaires_assigned(self):
         # regression test for #1747
@@ -2065,8 +2166,8 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         cls.evaluation2 = baker.make(Evaluation, course__semester=semester, participants=profiles2)
         cls.contribution2 = baker.make(Contribution, evaluation=cls.evaluation2, _fill_optional=["contributor"])
 
-        cls.url = f"/staff/semester/{semester.pk}/evaluation/{cls.evaluation.pk}/person_management"
-        cls.url2 = f"/staff/semester/{semester.pk}/evaluation/{cls.evaluation2.pk}/person_management"
+        cls.url = reverse("staff:evaluation_person_management", args=[cls.evaluation.pk])
+        cls.url2 = reverse("staff:evaluation_person_management", args=[cls.evaluation2.pk])
 
     def tearDown(self):
         # delete the uploaded file again so other tests can start with no file guaranteed
@@ -2270,6 +2371,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         form["ce-excel_file"] = ("import.xls", self.valid_excel_file_content)
 
         reply = form.submit(name="operation", value="test-contributors")
+        self.assertContains(reply, "Name mismatches")
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
@@ -2327,7 +2429,7 @@ class TestEvaluationEmailView(WebTestStaffMode):
         participant1 = baker.make(UserProfile, email="foo@example.com")
         participant2 = baker.make(UserProfile, email="bar@example.com")
         evaluation = baker.make(Evaluation, participants=[participant1, participant2])
-        cls.url = f"/staff/semester/{evaluation.course.semester.pk}/evaluation/{evaluation.pk}/email"
+        cls.url = reverse("staff:evaluation_email", args=[evaluation.pk])
 
     def test_emails_are_sent(self):
         page = self.app.get(self.url, user=self.manager, status=200)
@@ -2356,7 +2458,7 @@ class TestEvaluationTextAnswerView(WebTest):
             voters=[cls.student1],
             state=Evaluation.State.IN_EVALUATION,
         )
-        cls.url = f"/staff/semester/{cls.semester.pk}/evaluation/{cls.evaluation.pk}/textanswers"
+        cls.url = reverse("staff:evaluation_textanswers", args=[cls.evaluation.pk])
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         baker.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
@@ -2469,7 +2571,7 @@ class TestEvaluationTextAnswerView(WebTest):
             contribution = baker.make(Contribution, evaluation=evaluation, _fill_optional=["contributor"])
             baker.make(TextAnswer, contribution=contribution, question__type=Question.TEXT, _quantity=answer_count)
 
-        url = f"/staff/semester/{self.semester.pk}/evaluation/{self.evaluation2.pk}/textanswers"
+        url = reverse("staff:evaluation_textanswers", args=[self.evaluation2.pk])
 
         with run_in_staff_mode(self):
             # Since Evaluation 1 has an extra text answer, it should be first
@@ -2561,7 +2663,7 @@ class TestEvaluationTextAnswerEditView(WebTestStaffMode):
 
         cls.url = reverse(
             "staff:evaluation_textanswer_edit",
-            args=(cls.evaluation.course.semester.pk, cls.evaluation.pk, cls.textanswer.pk),
+            args=[cls.textanswer.pk],
         )
 
     def test_textanswers_showing_up(self):
@@ -3019,8 +3121,8 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         expected_new_decision = old_decision if expected_new_decision == "unchanged" else expected_new_decision
 
         with run_in_staff_mode(self):
-            textanswer = baker.make(TextAnswer, review_decision=old_decision)
-            params = {"answer_id": textanswer.id, "action": action, "evaluation_id": self.evaluation.pk}
+            textanswer = baker.make(TextAnswer, contribution__evaluation=self.evaluation, review_decision=old_decision)
+            params = {"answer_id": textanswer.id, "action": action}
             response = self.app.post(self.url, params=params, user=self.manager, status=status)
 
             textanswer.refresh_from_db()
@@ -3045,7 +3147,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
             TextAnswer.ReviewDecision.UNDECIDED,
             status=302,
         )
-        self.assertRegex(response.location, r"/staff/semester/\d+/evaluation/\d+/textanswer/[0-9a-f\-]+/edit$")
+        self.assertRegex(response.location, r"/staff/textanswer/[0-9a-f\-]+/edit$")
 
     def test_invalid_action(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation)
@@ -3116,13 +3218,17 @@ class ParticipationArchivingTests(WebTestStaffMode):
         archived participations correctly raise a 403.
         """
         semester = baker.make(Semester, participations_are_archived=True)
+        evaluation = baker.make(Evaluation, course__semester=semester)
 
-        semester_url = f"/staff/semester/{semester.pk}/"
+        urls = [
+            reverse("staff:semester_import", args=[semester.pk]),
+            reverse("staff:semester_questionnaire_assign", args=[semester.pk]),
+            reverse("staff:evaluation_create_for_semester", args=[semester.pk]),
+            f"{reverse('staff:evaluation_operation', args=[semester.pk])}?evaluation={evaluation.pk}",
+        ]
 
-        self.app.get(semester_url + "import", user=self.manager, status=403)
-        self.app.get(semester_url + "assign", user=self.manager, status=403)
-        self.app.get(semester_url + "evaluation/create", user=self.manager, status=403)
-        self.app.get(semester_url + "evaluationoperation", user=self.manager, status=403)
+        for url in urls:
+            self.app.get(url, user=self.manager, status=403)
 
 
 class TestTemplateEditView(WebTestStaffMode):
@@ -3155,6 +3261,12 @@ class TestTemplateEditView(WebTestStaffMode):
         self.template.refresh_from_db()
         self.assertEqual(self.template.plain_content, "plain_content: mflkd862xmnbo5")
         self.assertEqual(self.template.html_content, "html_content: <p>mflkd862xmnbo5</p>")
+
+    def test_review_reminder_template_tag(self):
+        review_reminder_template = EmailTemplate.objects.get(name=EmailTemplate.TEXT_ANSWER_REVIEW_REMINDER)
+        page = self.app.get(f"/staff/template/{review_reminder_template.pk}", user=self.manager, status=200)
+
+        self.assertContains(page, "evaluation_url_tuples")
 
 
 class TestTextAnswerWarningsView(WebTestStaffMode):

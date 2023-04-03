@@ -12,13 +12,13 @@
 
 {% block content %}
     <div class="mb-3">
-        <div class="card">
+        <div class="card mb-2">
             <div class="card-header">
                 Card
             </div>
             <div class="card-body"></div>
         </div>
-        <div class="card card-outline-primary">
+        <div class="card card-outline-primary mb-2">
             <div class="card-header">
                 Outline Primary
             </div>
@@ -56,7 +56,9 @@
                 {% endfor %}
             </div>
             <div class="row mb-2">
-                <div class="col"></div>
+                <div class="col">
+                    <div class="badge bg-primary-outline">Primary Outline</div>
+                </div>
                 <div class="col">
                     <div class="badge bg-secondary-outline">Secondary Outline</div>
                 </div>
@@ -367,9 +369,15 @@
             Bars
         </div>
         <div class="card-body">
-            {% include 'progress_bar.html' with done=6 total=12 %}
-            {% include 'progress_bar.html' with done=7 total=7 icon='user' %}
-            {% include 'progress_bar.html' with done=1 total=8 warning=True %}
+            <div class="mb-3">
+                {% include 'progress_bar.html' with done=6 total=12 %}
+            </div>
+            <div class="mb-3">
+                {% include 'progress_bar.html' with done=7 total=7 icon='user' %}
+            </div>
+            <div>
+                {% include 'progress_bar.html' with done=1 total=8 warning=True %}
+            </div>
         </div>
     </div>
     <div class="card mb-3">
@@ -464,7 +472,7 @@
                     </tr>
                 </tbody>
             </table>
-            <h6>Link table</h6>
+            <h6 class="mt-3">Link table</h6>
             <table class="table table-seamless-links vertically-aligned">
                 <thead>
                     <tr>

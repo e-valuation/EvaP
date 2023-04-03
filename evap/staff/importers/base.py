@@ -41,11 +41,14 @@ class ImporterLogEntry:
         DUPL = _CATEGORY_TUPLE("duplicate", gettext_lazy("Possible duplicates"), 9)
         EXISTS = _CATEGORY_TUPLE("existing", gettext_lazy("Existing courses"), 10)
         IGNORED = _CATEGORY_TUPLE("ignored", gettext_lazy("Ignored duplicates"), 11)
+        ALREADY_PARTICIPATING = _CATEGORY_TUPLE("already_participating", gettext_lazy("Existing participants"), 12)
 
-        DEGREE = _CATEGORY_TUPLE("degree", gettext_lazy("Degree mismatches"), 12)
+        DEGREE = _CATEGORY_TUPLE("degree", gettext_lazy("Degree mismatches"), 13)
         TOO_MANY_ENROLLMENTS = _CATEGORY_TUPLE(
-            "too_many_enrollments", gettext_lazy("Unusually high number of enrollments"), 13
+            "too_many_enrollments", gettext_lazy("Unusually high number of enrollments"), 14
         )
+
+        SIMILAR_COURSE_NAMES = _CATEGORY_TUPLE("similar_course_names", gettext_lazy("Similar course names"), 15)
 
     level: Level
     category: Category
@@ -135,7 +138,7 @@ class ConvertExceptionsToMessages:
     """Shared catch-all exception handlers between importers"""
 
     def __init__(self, importer_log: ImporterLog):
-        self.importer_log: ImporterLog = importer_log
+        self.importer_log = importer_log
 
     def __enter__(self):
         pass
@@ -215,10 +218,11 @@ class ExcelFileRowMapper:
                     )
                 )
 
-            for row_index in range(self.skip_first_n_rows, sheet.max_row):
-                # We use 0-based indexing, openpyxl uses 1-based indexing.
-                row = [cell.value for cell in sheet[row_index + 1]]
-                location = ExcelFileLocation(sheet.title, row_index)
+            # openpyxl uses 1-based indexing.
+            for row_number, row in enumerate(
+                sheet.iter_rows(min_row=self.skip_first_n_rows + 1, values_only=True), start=self.skip_first_n_rows
+            ):
+                location = ExcelFileLocation(sheet.title, row_number)
 
                 if not all(isinstance(cell, str) or cell is None for cell in row):
                     self.importer_log.add_error(
@@ -271,6 +275,9 @@ class FirstLocationAndCountTracker:
                 )
 
             yield key, location_string
+
+    def keys(self) -> Iterable[Any]:
+        return self.first_location_by_key.keys()
 
 
 class Checker:

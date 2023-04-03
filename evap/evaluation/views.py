@@ -18,7 +18,6 @@ from django.views.i18n import set_language
 from evap.evaluation.forms import DelegatesForm, LoginEmailForm, NewKeyForm, NotebookForm
 from evap.evaluation.models import EmailTemplate, FaqSection, Semester
 from evap.middleware import no_login_required
-from evap.staff.tools import delete_navbar_cache_for_users
 
 logger = logging.getLogger(__name__)
 
@@ -89,15 +88,12 @@ def index(request):
         # set test cookie to verify whether they work in the next step
         request.session.set_test_cookie()
 
-        template_data = dict(
-            new_key_form=new_key_form,
-            login_email_form=login_email_form,
-            openid_active=settings.ACTIVATE_OPEN_ID_LOGIN,
-        )
+        template_data = {
+            "new_key_form": new_key_form,
+            "login_email_form": login_email_form,
+            "openid_active": settings.ACTIVATE_OPEN_ID_LOGIN,
+        }
         return render(request, "index.html", template_data)
-
-    # the cached navbar might contain CSRF tokens that are invalid after a new login
-    delete_navbar_cache_for_users([request.user])
 
     # check for redirect variable
     redirect_to = request.GET.get("next", None)
@@ -150,7 +146,7 @@ def login_key_authentication(request, key):
 
 @no_login_required
 def faq(request):
-    return render(request, "faq.html", dict(sections=FaqSection.objects.all()))
+    return render(request, "faq.html", {"sections": FaqSection.objects.all()})
 
 
 @no_login_required
@@ -214,21 +210,19 @@ def profile_edit(request):
         return render(
             request,
             "profile.html",
-            dict(
-                user=user,
-                form=form,
-                delegate_of=user.represented_users.all(),
-                cc_users=user.cc_users.all(),
-                ccing_users=user.ccing_users.all(),
-            ),
+            {
+                "user": user,
+                "form": form,
+                "delegate_of": user.represented_users.all(),
+                "cc_users": user.cc_users.all(),
+                "ccing_users": user.ccing_users.all(),
+            },
         )
 
     return render(
         request,
         "profile.html",
-        dict(
-            user=user,
-        ),
+        {"user": user},
     )
 
 

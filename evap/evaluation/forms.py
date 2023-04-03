@@ -115,9 +115,6 @@ class DelegatesForm(forms.ModelForm):
             "delegates": UserModelMultipleChoiceField,
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def save(self, *args, **kw):
         super().save(*args, **kw)
         logger.info('User "%s" edited the settings.', self.instance.email)

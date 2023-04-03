@@ -1,4 +1,3 @@
-import random
 from io import StringIO
 from unittest.mock import patch
 
@@ -462,14 +461,21 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
     @patch("django.template.context_processors.get_token", return_value="predicabletoken")
     def test_default_view_is_public(self, __):
         cache_results(self.evaluation)
-        random.seed(42)  # use explicit seed to always choose the same "random" slogan
+
+        # the view=public button should have class "active". The rest in-between is just noise.
+        expected_button = (
+            f'<a href="/results/semester/{self.evaluation.course.semester.pk}/evaluation/{self.evaluation.pk}'
+            + '?view=public" role="button" class="btn btn-sm btn-light active"'
+        )
+
         page_without_get_parameter = self.app.get(self.url, user=self.manager)
-        random.seed(42)
+        self.assertContains(page_without_get_parameter, expected_button)
+
         page_with_get_parameter = self.app.get(self.url + "?view=public", user=self.manager)
-        random.seed(42)
+        self.assertContains(page_with_get_parameter, expected_button)
+
         page_with_random_get_parameter = self.app.get(self.url + "?view=asdf", user=self.manager)
-        self.assertEqual(page_without_get_parameter.body, page_with_get_parameter.body)
-        self.assertEqual(page_without_get_parameter.body, page_with_random_get_parameter.body)
+        self.assertContains(page_with_random_get_parameter, expected_button)
 
     def test_wrong_state(self):
         helper_exit_staff_mode(self)
@@ -504,7 +510,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         url = f"/results/semester/{self.semester.id}/evaluation/{evaluation.id}"
         self.app.get(url, user=self.manager)
 
-    def test_unpublished_single_results_show_results(self):
+    def test_unpublished_single_results_show_results(self) -> None:
         """Regression test for #1621"""
         # make regular evaluation with some answers
         participants = baker.make(UserProfile, _bulk_create=True, _quantity=20)

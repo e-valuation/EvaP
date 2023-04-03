@@ -28,7 +28,7 @@
                             <td>
                                 <strong class="questionnaire-name">{{ questionnaire.name }}</strong>
                                 <br />
-                                {% blocktrans count questionnaire.questions.all.count as count %}{{ count }} question{% plural %}{{ count }} questions{% endblocktrans %},
+                                {% blocktrans count questionnaire.questions.count as count %}{{ count }} question{% plural %}{{ count }} questions{% endblocktrans %},
                                 {% blocktrans count questionnaire.contributions.count as count %}used {{ count }} time{% plural %}used {{ count }} times{% endblocktrans %}
                             </td>
                             <td>

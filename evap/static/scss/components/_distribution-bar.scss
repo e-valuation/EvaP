@@ -1,3 +1,5 @@
+@use 'sass:math';
+
 .pole-icon {
     font-size: 1.4rem;
     line-height: 1rem;
@@ -19,7 +21,7 @@
         $width: 2px;
         width: $width;
         top: 0;
-        left: calc(50% - #{$width / 2});
+        left: calc(50% - math.div($width, 2));
         border-radius: 3px;
         box-shadow: 0 0 1px $dark-gray;
     }
@@ -36,10 +38,18 @@
 
     .left {
         left: $distance;
+
+        .pole-icon {
+            vertical-align: -0.15rem;
+        }
     }
 
     .right {
         right: $distance;
+
+        .pole-icon {
+            vertical-align: -0.25rem;
+        }
     }
 
     .pole-icon {
