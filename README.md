@@ -18,7 +18,7 @@ The easiest setup using [Vagrant](https://www.vagrantup.com) is shown here.
 
 0. Install [git](https://git-scm.com/downloads), [Vagrant](https://www.vagrantup.com/downloads.html), and one of [VirtualBox](https://www.virtualbox.org/wiki/Downloads) (recommended) or [Docker](https://docs.docker.com/engine/install/) (for ARM systems).
 
-1. Fork the Evap repository (using the Fork-button in the upper right corner on GitHub).
+1. Fork the EvaP repository (using the Fork-button in the upper right corner on GitHub).
 
 2. Windows users only (might not apply for the linux subsystem):
    * Line endings: git's [`core.autocrlf` setting](https://git-scm.com/book/en/v2/Customizing-Git-Git-Configuration#_core_autocrlf) has to be `false` or `input` so git does not convert line endings on checkout, because the code will be used in a linux VM. We suggest using this command in Git Bash:
@@ -39,7 +39,7 @@ The easiest setup using [Vagrant](https://www.vagrantup.com) is shown here.
    ./manage.py run
    ```
 
-4. Open your browser at http://localhost:8000/ and login with email ``evap@institution.example.com`` and password ``evap``.
+4. Open your browser at http://localhost:8000/ and login with email `evap@institution.example.com` and password `evap`.
 
 
 That's it!
