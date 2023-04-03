@@ -242,7 +242,7 @@ class GradeEditTest(WebTest):
         previous_modifying_user = self.grade_document.last_modified_user
         self.assertNotEqual(previous_modifying_user, self.grade_publisher)
         response = self.app.get(self.url, user=self.grade_publisher)
-        form = response.forms[3]
+        form = response.forms[4]
         form["description_en"] = "Absolutely final grades"
         form["file"] = ("grades.txt", b"You did great!")
         form.submit()

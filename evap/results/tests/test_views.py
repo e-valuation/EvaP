@@ -459,6 +459,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         self.assertNotIn(heading_question_2.text, page)
 
     @patch("django.template.context_processors.get_token", return_value="predicabletoken")
+    @override_settings(VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS=0)
     def test_default_view_is_public(self, __):
         cache_results(self.evaluation)
 
