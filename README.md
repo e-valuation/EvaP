@@ -30,14 +30,14 @@ The easiest setup using [Vagrant](https://www.vagrantup.com) is shown here.
    * Symlink Privileges: Our setup script for the VM creates symlinks in the repository folder. This requires either [explicitly allowing your user account to create symlinks](https://superuser.com/a/105381) or simply running the commands in step 3 as administrator. Thus, we suggest doing step 3 in a Git Bash that was started using "Run as administrator". Generally, this is only required for the first time executing `vagrant up`.
 
 3. Run the following commands on the command line to clone the repository, create the Vagrant VM and run the Django development server.
-    To use Docker, replace `vagrant up` with `vagrant up --provider docker && vagrant provision`.
-    ```bash
-    git clone --recurse-submodules https://github.com/<your_github_username>/EvaP.git
-    cd EvaP
-    vagrant up
-    vagrant ssh
-    ./manage.py run
-    ```
+   To use Docker, replace `vagrant up` with `vagrant up --provider docker && vagrant provision`.
+   ```bash
+   git clone --recurse-submodules https://github.com/<your_github_username>/EvaP.git
+   cd EvaP
+   vagrant up
+   vagrant ssh
+   ./manage.py run
+   ```
 
 4. Open your browser at http://localhost:8000/ and login with email ``evap@institution.example.com`` and password ``evap``.
 
