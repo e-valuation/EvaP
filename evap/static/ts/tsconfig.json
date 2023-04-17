@@ -4,8 +4,7 @@
         "target": "es2019",
         "strict": true,
         "esModuleInterop": true,
-        "moduleResolution": "node",
-        "allowJs": true
+        "moduleResolution": "node"
     },
     "include": ["**/*.ts"]
 }
