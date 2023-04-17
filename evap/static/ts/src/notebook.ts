@@ -22,7 +22,7 @@ assertDefinedUnwrap(document.getElementById("notebook-save-button")).addEventLis
         const error_label = assertDefinedUnwrap(target.getAttribute("value"));
         target.disabled = true;
 
-        let form_json = JSON.stringify(Object.fromEntries(data.entries()));
+        const form_json = JSON.stringify(Object.fromEntries(data.entries()));
 
         const cooldown_time = 2000;
         const success_code = 204;
@@ -30,7 +30,7 @@ assertDefinedUnwrap(document.getElementById("notebook-save-button")).addEventLis
         fetch(form.action, {
             method: "POST",
             // form_json is extracted from a form, ordering is not important, but eslint complains about it
-            body: form_json, // eslint-disable-next-line ignore-blank-lines
+            body: form_json, // eslint-disable-line object-literal-sort-keys
             headers: {
                 "Content-Type": "application/json",
                 "X-CSRFToken": assertDefinedUnwrap(getCookie("csrftoken")),
