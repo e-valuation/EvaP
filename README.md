@@ -20,8 +20,8 @@ The easiest setup using [Vagrant](https://www.vagrantup.com) is shown here.
 
 1. Fork the EvaP repository (using the Fork-button in the upper right corner on GitHub).
 
-2. Windows users only (might not apply for the linux subsystem):
-   * Line endings: git's [`core.autocrlf` setting](https://git-scm.com/book/en/v2/Customizing-Git-Git-Configuration#_core_autocrlf) has to be `false` or `input` so git does not convert line endings on checkout, because the code will be used in a linux VM. We suggest using this command in Git Bash:
+2. Windows users only (might not apply for the Linux subsystem):
+   * Line endings: git's [`core.autocrlf` setting](https://git-scm.com/book/en/v2/Customizing-Git-Git-Configuration#_core_autocrlf) has to be `false` or `input` so git does not convert line endings on checkout, because the code will be used in a Linux VM. We suggest using this command in Git Bash:
 
      ```bash
      git config --global core.autocrlf input
@@ -46,16 +46,16 @@ That's it!
 
 ## Contributing
 
-We'd love to see contributions, feel free to fork! You should probably branch off ``main``, the branch ``release`` is used for stable revisions.
+We'd love to see contributions, feel free to fork! You should probably branch off `main`, the branch `release` is used for stable revisions.
 
 Before committing, run the following commands:
 - `./manage.py test` (runs the test suite)
-- `./manage.py lint` (runs the linter)
-- `./manage.py format` (applies automatic code formatting on Python files)
+- `./manage.py lint` (runs linting)
+- `./manage.py format` (applies automatic code formatting)
 
-or, to combine all three, simply run `./manage.py precommit`
+or, to combine all three, simply run `./manage.py precommit`.
 
-You can also set up `pylint`, `isort` and `black` in your IDE to avoid doing this manually all the time.
+You can also set up `pylint`, `isort`, `black` and `prettier` in your IDE to avoid doing this manually all the time.
 
 ## License
 
