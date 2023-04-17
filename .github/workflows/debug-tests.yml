@@ -9,9 +9,6 @@ jobs:
   tests:
     runs-on: ubuntu-20.04
 
-    container:
-      image: python:3.8
-
     services:
       postgres:
         image: postgres
@@ -27,10 +24,10 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
-      - name: Install dependencies
-        run: pip install -r requirements-dev.txt
-      - name: Add localsettings
-        run: cp evap/settings_test.py evap/localsettings.py
+        uses: actions/checkout@v3
+
+      - name: Setup python
+        uses: ./.github/setup_python
+
       - name: Run tests
         run: python manage.py test --debug-mode

@@ -1,3 +1,4 @@
+import difflib
 from collections import defaultdict
 from dataclasses import dataclass, fields
 from datetime import date, datetime
@@ -7,11 +8,12 @@ from django.conf import settings
 from django.db import transaction
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 from typing_extensions import TypeGuard
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
 from evap.evaluation.tools import clean_email, ilen, unordered_groupby
-from evap.staff.tools import create_user_list_html_string_for_message
+from evap.staff.tools import append_user_list_if_not_empty
 
 from .base import (
     Checker,
@@ -34,7 +36,7 @@ from .user import (
 )
 
 
-@dataclass
+@dataclass(frozen=True)
 class InvalidValue:
     # We make this a dataclass to make sure all instances compare equal.
     pass
@@ -83,9 +85,9 @@ def all_fields_valid(course_data: CourseData) -> TypeGuard[ValidCourseData]:
 
 
 class DegreeImportMapper:
-    class InvalidDegreeNamesException(Exception):
-        def __init__(self, *args, invalid_degree_names: Set[str], **kwargs):
-            self.invalid_degree_names = invalid_degree_names
+    class InvalidDegreeNameException(Exception):
+        def __init__(self, *args, invalid_degree_name: str, **kwargs):
+            self.invalid_degree_name = invalid_degree_name
             super().__init__(*args, **kwargs)
 
     def __init__(self) -> None:
@@ -95,20 +97,13 @@ class DegreeImportMapper:
             for import_name in degree.import_names
         }
 
-    def degree_set_from_import_string(self, import_string: str) -> Set[Degree]:
-        result = set()
-        invalid_degree_names = set()
-        for degree_name in import_string.split(","):
-            stripped_name = degree_name.strip()
-            try:
-                result.add(self.degrees[stripped_name.lower()])
-            except KeyError:
-                invalid_degree_names.add(stripped_name)
-
-        if invalid_degree_names:
-            raise self.InvalidDegreeNamesException(invalid_degree_names=invalid_degree_names)
-
-        return result
+    def degree_from_import_string(self, import_string: str) -> Degree:
+        trimmed_name = import_string.strip()
+        lookup_key = trimmed_name.lower()
+        try:
+            return self.degrees[lookup_key]
+        except KeyError as e:
+            raise self.InvalidDegreeNameException(invalid_degree_name=trimmed_name) from e
 
 
 class CourseTypeImportMapper:
@@ -160,7 +155,7 @@ class EnrollmentInputRow(InputRow):
     location: ExcelFileLocation
 
     # Cells in the order of appearance in a row of an import file
-    evaluation_degree_names: str
+    evaluation_degree_name: str
 
     student_last_name: str
     student_first_name: str
@@ -195,9 +190,9 @@ class EnrollmentInputRowMapper:
     def __init__(self, importer_log: ImporterLog):
         self.importer_log: ImporterLog = importer_log
 
-        self.course_type_mapper: CourseTypeImportMapper = CourseTypeImportMapper()
-        self.degree_mapper: DegreeImportMapper = DegreeImportMapper()
-        self.is_graded_mapper: IsGradedImportMapper = IsGradedImportMapper()
+        self.course_type_mapper = CourseTypeImportMapper()
+        self.degree_mapper = DegreeImportMapper()
+        self.is_graded_mapper = IsGradedImportMapper()
 
         self.invalid_degrees_tracker: Optional[FirstLocationAndCountTracker] = None
         self.invalid_course_types_tracker: Optional[FirstLocationAndCountTracker] = None
@@ -233,11 +228,10 @@ class EnrollmentInputRowMapper:
 
         degrees: MaybeInvalid[Set[Degree]]
         try:
-            degrees = self.degree_mapper.degree_set_from_import_string(row.evaluation_degree_names)
-        except DegreeImportMapper.InvalidDegreeNamesException as e:
+            degrees = {self.degree_mapper.degree_from_import_string(row.evaluation_degree_name)}
+        except DegreeImportMapper.InvalidDegreeNameException as e:
             degrees = invalid_value
-            for invalid_degree in e.invalid_degree_names:
-                self.invalid_degrees_tracker.add_location_for_key(row.location, invalid_degree)
+            self.invalid_degrees_tracker.add_location_for_key(row.location, e.invalid_degree_name)
 
         course_type: MaybeInvalid[CourseType]
         try:
@@ -390,13 +384,13 @@ class CourseNameChecker(Checker):
         super().__init__(*args, **kwargs)
 
         self.course_merge_logic = CourseMergeLogic(semester)
-        self.course_merged_tracker: FirstLocationAndCountTracker = FirstLocationAndCountTracker()
-        self.course_merge_impossible_tracker: FirstLocationAndCountTracker = FirstLocationAndCountTracker()
-        self.name_de_collision_tracker: FirstLocationAndCountTracker = FirstLocationAndCountTracker()
-        self.name_en_collision_tracker: FirstLocationAndCountTracker = FirstLocationAndCountTracker()
+        self.course_merged_tracker = FirstLocationAndCountTracker()
+        self.course_merge_impossible_tracker = FirstLocationAndCountTracker()
+        self.name_de_collision_tracker = FirstLocationAndCountTracker()
+        self.name_en_collision_tracker = FirstLocationAndCountTracker()
 
         self.name_en_by_name_de: Dict[str, str] = {}
-        self.name_de_mismatch_tracker: FirstLocationAndCountTracker = FirstLocationAndCountTracker()
+        self.name_de_mismatch_tracker = FirstLocationAndCountTracker()
 
     def check_course_data(self, course_data: CourseData, location: ExcelFileLocation) -> None:
         try:
@@ -479,6 +473,46 @@ class CourseNameChecker(Checker):
             )
 
 
+class SimilarCourseNameChecker(Checker):
+    """
+    Searches for courses that have names with small edit distance and warns about them to make users aware of possible
+    typos.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.course_en_tracker = FirstLocationAndCountTracker()
+        self.course_de_tracker = FirstLocationAndCountTracker()
+
+    def check_course_data(self, course_data: CourseData, location: ExcelFileLocation) -> None:
+        self.course_en_tracker.add_location_for_key(location, course_data.name_en)
+        self.course_de_tracker.add_location_for_key(location, course_data.name_de)
+
+    def finalize(self) -> None:
+        warning_texts = []
+
+        for tracker in [self.course_en_tracker, self.course_de_tracker]:
+            for needle_name, location_string in tracker.aggregated_keys_and_location_strings():
+                matches = difflib.get_close_matches(
+                    needle_name,
+                    (name for name in tracker.keys() if name > needle_name),
+                    n=1,
+                    cutoff=settings.IMPORTER_COURSE_NAME_SIMILARITY_WARNING_THRESHOLD,
+                )
+                if matches:
+                    warning_texts.append(
+                        _('{location}: The course names "{name1}" and "{name2}" have a low edit distance.').format(
+                            location=location_string,
+                            name1=needle_name,
+                            name2=matches[0],
+                        )
+                    )
+
+        for warning_text in warning_texts:
+            self.importer_log.add_warning(warning_text, category=ImporterLogEntry.Category.SIMILAR_COURSE_NAMES)
+
+
 class ExistingParticipationChecker(Checker, RowCheckerMixin):
     """Warn if users are already stored as participants for a course in the database"""
 
@@ -514,8 +548,10 @@ class ExistingParticipationChecker(Checker, RowCheckerMixin):
 
             if colliding_participant_emails:
                 self.importer_log.add_warning(
-                    _(
-                        "Course {course_name}: {participant_count} participants from the import file already participate in the evaluation."
+                    ngettext(
+                        "Course {course_name}: 1 participant from the import file already participates in the evaluation.",
+                        "Course {course_name}: {participant_count} participants from the import file already participate in the evaluation.",
+                        len(colliding_participant_emails),
                     ).format(course_name=course_name_en, participant_count=len(colliding_participant_emails)),
                     category=ImporterLogEntry.Category.ALREADY_PARTICIPATING,
                 )
@@ -528,7 +564,7 @@ class CourseDataMismatchChecker(Checker):
         super().__init__(*args, **kwargs)
 
         self.course_data_by_name_en: Dict[str, CourseData] = {}
-        self.tracker: FirstLocationAndCountTracker = FirstLocationAndCountTracker()
+        self.tracker = FirstLocationAndCountTracker()
 
     def check_course_data(self, course_data: CourseData, location: ExcelFileLocation) -> None:
         if not all_fields_valid(course_data):
@@ -552,6 +588,40 @@ class CourseDataMismatchChecker(Checker):
                     columns=", ".join(differing_fields),
                 ),
                 category=ImporterLogEntry.Category.COURSE,
+            )
+
+
+class UserDegreeMismatchChecker(Checker, RowCheckerMixin):
+    """Assert that a users degree is consistent between rows"""
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        self.degree_by_email: Dict[str, Degree] = {}
+        self.tracker = FirstLocationAndCountTracker()
+
+    def check_row(self, row: EnrollmentParsedRow):
+        if row.student_data.email == "":
+            return
+
+        if isinstance(row.course_data.degrees, InvalidValue):
+            return
+
+        assert len(row.course_data.degrees) == 1, "Checker expected to have courses without merged degrees"
+        degree = next(iter(row.course_data.degrees))
+        stored_degree = self.degree_by_email.setdefault(row.student_data.email, degree)
+
+        if stored_degree != degree:
+            self.tracker.add_location_for_key(row.location, row.student_data.email)
+
+    def finalize(self) -> None:
+        for student_email, location_string in self.tracker.aggregated_keys_and_location_strings():
+            self.importer_log.add_error(
+                _('{location}: The degree of user "{email}" differs from their degree in a previous row.').format(
+                    location=location_string,
+                    email=student_email,
+                ),
+                category=ImporterLogEntry.Category.DEGREE,
             )
 
 
@@ -623,8 +693,10 @@ def import_enrollments(
         parsed_rows = EnrollmentInputRowMapper(importer_log).map(input_rows)
         for checker in [
             TooManyEnrollmentsChecker(test_run, importer_log),
+            UserDegreeMismatchChecker(test_run, importer_log),
             CourseDataAdapter(CourseNameChecker(test_run, importer_log, semester=semester)),
             CourseDataAdapter(CourseDataMismatchChecker(test_run, importer_log)),
+            CourseDataAdapter(SimilarCourseNameChecker(test_run, importer_log)),
             UserDataAdapter(UserDataEmptyFieldsChecker(test_run, importer_log)),
             UserDataAdapter(UserDataMismatchChecker(test_run, importer_log)),
             UserDataAdapter(UserDataValidationChecker(test_run, importer_log)),
@@ -634,7 +706,7 @@ def import_enrollments(
 
         importer_log.raise_if_has_errors()
 
-        user_data_list, course_data_list = normalize_rows(parsed_rows, importer_log)
+        user_data_list, course_data_list = normalize_rows(parsed_rows)
         existing_user_profiles, new_user_profiles = get_user_profile_objects(user_data_list)
 
         responsible_emails = {course_data.responsible_email for course_data in course_data_list}
@@ -645,13 +717,15 @@ def import_enrollments(
         importer_log.raise_if_has_errors()
         if test_run:
             importer_log.add_success(_("The test run showed no errors. No data was imported yet."))
-            msg = format_html(
-                _("The import run will create {evaluation_count} courses/evaluations and {user_count} users:{users}"),
-                evaluation_count=new_course_count,
-                user_count=len(new_user_profiles),
-                users=create_user_list_html_string_for_message(new_user_profiles),
+            msg = _("The import run will create {evaluation_string} and {user_string}").format(
+                evaluation_string=ngettext(
+                    "1 course/evaluation", "{count} courses/evaluations", new_course_count
+                ).format(count=new_course_count),
+                user_string=ngettext("1 user", "{count} users", len(new_user_profiles)).format(
+                    count=len(new_user_profiles)
+                ),
             )
-            importer_log.add_success(msg)
+
         else:
             assert vote_start_datetime is not None, "Import-run requires vote_start_datetime"
             assert vote_end_date is not None, "Import-run requires vote_end-date"
@@ -659,21 +733,25 @@ def import_enrollments(
             update_existing_and_create_new_courses(course_data_list, semester, vote_start_datetime, vote_end_date)
             store_participations_in_db(parsed_rows)
 
-            msg = format_html(
-                _("Successfully created {} courses/evaluations, {} participants and {} contributors:{}"),
-                new_course_count,
-                new_participants_count,
-                new_responsibles_count,
-                create_user_list_html_string_for_message(new_user_profiles),
+            msg = _("Successfully created {evaluation_string}, {participant_string} and {contributor_string}").format(
+                evaluation_string=ngettext(
+                    "1 course/evaluation", "{count} courses/evaluations", new_course_count
+                ).format(count=new_course_count),
+                participant_string=ngettext("1 participant", "{count} participants", new_participants_count).format(
+                    count=new_participants_count
+                ),
+                contributor_string=ngettext("1 contributor", "{count} contributors", new_responsibles_count).format(
+                    count=new_responsibles_count
+                ),
             )
-            importer_log.add_success(msg)
+
+        msg = append_user_list_if_not_empty(msg, new_user_profiles)
+        importer_log.add_success(msg)
 
     return importer_log
 
 
-def normalize_rows(
-    enrollment_rows: Iterable[EnrollmentParsedRow], importer_log: ImporterLog
-) -> Tuple[List[UserData], List[ValidCourseData]]:
+def normalize_rows(enrollment_rows: Iterable[EnrollmentParsedRow]) -> Tuple[List[UserData], List[ValidCourseData]]:
     """The row schema has denormalized students and evaluations. Normalize / merge them back together"""
     user_data_by_email: Dict[str, UserData] = {}
     course_data_by_name_en: Dict[str, ValidCourseData] = {}
@@ -689,17 +767,7 @@ def normalize_rows(
         course_data = course_data_by_name_en.setdefault(row.course_data.name_en, row.course_data)
         assert course_data.differing_fields(row.course_data) <= {"degrees"}
 
-        # Not a checker to keep merging and notifying about the merge together.
-        if not row.course_data.degrees.issubset(course_data.degrees):
-            course_data.degrees.update(row.course_data.degrees)
-
-            importer_log.add_warning(
-                _(
-                    '{location}: The degree of course "{course_name}" differs from its degrees in previous rows.'
-                    " All degrees have been set for the course."
-                ).format(location=row.location, course_name=course_data.name_en),
-                category=ImporterLogEntry.Category.DEGREE,
-            )
+        course_data.degrees.update(row.course_data.degrees)
 
     return list(user_data_by_email.values()), list(course_data_by_name_en.values())
 

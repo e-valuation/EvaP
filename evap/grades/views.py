@@ -65,11 +65,11 @@ def semester_view(request, semester_id):
 
 
 @grade_publisher_or_manager_required
-def course_view(request, semester_id, course_id):
-    semester = get_object_or_404(Semester, id=semester_id)
+def course_view(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    semester = course.semester
     if semester.grade_documents_are_deleted:
         raise PermissionDenied
-    course = get_object_or_404(Course, id=course_id, semester=semester)
 
     template_data = {
         "semester": semester,
@@ -95,11 +95,11 @@ def on_grading_process_finished(course):
 
 
 @grade_publisher_required
-def upload_grades(request, semester_id, course_id):
-    semester = get_object_or_404(Semester, id=semester_id)
+def upload_grades(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    semester = course.semester
     if semester.grade_documents_are_deleted:
         raise PermissionDenied
-    course = get_object_or_404(Course, id=course_id, semester=semester)
 
     final_grades = request.GET.get("final") == "true"  # if parameter is not given, assume midterm grades
 
@@ -122,7 +122,7 @@ def upload_grades(request, semester_id, course_id):
             on_grading_process_finished(course)
 
         messages.success(request, _("Successfully uploaded grades."))
-        return redirect("grades:course_view", semester.id, course.id)
+        return redirect("grades:course_view", course.id)
 
     template_data = {
         "semester": semester,
@@ -161,12 +161,12 @@ def download_grades(request, grade_document_id):
 
 
 @grade_publisher_required
-def edit_grades(request, semester_id, course_id, grade_document_id):
-    semester = get_object_or_404(Semester, id=semester_id)
+def edit_grades(request, grade_document_id):
+    grade_document = get_object_or_404(GradeDocument, id=grade_document_id)
+    course = grade_document.course
+    semester = course.semester
     if semester.grade_documents_are_deleted:
         raise PermissionDenied
-    course = get_object_or_404(Course, id=course_id, semester=semester)
-    grade_document = get_object_or_404(GradeDocument, id=grade_document_id, course=course)
 
     form = GradeDocumentForm(request.POST or None, request.FILES or None, instance=grade_document)
 
@@ -177,7 +177,7 @@ def edit_grades(request, semester_id, course_id, grade_document_id):
     if form.is_valid():
         form.save(modifying_user=request.user)
         messages.success(request, _("Successfully updated grades."))
-        return redirect("grades:course_view", semester.id, course.id)
+        return redirect("grades:course_view", course.id)
 
     template_data = {
         "semester": semester,

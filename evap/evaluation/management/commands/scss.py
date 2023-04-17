@@ -2,7 +2,7 @@ import os
 import subprocess  # nosec
 
 from django.conf import settings
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 
 
 class Command(BaseCommand):
@@ -36,7 +36,7 @@ class Command(BaseCommand):
 
         try:
             subprocess.run(command, check=True)  # nosec
-        except FileNotFoundError:
-            print("Could not find sass command", file=self.stderr)
+        except FileNotFoundError as e:
+            raise CommandError("Could not find sass command") from e
         except KeyboardInterrupt:
             pass

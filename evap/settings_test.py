@@ -5,22 +5,22 @@ DATABASES = {
         "NAME": "evap",
         "USER": "postgres",
         "PASSWORD": "postgres",
-        "HOST": "postgres",
+        "HOST": "localhost",
         "PORT": "5432",
     }
 }
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://redis:6379/0",
+        "LOCATION": "redis://localhost:6379/0",
     },
     "results": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://redis:6379/1",
+        "LOCATION": "redis://localhost:6379/1",
         "TIMEOUT": None,
     },
     "sessions": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://redis:6379/2",
+        "LOCATION": "redis://localhost:6379/2",
     },
 }

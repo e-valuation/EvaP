@@ -62,7 +62,7 @@ class GradeUploadTest(WebTest):
 
         final = "?final=true" if final_grades else ""
         response = self.app.post(
-            f"/grades/semester/{course.semester.id}/course/{course.id}/upload{final}",
+            f"{reverse('grades:upload_grades', args=[course.id])}{final}",
             params={"description_en": "Grades", "description_de": "Grades"},
             user=self.grade_publisher,
             content_type="multipart/form-data",
@@ -221,7 +221,7 @@ class GradeCourseViewTest(WebTestWith200Check):
         cls.grade_publisher = make_grade_publisher()
 
         cls.test_users = [cls.grade_publisher]
-        cls.url = f"/grades/semester/{cls.semester.pk}/course/{cls.evaluation.course.pk}"
+        cls.url = reverse("grades:course_view", args=[cls.evaluation.course.pk])
 
     def test_403_on_archived_semester(self):
         self.semester.grade_documents_are_deleted = True
@@ -230,19 +230,33 @@ class GradeCourseViewTest(WebTestWith200Check):
 
 
 class GradeEditTest(WebTest):
-    def test_grades_headlines(self):
-        grade_publisher = make_grade_publisher()
-        grade_document = baker.make(GradeDocument)
+    csrf_checks = False
 
-        url = f"/grades/semester/{grade_document.course.semester.pk}/course/{grade_document.course.pk}/edit/{grade_document.pk}"
+    @classmethod
+    def setUpTestData(cls) -> None:
+        cls.grade_publisher = make_grade_publisher()
+        cls.grade_document = baker.make(GradeDocument)
+        cls.url = reverse("grades:edit_grades", args=[cls.grade_document.pk])
 
-        response = self.app.get(url, user=grade_publisher)
+    def test_edit_grades(self) -> None:
+        previous_modifying_user = self.grade_document.last_modified_user
+        self.assertNotEqual(previous_modifying_user, self.grade_publisher)
+        response = self.app.get(self.url, user=self.grade_publisher)
+        form = response.forms[3]
+        form["description_en"] = "Absolutely final grades"
+        form["file"] = ("grades.txt", b"You did great!")
+        form.submit()
+        self.grade_document.refresh_from_db()
+        self.assertEqual(self.grade_document.last_modified_user, self.grade_publisher)
+
+    def test_grades_headlines(self) -> None:
+        response = self.app.get(self.url, user=self.grade_publisher)
         self.assertContains(response, "Upload midterm grades")
         self.assertNotContains(response, "Upload final grades")
 
-        grade_document.type = GradeDocument.Type.FINAL_GRADES
-        grade_document.save()
-        response = self.app.get(url, user=grade_publisher)
+        self.grade_document.type = GradeDocument.Type.FINAL_GRADES
+        self.grade_document.save()
+        response = self.app.get(self.url, user=self.grade_publisher)
         self.assertContains(response, "Upload final grades")
         self.assertNotContains(response, "Upload midterm grades")
 

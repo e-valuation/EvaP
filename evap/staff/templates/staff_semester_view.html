@@ -159,10 +159,10 @@
                 <div class="row align-items-center mb-3">
                     <div class="col-9">
                         {% if request.user.is_manager %}
-                            <a class="btn btn-sm btn-dark" href="{% url 'staff:evaluation_create' semester.id %}">
+                            <a class="btn btn-sm btn-dark" href="{% url 'staff:evaluation_create_for_semester' semester.id %}">
                                 {% trans 'Create evaluation' %}
                             </a>
-                            <a class="btn btn-sm btn-dark ms-2" href="{% url 'staff:single_result_create' semester.id %}">
+                            <a class="btn btn-sm btn-dark ms-2" href="{% url 'staff:single_result_create_for_semester' semester.id %}">
                                 {% trans 'Create single result' %}
                             </a>
                         {% endif %}
@@ -253,7 +253,7 @@
                         </div>
                     </div>
                 </div>
-                <form id="evaluation_operation_form" method="GET" action="{% url 'staff:semester_evaluation_operation' semester.id %}">
+                <form id="evaluation_operation_form" method="GET" action="{% url 'staff:evaluation_operation' semester.pk %}">
                     {% if num_evaluations > 0 %}
                         <table id="evaluation-table" class="table table-striped table-narrow table-vertically-aligned">
                             <colgroup>
@@ -379,7 +379,7 @@
                                 <tr id="course-row-{{ course.id }}">
                                     <td data-col="name" data-order="{{ course.name|lower }}">
                                         <div>
-                                            <a href="{% url 'staff:course_edit' semester.id course.id %}">{{ course.name }}</a>
+                                            <a href="{% url 'staff:course_edit' course.id %}">{{ course.name }}</a>
                                         </div>
                                         {% include 'course_badges.html' %}
                                     </td>
@@ -398,17 +398,17 @@
                                     <td class="icon-buttons">
                                         {% if request.user.is_manager %}
                                             <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
-                                                href="{% url 'staff:evaluation_create' semester.id course.id %}"
+                                                href="{% url 'staff:evaluation_create_for_course' course.id %}"
                                                 title="{% trans 'Create evaluation for this course' %}">
                                                 <span class="fas fa-clipboard-check"></span>
                                             </a>
                                             <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
-                                                href="{% url 'staff:single_result_create' semester.id course.id %}"
+                                                href="{% url 'staff:single_result_create_for_course' course.id %}"
                                                 title="{% trans 'Create single result for this course' %}">
                                                 <span class="fas fa-square-poll-vertical"></span>
                                         </a>
                                         <a class="btn btn-sm btn-dark" data-toggle="tooltip"
-                                            href="{% url 'staff:course_copy' semester.id course.id %}"
+                                            href="{% url 'staff:course_copy' course.id %}"
                                             title="{% trans 'Copy course' %}">
                                             <span class="fas fa-copy"></span>
                                             </a>
