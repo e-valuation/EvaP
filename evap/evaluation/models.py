@@ -1516,6 +1516,7 @@ class FaqQuestion(models.Model):
 
 class NotHalfEmptyConstraint(CheckConstraint):
     """Constraint, that all supplied fields are either all filled, or all empty."""
+
     fields: List[str] = []
 
     def __init__(self, *, fields: List[str], name: str, **kwargs):
