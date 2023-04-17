@@ -29,12 +29,11 @@ assertDefinedUnwrap(document.getElementById("notebook-save-button")).addEventLis
 
         fetch(form.action, {
             method: "POST",
-            // form_json is extracted from a form, ordering is not important, but eslint complains about it
-            body: form_json, // eslint-disable-line object-literal-sort-keys
             headers: {
                 "Content-Type": "application/json",
                 "X-CSRFToken": assertDefinedUnwrap(getCookie("csrftoken")),
             },
+            body: form_json,
         }).then(response => {
             if (response.status == success_code) {
                 target.setAttribute("value", assertDefinedUnwrap(target.getAttribute("data-label-cooldown")));
