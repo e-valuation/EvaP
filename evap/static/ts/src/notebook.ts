@@ -30,7 +30,7 @@ assertDefinedUnwrap(document.getElementById("notebook-save-button")).addEventLis
             "Content-Type": "application/json",
         },
     }) // check for 204
-        .then((response) => {
+        .then(response => {
             if (response.status == 204) {
                 target.setAttribute("value", assertDefinedUnwrap(target.getAttribute("data-label-cooldown")));
                 setTimeout(function (): void {
@@ -40,8 +40,8 @@ assertDefinedUnwrap(document.getElementById("notebook-save-button")).addEventLis
             } else {
                 alert(error_label);
             }
-        })
-    });
+        });
+});
 
 // https://github.com/microsoft/TypeScript-DOM-lib-generator/pull/1535
 assertDefinedUnwrap(document.getElementById("notebook")).addEventListener("show.bs.collapse", function (): void {
