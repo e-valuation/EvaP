@@ -1,6 +1,7 @@
 /* eslint-disable  @typescript-eslint/no-non-null-assertion */
 declare const bootstrap: typeof import("bootstrap");
 import { getCookie, setCookie, assertDefinedUnwrap } from "./utils.js";
+import { CSRF_HEADERS } from "./csrf-utils.js";
 
 const NOTEBOOK_COOKIE_NAME = "evap_notebook_open";
 
@@ -28,12 +29,9 @@ assertDefinedUnwrap(document.getElementById("notebook-save-button")).addEventLis
         const success_code = 204;
 
         fetch(form.action, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": assertDefinedUnwrap(getCookie("csrftoken")),
-            },
             body: form_json,
+            headers: CSRF_HEADERS,
+            method: "POST",
         }).then(response => {
             if (response.status == success_code) {
                 target.setAttribute("value", assertDefinedUnwrap(target.getAttribute("data-label-cooldown")));
