@@ -11,12 +11,12 @@ if (getCookie("evap_notebook_open") == "true") {
 }
 
 // https://github.com/microsoft/TypeScript-DOM-lib-generator/pull/1535
-assertDefinedUnwrap(document.getElementById("notebook")).addEventListener("show.bs.collapse", function () {
+assertDefinedUnwrap(document.getElementById("notebook")).addEventListener("show.bs.collapse", function ():void {
     setCookie(NOTEBOOK_COOKIE_NAME, "true");
     onShowNotebook();
 });
 
-assertDefinedUnwrap(document.getElementById("notebook")).addEventListener("hidden.bs.collapse", function () {
+assertDefinedUnwrap(document.getElementById("notebook")).addEventListener("hidden.bs.collapse", function ():void {
     setCookie(NOTEBOOK_COOKIE_NAME, "false");
     onHideNotebook();
 });
