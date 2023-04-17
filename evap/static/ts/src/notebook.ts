@@ -10,38 +10,44 @@ if (getCookie("evap_notebook_open") == "true") {
     onShowNotebook();
 }
 
-assertDefinedUnwrap(document.getElementById("notebook-save-button")).addEventListener("click", function (event): void {
-    event.preventDefault();
-    const form = assertDefinedUnwrap(document.getElementById("notebook-form")) as HTMLFormElement;
-    const data = new FormData(form);
+assertDefinedUnwrap(document.getElementById("notebook-save-button")).addEventListener(
+    "click",
+    function (event: MouseEvent): void {
+        event.preventDefault();
+        const form = assertDefinedUnwrap(document.getElementById("notebook-form")) as HTMLFormElement;
+        const data = new FormData(form);
 
-    var target = assertDefinedUnwrap(event.target) as HTMLButtonElement;
-    let default_label = assertDefinedUnwrap(target.getAttribute("value"));
-    let error_label = assertDefinedUnwrap(target.getAttribute("value"));
-    target.disabled = true;
+        const target = assertDefinedUnwrap(event.target) as HTMLButtonElement;
+        const default_label = assertDefinedUnwrap(target.getAttribute("value"));
+        const error_label = assertDefinedUnwrap(target.getAttribute("value"));
+        target.disabled = true;
 
-    let form_json = JSON.stringify(Object.fromEntries(data.entries()));
+        let form_json = JSON.stringify(Object.fromEntries(data.entries()));
 
-    fetch(form.action, {
-        method: "POST",
-        body: form_json,
-        headers: {
-            "X-CSRFToken": getCookie("csrftoken")!,
-            "Content-Type": "application/json",
-        },
-    }) // check for 204
-        .then(response => {
-            if (response.status == 204) {
+        const cooldown_time = 2000;
+        const success_code = 204;
+
+        fetch(form.action, {
+            method: "POST",
+            // form_json is extracted from a form, ordering is not important, but eslint complains about it
+            body: form_json, // eslint-disable-next-line ignore-blank-lines
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": assertDefinedUnwrap(getCookie("csrftoken")),
+            },
+        }).then(response => {
+            if (response.status == success_code) {
                 target.setAttribute("value", assertDefinedUnwrap(target.getAttribute("data-label-cooldown")));
                 setTimeout(function (): void {
                     target.disabled = false;
                     target.setAttribute("value", default_label);
-                }, 2000);
+                }, cooldown_time);
             } else {
                 alert(error_label);
             }
         });
-});
+    },
+);
 
 // https://github.com/microsoft/TypeScript-DOM-lib-generator/pull/1535
 assertDefinedUnwrap(document.getElementById("notebook")).addEventListener("show.bs.collapse", function (): void {
