@@ -10,6 +10,6 @@ model-bakery~=1.11.0
 mypy~=1.2.0
 openpyxl-stubs~=0.1.25
 pylint-django~=2.5.3
-pylint~=2.17.1
+pylint~=2.17.3
 tblib~=1.7.0
 xlrd~=2.0.1
