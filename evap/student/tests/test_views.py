@@ -1,7 +1,6 @@
 from functools import partial
 
 from django.test.utils import override_settings
-from django.urls import reverse
 from django_webtest import WebTest
 from model_bakery import baker
 
@@ -380,7 +379,9 @@ class TestVoteView(WebTest):
         page = self.app.get(self.url, user=self.voting_user1, status=200)
         form = page.forms["student-vote-form"]
         self.fill_form(form)
-        page = self.app.get(reverse("django-auth-logout"), user=self.voting_user1, status=302)
+
+        page = page.forms["logout-form"].submit(status=302)
+
         response = form.submit(status=302)
         self.assertNotIn(SUCCESS_MAGIC_STRING, response)
 
