@@ -31,7 +31,7 @@
                             <th>{% trans 'Trigger strings (case-insensitive)' %}</th>
                             <th>{% trans 'Warning text (German)' %}</th>
                             <th>{% trans 'Warning text (English)' %}</th>
-                            <th>{% trans 'Actions' %}</th>
+                            <th class="text-end">{% trans 'Actions' %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -52,7 +52,7 @@
                                 <td>
                                     {% include 'bootstrap_form_field_widget.html' with field=form.warning_text_en %}
                                 </td>
-                                <td class="align-end">
+                                <td class="text-end">
                                     {% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}
                                 </td>
                             </tr>

@@ -25,7 +25,7 @@
                             <th style="width: 30%">{% trans 'Name (German)' %}</th>
                             <th style="width: 30%">{% trans 'Name (English)' %}</th>
                             <th style="width: 30%">{% trans 'Import names' %}</th>
-                            <th style="width: 10%">{% trans 'Actions' %}</th>
+                            <th class="text-end" style="width: 10%">{% trans 'Actions' %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -46,7 +46,7 @@
                                 <td>
                                     {% include 'bootstrap_form_field_widget.html' with field=form.import_names %}
                                 </td>
-                                <td>
+                                <td class="text-end">
                                     {% if form.instance.can_be_deleted_by_manager %}
                                         {% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}
                                     {% else %}
