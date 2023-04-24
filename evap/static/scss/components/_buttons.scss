@@ -117,6 +117,7 @@ a:not([href]):not(.disabled) {
             transition: none;
             min-width: 28px;
             margin-left: 0;
+            border-radius: 0.15rem;
 
             &:hover {
                 background-color: tint-color($darker-gray, 20%);
