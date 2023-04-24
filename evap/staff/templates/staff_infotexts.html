@@ -20,10 +20,8 @@
                     {% for hidden in form.hidden_fields %}
                         {{ hidden }}
                     {% endfor %}
-                    <label class="card-subtitle">{% trans 'Title/Content (German)' %}</label>
-                    <label class="card-subtitle">{% trans 'Title/Content (English)' %}</label>
-
-                    <div class="mb-1 pt-2 border-bottom" style="grid-column: 1/-1;"></div>
+                    <label class="card-subtitle pb-2">{% trans 'Title/Content (German)' %}</label>
+                    <label class="card-subtitle pb-2">{% trans 'Title/Content (English)' %}</label>
 
                     {% include 'bootstrap_form_field_widget.html' with field=form.title_de %}
                     {% include 'bootstrap_form_field_widget.html' with field=form.title_en %}
