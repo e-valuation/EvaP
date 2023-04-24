@@ -53,7 +53,8 @@ const submitSelectorForAction = (action: Action) => `[type=submit][name=action][
 
 export class QuickReviewSlider {
     private readonly slider: HTMLElement;
-    private readonly form: HTMLFormElement;
+    private readonly reviewDecisionForm: HTMLFormElement;
+    private readonly flagForm: HTMLFormElement;
     private readonly sliderItems: Array<HTMLElement>;
     private answerSlides: Array<HTMLElement> = [];
     private selectedSlideIndex = 0;
@@ -68,9 +69,15 @@ export class QuickReviewSlider {
     private readonly slideTriggers: Array<HTMLElement>;
     private readonly navigationButtons: { left: NavigationButtonWithCounters; right: NavigationButtonWithCounters };
 
-    constructor(slider: HTMLElement, form: HTMLFormElement, evaluationSkipUrl: string) {
+    constructor(
+        slider: HTMLElement,
+        reviewDecisionForm: HTMLFormElement,
+        flagForm: HTMLFormElement,
+        evaluationSkipUrl: string,
+    ) {
         this.slider = slider;
-        this.form = form;
+        this.reviewDecisionForm = reviewDecisionForm;
+        this.flagForm = flagForm;
         this.evaluationSkipUrl = evaluationSkipUrl;
 
         this.sliderItems = Array.from(this.slider.querySelectorAll(".slider-item"));
@@ -113,7 +120,14 @@ export class QuickReviewSlider {
     // DOM
     //
     public attach = () => {
-        this.form.addEventListener("submit", this.formSubmitHandler);
+        this.reviewDecisionForm.addEventListener("submit", this.reviewDecisionFormSubmitHandler);
+        this.flagForm.addEventListener("submit", this.flagFormSubmitHandler);
+        this.slider.querySelectorAll<HTMLInputElement>("input[name=is_flagged]").forEach(isFlaggedInput => {
+            isFlaggedInput.addEventListener("change", () => {
+                assertDefined(isFlaggedInput.form);
+                isFlaggedInput.form.requestSubmit();
+            });
+        });
         document.addEventListener("keydown", this.keydownHandler);
         this.skipEvaluationButton?.addEventListener("click", this.skipEvaluationHandler);
         this.sliderItems.forEach(item => item.addEventListener("transitionend", this.transitionHandler(item)));
@@ -126,7 +140,7 @@ export class QuickReviewSlider {
         this.updateNextEvaluation();
     };
 
-    private formSubmitHandler = (event: SubmitEvent) => {
+    private reviewDecisionFormSubmitHandler = (event: SubmitEvent) => {
         const actionButton = event.submitter as SubmitterElement | null;
         try {
             assertDefined(actionButton);
@@ -163,6 +177,14 @@ export class QuickReviewSlider {
             const correspondingButtonRight = selectOrError<HTMLElement>(submitSelectorForAction(action), this.slider);
             correspondingButtonRight.focus();
         });
+    };
+    private flagFormSubmitHandler = (_event: SubmitEvent) => {
+        const newIsFlagged = new FormData(this.flagForm).get("is_flagged") == "true";
+        if (newIsFlagged) {
+            this.selectedSlide.dataset.isFlagged = "";
+        } else {
+            delete this.selectedSlide.dataset.isFlagged;
+        }
     };
     private keydownHandler = (event: KeyboardEvent) => {
         if (event.ctrlKey || event.shiftKey || event.altKey || event.metaKey) {
@@ -256,6 +278,7 @@ export class QuickReviewSlider {
 
         this.updateFocus();
         this.updateDecisionButtonHighlights();
+        this.updateFlaggedToggle();
 
         // Update "private" button
         const isContributor = "contribution" in this.selectedSlide.dataset;
@@ -287,6 +310,11 @@ export class QuickReviewSlider {
             btn.classList.toggle(activeHighlight, decision === action);
             btn.classList.toggle("btn-outline-secondary", decision !== action);
         }
+    };
+    private updateFlaggedToggle = () => {
+        const selector = `input[name="is_flagged"][value=${("isFlagged" in this.selectedSlide.dataset).toString()}]`;
+        const input = selectOrError<HTMLInputElement>(selector, this.slider);
+        input.checked = true;
     };
     private updateFocus = () => {
         this.selectedSlide.focus();

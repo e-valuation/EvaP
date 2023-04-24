@@ -11,9 +11,10 @@
                 <table class="table table-striped{% if not forloop.last %} mb-4{% endif %}">
                     <thead>
                         <tr>
-                            <th style="width: 80%">{% trans 'Text answer' %}</th>
+                            <th style="width: 75%">{% trans 'Text answer' %}</th>
                             <th style="width: 5%"></th>
                             <th style="width: 15%">{% trans 'Decision' %}</th>
+                            <th style="width: 5%">{% trans 'Flag' %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -50,6 +51,15 @@
                                             <input type="radio" class="btn-check" name="action" value="delete" id="{{ answer.id }}-radio-delete" autocomplete="off" {% if answer.will_be_deleted %}checked{% endif %}>
                                             <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-delete">{% trans 'Delete' %}</label>
                                         </div>
+                                    </form>
+                                </td>
+                                <td class="text-center">
+                                    <form class="full-textanswer-flag-form" method="POST" action="{% url 'staff:evaluation_textanswers_update_flag' %}">
+                                        {% csrf_token %}
+
+                                        <input type="hidden" name="answer_id" value="{{ answer.id }}" />
+
+                                        {% include "staff_evaluation_textanswer_flag_radios.html" with is_initially_flagged=answer.is_flagged id=answer.id %}
                                     </form>
                                 </td>
                             </tr>
