@@ -1441,6 +1441,9 @@ class TextAnswer(Answer):
         default=ReviewDecision.UNDECIDED,
     )
 
+    # Staff users marked this answer for internal purposes; the meaning of the flag is determined by users
+    is_flagged = models.BooleanField(verbose_name=_("is flagged"), default=False)
+
     class Meta:
         # Prevent ordering by date for privacy reasons. Otherwise, entries
         # may be returned in insertion order.

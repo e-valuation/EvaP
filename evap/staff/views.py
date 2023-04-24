@@ -3,7 +3,7 @@ import itertools
 from collections import OrderedDict, defaultdict, namedtuple
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Any, Container, Dict, Optional, Tuple, Type, Union, cast
+from typing import Any, Container, Dict, List, Optional, Tuple, Type, Union, cast
 
 import openpyxl
 from django.conf import settings
@@ -14,7 +14,7 @@ from django.db.models import BooleanField, Case, Count, ExpressionWrapper, Integ
 from django.dispatch import receiver
 from django.forms import formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import format_html
@@ -1453,11 +1453,15 @@ def evaluation_login_key_export(_request, evaluation_id):
     return response
 
 
-def get_evaluation_and_contributor_textanswer_sections(evaluation, filter_textanswers):
-    TextAnswerSection = namedtuple(
-        "TextAnswerSection", ("questionnaire", "contributor", "label", "is_responsible", "results")
-    )
+TextAnswerSection = namedtuple(
+    "TextAnswerSection", ("questionnaire", "contributor", "label", "is_responsible", "results")
+)
 
+
+def get_evaluation_and_contributor_textanswer_sections(
+    evaluation: Evaluation,
+    textanswer_filter: Q,
+) -> Tuple[List[TextAnswerSection], List[TextAnswerSection]]:
     evaluation_sections = []
     contributor_sections = []
     evaluation_responsibles = list(evaluation.course.responsibles.all())
@@ -1466,9 +1470,8 @@ def get_evaluation_and_contributor_textanswer_sections(evaluation, filter_textan
         TextAnswer.objects.filter(contribution__evaluation=evaluation)
         .select_related("question__questionnaire", "contribution__contributor")
         .order_by("contribution", "question__questionnaire", "question")
+        .filter(textanswer_filter)
     )
-    if filter_textanswers:
-        raw_answers = raw_answers.filter(review_decision=TextAnswer.ReviewDecision.UNDECIDED)
 
     questionnaire_answer_groups = itertools.groupby(
         raw_answers, lambda answer: (answer.contribution, answer.question.questionnaire)
@@ -1476,8 +1479,8 @@ def get_evaluation_and_contributor_textanswer_sections(evaluation, filter_textan
 
     for (contribution, questionnaire), questionnaire_answers in questionnaire_answer_groups:
         text_results = []
-        for question, answers in itertools.groupby(questionnaire_answers, lambda answer: answer.question):
-            answers = list(answers)
+        for question, answers_iter in itertools.groupby(questionnaire_answers, lambda answer: answer.question):
+            answers = list(answers_iter)
             if not answers:
                 continue
             text_results.append(TextResult(question=question, answers=answers))
@@ -1501,7 +1504,7 @@ def get_evaluation_and_contributor_textanswer_sections(evaluation, filter_textan
 
 
 @reviewer_required
-def evaluation_textanswers(request, evaluation_id):
+def evaluation_textanswers(request: HttpRequest, evaluation_id: int) -> HttpResponse:
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
     semester = evaluation.course.semester
     if semester.results_are_archived:
@@ -1513,10 +1516,15 @@ def evaluation_textanswers(request, evaluation_id):
         raise PermissionDenied
 
     view = request.GET.get("view", "quick")
-    filter_textanswers = view == "undecided"
+    assert view in ["quick", "full", "undecided", "flagged"]
+    filter_for_view = {
+        "undecided": Q(review_decision=TextAnswer.ReviewDecision.UNDECIDED),
+        "flagged": Q(is_flagged=True),
+    }
 
     evaluation_sections, contributor_sections = get_evaluation_and_contributor_textanswer_sections(
-        evaluation, filter_textanswers
+        evaluation,
+        filter_for_view.get(view, Q()),
     )
 
     template_data = {"semester": semester, "evaluation": evaluation, "view": view}
@@ -1539,6 +1547,21 @@ def evaluation_textanswers(request, evaluation_id):
 
     template_data.update({"evaluation_sections": evaluation_sections, "contributor_sections": contributor_sections})
     return render(request, "staff_evaluation_textanswers_full.html", template_data)
+
+
+@reviewer_required
+def semester_flagged_textanswers(request: HttpRequest, semester_id: int) -> HttpResponse:
+    semester = get_object_or_404(Semester, id=semester_id)
+    flagged_textanswers = TextAnswer.objects.filter(
+        is_flagged=True,
+        contribution__evaluation__course__semester=semester,
+    ).order_by("contribution__evaluation")
+
+    template_data = {
+        "semester": semester,
+        "flagged_textanswers": flagged_textanswers,
+    }
+    return render(request, "staff_semester_flagged_textanswers.html", template_data)
 
 
 @reviewer_required
@@ -1590,6 +1613,22 @@ def evaluation_textanswers_update_publish(request):
     if evaluation.state == Evaluation.State.REVIEWED and not evaluation.is_fully_reviewed:
         evaluation.reopen_review()
         evaluation.save()
+
+    return HttpResponseNoContent()
+
+
+@require_POST
+@reviewer_required
+def evaluation_textanswers_update_flag(request):
+    answer = get_object_from_dict_pk_entry_or_logged_40x(TextAnswer, request.POST, "answer_id")
+    assert_textanswer_review_permissions(answer.contribution.evaluation)
+
+    is_flagged_bool_string = request.POST.get("is_flagged", None)
+    if is_flagged_bool_string not in ["true", "false"]:
+        return HttpResponseBadRequest()
+
+    answer.is_flagged = is_flagged_bool_string == "true"
+    answer.save()
 
     return HttpResponseNoContent()
 
