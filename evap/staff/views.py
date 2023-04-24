@@ -1470,9 +1470,8 @@ def get_evaluation_and_contributor_textanswer_sections(
         TextAnswer.objects.filter(contribution__evaluation=evaluation)
         .select_related("question__questionnaire", "contribution__contributor")
         .order_by("contribution", "question__questionnaire", "question")
+        .filter(textanswer_filter)
     )
-    if textanswer_filter is not None:
-        raw_answers = raw_answers.filter(textanswer_filter)
 
     questionnaire_answer_groups = itertools.groupby(
         raw_answers, lambda answer: (answer.contribution, answer.question.questionnaire)
