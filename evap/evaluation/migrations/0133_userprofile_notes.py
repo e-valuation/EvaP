@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0131_userprofile_ordering'),
+        ('evaluation', '0132_textanswer_is_flagged'),
     ]
 
     operations = [
