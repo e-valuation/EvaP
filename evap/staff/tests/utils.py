@@ -62,3 +62,10 @@ def helper_delete_all_import_files(user_id):
 def helper_set_dynamic_choices_field_value(field, value):
     field.options = [(name, False, name) for name in value]
     field.value = value
+
+
+def helper_fill_infotext_formset(formset, form_id, *, title_de="", title_en="", content_de="", content_en=""):
+    formset[f"form-{form_id}-title_de"] = title_de
+    formset[f"form-{form_id}-title_en"] = title_en
+    formset[f"form-{form_id}-content_de"] = content_de
+    formset[f"form-{form_id}-content_en"] = content_en

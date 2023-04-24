@@ -327,13 +327,6 @@ def merge_users(main_user, other_user, preview=False):
     return merged_user, errors, warnings
 
 
-def fill_infotext_formset(formset, form_id, *, title_de="", title_en="", content_de="", content_en=""):
-    formset[f"form-{form_id}-title_de"] = title_de
-    formset[f"form-{form_id}-title_en"] = title_en
-    formset[f"form-{form_id}-content_de"] = content_de
-    formset[f"form-{form_id}-content_en"] = content_en
-
-
 def find_unreviewed_evaluations(semester, excluded):
     # as evaluations are open for an offset of hours after vote_end_datetime, the evaluations ending yesterday are also excluded during offset
     exclude_date = date.today()

@@ -51,10 +51,11 @@ from evap.staff.tests.utils import (
     WebTestStaffMode,
     WebTestStaffModeWith200Check,
     helper_delete_all_import_files,
+    helper_fill_infotext_formset,
     helper_set_dynamic_choices_field_value,
     run_in_staff_mode,
 )
-from evap.staff.tools import fill_infotext_formset, user_edit_link
+from evap.staff.tools import user_edit_link
 from evap.staff.views import get_evaluations_with_prefetched_data
 from evap.student.models import TextAnswerWarning
 
@@ -151,8 +152,8 @@ class TestStaffInfotextEditView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
         formset = page.forms["infotext-formset"]
 
-        fill_infotext_formset(formset, 0, title_de="abc", title_en="def", content_de="ghi", content_en="jkl")
-        fill_infotext_formset(formset, 1)
+        helper_fill_infotext_formset(formset, 0, title_de="abc", title_en="def", content_de="ghi", content_en="jkl")
+        helper_fill_infotext_formset(formset, 1)
 
         filled_form_id = formset["form-0-id"]
         empty_form_id = formset["form-1-id"]
@@ -173,8 +174,8 @@ class TestStaffInfotextEditView(WebTestStaffMode):
         formset = page.forms["infotext-formset"]
 
         # submit invalid data
-        fill_infotext_formset(formset, 0, title_de="abc", title_en="def", content_de="ghi", content_en="jkl")
-        fill_infotext_formset(formset, 1, title_de="invalid infotext", content_en="no translations")
+        helper_fill_infotext_formset(formset, 0, title_de="abc", title_en="def", content_de="ghi", content_en="jkl")
+        helper_fill_infotext_formset(formset, 1, title_de="invalid infotext", content_en="no translations")
 
         empty_form_id = formset["form-0-id"]
         filled_form_id = formset["form-1-id"]
