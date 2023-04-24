@@ -49,7 +49,8 @@ def add_participants_to(
 def add_contributors_to(
     evaluation: Evaluation, users: Iterable[UserProfile], test_run: bool, importer_log: ImporterLog
 ):
-    already_related_contributions = Contribution.objects.filter(evaluation=evaluation, contributor__in=users)
+    users_with_pk = [user for user in users if user.pk]
+    already_related_contributions = Contribution.objects.filter(evaluation=evaluation, contributor__in=users_with_pk)
     already_related = {assert_not_none(contribution.contributor) for contribution in already_related_contributions}
     if already_related:
         msg = ngettext(
