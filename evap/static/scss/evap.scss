@@ -165,7 +165,7 @@ td.icon {
     flex: 0 0 auto;
 }
 
-@media screen and (orientation: landscape) {
+@media screen and (min-aspect-ratio: $notebook-break) {
     .notebook-margin {
         max-width: 75vw;
         margin-left: 25vw;
@@ -190,7 +190,7 @@ td.icon {
     }
 }
 
-@media screen and (orientation: portrait) {
+@media screen and (max-aspect-ratio: $notebook-break) {
     .notebook-margin {
         margin-top: 50vh;
     }

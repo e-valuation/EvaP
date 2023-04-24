@@ -20,8 +20,10 @@ assertDefinedUnwrap(document.getElementById("notebook-save-button")).addEventLis
 
         const target = assertDefinedUnwrap(event.target) as HTMLButtonElement;
         const default_label = assertDefinedUnwrap(target.getAttribute("value"));
+        const sending_label = assertDefinedUnwrap(target.getAttribute("data-label-sending"));
         const error_label = assertDefinedUnwrap(target.getAttribute("value"));
         target.disabled = true;
+        target.setAttribute("value", sending_label);
 
         const form_json = JSON.stringify(Object.fromEntries(data.entries()));
 
