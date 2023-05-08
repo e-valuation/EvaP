@@ -1,7 +1,7 @@
 {% load static %}
 
 {% if not infotext.is_empty %}
-    <div id="{{ infotext.page }}" class="infobox callout callout-info callout-infobox">
+    <div id="infobox_{{ infotext.page }}" class="infobox callout callout-info callout-infobox">
         <div class="callout-header d-flex">
             <span class="fas fa-circle-info callout-icon"></span>
             <span>{{ infotext.title }}</span>
@@ -12,7 +12,7 @@
             {# set infobox to hidden, if user closed it before #}
             <script>
                 if (localStorage["infobox_{{ infotext.page }}"] === "hide")
-                    document.querySelector("#{{ infotext.page }}").classList.add("closed");
+                    document.querySelector("#infobox_{{ infotext.page }}").classList.add("closed");
             </script>
             {{ infotext.content|safe }}
         </div>
