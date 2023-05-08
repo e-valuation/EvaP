@@ -4,6 +4,7 @@ from django.db import IntegrityError, transaction
 from django.db.models import Exists, Max, OuterRef, Q
 from django.forms.models import inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
@@ -155,9 +156,9 @@ def render_preview(request, formset, evaluation_form, evaluation):
             formset.save()
             request.POST = None  # this prevents errors rendered in the vote form
 
-            preview_response = render_vote_page(
-                request, evaluation, preview=True, for_rendering_in_modal=True
-            ).content.decode()
+            preview_response = mark_safe(
+                render_vote_page(request, evaluation, preview=True, for_rendering_in_modal=True).content.decode()
+            )
             raise IntegrityError  # rollback transaction to discard the database writes
     except IntegrityError:
         pass

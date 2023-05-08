@@ -133,6 +133,15 @@ CACHES = {
     },
 }
 
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage",
+    },
+}
+
 CONTACT_EMAIL = "webmaster@localhost"
 ALLOW_ANONYMOUS_FEEDBACK_MESSAGES = True
 
@@ -320,8 +329,6 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 
-STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
-
 # Absolute path to the directory static files should be collected to.
 STATIC_ROOT = os.path.join(BASE_DIR, "static_collected")
 
@@ -395,7 +402,7 @@ TESTING = "test" in sys.argv or "pytest" in sys.modules
 # speed up tests
 if TESTING:
     # do not use ManifestStaticFilesStorage as it requires running collectstatic beforehand
-    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+    STORAGES["staticfiles"]["BACKEND"] = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
     logging.disable(logging.CRITICAL)  # disable logging, primarily to prevent console spam
 
