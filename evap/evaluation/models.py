@@ -1541,7 +1541,8 @@ class NotHalfEmptyConstraint(CheckConstraint):
         except ValidationError as e:
             e.error_dict = {
                 field_name: ValidationError(instance._meta.get_field(field_name).error_messages["blank"], code="blank")
-                for field_name in filter(lambda field: getattr(instance, field) == "", self.fields)
+                for field_name in self.fields
+                if getattr(instance, field_name) == ""
             }
             raise e
 
