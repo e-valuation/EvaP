@@ -606,7 +606,7 @@ class ContributionForm(forms.ModelForm):
             .filter(
                 Q(visibility=Questionnaire.Visibility.MANAGERS)
                 | Q(visibility=Questionnaire.Visibility.EDITORS)
-                | Q(contributions__evaluation=self.evaluation)
+                | Q(contributions__evaluation=(self.evaluation if self.evaluation.pk else None))
             )
             .distinct()
         )
@@ -811,6 +811,9 @@ class ContributionFormset(BaseInlineFormSet):
             return data
 
         evaluation = kwargs["instance"]
+        if evaluation and not evaluation.pk:
+            evaluation = None
+
         total_forms = int(data["contributions-TOTAL_FORMS"])
         for i in range(0, total_forms):
             prefix = "contributions-" + str(i) + "-"

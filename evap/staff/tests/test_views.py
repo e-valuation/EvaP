@@ -2603,6 +2603,28 @@ class TestEvaluationTextAnswerView(WebTest):
             # unfinished because still in EVALUATION_END_OFFSET_HOURS
             self.assertNotContains(page, self.evaluation2.full_name)
 
+    def test_exclude_evaluations_with_only_flagged(self):
+        let_user_vote_for_evaluation(self.student2, self.evaluation)
+        let_user_vote_for_evaluation(self.student2, self.evaluation2, create_answers=True)
+        self.assertGreaterEqual(TextAnswer.objects.filter(contribution__evaluation=self.evaluation2).count(), 2)
+
+        with run_in_staff_mode(self):
+            page = self.app.get(self.url, user=self.manager)
+            self.assertContains(page, self.evaluation2.full_name)
+
+        TextAnswer.objects.filter(contribution__evaluation=self.evaluation2).update(is_flagged=True)
+        with run_in_staff_mode(self):
+            page = self.app.get(self.url, user=self.manager)
+            self.assertNotContains(page, self.evaluation2.full_name)
+
+        t1 = TextAnswer.objects.filter(contribution__evaluation=self.evaluation2).first()
+        t1.is_flagged = False
+        t1.save()
+
+        with run_in_staff_mode(self):
+            page = self.app.get(self.url, user=self.manager)
+            self.assertContains(page, self.evaluation2.full_name)
+
     def test_suggested_evaluation_ordering(self):
         evaluations = baker.make(
             Evaluation,
@@ -2743,6 +2765,51 @@ class TestEvaluationTextAnswerEditView(WebTestStaffMode):
         self.app.get(self.url, user=self.manager, status=200)
         Evaluation.objects.filter(id=self.evaluation.id).update(state=Evaluation.State.PUBLISHED)
         self.app.get(self.url, user=self.manager, status=403)
+
+
+class TestSemesterFlaggedTextAnswersView(WebTestStaffMode):
+    def test_correct_answers_show_up(self):
+        semester = baker.make(Semester)
+
+        url = reverse("staff:semester_flagged_textanswers", args=[semester.pk])
+
+        manager = make_manager()
+        student = baker.make(UserProfile)
+        evaluations = baker.make(Evaluation, course__semester=semester, participants=[student], _quantity=3)
+        textanswers = [
+            [baker.make(TextAnswer, answer=f"Answer {i} {j}", contribution__evaluation=evaluation) for j in range(3)]
+            for i, evaluation in enumerate(evaluations)
+        ]
+
+        response = self.app.get(url, user=manager)
+        self.assertContains(response, "There are no flagged textanswers")
+
+        flagged_ids = [(0, 0), (0, 1), (1, 0)]
+        expected_texts = [
+            "Answer 0 0",
+            "Answer 0 1",
+            "Answer 1 0",
+            evaluations[0].full_name,
+            evaluations[1].full_name,
+        ]
+        unexpected_texts = [
+            "There are no flagged textanswers",
+            "Answer 0 2",
+            "Answer 1 1",
+            "Answer 2 0",
+            evaluations[2].full_name,
+        ]
+
+        for i, j in flagged_ids:
+            textanswers[i][j].is_flagged = True
+            textanswers[i][j].save()
+
+        response = self.app.get(url, user=manager)
+
+        for text in expected_texts:
+            self.assertContains(response, text)
+        for text in unexpected_texts:
+            self.assertNotContains(response, text)
 
 
 class TestQuestionnaireNewVersionView(WebTestStaffMode):
@@ -3239,6 +3306,69 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         self.assert_transition("publish", TextAnswer.ReviewDecision.UNDECIDED, TextAnswer.ReviewDecision.PUBLIC)
         Semester.objects.filter(id=self.evaluation.course.semester.id).update(results_are_archived=True)
         self.assert_transition("publish", TextAnswer.ReviewDecision.UNDECIDED, status=403)
+
+
+class TestEvaluationTextanswersUpdateFlagView(WebTest):
+    url = reverse("staff:evaluation_textanswers_update_flag")
+    csrf_checks = False
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.manager = make_manager()
+        cls.answer = baker.make(TextAnswer, contribution__evaluation__can_publish_text_results=True)
+
+    def test_post_update(self):
+        with run_in_staff_mode(self):
+            self.assertFalse(self.answer.is_flagged)
+
+            # Add flag
+            self.app.post(
+                self.url,
+                user=self.manager,
+                status=204,
+                params={"answer_id": self.answer.pk, "is_flagged": "true"},
+            )
+            self.answer.refresh_from_db()
+            self.assertTrue(self.answer.is_flagged)
+
+            # Do it again
+            self.app.post(
+                self.url,
+                user=self.manager,
+                status=204,
+                params={"answer_id": self.answer.pk, "is_flagged": "true"},
+            )
+            self.answer.refresh_from_db()
+            self.assertTrue(self.answer.is_flagged)
+
+            # Remove flag
+            self.app.post(
+                self.url,
+                user=self.manager,
+                status=204,
+                params={"answer_id": self.answer.pk, "is_flagged": "false"},
+            )
+            self.answer.refresh_from_db()
+            self.assertFalse(self.answer.is_flagged)
+
+    def test_unknown_values(self):
+        with run_in_staff_mode(self):
+            self.app.post(self.url, user=self.manager, status=400, params={"answer_id": self.answer.pk})
+            self.answer.refresh_from_db()
+            self.assertFalse(self.answer.is_flagged)
+
+            def helper(is_flagged_str, expect_success):
+                self.app.post(
+                    self.url,
+                    user=self.manager,
+                    status=204 if expect_success else 400,
+                    params={"answer_id": self.answer.pk, "is_flagged": is_flagged_str},
+                )
+                self.answer.refresh_from_db()
+                self.assertEqual(self.answer.is_flagged, expect_success)
+
+            for is_flagged_str, expect_success in [("True", False), ("False", False), ("", False), ("true", True)]:
+                helper(is_flagged_str, expect_success)
 
 
 class TestEvaluationTextAnswersSkip(WebTestStaffMode):

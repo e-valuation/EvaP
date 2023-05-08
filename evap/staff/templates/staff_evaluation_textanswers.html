@@ -24,6 +24,9 @@
                 <a href="{% url 'staff:evaluation_textanswers' evaluation.id %}?view=undecided" role="button" class="btn btn-sm btn-light{% if view == 'undecided' %} active{% endif %}">
                     {% trans 'Undecided' %}
                 </a>
+                <a href="{% url 'staff:evaluation_textanswers' evaluation.id %}?view=flagged" role="button" class="btn btn-sm btn-light{% if view == 'flagged' %} active{% endif %}">
+                    {% trans 'Flagged' %}
+                </a>
             </div>
         </div>
     </div>

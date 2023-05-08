@@ -18,7 +18,7 @@
                                 {% endif %}
                             </th>
                             <th style="width: 15%">{% trans 'Visibility' %}</th>
-                            <th style="width: 20%">{% trans 'Actions' %}</th>
+                            <th class="text-end" style="width: 20%">{% trans 'Actions' %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -46,7 +46,7 @@
                                     <button data-visibility="2" type="button" onclick="changeVisibility($(this));" class="btn btn-sm btn-light{% if questionnaire.visibility == 2 %} active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Show for managers and editors' %}"><span class="fas fa-fw fa-person-chalkboard" aria-hidden="true"></span></button>
                                 </div>
                             </td>
-                            <td>
+                            <td class="text-end">
                                 <a href="{% url 'staff:questionnaire_edit' questionnaire.id %}" class="btn btn-sm {%if questionnaire.can_be_edited_by_manager %}btn-primary{% else %}btn-light{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="{%if questionnaire.can_be_edited_by_manager %}{% trans 'Edit' %}{% else %}{% trans 'Edit (questionnaire is already in use)' %}{% endif %}"><span class="fas fa-pencil fa-fw"></span></a>
                                 <a href="{% url 'staff:questionnaire_new_version' questionnaire.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Hide and create new version' %}"><span class="fas fa-turn-up fa-fw fa-rotate-90"></span></a>
                                 <a href="{% url 'staff:questionnaire_copy' questionnaire.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Copy' %}"><span class="fas fa-copy fa-fw"></span></a>

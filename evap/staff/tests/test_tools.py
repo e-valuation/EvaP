@@ -195,8 +195,8 @@ class MergeUsersTest(TestCase):
         self.assertEqual(set(self.evaluation3.voters.all()), {self.main_user})
 
         self.assertFalse(UserProfile.objects.filter(email="other_user@institution.example.com").exists())
-        self.assertFalse(RewardPointGranting.objects.filter(user_profile=self.other_user).exists())
-        self.assertFalse(RewardPointRedemption.objects.filter(user_profile=self.other_user).exists())
+        self.assertFalse(RewardPointGranting.objects.filter(user_profile__email=self.other_user.email).exists())
+        self.assertFalse(RewardPointRedemption.objects.filter(user_profile__email=self.other_user.email).exists())
 
 
 class RemoveUserFromRepresentedAndCCingUsersTest(TestCase):

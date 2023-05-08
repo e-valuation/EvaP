@@ -1132,6 +1132,9 @@ class Question(models.Model):
     def save(self, *args, **kwargs):
         if self.type in [Question.TEXT, Question.HEADING]:
             self.allows_additional_textanswers = False
+            if "update_fields" in kwargs:
+                kwargs["update_fields"] = {"allows_additional_textanswers"}.union(kwargs["update_fields"])
+
         super().save(*args, **kwargs)
 
     @property
@@ -1439,6 +1442,9 @@ class TextAnswer(Answer):
         verbose_name=_("review decision for the answer"),
         default=ReviewDecision.UNDECIDED,
     )
+
+    # Staff users marked this answer for internal purposes; the meaning of the flag is determined by users
+    is_flagged = models.BooleanField(verbose_name=_("is flagged"), default=False)
 
     class Meta:
         # Prevent ordering by date for privacy reasons. Otherwise, entries

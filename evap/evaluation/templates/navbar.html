@@ -122,7 +122,10 @@
                     <a class="nav-link dropdown-toggle" href="#" id="navbarUserDropdownMenuLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-user"></span> {{ user.full_name }}</a>
                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-tight" aria-labelledby="navbarUserDropdownMenuLink">
                         <a class="dropdown-item" href="{% url 'evaluation:profile_edit' %}">{% trans 'Profile' %}</a>
-                        <a class="dropdown-item" href="{% url 'django-auth-logout' %}">{% trans 'Logout' %}</a>
+                        <form method="post" action="{% url 'django-auth-logout' %}" id="logout-form">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item">{% trans 'Logout' %}</button>
+                        </form>
                     </div>
                 </li>
             {% endif %}
