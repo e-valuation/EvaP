@@ -16,7 +16,7 @@
                 <div class="card-header">
                     {% trans form.instance.get_page_display %}
                 </div>
-                <div class="card-body" style="display: grid; grid-template-columns: auto auto; grid-column-gap: 10px">
+                <div class="card-body infotext-edit-grid">
                     {% for hidden in form.hidden_fields %}
                         {{ hidden }}
                     {% endfor %}
