@@ -15,7 +15,7 @@ export class InfoboxLogic {
 
     public attach = (): void => {
         // close the infobox and save state
-        this.closeButton.addEventListener("click", async event => {
+        this.closeButton.addEventListener("click", event => {
             this.infobox.classList.add("closing");
             setTimeout(() => {
                 this.infobox.classList.replace("closing", "closed");
@@ -25,7 +25,7 @@ export class InfoboxLogic {
         });
 
         // open the infobox and save state
-        this.infobox.addEventListener("click", async _ => {
+        this.infobox.addEventListener("click", _ => {
             if (this.infobox.className.includes("closed")) {
                 this.infobox.classList.replace("closed", "opening");
                 setTimeout(() => {
