@@ -1521,7 +1521,7 @@ class NotHalfEmptyConstraint(CheckConstraint):
 
     def __init__(self, *, fields: List[str], name: str, **kwargs):
         self.fields = fields
-        kwargs.pop("check", None)
+        assert kwargs.get("check") is None
 
         super().__init__(
             check=Q(**{field: "" for field in fields}) | ~Q(**{field: "" for field in fields}, _connector=Q.OR),
@@ -1531,6 +1531,7 @@ class NotHalfEmptyConstraint(CheckConstraint):
 
     def deconstruct(self):
         path, args, kwargs = super().deconstruct()
+        kwargs.pop("check")
         kwargs["fields"] = self.fields
         return path, args, kwargs
 
