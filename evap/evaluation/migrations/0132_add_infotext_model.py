@@ -1,11 +1,11 @@
 from django.db import migrations, models
-from evap.evaluation.models import Infotext, NotHalfEmptyConstraint
+from evap.evaluation.models import NotHalfEmptyConstraint
 
 
 def create_infotexts(apps, _schema_editor):
     infotext = apps.get_model("evaluation", "Infotext")
 
-    for page in Infotext.Page:
+    for page in ["student_index", "contributor_index", "grades_pages"]:
         infotext.objects.create(title_en="", title_de="", content_en="", content_de="", page=page)
 
 
@@ -40,5 +40,5 @@ class Migration(migrations.Migration):
                 name="infotext_not_half_empty",
             ),
         ),
-        migrations.RunPython(create_infotexts, reverse_code=lambda a, b: None)
+        migrations.RunPython(create_infotexts, reverse_code=migrations.RunPython.noop)
     ]
