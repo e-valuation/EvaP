@@ -2140,6 +2140,7 @@ def user_delete(request):
     messages.success(request, _("Successfully deleted user."))
     return HttpResponse()  # 200 OK
 
+
 @require_POST
 @manager_required
 def user_resend_email(request):
@@ -2157,6 +2158,7 @@ def user_resend_email(request):
     template.send_to_user(user, subject_params, body_params, use_cc=False)
     messages.success(request, _("Successfully sent e-mail."))
     return HttpResponse()  # 200 OK
+
 
 @manager_required
 def user_bulk_update(request):
