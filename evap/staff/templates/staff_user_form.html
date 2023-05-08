@@ -16,6 +16,14 @@
     {{ block.super }}
     <h3>{% if form.instance.id %}{% trans 'Edit user' %}{% else %}{% trans 'Create user' %}{% endif %}</h3>
 
+    <div class="card card-submit-area text-center mb-3">
+        <div class="card-body">
+            <h5 class="card-title">{% trans 'Resend e-mail with active evaluations' %}</h5>
+            <button type="button" class="btn btn-light" onclick="resendEmailModalShow({{ form.instance.id }}, '{{ form.instance.full_name|escapejs }}');">{% trans 'Send e-mail' %}</button>
+        </div>
+    </div>
+
+
     <form id="user-form" method="POST" enctype="multipart/form-data" class="form-horizontal multiselect-form">
         {% csrf_token %}
         <div class="card mb-3">
@@ -107,4 +115,24 @@
             });
         };
     </script>
+
+    {% trans 'Resend e-mail' as title %}
+    {% trans 'Do you really want to resend the e-mail ?' as question %}
+    {% trans 'Resend e-mail' as action_text %}
+    {% include 'confirmation_modal.html' with modal_id='resendEmailModal' title=title question=question action_text=action_text btn_type='success' %}
+    <script type="text/javascript">
+        function resendEmailModalAction(dataId) {
+            $.ajax({
+                type: "POST",
+                url: "{% url 'staff:user_resend_email' %}",
+                data: {"user_id": dataId},
+                success: function(){window.location="{% url 'staff:user_index' %}"},
+                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
+            });
+        };
+    </script>
+
+    
 {% endblock %}
+
+
