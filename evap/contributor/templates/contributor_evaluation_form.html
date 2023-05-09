@@ -108,7 +108,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        {{ preview_html|safe }}
+                        {{ preview_html }}
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% trans 'Close' %}</button>
@@ -132,11 +132,11 @@
         };
     </script>
 
-    {% blocktrans asvar title with evaluation_name=evaluation.full_name|safe %}Request account creation for {{ evaluation_name }}{% endblocktrans %}
+    {% blocktrans asvar title with evaluation_name=evaluation.full_name %}Request account creation for {{ evaluation_name }}{% endblocktrans %}
     {% trans 'Please tell us which new account we should create. We need the name and email for all new accounts.' as teaser %}
     {% include 'contact_modal.html' with modal_id='createAccountRequestModal' user=request.user title=title teaser=teaser %}
 
-    {% blocktrans asvar title with evaluation_name=evaluation.full_name|safe %}Request evaluation changes for {{ evaluation_name }}{% endblocktrans %}
+    {% blocktrans asvar title with evaluation_name=evaluation.full_name %}Request evaluation changes for {{ evaluation_name }}{% endblocktrans %}
     {% trans 'Please tell us what changes to the evaluation we should make.' as teaser %}
     {% include 'contact_modal.html' with modal_id='changeEvaluationRequestModal' user=request.user title=title teaser=teaser %}
 {% endblock %}

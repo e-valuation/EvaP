@@ -67,7 +67,7 @@ class LoginTests(WebTest):
         page = self.app.post(url_with_key).follow().follow()
         self.assertContains(page, "Logout")
 
-        page = self.app.get(reverse("django-auth-logout")).follow()
+        page = page.forms["logout-form"].submit().follow()
         self.assertNotContains(page, "Logout")
 
         page = self.app.get(url_with_key).follow()
@@ -162,7 +162,7 @@ class LoginTestsWithCSRF(WebTest):
         self.assertContains(page, "Logout")
 
         # log out user
-        page = self.app.get(reverse("django-auth-logout")).follow()
+        page = page.forms["logout-form"].submit().follow()
         self.assertNotContains(page, "Logout")
 
         # log user in again

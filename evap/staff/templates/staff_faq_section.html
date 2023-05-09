@@ -21,7 +21,7 @@
                             <th class="movable"></th>
                             <th style="width: 45%">{% trans 'Question/Answer (German)' %}</th>
                             <th style="width: 45%">{% trans 'Question/Answer (English)' %}</th>
-                            <th style="width: 10%">{% trans 'Actions' %}</th>
+                            <th class="text-end" style="width: 10%">{% trans 'Actions' %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -41,7 +41,7 @@
                                 {% include 'bootstrap_form_field_widget.html' with field=form.question_en %}
                                 {% include 'bootstrap_form_field_widget.html' with field=form.answer_en %}
                             </td>
-                            <td>{% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}</td>
+                            <td class="text-end">{% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}</td>
                         </tr>
                     {% endfor %}
                     </tbody>

@@ -10,7 +10,7 @@
                     <th style="width: 20%">{% trans 'Redemption end date' %}</th>
                     <th style="width: 30%">{% trans 'Event name' %}</th>
                     <th style="width: 15%">{% trans 'Redemptions' %}</th>
-                    <th style="width: 15%">{% trans 'Actions' %}</th>
+                    <th class="text-end" style="width: 15%">{% trans 'Actions' %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -20,7 +20,7 @@
                         <td>{{ event.redeem_end_date }}</td>
                         <td>{{ event.name }}</td>
                         <td><span class="fas fa-user"></span> {{ event.redemptions_by_user|length }}
-                        <td>
+                        <td class="text-end">
                             <a href="{% url 'rewards:reward_point_redemption_event_export' event.id %}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Export Redemptions' %}"><span class="fas fa-download"></span></a>
                             <a href="{% url 'rewards:reward_point_redemption_event_edit' event.id %}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Edit' %}"><span class="fas fa-pencil"></span></a>
                             {% if event.can_delete %}

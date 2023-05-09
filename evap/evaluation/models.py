@@ -1132,6 +1132,9 @@ class Question(models.Model):
     def save(self, *args, **kwargs):
         if self.type in [Question.TEXT, Question.HEADING]:
             self.allows_additional_textanswers = False
+            if "update_fields" in kwargs:
+                kwargs["update_fields"] = {"allows_additional_textanswers"}.union(kwargs["update_fields"])
+
         super().save(*args, **kwargs)
 
     @property
