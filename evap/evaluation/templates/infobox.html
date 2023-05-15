@@ -1,7 +1,7 @@
 {% load static %}
 
 {% if not infotext.is_empty %}
-    <div id="infobox_{{ infotext.page }}" class="infobox callout callout-info callout-infobox">
+    <div id="infobox-{{ infotext.page }}" class="infobox callout callout-info callout-infobox">
         <div class="callout-header d-flex">
             <span class="fas fa-circle-info callout-icon"></span>
             <span>{{ infotext.title }}</span>
@@ -11,8 +11,8 @@
         <div class="callout-content small">
             {# Inline script to interrupt loading of the page, so the content does not jump up. #}
             <script>
-                if (localStorage["infobox_{{ infotext.page }}"] === "hide")
-                    document.querySelector("#infobox_{{ infotext.page }}").classList.add("closed");
+                if (localStorage["infobox-{{ infotext.page }}"] === "hide")
+                    document.querySelector("#infobox-{{ infotext.page }}").classList.add("closed");
             </script>
             {{ infotext.content|safe }}
         </div>

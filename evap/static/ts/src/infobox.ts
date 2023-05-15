@@ -8,9 +8,9 @@ export class InfoboxLogic {
     private readonly storageKey: string;
 
     constructor(infobox_id: string) {
-        this.infobox = selectOrError("#infobox_" + infobox_id);
+        this.infobox = selectOrError("#infobox-" + infobox_id);
         this.closeButton = selectOrError(".callout-infobox-close", this.infobox);
-        this.storageKey = "infobox_" + infobox_id;
+        this.storageKey = "infobox-" + infobox_id;
     }
 
     public attach = (): void => {

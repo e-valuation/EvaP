@@ -1527,7 +1527,7 @@ class NotHalfEmptyConstraint(CheckConstraint):
 
     def __init__(self, *, fields: List[str], name: str, **kwargs):
         self.fields = fields
-        assert kwargs.get("check") is None
+        assert "check" not in kwargs
 
         super().__init__(
             check=Q(**{field: "" for field in fields}) | ~Q(**{field: "" for field in fields}, _connector=Q.OR),
