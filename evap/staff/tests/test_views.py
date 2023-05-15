@@ -27,6 +27,7 @@ from evap.evaluation.models import (
     EmailTemplate,
     Evaluation,
     FaqQuestion,
+    Infotext,
     Question,
     Questionnaire,
     RatingAnswerCounter,
@@ -50,6 +51,7 @@ from evap.staff.tests.utils import (
     WebTestStaffMode,
     WebTestStaffModeWith200Check,
     helper_delete_all_import_files,
+    helper_fill_infotext_formset,
     helper_set_dynamic_choices_field_value,
     run_in_staff_mode,
 )
@@ -138,6 +140,53 @@ class TestStaffFAQEditView(WebTestStaffModeWith200Check):
 
         cls.test_users = [make_manager()]
         cls.url = f"/staff/faq/{faq_question.section.pk}"
+
+
+class TestStaffInfotextEditView(WebTestStaffMode):
+    @classmethod
+    def setUpTestData(cls):
+        cls.manager = make_manager()
+        cls.url = "/staff/infotexts/"
+
+    def test_infotext_edit_success(self):
+        page = self.app.get(self.url, user=self.manager)
+        formset = page.forms["infotext-formset"]
+
+        helper_fill_infotext_formset(formset, 0, title_de="abc", title_en="def", content_de="ghi", content_en="jkl")
+        helper_fill_infotext_formset(formset, 1)
+
+        filled_form_id = formset["form-0-id"]
+        empty_form_id = formset["form-1-id"]
+        formset.submit()
+
+        # check, that content arrived at database
+        infotext = Infotext.objects.get(id=filled_form_id.value)
+        self.assertEqual(infotext.title_de, "abc")
+        self.assertEqual(infotext.title_en, "def")
+        self.assertEqual(infotext.content_de, "ghi")
+        self.assertEqual(infotext.content_en, "jkl")
+
+        infotext = Infotext.objects.get(id=empty_form_id.value)
+        self.assertTrue(infotext.is_empty())
+
+    def test_infotext_edit_fail(self):
+        page = self.app.get(self.url, user=self.manager)
+        formset = page.forms["infotext-formset"]
+
+        # submit invalid data
+        helper_fill_infotext_formset(formset, 0, title_de="abc", title_en="def", content_de="ghi", content_en="jkl")
+        helper_fill_infotext_formset(formset, 1, title_de="invalid infotext", content_en="no translations")
+
+        empty_form_id = formset["form-0-id"]
+        filled_form_id = formset["form-1-id"]
+        formset.submit()
+
+        # assert no infotexts changed
+        infotext = Infotext.objects.get(id=empty_form_id.value)
+        self.assertTrue(infotext.is_empty())
+
+        infotext = Infotext.objects.get(id=filled_form_id.value)
+        self.assertTrue(infotext.is_empty())
 
 
 class TestUserIndexView(WebTestStaffMode):

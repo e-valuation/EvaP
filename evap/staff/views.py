@@ -36,6 +36,7 @@ from evap.evaluation.models import (
     Evaluation,
     FaqQuestion,
     FaqSection,
+    Infotext,
     Question,
     Questionnaire,
     RatingAnswerCounter,
@@ -77,6 +78,7 @@ from evap.staff.forms import (
     FaqQuestionForm,
     FaqSectionForm,
     ImportForm,
+    InfotextForm,
     ModelWithImportNamesFormset,
     QuestionForm,
     QuestionnaireForm,
@@ -2334,6 +2336,23 @@ def faq_section(request, section_id):
 
     template_data = {"formset": formset, "section": section, "questions": questions}
     return render(request, "staff_faq_section.html", template_data)
+
+
+@manager_required
+def infotexts(request):
+    InfotextFormSet = modelformset_factory(Infotext, form=InfotextForm, edit_only=True, extra=0)
+    formset = InfotextFormSet(request.POST or None)
+
+    if formset.is_valid():
+        formset.save()
+        messages.success(request, _("Successfully updated the infotext entries."))
+        return redirect("staff:infotexts")
+
+    return render(
+        request,
+        "staff_infotexts.html",
+        {"formset": formset},
+    )
 
 
 @manager_required

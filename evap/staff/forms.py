@@ -22,6 +22,7 @@ from evap.evaluation.models import (
     Evaluation,
     FaqQuestion,
     FaqSection,
+    Infotext,
     Question,
     Questionnaire,
     RatingAnswerCounter,
@@ -1064,6 +1065,12 @@ class FaqQuestionForm(forms.ModelForm):
         widgets = {
             "order": forms.HiddenInput(),
         }
+
+
+class InfotextForm(forms.ModelForm):
+    class Meta:
+        model = Infotext
+        fields = ("title_de", "title_en", "content_de", "content_en")
 
 
 class TextAnswerForm(forms.ModelForm):

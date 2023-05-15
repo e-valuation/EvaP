@@ -1,0 +1,40 @@
+{% extends 'staff_base.html' %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    <li class="breadcrumb-item">{% trans 'Infotexts' %}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+
+    <form method="POST" class="form-horizontal" id="infotext-formset">
+        {% csrf_token %}
+        {{ formset.management_form }}
+        {% for form in formset %}
+            <div class="card mb-3">
+                <div class="card-header">
+                    {% trans form.instance.get_page_display %}
+                </div>
+                <div class="card-body infotext-edit-grid">
+                    {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
+                    <label class="card-subtitle pb-2">{% trans 'Title/Content (German)' %}</label>
+                    <label class="card-subtitle pb-2">{% trans 'Title/Content (English)' %}</label>
+
+                    {% include 'bootstrap_form_field_widget.html' with field=form.title_de %}
+                    {% include 'bootstrap_form_field_widget.html' with field=form.title_en %}
+
+                    {% include 'bootstrap_form_field_widget.html' with field=form.content_de %}
+                    {% include 'bootstrap_form_field_widget.html' with field=form.content_en %}
+                </div>
+            </div>
+        {% endfor %}
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
+                <button type="submit" class="btn btn-primary">{% trans 'Save infotexts' %}</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}

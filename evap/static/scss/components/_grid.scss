@@ -176,3 +176,9 @@ th.col-order {
         align-items: flex-end;
     }
 }
+
+.infotext-edit-grid {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-column-gap: 0.5rem;
+}

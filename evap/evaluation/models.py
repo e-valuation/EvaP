@@ -15,7 +15,7 @@ from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
-from django.db.models import Count, Manager, OuterRef, Q, Subquery
+from django.db.models import CheckConstraint, Count, Manager, OuterRef, Q, Subquery
 from django.db.models.functions import Coalesce, Lower
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
@@ -1227,7 +1227,6 @@ BipolarChoices = NamedTuple(
     ],
 )
 
-
 NO_ANSWER = 6
 BASE_UNIPOLAR_CHOICES = {
     "css_class": "vote-type-unipolar",
@@ -1519,6 +1518,78 @@ class FaqQuestion(models.Model):
         ordering = ["order"]
         verbose_name = _("question")
         verbose_name_plural = _("questions")
+
+
+class NotHalfEmptyConstraint(CheckConstraint):
+    """Constraint, that all supplied fields are either all filled, or all empty."""
+
+    fields: List[str] = []
+
+    def __init__(self, *, fields: List[str], name: str, **kwargs):
+        self.fields = fields
+        assert "check" not in kwargs
+
+        super().__init__(
+            check=Q(**{field: "" for field in fields}) | ~Q(**{field: "" for field in fields}, _connector=Q.OR),
+            name=name,
+            **kwargs,
+        )
+
+    def deconstruct(self):
+        path, args, kwargs = super().deconstruct()
+        kwargs.pop("check")
+        kwargs["fields"] = self.fields
+        return path, args, kwargs
+
+    def validate(self, model, instance, exclude=None, using=None):
+        try:
+            super().validate(model, instance, exclude, using)
+        except ValidationError as e:
+            e.error_dict = {
+                field_name: ValidationError(instance._meta.get_field(field_name).error_messages["blank"], code="blank")
+                for field_name in self.fields
+                if getattr(instance, field_name) == ""
+            }
+            raise e
+
+
+class Infotext(models.Model):
+    """Infotext to display, e.g., at the student index and contributor index pages"""
+
+    title_de = models.CharField(max_length=255, verbose_name=_("title (german)"), blank=True)
+    title_en = models.CharField(max_length=255, verbose_name=_("title (english)"), blank=True)
+    title = translate(en="title_en", de="title_de", blank=True)
+
+    content_de = models.TextField(verbose_name=_("content (german)"), blank=True)
+    content_en = models.TextField(verbose_name=_("content (english)"), blank=True)
+    content = translate(en="content_en", de="content_de")
+
+    def is_empty(self):
+        return not (self.title or self.content)
+
+    class Page(models.TextChoices):
+        STUDENT_INDEX = ("student_index", "Student index page")
+        CONTRIBUTOR_INDEX = ("contributor_index", "Contributor index page")
+        GRADES_PAGES = ("grades_pages", "Grade publishing pages")
+
+    page = models.CharField(
+        choices=Page.choices,
+        verbose_name="page for the infotext to be visible on",
+        max_length=30,
+        unique=True,
+        null=False,
+        blank=False,
+    )
+
+    class Meta:
+        verbose_name = _("infotext")
+        verbose_name_plural = _("infotexts")
+        constraints = (
+            NotHalfEmptyConstraint(
+                name="infotext_not_half_empty",
+                fields=["title_de", "title_en", "content_de", "content_en"],
+            ),
+        )
 
 
 class UserProfileManager(BaseUserManager):
