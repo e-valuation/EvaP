@@ -50,10 +50,6 @@
     }
 }
 
-.col-fit-content {
-    flex: 0 0 fit-content;
-}
-
 %grid-row {
     display: grid;
     min-height: 2.5rem;
@@ -129,6 +125,14 @@
             color: $dark-gray;
         }
     }
+}
+
+.textanswer-review-grid-row {
+    @extend %grid-row;
+
+    grid:
+        "answer edit review flag"
+        / auto  3rem 310px  5.5rem;
 }
 
 @each $col in name, semester, responsible, participants, result {
