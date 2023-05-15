@@ -9,7 +9,7 @@
                     aria-label="Close"></button>
         </div>
         <div class="callout-content small">
-            {# set infobox to hidden, if user closed it before. Block the page from loading, so the content does not jump up. #}
+            {# Inline script to interrupt loading of the page, so the content does not jump up. #}
             <script>
                 if (localStorage["infobox_{{ infotext.page }}"] === "hide")
                     document.querySelector("#infobox_{{ infotext.page }}").classList.add("closed");
