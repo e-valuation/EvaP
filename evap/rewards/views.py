@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.contrib import messages
 from django.core.exceptions import BadRequest, SuspiciousOperation
+from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import get_language
@@ -91,7 +92,14 @@ def index(request):
 def reward_point_redemption_events(request):
     upcoming_events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now()).order_by("date")
     past_events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__lt=datetime.now()).order_by("-date")
-    template_data = {"upcoming_events": upcoming_events, "past_events": past_events}
+    total_points_granted = RewardPointGranting.objects.aggregate(Sum("value"))["value__sum"] or 0
+    total_points_redeemed = RewardPointRedemption.objects.aggregate(Sum("value"))["value__sum"] or 0
+    total_points_available = total_points_granted - total_points_redeemed
+    template_data = {
+        "upcoming_events": upcoming_events,
+        "past_events": past_events,
+        "total_points_available": total_points_available,
+    }
     return render(request, "rewards_reward_point_redemption_events.html", template_data)
 
 
