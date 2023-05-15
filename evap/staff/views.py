@@ -2340,7 +2340,7 @@ def faq_section(request, section_id):
 
 @manager_required
 def infotexts(request):
-    InfotextFormSet = modelformset_factory(Infotext, form=InfotextForm, extra=0)
+    InfotextFormSet = modelformset_factory(Infotext, form=InfotextForm, edit_only=True, extra=0)
     formset = InfotextFormSet(request.POST or None)
 
     if formset.is_valid():
