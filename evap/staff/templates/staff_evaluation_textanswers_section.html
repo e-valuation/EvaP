@@ -10,10 +10,10 @@
                 <p>{{ result.question.text }}</p>
                 <div class="grid-striped container{% if not forloop.last %} mb-4{% endif %}">
                     <div class="row textanswer-review-grid-row fw-bold">
-                            <div data-col="answer" class="px-2">{% trans 'Text answer' %}</div>
-                            <div data-col="edit" class="px-2"></div>
-                            <div data-col="review" class="px-2">{% trans 'Decision' %}</div>
-                            <div data-col="flag" px-2">{% trans 'Flag' %}</div>
+                        <div data-col="answer" class="px-2">{% trans 'Text answer' %}</div>
+                        <div data-col="edit" class="px-2"></div>
+                        <div data-col="review" class="px-2">{% trans 'Decision' %}</div>
+                        <div data-col="flag" class="px-2">{% trans 'Flag' %}</div>
                     </div>
                     {% for answer in result.answers %}
                         <div class="row textanswer-review-grid-row" id="{{ answer.id }}">
