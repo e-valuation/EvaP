@@ -2142,6 +2142,5 @@ class EmailTemplate(models.Model):
 
 
 class VoteTimestamp(models.Model):
-
     evaluation = models.ForeignKey(Evaluation, models.CASCADE)
     timestamp = models.DateTimeField(verbose_name=_("vote timestamp"), auto_now_add=True)
