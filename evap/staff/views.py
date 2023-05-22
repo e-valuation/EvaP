@@ -2156,7 +2156,7 @@ def user_resend_email(request):
     }
 
     template.send_to_user(user, subject_params, body_params, use_cc=False)
-    messages.success(request, _("Successfully sent e-mail."))
+    messages.success(request, _("Successfully sent email."))
     return HttpResponse()  # 200 OK
 
 
