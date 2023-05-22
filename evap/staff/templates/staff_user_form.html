@@ -114,10 +114,9 @@
             });
         };
     </script>
-
-    {% trans 'Resend email' as title %}
-    {% trans 'Do you really want to resend the email ?' as question %}
-    {% trans 'Resend email' as action_text %}
+    {% trans 'Send notification email' as title %}
+    {% trans 'The email will notify the user about all due evaluations. Do you want to send the email now?' as question %}
+    {% trans 'Send email' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='resendEmailModal' title=title question=question action_text=action_text btn_type='success' %}
     <script type="text/javascript">
         function resendEmailModalAction(dataId) {
