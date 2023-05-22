@@ -16,8 +16,9 @@ from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
-from django.db.models import CheckConstraint, Count, Manager, OuterRef, Q, Subquery, Value
 from django.db.models.functions import Coalesce, Lower, NullIf
+from django.db.models import Count, Manager, OuterRef, Q, Subquery, CheckConstraint, F, Value
+
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
 from django.template.defaultfilters import linebreaksbr
@@ -457,7 +458,16 @@ class Evaluation(LoggedModel):
         ]
         verbose_name = _("evaluation")
         verbose_name_plural = _("evaluations")
-
+        constraints = [
+            CheckConstraint(
+                check=Q(vote_end_date__gte=F('vote_start_datetime')),
+                name='check_vote_date'
+            ),
+            CheckConstraint(
+                check=~(Q(_participant_count__isnull=True) ^ Q(_voter_count__isnull=True)),
+                name='check_count_null'
+            )
+        ]
     def __str__(self):
         return self.full_name
 
@@ -468,8 +478,6 @@ class Evaluation(LoggedModel):
         if not self.general_contribution:
             self.contributions.create(contributor=None)
             del self.general_contribution  # invalidate cached property
-
-        assert self.vote_end_date >= self.vote_start_datetime.date()
 
         if hasattr(self, "state_change_source"):
 
@@ -627,10 +635,10 @@ class Evaluation(LoggedModel):
     def _archive(self):
         """Should be called only via Semester.archive"""
         if not self.participations_can_be_archived:
-            raise NotArchiveable()
+            raise NotArchiveable() 
         if self._participant_count is not None:
             assert self._voter_count is not None
-            assert (
+            assert ( #This assert can not easily be replaced by a constraint, this is not possible on many-to-many relations
                 self.is_single_result
                 or self._voter_count == self.voters.count()
                 and self._participant_count == self.participants.count()
@@ -1077,9 +1085,7 @@ class Contribution(LoggedModel):
         RatingAnswerCounter.objects.filter(contribution=self, question__questionnaire__in=questionnaires).delete()
 
 
-class Question(models.Model):
-    """A question including a type."""
-
+class QuestionTypes(models.IntegerChoices):
     TEXT = 0
     LIKERT = 1
     GRADE = 2
@@ -1092,30 +1098,36 @@ class Question(models.Model):
     POSITIVE_YES_NO = 3
     NEGATIVE_YES_NO = 4
     HEADING = 5
+
+
+class Question(models.Model):
+    """A question including a type."""
+
     QUESTION_TYPES = (
-        (_("Text"), ((TEXT, _("Text question")),)),
-        (_("Unipolar Likert"), ((LIKERT, _("Agreement question")),)),
-        (_("Grade"), ((GRADE, _("Grade question")),)),
+        (_("Text"), ((QuestionTypes.TEXT, _("Text question")),)),
+        (_("Unipolar Likert"), ((QuestionTypes.LIKERT, _("Agreement question")),)),
+        (_("Grade"), ((QuestionTypes.GRADE, _("Grade question")),)),
         (
             _("Bipolar Likert"),
             (
-                (EASY_DIFFICULT, _("Easy-difficult question")),
-                (FEW_MANY, _("Few-many question")),
-                (LITTLE_MUCH, _("Little-much question")),
-                (SMALL_LARGE, _("Small-large question")),
-                (SLOW_FAST, _("Slow-fast question")),
-                (SHORT_LONG, _("Short-long question")),
+                (QuestionTypes.EASY_DIFFICULT, _("Easy-difficult question")),
+                (QuestionTypes.FEW_MANY, _("Few-many question")),
+                (QuestionTypes.LITTLE_MUCH, _("Little-much question")),
+                (QuestionTypes.SMALL_LARGE, _("Small-large question")),
+                (QuestionTypes.SLOW_FAST, _("Slow-fast question")),
+                (QuestionTypes.SHORT_LONG, _("Short-long question")),
             ),
         ),
         (
             _("Yes-no"),
             (
-                (POSITIVE_YES_NO, _("Positive yes-no question")),
-                (NEGATIVE_YES_NO, _("Negative yes-no question")),
+                (QuestionTypes.POSITIVE_YES_NO, _("Positive yes-no question")),
+                (QuestionTypes.NEGATIVE_YES_NO, _("Negative yes-no question")),
             ),
         ),
-        (_("Layout"), ((HEADING, _("Heading")),)),
+        (_("Layout"), ((QuestionTypes.HEADING, _("Heading")),)),
     )
+
 
     order = models.IntegerField(verbose_name=_("question order"), default=-1)
     questionnaire = models.ForeignKey(Questionnaire, models.CASCADE, related_name="questions")
@@ -1130,9 +1142,16 @@ class Question(models.Model):
         ordering = ["order"]
         verbose_name = _("question")
         verbose_name_plural = _("questions")
+        constraints = [
+            CheckConstraint(
+                check=~(Q(type=QuestionTypes.TEXT) | Q(type=QuestionTypes.HEADING)) | ~Q(allows_additional_textanswers=True),#Value("type") == , #not in [QuestionTypes.TEXT, QuestionTypes.HEADING] or not Value("allows_additional_textanswers"),
+                name="check_additional_textanswers"
+            )
+        ]
+        
 
     def save(self, *args, **kwargs):
-        if self.type in [Question.TEXT, Question.HEADING]:
+        if self.type in [QuestionTypes.TEXT, QuestionTypes.HEADING]:
             self.allows_additional_textanswers = False
             if "update_fields" in kwargs:
                 kwargs["update_fields"] = {"allows_additional_textanswers"}.union(kwargs["update_fields"])
@@ -1155,29 +1174,29 @@ class Question(models.Model):
     @property
     def is_bipolar_likert_question(self):
         return self.type in (
-            self.EASY_DIFFICULT,
-            self.FEW_MANY,
-            self.LITTLE_MUCH,
-            self.SLOW_FAST,
-            self.SMALL_LARGE,
-            self.SHORT_LONG,
+            QuestionTypes.EASY_DIFFICULT,
+            QuestionTypes.FEW_MANY,
+            QuestionTypes.LITTLE_MUCH,
+            QuestionTypes.SLOW_FAST,
+            QuestionTypes.SMALL_LARGE,
+            QuestionTypes.SHORT_LONG,
         )
 
     @property
     def is_text_question(self):
-        return self.type == self.TEXT
+        return self.type == QuestionTypes.TEXT
 
     @property
     def is_grade_question(self):
-        return self.type == self.GRADE
+        return self.type == QuestionTypes.GRADE
 
     @property
     def is_positive_yes_no_question(self):
-        return self.type == self.POSITIVE_YES_NO
+        return self.type == QuestionTypes.POSITIVE_YES_NO
 
     @property
     def is_negative_yes_no_question(self):
-        return self.type == self.NEGATIVE_YES_NO
+        return self.type == QuestionTypes.NEGATIVE_YES_NO
 
     @property
     def is_yes_no_question(self):
@@ -1198,7 +1217,7 @@ class Question(models.Model):
 
     @property
     def is_heading_question(self):
-        return self.type == self.HEADING
+        return self.type == QuestionTypes.HEADING
 
     @property
     def can_have_textanswers(self):
@@ -1252,7 +1271,7 @@ BASE_YES_NO_CHOICES = {
 }
 
 CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
-    Question.LIKERT: Choices(
+    QuestionTypes.LIKERT: Choices(
         names=[
             _("Strongly\nagree"),
             _("Agree"),
@@ -1263,7 +1282,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
         ],
         **BASE_UNIPOLAR_CHOICES,  # type: ignore
     ),
-    Question.GRADE: Choices(
+    QuestionTypes.GRADE: Choices(
         names=[
             "1",
             "2",
@@ -1274,7 +1293,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
         ],
         **BASE_UNIPOLAR_CHOICES,  # type: ignore
     ),
-    Question.EASY_DIFFICULT: BipolarChoices(
+    QuestionTypes.EASY_DIFFICULT: BipolarChoices(
         minus_name=_("Easy"),
         plus_name=_("Difficult"),
         names=[
@@ -1289,7 +1308,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
         ],
         **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
-    Question.FEW_MANY: BipolarChoices(
+    QuestionTypes.FEW_MANY: BipolarChoices(
         minus_name=_("Few"),
         plus_name=_("Many"),
         names=[
@@ -1304,7 +1323,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
         ],
         **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
-    Question.LITTLE_MUCH: BipolarChoices(
+    QuestionTypes.LITTLE_MUCH: BipolarChoices(
         minus_name=_("Little"),
         plus_name=_("Much"),
         names=[
@@ -1319,7 +1338,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
         ],
         **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
-    Question.SMALL_LARGE: BipolarChoices(
+    QuestionTypes.SMALL_LARGE: BipolarChoices(
         minus_name=_("Small"),
         plus_name=_("Large"),
         names=[
@@ -1334,7 +1353,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
         ],
         **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
-    Question.SLOW_FAST: BipolarChoices(
+    QuestionTypes.SLOW_FAST: BipolarChoices(
         minus_name=_("Slow"),
         plus_name=_("Fast"),
         names=[
@@ -1349,7 +1368,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
         ],
         **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
-    Question.SHORT_LONG: BipolarChoices(
+    QuestionTypes.SHORT_LONG: BipolarChoices(
         minus_name=_("Short"),
         plus_name=_("Long"),
         names=[
@@ -1364,7 +1383,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
         ],
         **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
-    Question.POSITIVE_YES_NO: Choices(
+    QuestionTypes.POSITIVE_YES_NO: Choices(
         names=[
             _("Yes"),
             _("No"),
@@ -1372,7 +1391,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
         ],
         **BASE_YES_NO_CHOICES,  # type: ignore
     ),
-    Question.NEGATIVE_YES_NO: Choices(
+    QuestionTypes.NEGATIVE_YES_NO: Choices(
         names=[
             _("No"),
             _("Yes"),
@@ -1454,6 +1473,12 @@ class TextAnswer(Answer):
         ordering = ["id"]
         verbose_name = _("text answer")
         verbose_name_plural = _("text answers")
+        constraints = [
+            CheckConstraint(
+                check = ~Q(answer=F('original_answer')),
+                name = 'check_text_answer'
+            )
+        ]
 
     @property
     def will_be_deleted(self):
@@ -1483,7 +1508,6 @@ class TextAnswer(Answer):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        assert self.answer != self.original_answer
 
 
 class FaqSection(models.Model):
