@@ -10,26 +10,26 @@
                 <p>{{ result.question.text }}</p>
                 <div class="grid-striped container{% if not forloop.last %} mb-4{% endif %}">
                     <div class="row textanswer-review-grid-row fw-bold">
-                        <div data-col="answer" class="px-2">{% trans 'Text answer' %}</div>
-                        <div data-col="edit" class="px-2"></div>
-                        <div data-col="review" class="px-2">{% trans 'Decision' %}</div>
-                        <div data-col="flag" class="px-2">{% trans 'Flag' %}</div>
+                        <div data-col="answer">{% trans 'Text answer' %}</div>
+                        <div data-col="edit"></div>
+                        <div data-col="review">{% trans 'Decision' %}</div>
+                        <div data-col="flag">{% trans 'Flag' %}</div>
                     </div>
                     {% for answer in result.answers %}
                         <div class="row textanswer-review-grid-row" id="{{ answer.id }}">
-                            <div data-col="answer"  class="text-answer col p-2">
+                            <div data-col="answer" class="text-answer col">
                                 {{ answer.answer|linebreaksbr }}
                                 {% if answer.original_answer %}
                                     <br />
                                     <span class="textanswer-original">({{ answer.original_answer|linebreaksbr }})</span>
                                 {% endif %}
                             </div>
-                            <div data-col="edit"  class="p-2">
+                            <div data-col="edit">
                                 {% if user.is_manager %}
                                     <a class="btn btn-sm btn-outline-secondary" href="{% url 'staff:evaluation_textanswer_edit' answer.id %}"><span class="fas fa-pencil"></a>
                                 {% endif %}
                             </div>
-                            <div data-col="review"  class="p-2">
+                            <div data-col="review">
                                 <form class="full-update-textanswer-form" method="POST" action="{% url 'staff:evaluation_textanswers_update_publish' %}">
                                     {% csrf_token %}
 
