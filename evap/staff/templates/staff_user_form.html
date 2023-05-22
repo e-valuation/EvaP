@@ -18,8 +18,8 @@
 
     <div class="card card-submit-area text-center mb-3">
         <div class="card-body">
-            <h5 class="card-title">{% trans 'Resend e-mail with active evaluations' %}</h5>
-            <button type="button" class="btn btn-light" onclick="resendEmailModalShow({{ form.instance.id }}, '{{ form.instance.full_name|escapejs }}');">{% trans 'Send e-mail' %}</button>
+            <h5 class="card-title">{% trans 'Resend email with active evaluations' %}</h5>
+            <button type="button" class="btn btn-light" onclick="resendEmailModalShow({{ form.instance.id }}, '{{ form.instance.full_name|escapejs }}');">{% trans 'Send email' %}</button>
         </div>
     </div>
 
@@ -116,9 +116,9 @@
         };
     </script>
 
-    {% trans 'Resend e-mail' as title %}
-    {% trans 'Do you really want to resend the e-mail ?' as question %}
-    {% trans 'Resend e-mail' as action_text %}
+    {% trans 'Resend email' as title %}
+    {% trans 'Do you really want to resend the email ?' as question %}
+    {% trans 'Resend email' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='resendEmailModal' title=title question=question action_text=action_text btn_type='success' %}
     <script type="text/javascript">
         function resendEmailModalAction(dataId) {
