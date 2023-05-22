@@ -23,6 +23,20 @@
             <span class="adjective">{{ question_result.choices.plus_name }}</span>
             <span class="pole-icon fas fa-caret-up"></span>
         </div>
+    {% elif question_result.question.is_positive_yes_no_question %}
+        <div class="left">
+            <span class="adjective">{% trans 'Yes' %}</span>
+        </div>
+        <div class="right">
+            <span class="adjective">{% trans 'No' %}</span>
+        </div>
+    {% elif question_result.question.is_negative_yes_no_question %}
+        <div class="left">
+            <span class="adjective">{% trans 'No' %}</span>
+        </div>
+        <div class="right">
+            <span class="adjective">{% trans 'Yes' %}</span>
+        </div>
     {% endif %}
     {% if weight_info %}
         <span class="right">{{ weight_info }}</span>
