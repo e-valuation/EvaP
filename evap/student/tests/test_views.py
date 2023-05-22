@@ -360,8 +360,8 @@ class TestVoteView(WebTest):
         form = page.forms["student-vote-form"]
         self.fill_form(form)
         form.submit()
-        self.assertEqual(len(VoteTimestamp.objects.all()), timestamps_before + 1)
-        time = VoteTimestamp.objects.all().first().timestamp
+        self.assertEqual(VoteTimestamp.objects.count(), timestamps_before + 1)
+        time = VoteTimestamp.objects.latest("timestamp").timestamp
         self.assertTrue(time > time_before)
         self.assertTrue(time < datetime.datetime.now())
 

@@ -801,8 +801,7 @@ def semester_participation_export(_request, semester_id):
 @manager_required
 def vote_timestamps_export(__, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    evaluations = semester.evaluations.all()
-    timestamps = VoteTimestamp.objects.filter(evaluation__in=evaluations)
+    timestamps = VoteTimestamp.objects.filter(evaluation__course__semester=semester)
 
     filename = f"Timestamp-{semester.name}.csv"
     response = AttachmentResponse(filename, content_type="text/csv")
