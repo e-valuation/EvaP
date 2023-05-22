@@ -2131,6 +2131,7 @@ def user_edit(request, user_id):
             "form": form,
             "evaluations_contributing_to": evaluations_contributing_to,
             "has_due_evaluations": bool(user.get_sorted_due_evaluations()),
+            "user_id": user_id,
         },
     )
 
