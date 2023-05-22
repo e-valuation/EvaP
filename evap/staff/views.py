@@ -2147,15 +2147,13 @@ def user_resend_email(request):
     user = get_object_from_dict_pk_entry_or_logged_40x(UserProfile, request.POST, "user_id")
 
     template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
-    subject_params = {}
-    evaluations_with_date = {}
     body_params = {
         "user": user,
-        "evaluations": evaluations_with_date,
+        "evaluations": {},
         "due_evaluations": user.get_sorted_due_evaluations(),
     }
 
-    template.send_to_user(user, subject_params, body_params, use_cc=False)
+    template.send_to_user(user, {}, body_params, use_cc=False)
     messages.success(request, _("Successfully sent e-mail."))
     return HttpResponse()  # 200 OK
 
