@@ -11,7 +11,7 @@
         <div class="col">
             <a href="{% url 'rewards:reward_point_redemption_event_create' %}" class="btn btn-dark btn-sm">{% trans 'Create new event' %}</a>
         </div>
-        <div class="col" style="text-align: right">
+        <div class="col text-end">
             {% trans 'Available reward points' %}: {{ total_points_available }}
         </div>
     </div>
