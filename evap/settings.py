@@ -133,12 +133,16 @@ CACHES = {
     },
 }
 
+from django.contrib.staticfiles.storage import ManifestStaticFilesStorage
+class ManifestStaticFilesStorageWithJsReplacement(ManifestStaticFilesStorage):
+    support_js_module_import_aggregation = True
+
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage",
+        "BACKEND": "evap.settings.ManifestStaticFilesStorageWithJsReplacement",
     },
 }
 
