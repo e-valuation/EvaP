@@ -132,7 +132,7 @@
                 type: "POST",
                 url: "{% url 'staff:user_resend_email' %}",
                 data: {"user_id": dataId},
-                success: function(){window.location="{% url 'staff:user_index' %}"},
+                success: function(){window.location="{% url 'staff:user_edit' %}"},
                 error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
             });
         };
