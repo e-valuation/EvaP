@@ -91,8 +91,8 @@
                         <form class="d-flex" method="post" action="{% url 'evaluation:set_lang' %}">
                             {% csrf_token %}
                             <input name="language" type="hidden" value="{{ language_code }}">
-                            <button type="submit"{% if current_language == language_code %} disabled{% endif %} onclick="setSpinnerIcon('span-set-language-{{ language_code }}')"
-                                class="btn btn-sm btn-navbar{% if current_language == language_code %} active{% endif %}" title="{{ language_name }}">
+                            <button data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ language_name }}" type="submit" onclick="setSpinnerIcon('span-set-language-{{ language_code }}')"
+                                class="btn btn-sm btn-navbar{% if current_language == language_code %} active{% endif %}">
                                 <span id="span-set-language-{{ language_code }}">{{ language_code|upper }}</span>
                             </button>
                         </form>
@@ -105,13 +105,13 @@
                         <div class="btn-group">
                             <form class="d-flex" method="post" action="{% url 'staff:exit_staff_mode' %}">
                                 {% csrf_token %}
-                                <button type="submit" {% if user.is_staff %}class="btn btn-sm btn-navbar"{% else %}class="btn btn-sm btn-navbar active" disabled{% endif %} data-bs-toggle="tooltip" data-bs-placement="bottom" title="{% trans 'Regular mode' %}" onclick="setSpinnerIcon('span-exit-staff-mode')">
+                                <button data-bs-toggle="tooltip" data-bs-placement="bottom" title="{% trans 'Regular mode' %}" type="submit" class="btn btn-sm btn-navbar {% if user.is_staff == False %}active{% endif %}" onclick="setSpinnerIcon('span-exit-staff-mode')">
                                     <span id="span-exit-staff-mode" class="fas fa-user"></span>
                                 </button>
                             </form>
                             <form id="enter-staff-mode-form" class="d-flex" method="post" action="{% url 'staff:enter_staff_mode' %}">
                                 {% csrf_token %}
-                                <button type="submit" {% if user.is_staff %}class="btn btn-sm btn-navbar active" disabled{% else %}class="btn btn-sm btn-navbar"{% endif %} data-bs-toggle="tooltip" data-bs-placement="bottom" title="{% trans 'Staff mode' %}" onclick="setSpinnerIcon('span-enter-staff-mode')">
+                                <button data-bs-toggle="tooltip" data-bs-placement="bottom" title="{% trans 'Staff mode' %}" type="submit" class="btn btn-sm btn-navbar {% if user.is_staff %}active{% endif %}" onclick="setSpinnerIcon('span-enter-staff-mode')">
                                     <span id="span-enter-staff-mode" class="fas fa-briefcase"></span>
                                 </button>
                             </form>
