@@ -2155,8 +2155,8 @@ def user_resend_email(request):
     template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
     body_params = {
         "user": user,
-        "evaluations": {},
-        "due_evaluations": user.get_sorted_due_evaluations(),
+        "evaluations": user.get_sorted_due_evaluations(),
+        "due_evaluations": {},
     }
 
     template.send_to_user(user, {}, body_params, use_cc=False)
