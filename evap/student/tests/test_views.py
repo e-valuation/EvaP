@@ -1,6 +1,6 @@
+import datetime
 from functools import partial
 
-import datetime
 from django.test.utils import override_settings
 from django_webtest import WebTest
 from model_bakery import baker
@@ -362,8 +362,7 @@ class TestVoteView(WebTest):
         form.submit()
         self.assertEqual(VoteTimestamp.objects.count(), timestamps_before + 1)
         time = VoteTimestamp.objects.latest("timestamp").timestamp
-        self.assertTrue(time > time_before)
-        self.assertTrue(time < datetime.datetime.now())
+        self.assertTrue(time_before < time < datetime.datetime.now())
 
     def test_user_cannot_vote_multiple_times(self):
         page = self.app.get(self.url, user=self.voting_user1, status=200)
