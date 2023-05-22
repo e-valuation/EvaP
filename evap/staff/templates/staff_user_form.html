@@ -17,9 +17,17 @@
 
     <div class="d-flex mb-3">
         <h3>{% if form.instance.id %}{% trans 'Edit user' %}{% else %}{% trans 'Create user' %}{% endif %}</h3>
+        {% if form.instance.id %}
         <div class="ms-auto d-print-none">
+            {% if has_due_evaluations %} 
             <button type="button" class="btn btn-sm btn-light" onclick="resendEmailModalShow({{ form.instance.id }}, '{{ form.instance.full_name|escapejs }}');">{% trans 'Resend evaluation started email' %}</button>
+            {% else %}
+            <span title="This user currently has no due evaluations." data-bs-toggle="tooltip" data-bs-placement="bottom">
+                <button disabled type="button" class="btn btn-sm btn-light" >{% trans 'Resend evaluation started email' %}</button>
+            </span>
+            {% endif %}
         </div>
+        {% endif %}
     </div>
 
 

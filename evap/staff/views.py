@@ -2125,7 +2125,7 @@ def user_edit(request, user_id):
         return redirect("staff:user_index")
 
     return render(
-        request, "staff_user_form.html", {"form": form, "evaluations_contributing_to": evaluations_contributing_to}
+        request, "staff_user_form.html", {"form": form, "evaluations_contributing_to": evaluations_contributing_to, "has_due_evaluations": True if user.get_sorted_due_evaluations() else False}
     )
 
 
