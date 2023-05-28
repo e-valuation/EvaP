@@ -7,7 +7,7 @@ USER="evap"
 REPO_FOLDER="/opt/evap"
 ENV_FOLDER="/home/$USER/venv"
 NODE_MODULES_FOLDER="/home/$USER/node_modules"
-EVAP_PYTHON=python3.8
+EVAP_PYTHON=python3.10
 
 # force apt to not ask, just do defaults.
 export DEBIAN_FRONTEND=noninteractive
