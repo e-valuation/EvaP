@@ -6,6 +6,7 @@ from django.http import FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET, require_POST
+from django.views.generic.base import TemplateView
 
 from evap.evaluation.auth import (
     grade_downloader_required,
@@ -16,6 +17,18 @@ from evap.evaluation.models import Course, EmailTemplate, Evaluation, Semester
 from evap.evaluation.tools import get_object_from_dict_pk_entry_or_logged_40x, ilen
 from evap.grades.forms import GradeDocumentForm
 from evap.grades.models import GradeDocument
+
+
+@grade_publisher_required
+class IndexView(TemplateView):
+    template_name = "grades_index.html"
+
+    def get_context_data(self, **kwargs):
+        return {
+            **super().get_context_data(**kwargs),
+            "semesters": Semester.objects.filter(grade_documents_are_deleted=False),
+            "disable_breadcrumb_grades": True,
+        }
 
 
 @grade_publisher_required

@@ -1,5 +1,8 @@
 from functools import wraps
+from typing import Callable
+import inspect
 
+from django.utils.decorators import method_decorator
 from django.contrib.auth.backends import ModelBackend
 from django.core.exceptions import PermissionDenied
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
@@ -45,78 +48,44 @@ class EmailAuthenticationBackend(ModelBackend):
         return None
 
 
-def user_passes_test(test_func):
-    """
-    Decorator for views that checks whether a user passes a given test
-    (raising 403 if not). The test should be a callable that takes the
-    user object and returns True if the user passes.
-    """
-
-    def decorator(view_func):
-        @wraps(view_func)
-        def _wrapped_view(request, *args, **kwargs):
+def class_or_function_check_decorator(test_func: Callable[[UserProfile], bool]):
+    def function_decorator(func):
+        @wraps(func)
+        def wrapped(request, *args, **kwargs):
             if not test_func(request.user):
-                raise PermissionDenied()
-            return view_func(request, *args, **kwargs)
+                raise PermissionDenied
+            return func(request, *args, **kwargs)
 
-        return _wrapped_view
+        return wrapped
+
+    def decorator(class_or_function):
+        if inspect.isclass(class_or_function):
+            return method_decorator(function_decorator, name="dispatch")(class_or_function)
+
+        assert inspect.isfunction(class_or_function)
+        return function_decorator(class_or_function)
 
     return decorator
 
 
-def internal_required(view_func):
-    """
-    Decorator for views that checks that the user is logged in and not an external user
-    """
-
-    def check_user(user):
-        return not user.is_external
-
-    return user_passes_test(check_user)(view_func)
+def internal_required(user):
+    return not user.is_external
 
 
-def staff_permission_required(view_func):
-    """
-    Decorator for views that checks that the user is logged in and staff (regardless of staff mode!)
-    """
-
-    def check_user(user):
-        return user.has_staff_permission
-
-    return user_passes_test(check_user)(view_func)
+def staff_permission_required(user):
+    return user.has_staff_permission
 
 
-def manager_required(view_func):
-    """
-    Decorator for views that checks that the user is logged in and a manager
-    """
-
-    def check_user(user):
-        return user.is_manager
-
-    return user_passes_test(check_user)(view_func)
+def manager_required(user):
+    return user.is_manager
 
 
-def reviewer_required(view_func):
-    """
-    Decorator for views that checks that the user is logged in and a reviewer
-    """
-
-    def check_user(user):
-        return user.is_reviewer
-
-    return user_passes_test(check_user)(view_func)
+def reviewer_required(user):
+    return user.is_reviewer
 
 
-def grade_publisher_required(view_func):
-    """
-    Decorator for views that checks that the user is logged in and a grade publisher
-    """
-
-    def check_user(user):
-        return user.is_grade_publisher
-
-    return user_passes_test(check_user)(view_func)
+def grade_publisher_required(user):
+    return user.is_grade_publisher
 
 
 def grade_publisher_or_manager_required(view_func):

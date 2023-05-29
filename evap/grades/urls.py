@@ -6,6 +6,7 @@ app_name = "grades"
 
 urlpatterns = [
     path("", views.index, name="index"),
+    path("newindex", views.IndexView.as_view(), name="newindex"),
 
     path("download/<int:grade_document_id>", views.download_grades, name="download_grades"),
     path("semester/<int:semester_id>", views.semester_view, name="semester_view"),
