@@ -1,0 +1,26 @@
+{% load static %}
+
+{% if not infotext.is_empty %}
+    <div id="infobox-{{ infotext.page }}" class="infobox callout callout-info callout-infobox">
+        <div class="callout-header d-flex">
+            <span class="fas fa-circle-info callout-icon"></span>
+            <span>{{ infotext.title }}</span>
+            <button type="button" class="btn-close callout-infobox-close ms-auto"
+                    aria-label="Close"></button>
+        </div>
+        <div class="callout-content small">
+            {# Inline script to interrupt loading of the page, so the content does not jump up. #}
+            <script>
+                if (localStorage["infobox-{{ infotext.page }}"] === "hide")
+                    document.querySelector("#infobox-{{ infotext.page }}").classList.add("closed");
+            </script>
+            {{ infotext.content|safe }}
+        </div>
+    </div>
+
+    <script type="module">
+        import { InfoboxLogic } from "{% static 'js/infobox.js' %}";
+
+        new InfoboxLogic("{{ infotext.page }}").attach();
+    </script>
+{% endif %}

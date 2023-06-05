@@ -18,5 +18,7 @@ updates:
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-patch"]
+      - dependency-name: "*puppeteer*"
+        update-types: ["version-update:semver-minor"]
     labels:
       - "[T] Dependencies"

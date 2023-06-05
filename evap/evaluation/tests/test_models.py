@@ -673,7 +673,7 @@ class TestUserProfile(TestCase):
         baker.make(
             UserProfile,
             last_name=iter(["Y", "x", None, None]),
-            first_name=iter(["x", "x", "a", None]),
+            first_name_given=iter(["x", "x", "a", None]),
             email=iter(["3xy@example.com", "4xx@example.com", "2a@example.com", "1unnamed@example.com"]),
             _quantity=4,
             _bulk_create=True,

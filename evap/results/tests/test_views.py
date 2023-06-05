@@ -77,7 +77,7 @@ class TestResultsView(WebTest):
             return baker.make(
                 UserProfile,
                 title=title,
-                first_name=first_name,
+                first_name_given=first_name,
                 last_name=last_name,
             )
 

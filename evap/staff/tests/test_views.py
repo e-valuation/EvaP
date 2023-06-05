@@ -27,6 +27,7 @@ from evap.evaluation.models import (
     EmailTemplate,
     Evaluation,
     FaqQuestion,
+    Infotext,
     Question,
     Questionnaire,
     RatingAnswerCounter,
@@ -50,6 +51,7 @@ from evap.staff.tests.utils import (
     WebTestStaffMode,
     WebTestStaffModeWith200Check,
     helper_delete_all_import_files,
+    helper_fill_infotext_formset,
     helper_set_dynamic_choices_field_value,
     run_in_staff_mode,
 )
@@ -140,6 +142,53 @@ class TestStaffFAQEditView(WebTestStaffModeWith200Check):
         cls.url = f"/staff/faq/{faq_question.section.pk}"
 
 
+class TestStaffInfotextEditView(WebTestStaffMode):
+    @classmethod
+    def setUpTestData(cls):
+        cls.manager = make_manager()
+        cls.url = "/staff/infotexts/"
+
+    def test_infotext_edit_success(self):
+        page = self.app.get(self.url, user=self.manager)
+        formset = page.forms["infotext-formset"]
+
+        helper_fill_infotext_formset(formset, 0, title_de="abc", title_en="def", content_de="ghi", content_en="jkl")
+        helper_fill_infotext_formset(formset, 1)
+
+        filled_form_id = formset["form-0-id"]
+        empty_form_id = formset["form-1-id"]
+        formset.submit()
+
+        # check, that content arrived at database
+        infotext = Infotext.objects.get(id=filled_form_id.value)
+        self.assertEqual(infotext.title_de, "abc")
+        self.assertEqual(infotext.title_en, "def")
+        self.assertEqual(infotext.content_de, "ghi")
+        self.assertEqual(infotext.content_en, "jkl")
+
+        infotext = Infotext.objects.get(id=empty_form_id.value)
+        self.assertTrue(infotext.is_empty())
+
+    def test_infotext_edit_fail(self):
+        page = self.app.get(self.url, user=self.manager)
+        formset = page.forms["infotext-formset"]
+
+        # submit invalid data
+        helper_fill_infotext_formset(formset, 0, title_de="abc", title_en="def", content_de="ghi", content_en="jkl")
+        helper_fill_infotext_formset(formset, 1, title_de="invalid infotext", content_en="no translations")
+
+        empty_form_id = formset["form-0-id"]
+        filled_form_id = formset["form-1-id"]
+        formset.submit()
+
+        # assert no infotexts changed
+        infotext = Infotext.objects.get(id=empty_form_id.value)
+        self.assertTrue(infotext.is_empty())
+
+        infotext = Infotext.objects.get(id=filled_form_id.value)
+        self.assertTrue(infotext.is_empty())
+
+
 class TestUserIndexView(WebTestStaffMode):
     url = "/staff/user/"
 
@@ -197,7 +246,7 @@ class TestUserCreateView(WebTestStaffMode):
     def test_user_is_created(self):
         page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["user-form"]
-        form["first_name"] = "asd"
+        form["first_name_given"] = "asd"
         form["last_name"] = "asd"
         form["email"] = "a@b.de"
 
@@ -352,7 +401,9 @@ class TestUserBulkUpdateView(WebTestStaffMode):
     @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com", "internal.example.com"])
     def test_multiple_email_matches_trigger_error(self):
         baker.make(UserProfile, email="testremove@institution.example.com")
-        baker.make(UserProfile, first_name="Elisabeth", last_name="Fröhlich", email="testuser1@institution.example.com")
+        baker.make(
+            UserProfile, first_name_given="Elisabeth", last_name="Fröhlich", email="testuser1@institution.example.com"
+        )
 
         error_string = (
             "Multiple users match the email testuser1@institution.example.com:"
@@ -373,7 +424,7 @@ class TestUserBulkUpdateView(WebTestStaffMode):
         self.assertEqual(set(UserProfile.objects.all()), expected_users)
 
         new_user = baker.make(
-            UserProfile, first_name="Tony", last_name="Kuchenbuch", email="testuser1@internal.example.com"
+            UserProfile, first_name_given="Tony", last_name="Kuchenbuch", email="testuser1@internal.example.com"
         )
         expected_users.add(new_user)
 
@@ -876,7 +927,7 @@ class TestGradeReminderView(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.responsible = baker.make(UserProfile, first_name="Bastius", last_name="Quid")
+        cls.responsible = baker.make(UserProfile, first_name_given="Bastius", last_name="Quid")
         cls.evaluation = baker.make(
             Evaluation,
             course__name_en="How to make a sandwich",

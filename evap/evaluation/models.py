@@ -15,8 +15,8 @@ from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
-from django.db.models import Count, Manager, OuterRef, Q, Subquery
-from django.db.models.functions import Coalesce, Lower
+from django.db.models import CheckConstraint, Count, Manager, OuterRef, Q, Subquery, Value
+from django.db.models.functions import Coalesce, Lower, NullIf
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
 from django.template.defaultfilters import linebreaksbr
@@ -1227,7 +1227,6 @@ BipolarChoices = NamedTuple(
     ],
 )
 
-
 NO_ANSWER = 6
 BASE_UNIPOLAR_CHOICES = {
     "css_class": "vote-type-unipolar",
@@ -1521,16 +1520,91 @@ class FaqQuestion(models.Model):
         verbose_name_plural = _("questions")
 
 
+class NotHalfEmptyConstraint(CheckConstraint):
+    """Constraint, that all supplied fields are either all filled, or all empty."""
+
+    fields: List[str] = []
+
+    def __init__(self, *, fields: List[str], name: str, **kwargs):
+        self.fields = fields
+        assert "check" not in kwargs
+
+        super().__init__(
+            check=Q(**{field: "" for field in fields}) | ~Q(**{field: "" for field in fields}, _connector=Q.OR),
+            name=name,
+            **kwargs,
+        )
+
+    def deconstruct(self):
+        path, args, kwargs = super().deconstruct()
+        kwargs.pop("check")
+        kwargs["fields"] = self.fields
+        return path, args, kwargs
+
+    def validate(self, model, instance, exclude=None, using=None):
+        try:
+            super().validate(model, instance, exclude, using)
+        except ValidationError as e:
+            e.error_dict = {
+                field_name: ValidationError(instance._meta.get_field(field_name).error_messages["blank"], code="blank")
+                for field_name in self.fields
+                if getattr(instance, field_name) == ""
+            }
+            raise e
+
+
+class Infotext(models.Model):
+    """Infotext to display, e.g., at the student index and contributor index pages"""
+
+    title_de = models.CharField(max_length=255, verbose_name=_("title (german)"), blank=True)
+    title_en = models.CharField(max_length=255, verbose_name=_("title (english)"), blank=True)
+    title = translate(en="title_en", de="title_de", blank=True)
+
+    content_de = models.TextField(verbose_name=_("content (german)"), blank=True)
+    content_en = models.TextField(verbose_name=_("content (english)"), blank=True)
+    content = translate(en="content_en", de="content_de")
+
+    def is_empty(self):
+        return not (self.title or self.content)
+
+    class Page(models.TextChoices):
+        STUDENT_INDEX = ("student_index", "Student index page")
+        CONTRIBUTOR_INDEX = ("contributor_index", "Contributor index page")
+        GRADES_PAGES = ("grades_pages", "Grade publishing pages")
+
+    page = models.CharField(
+        choices=Page.choices,
+        verbose_name="page for the infotext to be visible on",
+        max_length=30,
+        unique=True,
+        null=False,
+        blank=False,
+    )
+
+    class Meta:
+        verbose_name = _("infotext")
+        verbose_name_plural = _("infotexts")
+        constraints = (
+            NotHalfEmptyConstraint(
+                name="infotext_not_half_empty",
+                fields=["title_de", "title_en", "content_de", "content_en"],
+            ),
+        )
+
+
 class UserProfileManager(BaseUserManager):
     def create_user(self, email, password=None, first_name=None, last_name=None):
-        user = self.model(email=self.normalize_email(email), first_name=first_name, last_name=last_name)
+        user = self.model(email=self.normalize_email(email), first_name_given=first_name, last_name=last_name)
         user.set_password(password)
         user.save()
         return user
 
     def create_superuser(self, email, password, first_name=None, last_name=None):
         user = self.create_user(
-            password=password, email=self.normalize_email(email), first_name=first_name, last_name=last_name
+            password=password,
+            email=self.normalize_email(email),
+            first_name=first_name,
+            last_name=last_name,
         )
         user.is_superuser = True
         user.save()
@@ -1543,7 +1617,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=255, unique=True, blank=True, null=True, verbose_name=_("email address"))
 
     title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Title"))
-    first_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("first name"))
+    first_name_given = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("given first name"))
+    first_name_chosen = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("display name"))
     last_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("last name"))
 
     language = models.CharField(max_length=8, blank=True, null=True, verbose_name=_("language"))
@@ -1570,7 +1645,13 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     notes = models.TextField(verbose_name=_("notes"), blank=True, null=False, default="")
 
     class Meta:
-        ordering = [Lower("last_name"), Lower("first_name"), Lower("email")]
+        # keep in sync with ordering_key
+        ordering = [
+            Lower("last_name"),
+            Lower(Coalesce(NullIf("first_name_chosen", Value("")), "first_name_given")),
+            Lower("email"),
+        ]
+
         verbose_name = _("user")
         verbose_name_plural = _("users")
 
@@ -1584,6 +1665,17 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
         self.email = clean_email(self.email)
         super().save(*args, **kwargs)
+
+    @property
+    def first_name(self):
+        return self.first_name_chosen or self.first_name_given
+
+    def ordering_key(self):
+        # keep in sync with Meta.ordering
+        lower_last_name = (self.last_name or "").lower()
+        lower_first_name = (self.first_name or "").lower()
+        lower_email = (self.email or "").lower()
+        return (lower_last_name, lower_first_name, lower_email)
 
     @property
     def full_name(self):

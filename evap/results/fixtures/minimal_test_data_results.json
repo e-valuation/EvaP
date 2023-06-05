@@ -289,7 +289,7 @@
   "pk": 2,
   "model": "evaluation.userprofile",
   "fields": {
-    "first_name": "responsible",
+    "first_name_given": "responsible",
     "last_name": "user",
     "last_login": "2014-09-16T22:51:39.584",
     "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
@@ -306,7 +306,7 @@
   "pk": 3,
   "model": "evaluation.userprofile",
   "fields": {
-    "first_name": "delegate_for_responsible",
+    "first_name_given": "delegate_for_responsible",
     "last_name": "user",
     "last_login": "2014-09-16T22:52:04.981",
     "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
@@ -323,7 +323,7 @@
   "pk": 4,
   "model": "evaluation.userprofile",
   "fields": {
-    "first_name": "delegate_for_contributor",
+    "first_name_given": "delegate_for_contributor",
     "last_name": "user",
     "last_login": "2014-09-16T22:52:27.021",
     "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
@@ -340,7 +340,7 @@
   "pk": 5,
   "model": "evaluation.userprofile",
   "fields": {
-    "first_name": "student",
+    "first_name_given": "student",
     "last_name": "user",
     "last_login": "2014-09-16T22:52:46.611",
     "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
@@ -357,7 +357,7 @@
   "pk": 6,
   "model": "evaluation.userprofile",
   "fields": {
-    "first_name": "contributor",
+    "first_name_given": "contributor",
     "last_name": "user",
     "last_login": "2014-09-16T22:53:02.506",
     "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
@@ -374,7 +374,7 @@
   "pk": 7,
   "model": "evaluation.userprofile",
   "fields": {
-    "first_name": "contributor_general_textanswers",
+    "first_name_given": "contributor_general_textanswers",
     "last_name": "user",
     "last_login": "2014-09-16T22:53:02.506",
     "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
@@ -391,7 +391,7 @@
   "pk": 9,
   "model": "evaluation.userprofile",
   "fields": {
-    "first_name": "responsible_contributor",
+    "first_name_given": "responsible_contributor",
     "last_name": "user",
     "last_login": "2014-09-16T22:51:39.584",
     "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
@@ -408,7 +408,7 @@
   "pk": 10,
   "model": "evaluation.userprofile",
   "fields": {
-    "first_name": "student_external",
+    "first_name_given": "student_external",
     "last_name": "user",
     "last_login": "2014-09-16T22:52:46.611",
     "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
@@ -425,7 +425,7 @@
   "pk": 11,
   "model": "evaluation.userprofile",
   "fields": {
-    "first_name": "proxy_delegate",
+    "first_name_given": "proxy_delegate",
     "last_name": "user",
     "last_login": "2014-09-16T22:52:46.611",
     "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",

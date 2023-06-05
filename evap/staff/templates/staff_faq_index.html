@@ -8,7 +8,7 @@
 {% block content %}
     {{ block.super }}
 
-    <form method="POST" class="form-horizontal" enctype="multipart/form-data">
+    <form method="POST" class="form-horizontal">
         {% csrf_token %}
         {{ formset.management_form }}
 

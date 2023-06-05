@@ -36,6 +36,7 @@ from evap.evaluation.models import (
     Evaluation,
     FaqQuestion,
     FaqSection,
+    Infotext,
     Question,
     Questionnaire,
     RatingAnswerCounter,
@@ -77,6 +78,7 @@ from evap.staff.forms import (
     FaqQuestionForm,
     FaqSectionForm,
     ImportForm,
+    InfotextForm,
     ModelWithImportNamesFormset,
     QuestionForm,
     QuestionnaireForm,
@@ -2071,7 +2073,7 @@ def user_list(request):
             "ccing_users",
             "courses_responsible_for",
         )
-        .order_by("last_name", "first_name", "email")
+        .order_by(*UserProfile._meta.ordering)
     )
 
     return render(request, "staff_user_list.html", {"users": users, "filter_users": filter_users})
@@ -2334,6 +2336,23 @@ def faq_section(request, section_id):
 
     template_data = {"formset": formset, "section": section, "questions": questions}
     return render(request, "staff_faq_section.html", template_data)
+
+
+@manager_required
+def infotexts(request):
+    InfotextFormSet = modelformset_factory(Infotext, form=InfotextForm, edit_only=True, extra=0)
+    formset = InfotextFormSet(request.POST or None)
+
+    if formset.is_valid():
+        formset.save()
+        messages.success(request, _("Successfully updated the infotext entries."))
+        return redirect("staff:infotexts")
+
+    return render(
+        request,
+        "staff_infotexts.html",
+        {"formset": formset},
+    )
 
 
 @manager_required
