@@ -6,7 +6,7 @@ from django.http import FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET, require_POST
-from django.views.generic.base import TemplateView
+from django.views.generic import DetailView, TemplateView
 
 from evap.evaluation.auth import (
     grade_downloader_required,
@@ -24,20 +24,10 @@ class IndexView(TemplateView):
     template_name = "grades_index.html"
 
     def get_context_data(self, **kwargs):
-        return {
-            **super().get_context_data(**kwargs),
+        return super().get_context_data(**kwargs) | {
             "semesters": Semester.objects.filter(grade_documents_are_deleted=False),
             "disable_breadcrumb_grades": True,
         }
-
-
-@grade_publisher_required
-def index(request):
-    template_data = {
-        "semesters": Semester.objects.filter(grade_documents_are_deleted=False),
-        "disable_breadcrumb_grades": True,
-    }
-    return render(request, "grades_index.html", template_data)
 
 
 def course_grade_document_count_tuples(courses: QuerySet[Course]) -> list[tuple[Course, int, int]]:
@@ -54,42 +44,51 @@ def course_grade_document_count_tuples(courses: QuerySet[Course]) -> list[tuple[
 
 
 @grade_publisher_required
-def semester_view(request, semester_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-    if semester.grade_documents_are_deleted:
-        raise PermissionDenied
+class SemesterView(DetailView):
+    template_name = "grades_semester_view.html"
+    model = Semester
+    pk_url_kwarg = "semester_id"
 
-    courses = (
-        semester.courses.filter(evaluations__wait_for_grade_upload_before_publishing=True)
-        .exclude(evaluations__state=Evaluation.State.NEW)
-        .distinct()
-    )
-    courses = course_grade_document_count_tuples(courses)
+    def get_object(self, *args, **kwargs):
+        semester = super().get_object(*args, **kwargs)
+        if semester.grade_documents_are_deleted:
+            raise PermissionDenied
+        return semester
 
-    template_data = {
-        "semester": semester,
-        "courses": courses,
-        "disable_if_archived": "disabled" if semester.grade_documents_are_deleted else "",
-        "disable_breadcrumb_semester": True,
-    }
-    return render(request, "grades_semester_view.html", template_data)
+    def get_context_data(self, **kwargs):
+        courses = (
+            self.object.courses.filter(evaluations__wait_for_grade_upload_before_publishing=True)
+            .exclude(evaluations__state=Evaluation.State.NEW)
+            .distinct()
+        )
+        courses = course_grade_document_count_tuples(courses)
+
+        return super().get_context_data(**kwargs) | {
+            "courses": courses,
+            "disable_if_archived": "disabled",
+            "disable_breadcrumb_semester": True,
+        }
 
 
 @grade_publisher_or_manager_required
-def course_view(request, course_id):
-    course = get_object_or_404(Course, id=course_id)
-    semester = course.semester
-    if semester.grade_documents_are_deleted:
-        raise PermissionDenied
+class CourseView(DetailView):
+    template_name = "grades_course_view.html"
+    model = Course
+    pk_url_kwarg = "course_id"
 
-    template_data = {
-        "semester": semester,
-        "course": course,
-        "grade_documents": course.grade_documents.all(),
-        "disable_if_archived": "disabled" if semester.grade_documents_are_deleted else "",
-        "disable_breadcrumb_course": True,
-    }
-    return render(request, "grades_course_view.html", template_data)
+    def get_object(self, *args, **kwargs):
+        course = super().get_object(*args, **kwargs)
+        if course.semester.grade_documents_are_deleted:
+            raise PermissionDenied
+        return course
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs) | {
+            "semester": self.object.semester,
+            "grade_documents": self.object.grade_documents.all(),
+            "disable_if_archived": "disabled",
+            "disable_breadcrumb_course": True,
+        }
 
 
 def on_grading_process_finished(course):

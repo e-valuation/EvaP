@@ -68,106 +68,90 @@ def class_or_function_check_decorator(test_func: Callable[[UserProfile], bool]):
     return decorator
 
 
+@class_or_function_check_decorator
 def internal_required(user):
     return not user.is_external
 
 
+@class_or_function_check_decorator
 def staff_permission_required(user):
     return user.has_staff_permission
 
 
+@class_or_function_check_decorator
 def manager_required(user):
     return user.is_manager
 
 
+@class_or_function_check_decorator
 def reviewer_required(user):
     return user.is_reviewer
 
 
+@class_or_function_check_decorator
 def grade_publisher_required(user):
     return user.is_grade_publisher
 
 
-def grade_publisher_or_manager_required(view_func):
+@class_or_function_check_decorator
+def grade_publisher_or_manager_required(user):
     """
     Decorator for views that checks that the user is logged in and a grade publisher or a manager
     """
-
-    def check_user(user):
-        return user.is_grade_publisher or user.is_manager
-
-    return user_passes_test(check_user)(view_func)
+    return user.is_grade_publisher or user.is_manager
 
 
-def grade_downloader_required(view_func):
+@class_or_function_check_decorator
+def grade_downloader_required(user):
     """
     Decorator for views that checks that the user is logged in and can download grades
     """
-
-    def check_user(user):
-        return user.can_download_grades
-
-    return user_passes_test(check_user)(view_func)
+    return user.can_download_grades
 
 
-def responsible_or_contributor_or_delegate_required(view_func):
+@class_or_function_check_decorator
+def responsible_or_contributor_or_delegate_required(user):
     """
     Decorator for views that checks that the user is logged in, is responsible for a course, or is a contributor, or is
     a delegate.
     """
-
-    def check_user(user):
-        return user.is_responsible_or_contributor_or_delegate
-
-    return user_passes_test(check_user)(view_func)
+    return user.is_responsible_or_contributor_or_delegate
 
 
-def editor_or_delegate_required(view_func):
+@class_or_function_check_decorator
+def editor_or_delegate_required(user):
     """
     Decorator for views that checks that the user is logged in, has edit rights
     for at least one evaluation or is a delegate for such a person.
     """
-
-    def check_user(user):
-        return user.is_editor_or_delegate
-
-    return user_passes_test(check_user)(view_func)
+    return user.is_editor_or_delegate
 
 
-def editor_required(view_func):
+@class_or_function_check_decorator
+def editor_required(user):
     """
     Decorator for views that checks that the user is logged in and has edit
     right for at least one evaluation.
     """
-
-    def check_user(user):
-        return user.is_editor
-
-    return user_passes_test(check_user)(view_func)
+    return user.is_editor
 
 
-def participant_required(view_func):
+@class_or_function_check_decorator
+def participant_required(user):
     """
     Decorator for views that checks that the user is logged in and
     participates in at least one evaluation.
     """
-
-    def check_user(user):
-        return user.is_participant
-
-    return user_passes_test(check_user)(view_func)
+    return user.is_participant
 
 
-def reward_user_required(view_func):
+@class_or_function_check_decorator
+def reward_user_required(user):
     """
     Decorator for views that checks that the user is logged in and can use
     reward points.
     """
-
-    def check_user(user):
-        return can_reward_points_be_used_by(user)
-
-    return user_passes_test(check_user)(view_func)
+    return can_reward_points_be_used_by(user)
 
 
 # see https://mozilla-django-oidc.readthedocs.io/en/stable/
