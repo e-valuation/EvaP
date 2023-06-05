@@ -128,7 +128,9 @@ class TestUserImport(ImporterTestCase):
         self.assertTrue(UserProfile.objects.filter(email="cleaned_bastius.quid@external.example.com").exists())
 
     def test_duplicate_warning(self):
-        user = baker.make(UserProfile, first_name="Lucilia", last_name="Manilium", email="luma@institution.example.com")
+        user = baker.make(
+            UserProfile, first_name_given="Lucilia", last_name="Manilium", email="luma@institution.example.com"
+        )
 
         __, importer_log_test = import_users(self.valid_excel_file_content, test_run=True)
         __, importer_log_notest = import_users(self.valid_excel_file_content, test_run=False)
@@ -171,7 +173,7 @@ class TestUserImport(ImporterTestCase):
 
     def test_user_data_mismatch_to_database(self):
         user_basti = baker.make(
-            UserProfile, first_name="Basti", last_name="Quid", email="bastius.quid@external.example.com"
+            UserProfile, first_name_given="Basti", last_name="Quid", email="bastius.quid@external.example.com"
         )
 
         __, importer_log = import_users(self.valid_excel_file_content, test_run=True)
@@ -332,7 +334,7 @@ class TestEnrollmentImport(ImporterTestCase):
                     UserProfile,
                     email="123@institution.example.com",
                     title="Prof. Dr.",
-                    first_name="Christoph",
+                    first_name_given="Christoph",
                     last_name="Prorsus",
                 )
             ],
@@ -807,7 +809,10 @@ class TestEnrollmentImport(ImporterTestCase):
     def test_existing_participation(self):
         _, existing_evaluation = self.create_existing_course()
         user = baker.make(
-            UserProfile, first_name="Lucilia", last_name="Manilium", email="lucilia.manilium@institution.example.com"
+            UserProfile,
+            first_name_given="Lucilia",
+            last_name="Manilium",
+            email="lucilia.manilium@institution.example.com",
         )
         existing_evaluation.participants.add(user)
 

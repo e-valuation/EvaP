@@ -15,8 +15,8 @@ from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
-from django.db.models import CheckConstraint, Count, Manager, OuterRef, Q, Subquery
-from django.db.models.functions import Coalesce, Lower
+from django.db.models import CheckConstraint, Count, Manager, OuterRef, Q, Subquery, Value
+from django.db.models.functions import Coalesce, Lower, NullIf
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
 from django.template.defaultfilters import linebreaksbr
@@ -1594,14 +1594,17 @@ class Infotext(models.Model):
 
 class UserProfileManager(BaseUserManager):
     def create_user(self, email, password=None, first_name=None, last_name=None):
-        user = self.model(email=self.normalize_email(email), first_name=first_name, last_name=last_name)
+        user = self.model(email=self.normalize_email(email), first_name_given=first_name, last_name=last_name)
         user.set_password(password)
         user.save()
         return user
 
     def create_superuser(self, email, password, first_name=None, last_name=None):
         user = self.create_user(
-            password=password, email=self.normalize_email(email), first_name=first_name, last_name=last_name
+            password=password,
+            email=self.normalize_email(email),
+            first_name=first_name,
+            last_name=last_name,
         )
         user.is_superuser = True
         user.save()
@@ -1614,7 +1617,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=255, unique=True, blank=True, null=True, verbose_name=_("email address"))
 
     title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Title"))
-    first_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("first name"))
+    first_name_given = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("given first name"))
+    first_name_chosen = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("display name"))
     last_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("last name"))
 
     language = models.CharField(max_length=8, blank=True, null=True, verbose_name=_("language"))
@@ -1639,7 +1643,13 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True, verbose_name=_("active"))
 
     class Meta:
-        ordering = [Lower("last_name"), Lower("first_name"), Lower("email")]
+        # keep in sync with ordering_key
+        ordering = [
+            Lower("last_name"),
+            Lower(Coalesce(NullIf("first_name_chosen", Value("")), "first_name_given")),
+            Lower("email"),
+        ]
+
         verbose_name = _("user")
         verbose_name_plural = _("users")
 
@@ -1653,6 +1663,17 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
         self.email = clean_email(self.email)
         super().save(*args, **kwargs)
+
+    @property
+    def first_name(self):
+        return self.first_name_chosen or self.first_name_given
+
+    def ordering_key(self):
+        # keep in sync with Meta.ordering
+        lower_last_name = (self.last_name or "").lower()
+        lower_first_name = (self.first_name or "").lower()
+        lower_email = (self.email or "").lower()
+        return (lower_last_name, lower_first_name, lower_email)
 
     @property
     def full_name(self):

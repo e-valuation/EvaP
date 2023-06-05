@@ -22,7 +22,7 @@ class TestIndexView(WebTest):
         password_form = response.forms["email-login-form"]
         password_form["email"] = "password.user"
         password_form["password"] = "asd"  # nosec
-        password_form.submit(status=200)
+        password_form.submit()
         password_form["password"] = "evap"  # nosec
         password_form.submit(status=302)
 
@@ -156,17 +156,35 @@ class TestProfileView(WebTest):
 
     def test_save_settings(self):
         user = baker.make(UserProfile)
-        page = self.app.get(self.url, user=self.responsible, status=200)
+        page = self.app.get(self.url, user=self.responsible)
         form = page.forms["settings-form"]
         form["delegates"] = [user.pk]
-        form.submit()
+        form.submit(name="operation", value="delegates")
 
         self.responsible.refresh_from_db()
         self.assertEqual(list(self.responsible.delegates.all()), [user])
 
     def test_view_settings_as_non_editor(self):
         user = baker.make(UserProfile, email="testuser@example.com")
-        page = self.app.get(self.url, user=user, status=200)
+        page = self.app.get(self.url, user=user)
         self.assertIn("Personal information", page)
         self.assertNotIn("Delegates", page)
         self.assertIn(user.email, page)
+
+    def test_edit_display_name(self):
+        page = self.app.get(self.url, user=self.responsible)
+        self.assertNotContains(page, "testdisplayname")
+        self.assertFalse(UserProfile.objects.filter(first_name_chosen="testdisplayname").exists())
+
+        form = page.forms["profile-form"]
+        form["first_name_chosen"] = "testdisplayname"
+        form.submit(name="operation", value="profile")
+        self.assertTrue(UserProfile.objects.filter(first_name_chosen="testdisplayname").exists())
+
+        page = self.app.get(self.url, user=self.responsible)
+        self.assertContains(page, "testdisplayname")
+
+        form = page.forms["profile-form"]
+        form["first_name_chosen"] = "testdisplayname2"
+        form.submit(name="operation", value="illegal", status=400)
+        self.assertFalse(UserProfile.objects.filter(first_name_chosen="testdisplayname2").exists())

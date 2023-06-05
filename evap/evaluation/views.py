@@ -15,7 +15,7 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.http import require_POST
 from django.views.i18n import set_language
 
-from evap.evaluation.forms import DelegatesForm, LoginEmailForm, NewKeyForm
+from evap.evaluation.forms import DelegatesForm, LoginEmailForm, NewKeyForm, ProfileForm
 from evap.evaluation.models import EmailTemplate, FaqSection, Semester
 from evap.middleware import no_login_required
 
@@ -198,29 +198,32 @@ def set_lang(request):
 
 def profile_edit(request):
     user = request.user
-    if user.is_editor:
-        form = DelegatesForm(request.POST or None, request.FILES or None, instance=user)
+    profile_form = ProfileForm(request.POST or None, request.FILES or None, instance=user)
+    delegates_form = DelegatesForm(request.POST or None, request.FILES or None, instance=user)
 
-        if form.is_valid():
-            form.save()
+    if request.method == "POST":
+        operation = request.POST.get("operation")
+        if operation not in ("profile", "delegates"):
+            raise SuspiciousOperation("Invalid POST operation")
+        if operation == "profile":
+            if profile_form.is_valid():
+                profile_form.save()
+                messages.success(request, _("Successfully updated your profile."))
+                return redirect("evaluation:profile_edit")
 
-            messages.success(request, _("Successfully updated your profile."))
-            return redirect("evaluation:profile_edit")
+        if user.is_editor and operation == "delegates":
+            if delegates_form.is_valid():
+                delegates_form.save()
+                messages.success(request, _("Successfully updated your profile."))
+                return redirect("evaluation:profile_edit")
 
-        return render(
-            request,
-            "profile.html",
-            {
-                "user": user,
-                "form": form,
-                "delegate_of": user.represented_users.all(),
-                "cc_users": user.cc_users.all(),
-                "ccing_users": user.ccing_users.all(),
-            },
-        )
+    editor_context = {
+        "delegates_form": delegates_form,
+        "delegate_of": user.represented_users.all(),
+        "cc_users": user.cc_users.all(),
+        "ccing_users": user.ccing_users.all(),
+    }
 
-    return render(
-        request,
-        "profile.html",
-        {"user": user},
-    )
+    context = {"user": user, "profile_form": profile_form, **(editor_context if user.is_editor else {})}
+
+    return render(request, "profile.html", context)

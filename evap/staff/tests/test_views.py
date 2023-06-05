@@ -246,7 +246,7 @@ class TestUserCreateView(WebTestStaffMode):
     def test_user_is_created(self):
         page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["user-form"]
-        form["first_name"] = "asd"
+        form["first_name_given"] = "asd"
         form["last_name"] = "asd"
         form["email"] = "a@b.de"
 
@@ -401,7 +401,9 @@ class TestUserBulkUpdateView(WebTestStaffMode):
     @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com", "internal.example.com"])
     def test_multiple_email_matches_trigger_error(self):
         baker.make(UserProfile, email="testremove@institution.example.com")
-        baker.make(UserProfile, first_name="Elisabeth", last_name="Fröhlich", email="testuser1@institution.example.com")
+        baker.make(
+            UserProfile, first_name_given="Elisabeth", last_name="Fröhlich", email="testuser1@institution.example.com"
+        )
 
         error_string = (
             "Multiple users match the email testuser1@institution.example.com:"
@@ -422,7 +424,7 @@ class TestUserBulkUpdateView(WebTestStaffMode):
         self.assertEqual(set(UserProfile.objects.all()), expected_users)
 
         new_user = baker.make(
-            UserProfile, first_name="Tony", last_name="Kuchenbuch", email="testuser1@internal.example.com"
+            UserProfile, first_name_given="Tony", last_name="Kuchenbuch", email="testuser1@internal.example.com"
         )
         expected_users.add(new_user)
 
@@ -925,7 +927,7 @@ class TestGradeReminderView(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.responsible = baker.make(UserProfile, first_name="Bastius", last_name="Quid")
+        cls.responsible = baker.make(UserProfile, first_name_given="Bastius", last_name="Quid")
         cls.evaluation = baker.make(
             Evaluation,
             course__name_en="How to make a sandwich",

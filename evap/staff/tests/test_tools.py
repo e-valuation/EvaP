@@ -24,7 +24,8 @@ class MergeUsersTest(TestCase):
         cls.main_user = baker.make(
             UserProfile,
             title="Dr.",
-            first_name="Main",
+            first_name_given="Main",
+            first_name_chosen="",
             last_name="",
             email=None,  # test that merging works when taking the email from other user (UniqueConstraint)
             groups=[cls.group1],
@@ -36,7 +37,8 @@ class MergeUsersTest(TestCase):
         cls.other_user = baker.make(
             UserProfile,
             title="",
-            first_name="Other",
+            first_name_given="Other",
+            first_name_chosen="other-display-name",
             last_name="User",
             email="other@test.com",
             groups=[cls.group2],
@@ -127,7 +129,8 @@ class MergeUsersTest(TestCase):
         self.other_user.refresh_from_db()
 
         self.assertEqual(self.main_user.title, "Dr.")
-        self.assertEqual(self.main_user.first_name, "Main")
+        self.assertEqual(self.main_user.first_name_given, "Main")
+        self.assertEqual(self.main_user.first_name_chosen, "")
         self.assertEqual(self.main_user.last_name, "")
         self.assertEqual(self.main_user.email, None)
         self.assertFalse(self.main_user.is_superuser)
@@ -140,7 +143,8 @@ class MergeUsersTest(TestCase):
         self.assertTrue(RewardPointRedemption.objects.filter(user_profile=self.main_user).exists())
 
         self.assertEqual(self.other_user.title, "")
-        self.assertEqual(self.other_user.first_name, "Other")
+        self.assertEqual(self.other_user.first_name_given, "Other")
+        self.assertEqual(self.other_user.first_name_chosen, "other-display-name")
         self.assertEqual(self.other_user.last_name, "User")
         self.assertEqual(self.other_user.email, "other@test.com")
         self.assertEqual(set(self.other_user.groups.all()), {self.group2})
@@ -173,7 +177,8 @@ class MergeUsersTest(TestCase):
         self.main_user.refresh_from_db()
 
         self.assertEqual(self.main_user.title, "Dr.")
-        self.assertEqual(self.main_user.first_name, "Main")
+        self.assertEqual(self.main_user.first_name_given, "Main")
+        self.assertEqual(self.main_user.first_name_chosen, "other-display-name")
         self.assertEqual(self.main_user.last_name, "User")
         self.assertEqual(self.main_user.email, "other@test.com")
         self.assertTrue(self.main_user.is_superuser)
