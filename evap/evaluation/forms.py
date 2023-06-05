@@ -121,7 +121,6 @@ class DelegatesForm(forms.ModelForm):
         logger.info('User "%s" edited the settings.', self.instance.email)
 
 
-
 class NotebookForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -131,7 +130,6 @@ class NotebookForm(forms.ModelForm):
         model = UserProfile
         fields = ("notes",)
 
-        
 
 class ProfileForm(forms.ModelForm):
     class Meta:

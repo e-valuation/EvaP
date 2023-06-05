@@ -173,7 +173,7 @@ class TestProfileView(WebTest):
         self.assertIn("Personal information", page)
         self.assertNotIn("Delegates", page)
         self.assertIn(user.email, page)
-      
+
     def test_edit_display_name(self):
         page = self.app.get(self.url, user=self.responsible)
         self.assertNotContains(page, "testdisplayname")
@@ -192,7 +192,7 @@ class TestProfileView(WebTest):
         form.submit(name="operation", value="illegal", status=400)
         self.assertFalse(UserProfile.objects.filter(first_name_chosen="testdisplayname2").exists())
 
-        
+
 class TestNotebookView(WebTest):
     url = reverse("evaluation:notebook")
     page = "/profile"

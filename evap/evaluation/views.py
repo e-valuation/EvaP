@@ -228,7 +228,8 @@ def profile_edit(request):
     context = {"user": user, "profile_form": profile_form, **(editor_context if user.is_editor else {})}
 
     return render(request, "profile.html", context)
-  
+
+
 @require_POST
 def notebook(request):
     form = NotebookForm(request.POST, instance=request.user)
