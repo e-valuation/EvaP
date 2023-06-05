@@ -17,6 +17,7 @@ from django.views.i18n import set_language
 
 from evap.evaluation.forms import DelegatesForm, LoginEmailForm, NewKeyForm, NotebookForm
 from evap.evaluation.models import EmailTemplate, FaqSection, Semester
+from evap.evaluation.tools import HttpResponseNoContent
 from evap.middleware import no_login_required
 
 logger = logging.getLogger(__name__)
@@ -231,5 +232,5 @@ def notebook(request):
     form = NotebookForm(request.POST, instance=request.user)
     if form.is_valid():
         form.save()
-        return HttpResponse(status=204)
+        return HttpResponseNoContent()
     return HttpResponseBadRequest()

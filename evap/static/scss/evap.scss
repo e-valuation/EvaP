@@ -179,7 +179,6 @@ td.icon {
     }
 
     .notebook-card {
-        // substracting 3 * Margins 2x card 1x breadcrumb
         height: calc((100vh - #{$navbar-brand-height}) - (#{$footer-height} + ((#{$spacer} * 1.5) * 3)));
     }
 

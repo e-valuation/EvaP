@@ -154,7 +154,7 @@ a:not([href]):not(.disabled) {
 .button-notebook {
     @include media-breakpoint-up(md) {
         position: fixed;
-        bottom: 60px;
+        bottom: $footer-height + 20px;
         z-index: $zindex-fixed;
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;

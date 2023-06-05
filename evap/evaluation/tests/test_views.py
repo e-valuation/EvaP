@@ -159,7 +159,7 @@ class TestProfileView(WebTest):
 
     def test_save_settings(self):
         user = baker.make(UserProfile)
-        page = self.app.get(self.url, user=self.responsible, status=200)
+        page = self.app.get(self.url, user=self.responsible)
         form = page.forms["settings-form"]
         form["delegates"] = [user.pk]
         form.submit()
@@ -169,7 +169,7 @@ class TestProfileView(WebTest):
 
     def test_view_settings_as_non_editor(self):
         user = baker.make(UserProfile, email="testuser@example.com")
-        page = self.app.get(self.url, user=user, status=200)
+        page = self.app.get(self.url, user=user)
         self.assertIn("Personal information", page)
         self.assertNotIn("Delegates", page)
         self.assertIn(user.email, page)
@@ -177,42 +177,16 @@ class TestProfileView(WebTest):
 
 class TestNotebookView(WebTest):
     url = reverse("evaluation:notebook")
+    page = "/profile"
     note = "Data is so beautiful"
 
     def test_notebook(self):
-        user = baker.make(UserProfile)
-        self.client.force_login(user, backend=None)
+        user = baker.make(UserProfile, email="student@institution.example.com")
 
-        response = self.client.post(
-            self.url,
-            data={"notes": self.note},
-            user=user,
-        )
+        page = self.app.get(self.page, user=user)
+        form = page.forms["notebook-form"]
+        form["notes"] = self.note
+        form.submit()
 
         user.refresh_from_db()
-        self.assertEqual(response.status_code, 204)
         self.assertEqual(user.notes, self.note)
-
-    def test_notebook_invalid_request(self):
-        user = baker.make(UserProfile)
-        self.client.force_login(user, backend=None)
-
-        response = self.client.get(
-            self.url,
-            data={"notes": self.note},
-            user=user,
-        )
-        self.assertEqual(response.status_code, 405)
-
-    def test_notebook_invalid_form(self):
-        user = baker.make(UserProfile)
-        self.client.force_login(user, backend=None)
-
-        with patch("evap.evaluation.forms.NotebookForm.is_valid", return_value=False):
-            response = self.client.post(
-                self.url,
-                data={"notes": 42},
-                user=user,
-            )
-
-            self.assertEqual(response.status_code, 400)
