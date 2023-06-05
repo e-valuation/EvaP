@@ -8,20 +8,59 @@
 
 {% block content %}
     {{ block.super }}
-    <h3>{% trans 'Merge users' %}</h3>
+    <div class="row row-cols-1 row-cols-md-2">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h3 class="card-title">{% trans 'Merge users' %}</h3>
 
-    <form method="POST" class="form-horizontal">
-        {% csrf_token %}
-        <div class="card mb-3">
-            <div class="card-body">
-                <p>{% trans 'Select the users you want to merge.' %}</p>
-                {% include 'bootstrap_form.html' with form=form wide=True %}
+                    <form method="POST" class="form-horizontal">
+                        {% csrf_token %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <p>{% trans 'Select the users you want to merge.' %}</p>
+                                {% include 'bootstrap_form.html' with form=form wide=True %}
+                            </div>
+                        </div>
+                        <div class="card card-submit-area text-center mb-3">
+                            <div class="card-body">
+                                <button type="submit" class="btn btn-primary">{% trans 'Show merge info' %}</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-        <div class="card card-submit-area text-center mb-3">
-            <div class="card-body">
-                <button type="submit" class="btn btn-primary">{% trans 'Show merge info' %}</button>
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h3 class="card-title">{% trans 'Merge suggestions' %}</h3>
+                    <table class="table table-vertically-aligned table-seamless-links user-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 25%">{% trans 'Name' %}</th>
+                                <th style="width: 35%">{% trans 'Email' %}</th>
+                                <!-- <th style="width: 30%">{% trans 'Information' %}</th> -->
+                                <!-- <th style="width: 10%"></th> -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                                <tr id="user-row-{{ user.id }}" class="hover-row hover-row-info" data-url="{% url 'staff:user_edit' user.id %}">
+                                    <td>{{ user.full_name }}</td>
+                                    <td>{% if user.email %}{{ user.email }}{% endif %}</td>
+                                    <!-- <td>{% include 'staff_user_badges.html' with user=user %}</td> -->
+                                    <!-- <td class="text-end">
+                                        <a href="{% url 'staff:user_edit' user.id %}" class="btn btn-primary btn-sm btn-row-hover"><span class="fas fa-pencil-alt"></span></a>
+                                    </td> -->
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
             </div>
         </div>
-    </form>
+    </div>
+
 {% endblock %}

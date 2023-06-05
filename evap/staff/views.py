@@ -49,6 +49,7 @@ from evap.evaluation.tools import (
     HttpResponseNoContent,
     get_object_from_dict_pk_entry_or_logged_40x,
     get_parameter_from_url_or_session,
+    is_external_email,
     sort_formset,
 )
 from evap.grades.models import GradeDocument
@@ -2226,12 +2227,22 @@ def user_bulk_update(request):
 def user_merge_selection(request):
     form = UserMergeSelectionForm(request.POST or None)
 
+    all_users = list(UserProfile.objects.all())
+    suggested_merges = []
+    for user1 in all_users:
+        if user1.is_external == False:
+            for user2 in all_users:
+                if user1.is_external == False:
+                    if user1.email != user2.email and user1.email.split('@')[0] == user2.email.split('@')[0]
+                        suggested_merges.append(user1, user2)
+
+
     if form.is_valid():
         main_user = form.cleaned_data["main_user"]
         other_user = form.cleaned_data["other_user"]
         return redirect("staff:user_merge", main_user.id, other_user.id)
 
-    return render(request, "staff_user_merge_selection.html", {"form": form})
+    return render(request, "staff_user_merge_selection.html", {"form": form, "users": suggested_merges})
 
 
 @manager_required
