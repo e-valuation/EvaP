@@ -1,4 +1,4 @@
-django-extensions==3.2.1
+django-extensions==3.2.3
 django-fsm==2.8.1
 django~=4.2.0
 mozilla-django-oidc==3.0.0
