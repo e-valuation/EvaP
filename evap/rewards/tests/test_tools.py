@@ -2,7 +2,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from model_bakery import baker
 
-from evap.evaluation.models import NO_ANSWER, Course, Evaluation, Question, Questionnaire, UserProfile
+from evap.evaluation.models import NO_ANSWER, Course, Evaluation, Question, QuestionTypes, Questionnaire, UserProfile
 from evap.evaluation.tests.tools import WebTest
 from evap.rewards.models import RewardPointGranting, SemesterActivation
 from evap.rewards.tools import reward_points_of_user
@@ -22,7 +22,7 @@ class TestGrantRewardPoints(WebTest):
         cls.evaluation = baker.make(Evaluation, state=Evaluation.State.IN_EVALUATION, participants=[cls.student])
 
         questionnaire = baker.make(Questionnaire)
-        baker.make(Question, questionnaire=questionnaire, type=Question.GRADE)
+        baker.make(Question, questionnaire=questionnaire, type=QuestionTypes.GRADE)
         cls.evaluation.general_contribution.questionnaires.set([questionnaire])
 
     def setUp(self):

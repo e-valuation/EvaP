@@ -9,6 +9,7 @@ from evap.evaluation.models import (
     Contribution,
     Evaluation,
     Question,
+    QuestionTypes,
     Questionnaire,
     RatingAnswerCounter,
     Semester,
@@ -73,39 +74,39 @@ class TestVoteView(WebTest):
         cls.contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
 
         cls.contributor_heading_question = baker.make(
-            Question, questionnaire=cls.contributor_questionnaire, order=0, type=Question.HEADING
+            Question, questionnaire=cls.contributor_questionnaire, order=0, type=QuestionTypes.HEADING
         )
         cls.contributor_text_question = baker.make(
-            Question, questionnaire=cls.contributor_questionnaire, order=1, type=Question.TEXT
+            Question, questionnaire=cls.contributor_questionnaire, order=1, type=QuestionTypes.TEXT
         )
         cls.contributor_likert_question = baker.make(
-            Question, questionnaire=cls.contributor_questionnaire, order=2, type=Question.LIKERT
+            Question, questionnaire=cls.contributor_questionnaire, order=2, type=QuestionTypes.LIKERT
         )
 
         cls.top_heading_question = baker.make(
-            Question, questionnaire=cls.top_general_questionnaire, order=0, type=Question.HEADING
+            Question, questionnaire=cls.top_general_questionnaire, order=0, type=QuestionTypes.HEADING
         )
         cls.top_text_question = baker.make(
-            Question, questionnaire=cls.top_general_questionnaire, order=1, type=Question.TEXT
+            Question, questionnaire=cls.top_general_questionnaire, order=1, type=QuestionTypes.TEXT
         )
         cls.top_likert_question = baker.make(
-            Question, questionnaire=cls.top_general_questionnaire, order=2, type=Question.LIKERT
+            Question, questionnaire=cls.top_general_questionnaire, order=2, type=QuestionTypes.LIKERT
         )
         cls.top_grade_question = baker.make(
-            Question, questionnaire=cls.top_general_questionnaire, order=3, type=Question.GRADE
+            Question, questionnaire=cls.top_general_questionnaire, order=3, type=QuestionTypes.GRADE
         )
 
         cls.bottom_heading_question = baker.make(
-            Question, questionnaire=cls.bottom_general_questionnaire, order=0, type=Question.HEADING
+            Question, questionnaire=cls.bottom_general_questionnaire, order=0, type=QuestionTypes.HEADING
         )
         cls.bottom_text_question = baker.make(
-            Question, questionnaire=cls.bottom_general_questionnaire, order=1, type=Question.TEXT
+            Question, questionnaire=cls.bottom_general_questionnaire, order=1, type=QuestionTypes.TEXT
         )
         cls.bottom_likert_question = baker.make(
-            Question, questionnaire=cls.bottom_general_questionnaire, order=2, type=Question.LIKERT
+            Question, questionnaire=cls.bottom_general_questionnaire, order=2, type=QuestionTypes.LIKERT
         )
         cls.bottom_grade_question = baker.make(
-            Question, questionnaire=cls.bottom_general_questionnaire, order=3, type=Question.GRADE
+            Question, questionnaire=cls.bottom_general_questionnaire, order=3, type=QuestionTypes.GRADE
         )
 
         cls.contribution1 = baker.make(

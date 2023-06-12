@@ -29,6 +29,7 @@ from evap.evaluation.models import (
     FaqQuestion,
     Infotext,
     Question,
+    QuestionTypes,
     Questionnaire,
     RatingAnswerCounter,
     Semester,
@@ -2511,11 +2512,11 @@ class TestEvaluationTextAnswerView(WebTest):
         )
         cls.url = reverse("staff:evaluation_textanswers", args=[cls.evaluation.pk])
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        baker.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
+        baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionTypes.LIKERT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
 
         questionnaire = baker.make(Questionnaire)
-        question = baker.make(Question, questionnaire=questionnaire, type=Question.TEXT)
+        question = baker.make(Question, questionnaire=questionnaire, type=QuestionTypes.TEXT)
         contribution = baker.make(
             Contribution,
             evaluation=cls.evaluation,
@@ -2642,7 +2643,7 @@ class TestEvaluationTextAnswerView(WebTest):
 
         for evaluation, answer_count in zip(evaluations, [1, 2]):
             contribution = baker.make(Contribution, evaluation=evaluation, _fill_optional=["contributor"])
-            baker.make(TextAnswer, contribution=contribution, question__type=Question.TEXT, _quantity=answer_count)
+            baker.make(TextAnswer, contribution=contribution, question__type=QuestionTypes.TEXT, _quantity=answer_count)
 
         url = reverse("staff:evaluation_textanswers", args=[self.evaluation2.pk])
 
@@ -2679,7 +2680,7 @@ class TestEvaluationTextAnswerView(WebTest):
         contributors = baker.make(UserProfile, **kwargs)
         contributions = baker.make(Contribution, evaluation=self.evaluation, contributor=iter(contributors), **kwargs)
         questionnaires = baker.make(Questionnaire, **kwargs)
-        questions = baker.make(Question, questionnaire=iter(questionnaires), type=Question.TEXT, **kwargs)
+        questions = baker.make(Question, questionnaire=iter(questionnaires), type=QuestionTypes.TEXT, **kwargs)
         baker.make(TextAnswer, question=iter(questions), contribution=iter(contributions), **kwargs)
 
         with run_in_staff_mode(self):
@@ -2717,9 +2718,9 @@ class TestEvaluationTextAnswerEditView(WebTestStaffMode):
             state=Evaluation.State.IN_EVALUATION,
         )
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        baker.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
+        baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionTypes.LIKERT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
-        question = baker.make(Question, type=Question.TEXT)
+        question = baker.make(Question, type=QuestionTypes.TEXT)
 
         contribution = baker.make(
             Contribution,
@@ -2871,7 +2872,7 @@ class TestQuestionnaireCreateView(WebTestStaffMode):
         questionnaire_form["public_name_en"] = "Public Test Questionnaire"
         questionnaire_form["questions-0-text_de"] = "Frage 1"
         questionnaire_form["questions-0-text_en"] = "Question 1"
-        questionnaire_form["questions-0-type"] = Question.TEXT
+        questionnaire_form["questions-0-type"] = QuestionTypes.TEXT
         questionnaire_form["order"] = 0
         questionnaire_form["type"] = Questionnaire.Type.TOP
         questionnaire_form.submit().follow()
@@ -2970,7 +2971,7 @@ class TestQuestionnaireViewView(WebTestStaffModeWith200Check):
         baker.make(
             Question,
             questionnaire=questionnaire,
-            type=iter([Question.TEXT, Question.GRADE, Question.LIKERT]),
+            type=iter([QuestionTypes.TEXT, QuestionTypes.GRADE, QuestionTypes.LIKERT]),
             _quantity=3,
             _bulk_create=True,
         )
@@ -3224,8 +3225,8 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
             state=Evaluation.State.IN_EVALUATION,
         )
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        baker.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
-        cls.text_question = baker.make(Question, questionnaire=top_general_questionnaire, type=Question.TEXT)
+        baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionTypes.LIKERT)
+        cls.text_question = baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionTypes.TEXT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
 
     def assert_transition(
