@@ -13,6 +13,8 @@ import os
 import sys
 from typing import Any, List, Tuple
 
+from django.contrib.staticfiles.storage import ManifestStaticFilesStorage
+
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
@@ -133,12 +135,17 @@ CACHES = {
     },
 }
 
+
+class ManifestStaticFilesStorageWithJsReplacement(ManifestStaticFilesStorage):
+    support_js_module_import_aggregation = True
+
+
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage",
+        "BACKEND": "evap.settings.ManifestStaticFilesStorageWithJsReplacement",
     },
 }
 
