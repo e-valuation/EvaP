@@ -233,6 +233,7 @@ class TestResultsView(WebTest):
                 name_de="foo" + unique_suffix,
                 state=Evaluation.State.PUBLISHED,
                 _voter_count=0,
+                _participant_count=0,
             )
             baker.make(
                 Evaluation,
@@ -241,6 +242,7 @@ class TestResultsView(WebTest):
                 name_de="bar" + unique_suffix,
                 state=Evaluation.State.PUBLISHED,
                 _voter_count=0,
+                _participant_count=0,
             )
 
         # first measure the number of queries with two courses
