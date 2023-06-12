@@ -2680,7 +2680,7 @@ class TestEvaluationTextAnswerView(WebTest):
         contributors = baker.make(UserProfile, **kwargs)
         contributions = baker.make(Contribution, evaluation=self.evaluation, contributor=iter(contributors), **kwargs)
         questionnaires = baker.make(Questionnaire, **kwargs)
-        questions = baker.make(Question, questionnaire=iter(questionnaires), type=QuestionTypes.TEXT, **kwargs)
+        questions = baker.make(Question, questionnaire=iter(questionnaires), type=QuestionTypes.TEXT, allows_additional_textanswers=False, **kwargs)
         baker.make(TextAnswer, question=iter(questions), contribution=iter(contributions), **kwargs)
 
         with run_in_staff_mode(self):
@@ -2974,6 +2974,7 @@ class TestQuestionnaireViewView(WebTestStaffModeWith200Check):
             type=iter([QuestionTypes.TEXT, QuestionTypes.GRADE, QuestionTypes.LIKERT]),
             _quantity=3,
             _bulk_create=True,
+            allows_additional_textanswers=False,
         )
 
 
