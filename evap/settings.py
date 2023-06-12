@@ -366,6 +366,16 @@ SLOGANS_EN = [
 ]
 
 
+### Allowed chosen first names / display names
+
+def CHARACTER_ALLOWED_IN_NAME(character):
+    return any((
+        ord(character) in range(32, 127),
+        ord(character) in range(160, 256),
+        ord(character) in range(256, 384)
+    ))
+
+
 ### OpenID Login
 # replace 'example.com', OIDC_RP_CLIENT_ID and OIDC_RP_CLIENT_SECRET with real values in localsettings when activating
 ACTIVATE_OPEN_ID_LOGIN = False

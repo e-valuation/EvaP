@@ -1,6 +1,8 @@
 import logging
 
 from django import forms
+from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.debug import sensitive_variables
@@ -131,8 +133,8 @@ class ProfileForm(forms.ModelForm):
         for field in ("title", "first_name_given", "last_name", "email"):
             self.fields[field].disabled = True
 
-    def save(self, *args, **kw):
-        super().save(*args, **kw)
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
 
         if "first_name_chosen" in self.changed_data:
             logger.info(
@@ -143,3 +145,12 @@ class ProfileForm(forms.ModelForm):
             ).distinct()
             for evaluation in evaluations:
                 cache_results(evaluation)
+
+    def clean_first_name_chosen(self):
+        name = self.cleaned_data["first_name_chosen"]
+
+        for character in name:
+            if not settings.CHARACTER_ALLOWED_IN_NAME(character):
+                raise ValidationError(_("Name contains disallowed characters"))
+
+        return name
