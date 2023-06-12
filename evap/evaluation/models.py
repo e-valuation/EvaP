@@ -18,7 +18,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
 from django.db.models.functions import Coalesce, Lower, NullIf
 from django.db.models import Count, Manager, OuterRef, Q, Subquery, CheckConstraint, F, Value
-
+from django.db.models.functions import TruncDate
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
 from django.template.defaultfilters import linebreaksbr
@@ -460,7 +460,7 @@ class Evaluation(LoggedModel):
         verbose_name_plural = _("evaluations")
         constraints = [
             CheckConstraint(
-                check=Q(vote_end_date__gte=F('vote_start_datetime')),
+                check=Q(vote_end_date__gte=TruncDate(F('vote_start_datetime'))),
                 name='check_vote_date'
             ),
             CheckConstraint(
@@ -1169,7 +1169,7 @@ class Question(models.Model):
 
     @property
     def is_likert_question(self):
-        return self.type == self.LIKERT
+        return self.type == QuestionTypes.LIKERT
 
     @property
     def is_bipolar_likert_question(self):
