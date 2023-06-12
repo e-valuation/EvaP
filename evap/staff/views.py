@@ -799,7 +799,7 @@ def semester_participation_export(_request, semester_id):
 
 
 @manager_required
-def vote_timestamps_export(__, semester_id):
+def vote_timestamps_export(_request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     timestamps = VoteTimestamp.objects.filter(evaluation__course__semester=semester)
 

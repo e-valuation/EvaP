@@ -355,7 +355,7 @@ class TestVoteView(WebTest):
 
     def test_vote_timestamp(self):
         time_before = datetime.datetime.now()
-        timestamps_before = len(VoteTimestamp.objects.all())
+        timestamps_before = VoteTimestamp.objects.count()
         page = self.app.get(self.url, user=self.voting_user1, status=200)
         form = page.forms["student-vote-form"]
         self.fill_form(form)

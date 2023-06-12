@@ -15,21 +15,11 @@ class Migration(migrations.Migration):
             name="VoteTimestamp",
             fields=[
                 ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("timestamp", models.DateField(auto_now_add=True, verbose_name="vote timestamp")),
+                ("timestamp", models.DateTimeField(auto_now_add=True, verbose_name="vote timestamp")),
                 (
                     "evaluation",
-                    models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to="evaluation.evaluation"),
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="evaluation.evaluation"),
                 ),
             ],
-        ),
-        migrations.AlterField(
-            model_name="votetimestamp",
-            name="timestamp",
-            field=models.DateTimeField(auto_now_add=True, verbose_name="vote timestamp"),
-        ),
-        migrations.AlterField(
-            model_name="votetimestamp",
-            name="evaluation",
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="evaluation.evaluation"),
         ),
     ]
