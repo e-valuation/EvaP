@@ -240,9 +240,9 @@ class UserDataMismatchChecker(Checker):
             return format_html(
                 "{} {} {}, {} [{}]",
                 user.title or "",
-                user.first_name_given,
-                user.last_name,
-                user.email or "",
+                user.first_name_given or "(empty)",
+                user.last_name or "(empty)",
+                user.email or "(empty)",
                 user_edit_link(user.pk),
             )
 

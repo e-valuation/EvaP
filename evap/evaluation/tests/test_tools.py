@@ -20,9 +20,9 @@ from evap.evaluation.tools import (
 
 
 class TestLanguageMiddleware(WebTest):
-    def test_sets_language_if_none(self):
+    def test_sets_language_if_empty(self):
         translation.activate("de")
-        user = baker.make(UserProfile, language=None, email="user@institution.example.com")
+        user = baker.make(UserProfile, language="", email="user@institution.example.com")
 
         # Django's LocaleMiddleware should overwrite the active translation with what matches the user (-> "en")
         self.app.get("/", user=user)

@@ -237,7 +237,7 @@ class TestUserImport(ImporterTestCase):
             [msg.message for msg in importer_log_test.warnings_by_category()[ImporterLogEntry.Category.INACTIVE]],
             [
                 "The following user is currently marked inactive and will be marked active upon importing: "
-                f" None None, lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}]",
+                f" (empty) (empty), lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}]",
             ],
         )
 
@@ -246,7 +246,7 @@ class TestUserImport(ImporterTestCase):
             [msg.message for msg in importer_log_notest.warnings_by_category()[ImporterLogEntry.Category.INACTIVE]],
             [
                 "The following user was previously marked inactive and is now marked active upon importing: "
-                f" None None, lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}]"
+                f" (empty) (empty), lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}]"
             ],
         )
 

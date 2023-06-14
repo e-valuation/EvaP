@@ -613,7 +613,7 @@ class TestUserImportView(WebTestStaffMode):
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
-            f" -  None None, lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}] (existing)<br />"
+            f" -  (empty) (empty), lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}] (existing)<br />"
             " -  Lucilia Manilium, lucilia.manilium@institution.example.com (import)",
         )
 
@@ -1133,7 +1133,7 @@ class TestSemesterImportView(WebTestStaffMode):
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
-            f" -  None None, lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}] (existing)<br />"
+            f" -  (empty) (empty), lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}] (existing)<br />"
             " -  Lucilia Manilium, lucilia.manilium@institution.example.com (import)",
         )
         helper_delete_all_import_files(self.manager.id)
@@ -2387,7 +2387,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
-            f" -  None None, lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}] (existing)<br />"
+            f" -  (empty) (empty), lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}] (existing)<br />"
             " -  Lucilia Manilium, lucilia.manilium@institution.example.com (import)",
         )
         self.assertContains(reply, "Import previously uploaded file")
@@ -2426,7 +2426,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
-            f" -  None None, lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}] (existing)<br />"
+            f" -  (empty) (empty), lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}] (existing)<br />"
             " -  Lucilia Manilium, lucilia.manilium@institution.example.com (import)",
         )
         self.assertContains(reply, "Import previously uploaded file")
