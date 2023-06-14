@@ -10,6 +10,7 @@ from typing import Dict, List, NamedTuple, Tuple, Union
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group, PermissionsMixin
+from django.contrib.auth.password_validation import validate_password
 from django.contrib.postgres.fields import ArrayField
 from django.core.cache import caches
 from django.core.exceptions import ValidationError
@@ -1593,13 +1594,14 @@ class Infotext(models.Model):
 
 
 class UserProfileManager(BaseUserManager):
-    def create_user(self, email, password=None, first_name=None, last_name=None):
+    def create_user(self, *, email, password=None, first_name=None, last_name=None):
         user = self.model(email=self.normalize_email(email), first_name_given=first_name, last_name=last_name)
+        validate_password(password, user=user)
         user.set_password(password)
         user.save()
         return user
 
-    def create_superuser(self, email, password, first_name=None, last_name=None):
+    def create_superuser(self, *, email, password=None, first_name=None, last_name=None):
         user = self.create_user(
             password=password,
             email=self.normalize_email(email),
