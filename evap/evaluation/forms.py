@@ -151,6 +151,6 @@ class ProfileForm(forms.ModelForm):
 
         for character in name:
             if not settings.CHARACTER_ALLOWED_IN_NAME(character):
-                raise ValidationError(_("Name contains disallowed characters"))
+                raise ValidationError(_("Name contains disallowed characters."))
 
         return name
