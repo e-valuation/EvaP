@@ -13,7 +13,7 @@
                 {% csrf_token %}
                 {{ notebook_form.notes }}
                 <div class="mt-2 text-center notebook-button">
-                    <input class="btn btn-primary notebook-button" id="notebook-save-button" data-save-error="{% trans 'An error occured while saving the notebook.' %}" data-label-cooldown="{% trans 'Save Successful' %}" data-label-error="{% trans 'The server is not responding.' %}" data-label-sending="{% trans 'Sending...' %}" type="submit" value="{% trans 'Save' %}">
+                    <input class="btn btn-primary notebook-button" id="notebook-save-button" data-label-cooldown="{% trans 'Saved successfuly' %}" data-label-error="{% trans 'The server is not responding.' %}" data-label-sending="{% trans 'Sending...' %}" type="submit" value="{% trans 'Save' %}">
                 </div>
             </form>
         </div>
