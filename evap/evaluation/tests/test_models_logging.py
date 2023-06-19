@@ -122,12 +122,13 @@ class TestLoggedModel(TestCase):
             [participant2.pk],
         )
 
-    def test_none_value_not_included(self):
-        baker.make(Contribution, evaluation=self.evaluation, label="testlabel")
-        self.assertIn("label", self.evaluation.related_logentries().order_by("id").last().data)
+    def test_none_value_not_included_on_creation(self):
+        contributor = baker.make(UserProfile)
+        baker.make(Contribution, evaluation=self.evaluation, contributor=contributor)
+        self.assertIn("contributor", self.evaluation.related_logentries().order_by("id").last().data)
 
-        baker.make(Contribution, evaluation=self.evaluation, label=None)
-        self.assertNotIn("label", self.evaluation.related_logentries().order_by("id").last().data)
+        baker.make(Contribution, evaluation=self.evaluation, contributor=None)
+        self.assertNotIn("contributor", self.evaluation.related_logentries().order_by("id").last().data)
 
     def test_simultaneous_add_and_remove(self):
         # Regression test for https://github.com/e-valuation/EvaP/issues/1594

@@ -65,6 +65,7 @@ class Semester(models.Model):
 
     created_at = models.DateField(verbose_name=_("created at"), auto_now_add=True)
 
+    # (unique=True, blank=True, null=True) allows having multiple non-active but only one active semester
     is_active = models.BooleanField(
         default=None, unique=True, blank=True, null=True, verbose_name=_("semester is active")
     )
@@ -165,16 +166,16 @@ class Questionnaire(models.Model):
     name_en = models.CharField(max_length=1024, unique=True, verbose_name=_("name (english)"))
     name = translate(en="name_en", de="name_de")
 
-    description_de = models.TextField(verbose_name=_("description (german)"), blank=True, null=True)
-    description_en = models.TextField(verbose_name=_("description (english)"), blank=True, null=True)
+    description_de = models.TextField(verbose_name=_("description (german)"), blank=True)
+    description_en = models.TextField(verbose_name=_("description (english)"), blank=True)
     description = translate(en="description_en", de="description_de")
 
     public_name_de = models.CharField(max_length=1024, verbose_name=_("display name (german)"))
     public_name_en = models.CharField(max_length=1024, verbose_name=_("display name (english)"))
     public_name = translate(en="public_name_en", de="public_name_de")
 
-    teaser_de = models.TextField(verbose_name=_("teaser (german)"), blank=True, null=True)
-    teaser_en = models.TextField(verbose_name=_("teaser (english)"), blank=True, null=True)
+    teaser_de = models.TextField(verbose_name=_("teaser (german)"), blank=True)
+    teaser_en = models.TextField(verbose_name=_("teaser (english)"), blank=True)
     teaser = translate(en="teaser_en", de="teaser_de")
 
     order = models.IntegerField(verbose_name=_("ordering index"), default=0)
@@ -1043,7 +1044,7 @@ class Contribution(LoggedModel):
         verbose_name=_("text answer visibility"),
         default=TextAnswerVisibility.OWN_TEXTANSWERS,
     )
-    label = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("label"))
+    label = models.CharField(max_length=255, blank=True, verbose_name=_("label"))
 
     order = models.IntegerField(verbose_name=_("contribution order"), default=-1)
 
@@ -1618,12 +1619,12 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     # null=True because certain external users don't have an address
     email = models.EmailField(max_length=255, unique=True, blank=True, null=True, verbose_name=_("email address"))
 
-    title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Title"))
-    first_name_given = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("given first name"))
-    first_name_chosen = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("display name"))
-    last_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("last name"))
+    title = models.CharField(max_length=255, blank=True, default="", verbose_name=_("Title"))
+    first_name_given = models.CharField(max_length=255, blank=True, verbose_name=_("given first name"))
+    first_name_chosen = models.CharField(max_length=255, blank=True, default="", verbose_name=_("display name"))
+    last_name = models.CharField(max_length=255, blank=True, verbose_name=_("last name"))
 
-    language = models.CharField(max_length=8, blank=True, null=True, verbose_name=_("language"))
+    language = models.CharField(max_length=8, blank=True, default="", verbose_name=_("language"))
 
     # delegates of the user, which can also manage their evaluations
     delegates = models.ManyToManyField(
@@ -1647,8 +1648,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     class Meta:
         # keep in sync with ordering_key
         ordering = [
-            Lower("last_name"),
-            Lower(Coalesce(NullIf("first_name_chosen", Value("")), "first_name_given")),
+            Lower(NullIf("last_name", Value(""))),
+            Lower(Coalesce(NullIf("first_name_chosen", Value("")), NullIf("first_name_given", Value("")))),
             Lower("email"),
         ]
 
