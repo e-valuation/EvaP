@@ -106,27 +106,17 @@ class UserModelMultipleChoiceField(forms.ModelMultipleChoiceField):
         return obj.full_name_with_additional_info
 
 
-class DelegatesForm(forms.ModelForm):
+class ProfileForm(forms.ModelForm):
     delegates = UserModelMultipleChoiceField(
         queryset=UserProfile.objects.exclude(is_active=False).exclude(is_proxy_user=True), required=False
     )
 
     class Meta:
         model = UserProfile
-        fields = ("delegates",)
+        fields = ("title", "first_name_chosen", "first_name_given", "last_name", "email", "delegates")
         field_classes = {
             "delegates": UserModelMultipleChoiceField,
         }
-
-    def save(self, *args, **kw):
-        super().save(*args, **kw)
-        logger.info('User "%s" edited the settings.', self.instance.email)
-
-
-class ProfileForm(forms.ModelForm):
-    class Meta:
-        model = UserProfile
-        fields = ("title", "first_name_chosen", "first_name_given", "last_name", "email")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -145,6 +135,8 @@ class ProfileForm(forms.ModelForm):
             ).distinct()
             for evaluation in evaluations:
                 cache_results(evaluation)
+
+        logger.info('User "%s" edited the settings.', self.instance.email)
 
     def clean_first_name_chosen(self):
         name = self.cleaned_data["first_name_chosen"]
