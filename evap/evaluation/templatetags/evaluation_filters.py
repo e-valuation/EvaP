@@ -224,7 +224,7 @@ def get(dictionary, key):
 
 
 @register.filter
-def class_name_to_add(widget, added_class_name: str):
-    new_class = added_class_name + " " + widget["attrs"]["class"] if "class" in widget["attrs"] else added_class_name
+def add_class(widget, class_name_to_add: str):
+    new_class = class_name_to_add + " " + widget["attrs"]["class"] if "class" in widget["attrs"] else class_name_to_add
     widget["attrs"].update({"class": new_class})
     return widget

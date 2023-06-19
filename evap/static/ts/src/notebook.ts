@@ -1,4 +1,3 @@
-/* eslint-disable  @typescript-eslint/no-non-null-assertion */
 declare const bootstrap: typeof import("bootstrap");
 import { getCookie, setCookie, assertDefinedUnwrap } from "./utils.js";
 import { CSRF_HEADERS } from "./csrf-utils.js";

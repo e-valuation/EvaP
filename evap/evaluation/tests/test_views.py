@@ -144,7 +144,7 @@ class TestChangeLanguageView(WebTest):
 
 
 class TestProfileView(WebTest):
-    url = "/profile"
+    url = reverse("evaluation:profile_edit")
 
     @classmethod
     def setUpTestData(cls):
@@ -193,7 +193,7 @@ class TestProfileView(WebTest):
 
 class TestNotebookView(WebTest):
     url = reverse("evaluation:notebook")
-    page = "/profile"
+    page = reverse("evaluation:profile_edit")  # is used, but notebook is accessed from all pages
     note = "Data is so beautiful"
 
     def test_notebook(self):
