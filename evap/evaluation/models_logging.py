@@ -84,7 +84,7 @@ class LogEntry(models.Model):
     datetime = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT)
     action_type = models.CharField(max_length=255, choices=[(value, value) for value in InstanceActionType])
-    request_id = models.CharField(max_length=36, null=True, blank=True)
+    request_id = models.CharField(max_length=36, blank=True)
     data = models.JSONField(default=dict, encoder=LogJSONEncoder)
 
     class Meta:
@@ -210,7 +210,7 @@ class LoggedModel(models.Model):
             request_id = self.thread.request_id
         except AttributeError:
             user = None
-            request_id = None
+            request_id = ""
 
         attach_to_model, attached_to_object_id = self.object_to_attach_logentries_to
         attached_to_object_type = ContentType.objects.get_for_model(attach_to_model)

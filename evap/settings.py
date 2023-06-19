@@ -13,6 +13,8 @@ import os
 import sys
 from typing import Any, List, Tuple
 
+from django.contrib.staticfiles.storage import ManifestStaticFilesStorage
+
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
@@ -133,12 +135,17 @@ CACHES = {
     },
 }
 
+
+class ManifestStaticFilesStorageWithJsReplacement(ManifestStaticFilesStorage):
+    support_js_module_import_aggregation = True
+
+
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage",
+        "BACKEND": "evap.settings.ManifestStaticFilesStorageWithJsReplacement",
     },
 }
 
@@ -365,6 +372,17 @@ SLOGANS_EN = [
     "Everyone values awesome products",
     "Enhances vibrant academic programs",
 ]
+
+
+### Allowed chosen first names / display names
+def CHARACTER_ALLOWED_IN_NAME(character):  # pylint: disable=invalid-name
+    return any(
+        (
+            ord(character) in range(32, 127),  # printable ASCII / Basic Latin characters
+            ord(character) in range(160, 256),  # printable Latin-1 Supplement characters
+            ord(character) in range(256, 384),  # Latin Extended-A
+        )
+    )
 
 
 ### OpenID Login
