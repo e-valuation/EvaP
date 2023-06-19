@@ -38,6 +38,7 @@ assertDefinedUnwrap(document.getElementById("notebook-save-button")).addEventLis
                     target.disabled = false;
                 }, cooldown_time);
             } else {
+                target.setAttribute("value", default_label);
                 target.disabled = false;
                 alert(error_label);
             }
