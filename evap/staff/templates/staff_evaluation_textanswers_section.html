@@ -10,14 +10,14 @@
                 <p>{{ result.question.text }}</p>
                 <div class="grid-striped textanswer-review-grid container{% if not forloop.last %} mb-4{% endif %}">
                     <div class="grid-row fw-bold">
-                        <div class="px-2">{% trans 'Text answer' %}</div>
-                        <div class="px-2"></div>
-                        <div class="px-2">{% trans 'Decision' %}</div>
-                        <div class="px-2">{% trans 'Flag' %}</div>
+                        <div class="px-3 py-2">{% trans 'Text answer' %}</div>
+                        <div class="p-2"></div>
+                        <div class="px-3 py-2">{% trans 'Decision' %}</div>
+                        <div class="p-2">{% trans 'Flag' %}</div>
                     </div>
                     {% for answer in result.answers %}
                         <div class="grid-row" id="{{ answer.id }}">
-                            <div class="p-2 h-100 d-flex justify-content-left align-items-center">
+                            <div class="px-3 py-2 h-100 d-flex justify-content-left align-items-center">
                                 {{ answer.answer|linebreaksbr }}
                                 {% if answer.original_answer %}
                                     <br />
@@ -29,7 +29,7 @@
                                     <a class="btn btn-sm btn-outline-secondary" href="{% url 'staff:evaluation_textanswer_edit' answer.id %}"><span class="fas fa-pencil"></a>
                                 {% endif %}
                             </div>
-                            <div class="p-2 h-100 d-flex justify-content-center align-items-center">
+                            <div class="px-3 py-2 h-100 d-flex justify-content-center align-items-center">
                                 <form class="full-update-textanswer-form" method="POST" action="{% url 'staff:evaluation_textanswers_update_publish' %}">
                                     {% csrf_token %}
 
