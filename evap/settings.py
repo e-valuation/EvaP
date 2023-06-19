@@ -373,6 +373,17 @@ SLOGANS_EN = [
 ]
 
 
+### Allowed chosen first names / display names
+def CHARACTER_ALLOWED_IN_NAME(character):  # pylint: disable=invalid-name
+    return any(
+        (
+            ord(character) in range(32, 127),  # printable ASCII / Basic Latin characters
+            ord(character) in range(160, 256),  # printable Latin-1 Supplement characters
+            ord(character) in range(256, 384),  # Latin Extended-A
+        )
+    )
+
+
 ### OpenID Login
 # replace 'example.com', OIDC_RP_CLIENT_ID and OIDC_RP_CLIENT_SECRET with real values in localsettings when activating
 ACTIVATE_OPEN_ID_LOGIN = False
