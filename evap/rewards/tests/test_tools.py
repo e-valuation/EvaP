@@ -2,7 +2,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from model_bakery import baker
 
-from evap.evaluation.models import NO_ANSWER, Course, Evaluation, Question, QuestionTypes, Questionnaire, UserProfile
+from evap.evaluation.models import NO_ANSWER, Course, Evaluation, Question, Questionnaire, QuestionTypes, UserProfile
 from evap.evaluation.tests.tools import WebTest
 from evap.rewards.models import RewardPointGranting, SemesterActivation
 from evap.rewards.tools import reward_points_of_user

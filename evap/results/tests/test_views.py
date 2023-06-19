@@ -18,8 +18,8 @@ from evap.evaluation.models import (
     Degree,
     Evaluation,
     Question,
-    QuestionTypes,
     Questionnaire,
+    QuestionTypes,
     RatingAnswerCounter,
     Semester,
     UserProfile,
@@ -405,7 +405,9 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
         bottom_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM)
 
-        top_heading_question = baker.make(Question, type=QuestionTypes.HEADING, questionnaire=top_questionnaire, order=0)
+        top_heading_question = baker.make(
+            Question, type=QuestionTypes.HEADING, questionnaire=top_questionnaire, order=0
+        )
         top_likert_question = baker.make(Question, type=QuestionTypes.LIKERT, questionnaire=top_questionnaire, order=1)
 
         contributor_likert_question = baker.make(
@@ -415,7 +417,9 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         bottom_heading_question = baker.make(
             Question, type=QuestionTypes.HEADING, questionnaire=bottom_questionnaire, order=0
         )
-        bottom_likert_question = baker.make(Question, type=QuestionTypes.LIKERT, questionnaire=bottom_questionnaire, order=1)
+        bottom_likert_question = baker.make(
+            Question, type=QuestionTypes.LIKERT, questionnaire=bottom_questionnaire, order=1
+        )
 
         self.evaluation.general_contribution.questionnaires.set([top_questionnaire, bottom_questionnaire])
         self.contribution.questionnaires.set([contributor_questionnaire])

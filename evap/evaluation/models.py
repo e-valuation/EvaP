@@ -16,9 +16,8 @@ from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
-from django.db.models.functions import Coalesce, Lower, NullIf
-from django.db.models import Count, Manager, OuterRef, Q, Subquery, CheckConstraint, F, Value
-from django.db.models.functions import TruncDate
+from django.db.models import CheckConstraint, Count, F, Manager, OuterRef, Q, Subquery, Value
+from django.db.models.functions import Coalesce, Lower, NullIf, TruncDate
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
 from django.template.defaultfilters import linebreaksbr
@@ -459,15 +458,12 @@ class Evaluation(LoggedModel):
         verbose_name = _("evaluation")
         verbose_name_plural = _("evaluations")
         constraints = [
+            CheckConstraint(check=Q(vote_end_date__gte=TruncDate(F("vote_start_datetime"))), name="check_vote_date"),
             CheckConstraint(
-                check=Q(vote_end_date__gte=TruncDate(F('vote_start_datetime'))),
-                name='check_vote_date'
+                check=~(Q(_participant_count__isnull=True) ^ Q(_voter_count__isnull=True)), name="check_count_null"
             ),
-            CheckConstraint(
-                check=~(Q(_participant_count__isnull=True) ^ Q(_voter_count__isnull=True)),
-                name='check_count_null'
-            )
         ]
+
     def __str__(self):
         return self.full_name
 
@@ -635,10 +631,10 @@ class Evaluation(LoggedModel):
     def _archive(self):
         """Should be called only via Semester.archive"""
         if not self.participations_can_be_archived:
-            raise NotArchiveable() 
+            raise NotArchiveable()
         if self._participant_count is not None:
             assert self._voter_count is not None
-            assert ( #This assert can not easily be replaced by a constraint, this is not possible on many-to-many relations
+            assert (  # This assert can not easily be replaced by a constraint, this is not possible on many-to-many relations
                 self.is_single_result
                 or self._voter_count == self.voters.count()
                 and self._participant_count == self.participants.count()
@@ -1128,7 +1124,6 @@ class Question(models.Model):
         (_("Layout"), ((QuestionTypes.HEADING, _("Heading")),)),
     )
 
-
     order = models.IntegerField(verbose_name=_("question order"), default=-1)
     questionnaire = models.ForeignKey(Questionnaire, models.CASCADE, related_name="questions")
     text_de = models.CharField(max_length=1024, verbose_name=_("question text (german)"))
@@ -1144,11 +1139,13 @@ class Question(models.Model):
         verbose_name_plural = _("questions")
         constraints = [
             CheckConstraint(
-                check=~(Q(type=QuestionTypes.TEXT) | Q(type=QuestionTypes.HEADING)) | ~Q(allows_additional_textanswers=True),#Value("type") == , #not in [QuestionTypes.TEXT, QuestionTypes.HEADING] or not Value("allows_additional_textanswers"),
-                name="check_additional_textanswers"
+                check=~(Q(type=QuestionTypes.TEXT) | Q(type=QuestionTypes.HEADING))
+                | ~Q(
+                    allows_additional_textanswers=True
+                ),  # Value("type") == , #not in [QuestionTypes.TEXT, QuestionTypes.HEADING] or not Value("allows_additional_textanswers"),
+                name="check_additional_textanswers",
             )
         ]
-        
 
     def save(self, *args, **kwargs):
         if self.type in [QuestionTypes.TEXT, QuestionTypes.HEADING]:
@@ -1473,12 +1470,7 @@ class TextAnswer(Answer):
         ordering = ["id"]
         verbose_name = _("text answer")
         verbose_name_plural = _("text answers")
-        constraints = [
-            CheckConstraint(
-                check = ~Q(answer=F('original_answer')),
-                name = 'check_text_answer'
-            )
-        ]
+        constraints = [CheckConstraint(check=~Q(answer=F("original_answer")), name="check_text_answer")]
 
     @property
     def will_be_deleted(self):

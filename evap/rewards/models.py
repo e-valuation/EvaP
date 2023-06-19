@@ -1,9 +1,10 @@
 from collections import OrderedDict
 
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.dispatch import Signal
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import MinValueValidator
+
 from evap.evaluation.models import Semester, UserProfile
 
 
@@ -51,7 +52,7 @@ class RewardPointGranting(models.Model):
     user_profile = models.ForeignKey(UserProfile, models.CASCADE, related_name="reward_point_grantings")
     semester = models.ForeignKey(Semester, models.PROTECT, related_name="reward_point_grantings")
     granting_time = models.DateTimeField(verbose_name=_("granting time"), auto_now_add=True)
-    value = models.IntegerField(verbose_name=_("value"), default=0) # Might consider enforcing MinValue in the future
+    value = models.IntegerField(verbose_name=_("value"), default=0)  # Might consider enforcing MinValue in the future
 
     granted_by_removal = Signal()
 
