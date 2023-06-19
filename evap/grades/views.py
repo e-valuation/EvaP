@@ -2,11 +2,12 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db.models.query import QuerySet
-from django.http import FileResponse, HttpResponse
+from django.http import FileResponse, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET, require_POST
-from django.views.generic import DetailView, TemplateView
+from django.views.generic import DetailView, TemplateView, UpdateView
+from django.urls import reverse
 
 from evap.evaluation.auth import (
     grade_downloader_required,
@@ -105,43 +106,54 @@ def on_grading_process_finished(course):
 
 
 @grade_publisher_required
-def upload_grades(request, course_id):
-    course = get_object_or_404(Course, id=course_id)
-    semester = course.semester
-    if semester.grade_documents_are_deleted:
-        raise PermissionDenied
+class UploadGradesView(UpdateView):
+    model = GradeDocument
+    form_class = GradeDocumentForm
+    template_name = "grades_upload_form.html"
 
-    final_grades = request.GET.get("final") == "true"  # if parameter is not given, assume midterm grades
+    def dispatch(self, request, course_id):
+        self.course = get_object_or_404(Course, id=course_id)
+        if self.course.semester.grade_documents_are_deleted:
+            raise PermissionDenied
+        self.final_grades = request.GET.get("final") == "true"  # if parameter is not given, assume midterm grades
 
-    grade_document = GradeDocument(course=course)
-    if final_grades:
-        grade_document.type = GradeDocument.Type.FINAL_GRADES
-        grade_document.description_en = settings.DEFAULT_FINAL_GRADES_DESCRIPTION_EN
-        grade_document.description_de = settings.DEFAULT_FINAL_GRADES_DESCRIPTION_DE
-    else:
-        grade_document.type = GradeDocument.Type.MIDTERM_GRADES
-        grade_document.description_en = settings.DEFAULT_MIDTERM_GRADES_DESCRIPTION_EN
-        grade_document.description_de = settings.DEFAULT_MIDTERM_GRADES_DESCRIPTION_DE
+        return super().dispatch(request)
 
-    form = GradeDocumentForm(request.POST or None, request.FILES or None, instance=grade_document)
+    def get_object(self):
+        if self.final_grades:
+            type_specific_kwargs = {
+                "type": GradeDocument.Type.FINAL_GRADES,
+                "description_en": settings.DEFAULT_FINAL_GRADES_DESCRIPTION_EN,
+                "description_de": settings.DEFAULT_FINAL_GRADES_DESCRIPTION_DE,
+            }
+        else:
+            type_specific_kwargs = {
+                "type": GradeDocument.Type.MIDTERM_GRADES,
+                "description_en": settings.DEFAULT_MIDTERM_GRADES_DESCRIPTION_EN,
+                "description_de": settings.DEFAULT_MIDTERM_GRADES_DESCRIPTION_DE,
+            }
 
-    if form.is_valid():
-        form.save(modifying_user=request.user)
+        return GradeDocument(course=self.course, **type_specific_kwargs)
 
-        if final_grades:
-            on_grading_process_finished(course)
+    def get_success_url(self):
+        return reverse("grades:course_view", args=[self.course.id])
 
-        messages.success(request, _("Successfully uploaded grades."))
-        return redirect("grades:course_view", course.id)
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs) | {
+            "semester": self.course.semester,
+            "course": self.course,
+            "final_grades": self.final_grades,
+            "show_automated_publishing_info": self.final_grades,
+        }
 
-    template_data = {
-        "semester": semester,
-        "course": course,
-        "form": form,
-        "final_grades": final_grades,
-        "show_automated_publishing_info": final_grades,
-    }
-    return render(request, "grades_upload_form.html", template_data)
+    def form_valid(self, form):
+        # Don't call super().form_valid() to avoid saving again
+        self.object = form.save(modifying_user=self.request.user)
+        if self.final_grades:
+            on_grading_process_finished(self.course)
+
+        messages.success(self.request, _("Successfully uploaded grades."))
+        return HttpResponseRedirect(self.get_success_url())
 
 
 @require_POST
