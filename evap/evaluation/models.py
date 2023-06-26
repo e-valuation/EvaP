@@ -1081,7 +1081,7 @@ class Contribution(LoggedModel):
         RatingAnswerCounter.objects.filter(contribution=self, question__questionnaire__in=questionnaires).delete()
 
 
-class QuestionTypes(models.IntegerChoices):
+class QuestionType():
     TEXT = 0
     LIKERT = 1
     GRADE = 2
@@ -1100,28 +1100,28 @@ class Question(models.Model):
     """A question including a type."""
 
     QUESTION_TYPES = (
-        (_("Text"), ((QuestionTypes.TEXT, _("Text question")),)),
-        (_("Unipolar Likert"), ((QuestionTypes.LIKERT, _("Agreement question")),)),
-        (_("Grade"), ((QuestionTypes.GRADE, _("Grade question")),)),
+        (_("Text"), ((QuestionType.TEXT, _("Text question")),)),
+        (_("Unipolar Likert"), ((QuestionType.LIKERT, _("Agreement question")),)),
+        (_("Grade"), ((QuestionType.GRADE, _("Grade question")),)),
         (
             _("Bipolar Likert"),
             (
-                (QuestionTypes.EASY_DIFFICULT, _("Easy-difficult question")),
-                (QuestionTypes.FEW_MANY, _("Few-many question")),
-                (QuestionTypes.LITTLE_MUCH, _("Little-much question")),
-                (QuestionTypes.SMALL_LARGE, _("Small-large question")),
-                (QuestionTypes.SLOW_FAST, _("Slow-fast question")),
-                (QuestionTypes.SHORT_LONG, _("Short-long question")),
+                (QuestionType.EASY_DIFFICULT, _("Easy-difficult question")),
+                (QuestionType.FEW_MANY, _("Few-many question")),
+                (QuestionType.LITTLE_MUCH, _("Little-much question")),
+                (QuestionType.SMALL_LARGE, _("Small-large question")),
+                (QuestionType.SLOW_FAST, _("Slow-fast question")),
+                (QuestionType.SHORT_LONG, _("Short-long question")),
             ),
         ),
         (
             _("Yes-no"),
             (
-                (QuestionTypes.POSITIVE_YES_NO, _("Positive yes-no question")),
-                (QuestionTypes.NEGATIVE_YES_NO, _("Negative yes-no question")),
+                (QuestionType.POSITIVE_YES_NO, _("Positive yes-no question")),
+                (QuestionType.NEGATIVE_YES_NO, _("Negative yes-no question")),
             ),
         ),
-        (_("Layout"), ((QuestionTypes.HEADING, _("Heading")),)),
+        (_("Layout"), ((QuestionType.HEADING, _("Heading")),)),
     )
 
     order = models.IntegerField(verbose_name=_("question order"), default=-1)
@@ -1139,16 +1139,16 @@ class Question(models.Model):
         verbose_name_plural = _("questions")
         constraints = [
             CheckConstraint(
-                check=~(Q(type=QuestionTypes.TEXT) | Q(type=QuestionTypes.HEADING))
+                check=~(Q(type=QuestionType.TEXT) | Q(type=QuestionType.HEADING))
                 | ~Q(
                     allows_additional_textanswers=True
-                ),  # Value("type") == , #not in [QuestionTypes.TEXT, QuestionTypes.HEADING] or not Value("allows_additional_textanswers"),
+                ),  # Value("type") == , #not in [QuestionType.TEXT, QuestionType.HEADING] or not Value("allows_additional_textanswers"),
                 name="check_additional_textanswers",
             )
         ]
 
     def save(self, *args, **kwargs):
-        if self.type in [QuestionTypes.TEXT, QuestionTypes.HEADING]:
+        if self.type in [QuestionType.TEXT, QuestionType.HEADING]:
             self.allows_additional_textanswers = False
             if "update_fields" in kwargs:
                 kwargs["update_fields"] = {"allows_additional_textanswers"}.union(kwargs["update_fields"])
@@ -1166,34 +1166,34 @@ class Question(models.Model):
 
     @property
     def is_likert_question(self):
-        return self.type == QuestionTypes.LIKERT
+        return self.type == QuestionType.LIKERT
 
     @property
     def is_bipolar_likert_question(self):
         return self.type in (
-            QuestionTypes.EASY_DIFFICULT,
-            QuestionTypes.FEW_MANY,
-            QuestionTypes.LITTLE_MUCH,
-            QuestionTypes.SLOW_FAST,
-            QuestionTypes.SMALL_LARGE,
-            QuestionTypes.SHORT_LONG,
+            QuestionType.EASY_DIFFICULT,
+            QuestionType.FEW_MANY,
+            QuestionType.LITTLE_MUCH,
+            QuestionType.SLOW_FAST,
+            QuestionType.SMALL_LARGE,
+            QuestionType.SHORT_LONG,
         )
 
     @property
     def is_text_question(self):
-        return self.type == QuestionTypes.TEXT
+        return self.type == QuestionType.TEXT
 
     @property
     def is_grade_question(self):
-        return self.type == QuestionTypes.GRADE
+        return self.type == QuestionType.GRADE
 
     @property
     def is_positive_yes_no_question(self):
-        return self.type == QuestionTypes.POSITIVE_YES_NO
+        return self.type == QuestionType.POSITIVE_YES_NO
 
     @property
     def is_negative_yes_no_question(self):
-        return self.type == QuestionTypes.NEGATIVE_YES_NO
+        return self.type == QuestionType.NEGATIVE_YES_NO
 
     @property
     def is_yes_no_question(self):
@@ -1214,7 +1214,7 @@ class Question(models.Model):
 
     @property
     def is_heading_question(self):
-        return self.type == QuestionTypes.HEADING
+        return self.type == QuestionType.HEADING
 
     @property
     def can_have_textanswers(self):
@@ -1268,7 +1268,7 @@ BASE_YES_NO_CHOICES = {
 }
 
 CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
-    QuestionTypes.LIKERT: Choices(
+    QuestionType.LIKERT: Choices(
         names=[
             _("Strongly\nagree"),
             _("Agree"),
@@ -1279,7 +1279,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
         ],
         **BASE_UNIPOLAR_CHOICES,  # type: ignore
     ),
-    QuestionTypes.GRADE: Choices(
+    QuestionType.GRADE: Choices(
         names=[
             "1",
             "2",
@@ -1290,7 +1290,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
         ],
         **BASE_UNIPOLAR_CHOICES,  # type: ignore
     ),
-    QuestionTypes.EASY_DIFFICULT: BipolarChoices(
+    QuestionType.EASY_DIFFICULT: BipolarChoices(
         minus_name=_("Easy"),
         plus_name=_("Difficult"),
         names=[
@@ -1305,7 +1305,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
         ],
         **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
-    QuestionTypes.FEW_MANY: BipolarChoices(
+    QuestionType.FEW_MANY: BipolarChoices(
         minus_name=_("Few"),
         plus_name=_("Many"),
         names=[
@@ -1320,7 +1320,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
         ],
         **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
-    QuestionTypes.LITTLE_MUCH: BipolarChoices(
+    QuestionType.LITTLE_MUCH: BipolarChoices(
         minus_name=_("Little"),
         plus_name=_("Much"),
         names=[
@@ -1335,7 +1335,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
         ],
         **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
-    QuestionTypes.SMALL_LARGE: BipolarChoices(
+    QuestionType.SMALL_LARGE: BipolarChoices(
         minus_name=_("Small"),
         plus_name=_("Large"),
         names=[
@@ -1350,7 +1350,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
         ],
         **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
-    QuestionTypes.SLOW_FAST: BipolarChoices(
+    QuestionType.SLOW_FAST: BipolarChoices(
         minus_name=_("Slow"),
         plus_name=_("Fast"),
         names=[
@@ -1365,7 +1365,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
         ],
         **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
-    QuestionTypes.SHORT_LONG: BipolarChoices(
+    QuestionType.SHORT_LONG: BipolarChoices(
         minus_name=_("Short"),
         plus_name=_("Long"),
         names=[
@@ -1380,7 +1380,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
         ],
         **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
-    QuestionTypes.POSITIVE_YES_NO: Choices(
+    QuestionType.POSITIVE_YES_NO: Choices(
         names=[
             _("Yes"),
             _("No"),
@@ -1388,7 +1388,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
         ],
         **BASE_YES_NO_CHOICES,  # type: ignore
     ),
-    QuestionTypes.NEGATIVE_YES_NO: Choices(
+    QuestionType.NEGATIVE_YES_NO: Choices(
         names=[
             _("No"),
             _("Yes"),

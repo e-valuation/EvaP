@@ -25,7 +25,7 @@ from evap.evaluation.models import (
     Infotext,
     Question,
     Questionnaire,
-    QuestionTypes,
+    QuestionType,
     RatingAnswerCounter,
     Semester,
     TextAnswer,
@@ -899,12 +899,12 @@ class QuestionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.instance.pk and self.instance.type in [QuestionTypes.TEXT, QuestionTypes.HEADING]:
+        if self.instance.pk and self.instance.type in [QuestionType.TEXT, QuestionType.HEADING]:
             self.fields["allows_additional_textanswers"].disabled = True
 
     def clean(self):
         super().clean()
-        if self.cleaned_data.get("type") in [QuestionTypes.TEXT, QuestionTypes.HEADING]:
+        if self.cleaned_data.get("type") in [QuestionType.TEXT, QuestionType.HEADING]:
             self.cleaned_data["allows_additional_textanswers"] = False
         return self.cleaned_data
 

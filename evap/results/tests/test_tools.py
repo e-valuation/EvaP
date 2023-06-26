@@ -12,7 +12,7 @@ from evap.evaluation.models import (
     Evaluation,
     Question,
     Questionnaire,
-    QuestionTypes,
+    QuestionType,
     RatingAnswerCounter,
     TextAnswer,
     UserProfile,
@@ -83,7 +83,7 @@ class TestCalculateResults(TestCase):
             voters=[student, contributor1],
         )
         questionnaire = baker.make(Questionnaire)
-        question = baker.make(Question, questionnaire=questionnaire, type=QuestionTypes.GRADE)
+        question = baker.make(Question, questionnaire=questionnaire, type=QuestionType.GRADE)
         contribution1 = baker.make(
             Contribution, contributor=contributor1, evaluation=evaluation, questionnaires=[questionnaire]
         )
@@ -113,7 +113,7 @@ class TestCalculateResults(TestCase):
             voters=[student, contributor1],
         )
         questionnaire = baker.make(Questionnaire)
-        question = baker.make(Question, questionnaire=questionnaire, type=QuestionTypes.EASY_DIFFICULT)
+        question = baker.make(Question, questionnaire=questionnaire, type=QuestionType.EASY_DIFFICULT)
         contribution1 = baker.make(
             Contribution, contributor=contributor1, evaluation=evaluation, questionnaires=[questionnaire]
         )
@@ -149,7 +149,7 @@ class TestCalculateResults(TestCase):
 
         evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED, participants=[student])
         questionnaire = baker.make(Questionnaire)
-        baker.make(Question, questionnaire=questionnaire, type=QuestionTypes.GRADE)
+        baker.make(Question, questionnaire=questionnaire, type=QuestionType.GRADE)
         baker.make(Contribution, contributor=contributor, evaluation=evaluation, questionnaires=[questionnaire])
 
         cache_results(evaluation)
@@ -177,11 +177,11 @@ class TestCalculateAverageDistribution(TestCase):
             voters=[cls.student1, cls.student2],
         )
         cls.questionnaire = baker.make(Questionnaire)
-        cls.question_grade = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionTypes.GRADE)
-        cls.question_likert = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionTypes.LIKERT)
-        cls.question_likert_2 = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionTypes.LIKERT)
-        cls.question_bipolar = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionTypes.FEW_MANY)
-        cls.question_bipolar_2 = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionTypes.LITTLE_MUCH)
+        cls.question_grade = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.GRADE)
+        cls.question_likert = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.LIKERT)
+        cls.question_likert_2 = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.LIKERT)
+        cls.question_bipolar = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.FEW_MANY)
+        cls.question_bipolar_2 = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.LITTLE_MUCH)
         cls.general_contribution = cls.evaluation.general_contribution
         cls.general_contribution.questionnaires.set([cls.questionnaire])
         cls.contribution1 = baker.make(
@@ -205,7 +205,7 @@ class TestCalculateAverageDistribution(TestCase):
         GENERAL_NON_GRADE_QUESTIONS_WEIGHT=5,
     )
     def test_average_grade(self):
-        question_grade2 = baker.make(Question, questionnaire=self.questionnaire, type=QuestionTypes.GRADE)
+        question_grade2 = baker.make(Question, questionnaire=self.questionnaire, type=QuestionType.GRADE)
 
         counters = [
             *make_rating_answer_counters(self.question_grade, self.contribution1, [0, 1, 0, 0, 0], False),
@@ -345,7 +345,7 @@ class TestCalculateAverageDistribution(TestCase):
             voters=[self.student1, self.student2],
         )
         questionnaire_text = baker.make(Questionnaire)
-        baker.make(Question, questionnaire=questionnaire_text, type=QuestionTypes.TEXT)
+        baker.make(Question, questionnaire=questionnaire_text, type=QuestionType.TEXT)
         baker.make(
             Contribution,
             contributor=baker.make(UserProfile),
@@ -385,7 +385,7 @@ class TestCalculateAverageDistribution(TestCase):
         self.assertAlmostEqual(distribution[4], 0.15)
 
     def test_unipolarized_yesno(self):
-        question_yesno = baker.make(Question, questionnaire=self.questionnaire, type=QuestionTypes.POSITIVE_YES_NO)
+        question_yesno = baker.make(Question, questionnaire=self.questionnaire, type=QuestionType.POSITIVE_YES_NO)
         answer_counters = make_rating_answer_counters(question_yesno, self.general_contribution, [57, 43])
 
         result = RatingResult(question_yesno, answer_counters)
@@ -463,8 +463,8 @@ class TestTextAnswerVisibilityInfo(TestCase):
             can_publish_text_results=True,
         )
         cls.questionnaire = baker.make(Questionnaire)
-        cls.question = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionTypes.TEXT)
-        cls.question_likert = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionTypes.LIKERT)
+        cls.question = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.TEXT)
+        cls.question_likert = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.LIKERT)
         cls.general_contribution = cls.evaluation.general_contribution
         cls.general_contribution.questionnaires.set([cls.questionnaire])
         cls.responsible1_contribution = baker.make(
