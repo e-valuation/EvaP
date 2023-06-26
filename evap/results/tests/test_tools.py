@@ -178,8 +178,9 @@ class TestCalculateAverageDistribution(TestCase):
         )
         cls.questionnaire = baker.make(Questionnaire)
         cls.question_grade = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.GRADE)
-        cls.question_likert = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.LIKERT)
-        cls.question_likert_2 = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.LIKERT)
+        cls.question_likert = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.POSITIVE_LIKERT)
+        cls.question_likert_2 = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.POSITIVE_LIKERT)
+        cls.question_negative_likert = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.NEGATIVE_LIKERT)
         cls.question_bipolar = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.FEW_MANY)
         cls.question_bipolar_2 = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.LITTLE_MUCH)
         cls.general_contribution = cls.evaluation.general_contribution
@@ -464,7 +465,7 @@ class TestTextAnswerVisibilityInfo(TestCase):
         )
         cls.questionnaire = baker.make(Questionnaire)
         cls.question = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.TEXT)
-        cls.question_likert = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.LIKERT)
+        cls.question_likert = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.POSITIVE_LIKERT)
         cls.general_contribution = cls.evaluation.general_contribution
         cls.general_contribution.questionnaires.set([cls.questionnaire])
         cls.responsible1_contribution = baker.make(
