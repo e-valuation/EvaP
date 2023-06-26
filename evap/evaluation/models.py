@@ -1645,7 +1645,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     is_active = models.BooleanField(default=True, verbose_name=_("active"))
 
-    notes = models.TextField(verbose_name=_("notes"), blank=True, null=False, default="")
+    notes = models.TextField(verbose_name=_("notes"), blank=True, default="")
 
     class Meta:
         # keep in sync with ordering_key
