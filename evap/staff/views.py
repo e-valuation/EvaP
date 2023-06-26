@@ -2233,16 +2233,18 @@ def user_merge_selection(request):
         if user1.is_external == False:
             for user2 in all_users:
                 if user1.is_external == False:
-                    if user1.email != user2.email and user1.email.split('@')[0] == user2.email.split('@')[0]
-                        suggested_merges.append(user1, user2)
-
+                    if user1.email != user2.email and user1.email.split('@')[0] == user2.email.split('@')[0]:
+                        if user1.id > user2.id:
+                            suggested_merges.append([user1, user2])
+                        else:
+                            suggested_merges.append([user2, user1])
 
     if form.is_valid():
         main_user = form.cleaned_data["main_user"]
         other_user = form.cleaned_data["other_user"]
         return redirect("staff:user_merge", main_user.id, other_user.id)
 
-    return render(request, "staff_user_merge_selection.html", {"form": form, "users": suggested_merges})
+    return render(request, "staff_user_merge_selection.html", {"form": form, "suggested_merges": suggested_merges})
 
 
 @manager_required
