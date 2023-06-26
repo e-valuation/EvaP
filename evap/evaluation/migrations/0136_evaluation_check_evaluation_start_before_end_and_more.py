@@ -48,7 +48,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="textanswer",
             constraint=models.CheckConstraint(
-                check=models.Q(("answer__ne", models.F("original_answer"))),
+                check=models.Q(("answer", models.F("original_answer")), _negated=True),
                 name="check_evaluation_text_answer_is_modified",
             ),
         ),

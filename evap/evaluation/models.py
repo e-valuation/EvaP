@@ -1470,7 +1470,7 @@ class TextAnswer(Answer):
         ordering = ["id"]
         verbose_name = _("text answer")
         verbose_name_plural = _("text answers")
-        constraints = [CheckConstraint(check=Q(answer__ne=F("original_answer")), name="check_evaluation_text_answer_is_modified")]
+        constraints = [CheckConstraint(check=~Q(answer=F("original_answer")), name="check_evaluation_text_answer_is_modified")]
 
     @property
     def will_be_deleted(self):
