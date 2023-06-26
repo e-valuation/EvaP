@@ -40,7 +40,7 @@ urlpatterns = [
 
     path("semester/<int:semester_id>/course/create", views.course_create, name="course_create"),
     path("course/delete", views.course_delete, name="course_delete"),
-    path("course/<int:course_id>/edit", views.course_edit, name="course_edit"),
+    path("course/<int:course_id>/edit", views.CourseEditView.as_view(), name="course_edit"),
     path("course/<int:course_id>/copy", views.course_copy, name="course_copy"),
 
     path("semester/<int:semester_id>/singleresult/create", views.single_result_create_for_semester, name="single_result_create_for_semester"),

@@ -1039,41 +1039,46 @@ def course_copy(request, course_id):
 
 
 @manager_required
-def course_edit(request, course_id):
-    course = get_object_or_404(Course, id=course_id)
+class CourseEditView(SuccessMessageMixin, UpdateView):
+    model = Course
+    pk_url_kwarg = "course_id"
+    form_class = CourseForm
+    template_name = "staff_course_form.html"
+    success_message = gettext_lazy("Successfully updated course.")
 
-    course_form = CourseForm(request.POST or None, instance=course)
-    editable = course.can_be_edited_by_manager
+    object: Course
 
-    if request.method == "POST" and not editable:
-        raise SuspiciousOperation("Modifying this course is not allowed.")
+    def get_object(self, *args, **kwargs):
+        course = super().get_object(*args, **kwargs)
+        if self.request.method == "POST" and not course.can_be_edited_by_manager:
+            raise SuspiciousOperation("Modifying this course is not allowed.")
+        return course
 
-    operation = request.POST.get("operation")
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs) | {
+            "semester": self.object.semester,
+            "editable": self.object.can_be_edited_by_manager,
+            "disable_breadcrumb_course": True,
+        }
+        context_data["course_form"] = context_data.pop("form")
+        return context_data
 
-    if course_form.is_valid():
-        if operation not in ("save", "save_create_evaluation", "save_create_single_result"):
-            raise SuspiciousOperation("Invalid POST operation")
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if form.has_changed():
+            update_template_cache_of_published_evaluations_in_course(self.object)
+        return response
 
-        if course_form.has_changed():
-            course = course_form.save()
-            update_template_cache_of_published_evaluations_in_course(course)
-
-        messages.success(request, _("Successfully updated course."))
-        if operation == "save_create_evaluation":
-            return redirect("staff:evaluation_create_for_course", course.id)
-        if operation == "save_create_single_result":
-            return redirect("staff:single_result_create_for_course", course.id)
-
-        return redirect("staff:semester_view", course.semester.id)
-
-    template_data = {
-        "course": course,
-        "semester": course.semester,
-        "course_form": course_form,
-        "editable": editable,
-        "disable_breadcrumb_course": True,
-    }
-    return render(request, "staff_course_form.html", template_data)
+    def get_success_url(self):
+        match self.request.POST.get("operation"):
+            case "save":
+                return reverse("staff:semester_view", args=[self.object.semester.id])
+            case "save_create_evaluation":
+                return reverse("staff:evaluation_create_for_course", args=[self.object.id])
+            case "save_create_single_result":
+                return reverse("staff:single_result_create_for_course", args=[self.object.id])
+            case _:
+                raise SuspiciousOperation("Invalid POST operation")
 
 
 @require_POST

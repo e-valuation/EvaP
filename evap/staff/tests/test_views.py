@@ -1946,20 +1946,20 @@ class TestCourseEditView(WebTestStaffMode):
         self.course = Course.objects.get(pk=self.course.pk)
         self.assertEqual(self.course.name_en, "A different name")
 
-    @patch("evap.staff.views.redirect")
-    def test_operation_redirects(self, mock_redirect):
-        mock_redirect.side_effect = lambda *_args: HttpResponse()
+    @patch("evap.staff.views.reverse")
+    def test_operation_redirects(self, mock_reverse):
+        mock_reverse.return_value = "very_legit_url"
 
         self.prepare_form("a").submit("operation", value="save")
-        self.assertEqual(mock_redirect.call_args.args[0], "staff:semester_view")
+        self.assertEqual(mock_reverse.call_args.args[0], "staff:semester_view")
 
         self.prepare_form("b").submit("operation", value="save_create_evaluation")
-        self.assertEqual(mock_redirect.call_args.args[0], "staff:evaluation_create_for_course")
+        self.assertEqual(mock_reverse.call_args.args[0], "staff:evaluation_create_for_course")
 
         self.prepare_form("c").submit("operation", value="save_create_single_result")
-        self.assertEqual(mock_redirect.call_args.args[0], "staff:single_result_create_for_course")
+        self.assertEqual(mock_reverse.call_args.args[0], "staff:single_result_create_for_course")
 
-        self.assertEqual(mock_redirect.call_count, 3)
+        self.assertEqual(mock_reverse.call_count, 3)
 
 
 class TestCourseDeleteView(DeleteViewTestMixin, WebTestStaffMode):
