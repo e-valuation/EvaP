@@ -12,6 +12,8 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import IntegrityError, transaction
 from django.db.models import BooleanField, Case, Count, ExpressionWrapper, IntegerField, Prefetch, Q, Sum, When
+from django.contrib.messages.views import SuccessMessageMixin
+from django.views.generic import CreateView, UpdateView
 from django.dispatch import receiver
 from django.forms import formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
@@ -571,15 +573,26 @@ def evaluation_operation(request, semester_id):
 
 
 @manager_required
-def semester_create(request):
-    form = SemesterForm(request.POST or None)
+class SemesterCreateView(SuccessMessageMixin, CreateView):
+    template_name = "staff_semester_form.html"
+    model = Semester
+    form_class = SemesterForm
+    success_message = gettext_lazy("Successfully created semester.")
 
-    if form.is_valid():
-        semester = form.save()
-        messages.success(request, _("Successfully created semester."))
-        return redirect("staff:semester_view", semester.id)
+    def get_success_url(self):
+        return reverse("staff:semester_view", args=[self.object.id])
 
-    return render(request, "staff_semester_form.html", {"form": form})
+
+@manager_required
+class SemesterEditView(SuccessMessageMixin, UpdateView):
+    template_name = "staff_semester_form.html"
+    model = Semester
+    form_class = SemesterForm
+    pk_url_kwarg = "semester_id"
+    success_message = gettext_lazy("Successfully updated semester.")
+
+    def get_success_url(self):
+        return reverse("staff:semester_view", args=[self.object.id])
 
 
 @require_POST
@@ -593,19 +606,6 @@ def semester_make_active(request):
     semester.save()
 
     return HttpResponse()
-
-
-@manager_required
-def semester_edit(request, semester_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-    form = SemesterForm(request.POST or None, instance=semester)
-
-    if form.is_valid():
-        semester = form.save()
-        messages.success(request, _("Successfully updated semester."))
-        return redirect("staff:semester_view", semester.id)
-
-    return render(request, "staff_semester_form.html", {"semester": semester, "form": form})
 
 
 @require_POST

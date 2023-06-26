@@ -9,9 +9,9 @@ urlpatterns = [
     path("", views.index, name="index"),
 
     path("semester/", RedirectView.as_view(url='/staff/', permanent=True)),
-    path("semester/create", views.semester_create, name="semester_create"),
+    path("semester/create", views.SemesterCreateView.as_view(), name="semester_create"),
     path("semester/<int:semester_id>", views.semester_view, name="semester_view"),
-    path("semester/<int:semester_id>/edit", views.semester_edit, name="semester_edit"),
+    path("semester/<int:semester_id>/edit", views.SemesterEditView.as_view(), name="semester_edit"),
     path("semester/make_active", views.semester_make_active, name="semester_make_active"),
     path("semester/delete", views.semester_delete, name="semester_delete"),
     path("semester/<int:semester_id>/import", views.semester_import, name="semester_import"),
