@@ -1088,7 +1088,8 @@ class Contribution(LoggedModel):
 
 class QuestionType:
     TEXT = 0
-    LIKERT = 1
+    POSITIVE_LIKERT = 1
+    NEGATIVE_LIKERT = 69
     GRADE = 2
     EASY_DIFFICULT = 6
     FEW_MANY = 7
@@ -1168,8 +1169,12 @@ class Question(models.Model):
         raise AssertionError(f"Unknown answer type: {self.type!r}")
 
     @property
-    def is_likert_question(self):
-        return self.type == QuestionType.LIKERT
+    def is_positive_likert_question(self):
+        return self.type == QuestionType.POSITIVE_LIKERT
+
+    @property
+    def is_negative_likert_question(self):
+        return self.type == QuestionType.NEGATIVE_LIKERT
 
     @property
     def is_bipolar_likert_question(self):
@@ -1207,7 +1212,8 @@ class Question(models.Model):
         return (
             self.is_grade_question
             or self.is_bipolar_likert_question
-            or self.is_likert_question
+            or self.is_positive_likert_question
+            or self.is_negative_likert_question
             or self.is_yes_no_question
         )
 
@@ -1266,13 +1272,24 @@ BASE_YES_NO_CHOICES = {
 }
 
 CHOICES: dict[int, Choices | BipolarChoices] = {
-    QuestionType.LIKERT: Choices(
+    QuestionType.POSITIVE_LIKERT: Choices(
         names=[
             _("Strongly\nagree"),
             _("Agree"),
             _("Neutral"),
             _("Disagree"),
             _("Strongly\ndisagree"),
+            _("No answer"),
+        ],
+        **BASE_UNIPOLAR_CHOICES,  # type: ignore
+    ),
+    QuestionType.NEGATIVE_LIKERT: Choices(
+        names=[
+            _("Strongly\ndisagree"),
+            _("Disagree"),
+            _("Neutral"),
+            _("Agree"),
+            _("Strongly\nagree"),
             _("No answer"),
         ],
         **BASE_UNIPOLAR_CHOICES,  # type: ignore
