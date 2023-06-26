@@ -458,9 +458,13 @@ class Evaluation(LoggedModel):
         verbose_name = _("evaluation")
         verbose_name_plural = _("evaluations")
         constraints = [
-            CheckConstraint(check=Q(vote_end_date__gte=TruncDate(F("vote_start_datetime"))), name="check_evaluation_start_before_end"),
             CheckConstraint(
-                check=~(Q(_participant_count__isnull=True) ^ Q(_voter_count__isnull=True)), name="check_evaluation_participant_count_and_voter_count_both_set_or_not_set"
+                check=Q(vote_end_date__gte=TruncDate(F("vote_start_datetime"))),
+                name="check_evaluation_start_before_end",
+            ),
+            CheckConstraint(
+                check=~(Q(_participant_count__isnull=True) ^ Q(_voter_count__isnull=True)),
+                name="check_evaluation_participant_count_and_voter_count_both_set_or_not_set",
             ),
         ]
 
@@ -1081,7 +1085,7 @@ class Contribution(LoggedModel):
         RatingAnswerCounter.objects.filter(contribution=self, question__questionnaire__in=questionnaires).delete()
 
 
-class QuestionType():
+class QuestionType:
     TEXT = 0
     LIKERT = 1
     GRADE = 2
@@ -1470,7 +1474,9 @@ class TextAnswer(Answer):
         ordering = ["id"]
         verbose_name = _("text answer")
         verbose_name_plural = _("text answers")
-        constraints = [CheckConstraint(check=~Q(answer=F("original_answer")), name="check_evaluation_text_answer_is_modified")]
+        constraints = [
+            CheckConstraint(check=~Q(answer=F("original_answer")), name="check_evaluation_text_answer_is_modified")
+        ]
 
     @property
     def will_be_deleted(self):

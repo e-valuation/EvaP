@@ -405,9 +405,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
         bottom_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM)
 
-        top_heading_question = baker.make(
-            Question, type=QuestionType.HEADING, questionnaire=top_questionnaire, order=0
-        )
+        top_heading_question = baker.make(Question, type=QuestionType.HEADING, questionnaire=top_questionnaire, order=0)
         top_likert_question = baker.make(Question, type=QuestionType.LIKERT, questionnaire=top_questionnaire, order=1)
 
         contributor_likert_question = baker.make(
