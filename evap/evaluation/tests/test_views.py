@@ -193,7 +193,7 @@ class TestProfileView(WebTest):
 
 class TestNotebookView(WebTest):
     url = reverse("evaluation:notebook")
-    page = reverse("evaluation:profile_edit")  # is used, but notebook is accessed from all pages
+    page = reverse("evaluation:profile_edit")  # is used exemplarily, notebook is accessed from all pages
     note = "Data is so beautiful"
 
     def test_notebook(self):

@@ -42,6 +42,9 @@
             {% block breadcrumb_bar %}
             {% endblock %}
         </div>
+        
+        <img class="print-brand-image d-none d-print-block" src="{% static 'images/evap.png' %}" alt="{% trans 'Evaluation Platform' %}" />
+
         {% if user.is_authenticated %}
             {% include 'notebook.html' %}
         {% endif %}
