@@ -458,9 +458,9 @@ class Evaluation(LoggedModel):
         verbose_name = _("evaluation")
         verbose_name_plural = _("evaluations")
         constraints = [
-            CheckConstraint(check=Q(vote_end_date__gte=TruncDate(F("vote_start_datetime"))), name="check_vote_date"),
+            CheckConstraint(check=Q(vote_end_date__gte=TruncDate(F("vote_start_datetime"))), name="check_evaluation_start_before_end"),
             CheckConstraint(
-                check=~(Q(_participant_count__isnull=True) ^ Q(_voter_count__isnull=True)), name="check_count_null"
+                check=~(Q(_participant_count__isnull=True) ^ Q(_voter_count__isnull=True)), name="check_evaluation_participant_count_and_voter_count_both_set_or_not_set"
             ),
         ]
 
@@ -1143,7 +1143,7 @@ class Question(models.Model):
                 | ~Q(
                     allows_additional_textanswers=True
                 ),  # Value("type") == , #not in [QuestionType.TEXT, QuestionType.HEADING] or not Value("allows_additional_textanswers"),
-                name="check_additional_textanswers",
+                name="check_evaluation_textanswer_or_heading_question_has_no_additional_textanswers",
             )
         ]
 
@@ -1470,7 +1470,7 @@ class TextAnswer(Answer):
         ordering = ["id"]
         verbose_name = _("text answer")
         verbose_name_plural = _("text answers")
-        constraints = [CheckConstraint(check=~Q(answer=F("original_answer")), name="check_text_answer")]
+        constraints = [CheckConstraint(check=Q(answer__ne=F("original_answer")), name="check_evaluation_text_answer_is_modified")]
 
     @property
     def will_be_deleted(self):
