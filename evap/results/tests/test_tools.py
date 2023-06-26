@@ -180,7 +180,9 @@ class TestCalculateAverageDistribution(TestCase):
         cls.question_grade = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.GRADE)
         cls.question_likert = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.POSITIVE_LIKERT)
         cls.question_likert_2 = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.POSITIVE_LIKERT)
-        cls.question_negative_likert = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.NEGATIVE_LIKERT)
+        cls.question_negative_likert = baker.make(
+            Question, questionnaire=cls.questionnaire, type=QuestionType.NEGATIVE_LIKERT
+        )
         cls.question_bipolar = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.FEW_MANY)
         cls.question_bipolar_2 = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.LITTLE_MUCH)
         cls.general_contribution = cls.evaluation.general_contribution
@@ -215,7 +217,9 @@ class TestCalculateAverageDistribution(TestCase):
             *make_rating_answer_counters(self.question_likert, self.contribution1, [0, 0, 4, 0, 0], False),
             *make_rating_answer_counters(self.question_likert, self.general_contribution, [0, 0, 0, 0, 5], False),
             *make_rating_answer_counters(self.question_likert_2, self.general_contribution, [0, 0, 3, 0, 0], False),
-            *make_rating_answer_counters(self.question_negative_likert, self.general_contribution, [0, 4, 0, 0, 0], False),
+            *make_rating_answer_counters(
+                self.question_negative_likert, self.general_contribution, [0, 4, 0, 0, 0], False
+            ),
             *make_rating_answer_counters(
                 self.question_bipolar, self.general_contribution, [0, 0, 0, 0, 0, 0, 2], False
             ),
@@ -237,7 +241,9 @@ class TestCalculateAverageDistribution(TestCase):
         contributor2_average = 4
         contributors_average = ((4 * contributor1_average) + (2 * contributor2_average)) / (4 + 2)  # 2.9333333
 
-        general_non_grade_average = ((5 * 5) + (3 * 3) + (2 * 4) + (2 * 5) + (4 * 7 / 3)) / (5 + 3 + 4 + 2 + 4)  # 3.80952380
+        general_non_grade_average = ((5 * 5) + (3 * 3) + (2 * 4) + (2 * 5) + (4 * 7 / 3)) / (
+            5 + 3 + 4 + 2 + 4
+        )  # 3.80952380
 
         contributors_percentage = settings.CONTRIBUTIONS_WEIGHT / (
             settings.CONTRIBUTIONS_WEIGHT + settings.GENERAL_NON_GRADE_QUESTIONS_WEIGHT
