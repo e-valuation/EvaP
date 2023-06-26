@@ -6,7 +6,7 @@ import django.db.models.functions.datetime
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("evaluation", "0134_userprofile_display_name"),
+        ("evaluation", "0135_consistent_no_data_representation_on_text_fields"),
     ]
 
     operations = [
