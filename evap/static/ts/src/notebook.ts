@@ -1,10 +1,10 @@
 declare const bootstrap: typeof import("bootstrap");
-import { getCookie, setCookie, assertDefinedUnwrap } from "./utils.js";
+import { assertDefinedUnwrap } from "./utils.js";
 import { CSRF_HEADERS } from "./csrf-utils.js";
 
 const NOTEBOOK_COOKIE_NAME = "evap_notebook_open";
 
-if (getCookie("evap_notebook_open") == "true") {
+if (localStorage.getItem(NOTEBOOK_COOKIE_NAME) == "true") {
     new bootstrap.Collapse(assertDefinedUnwrap(document.getElementById("notebook")));
     new bootstrap.Collapse(assertDefinedUnwrap(document.getElementById("notebookButton")));
     onShowNotebook();
@@ -56,7 +56,7 @@ assertDefinedUnwrap(document.getElementById("notebook")).addEventListener("hidde
 });
 
 export function onShowNotebook(): void {
-    setCookie(NOTEBOOK_COOKIE_NAME, "true");
+    localStorage.setItem(NOTEBOOK_COOKIE_NAME, "true");
     assertDefinedUnwrap(document.getElementById("evapContent")).classList.add("notebook-margin");
     assertDefinedUnwrap(document.getElementById("notebook")).classList.add("notebook-container");
     assertDefinedUnwrap(document.getElementById("notebookButton")).classList.remove("show");
@@ -64,7 +64,7 @@ export function onShowNotebook(): void {
 }
 
 export function onHideNotebook(): void {
-    setCookie(NOTEBOOK_COOKIE_NAME, "false");
+    localStorage.setItem(NOTEBOOK_COOKIE_NAME, "false");
     assertDefinedUnwrap(document.getElementById("evapContent")).classList.remove("notebook-margin");
     assertDefinedUnwrap(document.getElementById("notebook")).classList.remove("notebook-container");
     assertDefinedUnwrap(document.getElementById("notebookButton")).classList.remove("hide");

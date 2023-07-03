@@ -36,10 +36,6 @@ export function getCookie(name: string): string | null {
     return null;
 }
 
-export function setCookie(key: string, value: string): void {
-    document.cookie = key + "=" + value + ";path=/;SameSite=strict";
-}
-
 export const testable = {
     getCookie,
 };
