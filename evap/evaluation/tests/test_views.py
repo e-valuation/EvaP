@@ -185,11 +185,6 @@ class TestProfileView(WebTest):
         page = self.app.get(self.url, user=self.responsible)
         self.assertContains(page, "testdisplayname")
 
-        form = page.forms["profile-form"]
-        form["first_name_chosen"] = "testdisplayname2"
-        form.submit(name="operation", value="illegal", status=400)
-        self.assertFalse(UserProfile.objects.filter(first_name_chosen="testdisplayname2").exists())
-
 
 class TestNotebookView(WebTest):
     url = reverse("evaluation:notebook")

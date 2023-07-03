@@ -118,26 +118,6 @@ class ProfileForm(forms.ModelForm):
             "delegates": UserModelMultipleChoiceField,
         }
 
-    def save(self, *args, **kw):
-        super().save(*args, **kw)
-        logger.info('User "%s" edited the settings.', self.instance.email)
-
-
-class NotebookForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["notes"].widget.attrs = {"class": "notebook-textarea"}
-
-    class Meta:
-        model = UserProfile
-        fields = ("notes",)
-
-
-class ProfileForm(forms.ModelForm):
-    class Meta:
-        model = UserProfile
-        fields = ("title", "first_name_chosen", "first_name_given", "last_name", "email")
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in ("title", "first_name_given", "last_name", "email"):
@@ -166,3 +146,13 @@ class ProfileForm(forms.ModelForm):
                 raise ValidationError(_("Name contains disallowed characters."))
 
         return name
+
+
+class NotebookForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["notes"].widget.attrs = {"class": "notebook-textarea"}
+
+    class Meta:
+        model = UserProfile
+        fields = ("notes",)

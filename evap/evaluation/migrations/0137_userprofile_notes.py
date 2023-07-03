@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', "0135_consistent_no_data_representation_on_text_fields"),
+        ('evaluation', "0136_alter_userprofile_first_name_chosen_and_more"),
     ]
 
     operations = [
