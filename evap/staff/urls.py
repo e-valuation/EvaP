@@ -86,7 +86,7 @@ urlpatterns = [
 
     path("text_answer_warnings/", views.text_answer_warnings_index, name="text_answer_warnings"),
 
-    path("faq/", views.faq_index, name="faq_index"),
+    path("faq/", views.FaqIndexView.as_view(), name="faq_index"),
     path("faq/<int:section_id>", views.faq_section, name="faq_section"),
 
     path("infotexts/", views.infotexts, name="infotexts"),

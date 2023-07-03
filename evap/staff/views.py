@@ -2399,18 +2399,22 @@ def template_edit(request, template_id):
 
 
 @manager_required
-def faq_index(request):
-    sections = FaqSection.objects.all()
+class FaqIndexView(SuccessMessageMixin, FormView):
+    model = FaqSection
+    form_class = modelformset_factory(FaqSection, form=FaqSectionForm, can_delete=True, extra=1)
+    template_name = "staff_faq_index.html"
+    success_url = reverse_lazy("staff:faq_index")
+    success_message = gettext_lazy("Successfully updated the FAQ sections.")
 
-    SectionFormset = modelformset_factory(FaqSection, form=FaqSectionForm, can_delete=True, extra=1)
-    formset = SectionFormset(request.POST or None, queryset=sections)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["formset"] = context.pop("form")
+        context["sections"] = FaqSection.objects.all()
+        return context
 
-    if formset.is_valid():
-        formset.save()
-        messages.success(request, _("Successfully updated the FAQ sections."))
-        return redirect("staff:faq_index")
-
-    return render(request, "staff_faq_index.html", {"formset": formset, "sections": sections})
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
 
 
 @manager_required
