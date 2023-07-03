@@ -1620,8 +1620,14 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=255, unique=True, blank=True, null=True, verbose_name=_("email address"))
 
     title = models.CharField(max_length=255, blank=True, default="", verbose_name=_("Title"))
-    first_name_given = models.CharField(max_length=255, blank=True, verbose_name=_("given first name"))
-    first_name_chosen = models.CharField(max_length=255, blank=True, default="", verbose_name=_("display name"))
+    first_name_given = models.CharField(max_length=255, blank=True, verbose_name=_("first name"))
+    first_name_chosen = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        verbose_name=_("display name"),
+        help_text=_("This will replace your first name."),
+    )
     last_name = models.CharField(max_length=255, blank=True, verbose_name=_("last name"))
 
     language = models.CharField(max_length=8, blank=True, default="", verbose_name=_("language"))

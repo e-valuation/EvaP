@@ -157,9 +157,9 @@ class TestProfileView(WebTest):
     def test_save_settings(self):
         user = baker.make(UserProfile)
         page = self.app.get(self.url, user=self.responsible)
-        form = page.forms["settings-form"]
+        form = page.forms["profile-form"]
         form["delegates"] = [user.pk]
-        form.submit(name="operation", value="delegates")
+        form.submit()
 
         self.responsible.refresh_from_db()
         self.assertEqual(list(self.responsible.delegates.all()), [user])
@@ -178,13 +178,8 @@ class TestProfileView(WebTest):
 
         form = page.forms["profile-form"]
         form["first_name_chosen"] = "testdisplayname"
-        form.submit(name="operation", value="profile")
+        form.submit()
         self.assertTrue(UserProfile.objects.filter(first_name_chosen="testdisplayname").exists())
 
         page = self.app.get(self.url, user=self.responsible)
         self.assertContains(page, "testdisplayname")
-
-        form = page.forms["profile-form"]
-        form["first_name_chosen"] = "testdisplayname2"
-        form.submit(name="operation", value="illegal", status=400)
-        self.assertFalse(UserProfile.objects.filter(first_name_chosen="testdisplayname2").exists())

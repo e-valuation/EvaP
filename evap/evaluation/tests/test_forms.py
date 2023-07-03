@@ -1,7 +1,7 @@
 from django.test import TestCase
 from model_bakery import baker
 
-from evap.evaluation.forms import DelegatesForm, NewKeyForm, ProfileForm
+from evap.evaluation.forms import NewKeyForm, ProfileForm
 from evap.evaluation.models import UserProfile
 from evap.evaluation.tests.tools import get_form_data_from_instance
 
@@ -29,10 +29,10 @@ class UserFormTests(TestCase):
 
         self.assertFalse(user.delegates.filter(email="delegate@institution.example.com").exists())
 
-        form_data = get_form_data_from_instance(DelegatesForm, user)
+        form_data = get_form_data_from_instance(ProfileForm, user)
         form_data["delegates"] = [delegate.pk]  # add delegate
 
-        form = DelegatesForm(form_data, instance=user)
+        form = ProfileForm(form_data, instance=user)
         self.assertTrue(form.is_valid())
         form.save()
 
