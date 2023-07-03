@@ -64,9 +64,9 @@ urlpatterns = [
     path("questionnaire/questionnaire_visibility", views.questionnaire_visibility, name="questionnaire_visibility"),
     path("questionnaire/questionnaire_set_locked", views.questionnaire_set_locked, name="questionnaire_set_locked"),
 
-    path("degrees/", views.degree_index, name="degree_index"),
+    path("degrees/", views.DegreeIndexView.as_view(), name="degree_index"),
 
-    path("course_types/", views.course_type_index, name="course_type_index"),
+    path("course_types/", views.CourseTypeIndexView.as_view(), name="course_type_index"),
     path("course_types/merge", views.course_type_merge_selection, name="course_type_merge_selection"),
     path("course_types/<int:main_type_id>/merge/<int:other_type_id>", views.course_type_merge, name="course_type_merge"),
 

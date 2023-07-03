@@ -20,7 +20,7 @@ from django.forms import formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.html import format_html
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
@@ -2000,37 +2000,51 @@ def questionnaire_set_locked(request):
 
 
 @manager_required
-def degree_index(request):
-    degrees = Degree.objects.all()
-
-    DegreeFormset = modelformset_factory(
-        Degree, form=DegreeForm, formset=ModelWithImportNamesFormset, can_delete=True, extra=1
+class DegreeIndexView(SuccessMessageMixin, FormView):
+    model = Degree
+    form_class = modelformset_factory(
+        Degree,
+        form=DegreeForm,
+        formset=ModelWithImportNamesFormset,
+        can_delete=True,
+        extra=1,
     )
-    formset = DegreeFormset(request.POST or None, queryset=degrees)
+    template_name = "staff_degree_index.html"
+    success_url = reverse_lazy("staff:degree_index")
+    success_message = gettext_lazy("Successfully updated the degrees.")
 
-    if formset.is_valid():
-        formset.save()
-        messages.success(request, _("Successfully updated the degrees."))
-        return redirect("staff:degree_index")
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["formset"] = context.pop("form")
+        return context
 
-    return render(request, "staff_degree_index.html", {"formset": formset})
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
 
 
 @manager_required
-def course_type_index(request):
-    course_types = CourseType.objects.all()
-
-    CourseTypeFormset = modelformset_factory(
-        CourseType, form=CourseTypeForm, formset=ModelWithImportNamesFormset, can_delete=True, extra=1
+class CourseTypeIndexView(SuccessMessageMixin, FormView):
+    model = CourseType
+    form_class = modelformset_factory(
+        CourseType,
+        form=CourseTypeForm,
+        formset=ModelWithImportNamesFormset,
+        can_delete=True,
+        extra=1,
     )
-    formset = CourseTypeFormset(request.POST or None, queryset=course_types)
+    template_name = "staff_course_type_index.html"
+    success_url = reverse_lazy("staff:course_type_index")
+    success_message = gettext_lazy("Successfully updated the course types.")
 
-    if formset.is_valid():
-        formset.save()
-        messages.success(request, _("Successfully updated the course types."))
-        return redirect("staff:course_type_index")
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["formset"] = context.pop("form")
+        return context
 
-    return render(request, "staff_course_type_index.html", {"formset": formset})
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
 
 
 @manager_required
