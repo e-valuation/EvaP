@@ -243,7 +243,7 @@ class TestCalculateAverageDistribution(TestCase):
 
         general_non_grade_average = ((5 * 5) + (3 * 3) + (2 * 4) + (2 * 5) + (4 * 7 / 3)) / (
             5 + 3 + 4 + 2 + 4
-        )  # 3.80952380
+        )  # 3.4074074074074074
 
         contributors_percentage = settings.CONTRIBUTIONS_WEIGHT / (
             settings.CONTRIBUTIONS_WEIGHT + settings.GENERAL_NON_GRADE_QUESTIONS_WEIGHT

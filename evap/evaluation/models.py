@@ -1089,7 +1089,7 @@ class Contribution(LoggedModel):
 class QuestionType:
     TEXT = 0
     POSITIVE_LIKERT = 1
-    NEGATIVE_LIKERT = 69
+    NEGATIVE_LIKERT = 12
     GRADE = 2
     EASY_DIFFICULT = 6
     FEW_MANY = 7
