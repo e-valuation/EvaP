@@ -13,7 +13,8 @@ from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import IntegrityError, transaction
 from django.db.models import BooleanField, Case, Count, ExpressionWrapper, IntegerField, Prefetch, Q, Sum, When
 from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import CreateView, UpdateView
+from django.views.generic import CreateView, UpdateView, FormView
+from django.views.generic.detail import SingleObjectMixin
 from django.dispatch import receiver
 from django.forms import formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
@@ -682,26 +683,41 @@ def semester_import(request, semester_id):
 
 
 @manager_required
-def semester_export(request, semester_id):
-    semester = get_object_or_404(Semester, id=semester_id)
+class SemesterExportView(SingleObjectMixin, FormView):
+    model = Semester
+    pk_url_kwarg = "semester_id"
+    form_class = formset_factory(form=ExportSheetForm, can_delete=True, extra=0, min_num=1, validate_min=True)
+    template_name = "staff_semester_export.html"
 
-    ExportSheetFormset = formset_factory(form=ExportSheetForm, can_delete=True, extra=0, min_num=1, validate_min=True)
-    formset = ExportSheetFormset(request.POST or None, form_kwargs={"semester": semester})
+    def dispatch(self, *args, **kwargs):
+        self.object = self.semester = self.get_object()
+        return super().dispatch(*args, **kwargs)
 
-    if formset.is_valid():
-        include_not_enough_voters = request.POST.get("include_not_enough_voters") == "on"
-        include_unpublished = request.POST.get("include_unpublished") == "on"
-        selection_list = []
-        for form in formset:
-            selection_list.append((form.cleaned_data["selected_degrees"], form.cleaned_data["selected_course_types"]))
+    def get_form_kwargs(self):
+        return super().get_form_kwargs() | {"form_kwargs": {"semester": self.semester}}
 
-        filename = f"Evaluation-{semester.name}-{get_language()}.xls"
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["formset"] = context.pop("form")
+        return context
+
+    def form_valid(self, formset):
+        include_not_enough_voters = self.request.POST.get("include_not_enough_voters") == "on"
+        include_unpublished = self.request.POST.get("include_unpublished") == "on"
+        selection_list = [
+            (form.cleaned_data["selected_degrees"], form.cleaned_data["selected_course_types"]) for form in formset
+        ]
+        filename = f"Evaluation-{self.semester.name}-{get_language()}.xls"
         response = AttachmentResponse(filename, content_type="application/vnd.ms-excel")
 
-        ResultsExporter().export(response, [semester], selection_list, include_not_enough_voters, include_unpublished)
+        ResultsExporter().export(
+            response,
+            [self.semester],
+            selection_list,
+            include_not_enough_voters,
+            include_unpublished,
+        )
         return response
-
-    return render(request, "staff_semester_export.html", {"semester": semester, "formset": formset})
 
 
 @manager_required
