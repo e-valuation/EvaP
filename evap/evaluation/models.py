@@ -1237,6 +1237,7 @@ class Choices(NamedTuple):
     colors: tuple[str]
     grades: tuple[Number]
     names: list[StrOrPromise]
+    is_inverted: bool
 
 
 class BipolarChoices(NamedTuple):
@@ -1247,6 +1248,7 @@ class BipolarChoices(NamedTuple):
     names: list[StrOrPromise]
     plus_name: StrOrPromise
     minus_name: StrOrPromise
+    is_inverted: bool
 
 
 NO_ANSWER = 6
@@ -1262,6 +1264,7 @@ BASE_BIPOLAR_CHOICES = {
     "values": (-3, -2, -1, 0, 1, 2, 3, NO_ANSWER),
     "colors": ("red", "orange", "lime", "green", "lime", "orange", "red", "gray"),
     "grades": (5, 11 / 3, 7 / 3, 1, 7 / 3, 11 / 3, 5),
+    "is_inverted": False,
 }
 
 BASE_YES_NO_CHOICES = {
@@ -1281,6 +1284,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("Strongly\ndisagree"),
             _("No answer"),
         ],
+        is_inverted = False,
         **BASE_UNIPOLAR_CHOICES,  # type: ignore
     ),
     QuestionType.NEGATIVE_LIKERT: Choices(
@@ -1292,6 +1296,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("Strongly\nagree"),
             _("No answer"),
         ],
+        is_inverted = True,
         **BASE_UNIPOLAR_CHOICES,  # type: ignore
     ),
     QuestionType.GRADE: Choices(
@@ -1303,6 +1308,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             "5",
             _("No answer"),
         ],
+        is_inverted = False,
         **BASE_UNIPOLAR_CHOICES,  # type: ignore
     ),
     QuestionType.EASY_DIFFICULT: BipolarChoices(
@@ -1401,6 +1407,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("No"),
             _("No answer"),
         ],
+        is_inverted = False,
         **BASE_YES_NO_CHOICES,  # type: ignore
     ),
     QuestionType.NEGATIVE_YES_NO: Choices(
@@ -1409,6 +1416,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("Yes"),
             _("No answer"),
         ],
+        is_inverted = True,
         **BASE_YES_NO_CHOICES,  # type: ignore
     ),
 }
