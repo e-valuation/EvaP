@@ -6,17 +6,44 @@
     {{ block.super }}
     <h3>{% trans 'Profile' %}</h3>
 
-    <div class="row mb-3">
-        <div class="col-6">
-            <div class="card">
-                <form id="profile-form" method="POST" class="form-horizontal multiselect-form">
-                    {% csrf_token %}
+    <form id="profile-form" method="POST" class="form-horizontal multiselect-form">
+        {% csrf_token %}
+        <div class="row row-cols-1 row-cols-md-2 g-4 mb-3">
+            <div class="col">
+                <div class="card h-100">
                     <div class="card-body">
                         <h4 class="card-title mb-4">{% trans 'Personal information' %}</h4>
-                        {% include 'bootstrap_form.html' with form=profile_form %}
-                        {% if user.is_editor %}
-                            <table class="table table-vertically-aligned table-borderless">
-                                <tr class="border-bottom">
+                        {% for field in profile_form %}
+                            {% if field != profile_form.delegates %}
+                                {% include 'bootstrap_form_field.html' with field=field %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% if user.is_editor %}
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h4 class="card-title mb-4">{% trans 'Delegates and emails' %}</h4>
+                            <table class="table table-vertically-aligned table-headerless">
+                                <tr>
+                                    <td>
+                                        <strong>{% trans 'Your delegates' %}</strong><br />
+                                        {% include 'bootstrap_form_field_widget.html' with field=profile_form.delegates %}
+                                        <div class="form-text">{% trans 'Your delegates will receive emails sent to you in CC, will be able to prepare evaluations on your behalf, and will see the results of your evaluations.' %}</div>
+                                    </td>
+                                </tr>
+                                {% if delegate_of %}
+                                    <tr>
+                                        <td>
+                                            <strong>{% trans 'You are a delegate of' %}</strong><br />
+                                            {% for delegate in delegate_of %}
+                                                {{ delegate.full_name }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+                                {% endif %}
                                     <td>
                                         <strong>{% trans 'CC all my emails to' %}</strong><br />
                                         {% for cc_user in cc_users %}
@@ -37,58 +64,27 @@
                                     </td>
                                 </tr>
                             </table>
-                        {% endif %}
+                        </div>
                     </div>
-                    <div class="card-footer text-center">
-                        <button type="submit" name="operation" value="profile" class="btn btn-primary">
-                            {% trans 'Save changes' %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="row row-cols-1 {% if user.is_editor %}row-cols-md-1{% else %}row-cols-md-2{% endif %} g-4">
+            <div class="col">
+                <div class="card card-submit-area card-submit-area-2 text-center">
+                    <div class="card-body tab-row">
+                        <button type="submit" class="btn btn-primary">
+                            {% trans 'Save' %}
                         </button>
                         <button type="button" class="btn btn-light" id="changeRequestModalShowButton">
                             {% trans 'Request changes' %}
                         </button>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
-        {% if user.is_editor %}
-            <div class="col-6">
-                <form id="settings-form" method="POST" class="form-horizontal multiselect-form settings-form">
-                    {% csrf_token %}
-                    {% include 'bootstrap_form_errors.html' with errors=delegates_form.non_field_errors %}
-                    <div class="card">
-                        <div class="card-body">
-                            <h4 class="card-title mb-4">{% trans 'Delegates' %}</h4>
-                            <p class="mb-3">
-                                {% trans 'Your delegates will receive all your emails in CC and will be able to prepare evaluations and see results on your behalf.' %}
-                            </p>
-                            <table class="table table-vertically-aligned">
-                                <tr>
-                                    <td>
-                                    <strong>{% trans 'Your delegates' %}</strong><br />
-                                    {% include 'bootstrap_form_errors.html' with errors=delegates_form.delegates.errors %}
-                                    {{ delegates_form.delegates }}
-                                    </td>
-                                </tr>
-                                {% if delegate_of %}
-                                    <tr>
-                                        <td>
-                                            <strong>{% trans 'You are a delegate of' %}</strong><br />
-                                            {% for delegate in delegate_of %}
-                                                {{ delegate.full_name }}{% if not forloop.last %}, {% endif %}
-                                            {% endfor %}
-                                        </td>
-                                    </tr>
-                                {% endif %}
-                            </table>
-                        </div>
-                        <div class="card-footer text-center">
-                            <button type="submit" name="operation" value="delegates" class="btn btn-primary">{% trans 'Save delegates' %}</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        {% endif %}
-    </div>
+    </form>
 {% endblock %}
 
 {% block modals %}
