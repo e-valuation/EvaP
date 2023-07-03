@@ -15,7 +15,7 @@
 {% block content %}
     {{ block.super }}
 
-    <div class="d-flex mb-3">
+    <div class="d-flex">
         <h3>{% if form.instance.id %}{% trans 'Edit user' %}{% else %}{% trans 'Create user' %}{% endif %}</h3>
         {% if form.instance.id %}
             <div class="ms-auto d-print-none">
