@@ -218,7 +218,7 @@ class TestCalculateAverageDistribution(TestCase):
             *make_rating_answer_counters(self.question_likert, self.general_contribution, [0, 0, 0, 0, 5], False),
             *make_rating_answer_counters(self.question_likert_2, self.general_contribution, [0, 0, 3, 0, 0], False),
             *make_rating_answer_counters(
-                self.question_negative_likert, self.general_contribution, [0, 4, 0, 0, 0], False
+                self.question_negative_likert, self.general_contribution, [0, 0, 0, 4, 0], False
             ),
             *make_rating_answer_counters(
                 self.question_bipolar, self.general_contribution, [0, 0, 0, 0, 0, 0, 2], False
@@ -241,9 +241,9 @@ class TestCalculateAverageDistribution(TestCase):
         contributor2_average = 4
         contributors_average = ((4 * contributor1_average) + (2 * contributor2_average)) / (4 + 2)  # 2.9333333
 
-        general_non_grade_average = ((5 * 5) + (3 * 3) + (2 * 4) + (2 * 5) + (4 * 7 / 3)) / (
+        general_non_grade_average = ((5 * 5) + (3 * 3) + (4 * 4) + (2 * 5) + (4 * 7 / 3)) / (
             5 + 3 + 4 + 2 + 4
-        )  # 3.4074074074074074
+        )  # 3.8518518518518516
 
         contributors_percentage = settings.CONTRIBUTIONS_WEIGHT / (
             settings.CONTRIBUTIONS_WEIGHT + settings.GENERAL_NON_GRADE_QUESTIONS_WEIGHT
@@ -258,7 +258,7 @@ class TestCalculateAverageDistribution(TestCase):
 
         average_grade = distribution_to_grade(calculate_average_distribution(self.evaluation))
         self.assertAlmostEqual(average_grade, total_grade)
-        self.assertAlmostEqual(average_grade, 3.2296296296296294)
+        self.assertAlmostEqual(average_grade, 3.507407407407407)
 
     @override_settings(
         CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT=4,
