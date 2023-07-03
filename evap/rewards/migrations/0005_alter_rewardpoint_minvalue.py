@@ -15,4 +15,9 @@ class Migration(migrations.Migration):
             name="value",
             field=models.IntegerField(validators=[django.core.validators.MinValueValidator(1)], verbose_name="value"),
         ),
+        migrations.AlterField(
+            model_name="rewardpointgranting",
+            name="value",
+            field=models.IntegerField(validators=[django.core.validators.MinValueValidator(1)], verbose_name="value"),
+        ),
     ]

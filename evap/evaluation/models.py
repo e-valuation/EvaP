@@ -638,7 +638,7 @@ class Evaluation(LoggedModel):
             raise NotArchiveable()
         if self._participant_count is not None:
             assert self._voter_count is not None
-            assert (  # This assert can not easily be replaced by a constraint, this is not possible on many-to-many relations
+            assert (
                 self.is_single_result
                 or self._voter_count == self.voters.count()
                 and self._participant_count == self.participants.count()
@@ -1144,9 +1144,7 @@ class Question(models.Model):
         constraints = [
             CheckConstraint(
                 check=~(Q(type=QuestionType.TEXT) | Q(type=QuestionType.HEADING))
-                | ~Q(
-                    allows_additional_textanswers=True
-                ),  # Value("type") == , #not in [QuestionType.TEXT, QuestionType.HEADING] or not Value("allows_additional_textanswers"),
+                | ~Q(allows_additional_textanswers=True),
                 name="check_evaluation_textanswer_or_heading_question_has_no_additional_textanswers",
             )
         ]
