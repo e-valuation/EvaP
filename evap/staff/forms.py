@@ -1046,6 +1046,7 @@ class UserForm(forms.ModelForm):
                 cache_results(evaluation)
 
         self.instance.save()
+        return self.instance
 
 
 class UserMergeSelectionForm(forms.Form):

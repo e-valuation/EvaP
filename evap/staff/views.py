@@ -2153,15 +2153,12 @@ def user_list(request):
 
 
 @manager_required
-def user_create(request):
-    form = UserForm(request.POST or None, instance=UserProfile())
-
-    if form.is_valid():
-        form.save()
-        messages.success(request, _("Successfully created user."))
-        return redirect("staff:user_index")
-
-    return render(request, "staff_user_form.html", {"form": form})
+class UserCreateView(SuccessMessageMixin, CreateView):
+    model = UserProfile
+    form_class = UserForm
+    template_name = "staff_user_form.html"
+    success_url = reverse_lazy("staff:user_index")
+    success_message = gettext_lazy("Successfully created user.")
 
 
 @manager_required

@@ -71,7 +71,7 @@ urlpatterns = [
     path("course_types/<int:main_type_id>/merge/<int:other_type_id>", views.course_type_merge, name="course_type_merge"),
 
     path("user/", views.user_index, name="user_index"),
-    path("user/create", views.user_create, name="user_create"),
+    path("user/create", views.UserCreateView.as_view(), name="user_create"),
     path("user/import", views.user_import, name="user_import"),
     path("user/<int:user_id>/edit", views.user_edit, name="user_edit"),
     path("user/list", views.user_list, name="user_list"),
