@@ -2437,20 +2437,20 @@ def faq_section(request, section_id):
 
 
 @manager_required
-def infotexts(request):
-    InfotextFormSet = modelformset_factory(Infotext, form=InfotextForm, edit_only=True, extra=0)
-    formset = InfotextFormSet(request.POST or None)
+class InfotextsView(SuccessMessageMixin, FormView):
+    form_class = modelformset_factory(Infotext, form=InfotextForm, edit_only=True, extra=0)
+    template_name = "staff_infotexts.html"
+    success_url = reverse_lazy("staff:infotexts")
+    success_message = gettext_lazy("Successfully updated the infotext entries.")
 
-    if formset.is_valid():
-        formset.save()
-        messages.success(request, _("Successfully updated the infotext entries."))
-        return redirect("staff:infotexts")
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["formset"] = context.pop("form")
+        return context
 
-    return render(
-        request,
-        "staff_infotexts.html",
-        {"formset": formset},
-    )
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
 
 
 @manager_required

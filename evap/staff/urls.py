@@ -89,7 +89,7 @@ urlpatterns = [
     path("faq/", views.FaqIndexView.as_view(), name="faq_index"),
     path("faq/<int:section_id>", views.faq_section, name="faq_section"),
 
-    path("infotexts/", views.infotexts, name="infotexts"),
+    path("infotexts/", views.InfotextsView.as_view(), name="infotexts"),
 
     path("download_sample_file/<str:filename>", views.download_sample_file, name="download_sample_file"),
 
