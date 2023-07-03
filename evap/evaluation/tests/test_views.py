@@ -6,7 +6,7 @@ from django.utils import translation
 from django_webtest import WebTest
 from model_bakery import baker
 
-from evap.evaluation.models import UserProfile, Question, Evaluation, Contribution
+from evap.evaluation.models import Contribution, Evaluation, Question, UserProfile
 from evap.evaluation.tests.tools import WebTestWith200Check, create_evaluation_with_responsible_and_editor
 
 
@@ -189,8 +189,8 @@ class TestProfileView(WebTest):
         form.submit(name="operation", value="illegal", status=400)
         self.assertFalse(UserProfile.objects.filter(first_name_chosen="testdisplayname2").exists())
 
-class TestNegativeLikertQuestions(WebTest):
 
+class TestNegativeLikertQuestions(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.voting_user = baker.make(UserProfile, email="voting_user1@institution.example.com")
@@ -202,10 +202,16 @@ class TestNegativeLikertQuestions(WebTest):
             state=Evaluation.State.IN_EVALUATION,
         )
 
-        cls.question = baker.make(Question, type=Question.NEGATIVE_LIKERT, text_en="Negative Likert Question", text_de="Negative Likert Frage")
-        cls.contribution = baker.make(Contribution, evaluation=cls.evaluation, questionnaires=[cls.question.questionnaire], contributor=cls.contributor )
+        cls.question = baker.make(
+            Question, type=Question.NEGATIVE_LIKERT, text_en="Negative Likert Question", text_de="Negative Likert Frage"
+        )
+        cls.contribution = baker.make(
+            Contribution,
+            evaluation=cls.evaluation,
+            questionnaires=[cls.question.questionnaire],
+            contributor=cls.contributor,
+        )
         cls.url = f"/student/vote/{cls.evaluation.pk}"
-
 
     def test_likert_questions(self):
         page = self.app.get(self.url, user=self.voting_user, status=200).body.decode()
