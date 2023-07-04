@@ -1,43 +1,16 @@
 from django.contrib.auth.models import Group
-from django.core.cache import cache
-from django.core.cache.utils import make_template_fragment_key
 from django.test import TestCase
+from django.utils.html import escape
 from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Course, Evaluation, UserProfile
-from evap.evaluation.tests.tools import WebTest
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption
 from evap.staff.tools import (
-    delete_navbar_cache_for_users,
+    conditional_escape,
     merge_users,
     remove_user_from_represented_and_ccing_users,
     user_edit_link,
 )
-
-
-class NavbarCacheTest(WebTest):
-    def test_navbar_cache_deletion_for_users(self):
-        user1 = baker.make(UserProfile, email="user1@institution.example.com")
-        user2 = baker.make(UserProfile, email="user2@institution.example.com")
-
-        # create navbar caches for anonymous user, user1 and user2
-        self.app.get("/")
-        self.app.get("/results/", user="user1@institution.example.com")
-        self.app.get("/results/", user="user2@institution.example.com")
-
-        cache_key1 = make_template_fragment_key("navbar", [user1.email, "en"])
-        cache_key2 = make_template_fragment_key("navbar", [user2.email, "en"])
-        cache_key_anonymous = make_template_fragment_key("navbar", ["", "en"])
-
-        self.assertIsNotNone(cache.get(cache_key1))
-        self.assertIsNotNone(cache.get(cache_key2))
-        self.assertIsNotNone(cache.get(cache_key_anonymous))
-
-        delete_navbar_cache_for_users([user2])
-
-        self.assertIsNotNone(cache.get(cache_key1))
-        self.assertIsNone(cache.get(cache_key2))
-        self.assertIsNotNone(cache.get(cache_key_anonymous))
 
 
 class MergeUsersTest(TestCase):
@@ -51,7 +24,8 @@ class MergeUsersTest(TestCase):
         cls.main_user = baker.make(
             UserProfile,
             title="Dr.",
-            first_name="Main",
+            first_name_given="Main",
+            first_name_chosen="",
             last_name="",
             email=None,  # test that merging works when taking the email from other user (UniqueConstraint)
             groups=[cls.group1],
@@ -63,7 +37,8 @@ class MergeUsersTest(TestCase):
         cls.other_user = baker.make(
             UserProfile,
             title="",
-            first_name="Other",
+            first_name_given="Other",
+            first_name_chosen="other-display-name",
             last_name="User",
             email="other@test.com",
             groups=[cls.group2],
@@ -154,7 +129,8 @@ class MergeUsersTest(TestCase):
         self.other_user.refresh_from_db()
 
         self.assertEqual(self.main_user.title, "Dr.")
-        self.assertEqual(self.main_user.first_name, "Main")
+        self.assertEqual(self.main_user.first_name_given, "Main")
+        self.assertEqual(self.main_user.first_name_chosen, "")
         self.assertEqual(self.main_user.last_name, "")
         self.assertEqual(self.main_user.email, None)
         self.assertFalse(self.main_user.is_superuser)
@@ -167,7 +143,8 @@ class MergeUsersTest(TestCase):
         self.assertTrue(RewardPointRedemption.objects.filter(user_profile=self.main_user).exists())
 
         self.assertEqual(self.other_user.title, "")
-        self.assertEqual(self.other_user.first_name, "Other")
+        self.assertEqual(self.other_user.first_name_given, "Other")
+        self.assertEqual(self.other_user.first_name_chosen, "other-display-name")
         self.assertEqual(self.other_user.last_name, "User")
         self.assertEqual(self.other_user.email, "other@test.com")
         self.assertEqual(set(self.other_user.groups.all()), {self.group2})
@@ -200,7 +177,8 @@ class MergeUsersTest(TestCase):
         self.main_user.refresh_from_db()
 
         self.assertEqual(self.main_user.title, "Dr.")
-        self.assertEqual(self.main_user.first_name, "Main")
+        self.assertEqual(self.main_user.first_name_given, "Main")
+        self.assertEqual(self.main_user.first_name_chosen, "other-display-name")
         self.assertEqual(self.main_user.last_name, "User")
         self.assertEqual(self.main_user.email, "other@test.com")
         self.assertTrue(self.main_user.is_superuser)
@@ -222,8 +200,8 @@ class MergeUsersTest(TestCase):
         self.assertEqual(set(self.evaluation3.voters.all()), {self.main_user})
 
         self.assertFalse(UserProfile.objects.filter(email="other_user@institution.example.com").exists())
-        self.assertFalse(RewardPointGranting.objects.filter(user_profile=self.other_user).exists())
-        self.assertFalse(RewardPointRedemption.objects.filter(user_profile=self.other_user).exists())
+        self.assertFalse(RewardPointGranting.objects.filter(user_profile__email=self.other_user.email).exists())
+        self.assertFalse(RewardPointRedemption.objects.filter(user_profile__email=self.other_user.email).exists())
 
 
 class RemoveUserFromRepresentedAndCCingUsersTest(TestCase):
@@ -268,3 +246,10 @@ class UserEditLinkTest(TestCase):
     def test_user_edit_link(self):
         user = baker.make(UserProfile)
         self.assertIn(f"/staff/user/{user.id}/edit", user_edit_link(user.id))
+
+
+class ConditionalEscapeTest(TestCase):
+    def test_conditional_escape(self):
+        self.assertEqual(conditional_escape("<script>"), "&lt;script&gt;")
+        self.assertEqual(conditional_escape(escape("<script>")), "&lt;script&gt;")
+        self.assertEqual(conditional_escape("safe"), "safe")

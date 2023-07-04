@@ -75,21 +75,21 @@ def update_template_cache(evaluations):
             for course in courses_to_render:
                 caches["results"].set(
                     get_course_result_template_fragment_cache_key(course.id, lang),
-                    results_index_course_template.render(dict(course=course)),
+                    results_index_course_template.render({"course": course}),
                 )
 
             for evaluation in evaluations:
                 assert evaluation.state in STATES_WITH_RESULT_TEMPLATE_CACHING
                 is_subentry = evaluation.course.evaluation_count > 1
-                base_args = dict(evaluation=evaluation, is_subentry=is_subentry)
+                base_args = {"evaluation": evaluation, "is_subentry": is_subentry}
 
                 caches["results"].set(
                     get_evaluation_result_template_fragment_cache_key(evaluation.id, lang, True),
-                    results_index_evaluation_template.render(dict(**base_args, links_to_results_page=True)),
+                    results_index_evaluation_template.render({**base_args, "links_to_results_page": True}),
                 )
                 caches["results"].set(
                     get_evaluation_result_template_fragment_cache_key(evaluation.id, lang, False),
-                    results_index_evaluation_template.render(dict(**base_args, links_to_results_page=False)),
+                    results_index_evaluation_template.render({**base_args, "links_to_results_page": False}),
                 )
 
     finally:
@@ -152,12 +152,12 @@ def index(request):
 
     degrees = Degree.objects.filter(courses__pk__in=course_pks).distinct()
     course_types = CourseType.objects.filter(courses__pk__in=course_pks).distinct()
-    template_data = dict(
-        courses_and_evaluations=courses_and_evaluations.items(),
-        degrees=degrees,
-        course_types=course_types,
-        semesters=semesters,
-    )
+    template_data = {
+        "courses_and_evaluations": courses_and_evaluations.items(),
+        "degrees": degrees,
+        "course_types": course_types,
+        "semesters": semesters,
+    }
     return render(request, "results_index.html", template_data)
 
 
@@ -197,25 +197,25 @@ def evaluation_detail(request, semester_id, evaluation_id):
 
     is_responsible_or_contributor_or_delegate = evaluation.is_user_responsible_or_contributor_or_delegate(view_as_user)
 
-    template_data = dict(
-        evaluation=evaluation,
-        course=evaluation.course,
-        course_evaluations=course_evaluations,
-        general_questionnaire_results_top=top_results,
-        general_questionnaire_results_bottom=bottom_results,
-        contributor_contribution_results=contributor_results,
-        is_reviewer=view_as_user.is_reviewer,
-        is_contributor=evaluation.is_user_contributor(view_as_user),
-        is_responsible_or_contributor_or_delegate=is_responsible_or_contributor_or_delegate,
-        can_download_grades=view_as_user.can_download_grades,
-        can_export_text_answers=(
+    template_data = {
+        "evaluation": evaluation,
+        "course": evaluation.course,
+        "course_evaluations": course_evaluations,
+        "general_questionnaire_results_top": top_results,
+        "general_questionnaire_results_bottom": bottom_results,
+        "contributor_contribution_results": contributor_results,
+        "is_reviewer": view_as_user.is_reviewer,
+        "is_contributor": evaluation.is_user_contributor(view_as_user),
+        "is_responsible_or_contributor_or_delegate": is_responsible_or_contributor_or_delegate,
+        "can_download_grades": view_as_user.can_download_grades,
+        "can_export_text_answers": (
             view in ("export", "full") and (view_as_user.is_reviewer or is_responsible_or_contributor_or_delegate)
         ),
-        view=view,
-        view_as_user=view_as_user,
-        contributors_with_omitted_results=contributors_with_omitted_results,
-        contributor_id=contributor_id,
-    )
+        "view": view,
+        "view_as_user": view_as_user,
+        "contributors_with_omitted_results": contributors_with_omitted_results,
+        "contributor_id": contributor_id,
+    }
     return render(request, "results_evaluation_detail.html", template_data)
 
 

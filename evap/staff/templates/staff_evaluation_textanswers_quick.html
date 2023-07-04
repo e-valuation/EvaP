@@ -31,6 +31,18 @@
         </div>
     </div>
 
+    <form method="POST" action="{% url 'staff:evaluation_textanswers_update_flag' %}" id="shared-full-textanswer-flag-form">
+        {% csrf_token %}
+
+        <!--
+            This form ("the flag form") is closely related to the `textanswer-update-form` form ("the main form"), but
+            separated to avoid overwriting the review decision when changing the flagged status and vice-versa. Since
+            the main form needs to wrap the entire slider and form tags cannot be nested, the flag form lives next to
+            the main form. The inputs for the flag form are linked using the `form` attribute (and thus also excluded
+            from the main form).
+        -->
+    </form>
+
     <form method="POST" action="{% url 'staff:evaluation_textanswers_update_publish' %}" id="textanswer-update-form">
         {% csrf_token %}
 
@@ -63,6 +75,14 @@
                                     value="{{ answer.id }}"
                                     disabled
                                 />
+                                <input
+                                    form="shared-full-textanswer-flag-form"
+                                    type="hidden"
+                                    name="answer_id"
+                                    value="{{ answer.id }}"
+                                    disabled
+                                />
+
                                 <div
                                     class="slider-item card-body"
                                     data-layer="2"
@@ -77,6 +97,7 @@
                                             data-review="delete"
                                         {% endif %}
                                     {% endif %}
+                                    {% if answer.is_flagged %} data-is-flagged {% endif %}
                                 >
                                     {{ answer.answer|linebreaksbr }}
                                     {% if answer.original_answer %}
@@ -114,7 +135,7 @@
             </div>
 
 
-            <div class="card-footer d-flex">
+            <div class="card-footer d-flex align-items-center">
                 <div class="lcr-left">
                     <div data-action-set="reviewing">
                         <button type="submit" name="action" value="unreview" class="btn btn-sm btn-outline-secondary">
@@ -137,7 +158,7 @@
                 <div class="lcr-center d-none" data-action-set="summary">
                     {% if next_evaluations %}
                         {% for next_evaluation in next_evaluations %}
-                            <a href="{% url 'staff:evaluation_textanswers' next_evaluation.course.semester.id next_evaluation.id %}" data-next-evaluation-index="{{ forloop.counter0 }}" data-evaluation="{{ next_evaluation.pk }}" data-url="next-evaluation" class="btn btn-sm btn-primary">
+                            <a href="{% url 'staff:evaluation_textanswers' next_evaluation.id %}" data-next-evaluation-index="{{ forloop.counter0 }}" data-evaluation="{{ next_evaluation.pk }}" data-url="next-evaluation" class="btn btn-sm btn-primary">
                                 {% trans 'Review next evaluation' %}
                             </a>
                         {% endfor %}
@@ -155,8 +176,10 @@
                 <div class="lcr-right">
                     {% if user.is_manager %}
                         <div data-action-set="reviewing">
+                            {% include "staff_evaluation_textanswer_flag_radios.html" with form="shared-full-textanswer-flag-form" id="shared" %}
+
                             <button type="submit" name="action" value="textanswer_edit" class="btn btn-sm btn-outline-secondary">
-                                <span class="fas fa-pencil">
+                                <span class="fas fa-pencil"></span>
                             </button>
                         </div>
                     {% endif %}
@@ -173,6 +196,7 @@
         const slider = new QuickReviewSlider(
             document.querySelector(".slider"),
             document.querySelector("#textanswer-update-form"),
+            document.querySelector("#shared-full-textanswer-flag-form"),
             "{% url 'staff:evaluation_textanswers_skip' %}",
         );
         slider.attach();

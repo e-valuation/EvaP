@@ -1,7 +1,6 @@
 from functools import partial
 
 from django.test.utils import override_settings
-from django.urls import reverse
 from django_webtest import WebTest
 from model_bakery import baker
 
@@ -11,6 +10,7 @@ from evap.evaluation.models import (
     Evaluation,
     Question,
     Questionnaire,
+    QuestionType,
     RatingAnswerCounter,
     Semester,
     TextAnswer,
@@ -74,39 +74,39 @@ class TestVoteView(WebTest):
         cls.contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
 
         cls.contributor_heading_question = baker.make(
-            Question, questionnaire=cls.contributor_questionnaire, order=0, type=Question.HEADING
+            Question, questionnaire=cls.contributor_questionnaire, order=0, type=QuestionType.HEADING
         )
         cls.contributor_text_question = baker.make(
-            Question, questionnaire=cls.contributor_questionnaire, order=1, type=Question.TEXT
+            Question, questionnaire=cls.contributor_questionnaire, order=1, type=QuestionType.TEXT
         )
         cls.contributor_likert_question = baker.make(
-            Question, questionnaire=cls.contributor_questionnaire, order=2, type=Question.LIKERT
+            Question, questionnaire=cls.contributor_questionnaire, order=2, type=QuestionType.LIKERT
         )
 
         cls.top_heading_question = baker.make(
-            Question, questionnaire=cls.top_general_questionnaire, order=0, type=Question.HEADING
+            Question, questionnaire=cls.top_general_questionnaire, order=0, type=QuestionType.HEADING
         )
         cls.top_text_question = baker.make(
-            Question, questionnaire=cls.top_general_questionnaire, order=1, type=Question.TEXT
+            Question, questionnaire=cls.top_general_questionnaire, order=1, type=QuestionType.TEXT
         )
         cls.top_likert_question = baker.make(
-            Question, questionnaire=cls.top_general_questionnaire, order=2, type=Question.LIKERT
+            Question, questionnaire=cls.top_general_questionnaire, order=2, type=QuestionType.LIKERT
         )
         cls.top_grade_question = baker.make(
-            Question, questionnaire=cls.top_general_questionnaire, order=3, type=Question.GRADE
+            Question, questionnaire=cls.top_general_questionnaire, order=3, type=QuestionType.GRADE
         )
 
         cls.bottom_heading_question = baker.make(
-            Question, questionnaire=cls.bottom_general_questionnaire, order=0, type=Question.HEADING
+            Question, questionnaire=cls.bottom_general_questionnaire, order=0, type=QuestionType.HEADING
         )
         cls.bottom_text_question = baker.make(
-            Question, questionnaire=cls.bottom_general_questionnaire, order=1, type=Question.TEXT
+            Question, questionnaire=cls.bottom_general_questionnaire, order=1, type=QuestionType.TEXT
         )
         cls.bottom_likert_question = baker.make(
-            Question, questionnaire=cls.bottom_general_questionnaire, order=2, type=Question.LIKERT
+            Question, questionnaire=cls.bottom_general_questionnaire, order=2, type=QuestionType.LIKERT
         )
         cls.bottom_grade_question = baker.make(
-            Question, questionnaire=cls.bottom_general_questionnaire, order=3, type=Question.GRADE
+            Question, questionnaire=cls.bottom_general_questionnaire, order=3, type=QuestionType.GRADE
         )
 
         cls.contribution1 = baker.make(
@@ -380,7 +380,9 @@ class TestVoteView(WebTest):
         page = self.app.get(self.url, user=self.voting_user1, status=200)
         form = page.forms["student-vote-form"]
         self.fill_form(form)
-        page = self.app.get(reverse("django-auth-logout"), user=self.voting_user1, status=302)
+
+        page = page.forms["logout-form"].submit(status=302)
+
         response = form.submit(status=302)
         self.assertNotIn(SUCCESS_MAGIC_STRING, response)
 

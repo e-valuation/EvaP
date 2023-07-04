@@ -10,10 +10,7 @@ jobs:
   test:
     name: Test + Coverage
 
-    runs-on: ubuntu-20.04
-
-    container:
-      image: python:3.8
+    runs-on: ubuntu-22.04
 
     services:
       postgres:
@@ -28,23 +25,20 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
-      - name: Install dependencies
-        run: pip install -r requirements-dev.txt
-      - name: Add localsettings
-        run: cp evap/settings_test.py evap/localsettings.py
+        uses: actions/checkout@v3
+
+      - name: Setup python
+        uses: ./.github/setup_python
+
       - name: Run tests
         run: coverage run manage.py test
       - name: Upload coverage
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
 
   test_shuffled:
     name: Test (shuffled order)
 
-    runs-on: ubuntu-20.04
-
-    container:
-      image: python:3.8
+    runs-on: ubuntu-22.04
 
     services:
       postgres:
@@ -59,70 +53,60 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
-      - name: Install dependencies
-        run: pip install -r requirements-dev.txt
-      - name: Add localsettings
-        run: cp evap/settings_test.py evap/localsettings.py
+        uses: actions/checkout@v3
+
+      - name: Setup python
+        uses: ./.github/setup_python
+
       - name: Run tests
         run: python manage.py test --shuffle
 
   mypy:
-    runs-on: ubuntu-20.04
-
-    container:
-      image: python:3.8
+    runs-on: ubuntu-22.04
 
     name: MyPy
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
-      - name: Install dependencies
-        run: pip install -r requirements-dev.txt
-      - name: Add localsettings
-        run: cp evap/settings_test.py evap/localsettings.py
+        uses: actions/checkout@v3
+
+      - name: Setup python
+        uses: ./.github/setup_python
+
       - name: Run MyPy
         run: mypy -p evap
 
   linter:
-    runs-on: ubuntu-20.04
-
-    container:
-      image: python:3.8
+    runs-on: ubuntu-22.04
 
     name: Linter
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
-      - name: Install dependencies
-        run: pip install -r requirements-dev.txt
-      - name: Add localsettings
-        run: cp evap/settings_test.py evap/localsettings.py
+        uses: actions/checkout@v3
+
+      - name: Setup python
+        uses: ./.github/setup_python
+
       - name: Run linter
         run: pylint evap -j 0
 
 
   formatter:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     name: Formatting
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: Install Python dependencies
-        run: pip install -r requirements-dev.txt
-      - name: Setup Node
-        uses: actions/setup-node@v2
-      - name: Install Node dependencies
-        run: npm ci
-      - name: Add localsettings
-        run: cp evap/settings_test.py evap/localsettings.py
+        uses: actions/checkout@v3
+
+      - name: Setup python
+        uses: ./.github/setup_python
+
+      - name: Setup nodejs
+        uses: ./.github/setup_nodejs
+
       - name: Check code formatting
         run: black --check evap
       - name: Check imports formatting
@@ -133,10 +117,7 @@ jobs:
 
 
   backup-process:
-    runs-on: ubuntu-20.04
-
-    container:
-      image: python:3.8
+    runs-on: ubuntu-22.04
 
     services:
       postgres:
@@ -157,15 +138,25 @@ jobs:
     name: Backup process
 
     steps:
-      - name: Install sudo package
-        # otherwise, sudo commands in the scripts called will fail
-        run: apt update && apt install sudo
       - name: Check out repository code
-        uses: actions/checkout@v2
-      - name: Install dependencies
-        run: pip install -r requirements-dev.txt
-      - name: Add localsettings
-        run: cp evap/settings_test.py evap/localsettings.py
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Setup python
+        uses: ./.github/setup_python
+
+      - name: Setup nodejs
+        uses: ./.github/setup_nodejs
+
+      - name: Install additional dependencies
+        run: sudo apt-get update && sudo apt-get install gettext
+
+      - name: GitHub actions has wrong file ownership here, the checkout actions has a problem here (see their 1049)
+        run: |
+          git config --global --add safe.directory '*'
+          sudo -H -u root git config --global --add safe.directory '*'
+
       - name: Load test data
         run: |
           python manage.py migrate
@@ -179,33 +170,30 @@ jobs:
         run: echo "yy" | deployment/load_production_backup.sh backup.json
 
   compile_scss:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     name: Compile Scss
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
-      - name: Setup Node
-        uses: actions/setup-node@v2
-      - name: Install Node dependencies
-        run: npm ci
+
+      - name: Setup nodejs
+        uses: ./.github/setup_nodejs
+
       - name: Compile Scss
         run: npx sass evap/static/scss/evap.scss evap/static/css/evap.css
       - name: Store Css
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: css
           path: evap/static/css/evap.css
 
 
   render_pages:
-    runs-on: ubuntu-20.04
-
-    container:
-      image: python:3.8
+    runs-on: ubuntu-22.04
 
     name: Render Html pages
 
@@ -227,26 +215,26 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
-      - name: Install dependencies
-        run: pip install -r requirements-dev.txt
-      - name: Add localsettings
-        run: cp evap/settings_test.py evap/localsettings.py
+        uses: actions/checkout@v3
+
+      - name: Setup python
+        uses: ./.github/setup_python
+
       - name: Render pages
         run: coverage run manage.py ts render_pages
       - name: Upload coverage
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
         with:
           flags: render-pages
       - name: Store rendered pages
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: rendered-pages
           path: evap/static/ts/rendered
 
 
   typescript:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     needs: [ compile_scss, render_pages ]
 
@@ -254,24 +242,22 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
-      - name: Install packages
-        run: sudo apt-get install xvfb libgbm1
-      - name: Setup Node
-        uses: actions/setup-node@v2
-      - name: Install Node dependencies
-        run: npm ci
+
+      - name: Setup nodejs
+        uses: ./.github/setup_nodejs
+
       - name: Compile Typescript
         run: npx tsc --project evap/static/ts/tsconfig.compile.json
       - name: Load rendered pages
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: rendered-pages
           path: evap/static/ts/rendered
       - name: Load Css
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: css
           path: evap/static/css

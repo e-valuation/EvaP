@@ -1,11 +1,14 @@
 import logging
 
 from django import forms
+from django.conf import settings
 from django.contrib.auth import authenticate
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.debug import sensitive_variables
 
-from evap.evaluation.models import UserProfile
+from evap.evaluation.models import Evaluation, UserProfile
+from evap.results.tools import STATES_WITH_RESULTS_CACHING, cache_results
 
 logger = logging.getLogger(__name__)
 
@@ -103,21 +106,43 @@ class UserModelMultipleChoiceField(forms.ModelMultipleChoiceField):
         return obj.full_name_with_additional_info
 
 
-class DelegatesForm(forms.ModelForm):
+class ProfileForm(forms.ModelForm):
     delegates = UserModelMultipleChoiceField(
         queryset=UserProfile.objects.exclude(is_active=False).exclude(is_proxy_user=True), required=False
     )
 
     class Meta:
         model = UserProfile
-        fields = ("delegates",)
+        fields = ("title", "first_name_chosen", "first_name_given", "last_name", "email", "delegates")
         field_classes = {
             "delegates": UserModelMultipleChoiceField,
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        for field in ("title", "first_name_given", "last_name", "email"):
+            self.fields[field].disabled = True
 
-    def save(self, *args, **kw):
-        super().save(*args, **kw)
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if "first_name_chosen" in self.changed_data:
+            logger.info(
+                'User "%s" updated chosen first name to: "%s".', self.instance.email, self.instance.first_name_chosen
+            )
+            evaluations = Evaluation.objects.filter(
+                contributions__contributor=self.instance, state__in=STATES_WITH_RESULTS_CACHING
+            ).distinct()
+            for evaluation in evaluations:
+                cache_results(evaluation)
+
         logger.info('User "%s" edited the settings.', self.instance.email)
+
+    def clean_first_name_chosen(self):
+        name = self.cleaned_data["first_name_chosen"]
+
+        for character in name:
+            if not settings.CHARACTER_ALLOWED_IN_NAME(character):
+                raise ValidationError(_("Name contains disallowed characters."))
+
+        return name

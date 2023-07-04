@@ -81,7 +81,7 @@ class RatingResult:
     def average(self) -> Optional[float]:
         if not self.has_answers:
             return None
-        return sum(grade * count for count, grade in zip(self.counts, self.choices.grades)) / self.count_sum  # type: ignore
+        return sum(grade * count for count, grade in zip(self.counts, self.choices.grades)) / self.count_sum
 
     @property
     def has_answers(self) -> bool:
@@ -451,7 +451,7 @@ def textanswers_visible_to(contribution):
     delegates = {delegate for contributor in non_proxy_contributors for delegate in contributor.delegates.all()}
     num_delegates = len(delegates - contributors)
 
-    sorted_contributors = sorted(contributors, key=lambda user: (user.last_name, user.first_name))
+    sorted_contributors = sorted(contributors, key=UserProfile.ordering_key)
     return TextAnswerVisibility(visible_by_contribution=sorted_contributors, visible_by_delegation_count=num_delegates)
 
 

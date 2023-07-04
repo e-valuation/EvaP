@@ -18,6 +18,7 @@ from evap.evaluation.models import (
     NotArchiveable,
     Question,
     Questionnaire,
+    QuestionType,
     RatingAnswerCounter,
     Semester,
     TextAnswer,
@@ -296,7 +297,7 @@ class TestEvaluations(WebTest):
         )
         evaluation.save()
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        baker.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
+        baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionType.LIKERT)
         evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
 
         self.assertFalse(evaluation.can_publish_text_results)
@@ -316,7 +317,7 @@ class TestEvaluations(WebTest):
             can_publish_text_results=False,
         )
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        question = baker.make(Question, type=Question.TEXT, questionnaire=questionnaire)
+        question = baker.make(Question, type=QuestionType.TEXT, questionnaire=questionnaire)
         evaluation.general_contribution.questionnaires.set([questionnaire])
         baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution)
 
@@ -335,7 +336,7 @@ class TestEvaluations(WebTest):
             can_publish_text_results=True,
         )
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        question = baker.make(Question, type=Question.TEXT, questionnaire=questionnaire)
+        question = baker.make(Question, type=QuestionType.TEXT, questionnaire=questionnaire)
         evaluation.general_contribution.questionnaires.set([questionnaire])
         baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution)
 
@@ -354,7 +355,7 @@ class TestEvaluations(WebTest):
             can_publish_text_results=True,
         )
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        question = baker.make(Question, type=Question.TEXT, questionnaire=questionnaire)
+        question = baker.make(Question, type=QuestionType.TEXT, questionnaire=questionnaire)
         evaluation.general_contribution.questionnaires.set([questionnaire])
         baker.make(
             TextAnswer,
@@ -388,7 +389,7 @@ class TestEvaluations(WebTest):
             can_publish_text_results=True,
         )
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        question = baker.make(Question, type=Question.TEXT, questionnaire=questionnaire)
+        question = baker.make(Question, type=QuestionType.TEXT, questionnaire=questionnaire)
         evaluation.general_contribution.questionnaires.set([questionnaire])
         baker.make(
             TextAnswer,
@@ -468,7 +469,6 @@ class TestEvaluations(WebTest):
         expected_value_with_wait_for_grade_upload_before_publishing,
         expected_value_after_grade_upload,
     ):
-
         self.assertEqual(evaluation.textanswer_review_state, expected_default_value)
 
         evaluation.course.gets_no_grade_documents = True
@@ -673,8 +673,8 @@ class TestUserProfile(TestCase):
     def test_correct_sorting(self):
         baker.make(
             UserProfile,
-            last_name=iter(["Y", "x", None, None]),
-            first_name=iter(["x", "x", "a", None]),
+            last_name=iter(["Y", "x", "", ""]),
+            first_name_given=iter(["x", "x", "a", ""]),
             email=iter(["3xy@example.com", "4xx@example.com", "2a@example.com", "1unnamed@example.com"]),
             _quantity=4,
             _bulk_create=True,

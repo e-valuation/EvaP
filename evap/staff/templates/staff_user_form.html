@@ -16,7 +16,7 @@
     {{ block.super }}
     <h3>{% if form.instance.id %}{% trans 'Edit user' %}{% else %}{% trans 'Create user' %}{% endif %}</h3>
 
-    <form id="user-form" method="POST" enctype="multipart/form-data" class="form-horizontal multiselect-form">
+    <form id="user-form" method="POST" class="form-horizontal multiselect-form">
         {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">

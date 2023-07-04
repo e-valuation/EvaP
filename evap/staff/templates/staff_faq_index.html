@@ -8,7 +8,7 @@
 {% block content %}
     {{ block.super }}
 
-    <form method="POST" class="form-horizontal" enctype="multipart/form-data">
+    <form method="POST" class="form-horizontal">
         {% csrf_token %}
         {{ formset.management_form }}
 
@@ -20,7 +20,7 @@
                             <th class="movable"></th>
                             <th style="width: 45%">{% trans 'Section title (German)' %}</th>
                             <th style="width: 45%">{% trans 'Section title (English)' %}</th>
-                            <th style="width: 10%">{% trans 'Actions' %}</th>
+                            <th class="text-end" style="width: 10%">{% trans 'Actions' %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -36,7 +36,7 @@
                                 {% include 'bootstrap_form_field_widget.html' with field=form.title_de %}
                             </td>
                             <td>{% include 'bootstrap_form_field_widget.html' with field=form.title_en %}</td>
-                            <td>
+                            <td class="text-end">
                                 {% if form.instance.id %}
                                     <a href="{% url 'staff:faq_section' form.instance.id %}" class="btn btn-secondary btn-sm"><span class="fas fa-pencil"></span></a>
                                 {% endif %}

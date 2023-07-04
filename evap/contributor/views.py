@@ -4,6 +4,7 @@ from django.db import IntegrityError, transaction
 from django.db.models import Exists, Max, OuterRef, Q
 from django.forms.models import inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
@@ -93,22 +94,22 @@ def index(request):
 
     semesters = Semester.objects.all()
     semester_list = [
-        dict(
-            semester_name=semester.name,
-            id=semester.id,
-            is_active=semester.is_active,
-            evaluations=[
+        {
+            "semester_name": semester.name,
+            "id": semester.id,
+            "is_active": semester.is_active,
+            "evaluations": [
                 evaluation for evaluation in displayed_evaluations if evaluation.course.semester_id == semester.id
             ],
-        )
+        }
         for semester in semesters
     ]
 
-    template_data = dict(
-        semester_list=semester_list,
-        show_delegated=show_delegated,
-        delegate_selection_form=DelegateSelectionForm(),
-    )
+    template_data = {
+        "semester_list": semester_list,
+        "show_delegated": show_delegated,
+        "delegate_selection_form": DelegateSelectionForm(),
+    }
     return render(request, "contributor_index.html", template_data)
 
 
@@ -136,13 +137,13 @@ def evaluation_view(request, evaluation_id):
         for field in cform.fields.values():
             field.disabled = True
 
-    template_data = dict(
-        form=form,
-        formset=formset,
-        evaluation=evaluation,
-        editable=False,
-        questionnaires_with_answers_per_contributor={},
-    )
+    template_data = {
+        "form": form,
+        "formset": formset,
+        "evaluation": evaluation,
+        "editable": False,
+        "questionnaires_with_answers_per_contributor": {},
+    }
 
     return render(request, "contributor_evaluation_form.html", template_data)
 
@@ -155,9 +156,9 @@ def render_preview(request, formset, evaluation_form, evaluation):
             formset.save()
             request.POST = None  # this prevents errors rendered in the vote form
 
-            preview_response = render_vote_page(
-                request, evaluation, preview=True, for_rendering_in_modal=True
-            ).content.decode()
+            preview_response = mark_safe(
+                render_vote_page(request, evaluation, preview=True, for_rendering_in_modal=True).content.decode()
+            )
             raise IntegrityError  # rollback transaction to discard the database writes
     except IntegrityError:
         pass
@@ -217,14 +218,14 @@ def evaluation_edit(request, evaluation_id):
             messages.error(request, _("The form was not saved. Please resolve the errors shown below."))
 
     sort_formset(request, formset)
-    template_data = dict(
-        form=evaluation_form,
-        formset=formset,
-        evaluation=evaluation,
-        editable=True,
-        preview_html=preview_html,
-        questionnaires_with_answers_per_contributor={},
-    )
+    template_data = {
+        "form": evaluation_form,
+        "formset": formset,
+        "evaluation": evaluation,
+        "editable": True,
+        "preview_html": preview_html,
+        "questionnaires_with_answers_per_contributor": {},
+    }
     return render(request, "contributor_evaluation_form.html", template_data)
 
 

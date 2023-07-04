@@ -7,10 +7,14 @@
 
 {% block content %}
     {{ block.super }}
-
-    <p>
-        <a href="{% url 'rewards:reward_point_redemption_event_create' %}" class="btn btn-dark btn-sm">{% trans 'Create new event' %}</a>
-    </p>
+    <div class="row mb-2">
+        <div class="col">
+            <a href="{% url 'rewards:reward_point_redemption_event_create' %}" class="btn btn-dark btn-sm">{% trans 'Create new event' %}</a>
+        </div>
+        <div class="col text-end">
+            {% trans 'Available reward points' %}: {{ total_points_available }}
+        </div>
+    </div>
 
     <div class="card card-outline-primary mb-3">
         {% trans 'Upcoming events' as title %}

@@ -8,6 +8,7 @@ from unittest.mock import call, patch
 
 from django.conf import settings
 from django.core import mail, management
+from django.core.management import CommandError
 from django.db.models import Sum
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -38,7 +39,7 @@ class TestAnonymizeCommand(TestCase):
             UserProfile,
             email="secret.email@hpi.de",
             title="Prof.",
-            first_name="Secret",
+            first_name_given="Secret",
             last_name="User",
             login_key=1234567890,
             login_key_valid_until=date.today(),
@@ -212,10 +213,8 @@ class TestScssCommand(TestCase):
     def test_scss_called_with_no_sass_installed(self, mock_subprocess_run):
         mock_subprocess_run.side_effect = FileNotFoundError()
 
-        stderr = StringIO()
-        management.call_command("scss", stderr=stderr)
-
-        self.assertEqual(stderr.getvalue(), "Could not find sass command\n\n")
+        with self.assertRaisesMessage(CommandError, "Could not find sass command"):
+            management.call_command("scss")
 
 
 class TestTsCommend(TestCase):
@@ -260,6 +259,13 @@ class TestTsCommend(TestCase):
                 call(["npx", "jest"], check=True),
             ]
         )
+
+    @patch("subprocess.run")
+    def test_ts_called_with_no_npm_installed(self, mock_subprocess_run):
+        mock_subprocess_run.side_effect = FileNotFoundError()
+
+        with self.assertRaisesMessage(CommandError, "Could not find npx command"):
+            management.call_command("ts", "compile")
 
 
 class TestUpdateEvaluationStatesCommand(TestCase):
@@ -353,7 +359,7 @@ class TestSendRemindersCommand(TestCase):
             [
                 (
                     evaluation,
-                    f"{settings.PAGE_URL}/staff/semester/{evaluation.course.semester.id}/evaluation/{evaluation.id}/textanswers",
+                    f"{settings.PAGE_URL}/staff/evaluation/{evaluation.id}/textanswers",
                 )
             ],
         )

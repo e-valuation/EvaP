@@ -22,8 +22,10 @@ from evap.evaluation.models import (
     Evaluation,
     FaqQuestion,
     FaqSection,
+    Infotext,
     Question,
     Questionnaire,
+    QuestionType,
     RatingAnswerCounter,
     Semester,
     TextAnswer,
@@ -277,8 +279,8 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore
 
     def __init__(self, data=None, *, instance: Course):
         self.old_course = instance
-        opts = self._meta  # type: ignore
-        initial = forms.models.model_to_dict(instance, opts.fields, opts.exclude)  # type: ignore
+        opts = self._meta
+        initial = forms.models.model_to_dict(instance, opts.fields, opts.exclude)
         super().__init__(data=data, initial=initial)
         self._set_responsibles_queryset(instance)
 
@@ -325,7 +327,7 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore
     }
 
     @transaction.atomic()
-    def save(self, commit=True):
+    def save(self, commit=True) -> Course:
         new_course: Course = super().save()
         # we need to create copies of evaluations and their participation as well
         for old_evaluation in self.old_course.evaluations.exclude(is_single_result=True):
@@ -605,7 +607,7 @@ class ContributionForm(forms.ModelForm):
             .filter(
                 Q(visibility=Questionnaire.Visibility.MANAGERS)
                 | Q(visibility=Questionnaire.Visibility.EDITORS)
-                | Q(contributions__evaluation=self.evaluation)
+                | Q(contributions__evaluation=(self.evaluation if self.evaluation.pk else None))
             )
             .distinct()
         )
@@ -810,6 +812,9 @@ class ContributionFormset(BaseInlineFormSet):
             return data
 
         evaluation = kwargs["instance"]
+        if evaluation and not evaluation.pk:
+            evaluation = None
+
         total_forms = int(data["contributions-TOTAL_FORMS"])
         for i in range(0, total_forms):
             prefix = "contributions-" + str(i) + "-"
@@ -894,12 +899,12 @@ class QuestionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.instance.pk and self.instance.type in [Question.TEXT, Question.HEADING]:
+        if self.instance.pk and self.instance.type in [QuestionType.TEXT, QuestionType.HEADING]:
             self.fields["allows_additional_textanswers"].disabled = True
 
     def clean(self):
         super().clean()
-        if self.cleaned_data.get("type") in [Question.TEXT, Question.HEADING]:
+        if self.cleaned_data.get("type") in [QuestionType.TEXT, QuestionType.HEADING]:
             self.cleaned_data["allows_additional_textanswers"] = False
         return self.cleaned_data
 
@@ -934,7 +939,16 @@ class UserForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ("title", "first_name", "last_name", "email", "delegates", "cc_users", "is_proxy_user")
+        fields = (
+            "title",
+            "first_name_chosen",
+            "first_name_given",
+            "last_name",
+            "email",
+            "delegates",
+            "cc_users",
+            "is_proxy_user",
+        )
         field_classes = {
             "delegates": UserModelMultipleChoiceField,
             "cc_users": UserModelMultipleChoiceField,
@@ -1020,7 +1034,10 @@ class UserForm(forms.ModelForm):
         )
 
         # refresh results cache
-        if any(attribute in self.changed_data for attribute in ["first_name", "last_name", "title"]):
+        if any(
+            attribute in self.changed_data
+            for attribute in ["first_name_given", "first_name_chosen", "last_name", "title"]
+        ):
             evaluations = Evaluation.objects.filter(
                 contributions__contributor=self.instance, state__in=STATES_WITH_RESULTS_CACHING
             ).distinct()
@@ -1061,6 +1078,12 @@ class FaqQuestionForm(forms.ModelForm):
         widgets = {
             "order": forms.HiddenInput(),
         }
+
+
+class InfotextForm(forms.ModelForm):
+    class Meta:
+        model = Infotext
+        fields = ("title_de", "title_en", "content_de", "content_en")
 
 
 class TextAnswerForm(forms.ModelForm):

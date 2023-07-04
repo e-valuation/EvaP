@@ -4,3 +4,5 @@
 822b3f38dce85fe3785965f120e5eb1accebd495
 # run prettier on all other typescript files
 02ea57d2c33eb2801414982662acd8582e361d10
+# enforce pylint's `use-dict-literal`
+0d3fed856961fd453555637ada50080901160e9a

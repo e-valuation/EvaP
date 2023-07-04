@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.dispatch import Signal
 from django.utils.translation import gettext_lazy as _
@@ -30,12 +31,10 @@ class RewardPointRedemptionEvent(models.Model):
 
     @property
     def can_delete(self):
-        if RewardPointRedemption.objects.filter(event=self).exists():
-            return False
-        return True
+        return not self.reward_point_redemptions.exists()
 
     def redemptions_by_user(self):
-        redemptions = self.reward_point_redemptions.order_by("user_profile")
+        redemptions = self.reward_point_redemptions.order_by("user_profile").prefetch_related("user_profile")
         redemptions_dict = OrderedDict()
         for redemption in redemptions:
             if redemption.user_profile not in redemptions_dict:
@@ -53,7 +52,7 @@ class RewardPointGranting(models.Model):
     user_profile = models.ForeignKey(UserProfile, models.CASCADE, related_name="reward_point_grantings")
     semester = models.ForeignKey(Semester, models.PROTECT, related_name="reward_point_grantings")
     granting_time = models.DateTimeField(verbose_name=_("granting time"), auto_now_add=True)
-    value = models.IntegerField(verbose_name=_("value"), default=0)
+    value = models.IntegerField(verbose_name=_("value"), validators=[MinValueValidator(1)])
 
     granted_by_removal = Signal()
 
@@ -66,7 +65,7 @@ class RewardPointRedemption(models.Model):
 
     user_profile = models.ForeignKey(UserProfile, models.CASCADE, related_name="reward_point_redemptions")
     redemption_time = models.DateTimeField(verbose_name=_("redemption time"), auto_now_add=True)
-    value = models.IntegerField(verbose_name=_("value"), default=0)
+    value = models.IntegerField(verbose_name=_("value"), validators=[MinValueValidator(1)])
     event = models.ForeignKey(RewardPointRedemptionEvent, models.PROTECT, related_name="reward_point_redemptions")
 
 

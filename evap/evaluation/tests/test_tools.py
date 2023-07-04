@@ -1,9 +1,10 @@
+from typing import Type
 from unittest.mock import patch
 from uuid import UUID
 
 from django.core import management
 from django.core.exceptions import SuspiciousOperation
-from django.db.models import prefetch_related_objects
+from django.db.models import Model, prefetch_related_objects
 from django.http import Http404
 from django.test.testcases import TestCase
 from django.utils import translation
@@ -14,14 +15,14 @@ from evap.evaluation.tests.tools import WebTest
 from evap.evaluation.tools import (
     discard_cached_related_objects,
     get_object_from_dict_pk_entry_or_logged_40x,
-    is_m2m_prefetched,
+    is_prefetched,
 )
 
 
 class TestLanguageMiddleware(WebTest):
-    def test_sets_language_if_none(self):
+    def test_sets_language_if_empty(self):
         translation.activate("de")
-        user = baker.make(UserProfile, language=None, email="user@institution.example.com")
+        user = baker.make(UserProfile, language="", email="user@institution.example.com")
 
         # Django's LocaleMiddleware should overwrite the active translation with what matches the user (-> "en")
         self.app.get("/", user=user)
@@ -62,20 +63,26 @@ class TestLogExceptionsDecorator(TestCase):
 
 
 class TestHelperMethods(WebTest):
-    def test_is_m2m_prefetched(self):
-        evaluation = baker.make(Evaluation)
+    def test_is_prefetched(self):
+        evaluation = baker.make(Evaluation, voters=[baker.make(UserProfile)])
         baker.make(Contribution, evaluation=evaluation)
 
-        self.assertFalse(is_m2m_prefetched(evaluation, "contributions"))
+        def test_logic(cls: Type[Model], pk: int, field: str) -> None:
+            instance = cls.objects.get(pk=pk)
+            self.assertFalse(is_prefetched(instance, field))
 
-        prefetch_related_objects([evaluation], "contributions")
-        self.assertTrue(is_m2m_prefetched(evaluation, "contributions"))
+            prefetch_related_objects([instance], field)
+            self.assertTrue(is_prefetched(instance, field))
 
-        evaluation.refresh_from_db(fields=["contributions"])
-        self.assertFalse(is_m2m_prefetched(evaluation, "contributions"))
+            instance.refresh_from_db(fields=[field])
+            self.assertFalse(is_prefetched(instance, field))
 
-        evaluation = Evaluation.objects.filter(pk=evaluation.pk).prefetch_related("contributions").first()
-        self.assertTrue(is_m2m_prefetched(evaluation, "contributions"))
+            instance = cls.objects.filter(pk=instance.pk).prefetch_related(field).get()
+            self.assertTrue(is_prefetched(instance, field))
+
+        test_logic(Evaluation, evaluation.pk, "contributions")  # inverse foreign key
+        test_logic(Evaluation, evaluation.pk, "voters")  # many to many
+        test_logic(Evaluation, evaluation.pk, "course")  # foreign key
 
     def test_discard_cached_related_objects_discards_cached_foreign_key_instances(self):
         evaluation = baker.make(Evaluation, course__name_en="old_name")

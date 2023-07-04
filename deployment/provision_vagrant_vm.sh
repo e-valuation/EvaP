@@ -6,7 +6,8 @@ MOUNTPOINT="/evap"
 USER="evap"
 REPO_FOLDER="/opt/evap"
 ENV_FOLDER="/home/$USER/venv"
-EVAP_PYTHON=python3.8
+NODE_MODULES_FOLDER="/home/$USER/node_modules"
+EVAP_PYTHON=python3.10
 
 # force apt to not ask, just do defaults.
 export DEBIAN_FRONTEND=noninteractive
@@ -89,6 +90,9 @@ sed -i -e "s/\${SECRET_KEY}/$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
 # setup vm auto-completion
 cp $REPO_FOLDER/deployment/manage_autocompletion.sh /etc/bash_completion.d/
 
+# install chrome, see: https://github.com/puppeteer/puppeteer/issues/7740
+apt-get -q install -y chromium-browser
+
 # install libraries for puppeteer
 apt-get -q install -y libasound2 libgconf-2-4 libgbm1 libgtk-3-0 libnss3 libx11-xcb1 libxss1 libxshmfence-dev
 
@@ -98,8 +102,15 @@ wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh --no-verbos
 # setup evap
 cd "$MOUNTPOINT"
 sudo -H -u $USER git submodule update --init
+
+sudo -H -u $USER mkdir node_modules
+sudo -H -u $USER mkdir ${NODE_MODULES_FOLDER}
+sudo mount --bind ${NODE_MODULES_FOLDER} ${MOUNTPOINT}/node_modules
+echo "sudo mount --bind ${NODE_MODULES_FOLDER} ${MOUNTPOINT}/node_modules" >> /home/$USER/.bashrc
+
 sudo -H -u $USER bash -c "source /home/$USER/.nvm/nvm.sh; nvm install --no-progress node; npm ci"
 echo "nvm use node" >> /home/$USER/.bashrc
+
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py migrate --noinput
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py collectstatic --noinput
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py compilemessages --locale de

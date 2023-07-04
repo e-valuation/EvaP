@@ -213,21 +213,28 @@ class TestSemesterActivationView(WebTestStaffMode):
             course=course,
         )
 
-        cls.url = f"/rewards/reward_semester_activation/{cls.semester.pk}/"
+        cls.url = reverse("rewards:semester_activation_edit", args=[cls.semester.pk])
+
+    def test_invalid(self):
+        baker.make(SemesterActivation, semester=self.semester, is_active=False)
+        self.app.post(self.url, user=self.manager, params={"activation_status": "invalid"}, status=400)
+        self.assertFalse(is_semester_activated(self.semester))
+        self.app.post(self.url, user=self.manager, status=400)
+        self.assertFalse(is_semester_activated(self.semester))
 
     def test_activate(self):
         baker.make(SemesterActivation, semester=self.semester, is_active=False)
-        self.app.post(self.url + "on", user=self.manager)
+        self.app.post(self.url, user=self.manager, params={"activation_status": "on"})
         self.assertTrue(is_semester_activated(self.semester))
 
     def test_deactivate(self):
         baker.make(SemesterActivation, semester=self.semester, is_active=True)
-        self.app.post(self.url + "off", user=self.manager)
+        self.app.post(self.url, user=self.manager, params={"activation_status": "off"})
         self.assertFalse(is_semester_activated(self.semester))
 
     def test_activate_after_voting(self):
         baker.make(SemesterActivation, semester=self.semester, is_active=False)
         self.assertEqual(0, reward_points_of_user(self.student))
-        response = self.app.post(self.url + "on", user=self.manager)
+        response = self.app.post(self.url, user=self.manager, params={"activation_status": "on"}).follow()
         self.assertContains(response, "3 reward points were granted")
         self.assertEqual(3, reward_points_of_user(self.student))

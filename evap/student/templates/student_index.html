@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+{% load infotext_templatetags %}
 {% load evaluation_filters %}
 
 {% block title %}{% trans 'Evaluation' %} - {{ block.super }}{% endblock %}
@@ -7,26 +8,7 @@
 {% block content %}
     {{ block.super }}
 
-    <div id="participantInfobox" class="callout callout-info callout-closable">
-        <div class="callout-header d-flex">
-            <span class="fas fa-circle-info callout-icon"></span>
-            <span>{% trans 'Information about the evaluation' %}</span>
-            <button type="button" class="btn-close callout-closable-close ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="callout-content small">
-            <b>{% trans 'Anonymity' %}</b><br />
-            {% blocktrans %}Your votes and text answers can't be related to you. But you should be aware that your style of writing might allow lecturers to guess who wrote the text answer, especially in small courses.{% endblocktrans %}<br />
-            <em>{% trans 'More details:' %} <a href="/faq#faq-21-q">{% trans 'FAQ/Anonymity' %}</a></em><br />
-            <br />
-            <b>{% trans 'References to other answers' %}</b><br />
-            {% blocktrans %}Lecturers can't see completed questionnaires as a whole. If you would write "see above", the lecturer can't find the respective answer.{% endblocktrans %}<br />
-            <em>{% trans 'More details:' %} <a href="/faq#faq-24-q">{% trans 'FAQ/Reference' %}</a></em><br />
-            <br />
-            <b>{% trans 'Evaluation Results' %}</b><br />
-            {% blocktrans %}Text answers will be shown to the people who were evaluated and to the people responsible for the course. Voting answers will be published for all users of the platform if at least two people participated in the evaluation. The average grade is calculated if the participation rate is at least 20 percent.{% endblocktrans %}<br />
-            <em>{% trans 'More details:' %} <a href="/faq#faq-3-s">{% trans 'FAQ/Results' %}</a></em>
-        </div>
-    </div>
+    {% show_infotext "student_index" %}
 
     {% if unfinished_evaluations %}
         <div class="card card-outline-primary mb-3">
@@ -39,8 +21,4 @@
         </div>
     {% endif %}
     {% include 'student_index_semester_evaluations_list.html' %}
-{% endblock %}
-
-{% block additional_javascript %}
-    {% include 'infobox_js.html' with id='participantInfobox' %}
 {% endblock %}

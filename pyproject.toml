@@ -1,6 +1,10 @@
+[project]
+requires-python = ">=3.10"
+
+##############################################
+
 [tool.black]
 line-length = 120
-target-version = ['py37']
 include = 'evap.*\.pyi?$'
 extend-exclude = """\
     .*/urls\\.py|\
@@ -31,6 +35,7 @@ django-settings-module = "evap.settings"
 # need to allow that here (their issue 618)
 variable-rgx = "(^[a-z0-9_]+$)|(^[A-Za-z]+$)"
 argument-rgx = "(^[a-z0-9_]+$)|(^[A-Za-z]+$)"
+method-rgx = "(^[a-z0-9_]+$)|(^assert[A-Za-z]+$)"
 
 # Allow 4 leading digits for migrations
 module-rgx = "^([0-9]{4})?([a-z_][a-z0-9_]+)$"
@@ -59,6 +64,7 @@ disable = [
     "too-many-arguments",             # we can't determine a good limit here. reviews should spot bad cases of this.
     "duplicate-code",                 # Mostly imports and test setup.
     "cyclic-import",                  # We use these inside methods that require models from multiple apps. Tests will catch actual errors.
+    "unsupported-binary-operation",   # broken in pylint 2.15: https://github.com/PyCQA/pylint/issues/7381
 ]
 
 ##############################################

@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.contrib import messages
 from django.core.exceptions import BadRequest, SuspiciousOperation
+from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import get_language
@@ -24,7 +25,6 @@ from evap.rewards.models import (
     SemesterActivation,
 )
 from evap.rewards.tools import grant_eligible_reward_points_for_semester, reward_points_of_user, save_redemptions
-from evap.staff.views import semester_view
 
 
 def redeem_reward_points(request):
@@ -79,12 +79,12 @@ def index(request):
 
     reward_point_actions.sort(key=lambda action: action[0], reverse=True)
 
-    template_data = dict(
-        reward_point_actions=reward_point_actions,
-        total_points_available=total_points_available,
-        total_points_spent=sum(redemption.value for redemption in reward_point_redemptions),
-        events=events,
-    )
+    template_data = {
+        "reward_point_actions": reward_point_actions,
+        "total_points_available": total_points_available,
+        "total_points_spent": sum(redemption.value for redemption in reward_point_redemptions),
+        "events": events,
+    }
     return render(request, "rewards_index.html", template_data, status=status)
 
 
@@ -92,7 +92,14 @@ def index(request):
 def reward_point_redemption_events(request):
     upcoming_events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now()).order_by("date")
     past_events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__lt=datetime.now()).order_by("-date")
-    template_data = dict(upcoming_events=upcoming_events, past_events=past_events)
+    total_points_granted = RewardPointGranting.objects.aggregate(Sum("value"))["value__sum"] or 0
+    total_points_redeemed = RewardPointRedemption.objects.aggregate(Sum("value"))["value__sum"] or 0
+    total_points_available = total_points_granted - total_points_redeemed
+    template_data = {
+        "upcoming_events": upcoming_events,
+        "past_events": past_events,
+        "total_points_available": total_points_available,
+    }
     return render(request, "rewards_reward_point_redemption_events.html", template_data)
 
 
@@ -106,7 +113,7 @@ def reward_point_redemption_event_create(request):
         messages.success(request, _("Successfully created event."))
         return redirect("rewards:reward_point_redemption_events")
 
-    return render(request, "rewards_reward_point_redemption_event_form.html", dict(form=form))
+    return render(request, "rewards_reward_point_redemption_event_form.html", {"form": form})
 
 
 @manager_required
@@ -120,7 +127,7 @@ def reward_point_redemption_event_edit(request, event_id):
         messages.success(request, _("Successfully updated event."))
         return redirect("rewards:reward_point_redemption_events")
 
-    return render(request, "rewards_reward_point_redemption_event_form.html", dict(event=event, form=form))
+    return render(request, "rewards_reward_point_redemption_event_form.html", {"event": event, "form": form})
 
 
 @require_POST
@@ -146,13 +153,18 @@ def reward_point_redemption_event_export(request, event_id):
     return response
 
 
+@require_POST
 @manager_required
-def semester_activation(request, semester_id, active):
+def semester_activation_edit(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    active = active == "on"
-
+    status = request.POST.get("activation_status")
+    if status == "on":
+        active = True
+    elif status == "off":
+        active = False
+    else:
+        raise SuspiciousOperation("Invalid activation keyword")
     SemesterActivation.objects.update_or_create(semester=semester, defaults={"is_active": active})
     if active:
         grant_eligible_reward_points_for_semester(request, semester)
-
-    return semester_view(request=request, semester_id=semester_id)
+    return redirect("staff:semester_view", semester_id)

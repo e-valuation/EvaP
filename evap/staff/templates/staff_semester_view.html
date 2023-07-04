@@ -6,6 +6,10 @@
 {% block content %}
     {{ block.super }}
 
+    <form id="form_activation_status" method="post" action="{% url 'rewards:semester_activation_edit' semester.id %}">
+        <input type="hidden" id="activation_status" name="activation_status" value="on">
+        {% csrf_token %}
+    </form>
     <h3>
         {{ semester.name }}
         {% if request.user.is_manager %}
@@ -69,7 +73,7 @@
                         <div class="btn-switch-label">{% trans 'Reward points active' %}</div>
                         <div class="btn-switch btn-group icon-buttons">
                             <button type="button" onclick="activateRewardPointsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-light{% if rewards_active %} active{% endif %}"><span class="fas fa-check" aria-hidden="true"></span></button>
-                            <button type="button" onclick="deactivateRewardPoints()" class="btn btn-sm btn-light{% if not rewards_active %} active{% endif %}"><span class="fas fa-xmark" aria-hidden="true"></span></button>
+                            <button type="submit" name="activation_status" value="off" form="form_activation_status" class="btn btn-sm btn-light{% if not rewards_active %} active{% endif %}"><span class="fas fa-xmark" aria-hidden="true"></span></button>
                         </div>
                     </div>
                 </div>
@@ -129,8 +133,8 @@
                     </a>
                 </li>
             </ul>
-            {% if request.user.is_manager %}
-                <div class="ms-auto">
+            <div class="ms-auto">
+                {% if request.user.is_manager %}
                     {% if not semester.participations_are_archived %}
                         <a class="btn btn-sm btn-light" href="{% url 'staff:semester_import' semester.id %}">
                             {% trans 'Import' %}
@@ -147,18 +151,23 @@
                     {% if not semester.participations_are_archived %}
                         <a href="{% url 'staff:semester_questionnaire_assign' semester.id %}" class="btn btn-sm btn-light ms-2">{% trans 'Assign questionnaires' %}</a>
                     {% endif %}
-                </div>
-            {% endif %}
+                {% endif %}
+                {% if request.user.is_reviewer %}
+                    <a class="btn btn-sm btn-light ms-2" href="{% url 'staff:semester_flagged_textanswers' semester.id %}">
+                        {% trans 'Flagged textanswers' %}
+                    </a>
+                {% endif %}
+            </div>
         </div>
         <div class="card-body tab-content">
             <div class="tab-pane show active" id="evaluations" role="tabpanel">
                 <div class="row align-items-center mb-3">
                     <div class="col-9">
                         {% if request.user.is_manager %}
-                            <a class="btn btn-sm btn-dark" href="{% url 'staff:evaluation_create' semester.id %}">
+                            <a class="btn btn-sm btn-dark" href="{% url 'staff:evaluation_create_for_semester' semester.id %}">
                                 {% trans 'Create evaluation' %}
                             </a>
-                            <a class="btn btn-sm btn-dark ms-2" href="{% url 'staff:single_result_create' semester.id %}">
+                            <a class="btn btn-sm btn-dark ms-2" href="{% url 'staff:single_result_create_for_semester' semester.id %}">
                                 {% trans 'Create single result' %}
                             </a>
                         {% endif %}
@@ -249,7 +258,7 @@
                         </div>
                     </div>
                 </div>
-                <form id="evaluation_operation_form" method="GET" action="{% url 'staff:semester_evaluation_operation' semester.id %}">
+                <form id="evaluation_operation_form" method="GET" action="{% url 'staff:evaluation_operation' semester.pk %}">
                     {% if num_evaluations > 0 %}
                         <table id="evaluation-table" class="table table-striped table-narrow table-vertically-aligned">
                             <colgroup>
@@ -375,7 +384,7 @@
                                 <tr id="course-row-{{ course.id }}">
                                     <td data-col="name" data-order="{{ course.name|lower }}">
                                         <div>
-                                            <a href="{% url 'staff:course_edit' semester.id course.id %}">{{ course.name }}</a>
+                                            <a href="{% url 'staff:course_edit' course.id %}">{{ course.name }}</a>
                                         </div>
                                         {% include 'course_badges.html' %}
                                     </td>
@@ -394,17 +403,17 @@
                                     <td class="icon-buttons">
                                         {% if request.user.is_manager %}
                                             <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
-                                                href="{% url 'staff:evaluation_create' semester.id course.id %}"
+                                                href="{% url 'staff:evaluation_create_for_course' course.id %}"
                                                 title="{% trans 'Create evaluation for this course' %}">
                                                 <span class="fas fa-clipboard-check"></span>
                                             </a>
                                             <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
-                                                href="{% url 'staff:single_result_create' semester.id course.id %}"
+                                                href="{% url 'staff:single_result_create_for_course' course.id %}"
                                                 title="{% trans 'Create single result for this course' %}">
                                                 <span class="fas fa-square-poll-vertical"></span>
                                         </a>
                                         <a class="btn btn-sm btn-dark" data-toggle="tooltip"
-                                            href="{% url 'staff:course_copy' semester.id course.id %}"
+                                            href="{% url 'staff:course_copy' course.id %}"
                                             title="{% trans 'Copy course' %}">
                                             <span class="fas fa-copy"></span>
                                             </a>
@@ -549,23 +558,8 @@
     {% trans 'Activate reward points' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='activateRewardPointsModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
-        function activateRewardPointsModalAction(dataId) {
-            $.ajax({
-                type: "POST",
-                url: "{% url 'rewards:semester_activation' semester.id 'on' %}",
-                data: {},
-                success: function(){ location.reload(); },
-                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
-            });
-        };
-        function deactivateRewardPoints() {
-            $.ajax({
-                type: "POST",
-                url: "{% url 'rewards:semester_activation' semester.id 'off' %}",
-                data: {},
-                success: function(){ location.reload(); },
-                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
-            });
+        function activateRewardPointsModalAction() {
+            document.getElementById("form_activation_status").requestSubmit();
         }
     </script>
 {% endblock %}
