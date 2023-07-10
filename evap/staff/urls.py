@@ -82,7 +82,7 @@ urlpatterns = [
     path("user/<int:main_user_id>/merge/<int:other_user_id>", views.user_merge, name="user_merge"),
 
     path("template/", RedirectView.as_view(url='/staff/', permanent=True)),
-    path("template/<int:template_id>", views.template_edit, name="template_edit"),
+    path("template/<int:template_id>", views.TemplateEditView.as_view(), name="template_edit"),
 
     path("text_answer_warnings/", views.text_answer_warnings_index, name="text_answer_warnings"),
 

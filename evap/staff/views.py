@@ -76,7 +76,6 @@ from evap.staff.forms import (
     CourseTypeForm,
     CourseTypeMergeSelectionForm,
     DegreeForm,
-    EmailTemplateForm,
     EvaluationCopyForm,
     EvaluationEmailForm,
     EvaluationForm,
@@ -2336,46 +2335,47 @@ def user_merge(request, main_user_id, other_user_id):
 
 
 @manager_required
-def template_edit(request, template_id):
-    template = get_object_or_404(EmailTemplate, id=template_id)
-    form = EmailTemplateForm(request.POST or None, request.FILES or None, instance=template)
+class TemplateEditView(SuccessMessageMixin, UpdateView):
+    model = EmailTemplate
+    pk_url_kwarg = "template_id"
+    fields = ("subject", "plain_content", "html_content")
+    success_message = gettext_lazy("Successfully updated template.")
+    success_url = reverse_lazy("staff:index")
+    template_name = "staff_template_form.html"
 
-    if form.is_valid():
-        form.save()
-        messages.success(request, _("Successfully updated template."))
-        return redirect("staff:index")
+    def get_context_data(self, **kwargs) -> dict:
+        context = super().get_context_data(**kwargs)
+        template = context["template"] = context.pop("emailtemplate")
 
-    available_variables = [
-        "contact_email",
-        "page_url",
-        "login_url",  # only if they need it
-        "user",
-    ]
+        available_variables = [
+            "contact_email",
+            "page_url",
+            "login_url",  # only if they need it
+            "user",
+        ]
 
-    if template.name == EmailTemplate.STUDENT_REMINDER:
-        available_variables += ["first_due_in_days", "due_evaluations"]
-    elif template.name in [
-        EmailTemplate.EDITOR_REVIEW_NOTICE,
-        EmailTemplate.EDITOR_REVIEW_REMINDER,
-        EmailTemplate.PUBLISHING_NOTICE_CONTRIBUTOR,
-        EmailTemplate.PUBLISHING_NOTICE_PARTICIPANT,
-    ]:
-        available_variables += ["evaluations"]
-    elif template.name == EmailTemplate.TEXT_ANSWER_REVIEW_REMINDER:
-        available_variables += ["evaluation_url_tuples"]
-    elif template.name == EmailTemplate.EVALUATION_STARTED:
-        available_variables += ["evaluations", "due_evaluations"]
-    elif template.name == EmailTemplate.DIRECT_DELEGATION:
-        available_variables += ["evaluation", "delegate_user"]
+        if template.name == EmailTemplate.STUDENT_REMINDER:
+            available_variables += ["first_due_in_days", "due_evaluations"]
+        elif template.name in [
+            EmailTemplate.EDITOR_REVIEW_NOTICE,
+            EmailTemplate.EDITOR_REVIEW_REMINDER,
+            EmailTemplate.PUBLISHING_NOTICE_CONTRIBUTOR,
+            EmailTemplate.PUBLISHING_NOTICE_PARTICIPANT,
+        ]:
+            available_variables += ["evaluations"]
+        elif template.name == EmailTemplate.TEXT_ANSWER_REVIEW_REMINDER:
+            available_variables += ["evaluation_url_tuples"]
+        elif template.name == EmailTemplate.EVALUATION_STARTED:
+            available_variables += ["evaluations", "due_evaluations"]
+        elif template.name == EmailTemplate.DIRECT_DELEGATION:
+            available_variables += ["evaluation", "delegate_user"]
 
-    available_variables = ["{{ " + variable + " }}" for variable in available_variables]
-    available_variables.sort()
+        available_variables = ["{{ " + variable + " }}" for variable in available_variables]
+        available_variables.sort()
 
-    return render(
-        request,
-        "staff_template_form.html",
-        {"form": form, "template": template, "available_variables": available_variables},
-    )
+        context["available_variables"] = available_variables
+
+        return context
 
 
 @manager_required
