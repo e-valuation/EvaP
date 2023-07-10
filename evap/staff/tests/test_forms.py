@@ -121,7 +121,6 @@ class EvaluationEmailFormTests(TestCase):
 
 
 class UserFormTests(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         cls.existing_user = baker.make(UserProfile, email="existing@example.com")
