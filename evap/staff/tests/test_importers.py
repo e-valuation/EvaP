@@ -1,7 +1,6 @@
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Dict, List
 from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
@@ -45,7 +44,7 @@ class ImporterTestCase(TestCase):
         self.assertErrorsAre(importer_log, {category: [message]})
 
     def assertErrorsAre(
-        self, importer_log: ImporterLog, messages_by_category: Dict[ImporterLogEntry.Category, List[str]]
+        self, importer_log: ImporterLog, messages_by_category: dict[ImporterLogEntry.Category, list[str]]
     ):
         """Helper to assert that no unexpected errors were triggered"""
 

@@ -2,7 +2,7 @@ import datetime
 import os
 from abc import ABC, abstractmethod
 from io import BytesIO
-from typing import Literal, Tuple, Type, Union
+from typing import Literal
 from unittest.mock import PropertyMock, patch
 
 import openpyxl
@@ -65,9 +65,9 @@ class DeleteViewTestMixin(ABC):
     csrf_checks = False
 
     # To be set by derived classes
-    model_cls: Type[Model]
+    model_cls: type[Model]
     url: str
-    permission_method_to_patch: Tuple[Type, str]
+    permission_method_to_patch: tuple[type, str]
 
     @classmethod
     @abstractmethod
@@ -3240,7 +3240,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         self,
         action: str,
         old_decision: TextAnswer.ReviewDecision,
-        expected_new_decision: Union[TextAnswer.ReviewDecision, Literal["unchanged"]] = "unchanged",
+        expected_new_decision: TextAnswer.ReviewDecision | Literal["unchanged"] = "unchanged",
         *,
         status: int = 204,
     ):
@@ -3289,7 +3289,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         results = get_results(self.evaluation)
 
         textresult = next(
-            (result for result in results.questionnaire_results[0].question_results if isinstance(result, TextResult))
+            result for result in results.questionnaire_results[0].question_results if isinstance(result, TextResult)
         )
         self.assertEqual(len(textresult.answers), 0)
 
@@ -3301,7 +3301,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         results = get_results(self.evaluation)
 
         textresult = next(
-            (result for result in results.questionnaire_results[0].question_results if isinstance(result, TextResult))
+            result for result in results.questionnaire_results[0].question_results if isinstance(result, TextResult)
         )
         self.assertEqual(len(textresult.answers), 1)
 

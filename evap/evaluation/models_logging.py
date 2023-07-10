@@ -44,7 +44,7 @@ class LogJSONEncoder(JSONEncoder):
 
     def default(self, o):
         # o is the object to serialize -- we can't rename the argument in JSONEncoder
-        if isinstance(o, (date, time, datetime)):
+        if isinstance(o, date | time | datetime):
             return localize(o)
         return super().default(o)
 

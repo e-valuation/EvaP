@@ -1,5 +1,3 @@
-from typing import List, Tuple
-
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
@@ -29,7 +27,7 @@ def index(request):
     return render(request, "grades_index.html", template_data)
 
 
-def course_grade_document_count_tuples(courses: QuerySet[Course]) -> List[Tuple[Course, int, int]]:
+def course_grade_document_count_tuples(courses: QuerySet[Course]) -> list[tuple[Course, int, int]]:
     courses = courses.prefetch_related("degrees", "responsibles", "evaluations", "grade_documents")
 
     return [

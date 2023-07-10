@@ -198,7 +198,7 @@ valid_user_courses_import_filedata = {
     ]
 }
 
-random_file_content = "Hallo Welt\n".encode()
+random_file_content = b"Hallo Welt\n"
 
 
 wrong_column_count_excel_data = {
