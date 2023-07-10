@@ -12,6 +12,7 @@ from django.db.models import Model
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import get_language
+from django.views.generic import FormView
 
 M = TypeVar("M", bound=Model)
 T = TypeVar("T")
@@ -136,6 +137,19 @@ def ilen(iterable):
 def assert_not_none(value: T | None) -> T:
     assert value is not None
     return value
+
+
+class FormsetView(FormView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["formset"] = context.pop("form")
+        return context
+
+
+class SaveValidFormMixin:
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
 
 
 class AttachmentResponse(HttpResponse):

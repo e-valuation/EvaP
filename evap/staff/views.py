@@ -51,7 +51,9 @@ from evap.evaluation.models import (
 )
 from evap.evaluation.tools import (
     AttachmentResponse,
+    FormsetView,
     HttpResponseNoContent,
+    SaveValidFormMixin,
     get_object_from_dict_pk_entry_or_logged_40x,
     get_parameter_from_url_or_session,
     sort_formset,
@@ -683,7 +685,7 @@ def semester_import(request, semester_id):
 
 
 @manager_required
-class SemesterExportView(SingleObjectMixin, FormView):
+class SemesterExportView(SingleObjectMixin, FormsetView):
     model = Semester
     pk_url_kwarg = "semester_id"
     form_class = formset_factory(form=ExportSheetForm, can_delete=True, extra=0, min_num=1, validate_min=True)
@@ -695,11 +697,6 @@ class SemesterExportView(SingleObjectMixin, FormView):
 
     def get_form_kwargs(self):
         return super().get_form_kwargs() | {"form_kwargs": {"semester": self.semester}}
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["formset"] = context.pop("form")
-        return context
 
     def form_valid(self, formset):
         include_not_enough_voters = self.request.POST.get("include_not_enough_voters") == "on"
@@ -2000,7 +1997,7 @@ def questionnaire_set_locked(request):
 
 
 @manager_required
-class DegreeIndexView(SuccessMessageMixin, FormView):
+class DegreeIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
     model = Degree
     form_class = modelformset_factory(
         Degree,
@@ -2013,18 +2010,9 @@ class DegreeIndexView(SuccessMessageMixin, FormView):
     success_url = reverse_lazy("staff:degree_index")
     success_message = gettext_lazy("Successfully updated the degrees.")
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["formset"] = context.pop("form")
-        return context
-
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form)
-
 
 @manager_required
-class CourseTypeIndexView(SuccessMessageMixin, FormView):
+class CourseTypeIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
     model = CourseType
     form_class = modelformset_factory(
         CourseType,
@@ -2036,15 +2024,6 @@ class CourseTypeIndexView(SuccessMessageMixin, FormView):
     template_name = "staff_course_type_index.html"
     success_url = reverse_lazy("staff:course_type_index")
     success_message = gettext_lazy("Successfully updated the course types.")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["formset"] = context.pop("form")
-        return context
-
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form)
 
 
 @manager_required
@@ -2399,7 +2378,7 @@ def template_edit(request, template_id):
 
 
 @manager_required
-class FaqIndexView(SuccessMessageMixin, FormView):
+class FaqIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
     model = FaqSection
     form_class = modelformset_factory(FaqSection, form=FaqSectionForm, can_delete=True, extra=1)
     template_name = "staff_faq_index.html"
@@ -2407,14 +2386,7 @@ class FaqIndexView(SuccessMessageMixin, FormView):
     success_message = gettext_lazy("Successfully updated the FAQ sections.")
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["formset"] = context.pop("form")
-        context["sections"] = FaqSection.objects.all()
-        return context
-
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form)
+        return super().get_context_data(**kwargs) | {"sections": FaqSection.objects.all()}
 
 
 @manager_required
@@ -2437,20 +2409,11 @@ def faq_section(request, section_id):
 
 
 @manager_required
-class InfotextsView(SuccessMessageMixin, FormView):
+class InfotextsView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
     form_class = modelformset_factory(Infotext, form=InfotextForm, edit_only=True, extra=0)
     template_name = "staff_infotexts.html"
     success_url = reverse_lazy("staff:infotexts")
     success_message = gettext_lazy("Successfully updated the infotext entries.")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["formset"] = context.pop("form")
-        return context
-
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form)
 
 
 @manager_required
