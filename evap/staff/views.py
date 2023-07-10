@@ -9,12 +9,10 @@ from typing import Any, cast
 import openpyxl
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import IntegrityError, transaction
 from django.db.models import BooleanField, Case, Count, ExpressionWrapper, IntegerField, Prefetch, Q, Sum, When
-from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import CreateView, UpdateView, FormView
-from django.views.generic.detail import SingleObjectMixin
 from django.dispatch import receiver
 from django.forms import formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
@@ -26,6 +24,8 @@ from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy, ngettext
 from django.views.decorators.http import require_POST
+from django.views.generic import CreateView, FormView, UpdateView
+from django.views.generic.detail import SingleObjectMixin
 from django_stubs_ext import StrOrPromise
 
 from evap.contributor.views import export_contributor_results

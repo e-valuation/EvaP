@@ -4,10 +4,10 @@ from django.core.exceptions import PermissionDenied
 from django.db.models.query import QuerySet
 from django.http import FileResponse, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET, require_POST
 from django.views.generic import DetailView, TemplateView, UpdateView
-from django.urls import reverse
 
 from evap.evaluation.auth import (
     grade_downloader_required,

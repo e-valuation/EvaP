@@ -1,10 +1,10 @@
+import inspect
 from functools import wraps
 from typing import Callable
-import inspect
 
-from django.utils.decorators import method_decorator
 from django.contrib.auth.backends import ModelBackend
 from django.core.exceptions import PermissionDenied
+from django.utils.decorators import method_decorator
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 
 from evap.evaluation.models import UserProfile

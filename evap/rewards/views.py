@@ -1,16 +1,17 @@
 from datetime import datetime
 
-from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import BadRequest, SuspiciousOperation
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils.translation import get_language
-from django.views.generic import CreateView, UpdateView
-from django.utils.translation import gettext as _, gettext_lazy
-from django.views.decorators.http import require_POST
 from django.urls import reverse_lazy
+from django.utils.translation import get_language
+from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
+from django.views.decorators.http import require_POST
+from django.views.generic import CreateView, UpdateView
 
 from evap.evaluation.auth import manager_required, reward_user_required
 from evap.evaluation.models import Semester
