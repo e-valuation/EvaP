@@ -31,7 +31,7 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
-from evap.evaluation.tools import date_to_datetime
+from evap.evaluation.tools import date_to_datetime, clean_email
 from evap.results.tools import STATES_WITH_RESULT_TEMPLATE_CACHING, STATES_WITH_RESULTS_CACHING, cache_results
 from evap.results.views import update_template_cache, update_template_cache_of_published_evaluations_in_course
 from evap.staff.tools import remove_user_from_represented_and_ccing_users
@@ -991,7 +991,7 @@ class UserForm(forms.ModelForm):
         if email is None:
             return None
 
-        user_with_same_email = UserProfile.objects.filter(email__iexact=email)
+        user_with_same_email = UserProfile.objects.filter(email__iexact=clean_email(email))
 
         # make sure we don't take the instance itself into account
         if self.instance and self.instance.pk:
