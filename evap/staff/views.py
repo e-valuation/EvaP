@@ -2166,7 +2166,14 @@ def user_edit(request, user_id):
         return redirect("staff:user_index")
 
     return render(
-        request, "staff_user_form.html", {"form": form, "evaluations_contributing_to": evaluations_contributing_to}
+        request,
+        "staff_user_form.html",
+        {
+            "form": form,
+            "evaluations_contributing_to": evaluations_contributing_to,
+            "has_due_evaluations": bool(user.get_sorted_due_evaluations()),
+            "user_id": user_id,
+        },
     )
 
 
@@ -2179,6 +2186,23 @@ def user_delete(request):
         raise SuspiciousOperation("Deleting user not allowed")
     user.delete()
     messages.success(request, _("Successfully deleted user."))
+    return HttpResponse()  # 200 OK
+
+
+@require_POST
+@manager_required
+def user_resend_email(request):
+    user = get_object_from_dict_pk_entry_or_logged_40x(UserProfile, request.POST, "user_id")
+
+    template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
+    body_params = {
+        "user": user,
+        "evaluations": user.get_sorted_due_evaluations(),
+        "due_evaluations": {},
+    }
+
+    template.send_to_user(user, {}, body_params, use_cc=False)
+    messages.success(request, _("Successfully resent evaluation started email."))
     return HttpResponse()  # 200 OK
 
 
