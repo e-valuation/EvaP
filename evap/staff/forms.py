@@ -743,7 +743,7 @@ class QuestionnaireForm(forms.ModelForm):
 
     def save(self, *args, commit=True, force_highest_order=False, **kwargs):
         # get instance that has all the changes from the form applied, dont write to database
-        questionnaire_instance = super().save(commit=False, *args, **kwargs)
+        questionnaire_instance = super().save(*args, commit=False, **kwargs)
 
         if force_highest_order or "type" in self.changed_data:
             highest_existing_order = (

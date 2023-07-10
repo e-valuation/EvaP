@@ -5,7 +5,7 @@ from collections import defaultdict
 from datetime import date, datetime, timedelta
 from enum import Enum, auto
 from numbers import Number
-from typing import Dict, List, NamedTuple, Tuple, Union
+from typing import NamedTuple
 
 from django.conf import settings
 from django.contrib import messages
@@ -1164,7 +1164,7 @@ class Question(models.Model):
         if self.is_rating_question:
             return RatingAnswerCounter
 
-        assert False, f"Unknown answer type: {self.type!r}"
+        raise AssertionError(f"Unknown answer type: {self.type!r}")
 
     @property
     def is_likert_question(self):
@@ -1224,28 +1224,23 @@ class Question(models.Model):
 
 
 # Let's deduplicate the fields here once mypy is smart enough to keep up with us :)
-Choices = NamedTuple(
-    "Choices",
-    [
-        ("css_class", str),
-        ("values", Tuple[Number]),
-        ("colors", Tuple[str]),
-        ("grades", Tuple[Number]),
-        ("names", List[StrOrPromise]),
-    ],
-)
-BipolarChoices = NamedTuple(
-    "BipolarChoices",
-    [
-        ("css_class", str),
-        ("values", Tuple[Number]),
-        ("colors", Tuple[str]),
-        ("grades", Tuple[Number]),
-        ("names", List[StrOrPromise]),
-        ("plus_name", StrOrPromise),
-        ("minus_name", StrOrPromise),
-    ],
-)
+class Choices(NamedTuple):
+    css_class: str
+    values: tuple[Number]
+    colors: tuple[str]
+    grades: tuple[Number]
+    names: list[StrOrPromise]
+
+
+class BipolarChoices(NamedTuple):
+    css_class: str
+    values: tuple[Number]
+    colors: tuple[str]
+    grades: tuple[Number]
+    names: list[StrOrPromise]
+    plus_name: StrOrPromise
+    minus_name: StrOrPromise
+
 
 NO_ANSWER = 6
 BASE_UNIPOLAR_CHOICES = {
@@ -1269,7 +1264,7 @@ BASE_YES_NO_CHOICES = {
     "grades": (1, 5),
 }
 
-CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
+CHOICES: dict[int, Choices | BipolarChoices] = {
     QuestionType.LIKERT: Choices(
         names=[
             _("Strongly\nagree"),
@@ -1545,9 +1540,9 @@ class FaqQuestion(models.Model):
 class NotHalfEmptyConstraint(CheckConstraint):
     """Constraint, that all supplied fields are either all filled, or all empty."""
 
-    fields: List[str] = []
+    fields: list[str] = []
 
-    def __init__(self, *, fields: List[str], name: str, **kwargs):
+    def __init__(self, *, fields: list[str], name: str, **kwargs):
         self.fields = fields
         assert "check" not in kwargs
 
@@ -1683,7 +1678,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = _("users")
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS: List[str] = []
+    REQUIRED_FIELDS: list[str] = []
 
     objects = UserProfileManager()
 
@@ -2140,7 +2135,7 @@ class EmailTemplate(models.Model):
             template.send_to_user(participant, {}, body_params, use_cc=True)
 
     @classmethod
-    def send_textanswer_reminder_to_user(cls, user: UserProfile, evaluation_url_tuples: List[Tuple[Evaluation, str]]):
+    def send_textanswer_reminder_to_user(cls, user: UserProfile, evaluation_url_tuples: list[tuple[Evaluation, str]]):
         body_params = {"user": user, "evaluation_url_tuples": evaluation_url_tuples}
         template = cls.objects.get(name=cls.TEXT_ANSWER_REVIEW_REMINDER)
         template.send_to_user(user, {}, body_params, use_cc=False)

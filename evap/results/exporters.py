@@ -1,7 +1,6 @@
 import warnings
 from collections import OrderedDict, defaultdict
 from itertools import chain, repeat
-from typing import Dict, Tuple
 
 import xlwt
 from django.db.models import Q
@@ -24,7 +23,7 @@ class ResultsExporter(ExcelExporter):
     STEP = 0.2  # we only have a limited number of custom colors
 
     # Filled in ResultsExporter.init_grade_styles
-    COLOR_MAPPINGS: Dict[int, Tuple[int, int, int]] = {}
+    COLOR_MAPPINGS: dict[int, tuple[int, int, int]] = {}
 
     styles = {
         "evaluation": xlwt.easyxf(
