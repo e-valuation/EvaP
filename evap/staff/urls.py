@@ -78,7 +78,7 @@ urlpatterns = [
     path("user/delete", views.user_delete, name="user_delete"),
     path("user/resend_email", views.user_resend_email, name="user_resend_email"),
     path("user/bulk_update", views.user_bulk_update, name="user_bulk_update"),
-    path("user/merge", views.user_merge_selection, name="user_merge_selection"),
+    path("user/merge", views.UserMergeSelectionView.as_view(), name="user_merge_selection"),
     path("user/<int:main_user_id>/merge/<int:other_user_id>", views.user_merge, name="user_merge"),
 
     path("template/", RedirectView.as_view(url='/staff/', permanent=True)),

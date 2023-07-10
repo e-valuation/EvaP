@@ -2296,15 +2296,16 @@ def user_bulk_update(request):
 
 
 @manager_required
-def user_merge_selection(request):
-    form = UserMergeSelectionForm(request.POST or None)
+class UserMergeSelectionView(FormView):
+    form_class = UserMergeSelectionForm
+    template_name = "staff_user_merge_selection.html"
 
-    if form.is_valid():
-        main_user = form.cleaned_data["main_user"]
-        other_user = form.cleaned_data["other_user"]
-        return redirect("staff:user_merge", main_user.id, other_user.id)
-
-    return render(request, "staff_user_merge_selection.html", {"form": form})
+    def get_success_url(self):
+        return redirect(
+            "staff:user_merge",
+            self.form.cleaned_data["main_user"].id,
+            self.form.cleaned_data["other_user"].id,
+        )
 
 
 @manager_required
