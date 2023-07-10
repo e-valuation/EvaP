@@ -306,6 +306,8 @@ class TestUserImport(ImporterTestCase):
 
 
 class TestEnrollmentImport(ImporterTestCase):
+    semester: Semester
+
     @classmethod
     def setUpTestData(cls):
         cls.random_excel_file_content = excel_data.random_file_content
@@ -320,7 +322,7 @@ class TestEnrollmentImport(ImporterTestCase):
         cls.default_excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
         cls.empty_excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_empty_filedata)
 
-    def create_existing_course(self):
+    def create_existing_course(self) -> tuple[Course, Evaluation]:
         existing_course = baker.make(
             Course,
             name_de="Schütteln",
@@ -722,6 +724,31 @@ class TestEnrollmentImport(ImporterTestCase):
         self.assertEqual(Course.objects.count(), old_course_count)
         existing_course.refresh_from_db()
         self.assertEqual(old_dict, model_to_dict(existing_course))
+
+    def test_existing_course_with_set_participation_count(self):
+        __, existing_evaluation = self.create_existing_course()
+        existing_evaluation._participant_count = existing_evaluation.participants.count()
+        existing_evaluation._voter_count = existing_evaluation.voters.count()
+        existing_evaluation.save()
+
+        old_evaluation_count = Evaluation.objects.count()
+        old_dict = model_to_dict(existing_evaluation)
+
+        importer_log = import_enrollments(
+            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+        )
+
+        self.assertErrorIs(
+            importer_log,
+            ImporterLogEntry.Category.COURSE,
+            "Sheet &quot;BA Belegungen&quot;, row 2 and 1 other place: "
+            + "Course &quot;Shake&quot; already exists in this semester, but the courses can not be merged for the following reasons:<br /> "
+            + "- the evaluation of the existing course has unmodifiable participants (is it published or a single result?)",
+        )
+
+        self.assertEqual(Evaluation.objects.count(), old_evaluation_count)
+        existing_evaluation = Evaluation.objects.get(pk=existing_evaluation.pk)
+        self.assertEqual(old_dict, model_to_dict(existing_evaluation))
 
     def test_existing_course_equal_except_evaluations(self):
         existing_course, __ = self.create_existing_course()

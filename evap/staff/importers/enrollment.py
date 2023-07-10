@@ -326,6 +326,7 @@ class CourseMergeLogic:
     @staticmethod
     def get_merge_hindrances(course_data: CourseData, merge_candidate: Course) -> list[str]:
         hindrances = []
+
         if merge_candidate.type != course_data.course_type:
             hindrances.append(_("the course type does not match"))
 
@@ -336,8 +337,17 @@ class CourseMergeLogic:
         merge_candidate_evaluations = merge_candidate.evaluations.all()
         if len(merge_candidate_evaluations) != 1:
             hindrances.append(_("the existing course does not have exactly one evaluation"))
-        elif merge_candidate_evaluations[0].wait_for_grade_upload_before_publishing != course_data.is_graded:
-            hindrances.append(_("the evaluation of the existing course has a mismatching grading specification"))
+        else:
+            merge_candidate_evaluation: Evaluation = merge_candidate_evaluations[0]
+            if merge_candidate_evaluation.wait_for_grade_upload_before_publishing != course_data.is_graded:
+                hindrances.append(_("the evaluation of the existing course has a mismatching grading specification"))
+
+            if merge_candidate_evaluation._participant_count is not None:
+                hindrances.append(
+                    _(
+                        "the evaluation of the existing course has unmodifiable participants (is it published or a single result?)"
+                    )
+                )
 
         return hindrances
 
