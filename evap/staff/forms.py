@@ -987,11 +987,11 @@ class UserForm(forms.ModelForm):
         return evaluations_participating_in
 
     def clean_email(self):
-        email = self.cleaned_data.get("email")
+        email = clean_email(self.cleaned_data.get("email"))
         if email is None:
             return None
 
-        user_with_same_email = UserProfile.objects.filter(email__iexact=clean_email(email))
+        user_with_same_email = UserProfile.objects.filter(email__iexact=email)
 
         # make sure we don't take the instance itself into account
         if self.instance and self.instance.pk:
@@ -999,7 +999,7 @@ class UserForm(forms.ModelForm):
 
         if user_with_same_email.exists():
             raise forms.ValidationError(_("A user with the email '%s' already exists") % email)
-        return email.lower()
+        return email
 
     def save(self, *args, **kw):
         super().save(*args, **kw)
