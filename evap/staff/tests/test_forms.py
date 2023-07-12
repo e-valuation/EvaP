@@ -163,7 +163,7 @@ class UserFormTests(TestCase):
         data = {"email": "existing@institution.example.com"}
         form = UserForm(instance=user, data=data)
         self.assertFalse(form.is_valid())
-        self.assertIn("A user with the email 'existing@institution.example.com' already exists", form.errors["email"])
+        self.assertIn("A user with the email 'existing@example.com' already exists", form.errors["email"])
 
     def test_user_cannot_be_removed_from_evaluation_already_voted_for(self):
         student = baker.make(UserProfile)
