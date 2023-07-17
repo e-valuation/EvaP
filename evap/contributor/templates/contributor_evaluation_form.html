@@ -90,9 +90,18 @@
                 {% if editable %}
                     <button name="operation" value="preview" type="submit" class="btn btn-light">{% trans 'Preview' %}</button>
                     <button name="operation" value="save" type="submit" class="btn btn-primary">{% trans 'Save' %}</button>
-                    {# webtest does not allow submission with value "approve" if no such button exists #}
-                    <button style="display: none" name="operation" value="approve" type="submit"></button>
-                    <button type="button" onclick="approveEvaluationModalShow(0, '');" class="btn btn-success">{% trans 'Save and approve' %}</button>
+
+                    <confirmation-modal type="submit" name="operation" value="approve">
+                        <span slot="title">{% trans 'Approve evaluation' %}</span>
+                        <span slot="action-text">{% trans 'Approve evaluation' %}</span>
+                        <span slot="question">
+                            {% blocktrans %}
+                                Do you want to approve this evaluation? This will allow the evaluation team to proceed with the preparation, but you won't be able to make any further changes.
+                            {% endblocktrans %}
+                        </span>
+
+                        <button slot="show-button" type="button" class="btn btn-success">{% trans 'Save and approve' %}</button>
+                    </confirmation-modal>
                 {% endif %}
                 <a href="{% url 'contributor:index' %}" class="btn btn-light">{% if edit %}{% trans 'Cancel' %}{% else %}{% trans 'Back' %}{% endif %}</a>
             </div>
@@ -121,22 +130,6 @@
 
 {% block modals %}
     {{ block.super }}
-    {% trans 'Approve evaluation' as title %}
-    {% blocktrans asvar question%}Do you want to approve this evaluation? This will allow the evaluation team to proceed with the preparation, but you won't be able to make any further changes.{% endblocktrans %}
-    {% trans 'Approve evaluation' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='approveEvaluationModal' title=title question=question action_text=action_text btn_type='primary' %}
-    <script type="text/javascript">
-        function approveEvaluationModalAction(dataId) {
-            const input = document.createElement("input");
-            input.type = "hidden";
-            input.name = "operation";
-            input.value = "approve";
-
-            const form = document.getElementById("evaluation-form");
-            form.appendChild(input);
-            form.requestSubmit();
-        };
-    </script>
 
     {% blocktrans asvar title with evaluation_name=evaluation.full_name %}Request account creation for {{ evaluation_name }}{% endblocktrans %}
     {% trans 'Please tell us which new account we should create. We need the name and email for all new accounts.' as teaser %}

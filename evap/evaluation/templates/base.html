@@ -28,6 +28,8 @@
     <body>
         <script type="text/javascript" src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
 
+        {% include "custom_elements.html" %}
+
         {% block modals %}
             {% if user.is_authenticated %}
                 {% trans 'Feedback' as title %}

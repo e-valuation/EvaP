@@ -1,0 +1,9 @@
+{% load static %}
+
+{% include "confirmation_modal_template.html" %}
+
+<script type="module">
+    import { ConfirmationModal } from "{% static 'js/confirmation-modal.js' %}";
+
+    customElements.define("confirmation-modal", ConfirmationModal);
+</script>
