@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', "0136_alter_userprofile_first_name_chosen_and_more"),
+        ('evaluation', "0137_use_more_database_constraints"),
     ]
 
     operations = [
