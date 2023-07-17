@@ -9,6 +9,7 @@
 
 declare const bootstrap: typeof import("bootstrap");
 
+import { CSRF_HEADERS } from "./csrf-utils.js";
 import {
     assert,
     assertDefined,
@@ -18,7 +19,6 @@ import {
     saneParseInt,
     selectOrError,
 } from "./utils.js";
-import { CSRF_HEADERS } from "./csrf-utils.js";
 
 type SubmitterElement = HTMLInputElement | HTMLButtonElement;
 type SlideDirection = "left" | "right";
