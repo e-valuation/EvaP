@@ -6,7 +6,7 @@ from django.utils import translation
 from django_webtest import WebTest
 from model_bakery import baker
 
-from evap.evaluation.models import Contribution, Evaluation, Question, UserProfile
+from evap.evaluation.models import Contribution, Evaluation, Question, UserProfile, QuestionType
 from evap.evaluation.tests.tools import WebTestWith200Check, create_evaluation_with_responsible_and_editor
 
 
@@ -203,7 +203,7 @@ class TestNegativeLikertQuestions(WebTest):
         )
 
         cls.question = baker.make(
-            Question, type=Question.NEGATIVE_LIKERT, text_en="Negative Likert Question", text_de="Negative Likert Frage"
+            Question, type=QuestionType.NEGATIVE_LIKERT, text_en="Negative Likert Question", text_de="Negative Likert Frage"
         )
         cls.contribution = baker.make(
             Contribution,

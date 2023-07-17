@@ -416,7 +416,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
             Question, type=QuestionType.HEADING, questionnaire=bottom_questionnaire, order=0
         )
         bottom_likert_question = baker.make(
-            Question, type=QuestionType.LIKERT, questionnaire=bottom_questionnaire, order=1
+            Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=bottom_questionnaire, order=1
         )
 
         self.evaluation.general_contribution.questionnaires.set([top_questionnaire, bottom_questionnaire])
