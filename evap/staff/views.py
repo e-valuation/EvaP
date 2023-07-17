@@ -823,10 +823,10 @@ def vote_timestamps_export(_request, semester_id):
         writer.writerow(
             [
                 timestamp.evaluation.id,
-                timestamp.timestamp,
                 timestamp.evaluation.course.type.name,
                 ", ".join([degree.name for degree in timestamp.evaluation.course.degrees.all()]),
                 timestamp.evaluation.vote_end_date,
+                timestamp.timestamp,
             ]
         )
 

@@ -1329,8 +1329,8 @@ class TestSemesterVoteTimestampsExport(WebTestStaffMode):
             reverse("staff:vote_timestamps_export", args=[self.evaluation.course.semester.pk]), user=self.manager
         )
         expected_content = (
-            "Evaluation id;Timestamp;Course type;Course degrees;Vote end date\n"
-            + f"{self.evaluation_id};{self.timestamp_time};Type;;{self.vote_end_date}\n"
+            "Evaluation id;Course type;Course degrees;Vote end date;Timestamp\n"
+            + f"{self.evaluation_id};Type;;{self.vote_end_date};{self.timestamp_time}\n"
         ).encode("utf-8")
         self.assertEqual(response.content, expected_content)
 
