@@ -1309,16 +1309,28 @@ class TestSemesterVoteTimestampsExport(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.timestamp = baker.make(VoteTimestamp)
+        cls.course_type = baker.make(CourseType, name_en="Type")
+        cls.vote_end_date = datetime.date(2017, 1, 3)
+        cls.evaluation_id = 1
+        cls.timestamp_time = datetime.datetime(2017, 1, 1, 12, 0, 0)
 
-        cls.url = f"/staff/semester/{cls.timestamp.evaluation.course.semester.pk}/vote_timestamps_export"
-        cls.test_users = [cls.manager]
+        cls.evaluation = baker.make(
+            Evaluation,
+            course__type=cls.course_type,
+            pk=cls.evaluation_id,
+            vote_end_date=cls.vote_end_date,
+            vote_start_datetime=datetime.datetime.combine(cls.vote_end_date, datetime.time())
+            - datetime.timedelta(days=2),
+        )
+        cls.timestamp = baker.make(VoteTimestamp, evaluation=cls.evaluation, timestamp=cls.timestamp_time)
 
     def test_view_downloads_csv_file(self):
-        response = self.app.get(self.url, user=self.manager)
+        response = self.app.get(
+            reverse("staff:vote_timestamps_export", args=[self.evaluation.course.semester.pk]), user=self.manager
+        )
         expected_content = (
             "Evaluation id;Timestamp;Course type;Course degrees;Vote end date\n"
-            + f"{self.timestamp.evaluation.id};{self.timestamp.timestamp};{self.timestamp.evaluation.course.type.name};{', '.join([degree.name for degree in self.timestamp.evaluation.course.degrees.all()])};{self.timestamp.evaluation.vote_end_datetime}\n"
+            + f"{self.evaluation_id};{self.timestamp_time};Type;;{self.vote_end_date}\n"
         ).encode("utf-8")
         self.assertEqual(response.content, expected_content)
 
