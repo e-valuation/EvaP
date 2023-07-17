@@ -2,6 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
+from django.utils.timezone import now
 
 
 class Migration(migrations.Migration):
@@ -15,7 +16,7 @@ class Migration(migrations.Migration):
             name="VoteTimestamp",
             fields=[
                 ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("timestamp", models.DateTimeField(auto_now_add=True, verbose_name="vote timestamp")),
+                ("timestamp", models.DateTimeField(default=now, verbose_name="vote timestamp")),
                 (
                     "evaluation",
                     models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="evaluation.evaluation"),
