@@ -15,7 +15,15 @@ window.$ = require("../../../js/jquery-2.1.3.min");
 
 import { testable } from "src/csrf-utils";
 
-const { isMethodCsrfSafe } = testable;
+const { getCookie, isMethodCsrfSafe } = testable;
+
+test("parse cookie", () => {
+    expect(getCookie("foo")).toBe("F00");
+    expect(getCookie("bar")).toBe("+{)");
+    expect(getCookie("baz")).toBe("+{`");
+    expect(getCookie("csrftoken")).toBe("token");
+    expect(getCookie("qux")).toBe(null);
+});
 
 test.each(["GET", "HEAD", "OPTIONS", "TRACE"])("method %s is considered safe", method => {
     expect(isMethodCsrfSafe(method)).toBe(true);

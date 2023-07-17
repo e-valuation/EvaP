@@ -11,7 +11,6 @@ function getCookie(name: string): string | null {
     }
     return null;
 }
-
 const csrftoken = getCookie("csrftoken")!;
 export const CSRF_HEADERS = { "X-CSRFToken": csrftoken };
 
@@ -31,6 +30,6 @@ $.ajaxSetup({
 });
 
 export const testable = {
-    isMethodCsrfSafe,
     getCookie,
+    isMethodCsrfSafe,
 };
