@@ -805,17 +805,17 @@ def vote_timestamps_export(_request, semester_id):
         "evaluation__course__degrees"
     )
 
-    filename = f"Timestamp-{semester.name}.csv"
+    filename = f"Voting-Timestamps-{semester.name}.csv"
     response = AttachmentResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
     writer.writerow(
         [
             _("Evaluation id"),
-            _("Timestamp"),
             _("Course type"),
             _("Course degrees"),
             _("Vote end date"),
+            _("Timestamp"),
         ]
     )
 
