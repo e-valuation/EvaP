@@ -210,3 +210,10 @@ td.icon {
         flex: 1 1 auto;
     }
 }
+
+.right-to-element {
+    position: relative;
+    display: inline-block;
+    width: 0;
+    vertical-align: center;
+}

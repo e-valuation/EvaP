@@ -10,7 +10,7 @@ Object.defineProperty(document, "cookie", {
         `baz=${encodeURIComponent("+{`")}`,
 });
 
-import { testable } from "src/utils";
+import { testable } from "src/csrf-utils";
 
 const { getCookie } = testable;
 

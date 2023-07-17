@@ -4,7 +4,6 @@
             <div class="offcanvas-header notebook-button mb-2">
                 <h5 class="card-title m-0">
                     {% trans 'Notebook' %}
-                    <span class="fas fa-circle-info" data-bs-toggle="tooltip" data-bs-placement="right" title="{% blocktrans %}Here you can store private notes that you want to keep ready for future evaluations. The notes will be stored in plain text in your account on the EvaP server, but will not be shown to anyone but you.{% endblocktrans %}"></span>
                 </h5>
                 <button type="button" class="btn-close text-reset" type="button" data-bs-toggle="collapse" data-bs-target="#notebook" aria-controls="collapseNotebook" id="notebookButtonClose"></button>
             </div>
@@ -12,8 +11,11 @@
             <form method="POST" action="{% url 'evaluation:notebook' %}" class="notebook-div" id="notebook-form">
                 {% csrf_token %}
                 {{ notebook_form.notes }}
-                <div class="mt-2 text-center notebook-button">
+                <div class="d-flex justify-content-center p-3">
                     <input class="btn btn-primary notebook-button" id="notebook-save-button" data-label-cooldown="{% trans 'Saved successfully' %}" data-label-error="{% trans 'The server is not responding.' %}" data-label-sending="{% trans 'Sending...' %}" type="submit" value="{% trans 'Save' %}">
+                    <div class="align-self-center right-to-element">
+                        <span class="ms-2 fas fa-circle-info" data-bs-toggle="tooltip" data-bs-placement="right" title="{% blocktrans %}Here you can store private notes that you want to keep ready for future evaluations. The notes will be stored in plain text in your account on the EvaP server, but will not be shown to anyone but you.{% endblocktrans %}"></span>
+                    </div>
                 </div>
             </form>
         </div>

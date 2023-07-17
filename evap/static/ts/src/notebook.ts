@@ -2,9 +2,9 @@ declare const bootstrap: typeof import("bootstrap");
 import { assertDefinedUnwrap } from "./utils.js";
 import { CSRF_HEADERS } from "./csrf-utils.js";
 
-const NOTEBOOK_COOKIE_NAME = "evap_notebook_open";
+const NOTEBOOK_LOCALSTORAGE_KEY = "evap_notebook_open";
 
-if (localStorage.getItem(NOTEBOOK_COOKIE_NAME) == "true") {
+if (localStorage.getItem(NOTEBOOK_LOCALSTORAGE_KEY) == "true") {
     new bootstrap.Collapse(assertDefinedUnwrap(document.getElementById("notebook")));
     new bootstrap.Collapse(assertDefinedUnwrap(document.getElementById("notebookButton")));
     onShowNotebook();
@@ -24,7 +24,6 @@ assertDefinedUnwrap(document.getElementById("notebook-save-button")).addEventLis
         const cooldown_label = assertDefinedUnwrap(target.getAttribute("data-label-cooldown"));
         target.disabled = true;
         target.setAttribute("value", sending_label);
-        const cooldown_time = 2000;
 
         fetch(form.action, {
             body: new URLSearchParams(data as any),
@@ -36,7 +35,7 @@ assertDefinedUnwrap(document.getElementById("notebook-save-button")).addEventLis
                 setTimeout(function (): void {
                     target.setAttribute("value", default_label);
                     target.disabled = false;
-                }, cooldown_time);
+                }, 2000);
             } else {
                 target.setAttribute("value", default_label);
                 target.disabled = false;
@@ -46,7 +45,6 @@ assertDefinedUnwrap(document.getElementById("notebook-save-button")).addEventLis
     },
 );
 
-// https://github.com/microsoft/TypeScript-DOM-lib-generator/pull/1535
 assertDefinedUnwrap(document.getElementById("notebook")).addEventListener("show.bs.collapse", function (): void {
     onShowNotebook();
 });
@@ -56,7 +54,7 @@ assertDefinedUnwrap(document.getElementById("notebook")).addEventListener("hidde
 });
 
 export function onShowNotebook(): void {
-    localStorage.setItem(NOTEBOOK_COOKIE_NAME, "true");
+    localStorage.setItem(NOTEBOOK_LOCALSTORAGE_KEY, "true");
     assertDefinedUnwrap(document.getElementById("evapContent")).classList.add("notebook-margin");
     assertDefinedUnwrap(document.getElementById("notebook")).classList.add("notebook-container");
     assertDefinedUnwrap(document.getElementById("notebookButton")).classList.remove("show");
@@ -64,7 +62,7 @@ export function onShowNotebook(): void {
 }
 
 export function onHideNotebook(): void {
-    localStorage.setItem(NOTEBOOK_COOKIE_NAME, "false");
+    localStorage.setItem(NOTEBOOK_LOCALSTORAGE_KEY, "false");
     assertDefinedUnwrap(document.getElementById("evapContent")).classList.remove("notebook-margin");
     assertDefinedUnwrap(document.getElementById("notebook")).classList.remove("notebook-container");
     assertDefinedUnwrap(document.getElementById("notebookButton")).classList.remove("hide");

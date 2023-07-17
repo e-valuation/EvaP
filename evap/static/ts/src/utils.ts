@@ -22,23 +22,6 @@ export const sleep = (ms?: number): Promise<number> => {
     return new Promise(resolve => window.setTimeout(resolve, ms));
 };
 
-// based on: https://docs.djangoproject.com/en/3.1/ref/csrf/#ajax
-export function getCookie(name: string): string | null {
-    if (document.cookie !== "") {
-        const cookie = document.cookie
-            .split(";")
-            .map(cookie => cookie.trim())
-            .find(cookie => cookie.substring(0, name.length + 1) === `${name}=`);
-        if (cookie) {
-            return decodeURIComponent(cookie.substring(name.length + 1));
-        }
-    }
-    return null;
-}
-
-export const testable = {
-    getCookie,
-};
 export const clamp = (val: number, lowest: number, highest: number) => Math.min(highest, Math.max(lowest, val));
 
 export const saneParseInt = (s: string): number | null => {
