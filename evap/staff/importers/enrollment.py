@@ -1,15 +1,15 @@
 import difflib
 from collections import defaultdict
+from collections.abc import Iterable
 from dataclasses import dataclass, fields
 from datetime import date, datetime
-from typing import DefaultDict, Dict, Iterable, List, Optional, Set, Tuple, TypeVar, Union
+from typing import TypeAlias, TypeGuard, TypeVar
 
 from django.conf import settings
 from django.db import transaction
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
-from typing_extensions import TypeGuard
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
 from evap.evaluation.tools import clean_email, ilen, unordered_groupby
@@ -45,7 +45,7 @@ class InvalidValue:
 invalid_value = InvalidValue()
 
 T = TypeVar("T")
-MaybeInvalid = Union[T, InvalidValue]
+MaybeInvalid: TypeAlias = T | InvalidValue
 
 
 @dataclass
@@ -54,30 +54,30 @@ class CourseData:
 
     name_de: str
     name_en: str
-    degrees: MaybeInvalid[Set[Degree]]
+    degrees: MaybeInvalid[set[Degree]]
     course_type: MaybeInvalid[CourseType]
     is_graded: MaybeInvalid[bool]
     responsible_email: str
 
     # An existing course that this imported one should be merged with. See #1596
-    merge_into_course: MaybeInvalid[Optional[Course]] = invalid_value
+    merge_into_course: MaybeInvalid[Course | None] = invalid_value
 
     def __post_init__(self):
         self.name_de = self.name_de.strip()
         self.name_en = self.name_en.strip()
         self.responsible_email = clean_email(self.responsible_email)
 
-    def differing_fields(self, other) -> Set[str]:
+    def differing_fields(self, other) -> set[str]:
         return {field.name for field in fields(self) if getattr(self, field.name) != getattr(other, field.name)}
 
 
 class ValidCourseData(CourseData):
     """Typing: CourseData instance where no element is invalid_value"""
 
-    degrees: Set[Degree]
+    degrees: set[Degree]
     course_type: CourseType
     is_graded: bool
-    merge_into_course: Optional[Course]
+    merge_into_course: Course | None
 
 
 def all_fields_valid(course_data: CourseData) -> TypeGuard[ValidCourseData]:
@@ -91,7 +91,7 @@ class DegreeImportMapper:
             super().__init__(*args, **kwargs)
 
     def __init__(self) -> None:
-        self.degrees: Dict[str, Degree] = {
+        self.degrees: dict[str, Degree] = {
             import_name.strip().lower(): degree
             for degree in Degree.objects.all()
             for import_name in degree.import_names
@@ -113,7 +113,7 @@ class CourseTypeImportMapper:
             self.invalid_course_type: str = invalid_course_type
 
     def __init__(self) -> None:
-        self.course_types: Dict[str, CourseType] = {
+        self.course_types: dict[str, CourseType] = {
             import_name.strip().lower(): course_type
             for course_type in CourseType.objects.all()
             for import_name in course_type.import_names
@@ -194,9 +194,9 @@ class EnrollmentInputRowMapper:
         self.degree_mapper = DegreeImportMapper()
         self.is_graded_mapper = IsGradedImportMapper()
 
-        self.invalid_degrees_tracker: Optional[FirstLocationAndCountTracker] = None
-        self.invalid_course_types_tracker: Optional[FirstLocationAndCountTracker] = None
-        self.invalid_is_graded_tracker: Optional[FirstLocationAndCountTracker] = None
+        self.invalid_degrees_tracker: FirstLocationAndCountTracker | None = None
+        self.invalid_course_types_tracker: FirstLocationAndCountTracker | None = None
+        self.invalid_is_graded_tracker: FirstLocationAndCountTracker | None = None
 
     def map(self, rows: Iterable[EnrollmentInputRow]) -> Iterable[EnrollmentParsedRow]:
         self.invalid_degrees_tracker = FirstLocationAndCountTracker()
@@ -226,7 +226,7 @@ class EnrollmentInputRowMapper:
             email=row.responsible_email,
         )
 
-        degrees: MaybeInvalid[Set[Degree]]
+        degrees: MaybeInvalid[set[Degree]]
         try:
             degrees = {self.degree_mapper.degree_from_import_string(row.evaluation_degree_name)}
         except DegreeImportMapper.InvalidDegreeNameException as e:
@@ -304,9 +304,9 @@ class EnrollmentInputRowMapper:
 
 class CourseMergeLogic:
     class MergeException(Exception):
-        def __init__(self, *args, merge_hindrances: List[str], **kwargs):
+        def __init__(self, *args, merge_hindrances: list[str], **kwargs):
             super().__init__(*args, **kwargs)
-            self.merge_hindrances: List[str] = merge_hindrances
+            self.merge_hindrances: list[str] = merge_hindrances
 
     class NameDeCollisionException(Exception):
         """Course with same name_de, but different name_en exists"""
@@ -324,7 +324,7 @@ class CourseMergeLogic:
         self.courses_by_name_en = {course.name_en: course for course in courses}
 
     @staticmethod
-    def get_merge_hindrances(course_data: CourseData, merge_candidate: Course) -> List[str]:
+    def get_merge_hindrances(course_data: CourseData, merge_candidate: Course) -> list[str]:
         hindrances = []
         if merge_candidate.type != course_data.course_type:
             hindrances.append(_("the course type does not match"))
@@ -389,7 +389,7 @@ class CourseNameChecker(Checker):
         self.name_de_collision_tracker = FirstLocationAndCountTracker()
         self.name_en_collision_tracker = FirstLocationAndCountTracker()
 
-        self.name_en_by_name_de: Dict[str, str] = {}
+        self.name_en_by_name_de: dict[str, str] = {}
         self.name_de_mismatch_tracker = FirstLocationAndCountTracker()
 
     def check_course_data(self, course_data: CourseData, location: ExcelFileLocation) -> None:
@@ -416,7 +416,7 @@ class CourseNameChecker(Checker):
             self.name_de_mismatch_tracker.add_location_for_key(location, (course_data.name_en, course_data.name_de))
 
     def finalize(self) -> None:
-        for name_en, location_string in self.course_merged_tracker.aggregated_keys_and_location_strings():
+        for name_en, _location_string in self.course_merged_tracker.aggregated_keys_and_location_strings():
             self.importer_log.add_warning(
                 _(
                     'Course "{course_name}" already exists. The course will not be created, instead users are imported into the '
@@ -518,7 +518,7 @@ class ExistingParticipationChecker(Checker, RowCheckerMixin):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.participant_emails_per_course_name_en: DefaultDict[str, Set[str]] = defaultdict(set)
+        self.participant_emails_per_course_name_en: defaultdict[str, set[str]] = defaultdict(set)
 
     def check_row(self, row: EnrollmentParsedRow) -> None:
         # invalid value will still be set for courses with merge conflicts
@@ -563,7 +563,7 @@ class CourseDataMismatchChecker(Checker):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-        self.course_data_by_name_en: Dict[str, CourseData] = {}
+        self.course_data_by_name_en: dict[str, CourseData] = {}
         self.tracker = FirstLocationAndCountTracker()
 
     def check_course_data(self, course_data: CourseData, location: ExcelFileLocation) -> None:
@@ -597,7 +597,7 @@ class UserDegreeMismatchChecker(Checker, RowCheckerMixin):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-        self.degree_by_email: Dict[str, Degree] = {}
+        self.degree_by_email: dict[str, Degree] = {}
         self.tracker = FirstLocationAndCountTracker()
 
     def check_row(self, row: EnrollmentParsedRow):
@@ -630,7 +630,7 @@ class TooManyEnrollmentsChecker(Checker, RowCheckerMixin):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.evaluation_names_en_per_user: DefaultDict[str, Set[str]] = defaultdict(set)
+        self.evaluation_names_en_per_user: defaultdict[str, set[str]] = defaultdict(set)
 
     def check_row(self, row: EnrollmentParsedRow):
         if row.student_data.email == "":
@@ -675,8 +675,8 @@ class CourseDataAdapter(RowCheckerMixin):
 def import_enrollments(
     excel_content: bytes,
     semester: Semester,
-    vote_start_datetime: Optional[datetime],
-    vote_end_date: Optional[date],
+    vote_start_datetime: datetime | None,
+    vote_end_date: date | None,
     test_run: bool,
 ) -> ImporterLog:
     # pylint: disable=too-many-locals
@@ -751,10 +751,10 @@ def import_enrollments(
     return importer_log
 
 
-def normalize_rows(enrollment_rows: Iterable[EnrollmentParsedRow]) -> Tuple[List[UserData], List[ValidCourseData]]:
+def normalize_rows(enrollment_rows: Iterable[EnrollmentParsedRow]) -> tuple[list[UserData], list[ValidCourseData]]:
     """The row schema has denormalized students and evaluations. Normalize / merge them back together"""
-    user_data_by_email: Dict[str, UserData] = {}
-    course_data_by_name_en: Dict[str, ValidCourseData] = {}
+    user_data_by_email: dict[str, UserData] = {}
+    course_data_by_name_en: dict[str, ValidCourseData] = {}
 
     for row in enrollment_rows:
         stored = user_data_by_email.setdefault(row.student_data.email, row.student_data)

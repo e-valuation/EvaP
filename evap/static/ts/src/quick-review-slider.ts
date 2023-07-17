@@ -50,6 +50,7 @@ interface NavigationButtonWithCounters {
 }
 
 const submitSelectorForAction = (action: Action) => `[type=submit][name=action][value=${action}]`;
+const inputSelectorForFlagState = (isFlagged: boolean) => `input[name="is_flagged"][value=${isFlagged.toString()}]`;
 
 export class QuickReviewSlider {
     private readonly slider: HTMLElement;
@@ -199,6 +200,8 @@ export class QuickReviewSlider {
             ["l", submitSelectorForAction(Action.Delete)],
             ["backspace", submitSelectorForAction(Action.Unreview)],
             ["e", submitSelectorForAction(Action.TextanswerEdit)],
+            ["f", inputSelectorForFlagState(true)],
+            ["d", inputSelectorForFlagState(false)],
             ["enter", `[data-url=next-evaluation][data-next-evaluation-index="${this.nextEvaluationIndex}"]`],
             ["m", "[data-startover=undecided]"],
             ["n", "[data-startover=all]"],
@@ -312,7 +315,7 @@ export class QuickReviewSlider {
         }
     };
     private updateFlaggedToggle = () => {
-        const selector = `input[name="is_flagged"][value=${("isFlagged" in this.selectedSlide.dataset).toString()}]`;
+        const selector = inputSelectorForFlagState("isFlagged" in this.selectedSlide.dataset);
         const input = selectOrError<HTMLInputElement>(selector, this.slider);
         input.checked = true;
     };

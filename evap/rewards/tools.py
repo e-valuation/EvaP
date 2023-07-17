@@ -1,5 +1,4 @@
 from datetime import date
-from typing import Dict
 
 from django.conf import settings
 from django.contrib import messages
@@ -24,7 +23,7 @@ from evap.rewards.models import (
 
 
 @transaction.atomic
-def save_redemptions(request, redemptions: Dict[int, int], previous_redeemed_points: int):
+def save_redemptions(request, redemptions: dict[int, int], previous_redeemed_points: int):
     # lock these rows to prevent race conditions
     list(request.user.reward_point_grantings.select_for_update())
     list(request.user.reward_point_redemptions.select_for_update())

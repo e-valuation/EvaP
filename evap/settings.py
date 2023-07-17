@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 import logging
 import os
 import sys
-from typing import Any, List, Tuple
+from typing import Any
 
 from django.contrib.staticfiles.storage import ManifestStaticFilesStorage
 
@@ -72,7 +72,7 @@ INSTITUTION_EMAIL_DOMAINS = ["institution.example.com"]
 # List of tuples defining email domains that should be replaced on saving UserProfiles.
 # Emails ending on the first value will have this part replaced by the second value.
 # e.g.: [("institution.example.com", "institution.com")]
-INSTITUTION_EMAIL_REPLACEMENTS: List[Tuple[str, str]] = []
+INSTITUTION_EMAIL_REPLACEMENTS: list[tuple[str, str]] = []
 
 # the importer accepts only these two strings in the 'graded' column
 IMPORTER_GRADED_YES = "yes"
@@ -100,7 +100,7 @@ EVALUATION_END_WARNING_PERIOD = 5
 ### Installation specific settings
 
 # People who get emails on errors.
-ADMINS: List[Tuple[str, str]] = [
+ADMINS: list[tuple[str, str]] = [
     # ('Your Name', 'your_email@example.com'),
 ]
 

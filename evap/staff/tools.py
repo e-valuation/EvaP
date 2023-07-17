@@ -1,7 +1,7 @@
 import os
+from collections.abc import Iterable
 from datetime import date, datetime, timedelta
 from enum import Enum
-from typing import Iterable
 
 from django.conf import settings
 from django.contrib import messages

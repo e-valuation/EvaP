@@ -19,6 +19,7 @@ from evap.evaluation.models import (
     Evaluation,
     Question,
     Questionnaire,
+    QuestionType,
     RatingAnswerCounter,
     Semester,
     UserProfile,
@@ -232,6 +233,7 @@ class TestResultsView(WebTest):
                 name_de="foo" + unique_suffix,
                 state=Evaluation.State.PUBLISHED,
                 _voter_count=0,
+                _participant_count=0,
             )
             baker.make(
                 Evaluation,
@@ -240,6 +242,7 @@ class TestResultsView(WebTest):
                 name_de="bar" + unique_suffix,
                 state=Evaluation.State.PUBLISHED,
                 _voter_count=0,
+                _participant_count=0,
             )
 
         # first measure the number of queries with two courses
@@ -344,7 +347,7 @@ class TestResultsViewContributionWarning(WebTest):
             questionnaires=[questionnaire],
             contributor=contributor,
         )
-        cls.likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire, order=2)
+        cls.likert_question = baker.make(Question, type=QuestionType.LIKERT, questionnaire=questionnaire, order=2)
         cls.url = f"/results/semester/{cls.semester.id}/evaluation/{cls.evaluation.id}"
 
     def test_many_answers_evaluation_no_warning(self):
@@ -402,17 +405,19 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
         bottom_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM)
 
-        top_heading_question = baker.make(Question, type=Question.HEADING, questionnaire=top_questionnaire, order=0)
-        top_likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=top_questionnaire, order=1)
+        top_heading_question = baker.make(Question, type=QuestionType.HEADING, questionnaire=top_questionnaire, order=0)
+        top_likert_question = baker.make(Question, type=QuestionType.LIKERT, questionnaire=top_questionnaire, order=1)
 
         contributor_likert_question = baker.make(
-            Question, type=Question.LIKERT, questionnaire=contributor_questionnaire
+            Question, type=QuestionType.LIKERT, questionnaire=contributor_questionnaire
         )
 
         bottom_heading_question = baker.make(
-            Question, type=Question.HEADING, questionnaire=bottom_questionnaire, order=0
+            Question, type=QuestionType.HEADING, questionnaire=bottom_questionnaire, order=0
         )
-        bottom_likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=bottom_questionnaire, order=1)
+        bottom_likert_question = baker.make(
+            Question, type=QuestionType.LIKERT, questionnaire=bottom_questionnaire, order=1
+        )
 
         self.evaluation.general_contribution.questionnaires.set([top_questionnaire, bottom_questionnaire])
         self.contribution.questionnaires.set([contributor_questionnaire])
@@ -439,10 +444,10 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         contributor = baker.make(UserProfile)
         questionnaire = baker.make(Questionnaire)
 
-        heading_question_0 = baker.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=0)
-        heading_question_1 = baker.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=1)
-        likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire, order=2)
-        heading_question_2 = baker.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=3)
+        heading_question_0 = baker.make(Question, type=QuestionType.HEADING, questionnaire=questionnaire, order=0)
+        heading_question_1 = baker.make(Question, type=QuestionType.HEADING, questionnaire=questionnaire, order=1)
+        likert_question = baker.make(Question, type=QuestionType.LIKERT, questionnaire=questionnaire, order=2)
+        heading_question_2 = baker.make(Question, type=QuestionType.HEADING, questionnaire=questionnaire, order=3)
 
         contribution = baker.make(
             Contribution, evaluation=self.evaluation, questionnaires=[questionnaire], contributor=contributor
@@ -499,7 +504,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
             Evaluation, state=Evaluation.State.EVALUATED, course=baker.make(Course, semester=self.semester)
         )
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire, order=1)
+        likert_question = baker.make(Question, type=QuestionType.LIKERT, questionnaire=questionnaire, order=1)
         evaluation.general_contribution.questionnaires.set([questionnaire])
         participants = baker.make(UserProfile, _bulk_create=True, _quantity=20)
         evaluation.participants.set(participants)
@@ -522,7 +527,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
             voters=participants,
         )
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire, order=1)
+        likert_question = baker.make(Question, type=QuestionType.LIKERT, questionnaire=questionnaire, order=1)
         evaluation.general_contribution.questionnaires.set([questionnaire])
         make_rating_answer_counters(likert_question, evaluation.general_contribution)
 
@@ -573,8 +578,8 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
         cls.url = f"/results/semester/{cls.evaluation.course.semester.pk}/evaluation/{cls.evaluation.pk}"
 
         questionnaire = baker.make(Questionnaire)
-        cls.question_grade = baker.make(Question, questionnaire=questionnaire, type=Question.GRADE)
-        baker.make(Question, questionnaire=questionnaire, type=Question.LIKERT)
+        cls.question_grade = baker.make(Question, questionnaire=questionnaire, type=QuestionType.GRADE)
+        baker.make(Question, questionnaire=questionnaire, type=QuestionType.LIKERT)
         cls.evaluation.general_contribution.questionnaires.set([questionnaire])
         cls.responsible_contribution = baker.make(
             Contribution, contributor=responsible, evaluation=cls.evaluation, questionnaires=[questionnaire]
@@ -909,7 +914,7 @@ class TestResultsOtherContributorsListOnExportView(WebTest):
         cls.url = f"/results/semester/{evaluation.course.semester.id}/evaluation/{evaluation.id}?view=export"
 
         questionnaire = baker.make(Questionnaire)
-        baker.make(Question, questionnaire=questionnaire, type=Question.LIKERT)
+        baker.make(Question, questionnaire=questionnaire, type=QuestionType.LIKERT)
         evaluation.general_contribution.questionnaires.set([questionnaire])
 
         baker.make(

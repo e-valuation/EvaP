@@ -1,10 +1,11 @@
 import itertools
 from abc import ABC, abstractmethod
 from collections import Counter, namedtuple
+from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
 from enum import Enum
 from io import BytesIO
-from typing import Any, Dict, Iterable, Iterator, List, Tuple, Type
+from typing import Any
 
 import openpyxl
 from django.conf import settings
@@ -59,12 +60,12 @@ class ImporterLog:
     """Just a fancy wrapper around a collection of messages with some utility functions"""
 
     def __init__(self) -> None:
-        self.messages: List[ImporterLogEntry] = []
+        self.messages: list[ImporterLogEntry] = []
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}({self.messages})"  # pragma: no cover
 
-    def _messages_with_level_sorted_by_category(self, level: ImporterLogEntry.Level) -> List[ImporterLogEntry]:
+    def _messages_with_level_sorted_by_category(self, level: ImporterLogEntry.Level) -> list[ImporterLogEntry]:
         return sorted(
             (msg for msg in self.messages if msg.level == level),
             key=lambda msg: (msg.category.value.order, msg.category.value.id),
@@ -72,7 +73,7 @@ class ImporterLog:
 
     def _messages_with_level_by_category(
         self, level: ImporterLogEntry.Level
-    ) -> Dict[ImporterLogEntry.Category, List[ImporterLogEntry]]:
+    ) -> dict[ImporterLogEntry.Category, list[ImporterLogEntry]]:
         sorted_messages = self._messages_with_level_sorted_by_category(level)
         grouped_messages = itertools.groupby(sorted_messages, lambda msg: msg.category)
         return {category: list(messages) for category, messages in grouped_messages}
@@ -87,13 +88,13 @@ class ImporterLog:
         if self.has_errors():
             raise ImporterException(message="")
 
-    def success_messages(self) -> List[ImporterLogEntry]:
+    def success_messages(self) -> list[ImporterLogEntry]:
         return self._messages_with_level_sorted_by_category(ImporterLogEntry.Level.SUCCESS)
 
-    def warnings_by_category(self) -> Dict[ImporterLogEntry.Category, List[ImporterLogEntry]]:
+    def warnings_by_category(self) -> dict[ImporterLogEntry.Category, list[ImporterLogEntry]]:
         return self._messages_with_level_by_category(ImporterLogEntry.Level.WARNING)
 
-    def errors_by_category(self) -> Dict[ImporterLogEntry.Category, List[ImporterLogEntry]]:
+    def errors_by_category(self) -> dict[ImporterLogEntry.Category, list[ImporterLogEntry]]:
         return self._messages_with_level_by_category(ImporterLogEntry.Level.ERROR)
 
     def forward_messages_to_django(self, request) -> None:
@@ -192,7 +193,7 @@ class ExcelFileRowMapper:
     Take a excel file and map it to a list of row_cls instances
     """
 
-    def __init__(self, skip_first_n_rows: int, row_cls: Type[InputRow], importer_log: ImporterLog):
+    def __init__(self, skip_first_n_rows: int, row_cls: type[InputRow], importer_log: ImporterLog):
         self.skip_first_n_rows = skip_first_n_rows
         self.row_cls = row_cls
         self.importer_log = importer_log
@@ -253,14 +254,14 @@ class FirstLocationAndCountTracker:
     """Track locations by a key to only give a single aggregated message with first occurence and count"""
 
     def __init__(self, *args, **kwargs) -> None:
-        self.first_location_by_key: Dict[Any, ExcelFileLocation] = {}
+        self.first_location_by_key: dict[Any, ExcelFileLocation] = {}
         self.location_count_by_key: Counter = Counter()
 
     def add_location_for_key(self, location: ExcelFileLocation, key: Any):
         self.first_location_by_key.setdefault(key, location)
         self.location_count_by_key.update([key])
 
-    def aggregated_keys_and_location_strings(self) -> Iterator[Tuple[Any, str]]:
+    def aggregated_keys_and_location_strings(self) -> Iterator[tuple[Any, str]]:
         for key, first_location in self.first_location_by_key.items():
             count = self.location_count_by_key[key]
 

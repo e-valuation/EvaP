@@ -1,7 +1,7 @@
 import functools
 import operator
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Dict, Iterable, List, Set, Tuple, Union
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
@@ -135,7 +135,7 @@ class UserDataMismatchChecker(Checker):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         # maps user's mail to UserData instance where it was first seen to have O(1) lookup
-        self.users: Dict[str, UserData] = {}
+        self.users: dict[str, UserData] = {}
 
         self.in_file_mismatch_tracker = FirstLocationAndCountTracker()
 
@@ -235,7 +235,7 @@ class UserDataMismatchChecker(Checker):
         self.importer_log.add_warning(msg, category=ImporterLogEntry.Category.DUPL)
 
     @staticmethod
-    def _create_user_string(user: Union[UserProfile, UserData]):
+    def _create_user_string(user: UserProfile | UserData):
         if isinstance(user, UserProfile):
             return format_html(
                 "{} {} {}, {} [{}]",
@@ -256,7 +256,7 @@ class UserDataValidationChecker(Checker):
         super().__init__(*args, **kwargs)
 
         # Only give one error per unique user_data.
-        self.already_checked: Set[UserData] = set()
+        self.already_checked: set[UserData] = set()
 
     def check_userdata(self, user_data: UserData, _location: ExcelFileLocation):
         if user_data.email == "":
@@ -281,7 +281,7 @@ class DuplicateUserDataChecker(Checker):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.first_location_by_user_data: Dict[UserData, ExcelFileLocation] = {}
+        self.first_location_by_user_data: dict[UserData, ExcelFileLocation] = {}
 
         self.tracker = FirstLocationAndCountTracker()
 
@@ -318,7 +318,7 @@ class UserDataAdapter(RowCheckerMixin):
 
 
 @transaction.atomic
-def import_users(excel_content: bytes, test_run: bool) -> Tuple[List[UserProfile], ImporterLog]:
+def import_users(excel_content: bytes, test_run: bool) -> tuple[list[UserProfile], ImporterLog]:
     importer_log = ImporterLog()
 
     with ConvertExceptionsToMessages(importer_log):
@@ -369,7 +369,7 @@ def import_users(excel_content: bytes, test_run: bool) -> Tuple[List[UserProfile
     return [], importer_log
 
 
-def get_user_profile_objects(users: Iterable[UserData]) -> Tuple[List[UserProfile], List[UserProfile]]:
+def get_user_profile_objects(users: Iterable[UserData]) -> tuple[list[UserProfile], list[UserProfile]]:
     user_data_by_email = {user_data.email: user_data for user_data in users}
 
     existing_objects = list(UserProfile.objects.filter(email__in=user_data_by_email.keys()))

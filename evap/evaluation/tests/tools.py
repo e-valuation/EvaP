@@ -1,7 +1,7 @@
 import functools
 import os
+from collections.abc import Sequence
 from datetime import timedelta
-from typing import List, Optional, Sequence, Union
 
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -110,7 +110,7 @@ def render_pages(test_item):
 
 class WebTestWith200Check(WebTest):
     url = "/"
-    test_users: List[Union[UserProfile, str]] = []
+    test_users: list[UserProfile | str] = []
 
     def test_check_response_code_200(self):
         for user in self.test_users:
@@ -180,7 +180,7 @@ def make_editor(user, evaluation):
 def make_rating_answer_counters(
     question: Question,
     contribution: Contribution,
-    answer_counts: Optional[Sequence[int]] = None,
+    answer_counts: Sequence[int] | None = None,
     store_in_db: bool = True,
 ):
     """
