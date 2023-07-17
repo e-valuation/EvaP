@@ -1107,7 +1107,14 @@ class Question(models.Model):
 
     QUESTION_TYPES = (
         (_("Text"), ((QuestionType.TEXT, _("Text question")),)),
-        (_("Unipolar Likert"), ((QuestionType.LIKERT, _("Agreement question")),)),
+        (
+            _("Unipolar Likert"),
+            (
+                (QuestionType.POSITIVE_LIKERT, _("Positive agreement")),
+                (QuestionType.NEGATIVE_LIKERT, _("Negative agreement")),
+            ),
+        ),
+
         (_("Grade"), ((QuestionType.GRADE, _("Grade question")),)),
         (
             _("Bipolar Likert"),
