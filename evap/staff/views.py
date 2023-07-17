@@ -2230,10 +2230,10 @@ def user_merge_selection(request):
     all_users = list(UserProfile.objects.all())
     suggested_merges = []
     for user1 in all_users:
-        if user1.is_external == False:
+        if user1 != None and user1.is_external == False:
             for user2 in all_users:
-                if user1.is_external == False:
-                    if user1.email != user2.email and user1.email.split('@')[0] == user2.email.split('@')[0]:
+                if user2 != None and user2.is_external == False:
+                    if user1.email != user2.email and user1.email.split("@")[0] == user2.email.split("@")[0]:
                         if user1.id > user2.id:
                             suggested_merges.append([user1, user2])
                         else:

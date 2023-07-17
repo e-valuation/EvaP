@@ -33,11 +33,15 @@
                         <tbody>
                             {% for users in suggested_merges %}
                                 <tr>
-                                    <td class="w-100">
-                                        <b>{{ users.0.full_name }}</b> ({{ users.0.email }})<br />
-                                        <b>{{ users.1.full_name }}</b> ({{ users.1.email }})
+                                    <td >
+                                        <b>{{ users.0.full_name }}</b> <br />
+                                        <b>{{ users.1.full_name }}</b> 
                                     </td>
-                                    <td>
+                                    <td >
+                                        {{ users.0.email }} <br />
+                                        {{ users.1.email }}
+                                    </td>
+                                    <td  class="text-end">
                                         <a href="{% url 'staff:user_merge' users.0.id users.1.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Show merge info' %}">
                                             <span class="fas fa-object-group"></span>
                                         </a>
