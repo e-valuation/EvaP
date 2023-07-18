@@ -10,7 +10,7 @@
         {% endif %}"
         href="{% url 'evaluation:index' %}"><img class="brand-image" src="{% static 'images/evap.png' %}" alt=""/></a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
+        <span class="fas fa-bars fa-fw"></span>
     </button>
     <div class="collapse navbar-collapse justify-content-between" id="navbarNavDropdown">
         <span class="d-none {% if user.is_participant and user.is_responsible_or_contributor_or_delegate or user.is_reviewer %}d-xl-block{% else %}d-lg-block{% endif %} navbar-nav justify-content-start">
