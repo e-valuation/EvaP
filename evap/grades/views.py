@@ -87,7 +87,7 @@ class CourseView(DetailView):
         return super().get_context_data(**kwargs) | {
             "semester": self.object.semester,
             "grade_documents": self.object.grade_documents.all(),
-            "disable_if_archived": "disabled",
+            "disable_if_archived": "",
             "disable_breadcrumb_course": True,
         }
 
