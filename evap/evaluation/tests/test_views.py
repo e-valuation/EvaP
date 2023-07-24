@@ -6,7 +6,7 @@ from django.utils import translation
 from django_webtest import WebTest
 from model_bakery import baker
 
-from evap.evaluation.models import Contribution, Evaluation, Question, UserProfile, QuestionType
+from evap.evaluation.models import Contribution, Evaluation, Question, QuestionType, UserProfile
 from evap.evaluation.tests.tools import WebTestWith200Check, create_evaluation_with_responsible_and_editor
 
 
