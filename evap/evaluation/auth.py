@@ -128,15 +128,6 @@ def editor_or_delegate_required(user):
 
 
 @class_or_function_check_decorator
-def editor_required(user):
-    """
-    Decorator for views that checks that the user is logged in and has edit
-    right for at least one evaluation.
-    """
-    return user.is_editor
-
-
-@class_or_function_check_decorator
 def participant_required(user):
     """
     Decorator for views that checks that the user is logged in and
