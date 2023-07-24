@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("evaluation", "0137_use_more_database_constraints"),
+        ("evaluation", "0138_votetimestamp"),
     ]
 
     operations = [
