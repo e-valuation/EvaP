@@ -1,3 +1,4 @@
+import datetime
 from functools import partial
 
 from django.test.utils import override_settings
@@ -15,6 +16,7 @@ from evap.evaluation.models import (
     Semester,
     TextAnswer,
     UserProfile,
+    VoteTimestamp,
 )
 from evap.evaluation.tests.tools import FuzzyInt, WebTestWith200Check, render_pages
 from evap.student.tools import answer_field_id
@@ -350,6 +352,17 @@ class TestVoteView(WebTest):
             question=self.bottom_text_question, contribution=self.evaluation.general_contribution
         ).values_list("answer", flat=True)
         self.assertEqual(list(answers), ["some bottom text"] * 2)
+
+    def test_vote_timestamp(self):
+        time_before = datetime.datetime.now()
+        timestamps_before = VoteTimestamp.objects.count()
+        page = self.app.get(self.url, user=self.voting_user1, status=200)
+        form = page.forms["student-vote-form"]
+        self.fill_form(form)
+        form.submit()
+        self.assertEqual(VoteTimestamp.objects.count(), timestamps_before + 1)
+        time = VoteTimestamp.objects.latest("timestamp").timestamp
+        self.assertTrue(time_before < time < datetime.datetime.now())
 
     def test_user_cannot_vote_multiple_times(self):
         page = self.app.get(self.url, user=self.voting_user1, status=200)

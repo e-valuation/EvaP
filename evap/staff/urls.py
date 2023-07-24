@@ -18,6 +18,7 @@ urlpatterns = [
     path("semester/<int:semester_id>/export", views.semester_export, name="semester_export"),
     path("semester/<int:semester_id>/raw_export", views.semester_raw_export, name="semester_raw_export"),
     path("semester/<int:semester_id>/participation_export", views.semester_participation_export, name="semester_participation_export"),
+    path("semester/<int:semester_id>/vote_timestamps_export", views.vote_timestamps_export, name="vote_timestamps_export"),
     path("semester/<int:semester_id>/assign", views.semester_questionnaire_assign, name="semester_questionnaire_assign"),
     path("semester/<int:semester_id>/preparation_reminder", views.semester_preparation_reminder, name="semester_preparation_reminder"),
     path("semester/<int:semester_id>/grade_reminder", views.semester_grade_reminder, name="semester_grade_reminder"),

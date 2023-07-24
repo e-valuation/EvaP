@@ -35,6 +35,7 @@ from evap.evaluation.models import (
     Semester,
     TextAnswer,
     UserProfile,
+    VoteTimestamp,
 )
 from evap.evaluation.tests.tools import (
     FuzzyInt,
@@ -1302,6 +1303,36 @@ class TestSemesterParticipationDataExportView(WebTestStaffMode):
             "student@example.com;False;1;1;0;1;65\n"
         )
         self.assertEqual(response.content, expected_content.encode("utf-8"))
+
+
+class TestSemesterVoteTimestampsExport(WebTestStaffMode):
+    @classmethod
+    def setUpTestData(cls):
+        cls.manager = make_manager()
+        cls.course_type = baker.make(CourseType, name_en="Type")
+        cls.vote_end_date = datetime.date(2017, 1, 3)
+        cls.evaluation_id = 1
+        cls.timestamp_time = datetime.datetime(2017, 1, 1, 12, 0, 0)
+
+        cls.evaluation = baker.make(
+            Evaluation,
+            course__type=cls.course_type,
+            pk=cls.evaluation_id,
+            vote_end_date=cls.vote_end_date,
+            vote_start_datetime=datetime.datetime.combine(cls.vote_end_date, datetime.time())
+            - datetime.timedelta(days=2),
+        )
+        cls.timestamp = baker.make(VoteTimestamp, evaluation=cls.evaluation, timestamp=cls.timestamp_time)
+
+    def test_view_downloads_csv_file(self):
+        response = self.app.get(
+            reverse("staff:vote_timestamps_export", args=[self.evaluation.course.semester.pk]), user=self.manager
+        )
+        expected_content = (
+            "Evaluation id;Course type;Course degrees;Vote end date;Timestamp\n"
+            + f"{self.evaluation_id};Type;;{self.vote_end_date};{self.timestamp_time}\n"
+        ).encode("utf-8")
+        self.assertEqual(response.content, expected_content)
 
 
 class TestLoginKeyExportView(WebTestStaffMode):
