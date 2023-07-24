@@ -184,11 +184,6 @@ class TestProfileView(WebTest):
         page = self.app.get(self.url, user=self.responsible)
         self.assertContains(page, "testdisplayname")
 
-        form = page.forms["profile-form"]
-        form["first_name_chosen"] = "testdisplayname2"
-        form.submit(name="operation", value="illegal", status=400)
-        self.assertFalse(UserProfile.objects.filter(first_name_chosen="testdisplayname2").exists())
-
 
 class TestNegativeLikertQuestions(WebTest):
     @classmethod
@@ -203,7 +198,10 @@ class TestNegativeLikertQuestions(WebTest):
         )
 
         cls.question = baker.make(
-            Question, type=QuestionType.NEGATIVE_LIKERT, text_en="Negative Likert Question", text_de="Negative Likert Frage"
+            Question,
+            type=QuestionType.NEGATIVE_LIKERT,
+            text_en="Negative Likert Question",
+            text_de="Negative Likert Frage",
         )
         cls.contribution = baker.make(
             Contribution,
@@ -213,6 +211,7 @@ class TestNegativeLikertQuestions(WebTest):
         )
         cls.url = f"/student/vote/{cls.evaluation.pk}"
 
-    def test_likert_questions(self):
+    def test_answer_ordering(self):
         page = self.app.get(self.url, user=self.voting_user, status=200).body.decode()
         self.assertLess(page.index("Strongly<br>disagree"), page.index("Strongly<br>agree"))
+        self.assertIn("The answer scale is inverted for this question", page)

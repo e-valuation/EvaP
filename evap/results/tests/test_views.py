@@ -347,7 +347,9 @@ class TestResultsViewContributionWarning(WebTest):
             questionnaires=[questionnaire],
             contributor=contributor,
         )
-        cls.likert_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire, order=2)
+        cls.likert_question = baker.make(
+            Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire, order=2
+        )
         cls.url = f"/results/semester/{cls.semester.id}/evaluation/{cls.evaluation.id}"
 
     def test_many_answers_evaluation_no_warning(self):
@@ -406,7 +408,9 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         bottom_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM)
 
         top_heading_question = baker.make(Question, type=QuestionType.HEADING, questionnaire=top_questionnaire, order=0)
-        top_likert_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=top_questionnaire, order=1)
+        top_likert_question = baker.make(
+            Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=top_questionnaire, order=1
+        )
 
         contributor_likert_question = baker.make(
             Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=contributor_questionnaire

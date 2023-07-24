@@ -1110,11 +1110,10 @@ class Question(models.Model):
         (
             _("Unipolar Likert"),
             (
-                (QuestionType.POSITIVE_LIKERT, _("Positive agreement")),
-                (QuestionType.NEGATIVE_LIKERT, _("Negative agreement")),
+                (QuestionType.POSITIVE_LIKERT, _("Positive agreement question")),
+                (QuestionType.NEGATIVE_LIKERT, _("Negative agreement question")),
             ),
         ),
-
         (_("Grade"), ((QuestionType.GRADE, _("Grade question")),)),
         (
             _("Bipolar Likert"),
@@ -1291,7 +1290,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("Strongly\ndisagree"),
             _("No answer"),
         ],
-        is_inverted = False,
+        is_inverted=False,
         **BASE_UNIPOLAR_CHOICES,  # type: ignore
     ),
     QuestionType.NEGATIVE_LIKERT: Choices(
@@ -1303,7 +1302,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("Strongly\nagree"),
             _("No answer"),
         ],
-        is_inverted = True,
+        is_inverted=True,
         **BASE_UNIPOLAR_CHOICES,  # type: ignore
     ),
     QuestionType.GRADE: Choices(
@@ -1315,7 +1314,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             "5",
             _("No answer"),
         ],
-        is_inverted = False,
+        is_inverted=False,
         **BASE_UNIPOLAR_CHOICES,  # type: ignore
     ),
     QuestionType.EASY_DIFFICULT: BipolarChoices(
@@ -1414,7 +1413,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("No"),
             _("No answer"),
         ],
-        is_inverted = False,
+        is_inverted=False,
         **BASE_YES_NO_CHOICES,  # type: ignore
     ),
     QuestionType.NEGATIVE_YES_NO: Choices(
@@ -1423,7 +1422,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("Yes"),
             _("No answer"),
         ],
-        is_inverted = True,
+        is_inverted=True,
         **BASE_YES_NO_CHOICES,  # type: ignore
     ),
 }

@@ -505,7 +505,9 @@ class TestExporters(TestCase):
         general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
         general_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=general_questionnaire)
-        contributor_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=contributor_questionnaire)
+        contributor_question = baker.make(
+            Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=contributor_questionnaire
+        )
 
         evaluation_1.general_contribution.questionnaires.set([general_questionnaire])
         make_rating_answer_counters(general_question, evaluation_1.general_contribution, [2, 0, 0, 0, 0])

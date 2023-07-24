@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             field=models.PositiveSmallIntegerField(
                 choices=[
                     ("Text", ((0, "Text question"),)),
-                    ("Unipolar Likert", ((1, "Positive agreement"), (12, "Negative agreement"))),
+                    ("Unipolar Likert", ((1, "Positive agreement question"), (12, "Negative agreement question"))),
                     ("Grade", ((2, "Grade question"),)),
                     (
                         "Bipolar Likert",
