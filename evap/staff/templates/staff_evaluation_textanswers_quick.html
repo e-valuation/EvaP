@@ -176,15 +176,14 @@
                     </button>
                 </div>
                 <div class="lcr-right">
-                    {% if user.is_manager %}
-                        <div data-action-set="reviewing">
-                            {% include "staff_evaluation_textanswer_flag_radios.html" with form="shared-full-textanswer-flag-form" id="shared" %}
-
+                    <div data-action-set="reviewing">
+                        {% include "staff_evaluation_textanswer_flag_radios.html" with form="shared-full-textanswer-flag-form" id="shared" %}
+                        {% if user.is_manager %}
                             <button type="submit" name="action" value="textanswer_edit" class="btn btn-sm btn-outline-secondary">
                                 <span class="fas fa-pencil"></span>
                             </button>
-                        </div>
-                    {% endif %}
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
