@@ -690,12 +690,14 @@ class SemesterExportView(SingleObjectMixin, FormsetView):
     form_class = formset_factory(form=ExportSheetForm, can_delete=True, extra=0, min_num=1, validate_min=True)
     template_name = "staff_semester_export.html"
 
+    object: Semester
+
     def dispatch(self, *args, **kwargs):
-        self.object = self.semester = self.get_object()
+        self.object = self.get_object()
         return super().dispatch(*args, **kwargs)
 
     def get_form_kwargs(self):
-        return super().get_form_kwargs() | {"form_kwargs": {"semester": self.semester}}
+        return super().get_form_kwargs() | {"form_kwargs": {"semester": self.object}}
 
     def form_valid(self, formset):
         include_not_enough_voters = self.request.POST.get("include_not_enough_voters") == "on"
@@ -703,12 +705,12 @@ class SemesterExportView(SingleObjectMixin, FormsetView):
         selection_list = [
             (form.cleaned_data["selected_degrees"], form.cleaned_data["selected_course_types"]) for form in formset
         ]
-        filename = f"Evaluation-{self.semester.name}-{get_language()}.xls"
+        filename = f"Evaluation-{self.object.name}-{get_language()}.xls"
         response = AttachmentResponse(filename, content_type="application/vnd.ms-excel")
 
         ResultsExporter().export(
             response,
-            [self.semester],
+            [self.object],
             selection_list,
             include_not_enough_voters,
             include_unpublished,
