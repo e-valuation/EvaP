@@ -42,7 +42,7 @@
             {% block breadcrumb_bar %}
             {% endblock %}
         </div>
-        
+
         <img class="print-brand-image d-none d-print-block" src="{% static 'images/evap.png' %}" alt="{% trans 'Evaluation Platform' %}" />
 
         {% if user.is_authenticated %}
@@ -78,8 +78,8 @@
         <script type="text/javascript" src="{% static 'js/plugins/jquery.formset.js' %}"></script>
         <script type="text/javascript" src="{% static 'js/Sortable.min.js' %}"></script>
 
+        <script type="module" src="{% static 'js/csrf-utils.js' %}"></script>
         <script type="module" src="{% static 'js/notebook.js' %}"></script>
-        <script type="module" src="{% static 'js/utils.js' %}"></script>
         <script type="module" src="{% static 'js/base-template.js' %}"></script>
         <script type="text/javascript">
             activateTooltips = function(selector = "") {

@@ -1,5 +1,5 @@
 declare const bootstrap: typeof import("bootstrap");
-import { assertDefinedUnwrap } from "./utils.js";
+import { assert, assertDefinedUnwrap } from "./utils.js";
 import { CSRF_HEADERS } from "./csrf-utils.js";
 
 const NOTEBOOK_LOCALSTORAGE_KEY = "evap_notebook_open";
@@ -29,19 +29,20 @@ assertDefinedUnwrap(document.getElementById("notebook-save-button")).addEventLis
             body: new URLSearchParams(data as any),
             headers: CSRF_HEADERS,
             method: "POST",
-        }).then(response => {
-            if (response.ok) {
+        })
+            .then(response => {
+                assert(response.ok);
                 target.setAttribute("value", cooldown_label);
                 setTimeout(function (): void {
                     target.setAttribute("value", default_label);
                     target.disabled = false;
                 }, 2000);
-            } else {
+            })
+            .catch(() => {
                 target.setAttribute("value", default_label);
                 target.disabled = false;
                 alert(error_label);
-            }
-        });
+            });
     },
 );
 
