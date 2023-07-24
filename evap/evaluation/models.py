@@ -26,6 +26,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.safestring import SafeData
+from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django_fsm import FSMIntegerField, transition
 from django_fsm.signals import post_transition
@@ -2141,3 +2142,8 @@ class EmailTemplate(models.Model):
         body_params = {"user": user, "evaluation_url_tuples": evaluation_url_tuples}
         template = cls.objects.get(name=cls.TEXT_ANSWER_REVIEW_REMINDER)
         template.send_to_user(user, {}, body_params, use_cc=False)
+
+
+class VoteTimestamp(models.Model):
+    evaluation = models.ForeignKey(Evaluation, models.CASCADE)
+    timestamp = models.DateTimeField(verbose_name=_("vote timestamp"), default=now)
