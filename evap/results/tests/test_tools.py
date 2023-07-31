@@ -243,7 +243,7 @@ class TestCalculateAverageDistribution(TestCase):
 
         general_non_grade_average = ((5 * 5) + (3 * 3) + (4 * 4) + (2 * 5) + (4 * 7 / 3)) / (
             5 + 3 + 4 + 2 + 4
-        )  # 3.8518518518518516
+        )  # 3.85185185
 
         contributors_percentage = settings.CONTRIBUTIONS_WEIGHT / (
             settings.CONTRIBUTIONS_WEIGHT + settings.GENERAL_NON_GRADE_QUESTIONS_WEIGHT
@@ -254,11 +254,11 @@ class TestCalculateAverageDistribution(TestCase):
 
         total_grade = (
             contributors_percentage * contributors_average + general_non_grade_percentage * general_non_grade_average
-        )  # 1.1 + 2.38095238 = 3.48095238
+        )  # 1.1 + 2.4074074 = 3.5074074
 
         average_grade = distribution_to_grade(calculate_average_distribution(self.evaluation))
         self.assertAlmostEqual(average_grade, total_grade)
-        self.assertAlmostEqual(average_grade, 3.507407407407407)
+        self.assertAlmostEqual(average_grade, 3.5074074)
 
     @override_settings(
         CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT=4,
