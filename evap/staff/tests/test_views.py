@@ -1948,16 +1948,19 @@ class TestCourseEditView(WebTestStaffMode):
 
     @patch("evap.staff.views.reverse")
     def test_operation_redirects(self, mock_reverse):
-        mock_reverse.return_value = "very_legit_url"
+        mock_reverse.return_value = "/very_legit_url"
 
-        self.prepare_form("a").submit("operation", value="save")
+        response = self.prepare_form("a").submit("operation", value="save")
         self.assertEqual(mock_reverse.call_args.args[0], "staff:semester_view")
+        self.assertRedirects(response, "/very_legit_url", fetch_redirect_response=False)
 
-        self.prepare_form("b").submit("operation", value="save_create_evaluation")
+        response = self.prepare_form("b").submit("operation", value="save_create_evaluation")
         self.assertEqual(mock_reverse.call_args.args[0], "staff:evaluation_create_for_course")
+        self.assertRedirects(response, "/very_legit_url", fetch_redirect_response=False)
 
-        self.prepare_form("c").submit("operation", value="save_create_single_result")
+        response = self.prepare_form("c").submit("operation", value="save_create_single_result")
         self.assertEqual(mock_reverse.call_args.args[0], "staff:single_result_create_for_course")
+        self.assertRedirects(response, "/very_legit_url", fetch_redirect_response=False)
 
         self.assertEqual(mock_reverse.call_count, 3)
 
