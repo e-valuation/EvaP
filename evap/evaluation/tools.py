@@ -150,8 +150,8 @@ class FormsetView(FormView):
     def get_formset_kwargs(self):
         return super().get_form_kwargs()
 
-    def form_valid(self, formset):
-        return self.formset_valid(formset)
+    def form_valid(self, form):
+        return self.formset_valid(form)
 
     def formset_valid(self, formset):
         return super().form_valid(formset)
