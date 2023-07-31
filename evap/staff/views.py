@@ -1079,21 +1079,22 @@ class CourseEditView(SuccessMessageMixin, UpdateView):
         return context_data
 
     def form_valid(self, form):
+        if self.request.POST.get("operation") not in ("save", "save_create_evaluation", "save_create_single_result"):
+            raise SuspiciousOperation("Invalid POST operation")
+
         response = super().form_valid(form)
         if form.has_changed():
             update_template_cache_of_published_evaluations_in_course(self.object)
         return response
 
     def get_success_url(self):
-        match self.request.POST.get("operation"):
+        match self.request.POST["operation"]:
             case "save":
                 return reverse("staff:semester_view", args=[self.object.semester.id])
             case "save_create_evaluation":
                 return reverse("staff:evaluation_create_for_course", args=[self.object.id])
             case "save_create_single_result":
                 return reverse("staff:single_result_create_for_course", args=[self.object.id])
-            case _:
-                raise SuspiciousOperation("Invalid POST operation")
 
 
 @require_POST
