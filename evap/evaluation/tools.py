@@ -140,6 +140,22 @@ def assert_not_none(value: T | None) -> T:
 
 
 class FormsetView(FormView):
+    @property
+    def form_class(self):
+        return self.formset_class
+
+    def get_form_kwargs(self):
+        return self.get_formset_kwargs()
+
+    def get_formset_kwargs(self):
+        return super().get_form_kwargs()
+
+    def form_valid(self, formset):
+        return self.formset_valid(formset)
+
+    def formset_valid(self, formset):
+        return super().form_valid(formset)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["formset"] = context.pop("form")

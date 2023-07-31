@@ -687,7 +687,7 @@ def semester_import(request, semester_id):
 class SemesterExportView(SingleObjectMixin, FormsetView):
     model = Semester
     pk_url_kwarg = "semester_id"
-    form_class = formset_factory(form=ExportSheetForm, can_delete=True, extra=0, min_num=1, validate_min=True)
+    formset_class = formset_factory(form=ExportSheetForm, can_delete=True, extra=0, min_num=1, validate_min=True)
     template_name = "staff_semester_export.html"
 
     object: Semester
@@ -696,10 +696,10 @@ class SemesterExportView(SingleObjectMixin, FormsetView):
         self.object = self.get_object()
         return super().dispatch(*args, **kwargs)
 
-    def get_form_kwargs(self):
-        return super().get_form_kwargs() | {"form_kwargs": {"semester": self.object}}
+    def get_formset_kwargs(self):
+        return super().get_formset_kwargs() | {"form_kwargs": {"semester": self.object}}
 
-    def form_valid(self, formset):
+    def formset_valid(self, formset):
         include_not_enough_voters = self.request.POST.get("include_not_enough_voters") == "on"
         include_unpublished = self.request.POST.get("include_unpublished") == "on"
         selection_list = [
@@ -2000,7 +2000,7 @@ def questionnaire_set_locked(request):
 @manager_required
 class DegreeIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
     model = Degree
-    form_class = modelformset_factory(
+    formset_class = modelformset_factory(
         Degree,
         form=DegreeForm,
         formset=ModelWithImportNamesFormset,
@@ -2015,7 +2015,7 @@ class DegreeIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
 @manager_required
 class CourseTypeIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
     model = CourseType
-    form_class = modelformset_factory(
+    formset_class = modelformset_factory(
         CourseType,
         form=CourseTypeForm,
         formset=ModelWithImportNamesFormset,
@@ -2383,7 +2383,7 @@ class TemplateEditView(SuccessMessageMixin, UpdateView):
 @manager_required
 class FaqIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
     model = FaqSection
-    form_class = modelformset_factory(FaqSection, form=FaqSectionForm, can_delete=True, extra=1)
+    formset_class = modelformset_factory(FaqSection, form=FaqSectionForm, can_delete=True, extra=1)
     template_name = "staff_faq_index.html"
     success_url = reverse_lazy("staff:faq_index")
     success_message = gettext_lazy("Successfully updated the FAQ sections.")
@@ -2413,7 +2413,7 @@ def faq_section(request, section_id):
 
 @manager_required
 class InfotextsView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
-    form_class = modelformset_factory(Infotext, form=InfotextForm, edit_only=True, extra=0)
+    formset_class = modelformset_factory(Infotext, form=InfotextForm, edit_only=True, extra=0)
     template_name = "staff_infotexts.html"
     success_url = reverse_lazy("staff:infotexts")
     success_message = gettext_lazy("Successfully updated the infotext entries.")
