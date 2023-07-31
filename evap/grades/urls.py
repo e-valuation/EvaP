@@ -9,7 +9,7 @@ urlpatterns = [
     path("download/<int:grade_document_id>", views.download_grades, name="download_grades"),
     path("semester/<int:semester_id>", views.SemesterView.as_view(), name="semester_view"),
     path("course/<int:course_id>", views.CourseView.as_view(), name="course_view"),
-    path("course/<int:course_id>/upload", views.UploadGradesView.as_view(), name="upload_grades"),
+    path("course/<int:course_id>/upload", views.upload_grades, name="upload_grades"),
     path("grade_document/<int:grade_document_id>/edit", views.edit_grades, name="edit_grades"),
 
     path("delete_grades", views.delete_grades, name="delete_grades"),

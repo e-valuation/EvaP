@@ -106,54 +106,43 @@ def on_grading_process_finished(course):
 
 
 @grade_publisher_required
-class UploadGradesView(UpdateView):
-    model = GradeDocument
-    form_class = GradeDocumentForm
-    template_name = "grades_upload_form.html"
+def upload_grades(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    semester = course.semester
+    if semester.grade_documents_are_deleted:
+        raise PermissionDenied
 
-    def dispatch(self, request, course_id):
-        self.course = get_object_or_404(Course, id=course_id)
-        if self.course.semester.grade_documents_are_deleted:
-            raise PermissionDenied
-        self.final_grades = request.GET.get("final") == "true"  # if parameter is not given, assume midterm grades
+    final_grades = request.GET.get("final") == "true"  # if parameter is not given, assume midterm grades
 
-        return super().dispatch(request)
+    grade_document = GradeDocument(course=course)
+    if final_grades:
+        grade_document.type = GradeDocument.Type.FINAL_GRADES
+        grade_document.description_en = settings.DEFAULT_FINAL_GRADES_DESCRIPTION_EN
+        grade_document.description_de = settings.DEFAULT_FINAL_GRADES_DESCRIPTION_DE
+    else:
+        grade_document.type = GradeDocument.Type.MIDTERM_GRADES
+        grade_document.description_en = settings.DEFAULT_MIDTERM_GRADES_DESCRIPTION_EN
+        grade_document.description_de = settings.DEFAULT_MIDTERM_GRADES_DESCRIPTION_DE
 
-    def get_object(self):
-        if self.final_grades:
-            type_specific_kwargs = {
-                "type": GradeDocument.Type.FINAL_GRADES,
-                "description_en": settings.DEFAULT_FINAL_GRADES_DESCRIPTION_EN,
-                "description_de": settings.DEFAULT_FINAL_GRADES_DESCRIPTION_DE,
-            }
-        else:
-            type_specific_kwargs = {
-                "type": GradeDocument.Type.MIDTERM_GRADES,
-                "description_en": settings.DEFAULT_MIDTERM_GRADES_DESCRIPTION_EN,
-                "description_de": settings.DEFAULT_MIDTERM_GRADES_DESCRIPTION_DE,
-            }
+    form = GradeDocumentForm(request.POST or None, request.FILES or None, instance=grade_document)
 
-        return GradeDocument(course=self.course, **type_specific_kwargs)
+    if form.is_valid():
+        form.save(modifying_user=request.user)
 
-    def get_success_url(self):
-        return reverse("grades:course_view", args=[self.course.id])
+        if final_grades:
+            on_grading_process_finished(course)
 
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(**kwargs) | {
-            "semester": self.course.semester,
-            "course": self.course,
-            "final_grades": self.final_grades,
-            "show_automated_publishing_info": self.final_grades,
-        }
+        messages.success(request, _("Successfully uploaded grades."))
+        return redirect("grades:course_view", course.id)
 
-    def form_valid(self, form):
-        # Don't call super().form_valid() to avoid saving again
-        self.object = form.save(modifying_user=self.request.user)
-        if self.final_grades:
-            on_grading_process_finished(self.course)
-
-        messages.success(self.request, _("Successfully uploaded grades."))
-        return HttpResponseRedirect(self.get_success_url())
+    template_data = {
+        "semester": semester,
+        "course": course,
+        "form": form,
+        "final_grades": final_grades,
+        "show_automated_publishing_info": final_grades,
+    }
+    return render(request, "grades_upload_form.html", template_data)
 
 
 @require_POST
