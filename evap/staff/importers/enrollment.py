@@ -337,17 +337,26 @@ class CourseMergeLogic:
         merge_candidate_evaluations = merge_candidate.evaluations.all()
         if len(merge_candidate_evaluations) != 1:
             hindrances.append(_("the existing course does not have exactly one evaluation"))
-        else:
-            merge_candidate_evaluation: Evaluation = merge_candidate_evaluations[0]
-            if merge_candidate_evaluation.wait_for_grade_upload_before_publishing != course_data.is_graded:
-                hindrances.append(_("the evaluation of the existing course has a mismatching grading specification"))
+            return hindrances
 
-            if merge_candidate_evaluation._participant_count is not None:
-                hindrances.append(
-                    _(
-                        "the evaluation of the existing course has unmodifiable participants (is it published or a single result?)"
-                    )
+        merge_candidate_evaluation: Evaluation = merge_candidate_evaluations[0]
+
+        if merge_candidate_evaluation.wait_for_grade_upload_before_publishing != course_data.is_graded:
+            hindrances.append(_("the evaluation of the existing course has a mismatching grading specification"))
+
+        if merge_candidate_evaluation.is_single_result:
+            hindrances.append(_("the evaluation of the existing course is a single result"))
+            return hindrances
+
+        if merge_candidate_evaluation.state >= Evaluation.State.PUBLISHED:
+            hindrances.append(
+                _(
+                    "the import would add participants to the existing evaluation but the participants can't be modified "
+                    "because the evaluation is already published"
                 )
+            )
+        else:
+            assert merge_candidate_evaluation._participant_count is None
 
         return hindrances
 

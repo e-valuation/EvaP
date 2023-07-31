@@ -725,10 +725,45 @@ class TestEnrollmentImport(ImporterTestCase):
         existing_course.refresh_from_db()
         self.assertEqual(old_dict, model_to_dict(existing_course))
 
-    def test_existing_course_with_set_participation_count(self):
+    def test_existing_course_with_published_evaluation(self):
         __, existing_evaluation = self.create_existing_course()
+
+        # Attempt with state = Published
+        Evaluation.objects.filter(pk=existing_evaluation.pk).update(state=Evaluation.State.PUBLISHED)
+        existing_evaluation = Evaluation.objects.get(pk=existing_evaluation.pk)
+
+        importer_log = import_enrollments(
+            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+        )
+
+        self.assertErrorIs(
+            importer_log,
+            ImporterLogEntry.Category.COURSE,
+            "Sheet &quot;BA Belegungen&quot;, row 2 and 1 other place: "
+            + "Course &quot;Shake&quot; already exists in this semester, but the courses can not be merged for the following reasons:<br /> "
+            + "- the import would add participants to the existing evaluation but the participants can&#x27;t be modified "
+            + "because the evaluation is already published",
+        )
+
+        # Attempt with earlier state but set _participant_count
+        Evaluation.objects.filter(pk=existing_evaluation.pk).update(state=Evaluation.State.APPROVED)
+        existing_evaluation = Evaluation.objects.get(pk=existing_evaluation.pk)
         existing_evaluation._participant_count = existing_evaluation.participants.count()
         existing_evaluation._voter_count = existing_evaluation.voters.count()
+        existing_evaluation.save()
+
+        with override_settings(DEBUG=False):
+            importer_log = import_enrollments(
+                self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+            )
+        self.assertEqual(
+            [msg.message for msg in importer_log.errors_by_category()[ImporterLogEntry.Category.GENERAL]],
+            ["Import aborted after exception: ''. No data was imported."],
+        )
+
+    def test_existing_course_with_single_result(self):
+        __, existing_evaluation = self.create_existing_course()
+        existing_evaluation.is_single_result = True
         existing_evaluation.save()
 
         old_evaluation_count = Evaluation.objects.count()
@@ -743,7 +778,7 @@ class TestEnrollmentImport(ImporterTestCase):
             ImporterLogEntry.Category.COURSE,
             "Sheet &quot;BA Belegungen&quot;, row 2 and 1 other place: "
             + "Course &quot;Shake&quot; already exists in this semester, but the courses can not be merged for the following reasons:<br /> "
-            + "- the evaluation of the existing course has unmodifiable participants (is it published or a single result?)",
+            + "- the evaluation of the existing course is a single result",
         )
 
         self.assertEqual(Evaluation.objects.count(), old_evaluation_count)
