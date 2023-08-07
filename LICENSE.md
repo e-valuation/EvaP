@@ -15,7 +15,7 @@ not touched by the software license.
 
 ```
 EvaP – Evaluation Platform
-Copyright (C) 2011-2022 by Johannes Wolf, Johannes Linke, Michael Grünewald,
+Copyright (C) 2011-2023 by Johannes Wolf, Johannes Linke, Michael Grünewald,
 Stefan Richter, and Richard Ebeling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
