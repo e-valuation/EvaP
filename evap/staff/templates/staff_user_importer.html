@@ -1,0 +1,114 @@
+{% load static %}
+{% for entry in importer_log.success_messages %}
+    <div class="alert alert-success alert-dismissible">
+        {{ entry.message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+{% endfor %}
+
+
+{% for category, errorlist in importer_log.errors_by_category.items %}
+    <div class="card collapsible card-outline-danger mb-3">
+        <div class="card-header">
+            <a class="collapse-toggle" data-bs-toggle="collapse" href="#{{ category.value.id }}Card"
+               aria-expanded="false"
+               aria-controls="{{ category.value.id }}Card">
+                {{ category.value.display_name }}
+            </a>
+        </div>
+        <div class="collapse show" id="{{ category.value.id }}Card">
+            <div class="card-body">
+                {% for error in errorlist %}
+                    <div class="alert alert-danger alert-dismissible">
+                        {{ error.message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for category, warninglist in importer_log.warnings_by_category.items %}
+    <div class="card card-outline-warning collapsible mb-3">
+        <div class="card-header">
+            <a class="collapse-toggle" data-bs-toggle="collapse" href="#{{ category.value.id }}Card"
+               aria-expanded="false"
+               aria-controls="{{ category.value.id }}Card">
+                {{ category.value.display_name }}
+            </a>
+        </div>
+        <div class="collapse show" id="{{ category.value.id }}Card">
+            <div class="card-body">
+                {% for warning in warninglist %}
+                    <div class="alert alert-warning alert-dismissible">
+                        {{ warning.message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+
+{% if not decision_form.empty %}
+    {% regroup decision_form by field.category as category_groups %}
+    <form id="user-decision-form" enctype="multipart/form-data" class="form-horizontal"
+          action="{% url 'staff:user_import_decisions' %}" method="POST">
+        {% csrf_token %}
+        {% for category_group in category_groups %}
+            {% for decision_field in category_group.list %}
+                {% if decision_field.field.choices %}
+                    <div class="card card-outline-warning collapsible mb-3">
+                        <div class="card-header">
+                            <a class="collapse-toggle" data-bs-toggle="collapse"
+                               href="#{{ category_group.grouper.value.id }}Card"
+                               aria-expanded="false"
+                               aria-controls="{{ category_group.grouper.value.id }}Card">
+                                {{ category_group.grouper.value.display_name }}
+                            </a>
+                        </div>
+                        <div class="collapse show" id="{{ category_group.grouper }}Card">
+                            <div class="card-body">
+                                <div class="w-75 container text-center">
+                                    <div class="row row-cols-3">
+                                        <div class="col-lg">{% trans 'Current user' %}</div>
+                                        <div class="col-2">{% trans 'Change?' %}</div>
+                                        <div class="col-lg">{% trans 'Imported user' %}</div>
+                                    </div>
+                                    {% for decision in decision_field %}
+                                        <div class="row row-cols-3 d-flex p-0 form-check form-switch">
+                                            <label class="col-lg form-check-label"
+                                                   for="{{ decision_field.id_for_label }}_{{ forloop.counter }}">
+                                                {{ decision.data.label.existing }}
+                                            </label>
+                                            <div class="col-2">
+                                                <input class="form-check-input mx-auto float-none"
+                                                       id="{{ decision_field.id_for_label }}_{{ forloop.counter }}"
+                                                       name="{{ decision.data.name }}" type="checkbox"
+                                                       value="{{ decision.data.label.imported }}" />
+                                            </div>
+                                            <label class="form-check-label col-lg"
+                                                   for="{{ decision_field.id_for_label }}_{{ forloop.counter }}">
+                                                {{ decision.data.label.imported }}
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+        <button type="submit" class="btn btn-primary mb-3">
+            {% trans 'Resolve and download excel' %}
+        </button>
+    </form>
+    <script type="module">
+      import { attachFormSubmitDownloadAndRedirect } from "{% static 'js/user-importer.js' %}";
+
+      attachFormSubmitDownloadAndRedirect("user-decision-form", "imported_users.xlsx", "{% url 'staff:user_import' %}");
+    </script>
+{% endif %}

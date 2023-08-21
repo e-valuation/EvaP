@@ -203,13 +203,14 @@ class UserDataMismatchChecker(Checker):
         else:
             msg = format_html(_("The existing user was overwritten with the following data:"))
 
-        msg = (
-            msg
-            + format_html("<br /> - {} ({})", self._create_user_string(user), _("existing"))
-            + format_html("<br /> - {} ({})", self._create_user_string(user_data), _("import"))
+        self.importer_log.add_decision(
+            msg,
+            self._create_user_string(user),
+            self._create_user_string(user_data),
+            user,
+            user_data,
+            category=ImporterLogEntry.Category.NAME,
         )
-
-        self.importer_log.add_warning(msg, category=ImporterLogEntry.Category.NAME)
 
     def _add_user_inactive_warning(self, user: UserProfile):
         user_string = self._create_user_string(user)

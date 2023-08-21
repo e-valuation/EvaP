@@ -1,5 +1,7 @@
 import logging
 from collections.abc import Iterable
+from dataclasses import dataclass
+from enum import Enum
 
 from django import forms
 from django.contrib.auth.models import Group
@@ -34,6 +36,8 @@ from evap.evaluation.models import (
 from evap.evaluation.tools import clean_email, date_to_datetime
 from evap.results.tools import STATES_WITH_RESULT_TEMPLATE_CACHING, STATES_WITH_RESULTS_CACHING, cache_results
 from evap.results.views import update_template_cache, update_template_cache_of_published_evaluations_in_course
+from evap.staff.importers import ImporterLogEntry
+from evap.staff.importers.base import ImporterDecisionEntry
 from evap.staff.tools import remove_user_from_represented_and_ccing_users
 from evap.student.models import TextAnswerWarning
 
@@ -118,6 +122,45 @@ class UserImportForm(forms.Form):
         required=False,
         widget=forms.FileInput(attrs={"accept": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),
     )
+
+
+@dataclass
+class DecisionFormEntry:
+    imported: str
+    existing: str | None = None
+
+    @classmethod
+    def from_importer_decision_entry(cls, entry: ImporterDecisionEntry):
+        return cls(entry.imported, entry.existing)
+
+    def __eq__(self, other):
+        return self.imported == other.imported and self.existing is None or self.existing == other.existing
+
+
+class MyChoiceField(forms.TypedMultipleChoiceField):
+    def __init__(self, *, category: ImporterLogEntry.Category, **kwargs):
+        super().__init__(**kwargs)
+        self.category = category
+
+    def validate(self, value):
+        """Validate, but do not check if value in choices."""
+        if value == self.empty_value and self.required:
+            raise ValidationError(self.error_messages["required"], code="required")
+
+
+class UserDecisionForm(forms.Form):
+    name_mismatches = MyChoiceField(
+        category=ImporterLogEntry.Category.NAME,
+        coerce=DecisionFormEntry,
+        label=_("Name Mismatches"),
+        required=False,
+    )
+
+    def by_category(self):
+        return {field.category: self.cleaned_data[name] for name, field in self.fields.items()}
+
+    def empty(self):
+        return not any(field.choices for field in self.fields.values())
 
 
 class EvaluationParticipantCopyForm(forms.Form):
@@ -1134,3 +1177,8 @@ class ExportSheetForm(forms.Form):
         self.fields["selected_course_types"] = forms.MultipleChoiceField(
             choices=course_type_tuples, required=True, widget=forms.CheckboxSelectMultiple(), label=_("Course types")
         )
+
+
+class Action(Enum):
+    KEEP = 0
+    CHANGE = 1

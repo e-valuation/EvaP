@@ -4,6 +4,7 @@ from collections import OrderedDict, defaultdict, namedtuple
 from collections.abc import Container
 from dataclasses import dataclass
 from datetime import date, datetime
+from io import BytesIO
 from typing import Any, cast
 
 import openpyxl
@@ -15,7 +16,7 @@ from django.db.models import BooleanField, Case, Count, ExpressionWrapper, Integ
 from django.dispatch import receiver
 from django.forms import formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
-from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.http import FileResponse, Http404, HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import format_html
@@ -24,6 +25,8 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy, ngettext
 from django.views.decorators.http import require_POST
 from django_stubs_ext import StrOrPromise
+from openpyxl.styles import Font
+from openpyxl.utils import get_column_letter
 
 from evap.contributor.views import export_contributor_results
 from evap.evaluation.auth import manager_required, reviewer_required, staff_permission_required
@@ -70,6 +73,7 @@ from evap.staff.forms import (
     CourseForm,
     CourseTypeForm,
     CourseTypeMergeSelectionForm,
+    DecisionFormEntry,
     DegreeForm,
     EmailTemplateForm,
     EvaluationCopyForm,
@@ -91,6 +95,7 @@ from evap.staff.forms import (
     TextAnswerForm,
     TextAnswerWarningForm,
     UserBulkUpdateForm,
+    UserDecisionForm,
     UserEditSelectionForm,
     UserForm,
     UserImportForm,
@@ -103,6 +108,7 @@ from evap.staff.importers import (
     import_persons_from_file,
     import_users,
 )
+from evap.staff.importers.base import ImporterDecisionEntry
 from evap.staff.tools import (
     ImportType,
     bulk_update_users,
@@ -2131,6 +2137,7 @@ def user_create(request):
 @manager_required
 def user_import(request):
     excel_form = UserImportForm(request.POST or None, request.FILES or None)
+    decision_form = UserDecisionForm()
     import_type = ImportType.USER
 
     importer_log = None
@@ -2147,7 +2154,14 @@ def user_import(request):
                 excel_file = excel_form.cleaned_data["excel_file"]
                 file_content = excel_file.read()
                 __, importer_log = import_users(file_content, test_run=True)
-                if not importer_log.has_errors():
+                decision_form.fields["name_mismatches"].choices = (
+                    (str(i), DecisionFormEntry(decision.imported, decision.existing))
+                    for i, decision in enumerate(
+                        importer_log.decisions_by_category().get(ImporterDecisionEntry.Category.NAME, [])
+                    )
+                )
+
+                if not importer_log.has_errors() and (not importer_log.has_decisions() or operation == "test"):
                     save_import_file(excel_file, request.user.id, import_type)
 
         elif operation == "import":
@@ -2164,9 +2178,69 @@ def user_import(request):
         "staff_user_import.html",
         {
             "excel_form": excel_form,
+            "decision_form": decision_form,
             "importer_log": importer_log,
             "test_passed": test_passed,
         },
+    )
+
+
+def export_users(file, users):
+    book = openpyxl.workbook.Workbook()
+    sheet = book.active
+    sheet.append(["Title", "First name", "Last name", "Email"])
+    for cell in sheet["1:1"]:
+        cell.font = Font(name="Calibri", bold=True)
+
+    for user in users:
+        sheet.append([user.title, user.first_name, user.last_name, user.email])
+
+    # "autofit" columns
+    for column_cells in sheet.columns:
+        length = max(len(cell.value or "") for cell in column_cells)
+        column = get_column_letter(column_cells[0].column)
+        sheet.column_dimensions[column].width = (length + 2) * 1.1  # this seems to look okay
+
+    book.save(file)
+
+
+@manager_required
+def user_import_decisions(request):
+    decision_form = UserDecisionForm(request.POST or None, request.FILES or None)
+    if not decision_form.is_valid():
+        raise SuspiciousOperation("Invalid POST data")
+
+    file_content = get_import_file_content_or_raise(request.user.id, import_type=ImportType.USER)
+
+    imported_users, importer_log = import_users(file_content, test_run=True)
+
+    open_decisions = importer_log.decisions_by_category().get(ImporterLogEntry.Category.NAME, [])
+    user_decisions = {decision.imported for decision in decision_form.cleaned_data["name_mismatches"]}
+
+    to_resolve = []
+    for decision in open_decisions:
+        if decision.imported in user_decisions:
+            user_decisions.discard(decision.imported)
+            to_resolve.append(decision)
+        else:
+            # "rollback" user changes
+            imported_users.remove(decision.user_object)
+            imported_users.append(decision.user_object)
+
+    if user_decisions:
+        raise SuspiciousOperation("Invalid excel form.")
+
+    for decision in to_resolve:
+        decision.apply()
+
+    temporary_file = BytesIO()
+    export_users(temporary_file, imported_users)
+    temporary_file.seek(0)
+
+    return FileResponse(
+        temporary_file,
+        as_attachment=True,
+        filename="imported_users.xlsx",
     )
 
 

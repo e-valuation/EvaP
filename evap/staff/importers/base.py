@@ -1,4 +1,5 @@
 import itertools
+import typing
 from abc import ABC, abstractmethod
 from collections import Counter, namedtuple
 from collections.abc import Iterable, Iterator
@@ -12,6 +13,11 @@ from django.conf import settings
 from django.contrib import messages
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy, ngettext
+
+from evap.evaluation.models import UserProfile
+
+if typing.TYPE_CHECKING:
+    from evap.staff.importers.user import UserData
 
 
 @dataclass
@@ -56,11 +62,29 @@ class ImporterLogEntry:
     message: str
 
 
+@dataclass
+class ImporterDecisionEntry(ImporterLogEntry):
+    existing: str
+    imported: str
+    user_object: UserProfile
+    user_data: "UserData"
+    resolved: bool = False
+
+    def apply(self):
+        if self.category == self.Category.NAME:
+            self.user_object.first_name_given = self.user_data.first_name
+            self.user_object.last_name = self.user_data.last_name
+            self.user_object.save()
+        else:
+            raise ValueError("Only name mismatches supported!")
+
+
 class ImporterLog:
     """Just a fancy wrapper around a collection of messages with some utility functions"""
 
     def __init__(self) -> None:
         self.messages: list[ImporterLogEntry] = []
+        self.decisions: list[ImporterDecisionEntry] = []
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}({self.messages})"  # pragma: no cover
@@ -84,6 +108,9 @@ class ImporterLog:
     def has_errors(self) -> bool:
         return any(msg.level == ImporterLogEntry.Level.ERROR for msg in self.messages)
 
+    def has_decisions(self):
+        return bool(self.decisions)
+
     def raise_if_has_errors(self) -> None:
         if self.has_errors():
             raise ImporterException(message="")
@@ -96,6 +123,10 @@ class ImporterLog:
 
     def errors_by_category(self) -> dict[ImporterLogEntry.Category, list[ImporterLogEntry]]:
         return self._messages_with_level_by_category(ImporterLogEntry.Level.ERROR)
+
+    def decisions_by_category(self) -> dict[ImporterDecisionEntry.Category, list[ImporterDecisionEntry]]:
+        grouped_messages = itertools.groupby(self.decisions, lambda msg: msg.category)
+        return {category: list(messages) for category, messages in grouped_messages}
 
     def forward_messages_to_django(self, request) -> None:
         method_by_level = {
@@ -112,6 +143,21 @@ class ImporterLog:
 
     def add_warning(self, message_text, *, category=ImporterLogEntry.Category.GENERAL):
         return self.add_message(ImporterLogEntry(ImporterLogEntry.Level.WARNING, category, message_text))
+
+    def add_decision(
+        self, message_text, existing, imported, user_object, user_data, *, category=ImporterLogEntry.Category.GENERAL
+    ):
+        return self.decisions.append(
+            ImporterDecisionEntry(
+                ImporterLogEntry.Level.WARNING,
+                category,
+                message_text,
+                existing,
+                imported,
+                user_object,
+                user_data,
+            )
+        )
 
     def add_success(self, message_text, *, category=ImporterLogEntry.Category.GENERAL):
         return self.add_message(ImporterLogEntry(ImporterLogEntry.Level.SUCCESS, category, message_text))
