@@ -143,12 +143,15 @@
     min-height: 0;
     padding: 0.5rem;
 
-    .grid-row > div {
-        height: 100%;
-        display: flex;
-        align-items: center;
-        padding: 0.5rem;
-        &:not(:first-child) {
+    .grid-row {
+        &> div {
+            height: 100%;
+            padding: 0.5rem;
+        }
+
+        &> div:not(:first-child) {
+            display: flex;
+            align-items: center;
             padding-left: 0.75rem;
         }
     }
