@@ -348,12 +348,9 @@ class CourseMergeLogic:
             hindrances.append(_("the evaluation of the existing course is a single result"))
             return hindrances
 
-        if merge_candidate_evaluation.state >= Evaluation.State.PUBLISHED:
+        if merge_candidate_evaluation.state >= Evaluation.State.IN_EVALUATION:
             hindrances.append(
-                _(
-                    "the import would add participants to the existing evaluation but the participants can't be modified "
-                    "because the evaluation is already published"
-                )
+                _("the import would add participants to the existing evaluation but the evaluation is already running")
             )
         else:
             assert merge_candidate_evaluation._participant_count is None
