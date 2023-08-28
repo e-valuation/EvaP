@@ -187,7 +187,7 @@ class TestAuthDecorators(WebTest):
     def setUpTestData(cls):
         @class_or_function_check_decorator
         def check_decorator(user: UserProfile) -> bool:
-            return user.some_condition()  # mocked later
+            return getattr(user, "some_condition")  # mocked later
 
         @check_decorator
         def function_based_view(_request):
@@ -209,26 +209,22 @@ class TestAuthDecorators(WebTest):
         request.user = cls.user
         return request
 
-    @patch("evap.evaluation.models.UserProfile.some_condition", return_value=True, create=True)
-    def test_passing_user_function_based(self, some_condition_mock):
+    @patch("evap.evaluation.models.UserProfile.some_condition", True, create=True)
+    def test_passing_user_function_based(self):
         response = self.function_based_view(self.make_request())
-        some_condition_mock.assert_called_once()
         self.assertEqual(response.status_code, 200)
 
-    @patch("evap.evaluation.models.UserProfile.some_condition", return_value=True, create=True)
-    def test_passing_user_class_based(self, some_condition_mock):
+    @patch("evap.evaluation.models.UserProfile.some_condition", True, create=True)
+    def test_passing_user_class_based(self):
         response = self.class_based_view(self.make_request())
-        some_condition_mock.assert_called_once()
         self.assertEqual(response.status_code, 200)
 
-    @patch("evap.evaluation.models.UserProfile.some_condition", return_value=False, create=True)
-    def test_failing_user_function_based(self, some_condition_mock):
+    @patch("evap.evaluation.models.UserProfile.some_condition", False, create=True)
+    def test_failing_user_function_based(self):
         with self.assertRaises(PermissionDenied):
             self.function_based_view(self.make_request())
-        some_condition_mock.assert_called_once()
 
-    @patch("evap.evaluation.models.UserProfile.some_condition", return_value=False, create=True)
-    def test_failing_user_class_based(self, some_condition_mock):
+    @patch("evap.evaluation.models.UserProfile.some_condition", False, create=True)
+    def test_failing_user_class_based(self):
         with self.assertRaises(PermissionDenied):
             self.class_based_view(self.make_request())
-        some_condition_mock.assert_called_once()
