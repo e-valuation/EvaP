@@ -3,7 +3,7 @@ from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass, fields
 from datetime import date, datetime
-from typing import TypeAlias, TypeGuard, TypeVar, NoReturn
+from typing import NoReturn, TypeAlias, TypeGuard, TypeVar
 
 from django.conf import settings
 from django.db import transaction
