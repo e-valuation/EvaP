@@ -5,8 +5,7 @@ import { CSRF_HEADERS } from "./csrf-utils.js";
 const NOTEBOOK_LOCALSTORAGE_KEY = "evap_notebook_open";
 
 if (localStorage.getItem(NOTEBOOK_LOCALSTORAGE_KEY) == "true") {
-    new bootstrap.Collapse(assertDefinedUnwrap(document.getElementById("notebook")));
-    new bootstrap.Collapse(assertDefinedUnwrap(document.getElementById("notebookButton")));
+    assertDefinedUnwrap(document.getElementById("notebook")).classList.add("show");
     onShowNotebook();
 }
 
