@@ -712,6 +712,7 @@ class TestEnrollmentImport(ImporterTestCase):
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
 
+        self.assertEqual({}, importer_log.warnings_by_category())
         self.assertErrorIs(
             importer_log,
             ImporterLogEntry.Category.COURSE,
@@ -736,13 +737,13 @@ class TestEnrollmentImport(ImporterTestCase):
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
 
+        self.assertEqual({}, importer_log.warnings_by_category())
         self.assertErrorIs(
             importer_log,
             ImporterLogEntry.Category.COURSE,
             "Sheet &quot;BA Belegungen&quot;, row 2 and 1 other place: "
             + "Course &quot;Shake&quot; already exists in this semester, but the courses can not be merged for the following reasons:<br /> "
-            + "- the import would add participants to the existing evaluation but the participants can&#x27;t be modified "
-            + "because the evaluation is already published",
+            + "- the import would add participants to the existing evaluation but the evaluation is already running",
         )
 
         # Attempt with earlier state but set _participant_count
@@ -773,6 +774,7 @@ class TestEnrollmentImport(ImporterTestCase):
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
 
+        self.assertEqual({}, importer_log.warnings_by_category())
         self.assertErrorIs(
             importer_log,
             ImporterLogEntry.Category.COURSE,
@@ -796,6 +798,7 @@ class TestEnrollmentImport(ImporterTestCase):
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
 
+        self.assertEqual({}, importer_log.warnings_by_category())
         self.assertErrorIs(
             importer_log,
             ImporterLogEntry.Category.COURSE,
@@ -820,6 +823,7 @@ class TestEnrollmentImport(ImporterTestCase):
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
 
+        self.assertEqual({}, importer_log.warnings_by_category())
         self.assertErrorIs(
             importer_log,
             ImporterLogEntry.Category.COURSE,

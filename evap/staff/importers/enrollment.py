@@ -3,7 +3,7 @@ from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass, fields
 from datetime import date, datetime
-from typing import TypeAlias, TypeGuard, TypeVar
+from typing import TypeAlias, TypeGuard, TypeVar, NoReturn
 
 from django.conf import settings
 from django.db import transaction
@@ -39,7 +39,9 @@ from .user import (
 @dataclass(frozen=True)
 class InvalidValue:
     # We make this a dataclass to make sure all instances compare equal.
-    pass
+
+    def __bool__(self) -> NoReturn:
+        raise NotImplementedError("Bool conversion of InvalidValue is likely a bug")
 
 
 invalid_value = InvalidValue()
@@ -423,7 +425,7 @@ class CourseNameChecker(Checker):
         except CourseMergeLogic.NameEnCollisionException:
             self.name_en_collision_tracker.add_location_for_key(location, course_data.name_en)
 
-        if course_data.merge_into_course:
+        if course_data.merge_into_course != invalid_value and course_data.merge_into_course:
             self.course_merged_tracker.add_location_for_key(location, course_data.name_en)
 
         self.name_en_by_name_de.setdefault(course_data.name_de, course_data.name_en)
