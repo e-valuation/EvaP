@@ -231,4 +231,4 @@ def set_startpage(request):
     user.startpage = startpage
     user.save()
 
-    return HttpResponse()
+    return redirect("evaluation:index")

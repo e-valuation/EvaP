@@ -3,23 +3,11 @@
         <button type="button" class="btn btn-sm btn-light" disabled><span class="fas fa-house"></span></button>
     </div>
 {% else %}
-    <button id="makeStartPageButton" type="button" class="btn btn-sm btn-light" onclick="makeStartPage();" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Make this my startpage' %}"><span id="span-set-startpage" class="fas fa-house"></span></button>
+    <form class="d-flex" method="post" action="{% url 'evaluation:set_startpage' %}">
+        {% csrf_token %}
+        <input name="page" type="hidden" value="{{ page }}">
+        <button id="makeStartPageButton" type="submit" class="btn btn-sm btn-light" onclick="setSpinnerIcon('span-set-startpage')" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Make this my startpage' %}">
+            <span id="span-set-startpage" class="fas fa-house"></span>
+        </button>
+    </form>
 {% endif %}
-
-
-{% block additional_javascript %}
-    <script type="text/javascript">
-        function makeStartPage() {
-            var makeStartPageButton = $('#makeStartPageButton');
-            makeStartPageButton.prop('disabled', true);
-            setSpinnerIcon('span-set-startpage');
-            $.ajax({
-                type: "POST",
-                url: "{% url 'evaluation:set_startpage' %}",
-                data: {"page": "{{ page }}"},
-                success: function() { location.reload(); },
-                error: function() { window.alert("{% trans 'The server is not responding.' %}") },
-            });
-        }
-    </script>
-{% endblock %}
