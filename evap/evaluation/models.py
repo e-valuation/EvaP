@@ -1724,9 +1724,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         name = self.full_name
         if self.is_external:
             return name + " [ext.]"
-        if "@" in self.email:
-            return name + " (" + self.email.split("@")[0] + ")"
-        return name + " (" + self.email + ")"
+        return f"{name} ({self.email})"
 
     def __str__(self):
         return self.full_name
