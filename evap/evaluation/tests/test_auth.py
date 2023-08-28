@@ -6,8 +6,8 @@ from django.contrib.auth.models import Group
 from django.core import mail
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
-from django.test import TestCase, override_settings
-from django.urls import path, reverse
+from django.test import override_settings
+from django.urls import reverse
 from django.views import View
 from model_bakery import baker
 
@@ -211,7 +211,7 @@ class TestAuthDecorators(WebTest):
 
     @patch("evap.evaluation.models.UserProfile.some_condition", True, create=True)
     def test_passing_user_function_based(self):
-        response = self.function_based_view(self.make_request())
+        response = self.function_based_view(self.make_request())  # pylint: disable=too-many-arguments
         self.assertEqual(response.status_code, 200)
 
     @patch("evap.evaluation.models.UserProfile.some_condition", True, create=True)
@@ -222,7 +222,7 @@ class TestAuthDecorators(WebTest):
     @patch("evap.evaluation.models.UserProfile.some_condition", False, create=True)
     def test_failing_user_function_based(self):
         with self.assertRaises(PermissionDenied):
-            self.function_based_view(self.make_request())
+            self.function_based_view(self.make_request())  # pylint: disable=too-many-arguments
 
     @patch("evap.evaluation.models.UserProfile.some_condition", False, create=True)
     def test_failing_user_class_based(self):
