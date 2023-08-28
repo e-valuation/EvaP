@@ -211,7 +211,7 @@ class TestAuthDecorators(WebTest):
 
     @patch("evap.evaluation.models.UserProfile.some_condition", True, create=True)
     def test_passing_user_function_based(self):
-        response = self.function_based_view(self.make_request())  # pylint: disable=too-many-arguments
+        response = self.function_based_view(self.make_request())  # pylint: disable=too-many-function-args
         self.assertEqual(response.status_code, 200)
 
     @patch("evap.evaluation.models.UserProfile.some_condition", True, create=True)
@@ -222,7 +222,7 @@ class TestAuthDecorators(WebTest):
     @patch("evap.evaluation.models.UserProfile.some_condition", False, create=True)
     def test_failing_user_function_based(self):
         with self.assertRaises(PermissionDenied):
-            self.function_based_view(self.make_request())  # pylint: disable=too-many-arguments
+            self.function_based_view(self.make_request())  # pylint: disable=too-many-function-args
 
     @patch("evap.evaluation.models.UserProfile.some_condition", False, create=True)
     def test_failing_user_class_based(self):
