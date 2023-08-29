@@ -1,7 +1,9 @@
+import csv
 import datetime
 import os
 from abc import ABC, abstractmethod
 from io import BytesIO
+from itertools import cycle
 from typing import Literal
 from unittest.mock import PropertyMock, patch
 
@@ -527,6 +529,48 @@ class TestUserBulkUpdateView(WebTestStaffMode):
         )
         reply = form.submit(name="operation", value="test", status=200)
         self.assertIn("An error happened when processing the file", reply)
+
+
+class TestUserExportView(WebTestStaffMode):
+    url = "/staff/user/export"
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+        cls.manager = make_manager()
+        baker.make(UserProfile, _quantity=5, _fill_optional=["first_name_given", "last_name", "email", "title"])
+        baker.make(
+            UserProfile,
+            _quantity=5,
+            _fill_optional=["first_name_given", "last_name", "email", "title"],
+            is_active=False,
+        )
+        # the titles are not filled by baker
+        titles = cycle(("", "Some", "Custom", "Titles"))
+        for user in UserProfile.objects.iterator():
+            user.title = next(titles)
+            user.save()
+
+    def assertUsersExported(self, response, user_objects):
+        reader = csv.reader(response.text.strip().split("\n"))
+        # skip header
+        next(reader)
+        self.assertSetEqual({tuple(row) for row in reader}, user_objects)
+
+    def test_export_all(self):
+        user_objects = {
+            (user.title or "", user.last_name or "", user.first_name or "", user.email or "")
+            for user in UserProfile.objects.iterator()
+        }
+        response = self.app.get(self.url, user=self.manager)
+        self.assertUsersExported(response, user_objects)
+
+    def test_export_filtered(self):
+        user_objects = {
+            (user.title or "", user.last_name or "", user.first_name or "", user.email or "")
+            for user in UserProfile.objects.exclude(is_active=False).iterator()
+        }
+        response = self.app.get(self.url, {"filter_users": True}, user=self.manager)
+        self.assertUsersExported(response, user_objects)
 
 
 class TestUserImportView(WebTestStaffMode):

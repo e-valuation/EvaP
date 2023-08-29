@@ -73,6 +73,7 @@ urlpatterns = [
     path("user/", views.user_index, name="user_index"),
     path("user/create", views.user_create, name="user_create"),
     path("user/import", views.user_import, name="user_import"),
+    path("user/export", views.user_export, name="user_export"),
     path("user/<int:user_id>/edit", views.user_edit, name="user_edit"),
     path("user/list", views.user_list, name="user_list"),
     path("user/delete", views.user_delete, name="user_delete"),

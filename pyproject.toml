@@ -15,7 +15,7 @@ extend-exclude = """\
 
 [tool.isort]
 profile = "black"
-src_paths = ["evap"]
+src_paths = ["evap", "tools"]
 line_length = 120
 skip_gitignore = true
 extend_skip_glob = ["**/migrations/*"]

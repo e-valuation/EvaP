@@ -97,7 +97,7 @@ def vote_end_datetime(vote_end_date):
     return date_to_datetime(vote_end_date) + datetime.timedelta(hours=24 + settings.EVALUATION_END_OFFSET_HOURS)
 
 
-def get_parameter_from_url_or_session(request, parameter, default=False):
+def get_parameter_from_url_or_session(request, parameter, default=False) -> bool:
     result = request.GET.get(parameter, None)
     if result is None:  # if no parameter is given take session value
         result = request.session.get(parameter, default)
