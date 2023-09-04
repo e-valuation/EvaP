@@ -8,10 +8,15 @@
     {% show_infotext "grades_pages" %}
 
     <div class="row mb-3 align-items-center">
-        <h3 class="col-9 mb-0">
+        <h3 class="col-8 mb-0">
             {{ semester.name }}
         </h3>
-        <div class="col-3">
+        <div class="col-4 d-flex">
+            {% if user.show_startpage_button and semester.is_active %}
+                <div class="me-2 d-print-none">
+                    {% include 'startpage_button.html' with page='GR' %}
+                </div>
+            {% endif %}
             <div class="input-group">
                 <input type="search" name="search" class="form-control" placeholder="{% trans 'Search...' %}" />
                 <button class="btn btn-light text-secondary" type="button" data-reset="search" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Clear search filter' %}">

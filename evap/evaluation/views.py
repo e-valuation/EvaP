@@ -31,16 +31,17 @@ def redirect_user_to_start_page(user):
             return redirect("staff:semester_view", active_semester.id)
         return redirect("staff:index")
 
-    if user.is_grade_publisher:
-        if active_semester is not None:
-            return redirect("grades:semester_view", active_semester.id)
-        return redirect("grades:index")
-
     if user.startpage == UserProfile.StartPage.STUDENT and user.is_student:
         return redirect("student:index")
     if user.startpage == UserProfile.StartPage.CONTRIBUTOR and user.is_responsible_or_contributor_or_delegate:
         return redirect("contributor:index")
+    if user.startpage == UserProfile.StartPage.GRADES and user.is_grade_publisher and active_semester is not None:
+        return redirect("grades:semester_view", active_semester.id)
 
+    if user.is_grade_publisher:
+        if active_semester is not None:
+            return redirect("grades:semester_view", active_semester.id)
+        return redirect("grades:index")
     if user.is_student:
         return redirect("student:index")
     if user.is_responsible_or_contributor_or_delegate:

@@ -1671,6 +1671,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         UNDEFINED = "UN", _("undefined")
         STUDENT = "ST", _("student")
         CONTRIBUTOR = "CO", _("contributor")
+        GRADES = "GR", _("grades")
 
     startpage = models.CharField(
         max_length=2,
@@ -1841,7 +1842,9 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     @cached_property
     def show_startpage_button(self):
-        return self.is_student and self.is_responsible_or_contributor_or_delegate
+        return [self.is_student, self.is_responsible_or_contributor_or_delegate, self.is_grade_publisher].count(
+            True
+        ) > 1
 
     @property
     def is_external(self):
