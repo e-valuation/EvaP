@@ -227,7 +227,7 @@ def profile_edit(request):
 def set_startpage(request):
     user = request.user
     startpage = request.POST.get("page")
-    if not startpage in UserProfile.StartPage.values:
+    if startpage not in UserProfile.StartPage.values:
         return HttpResponseBadRequest()
     user.startpage = startpage
     user.save()

@@ -1668,7 +1668,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True, verbose_name=_("active"))
 
     class StartPage(models.TextChoices):
-        UNDEFINED = "UN", _("undefined")
+        DEFAULT = "DE", _("default")
         STUDENT = "ST", _("student")
         CONTRIBUTOR = "CO", _("contributor")
         GRADES = "GR", _("grades")
@@ -1677,7 +1677,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         max_length=2,
         choices=StartPage.choices,
         verbose_name=_("start page of the user"),
-        default=StartPage.UNDEFINED,
+        default=StartPage.DEFAULT,
     )
 
     class Meta:
