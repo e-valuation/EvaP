@@ -3,7 +3,7 @@ from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass, fields
 from datetime import date, datetime
-from typing import TypeAlias, TypeGuard, TypeVar
+from typing import NoReturn, TypeAlias, TypeGuard, TypeVar
 
 from django.conf import settings
 from django.db import transaction
@@ -39,7 +39,9 @@ from .user import (
 @dataclass(frozen=True)
 class InvalidValue:
     # We make this a dataclass to make sure all instances compare equal.
-    pass
+
+    def __bool__(self) -> NoReturn:
+        raise NotImplementedError("Bool conversion of InvalidValue is likely a bug")
 
 
 invalid_value = InvalidValue()
@@ -326,6 +328,7 @@ class CourseMergeLogic:
     @staticmethod
     def get_merge_hindrances(course_data: CourseData, merge_candidate: Course) -> list[str]:
         hindrances = []
+
         if merge_candidate.type != course_data.course_type:
             hindrances.append(_("the course type does not match"))
 
@@ -336,8 +339,23 @@ class CourseMergeLogic:
         merge_candidate_evaluations = merge_candidate.evaluations.all()
         if len(merge_candidate_evaluations) != 1:
             hindrances.append(_("the existing course does not have exactly one evaluation"))
-        elif merge_candidate_evaluations[0].wait_for_grade_upload_before_publishing != course_data.is_graded:
+            return hindrances
+
+        merge_candidate_evaluation: Evaluation = merge_candidate_evaluations[0]
+
+        if merge_candidate_evaluation.wait_for_grade_upload_before_publishing != course_data.is_graded:
             hindrances.append(_("the evaluation of the existing course has a mismatching grading specification"))
+
+        if merge_candidate_evaluation.is_single_result:
+            hindrances.append(_("the evaluation of the existing course is a single result"))
+            return hindrances
+
+        if merge_candidate_evaluation.state >= Evaluation.State.IN_EVALUATION:
+            hindrances.append(
+                _("the import would add participants to the existing evaluation but the evaluation is already running")
+            )
+        else:
+            assert merge_candidate_evaluation._participant_count is None
 
         return hindrances
 
@@ -407,7 +425,7 @@ class CourseNameChecker(Checker):
         except CourseMergeLogic.NameEnCollisionException:
             self.name_en_collision_tracker.add_location_for_key(location, course_data.name_en)
 
-        if course_data.merge_into_course:
+        if course_data.merge_into_course != invalid_value and course_data.merge_into_course:
             self.course_merged_tracker.add_location_for_key(location, course_data.name_en)
 
         self.name_en_by_name_de.setdefault(course_data.name_de, course_data.name_en)
