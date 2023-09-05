@@ -31,7 +31,7 @@ def redirect_user_to_start_page(user):
             return redirect("staff:semester_view", active_semester.id)
         return redirect("staff:index")
 
-    if user.startpage == UserProfile.StartPage.STUDENT and user.is_student:
+    if user.startpage == UserProfile.StartPage.STUDENT and user.is_participant:
         return redirect("student:index")
     if user.startpage == UserProfile.StartPage.CONTRIBUTOR and user.is_responsible_or_contributor_or_delegate:
         return redirect("contributor:index")

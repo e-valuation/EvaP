@@ -1842,7 +1842,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     @cached_property
     def show_startpage_button(self):
-        return [self.is_student, self.is_responsible_or_contributor_or_delegate, self.is_grade_publisher].count(
+        return [self.is_participant, self.is_responsible_or_contributor_or_delegate, self.is_grade_publisher].count(
             True
         ) > 1
 
