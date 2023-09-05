@@ -159,14 +159,14 @@ class LoggedModel(models.Model):
                 if created_value is not None
             }
         elif action_type == InstanceActionType.CHANGE:
-            old_dict = type(self).objects.get(pk=self.pk)._as_dict()
+            old_dict = type(self)._default_manager.get(pk=self.pk)._as_dict()
             changes = {
                 field_name: {FieldActionType.VALUE_CHANGE: [old_value, self_dict[field_name]]}
                 for field_name, old_value in old_dict.items()
                 if old_value != self_dict[field_name]
             }
         elif action_type == InstanceActionType.DELETE:
-            old_dict = type(self).objects.get(pk=self.pk)._as_dict()
+            old_dict = type(self)._default_manager.get(pk=self.pk)._as_dict()
             changes = {
                 field_name: {FieldActionType.INSTANCE_DELETE: [deleted_value]}
                 for field_name, deleted_value in old_dict.items()
