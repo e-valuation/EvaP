@@ -187,13 +187,13 @@ class TestProfileView(WebTest):
 
 
 class TestNotebookView(WebTest):
-    page = reverse("evaluation:profile_edit")  # is used exemplarily, notebook is accessed from all pages
+    url = reverse("evaluation:profile_edit")  # is used exemplarily, notebook is accessed from all pages
     note = "Data is so beautiful"
 
     def test_notebook(self):
         user = baker.make(UserProfile, email="student@institution.example.com")
 
-        page = self.app.get(self.page, user=user)
+        page = self.app.get(self.url, user=user)
         form = page.forms["notebook-form"]
         form["notes"] = self.note
         form.submit()

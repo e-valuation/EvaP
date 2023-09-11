@@ -14,7 +14,6 @@ assertDefinedUnwrap(document.getElementById("notebook-save-button")).addEventLis
     function (event: MouseEvent): void {
         event.preventDefault();
         const form = assertDefinedUnwrap(document.getElementById("notebook-form")) as HTMLFormElement;
-        const data = new FormData(form);
 
         const target = assertDefinedUnwrap(event.target) as HTMLButtonElement;
         const default_label = assertDefinedUnwrap(target.getAttribute("value"));
@@ -25,8 +24,7 @@ assertDefinedUnwrap(document.getElementById("notebook-save-button")).addEventLis
         target.setAttribute("value", sending_label);
 
         fetch(form.action, {
-            body: new URLSearchParams(data as any),
-            headers: CSRF_HEADERS,
+            body: new FormData(form),
             method: "POST",
         })
             .then(response => {

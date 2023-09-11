@@ -5,10 +5,10 @@
                 <h5 class="card-title m-0">
                     {% trans 'Notebook' %}
                 </h5>
-                <button type="button" class="btn-close text-reset" type="button" data-bs-toggle="collapse" data-bs-target="#notebook" aria-controls="collapseNotebook" id="notebookButtonClose"></button>
+                <button type="button" class="btn-close text-reset" data-bs-toggle="collapse" data-bs-target="#notebook" aria-controls="collapseNotebook" id="notebookButtonClose"></button>
             </div>
           
-            <form method="POST" action="{% url 'evaluation:notebook' %}" class="notebook-div" id="notebook-form">
+            <form method="POST" action="{% url 'evaluation:notebook_edit' %}" class="notebook-div" id="notebook-form">
                 {% csrf_token %}
                 {{ notebook_form.notes }}
                 <div class="d-flex justify-content-center p-3">
