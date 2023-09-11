@@ -2,6 +2,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.test import override_settings
+from django.urls import reverse
 from django.utils import translation
 from django_webtest import WebTest
 from model_bakery import baker
@@ -79,6 +80,23 @@ class TestIndexView(WebTest):
         self.assertEqual(len(mail.outbox), 1)
         self.assertTrue(mail.outbox[0].to == [email])
         self.assertEqual(len(mail.outbox[0].cc), 0)
+
+
+class TestStartpage(WebTest):
+    def test_default_startpage(self):
+        result = create_evaluation_with_responsible_and_editor()
+        responsible = result["responsible"]
+        evaluation = result["evaluation"]
+
+        evaluation.participants.add(responsible)
+
+        self.assertRedirects(self.app.get(reverse("evaluation:index"), user=responsible), reverse("student:index"))
+
+        page = self.app.get(reverse("contributor:index"), user=responsible)
+        form = page.forms["startpage-form"]
+        form.submit()
+
+        self.assertRedirects(self.app.get(reverse("evaluation:index"), user=responsible), reverse("contributor:index"))
 
 
 class TestLegalNoticeView(WebTestWith200Check):

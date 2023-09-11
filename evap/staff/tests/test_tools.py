@@ -99,6 +99,7 @@ class MergeUsersTest(TestCase):
             "language",  # Not worth dealing with
             "Evaluation_voters+",  # some more intermediate models, for an explanation see above
             "Evaluation_participants+",  # intermediate model
+            "startpage",  # not worth dealing with
         }
         expected_attrs = set(all_attrs) - ignored_attrs
 
