@@ -18,6 +18,8 @@ from django.views.i18n import set_language
 from evap.evaluation.forms import LoginEmailForm, NewKeyForm, NotebookForm, ProfileForm
 from evap.evaluation.models import EmailTemplate, FaqSection, Semester
 from evap.evaluation.tools import HttpResponseNoContent
+from evap.evaluation.forms import LoginEmailForm, NewKeyForm, ProfileForm
+from evap.evaluation.models import EmailTemplate, FaqSection, Semester, UserProfile
 from evap.middleware import no_login_required
 
 logger = logging.getLogger(__name__)
@@ -32,11 +34,17 @@ def redirect_user_to_start_page(user):
             return redirect("staff:semester_view", active_semester.id)
         return redirect("staff:index")
 
+    if user.startpage == UserProfile.StartPage.STUDENT and user.is_participant:
+        return redirect("student:index")
+    if user.startpage == UserProfile.StartPage.CONTRIBUTOR and user.is_responsible_or_contributor_or_delegate:
+        return redirect("contributor:index")
+    if user.startpage == UserProfile.StartPage.GRADES and user.is_grade_publisher and active_semester is not None:
+        return redirect("grades:semester_view", active_semester.id)
+
     if user.is_grade_publisher:
         if active_semester is not None:
             return redirect("grades:semester_view", active_semester.id)
         return redirect("grades:index")
-
     if user.is_student:
         return redirect("student:index")
     if user.is_responsible_or_contributor_or_delegate:
@@ -225,3 +233,13 @@ def notebook(request):
         form.save()
         return HttpResponseNoContent()
     return HttpResponseBadRequest()
+
+def set_startpage(request):
+    user = request.user
+    startpage = request.POST.get("page")
+    if startpage not in UserProfile.StartPage.values:
+        return HttpResponseBadRequest()
+    user.startpage = startpage
+    user.save()
+
+    return redirect("evaluation:index")

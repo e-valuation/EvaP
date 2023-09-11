@@ -1668,6 +1668,19 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True, verbose_name=_("active"))
 
     notes = models.TextField(verbose_name=_("notes"), blank=True, default="", max_length=1024 * 1024)
+    
+    class StartPage(models.TextChoices):
+        DEFAULT = "DE", _("default")
+        STUDENT = "ST", _("student")
+        CONTRIBUTOR = "CO", _("contributor")
+        GRADES = "GR", _("grades")
+
+    startpage = models.CharField(
+        max_length=2,
+        choices=StartPage.choices,
+        verbose_name=_("start page of the user"),
+        default=StartPage.DEFAULT,
+    )
 
     class Meta:
         # keep in sync with ordering_key
@@ -1828,6 +1841,12 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     @cached_property
     def is_responsible_or_contributor_or_delegate(self):
         return self.is_responsible or self.is_contributor or self.is_delegate
+
+    @cached_property
+    def show_startpage_button(self):
+        return [self.is_participant, self.is_responsible_or_contributor_or_delegate, self.is_grade_publisher].count(
+            True
+        ) > 1
 
     @property
     def is_external(self):
