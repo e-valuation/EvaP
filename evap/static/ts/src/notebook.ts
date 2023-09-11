@@ -1,68 +1,88 @@
 declare const bootstrap: typeof import("bootstrap");
-import { assert, assertDefinedUnwrap } from "./utils.js";
-import { CSRF_HEADERS } from "./csrf-utils.js";
+import { unwrap, assert } from "./utils.js";
 
 const NOTEBOOK_LOCALSTORAGE_KEY = "evap_notebook_open";
+const COLLAPSE_TOGGLE_BUTTON_ID = "notebookButton";
+const WEBSITE_CONTENT_ID = "evapContent";
+const NOTEBOOK_FORM_ID = "notebook-form";
 
-if (localStorage.getItem(NOTEBOOK_LOCALSTORAGE_KEY) == "true") {
-    assertDefinedUnwrap(document.getElementById("notebook")).classList.add("show");
-    onShowNotebook();
-}
+class NotebookFormLogic {
+    private readonly notebook: HTMLFormElement;
 
-assertDefinedUnwrap(document.getElementById("notebook-save-button")).addEventListener(
-    "click",
-    function (event: MouseEvent): void {
+    constructor(notebookFormId: string) {
+        this.notebook = unwrap(document.getElementById(notebookFormId)) as HTMLFormElement;
+    }
+
+    private onSubmit = (event: SubmitEvent): void => {
         event.preventDefault();
-        const form = assertDefinedUnwrap(document.getElementById("notebook-form")) as HTMLFormElement;
+        event.stopPropagation();
 
-        const target = assertDefinedUnwrap(event.target) as HTMLButtonElement;
-        const default_label = assertDefinedUnwrap(target.getAttribute("value"));
-        const sending_label = assertDefinedUnwrap(target.getAttribute("data-label-sending"));
-        const error_label = assertDefinedUnwrap(target.getAttribute("data-label-error"));
-        const cooldown_label = assertDefinedUnwrap(target.getAttribute("data-label-cooldown"));
-        target.disabled = true;
-        target.setAttribute("value", sending_label);
+        const submitter = unwrap(event.submitter) as HTMLButtonElement;
+        submitter.disabled = true;
+        this.notebook.setAttribute("data-state", "sending");
 
-        fetch(form.action, {
-            body: new FormData(form),
+        fetch(this.notebook.action, {
+            body: new FormData(this.notebook),
             method: "POST",
         })
             .then(response => {
                 assert(response.ok);
-                target.setAttribute("value", cooldown_label);
-                setTimeout(function (): void {
-                    target.setAttribute("value", default_label);
-                    target.disabled = false;
+                this.notebook.setAttribute("data-state", "successful");
+                setTimeout(() => {
+                    this.notebook.setAttribute("data-state", "ready");
+                    submitter.disabled = false;
                 }, 2000);
             })
             .catch(() => {
-                target.setAttribute("value", default_label);
-                target.disabled = false;
-                alert(error_label);
+                this.notebook.setAttribute("data-state", "error");
+                submitter.disabled = false;
+                alert(submitter.dataset.error);
             });
-    },
-);
+    };
 
-assertDefinedUnwrap(document.getElementById("notebook")).addEventListener("show.bs.collapse", function (): void {
-    onShowNotebook();
-});
-
-assertDefinedUnwrap(document.getElementById("notebook")).addEventListener("hidden.bs.collapse", function (): void {
-    onHideNotebook();
-});
-
-export function onShowNotebook(): void {
-    localStorage.setItem(NOTEBOOK_LOCALSTORAGE_KEY, "true");
-    assertDefinedUnwrap(document.getElementById("evapContent")).classList.add("notebook-margin");
-    assertDefinedUnwrap(document.getElementById("notebook")).classList.add("notebook-container");
-    assertDefinedUnwrap(document.getElementById("notebookButton")).classList.remove("show");
-    assertDefinedUnwrap(document.getElementById("notebookButton")).classList.add("hide");
+    public attach = (): void => {
+        unwrap(this.notebook).addEventListener("submit", this.onSubmit);
+    };
 }
 
-export function onHideNotebook(): void {
-    localStorage.setItem(NOTEBOOK_LOCALSTORAGE_KEY, "false");
-    assertDefinedUnwrap(document.getElementById("evapContent")).classList.remove("notebook-margin");
-    assertDefinedUnwrap(document.getElementById("notebook")).classList.remove("notebook-container");
-    assertDefinedUnwrap(document.getElementById("notebookButton")).classList.remove("hide");
-    assertDefinedUnwrap(document.getElementById("notebookButton")).classList.add("show");
+export class NotebookLogic {
+    private readonly notebook: HTMLElement;
+    private readonly content: HTMLElement;
+    private form: NotebookFormLogic;
+    private readonly localStorageKey: string;
+
+    constructor(notebookId: string) {
+        this.notebook = unwrap(document.getElementById(notebookId));
+        this.form = new NotebookFormLogic(NOTEBOOK_FORM_ID);
+        this.content = unwrap(document.getElementById(WEBSITE_CONTENT_ID));
+        this.localStorageKey = NOTEBOOK_LOCALSTORAGE_KEY;
+    }
+
+    private onShowNotebook = (): void => {
+        this.notebook.classList.add("notebook-container");
+
+        localStorage.setItem(this.localStorageKey, "true");
+        this.content.classList.add("notebook-margin");
+        unwrap(document.getElementById(COLLAPSE_TOGGLE_BUTTON_ID)).classList.replace("show", "hide");
+    };
+
+    private onHideNotebook = (): void => {
+        this.notebook.classList.remove("notebook-container");
+
+        localStorage.setItem(this.localStorageKey, "false");
+        this.content.classList.remove("notebook-margin");
+        unwrap(document.getElementById(COLLAPSE_TOGGLE_BUTTON_ID)).classList.replace("hide", "show");
+    };
+
+    public attach = (): void => {
+        if (localStorage.getItem(this.localStorageKey) == "true") {
+            this.notebook.classList.add("show");
+            this.onShowNotebook();
+        }
+
+        this.notebook.addEventListener("show.bs.collapse", this.onShowNotebook);
+        this.notebook.addEventListener("hidden.bs.collapse", this.onHideNotebook);
+
+        this.form.attach();
+    };
 }

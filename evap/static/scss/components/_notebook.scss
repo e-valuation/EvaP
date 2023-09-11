@@ -1,0 +1,31 @@
+form[data-state] {
+    --ready-display: none;
+    --sending-display: none;
+    --successful-display: none;
+    --error-display: none;
+}
+form[data-state="ready"] {
+    --ready-display: unset;
+}
+form[data-state="sending"] {
+    --sending-display: unset;
+}
+form[data-state="successful"] {
+    --successful-display: unset;
+}
+form[data-state="error"] {
+    --error-display: unset;
+}
+
+.visible-if-ready {
+    display: var(--ready-display);
+}
+.visible-if-sending {
+    display: var(--sending-display);
+}
+.visible-if-successful {
+    display: var(--successful-display);
+}
+.visible-if-error {
+    display: var(--error-display);
+}

@@ -79,8 +79,6 @@
         <script type="text/javascript" src="{% static 'js/Sortable.min.js' %}"></script>
 
         <script type="module" src="{% static 'js/csrf-utils.js' %}"></script>
-        <script type="module" src="{% static 'js/notebook.js' %}"></script>
-        <script type="module" src="{% static 'js/base-template.js' %}"></script>
         <script type="text/javascript">
             activateTooltips = function(selector = "") {
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll(selector + ' [data-bs-toggle="tooltip"]'))
@@ -94,11 +92,6 @@
 
             };
             activateTooltips();
-
-
-            for(const offCanvasElement of document.querySelectorAll('.offcanvas')) {
-                new bootstrap.Offcanvas(offcanvasEl);
-            }
 
             // These are workarounds around incompatibilities of django, django-dynamic-formsets, and tomselect.
             // tomselect can't handle already tomselect'd forms that were copies made by
@@ -201,6 +194,13 @@
             function setSpinnerIcon(id) {
                 $("#" + id).empty().removeClass().addClass('fas fa-spinner fa-spin');
             };
+
+        </script>
+        <script type="module">
+
+            import  {NotebookLogic} from "{% static 'js/notebook.js' %}"
+
+            new NotebookLogic("notebook").attach();
         </script>
 
         {% block additional_javascript %}{% endblock %}

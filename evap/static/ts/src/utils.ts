@@ -38,7 +38,7 @@ export const findPreviousElementSibling = (element: Element, selector: string): 
     return null;
 };
 
-export function assertDefinedUnwrap<T>(val: T): NonNullable<T> {
+export function unwrap<T>(val: T): NonNullable<T> {
     assertDefined(val);
     return val;
 }
