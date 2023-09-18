@@ -59,7 +59,7 @@
                 method: "POST",
             }).then(response => {
                 assert(response.ok);
-                $('#questionnaire-row-'+dataId).hide('slow', function(){ $('#questionnaire-row-'+dataId).remove(); });
+                document.querySelector('#questionnaire-row-'+dataId).remove()
             }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         };
     </script>
@@ -81,32 +81,32 @@
 
     <script type="text/javascript">
         function changeVisibility(element) {
-            const questionnaire = element.parents(".questionnaire");
-            const visibility = element.data("visibility");
+            const questionnaire = element.closest(".questionnaire");
+            const visibility = element.dataset.visibility;
 
             fetch("{% url 'staff:questionnaire_visibility' %}", {
-                body: new URLSearchParams({questionnaire_id: questionnaire.data("id"), visibility}),
+                body: new URLSearchParams({questionnaire_id: questionnaire.dataset.id, visibility}),
                 headers: CSRF_HEADERS,
                 method: "POST",
             }).then(response => {
                 assert(response.ok);
-                questionnaire.find(`button[data-visibility]`).removeClass("active");
-                questionnaire.find(`button[data-visibility="${visibility}"]`).addClass("active");
+                questionnaire.querySelectorAll(`button[data-visibility]`).forEach(button => {button.classList.remove("active");});
+                questionnaire.querySelectorAll(`button[data-visibility="${visibility}"]`).forEach(button => {button.classList.add("active");});
             }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         }
 
         function changeLocked(element) {
-            const questionnaire = element.parents(".questionnaire");
-            const is_locked = element.data("is-locked");
+            const questionnaire = element.closest(".questionnaire");
+            const is_locked = element.dataset.isLocked;
 
             fetch("{% url 'staff:questionnaire_set_locked' %}", {
-                body: new URLSearchParams({questionnaire_id: questionnaire.data("id"), is_locked}),
+                body: new URLSearchParams({questionnaire_id: questionnaire.dataset.id, is_locked}),
                 headers: CSRF_HEADERS,
                 method: "POST",
             }).then(response => {
                 assert(response.ok);
-                questionnaire.find(`button[data-is-locked]`).removeClass("active");
-                questionnaire.find(`button[data-is-locked="${is_locked}"]`).addClass("active");
+                questionnaire.querySelectorAll(`button[data-is-locked]`).forEach(button => {button.classList.remove("active");});
+                questionnaire.querySelectorAll(`button[data-is-locked="${is_locked}"]`).forEach(button => {button.classList.add("active");});
             }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         }
     </script>

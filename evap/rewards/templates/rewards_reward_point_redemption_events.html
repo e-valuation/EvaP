@@ -41,7 +41,7 @@
                 method: "POST",
             }).then(response => {
                 assert(response.ok);
-                $('#event-row-'+dataId).hide('slow', function(){ $('#event-row-'+dataId).remove(); });
+                document.querySelector('#event-row-'+dataId).remove()
             }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         };
     </script>

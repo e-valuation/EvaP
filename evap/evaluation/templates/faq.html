@@ -34,7 +34,6 @@
 
         if(type == "q"){
             // open collapsed answer and scroll into center
-            const answer_div = $("#faq-"+id+"-a");
             window.history.pushState('', id, '/faq#faq-' + id + '-q');
             var answerCard = document.getElementById("faq-"+id+"-a");
             var answerCardCollapse = bootstrap.Collapse.getOrCreateInstance(answerCard);
