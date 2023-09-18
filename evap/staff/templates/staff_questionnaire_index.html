@@ -59,7 +59,7 @@
                 method: "POST",
             }).then(response => {
                 assert(response.ok);
-                document.querySelector('#questionnaire-row-'+dataId).remove()
+                fadeOutThenRemove(document.querySelector('#questionnaire-row-'+dataId));
             }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         };
     </script>

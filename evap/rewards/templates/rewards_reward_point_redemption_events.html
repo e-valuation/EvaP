@@ -1,5 +1,6 @@
 {% extends 'staff_base.html' %}
 
+
 {% block breadcrumb %}
     {{ block.super }}
     <li class="breadcrumb-item">{% trans 'Reward Point Redemption Events' %}</li>
@@ -33,6 +34,7 @@
     {% trans 'Do you really want to delete the event <strong data-label=""></strong>?' as question %}
     {% trans 'Delete event' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='deleteEventModal' title=title question=question action_text=action_text btn_type='danger' %}
+
     <script type="text/javascript">
         function deleteEventModalAction(dataId) {
             fetch("{% url 'rewards:reward_point_redemption_event_delete' %}", {
@@ -41,7 +43,7 @@
                 method: "POST",
             }).then(response => {
                 assert(response.ok);
-                document.querySelector('#event-row-'+dataId).remove()
+                fadeOutThenRemove(document.querySelector('#event-row-'+dataId));
             }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         };
     </script>

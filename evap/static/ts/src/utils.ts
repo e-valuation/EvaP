@@ -7,8 +7,6 @@ export const selectOrError = <T extends Element>(selector: string, root: Element
 export function assert(condition: unknown, message: string = "Assertion Failed"): asserts condition {
     if (!condition) throw new Error(message);
 }
-// TODO
-(globalThis as any).assert = assert;
 
 export function assertDefined<T>(val: T): asserts val is NonNullable<T> {
     assert(val !== undefined);
@@ -41,3 +39,15 @@ export const findPreviousElementSibling = (element: Element, selector: string): 
 };
 
 export const isVisible = (element: HTMLElement): boolean => element.offsetWidth !== 0 || element.offsetHeight !== 0;
+
+export const fadeOutThenRemove = (element: HTMLElement) => {
+    element.style.transition = "opacity 600ms";
+    element.style.opacity = "0";
+    setTimeout(() => {
+        element.remove();
+    }, 600);
+};
+
+// TODO: How to handle exporting / importing
+(globalThis as any).assert = assert;
+(globalThis as any).fadeOutThenRemove = fadeOutThenRemove;

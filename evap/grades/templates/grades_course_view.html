@@ -64,7 +64,7 @@
                 method: "POST",
             }).then(response => {
                 assert(response.ok);
-                document.getElementByID('grade_document-row-'+dataId).remove();
+                fadeOutThenRemove(document.getElementById('grade_document-row-'+dataId));
             }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         };
     </script>
