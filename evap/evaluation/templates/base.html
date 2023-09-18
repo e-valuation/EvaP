@@ -83,20 +83,19 @@
             activateTooltips();
 
             // These are workarounds around incompatibilities of django, django-dynamic-formsets, and tomselect.
-            // tomselect can't handle already tomselect'd forms that were copies made by
-            // django-dynamic-formsets' "add another" button, so we take a copy of a non-tomselect'd form here
+            // tomselect can't handle already tomselect'd forms that were copies made by django-dynamic-formsets'
+            // "add another" button, so we take a copy of a non-tomselect'd form here
             const tomSelectRows = document.querySelectorAll(".tomselecttr");
 
             if(tomSelectRows.length != 0) {
                 var templateForm = tomSelectRows[tomSelectRows.length - 1].cloneNode(true);
 
-                // later we use this class to give this to django-dynamic-formsets
-                // as template and to make sure it does not get tomselect'd
+                // later we use this class to give this to django-dynamic-formsets as template and to make sure it does not get tomselect'd
                 templateForm.classList.add("form-template");
                 templateForm.style.display = "none";
 
-                // for some reason django-dynamic-formsets does not hide the checkbox like it should
-                templateForm.querySelectorAll("checkbox:last-of-type").forEach(checkbox => {checkbox.type = "hidden";});
+                // django-dynamic-formsets doesn't hide the "delete this row" input in the clone since it's not part of the formset.
+                templateForm.querySelectorAll("input[id$=-DELETE]").forEach(input => {input.type = "hidden";});
 
                 // For some reason, django validates this template if it's part of the form, so we insert the copy outside of the form.
                 document.querySelector(".tomselectform").insertAdjacentElement("afterend", templateForm);
