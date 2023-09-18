@@ -305,11 +305,11 @@
                     {% if request.user.is_manager and not semester.participations_are_archived %}
                         <div class="my-2">
                             <button type="button" class="btn btn-sm btn-secondary"
-                                onclick="document.querySelectorAll('input[type=checkbox][name=evaluation]').forEach(c => {c.checked = true;})">
+                                onclick="document.querySelectorAll('#evaluation_operation_form input[type=checkbox][name=evaluation]').forEach(c => {c.checked = true;})">
                                 {% trans 'Select all' %}
                             </button>
                             <button type="button" class="btn btn-sm btn-secondary"
-                                onclick="document.querySelectorAll('input[type=checkbox][name=evaluation]').forEach(c => {c.checked = false;})">
+                                onclick="document.querySelectorAll('#evaluation_operation_form input[type=checkbox][name=evaluation]').forEach(c => {c.checked = false;})">
                                 {% trans 'Select none' %}
                             </button>
                         </div>
