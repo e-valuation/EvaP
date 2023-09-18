@@ -7,6 +7,8 @@ export const selectOrError = <T extends Element>(selector: string, root: Element
 export function assert(condition: unknown, message: string = "Assertion Failed"): asserts condition {
     if (!condition) throw new Error(message);
 }
+// TODO
+(globalThis as any).assert = assert;
 
 export function assertDefined<T>(val: T): asserts val is NonNullable<T> {
     assert(val !== undefined);

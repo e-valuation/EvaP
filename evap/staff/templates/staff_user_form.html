@@ -115,14 +115,15 @@
     {% include 'confirmation_modal.html' with modal_id='deleteModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
         function deleteModalAction(dataId) {
-            $.ajax({
-                type: "POST",
-                url: "{% url 'staff:user_delete' %}",
-                data: {"user_id": dataId},
-                success: function(){window.location="{% url 'staff:user_index' %}"},
-                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
-            });
-        };
+            fetch("{% url 'staff:user_delete' %}", {
+                body: new URLSearchParams({user_id: dataId}),
+                headers: CSRF_HEADERS,
+                method: "POST",
+            }).then(response => {
+                assert(response.ok);
+                window.location="{% url 'staff:user_index' %}"
+            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
+        }
     </script>
     {% if form.instance.id %}
         {% trans 'Send notification email' as title %}
@@ -131,13 +132,14 @@
         {% include 'confirmation_modal.html' with modal_id='resendEmailModal' title=title question=question action_text=action_text btn_type='success' %}
         <script type="text/javascript">
             function resendEmailModalAction(dataId) {
-                $.ajax({
-                    type: "POST",
-                    url: "{% url 'staff:user_resend_email' %}",
-                    data: {"user_id": dataId},
-                    success: function(){window.location="{% url 'staff:user_edit' user_id %}"},
-                    error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
-                });
+                fetch("{% url 'staff:user_resend_email' %}", {
+                    body: new URLSearchParams({user_id: dataId}),
+                    headers: CSRF_HEADERS,
+                    method: "POST",
+                }).then(response => {
+                    assert(response.ok);
+                    window.location="{% url 'staff:user_edit' user_id %}"
+                }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
             };
         </script>
     {% endif %}

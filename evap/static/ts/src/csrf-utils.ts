@@ -19,15 +19,8 @@ function isMethodCsrfSafe(method: string): boolean {
     return ["GET", "HEAD", "OPTIONS", "TRACE"].includes(method);
 }
 
-// setup ajax sending csrf token
-$.ajaxSetup({
-    beforeSend: function (xhr: JQuery.jqXHR, settings: JQuery.AjaxSettings) {
-        const isMethodSafe = settings.method && isMethodCsrfSafe(settings.method);
-        if (!isMethodSafe && !this.crossDomain) {
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        }
-    },
-});
+// TODO
+(globalThis as any).CSRF_HEADERS = CSRF_HEADERS;
 
 export const testable = {
     getCookie,

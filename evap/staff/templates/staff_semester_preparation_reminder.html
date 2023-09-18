@@ -82,16 +82,13 @@
             remindAllButton.prop('disabled', true);
             remindAllButton.text('{% trans 'Reminding everyone' %}');
 
-            $.ajax({
-                type: "POST",
-                url: "{% url 'staff:semester_preparation_reminder' semester_id=semester.id %}",
-                success: function(){
-                    location.reload();
-                },
-                error: function(){
-                    window.alert("{% trans 'The server is not responding.' %}");
-                }
-            })
+            fetch("{% url 'staff:semester_preparation_reminder' semester_id=semester.id %}", {
+                headers: CSRF_HEADERS,
+                method: "POST",
+            }).then(response => {
+                assert(response.ok);
+                location.reload();
+            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         }
     </script>
 {% endblock %}

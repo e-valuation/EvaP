@@ -53,13 +53,14 @@
     {% include 'confirmation_modal.html' with modal_id='deleteQuestionnaireModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
         function deleteQuestionnaireModalAction(dataId) {
-            $.ajax({
-                type: "POST",
-                url: "{% url 'staff:questionnaire_delete' %}",
-                data: {"questionnaire_id": dataId},
-                success: function(){ $('#questionnaire-row-'+dataId).hide('slow', function(){ $('#questionnaire-row-'+dataId).remove(); }); },
-                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
-            });
+            fetch("{% url 'staff:questionnaire_delete' %}", {
+                body: new URLSearchParams({questionnaire_id: dataId}),
+                headers: CSRF_HEADERS,
+                method: "POST",
+            }).then(response => {
+                assert(response.ok);
+                $('#questionnaire-row-'+dataId).hide('slow', function(){ $('#questionnaire-row-'+dataId).remove(); });
+            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         };
     </script>
 {% endblock %}
@@ -82,31 +83,31 @@
         function changeVisibility(element) {
             const questionnaire = element.parents(".questionnaire");
             const visibility = element.data("visibility");
-            $.ajax({
-                type: "POST",
-                url: "{% url 'staff:questionnaire_visibility' %}",
-                data: {"questionnaire_id": questionnaire.data("id"), "visibility": visibility},
-                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); },
-                success: function(){
-                    questionnaire.find(`button[data-visibility]`).removeClass("active");
-                    questionnaire.find(`button[data-visibility="${visibility}"]`).addClass("active");
-                }
-            });
+
+            fetch("{% url 'staff:questionnaire_visibility' %}", {
+                body: new URLSearchParams({questionnaire_id: questionnaire.data("id"), visibility}),
+                headers: CSRF_HEADERS,
+                method: "POST",
+            }).then(response => {
+                assert(response.ok);
+                questionnaire.find(`button[data-visibility]`).removeClass("active");
+                questionnaire.find(`button[data-visibility="${visibility}"]`).addClass("active");
+            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         }
 
         function changeLocked(element) {
             const questionnaire = element.parents(".questionnaire");
             const is_locked = element.data("is-locked");
-            $.ajax({
-                type: "POST",
-                url: "{% url 'staff:questionnaire_set_locked' %}",
-                data: {"questionnaire_id": questionnaire.data("id"), "is_locked": is_locked},
-                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); },
-                success: function(){
-                    questionnaire.find(`button[data-is-locked]`).removeClass("active");
-                    questionnaire.find(`button[data-is-locked="${is_locked}"]`).addClass("active");
-                }
-            });
+
+            fetch("{% url 'staff:questionnaire_set_locked' %}", {
+                body: new URLSearchParams({questionnaire_id: questionnaire.data("id"), is_locked}),
+                headers: CSRF_HEADERS,
+                method: "POST",
+            }).then(response => {
+                assert(response.ok);
+                questionnaire.find(`button[data-is-locked]`).removeClass("active");
+                questionnaire.find(`button[data-is-locked="${is_locked}"]`).addClass("active");
+            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         }
     </script>
 {% endblock %}
