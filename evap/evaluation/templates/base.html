@@ -85,7 +85,7 @@
             // These are workarounds around incompatibilities of django, django-dynamic-formsets, and tomselect.
             // tomselect can't handle already tomselect'd forms that were copies made by
             // django-dynamic-formsets' "add another" button, so we take a copy of a non-tomselect'd form here
-            var tomSelectRows = document.querySelectorAll(".tomselecttr");
+            const tomSelectRows = document.querySelectorAll(".tomselecttr");
 
             if(tomSelectRows.length != 0) {
                 var templateForm = tomSelectRows[tomSelectRows.length - 1].cloneNode(true);
@@ -177,7 +177,7 @@
                 }
             });
 
-            document.querySelectorAll(".hover-row").forEach((row) => {
+            document.querySelectorAll(".hover-row").forEach(row => {
                 row.querySelectorAll(".btn:not(.btn-row-hover)").forEach(button => {
                     button.addEventListener("mouseover", () => row.classList.remove("hover-row"));
                     button.addEventListener("mouseout", () => row.classList.add("hover-row"));

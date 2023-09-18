@@ -597,7 +597,7 @@
             localStorage['selected_tab'] = tab;
         }
 
-        addEventListener("pageshow", () => {
+        window.addEventListener("pageshow", () => {
             document.querySelectorAll('#evaluation_operation_form input[type=checkbox]').forEach(checkbox => {checkbox.checked = false;}); // prevent wrong autofills
         });
     </script>

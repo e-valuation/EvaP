@@ -252,11 +252,11 @@
 
             initTextAnswerWarnings(document.querySelectorAll("#student-vote-form textarea"), JSON.parse(document.getElementById("text-answer-warnings").textContent));
 
-            var form = document.getElementById('student-vote-form');
-            let submitListener = (event) => {
+            const form = document.getElementById('student-vote-form');
+            const submitListener = (event) => {
                 event.preventDefault(); // don't use the default submission
-                var submitButton = document.getElementById('vote-submit-btn');
-                var originalText = submitButton.innerText;
+                const submitButton = document.getElementById('vote-submit-btn');
+                const originalText = submitButton.innerText;
 
                 submitButton.innerText = "{% trans 'Submitting...' %}";
                 submitButton.disabled = true;
@@ -275,7 +275,7 @@
                         } else {
                             // resubmit without this handler to show the site with the form errors
                             form.removeEventListener("submit", submitListener);
-                            form.submit();
+                            form.requestSubmit();
                         }
                     });
                 }).catch(error => {
