@@ -78,9 +78,9 @@
     {% include 'confirmation_modal.html' with modal_id='remindAllModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
         function remindAllModalAction() {
-            var remindAllButton = $('#remindAllButton');
-            remindAllButton.prop('disabled', true);
-            remindAllButton.text('{% trans 'Reminding everyone' %}');
+            var remindAllButton = document.getElementById('remindAllButton');
+            remindAllButton.disabled = true;
+            remindAllButton.innerText = "{% trans 'Reminding everyone' %}";
 
             fetch("{% url 'staff:semester_preparation_reminder' semester_id=semester.id %}", {
                 headers: CSRF_HEADERS,

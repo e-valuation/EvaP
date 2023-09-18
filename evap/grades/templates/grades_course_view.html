@@ -64,7 +64,7 @@
                 method: "POST",
             }).then(response => {
                 assert(response.ok);
-                $('#grade_document-row-'+dataId).hide('slow', function(){ $('#grade_document-row-'+dataId).remove(); });
+                document.getElementByID('grade_document-row-'+dataId).remove();
             }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         };
     </script>

@@ -136,11 +136,14 @@
     {% include 'confirmation_modal.html' with modal_id='importParticipantsModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
         function importParticipantsModalAction(dataId) {
-            var input = $("<input>")
-               .attr("type", "hidden")
-               .attr("name", "operation").val(dataId);
-            $('#participant-import-form').append(input);
-            $('#participant-import-form').submit();
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "operation";
+            input.value = dataId;
+
+            var form = document.getElementById("participant-import-form");
+            form.appendChild(input);
+            form.submit();
         };
     </script>
 
@@ -150,11 +153,14 @@
     {% include 'confirmation_modal.html' with modal_id='replaceParticipantsModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
         function replaceParticipantsModalAction(dataId) {
-            var input = $("<input>")
-                .attr("type", "hidden")
-                .attr("name", "operation").val(dataId);
-            $('#participant-import-form').append(input);
-            $('#participant-import-form').submit();
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "operation";
+            input.value = dataId;
+
+            var form = document.getElementById("participant-import-form");
+            form.appendChild(input);
+            form.submit();
         };
     </script>
 
@@ -164,11 +170,14 @@
     {% include 'confirmation_modal.html' with modal_id='copyParticipantsModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
         function copyParticipantsModalAction(dataId) {
-            var input = $("<input>")
-                .attr("type", "hidden")
-                .attr("name", "operation").val(dataId);
-            $('#participant-copy-form').append(input);
-            $('#participant-copy-form').submit();
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "operation";
+            input.value = dataId;
+
+            var form = document.getElementById("participant-copy-form");
+            form.appendChild(input);
+            form.submit();
         };
     </script>
 
@@ -178,11 +187,14 @@
     {% include 'confirmation_modal.html' with modal_id='copyReplaceParticipantsModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
         function copyReplaceParticipantsModalAction(dataId) {
-            var input = $("<input>")
-                .attr("type", "hidden")
-                .attr("name", "operation").val(dataId);
-            $('#participant-copy-form').append(input);
-            $('#participant-copy-form').submit();
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "operation";
+            input.value = dataId;
+
+            var form = document.getElementById("participant-copy-form");
+            form.appendChild(input);
+            form.submit();
         };
     </script>
 
@@ -192,11 +204,14 @@
     {% include 'confirmation_modal.html' with modal_id='importContributorsModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
         function importContributorsModalAction(dataId) {
-            var input = $("<input>")
-                .attr("type", "hidden")
-                .attr("name", "operation").val(dataId);
-            $('#contributor-import-form').append(input);
-            $('#contributor-import-form').submit();
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "operation";
+            input.value = dataId;
+
+            var form = document.getElementById("contributor-import-form");
+            form.appendChild(input);
+            form.submit();
         };
     </script>
 
@@ -206,11 +221,14 @@
     {% include 'confirmation_modal.html' with modal_id='replaceContributorsModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
         function replaceContributorsModalAction(dataId) {
-            var input = $("<input>")
-                .attr("type", "hidden")
-                .attr("name", "operation").val(dataId);
-            $('#contributor-import-form').append(input);
-            $('#contributor-import-form').submit();
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "operation";
+            input.value = dataId;
+
+            var form = document.getElementById("contributor-import-form");
+            form.appendChild(input);
+            form.submit();
         };
     </script>
 
@@ -220,11 +238,14 @@
     {% include 'confirmation_modal.html' with modal_id='copyContributorsModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
         function copyContributorsModalAction(dataId) {
-            var input = $("<input>")
-                .attr("type", "hidden")
-                .attr("name", "operation").val(dataId);
-            $('#contributor-copy-form').append(input);
-            $('#contributor-copy-form').submit();
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "operation";
+            input.value = dataId;
+
+            var form = document.getElementById("contributor-copy-form");
+            form.appendChild(input);
+            form.submit();
         };
     </script>
 
@@ -234,11 +255,14 @@
     {% include 'confirmation_modal.html' with modal_id='copyReplaceContributorsModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
         function copyReplaceContributorsModalAction(dataId) {
-            var input = $("<input>")
-                .attr("type", "hidden")
-                .attr("name", "operation").val(dataId);
-            $('#contributor-copy-form').append(input);
-            $('#contributor-copy-form').submit();
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "operation";
+            input.value = dataId;
+
+            var form = document.getElementById("contributor-copy-form");
+            form.appendChild(input);
+            form.submit();
         };
     </script>
 
