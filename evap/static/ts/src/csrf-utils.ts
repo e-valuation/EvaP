@@ -14,15 +14,9 @@ function getCookie(name: string): string | null {
 const csrftoken = getCookie("csrftoken")!;
 export const CSRF_HEADERS = { "X-CSRFToken": csrftoken };
 
-function isMethodCsrfSafe(method: string): boolean {
-    // these HTTP methods do not require CSRF protection
-    return ["GET", "HEAD", "OPTIONS", "TRACE"].includes(method);
-}
-
 // TODO
 (globalThis as any).CSRF_HEADERS = CSRF_HEADERS;
 
 export const testable = {
     getCookie,
-    isMethodCsrfSafe,
 };
