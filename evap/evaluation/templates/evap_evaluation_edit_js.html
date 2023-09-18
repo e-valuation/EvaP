@@ -29,15 +29,6 @@
 {% endif %}
 
 <script type="text/javascript">
-    // TODO: noch notwendig? Kann bootstrap das nicht by default verhindern wenn disabled?
-    function makeDisabledClickHandler() {
-        return function () {
-            // suppress toggling disabled buttons
-            if ($(this).hasClass("disabled"))
-                return false;
-        }
-    }
-
     function makeDoesNotContributeChangeHandler(i) {
         return function () {
             // don't do anything on disabled buttons
@@ -68,8 +59,6 @@
         const count = getContributorCount();
         for(var i = 0; i < count; i++)
         {
-            document.querySelector("input[name=contributions-" + i + "-role]").parentElement.addEventListener("click", makeDisabledClickHandler());
-            document.querySelector("input[name=contributions-" + i + "-textanswer_visibility]").parentElement.addEventListener("click", makeDisabledClickHandler());
             document.querySelector("input[name=contributions-" + i + "-does_not_contribute]").parentElement.addEventListener("click", makeDoesNotContributeChangeHandler(i));
         }
     }
