@@ -29,6 +29,7 @@
 {% endif %}
 
 <script type="text/javascript">
+    // TODO: noch notwendig? Kann bootstrap das nicht by default verhindern wenn disabled?
     function makeDisabledClickHandler() {
         return function () {
             // suppress toggling disabled buttons
@@ -40,31 +41,36 @@
     function makeDoesNotContributeChangeHandler(i) {
         return function () {
             // don't do anything on disabled buttons
-            if ($(this).hasClass("disabled"))
+            if (this.classList.contains("disabled"))
                 return false;
-            if($("input[name=contributions-" + i + "-does_not_contribute]").prop("checked")) {
+
+            if(document.querySelector("input[name=contributions-" + i + "-does_not_contribute]").checked) {
                 // uncheck and disable all questionnaire checkboxes
-                $("input[name=contributions-" + i + "-questionnaires]").prop("checked", false);
-                $("input[name=contributions-" + i + "-questionnaires]").prop("disabled", true);
+                document.querySelectorAll("input[name=contributions-" + i + "-questionnaires]").forEach(checkbox => {
+                    checkbox.checked = false;
+                    checkbox.disabled = true;
+                });
             }
             else {
                 // enable all questionnaire checkboxes
-                $("input[name=contributions-" + i + "-questionnaires]").prop("disabled", false);
+                document.querySelectorAll("input[name=contributions-" + i + "-questionnaires]").forEach(checkbox => {
+                    checkbox.disabled = false;
+                });
             }
         }
     }
 
     function getContributorCount() {
-        return $("#contribution_table select").length;
+        return document.querySelectorAll("#contribution_table select").length;
     }
 
     function assignClickHandlers() {
-        var count = getContributorCount();
+        const count = getContributorCount();
         for(var i = 0; i < count; i++)
         {
-            $("input[name=contributions-" + i + "-role]").parent().click(makeDisabledClickHandler());
-            $("input[name=contributions-" + i + "-textanswer_visibility]").parent().click(makeDisabledClickHandler());
-            $("input[name=contributions-" + i + "-does_not_contribute]").parent().change(makeDoesNotContributeChangeHandler(i));
+            document.querySelector("input[name=contributions-" + i + "-role]").parentElement.addEventListener("click", makeDisabledClickHandler());
+            document.querySelector("input[name=contributions-" + i + "-textanswer_visibility]").parentElement.addEventListener("click", makeDisabledClickHandler());
+            document.querySelector("input[name=contributions-" + i + "-does_not_contribute]").parentElement.addEventListener("click", makeDoesNotContributeChangeHandler(i));
         }
     }
 
@@ -72,9 +78,11 @@
 
     // apply initial settings
     for(var i = 0; i < getContributorCount(); i++){
-        if($("input[name=contributions-" + i + "-does_not_contribute]").prop("checked")) {
-            $("input[name=contributions-" + i + "-questionnaires]").prop("checked", false);
-            $("input[name=contributions-" + i + "-questionnaires]").prop("disabled", true);
+        if(document.querySelector("input[name=contributions-" + i + "-does_not_contribute]").checked) {
+            document.querySelectorAll("input[name=contributions-" + i + "-questionnaires]").forEach(checkbox => {
+                checkbox.checked = false;
+                checkbox.disabled = true;
+            });
         }
     }
 </script>
