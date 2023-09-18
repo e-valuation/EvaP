@@ -82,6 +82,23 @@ class TestIndexView(WebTest):
         self.assertEqual(len(mail.outbox[0].cc), 0)
 
 
+class TestStartpage(WebTest):
+    def test_default_startpage(self):
+        result = create_evaluation_with_responsible_and_editor()
+        responsible = result["responsible"]
+        evaluation = result["evaluation"]
+
+        evaluation.participants.add(responsible)
+
+        self.assertRedirects(self.app.get(reverse("evaluation:index"), user=responsible), reverse("student:index"))
+
+        page = self.app.get(reverse("contributor:index"), user=responsible)
+        form = page.forms["startpage-form"]
+        form.submit()
+
+        self.assertRedirects(self.app.get(reverse("evaluation:index"), user=responsible), reverse("contributor:index"))
+
+
 class TestLegalNoticeView(WebTestWith200Check):
     url = "/legal_notice"
     test_users = [""]
