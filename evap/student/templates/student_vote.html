@@ -252,18 +252,8 @@
 
             initTextAnswerWarnings(document.querySelectorAll("#student-vote-form textarea"), JSON.parse($("#text-answer-warnings").text()));
 
-            var form = $('#student-vote-form');
-
-            // Taken from http://stackoverflow.com/questions/9177252/detecting-a-redirect-in-jquery-ajax
-            // This hacks jQuery to give us this xhr object which is used below
-            var xhr;
-            var _orgAjax = jQuery.ajaxSettings.xhr;
-            jQuery.ajaxSettings.xhr = function () {
-              xhr = _orgAjax();
-              return xhr;
-            };
-
-            form.submit(function (event) {
+            var form = document.getElementById('student-vote-form');
+            let submitListener = (event) => {
                 event.preventDefault(); // don't use the default submission
                 var submitButton = $('#vote-submit-btn');
                 var originalText = submitButton.text();
@@ -271,29 +261,33 @@
                 submitButton.text("{% trans 'Submitting...' %}");
                 submitButton.prop('disabled', true);
 
-                $.ajax({
-                    type: form.attr('method'),
-                    url: form.attr('action'),
-                    data: form.serialize(),
-                    success: function (data, s, req) {
-                        if(data === "{{ success_magic_string }}") {
+                fetch(form.action, {
+                    body: new FormData(form),
+                    headers: CSRF_HEADERS,
+                    method: form.method,
+                }).then(response => {
+                    assert(response.ok);
+
+                    response.text().then((response_text) => {
+                        if(response_text === "{{ success_magic_string }}") {
                             sisyphus.manuallyReleaseData();
                             window.location.replace("{{ success_redirect_url }}");
                         } else {
                             // resubmit without this handler to show the site with the form errors
-                            form.unbind("submit");
+                            form.removeEventListener("submit", submitListener);
                             form.submit();
                         }
-                    },
-                    error: function(data) {
-                        // show a warning if the post isn't successful
-                        document.getElementById('submit-error-warning').style.display = 'block';
-                        submitButton.text(originalText);
-                        submitButton.prop('disabled', false);
-                    }
+                    });
+                }).catch(error => {
+                    // show a warning if the post isn't successful
+                    document.getElementById('submit-error-warning').style.display = 'block';
+                    submitButton.text(originalText);
+                    submitButton.prop('disabled', false);
                 });
+
                 return false;
-            });
+            };
+            form.addEventListener("submit", submitListener);
 
             function clearChoiceError(voteButton) {
                 voteButton.closest(".row").querySelectorAll(".choice-error").forEach(highlightedElement => {
