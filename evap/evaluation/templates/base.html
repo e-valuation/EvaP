@@ -170,14 +170,13 @@
             document.addEventListener('change', e => e.target.classList.remove("invalid"), true);
 
             // activate clickable hover tables
-            $(".table-seamless-links [data-url]").each(function() {
-                const row = $(this);
-                const link = "<a href='" + row.data("url") + "'></a>";
-                row.children().wrapInner(link);
+            document.querySelectorAll(".table-seamless-links [data-url]").forEach(row => {
+                for(const table_data of row.children) {
+                    table_data.innerHTML = "<a href='" + row.dataset["url"] + "'>" + table_data.innerHTML + "</a>"
+                }
             });
 
-            $(".hover-row").each(function() {
-                const row = this;
+            document.querySelectorAll(".hover-row").forEach((row) => {
                 row.querySelectorAll(".btn:not(.btn-row-hover)").forEach(button => {
                     button.addEventListener("mouseover", () => row.classList.remove("hover-row"));
                     button.addEventListener("mouseout", () => row.classList.add("hover-row"));
