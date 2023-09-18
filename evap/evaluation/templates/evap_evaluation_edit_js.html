@@ -30,12 +30,13 @@
 
 <script type="text/javascript">
     function makeDoesNotContributeChangeHandler(i) {
-        return function () {
-            // don't do anything on disabled buttons
-            if (this.classList.contains("disabled"))
+        return () => {
+            const doesNotContributeInput = document.querySelector("input[name=contributions-" + i + "-does_not_contribute]");
+
+            if (doesNotContributeInput.disabled)
                 return false;
 
-            if(document.querySelector("input[name=contributions-" + i + "-does_not_contribute]").checked) {
+            if(doesNotContributeInput.checked) {
                 // uncheck and disable all questionnaire checkboxes
                 document.querySelectorAll("input[name=contributions-" + i + "-questionnaires]").forEach(checkbox => {
                     checkbox.checked = false;
@@ -48,7 +49,7 @@
                     checkbox.disabled = false;
                 });
             }
-        }
+        };
     }
 
     function getContributorCount() {
@@ -57,9 +58,8 @@
 
     function assignClickHandlers() {
         const count = getContributorCount();
-        for(var i = 0; i < count; i++)
-        {
-            document.querySelector("input[name=contributions-" + i + "-does_not_contribute]").parentElement.addEventListener("click", makeDoesNotContributeChangeHandler(i));
+        for(var i = 0; i < count; i++) {
+            document.querySelector(`input[name=contributions-${i}-does_not_contribute]`).parentElement.addEventListener("click", makeDoesNotContributeChangeHandler(i));
         }
     }
 

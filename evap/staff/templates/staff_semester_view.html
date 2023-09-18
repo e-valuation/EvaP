@@ -544,7 +544,7 @@
                 method: "POST",
             }).then(response => {
                 assert(response.ok);
-                document.getElementById('evaluation-row-'+dataId).remove();
+                fadeOutThenRemove(document.getElementById('evaluation-row-'+dataId))
             }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         };
     </script>
@@ -560,7 +560,7 @@
                 method: "POST",
             }).then(response => {
                 assert(response.ok);
-                document.getElementById('#course-row-'+dataId).remove();
+                fadeOutThenRemove(document.getElementById('#course-row-'+dataId))
             }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         };
     </script>
