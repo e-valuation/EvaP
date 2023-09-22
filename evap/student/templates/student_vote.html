@@ -267,17 +267,16 @@
                     method: form.method,
                 }).then(response => {
                     assert(response.ok);
-
-                    response.text().then((response_text) => {
-                        if(response_text === "{{ success_magic_string }}") {
-                            sisyphus.manuallyReleaseData();
-                            window.location.replace("{{ success_redirect_url }}");
-                        } else {
-                            // resubmit without this handler to show the site with the form errors
-                            form.removeEventListener("submit", submitListener);
-                            form.requestSubmit();
-                        }
-                    });
+                    return response.text();
+                }).then(response_text => {
+                    if(response_text === "{{ success_magic_string }}") {
+                        sisyphus.manuallyReleaseData();
+                        window.location.replace("{{ success_redirect_url }}");
+                    } else {
+                        // resubmit without this handler to show the site with the form errors
+                        form.removeEventListener("submit", submitListener);
+                        form.requestSubmit();
+                    }
                 }).catch(error => {
                     // show a warning if the post isn't successful
                     document.getElementById('submit-error-warning').style.display = 'block';

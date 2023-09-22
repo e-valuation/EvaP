@@ -88,7 +88,7 @@
             const tomSelectRows = document.querySelectorAll(".tomselecttr");
 
             if(tomSelectRows.length != 0) {
-                var templateForm = tomSelectRows[tomSelectRows.length - 1].cloneNode(true);
+                const templateForm = tomSelectRows[tomSelectRows.length - 1].cloneNode(true);
 
                 // later we use this class to give this to django-dynamic-formsets as template and to make sure it does not get tomselect'd
                 templateForm.classList.add("form-template");

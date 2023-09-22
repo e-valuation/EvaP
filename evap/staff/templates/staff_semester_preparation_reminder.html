@@ -78,7 +78,7 @@
     {% include 'confirmation_modal.html' with modal_id='remindAllModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
         function remindAllModalAction() {
-            var remindAllButton = document.getElementById('remindAllButton');
+            const remindAllButton = document.getElementById('remindAllButton');
             remindAllButton.disabled = true;
             remindAllButton.innerText = "{% trans 'Reminding everyone' %}";
 
