@@ -1088,7 +1088,8 @@ class Contribution(LoggedModel):
 
 class QuestionType:
     TEXT = 0
-    LIKERT = 1
+    POSITIVE_LIKERT = 1
+    NEGATIVE_LIKERT = 12
     GRADE = 2
     EASY_DIFFICULT = 6
     FEW_MANY = 7
@@ -1106,7 +1107,13 @@ class Question(models.Model):
 
     QUESTION_TYPES = (
         (_("Text"), ((QuestionType.TEXT, _("Text question")),)),
-        (_("Unipolar Likert"), ((QuestionType.LIKERT, _("Agreement question")),)),
+        (
+            _("Unipolar Likert"),
+            (
+                (QuestionType.POSITIVE_LIKERT, _("Positive agreement question")),
+                (QuestionType.NEGATIVE_LIKERT, _("Negative agreement question")),
+            ),
+        ),
         (_("Grade"), ((QuestionType.GRADE, _("Grade question")),)),
         (
             _("Bipolar Likert"),
@@ -1168,8 +1175,12 @@ class Question(models.Model):
         raise AssertionError(f"Unknown answer type: {self.type!r}")
 
     @property
-    def is_likert_question(self):
-        return self.type == QuestionType.LIKERT
+    def is_positive_likert_question(self):
+        return self.type == QuestionType.POSITIVE_LIKERT
+
+    @property
+    def is_negative_likert_question(self):
+        return self.type == QuestionType.NEGATIVE_LIKERT
 
     @property
     def is_bipolar_likert_question(self):
@@ -1207,7 +1218,8 @@ class Question(models.Model):
         return (
             self.is_grade_question
             or self.is_bipolar_likert_question
-            or self.is_likert_question
+            or self.is_positive_likert_question
+            or self.is_negative_likert_question
             or self.is_yes_no_question
         )
 
@@ -1231,6 +1243,7 @@ class Choices(NamedTuple):
     colors: tuple[str]
     grades: tuple[Number]
     names: list[StrOrPromise]
+    is_inverted: bool
 
 
 class BipolarChoices(NamedTuple):
@@ -1241,6 +1254,7 @@ class BipolarChoices(NamedTuple):
     names: list[StrOrPromise]
     plus_name: StrOrPromise
     minus_name: StrOrPromise
+    is_inverted: bool
 
 
 NO_ANSWER = 6
@@ -1256,6 +1270,7 @@ BASE_BIPOLAR_CHOICES = {
     "values": (-3, -2, -1, 0, 1, 2, 3, NO_ANSWER),
     "colors": ("red", "orange", "lime", "green", "lime", "orange", "red", "gray"),
     "grades": (5, 11 / 3, 7 / 3, 1, 7 / 3, 11 / 3, 5),
+    "is_inverted": False,
 }
 
 BASE_YES_NO_CHOICES = {
@@ -1266,7 +1281,7 @@ BASE_YES_NO_CHOICES = {
 }
 
 CHOICES: dict[int, Choices | BipolarChoices] = {
-    QuestionType.LIKERT: Choices(
+    QuestionType.POSITIVE_LIKERT: Choices(
         names=[
             _("Strongly\nagree"),
             _("Agree"),
@@ -1275,6 +1290,19 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("Strongly\ndisagree"),
             _("No answer"),
         ],
+        is_inverted=False,
+        **BASE_UNIPOLAR_CHOICES,  # type: ignore
+    ),
+    QuestionType.NEGATIVE_LIKERT: Choices(
+        names=[
+            _("Strongly\ndisagree"),
+            _("Disagree"),
+            _("Neutral"),
+            _("Agree"),
+            _("Strongly\nagree"),
+            _("No answer"),
+        ],
+        is_inverted=True,
         **BASE_UNIPOLAR_CHOICES,  # type: ignore
     ),
     QuestionType.GRADE: Choices(
@@ -1286,6 +1314,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             "5",
             _("No answer"),
         ],
+        is_inverted=False,
         **BASE_UNIPOLAR_CHOICES,  # type: ignore
     ),
     QuestionType.EASY_DIFFICULT: BipolarChoices(
@@ -1384,6 +1413,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("No"),
             _("No answer"),
         ],
+        is_inverted=False,
         **BASE_YES_NO_CHOICES,  # type: ignore
     ),
     QuestionType.NEGATIVE_YES_NO: Choices(
@@ -1392,6 +1422,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("Yes"),
             _("No answer"),
         ],
+        is_inverted=True,
         **BASE_YES_NO_CHOICES,  # type: ignore
     ),
 }
