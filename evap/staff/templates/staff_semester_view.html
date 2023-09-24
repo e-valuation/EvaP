@@ -305,11 +305,12 @@
                     {% if request.user.is_manager and not semester.participations_are_archived %}
                         <div class="my-2">
                             <button type="button" class="btn btn-sm btn-secondary"
-                                onclick="$('#evaluation_operation_form td').prev().find(':checkbox').prop('checked', true);">
+                                onclick="document.querySelectorAll('#evaluation_operation_form input[type=checkbox][name=evaluation]').forEach(c => {c.checked = true;})">
                                 {% trans 'Select all' %}
                             </button>
                             <button type="button" class="btn btn-sm btn-secondary"
-                                onclick="$('#evaluation_operation_form :checkbox').prop('checked', false);">{% trans 'Select none' %}
+                                onclick="document.querySelectorAll('#evaluation_operation_form input[type=checkbox][name=evaluation]').forEach(c => {c.checked = false;})">
+                                {% trans 'Select none' %}
                             </button>
                         </div>
                         <div>
@@ -449,16 +450,18 @@
     {% include 'confirmation_modal.html' with modal_id='makeActiveSemesterModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
         function makeActiveSemesterModalAction(dataId) {
-            var makeActiveSemesterButton = $('#makeActiveSemesterButton');
-            makeActiveSemesterButton.prop('disabled', true);
-            makeActiveSemesterButton.text("{% trans 'Activating...' %}");
-            $.ajax({
-                type: "POST",
-                url: "{% url 'staff:semester_make_active' %}",
-                data: {"semester_id": dataId},
-                success: function() { location.reload(); },
-                error: function() { window.alert("{% trans 'The server is not responding.' %}") },
-            })
+            const makeActiveSemesterButton = document.getElementById('makeActiveSemesterButton');
+            makeActiveSemesterButton.disabled = true;
+            makeActiveSemesterButton.textContent = "{% trans 'Activating...' %}";
+
+            fetch("{% url 'staff:semester_make_active' %}", {
+                body: new URLSearchParams({semester_id: dataId}),
+                headers: CSRF_HEADERS,
+                method: "POST",
+            }).then(response => {
+                assert(response.ok);
+                location.reload();
+            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         }
     </script>
     {% trans 'Delete semester' as title %}
@@ -467,16 +470,18 @@
     {% include 'confirmation_text_modal.html' with modal_id='deleteSemesterModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
         function deleteSemesterModalAction(dataId) {
-            var deleteButton = $('#deleteSemesterButton');
-            deleteButton.prop('disabled', true);
-            deleteButton.text("{% trans 'Deleting...' %}");
-            $.ajax({
-                type: "POST",
-                url: "{% url 'staff:semester_delete' %}",
-                data: {"semester_id": dataId},
-                success: function(){ location.replace("{% url 'staff:index' %}"); },
-                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
-            });
+            const deleteButton = document.getElementById('deleteSemesterButton');
+            deleteButton.disabled = true;
+            deleteButton.textContent = "{% trans 'Deleting...' %}";
+
+            fetch("{% url 'staff:semester_delete' %}", {
+                body: new URLSearchParams({semester_id: dataId}),
+                headers: CSRF_HEADERS,
+                method: "POST",
+            }).then(response => {
+                assert(response.ok);
+                location.replace("{% url 'staff:index' %}");
+            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         };
     </script>
     {% trans 'Archive participations' as title %}
@@ -485,13 +490,14 @@
     {% include 'confirmation_modal.html' with modal_id='archiveParticipationsModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
         function archiveParticipationsModalAction(dataId) {
-            $.ajax({
-                type: "POST",
-                url: "{% url 'staff:semester_archive_participations' %}",
-                data: {"semester_id": dataId},
-                success: function(){ location.reload(); },
-                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
-            });
+            fetch("{% url 'staff:semester_archive_participations' %}", {
+                body: new URLSearchParams({semester_id: dataId}),
+                headers: CSRF_HEADERS,
+                method: "POST",
+            }).then(response => {
+                assert(response.ok);
+                location.reload();
+            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         };
     </script>
     {% trans 'Delete grade documents' as title %}
@@ -500,13 +506,14 @@
     {% include 'confirmation_modal.html' with modal_id='deleteGradeDocumentsModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
         function deleteGradeDocumentsModalAction(dataId) {
-            $.ajax({
-                type: "POST",
-                url: "{% url 'staff:semester_delete_grade_documents' %}",
-                data: {"semester_id": dataId},
-                success: function(){ location.reload(); },
-                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
-            });
+            fetch("{% url 'staff:semester_delete_grade_documents' %}", {
+                body: new URLSearchParams({semester_id: dataId}),
+                headers: CSRF_HEADERS,
+                method: "POST",
+            }).then(response => {
+                assert(response.ok);
+                location.reload();
+            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         };
     </script>
     {% trans 'Archive results' as title %}
@@ -515,13 +522,14 @@
     {% include 'confirmation_modal.html' with modal_id='archiveResultsModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
         function archiveResultsModalAction(dataId) {
-            $.ajax({
-                type: "POST",
-                url: "{% url 'staff:semester_archive_results' %}",
-                data: {"semester_id": dataId},
-                success: function(){ location.reload(); },
-                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
-            });
+            fetch("{% url 'staff:semester_archive_results' %}", {
+                body: new URLSearchParams({semester_id: dataId}),
+                headers: CSRF_HEADERS,
+                method: "POST",
+            }).then(response => {
+                assert(response.ok);
+                location.reload();
+            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         };
     </script>
     {% trans 'Delete evaluation' as title %}
@@ -530,13 +538,14 @@
     {% include 'confirmation_modal.html' with modal_id='deleteEvaluationModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
         function deleteEvaluationModalAction(dataId) {
-            $.ajax({
-                type: "POST",
-                url: "{% url 'staff:evaluation_delete' %}",
-                data: {"evaluation_id": dataId},
-                success: function(){ $('#evaluation-row-'+dataId).hide('slow', function(){ $('#evaluation-row-'+dataId).remove(); }); },
-                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
-            });
+            fetch("{% url 'staff:evaluation_delete' %}", {
+                body: new URLSearchParams({evaluation_id: dataId}),
+                headers: CSRF_HEADERS,
+                method: "POST",
+            }).then(response => {
+                assert(response.ok);
+                fadeOutThenRemove(document.getElementById('evaluation-row-'+dataId))
+            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         };
     </script>
     {% trans 'Delete course' as title %}
@@ -545,13 +554,14 @@
     {% include 'confirmation_modal.html' with modal_id='deleteCourseModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
         function deleteCourseModalAction(dataId) {
-            $.ajax({
-                type: "POST",
-                url: "{% url 'staff:course_delete' %}",
-                data: {"course_id": dataId},
-                success: function(){ $('#course-row-'+dataId).hide('slow', function(){ $('#course-row-'+dataId).remove(); }); },
-                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
-            });
+            fetch("{% url 'staff:course_delete' %}", {
+                body: new URLSearchParams({course_id: dataId}),
+                headers: CSRF_HEADERS,
+                method: "POST",
+            }).then(response => {
+                assert(response.ok);
+                fadeOutThenRemove(document.getElementById('#course-row-'+dataId))
+            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         };
     </script>
     {% trans 'Activate reward points' as title %}
@@ -567,15 +577,6 @@
 
 {% block additional_javascript %}
     <script type="text/javascript">
-        $('.btn-toggle').click(function() {
-            $(this).find('.btn').toggleClass('active');
-
-            if ($(this).find('.btn-primary').size()>0) {
-                $(this).find('.btn').toggleClass('btn-primary');
-            }
-            $(this).find('.btn').toggleClass('btn-secondary');
-        });
-
         var overviewCard = document.getElementById('overviewCard');
         var overviewCardCollapse = new bootstrap.Collapse(overviewCard, {
             toggle: localStorage['show_overview'] === 'true'
@@ -596,8 +597,8 @@
             localStorage['selected_tab'] = tab;
         }
 
-        $(window).bind("pageshow", function () {
-            $('#evaluation_operation_form :checkbox').prop('checked', false); // prevent wrong autofills
+        window.addEventListener("pageshow", () => {
+            document.querySelectorAll('#evaluation_operation_form input[type=checkbox]').forEach(checkbox => {checkbox.checked = false;}); // prevent wrong autofills
         });
     </script>
     <script type="module">

@@ -228,14 +228,15 @@
 
         <script type="text/javascript">
             function {{ modal_id }}Show(evaluationName, action) {
+                const modal = document.getElementById("{{ modal_id }}");
                 // set form's action location
-                $('#{{ modal_id }} form').attr('action', action);
+                modal.querySelectorAll("form").forEach(form => form.action = action);
 
                 // put the correct evaluation name in the modal
-                $('#{{ modal_id }} [data-label=""]').text(evaluationName);
+                modal.querySelectorAll('[data-label=""]').forEach(el => el.innerText = evaluationName);
 
                 // unselect any previously selected options in the modal
-                $('#{{ modal_id }} select').val(null).trigger('change');
+                modal.querySelectorAll("select").forEach(select => select.tomselect.clear());
 
                 // show modal
                 var {{ modal_id }} = new bootstrap.Modal(document.getElementById('{{ modal_id }}'));

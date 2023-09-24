@@ -108,13 +108,14 @@
     {% include 'confirmation_modal.html' with modal_id='confirmNouploadModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
         function confirmNouploadModalAction(dataId) {
-            $.ajax({
-                type: "POST",
-                url: "{% url 'grades:toggle_no_grades' %}",
-                data: {"course_id": dataId},
-                success: function(){ location.reload(); },
-                error: function(){}
-            });
+            fetch("{% url 'grades:toggle_no_grades' %}", {
+                body: new URLSearchParams({course_id: dataId}),
+                headers: CSRF_HEADERS,
+                method: "POST",
+            }).then(response => {
+                assert(response.ok);
+                location.reload();
+            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         };
     </script>
     {% trans 'Will final grades be uploaded?' as title %}

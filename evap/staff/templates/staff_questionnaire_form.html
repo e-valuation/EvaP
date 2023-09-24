@@ -94,12 +94,12 @@
             makeFormSortable("question_table", "questions", rowChanged, rowAdded, "", true, true);
 
             const selectChangedHandler = function(e) {
-                const checkbox = $($(this).closest("td.question-type")).find("input");
+                const checkbox = this.closest("td.question-type").querySelector("input[type=checkbox]");
                 if (e.currentTarget.value == 0 || e.currentTarget.value == 5) {  // 0: Text question; 5: Heading
-                    checkbox.prop("checked", false);
-                    checkbox.prop("disabled", true);
+                    checkbox.checked = false;
+                    checkbox.disabled = true;
                 } else {
-                    checkbox.prop("disabled", false);
+                    checkbox.disabled = false;
                 }
             };
 
