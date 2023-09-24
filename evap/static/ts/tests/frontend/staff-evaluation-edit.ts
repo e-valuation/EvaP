@@ -2,6 +2,7 @@ import { test, expect } from "@jest/globals";
 import { ElementHandle } from "puppeteer";
 
 import { pageHandler } from "../utils/page";
+import { assertDefined } from "../../src/utils";
 
 // regression test for #1769
 test(
@@ -10,10 +11,13 @@ test(
         const managerId = await page.evaluate(() => {
             const tomselect = (document.getElementById("id_contributions-0-contributor") as any).tomselect;
             const options = tomselect.options;
-            const managerOption = Object.keys(options).find(key => options[key].text == "manager (manager)");
+            const managerOption = Object.keys(options).find(
+                key => options[key].text == "manager (manager@institution.example.com)",
+            );
             tomselect.setValue(managerOption);
             return managerOption;
         });
+        assertDefined(managerId);
 
         const editorLabels = await page.$x("//label[contains(text(), 'Editor')]");
         const ownAndGeneralLabels = await page.$x("//label[contains(text(), 'Own and general')]");

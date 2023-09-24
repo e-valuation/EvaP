@@ -14,7 +14,24 @@
 
 {% block content %}
     {{ block.super }}
-    <h3>{% if form.instance.id %}{% trans 'Edit user' %}{% else %}{% trans 'Create user' %}{% endif %}</h3>
+
+    <div class="d-flex">
+        <h3>{% if form.instance.id %}{% trans 'Edit user' %}{% else %}{% trans 'Create user' %}{% endif %}</h3>
+        {% if form.instance.id %}
+            <div class="ms-auto d-print-none">
+                {% if has_due_evaluations %}
+                    <div>
+                        <button type="button" class="btn btn-sm btn-light" onclick="resendEmailModalShow({{ form.instance.id }}, '{{ form.instance.full_name|escapejs }}');">{% trans 'Resend evaluation started email' %}</button>
+                    </div>
+                {% else %}
+                    <div title="This user currently has no due evaluations." data-bs-toggle="tooltip" data-bs-placement="bottom">
+                        <button disabled type="button" class="btn btn-sm btn-light">{% trans 'Resend evaluation started email' %}</button>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
 
     <form id="user-form" method="POST" class="form-horizontal multiselect-form">
         {% csrf_token %}
@@ -107,4 +124,21 @@
             });
         };
     </script>
+    {% if form.instance.id %}
+        {% trans 'Send notification email' as title %}
+        {% trans 'The email will notify the user about all their due evaluations. Do you want to send the email now?' as question %}
+        {% trans 'Send email' as action_text %}
+        {% include 'confirmation_modal.html' with modal_id='resendEmailModal' title=title question=question action_text=action_text btn_type='success' %}
+        <script type="text/javascript">
+            function resendEmailModalAction(dataId) {
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'staff:user_resend_email' %}",
+                    data: {"user_id": dataId},
+                    success: function(){window.location="{% url 'staff:user_edit' user_id %}"},
+                    error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
+                });
+            };
+        </script>
+    {% endif %}
 {% endblock %}

@@ -1,9 +1,10 @@
 import csv
 import itertools
 from collections import OrderedDict, defaultdict, namedtuple
+from collections.abc import Container
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Any, Container, Dict, List, Optional, Tuple, Type, Union, cast
+from typing import Any, cast
 
 import openpyxl
 from django.conf import settings
@@ -43,6 +44,7 @@ from evap.evaluation.models import (
     Semester,
     TextAnswer,
     UserProfile,
+    VoteTimestamp,
 )
 from evap.evaluation.tools import (
     AttachmentResponse,
@@ -201,7 +203,7 @@ def semester_view(request, semester_id) -> HttpResponse:
         first_start: datetime = datetime(9999, 1, 1)
         last_end: date = date(2000, 1, 1)
 
-    degree_stats: Dict[Degree, Stats] = defaultdict(Stats)
+    degree_stats: dict[Degree, Stats] = defaultdict(Stats)
     total_stats = Stats()
     for evaluation in evaluations:
         if evaluation.is_single_result:
@@ -223,7 +225,7 @@ def semester_view(request, semester_id) -> HttpResponse:
                 stats.last_end = max(stats.last_end, evaluation.vote_end_date)
     degree_stats = OrderedDict(sorted(degree_stats.items(), key=lambda x: x[0].order))
 
-    degree_stats_with_total = cast(Dict[Union[Degree, str], Stats], degree_stats)
+    degree_stats_with_total = cast(dict[Degree | str, Stats], degree_stats)
     degree_stats_with_total["total"] = total_stats
 
     template_data = {
@@ -246,10 +248,10 @@ def semester_view(request, semester_id) -> HttpResponse:
 
 
 class EvaluationOperation:
-    email_template_name: Optional[str] = None
-    email_template_contributor_name: Optional[str] = None
-    email_template_participant_name: Optional[str] = None
-    confirmation_message: Optional[StrOrPromise] = None
+    email_template_name: str | None = None
+    email_template_contributor_name: str | None = None
+    email_template_participant_name: str | None = None
+    confirmation_message: StrOrPromise | None = None
 
     @staticmethod
     def applicable_to(evaluation):
@@ -477,7 +479,7 @@ EVALUATION_OPERATIONS = {
 }
 
 
-def target_state_and_operation_from_str(target_state_str: str) -> Tuple[int, Type[EvaluationOperation]]:
+def target_state_and_operation_from_str(target_state_str: str) -> tuple[int, type[EvaluationOperation]]:
     try:
         target_state = int(target_state_str)
     except (KeyError, ValueError, TypeError) as err:
@@ -797,6 +799,41 @@ def semester_participation_export(_request, semester_id):
 
 
 @manager_required
+def vote_timestamps_export(_request, semester_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    timestamps = VoteTimestamp.objects.filter(evaluation__course__semester=semester).prefetch_related(
+        "evaluation__course__degrees"
+    )
+
+    filename = f"Voting-Timestamps-{semester.name}.csv"
+    response = AttachmentResponse(filename, content_type="text/csv")
+
+    writer = csv.writer(response, delimiter=";", lineterminator="\n")
+    writer.writerow(
+        [
+            _("Evaluation id"),
+            _("Course type"),
+            _("Course degrees"),
+            _("Vote end date"),
+            _("Timestamp"),
+        ]
+    )
+
+    for timestamp in timestamps:
+        writer.writerow(
+            [
+                timestamp.evaluation.id,
+                timestamp.evaluation.course.type.name,
+                ", ".join([degree.name for degree in timestamp.evaluation.course.degrees.all()]),
+                timestamp.evaluation.vote_end_date,
+                timestamp.timestamp,
+            ]
+        )
+
+    return response
+
+
+@manager_required
 def semester_questionnaire_assign(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.participations_are_archived:
@@ -1049,7 +1086,7 @@ def course_delete(request):
     return HttpResponse()  # 200 OK
 
 
-def evaluation_create_impl(request, semester: Semester, course: Optional[Course]):
+def evaluation_create_impl(request, semester: Semester, course: Course | None):
     if course is not None:
         assert course.semester == semester
     if semester.participations_are_archived:
@@ -1134,7 +1171,7 @@ def evaluation_copy(request, evaluation_id):
     )
 
 
-def single_result_create_impl(request, semester: Semester, course: Optional[Course]):
+def single_result_create_impl(request, semester: Semester, course: Course | None):
     if course is not None:
         assert course.semester == semester
     if semester.participations_are_archived:
@@ -1463,7 +1500,7 @@ TextAnswerSection = namedtuple(
 def get_evaluation_and_contributor_textanswer_sections(
     evaluation: Evaluation,
     textanswer_filter: Q,
-) -> Tuple[List[TextAnswerSection], List[TextAnswerSection]]:
+) -> tuple[list[TextAnswerSection], list[TextAnswerSection]]:
     evaluation_sections = []
     contributor_sections = []
     evaluation_responsibles = list(evaluation.course.responsibles.all())
@@ -1726,7 +1763,7 @@ def questionnaire_create(request):
     return render(request, "staff_questionnaire_form.html", {"form": form, "formset": formset, "editable": True})
 
 
-def disable_all_except_named(fields: Dict[str, Any], names_of_editable: Container[str]):
+def disable_all_except_named(fields: dict[str, Any], names_of_editable: Container[str]):
     for name, field in fields.items():
         if name not in names_of_editable:
             field.disabled = True
@@ -2166,7 +2203,14 @@ def user_edit(request, user_id):
         return redirect("staff:user_index")
 
     return render(
-        request, "staff_user_form.html", {"form": form, "evaluations_contributing_to": evaluations_contributing_to}
+        request,
+        "staff_user_form.html",
+        {
+            "form": form,
+            "evaluations_contributing_to": evaluations_contributing_to,
+            "has_due_evaluations": bool(user.get_sorted_due_evaluations()),
+            "user_id": user_id,
+        },
     )
 
 
@@ -2179,6 +2223,23 @@ def user_delete(request):
         raise SuspiciousOperation("Deleting user not allowed")
     user.delete()
     messages.success(request, _("Successfully deleted user."))
+    return HttpResponse()  # 200 OK
+
+
+@require_POST
+@manager_required
+def user_resend_email(request):
+    user = get_object_from_dict_pk_entry_or_logged_40x(UserProfile, request.POST, "user_id")
+
+    template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
+    body_params = {
+        "user": user,
+        "evaluations": user.get_sorted_due_evaluations(),
+        "due_evaluations": {},
+    }
+
+    template.send_to_user(user, {}, body_params, use_cc=False)
+    messages.success(request, _("Successfully resent evaluation started email."))
     return HttpResponse()  # 200 OK
 
 

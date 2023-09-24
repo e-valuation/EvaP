@@ -1,7 +1,6 @@
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Dict, List
 from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
@@ -45,7 +44,7 @@ class ImporterTestCase(TestCase):
         self.assertErrorsAre(importer_log, {category: [message]})
 
     def assertErrorsAre(
-        self, importer_log: ImporterLog, messages_by_category: Dict[ImporterLogEntry.Category, List[str]]
+        self, importer_log: ImporterLog, messages_by_category: dict[ImporterLogEntry.Category, list[str]]
     ):
         """Helper to assert that no unexpected errors were triggered"""
 
@@ -307,6 +306,8 @@ class TestUserImport(ImporterTestCase):
 
 
 class TestEnrollmentImport(ImporterTestCase):
+    semester: Semester
+
     @classmethod
     def setUpTestData(cls):
         cls.random_excel_file_content = excel_data.random_file_content
@@ -321,7 +322,7 @@ class TestEnrollmentImport(ImporterTestCase):
         cls.default_excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
         cls.empty_excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_empty_filedata)
 
-    def create_existing_course(self):
+    def create_existing_course(self) -> tuple[Course, Evaluation]:
         existing_course = baker.make(
             Course,
             name_de="Schütteln",
@@ -711,6 +712,7 @@ class TestEnrollmentImport(ImporterTestCase):
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
 
+        self.assertEqual({}, importer_log.warnings_by_category())
         self.assertErrorIs(
             importer_log,
             ImporterLogEntry.Category.COURSE,
@@ -724,6 +726,67 @@ class TestEnrollmentImport(ImporterTestCase):
         existing_course.refresh_from_db()
         self.assertEqual(old_dict, model_to_dict(existing_course))
 
+    def test_existing_course_with_published_evaluation(self):
+        __, existing_evaluation = self.create_existing_course()
+
+        # Attempt with state = Published
+        Evaluation.objects.filter(pk=existing_evaluation.pk).update(state=Evaluation.State.PUBLISHED)
+        existing_evaluation = Evaluation.objects.get(pk=existing_evaluation.pk)
+
+        importer_log = import_enrollments(
+            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+        )
+
+        self.assertEqual({}, importer_log.warnings_by_category())
+        self.assertErrorIs(
+            importer_log,
+            ImporterLogEntry.Category.COURSE,
+            "Sheet &quot;BA Belegungen&quot;, row 2 and 1 other place: "
+            + "Course &quot;Shake&quot; already exists in this semester, but the courses can not be merged for the following reasons:<br /> "
+            + "- the import would add participants to the existing evaluation but the evaluation is already running",
+        )
+
+        # Attempt with earlier state but set _participant_count
+        Evaluation.objects.filter(pk=existing_evaluation.pk).update(state=Evaluation.State.APPROVED)
+        existing_evaluation = Evaluation.objects.get(pk=existing_evaluation.pk)
+        existing_evaluation._participant_count = existing_evaluation.participants.count()
+        existing_evaluation._voter_count = existing_evaluation.voters.count()
+        existing_evaluation.save()
+
+        with override_settings(DEBUG=False):
+            importer_log = import_enrollments(
+                self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+            )
+        self.assertEqual(
+            [msg.message for msg in importer_log.errors_by_category()[ImporterLogEntry.Category.GENERAL]],
+            ["Import aborted after exception: ''. No data was imported."],
+        )
+
+    def test_existing_course_with_single_result(self):
+        __, existing_evaluation = self.create_existing_course()
+        existing_evaluation.is_single_result = True
+        existing_evaluation.save()
+
+        old_evaluation_count = Evaluation.objects.count()
+        old_dict = model_to_dict(existing_evaluation)
+
+        importer_log = import_enrollments(
+            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+        )
+
+        self.assertEqual({}, importer_log.warnings_by_category())
+        self.assertErrorIs(
+            importer_log,
+            ImporterLogEntry.Category.COURSE,
+            "Sheet &quot;BA Belegungen&quot;, row 2 and 1 other place: "
+            + "Course &quot;Shake&quot; already exists in this semester, but the courses can not be merged for the following reasons:<br /> "
+            + "- the evaluation of the existing course is a single result",
+        )
+
+        self.assertEqual(Evaluation.objects.count(), old_evaluation_count)
+        existing_evaluation = Evaluation.objects.get(pk=existing_evaluation.pk)
+        self.assertEqual(old_dict, model_to_dict(existing_evaluation))
+
     def test_existing_course_equal_except_evaluations(self):
         existing_course, __ = self.create_existing_course()
         baker.make(Evaluation, course=existing_course, name_de="Zweite Evaluation", name_en="Second Evaluation")
@@ -735,6 +798,7 @@ class TestEnrollmentImport(ImporterTestCase):
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
 
+        self.assertEqual({}, importer_log.warnings_by_category())
         self.assertErrorIs(
             importer_log,
             ImporterLogEntry.Category.COURSE,
@@ -759,6 +823,7 @@ class TestEnrollmentImport(ImporterTestCase):
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
 
+        self.assertEqual({}, importer_log.warnings_by_category())
         self.assertErrorIs(
             importer_log,
             ImporterLogEntry.Category.COURSE,

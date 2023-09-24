@@ -146,6 +146,7 @@
                             <a class="dropdown-item" href="{% url 'staff:semester_export' semester.id %}">{% trans 'Export results' %}</a>
                             <a class="dropdown-item" href="{% url 'staff:semester_raw_export' semester.id %}">{% trans 'Export raw evaluation data' %}</a>
                             <a class="dropdown-item" href="{% url 'staff:semester_participation_export' semester.id %}">{% trans 'Export participation data' %}</a>
+                            <a class="dropdown-item" href="{% url 'staff:vote_timestamps_export' semester.id %}">{% trans 'Export vote timestamps' %}</a>
                         </div>
                     </div>
                     {% if not semester.participations_are_archived %}
@@ -412,7 +413,7 @@
                                                 title="{% trans 'Create single result for this course' %}">
                                                 <span class="fas fa-square-poll-vertical"></span>
                                         </a>
-                                        <a class="btn btn-sm btn-dark" data-toggle="tooltip"
+                                        <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
                                             href="{% url 'staff:course_copy' course.id %}"
                                             title="{% trans 'Copy course' %}">
                                             <span class="fas fa-copy"></span>

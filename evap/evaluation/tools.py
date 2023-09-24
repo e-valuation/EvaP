@@ -1,7 +1,8 @@
 import datetime
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, Type, TypeVar
+from collections.abc import Iterable, Mapping
+from typing import Any, TypeVar
 from urllib.parse import quote
 
 import xlwt
@@ -18,7 +19,7 @@ Key = TypeVar("Key")
 Value = TypeVar("Value")
 
 
-def unordered_groupby(key_value_pairs: Iterable[Tuple[Key, Value]]) -> Dict[Key, List[Value]]:
+def unordered_groupby(key_value_pairs: Iterable[tuple[Key, Value]]) -> dict[Key, list[Value]]:
     """
     We need this in several places: Take list of (key, value) pairs and make
     them into the aggregated all-values-of-every-unique-key dict. Note that
@@ -32,7 +33,7 @@ def unordered_groupby(key_value_pairs: Iterable[Tuple[Key, Value]]) -> Dict[Key,
     return dict(result)
 
 
-def get_object_from_dict_pk_entry_or_logged_40x(model_cls: Type[M], dict_obj: Mapping[str, Any], key: str) -> M:
+def get_object_from_dict_pk_entry_or_logged_40x(model_cls: type[M], dict_obj: Mapping[str, Any], key: str) -> M:
     try:
         return get_object_or_404(model_cls, pk=dict_obj[key])
     # ValidationError happens for UUID id fields when passing invalid arguments
@@ -132,7 +133,7 @@ def ilen(iterable):
     return sum(1 for _ in iterable)
 
 
-def assert_not_none(value: Optional[T]) -> T:
+def assert_not_none(value: T | None) -> T:
     assert value is not None
     return value
 
@@ -196,7 +197,7 @@ class ExcelExporter(ABC):
 
     # Derived classes can set this to
     # have a sheet added at initialization.
-    default_sheet_name: Optional[str] = None
+    default_sheet_name: str | None = None
 
     def __init__(self):
         self.workbook = xlwt.Workbook()

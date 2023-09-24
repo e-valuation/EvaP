@@ -1,4 +1,3 @@
-from typing import Type
 from unittest.mock import patch
 from uuid import UUID
 
@@ -67,8 +66,8 @@ class TestHelperMethods(WebTest):
         evaluation = baker.make(Evaluation, voters=[baker.make(UserProfile)])
         baker.make(Contribution, evaluation=evaluation)
 
-        def test_logic(cls: Type[Model], pk: int, field: str) -> None:
-            instance = cls.objects.get(pk=pk)
+        def test_logic(cls: type[Model], pk: int, field: str) -> None:
+            instance = cls._default_manager.get(pk=pk)
             self.assertFalse(is_prefetched(instance, field))
 
             prefetch_related_objects([instance], field)
@@ -77,7 +76,7 @@ class TestHelperMethods(WebTest):
             instance.refresh_from_db(fields=[field])
             self.assertFalse(is_prefetched(instance, field))
 
-            instance = cls.objects.filter(pk=instance.pk).prefetch_related(field).get()
+            instance = cls._default_manager.filter(pk=instance.pk).prefetch_related(field).get()
             self.assertTrue(is_prefetched(instance, field))
 
         test_logic(Evaluation, evaluation.pk, "contributions")  # inverse foreign key

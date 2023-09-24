@@ -2,7 +2,7 @@ import datetime
 import os
 from abc import ABC, abstractmethod
 from io import BytesIO
-from typing import Literal, Tuple, Type, Union
+from typing import Literal
 from unittest.mock import PropertyMock, patch
 
 import openpyxl
@@ -35,6 +35,7 @@ from evap.evaluation.models import (
     Semester,
     TextAnswer,
     UserProfile,
+    VoteTimestamp,
 )
 from evap.evaluation.tests.tools import (
     FuzzyInt,
@@ -65,9 +66,9 @@ class DeleteViewTestMixin(ABC):
     csrf_checks = False
 
     # To be set by derived classes
-    model_cls: Type[Model]
+    model_cls: type[Model]
     url: str
-    permission_method_to_patch: Tuple[Type, str]
+    permission_method_to_patch: tuple[type, str]
 
     @classmethod
     @abstractmethod
@@ -1304,6 +1305,36 @@ class TestSemesterParticipationDataExportView(WebTestStaffMode):
         self.assertEqual(response.content, expected_content.encode("utf-8"))
 
 
+class TestSemesterVoteTimestampsExport(WebTestStaffMode):
+    @classmethod
+    def setUpTestData(cls):
+        cls.manager = make_manager()
+        cls.course_type = baker.make(CourseType, name_en="Type")
+        cls.vote_end_date = datetime.date(2017, 1, 3)
+        cls.evaluation_id = 1
+        cls.timestamp_time = datetime.datetime(2017, 1, 1, 12, 0, 0)
+
+        cls.evaluation = baker.make(
+            Evaluation,
+            course__type=cls.course_type,
+            pk=cls.evaluation_id,
+            vote_end_date=cls.vote_end_date,
+            vote_start_datetime=datetime.datetime.combine(cls.vote_end_date, datetime.time())
+            - datetime.timedelta(days=2),
+        )
+        cls.timestamp = baker.make(VoteTimestamp, evaluation=cls.evaluation, timestamp=cls.timestamp_time)
+
+    def test_view_downloads_csv_file(self):
+        response = self.app.get(
+            reverse("staff:vote_timestamps_export", args=[self.evaluation.course.semester.pk]), user=self.manager
+        )
+        expected_content = (
+            "Evaluation id;Course type;Course degrees;Vote end date;Timestamp\n"
+            + f"{self.evaluation_id};Type;;{self.vote_end_date};{self.timestamp_time}\n"
+        ).encode("utf-8")
+        self.assertEqual(response.content, expected_content)
+
+
 class TestLoginKeyExportView(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
@@ -2512,7 +2543,7 @@ class TestEvaluationTextAnswerView(WebTest):
         )
         cls.url = reverse("staff:evaluation_textanswers", args=[cls.evaluation.pk])
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionType.LIKERT)
+        baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionType.POSITIVE_LIKERT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
 
         questionnaire = baker.make(Questionnaire)
@@ -2724,7 +2755,7 @@ class TestEvaluationTextAnswerEditView(WebTestStaffMode):
             state=Evaluation.State.IN_EVALUATION,
         )
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionType.LIKERT)
+        baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionType.POSITIVE_LIKERT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
         question = baker.make(Question, type=QuestionType.TEXT)
 
@@ -2977,7 +3008,7 @@ class TestQuestionnaireViewView(WebTestStaffModeWith200Check):
         baker.make(
             Question,
             questionnaire=questionnaire,
-            type=iter([QuestionType.TEXT, QuestionType.GRADE, QuestionType.LIKERT]),
+            type=iter([QuestionType.TEXT, QuestionType.GRADE, QuestionType.POSITIVE_LIKERT]),
             _quantity=3,
             _bulk_create=True,
             allows_additional_textanswers=False,
@@ -3232,7 +3263,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
             state=Evaluation.State.IN_EVALUATION,
         )
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionType.LIKERT)
+        baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionType.POSITIVE_LIKERT)
         cls.text_question = baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionType.TEXT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
 
@@ -3240,7 +3271,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         self,
         action: str,
         old_decision: TextAnswer.ReviewDecision,
-        expected_new_decision: Union[TextAnswer.ReviewDecision, Literal["unchanged"]] = "unchanged",
+        expected_new_decision: TextAnswer.ReviewDecision | Literal["unchanged"] = "unchanged",
         *,
         status: int = 204,
     ):
@@ -3289,7 +3320,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         results = get_results(self.evaluation)
 
         textresult = next(
-            (result for result in results.questionnaire_results[0].question_results if isinstance(result, TextResult))
+            result for result in results.questionnaire_results[0].question_results if isinstance(result, TextResult)
         )
         self.assertEqual(len(textresult.answers), 0)
 
@@ -3301,7 +3332,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         results = get_results(self.evaluation)
 
         textresult = next(
-            (result for result in results.questionnaire_results[0].question_results if isinstance(result, TextResult))
+            result for result in results.questionnaire_results[0].question_results if isinstance(result, TextResult)
         )
         self.assertEqual(len(textresult.answers), 1)
 

@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
 from django.forms.models import inlineformset_factory
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from model_bakery import baker
 
 from evap.contributor.forms import EvaluationForm as ContributorEvaluationForm
@@ -121,6 +121,10 @@ class EvaluationEmailFormTests(TestCase):
 
 
 class UserFormTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.existing_user = baker.make(UserProfile, email="existing@example.com")
+
     def test_user_form(self):
         """
         Tests the UserForm with one valid and one invalid input dataset.
@@ -135,6 +139,7 @@ class UserFormTests(TestCase):
         form = UserForm(instance=user, data=data)
         self.assertFalse(form.is_valid())
 
+    @override_settings(INSTITUTION_EMAIL_REPLACEMENTS=[("institution.example.com", "example.com")])
     def test_user_with_same_email(self):
         """
         Tests whether the user form correctly handles email adresses
@@ -154,6 +159,11 @@ class UserFormTests(TestCase):
         data = {"email": user.email.upper()}
         form = UserForm(instance=user, data=data)
         self.assertTrue(form.is_valid())
+
+        data = {"email": "existing@institution.example.com"}
+        form = UserForm(instance=user, data=data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("A user with the email 'existing@example.com' already exists", form.errors["email"])
 
     def test_user_cannot_be_removed_from_evaluation_already_voted_for(self):
         student = baker.make(UserProfile)
@@ -592,12 +602,12 @@ class ContributionFormsetTests(TestCase):
     def test_answers_for_removed_questionnaires_deleted(self):
         # pylint: disable=too-many-locals
         evaluation = baker.make(Evaluation)
-        general_question_1 = baker.make(Question, type=QuestionType.LIKERT)
-        general_question_2 = baker.make(Question, type=QuestionType.LIKERT)
+        general_question_1 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
+        general_question_2 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
         general_questionnaire_1 = baker.make(Questionnaire, questions=[general_question_1])
         general_questionnaire_2 = baker.make(Questionnaire, questions=[general_question_2])
         evaluation.general_contribution.questionnaires.set([general_questionnaire_1, general_questionnaire_2])
-        contributor_question = baker.make(Question, type=QuestionType.LIKERT)
+        contributor_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
         contributor_questionnaire = baker.make(
             Questionnaire,
             type=Questionnaire.Type.CONTRIBUTOR,
@@ -1026,12 +1036,12 @@ class EvaluationFormTests(TestCase):
     def test_answers_for_removed_questionnaires_deleted(self):
         # pylint: disable=too-many-locals
         evaluation = baker.make(Evaluation)
-        general_question_1 = baker.make(Question, type=QuestionType.LIKERT)
-        general_question_2 = baker.make(Question, type=QuestionType.LIKERT)
+        general_question_1 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
+        general_question_2 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
         general_questionnaire_1 = baker.make(Questionnaire, questions=[general_question_1])
         general_questionnaire_2 = baker.make(Questionnaire, questions=[general_question_2])
         evaluation.general_contribution.questionnaires.set([general_questionnaire_1, general_questionnaire_2])
-        contributor_question = baker.make(Question, type=QuestionType.LIKERT)
+        contributor_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
         contributor_questionnaire = baker.make(
             Questionnaire,
             type=Questionnaire.Type.CONTRIBUTOR,

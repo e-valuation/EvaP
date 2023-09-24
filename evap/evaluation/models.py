@@ -5,7 +5,7 @@ from collections import defaultdict
 from datetime import date, datetime, timedelta
 from enum import Enum, auto
 from numbers import Number
-from typing import Dict, List, NamedTuple, Tuple, Union
+from typing import NamedTuple
 
 from django.conf import settings
 from django.contrib import messages
@@ -26,6 +26,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.safestring import SafeData
+from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django_fsm import FSMIntegerField, transition
 from django_fsm.signals import post_transition
@@ -1087,7 +1088,8 @@ class Contribution(LoggedModel):
 
 class QuestionType:
     TEXT = 0
-    LIKERT = 1
+    POSITIVE_LIKERT = 1
+    NEGATIVE_LIKERT = 12
     GRADE = 2
     EASY_DIFFICULT = 6
     FEW_MANY = 7
@@ -1105,7 +1107,13 @@ class Question(models.Model):
 
     QUESTION_TYPES = (
         (_("Text"), ((QuestionType.TEXT, _("Text question")),)),
-        (_("Unipolar Likert"), ((QuestionType.LIKERT, _("Agreement question")),)),
+        (
+            _("Unipolar Likert"),
+            (
+                (QuestionType.POSITIVE_LIKERT, _("Positive agreement question")),
+                (QuestionType.NEGATIVE_LIKERT, _("Negative agreement question")),
+            ),
+        ),
         (_("Grade"), ((QuestionType.GRADE, _("Grade question")),)),
         (
             _("Bipolar Likert"),
@@ -1164,11 +1172,15 @@ class Question(models.Model):
         if self.is_rating_question:
             return RatingAnswerCounter
 
-        assert False, f"Unknown answer type: {self.type!r}"
+        raise AssertionError(f"Unknown answer type: {self.type!r}")
 
     @property
-    def is_likert_question(self):
-        return self.type == QuestionType.LIKERT
+    def is_positive_likert_question(self):
+        return self.type == QuestionType.POSITIVE_LIKERT
+
+    @property
+    def is_negative_likert_question(self):
+        return self.type == QuestionType.NEGATIVE_LIKERT
 
     @property
     def is_bipolar_likert_question(self):
@@ -1206,7 +1218,8 @@ class Question(models.Model):
         return (
             self.is_grade_question
             or self.is_bipolar_likert_question
-            or self.is_likert_question
+            or self.is_positive_likert_question
+            or self.is_negative_likert_question
             or self.is_yes_no_question
         )
 
@@ -1224,28 +1237,25 @@ class Question(models.Model):
 
 
 # Let's deduplicate the fields here once mypy is smart enough to keep up with us :)
-Choices = NamedTuple(
-    "Choices",
-    [
-        ("css_class", str),
-        ("values", Tuple[Number]),
-        ("colors", Tuple[str]),
-        ("grades", Tuple[Number]),
-        ("names", List[StrOrPromise]),
-    ],
-)
-BipolarChoices = NamedTuple(
-    "BipolarChoices",
-    [
-        ("css_class", str),
-        ("values", Tuple[Number]),
-        ("colors", Tuple[str]),
-        ("grades", Tuple[Number]),
-        ("names", List[StrOrPromise]),
-        ("plus_name", StrOrPromise),
-        ("minus_name", StrOrPromise),
-    ],
-)
+class Choices(NamedTuple):
+    css_class: str
+    values: tuple[Number]
+    colors: tuple[str]
+    grades: tuple[Number]
+    names: list[StrOrPromise]
+    is_inverted: bool
+
+
+class BipolarChoices(NamedTuple):
+    css_class: str
+    values: tuple[Number]
+    colors: tuple[str]
+    grades: tuple[Number]
+    names: list[StrOrPromise]
+    plus_name: StrOrPromise
+    minus_name: StrOrPromise
+    is_inverted: bool
+
 
 NO_ANSWER = 6
 BASE_UNIPOLAR_CHOICES = {
@@ -1260,6 +1270,7 @@ BASE_BIPOLAR_CHOICES = {
     "values": (-3, -2, -1, 0, 1, 2, 3, NO_ANSWER),
     "colors": ("red", "orange", "lime", "green", "lime", "orange", "red", "gray"),
     "grades": (5, 11 / 3, 7 / 3, 1, 7 / 3, 11 / 3, 5),
+    "is_inverted": False,
 }
 
 BASE_YES_NO_CHOICES = {
@@ -1269,8 +1280,8 @@ BASE_YES_NO_CHOICES = {
     "grades": (1, 5),
 }
 
-CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
-    QuestionType.LIKERT: Choices(
+CHOICES: dict[int, Choices | BipolarChoices] = {
+    QuestionType.POSITIVE_LIKERT: Choices(
         names=[
             _("Strongly\nagree"),
             _("Agree"),
@@ -1279,6 +1290,19 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
             _("Strongly\ndisagree"),
             _("No answer"),
         ],
+        is_inverted=False,
+        **BASE_UNIPOLAR_CHOICES,  # type: ignore
+    ),
+    QuestionType.NEGATIVE_LIKERT: Choices(
+        names=[
+            _("Strongly\ndisagree"),
+            _("Disagree"),
+            _("Neutral"),
+            _("Agree"),
+            _("Strongly\nagree"),
+            _("No answer"),
+        ],
+        is_inverted=True,
         **BASE_UNIPOLAR_CHOICES,  # type: ignore
     ),
     QuestionType.GRADE: Choices(
@@ -1290,6 +1314,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
             "5",
             _("No answer"),
         ],
+        is_inverted=False,
         **BASE_UNIPOLAR_CHOICES,  # type: ignore
     ),
     QuestionType.EASY_DIFFICULT: BipolarChoices(
@@ -1388,6 +1413,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
             _("No"),
             _("No answer"),
         ],
+        is_inverted=False,
         **BASE_YES_NO_CHOICES,  # type: ignore
     ),
     QuestionType.NEGATIVE_YES_NO: Choices(
@@ -1396,6 +1422,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
             _("Yes"),
             _("No answer"),
         ],
+        is_inverted=True,
         **BASE_YES_NO_CHOICES,  # type: ignore
     ),
 }
@@ -1545,9 +1572,9 @@ class FaqQuestion(models.Model):
 class NotHalfEmptyConstraint(CheckConstraint):
     """Constraint, that all supplied fields are either all filled, or all empty."""
 
-    fields: List[str] = []
+    fields: list[str] = []
 
-    def __init__(self, *, fields: List[str], name: str, **kwargs):
+    def __init__(self, *, fields: list[str], name: str, **kwargs):
         self.fields = fields
         assert "check" not in kwargs
 
@@ -1671,6 +1698,19 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     is_active = models.BooleanField(default=True, verbose_name=_("active"))
 
+    class StartPage(models.TextChoices):
+        DEFAULT = "DE", _("default")
+        STUDENT = "ST", _("student")
+        CONTRIBUTOR = "CO", _("contributor")
+        GRADES = "GR", _("grades")
+
+    startpage = models.CharField(
+        max_length=2,
+        choices=StartPage.choices,
+        verbose_name=_("start page of the user"),
+        default=StartPage.DEFAULT,
+    )
+
     class Meta:
         # keep in sync with ordering_key
         ordering = [
@@ -1683,7 +1723,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = _("users")
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS: List[str] = []
+    REQUIRED_FIELDS: list[str] = []
 
     objects = UserProfileManager()
 
@@ -1726,9 +1766,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         name = self.full_name
         if self.is_external:
             return name + " [ext.]"
-        if "@" in self.email:
-            return name + " (" + self.email.split("@")[0] + ")"
-        return name + " (" + self.email + ")"
+        return f"{name} ({self.email})"
 
     def __str__(self):
         return self.full_name
@@ -1832,6 +1870,12 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     @cached_property
     def is_responsible_or_contributor_or_delegate(self):
         return self.is_responsible or self.is_contributor or self.is_delegate
+
+    @cached_property
+    def show_startpage_button(self):
+        return [self.is_participant, self.is_responsible_or_contributor_or_delegate, self.is_grade_publisher].count(
+            True
+        ) > 1
 
     @property
     def is_external(self):
@@ -2140,7 +2184,12 @@ class EmailTemplate(models.Model):
             template.send_to_user(participant, {}, body_params, use_cc=True)
 
     @classmethod
-    def send_textanswer_reminder_to_user(cls, user: UserProfile, evaluation_url_tuples: List[Tuple[Evaluation, str]]):
+    def send_textanswer_reminder_to_user(cls, user: UserProfile, evaluation_url_tuples: list[tuple[Evaluation, str]]):
         body_params = {"user": user, "evaluation_url_tuples": evaluation_url_tuples}
         template = cls.objects.get(name=cls.TEXT_ANSWER_REVIEW_REMINDER)
         template.send_to_user(user, {}, body_params, use_cc=False)
+
+
+class VoteTimestamp(models.Model):
+    evaluation = models.ForeignKey(Evaluation, models.CASCADE)
+    timestamp = models.DateTimeField(verbose_name=_("vote timestamp"), default=now)

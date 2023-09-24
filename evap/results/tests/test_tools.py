@@ -178,8 +178,11 @@ class TestCalculateAverageDistribution(TestCase):
         )
         cls.questionnaire = baker.make(Questionnaire)
         cls.question_grade = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.GRADE)
-        cls.question_likert = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.LIKERT)
-        cls.question_likert_2 = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.LIKERT)
+        cls.question_likert = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.POSITIVE_LIKERT)
+        cls.question_likert_2 = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.POSITIVE_LIKERT)
+        cls.question_negative_likert = baker.make(
+            Question, questionnaire=cls.questionnaire, type=QuestionType.NEGATIVE_LIKERT
+        )
         cls.question_bipolar = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.FEW_MANY)
         cls.question_bipolar_2 = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.LITTLE_MUCH)
         cls.general_contribution = cls.evaluation.general_contribution
@@ -215,6 +218,9 @@ class TestCalculateAverageDistribution(TestCase):
             *make_rating_answer_counters(self.question_likert, self.general_contribution, [0, 0, 0, 0, 5], False),
             *make_rating_answer_counters(self.question_likert_2, self.general_contribution, [0, 0, 3, 0, 0], False),
             *make_rating_answer_counters(
+                self.question_negative_likert, self.general_contribution, [0, 0, 0, 4, 0], False
+            ),
+            *make_rating_answer_counters(
                 self.question_bipolar, self.general_contribution, [0, 0, 0, 0, 0, 0, 2], False
             ),
             *make_rating_answer_counters(
@@ -235,7 +241,9 @@ class TestCalculateAverageDistribution(TestCase):
         contributor2_average = 4
         contributors_average = ((4 * contributor1_average) + (2 * contributor2_average)) / (4 + 2)  # 2.9333333
 
-        general_non_grade_average = ((5 * 5) + (3 * 3) + (2 * 5) + (4 * 7 / 3)) / (5 + 3 + 2 + 4)  # 3.80952380
+        general_non_grade_average = ((5 * 5) + (3 * 3) + (4 * 4) + (2 * 5) + (4 * 7 / 3)) / (
+            5 + 3 + 4 + 2 + 4
+        )  # 3.85185185
 
         contributors_percentage = settings.CONTRIBUTIONS_WEIGHT / (
             settings.CONTRIBUTIONS_WEIGHT + settings.GENERAL_NON_GRADE_QUESTIONS_WEIGHT
@@ -246,11 +254,11 @@ class TestCalculateAverageDistribution(TestCase):
 
         total_grade = (
             contributors_percentage * contributors_average + general_non_grade_percentage * general_non_grade_average
-        )  # 1.1 + 2.38095238 = 3.48095238
+        )  # 1.1 + 2.4074074 = 3.5074074
 
         average_grade = distribution_to_grade(calculate_average_distribution(self.evaluation))
         self.assertAlmostEqual(average_grade, total_grade)
-        self.assertAlmostEqual(average_grade, 3.48095238)
+        self.assertAlmostEqual(average_grade, 3.5074074)
 
     @override_settings(
         CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT=4,
@@ -464,7 +472,7 @@ class TestTextAnswerVisibilityInfo(TestCase):
         )
         cls.questionnaire = baker.make(Questionnaire)
         cls.question = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.TEXT)
-        cls.question_likert = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.LIKERT)
+        cls.question_likert = baker.make(Question, questionnaire=cls.questionnaire, type=QuestionType.POSITIVE_LIKERT)
         cls.general_contribution = cls.evaluation.general_contribution
         cls.general_contribution.questionnaires.set([cls.questionnaire])
         cls.responsible1_contribution = baker.make(

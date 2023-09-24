@@ -31,7 +31,7 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
-from evap.evaluation.tools import date_to_datetime
+from evap.evaluation.tools import clean_email, date_to_datetime
 from evap.results.tools import STATES_WITH_RESULT_TEMPLATE_CACHING, STATES_WITH_RESULTS_CACHING, cache_results
 from evap.results.views import update_template_cache, update_template_cache_of_published_evaluations_in_course
 from evap.staff.tools import remove_user_from_represented_and_ccing_users
@@ -308,6 +308,7 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore
         "_participant_count",
         "_voter_count",
         "voters",
+        "votetimestamp",
     }
 
     CONTRIBUTION_COPIED_FIELDS = {
@@ -743,7 +744,7 @@ class QuestionnaireForm(forms.ModelForm):
 
     def save(self, *args, commit=True, force_highest_order=False, **kwargs):
         # get instance that has all the changes from the form applied, dont write to database
-        questionnaire_instance = super().save(commit=False, *args, **kwargs)
+        questionnaire_instance = super().save(*args, commit=False, **kwargs)
 
         if force_highest_order or "type" in self.changed_data:
             highest_existing_order = (
@@ -987,7 +988,7 @@ class UserForm(forms.ModelForm):
         return evaluations_participating_in
 
     def clean_email(self):
-        email = self.cleaned_data.get("email")
+        email = clean_email(self.cleaned_data.get("email"))
         if email is None:
             return None
 
@@ -999,7 +1000,7 @@ class UserForm(forms.ModelForm):
 
         if user_with_same_email.exists():
             raise forms.ValidationError(_("A user with the email '%s' already exists") % email)
-        return email.lower()
+        return email
 
     def save(self, *args, **kw):
         super().save(*args, **kw)
