@@ -24,7 +24,7 @@
                         <button type="button" class="btn btn-sm btn-light" onclick="resendEmailModalShow({{ form.instance.id }}, '{{ form.instance.full_name|escapejs }}');">{% trans 'Resend evaluation started email' %}</button>
                     </div>
                 {% else %}
-                    <div title="This user currently has no due evaluations." data-bs-toggle="tooltip" data-bs-placement="bottom">
+                    <div title="{% trans 'This user currently has no due evaluations.' %}" data-bs-toggle="tooltip" data-bs-placement="bottom">
                         <button disabled type="button" class="btn btn-sm btn-light">{% trans 'Resend evaluation started email' %}</button>
                     </div>
                 {% endif %}

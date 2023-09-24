@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-23 17:57+0200\n"
-"PO-Revision-Date: 2023-09-23 17:58+0200\n"
+"POT-Creation-Date: 2023-09-24 13:01+0200\n"
+"PO-Revision-Date: 2023-09-24 13:02+0200\n"
 "Last-Translator: Johannes Wolf <janno42@posteo.de>\n"
 "Language-Team: Johannes Wolf (janno42)\n"
 "Language: de\n"
@@ -4915,6 +4915,10 @@ msgstr "Account bearbeiten"
 #: evap/staff/templates/staff_user_form.html:28
 msgid "Resend evaluation started email"
 msgstr "E-Mail über den Evaluierungsbeginn erneut senden"
+
+#: evap/staff/templates/staff_user_form.html:27
+msgid "This user currently has no due evaluations."
+msgstr "Für diesen Account stehen keine offenen Evaluierungen aus."
 
 #: evap/staff/templates/staff_user_form.html:50
 msgid "Represented Users"
