@@ -44,3 +44,15 @@ export function unwrap<T>(val: T): NonNullable<T> {
 }
 
 export const isVisible = (element: HTMLElement): boolean => element.offsetWidth !== 0 || element.offsetHeight !== 0;
+
+export const fadeOutThenRemove = (element: HTMLElement) => {
+    element.style.transition = "opacity 600ms";
+    element.style.opacity = "0";
+    setTimeout(() => {
+        element.remove();
+    }, 600);
+};
+
+// TODO: How to handle exporting / importing
+(globalThis as any).assert = assert;
+(globalThis as any).fadeOutThenRemove = fadeOutThenRemove;

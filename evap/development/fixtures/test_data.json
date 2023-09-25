@@ -1498,10 +1498,10 @@
   "fields": {
     "order": 370,
     "questionnaire": 89,
-    "text_de": "... stand auch außerhalb der Meetings zur Verfügung.",
-    "text_en": "... was available even outside the meetings.",
+    "text_de": "... stand nur selten zur Verfügung.",
+    "text_en": "... was rarely available.",
     "allows_additional_textanswers": true,
-    "type": 1
+    "type": 12
   }
 },
 {
@@ -120972,7 +120972,7 @@
   "model": "evaluation.userprofile",
   "fields": {
     "password": "pbkdf2_sha256$600000$8dcuxbY2OgmCEEj3nlUQWG$qk5ic3Er9FrkCd3VUjC1DEfxd76LPVKrzaMEWGSaxyA=",
-    "last_login": "2023-07-17T21:33:07.189",
+    "last_login": "2023-09-18T21:02:20.716",
     "is_superuser": true,
     "email": "evap@institution.example.com",
     "title": "",

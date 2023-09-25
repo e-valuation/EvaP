@@ -56,10 +56,10 @@ class TestExporters(TestCase):
         questionnaire_3 = baker.make(Questionnaire, order=1, type=Questionnaire.Type.BOTTOM)
         questionnaire_4 = baker.make(Questionnaire, order=4, type=Questionnaire.Type.BOTTOM)
 
-        question_1 = baker.make(Question, type=QuestionType.LIKERT, questionnaire=questionnaire_1)
-        question_2 = baker.make(Question, type=QuestionType.LIKERT, questionnaire=questionnaire_2)
-        question_3 = baker.make(Question, type=QuestionType.LIKERT, questionnaire=questionnaire_3)
-        question_4 = baker.make(Question, type=QuestionType.LIKERT, questionnaire=questionnaire_4)
+        question_1 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire_1)
+        question_2 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire_2)
+        question_3 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire_3)
+        question_4 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire_4)
 
         evaluation.general_contribution.questionnaires.set(
             [questionnaire_1, questionnaire_2, questionnaire_3, questionnaire_4]
@@ -110,7 +110,7 @@ class TestExporters(TestCase):
         questionnaire = baker.make(Questionnaire)
         baker.make(Question, type=QuestionType.HEADING, questionnaire=questionnaire, order=0)
         heading_question = baker.make(Question, type=QuestionType.HEADING, questionnaire=questionnaire, order=1)
-        likert_question = baker.make(Question, type=QuestionType.LIKERT, questionnaire=questionnaire, order=2)
+        likert_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire, order=2)
         baker.make(Question, type=QuestionType.HEADING, questionnaire=questionnaire, order=3)
 
         contribution = baker.make(
@@ -202,7 +202,7 @@ class TestExporters(TestCase):
         cache_results(evaluation_2)
 
         questionnaire = baker.make(Questionnaire)
-        question = baker.make(Question, type=QuestionType.LIKERT, questionnaire=questionnaire)
+        question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire)
 
         evaluation_1.general_contribution.questionnaires.set([questionnaire])
         make_rating_answer_counters(question, evaluation_1.general_contribution)
@@ -359,9 +359,9 @@ class TestExporters(TestCase):
             course__degrees=[degree],
         )
         used_questionnaire = baker.make(Questionnaire)
-        used_question = baker.make(Question, type=QuestionType.LIKERT, questionnaire=used_questionnaire)
+        used_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=used_questionnaire)
         unused_questionnaire = baker.make(Questionnaire)
-        unused_question = baker.make(Question, type=QuestionType.LIKERT, questionnaire=unused_questionnaire)
+        unused_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=unused_questionnaire)
 
         evaluation.general_contribution.questionnaires.set([used_questionnaire, unused_questionnaire])
         make_rating_answer_counters(used_question, evaluation.general_contribution)
@@ -413,8 +413,8 @@ class TestExporters(TestCase):
         )
         questionnaire1 = baker.make(Questionnaire, order=1)
         questionnaire2 = baker.make(Questionnaire, order=2)
-        question1 = baker.make(Question, type=QuestionType.LIKERT, questionnaire=questionnaire1)
-        question2 = baker.make(Question, type=QuestionType.LIKERT, questionnaire=questionnaire2)
+        question1 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire1)
+        question2 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire2)
 
         make_rating_answer_counters(question1, evaluation.general_contribution, [1, 0, 1, 0, 0])
         make_rating_answer_counters(question2, evaluation.general_contribution, [0, 1, 0, 1, 0])
@@ -448,7 +448,7 @@ class TestExporters(TestCase):
         expected_average = 2.0
 
         questionnaire = baker.make(Questionnaire)
-        question = baker.make(Question, type=QuestionType.LIKERT, questionnaire=questionnaire)
+        question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire)
         for grades, e in zip(grades_per_eval, evaluations):
             make_rating_answer_counters(question, e.general_contribution, grades)
             e.general_contribution.questionnaires.set([questionnaire])
@@ -504,8 +504,10 @@ class TestExporters(TestCase):
 
         general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
-        general_question = baker.make(Question, type=QuestionType.LIKERT, questionnaire=general_questionnaire)
-        contributor_question = baker.make(Question, type=QuestionType.LIKERT, questionnaire=contributor_questionnaire)
+        general_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=general_questionnaire)
+        contributor_question = baker.make(
+            Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=contributor_questionnaire
+        )
 
         evaluation_1.general_contribution.questionnaires.set([general_questionnaire])
         make_rating_answer_counters(general_question, evaluation_1.general_contribution, [2, 0, 0, 0, 0])

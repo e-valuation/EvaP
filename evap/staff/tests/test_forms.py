@@ -602,12 +602,12 @@ class ContributionFormsetTests(TestCase):
     def test_answers_for_removed_questionnaires_deleted(self):
         # pylint: disable=too-many-locals
         evaluation = baker.make(Evaluation)
-        general_question_1 = baker.make(Question, type=QuestionType.LIKERT)
-        general_question_2 = baker.make(Question, type=QuestionType.LIKERT)
+        general_question_1 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
+        general_question_2 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
         general_questionnaire_1 = baker.make(Questionnaire, questions=[general_question_1])
         general_questionnaire_2 = baker.make(Questionnaire, questions=[general_question_2])
         evaluation.general_contribution.questionnaires.set([general_questionnaire_1, general_questionnaire_2])
-        contributor_question = baker.make(Question, type=QuestionType.LIKERT)
+        contributor_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
         contributor_questionnaire = baker.make(
             Questionnaire,
             type=Questionnaire.Type.CONTRIBUTOR,
@@ -1036,12 +1036,12 @@ class EvaluationFormTests(TestCase):
     def test_answers_for_removed_questionnaires_deleted(self):
         # pylint: disable=too-many-locals
         evaluation = baker.make(Evaluation)
-        general_question_1 = baker.make(Question, type=QuestionType.LIKERT)
-        general_question_2 = baker.make(Question, type=QuestionType.LIKERT)
+        general_question_1 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
+        general_question_2 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
         general_questionnaire_1 = baker.make(Questionnaire, questions=[general_question_1])
         general_questionnaire_2 = baker.make(Questionnaire, questions=[general_question_2])
         evaluation.general_contribution.questionnaires.set([general_questionnaire_1, general_questionnaire_2])
-        contributor_question = baker.make(Question, type=QuestionType.LIKERT)
+        contributor_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
         contributor_questionnaire = baker.make(
             Questionnaire,
             type=Questionnaire.Type.CONTRIBUTOR,

@@ -297,7 +297,7 @@ class TestEvaluations(WebTest):
         )
         evaluation.save()
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionType.LIKERT)
+        baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionType.POSITIVE_LIKERT)
         evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
 
         self.assertFalse(evaluation.can_publish_text_results)
