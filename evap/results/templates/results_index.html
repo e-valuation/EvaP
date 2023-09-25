@@ -127,7 +127,7 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script type="module">
+    <script type="module" nonce="{{ CSP_NONCE }}">
         import {ResultGrid} from "{% static 'js/datagrid.js' %}";
 
         new ResultGrid({

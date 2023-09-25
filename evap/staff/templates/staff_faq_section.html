@@ -59,9 +59,9 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script src="{% static 'js/sortable_form.js' %}"></script>
+    <script src="{% static 'js/sortable_form.js' %}" nonce="{{ CSP_NONCE }}"></script>
 
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         rowChanged = function(row) {
             qDe = $(row.find('input[id$=-question_de]')).val();
             qEn = $(row.find('input[id$=-question_en]')).val();

@@ -35,7 +35,7 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         document
             .querySelectorAll(".full-update-textanswer-form input[type='radio'], .full-textanswer-flag-form input[type='radio']")
             .forEach(input => input.addEventListener("change", () => input.form.requestSubmit()));

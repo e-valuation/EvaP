@@ -26,7 +26,7 @@
         {% endblock %}
     </head>
     <body>
-        <script type="text/javascript" src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}" nonce="{{ CSP_NONCE }}"></script>
 
         {% block modals %}
             {% if user.is_authenticated %}
@@ -71,18 +71,18 @@
 
         {% include 'footer.html' %}
 
-        <script src="{% url 'javascript-catalog' %}"></script>
+        <script src="{% url 'javascript-catalog' %}" nonce="{{ CSP_NONCE }}"></script>
 
-        <script type="text/javascript" src="{% static 'js/jquery-2.1.3.min.js' %}"></script>
-        <script type="text/javascript" src="{% static 'js/tom-select.complete.min.js' %}"></script>
-        <script type="text/javascript" src="{% static 'js/plugins/jquery.formset.js' %}"></script>
-        <script type="text/javascript" src="{% static 'js/Sortable.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/jquery-2.1.3.min.js' %}" nonce="{{ CSP_NONCE }}"></script>
+        <script type="text/javascript" src="{% static 'js/tom-select.complete.min.js' %}" nonce="{{ CSP_NONCE }}"></script>
+        <script type="text/javascript" src="{% static 'js/plugins/jquery.formset.js' %}" nonce="{{ CSP_NONCE }}"></script>
+        <script type="text/javascript" src="{% static 'js/Sortable.min.js' %}" nonce="{{ CSP_NONCE }}"></script>
 
-        <script type="module" src="{% static 'js/csrf-utils.js' %}"></script>
-        <script type="module" src="{% static 'js/utils.js' %}"></script>
+        <script type="module" src="{% static 'js/csrf-utils.js' %}" nonce="{{ CSP_NONCE }}"></script>
+        <script type="module" src="{% static 'js/utils.js' %}" nonce="{{ CSP_NONCE }}"></script>
 
-        <script type="module" src="{% static 'js/base-template.js' %}"></script>
-        <script type="text/javascript">
+        <script type="module" src="{% static 'js/base-template.js' %}" nonce="{{ CSP_NONCE }}"></script>
+        <script type="text/javascript" nonce="{{ CSP_NONCE }}">
             activateTooltips = function(selector = "") {
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll(selector + ' [data-bs-toggle="tooltip"]'))
                 var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -207,7 +207,7 @@
             };
 
         </script>
-        <script type="module">
+        <script type="module" nonce="{{ CSP_NONCE }}">
             import  { NotebookLogic } from "{% static 'js/notebook.js' %}"
 
             new NotebookLogic("#notebook").attach();

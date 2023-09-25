@@ -171,11 +171,11 @@
 
 {% block additional_javascript %}
     {% if not preview %}
-        <script type="text/javascript" src="{% static 'js/sisyphus.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/sisyphus.min.js' %}" nonce="{{ CSP_NONCE }}"></script>
 
         {{ text_answer_warnings|text_answer_warning_trigger_strings|json_script:'text-answer-warnings' }}
 
-        <script type="module">
+        <script type="module" nonce="{{ CSP_NONCE }}">
             import {initTextAnswerWarnings} from "{% static 'js/text-answer-warnings.js' %}";
             const lastSavedStorageKey = "student-vote-last-saved-at-{{ evaluation.id }}-{{ request.user.id }}";
             const textResultsPublishConfirmation = {
@@ -378,6 +378,6 @@
                 });
             }
         </script>
-        <script type="module" src="{% static 'js/student-vote.js' %}"></script>
+        <script type="module" src="{% static 'js/student-vote.js' %}" nonce="{{ CSP_NONCE }}"></script>
     {% endif %}
 {% endblock %}

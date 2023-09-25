@@ -51,7 +51,7 @@
     {% trans 'Do you really want to delete the questionnaire <strong data-label=""></strong>?' as question %}
     {% trans 'Delete questionnaire' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='deleteQuestionnaireModal' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function deleteQuestionnaireModalAction(dataId) {
             fetch("{% url 'staff:questionnaire_delete' %}", {
                 body: new URLSearchParams({questionnaire_id: dataId}),
@@ -66,7 +66,7 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script type="module">
+    <script type="module" nonce="{{ CSP_NONCE }}">
         import {QuestionnaireGrid} from "{% static 'js/datagrid.js' %}";
         document.querySelectorAll(".questionnaire-table").forEach(table => {
             new QuestionnaireGrid({
@@ -79,7 +79,7 @@
         });
     </script>
 
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function changeVisibility(element) {
             const questionnaire = element.closest(".questionnaire");
             const visibility = element.dataset.visibility;

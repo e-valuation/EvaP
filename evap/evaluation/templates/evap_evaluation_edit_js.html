@@ -1,8 +1,8 @@
 {% load static %}
 
 {% if editable %}
-    <script src="{% static 'js/sortable_form.js' %}"></script>
-    <script type="text/javascript">
+    <script src="{% static 'js/sortable_form.js' %}" nonce="{{ CSP_NONCE }}"></script>
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         rowChanged = function(row) {
             name = $(row.find("select[id$=-contributor]")).find(":selected").text();
             nameChanged = name && name != "---------";
@@ -30,7 +30,7 @@
     </script>
 {% endif %}
 
-<script type="text/javascript">
+<script type="text/javascript" nonce="{{ CSP_NONCE }}">
     function makeDoesNotContributeChangeHandler(i) {
         return () => {
             const doesNotContributeInput = document.querySelector("input[name=contributions-" + i + "-does_not_contribute]");

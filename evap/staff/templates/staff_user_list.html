@@ -65,7 +65,7 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script type="module">
+    <script type="module" nonce="{{ CSP_NONCE }}">
         import {TableGrid} from "{% static 'js/datagrid.js' %}";
         new TableGrid({
             storageKey: "user-index-data-grid",

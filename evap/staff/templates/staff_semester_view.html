@@ -448,7 +448,7 @@
     {% trans 'Do you want to make this the active semester?' as question %}
     {% trans 'Make active' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='makeActiveSemesterModal' title=title question=question action_text=action_text btn_type='primary' %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function makeActiveSemesterModalAction(dataId) {
             const makeActiveSemesterButton = document.getElementById('makeActiveSemesterButton');
             makeActiveSemesterButton.disabled = true;
@@ -468,7 +468,7 @@
     {% blocktrans asvar question %}Do you really want to delete the semester <strong data-label=""></strong>? All courses and evaluations will be deleted as well as all results. If you are sure, enter the name of the semester below.{% endblocktrans %}
     {% trans 'Delete semester' as action_text %}
     {% include 'confirmation_text_modal.html' with modal_id='deleteSemesterModal' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function deleteSemesterModalAction(dataId) {
             const deleteButton = document.getElementById('deleteSemesterButton');
             deleteButton.disabled = true;
@@ -488,7 +488,7 @@
     {% blocktrans asvar question %}Do you really want to archive all participations in the semester <strong data-label=""></strong>? Further changes to the evaluations won't be possible and you can't undo this action.{% endblocktrans %}
     {% trans 'Archive participations' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='archiveParticipationsModal' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function archiveParticipationsModalAction(dataId) {
             fetch("{% url 'staff:semester_archive_participations' %}", {
                 body: new URLSearchParams({semester_id: dataId}),
@@ -504,7 +504,7 @@
     {% blocktrans asvar question %}Do you really want to delete the grade documents in the semester <strong data-label=""></strong>? This will delete all existing grade documents for this semester's courses and will disable new uploads. You can't undo this action.{% endblocktrans %}
     {% trans 'Delete grade documents' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='deleteGradeDocumentsModal' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function deleteGradeDocumentsModalAction(dataId) {
             fetch("{% url 'staff:semester_delete_grade_documents' %}", {
                 body: new URLSearchParams({semester_id: dataId}),
@@ -520,7 +520,7 @@
     {% blocktrans asvar question %}Do you really want to archive the results in the semester <strong data-label=""></strong>? This will make the results of all evaluations inaccessible for all users except their contributors and managers. You can't undo this action.{% endblocktrans %}
     {% trans 'Archive results' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='archiveResultsModal' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function archiveResultsModalAction(dataId) {
             fetch("{% url 'staff:semester_archive_results' %}", {
                 body: new URLSearchParams({semester_id: dataId}),
@@ -536,7 +536,7 @@
     {% trans 'Do you really want to delete the evaluation <strong data-label=""></strong>?' as question %}
     {% trans 'Delete evaluation' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='deleteEvaluationModal' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function deleteEvaluationModalAction(dataId) {
             fetch("{% url 'staff:evaluation_delete' %}", {
                 body: new URLSearchParams({evaluation_id: dataId}),
@@ -552,7 +552,7 @@
     {% trans 'Do you really want to delete the course <strong data-label=""></strong>?' as question %}
     {% trans 'Delete course' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='deleteCourseModal' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function deleteCourseModalAction(dataId) {
             fetch("{% url 'staff:course_delete' %}", {
                 body: new URLSearchParams({course_id: dataId}),
@@ -568,7 +568,7 @@
     {% blocktrans asvar question %}Do you want to activate the reward points for the semester <strong data-label=""></strong>? The activation will allow participants to receive reward points when voting and will also grant all eligible points for participants who have already voted so far. The process will take a while.{% endblocktrans %}
     {% trans 'Activate reward points' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='activateRewardPointsModal' title=title question=question action_text=action_text btn_type='primary' %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function activateRewardPointsModalAction() {
             document.getElementById("form_activation_status").requestSubmit();
         }
@@ -576,7 +576,7 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         var overviewCard = document.getElementById('overviewCard');
         var overviewCardCollapse = new bootstrap.Collapse(overviewCard, {
             toggle: localStorage['show_overview'] === 'true'
@@ -601,7 +601,7 @@
             document.querySelectorAll('#evaluation_operation_form input[type=checkbox]').forEach(checkbox => {checkbox.checked = false;}); // prevent wrong autofills
         });
     </script>
-    <script type="module">
+    <script type="module" nonce="{{ CSP_NONCE }}">
         import {EvaluationGrid, TableGrid} from "{% static 'js/datagrid.js' %}";
         const evaluationTable = document.querySelector("#evaluation-table");
         if (evaluationTable) {

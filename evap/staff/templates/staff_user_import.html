@@ -41,12 +41,12 @@
 {% endblock %}
 
 {% block modals %}
-{{ block.super }}
+    {{ block.super }}
     {% trans 'Import Users' as title %}
     {% blocktrans asvar question %}Do you really want to import the users from the Excel file?{% endblocktrans %}
     {% trans 'Import Users' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='importUserModal' title=title question=question action_text=action_text btn_type='primary' %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function importUserModalAction(dataId) {
             const input = document.createElement("input");
             input.type = "hidden";
@@ -62,5 +62,5 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script type="text/javascript" src="{% static 'js/copy-to-clipboard.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/copy-to-clipboard.js' %}" nonce="{{ CSP_NONCE }}"></script>
 {% endblock %}

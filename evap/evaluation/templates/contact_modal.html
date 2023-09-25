@@ -48,7 +48,7 @@
         </div>
     </div>
 </div>
-<script type="module">
+<script type="module" nonce="{{ CSP_NONCE }}">
     import { ContactModalLogic } from "{% static 'js/contact_modal.js' %}";
 
     new ContactModalLogic("{{ modal_id }}", "{{ title|escapejs }}").attach();

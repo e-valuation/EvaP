@@ -10,7 +10,7 @@
         </div>
         <div class="callout-content small">
             {# Inline script to interrupt loading of the page, so the content does not jump up. #}
-            <script>
+            <script nonce="{{ request.csp_nonce }}">
                 if (localStorage["infobox-{{ infotext.page }}"] === "hide")
                     document.querySelector("#infobox-{{ infotext.page }}").classList.add("closed");
             </script>
@@ -18,7 +18,7 @@
         </div>
     </div>
 
-    <script type="module">
+    <script type="module" nonce="{{ request.csp_nonce }}">
         import { InfoboxLogic } from "{% static 'js/infobox.js' %}";
 
         new InfoboxLogic("{{ infotext.page }}").attach();

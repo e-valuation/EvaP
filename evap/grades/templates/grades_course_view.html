@@ -56,7 +56,7 @@
     {% trans 'Do you really want to delete the grade document <strong data-label=""></strong>?' as question %}
     {% trans 'Delete grade document' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='deleteGradedocumentModal' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function deleteGradedocumentModalAction(dataId) {
             fetch("{% url 'grades:delete_grades' %}", {
                 body: new URLSearchParams({grade_document_id: dataId}),

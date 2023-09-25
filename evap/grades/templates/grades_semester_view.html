@@ -106,7 +106,7 @@
     {% trans 'Please confirm that the final grades for the course <strong data-label=""></strong> have been submitted but will not be uploaded.' as question %}
     {% trans 'Confirm' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='confirmNouploadModal' title=title question=question action_text=action_text btn_type='primary' %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function confirmNouploadModalAction(dataId) {
             updateGradeStatusOfCourse(dataId, true);
         }
@@ -126,7 +126,7 @@
     {% trans 'Please confirm that a grade document for the course <strong data-label=""></strong> will be uploaded later on.' as question %}
     {% trans 'Confirm' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='confirmLateruploadModal' title=title question=question action_text=action_text btn_type='primary' %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function confirmLateruploadModalAction(dataId) {
             updateGradeStatusOfCourse(dataId, false);
         };
@@ -134,7 +134,7 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script type="module">
+    <script type="module" nonce="{{ CSP_NONCE }}">
         import {TableGrid} from "{% static 'js/datagrid.js' %}";
         const table = document.querySelector(".grade-course-table");
         if (table) {

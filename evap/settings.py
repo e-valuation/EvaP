@@ -237,6 +237,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "csp.middleware.CSPMiddleware",
     "mozilla_django_oidc.middleware.SessionRefresh",
     "evap.middleware.RequireLoginMiddleware",
     "evap.middleware.user_language_middleware",
@@ -252,6 +253,7 @@ _TEMPLATE_OPTIONS = {
         "django.template.context_processors.static",
         "django.template.context_processors.request",
         "django.contrib.messages.context_processors.messages",
+        "csp.context_processors.nonce",
         "evap.context_processors.slogan",
         "evap.context_processors.debug",
         "evap.context_processors.notebook_form",
@@ -401,6 +403,13 @@ OIDC_OP_TOKEN_ENDPOINT = "https://example.com/token"  # nosec
 OIDC_OP_USER_ENDPOINT = "https://example.com/me"
 OIDC_OP_JWKS_ENDPOINT = "https://example.com/certs"
 
+
+### Content Security Policy
+# settings from https://csp.withgoogle.com/docs/strict-csp.html#example
+CSP_OBJECT_SRC = ("'none'", )
+CSP_SCRIPT_SRC = ("'unsafe-inline'", "'strict-dynamic'", "https:", "http:")
+CSP_BASE_URI = ("'none'", )
+CSP_INCLUDE_NONCE_IN=['script-src']
 
 ### Other
 
