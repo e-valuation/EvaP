@@ -34,9 +34,6 @@ def fix_users(users: dict[str, User], title: Cell | None, last_name: Cell, first
 
 
 if __name__ == "__main__":
-    args = sys.argv
-    if "python" in args[0]:
-        args = args[1:]
     parser = ArgumentParser(description="Commandline tool to preprocess enrollment xlsx files.")
     parser.add_argument(
         "-ud", "--user-data", help="Path to a csv file containing an export of all existing users.", required=True
