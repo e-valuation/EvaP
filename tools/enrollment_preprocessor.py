@@ -42,11 +42,11 @@ if __name__ == "__main__":
         "-ud", "--user-data", help="Path to a csv file containing an export of all existing users.", required=True
     )
     parser.add_argument(
-        "-ed", "--enrolment-data", help="Path to the enrolment data in xlsx format for import.", required=True
+        "-ed", "--enrollment-data", help="Path to the enrollment data in xlsx format for import.", required=True
     )
-    ns = parser.parse_args(args[1:])
+    ns = parser.parse_args(sys.argv[1:])
 
-    workbook = load_workbook(ns.enrolment_data)
+    workbook = load_workbook(ns.enrollment_data)
     user_dict = {}
     with open(ns.user_data, encoding="utf-8") as csvfile:
         reader = csv.reader(csvfile)
@@ -57,4 +57,4 @@ if __name__ == "__main__":
         for row in workbook[sheet_name].iter_rows(min_row=2, min_col=2):
             fix_users(user_dict, None, *row[:3])
             fix_users(user_dict, *row[7:])
-    workbook.save(ns.enrolment_data)
+    workbook.save(ns.enrollment_data)
