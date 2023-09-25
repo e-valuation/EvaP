@@ -44,6 +44,7 @@ from evap.evaluation.tests.tools import (
     make_manager,
     make_rating_answer_counters,
     render_pages,
+    assert_no_database_modifications,
 )
 from evap.grades.models import GradeDocument
 from evap.results.tools import TextResult, cache_results, get_results
@@ -3085,12 +3086,9 @@ class TestQuestionnaireUpdateIndicesView(WebTestStaffMode):
         self.app.post(self.url, user=self.manager, params=params, status=400)
 
         # invalid values
-        params = {self.questionnaire1.id: "asd", self.questionnaire2.id: 1}
-        self.app.post(self.url, user=self.manager, params=params, status=400)
-
-        # instance not modified
-        self.questionnaire1.refresh_from_db()
-        self.assertEqual(self.questionnaire1.order, 7)
+        with assert_no_database_modifications():
+            params = {self.questionnaire1.id: "asd", self.questionnaire2.id: 1}
+            self.app.post(self.url, user=self.manager, params=params, status=400)
 
         # correct parameters
         params = {self.questionnaire1.id: 0, self.questionnaire2.id: 1}
@@ -3114,17 +3112,18 @@ class TestQuestionnaireVisibilityView(WebTestStaffMode):
         self.assertEqual(self.questionnaire.visibility, Questionnaire.Visibility.EDITORS)
 
     def test_invalid_visibility(self):
-        post_params = {"questionnaire_id": self.questionnaire.id, "visibility": ""}
-        self.app.post(self.url, user=self.manager, params=post_params, status=400)
+        with assert_no_database_modifications():
+            post_params = {"questionnaire_id": self.questionnaire.id, "visibility": ""}
+            self.app.post(self.url, user=self.manager, params=post_params, status=400)
 
-        post_params = {"questionnaire_id": self.questionnaire.id, "visibility": "123"}
-        self.app.post(self.url, user=self.manager, params=post_params, status=400)
+            post_params = {"questionnaire_id": self.questionnaire.id, "visibility": "123"}
+            self.app.post(self.url, user=self.manager, params=post_params, status=400)
 
-        post_params = {"questionnaire_id": self.questionnaire.id, "visibility": "asd"}
-        self.app.post(self.url, user=self.manager, params=post_params, status=400)
+            post_params = {"questionnaire_id": self.questionnaire.id, "visibility": "asd"}
+            self.app.post(self.url, user=self.manager, params=post_params, status=400)
 
-        self.questionnaire.refresh_from_db()
-        self.assertEqual(self.questionnaire.visibility, Questionnaire.Visibility.MANAGERS)
+            self.questionnaire.refresh_from_db()
+            self.assertEqual(self.questionnaire.visibility, Questionnaire.Visibility.MANAGERS)
 
 
 class TestQuestionnaireSetLockedView(WebTestStaffMode):
@@ -3394,9 +3393,8 @@ class TestEvaluationTextanswersUpdateFlagView(WebTest):
 
     def test_unknown_values(self):
         with run_in_staff_mode(self):
-            self.app.post(self.url, user=self.manager, status=400, params={"answer_id": self.answer.pk})
-            self.answer.refresh_from_db()
-            self.assertFalse(self.answer.is_flagged)
+            with assert_no_database_modifications():
+                self.app.post(self.url, user=self.manager, status=400, params={"answer_id": self.answer.pk})
 
             def helper(is_flagged_str, expect_success):
                 self.app.post(

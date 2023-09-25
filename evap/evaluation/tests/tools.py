@@ -2,6 +2,10 @@ import functools
 import os
 from collections.abc import Sequence
 from datetime import timedelta
+from contextlib import contextmanager
+
+from django.db import connections, DEFAULT_DB_ALIAS
+from django.test.utils import CaptureQueriesContext
 
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -211,3 +215,28 @@ def make_rating_answer_counters(
         RatingAnswerCounter.objects.bulk_create(counters)
 
     return counters
+
+
+@contextmanager
+def assert_no_database_modifications(*args, **kwargs):
+    assert len(connections.all()) == 1, "Found more than one connection, so the decorator might monitor the wrong one"
+
+    forbidden_prefixes = ["update", "insert", "delete"]
+
+    conn = connections[DEFAULT_DB_ALIAS]
+    with CaptureQueriesContext(conn):
+        yield
+
+        for query in conn.queries_log:
+            if (
+                query["sql"].startswith('INSERT INTO "testing_cache_sessions"')
+                or query["sql"].startswith('UPDATE "testing_cache_sessions"')
+                or query["sql"].startswith('DELETE FROM "testing_cache_sessions"')
+            ):
+                # These queries are caused by interacting with the test-app (self.app.get()), since that opens a session.
+                # That's not what we want to test for here
+                continue
+
+            for prefix in forbidden_prefixes:
+                if query["sql"].lower().startswith(prefix):
+                    raise AssertionError("Unexpected modifying query found: " + query["sql"])
