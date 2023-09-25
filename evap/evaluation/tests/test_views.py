@@ -202,6 +202,7 @@ class TestProfileView(WebTest):
         page = self.app.get(self.url, user=self.responsible)
         self.assertContains(page, "testdisplayname")
 
+
 class TestNegativeLikertQuestions(WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -228,6 +229,7 @@ class TestNegativeLikertQuestions(WebTest):
         page = self.app.get(self.url, user=self.voting_user, status=200).body.decode()
         self.assertLess(page.index("Strongly<br>disagree"), page.index("Strongly<br>agree"))
         self.assertIn("The answer scale is inverted for this question", page)
+
 
 class TestNotebookView(WebTest):
     url = reverse("evaluation:profile_edit")  # is used exemplarily, notebook is accessed from all pages

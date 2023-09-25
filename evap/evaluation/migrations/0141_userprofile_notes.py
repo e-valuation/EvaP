@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("evaluation", "0139_userprofile_startpage"),
+        ("evaluation", "0140_alter_question_type"),
     ]
 
     operations = [
