@@ -8,6 +8,8 @@ const NOTEBOOK_FORM_ID = "notebook-form";
 
 class NotebookFormLogic {
     private readonly notebook: HTMLFormElement;
+    // add a class constant
+    private readonly UPDATE_COOLDOWN = 2000;
 
     constructor(notebookFormId: string) {
         this.notebook = unwrap(document.getElementById(notebookFormId)) as HTMLFormElement;
@@ -15,7 +17,6 @@ class NotebookFormLogic {
 
     private onSubmit = (event: SubmitEvent): void => {
         event.preventDefault();
-        event.stopPropagation();
 
         const submitter = unwrap(event.submitter) as HTMLButtonElement;
         submitter.disabled = true;
@@ -31,7 +32,7 @@ class NotebookFormLogic {
                 setTimeout(() => {
                     this.notebook.setAttribute("data-state", "ready");
                     submitter.disabled = false;
-                }, 2000);
+                }, this.UPDATE_COOLDOWN);
             })
             .catch(() => {
                 this.notebook.setAttribute("data-state", "error");
@@ -41,48 +42,48 @@ class NotebookFormLogic {
     };
 
     public attach = (): void => {
-        unwrap(this.notebook).addEventListener("submit", this.onSubmit);
+        this.notebook.addEventListener("submit", this.onSubmit);
     };
 }
 
 export class NotebookLogic {
-    private readonly notebook: HTMLElement;
-    private readonly content: HTMLElement;
-    private form: NotebookFormLogic;
+    private readonly notebook_card: HTMLElement;
+    private readonly evap_content: HTMLElement;
+    private form_logic: NotebookFormLogic;
     private readonly localStorageKey: string;
 
     constructor(notebookId: string) {
-        this.notebook = unwrap(document.getElementById(notebookId));
-        this.form = new NotebookFormLogic(NOTEBOOK_FORM_ID);
-        this.content = unwrap(document.getElementById(WEBSITE_CONTENT_ID));
-        this.localStorageKey = NOTEBOOK_LOCALSTORAGE_KEY;
+        this.notebook_card = unwrap(document.getElementById(notebookId));
+        this.form_logic = new NotebookFormLogic(NOTEBOOK_FORM_ID);
+        this.evap_content = unwrap(document.getElementById(WEBSITE_CONTENT_ID));
+        this.localStorageKey = NOTEBOOK_LOCALSTORAGE_KEY + "_" + this.notebook_card.dataset.notebookId;
     }
 
     private onShowNotebook = (): void => {
-        this.notebook.classList.add("notebook-container");
+        this.notebook_card.classList.add("notebook-container");
 
         localStorage.setItem(this.localStorageKey, "true");
-        this.content.classList.add("notebook-margin");
+        this.evap_content.classList.add("notebook-margin");
         unwrap(document.getElementById(COLLAPSE_TOGGLE_BUTTON_ID)).classList.replace("show", "hide");
     };
 
     private onHideNotebook = (): void => {
-        this.notebook.classList.remove("notebook-container");
+        this.notebook_card.classList.remove("notebook-container");
 
         localStorage.setItem(this.localStorageKey, "false");
-        this.content.classList.remove("notebook-margin");
+        this.evap_content.classList.remove("notebook-margin");
         unwrap(document.getElementById(COLLAPSE_TOGGLE_BUTTON_ID)).classList.replace("hide", "show");
     };
 
     public attach = (): void => {
         if (localStorage.getItem(this.localStorageKey) == "true") {
-            this.notebook.classList.add("show");
+            this.notebook_card.classList.add("show");
             this.onShowNotebook();
         }
 
-        this.notebook.addEventListener("show.bs.collapse", this.onShowNotebook);
-        this.notebook.addEventListener("hidden.bs.collapse", this.onHideNotebook);
+        this.notebook_card.addEventListener("show.bs.collapse", this.onShowNotebook);
+        this.notebook_card.addEventListener("hidden.bs.collapse", this.onHideNotebook);
 
-        this.form.attach();
+        this.form_logic.attach();
     };
 }

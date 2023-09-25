@@ -1,28 +1,30 @@
-<div class="collapse position-fixed collapse-horizontal notebook-animation mt-0 d-print-none" tabindex="-1" id="notebook" aria-expanded="false" aria-labelledby="notebook">
-    <div class="card">
-        <div class="card-body notebook-card notebook-div">
-            <div class="offcanvas-header notebook-button mb-2">
-                <h5 class="card-title m-0">
-                    {% trans 'Notebook' %}
-                </h5>
-                <button type="button" class="btn-close text-reset" data-bs-toggle="collapse" data-bs-target="#notebook" aria-controls="collapseNotebook" id="notebookButtonClose"></button>
-            </div>
-          
-            <form method="POST" action="{% url 'evaluation:notebook_edit' %}" class="notebook-div" id="notebook-form" data-state="ready">
-                {% csrf_token %}
-                {{ notebook_form.notes }}
-                <div class="d-flex justify-content-center p-3">
-                    <button class="btn btn-primary notebook-button" id="notebook-save-button" type="submit">
-                        <span class="visible-if-ready">{% trans 'Save' %}</span>
-                        <span class="visible-if-sending">{% trans 'Sending...' %}</span>
-                        <span class="visible-if-successful">{% trans 'Saved successfully' %}</span>
-                        <span class="visible-if-error">{% trans 'The server is not responding.' %}</span>
-                    </button>
-                    <div class="align-self-center right-to-element">
-                        <span class="ms-2 fas fa-circle-info" data-bs-toggle="tooltip" data-bs-placement="right" title="{% blocktrans %}Here you can store private notes that you want to keep ready for future evaluations. The notes will be stored in plain text in your account on the EvaP server, but will not be shown to anyone but you.{% endblocktrans %}"></span>
-                    </div>
+<div class="notebook">
+   <div class="collapse position-fixed collapse-horizontal notebook-animation mt-0 d-print-none" tabindex="-1" id="notebook" aria-expanded="false" aria-labelledby="notebook">
+        <div class="card">
+            <div class="card-body notebook-card notebook-div">
+                <div class="offcanvas-header notebook-button mb-2">
+                    <h5 class="card-title m-0">
+                        {% trans 'Notebook' %}
+                    </h5>
+                    <button type="button" class="btn-close text-reset" data-bs-toggle="collapse" data-bs-target="#notebook" aria-controls="collapseNotebook" id="notebookButtonClose"></button>
                 </div>
-            </form>
+            
+                <form method="POST" action="{% url 'evaluation:notebook_edit' %}" class="notebook-div" id="notebook-form" data-state="ready">
+                    {% csrf_token %}
+                    {{ notebook_form.notes }}
+                    <div class="d-flex justify-content-center p-3">
+                        <button class="btn btn-primary notebook-button" id="notebook-save-button" type="submit">
+                            <span class="visible-if-ready">{% trans 'Save' %}</span>
+                            <span class="visible-if-sending">{% trans 'Sending...' %}</span>
+                            <span class="visible-if-successful">{% trans 'Saved successfully' %}</span>
+                            <span class="visible-if-error">{% trans 'The server is not responding.' %}</span>
+                        </button>
+                        <div class="align-self-center right-to-element">
+                            <span class="ms-2 fas fa-circle-info" data-bs-toggle="tooltip" data-bs-placement="right" title="{% blocktrans %}Here you can store private notes that you want to keep ready for future evaluations. The notes will be stored in plain text in your account on the EvaP server, but will not be shown to anyone but you.{% endblocktrans %}"></span>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
