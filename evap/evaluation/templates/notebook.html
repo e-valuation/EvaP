@@ -13,7 +13,7 @@
                     {% csrf_token %}
                     {{ notebook_form.notes }}
                     <div class="d-flex justify-content-center p-3">
-                        <button class="btn btn-primary notebook-button" id="notebook-save-button" type="submit">
+                        <button class="btn btn-primary notebook-button" id="notebook-save-button" type="submit" data-errormessage="{% trans 'The server is not responding.' %}">
                             <span class="visible-if-ready">{% trans 'Save' %}</span>
                             <span class="visible-if-sending">{% trans 'Sending...' %}</span>
                             <span class="visible-if-successful">{% trans 'Saved successfully' %}</span>

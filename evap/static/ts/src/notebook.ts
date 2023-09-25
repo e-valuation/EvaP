@@ -37,7 +37,7 @@ class NotebookFormLogic {
             .catch(() => {
                 this.notebook.setAttribute("data-state", "error");
                 submitter.disabled = false;
-                alert(submitter.dataset.error);
+                alert(submitter.dataset.errormessage);
             });
     };
 
