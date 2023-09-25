@@ -11,7 +11,7 @@
         "jest-jasmine2": "^29.7.0",
         "prettier": "^3.0.0",
         "puppeteer": "^21.0.1",
-        "sass": "1.67.0",
+        "sass": "1.68.0",
         "ts-jest": "^29.1.0",
         "typescript": "^5.2.2"
     },
