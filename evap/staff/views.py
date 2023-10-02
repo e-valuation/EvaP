@@ -25,7 +25,6 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy, ngettext
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, FormView, UpdateView
-from django.views.generic.detail import SingleObjectMixin
 from django_stubs_ext import StrOrPromise
 
 from evap.contributor.views import export_contributor_results
