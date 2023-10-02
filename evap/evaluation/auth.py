@@ -49,6 +49,13 @@ class EmailAuthenticationBackend(ModelBackend):
 
 
 def class_or_function_check_decorator(test_func: Callable[[UserProfile], bool]):
+    """
+    Transforms a test function into a decorator that can be used on function-based and class-based views.
+
+    Using the returned decorator on a view enhances the view to return a "Permission Denied" response if the requesting
+    user does not pass the test function.
+    """
+
     def function_decorator(func):
         @wraps(func)
         def wrapped(request, *args, **kwargs):
@@ -60,6 +67,7 @@ def class_or_function_check_decorator(test_func: Callable[[UserProfile], bool]):
 
     def decorator(class_or_function):
         if inspect.isclass(class_or_function):
+            # See https://docs.djangoproject.com/en/4.2/topics/class-based-views/intro/#decorating-the-class
             return method_decorator(function_decorator, name="dispatch")(class_or_function)
 
         assert inspect.isfunction(class_or_function)
