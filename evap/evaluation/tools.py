@@ -140,9 +140,22 @@ def assert_not_none(value: T | None) -> T:
 
 
 class FormsetView(FormView):
+    """
+    Just like `FormView`, but with a renaming from "form" to "formset".
+    """
+
     @property
     def form_class(self):
         return self.formset_class
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["formset"] = context.pop("form")
+        return context
+
+    # As an example for the logic, consider the following: Django calls `get_form_kwargs`, which we delegate to
+    # `get_formset_kwargs`. Users can thus override `get_formset_kwargs` instead. If it is not overridden, we delegate
+    # to the original `get_form_kwargs` instead. The same approach is used for the other renamed methods.
 
     def get_form_kwargs(self):
         return self.get_formset_kwargs()
@@ -155,11 +168,6 @@ class FormsetView(FormView):
 
     def formset_valid(self, formset):
         return super().form_valid(formset)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["formset"] = context.pop("form")
-        return context
 
 
 class SaveValidFormMixin:
