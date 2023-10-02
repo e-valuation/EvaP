@@ -278,7 +278,7 @@ class TestUserImport(ImporterTestCase):
 
     def test_disallow_non_string_types(self):
         with assert_no_database_modifications():
-            imported_users, importer_log = import_users(self.numerical_excel_content, test_run=False)
+            _, importer_log = import_users(self.numerical_excel_content, test_run=False)
 
         self.assertErrorsAre(
             importer_log,
@@ -292,7 +292,7 @@ class TestUserImport(ImporterTestCase):
 
     def test_wrong_column_count(self):
         with assert_no_database_modifications():
-            imported_users, importer_log = import_users(self.wrong_column_count_excel_content, test_run=False)
+            _, importer_log = import_users(self.wrong_column_count_excel_content, test_run=False)
 
         self.assertErrorIs(
             importer_log,
@@ -518,7 +518,9 @@ class TestEnrollmentImport(ImporterTestCase):
 
     def test_random_file_error(self):
         with assert_no_database_modifications():
-            importer_log_test = import_enrollments(self.random_excel_file_content, self.semester, None, None, test_run=True)
+            importer_log_test = import_enrollments(
+                self.random_excel_file_content, self.semester, None, None, test_run=True
+            )
             importer_log_notest = import_enrollments(
                 self.random_excel_file_content, self.semester, None, None, test_run=False
             )
@@ -793,7 +795,7 @@ class TestEnrollmentImport(ImporterTestCase):
         )
 
     def test_existing_course_different_grading(self):
-        existing_course, existing_course_evaluation = self.create_existing_course()
+        _, existing_course_evaluation = self.create_existing_course()
         existing_course_evaluation.wait_for_grade_upload_before_publishing = False
         existing_course_evaluation.save()
 
@@ -815,7 +817,9 @@ class TestEnrollmentImport(ImporterTestCase):
         wrong_column_count_excel_content = excel_data.create_memory_excel_file(excel_data.wrong_column_count_excel_data)
 
         with assert_no_database_modifications():
-            importer_log = import_enrollments(wrong_column_count_excel_content, self.semester, None, None, test_run=True)
+            importer_log = import_enrollments(
+                wrong_column_count_excel_content, self.semester, None, None, test_run=True
+            )
 
         self.assertErrorIs(
             importer_log,

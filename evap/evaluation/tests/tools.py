@@ -1,15 +1,14 @@
 import functools
 import os
 from collections.abc import Sequence
-from datetime import timedelta
 from contextlib import contextmanager
-
-from django.db import connections, DEFAULT_DB_ALIAS
-from django.test.utils import CaptureQueriesContext
+from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.auth.models import Group
+from django.db import DEFAULT_DB_ALIAS, connections
 from django.http.request import QueryDict
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 from django_webtest import WebTest
 from model_bakery import baker

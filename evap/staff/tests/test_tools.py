@@ -3,8 +3,8 @@ from django.test import TestCase
 from django.utils.html import escape
 from model_bakery import baker
 
-from evap.evaluation.tests.tools import assert_no_database_modifications
 from evap.evaluation.models import Contribution, Course, Evaluation, UserProfile
+from evap.evaluation.tests.tools import assert_no_database_modifications
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption
 from evap.staff.tools import (
     conditional_escape,

@@ -39,12 +39,12 @@ from evap.evaluation.models import (
 )
 from evap.evaluation.tests.tools import (
     FuzzyInt,
+    assert_no_database_modifications,
     create_evaluation_with_responsible_and_editor,
     let_user_vote_for_evaluation,
     make_manager,
     make_rating_answer_counters,
     render_pages,
-    assert_no_database_modifications,
 )
 from evap.grades.models import GradeDocument
 from evap.results.tools import TextResult, cache_results, get_results
