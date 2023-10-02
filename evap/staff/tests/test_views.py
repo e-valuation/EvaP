@@ -3112,18 +3112,17 @@ class TestQuestionnaireVisibilityView(WebTestStaffMode):
         self.assertEqual(self.questionnaire.visibility, Questionnaire.Visibility.EDITORS)
 
     def test_invalid_visibility(self):
-        with assert_no_database_modifications():
-            post_params = {"questionnaire_id": self.questionnaire.id, "visibility": ""}
-            self.app.post(self.url, user=self.manager, params=post_params, status=400)
+        post_params = {"questionnaire_id": self.questionnaire.id, "visibility": ""}
+        self.app.post(self.url, user=self.manager, params=post_params, status=400)
 
-            post_params = {"questionnaire_id": self.questionnaire.id, "visibility": "123"}
-            self.app.post(self.url, user=self.manager, params=post_params, status=400)
+        post_params = {"questionnaire_id": self.questionnaire.id, "visibility": "123"}
+        self.app.post(self.url, user=self.manager, params=post_params, status=400)
 
-            post_params = {"questionnaire_id": self.questionnaire.id, "visibility": "asd"}
-            self.app.post(self.url, user=self.manager, params=post_params, status=400)
+        post_params = {"questionnaire_id": self.questionnaire.id, "visibility": "asd"}
+        self.app.post(self.url, user=self.manager, params=post_params, status=400)
 
-            self.questionnaire.refresh_from_db()
-            self.assertEqual(self.questionnaire.visibility, Questionnaire.Visibility.MANAGERS)
+        self.questionnaire.refresh_from_db()
+        self.assertEqual(self.questionnaire.visibility, Questionnaire.Visibility.MANAGERS)
 
 
 class TestQuestionnaireSetLockedView(WebTestStaffMode):
@@ -3393,8 +3392,9 @@ class TestEvaluationTextanswersUpdateFlagView(WebTest):
 
     def test_unknown_values(self):
         with run_in_staff_mode(self):
-            with assert_no_database_modifications():
-                self.app.post(self.url, user=self.manager, status=400, params={"answer_id": self.answer.pk})
+            self.app.post(self.url, user=self.manager, status=400, params={"answer_id": self.answer.pk})
+            self.answer.refresh_from_db()
+            self.assertFalse(self.answer.is_flagged)
 
             def helper(is_flagged_str, expect_success):
                 self.app.post(

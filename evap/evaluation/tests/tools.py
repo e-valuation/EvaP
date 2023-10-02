@@ -221,7 +221,8 @@ def make_rating_answer_counters(
 def assert_no_database_modifications(*args, **kwargs):
     assert len(connections.all()) == 1, "Found more than one connection, so the decorator might monitor the wrong one"
 
-    forbidden_prefixes = ["update", "insert", "delete"]
+    # may be extended with other non-modifying verbs
+    allowed_prefixes = ["select", "savepoint", "release savepoint"]
 
     conn = connections[DEFAULT_DB_ALIAS]
     with CaptureQueriesContext(conn):
@@ -237,6 +238,6 @@ def assert_no_database_modifications(*args, **kwargs):
                 # That's not what we want to test for here
                 continue
 
-            for prefix in forbidden_prefixes:
-                if query["sql"].lower().startswith(prefix):
-                    raise AssertionError("Unexpected modifying query found: " + query["sql"])
+            lower_sql = query["sql"].lower()
+            if not any(lower_sql.startswith(prefix) for prefix in allowed_prefixes):
+                raise AssertionError("Unexpected modifying query found: " + query["sql"])
