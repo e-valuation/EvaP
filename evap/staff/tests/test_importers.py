@@ -10,6 +10,7 @@ from model_bakery import baker
 
 import evap.staff.fixtures.excel_files_test_data as excel_data
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
+from evap.evaluation.tests.tools import assert_no_database_modifications
 from evap.staff.importers import (
     ImporterLog,
     ImporterLogEntry,
@@ -80,9 +81,8 @@ class TestUserImport(ImporterTestCase):
         )
 
     def test_test_run_does_not_change_database(self):
-        original_users = list(UserProfile.objects.all())
-        import_users(self.valid_excel_file_content, test_run=True)
-        self.assertEqual(original_users, list(UserProfile.objects.all()))
+        with assert_no_database_modifications():
+            import_users(self.valid_excel_file_content, test_run=True)
 
     def test_test_and_notest_equality(self):
         list_test, importer_log_test = import_users(self.valid_excel_file_content, test_run=True)
@@ -198,22 +198,19 @@ class TestUserImport(ImporterTestCase):
         )
 
     def test_random_file_error(self):
-        original_user_count = UserProfile.objects.count()
-
-        __, importer_log_test = import_users(self.random_excel_file_content, test_run=True)
-        __, importer_log_notest = import_users(self.random_excel_file_content, test_run=False)
+        with assert_no_database_modifications():
+            __, importer_log_test = import_users(self.random_excel_file_content, test_run=True)
+            __, importer_log_notest = import_users(self.random_excel_file_content, test_run=False)
 
         self.assertEqual(importer_log_test.errors_by_category(), importer_log_notest.errors_by_category())
         self.assertErrorIs(
             importer_log_test, ImporterLogEntry.Category.SCHEMA, "Couldn't read the file. Error: File is not a zip file"
         )
-        self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_missing_values_error(self):
-        original_user_count = UserProfile.objects.count()
-
-        __, importer_log_test = import_users(self.missing_values_excel_file_content, test_run=True)
-        __, importer_log_notest = import_users(self.missing_values_excel_file_content, test_run=False)
+        with assert_no_database_modifications():
+            __, importer_log_test = import_users(self.missing_values_excel_file_content, test_run=True)
+            __, importer_log_notest = import_users(self.missing_values_excel_file_content, test_run=False)
 
         self.assertEqual(importer_log_test.errors_by_category(), importer_log_notest.errors_by_category())
         self.assertErrorsAre(
@@ -226,7 +223,6 @@ class TestUserImport(ImporterTestCase):
                 ]
             },
         )
-        self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_import_makes_inactive_user_active(self):
         user = baker.make(UserProfile, email="lucilia.manilium@institution.example.com", is_active=False)
@@ -258,8 +254,8 @@ class TestUserImport(ImporterTestCase):
     def test_validation_error(self, mocked_validation):
         mocked_validation.side_effect = [None, ValidationError("TEST")]
 
-        original_user_count = UserProfile.objects.count()
-        user_list, importer_log = import_users(self.valid_excel_file_content, test_run=False)
+        with assert_no_database_modifications():
+            user_list, importer_log = import_users(self.valid_excel_file_content, test_run=False)
 
         self.assertEqual(user_list, [])
         self.assertErrorIs(
@@ -267,13 +263,13 @@ class TestUserImport(ImporterTestCase):
             ImporterLogEntry.Category.USER,
             "User bastius.quid@external.example.com: Error when validating: ['TEST']",
         )
-        self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     @override_settings(DEBUG=False)
     @patch("evap.evaluation.models.UserProfile.save")
     def test_unhandled_exception(self, mocked_db_access):
         mocked_db_access.side_effect = Exception("Contact your database admin right now!")
-        result, importer_log = import_users(self.valid_excel_file_content, test_run=False)
+        with assert_no_database_modifications():
+            result, importer_log = import_users(self.valid_excel_file_content, test_run=False)
         self.assertEqual(result, [])
         self.assertIn(
             "Import aborted after exception: 'Contact your database admin right now!'. No data was imported.",
@@ -281,8 +277,8 @@ class TestUserImport(ImporterTestCase):
         )
 
     def test_disallow_non_string_types(self):
-        imported_users, importer_log = import_users(self.numerical_excel_content, test_run=False)
-        self.assertEqual(len(imported_users), 0)
+        with assert_no_database_modifications():
+            _, importer_log = import_users(self.numerical_excel_content, test_run=False)
 
         self.assertErrorsAre(
             importer_log,
@@ -295,8 +291,8 @@ class TestUserImport(ImporterTestCase):
         )
 
     def test_wrong_column_count(self):
-        imported_users, importer_log = import_users(self.wrong_column_count_excel_content, test_run=False)
-        self.assertEqual(len(imported_users), 0)
+        with assert_no_database_modifications():
+            _, importer_log = import_users(self.wrong_column_count_excel_content, test_run=False)
 
         self.assertErrorIs(
             importer_log,
@@ -441,8 +437,9 @@ class TestEnrollmentImport(ImporterTestCase):
         excel_content = excel_data.create_memory_excel_file(import_sheets)
 
         args = (excel_content, self.semester, self.vote_start_datetime, self.vote_end_date)
-        importer_log_test = import_enrollments(*args, test_run=True)
-        importer_log_notest = import_enrollments(*args, test_run=False)
+        with assert_no_database_modifications():
+            importer_log_test = import_enrollments(*args, test_run=True)
+            importer_log_notest = import_enrollments(*args, test_run=False)
 
         self.assertEqual(importer_log_test.messages, importer_log_notest.messages)
         self.assertErrorIs(
@@ -454,9 +451,10 @@ class TestEnrollmentImport(ImporterTestCase):
     def test_errors_are_merged(self):
         """Whitebox regression test for #1711. Importers were rewritten afterwards, so this test has limited meaning now."""
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_error_merge_filedata)
-        importer_log = import_enrollments(
-            excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
+        with assert_no_database_modifications():
+            importer_log = import_enrollments(
+                excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+            )
 
         errors = [entry.message for entry in importer_log.messages if entry.level == ImporterLogEntry.Level.ERROR]
 
@@ -519,26 +517,25 @@ class TestEnrollmentImport(ImporterTestCase):
         self.assertFalse(importer_log_notest.has_errors())
 
     def test_random_file_error(self):
-        original_user_count = UserProfile.objects.count()
-
-        importer_log_test = import_enrollments(self.random_excel_file_content, self.semester, None, None, test_run=True)
-        importer_log_notest = import_enrollments(
-            self.random_excel_file_content, self.semester, None, None, test_run=False
-        )
+        with assert_no_database_modifications():
+            importer_log_test = import_enrollments(
+                self.random_excel_file_content, self.semester, None, None, test_run=True
+            )
+            importer_log_notest = import_enrollments(
+                self.random_excel_file_content, self.semester, None, None, test_run=False
+            )
 
         self.assertEqual(importer_log_test.errors_by_category(), importer_log_notest.errors_by_category())
         self.assertErrorIs(
             importer_log_test, ImporterLogEntry.Category.SCHEMA, "Couldn't read the file. Error: File is not a zip file"
         )
-        self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_invalid_file_error(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.invalid_enrollment_data_filedata)
 
-        original_user_count = UserProfile.objects.count()
-
-        importer_log_test = import_enrollments(excel_content, self.semester, None, None, test_run=True)
-        importer_log_notest = import_enrollments(excel_content, self.semester, None, None, test_run=False)
+        with assert_no_database_modifications():
+            importer_log_test = import_enrollments(excel_content, self.semester, None, None, test_run=True)
+            importer_log_notest = import_enrollments(excel_content, self.semester, None, None, test_run=False)
 
         self.assertEqual(importer_log_test.errors_by_category(), importer_log_notest.errors_by_category())
         self.assertCountEqual(
@@ -586,14 +583,15 @@ class TestEnrollmentImport(ImporterTestCase):
             ["Errors occurred while parsing the input data. No data was imported."],
         )
         self.assertEqual(len(importer_log_test.errors_by_category()), 7)
-        self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_duplicate_course_error(self):
         semester = baker.make(Semester)
         baker.make(Course, name_de="Scheinen2", name_en="Shine", semester=semester)
         baker.make(Course, name_de="Stehlen", name_en="Steal2", semester=semester)
 
-        importer_log = import_enrollments(self.default_excel_content, semester, None, None, test_run=False)
+        with assert_no_database_modifications():
+            importer_log = import_enrollments(self.default_excel_content, semester, None, None, test_run=False)
+
         self.assertErrorsAre(
             importer_log,
             {
@@ -606,7 +604,9 @@ class TestEnrollmentImport(ImporterTestCase):
 
     def test_unknown_degree_error(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_unknown_degree_error_filedata)
-        importer_log = import_enrollments(excel_content, baker.make(Semester), None, None, test_run=False)
+
+        with assert_no_database_modifications():
+            importer_log = import_enrollments(excel_content, self.semester, None, None, test_run=False)
 
         self.assertErrorIs(
             importer_log,
@@ -619,7 +619,8 @@ class TestEnrollmentImport(ImporterTestCase):
         mocked_validation.side_effect = [None] * 5 + [ValidationError("TEST")] + [None] * 50
 
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
-        importer_log = import_enrollments(excel_content, self.semester, None, None, test_run=False)
+        with assert_no_database_modifications():
+            importer_log = import_enrollments(excel_content, self.semester, None, None, test_run=False)
 
         self.assertErrorIs(
             importer_log,
@@ -705,12 +706,10 @@ class TestEnrollmentImport(ImporterTestCase):
         existing_course.responsibles.set([baker.make(UserProfile, email="responsible_person@institution.example.com")])
         existing_course.save()
 
-        old_course_count = Course.objects.count()
-        old_dict = model_to_dict(existing_course)
-
-        importer_log = import_enrollments(
-            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
+        with assert_no_database_modifications():
+            importer_log = import_enrollments(
+                self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+            )
 
         self.assertEqual({}, importer_log.warnings_by_category())
         self.assertErrorIs(
@@ -722,20 +721,16 @@ class TestEnrollmentImport(ImporterTestCase):
             + "<br /> - the responsibles of the course do not match",
         )
 
-        self.assertEqual(Course.objects.count(), old_course_count)
-        existing_course.refresh_from_db()
-        self.assertEqual(old_dict, model_to_dict(existing_course))
-
     def test_existing_course_with_published_evaluation(self):
         __, existing_evaluation = self.create_existing_course()
 
         # Attempt with state = Published
         Evaluation.objects.filter(pk=existing_evaluation.pk).update(state=Evaluation.State.PUBLISHED)
-        existing_evaluation = Evaluation.objects.get(pk=existing_evaluation.pk)
 
-        importer_log = import_enrollments(
-            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
+        with assert_no_database_modifications():
+            importer_log = import_enrollments(
+                self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+            )
 
         self.assertEqual({}, importer_log.warnings_by_category())
         self.assertErrorIs(
@@ -767,12 +762,10 @@ class TestEnrollmentImport(ImporterTestCase):
         existing_evaluation.is_single_result = True
         existing_evaluation.save()
 
-        old_evaluation_count = Evaluation.objects.count()
-        old_dict = model_to_dict(existing_evaluation)
-
-        importer_log = import_enrollments(
-            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
+        with assert_no_database_modifications():
+            importer_log = import_enrollments(
+                self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+            )
 
         self.assertEqual({}, importer_log.warnings_by_category())
         self.assertErrorIs(
@@ -783,20 +776,14 @@ class TestEnrollmentImport(ImporterTestCase):
             + "- the evaluation of the existing course is a single result",
         )
 
-        self.assertEqual(Evaluation.objects.count(), old_evaluation_count)
-        existing_evaluation = Evaluation.objects.get(pk=existing_evaluation.pk)
-        self.assertEqual(old_dict, model_to_dict(existing_evaluation))
-
     def test_existing_course_equal_except_evaluations(self):
         existing_course, __ = self.create_existing_course()
         baker.make(Evaluation, course=existing_course, name_de="Zweite Evaluation", name_en="Second Evaluation")
 
-        old_course_count = Course.objects.count()
-        old_dict = model_to_dict(existing_course)
-
-        importer_log = import_enrollments(
-            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
+        with assert_no_database_modifications():
+            importer_log = import_enrollments(
+                self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+            )
 
         self.assertEqual({}, importer_log.warnings_by_category())
         self.assertErrorIs(
@@ -807,21 +794,15 @@ class TestEnrollmentImport(ImporterTestCase):
             + "<br /> - the existing course does not have exactly one evaluation",
         )
 
-        self.assertEqual(Course.objects.count(), old_course_count)
-        existing_course.refresh_from_db()
-        self.assertEqual(old_dict, model_to_dict(existing_course))
-
     def test_existing_course_different_grading(self):
-        existing_course, existing_course_evaluation = self.create_existing_course()
+        _, existing_course_evaluation = self.create_existing_course()
         existing_course_evaluation.wait_for_grade_upload_before_publishing = False
         existing_course_evaluation.save()
 
-        old_course_count = Course.objects.count()
-        old_dict = model_to_dict(existing_course)
-
-        importer_log = import_enrollments(
-            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
+        with assert_no_database_modifications():
+            importer_log = import_enrollments(
+                self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+            )
 
         self.assertEqual({}, importer_log.warnings_by_category())
         self.assertErrorIs(
@@ -831,13 +812,15 @@ class TestEnrollmentImport(ImporterTestCase):
             + "semester, but the courses can not be merged for the following reasons:"
             + "<br /> - the evaluation of the existing course has a mismatching grading specification",
         )
-        self.assertEqual(Course.objects.count(), old_course_count)
-        existing_course.refresh_from_db()
-        self.assertEqual(old_dict, model_to_dict(existing_course))
 
     def test_wrong_column_count(self):
         wrong_column_count_excel_content = excel_data.create_memory_excel_file(excel_data.wrong_column_count_excel_data)
-        importer_log = import_enrollments(wrong_column_count_excel_content, self.semester, None, None, test_run=True)
+
+        with assert_no_database_modifications():
+            importer_log = import_enrollments(
+                wrong_column_count_excel_content, self.semester, None, None, test_run=True
+            )
+
         self.assertErrorIs(
             importer_log,
             ImporterLogEntry.Category.GENERAL,
@@ -849,7 +832,8 @@ class TestEnrollmentImport(ImporterTestCase):
 
         # Just check that the checker is called. It is already tested in UserImportTest.test_user_data_mismatch_to_database
         with patch("evap.staff.importers.user.UserDataMismatchChecker.check_userdata") as mock:
-            import_enrollments(excel_content, self.semester, None, None, test_run=True)
+            with assert_no_database_modifications():
+                import_enrollments(excel_content, self.semester, None, None, test_run=True)
             self.assertGreater(mock.call_count, 50)
 
     def test_duplicate_participation(self):
@@ -858,21 +842,17 @@ class TestEnrollmentImport(ImporterTestCase):
         input_data["MA Belegungen"].append(input_data["MA Belegungen"][1])
         excel_content = excel_data.create_memory_excel_file(input_data)
 
-        importer_log = import_enrollments(excel_content, self.semester, None, None, test_run=True)
+        with assert_no_database_modifications():
+            importer_log = import_enrollments(excel_content, self.semester, None, None, test_run=True)
+
         self.assertFalse(importer_log.has_errors())
         self.assertEqual(importer_log.warnings_by_category(), {})
-
-        old_user_count = UserProfile.objects.all().count()
 
         importer_log = import_enrollments(
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
         self.assertFalse(importer_log.has_errors())
         self.assertEqual(importer_log.warnings_by_category(), {})
-
-        self.assertEqual(Evaluation.objects.all().count(), 23)
-        expected_user_count = old_user_count + 23
-        self.assertEqual(UserProfile.objects.all().count(), expected_user_count)
 
     def test_existing_participation(self):
         _, existing_evaluation = self.create_existing_course()
@@ -954,11 +934,10 @@ class TestPersonImport(ImporterTestCase):
         cls.contribution2 = baker.make(Contribution, contributor=cls.contributor2, evaluation=cls.evaluation2)
 
     def test_import_existing_contributor(self):
-        self.assertEqual(self.evaluation1.contributions.count(), 2)
-
-        importer_log = import_persons_from_evaluation(
-            ImportType.CONTRIBUTOR, self.evaluation1, test_run=True, source_evaluation=self.evaluation1
-        )
+        with assert_no_database_modifications():
+            importer_log = import_persons_from_evaluation(
+                ImportType.CONTRIBUTOR, self.evaluation1, test_run=True, source_evaluation=self.evaluation1
+            )
         success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("0 contributors would be added to the evaluation", "".join(success_messages))
         self.assertIn(
@@ -967,9 +946,12 @@ class TestPersonImport(ImporterTestCase):
         )
         self.assertFalse(importer_log.has_errors())
 
+        old_contributions = set(self.evaluation1.contributions.all())
         importer_log = import_persons_from_evaluation(
             ImportType.CONTRIBUTOR, self.evaluation1, test_run=False, source_evaluation=self.evaluation1
         )
+        self.assertEqual(set(self.evaluation1.contributions.all()), old_contributions)
+
         success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("0 contributors added to the evaluation", "".join(success_messages))
         self.assertIn(
@@ -978,17 +960,11 @@ class TestPersonImport(ImporterTestCase):
         )
         self.assertFalse(importer_log.has_errors())
 
-        self.assertEqual(self.evaluation1.contributions.count(), 2)
-        self.assertEqual(
-            set(UserProfile.objects.filter(contributions__evaluation=self.evaluation1)), set([self.contributor1])
-        )
-
     def test_import_new_contributor(self):
-        self.assertEqual(self.evaluation1.contributions.count(), 2)
-
-        importer_log = import_persons_from_evaluation(
-            ImportType.CONTRIBUTOR, self.evaluation1, test_run=True, source_evaluation=self.evaluation2
-        )
+        with assert_no_database_modifications():
+            importer_log = import_persons_from_evaluation(
+                ImportType.CONTRIBUTOR, self.evaluation1, test_run=True, source_evaluation=self.evaluation2
+            )
         self.assertFalse(importer_log.has_errors())
         success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("1 contributor would be added to the evaluation", "".join(success_messages))
@@ -1011,9 +987,10 @@ class TestPersonImport(ImporterTestCase):
         )
 
     def test_import_existing_participant(self):
-        importer_log = import_persons_from_evaluation(
-            ImportType.PARTICIPANT, self.evaluation1, test_run=True, source_evaluation=self.evaluation1
-        )
+        with assert_no_database_modifications():
+            importer_log = import_persons_from_evaluation(
+                ImportType.PARTICIPANT, self.evaluation1, test_run=True, source_evaluation=self.evaluation1
+            )
         self.assertFalse(importer_log.has_errors())
         success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("0 participants would be added to the evaluation", "".join(success_messages))
@@ -1022,9 +999,12 @@ class TestPersonImport(ImporterTestCase):
             [msg.message for msg in importer_log.warnings_by_category()[ImporterLogEntry.Category.GENERAL]][0],
         )
 
+        old_participants = set(self.evaluation1.participants.all())
         importer_log = import_persons_from_evaluation(
             ImportType.PARTICIPANT, self.evaluation1, test_run=False, source_evaluation=self.evaluation1
         )
+        self.assertEqual(set(self.evaluation1.participants.all()), old_participants)
+
         self.assertFalse(importer_log.has_errors())
         success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("0 participants added to the evaluation", "".join(success_messages))
@@ -1033,13 +1013,11 @@ class TestPersonImport(ImporterTestCase):
             [msg.message for msg in importer_log.warnings_by_category()[ImporterLogEntry.Category.GENERAL]][0],
         )
 
-        self.assertEqual(self.evaluation1.participants.count(), 1)
-        self.assertEqual(self.evaluation1.participants.get(), self.participant1)
-
     def test_import_new_participant(self):
-        importer_log = import_persons_from_evaluation(
-            ImportType.PARTICIPANT, self.evaluation1, test_run=True, source_evaluation=self.evaluation2
-        )
+        with assert_no_database_modifications():
+            importer_log = import_persons_from_evaluation(
+                ImportType.PARTICIPANT, self.evaluation1, test_run=True, source_evaluation=self.evaluation2
+            )
         self.assertFalse(importer_log.has_errors())
         success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("1 participant would be added to the evaluation", "".join(success_messages))
@@ -1060,11 +1038,10 @@ class TestPersonImport(ImporterTestCase):
         self.participant2.is_active = False
         self.participant2.save()
 
-        import_persons_from_evaluation(
-            ImportType.PARTICIPANT, self.evaluation1, test_run=True, source_evaluation=self.evaluation2
-        )
-        self.participant2.refresh_from_db()
-        self.assertFalse(self.participant2.is_active)
+        with assert_no_database_modifications():
+            import_persons_from_evaluation(
+                ImportType.PARTICIPANT, self.evaluation1, test_run=True, source_evaluation=self.evaluation2
+            )
 
         import_persons_from_evaluation(
             ImportType.PARTICIPANT, self.evaluation1, test_run=False, source_evaluation=self.evaluation2
@@ -1076,11 +1053,10 @@ class TestPersonImport(ImporterTestCase):
         self.contributor2.is_active = False
         self.contributor2.save()
 
-        import_persons_from_evaluation(
-            ImportType.CONTRIBUTOR, self.evaluation1, test_run=True, source_evaluation=self.evaluation2
-        )
-        self.contributor2.refresh_from_db()
-        self.assertFalse(self.contributor2.is_active)
+        with assert_no_database_modifications():
+            import_persons_from_evaluation(
+                ImportType.CONTRIBUTOR, self.evaluation1, test_run=True, source_evaluation=self.evaluation2
+            )
 
         import_persons_from_evaluation(
             ImportType.CONTRIBUTOR, self.evaluation1, test_run=False, source_evaluation=self.evaluation2

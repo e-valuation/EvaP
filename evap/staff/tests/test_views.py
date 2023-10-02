@@ -39,6 +39,7 @@ from evap.evaluation.models import (
 )
 from evap.evaluation.tests.tools import (
     FuzzyInt,
+    assert_no_database_modifications,
     create_evaluation_with_responsible_and_editor,
     let_user_vote_for_evaluation,
     make_manager,
@@ -3085,12 +3086,9 @@ class TestQuestionnaireUpdateIndicesView(WebTestStaffMode):
         self.app.post(self.url, user=self.manager, params=params, status=400)
 
         # invalid values
-        params = {self.questionnaire1.id: "asd", self.questionnaire2.id: 1}
-        self.app.post(self.url, user=self.manager, params=params, status=400)
-
-        # instance not modified
-        self.questionnaire1.refresh_from_db()
-        self.assertEqual(self.questionnaire1.order, 7)
+        with assert_no_database_modifications():
+            params = {self.questionnaire1.id: "asd", self.questionnaire2.id: 1}
+            self.app.post(self.url, user=self.manager, params=params, status=400)
 
         # correct parameters
         params = {self.questionnaire1.id: 0, self.questionnaire2.id: 1}
