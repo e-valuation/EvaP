@@ -22,6 +22,16 @@ extend_skip_glob = ["**/migrations/*"]
 
 ##############################################
 
+[tool.ruff]
+select = ["F", "E", "B", "W", "N", "UP", "YTT"]
+ignore = [
+    "E501",                  # line-too-long: black does code formatting for us
+]
+
+
+##############################################
+
+
 [tool.pylint.master]
 jobs = 0
 

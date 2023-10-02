@@ -53,7 +53,7 @@ Before committing, run the following commands:
 
 or, to combine all three, simply run `./manage.py precommit`.
 
-You can also set up `pylint`, `isort`, `black` and `prettier` in your IDE to avoid doing this manually all the time.
+You can also set up `ruff`, `isort`, `black` and `prettier` in your IDE to avoid doing this manually all the time.
 
 ## License
 
