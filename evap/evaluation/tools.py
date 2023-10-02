@@ -171,6 +171,13 @@ class FormsetView(FormView):
 
 
 class SaveValidFormMixin:
+    """
+    Call `form.save()` if the submitted form is valid.
+
+    Django's `ModelFormMixin` (which inherits from `SingleObjectMixin`) does the same, but cannot always be used, for
+    example if a formset for a collection of objects is submitted.
+    """
+
     def form_valid(self, form):
         form.save()
         return super().form_valid(form)
