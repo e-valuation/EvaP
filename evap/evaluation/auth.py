@@ -103,53 +103,31 @@ def grade_publisher_required(user):
 
 @class_or_function_check_decorator
 def grade_publisher_or_manager_required(user):
-    """
-    Decorator for views that checks that the user is logged in and a grade publisher or a manager
-    """
     return user.is_grade_publisher or user.is_manager
 
 
 @class_or_function_check_decorator
 def grade_downloader_required(user):
-    """
-    Decorator for views that checks that the user is logged in and can download grades
-    """
     return user.can_download_grades
 
 
 @class_or_function_check_decorator
 def responsible_or_contributor_or_delegate_required(user):
-    """
-    Decorator for views that checks that the user is logged in, is responsible for a course, or is a contributor, or is
-    a delegate.
-    """
     return user.is_responsible_or_contributor_or_delegate
 
 
 @class_or_function_check_decorator
 def editor_or_delegate_required(user):
-    """
-    Decorator for views that checks that the user is logged in, has edit rights
-    for at least one evaluation or is a delegate for such a person.
-    """
     return user.is_editor_or_delegate
 
 
 @class_or_function_check_decorator
 def participant_required(user):
-    """
-    Decorator for views that checks that the user is logged in and
-    participates in at least one evaluation.
-    """
     return user.is_participant
 
 
 @class_or_function_check_decorator
 def reward_user_required(user):
-    """
-    Decorator for views that checks that the user is logged in and can use
-    reward points.
-    """
     return can_reward_points_be_used_by(user)
 
 
