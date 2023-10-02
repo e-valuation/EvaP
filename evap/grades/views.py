@@ -49,6 +49,8 @@ class SemesterView(DetailView):
     model = Semester
     pk_url_kwarg = "semester_id"
 
+    object: Semester
+
     def get_object(self, *args, **kwargs):
         semester = super().get_object(*args, **kwargs)
         if semester.grade_documents_are_deleted:
@@ -65,7 +67,6 @@ class SemesterView(DetailView):
 
         return super().get_context_data(**kwargs) | {
             "courses": courses,
-            "disable_if_archived": "disabled",
             "disable_breadcrumb_semester": True,
         }
 
@@ -86,7 +87,6 @@ class CourseView(DetailView):
         return super().get_context_data(**kwargs) | {
             "semester": self.object.semester,
             "grade_documents": self.object.grade_documents.all(),
-            "disable_if_archived": "",
             "disable_breadcrumb_course": True,
         }
 
