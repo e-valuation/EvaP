@@ -225,7 +225,7 @@ def profile_edit(request):
 
 
 @require_POST
-def notebook(request):
+def set_notes(request):
     form = NotebookForm(request.POST, instance=request.user)
     if form.is_valid():
         form.save()

@@ -8,8 +8,7 @@ const NOTEBOOK_FORM_ID = "notebook-form";
 
 class NotebookFormLogic {
     private readonly notebook: HTMLFormElement;
-    // add a class constant
-    private readonly UPDATE_COOLDOWN = 2000;
+    private readonly updateCooldown = 2000;
 
     constructor(notebookFormId: string) {
         this.notebook = unwrap(document.getElementById(notebookFormId)) as HTMLFormElement;
@@ -32,7 +31,7 @@ class NotebookFormLogic {
                 setTimeout(() => {
                     this.notebook.setAttribute("data-state", "ready");
                     submitter.disabled = false;
-                }, this.UPDATE_COOLDOWN);
+                }, this.updateCooldown);
             })
             .catch(() => {
                 this.notebook.setAttribute("data-state", "error");
@@ -48,14 +47,14 @@ class NotebookFormLogic {
 
 export class NotebookLogic {
     private readonly notebook_card: HTMLElement;
-    private readonly evap_content: HTMLElement;
-    private form_logic: NotebookFormLogic;
+    private readonly evapContent: HTMLElement;
+    private formLogic: NotebookFormLogic;
     private readonly localStorageKey: string;
 
     constructor(notebookId: string) {
         this.notebook_card = unwrap(document.getElementById(notebookId));
-        this.form_logic = new NotebookFormLogic(NOTEBOOK_FORM_ID);
-        this.evap_content = unwrap(document.getElementById(WEBSITE_CONTENT_ID));
+        this.formLogic = new NotebookFormLogic(NOTEBOOK_FORM_ID);
+        this.evapContent = unwrap(document.getElementById(WEBSITE_CONTENT_ID));
         this.localStorageKey = NOTEBOOK_LOCALSTORAGE_KEY + "_" + this.notebook_card.dataset.notebookId;
     }
 
@@ -63,7 +62,7 @@ export class NotebookLogic {
         this.notebook_card.classList.add("notebook-container");
 
         localStorage.setItem(this.localStorageKey, "true");
-        this.evap_content.classList.add("notebook-margin");
+        this.evapContent.classList.add("notebook-margin");
         unwrap(document.getElementById(COLLAPSE_TOGGLE_BUTTON_ID)).classList.replace("show", "hide");
     };
 
@@ -71,7 +70,7 @@ export class NotebookLogic {
         this.notebook_card.classList.remove("notebook-container");
 
         localStorage.setItem(this.localStorageKey, "false");
-        this.evap_content.classList.remove("notebook-margin");
+        this.evapContent.classList.remove("notebook-margin");
         unwrap(document.getElementById(COLLAPSE_TOGGLE_BUTTON_ID)).classList.replace("hide", "show");
     };
 
@@ -84,6 +83,6 @@ export class NotebookLogic {
         this.notebook_card.addEventListener("show.bs.collapse", this.onShowNotebook);
         this.notebook_card.addEventListener("hidden.bs.collapse", this.onHideNotebook);
 
-        this.form_logic.attach();
+        this.formLogic.attach();
     };
 }

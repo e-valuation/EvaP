@@ -31,15 +31,6 @@
         display: var(--error-display);
     }
 
-    .notebook-div {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: stretch;
-        align-content: stretch;
-    }
-
     .notebook-button {
         flex: 0 0 auto;
     }
@@ -55,6 +46,11 @@
         vertical-align: center;
     }
 
+    .notebook-textarea {
+        resize: none;
+        flex-grow: 1;
+    }
+
     @media screen and (min-aspect-ratio: $notebook-break) {
         .notebook-container {
             width: 25vw;
@@ -64,13 +60,7 @@
         }
 
         .notebook-card {
-            height: calc((100vh - #{$navbar-brand-height}) - (#{$footer-height} + ((#{$spacer} * 1.5) * 3))); // subtract 3 spacer with padding
-        }
-
-        .notebook-textarea {
-            resize: none;
-            align-self: stretch;
-            flex: 1 1 auto;
+            height: calc((100vh - #{$navbar-brand-height}) - (#{$footer-height} + ((#{$spacer} * 1.5) * 5))); // subtract 3 spacer with padding
         }
     }
     
@@ -82,13 +72,7 @@
         }
 
         .notebook-card {
-            height: calc(50vh - (#{$spacer} * 1.5)); // subtract spacer with padding
-        }
-
-        .notebook-textarea {
-            resize: none;
-            align-self: stretch;
-            flex: 1 1 auto;
+            height: calc(45vh - (#{$spacer} * 1.5) * 2); // subtract spacer with padding
         }
     }
 }

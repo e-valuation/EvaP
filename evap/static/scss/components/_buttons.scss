@@ -1,3 +1,5 @@
+@import "../bootstrap";
+
 .btn.fas {
     font-weight: 900;
 }
@@ -152,11 +154,19 @@ a:not([href]):not(.disabled) {
     min-width: 140px;
 }
 
-.button-notebook {
-    @include media-breakpoint-up(md) {
+@media screen and (min-aspect-ratio: $notebook-break) {
+    .button-open-notebook {
         position: fixed;
         bottom: $footer-height + 20px;
         z-index: $zindex-fixed;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+}
+    
+@media screen and (max-aspect-ratio: $notebook-break) {
+    .button-open-notebook {
+        margin-top: 1rem;
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
     }
