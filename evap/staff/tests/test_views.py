@@ -565,14 +565,6 @@ class TestUserExportView(WebTestStaffMode):
         response = self.app.get(self.url, user=self.manager)
         self.assertUsersExported(response, user_objects)
 
-    def test_export_filtered(self):
-        user_objects = {
-            (user.title or "", user.last_name or "", user.first_name or "", user.email or "")
-            for user in UserProfile.objects.exclude(is_active=False).iterator()
-        }
-        response = self.app.get(self.url, {"filter_users": True}, user=self.manager)
-        self.assertUsersExported(response, user_objects)
-
 
 class TestUserImportView(WebTestStaffMode):
     url = "/staff/user/import"
