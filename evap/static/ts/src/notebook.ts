@@ -54,7 +54,7 @@ export class NotebookLogic {
         this.notebookCard = selectOrError(notebookSelector);
         this.formLogic = new NotebookFormLogic(NOTEBOOK_FORM_SELECTOR);
         this.evapContent = selectOrError(WEBSITE_CONTENT_SELECTOR);
-        this.localStorageKey = NOTEBOOK_LOCALSTORAGE_KEY + "_" + this.notebookCard.dataset.notebookSelector;
+        this.localStorageKey = NOTEBOOK_LOCALSTORAGE_KEY + "_" + notebookSelector;
     }
 
     private onShowNotebook = (): void => {
