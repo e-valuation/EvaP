@@ -1,9 +1,9 @@
 import { unwrap, assert, selectOrError } from "./utils.js";
 
 const NOTEBOOK_LOCALSTORAGE_KEY = "evap_notebook_open";
-const COLLAPSE_TOGGLE_BUTTON_ID = "notebookButton";
-const WEBSITE_CONTENT_ID = "evapContent";
-const NOTEBOOK_FORM_ID = "notebook-form";
+const COLLAPSE_TOGGLE_BUTTON_SELECTOR = "#notebookButton";
+const WEBSITE_CONTENT_SELECTOR = "#evapContent";
+const NOTEBOOK_FORM_SELECTOR = "#notebook-form";
 
 class NotebookFormLogic {
     private readonly notebook: HTMLFormElement;
@@ -50,11 +50,11 @@ export class NotebookLogic {
     private formLogic: NotebookFormLogic;
     private readonly localStorageKey: string;
 
-    constructor(notebookId: string) {
-        this.notebookCard = unwrap(document.getElementById(notebookId));
-        this.formLogic = new NotebookFormLogic(NOTEBOOK_FORM_ID);
-        this.evapContent = unwrap(document.getElementById(WEBSITE_CONTENT_ID));
-        this.localStorageKey = NOTEBOOK_LOCALSTORAGE_KEY + "_" + this.notebookCard.dataset.notebookId;
+    constructor(notebookSelector: string) {
+        this.notebookCard = selectOrError(notebookSelector);
+        this.formLogic = new NotebookFormLogic(NOTEBOOK_FORM_SELECTOR);
+        this.evapContent = selectOrError(WEBSITE_CONTENT_SELECTOR);
+        this.localStorageKey = NOTEBOOK_LOCALSTORAGE_KEY + "_" + this.notebookCard.dataset.notebookSelector;
     }
 
     private onShowNotebook = (): void => {
@@ -62,7 +62,7 @@ export class NotebookLogic {
 
         localStorage.setItem(this.localStorageKey, "true");
         this.evapContent.classList.add("notebook-margin");
-        unwrap(document.getElementById(COLLAPSE_TOGGLE_BUTTON_ID)).classList.replace("show", "hide");
+        selectOrError(COLLAPSE_TOGGLE_BUTTON_SELECTOR).classList.replace("show", "hide");
     };
 
     private onHideNotebook = (): void => {
@@ -70,7 +70,7 @@ export class NotebookLogic {
 
         localStorage.setItem(this.localStorageKey, "false");
         this.evapContent.classList.remove("notebook-margin");
-        unwrap(document.getElementById(COLLAPSE_TOGGLE_BUTTON_ID)).classList.replace("hide", "show");
+        selectOrError(COLLAPSE_TOGGLE_BUTTON_SELECTOR).classList.replace("hide", "show");
     };
 
     public attach = (): void => {

@@ -208,7 +208,7 @@
         <script type="module">
             import  { NotebookLogic } from "{% static 'js/notebook.js' %}"
 
-            new NotebookLogic("notebook").attach();
+            new NotebookLogic("#notebook").attach();
         </script>
 
         {% block additional_javascript %}{% endblock %}
