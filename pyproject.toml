@@ -23,10 +23,19 @@ extend_skip_glob = ["**/migrations/*"]
 ##############################################
 
 [tool.ruff]
+# We'd like to enable N806, but we'd need to allow some special cases that we currently can't:
+# * migrations have model classes as local variables, we use PascalCase for these
+# * custom assert methods use camelCase
+# * Formsets use PascalCase
+
 select = ["F", "E", "B", "W", "N", "UP", "YTT"]
 ignore = [
     "E501",                  # line-too-long: black does code formatting for us
+    "N806",
 ]
+
+ignore-init-module-imports = true
+pep8-naming.extend-ignore-names = ["assert*", "*Formset"]
 
 
 ##############################################
