@@ -47,9 +47,7 @@
 
         {% if user.is_authenticated %}
             {% include 'notebook.html' %}
-        {% endif %}
 
-        {% if user.is_authenticated %}
             <div class="collapse show" tabindex="-1" id="notebookButton">
                 <button class="btn btn-outline-secondary button-open-notebook" type="button" data-bs-toggle="collapse" data-bs-target="#notebook">
                     <span class="fas fa-pen-to-square"></span>
