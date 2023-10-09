@@ -2120,18 +2120,12 @@ def user_list(request):
 
 @manager_required
 def user_export(request):
-    filter_users = get_parameter_from_url_or_session(request, "filter_users")
-
-    users = UserProfile.objects.all()
-    if filter_users:
-        users = users.exclude(is_active=False)
-
     io = BytesIO()
     Writer = codecs.getwriter("utf-8")
     writer = csv.writer(Writer(io))
     row = (_("Title"), _("Last name"), _("First name"), _("Email"))
     writer.writerow(row)
-    writer.writerows((user.title, user.last_name, user.first_name, user.email) for user in users)
+    writer.writerows((user.title, user.last_name, user.first_name, user.email) for user in UserProfile.objects.iterator())
 
     io.seek(0)
     return FileResponse(io, as_attachment=True, filename="exported_users.csv")
