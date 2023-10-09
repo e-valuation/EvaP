@@ -1947,20 +1947,27 @@ class TestCourseEditView(WebTestStaffMode):
         self.course = Course.objects.get(pk=self.course.pk)
         self.assertEqual(self.course.name_en, "A different name")
 
-    @patch("evap.staff.views.redirect")
-    def test_operation_redirects(self, mock_redirect):
-        mock_redirect.side_effect = lambda *_args: HttpResponse()
+    @patch("evap.staff.views.reverse")
+    def test_operation_redirects(self, mock_reverse):
+        mock_reverse.return_value = "/very_legit_url"
 
-        self.prepare_form("a").submit("operation", value="save")
-        self.assertEqual(mock_redirect.call_args.args[0], "staff:semester_view")
+        response = self.prepare_form("a").submit("operation", value="save")
+        self.assertEqual(mock_reverse.call_args.args[0], "staff:semester_view")
+        self.assertRedirects(response, "/very_legit_url", fetch_redirect_response=False)
 
-        self.prepare_form("b").submit("operation", value="save_create_evaluation")
-        self.assertEqual(mock_redirect.call_args.args[0], "staff:evaluation_create_for_course")
+        response = self.prepare_form("b").submit("operation", value="save_create_evaluation")
+        self.assertEqual(mock_reverse.call_args.args[0], "staff:evaluation_create_for_course")
+        self.assertRedirects(response, "/very_legit_url", fetch_redirect_response=False)
 
-        self.prepare_form("c").submit("operation", value="save_create_single_result")
-        self.assertEqual(mock_redirect.call_args.args[0], "staff:single_result_create_for_course")
+        response = self.prepare_form("c").submit("operation", value="save_create_single_result")
+        self.assertEqual(mock_reverse.call_args.args[0], "staff:single_result_create_for_course")
+        self.assertRedirects(response, "/very_legit_url", fetch_redirect_response=False)
 
-        self.assertEqual(mock_redirect.call_count, 3)
+        self.assertEqual(mock_reverse.call_count, 3)
+
+    @patch("evap.evaluation.models.Course.can_be_edited_by_manager", False)
+    def test_uneditable_course(self):
+        self.prepare_form(name_en="A different name").submit("operation", value="save", status=400)
 
 
 class TestCourseDeleteView(DeleteViewTestMixin, WebTestStaffMode):
@@ -3480,11 +3487,20 @@ class TestTemplateEditView(WebTestStaffMode):
         self.assertEqual(self.template.plain_content, "plain_content: mflkd862xmnbo5")
         self.assertEqual(self.template.html_content, "html_content: <p>mflkd862xmnbo5</p>")
 
-    def test_review_reminder_template_tag(self):
-        review_reminder_template = EmailTemplate.objects.get(name=EmailTemplate.TEXT_ANSWER_REVIEW_REMINDER)
-        page = self.app.get(f"/staff/template/{review_reminder_template.pk}", user=self.manager, status=200)
+    def test_available_variables(self):
+        # We want to trigger all paths to ensure there are no syntax errors.
+        expected_variables = {
+            EmailTemplate.STUDENT_REMINDER: "first_due_in_days",
+            EmailTemplate.EDITOR_REVIEW_NOTICE: "evaluations",
+            EmailTemplate.TEXT_ANSWER_REVIEW_REMINDER: "evaluation_url_tuples",
+            EmailTemplate.EVALUATION_STARTED: "due_evaluations",
+            EmailTemplate.DIRECT_DELEGATION: "delegate_user",
+        }
 
-        self.assertContains(page, "evaluation_url_tuples")
+        for name, variable in expected_variables.items():
+            template = EmailTemplate.objects.get(name=name)
+            page = self.app.get(f"/staff/template/{template.pk}", user=self.manager, status=200)
+            self.assertContains(page, variable)
 
 
 class TestTextAnswerWarningsView(WebTestStaffMode):

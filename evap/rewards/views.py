@@ -1,13 +1,17 @@
 from datetime import datetime
 
 from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import BadRequest, SuspiciousOperation
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse_lazy
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 from django.views.decorators.http import require_POST
+from django.views.generic import CreateView, UpdateView
 
 from evap.evaluation.auth import manager_required, reward_user_required
 from evap.evaluation.models import Semester
@@ -104,30 +108,23 @@ def reward_point_redemption_events(request):
 
 
 @manager_required
-def reward_point_redemption_event_create(request):
-    event = RewardPointRedemptionEvent()
-    form = RewardPointRedemptionEventForm(request.POST or None, instance=event)
-
-    if form.is_valid():
-        form.save()
-        messages.success(request, _("Successfully created event."))
-        return redirect("rewards:reward_point_redemption_events")
-
-    return render(request, "rewards_reward_point_redemption_event_form.html", {"form": form})
+class RewardPointRedemptionEventCreateView(SuccessMessageMixin, CreateView):
+    model = RewardPointRedemptionEvent
+    form_class = RewardPointRedemptionEventForm
+    template_name = "rewards_reward_point_redemption_event_form.html"
+    success_url = reverse_lazy("rewards:reward_point_redemption_events")
+    success_message = gettext_lazy("Successfully created event.")
 
 
 @manager_required
-def reward_point_redemption_event_edit(request, event_id):
-    event = get_object_or_404(RewardPointRedemptionEvent, id=event_id)
-    form = RewardPointRedemptionEventForm(request.POST or None, instance=event)
-
-    if form.is_valid():
-        event = form.save()
-
-        messages.success(request, _("Successfully updated event."))
-        return redirect("rewards:reward_point_redemption_events")
-
-    return render(request, "rewards_reward_point_redemption_event_form.html", {"event": event, "form": form})
+class RewardPointRedemptionEventEditView(SuccessMessageMixin, UpdateView):
+    model = RewardPointRedemptionEvent
+    form_class = RewardPointRedemptionEventForm
+    template_name = "rewards_reward_point_redemption_event_form.html"
+    success_url = reverse_lazy("rewards:reward_point_redemption_events")
+    success_message = gettext_lazy("Successfully updated event.")
+    pk_url_kwarg = "event_id"
+    context_object_name = "event"
 
 
 @require_POST

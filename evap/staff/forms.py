@@ -1046,6 +1046,7 @@ class UserForm(forms.ModelForm):
                 cache_results(evaluation)
 
         self.instance.save()
+        return self.instance
 
 
 class UserMergeSelectionForm(forms.Form):
@@ -1055,12 +1056,6 @@ class UserMergeSelectionForm(forms.Form):
 
 class UserEditSelectionForm(forms.Form):
     user = UserModelChoiceField(UserProfile.objects.all())
-
-
-class EmailTemplateForm(forms.ModelForm):
-    class Meta:
-        model = EmailTemplate
-        fields = ("subject", "plain_content", "html_content")
 
 
 class FaqSectionForm(forms.ModelForm):
