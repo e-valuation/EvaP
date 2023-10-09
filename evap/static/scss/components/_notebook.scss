@@ -27,9 +27,6 @@
     .visible-if-successful {
         display: var(--successful-display);
     }
-    .visible-if-error {
-        display: var(--error-display);
-    }
 
     .notebook-button {
         flex: 0 0 auto;
