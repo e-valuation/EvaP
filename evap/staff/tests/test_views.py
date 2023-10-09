@@ -1964,6 +1964,10 @@ class TestCourseEditView(WebTestStaffMode):
 
         self.assertEqual(mock_reverse.call_count, 3)
 
+    @patch("evap.evaluation.models.Course.can_be_edited_by_manager", False)
+    def test_uneditable_course(self):
+        self.prepare_form(name_en="A different name").submit("operation", value="save", status=400)
+
 
 class TestCourseDeleteView(DeleteViewTestMixin, WebTestStaffMode):
     url = reverse("staff:course_delete")
@@ -3485,11 +3489,20 @@ class TestTemplateEditView(WebTestStaffMode):
         self.assertEqual(self.template.plain_content, "plain_content: mflkd862xmnbo5")
         self.assertEqual(self.template.html_content, "html_content: <p>mflkd862xmnbo5</p>")
 
-    def test_review_reminder_template_tag(self):
-        review_reminder_template = EmailTemplate.objects.get(name=EmailTemplate.TEXT_ANSWER_REVIEW_REMINDER)
-        page = self.app.get(f"/staff/template/{review_reminder_template.pk}", user=self.manager, status=200)
+    def test_available_variables(self):
+        # We want to trigger all paths to ensure there are no syntax errors.
+        expected_variables = {
+            EmailTemplate.STUDENT_REMINDER: "first_due_in_days",
+            EmailTemplate.EDITOR_REVIEW_NOTICE: "evaluations",
+            EmailTemplate.TEXT_ANSWER_REVIEW_REMINDER: "evaluation_url_tuples",
+            EmailTemplate.EVALUATION_STARTED: "due_evaluations",
+            EmailTemplate.DIRECT_DELEGATION: "delegate_user",
+        }
 
-        self.assertContains(page, "evaluation_url_tuples")
+        for name, variable in expected_variables.items():
+            template = EmailTemplate.objects.get(name=name)
+            page = self.app.get(f"/staff/template/{template.pk}", user=self.manager, status=200)
+            self.assertContains(page, variable)
 
 
 class TestTextAnswerWarningsView(WebTestStaffMode):
