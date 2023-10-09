@@ -1,7 +1,7 @@
 <div class="notebook">
    <div class="collapse position-fixed collapse-horizontal notebook-animation mt-0 d-print-none" tabindex="-1" id="notebook" aria-expanded="false">
         <div class="card">
-            <div class="offcanvas-header notebook-button pt-3 ps-3 pe-3">
+            <div class="offcanvas-header pt-3 ps-3 pe-3">
                 <h5 class="card-title m-0">
                     {% trans 'Notebook' %}
                 </h5>
@@ -12,7 +12,7 @@
                 <div class="card-body notebook-card d-flex flex-column" data-state="ready">
                     {% csrf_token %}
                     {{ notebook_form.notes }}
-                    <div class="d-flex justify-content-center pt-3 notebook-button">
+                    <div class="d-flex justify-content-center pt-3">
                         <button class="btn btn-primary" type="submit" data-errormessage="{% trans 'The server is not responding.' %}">
                             <span class="visible-if-ready">{% trans 'Save' %}</span>
                             <span class="visible-if-sending">{% trans 'Sending...' %}</span>

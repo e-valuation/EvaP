@@ -27,11 +27,7 @@
     .visible-if-successful {
         display: var(--successful-display);
     }
-
-    .notebook-button {
-        flex: 0 0 auto;
-    }
-
+    
     .notebook-animation {
         transition: width .0s !important; // disable predefined bootstrap animation
     }

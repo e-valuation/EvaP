@@ -46,42 +46,42 @@ class NotebookFormLogic {
 }
 
 export class NotebookLogic {
-    private readonly notebook_card: HTMLElement;
+    private readonly notebookCard: HTMLElement;
     private readonly evapContent: HTMLElement;
     private formLogic: NotebookFormLogic;
-    private readonly local_storage_key: string;
+    private readonly localStorageKey: string;
 
     constructor(notebookId: string) {
-        this.notebook_card = unwrap(document.getElementById(notebookId));
+        this.notebookCard = unwrap(document.getElementById(notebookId));
         this.formLogic = new NotebookFormLogic(NOTEBOOK_FORM_ID);
         this.evapContent = unwrap(document.getElementById(WEBSITE_CONTENT_ID));
-        this.local_storage_key = NOTEBOOK_LOCALSTORAGE_KEY + "_" + this.notebook_card.dataset.notebookId;
+        this.localStorageKey = NOTEBOOK_LOCALSTORAGE_KEY + "_" + this.notebookCard.dataset.notebookId;
     }
 
     private onShowNotebook = (): void => {
-        this.notebook_card.classList.add("notebook-container");
+        this.notebookCard.classList.add("notebook-container");
 
-        localStorage.setItem(this.local_storage_key, "true");
+        localStorage.setItem(this.localStorageKey, "true");
         this.evapContent.classList.add("notebook-margin");
         unwrap(document.getElementById(COLLAPSE_TOGGLE_BUTTON_ID)).classList.replace("show", "hide");
     };
 
     private onHideNotebook = (): void => {
-        this.notebook_card.classList.remove("notebook-container");
+        this.notebookCard.classList.remove("notebook-container");
 
-        localStorage.setItem(this.local_storage_key, "false");
+        localStorage.setItem(this.localStorageKey, "false");
         this.evapContent.classList.remove("notebook-margin");
         unwrap(document.getElementById(COLLAPSE_TOGGLE_BUTTON_ID)).classList.replace("hide", "show");
     };
 
     public attach = (): void => {
-        if (localStorage.getItem(this.local_storage_key) == "true") {
-            this.notebook_card.classList.add("show");
+        if (localStorage.getItem(this.localStorageKey) == "true") {
+            this.notebookCard.classList.add("show");
             this.onShowNotebook();
         }
 
-        this.notebook_card.addEventListener("show.bs.collapse", this.onShowNotebook);
-        this.notebook_card.addEventListener("hidden.bs.collapse", this.onHideNotebook);
+        this.notebookCard.addEventListener("show.bs.collapse", this.onShowNotebook);
+        this.notebookCard.addEventListener("hidden.bs.collapse", this.onHideNotebook);
 
         this.formLogic.attach();
     };
