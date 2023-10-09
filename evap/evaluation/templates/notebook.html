@@ -8,8 +8,8 @@
                 <button type="button" class="btn-close text-reset" data-bs-toggle="collapse" data-bs-target="#notebook" id="notebookButtonClose"></button>
             </div>
 
-            <form method="POST" action="{% url 'evaluation:notebook_edit' %}" id="notebook-form" data-state="ready">
-                <div class="card-body notebook-card d-flex flex-column" data-state="ready">
+            <form method="POST" action="{% url 'evaluation:set_notes' %}" id="notebook-form" data-state="ready">
+                <div class="card-body notebook-card d-flex flex-column">
                     {% csrf_token %}
                     {{ notebook_form.notes }}
                     <div class="d-flex justify-content-center pt-3">

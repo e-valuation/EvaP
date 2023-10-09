@@ -1,5 +1,4 @@
-declare const bootstrap: typeof import("bootstrap");
-import { unwrap, assert } from "./utils.js";
+import { unwrap, assert, selectOrError } from "./utils.js";
 
 const NOTEBOOK_LOCALSTORAGE_KEY = "evap_notebook_open";
 const COLLAPSE_TOGGLE_BUTTON_ID = "notebookButton";
@@ -11,7 +10,7 @@ class NotebookFormLogic {
     private readonly updateCooldown = 2000;
 
     constructor(notebookFormId: string) {
-        this.notebook = unwrap(document.getElementById(notebookFormId)) as HTMLFormElement;
+        this.notebook = selectOrError(notebookFormId);
     }
 
     private onSubmit = (event: SubmitEvent): void => {
