@@ -12,6 +12,7 @@ from django.db.models import Model
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import get_language
+from django.views.generic import FormView
 
 M = TypeVar("M", bound=Model)
 T = TypeVar("T")
@@ -136,6 +137,50 @@ def ilen(iterable):
 def assert_not_none(value: T | None) -> T:
     assert value is not None
     return value
+
+
+class FormsetView(FormView):
+    """
+    Just like `FormView`, but with a renaming from "form" to "formset".
+    """
+
+    @property
+    def form_class(self):
+        return self.formset_class
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["formset"] = context.pop("form")
+        return context
+
+    # As an example for the logic, consider the following: Django calls `get_form_kwargs`, which we delegate to
+    # `get_formset_kwargs`. Users can thus override `get_formset_kwargs` instead. If it is not overridden, we delegate
+    # to the original `get_form_kwargs` instead. The same approach is used for the other renamed methods.
+
+    def get_form_kwargs(self):
+        return self.get_formset_kwargs()
+
+    def get_formset_kwargs(self):
+        return super().get_form_kwargs()
+
+    def form_valid(self, form):
+        return self.formset_valid(form)
+
+    def formset_valid(self, formset):
+        return super().form_valid(formset)
+
+
+class SaveValidFormMixin:
+    """
+    Call `form.save()` if the submitted form is valid.
+
+    Django's `ModelFormMixin` (which inherits from `SingleObjectMixin`) does the same, but cannot always be used, for
+    example if a formset for a collection of objects is submitted.
+    """
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
 
 
 class AttachmentResponse(HttpResponse):

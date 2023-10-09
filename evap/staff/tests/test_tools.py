@@ -4,6 +4,7 @@ from django.utils.html import escape
 from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Course, Evaluation, UserProfile
+from evap.evaluation.tests.tools import assert_no_database_modifications
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption
 from evap.staff.tools import (
     conditional_escape,
@@ -99,6 +100,7 @@ class MergeUsersTest(TestCase):
             "language",  # Not worth dealing with
             "Evaluation_voters+",  # some more intermediate models, for an explanation see above
             "Evaluation_participants+",  # intermediate model
+            "startpage",  # not worth dealing with
         }
         expected_attrs = set(all_attrs) - ignored_attrs
 
@@ -120,50 +122,11 @@ class MergeUsersTest(TestCase):
         self.assertEqual(expected_attrs, actual_attrs)
 
     def test_merge_users_does_not_change_data_on_fail(self):
-        __, errors, warnings = merge_users(self.main_user, self.other_user)  # merge should fail
+        with assert_no_database_modifications():
+            __, errors, warnings = merge_users(self.main_user, self.other_user)  # merge should fail
+
         self.assertCountEqual(errors, ["contributions", "evaluations_participating_in"])
         self.assertCountEqual(warnings, ["rewards"])
-
-        # assert that nothing has changed
-        self.main_user.refresh_from_db()
-        self.other_user.refresh_from_db()
-
-        self.assertEqual(self.main_user.title, "Dr.")
-        self.assertEqual(self.main_user.first_name_given, "Main")
-        self.assertEqual(self.main_user.first_name_chosen, "")
-        self.assertEqual(self.main_user.last_name, "")
-        self.assertEqual(self.main_user.email, None)
-        self.assertFalse(self.main_user.is_superuser)
-        self.assertEqual(set(self.main_user.groups.all()), {self.group1})
-        self.assertEqual(set(self.main_user.delegates.all()), {self.user1, self.user2})
-        self.assertEqual(set(self.main_user.represented_users.all()), {self.user3})
-        self.assertEqual(set(self.main_user.cc_users.all()), {self.user1})
-        self.assertEqual(set(self.main_user.ccing_users.all()), set())
-        self.assertTrue(RewardPointGranting.objects.filter(user_profile=self.main_user).exists())
-        self.assertTrue(RewardPointRedemption.objects.filter(user_profile=self.main_user).exists())
-
-        self.assertEqual(self.other_user.title, "")
-        self.assertEqual(self.other_user.first_name_given, "Other")
-        self.assertEqual(self.other_user.first_name_chosen, "other-display-name")
-        self.assertEqual(self.other_user.last_name, "User")
-        self.assertEqual(self.other_user.email, "other@test.com")
-        self.assertEqual(set(self.other_user.groups.all()), {self.group2})
-        self.assertEqual(set(self.other_user.delegates.all()), {self.user3})
-        self.assertEqual(set(self.other_user.represented_users.all()), {self.user1})
-        self.assertEqual(set(self.other_user.cc_users.all()), set())
-        self.assertEqual(set(self.other_user.ccing_users.all()), {self.user1, self.user2})
-        self.assertTrue(RewardPointGranting.objects.filter(user_profile=self.other_user).exists())
-        self.assertTrue(RewardPointRedemption.objects.filter(user_profile=self.other_user).exists())
-
-        self.assertEqual(set(self.course1.responsibles.all()), {self.main_user})
-        self.assertEqual(set(self.course2.responsibles.all()), {self.main_user})
-        self.assertEqual(set(self.course3.responsibles.all()), {self.other_user})
-        self.assertEqual(set(self.evaluation1.participants.all()), {self.main_user, self.other_user})
-        self.assertEqual(set(self.evaluation1.participants.all()), {self.main_user, self.other_user})
-        self.assertEqual(set(self.evaluation2.participants.all()), {self.main_user})
-        self.assertEqual(set(self.evaluation2.voters.all()), {self.main_user})
-        self.assertEqual(set(self.evaluation3.participants.all()), {self.other_user})
-        self.assertEqual(set(self.evaluation3.voters.all()), {self.other_user})
 
     def test_merge_users_changes_data_on_success(self):
         # Fix data so that the merge will not fail as in test_merge_users_does_not_change_data_on_fail

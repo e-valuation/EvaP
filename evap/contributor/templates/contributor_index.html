@@ -16,7 +16,7 @@
             <a href="{% url 'contributor:export' %}" class="btn btn-sm btn-light">{% trans 'Export results' %}</a>
         </div>
         {% if user.is_delegate %}
-            <div class="btn-switch btn-switch-light mb-auto ms-2 d-print-none">
+            <div class="btn-switch btn-switch-light ms-2 d-print-none">
                 <div class="btn-switch-label"><span class="fas fa-people-arrows-left-right"></span> {% trans 'Delegated evaluations' %}</div>
                 <div class="btn-switch btn-group">
                     <a href="{% url 'contributor:index' %}?show_delegated=true" role="button" class="btn btn-sm btn-light{% if show_delegated %} active{% endif %}">
@@ -28,6 +28,12 @@
                 </div>
             </div>
         {% endif %}
+        {% if user.show_startpage_button %}
+            <div class="ms-2 d-print-none">
+                {% include 'startpage_button.html' with page='CO' btnClass='btn-sm' %}
+            </div>
+        {% endif %}
+
     </div>
 
     {% for semester in semester_list %}
@@ -222,14 +228,15 @@
 
         <script type="text/javascript">
             function {{ modal_id }}Show(evaluationName, action) {
+                const modal = document.getElementById("{{ modal_id }}");
                 // set form's action location
-                $('#{{ modal_id }} form').attr('action', action);
+                modal.querySelectorAll("form").forEach(form => form.action = action);
 
                 // put the correct evaluation name in the modal
-                $('#{{ modal_id }} [data-label=""]').text(evaluationName);
+                modal.querySelectorAll('[data-label=""]').forEach(el => el.innerText = evaluationName);
 
                 // unselect any previously selected options in the modal
-                $('#{{ modal_id }} select').val(null).trigger('change');
+                modal.querySelectorAll("select").forEach(select => select.tomselect.clear());
 
                 // show modal
                 var {{ modal_id }} = new bootstrap.Modal(document.getElementById('{{ modal_id }}'));

@@ -65,6 +65,7 @@
         <script type="text/javascript" src="{% static 'js/Sortable.min.js' %}"></script>
 
         <script type="module" src="{% static 'js/csrf-utils.js' %}"></script>
+        <script type="module" src="{% static 'js/utils.js' %}"></script>
 
         <script type="module" src="{% static 'js/base-template.js' %}"></script>
         <script type="text/javascript">
@@ -82,17 +83,23 @@
             activateTooltips();
 
             // These are workarounds around incompatibilities of django, django-dynamic-formsets, and tomselect.
-            // tomselect can't handle already tomselect'd forms that were copies made by
-            // django-dynamic-formsets' "add another" button, so we take a copy of a non-tomselect'd form here
-            var templateForm = $(".tomselecttr").last().clone();
+            // tomselect can't handle already tomselect'd forms that were copies made by django-dynamic-formsets'
+            // "add another" button, so we take a copy of a non-tomselect'd form here
+            const tomSelectRows = document.querySelectorAll(".tomselecttr");
 
-            // later we use this class to give this to django-dynamic-formsets
-            // as template and to make sure it does not get tomselect'd
-            templateForm.addClass("form-template").css("display", "none");
-            // for some reason django-dynamic-formsets does not hide the checkbox like it should
-            templateForm.find(':checkbox').last().attr("type", "hidden");
-            // For some reason, django validates this template if it's part of the form, so we insert the copy outside of the form.
-            templateForm.insertAfter($('.tomselectform'));
+            if(tomSelectRows.length != 0) {
+                const templateForm = tomSelectRows[tomSelectRows.length - 1].cloneNode(true);
+
+                // later we use this class to give this to django-dynamic-formsets as template and to make sure it does not get tomselect'd
+                templateForm.classList.add("form-template");
+                templateForm.style.display = "none";
+
+                // django-dynamic-formsets doesn't hide the "delete this row" input in the clone since it's not part of the formset.
+                templateForm.querySelectorAll("input[id$=-DELETE]").forEach(input => {input.type = "hidden";});
+
+                // For some reason, django validates this template if it's part of the form, so we insert the copy outside of the form.
+                document.querySelector(".tomselectform").insertAdjacentElement("afterend", templateForm);
+            }
 
             // used in derived templates. Tag inputs are multi-inputs where users can add options
             const tagTomSelectOptions = {
@@ -145,6 +152,7 @@
                         },
                         closeAfterSelect: true, // also clears search input on enter.
                         plugins: {},
+                        hideSelected: false,
                     };
                     if(element.hasAttribute("data-tomselect-fullwidth")) {
                         // span needed to the "remove this icon" button is right-aligned
@@ -159,27 +167,29 @@
             };
             applyTomSelect(document.querySelectorAll("select:not(.form-template select):not(.no-tomselect)"));
 
-            document.addEventListener('change', function(e){
-               $(e.target).removeClass("invalid")
-            }, true);
+            document.addEventListener('change', e => e.target.classList.remove("invalid"), true);
 
             // activate clickable hover tables
-            $(".table-seamless-links [data-url]").each(function() {
-                const row = $(this);
-                const link = "<a href='" + row.data("url") + "'></a>";
-                row.children().wrapInner(link);
+            document.querySelectorAll(".table-seamless-links [data-url]").forEach(row => {
+                for(const table_data of row.children) {
+                    const wrapping_anchor = document.createElement("a");
+                    wrapping_anchor.href = row.dataset["url"];
+                    wrapping_anchor.append(...table_data.childNodes);
+                    table_data.replaceChildren(wrapping_anchor);
+                }
             });
 
-            $(".hover-row").each(function() {
-                const row = $(this);
-                row
-                    .find(".btn:not(.btn-row-hover)")
-                    .mouseover(() => row.removeClass("hover-row"))
-                    .mouseout(() => row.addClass("hover-row"));
+            document.querySelectorAll(".hover-row").forEach(row => {
+                row.querySelectorAll(".btn:not(.btn-row-hover)").forEach(button => {
+                    button.addEventListener("mouseover", () => row.classList.remove("hover-row"));
+                    button.addEventListener("mouseout", () => row.classList.add("hover-row"));
+                });
             });
 
             function setSpinnerIcon(id) {
-                $("#" + id).empty().removeClass().addClass('fas fa-spinner fa-spin');
+                const element = document.getElementById(id);
+                element.innerHTML = "";
+                element.className = "fas fa-spinner fa-spin";  // clears all other classes
             };
         </script>
 

@@ -41,6 +41,7 @@ from evap.evaluation.models import (
 )
 from evap.evaluation.tests.tools import (
     FuzzyInt,
+    assert_no_database_modifications,
     create_evaluation_with_responsible_and_editor,
     let_user_vote_for_evaluation,
     make_manager,
@@ -1990,20 +1991,27 @@ class TestCourseEditView(WebTestStaffMode):
         self.course = Course.objects.get(pk=self.course.pk)
         self.assertEqual(self.course.name_en, "A different name")
 
-    @patch("evap.staff.views.redirect")
-    def test_operation_redirects(self, mock_redirect):
-        mock_redirect.side_effect = lambda *_args: HttpResponse()
+    @patch("evap.staff.views.reverse")
+    def test_operation_redirects(self, mock_reverse):
+        mock_reverse.return_value = "/very_legit_url"
 
-        self.prepare_form("a").submit("operation", value="save")
-        self.assertEqual(mock_redirect.call_args.args[0], "staff:semester_view")
+        response = self.prepare_form("a").submit("operation", value="save")
+        self.assertEqual(mock_reverse.call_args.args[0], "staff:semester_view")
+        self.assertRedirects(response, "/very_legit_url", fetch_redirect_response=False)
 
-        self.prepare_form("b").submit("operation", value="save_create_evaluation")
-        self.assertEqual(mock_redirect.call_args.args[0], "staff:evaluation_create_for_course")
+        response = self.prepare_form("b").submit("operation", value="save_create_evaluation")
+        self.assertEqual(mock_reverse.call_args.args[0], "staff:evaluation_create_for_course")
+        self.assertRedirects(response, "/very_legit_url", fetch_redirect_response=False)
 
-        self.prepare_form("c").submit("operation", value="save_create_single_result")
-        self.assertEqual(mock_redirect.call_args.args[0], "staff:single_result_create_for_course")
+        response = self.prepare_form("c").submit("operation", value="save_create_single_result")
+        self.assertEqual(mock_reverse.call_args.args[0], "staff:single_result_create_for_course")
+        self.assertRedirects(response, "/very_legit_url", fetch_redirect_response=False)
 
-        self.assertEqual(mock_redirect.call_count, 3)
+        self.assertEqual(mock_reverse.call_count, 3)
+
+    @patch("evap.evaluation.models.Course.can_be_edited_by_manager", False)
+    def test_uneditable_course(self):
+        self.prepare_form(name_en="A different name").submit("operation", value="save", status=400)
 
 
 class TestCourseDeleteView(DeleteViewTestMixin, WebTestStaffMode):
@@ -2587,7 +2595,7 @@ class TestEvaluationTextAnswerView(WebTest):
         )
         cls.url = reverse("staff:evaluation_textanswers", args=[cls.evaluation.pk])
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionType.LIKERT)
+        baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionType.POSITIVE_LIKERT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
 
         questionnaire = baker.make(Questionnaire)
@@ -2799,7 +2807,7 @@ class TestEvaluationTextAnswerEditView(WebTestStaffMode):
             state=Evaluation.State.IN_EVALUATION,
         )
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionType.LIKERT)
+        baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionType.POSITIVE_LIKERT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
         question = baker.make(Question, type=QuestionType.TEXT)
 
@@ -3052,7 +3060,7 @@ class TestQuestionnaireViewView(WebTestStaffModeWith200Check):
         baker.make(
             Question,
             questionnaire=questionnaire,
-            type=iter([QuestionType.TEXT, QuestionType.GRADE, QuestionType.LIKERT]),
+            type=iter([QuestionType.TEXT, QuestionType.GRADE, QuestionType.POSITIVE_LIKERT]),
             _quantity=3,
             _bulk_create=True,
             allows_additional_textanswers=False,
@@ -3129,12 +3137,9 @@ class TestQuestionnaireUpdateIndicesView(WebTestStaffMode):
         self.app.post(self.url, user=self.manager, params=params, status=400)
 
         # invalid values
-        params = {self.questionnaire1.id: "asd", self.questionnaire2.id: 1}
-        self.app.post(self.url, user=self.manager, params=params, status=400)
-
-        # instance not modified
-        self.questionnaire1.refresh_from_db()
-        self.assertEqual(self.questionnaire1.order, 7)
+        with assert_no_database_modifications():
+            params = {self.questionnaire1.id: "asd", self.questionnaire2.id: 1}
+            self.app.post(self.url, user=self.manager, params=params, status=400)
 
         # correct parameters
         params = {self.questionnaire1.id: 0, self.questionnaire2.id: 1}
@@ -3307,7 +3312,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
             state=Evaluation.State.IN_EVALUATION,
         )
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionType.LIKERT)
+        baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionType.POSITIVE_LIKERT)
         cls.text_question = baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionType.TEXT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
 
@@ -3526,11 +3531,20 @@ class TestTemplateEditView(WebTestStaffMode):
         self.assertEqual(self.template.plain_content, "plain_content: mflkd862xmnbo5")
         self.assertEqual(self.template.html_content, "html_content: <p>mflkd862xmnbo5</p>")
 
-    def test_review_reminder_template_tag(self):
-        review_reminder_template = EmailTemplate.objects.get(name=EmailTemplate.TEXT_ANSWER_REVIEW_REMINDER)
-        page = self.app.get(f"/staff/template/{review_reminder_template.pk}", user=self.manager, status=200)
+    def test_available_variables(self):
+        # We want to trigger all paths to ensure there are no syntax errors.
+        expected_variables = {
+            EmailTemplate.STUDENT_REMINDER: "first_due_in_days",
+            EmailTemplate.EDITOR_REVIEW_NOTICE: "evaluations",
+            EmailTemplate.TEXT_ANSWER_REVIEW_REMINDER: "evaluation_url_tuples",
+            EmailTemplate.EVALUATION_STARTED: "due_evaluations",
+            EmailTemplate.DIRECT_DELEGATION: "delegate_user",
+        }
 
-        self.assertContains(page, "evaluation_url_tuples")
+        for name, variable in expected_variables.items():
+            template = EmailTemplate.objects.get(name=name)
+            page = self.app.get(f"/staff/template/{template.pk}", user=self.manager, status=200)
+            self.assertContains(page, variable)
 
 
 class TestTextAnswerWarningsView(WebTestStaffMode):

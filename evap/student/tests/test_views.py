@@ -82,7 +82,7 @@ class TestVoteView(WebTest):
             Question, questionnaire=cls.contributor_questionnaire, order=1, type=QuestionType.TEXT
         )
         cls.contributor_likert_question = baker.make(
-            Question, questionnaire=cls.contributor_questionnaire, order=2, type=QuestionType.LIKERT
+            Question, questionnaire=cls.contributor_questionnaire, order=2, type=QuestionType.POSITIVE_LIKERT
         )
 
         cls.top_heading_question = baker.make(
@@ -92,7 +92,7 @@ class TestVoteView(WebTest):
             Question, questionnaire=cls.top_general_questionnaire, order=1, type=QuestionType.TEXT
         )
         cls.top_likert_question = baker.make(
-            Question, questionnaire=cls.top_general_questionnaire, order=2, type=QuestionType.LIKERT
+            Question, questionnaire=cls.top_general_questionnaire, order=2, type=QuestionType.POSITIVE_LIKERT
         )
         cls.top_grade_question = baker.make(
             Question, questionnaire=cls.top_general_questionnaire, order=3, type=QuestionType.GRADE
@@ -105,7 +105,7 @@ class TestVoteView(WebTest):
             Question, questionnaire=cls.bottom_general_questionnaire, order=1, type=QuestionType.TEXT
         )
         cls.bottom_likert_question = baker.make(
-            Question, questionnaire=cls.bottom_general_questionnaire, order=2, type=QuestionType.LIKERT
+            Question, questionnaire=cls.bottom_general_questionnaire, order=2, type=QuestionType.POSITIVE_LIKERT
         )
         cls.bottom_grade_question = baker.make(
             Question, questionnaire=cls.bottom_general_questionnaire, order=3, type=QuestionType.GRADE

@@ -8,10 +8,15 @@
     {% show_infotext "grades_pages" %}
 
     <div class="row mb-3 align-items-center">
-        <h3 class="col-9 mb-0">
+        <h3 class="col-8 mb-0">
             {{ semester.name }}
         </h3>
-        <div class="col-3">
+        <div class="col-4 d-flex">
+            {% if user.show_startpage_button and semester.is_active %}
+                <div class="me-2 d-print-none">
+                    {% include 'startpage_button.html' with page='GR' %}
+                </div>
+            {% endif %}
             <div class="input-group">
                 <input type="search" name="search" class="form-control" placeholder="{% trans 'Search...' %}" />
                 <button class="btn btn-light text-secondary" type="button" data-reset="search" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Clear search filter' %}">
@@ -67,7 +72,7 @@
                                 <td class="text-end" style="min-width:72px">
                                     {% if not course.gets_no_grade_documents %}
                                         {% if num_final_grades == 0 %}
-                                            <button type="button" {{ disable_if_archived }} onclick="confirmNouploadModalShow({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Confirm that final grades have been submitted but will not be uploaded.' %}">
+                                            <button type="button" onclick="confirmNouploadModalShow({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Confirm that final grades have been submitted but will not be uploaded.' %}">
                                                 <span class="fas fa-xmark"></span>
                                             </button>
                                             <div class="btn-group" role="group" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Upload grade document' %}">
@@ -80,7 +85,7 @@
                                                 </div>
                                             </div>
                                         {% else %}
-                                            <a href="{% url 'grades:course_view' course.id %}" class="btn btn-sm btn-light {{ disable_if_archived }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Change grade document' %}"><span class="fas fa-pencil"></span></a>
+                                            <a href="{% url 'grades:course_view' course.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Change grade document' %}"><span class="fas fa-pencil"></span></a>
                                         {% endif %}
                                     {% endif %}
                                 </td>
@@ -103,13 +108,14 @@
     {% include 'confirmation_modal.html' with modal_id='confirmNouploadModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
         function confirmNouploadModalAction(dataId) {
-            $.ajax({
-                type: "POST",
-                url: "{% url 'grades:toggle_no_grades' %}",
-                data: {"course_id": dataId},
-                success: function(){ location.reload(); },
-                error: function(){}
-            });
+            fetch("{% url 'grades:toggle_no_grades' %}", {
+                body: new URLSearchParams({course_id: dataId}),
+                headers: CSRF_HEADERS,
+                method: "POST",
+            }).then(response => {
+                assert(response.ok);
+                location.reload();
+            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         };
     </script>
     {% trans 'Will final grades be uploaded?' as title %}
