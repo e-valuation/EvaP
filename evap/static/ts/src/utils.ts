@@ -38,6 +38,11 @@ export const findPreviousElementSibling = (element: Element, selector: string): 
     return null;
 };
 
+export function unwrap<T>(val: T): NonNullable<T> {
+    assertDefined(val);
+    return val;
+}
+
 export const isVisible = (element: HTMLElement): boolean => element.offsetWidth !== 0 || element.offsetHeight !== 0;
 
 export const fadeOutThenRemove = (element: HTMLElement) => {

@@ -254,6 +254,7 @@ _TEMPLATE_OPTIONS = {
         "django.contrib.messages.context_processors.messages",
         "evap.context_processors.slogan",
         "evap.context_processors.debug",
+        "evap.context_processors.notebook_form",
         "evap.context_processors.allow_anonymous_feedback_messages",
     ],
     "builtins": ["django.templatetags.i18n"],
