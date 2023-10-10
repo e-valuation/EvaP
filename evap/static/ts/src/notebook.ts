@@ -47,7 +47,7 @@ class NotebookFormLogic {
 export class NotebookLogic {
     private readonly notebookCard: HTMLElement;
     private readonly evapContent: HTMLElement;
-    private formLogic: NotebookFormLogic;
+    private readonly formLogic: NotebookFormLogic;
     private readonly localStorageKey: string;
 
     constructor(notebookSelector: string) {
