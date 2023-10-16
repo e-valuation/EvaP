@@ -346,9 +346,6 @@ class ResultsExporter(ExcelExporter):
                 self.write_questionnaire(questionnaire, evaluations_with_results, contributor)
 
             self.write_overall_results(evaluations_with_results, course_results_exist)
-        # self.write_headings_and_evaluation_info(
-        #     _("Average for this question"), "-", "-", "-", "-"
-        # )
 
 
 # See method definition.
