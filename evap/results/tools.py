@@ -179,7 +179,7 @@ def get_single_result_rating_result(evaluation):
     return create_rating_result(question, answer_counters)
 
 
-def get_results_cache_key(evaluation):
+def get_results_cache_key(evaluation: Evaluation) -> str:
     return f"evap.staff.results.tools.get_results-{evaluation.id:d}"
 
 
@@ -189,7 +189,7 @@ def cache_results(evaluation, *, refetch_related_objects=True):
     caches["results"].set(cache_key, _get_results_impl(evaluation, refetch_related_objects=refetch_related_objects))
 
 
-def get_results(evaluation):
+def get_results(evaluation: Evaluation) -> EvaluationResult:
     assert evaluation.state in STATES_WITH_RESULTS_CACHING | {Evaluation.State.IN_EVALUATION}
 
     if evaluation.state == Evaluation.State.IN_EVALUATION:
@@ -197,7 +197,7 @@ def get_results(evaluation):
 
     cache_key = get_results_cache_key(evaluation)
     result = caches["results"].get(cache_key)
-    assert result is not None
+    assert isinstance(result, EvaluationResult)
     return result
 
 
@@ -210,7 +210,7 @@ GET_RESULTS_PREFETCH_LOOKUPS = [
 ]
 
 
-def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool = True):
+def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool = True) -> EvaluationResult:
     if refetch_related_objects:
         discard_cached_related_objects(evaluation)
 
