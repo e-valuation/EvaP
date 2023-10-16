@@ -153,10 +153,10 @@ def set_no_grades(request):
         status = bool(int(request.POST["status"]))
     except (KeyError, TypeError, ValueError) as e:
         raise SuspiciousOperation from e
-    
+
     if course.semester.grade_documents_are_deleted:
         raise PermissionDenied
-        
+
     course.gets_no_grade_documents = status
     course.save()
 
