@@ -1,6 +1,7 @@
 import django.contrib.auth.views
 from django.conf import settings
 from django.urls import include, path
+from django.views.i18n import JavaScriptCatalog
 
 urlpatterns = [
     path("", include('evap.evaluation.urls')),
@@ -13,6 +14,8 @@ urlpatterns = [
 
     path("logout", django.contrib.auth.views.LogoutView.as_view(next_page="/"), name="django-auth-logout"),
     path("oidc/", include('mozilla_django_oidc.urls')),
+
+    path("i18n.js", JavaScriptCatalog.as_view(), name="javascript-catalog"),
 ]
 
 if settings.DEBUG:
