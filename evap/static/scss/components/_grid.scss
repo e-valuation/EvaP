@@ -130,7 +130,7 @@
 
 .col-order {
     position: relative;
-    padding-left: 1em;
+    padding-left: 1.4em;
     cursor: pointer;
 
     &::before, &::after {
@@ -155,7 +155,7 @@
 }
 
 th.col-order {
-    padding-left: 1.4em;
+    padding-left: 1.4em !important;
 
     &:empty {
         padding-right: 0;
