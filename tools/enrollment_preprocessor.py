@@ -3,6 +3,8 @@ import csv
 import sys
 from argparse import ArgumentParser
 from dataclasses import dataclass
+from io import BytesIO
+from typing import Iterator, TextIO
 
 from openpyxl import load_workbook
 from openpyxl.cell import Cell
@@ -25,7 +27,7 @@ class UserCells:
 
     def value(self):
         return User(
-            self.title.value if self.title else "", self.last_name.value, self.first_name.value, self.email.value
+            self.title.value or "" if self.title else "", self.last_name.value, self.first_name.value, self.email.value
         )
 
 
@@ -46,12 +48,25 @@ def fix_users(users: dict[str, User], imported_cells: UserCells):
     print("There is a conflict in the user data.")
     print(f"existing: {existing}.")
     print(f"imported: {imported}.")
-
-    if imported_cells.title:
+    if imported_cells.title is not None:
         imported_cells.title.value = user_decision("title", existing.title, imported.title)
     imported_cells.last_name.value = user_decision("last name", existing.last_name, imported.last_name)
     imported_cells.first_name.value = user_decision("first name", existing.first_name, imported.first_name)
     imported_cells.email.value = user_decision("email", existing.email, imported.email)
+    print()
+
+
+def run_preprocessor(enrollment_data: str | BytesIO, user_data: TextIO):
+    workbook = load_workbook(enrollment_data)
+    users = {}
+    reader = csv.reader(user_data, delimiter=";", lineterminator="\n")
+    for row in reader:
+        users[row[-1]] = User(*row)
+    for sheet_name in ["MA Belegungen", "BA Belegungen"]:
+        for wb_row in workbook[sheet_name].iter_rows(min_row=2, min_col=2):
+            fix_users(users, UserCells(None, *wb_row[:3]))
+            fix_users(users, UserCells(*wb_row[7:]))
+    workbook.save(enrollment_data)
 
 
 if __name__ == "__main__":
@@ -63,15 +78,5 @@ if __name__ == "__main__":
         "-e", "--enrollment-data", help="Path to the enrollment data in xlsx format for import.", required=True
     )
     ns = parser.parse_args(sys.argv[1:])
-
-    workbook = load_workbook(ns.enrollment_data)
-    users = {}
     with open(ns.user_data, encoding="utf-8") as csvfile:
-        reader = csv.reader(csvfile)
-        for row in reader:
-            users[row[-1]] = User(*row)
-    for sheet_name in ["MA Belegungen", "BA Belegungen"]:
-        for row in workbook[sheet_name].iter_rows(min_row=2, min_col=2):
-            fix_users(users, UserCells(None, *row[:3]))
-            fix_users(users, UserCells(*row[7:]))
-    workbook.save(ns.enrollment_data)
+        run_preprocessor(ns.enrollment_data, csvfile)

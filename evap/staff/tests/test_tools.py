@@ -1,17 +1,31 @@
+import csv
+from io import BytesIO, StringIO
+from itertools import cycle
+from typing import TextIO
+from unittest.mock import MagicMock, patch
+
 from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.utils.html import escape
+from django_webtest import WebTest
 from model_bakery import baker
+from openpyxl import load_workbook
 
 from evap.evaluation.models import Contribution, Course, Evaluation, UserProfile
-from evap.evaluation.tests.tools import assert_no_database_modifications
+from evap.evaluation.tests.tools import assert_no_database_modifications, make_manager
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption
+from evap.staff.fixtures.excel_files_test_data import (
+    create_memory_excel_file,
+    valid_user_courses_import_filedata,
+    valid_user_courses_import_users,
+)
 from evap.staff.tools import (
     conditional_escape,
     merge_users,
     remove_user_from_represented_and_ccing_users,
     user_edit_link,
 )
+from tools.enrollment_preprocessor import run_preprocessor
 
 
 class MergeUsersTest(TestCase):
@@ -216,3 +230,34 @@ class ConditionalEscapeTest(TestCase):
         self.assertEqual(conditional_escape("<script>"), "&lt;script&gt;")
         self.assertEqual(conditional_escape(escape("<script>")), "&lt;script&gt;")
         self.assertEqual(conditional_escape("safe"), "safe")
+
+
+class EnrolllmentPreprocessorTest(WebTest):
+    @classmethod
+    def setUpTestData(cls) -> None:
+        cls.xslx_file = BytesIO(create_memory_excel_file(valid_user_courses_import_filedata))
+        cls.data = valid_user_courses_import_users
+
+    def create_memory_csv_file(self) -> TextIO:
+        io = StringIO()
+        writer = csv.writer(io, delimiter=";", lineterminator="\n")
+        writer.writerows(self.data)
+        io.seek(0)
+        return io
+
+    def test_parse_successful(self):
+        run_preprocessor(self.xslx_file, self.create_memory_csv_file())
+
+    @patch("builtins.input", side_effect=cycle(("n", "y")))
+    def test_parse_conflict(self, input_patch: MagicMock):
+        self.data[0][1] = "Conflicting Lastname"
+        self.data[1][0] = "Conflicting Title"
+        self.data[2][2] = "Conflicting Firstname"
+        self.data[3][3] = "new@email.com"
+        run_preprocessor(self.xslx_file, self.create_memory_csv_file())
+        self.assertEqual(input_patch.call_count, 3)
+        workbook = load_workbook(self.xslx_file, read_only=True)
+        self.assertEqual(workbook["MA Belegungen"]["B2"].value, "Quid")  # conflicting lastname declined
+        self.assertEqual(workbook["MA Belegungen"]["I2"].value, "Conflicting Title")  # conflicting title accepted
+        self.assertEqual(workbook["BA Belegungen"]["C2"].value, "Lucilia")  # conflicting Firstname declined
+        self.assertEqual(workbook["BA Belegungen"]["L2"].value, "123@external.com")  # different email is no conflict
