@@ -35,7 +35,8 @@ class NotebookFormLogic {
             .catch(() => {
                 this.notebook.setAttribute("data-state", "ready");
                 submitter.disabled = false;
-                alert(submitter.dataset.errormessage);
+                // @ts-ignore
+                alert(window.gettext("The server is not responding."));
             });
     };
 
