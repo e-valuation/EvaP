@@ -80,6 +80,7 @@ omit = ["*/migrations/*", "*__init__.py"]
 ##############################################
 
 [tool.mypy]
+packages = ["evap", "tools"]
 plugins = ["mypy_django_plugin.main"]
 exclude = 'evap/.*/migrations/.*\.py$'
 no_implicit_optional = true

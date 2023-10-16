@@ -74,7 +74,7 @@ jobs:
         uses: ./.github/setup_python
 
       - name: Run MyPy
-        run: mypy -p evap
+        run: mypy
 
   linter:
     runs-on: ubuntu-22.04
