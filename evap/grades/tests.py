@@ -168,6 +168,15 @@ class GradeUploadTest(WebTest):
         evaluation = Evaluation.objects.get(id=evaluation.id)
         self.assertFalse(evaluation.course.gets_no_grade_documents)
 
+        self.app.post(
+            "/grades/set_no_grades",
+            params={"course_id": evaluation.course.id, "status": "0"},
+            user=self.grade_publisher,
+            status=200,
+        )
+        evaluation = Evaluation.objects.get(id=evaluation.id)
+        self.assertFalse(evaluation.course.gets_no_grade_documents)
+
     def test_grade_document_download_after_archiving(self):
         # upload grade document
         self.helper_upload_grades(self.course, final_grades=False)
