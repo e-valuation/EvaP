@@ -160,7 +160,7 @@ class ResultsExporter(ExcelExporter):
         return evaluations_with_results, used_questionnaires, course_results_exist
 
     def write_headings_and_evaluation_info(
-        self, evaluations_with_results, semesters, contributor, degrees, course_types, verbose_heading=True
+        self, evaluations_with_results, semesters, contributor, degrees, course_types, verbose_heading
     ):
         export_name = "Evaluation"
         if contributor:
