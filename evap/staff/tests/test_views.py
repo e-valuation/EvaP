@@ -333,9 +333,24 @@ class TestUserMergeSelectionView(WebTestStaffModeWith200Check):
 
     @classmethod
     def setUpTestData(cls):
-        cls.test_users = [make_manager()]
+        cls.manager = make_manager()
+        cls.test_users = [cls.manager]
 
         baker.make(UserProfile)
+
+        cls.main_user = baker.make(UserProfile)
+        cls.other_user = baker.make(UserProfile)
+
+    def test_redirection_user_merge_view(self):
+        page = self.app.get(self.url, user=self.manager)
+
+        form = page.forms["user-selection-form"]
+        form["main_user"] = self.main_user.pk
+        form["other_user"] = self.other_user.pk
+
+        page = form.submit(name="operation", value="test")
+
+        self.assertContains(page, "", status_code=302)
 
 
 class TestUserMergeView(WebTestStaffModeWith200Check):
