@@ -4,7 +4,7 @@ import sys
 from argparse import ArgumentParser
 from dataclasses import dataclass
 from io import BytesIO
-from typing import Iterator, TextIO
+from typing import TextIO
 
 from openpyxl import load_workbook
 from openpyxl.cell import Cell
