@@ -10,5 +10,5 @@ mypy~=1.6.0
 openpyxl-stubs~=0.1.25
 pylint-django~=2.5.4
 pylint~=3.0.1
-tblib~=2.0.0
+tblib~=3.0.0
 xlrd~=2.0.1
