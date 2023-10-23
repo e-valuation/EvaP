@@ -154,7 +154,7 @@
                             <span class="fas fa-circle-info" data-bs-toggle="tooltip" title="{% trans 'The evaluation can be continued later using the same device and the same browser. But you have to submit it to send it to the server and make it count. After submitting, you can not edit the evaluation anymore.' %}"></span>
                         </div>
                         <button id="vote-submit-btn" type="submit" class="btn btn-success tab-selectable">{% trans 'Submit questionnaire' %}</button>
-                        <p id="submit-error-warning" style="display: none">
+                        <p id="submit-error-warning" style="display: none" class="text-danger">
                             <span class="fas fa-triangle-exclamation"></span>
                             {% blocktrans %}The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire.{% endblocktrans %}
                         </p>

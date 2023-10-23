@@ -228,6 +228,7 @@ def merge_users(main_user, other_user, preview=False):
     merged_user["first_name_given"] = main_user.first_name_given or other_user.first_name_given or ""
     merged_user["last_name"] = main_user.last_name or other_user.last_name or ""
     merged_user["email"] = main_user.email or other_user.email or None
+    merged_user["notes"] = "\n".join((main_user.notes, other_user.notes)).strip()
 
     merged_user["groups"] = Group.objects.filter(user__in=[main_user, other_user]).distinct()
     merged_user["is_superuser"] = main_user.is_superuser or other_user.is_superuser

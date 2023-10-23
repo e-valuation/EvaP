@@ -45,16 +45,28 @@
 
         <img class="print-brand-image d-none d-print-block" src="{% static 'images/evap.png' %}" alt="{% trans 'Evaluation Platform' %}" />
 
-        <div class="container mb-4 pt-3">
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags|message_class }} alert-dismissible">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            {% endfor %}
+        {% if user.is_authenticated %}
+            {% include 'notebook.html' %}
 
-            {% block content %}
-            {% endblock %}
+            <div class="collapse show" tabindex="-1" id="notebookButton">
+                <button class="btn btn-outline-secondary button-open-notebook" type="button" data-bs-toggle="collapse" data-bs-target="#notebook">
+                    <span class="fas fa-pen-to-square"></span>
+                </button>
+            </div>
+        {% endif %}
+
+        <div class="p-3 mb-4" id="evapContent">
+            <div class="container">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|message_class }} alert-dismissible">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                {% block content %}
+                {% endblock %}
+            </div>
         </div>
 
         {% include 'footer.html' %}
@@ -191,6 +203,12 @@
                 element.innerHTML = "";
                 element.className = "fas fa-spinner fa-spin";  // clears all other classes
             };
+
+        </script>
+        <script type="module">
+            import  { NotebookLogic } from "{% static 'js/notebook.js' %}"
+
+            new NotebookLogic("#notebook").attach();
         </script>
 
         {% block additional_javascript %}{% endblock %}

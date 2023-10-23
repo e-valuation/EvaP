@@ -1681,11 +1681,13 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     # delegates of the user, which can also manage their evaluations
     delegates = models.ManyToManyField(
-        "UserProfile", verbose_name=_("Delegates"), related_name="represented_users", blank=True
+        "evaluation.UserProfile", verbose_name=_("Delegates"), related_name="represented_users", blank=True
     )
 
     # users to which all emails should be sent in cc without giving them delegate rights
-    cc_users = models.ManyToManyField("UserProfile", verbose_name=_("CC Users"), related_name="ccing_users", blank=True)
+    cc_users = models.ManyToManyField(
+        "evaluation.UserProfile", verbose_name=_("CC Users"), related_name="ccing_users", blank=True
+    )
 
     # flag for proxy users which represent a group of users
     is_proxy_user = models.BooleanField(default=False, verbose_name=_("Proxy user"))
@@ -1697,6 +1699,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     login_key_valid_until = models.DateField(verbose_name=_("Login Key Validity"), blank=True, null=True)
 
     is_active = models.BooleanField(default=True, verbose_name=_("active"))
+
+    notes = models.TextField(verbose_name=_("notes"), blank=True, default="", max_length=1024 * 1024)
 
     class StartPage(models.TextChoices):
         DEFAULT = "DE", _("default")
@@ -1723,7 +1727,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = _("users")
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS: list[str] = []
+    REQUIRED_FIELDS = []
 
     objects = UserProfileManager()
 

@@ -161,7 +161,7 @@ class TestChangeLanguageView(WebTest):
 
 
 class TestProfileView(WebTest):
-    url = "/profile"
+    url = reverse("evaluation:profile_edit")
 
     @classmethod
     def setUpTestData(cls):
@@ -229,3 +229,19 @@ class TestNegativeLikertQuestions(WebTest):
         page = self.app.get(self.url, user=self.voting_user, status=200).body.decode()
         self.assertLess(page.index("Strongly<br>disagree"), page.index("Strongly<br>agree"))
         self.assertIn("The answer scale is inverted for this question", page)
+
+
+class TestNotebookView(WebTest):
+    url = reverse("evaluation:profile_edit")  # is used exemplarily, notebook is accessed from all pages
+    note = "Data is so beautiful"
+
+    def test_notebook(self):
+        user = baker.make(UserProfile, email="student@institution.example.com")
+
+        page = self.app.get(self.url, user=user)
+        form = page.forms["notebook-form"]
+        form["notes"] = self.note
+        form.submit()
+
+        user.refresh_from_db()
+        self.assertEqual(user.notes, self.note)
