@@ -112,6 +112,6 @@ ignore_missing_imports = true
 # pytest-xdist worked for parallelizing tests.
 DJANGO_SETTINGS_MODULE = "evap.settings"
 python_files = ["tests.py", "test_*.py", "*_tests.py"]
-testpaths = ["evap"]
+testpaths = ["evap", "tools"]
 norecursedirs=["locale", "logs", "static", "static_collected", "upload"]
 addopts = "--reuse-db"
