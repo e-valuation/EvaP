@@ -10,7 +10,6 @@ from django.test.testcases import TestCase
 from django.test.utils import CaptureQueriesContext
 from django_webtest import WebTest
 from model_bakery import baker
-from webtest import TestResponse
 
 from evap.evaluation.models import (
     Contribution,
