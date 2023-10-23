@@ -74,7 +74,7 @@ disable = [
 [tool.coverage.run]
 branch = true
 omit = ["*migrations*", "*__init__.py"]
-source = ["evap"]
+source = ["evap", "tools"]
 
 [tool.coverage.report]
 omit = ["*/migrations/*", "*__init__.py"]
