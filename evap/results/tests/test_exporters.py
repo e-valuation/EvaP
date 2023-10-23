@@ -449,7 +449,7 @@ class TestExporters(TestCase):
 
         questionnaire = baker.make(Questionnaire)
         question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire)
-        for grades, e in zip(grades_per_eval, evaluations):
+        for grades, e in zip(grades_per_eval, evaluations, strict=True):
             make_rating_answer_counters(question, e.general_contribution, grades)
             e.general_contribution.questionnaires.set([questionnaire])
         for evaluation in evaluations:

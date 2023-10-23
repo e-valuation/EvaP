@@ -111,7 +111,7 @@ class Command(BaseCommand):
 
         # Actually replace all the real user data
         self.stdout.write("Replacing email addresses and login keys with fake ones...")
-        for user, name in zip(user_profiles, fake_usernames):
+        for user, name in zip(user_profiles, fake_usernames, strict=True):
             if user.email and user.email.split("@")[0] in Command.ignore_email_usernames:
                 continue
             user.first_name_given = name[0]
@@ -259,7 +259,7 @@ class Command(BaseCommand):
                     index = random.randint(0, len(generated_counts) - 1)  # nosec
                     generated_counts[index] += to_add
 
-                    for counter, generated_count in zip(counters, generated_counts):
+                    for counter, generated_count in zip(counters, generated_counts, strict=True):
                         assert generated_count >= 0
                         counter.count = generated_count
 

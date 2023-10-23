@@ -223,11 +223,13 @@ class ResultsExporter(ExcelExporter):
             )
 
             self.write_cell(_("Evaluation weight"), "bold")
-            weight_percentages = (f"{e.weight_percentage}%" if gt1 else None for e, gt1 in zip(evaluations, count_gt_1))
+            weight_percentages = (
+                f"{e.weight_percentage}%" if gt1 else None for e, gt1 in zip(evaluations, count_gt_1, strict=True)
+            )
             self.write_row(weight_percentages, lambda s: "evaluation_weight" if s is not None else "default")
 
             self.write_cell(_("Course Grade"), "bold")
-            for evaluation, gt1 in zip(evaluations, count_gt_1):
+            for evaluation, gt1 in zip(evaluations, count_gt_1, strict=True):
                 if not gt1:
                     self.write_cell()
                     continue
@@ -368,5 +370,5 @@ class TextAnswerExporter(ExcelExporter):
                 question_title = (f"{contributor_name}: " if contributor_name else "") + question.text
                 first_col = chain([question_title], repeat(""))
 
-                for answer, first_cell, line_style in zip(answers, first_col, line_styles):
+                for answer, first_cell, line_style in zip(answers, first_col, line_styles, strict=False):
                     self.write_row([first_cell, answer], style=line_style)

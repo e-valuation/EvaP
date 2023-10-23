@@ -76,12 +76,12 @@ register = Library()
 
 @register.filter(name="zip")
 def _zip(a, b):
-    return zip(a, b)
+    return zip(a, b, strict=False)
 
 
 @register.filter()
 def zip_choices(counts, choices):
-    return zip(counts, choices.names, choices.colors, choices.values)
+    return zip(counts, choices.names, choices.colors, choices.values, strict=False)
 
 
 @register.filter

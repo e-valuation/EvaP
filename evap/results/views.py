@@ -147,7 +147,7 @@ def index(request):
     annotated_courses = (
         Course.objects.filter(pk__in=course_pks).annotate(num_evaluations=Count("evaluations")).order_by("pk").defer()
     )
-    for course, annotated_course in zip(courses_and_evaluations.keys(), annotated_courses):
+    for course, annotated_course in zip(courses_and_evaluations.keys(), annotated_courses, strict=True):
         course.num_evaluations = annotated_course.num_evaluations
 
     degrees = Degree.objects.filter(courses__pk__in=course_pks).distinct()

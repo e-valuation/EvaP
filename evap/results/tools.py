@@ -82,7 +82,9 @@ class RatingResult:
     def average(self) -> float | None:
         if not self.has_answers:
             return None
-        return sum(grade * count for count, grade in zip(self.counts, self.choices.grades)) / self.count_sum
+        return (
+            sum(grade * count for count, grade in zip(self.counts, self.choices.grades, strict=True)) / self.count_sum
+        )
 
     @property
     def has_answers(self) -> bool:
@@ -275,7 +277,7 @@ def unipolarized_distribution(result):
     if not result.counts:
         return None
 
-    for counts, grade in zip(result.counts, result.choices.grades):
+    for counts, grade in zip(result.counts, result.choices.grades, strict=True):
         grade_fraction, grade = modf(grade)
         grade = int(grade)
         summed_distribution[grade - 1] += (1 - grade_fraction) * counts

@@ -2703,7 +2703,7 @@ class TestEvaluationTextAnswerView(WebTest):
             _quantity=2,
         )
 
-        for evaluation, answer_count in zip(evaluations, [1, 2]):
+        for evaluation, answer_count in zip(evaluations, [1, 2], strict=True):
             contribution = baker.make(Contribution, evaluation=evaluation, _fill_optional=["contributor"])
             baker.make(TextAnswer, contribution=contribution, question__type=QuestionType.TEXT, _quantity=answer_count)
 
