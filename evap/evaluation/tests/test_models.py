@@ -15,7 +15,7 @@ from evap.evaluation.models import (
     CourseType,
     EmailTemplate,
     Evaluation,
-    NotArchiveable,
+    NotArchivableError,
     Question,
     Questionnaire,
     QuestionType,
@@ -748,9 +748,9 @@ class ParticipationArchivingTests(TestCase):
 
     def test_archiving_participations_twice_raises_exception(self):
         self.semester.archive()
-        with self.assertRaises(NotArchiveable):
+        with self.assertRaises(NotArchivableError):
             self.semester.archive()
-        with self.assertRaises(NotArchiveable):
+        with self.assertRaises(NotArchivableError):
             self.semester.courses.first().evaluations.first()._archive()
 
     def test_evaluation_participations_are_not_archived_if_participant_count_is_set(self):
