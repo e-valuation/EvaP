@@ -546,7 +546,11 @@
                                             href="{% url 'staff:course_copy' course.id %}"
                                             title="{% translate 'Copy course' %}">
                                             <span class="fas fa-copy"></span>
-                                            </a>
+                                        <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
+                                            onclick="createExamEvaluationShow();"
+                                            title="{% trans 'Create exam evaluation' %}">
+                                            <span class="fas fa-file-pen fa-fw"></span>
+                                        </a>
                                         {% endif %}
                                         {% if course.can_be_deleted_by_manager %}
                                             <confirmation-modal type="submit" form="course-deletion-form" name="course_id" value="{{ course.id }}" confirm-button-class="btn-danger">
@@ -578,6 +582,19 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block modals %}
+    {{ block.super }}
+    {% trans 'Create exam evaluation' as title %}
+    {% blocktrans asvar question %}Create an exam evaluation based on this evaluation. This will copy all the participants and contributors from the original evaluation. It will set the weight of the original evaluation to 9 and its end date will be set to the day before the exam. {% endblocktrans %}
+    {% trans 'Create exam evaluation' as action_text %}
+    {% include 'confirmation_modal.html' with modal_id='createExamEvaluation' title=title question=question action_text=action_text btn_type='danger' %}
+    <script type="text/javascript">
+        function createExamEvaluationAction() {
+            pass
+        };
+    </script>
 {% endblock %}
 
 {% block additional_javascript %}
