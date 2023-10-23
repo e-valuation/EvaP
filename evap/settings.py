@@ -375,7 +375,7 @@ SLOGANS_EN = [
 
 
 ### Allowed chosen first names / display names
-def CHARACTER_ALLOWED_IN_NAME(character):  # pylint: disable=invalid-name
+def CHARACTER_ALLOWED_IN_NAME(character):  # pylint: disable=invalid-name  # noqa: N802
     return any(
         (
             ord(character) in range(32, 127),  # printable ASCII / Basic Latin characters
@@ -412,7 +412,7 @@ try:
     # pylint: disable=unused-wildcard-import,wildcard-import,useless-suppression
 
     # the import can overwrite locals with a slightly different type (e.g. DATABASES), which is fine.
-    from evap.localsettings import *  # type: ignore
+    from evap.localsettings import *  # type: ignore  # noqa: F403
 except ImportError:
     pass
 
