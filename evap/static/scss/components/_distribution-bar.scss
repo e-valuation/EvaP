@@ -62,6 +62,10 @@
         margin: 0 0.5rem;
     }
 
+    &:not(:empty) {
+        min-width: calc(3ch + 2*3px);
+    }
+
 }
 
 .result-widget:hover {
