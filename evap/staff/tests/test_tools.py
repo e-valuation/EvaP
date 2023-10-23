@@ -12,7 +12,7 @@ from model_bakery import baker
 from openpyxl import load_workbook
 
 from evap.evaluation.models import Contribution, Course, Evaluation, UserProfile
-from evap.evaluation.tests.tools import assert_no_database_modifications, make_manager
+from evap.evaluation.tests.tools import assert_no_database_modifications
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption
 from evap.staff.fixtures.excel_files_test_data import (
     create_memory_excel_file,
