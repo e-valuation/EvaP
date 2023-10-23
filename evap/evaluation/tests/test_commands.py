@@ -370,7 +370,7 @@ class TestLintCommand(TestCase):
     @patch("subprocess.run")
     def test_pylint_called(mock_subprocess_run):
         management.call_command("lint")
-        mock_subprocess_run.assert_called_once_with(["pylint", "evap"], check=False)
+        mock_subprocess_run.assert_called_once_with(["pylint", "evap", "tools"], check=False)
 
 
 class TestFormatCommand(TestCase):
