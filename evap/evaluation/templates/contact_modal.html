@@ -30,7 +30,7 @@
                                 <input type="radio" class="btn-check" name="{{ modal_id }}RadioGroup" id="{{ modal_id }}SenderName" checked>
                                 <label class="btn btn-sm btn-outline-primary text-break" for="{{ modal_id }}SenderName">{{ user.full_name }}</label>
                                 <input type="radio" class="btn-check" name="{{ modal_id }}RadioGroup" id="{{ modal_id }}AnonymousName">
-                                <label class="btn btn-sm btn-outline-primary" for="{{ modal_id }}AnonymousName">{% trans 'Anonymous' %}</label>
+                                <label class="btn btn-sm btn-outline-primary text-break" for="{{ modal_id }}AnonymousName">{% trans 'Anonymous' %}</label>
                             </div>
                         {% else %}
                             <input type="text" class="form-control mx-auto text-break" id="{{ modal_id }}SenderName" disabled value="{{ user.full_name }}"/>
