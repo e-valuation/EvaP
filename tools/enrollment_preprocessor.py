@@ -25,9 +25,12 @@ class UserCells:
     first_name: Cell
     email: Cell
 
-    def value(self):
+    def value(self) -> User:
         return User(
-            self.title.value or "" if self.title else "", self.last_name.value, self.first_name.value, self.email.value
+            str(self.title.value) or "" if self.title else "",
+            str(self.last_name.value),
+            str(self.first_name.value),
+            str(self.email.value),
         )
 
 
@@ -40,7 +43,7 @@ def user_decision(field: str, existing: str, imported: str) -> str:
     return existing
 
 
-def fix_users(users: dict[str, User], imported_cells: UserCells):
+def fix_user(users: dict[str, User], imported_cells: UserCells) -> None:
     imported = imported_cells.value()
     existing = users.setdefault(imported.email, imported)
     if imported == existing:
@@ -56,20 +59,21 @@ def fix_users(users: dict[str, User], imported_cells: UserCells):
     print()
 
 
-def run_preprocessor(enrollment_data: str | BytesIO, user_data: TextIO):
+def run_preprocessor(enrollment_data: str | BytesIO, user_data: TextIO) -> None:
     workbook = load_workbook(enrollment_data)
     users = {}
     reader = csv.reader(user_data, delimiter=";", lineterminator="\n")
     for row in reader:
-        users[row[-1]] = User(*row)
-    for sheet_name in ["MA Belegungen", "BA Belegungen"]:
-        for wb_row in workbook[sheet_name].iter_rows(min_row=2, min_col=2):
-            fix_users(users, UserCells(None, *wb_row[:3]))
-            fix_users(users, UserCells(*wb_row[7:]))
+        email = row[-1]
+        users[email] = User(*row)
+    for sheet in workbook.worksheets:
+        for wb_row in sheet.iter_rows(min_row=2, min_col=2):
+            fix_user(users, UserCells(None, *wb_row[:3]))
+            fix_user(users, UserCells(*wb_row[7:]))
     workbook.save(enrollment_data)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: nocover
     parser = ArgumentParser(description="Commandline tool to preprocess enrollment xlsx files.")
     parser.add_argument(
         "-u", "--user-data", help="Path to a csv file containing an export of all existing users.", required=True
