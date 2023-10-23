@@ -71,6 +71,7 @@ class ResultsExporter(ExcelExporter):
                 "This can happen, if the file is imported / run multiple "
                 "times in one application run.",
                 ImportWarning,
+                stacklevel=2,
             )
             return
 
