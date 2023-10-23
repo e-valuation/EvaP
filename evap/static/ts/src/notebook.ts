@@ -1,4 +1,4 @@
-import "./translation";
+import "./translation.js";
 import { unwrap, assert, selectOrError } from "./utils.js";
 
 const NOTEBOOK_LOCALSTORAGE_KEY = "evap_notebook_open";
