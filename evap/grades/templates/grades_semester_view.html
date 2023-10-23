@@ -108,10 +108,10 @@
     {% include 'confirmation_modal.html' with modal_id='confirmNouploadModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
         function confirmNouploadModalAction(dataId) {
-            confirmUploadModalAction(dataId, true);
+            updateGradeStatusOfCourse(dataId, true);
         }
 
-        function confirmUploadModalAction(dataId, status) {
+        function updateGradeStatusOfCourse(dataId, status) {
             fetch("{% url 'grades:set_no_grades'%}", {
                 body: new URLSearchParams({course_id: dataId, status: `${Number(status)}` }),
                 headers: CSRF_HEADERS,
@@ -128,7 +128,7 @@
     {% include 'confirmation_modal.html' with modal_id='confirmLateruploadModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
         function confirmLateruploadModalAction(dataId) {
-            confirmUploadModalAction(dataId, false);
+            updateGradeStatusOfCourse(dataId, false);
         };
     </script>
 {% endblock %}
