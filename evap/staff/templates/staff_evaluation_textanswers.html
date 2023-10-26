@@ -18,20 +18,32 @@
             <div class="btn-switch btn-switch-light my-auto d-print-none">
                 <div class="btn-switch-label">{% trans 'View' %}</div>
                 <div class="btn-switch btn-group">
-                    <a href="{% url 'staff:evaluation_textanswers' evaluation.id %}" role="button"
-                       class="btn btn-sm btn-light{% if view == 'quick' %} active{% endif %}">
+                    <a
+                        href="{% url 'staff:evaluation_textanswers' evaluation.id %}"
+                        role="button"
+                        class="btn btn-sm btn-light{% if view == 'quick' %} active{% endif %}"
+                    >
                         {% trans 'Quick' %}
                     </a>
-                    <a href="{% url 'staff:evaluation_textanswers' evaluation.id %}?view=full" role="button"
-                       class="btn btn-sm btn-light{% if view == 'full' %} active{% endif %}">
+                    <a
+                        href="{% url 'staff:evaluation_textanswers' evaluation.id %}?view=full"
+                        role="button"
+                        class="btn btn-sm btn-light{% if view == 'full' %} active{% endif %}"
+                    >
                         {% trans 'Full' %}
                     </a>
-                    <a href="{% url 'staff:evaluation_textanswers' evaluation.id %}?view=undecided" role="button"
-                       class="btn btn-sm btn-light{% if view == 'undecided' %} active{% endif %}">
+                    <a
+                        href="{% url 'staff:evaluation_textanswers' evaluation.id %}?view=undecided"
+                        role="button"
+                        class="btn btn-sm btn-light{% if view == 'undecided' %} active{% endif %}"
+                    >
                         {% trans 'Undecided' %}
                     </a>
-                    <a href="{% url 'staff:evaluation_textanswers' evaluation.id %}?view=flagged" role="button"
-                       class="btn btn-sm btn-light{% if view == 'flagged' %} active{% endif %}">
+                    <a
+                        href="{% url 'staff:evaluation_textanswers' evaluation.id %}?view=flagged"
+                        role="button"
+                        class="btn btn-sm btn-light{% if view == 'flagged' %} active{% endif %}"
+                    >
                         {% trans 'Flagged' %}
                     </a>
                 </div>
