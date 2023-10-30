@@ -232,7 +232,7 @@ class ConditionalEscapeTest(TestCase):
         self.assertEqual(conditional_escape("safe"), "safe")
 
 
-class EnrolllmentPreprocessorTest(WebTest):
+class EnrollmentPreprocessorTest(WebTest):
     @classmethod
     def setUpTestData(cls) -> None:
         cls.xslx_file = BytesIO(create_memory_excel_file(valid_user_courses_import_filedata))

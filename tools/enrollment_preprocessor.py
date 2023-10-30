@@ -27,7 +27,7 @@ class UserCells:
 
     def value(self) -> User:
         return User(
-            str(self.title.value) or "" if self.title else "",
+            str(self.title.value) if self.title and self.title.value else "",
             str(self.last_name.value),
             str(self.first_name.value),
             str(self.email.value),
