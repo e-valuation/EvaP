@@ -37,7 +37,7 @@ class UserCells:
 def user_decision(field: str, existing: str, imported: str) -> str:
     if existing == imported:
         return existing
-    decision = input(f"Do you want to keep the existing user {field}? (y/n) ")
+    decision = input(f"Do you want to keep the existing user {field}? (Y/n) ")
     if decision and decision[0].lower() == "n":
         return imported
     return existing
@@ -51,6 +51,7 @@ def fix_user(users: dict[str, User], imported_cells: UserCells) -> None:
     print("There is a conflict in the user data.")
     print(f"existing: {existing}.")
     print(f"imported: {imported}.")
+    # None is passed exclusively for participants since they have no title column
     if imported_cells.title is not None:
         imported_cells.title.value = user_decision("title", existing.title, imported.title)
     imported_cells.last_name.value = user_decision("last name", existing.last_name, imported.last_name)
@@ -59,7 +60,7 @@ def fix_user(users: dict[str, User], imported_cells: UserCells) -> None:
     print()
 
 
-def run_preprocessor(enrollment_data: str | BytesIO, user_data: TextIO) -> None:
+def run_preprocessor(enrollment_data: str | BytesIO, user_data: TextIO) -> BytesIO:
     workbook = load_workbook(enrollment_data)
     users = {}
     reader = csv.reader(user_data, delimiter=";", lineterminator="\n")
@@ -70,7 +71,9 @@ def run_preprocessor(enrollment_data: str | BytesIO, user_data: TextIO) -> None:
         for wb_row in sheet.iter_rows(min_row=2, min_col=2):
             fix_user(users, UserCells(None, *wb_row[:3]))
             fix_user(users, UserCells(*wb_row[7:]))
-    workbook.save(enrollment_data)
+    wb_out = BytesIO()
+    workbook.save(wb_out)
+    return wb_out
 
 
 if __name__ == "__main__":  # pragma: nocover
@@ -83,4 +86,6 @@ if __name__ == "__main__":  # pragma: nocover
     )
     ns = parser.parse_args(sys.argv[1:])
     with open(ns.user_data, encoding="utf-8") as csvfile:
-        run_preprocessor(ns.enrollment_data, csvfile)
+        wb = run_preprocessor(ns.enrollment_data, csvfile)
+    with open(ns.enrollment_data, "wb", encoding="utf-8") as out:
+        out.write(wb.read())

@@ -254,9 +254,9 @@ class EnrollmentPreprocessorTest(WebTest):
         self.data[1][0] = "Conflicting Title"
         self.data[2][2] = "Conflicting Firstname"
         self.data[3][3] = "new@email.com"
-        run_preprocessor(self.xslx_file, self.create_memory_csv_file())
+        modified = run_preprocessor(self.xslx_file, self.create_memory_csv_file())
         self.assertEqual(input_patch.call_count, 3)
-        workbook = load_workbook(self.xslx_file, read_only=True)
+        workbook = load_workbook(modified, read_only=True)
         self.assertEqual(workbook["MA Belegungen"]["B2"].value, "Quid")  # conflicting lastname declined
         self.assertEqual(workbook["MA Belegungen"]["I2"].value, "Conflicting Title")  # conflicting title accepted
         self.assertEqual(workbook["BA Belegungen"]["C2"].value, "Lucilia")  # conflicting Firstname declined
