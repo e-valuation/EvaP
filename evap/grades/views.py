@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db.models.query import QuerySet
 from django.http import FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -146,12 +146,18 @@ def upload_grades(request, course_id):
 
 @require_POST
 @grade_publisher_required
-def toggle_no_grades(request):
+def set_no_grades(request):
     course = get_object_from_dict_pk_entry_or_logged_40x(Course, request.POST, "course_id")
+
+    try:
+        status = bool(int(request.POST["status"]))
+    except (KeyError, TypeError, ValueError) as e:
+        raise SuspiciousOperation from e
+
     if course.semester.grade_documents_are_deleted:
         raise PermissionDenied
 
-    course.gets_no_grade_documents = not course.gets_no_grade_documents
+    course.gets_no_grade_documents = status
     course.save()
 
     if course.gets_no_grade_documents:

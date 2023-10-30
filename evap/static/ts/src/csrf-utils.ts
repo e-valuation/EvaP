@@ -14,7 +14,6 @@ function getCookie(name: string): string | null {
 const csrftoken = getCookie("csrftoken")!;
 export const CSRF_HEADERS = { "X-CSRFToken": csrftoken };
 
-// TODO
 (globalThis as any).CSRF_HEADERS = CSRF_HEADERS;
 
 export const testable = {

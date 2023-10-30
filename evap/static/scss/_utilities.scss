@@ -67,3 +67,7 @@ a.no-underline:hover {
         $darker-gray 7em
     );
 }
+
+.z-over-fixed {
+    z-index: $zindex-fixed + 1;
+}

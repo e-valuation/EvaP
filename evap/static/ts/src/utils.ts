@@ -53,6 +53,5 @@ export const fadeOutThenRemove = (element: HTMLElement) => {
     }, 600);
 };
 
-// TODO: How to handle exporting / importing
 (globalThis as any).assert = assert;
 (globalThis as any).fadeOutThenRemove = fadeOutThenRemove;

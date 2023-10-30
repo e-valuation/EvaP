@@ -13,5 +13,5 @@ urlpatterns = [
     path("grade_document/<int:grade_document_id>/edit", views.edit_grades, name="edit_grades"),
 
     path("delete_grades", views.delete_grades, name="delete_grades"),
-    path("toggle_no_grades", views.toggle_no_grades, name="toggle_no_grades"),
+    path("set_no_grades", views.set_no_grades, name="set_no_grades"),
 ]
