@@ -79,12 +79,12 @@ def run_preprocessor(enrollment_data: str | BytesIO, user_data: TextIO) -> Bytes
 if __name__ == "__main__":  # pragma: nocover
     parser = ArgumentParser(description="Commandline tool to preprocess enrollment xlsx files.")
     parser.add_argument(
-        "-u", "--user-data", help="Path to a csv file containing an export of all existing users.", required=True
+        "user-data", help="Path to a csv file containing an export of all existing users."
     )
     parser.add_argument(
-        "-e", "--enrollment-data", help="Path to the enrollment data in xlsx format for import.", required=True
+        "enrollment-data", help="Path to the enrollment data in xlsx format for import."
     )
-    ns = parser.parse_args(sys.argv[1:])
+    ns = parser.parse_args(sys.argv)
     with open(ns.user_data, encoding="utf-8") as csvfile:
         wb = run_preprocessor(ns.enrollment_data, csvfile)
     with open(ns.enrollment_data, "wb", encoding="utf-8") as out:
