@@ -3,7 +3,7 @@ import itertools
 from collections import OrderedDict, defaultdict, namedtuple
 from collections.abc import Container
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from enum import Enum
 from typing import Any, Final, Literal, cast
 
@@ -1091,6 +1091,46 @@ def course_copy(request, course_id):
             "disable_breadcrumb_course": True,
         },
     )
+
+@require_POST
+@manager_required
+def create_exam_evaluation(request):
+    print(request.POST)
+    evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "course_id")
+    date = datetime.date(2023, 10, 30) #request.POST.get("date")
+    #TODO: 
+    # The weight of the evaluation at which the button was pressed (original evaluation) will be set to 9. If the evaluation has already been published, an error message is displayed (and nothing happens).
+    if evaluation.is_single_result:
+        raise SuspiciousOperation("Creating an exam evaluation for a single result evaluation is not allowed")
+    evaluation.weight = 9
+
+    # If the original evaluation has not yet ended, the evaluation period end date will be set to the day before the one selected in the modal. If this date is before the start date, an error message is displayed (and nothing happens).
+    course_evaluation_end_date = date - timedelta(days=1)
+    if evaluation.vote_start_datetime > course_evaluation_end_date:
+        raise SuspiciousOperation("The selected date is before the start date")
+    evaluation.vote_end_date = course_evaluation_end_date
+
+    # A new evaluation will be created for the same course as the original evaluation (exam evaluation), will be named "Klausur/Exam", have a weight of 1, and be unrewarded.
+    exam_evaluation = Evaluation(course=evaluation.course, name="Klausur/Exam", weight=1, is_rewarded=False)
+    # The start datetime of the exam evaluation is 08:00 on the day after the exam date defined in the modal.
+    exam_evaluation.vote_start_datetime = date + timedelta(days=1)
+    # The end date of the exam evaluation is the third day after the exam date defined in the modal.
+    exam_evaluation.vote_end_date = date + timedelta(days=3)
+    # All participants from the original evaluation will be copied to the exam evaluation.
+    exam_evaluation.participants.set(evaluation.participants.all())
+    # All contributors from the original evaluation will be copied to the exam evaluation without any assigned questionnaires.
+    for contribution in evaluation.contributions.all():
+        exam_evaluation.contributions.create(contributor=contribution.contributor)
+    # All questionnaires listed in a new settings variable EXAM_QUESTIONNAIRES (initially set to contain the id of the "Miscellaneous" questionnaire) will be added to the exam evaluation as general questionnaires.
+    exam_evaluation.general_contribution.questionnaires.set([Questionnaire.objects.get(id=1)])
+
+    exam_evaluation.save()
+    evaluation.save()
+    return HttpResponse()  # 200 OK
+
+
+
+
 
 
 @manager_required
