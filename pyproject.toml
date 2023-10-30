@@ -28,15 +28,19 @@ extend_skip_glob = ["**/migrations/*"]
 # * custom assert methods use camelCase
 # * Formsets use PascalCase
 
-select = ["F", "E", "B", "W", "N", "UP", "YTT", "FIX"]
+target-version = "py310"
+select = ["F", "E", "B", "W", "N", "UP", "YTT", "FIX", "ASYNC", "A"]
 ignore = [
     "E501",                  # line-too-long: black does code formatting for us
-    "N806",
     "FIX004",                # hacks should be possible
+    "A003",
 ]
 
 ignore-init-module-imports = true
 pep8-naming.extend-ignore-names = ["assert*", "*Formset"]
+
+[tool.ruff.per-file-ignores]
+"**/migrations/*.py" = ["N806"]
 
 
 ##############################################
