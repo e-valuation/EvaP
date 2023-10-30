@@ -194,10 +194,6 @@ class Questionnaire(models.Model):
 
     objects = QuestionnaireManager()
 
-    def clean(self):
-        if self.type == self.Type.CONTRIBUTOR and self.is_locked:
-            raise ValidationError({"is_locked": _("Contributor questionnaires cannot be locked.")})
-
     class Meta:
         ordering = ["type", "order", "pk"]
         verbose_name = _("questionnaire")
@@ -205,6 +201,10 @@ class Questionnaire(models.Model):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        if self.type == self.Type.CONTRIBUTOR and self.is_locked:
+            raise ValidationError({"is_locked": _("Contributor questionnaires cannot be locked.")})
 
     def __lt__(self, other):
         return (self.type, self.order, self.pk) < (other.type, other.order, other.pk)
@@ -1470,7 +1470,7 @@ class TextAnswer(Answer):
 
     answer = models.TextField(verbose_name=_("answer"))
     # If the text answer was changed during review, original_answer holds the original text. Otherwise, it's null.
-    original_answer = models.TextField(verbose_name=_("original answer"), blank=True, null=True)
+    original_answer = models.TextField(verbose_name=_("original answer"), blank=True, null=True)  # noqa: DJ001
 
     class ReviewDecision(models.TextChoices):
         """
@@ -1613,9 +1613,6 @@ class Infotext(models.Model):
     content_en = models.TextField(verbose_name=_("content (english)"), blank=True)
     content = translate(en="content_en", de="content_de")
 
-    def is_empty(self):
-        return not (self.title or self.content)
-
     class Page(models.TextChoices):
         STUDENT_INDEX = ("student_index", "Student index page")
         CONTRIBUTOR_INDEX = ("contributor_index", "Contributor index page")
@@ -1639,6 +1636,9 @@ class Infotext(models.Model):
                 fields=["title_de", "title_en", "content_de", "content_en"],
             ),
         )
+
+    def is_empty(self):
+        return not (self.title or self.content)
 
 
 class UserProfileManager(BaseUserManager):

@@ -29,11 +29,12 @@ extend_skip_glob = ["**/migrations/*"]
 # * Formsets use PascalCase
 
 target-version = "py310"
-select = ["F", "E", "B", "W", "N", "UP", "YTT", "FIX", "ASYNC", "A"]
+select = ["F", "E", "B", "W", "N", "UP", "YTT", "FIX", "ASYNC", "A", "DJ"]
 ignore = [
     "E501",                  # line-too-long: black does code formatting for us
     "FIX004",                # hacks should be possible
     "A003",
+    "DJ008",                 # do not use __str__ where it is not required
 ]
 
 ignore-init-module-imports = true

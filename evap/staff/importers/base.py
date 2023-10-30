@@ -179,9 +179,9 @@ class InputRow(ABC):
     # MyPy is currently broken with abstract properties: https://github.com/python/mypy/issues/8996
     column_count: int
 
+    @abstractmethod
     def __init__(self, location: ExcelFileLocation, *cells: Iterable[str]):
-        # this can be an abstractmethod from python3.10 on, before it doesn't work with the derived dataclasses
-        raise NotImplementedError  # pragma: no cover
+        pass
 
     @classmethod
     def from_cells(cls, location: ExcelFileLocation, cells: Iterable[str]):
