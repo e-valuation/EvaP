@@ -1,4 +1,6 @@
+import csv
 import io
+from typing import TextIO
 
 import openpyxl
 
@@ -229,3 +231,11 @@ def create_memory_excel_file(data):
                 sheet.cell(row=row_num, column=column_num).value = cell_data
     workbook.save(memory_excel_file)
     return memory_excel_file.getvalue()
+
+
+def create_memory_csv_file(data) -> TextIO:
+    memory_csv_file = io.StringIO()
+    writer = csv.writer(memory_csv_file, delimiter=";", lineterminator="\n")
+    writer.writerows(data)
+    memory_csv_file.seek(0)
+    return memory_csv_file

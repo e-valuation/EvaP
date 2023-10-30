@@ -1,7 +1,5 @@
-import csv
-from io import BytesIO, StringIO
+from io import BytesIO
 from itertools import cycle
-from typing import TextIO
 from unittest.mock import MagicMock, patch
 
 from django.contrib.auth.models import Group
@@ -15,6 +13,7 @@ from evap.evaluation.models import Contribution, Course, Evaluation, UserProfile
 from evap.evaluation.tests.tools import assert_no_database_modifications
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption
 from evap.staff.fixtures.excel_files_test_data import (
+    create_memory_csv_file,
     create_memory_excel_file,
     valid_user_courses_import_filedata,
     valid_user_courses_import_users,
@@ -238,20 +237,13 @@ class EnrollmentPreprocessorTest(WebTest):
         cls.xslx_file = BytesIO(create_memory_excel_file(valid_user_courses_import_filedata))
         cls.data = valid_user_courses_import_users
 
-    def create_memory_csv_file(self) -> TextIO:
-        io = StringIO()
-        writer = csv.writer(io, delimiter=";", lineterminator="\n")
-        writer.writerows(self.data)
-        io.seek(0)
-        return io
-
     @patch("builtins.input", side_effect=cycle(("n", "y")))
     def test_parse(self, input_patch: MagicMock):
         self.data[0][1] = "Conflicting Lastname"
         self.data[1][0] = "Conflicting Title"
         self.data[2][2] = "Conflicting Firstname"
         self.data[3][3] = "new@email.com"
-        modified = run_preprocessor(self.xslx_file, self.create_memory_csv_file())
+        modified = run_preprocessor(self.xslx_file, create_memory_csv_file(self.data))
         self.assertEqual(input_patch.call_count, 3)
         workbook = load_workbook(modified, read_only=True)
         self.assertEqual(workbook["MA Belegungen"]["B2"].value, "Quid")  # conflicting lastname declined
