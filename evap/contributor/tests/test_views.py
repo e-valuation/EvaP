@@ -1,3 +1,4 @@
+import xlrd
 from django.core import mail
 from django_webtest import WebTest
 from model_bakery import baker
@@ -284,3 +285,18 @@ class TestContributorEvaluationEditView(WebTest):
         page = self.app.get(self.url, user=self.responsible)
         self.assertEqual(page.body.decode().count("Request changes"), 0)
         self.assertEqual(page.body.decode().count("Request creation of new account"), 2)
+
+
+class TestConrtibutorResultsExportView(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        result = create_evaluation_with_responsible_and_editor()
+        cls.url = f"/contributor/export"
+        cls.user = result["responsible"]
+
+    def test_view_downloads_excel_file(self):
+        response = self.app.get(self.url, user=self.user)
+
+        # Load response as Excel file and check its heading for correctness.
+        workbook = xlrd.open_workbook(file_contents=response.content)
+        self.assertEqual(workbook.sheets()[0].row_values(0)[0], f"Evaluation\n{self.user.full_name}")
