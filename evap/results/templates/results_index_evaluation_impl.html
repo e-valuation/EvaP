@@ -50,10 +50,13 @@
         </div>
     {% endif %}
     {% if evaluation.is_single_result %}
-        <div data-col="participants" class="text-center"><span class="fas fa-user"></span>&nbsp;{{ evaluation.single_result_rating_result.count_sum }}</div>
+    <!-- data-order="{{ 1 }}" is used to show the singe result ratings on the bottom when sorting desc / top when asc -->
+    <div data-col="participants" class="text-center" data-order="{{ 1 }}"><span class="fas fa-user"></span>&nbsp;{{ evaluation.single_result_rating_result.count_sum }}</div>
     {% else %}
         {% with num_participants=evaluation.num_participants num_voters=evaluation.num_voters %}
-            <div data-col="participants">{% include 'progress_bar.html' with done=num_voters total=num_participants %}</div>
+        {% with percent_voted=evaluation.percent_voted %}
+            <div data-col="participants" data-order="{{ percent_voted }}">{% include 'progress_bar.html' with done=num_voters total=num_participants %}</div>
+        {% endwith %}
         {% endwith %}
     {% endif %}
 

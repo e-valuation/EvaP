@@ -692,6 +692,11 @@ class Evaluation(LoggedModel):
         # the rating results are only published if at least the configured number of participants voted during the evaluation for anonymity reasons
         return self.num_voters >= settings.VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS
 
+    @cached_property
+    def percent_voted(self):
+        return -(self.num_voters / self.num_participants)
+
+
     @transition(field=state, source=[State.NEW, State.EDITOR_APPROVED], target=State.PREPARED)
     def ready_for_editors(self):
         pass
