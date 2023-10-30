@@ -40,6 +40,7 @@ urlpatterns = [
 
     path("semester/<int:semester_id>/course/create", views.course_create, name="course_create"),
     path("course/delete", views.course_delete, name="course_delete"),
+    path("course/create_exam_evaluation", views.create_exam_evaluation, name="create_exam_evaluation"),
     path("course/<int:course_id>/edit", views.CourseEditView.as_view(), name="course_edit"),
     path("course/<int:course_id>/copy", views.course_copy, name="course_copy"),
 
