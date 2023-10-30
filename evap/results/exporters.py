@@ -2,11 +2,10 @@ import warnings
 from collections import OrderedDict, defaultdict
 from collections.abc import Generator, Iterable
 from itertools import chain, repeat
-from typing import Any, Collection, Sequence
+from typing import Any, Sequence
 
 import xlwt
-from django.db.models import Avg, Case, ExpressionWrapper, F, FloatField, IntegerField, Q, Value, When
-from django.db.models.query import QuerySet
+from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from evap.evaluation.models import CourseType, Degree, Evaluation, Question, Questionnaire, Semester, UserProfile
