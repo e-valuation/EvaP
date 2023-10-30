@@ -291,7 +291,7 @@ class TestConrtibutorResultsExportView(WebTest):
     @classmethod
     def setUpTestData(cls):
         result = create_evaluation_with_responsible_and_editor()
-        cls.url = f"/contributor/export"
+        cls.url = "/contributor/export"
         cls.user = result["responsible"]
 
     def test_view_downloads_excel_file(self):

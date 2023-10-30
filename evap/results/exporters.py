@@ -175,7 +175,7 @@ class ResultsExporter(ExcelExporter):
                 "headline",
             )
         else:
-            self.write_cell(_("{}".format(export_name)))
+            self.write_cell(_("{}").format(export_name))
 
         for evaluation, __ in evaluations_with_results:
             title = evaluation.full_name
