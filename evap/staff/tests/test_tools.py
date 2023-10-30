@@ -245,11 +245,8 @@ class EnrollmentPreprocessorTest(WebTest):
         io.seek(0)
         return io
 
-    def test_parse_successful(self):
-        run_preprocessor(self.xslx_file, self.create_memory_csv_file())
-
     @patch("builtins.input", side_effect=cycle(("n", "y")))
-    def test_parse_conflict(self, input_patch: MagicMock):
+    def test_parse(self, input_patch: MagicMock):
         self.data[0][1] = "Conflicting Lastname"
         self.data[1][0] = "Conflicting Title"
         self.data[2][2] = "Conflicting Firstname"
