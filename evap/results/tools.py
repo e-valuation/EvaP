@@ -164,7 +164,7 @@ def get_single_result_rating_result(evaluation):
     return RatingResult(question, answer_counters)
 
 
-def get_results_cache_key(evaluation):
+def get_results_cache_key(evaluation: Evaluation) -> str:
     return f"evap.staff.results.tools.get_results-{evaluation.id:d}"
 
 

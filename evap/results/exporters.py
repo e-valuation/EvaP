@@ -2,7 +2,9 @@ import warnings
 from collections import OrderedDict, defaultdict
 from collections.abc import Generator, Iterable
 from itertools import chain, repeat
-from typing import Any
+from typing import Any, Collection, Sequence
+from django.db.models  import Avg
+from django.db.models import F, ExpressionWrapper, FloatField, Value, Case, When, IntegerField
 
 import xlwt
 from django.db.models import Q
@@ -109,8 +111,8 @@ class ResultsExporter(ExcelExporter):
     def filter_evaluations(
         semesters: Iterable[Semester],
         evaluation_states: Iterable[int],
-        degrees: Iterable[int],
-        course_types: CourseType,
+        degree_ids: Iterable[int],
+        course_type_ids: CourseType,
         contributor: UserProfile | None,
         include_not_enough_voters: bool,
     ) -> tuple[list[tuple[Evaluation, Any]], Iterable[Questionnaire], bool]:
@@ -121,8 +123,8 @@ class ResultsExporter(ExcelExporter):
         evaluations_filter = Q(
             course__semester__in=semesters,
             state__in=evaluation_states,
-            course__degrees__in=degrees,
-            course__type__in=course_types,
+            course__degrees__in=degree_ids,
+            course__type__in=course_type_ids,
         )
         if contributor:
             evaluations_filter = evaluations_filter & (
@@ -172,18 +174,18 @@ class ResultsExporter(ExcelExporter):
     def write_headings_and_evaluation_info(
         self,
         evaluations_with_results: list[tuple[Evaluation, Any]],
-        semesters: QuerySet[Semester],
-        contributor: None | UserProfile,
-        degrees: Iterable[int],
-        course_types: Iterable[int],
+        semesters: Sequence[Semester],
+        contributor: UserProfile | None,
+        degree_ids: Iterable[int],
+        course_type_ids: Iterable[int],
     ) -> None:
         export_name = "Evaluation"
         if contributor:
             export_name += f"\n{contributor.full_name}"
         elif len(semesters) == 1:
             export_name += f"\n{semesters[0].name}"
-        degree_names = [degree.name for degree in Degree.objects.filter(pk__in=degrees)]
-        course_type_names = [course_type.name for course_type in CourseType.objects.filter(pk__in=course_types)]
+        degree_names = [degree.name for degree in Degree.objects.filter(pk__in=degree_ids)]
+        course_type_names = [course_type.name for course_type in CourseType.objects.filter(pk__in=course_type_ids)]
         self.write_cell(
             _("{}\n\n{}\n\n{}").format(export_name, ", ".join(degree_names), ", ".join(course_type_names)), "headline"
         )
@@ -240,7 +242,7 @@ class ResultsExporter(ExcelExporter):
             )
 
             self.write_cell(_("Evaluation weight"), "bold")
-            weight_percentages: Generator[str | None, None, None] = (
+            weight_percentages: Generator[str | Any, Any, Any] = (
                 f"{e.weight_percentage}%" if gt1 else None  # type: ignore[attr-defined]
                 for e, gt1 in zip(evaluations, count_gt_1)
             )
@@ -264,7 +266,7 @@ class ResultsExporter(ExcelExporter):
         self,
         questionnaire: Questionnaire,
         evaluations_with_results: list[tuple[Evaluation, Any]],
-        contributor: None | UserProfile,
+        contributor: UserProfile | None,
     ) -> None:
         if contributor and questionnaire.type == Questionnaire.Type.CONTRIBUTOR:
             self.write_cell(f"{questionnaire.public_name} ({contributor.full_name})", "bold")
@@ -311,16 +313,16 @@ class ResultsExporter(ExcelExporter):
     # pylint: disable=arguments-differ
     def export_impl(
         self,
-        semesters: QuerySet[Semester],
+        semesters: Sequence[Semester],
         selection_list,
         include_not_enough_voters: bool = False,
         include_unpublished: bool = False,
-        contributor: None | UserProfile = None,
+        contributor: UserProfile | None = None,
     ) -> None:
         # We want to throw early here, since workbook.save() will throw an IndexError otherwise.
         assert len(selection_list) > 0
 
-        for sheet_counter, (degrees, course_types) in enumerate(selection_list, 1):
+        for sheet_counter, (degrees, course_type_ids) in enumerate(selection_list, 1):
             self.cur_sheet = self.workbook.add_sheet("Sheet " + str(sheet_counter))
             self.cur_row = 0
             self.cur_col = 0
@@ -333,13 +335,13 @@ class ResultsExporter(ExcelExporter):
                 semesters,
                 evaluation_states,
                 degrees,
-                course_types,
+                course_type_ids,
                 contributor,
                 include_not_enough_voters,
             )
 
             self.write_headings_and_evaluation_info(
-                evaluations_with_results, semesters, contributor, degrees, course_types
+                evaluations_with_results, semesters, contributor, degrees, course_type_ids
             )
 
             for questionnaire in used_questionnaires:
