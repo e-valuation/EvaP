@@ -3,11 +3,9 @@ from collections import OrderedDict, defaultdict
 from collections.abc import Generator, Iterable
 from itertools import chain, repeat
 from typing import Any, Collection, Sequence
-from django.db.models  import Avg
-from django.db.models import F, ExpressionWrapper, FloatField, Value, Case, When, IntegerField
 
 import xlwt
-from django.db.models import Q
+from django.db.models import Avg, Case, ExpressionWrapper, F, FloatField, IntegerField, Q, Value, When
 from django.db.models.query import QuerySet
 from django.utils.translation import gettext as _
 
