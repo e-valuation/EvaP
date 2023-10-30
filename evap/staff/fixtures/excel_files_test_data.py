@@ -197,6 +197,7 @@ valid_user_courses_import_filedata = {
         ['Bachelor', 'Manilium', 'Lucilia', 'lucilia.manilium@student.institution.com', 'Vorlesung', 'no', 'Schütteln', 'Shake', 'Prof. Dr.', 'Prorsus', 'Christoph', '123@external.com']
     ]
 }
+
 # user.title, user.last_name, user.first_name, user.email
 valid_user_courses_import_users = [
     ['', 'Quid', 'Bastius', 'bastius.quid@external.example.com'],
