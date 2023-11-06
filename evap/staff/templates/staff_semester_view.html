@@ -499,7 +499,7 @@
                             <col />
                             <col style="width: 14em" />
                             <col style="width: 12em" />
-                            <col style="width: 12.9em" />
+                            <col style="width: 9em" />
                         </colgroup>
                         <thead>
                             <tr>
@@ -547,11 +547,6 @@
                                             title="{% translate 'Copy course' %}">
                                             <span class="fas fa-copy"></span>
                                         </a>
-                                        <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
-                                        onclick="createExamEvaluationShow({{ course.id }}, '{{ course.name|escapejs }}');"
-                                        title="{% trans 'Create exam evaluation' %}">
-                                        <span class="fas fa-file-pen fa-fw"></span>
-                                        </a>
                                         {% endif %}
                                         {% if course.can_be_deleted_by_manager %}
                                             <confirmation-modal type="submit" form="course-deletion-form" name="course_id" value="{{ course.id }}" confirm-button-class="btn-danger">
@@ -593,9 +588,8 @@
     {% include 'confirmation_modal.html' with modal_id='createExamEvaluation' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
         function createExamEvaluationAction(dataId) {
-            alert(dataId);
             fetch("{% url 'staff:create_exam_evaluation' %}", {
-                body: new URLSearchParams({course_id: dataId}),
+                body: new URLSearchParams({evaluation_id: dataId}),
                 headers: CSRF_HEADERS,
                 method: "POST",
             }).then(response => {
