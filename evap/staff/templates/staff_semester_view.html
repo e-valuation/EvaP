@@ -585,7 +585,7 @@
     {% trans 'Create exam evaluation' as title %}
     {% blocktrans asvar question %}Create an exam evaluation based on this evaluation. This will copy all the participants and contributors from the original evaluation. It will set the weight of the original evaluation to 9 and its end date will be set to the day before the exam. {% endblocktrans %}
     {% trans 'Create exam evaluation' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='createExamEvaluation' title=title question=question action_text=action_text btn_type='danger' %}
+    {% include 'confirmation_modal.html' with modal_id='createExamEvaluation' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
         function createExamEvaluationAction(dataId) {
             fetch("{% url 'staff:create_exam_evaluation' %}", {

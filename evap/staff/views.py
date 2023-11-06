@@ -1100,6 +1100,11 @@ def create_exam_evaluation(request):
     exam_date = datetime.today()  # request.POST.get("date")
     if evaluation.is_single_result:
         raise SuspiciousOperation("Creating an exam evaluation for a single result evaluation is not allowed")
+
+    if evaluation.course.evaluations.filter(name_de="Klausur", name_en="Exam").exists():
+        messages.error(request, _("An exam evaluation already exists for this course."))
+        return HttpResponse()#HttpResponseRedirect(reverse("staff:semester_view", args=[evaluation.course.semester.id])) 
+
     evaluation.weight = 9
 
     course_evaluation_end_date = exam_date - timedelta(days=1)
@@ -1119,6 +1124,7 @@ def create_exam_evaluation(request):
     exam_evaluation.general_contribution.questionnaires.set([Questionnaire.objects.get(id=1)])
 
     evaluation.save()
+    messages.success(request, _("Successfully created exam evaluation."))
     return HttpResponse()  # 200 OK
 
 
