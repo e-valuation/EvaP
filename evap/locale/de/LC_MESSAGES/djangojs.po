@@ -1,0 +1,30 @@
+# EvaP translation
+# This file is distributed under the same license as the EvaP project.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: EvaP\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-10-30 17:26+0100\n"
+"PO-Revision-Date: 2023-10-30 17:26+0100\n"
+"Last-Translator: Johannes Wolf <janno42@posteo.de>\n"
+"Language-Team: Johannes Wolf (janno42)\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.3.2\n"
+
+#: evap/static/js/notebook.js:30 evap/static/ts/src/notebook.ts:39
+msgid "The server is not responding."
+msgstr ""
+
+#: evap/static/js/sortable_form.js:19
+msgid "Delete"
+msgstr ""
+
+#: evap/static/js/sortable_form.js:20
+msgid "add another"
+msgstr ""

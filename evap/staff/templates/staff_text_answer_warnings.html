@@ -93,7 +93,7 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    {% include 'sortable_form_js.html' %}
+    <script src="{% static 'js/sortable_form.js' %}"></script>
 
     {{ text_answer_warnings|text_answer_warning_trigger_strings|json_script:'text-answer-warnings' }}
 

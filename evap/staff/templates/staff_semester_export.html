@@ -1,6 +1,6 @@
 {% extends 'staff_semester_base.html' %}
 
-{% load evaluation_filters %}
+{% load evaluation_filters static %}
 
 {% block breadcrumb %}
     {{ block.super }}
@@ -72,7 +72,7 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    {% include 'sortable_form_js.html' %}
+    <script src="{% static 'js/sortable_form.js' %}"></script>
 
     <script type="text/javascript">
         rowChanged = function(row) {
