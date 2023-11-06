@@ -37,8 +37,10 @@ class UserCells:
 def user_decision(field: str, existing: str, imported: str) -> str:
     if existing == imported:
         return existing
-    decision = input(f"Do you want to keep the existing user {field}? (Y/n) ")
-    if decision and decision[0].lower() == "n":
+    decision: str = ""
+    while decision not in ("y", "n"):
+        decision = input(f"Do you want to keep the existing user {field}? (y/n) ")
+    if decision == "n":
         return imported
     return existing
 
