@@ -2289,11 +2289,11 @@ class UserMergeSelectionView(FormView):
     form_class = UserMergeSelectionForm
     template_name = "staff_user_merge_selection.html"
 
-    def get_success_url(self):
+    def form_valid(self, form):
         return redirect(
             "staff:user_merge",
-            self.form.cleaned_data["main_user"].id,
-            self.form.cleaned_data["other_user"].id,
+            form.cleaned_data["main_user"].id,
+            form.cleaned_data["other_user"].id,
         )
 
 

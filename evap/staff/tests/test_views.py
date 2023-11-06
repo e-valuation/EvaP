@@ -328,14 +328,27 @@ class TestUserDeleteView(DeleteViewTestMixin, WebTestStaffMode):
         return {"user_id": cls.instance.pk}
 
 
-class TestUserMergeSelectionView(WebTestStaffModeWith200Check):
+class TestUserMergeSelectionView(WebTestStaffMode):
     url = "/staff/user/merge"
 
     @classmethod
     def setUpTestData(cls):
-        cls.test_users = [make_manager()]
+        cls.manager = make_manager()
 
-        baker.make(UserProfile)
+        cls.main_user = baker.make(UserProfile, _fill_optional=["email"])
+        cls.other_user = baker.make(UserProfile, _fill_optional=["email"])
+
+    def test_redirection_user_merge_view(self):
+        page = self.app.get(self.url, user=self.manager)
+
+        form = page.forms["user-selection-form"]
+        form["main_user"] = self.main_user.pk
+        form["other_user"] = self.other_user.pk
+
+        page = form.submit().follow()
+
+        self.assertContains(page, self.main_user.email)
+        self.assertContains(page, self.other_user.email)
 
 
 class TestUserMergeView(WebTestStaffModeWith200Check):
