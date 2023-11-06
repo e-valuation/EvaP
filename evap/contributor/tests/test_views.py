@@ -297,6 +297,5 @@ class TestContributorResultsExportView(WebTest):
     def test_view_downloads_excel_file(self):
         response = self.app.get(self.url, user=self.user)
 
-        # Load response as Excel file and check its heading for correctness.
         workbook = xlrd.open_workbook(file_contents=response.content)
         self.assertEqual(workbook.sheets()[0].row_values(0)[0], f"Evaluation\n{self.user.full_name}")
