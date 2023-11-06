@@ -272,12 +272,24 @@ class TestUserEditView(WebTestStaffMode):
         cls.testuser = baker.make(UserProfile)
         cls.url = f"/staff/user/{cls.testuser.pk}/edit"
 
-    def test_questionnaire_edit(self):
+    def test_user_edit(self):
         page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["user-form"]
         form["email"] = "lfo9e7bmxp1xi@institution.example.com"
         form.submit()
         self.assertTrue(UserProfile.objects.filter(email="lfo9e7bmxp1xi@institution.example.com").exists())
+
+    def test_user_edit_duplicate_email(self):
+        second_user = baker.make(UserProfile)
+        second_user.email = "lfo9e7bmxp1xi@institution.example.com"
+        second_user.save()
+        page = self.app.get(self.url, user=self.manager, status=200)
+        form = page.forms["user-form"]
+        form["email"] = "lfo9e7bmxp1xi@institution.example.com"
+        page = form.submit()
+        self.assertContains(
+            page, "A user with this email address already exists. You probably want to merge the users."
+        )
 
     @patch("evap.staff.forms.remove_user_from_represented_and_ccing_users")
     def test_inactive_edit(self, mock_remove):

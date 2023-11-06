@@ -957,6 +957,7 @@ class UserForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.user_with_same_email = None
         evaluations_in_active_semester = Evaluation.objects.filter(course__semester=Semester.active_semester())
         excludes = [x.id for x in evaluations_in_active_semester if x.is_single_result]
         evaluations_in_active_semester = evaluations_in_active_semester.exclude(id__in=excludes)
@@ -999,6 +1000,7 @@ class UserForm(forms.ModelForm):
             user_with_same_email = user_with_same_email.exclude(pk=self.instance.pk)
 
         if user_with_same_email.exists():
+            self.user_with_same_email = user_with_same_email.get()
             raise forms.ValidationError(_("A user with the email '%s' already exists") % email)
         return email
 
