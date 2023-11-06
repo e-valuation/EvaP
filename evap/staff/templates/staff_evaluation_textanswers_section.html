@@ -17,19 +17,19 @@
                     </div>
                     {% for answer in result.answers %}
                         <div class="grid-row" id="{{ answer.id }}">
-                            <div class="justify-content-left">
+                            <div>
                                 {{ answer.answer|linebreaksbr }}
                                 {% if answer.original_answer %}
                                     <br />
                                     <span class="textanswer-original">({{ answer.original_answer|linebreaksbr }})</span>
                                 {% endif %}
                             </div>
-                            <div class="justify-content-center">
+                            <div>
                                 {% if user.is_manager %}
                                     <a class="btn btn-sm btn-outline-secondary" href="{% url 'staff:evaluation_textanswer_edit' answer.id %}"><span class="fas fa-pencil"></a>
                                 {% endif %}
                             </div>
-                            <div class="justify-content-center">
+                            <div>
                                 <form class="full-update-textanswer-form" method="POST" action="{% url 'staff:evaluation_textanswers_update_publish' %}">
                                     {% csrf_token %}
 
@@ -50,7 +50,7 @@
                                     </div>
                                 </form>
                             </div>
-                            <div class="justify-content-center">
+                            <div>
                                 <form class="full-textanswer-flag-form" method="POST" action="{% url 'staff:evaluation_textanswers_update_flag' %}">
                                     {% csrf_token %}
 

@@ -2,14 +2,20 @@
     background-color: $table-striped-bg;
 }
 
+// Only needed for selecting all elements of a row
+// https://stackoverflow.com/a/50734005/3984653
 .grid-row {
     display: contents;
 }
 
-.grid-striped .grid-row:nth-of-type(even) > div {
-    background-color: $table-striped-bg;
-    border-top: 1px solid $table-border-color;
-    border-bottom: 1px solid $table-border-color;
+.grid-striped .grid-row {
+    &:nth-of-type(even) > div {
+        background-color: $table-striped-bg;
+    }
+
+    & > div {
+        border-bottom: 1px solid $table-border-color;
+    }
 }
 
 .lcr-left {
@@ -55,7 +61,7 @@
     }
 }
 
-%grid-row {
+%table-grid {
     display: grid;
     min-height: 2.5rem;
     padding: 0.75rem;
@@ -81,7 +87,7 @@
 }
 
 .results-grid-row {
-    @extend %grid-row;
+    @extend %table-grid;
 
     grid:
         "name semester responsible participants result"
@@ -133,7 +139,7 @@
 }
 
 .textanswer-review-grid {
-    @extend %grid-row;
+    @extend %table-grid;
 
     gap: 0;
     grid:
@@ -152,6 +158,9 @@
             align-items: center;
             padding-left: 0.75rem;
         }
+    }
+    .grid-row:not(:first-child) > div:not(:first-child) {
+        justify-content: center;
     }
 }
 
