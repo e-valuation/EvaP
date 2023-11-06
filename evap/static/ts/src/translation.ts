@@ -1,6 +1,6 @@
 // Django's own JavaScript translation catalog is provided as global JS
 // In order to make it usable with TypeScript, additional type definitons
-// are necessary:   
+// are necessary:
 export {};
 declare global {
     interface Window {
