@@ -4,6 +4,10 @@
     background-color: $darker-gray;
 }
 
+.navbar-collapse.show {
+    overflow-y: scroll; /* scrollable menus on mobile */
+}
+
 .navbar-nav .nav-link,
 .navbar-nav .navbar-text {
     padding: .0 .5rem;
