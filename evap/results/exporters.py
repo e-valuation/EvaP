@@ -214,7 +214,7 @@ class ResultsExporter(ExcelExporter):
         self.write_empty_row_with_styles(["default"] + ["border_left_right"] * len(evaluations_with_results))
 
     def write_overall_results(
-        self, evaluations_with_results: list[tuple[Evaluation, None]], course_results_exist: bool
+        self, evaluations_with_results: list[tuple[Evaluation, Any]], course_results_exist: bool
     ) -> None:
         evaluations = [e for e, __ in evaluations_with_results]
 
