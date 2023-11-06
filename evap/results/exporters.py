@@ -171,11 +171,11 @@ class ResultsExporter(ExcelExporter):
             degree_names = [degree.name for degree in Degree.objects.filter(pk__in=degrees)]
             course_type_names = [course_type.name for course_type in CourseType.objects.filter(pk__in=course_types)]
             self.write_cell(
-                _("{}\n\n{}\n\n{}").format(export_name, ", ".join(degree_names), ", ".join(course_type_names)),
+                f"{export_name}\n\n{', '.join(degree_names)}\n\n{', '.join(course_type_names)}",
                 "headline",
             )
         else:
-            self.write_cell(_("{}").format(export_name))
+            self.write_cell(export_name)
 
         for evaluation, __ in evaluations_with_results:
             title = evaluation.full_name
