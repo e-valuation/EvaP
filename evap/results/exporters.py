@@ -20,6 +20,8 @@ from evap.results.tools import (
     get_results,
 )
 
+from .tools import QuestionResult
+
 
 class ResultsExporter(ExcelExporter):
     CUSTOM_COLOR_START = 8
@@ -112,7 +114,7 @@ class ResultsExporter(ExcelExporter):
         course_type_ids: CourseType,
         contributor: UserProfile | None,
         include_not_enough_voters: bool,
-    ) -> tuple[list[tuple[Evaluation, Any]], Iterable[Questionnaire], bool]:
+    ) -> tuple[list[tuple[Evaluation, Any]], list[Questionnaire], bool]:
         # pylint: disable=too-many-locals
         course_results_exist = False
         evaluations_with_results = []
@@ -133,15 +135,17 @@ class ResultsExporter(ExcelExporter):
                 continue
             if not evaluation.can_publish_rating_results and not include_not_enough_voters:
                 continue
-            results: OrderedDict[EvaluationResult, list[RatingResult]] = OrderedDict()
+            results: OrderedDict[EvaluationResult, list[QuestionResult]] = OrderedDict()
             for contribution_result in get_results(evaluation).contribution_results:
                 for questionnaire_result in contribution_result.questionnaire_results:
                     # RatingQuestion.counts is a tuple of integers or None, if this tuple is all zero, we want to exclude it
-                    question_results: list[RatingResult] = questionnaire_result.question_results  # type: ignore[assignment]
+                    question_results: list[QuestionResult] = questionnaire_result.question_results  # type: ignore[assignment]
                     if all(
                         not question_result.question.is_rating_question
-                        or question_result.counts is None
-                        or sum(question_result.counts) == 0
+                        or (
+                            isinstance(question_result, RatingResult)
+                            and (question_result.counts is None or sum(question_result.counts) == 0)
+                        )
                         for question_result in question_results
                     ):
                         continue
