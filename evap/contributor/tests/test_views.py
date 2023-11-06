@@ -287,7 +287,7 @@ class TestContributorEvaluationEditView(WebTest):
         self.assertEqual(page.body.decode().count("Request creation of new account"), 2)
 
 
-class TestConrtibutorResultsExportView(WebTest):
+class TestContributorResultsExportView(WebTest):
     @classmethod
     def setUpTestData(cls):
         result = create_evaluation_with_responsible_and_editor()
