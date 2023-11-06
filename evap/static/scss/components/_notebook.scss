@@ -64,7 +64,8 @@
         }
 
         .notebook-card {
-            height: calc(45vh - (#{$spacer} * 1.5) * 2); // subtract spacer with padding
+            min-height: calc(45vh - (#{$spacer} * 1.5) * 2); //subtract spacer with padding
+            max-height: 43.5vh; //approximation for size needed in smallest window (50vh - (spacer + leeway))
         }
     }
 }
