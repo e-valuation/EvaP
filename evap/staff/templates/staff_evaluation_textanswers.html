@@ -10,23 +10,43 @@
 {% block content %}
     {{ block.super }}
 
-    <div class="d-flex">
-        <h3 class="me-auto">{{ evaluation.full_name }} ({{ evaluation.course.semester.name }})</h3>
-        <div class="btn-switch btn-switch-light my-auto d-print-none">
-            <div class="btn-switch-label">{% trans 'View' %}</div>
-            <div class="btn-switch btn-group">
-                <a href="{% url 'staff:evaluation_textanswers' evaluation.id %}" role="button" class="btn btn-sm btn-light{% if view == 'quick' %} active{% endif %}">
-                    {% trans 'Quick' %}
-                </a>
-                <a href="{% url 'staff:evaluation_textanswers' evaluation.id %}?view=full" role="button" class="btn btn-sm btn-light{% if view == 'full' %} active{% endif %}">
-                    {% trans 'Full' %}
-                </a>
-                <a href="{% url 'staff:evaluation_textanswers' evaluation.id %}?view=undecided" role="button" class="btn btn-sm btn-light{% if view == 'undecided' %} active{% endif %}">
-                    {% trans 'Undecided' %}
-                </a>
-                <a href="{% url 'staff:evaluation_textanswers' evaluation.id %}?view=flagged" role="button" class="btn btn-sm btn-light{% if view == 'flagged' %} active{% endif %}">
-                    {% trans 'Flagged' %}
-                </a>
+    <div class="row mb-3 align-items-end">
+        <div class="col">
+            <h3 class="mb-0">{{ evaluation.full_name }} ({{ evaluation.course.semester.name }})</h3>
+        </div>
+        <div class="col-auto">
+            <div class="btn-switch btn-switch-light my-auto d-print-none">
+                <div class="btn-switch-label">{% trans 'View' %}</div>
+                <div class="btn-switch btn-group">
+                    <a
+                        href="{% url 'staff:evaluation_textanswers' evaluation.id %}"
+                        role="button"
+                        class="btn btn-sm btn-light{% if view == 'quick' %} active{% endif %}"
+                    >
+                        {% trans 'Quick' %}
+                    </a>
+                    <a
+                        href="{% url 'staff:evaluation_textanswers' evaluation.id %}?view=full"
+                        role="button"
+                        class="btn btn-sm btn-light{% if view == 'full' %} active{% endif %}"
+                    >
+                        {% trans 'Full' %}
+                    </a>
+                    <a
+                        href="{% url 'staff:evaluation_textanswers' evaluation.id %}?view=undecided"
+                        role="button"
+                        class="btn btn-sm btn-light{% if view == 'undecided' %} active{% endif %}"
+                    >
+                        {% trans 'Undecided' %}
+                    </a>
+                    <a
+                        href="{% url 'staff:evaluation_textanswers' evaluation.id %}?view=flagged"
+                        role="button"
+                        class="btn btn-sm btn-light{% if view == 'flagged' %} active{% endif %}"
+                    >
+                        {% trans 'Flagged' %}
+                    </a>
+                </div>
             </div>
         </div>
     </div>
