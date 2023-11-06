@@ -371,7 +371,7 @@
                             <col />
                             <col style="width: 14em" />
                             <col style="width: 12em" />
-                            <col style="width: 12.9em" />
+                            <col style="width: 9em" />
                         </colgroup>
                         <thead>
                             <tr>
@@ -407,23 +407,17 @@
                                             <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
                                                 href="{% url 'staff:evaluation_create_for_course' course.id %}"
                                                 title="{% trans 'Create evaluation for this course' %}">
-                                                <span class="fas fa-clipboard-check fa-fw"></span>
+                                                <span class="fas fa-clipboard-check"></span>
                                             </a>
                                             <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
                                                 href="{% url 'staff:single_result_create_for_course' course.id %}"
                                                 title="{% trans 'Create single result for this course' %}">
-                                                <span class="fas fa-square-poll-vertical fa-fw"></span>
-                                            </a>
-                                            <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
-                                                href="{% url 'staff:course_copy' course.id %}"
-                                                title="{% trans 'Copy course' %}">
-                                                <span class="fas fa-copy fa-fw"></span>
-                                            </a>
-                                                <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
-                                                onclick="createExamEvaluationShow({{ course.id }}, '{{ course.name|escapejs }}');"
-                                                title="{% trans 'Create exam evaluation' %}">
-                                                <span class="fas fa-file-pen fa-fw"></span>
-                                            </a>
+                                                <span class="fas fa-square-poll-vertical"></span>
+                                        </a>
+                                        <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
+                                            href="{% url 'staff:course_copy' course.id %}"
+                                            title="{% trans 'Copy course' %}">
+                                            <span class="fas fa-copy"></span>                                            </a>
                                         {% endif %}
                                         {% if course.can_be_deleted_by_manager %}
                                             <button type="button" onclick="deleteCourseModalShow({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
@@ -584,9 +578,8 @@
     {% include 'confirmation_modal.html' with modal_id='createExamEvaluation' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
         function createExamEvaluationAction(dataId) {
-            alert(dataId);
             fetch("{% url 'staff:create_exam_evaluation' %}", {
-                body: new URLSearchParams({course_id: dataId}),
+                body: new URLSearchParams({evaluation_id: dataId}),
                 headers: CSRF_HEADERS,
                 method: "POST",
             }).then(response => {
