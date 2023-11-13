@@ -1291,7 +1291,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("No answer"),
         ],
         is_inverted=False,
-        **BASE_UNIPOLAR_CHOICES,  # type: ignore
+        **BASE_UNIPOLAR_CHOICES,  # type: ignore[arg-type]
     ),
     QuestionType.NEGATIVE_LIKERT: Choices(
         names=[
@@ -1303,7 +1303,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("No answer"),
         ],
         is_inverted=True,
-        **BASE_UNIPOLAR_CHOICES,  # type: ignore
+        **BASE_UNIPOLAR_CHOICES,  # type: ignore[arg-type]
     ),
     QuestionType.GRADE: Choices(
         names=[
@@ -1315,7 +1315,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("No answer"),
         ],
         is_inverted=False,
-        **BASE_UNIPOLAR_CHOICES,  # type: ignore
+        **BASE_UNIPOLAR_CHOICES,  # type: ignore[arg-type]
     ),
     QuestionType.EASY_DIFFICULT: BipolarChoices(
         minus_name=_("Easy"),
@@ -1330,7 +1330,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("Way too\ndifficult"),
             _("No answer"),
         ],
-        **BASE_BIPOLAR_CHOICES,  # type: ignore
+        **BASE_BIPOLAR_CHOICES,  # type: ignore[arg-type]
     ),
     QuestionType.FEW_MANY: BipolarChoices(
         minus_name=_("Few"),
@@ -1345,7 +1345,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("Way too\nmany"),
             _("No answer"),
         ],
-        **BASE_BIPOLAR_CHOICES,  # type: ignore
+        **BASE_BIPOLAR_CHOICES,  # type: ignore[arg-type]
     ),
     QuestionType.LITTLE_MUCH: BipolarChoices(
         minus_name=_("Little"),
@@ -1360,7 +1360,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("Way too\nmuch"),
             _("No answer"),
         ],
-        **BASE_BIPOLAR_CHOICES,  # type: ignore
+        **BASE_BIPOLAR_CHOICES,  # type: ignore[arg-type]
     ),
     QuestionType.SMALL_LARGE: BipolarChoices(
         minus_name=_("Small"),
@@ -1375,7 +1375,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("Way too\nlarge"),
             _("No answer"),
         ],
-        **BASE_BIPOLAR_CHOICES,  # type: ignore
+        **BASE_BIPOLAR_CHOICES,  # type: ignore[arg-type]
     ),
     QuestionType.SLOW_FAST: BipolarChoices(
         minus_name=_("Slow"),
@@ -1390,7 +1390,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("Way too\nfast"),
             _("No answer"),
         ],
-        **BASE_BIPOLAR_CHOICES,  # type: ignore
+        **BASE_BIPOLAR_CHOICES,  # type: ignore[arg-type]
     ),
     QuestionType.SHORT_LONG: BipolarChoices(
         minus_name=_("Short"),
@@ -1405,7 +1405,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("Way too\nlong"),
             _("No answer"),
         ],
-        **BASE_BIPOLAR_CHOICES,  # type: ignore
+        **BASE_BIPOLAR_CHOICES,  # type: ignore[arg-type]
     ),
     QuestionType.POSITIVE_YES_NO: Choices(
         names=[
@@ -1414,7 +1414,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("No answer"),
         ],
         is_inverted=False,
-        **BASE_YES_NO_CHOICES,  # type: ignore
+        **BASE_YES_NO_CHOICES,  # type: ignore[arg-type]
     ),
     QuestionType.NEGATIVE_YES_NO: Choices(
         names=[
@@ -1423,7 +1423,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("No answer"),
         ],
         is_inverted=True,
-        **BASE_YES_NO_CHOICES,  # type: ignore
+        **BASE_YES_NO_CHOICES,  # type: ignore[arg-type]
     ),
 }
 

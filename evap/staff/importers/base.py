@@ -208,7 +208,7 @@ class ExcelFileRowMapper:
             ) from e
 
         rows = []
-        for sheet in book:  # type: ignore
+        for sheet in book:  # type: ignore[attr-defined]
             if sheet.max_row <= self.skip_first_n_rows:
                 continue
 

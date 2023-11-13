@@ -410,7 +410,7 @@ try:
     # localsettings file may exist (vagrant) or do not (GitHub)
 
     # the import can overwrite locals with a slightly different type (e.g. DATABASES), which is fine.
-    from evap.localsettings import *  # type: ignore  # noqa: F403
+    from evap.localsettings import *  # type: ignore  # noqa: F403,PGH003
 except ImportError:
     pass
 

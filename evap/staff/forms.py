@@ -260,7 +260,7 @@ class CourseFormMixin:
                     self.add_error(name_field, e)
 
 
-class CourseForm(CourseFormMixin, forms.ModelForm):  # type: ignore
+class CourseForm(CourseFormMixin, forms.ModelForm):  # type: ignore[misc]
     semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
 
     def __init__(self, *args, **kwargs):
@@ -270,7 +270,7 @@ class CourseForm(CourseFormMixin, forms.ModelForm):  # type: ignore
             disable_all_fields(self)
 
 
-class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore
+class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore[misc]
     semester = forms.ModelChoiceField(Semester.objects.all())
     vote_start_datetime = forms.DateTimeField(label=_("Start of evaluations"), localize=True)
     vote_end_date = forms.DateField(label=_("Last day of evaluations"), localize=True)

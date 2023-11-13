@@ -228,7 +228,7 @@ class HttpResponseNoContent(HttpResponse):
         super().__init__(*args, **kwargs)
         del self["content-type"]
 
-    @HttpResponse.content.setter  # type: ignore
+    @HttpResponse.content.setter  # type: ignore[attr-defined]
     def content(self, value):
         if value:
             raise AttributeError("You cannot set content to a 204 (No Content) response")
