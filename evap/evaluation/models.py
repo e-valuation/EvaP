@@ -1905,7 +1905,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
             return
 
         while True:
-            key = secrets.choice(range(0, UserProfile.MAX_LOGIN_KEY))
+            key = secrets.choice(range(UserProfile.MAX_LOGIN_KEY))
             try:
                 self.login_key = key
                 self.reset_login_key_validity()

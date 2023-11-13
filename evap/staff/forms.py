@@ -817,7 +817,7 @@ class ContributionFormset(BaseInlineFormSet):
             evaluation = None
 
         total_forms = int(data["contributions-TOTAL_FORMS"])
-        for i in range(0, total_forms):
+        for i in range(total_forms):
             prefix = "contributions-" + str(i) + "-"
             current_id = data.get(prefix + "id", "")
             contributor = data.get(prefix + "contributor", "")
@@ -833,7 +833,7 @@ class ContributionFormset(BaseInlineFormSet):
                 continue
 
             # find the form with that previous contribution and then swap the contributions
-            for j in range(0, total_forms):
+            for j in range(total_forms):
                 other_prefix = "contributions-" + str(j) + "-"
                 other_id = data[other_prefix + "id"]
                 if other_id == previous_id:

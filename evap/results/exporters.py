@@ -76,7 +76,7 @@ class ResultsExporter(ExcelExporter):
             return
 
         grade_base_style = "pattern: pattern solid, fore_colour {}; alignment: horiz centre; font: bold on; borders: left medium, right medium"
-        for i in range(0, cls.NUM_GRADE_COLORS):
+        for i in range(cls.NUM_GRADE_COLORS):
             grade = 1 + i * cls.STEP
             color = get_grade_color(grade)
             palette_index = cls.CUSTOM_COLOR_START + i
