@@ -1,8 +1,8 @@
 import warnings
 from collections import OrderedDict, defaultdict
-from collections.abc import Generator, Iterable
+from collections.abc import Iterable
 from itertools import chain, repeat
-from typing import Any, Sequence
+from typing import Any, Sequence, cast
 
 import xlwt
 from django.db.models import Q
@@ -11,7 +11,6 @@ from django.utils.translation import gettext as _
 from evap.evaluation.models import CourseType, Degree, Evaluation, Question, Questionnaire, Semester, UserProfile
 from evap.evaluation.tools import ExcelExporter
 from evap.results.tools import (
-    EvaluationResult,
     RatingResult,
     calculate_average_course_distribution,
     calculate_average_distribution,
@@ -114,7 +113,7 @@ class ResultsExporter(ExcelExporter):
         course_type_ids: CourseType,
         contributor: UserProfile | None,
         include_not_enough_voters: bool,
-    ) -> tuple[list[tuple[Evaluation, Any]], list[Questionnaire], bool]:
+    ) -> tuple[list[tuple[Evaluation, OrderedDict[int, list[QuestionResult]]]], list[Questionnaire], bool]:
         # pylint: disable=too-many-locals
         course_results_exist = False
         evaluations_with_results = []
@@ -135,17 +134,15 @@ class ResultsExporter(ExcelExporter):
                 continue
             if not evaluation.can_publish_rating_results and not include_not_enough_voters:
                 continue
-            results: OrderedDict[EvaluationResult, list[QuestionResult]] = OrderedDict()
+            results: OrderedDict[int, list[QuestionResult]] = OrderedDict()
             for contribution_result in get_results(evaluation).contribution_results:
                 for questionnaire_result in contribution_result.questionnaire_results:
                     # RatingQuestion.counts is a tuple of integers or None, if this tuple is all zero, we want to exclude it
-                    question_results: list[QuestionResult] = questionnaire_result.question_results  # type: ignore[assignment]
+                    question_results: list[QuestionResult] = questionnaire_result.question_results
                     if all(
                         not question_result.question.is_rating_question
-                        or (
-                            isinstance(question_result, RatingResult)
-                            and (question_result.counts is None or sum(question_result.counts) == 0)
-                        )
+                        or( isinstance(question_result, RatingResult) and( question_result.counts is None
+                        or sum(question_result.counts) == 0))
                         for question_result in question_results
                     ):
                         continue
@@ -174,7 +171,7 @@ class ResultsExporter(ExcelExporter):
 
     def write_headings_and_evaluation_info(
         self,
-        evaluations_with_results: list[tuple[Evaluation, Any]],
+        evaluations_with_results: list[tuple[Evaluation, OrderedDict[int, list[QuestionResult]]]],
         semesters: Sequence[Semester],
         contributor: UserProfile | None,
         degree_ids: Iterable[int],
@@ -214,7 +211,9 @@ class ResultsExporter(ExcelExporter):
         self.write_empty_row_with_styles(["default"] + ["border_left_right"] * len(evaluations_with_results))
 
     def write_overall_results(
-        self, evaluations_with_results: list[tuple[Evaluation, Any]], course_results_exist: bool
+        self,
+        evaluations_with_results: list[tuple[Evaluation, OrderedDict[int, list[QuestionResult]]]],
+        course_results_exist: bool,
     ) -> None:
         evaluations = [e for e, __ in evaluations_with_results]
 
@@ -243,7 +242,7 @@ class ResultsExporter(ExcelExporter):
             )
 
             self.write_cell(_("Evaluation weight"), "bold")
-            weight_percentages: Generator[str | Any, Any, Any] = (
+            weight_percentages: Iterable[str | Any] = (
                 f"{e.weight_percentage}%" if gt1 else None  # type: ignore[attr-defined]
                 for e, gt1 in zip(evaluations, count_gt_1)
             )
@@ -266,7 +265,7 @@ class ResultsExporter(ExcelExporter):
     def write_questionnaire(
         self,
         questionnaire: Questionnaire,
-        evaluations_with_results: list[tuple[Evaluation, Any]],
+        evaluations_with_results: list[tuple[Evaluation, OrderedDict[int, list[QuestionResult]]]],
         contributor: UserProfile | None,
     ) -> None:
         if contributor and questionnaire.type == Questionnaire.Type.CONTRIBUTOR:
@@ -290,12 +289,20 @@ class ResultsExporter(ExcelExporter):
                 approval_count = 0
 
                 for grade_result in results[questionnaire.id]:
-                    if grade_result.question.id != question.id or not grade_result.has_answers:
+                    if grade_result.question.id != question.id or (isinstance(grade_result, RatingResult) and not grade_result.has_answers):
                         continue
-                    values.append(grade_result.average * grade_result.count_sum)
-                    count_sum += grade_result.count_sum
-                    if grade_result.question.is_yes_no_question:
-                        approval_count += grade_result.approval_count
+
+                    # `filter_text_and_heading_questions` filters all text questions
+                    # `grade_result.question.id != question.id` filters the remaining HeadingResults because `question.is_heading_question` filters all heading questions
+                    # so here all `grade_result` from the OrderedDict values are only RatingResults with the same question as the current question which is not a heading question or a text question so it must be a rating question
+                    rating_result = cast(RatingResult, grade_result)
+                    assert rating_result.count_sum
+                    assert rating_result.average
+                    values.append(rating_result.average * rating_result.count_sum)
+                    count_sum += rating_result.count_sum
+                    if rating_result.question.is_yes_no_question:
+                        assert rating_result.approval_count
+                        approval_count += rating_result.approval_count
 
                 if not values:
                     self.write_cell(style="border_left_right")
