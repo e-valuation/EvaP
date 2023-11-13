@@ -40,11 +40,10 @@ class Command(BaseCommand):
 
     @staticmethod
     def send_student_reminders():
-        check_dates = []
-
-        # Collect end-dates of evaluations whose participants need to be reminded today.
-        for number_of_days in settings.REMIND_X_DAYS_AHEAD_OF_END_DATE:
-            check_dates.append(datetime.date.today() + datetime.timedelta(days=number_of_days))
+        check_dates = [
+            datetime.date.today() + datetime.timedelta(days=number_of_days)
+            for number_of_days in settings.REMIND_X_DAYS_AHEAD_OF_END_DATE
+        ]
 
         recipients = set()
         for evaluation in Evaluation.objects.filter(

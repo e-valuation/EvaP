@@ -206,9 +206,8 @@ def bulk_update_users(request, user_file_content, test_run):
             for user, email in users_to_be_updated:
                 user.email = email
                 user.save()
-            userprofiles_to_create = []
-            for email in emails_of_users_to_be_created:
-                userprofiles_to_create.append(UserProfile(email=email))
+            userprofiles_to_create = [UserProfile(email=email) for email in emails_of_users_to_be_created]
+
             UserProfile.objects.bulk_create(userprofiles_to_create)
             messages.success(request, _("Users have been successfully updated."))
 

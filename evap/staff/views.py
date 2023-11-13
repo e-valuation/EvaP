@@ -691,9 +691,9 @@ def semester_export(request, semester_id):
     if formset.is_valid():
         include_not_enough_voters = request.POST.get("include_not_enough_voters") == "on"
         include_unpublished = request.POST.get("include_unpublished") == "on"
-        selection_list = []
-        for form in formset:
-            selection_list.append((form.cleaned_data["selected_degrees"], form.cleaned_data["selected_course_types"]))
+        selection_list = [
+            (form.cleaned_data["selected_degrees"], form.cleaned_data["selected_course_types"]) for form in formset
+        ]
 
         filename = f"Evaluation-{semester.name}-{get_language()}.xls"
         response = AttachmentResponse(filename, content_type="application/vnd.ms-excel")

@@ -78,15 +78,18 @@ def index(request):
     reward_point_redemptions = RewardPointRedemption.objects.filter(user_profile=request.user)
     events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now()).order_by("date")
 
-    reward_point_actions = []
-    for granting in reward_point_grantings:
-        reward_point_actions.append(
-            (granting.granting_time, _("Reward for") + " " + granting.semester.name, granting.value, "")
-        )
-    for redemption in reward_point_redemptions:
-        reward_point_actions.append((redemption.redemption_time, redemption.event.name, "", redemption.value))
+    granted_point_actions = [
+        (granting.granting_time, _("Reward for") + " " + granting.semester.name, granting.value, "")
+        for granting in reward_point_grantings
+    ]
+    redemption_point_actions = [
+        (redemption.redemption_time, redemption.event.name, "", redemption.value)
+        for redemption in reward_point_redemptions
+    ]
 
-    reward_point_actions.sort(key=lambda action: action[0], reverse=True)
+    reward_point_actions = sorted(
+        granted_point_actions + redemption_point_actions, key=lambda action: action[0], reverse=True
+    )
 
     template_data = {
         "reward_point_actions": reward_point_actions,
