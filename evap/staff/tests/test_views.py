@@ -280,9 +280,7 @@ class TestUserEditView(WebTestStaffMode):
         self.assertTrue(UserProfile.objects.filter(email="test@institution.example.com").exists())
 
     def test_user_edit_duplicate_email(self):
-        second_user = baker.make(UserProfile)
-        second_user.email = "test@institution.example.com"
-        second_user.save()
+        second_user = baker.make(UserProfile, email="test@institution.example.com")
         page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["user-form"]
         form["email"] = second_user.email
