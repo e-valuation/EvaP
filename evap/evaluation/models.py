@@ -389,7 +389,7 @@ class Evaluation(LoggedModel):
         REVIEWED = 70
         PUBLISHED = 80
 
-    state = FSMIntegerField(default=State.NEW, protected=True)
+    state = FSMIntegerField(default=State.NEW, protected=True, verbose_name=_("state"))
 
     course = models.ForeignKey(Course, models.PROTECT, verbose_name=_("course"), related_name="evaluations")
 
@@ -994,7 +994,7 @@ class Evaluation(LoggedModel):
 
     @classmethod
     def transform_log_action(cls, field_action):
-        if field_action.label == "State":
+        if field_action.label.lower() == Evaluation.state.field.verbose_name.lower():
             return FieldAction(
                 field_action.label, field_action.type, [cls.state_to_str(state) for state in field_action.items]
             )
