@@ -683,7 +683,7 @@ class EvaluationEmailForm(forms.Form):
         recipients = self.template.recipient_list_for_evaluation(
             self.evaluation, self.recipient_groups, filter_users_in_cc=False
         )
-        return set(user.email for user in recipients if user.email)
+        return {user.email for user in recipients if user.email}
 
     def send(self, request):
         self.template.subject = self.cleaned_data.get("subject")

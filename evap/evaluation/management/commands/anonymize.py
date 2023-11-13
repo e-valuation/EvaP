@@ -161,7 +161,7 @@ class Command(BaseCommand):
             # Shuffle public courses' names in order to decouple them from the results.
             # Also, assign public courses' names to private ones as their names may be confidential.
             self.stdout.write("Shuffling course names...")
-            public_names = list(set(map(lambda c: (c.name_de, c.name_en), public_courses)))
+            public_names = list({(c.name_de, c.name_en) for c in public_courses})
             random.shuffle(public_names)
 
             for i, course in enumerate(courses):
@@ -188,7 +188,7 @@ class Command(BaseCommand):
 
             self.stdout.write("Shuffling evaluation names...")
             named_evaluations = (evaluation for evaluation in evaluations if evaluation.name_de and evaluation.name_en)
-            names = list(set(map(lambda c: (c.name_de, c.name_en), named_evaluations)))
+            names = list({(c.name_de, c.name_en) for c in named_evaluations})
             random.shuffle(names)
 
             for i, evaluation in enumerate(evaluations):
@@ -244,7 +244,7 @@ class Command(BaseCommand):
                 for question, counters in counters_per_question.items():
                     original_sum = sum(counter.count for counter in counters)
 
-                    missing_values = set(CHOICES[question.type].values).difference(set(c.answer for c in counters))
+                    missing_values = set(CHOICES[question.type].values).difference({c.answer for c in counters})
                     missing_values.discard(NO_ANSWER)  # don't add NO_ANSWER counter if it didn't exist before
                     for value in missing_values:
                         counters.append(

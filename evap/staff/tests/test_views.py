@@ -3641,16 +3641,16 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
 
         self.assertEqual(
             set(self.evaluation_1.general_contribution.questionnaires.all()),
-            set([self.questionnaire_1, self.questionnaire_2]),
+            {self.questionnaire_1, self.questionnaire_2},
         )
-        self.assertEqual(set(self.evaluation_2.general_contribution.questionnaires.all()), set([self.questionnaire_2]))
+        self.assertEqual(set(self.evaluation_2.general_contribution.questionnaires.all()), {self.questionnaire_2})
         self.assertEqual(
             set(self.evaluation_1.contributions.get(contributor=self.responsible).questionnaires.all()),
-            set([self.questionnaire_responsible]),
+            {self.questionnaire_responsible},
         )
         self.assertEqual(
             set(self.evaluation_2.contributions.get(contributor=self.responsible).questionnaires.all()),
-            set([self.questionnaire_responsible]),
+            {self.questionnaire_responsible},
         )
 
 

@@ -983,7 +983,7 @@ class TestPersonImport(ImporterTestCase):
         self.assertEqual(self.evaluation1.contributions.count(), 3)
         self.assertEqual(
             set(UserProfile.objects.filter(contributions__evaluation=self.evaluation1)),
-            set([self.contributor1, self.contributor2]),
+            {self.contributor1, self.contributor2},
         )
 
     def test_import_existing_participant(self):
@@ -1032,7 +1032,7 @@ class TestPersonImport(ImporterTestCase):
         self.assertIn(f"{self.participant2.email}", "".join(success_messages))
 
         self.assertEqual(self.evaluation1.participants.count(), 2)
-        self.assertEqual(set(self.evaluation1.participants.all()), set([self.participant1, self.participant2]))
+        self.assertEqual(set(self.evaluation1.participants.all()), {self.participant1, self.participant2})
 
     def test_imported_participants_are_made_active(self):
         self.participant2.is_active = False
