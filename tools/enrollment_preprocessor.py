@@ -66,8 +66,8 @@ def run_preprocessor(enrollment_data: str | BytesIO, user_data: TextIO) -> Bytes
     users = {}
     reader = csv.reader(user_data, delimiter=";", lineterminator="\n")
     for row in reader:
-        email = row[-1]
-        users[email] = User(*row)
+        user = User(*row)
+        users[user.email] = user
     for sheet in workbook.worksheets:
         for wb_row in sheet.iter_rows(min_row=2, min_col=2):
             fix_user(users, UserCells(None, *wb_row[:3]))
