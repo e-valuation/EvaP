@@ -2,7 +2,7 @@ import datetime
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from collections.abc import Iterable, Mapping
-from typing import Any, TypeVar
+from typing import Any, Protocol, TypeVar
 from urllib.parse import quote
 
 import xlwt
@@ -14,7 +14,6 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import get_language
 from django.views.generic import FormView
-from typing_extensions import Protocol
 
 M = TypeVar("M", bound=Model)
 T = TypeVar("T")
@@ -117,7 +116,10 @@ def translate(**kwargs):
     return property(lambda self: getattr(self, kwargs[get_language() or "en"]))
 
 
-def clean_email(email: str) -> str:
+EmailT = TypeVar("EmailT", str, None)
+
+
+def clean_email(email: EmailT) -> EmailT:
     if email:
         email = email.strip().lower()
         # Replace email domains in case there are multiple alias domains used in the organisation and all emails should
