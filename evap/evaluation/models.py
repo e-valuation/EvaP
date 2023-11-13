@@ -791,7 +791,7 @@ class Evaluation(LoggedModel):
 
     @classmethod
     def state_to_str(cls, state):
-        return cls.STATE_STR_CONVERSION[state]
+        return _(cls.STATE_STR_CONVERSION[state])
 
     @property
     def state_str(self):
