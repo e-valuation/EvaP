@@ -1,4 +1,3 @@
-import codecs
 import csv
 import itertools
 from collections import OrderedDict, defaultdict, namedtuple
@@ -2130,6 +2129,7 @@ def user_export(request):
     writer.writerows(
         (user.title, user.last_name, user.first_name, user.email) for user in UserProfile.objects.iterator()
     )
+    return response
 
 
 @manager_required
