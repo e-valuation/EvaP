@@ -375,7 +375,7 @@ SLOGANS_EN = [
 
 
 ### Allowed chosen first names / display names
-def CHARACTER_ALLOWED_IN_NAME(character):  # pylint: disable=invalid-name  # noqa: N802
+def CHARACTER_ALLOWED_IN_NAME(character):  # noqa: N802
     return any(
         (
             ord(character) in range(32, 127),  # printable ASCII / Basic Latin characters
@@ -407,9 +407,7 @@ OIDC_OP_JWKS_ENDPOINT = "https://example.com/certs"
 # Create a localsettings.py if you want to locally override settings
 # and don't want the changes to appear in 'git status'.
 try:
-    # if a localsettings file exists (vagrant), this will cause wildcard-import errors
-    # if it does not, (GitHub), it would cause useless-suppression
-    # pylint: disable=unused-wildcard-import,wildcard-import,useless-suppression
+    # localsettings file may exist (vagrant) or do not (GitHub)
 
     # the import can overwrite locals with a slightly different type (e.g. DATABASES), which is fine.
     from evap.localsettings import *  # type: ignore  # noqa: F403

@@ -444,7 +444,7 @@ class Evaluation(LoggedModel):
     )
 
     class TextAnswerReviewState(Enum):
-        do_not_call_in_templates = True  # pylint: disable=invalid-name
+        do_not_call_in_templates = True
         NO_TEXTANSWERS = auto()
         NO_REVIEW_NEEDED = auto()
         REVIEW_NEEDED = auto()
