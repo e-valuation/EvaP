@@ -999,8 +999,8 @@ class UserForm(forms.ModelForm):
         if self.instance and self.instance.pk:
             user_with_same_email = user_with_same_email.exclude(pk=self.instance.pk)
 
-        if user_with_same_email.exists():
-            self.user_with_same_email = user_with_same_email.get()
+        if user_with_same_email:
+            self.user_with_same_email = user_with_same_email.first()
             raise forms.ValidationError(_("A user with the email '%s' already exists") % email)
         return email
 

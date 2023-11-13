@@ -275,17 +275,17 @@ class TestUserEditView(WebTestStaffMode):
     def test_user_edit(self):
         page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["user-form"]
-        form["email"] = "lfo9e7bmxp1xi@institution.example.com"
+        form["email"] = "test@institution.example.com"
         form.submit()
-        self.assertTrue(UserProfile.objects.filter(email="lfo9e7bmxp1xi@institution.example.com").exists())
+        self.assertTrue(UserProfile.objects.filter(email="test@institution.example.com").exists())
 
     def test_user_edit_duplicate_email(self):
         second_user = baker.make(UserProfile)
-        second_user.email = "lfo9e7bmxp1xi@institution.example.com"
+        second_user.email = "test@institution.example.com"
         second_user.save()
         page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["user-form"]
-        form["email"] = "lfo9e7bmxp1xi@institution.example.com"
+        form["email"] = second_user.email
         page = form.submit()
         self.assertContains(
             page, "A user with this email address already exists. You probably want to merge the users."
