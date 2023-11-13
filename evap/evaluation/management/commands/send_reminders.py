@@ -25,10 +25,7 @@ def get_sorted_evaluation_url_tuples_with_urgent_review() -> list[tuple[Evaluati
         for evaluation in Evaluation.objects.filter(state=Evaluation.State.EVALUATED)
         if evaluation.textanswer_review_state == Evaluation.TextAnswerReviewState.REVIEW_URGENT
     ]
-    evaluation_url_tuples = sorted(
-        evaluation_url_tuples, key=lambda evaluation_url_tuple: evaluation_url_tuple[0].full_name
-    )
-    return evaluation_url_tuples
+    return sorted(evaluation_url_tuples, key=lambda evaluation_url_tuple: evaluation_url_tuple[0].full_name)
 
 
 @log_exceptions

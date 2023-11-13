@@ -2108,7 +2108,7 @@ class EmailTemplate(models.Model):
         wrapper_template_params = {"email_content": rendered_content, "email_subject": subject, **body_params}
         wrapped_content = render_to_string("email_base.html", wrapper_template_params)
 
-        mail = EmailMultiAlternatives(
+        return EmailMultiAlternatives(
             subject=subject,
             body=plain_content,
             to=[to_email],
@@ -2117,8 +2117,6 @@ class EmailTemplate(models.Model):
             headers={"Reply-To": settings.REPLY_TO_EMAIL},
             alternatives=[(wrapped_content, "text/html")],
         )
-
-        return mail
 
     @classmethod
     def send_reminder_to_user(cls, user, first_due_in_days, due_evaluations):

@@ -28,8 +28,7 @@ class RequestAuthUserBackend(ModelBackend):
             return None
 
         try:
-            user = UserProfile.objects.get(login_key=key)
-            return user
+            return UserProfile.objects.get(login_key=key)
         except UserProfile.DoesNotExist:
             return None
 
@@ -144,12 +143,11 @@ class OpenIDAuthenticationBackend(OIDCAuthenticationBackend):
             return []
 
     def create_user(self, claims):
-        user = self.UserModel.objects.create(
+        return self.UserModel.objects.create(
             email=claims.get("email"),
             first_name_given=claims.get("given_name", ""),
             last_name=claims.get("family_name", ""),
         )
-        return user
 
     def update_user(self, user, claims):
         if not user.first_name_given:

@@ -175,9 +175,7 @@ def get_evaluations_with_prefetched_data(semester):
         )
     ).order_by("pk")
     evaluations = annotate_evaluations_with_grade_document_counts(evaluations)
-    evaluations = Evaluation.annotate_with_participant_and_voter_counts(evaluations)
-
-    return evaluations
+    return Evaluation.annotate_with_participant_and_voter_counts(evaluations)
 
 
 @reviewer_required

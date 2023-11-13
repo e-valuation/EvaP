@@ -25,7 +25,7 @@ extend_skip_glob = ["**/migrations/*"]
 [tool.ruff]
 target-version = "py310"
 line-length = 120
-select = ["F", "E", "B", "W", "N", "UP", "YTT", "FIX", "ASYNC", "A", "DJ", "EXE", "ICN", "G", "SLOT", "TID", "TCH", "INT", "C4", "ISC", "INP", "PIE", "RSE"]  # COM,PYI,Q,RET,SIM,PTH,PGH,PL,TRY,FLY,PERF,RUF
+select = ["F", "E", "B", "W", "N", "UP", "YTT", "FIX", "ASYNC", "A", "DJ", "EXE", "ICN", "G", "SLOT", "TID", "TCH", "INT", "C4", "ISC", "INP", "PIE", "RSE", "RET"]  # COM,PYI,Q,SIM,PTH,PGH,PL,TRY,FLY,PERF,RUF
 ignore = [
     "E501",                  # line-too-long: black does code formatting for us
     "FIX004",                # hacks should be possible
