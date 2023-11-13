@@ -7,8 +7,8 @@ from evap.settings import DEBUG, LANGUAGES
 register = Library()
 
 
-@register.inclusion_tag("navbar.html")
-def include_navbar(user, language):
+@register.inclusion_tag("navbar.html", takes_context=True)
+def include_navbar(context, user, language):
     semesters_with_unarchived_results_or_grade_documents = Semester.objects.filter(
         Q(results_are_archived=False) | Q(grade_documents_are_deleted=False)
     )
@@ -25,6 +25,7 @@ def include_navbar(user, language):
     ]
 
     return {
+        "request": context["request"],
         "user": user,
         "current_language": language,
         "languages": LANGUAGES,
