@@ -5,7 +5,6 @@ from collections import OrderedDict, defaultdict, namedtuple
 from collections.abc import Container
 from dataclasses import dataclass
 from datetime import date, datetime
-from io import BytesIO
 from typing import Any, cast
 
 import openpyxl
@@ -18,7 +17,7 @@ from django.db.models import BooleanField, Case, Count, ExpressionWrapper, Integ
 from django.dispatch import receiver
 from django.forms import formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
-from django.http import FileResponse, Http404, HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.html import format_html
@@ -2124,17 +2123,13 @@ def user_list(request):
 
 @manager_required
 def user_export(request):
-    io = BytesIO()
-    Writer = codecs.getwriter("utf-8")
-    writer = csv.writer(Writer(io))
+    response = AttachmentResponse("exported_users.csv")
+    writer = csv.writer(response)
     row = (_("Title"), _("Last name"), _("First name"), _("Email"))
     writer.writerow(row)
     writer.writerows(
         (user.title, user.last_name, user.first_name, user.email) for user in UserProfile.objects.iterator()
     )
-
-    io.seek(0)
-    return FileResponse(io, as_attachment=True, filename="exported_users.csv")
 
 
 @manager_required
