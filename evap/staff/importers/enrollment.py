@@ -370,10 +370,10 @@ class CourseMergeLogic:
 
         if course_with_same_name_en != course_with_same_name_de:
             if course_with_same_name_en is not None:
-                raise self.NameEnCollisionError()
+                raise self.NameEnCollisionError
 
             if course_with_same_name_de is not None:
-                raise self.NameDeCollisionError()
+                raise self.NameDeCollisionError
 
         assert course_with_same_name_en is not None
         assert course_with_same_name_de is not None

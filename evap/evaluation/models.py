@@ -106,7 +106,7 @@ class Semester(models.Model):
     @transaction.atomic
     def archive(self):
         if not self.participations_can_be_archived:
-            raise NotArchivableError()
+            raise NotArchivableError
         for evaluation in self.evaluations.all():
             evaluation._archive()
         self.participations_are_archived = True
@@ -119,14 +119,14 @@ class Semester(models.Model):
         from evap.grades.models import GradeDocument
 
         if not self.grade_documents_can_be_deleted:
-            raise NotArchivableError()
+            raise NotArchivableError
         GradeDocument.objects.filter(course__semester=self).delete()
         self.grade_documents_are_deleted = True
         self.save()
 
     def archive_results(self):
         if not self.results_can_be_archived:
-            raise NotArchivableError()
+            raise NotArchivableError
         self.results_are_archived = True
         self.save()
 
@@ -636,7 +636,7 @@ class Evaluation(LoggedModel):
     def _archive(self):
         """Should be called only via Semester.archive"""
         if not self.participations_can_be_archived:
-            raise NotArchivableError()
+            raise NotArchivableError
         if self._participant_count is not None:
             assert self._voter_count is not None
             assert (
