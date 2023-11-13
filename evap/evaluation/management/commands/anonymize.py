@@ -94,8 +94,8 @@ class Command(BaseCommand):
         if len(first_names) * len(last_names) < len(user_profiles) * 1.5:
             self.stdout.write(
                 "Warning: There are few example names compared to all that real data to be anonymized. "
-                + "Consider adding more data to the first_names.txt and last_names.txt files in the anonymize_data "
-                + "folder."
+                "Consider adding more data to the first_names.txt and last_names.txt files in the anonymize_data "
+                "folder."
             )
 
         while len(fake_usernames) < len(user_profiles):

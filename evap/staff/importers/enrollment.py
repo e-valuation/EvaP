@@ -438,7 +438,7 @@ class CourseNameChecker(Checker):
             self.importer_log.add_warning(
                 _(
                     'Course "{course_name}" already exists. The course will not be created, instead users are imported into the '
-                    + "evaluation of the existing course and any additional degrees are added."
+                    "evaluation of the existing course and any additional degrees are added.",
                 ).format(course_name=name_en),
                 category=ImporterLogEntry.Category.EXISTS,
             )

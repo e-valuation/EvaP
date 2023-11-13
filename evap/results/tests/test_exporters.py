@@ -398,9 +398,7 @@ class TestExporters(TestCase):
 
         sheet = self.get_export_sheet(semester, degree, [evaluation1.course.type.id, evaluation2.course.type.id])
 
-        self.assertEqual(
-            set(sheet.row_values(0)[1:]), {evaluation1.full_name + "\n", evaluation2.full_name + "\n"}
-        )
+        self.assertEqual(set(sheet.row_values(0)[1:]), {evaluation1.full_name + "\n", evaluation2.full_name + "\n"})
 
     def test_correct_grades_and_bottom_numbers(self):
         degree = baker.make(Degree)
