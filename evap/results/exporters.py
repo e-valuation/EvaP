@@ -141,8 +141,10 @@ class ResultsExporter(ExcelExporter):
                     question_results: list[QuestionResult] = questionnaire_result.question_results
                     if all(
                         not question_result.question.is_rating_question
-                        or( isinstance(question_result, RatingResult) and( question_result.counts is None
-                        or sum(question_result.counts) == 0))
+                        or (
+                            isinstance(question_result, RatingResult)
+                            and (question_result.counts is None or sum(question_result.counts) == 0)
+                        )
                         for question_result in question_results
                     ):
                         continue
@@ -289,7 +291,9 @@ class ResultsExporter(ExcelExporter):
                 approval_count = 0
 
                 for grade_result in results[questionnaire.id]:
-                    if grade_result.question.id != question.id or (isinstance(grade_result, RatingResult) and not grade_result.has_answers):
+                    if grade_result.question.id != question.id or (
+                        isinstance(grade_result, RatingResult) and not grade_result.has_answers
+                    ):
                         continue
 
                     # `filter_text_and_heading_questions` filters all text questions
