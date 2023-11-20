@@ -64,11 +64,11 @@
                                     {% if num_final_grades > 0 %}
                                         <span class="fas fa-file"></span> {{ num_final_grades }}
                                     {% elif course.gets_no_grade_documents %}
-                                        <form method="POST" action="{% url 'grades:set_no_grades' %}">
-                                            {{ csrf_token }}
+                                        <form method="POST" action="{% url 'grades:set_no_grades' %}" class="d-contents">
+                                            {% csrf_token %}
                                             <input type="hidden" name="course_id" value="{{ course.id }}">
 
-                                            <confirmation-modal type="button" name="status" value="0" confirm-button-class="btn-primary">
+                                            <confirmation-modal type="submit" name="status" value="0" confirm-button-class="btn-primary">
                                                 <span slot="title">{% trans 'Will final grades be uploaded?' %}</span>
                                                 <span slot="action-text">{% trans 'Confirm' %}</span>
                                                 <span slot="question">
@@ -87,9 +87,10 @@
                                 <td class="text-end" style="min-width:72px">
                                     {% if not course.gets_no_grade_documents %}
                                         {% if num_final_grades == 0 %}
-                                            <form method="POST" action="{% url 'grades:set_no_grades' %}">
-                                                {{ csrf_token }}
+                                            <form method="POST" action="{% url 'grades:set_no_grades' %}" class="d-contents">
+                                                {% csrf_token %}
                                                 <input type="hidden" name="course_id" value="{{ course.id }}">
+
                                                 <confirmation-modal type="submit" name="status" value="1" confirm-button-class="btn-primary">
                                                     <span slot="title">{% trans 'Have final grades been submitted?' %}</span>
                                                     <span slot="action-text">{% trans 'Confirm' %}</span>
