@@ -2,7 +2,7 @@ import datetime
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from collections.abc import Iterable, Mapping
-from typing import Any, Protocol, TypeVar
+from typing import Any, Callable, Generic, ParamSpec, Protocol, TypeVar
 from urllib.parse import quote
 
 import xlwt
@@ -17,6 +17,7 @@ from django.views.generic import FormView
 
 M = TypeVar("M", bound=Model)
 T = TypeVar("T")
+StrOrNone_Xor_StrOrFloat = TypeVar("StrOrNone_Xor_StrOrFloat", str | None, float | None)
 Key = TypeVar("Key")
 Value = TypeVar("Value")
 
@@ -262,7 +263,7 @@ class ExcelExporter(ABC):
         else:
             self.cur_sheet = None
 
-    def write_cell(self, label: str | None = "", style: str = "default") -> None:
+    def write_cell(self, label: float | str | None = "", style: str = "default") -> None:
         """Write a single cell and move to the next column."""
         self.cur_sheet.write(
             self.cur_row,
@@ -276,7 +277,11 @@ class ExcelExporter(ABC):
         self.cur_col = 0
         self.cur_row += 1
 
-    def write_row(self, vals: Iterable[str], style: str = "default") -> None:
+    def write_row(
+        self,
+        vals: Iterable[StrOrNone_Xor_StrOrFloat],
+        style: Callable[[StrOrNone_Xor_StrOrFloat], str] | str = "default",
+    ) -> None:
         """
         Write a cell for every value and go to the next row.
         Styling can be chosen

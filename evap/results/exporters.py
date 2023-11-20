@@ -2,7 +2,7 @@ import warnings
 from collections import OrderedDict, defaultdict
 from collections.abc import Iterable
 from itertools import chain, repeat
-from typing import Any, Sequence, cast
+from typing import Any, Sequence, Text, cast
 
 import xlwt
 from django.db.models import Q
@@ -11,12 +11,14 @@ from django.utils.translation import gettext as _
 from evap.evaluation.models import CourseType, Degree, Evaluation, Question, Questionnaire, Semester, UserProfile
 from evap.evaluation.tools import ExcelExporter
 from evap.results.tools import (
+    QuestionResult,
     RatingResult,
+    TextResult,
     calculate_average_course_distribution,
     calculate_average_distribution,
     distribution_to_grade,
     get_grade_color,
-    get_results,QuestionResult
+    get_results,
 )
 
 
@@ -139,9 +141,7 @@ class ResultsExporter(ExcelExporter):
                     question_results: list[QuestionResult] = questionnaire_result.question_results
                     if all(
                         not isinstance(question_result, RatingResult)
-                        or (
-                           question_result.counts is None or sum(question_result.counts) == 0
-                        )
+                        or (question_result.counts is None or sum(question_result.counts) == 0)
                         for question_result in question_results
                     ):
                         continue
@@ -289,8 +289,11 @@ class ResultsExporter(ExcelExporter):
                 approval_count = 0
 
                 for grade_result in results[questionnaire.id]:
+                    if grade_result.question.id != question.id:
+                        continue
+
                     assert isinstance(grade_result, RatingResult)
-                    if grade_result.question.id != question.id or not grade_result.has_answers:
+                    if not grade_result.has_answers:
                         continue
 
                     # `filter_text_and_heading_questions` filters all text questions
