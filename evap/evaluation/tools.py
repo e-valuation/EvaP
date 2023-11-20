@@ -2,7 +2,7 @@ import datetime
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from collections.abc import Iterable, Mapping
-from typing import Any, Callable, Generic, ParamSpec, Protocol, TypeVar
+from typing import Any, Callable, Protocol, TypeVar
 from urllib.parse import quote
 
 import xlwt
@@ -17,7 +17,7 @@ from django.views.generic import FormView
 
 M = TypeVar("M", bound=Model)
 T = TypeVar("T")
-StrOrNone_Xor_StrOrFloat = TypeVar("StrOrNone_Xor_StrOrFloat", str | None, float | None)
+OptionalStrOrOptionalFloat = TypeVar("OptionalStrOrOptionalFloat", str | None, float | None)
 Key = TypeVar("Key")
 Value = TypeVar("Value")
 
@@ -279,8 +279,8 @@ class ExcelExporter(ABC):
 
     def write_row(
         self,
-        vals: Iterable[StrOrNone_Xor_StrOrFloat],
-        style: Callable[[StrOrNone_Xor_StrOrFloat], str] | str = "default",
+        vals: Iterable[OptionalStrOrOptionalFloat],
+        style: Callable[[OptionalStrOrOptionalFloat], str] | str = "default",
     ) -> None:
         """
         Write a cell for every value and go to the next row.

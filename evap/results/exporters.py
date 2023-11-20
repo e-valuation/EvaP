@@ -2,7 +2,7 @@ import warnings
 from collections import OrderedDict, defaultdict
 from collections.abc import Iterable
 from itertools import chain, repeat
-from typing import Any, Sequence, Text, cast
+from typing import Any, Sequence, cast
 
 import xlwt
 from django.db.models import Q
@@ -13,7 +13,6 @@ from evap.evaluation.tools import ExcelExporter
 from evap.results.tools import (
     QuestionResult,
     RatingResult,
-    TextResult,
     calculate_average_course_distribution,
     calculate_average_distribution,
     distribution_to_grade,
