@@ -162,7 +162,7 @@ class ResultsExporter(ExcelExporter):
     def write_headings_and_evaluation_info(
         self, evaluations_with_results, semesters, contributor, degrees, course_types, verbose_heading
     ):
-        export_name = "Evaluation"
+        export_name = _("Evaluation")
         if contributor:
             export_name += f"\n{contributor.full_name}"
         elif len(semesters) == 1:
@@ -175,7 +175,7 @@ class ResultsExporter(ExcelExporter):
                 "headline",
             )
         else:
-            self.write_cell(export_name)
+            self.write_cell(export_name, "headline")
 
         for evaluation, __ in evaluations_with_results:
             title = evaluation.full_name

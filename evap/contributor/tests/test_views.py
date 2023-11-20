@@ -1,5 +1,6 @@
 import xlrd
 from django.core import mail
+from django.urls import reverse
 from django_webtest import WebTest
 from model_bakery import baker
 
@@ -291,7 +292,7 @@ class TestContributorResultsExportView(WebTest):
     @classmethod
     def setUpTestData(cls):
         result = create_evaluation_with_responsible_and_editor()
-        cls.url = "/contributor/export"
+        cls.url = reverse("contributor:export")
         cls.user = result["responsible"]
 
     def test_view_downloads_excel_file(self):
