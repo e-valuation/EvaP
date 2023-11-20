@@ -125,10 +125,10 @@ class WebTestWith200Check(WebTest):
         for user in self.test_users:
             self.app.get(self.url, user=user, status=200)
 
-def submit_with_modal(page: webtest.TestResponse, form_id: str, *, name: str, value: str) -> webtest.TestResponse:
+def submit_with_modal(page: webtest.TestResponse, form: webtest.Form, *, name: str, value: str) -> webtest.TestResponse:
     # Like form.submit, but looks for a modal instead of a submit button.
+    assert page.forms[form.id] == form
     assert page.html.select_one(f"confirmation-modal[type=submit][name={name}][value={value}]")
-    form = page.forms[form_id]
     params = form.submit_fields() + [(name, value)]
     return form.response.goto(form.action, method=form.method, params=params)
 

@@ -197,7 +197,7 @@ class TestContributorEvaluationEditView(WebTest):
         self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
         self.assertEqual(self.evaluation.state, Evaluation.State.PREPARED)
 
-        submit_with_modal(page, "evaluation-form", name="operation", value="approve")
+        submit_with_modal(page, form, name="operation", value="approve")
         self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
         self.assertEqual(self.evaluation.state, Evaluation.State.EDITOR_APPROVED)
 
