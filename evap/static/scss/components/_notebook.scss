@@ -30,7 +30,7 @@
     .notebook-animation {
         transition: width .0s !important; // disable predefined bootstrap animation
     }
-    
+
     .right-to-element {
         position: relative;
         display: inline-block;
@@ -55,7 +55,7 @@
             height: calc((100vh - #{$navbar-brand-height}) - (#{$footer-height} + ((#{$spacer} * 1.5) * 5))); // subtract 3 spacer with padding
         }
     }
-    
+
     @media screen and (max-aspect-ratio: $notebook-break) {
         .notebook-container {
             width: 100vw;
@@ -64,8 +64,8 @@
         }
 
         .notebook-card {
-            height: calc(45vh - (#{$spacer} * 1.5) * 2); //subtract spacer with padding
-            min-height: 43.5vh; //approximation for size needed in smallest window (50vh - (spacer + leeway))
+            height: calc(45vh - (#{$spacer} * 1.5) * 2); // subtract spacer with padding
+            min-height: 43.5vh; // approximation for size needed in smallest window (50vh - (spacer + leeway))
         }
     }
 }
