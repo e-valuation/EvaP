@@ -42,6 +42,7 @@ from evap.evaluation.tests.tools import (
     assert_no_database_modifications,
     create_evaluation_with_responsible_and_editor,
     let_user_vote_for_evaluation,
+    submit_with_modal,
     make_manager,
     make_rating_answer_counters,
     render_pages,
@@ -1067,7 +1068,7 @@ class TestSemesterImportView(WebTestStaffMode):
         form = page.forms["semester-import-form"]
         form["vote_start_datetime"] = "2000-01-01 00:00:00"
         form["vote_end_date"] = "2012-01-01"
-        form.submit(name="operation", value="import")
+        submit_with_modal(page, form, name="operation", value="import")
 
         self.assertEqual(UserProfile.objects.count(), original_user_count + 23)
 
