@@ -635,8 +635,7 @@ def semester_delete(request):
         Contribution.objects.filter(evaluation__course__semester=semester).delete()
         Evaluation.objects.filter(course__semester=semester).delete()
         Course.objects.filter(semester=semester).delete()
-        # TODO: revert
-        # semester.delete()
+        semester.delete()
     return redirect("staff:index")
 
 
