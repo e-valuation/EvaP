@@ -9,10 +9,14 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.http.request import QueryDict
+from django.test.selenium import SeleniumTestCase, SeleniumTestCaseBase
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 from django_webtest import WebTest
 from model_bakery import baker
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support.wait import WebDriverWait
 
 from evap.evaluation.models import (
     CHOICES,
@@ -254,3 +258,53 @@ def assert_no_database_modifications(*args, **kwargs):
             lower_sql = query["sql"].lower()
             if not any(lower_sql.startswith(prefix) for prefix in allowed_prefixes):
                 raise AssertionError("Unexpected modifying query found: " + query["sql"])
+
+
+class CustomSeleniumTestCaseBase(SeleniumTestCaseBase):
+    external_host = os.environ.get("TEST_HOST", "") or None
+    browsers = ["firefox"]
+    selenium_hub = os.environ.get("TEST_SELENIUM_HUB", "") or None
+    headless = True
+
+    def create_options(self):  # pylint: disable=bad-mcs-method-argument
+        options = super().create_options()
+
+        if self.browser == "chrome":
+            options.add_argument("--headless")
+            options.add_argument("--no-sandbox")
+            options.add_argument("--disable-dev-shm-usage")
+            options.add_argument("--disable-gpu")
+        elif self.browser == "firefox":
+            options.add_argument("--headless")
+
+        return options
+
+
+class LiveServerTest(SeleniumTestCase, metaclass=CustomSeleniumTestCaseBase):
+    def _screenshot(self, name):
+        self.selenium.save_screenshot(os.path.join(settings.BASE_DIR, f"{name}.png"))
+
+    def _create_test_user(self):
+        self.test_user = baker.make(  # pylint: disable=attribute-defined-outside-init
+            UserProfile, email="evap@institution.example.com", groups=[Group.objects.get(name="Manager")]
+        )
+        self.test_user_password = "evap"  # pylint: disable=attribute-defined-outside-init
+        self.test_user.set_password(self.test_user_password)
+        self.test_user.save()
+        return self.test_user
+
+    def _login(self):
+        self._create_test_user()
+        self.selenium.get(self.live_server_url)
+        self.selenium.find_element(By.ID, "id_email").click()
+        self.selenium.find_element(By.ID, "id_email").send_keys(self.test_user.email)
+        self.selenium.find_element(By.ID, "id_email").click()
+        self.selenium.find_element(By.ID, "id_password").send_keys(self.test_user_password)
+        self.selenium.find_element(By.CSS_SELECTOR, ".login-button").click()
+        self.selenium.save_screenshot(os.path.join(settings.BASE_DIR, "login_success.png"))
+
+        WebDriverWait(self.selenium, 10).until(expected_conditions.presence_of_element_located((By.ID, "logout-form")))
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.selenium.quit()
