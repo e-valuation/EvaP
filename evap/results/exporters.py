@@ -244,7 +244,7 @@ class ResultsExporter(ExcelExporter):
             )
 
             self.write_cell(_("Evaluation weight"), "bold")
-            weight_percentages: Iterable[str | Any] = (
+            weight_percentages: Iterable[str | None] = (
                 f"{e.weight_percentage}%" if gt1 else None  # type: ignore[attr-defined]
                 for e, gt1 in zip(evaluations, count_gt_1)
             )
@@ -291,21 +291,20 @@ class ResultsExporter(ExcelExporter):
                 approval_count = 0
 
                 for grade_result in results[questionnaire.id]:
-                    if grade_result.question.id != question.id or (
-                        isinstance(grade_result, RatingResult) and not grade_result.has_answers
-                    ):
+                    assert isinstance(grade_result, RatingResult)
+                    if grade_result.question.id != question.id or not grade_result.has_answers:
                         continue
 
                     # `filter_text_and_heading_questions` filters all text questions
                     # `grade_result.question.id != question.id` filters the remaining HeadingResults because `question.is_heading_question` filters all heading questions
                     # so here all `grade_result` from the OrderedDict values are only RatingResults with the same question as the current question which is not a heading question or a text question so it must be a rating question
                     rating_result = cast(RatingResult, grade_result)
-                    assert rating_result.count_sum
-                    assert rating_result.average
+                    assert hasattr(rating_result, "count_sum")
+                    assert hasattr(rating_result, "average")
                     values.append(rating_result.average * rating_result.count_sum)
                     count_sum += rating_result.count_sum
                     if rating_result.question.is_yes_no_question:
-                        assert rating_result.approval_count
+                        assert hasattr(rating_result, "approval_count")
                         approval_count += rating_result.approval_count
 
                 if not values:
