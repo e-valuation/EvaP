@@ -12,3 +12,4 @@ pylint-django~=2.5.4
 pylint~=3.0.1
 tblib~=3.0.0
 xlrd~=2.0.1
+typeguard~=4.1.5

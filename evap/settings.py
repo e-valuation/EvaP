@@ -420,6 +420,10 @@ TESTING = "test" in sys.argv or "pytest" in sys.modules
 
 # speed up tests
 if TESTING:
+    from typeguard import install_import_hook
+
+    install_import_hook(("evap", "tools"))
+
     # do not use ManifestStaticFilesStorage as it requires running collectstatic beforehand
     STORAGES["staticfiles"]["BACKEND"] = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
