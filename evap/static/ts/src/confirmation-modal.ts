@@ -55,7 +55,7 @@ export class ConfirmationModal extends HTMLElement {
                 this.dialog.removeAttribute("closing");
                 this.dialog.close();
             },
-            { once: true }
+            { once: true },
         );
         this.dialog.setAttribute("closing", "");
     };
