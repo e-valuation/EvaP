@@ -900,7 +900,7 @@ def semester_preparation_reminder(request, semester_id):
             body_params = {"user": responsible, "evaluations": evaluations}
             template.send_to_user(responsible, subject_params, body_params, use_cc=True, request=request)
         messages.success(request, _("Successfully sent reminders to everyone."))
-        return HttpResponse()
+        return redirect("staff:semester_preparation_reminder", semester.id)
 
     template_data = {"semester": semester, "responsible_list": responsible_list}
     return render(request, "staff_semester_preparation_reminder.html", template_data)
