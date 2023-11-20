@@ -3,7 +3,7 @@ import itertools
 from collections import OrderedDict, defaultdict, namedtuple
 from collections.abc import Container
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, time
 from enum import Enum
 from typing import Any, Final, Literal, cast
 
@@ -1103,7 +1103,7 @@ def create_exam_evaluation(request):
 
     if evaluation.course.evaluations.filter(name_de="Klausur", name_en="Exam").exists():
         messages.error(request, _("An exam evaluation already exists for this course."))
-        return HttpResponse()#HttpResponseRedirect(reverse("staff:semester_view", args=[evaluation.course.semester.id])) 
+        return HttpResponse()  # 200 OK
 
     evaluation.weight = 9
 
@@ -1115,7 +1115,7 @@ def create_exam_evaluation(request):
     exam_evaluation = Evaluation(
         course=evaluation.course, name_de="Klausur", name_en="Exam", weight=1, is_rewarded=False
     )
-    exam_evaluation.vote_start_datetime = exam_date + timedelta(days=1)
+    exam_evaluation.vote_start_datetime = datetime.combine(exam_date + timedelta(days=1), time(8, 0))
     exam_evaluation.vote_end_date = exam_date + timedelta(days=3)
     exam_evaluation.save()
     exam_evaluation.participants.set(evaluation.participants.all())
