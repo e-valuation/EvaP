@@ -42,10 +42,10 @@ from evap.evaluation.tests.tools import (
     assert_no_database_modifications,
     create_evaluation_with_responsible_and_editor,
     let_user_vote_for_evaluation,
-    submit_with_modal,
     make_manager,
     make_rating_answer_counters,
     render_pages,
+    submit_with_modal,
 )
 from evap.grades.models import GradeDocument
 from evap.results.tools import TextResult, cache_results, get_results

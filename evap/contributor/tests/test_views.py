@@ -5,7 +5,12 @@ from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, UserProfile
-from evap.evaluation.tests.tools import WebTestWith200Check, create_evaluation_with_responsible_and_editor, render_pages, submit_with_modal
+from evap.evaluation.tests.tools import (
+    WebTestWith200Check,
+    create_evaluation_with_responsible_and_editor,
+    render_pages,
+    submit_with_modal,
+)
 
 
 class TestContributorDirectDelegationView(WebTest):

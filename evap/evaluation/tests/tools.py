@@ -125,6 +125,7 @@ class WebTestWith200Check(WebTest):
         for user in self.test_users:
             self.app.get(self.url, user=user, status=200)
 
+
 def submit_with_modal(page: webtest.TestResponse, form: webtest.Form, *, name: str, value: str) -> webtest.TestResponse:
     # Like form.submit, but looks for a modal instead of a submit button.
     assert page.forms[form.id] == form
