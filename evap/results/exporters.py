@@ -16,10 +16,8 @@ from evap.results.tools import (
     calculate_average_distribution,
     distribution_to_grade,
     get_grade_color,
-    get_results,
+    get_results,QuestionResult
 )
-
-from .tools import QuestionResult
 
 
 class ResultsExporter(ExcelExporter):
@@ -110,7 +108,7 @@ class ResultsExporter(ExcelExporter):
         semesters: Iterable[Semester],
         evaluation_states: Any,
         degree_ids: Iterable[int],
-        course_type_ids: CourseType,
+        course_type_ids: Iterable[int],
         contributor: UserProfile | None,
         include_not_enough_voters: bool,
     ) -> tuple[list[tuple[Evaluation, OrderedDict[int, list[QuestionResult]]]], list[Questionnaire], bool]:
@@ -140,10 +138,9 @@ class ResultsExporter(ExcelExporter):
                     # RatingQuestion.counts is a tuple of integers or None, if this tuple is all zero, we want to exclude it
                     question_results: list[QuestionResult] = questionnaire_result.question_results
                     if all(
-                        not question_result.question.is_rating_question
+                        not isinstance(question_result, RatingResult)
                         or (
-                            isinstance(question_result, RatingResult)
-                            and (question_result.counts is None or sum(question_result.counts) == 0)
+                           question_result.counts is None or sum(question_result.counts) == 0
                         )
                         for question_result in question_results
                     ):
@@ -155,15 +152,16 @@ class ResultsExporter(ExcelExporter):
                     ):
                         results.setdefault(questionnaire_result.questionnaire.id, []).extend(question_results)
                         used_questionnaires.add(questionnaire_result.questionnaire)
-            evaluation.course_evaluations_count = evaluation.course.evaluations.count()  # type: ignore[attr-defined]
-            if evaluation.course_evaluations_count > 1:  # type: ignore[attr-defined]
+            monkeypatched_evaluation: Any = evaluation
+            monkeypatched_evaluation.course_evaluations_count = monkeypatched_evaluation.course.evaluations.count()  # type: ignore[attr-defined]
+            if monkeypatched_evaluation.course_evaluations_count > 1:  # type: ignore[attr-defined]
                 course_results_exist = True
-                weight_sum = sum(evaluation.weight for evaluation in evaluation.course.evaluations.all())
-                evaluation.weight_percentage = int((evaluation.weight / weight_sum) * 100)  # type: ignore[attr-defined]
-                evaluation.course.avg_grade = distribution_to_grade(  # type: ignore[attr-defined]
-                    calculate_average_course_distribution(evaluation.course)
+                weight_sum = sum(evaluation.weight for evaluation in monkeypatched_evaluation.course.evaluations.all())
+                monkeypatched_evaluation.weight_percentage = int((evaluation.weight / weight_sum) * 100)  # type: ignore[attr-defined]
+                monkeypatched_evaluation.course.avg_grade = distribution_to_grade(  # type: ignore[attr-defined]
+                    calculate_average_course_distribution(monkeypatched_evaluation.course)
                 )
-            evaluations_with_results.append((evaluation, results))
+            evaluations_with_results.append((monkeypatched_evaluation, results))
 
         evaluations_with_results.sort(
             key=lambda cr: (cr[0].course.semester.id, cr[0].course.type.order, cr[0].full_name)
