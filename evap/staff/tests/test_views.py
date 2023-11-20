@@ -954,7 +954,7 @@ class TestSemesterPreparationReminderView(WebTestStaffModeWith200Check):
         email_template_mock.objects.get.return_value = email_template_mock
         email_template_mock.EDITOR_REVIEW_REMINDER = EmailTemplate.EDITOR_REVIEW_REMINDER
 
-        self.app.post(self.url, user=self.manager, status=200)
+        self.app.post(self.url, user=self.manager).follow(status=200)
 
         subject_params = {}
         body_params = {"user": user, "evaluations": [evaluation]}
