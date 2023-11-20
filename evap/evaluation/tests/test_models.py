@@ -6,6 +6,7 @@ from django.core import mail
 from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
+from django.utils import translation
 from django_webtest import WebTest
 from model_bakery import baker
 
@@ -536,6 +537,21 @@ class TestEvaluations(WebTest):
             evaluation.TextAnswerReviewState.REVIEWED,
             evaluation.TextAnswerReviewState.REVIEWED,
         )
+
+    def test_state_change_log_translated(self):
+        evaluation = baker.make(
+            Evaluation,
+            state=Evaluation.State.NEW,
+        )
+        evaluation.save()
+        with translation.override("de"):
+            # Refresh reference to evaluation, to force new log entry
+            evaluation = Evaluation.objects.get(pk=evaluation.pk)
+            evaluation.ready_for_editors()
+            evaluation.save()
+            log_entry = evaluation.related_logentries().order_by("id").last()
+            self.assertEqual(Evaluation.state_to_str(log_entry.data["state"]["change"][0]), "neu")
+            self.assertEqual(Evaluation.state_to_str(log_entry.data["state"]["change"][1]), "vorbereitet")
 
 
 class TestCourse(TestCase):
