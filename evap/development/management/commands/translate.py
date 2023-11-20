@@ -9,3 +9,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write('Executing "manage.py makemessages --locale=de --ignore=node_modules/*"')
         call_command("makemessages", "--locale=de", "--ignore=node_modules/*")
+        call_command(
+            "makemessages",
+            "--domain=djangojs",
+            "--extension=js,ts",
+            "--locale=de",
+            "--ignore=node_modules/*",
+            "--ignore=evap/static/js/*.min.js",
+        )

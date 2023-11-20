@@ -19,10 +19,10 @@ from evap.evaluation.tools import AttachmentResponse, get_object_from_dict_pk_en
 from evap.rewards.exporters import RewardsExporter
 from evap.rewards.forms import RewardPointRedemptionEventForm
 from evap.rewards.models import (
-    NoPointsSelected,
-    NotEnoughPoints,
-    OutdatedRedemptionData,
-    RedemptionEventExpired,
+    NoPointsSelectedError,
+    NotEnoughPointsError,
+    OutdatedRedemptionDataError,
+    RedemptionEventExpiredError,
     RewardPointGranting,
     RewardPointRedemption,
     RewardPointRedemptionEvent,
@@ -45,15 +45,20 @@ def redeem_reward_points(request):
     try:
         save_redemptions(request, redemptions, previous_redeemed_points)
         messages.success(request, _("You successfully redeemed your points."))
-    except (NoPointsSelected, NotEnoughPoints, RedemptionEventExpired, OutdatedRedemptionData) as error:
+    except (
+        NoPointsSelectedError,
+        NotEnoughPointsError,
+        RedemptionEventExpiredError,
+        OutdatedRedemptionDataError,
+    ) as error:
         status_code = 400
-        if isinstance(error, NoPointsSelected):
+        if isinstance(error, NoPointsSelectedError):
             error_string = _("You cannot redeem 0 points.")
-        elif isinstance(error, NotEnoughPoints):
+        elif isinstance(error, NotEnoughPointsError):
             error_string = _("You don't have enough reward points.")
-        elif isinstance(error, RedemptionEventExpired):
+        elif isinstance(error, RedemptionEventExpiredError):
             error_string = _("Sorry, the deadline for this event expired already.")
-        elif isinstance(error, OutdatedRedemptionData):
+        elif isinstance(error, OutdatedRedemptionDataError):
             status_code = 409
             error_string = _(
                 "It appears that your browser sent multiple redemption requests. You can see all successful redemptions below."

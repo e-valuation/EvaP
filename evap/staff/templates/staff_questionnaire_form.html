@@ -1,5 +1,7 @@
 {% extends 'staff_questionnaire_base.html' %}
 
+{% load static %}
+
 {% block content %}
     {{ block.super }}
     {% if not editable %}
@@ -79,7 +81,7 @@
 
 {% block additional_javascript %}
     {% if editable %}
-        {% include 'sortable_form_js.html' %}
+        <script src="{% static 'js/sortable_form.js' %}"></script>
         <script type="text/javascript">
             rowChanged = function(row) {
                 nameDe = $(row.find('textarea[id$=-text_de]')).val();

@@ -87,7 +87,7 @@ def all_fields_valid(course_data: CourseData) -> TypeGuard[ValidCourseData]:
 
 
 class DegreeImportMapper:
-    class InvalidDegreeNameException(Exception):
+    class InvalidDegreeNameError(Exception):
         def __init__(self, *args, invalid_degree_name: str, **kwargs):
             self.invalid_degree_name = invalid_degree_name
             super().__init__(*args, **kwargs)
@@ -105,11 +105,11 @@ class DegreeImportMapper:
         try:
             return self.degrees[lookup_key]
         except KeyError as e:
-            raise self.InvalidDegreeNameException(invalid_degree_name=trimmed_name) from e
+            raise self.InvalidDegreeNameError(invalid_degree_name=trimmed_name) from e
 
 
 class CourseTypeImportMapper:
-    class InvalidCourseTypeException(Exception):
+    class InvalidCourseTypeError(Exception):
         def __init__(self, *args, invalid_course_type: str, **kwargs):
             super().__init__(*args, **kwargs)
             self.invalid_course_type: str = invalid_course_type
@@ -126,11 +126,11 @@ class CourseTypeImportMapper:
         try:
             return self.course_types[stripped_name.lower()]
         except KeyError as e:
-            raise self.InvalidCourseTypeException(invalid_course_type=stripped_name) from e
+            raise self.InvalidCourseTypeError(invalid_course_type=stripped_name) from e
 
 
 class IsGradedImportMapper:
-    class InvalidIsGradedException(Exception):
+    class InvalidIsGradedError(Exception):
         def __init__(self, *args, invalid_is_graded: str, **kwargs):
             super().__init__(*args, **kwargs)
             self.invalid_is_graded: str = invalid_is_graded
@@ -143,7 +143,7 @@ class IsGradedImportMapper:
         if is_graded == settings.IMPORTER_GRADED_NO:
             return False
 
-        raise cls.InvalidIsGradedException(invalid_is_graded=is_graded)
+        raise cls.InvalidIsGradedError(invalid_is_graded=is_graded)
 
 
 @dataclass
@@ -231,21 +231,21 @@ class EnrollmentInputRowMapper:
         degrees: MaybeInvalid[set[Degree]]
         try:
             degrees = {self.degree_mapper.degree_from_import_string(row.evaluation_degree_name)}
-        except DegreeImportMapper.InvalidDegreeNameException as e:
+        except DegreeImportMapper.InvalidDegreeNameError as e:
             degrees = invalid_value
             self.invalid_degrees_tracker.add_location_for_key(row.location, e.invalid_degree_name)
 
         course_type: MaybeInvalid[CourseType]
         try:
             course_type = self.course_type_mapper.course_type_from_import_string(row.evaluation_course_type_name)
-        except CourseTypeImportMapper.InvalidCourseTypeException as e:
+        except CourseTypeImportMapper.InvalidCourseTypeError as e:
             course_type = invalid_value
             self.invalid_course_types_tracker.add_location_for_key(row.location, e.invalid_course_type)
 
         is_graded: MaybeInvalid[bool]
         try:
             is_graded = self.is_graded_mapper.is_graded_from_import_string(row.evaluation_is_graded)
-        except IsGradedImportMapper.InvalidIsGradedException as e:
+        except IsGradedImportMapper.InvalidIsGradedError as e:
             is_graded = invalid_value
             self.invalid_is_graded_tracker.add_location_for_key(row.location, e.invalid_is_graded)
 
@@ -305,15 +305,15 @@ class EnrollmentInputRowMapper:
 
 
 class CourseMergeLogic:
-    class MergeException(Exception):
+    class MergeError(Exception):
         def __init__(self, *args, merge_hindrances: list[str], **kwargs):
             super().__init__(*args, **kwargs)
             self.merge_hindrances: list[str] = merge_hindrances
 
-    class NameDeCollisionException(Exception):
+    class NameDeCollisionError(Exception):
         """Course with same name_de, but different name_en exists"""
 
-    class NameEnCollisionException(Exception):
+    class NameEnCollisionError(Exception):
         """Course with same name_en, but different name_de exists"""
 
     def __init__(self, semester: Semester):
@@ -370,10 +370,10 @@ class CourseMergeLogic:
 
         if course_with_same_name_en != course_with_same_name_de:
             if course_with_same_name_en is not None:
-                raise self.NameEnCollisionException()
+                raise self.NameEnCollisionError()
 
             if course_with_same_name_de is not None:
-                raise self.NameDeCollisionException()
+                raise self.NameDeCollisionError()
 
         assert course_with_same_name_en is not None
         assert course_with_same_name_de is not None
@@ -383,7 +383,7 @@ class CourseMergeLogic:
 
         merge_hindrances = self.get_merge_hindrances(course_data, merge_candidate)
         if merge_hindrances:
-            raise self.MergeException(merge_hindrances=merge_hindrances)
+            raise self.MergeError(merge_hindrances=merge_hindrances)
 
         course_data.merge_into_course = merge_candidate
 
@@ -414,15 +414,15 @@ class CourseNameChecker(Checker):
         try:
             self.course_merge_logic.set_course_merge_target(course_data)
 
-        except CourseMergeLogic.MergeException as e:
+        except CourseMergeLogic.MergeError as e:
             self.course_merge_impossible_tracker.add_location_for_key(
                 location, (course_data.name_en, tuple(e.merge_hindrances))
             )
 
-        except CourseMergeLogic.NameDeCollisionException:
+        except CourseMergeLogic.NameDeCollisionError:
             self.name_de_collision_tracker.add_location_for_key(location, course_data.name_de)
 
-        except CourseMergeLogic.NameEnCollisionException:
+        except CourseMergeLogic.NameEnCollisionError:
             self.name_en_collision_tracker.add_location_for_key(location, course_data.name_en)
 
         if course_data.merge_into_course != invalid_value and course_data.merge_into_course:

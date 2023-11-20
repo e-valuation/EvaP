@@ -8,7 +8,20 @@ from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import Evaluation, Question, QuestionType, UserProfile
-from evap.evaluation.tests.tools import WebTestWith200Check, create_evaluation_with_responsible_and_editor
+from evap.evaluation.tests.tools import (
+    WebTestWith200Check,
+    create_evaluation_with_responsible_and_editor,
+    store_ts_test_asset,
+)
+
+
+class RenderJsTranslationCatalog(WebTest):
+    url = reverse("javascript-catalog")
+
+    def render_pages(self):
+        # Not using render_pages decorator to manually create a single (special) javascript file
+        content = self.app.get(self.url).content
+        store_ts_test_asset("catalog.js", content)
 
 
 @override_settings(PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"])
