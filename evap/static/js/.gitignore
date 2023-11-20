@@ -2,3 +2,4 @@
 *.js
 !*.min.js
 !sortable_form.js
+!moment_de.js
