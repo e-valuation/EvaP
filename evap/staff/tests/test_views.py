@@ -1217,8 +1217,7 @@ class TestSemesterImportView(WebTestStaffMode):
         )
         page = form.submit(name="operation", value="test")
 
-        form = page.forms["semester-import-form"]
-        page = form.submit(name="operation", value="import")
+        page = submit_with_modal(page, page.forms["semester-import-form"], name="operation", value="import")
 
         self.assertContains(page, "This field is required.")
         self.assertContains(page, "Import previously uploaded file")
