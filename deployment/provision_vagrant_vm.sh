@@ -15,7 +15,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get -q update
 
 # system utilities that docker containers don't have
-apt-get -q install -y sudo wget git bash-completion
+apt-get -q install -y sudo wget git bash-completion software-properties-common
 # docker weirdly needs this -- see https://stackoverflow.com/questions/46247032/how-to-solve-invoke-rc-d-policy-rc-d-denied-execution-of-start-when-building
 printf '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d
 
@@ -92,6 +92,27 @@ cp $REPO_FOLDER/deployment/manage_autocompletion.sh /etc/bash_completion.d/
 
 # install chrome, see: https://github.com/puppeteer/puppeteer/issues/7740
 apt-get -q install -y chromium-browser
+
+# install firefox and geckodriver
+cat <<EOT >> /etc/apt/preferences.d/mozillateam
+Package: *
+Pin: release o=LP-PPA-mozillateam
+Pin-Priority: 100
+
+Package: firefox*
+Pin: release o=LP-PPA-mozillateam
+Pin-Priority: 1001
+
+Package: firefox*
+Pin: release o=Ubuntu
+Pin-Priority: -1
+EOT
+add-apt-repository -y ppa:mozillateam/ppa
+apt-get -q install -y firefox
+
+wget https://github.com/mozilla/geckodriver/releases/download/v0.33.0/geckodriver-v0.33.0-linux64.tar.gz -O geckodriver.tar.gz
+tar xzf geckodriver.tar.gz -C /usr/local/bin/
+chmod +x /usr/local/bin/geckodriver
 
 # install libraries for puppeteer
 apt-get -q install -y libasound2 libgconf-2-4 libgbm1 libgtk-3-0 libnss3 libx11-xcb1 libxss1 libxshmfence-dev
