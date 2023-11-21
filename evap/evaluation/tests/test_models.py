@@ -539,11 +539,7 @@ class TestEvaluations(WebTest):
         )
 
     def test_state_change_log_translated(self):
-        evaluation = baker.make(
-            Evaluation,
-            state=Evaluation.State.NEW,
-        )
-        evaluation.save()
+        evaluation = baker.make(Evaluation, state=Evaluation.State.NEW)
         with translation.override("de"):
             # Refresh reference to evaluation, to force new log entry
             evaluation = Evaluation.objects.get(pk=evaluation.pk)
