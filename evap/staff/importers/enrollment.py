@@ -592,7 +592,7 @@ class CourseDataMismatchChecker(Checker):
         self.tracker = FirstLocationAndCountTracker()
 
     def check_course_data(self, course_data: CourseData, location: ExcelFileLocation) -> None:
-        if not all_fields_valid(course_data):
+        if not isinstance(course_data, ValidCourseData):
             return
 
         stored = self.course_data_by_name_en.setdefault(course_data.name_en, course_data)
@@ -788,7 +788,7 @@ def normalize_rows(enrollment_rows: Iterable[EnrollmentParsedRow]) -> tuple[list
         stored = user_data_by_email.setdefault(row.responsible_data.email, row.responsible_data)
         assert stored == row.responsible_data
 
-        assert all_fields_valid(row.course_data)
+        assert isinstance(row.course_data, ValidCourseData)
         course_data = course_data_by_name_en.setdefault(row.course_data.name_en, row.course_data)
         assert course_data.differing_fields(row.course_data) <= {"degrees"}
 
