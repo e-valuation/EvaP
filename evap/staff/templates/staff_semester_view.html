@@ -407,22 +407,17 @@
                                             <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
                                                 href="{% url 'staff:evaluation_create_for_course' course.id %}"
                                                 title="{% trans 'Create evaluation for this course' %}">
-                                                <span class="fas fa-clipboard-check fa-fw"></span>
+                                                <span class="fas fa-clipboard-check"></span>
                                             </a>
                                             <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
                                                 href="{% url 'staff:single_result_create_for_course' course.id %}"
                                                 title="{% trans 'Create single result for this course' %}">
-                                                <span class="fas fa-square-poll-vertical fa-fw"></span>
+                                                <span class="fas fa-square-poll-vertical"></span>
                                             </a>
                                             <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
                                                 href="{% url 'staff:course_copy' course.id %}"
                                                 title="{% trans 'Copy course' %}">
-                                                <span class="fas fa-copy fa-fw"></span>
-                                            </a>
-                                            <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
-                                                onclick="createExamEvaluationShow();"
-                                                title="{% trans 'Create exam evaluation' %}">
-                                                <span class="fas fa-file-pen fa-fw"></span>
+                                                <span class="fas fa-copy"></span>
                                             </a>
                                         {% endif %}
                                         {% if course.can_be_deleted_by_manager %}
@@ -577,15 +572,6 @@
         function activateRewardPointsModalAction() {
             document.getElementById("form_activation_status").requestSubmit();
         }
-    </script>
-    {% trans 'Create exam evaluation' as title %}
-    {% blocktrans asvar question %}Create an exam evaluation based on this evaluation. This will copy all the participants and contributors from the original evaluation. It will set the weight of the original evaluation to 9 and its end date will be set to the day before the exam. {% endblocktrans %}
-    {% trans 'Create exam evaluation' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='createExamEvaluation' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
-        function createExamEvaluationAction() {
-            pass
-        };
     </script>
 {% endblock %}
 
