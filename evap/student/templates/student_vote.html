@@ -15,7 +15,7 @@
 
 {% block content %}
     {{ block.super }}
-    {% if contributor_errors_exist or general_errors_exist %}
+    {% if errors_exist %}
         <div class="alert alert-danger" role="alert">
             <div class="d-flex align-items-center justify-content-between">
                 <div class="p-2">

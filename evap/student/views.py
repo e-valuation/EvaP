@@ -169,8 +169,7 @@ def render_vote_page(request, evaluation, preview, for_rendering_in_modal=False)
 
     template_data = {
         "contributor_errors_exist": contributor_errors_exist,
-        "general_errors_exist": general_errors_exist,
-        "errors_exists": contributor_errors_exist or general_errors_exist,
+        "errors_exist": contributor_errors_exist or general_errors_exist,
         "evaluation_form_group_top": evaluation_form_group_top,
         "evaluation_form_group_bottom": evaluation_form_group_bottom,
         "contributor_form_groups": contributor_form_groups,
