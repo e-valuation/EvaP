@@ -58,7 +58,7 @@ You can also set up `pylint`, `isort`, `black` and `prettier` in your IDE to avo
 
 2. (once) Set up some Authentication for GitHub that allows push access. A common option is using [SSH keys](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/about-ssh), the remaining instructions assume an SSH key setup. An alternative is using the [GitHub CLI tool](https://cli.github.com/).
 
-3. (once) Ensure your [git remotes](https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes) are setup to use SSH.  To fetch the up-to-date state of the official repo, it's always useful to have an "upstream" remote configured:
+3. (once) Ensure your [git remotes](https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes) are setup to use SSH. To fetch the up-to-date state of the official repo, it's always useful to have an "upstream" remote configured:
    ```bash
    git remote set-url origin git@github.com:<your-username>/EvaP.git
    git remote add upstream git@github.com:e-valuation/EvaP.git
@@ -66,7 +66,7 @@ You can also set up `pylint`, `isort`, `black` and `prettier` in your IDE to avo
 
 4. Create a branch (`git branch -c <your-branch-name>`), commit your changes (`git add` and `git commit`), and push them (`git push`). "Push" will ask you to specify an upstream branch (`git push -u origin <your-branch-name>`).
 
-5. GitHub should now ask you whether you want to open a Pull Request when reloading the page. If the PR solves an issue, use one of GitHub's [magic keywords](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue) (like "fixes") to create a link between your PR and the issue.
+5. GitHub should now ask you whether you want to open a Pull Request when reloading the page. If the PR solves an issue, use one of GitHub's [magic keywords](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue) (like "fixes") in the commit message or pull request text to create a link between your PR and the issue.
 
 
 ## License
