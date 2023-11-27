@@ -15,6 +15,7 @@ from django.http import HttpResponse
 from django.test import override_settings
 from django.test.testcases import TestCase
 from django.urls import reverse
+from django.utils import translation
 from django_webtest import WebTest
 from model_bakery import baker
 
@@ -2175,6 +2176,21 @@ class TestEvaluationEditView(WebTestStaffMode):
         self.assertIn(
             '<label class="form-check-label badge bg-danger" for="id_contributions-1-questionnaires_0">', page
         )
+
+    @patch("django.utils.translation.gettext", new=(lambda string: "vorbereitet" if string == "prepared" else string))
+    def test_state_change_log_translated(self):
+        self.manager.language = "de"
+        self.manager.save()
+        self.evaluation.ready_for_editors()
+        self.evaluation.save()
+        log_ul = self.app.get(self.url, user=self.manager).html.find(class_="list-group")
+        self.assertIn(
+            translation.gettext(Evaluation.STATE_STR_CONVERSION[Evaluation.State.PREPARED]),
+            str(log_ul),
+        )
+        self.app.reset()  # language is only loaded on login, so we're forcing a re-login here
+        self.evaluation.revert_to_new()
+        self.evaluation.save()
 
 
 class TestEvaluationDeleteView(WebTestStaffMode):
