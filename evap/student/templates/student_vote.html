@@ -15,23 +15,15 @@
 
 {% block content %}
     {{ block.super }}
-    {% if contributor_errors_exist %}
+    {% if contributor_errors_exist or general_errors_exist %}
         <div class="alert alert-danger" role="alert">
             <div class="d-flex align-items-center justify-content-between">
                 <div class="p-2">
-                    {% blocktrans %}Please make sure to vote for all rating questions. You can also click on "I can't give feedback" to skip the questions about a single person.{% endblocktrans %}
-                </div>
-                <button id="btn-jump-unanswered-question" type="button" class="btn btn-light float-end" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Jump to the first unanswered question' %}">
-                    <i class="fas fa-arrow-down"></i>
-                </button>
-            </div>
-        </div>
-    {% endif %}
-    {% if general_errors_exist and not contributor_errors_exist %}
-        <div class="alert alert-danger" role="alert">
-            <div class="d-flex align-items-center justify-content-between">
-                <div class="p-2">
-                    {% blocktrans %}Please make sure to vote for all rating questions.{% endblocktrans %}
+                    {% if contributor_errors_exist %}
+                        {% blocktrans %}Please make sure to vote for all rating questions. You can also click on "I can't give feedback" to skip the questions about a single person.{% endblocktrans %}
+                    {% else %}
+                        {% blocktrans %}Please make sure to vote for all rating questions.{% endblocktrans %}
+                    {% endif %}
                 </div>
                 <button id="btn-jump-unanswered-question" type="button" class="btn btn-light float-end" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Jump to the first unanswered question' %}">
                     <i class="fas fa-arrow-down"></i>
@@ -111,14 +103,14 @@
                         <div class="card collapsible{% if not forloop.last %} mb-3{% endif %}">
                             <div class="card-header d-flex tab-row">
                                 <div class="me-auto">
-                                    <button class="collapse-toggle{% if general_errors_exist or contributor_errors_exist and not contributor_has_errors %} collapsed tab-selectable{% endif %} bg-transparent" data-bs-toggle="collapse"
+                                    <button class="collapse-toggle{% if errors_exist and not contributor_has_errors %} collapsed tab-selectable{% endif %} bg-transparent" data-bs-toggle="collapse"
                                         data-bs-target="#vote-area-{{ contributor.id }}" aria-expanded="false" aria-controls="vote-area-{{ contributor.id }}" tabindex="-1" type="button">
                                         {{ contributor.full_name }}
                                         {% if label %} &ndash; <span class="fst-italic">{{ label }}</span>{% endif %}
                                     </button>
                                 </div>
                             </div>
-                            <div class="collapse{% if not general_errors_exist and not contributor_errors_exist or contributor_has_errors %} show{% endif %}" id="vote-area-{{ contributor.id }}">
+                            <div class="collapse{% if not errors_exist or contributor_has_errors %} show{% endif %}" id="vote-area-{{ contributor.id }}">
                                 <div class="card-body">
                                     {% include 'student_vote_questionnaire_group.html' with questionnaire_group=form_group preview=preview textanswers_visible_to=textanswers_visible_to contributor=contributor%}
                                 </div>
