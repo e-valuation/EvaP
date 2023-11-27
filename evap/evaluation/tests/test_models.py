@@ -538,7 +538,9 @@ class TestEvaluations(WebTest):
             evaluation.TextAnswerReviewState.REVIEWED,
         )
 
-    @patch("django.utils.translation.gettext_lazy", new=(lambda string: "vorbereitet" if string == "prepared" else string))
+    @patch(
+        "django.utils.translation.gettext_lazy", new=(lambda string: "vorbereitet" if string == "prepared" else string)
+    )
     def test_state_change_log_translated(self):
         evaluation = baker.make(Evaluation, state=Evaluation.State.NEW)
         with translation.override("de"):

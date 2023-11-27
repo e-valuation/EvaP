@@ -2177,7 +2177,9 @@ class TestEvaluationEditView(WebTestStaffMode):
             '<label class="form-check-label badge bg-danger" for="id_contributions-1-questionnaires_0">', page
         )
 
-    @patch("django.utils.translation.gettext_lazy", new=(lambda string: "vorbereitet" if string == "prepared" else string))
+    @patch(
+        "django.utils.translation.gettext_lazy", new=(lambda string: "vorbereitet" if string == "prepared" else string)
+    )
     def test_state_change_log_translated(self):
         self.manager.language = "de"
         self.manager.save()
