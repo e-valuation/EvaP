@@ -1,4 +1,5 @@
 import datetime
+import typing
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from collections.abc import Iterable, Mapping
@@ -12,13 +13,16 @@ from django.db.models import Model
 from django.forms.formsets import BaseFormSet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils.datastructures import MultiValueDict
 from django.utils.translation import get_language
 from django.views.generic import FormView
+from django_stubs_ext import StrOrPromise
 
 M = TypeVar("M", bound=Model)
 T = TypeVar("T")
 Key = TypeVar("Key")
 Value = TypeVar("Value")
+CellValue: typing.TypeAlias = str | int | float
 
 
 def unordered_groupby(key_value_pairs: Iterable[tuple[Key, Value]]) -> dict[Key, list[Value]]:
@@ -35,7 +39,9 @@ def unordered_groupby(key_value_pairs: Iterable[tuple[Key, Value]]) -> dict[Key,
     return dict(result)
 
 
-def get_object_from_dict_pk_entry_or_logged_40x(model_cls: type[M], dict_obj: Mapping[str, Any], key: str) -> M:
+def get_object_from_dict_pk_entry_or_logged_40x(
+    model_cls: type[M], dict_obj: MultiValueDict[str, Any] | Mapping[str, Any], key: str
+) -> M:
     try:
         return get_object_or_404(model_cls, pk=dict_obj[key])
     # ValidationError happens for UUID id fields when passing invalid arguments
@@ -130,7 +136,7 @@ def clean_email(email: EmailT) -> EmailT:
     return email
 
 
-def capitalize_first(string: str) -> str:
+def capitalize_first(string: StrOrPromise) -> str:
     return string[0].upper() + string[1:]
 
 
@@ -174,6 +180,7 @@ class FormsetView(FormView):
         return super().form_valid(formset)
 
 
+@typing.runtime_checkable
 class HasFormValid(Protocol):
     def form_valid(self, form):
         pass
@@ -262,7 +269,7 @@ class ExcelExporter(ABC):
         else:
             self.cur_sheet = None
 
-    def write_cell(self, label: str | None = "", style: str = "default") -> None:
+    def write_cell(self, label: CellValue | None = "", style: str = "default") -> None:
         """Write a single cell and move to the next column."""
         self.cur_sheet.write(
             self.cur_row,
@@ -276,7 +283,9 @@ class ExcelExporter(ABC):
         self.cur_col = 0
         self.cur_row += 1
 
-    def write_row(self, vals: Iterable[str], style: str = "default") -> None:
+    def write_row(
+        self, vals: Iterable[CellValue | None], style: str | typing.Callable[[CellValue | None], str] = "default"
+    ) -> None:
         """
         Write a cell for every value and go to the next row.
         Styling can be chosen
