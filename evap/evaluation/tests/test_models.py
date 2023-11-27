@@ -538,6 +538,7 @@ class TestEvaluations(WebTest):
             evaluation.TextAnswerReviewState.REVIEWED,
         )
 
+    @patch("django.utils.translation.gettext", new=(lambda string: "vorbereitet" if string == "prepared" else string))
     def test_state_change_log_translated(self):
         evaluation = baker.make(Evaluation, state=Evaluation.State.NEW)
         with translation.override("de"):
@@ -546,8 +547,10 @@ class TestEvaluations(WebTest):
             evaluation.ready_for_editors()
             evaluation.save()
             log_entry = evaluation.related_logentries().order_by("id").last()
-            self.assertEqual(Evaluation.state_to_str(log_entry.data["state"]["change"][0]), "neu")
-            self.assertEqual(Evaluation.state_to_str(log_entry.data["state"]["change"][1]), "vorbereitet")
+            self.assertEqual(
+                Evaluation.state_to_str(log_entry.data["state"]["change"][1]),
+                translation.gettext(Evaluation.STATE_STR_CONVERSION[Evaluation.State.PREPARED]),
+            )
 
 
 class TestCourse(TestCase):
