@@ -295,7 +295,7 @@ class TestContributorResultsExportView(WebTest):
         cls.url = reverse("contributor:export")
         cls.user = result["responsible"]
 
-    def test_view_downloads_excel_file(self):
+    def test_concise_header(self):
         response = self.app.get(self.url, user=self.user)
 
         workbook = xlrd.open_workbook(file_contents=response.content)
