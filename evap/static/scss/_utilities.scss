@@ -79,3 +79,9 @@ a.no-underline:hover {
 .break-spaces {
     white-space: break-spaces;
 }
+
+@for $i from 0 through 100 {
+    .width-percent-#{$i} {
+        width: $i * 1% !important;
+    }
+}
