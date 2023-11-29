@@ -13,7 +13,7 @@
     {% if responsible_list %}
         <div class="d-flex mb-3">
             <div class="me-auto">
-                <button type="button" id="remindAllButton" onClick="remindAllModalShow()" class="btn btn-sm btn-light">{% trans 'Remind all' %}</button>
+                <button type="button" id="remindAllButton" class="btn btn-sm btn-light">{% trans 'Remind all' %}</button>
             </div>
         </div>
     {% endif %}
@@ -90,5 +90,6 @@
                 location.reload();
             }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         }
+        document.getElementById("remindAllButton").addEventListener("click", () => remindAllModalShow());
     </script>
 {% endblock %}

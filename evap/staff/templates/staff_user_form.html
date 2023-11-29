@@ -21,7 +21,7 @@
             <div class="ms-auto d-print-none">
                 {% if has_due_evaluations %}
                     <div>
-                        <button type="button" class="btn btn-sm btn-light" onclick="resendEmailModalShow({{ form.instance.id }}, '{{ form.instance.full_name|escapejs }}');">{% trans 'Resend evaluation started email' %}</button>
+                        <button type="button" class="btn btn-sm btn-light" id="resend-email-button">{% trans 'Resend evaluation started email' %}</button>
                     </div>
                 {% else %}
                     <div title="{% trans 'This user currently has no due evaluations.' %}" data-bs-toggle="tooltip" data-bs-placement="bottom">
@@ -103,9 +103,7 @@
             <div class="card-body">
                 <button type="submit" class="btn btn-primary">{% trans 'Save user' %}</button>
                 {% if form.instance and form.instance.can_be_deleted_by_manager %}
-                    <button type="button" class="btn btn-danger" onclick="deleteModalShow({{ form.instance.id }}, '{{ form.instance.full_name|escapejs }}');">
-                        {% trans 'Delete user' %}
-                    </button>
+                    <button type="button" class="btn btn-danger" id="delete-button">{% trans 'Delete user' %}</button>
                 {% else %}
                     <span tabindex="0" data-bs-toggle="tooltip" title="{% blocktrans %}This user contributes to an evaluation, participates in an evaluation whose participations haven't been archived yet or has special rights and as such cannot be deleted.{% endblocktrans %}">
                     <button type="button" disabled class="btn btn-danger">
@@ -134,6 +132,8 @@
                 window.location="{% url 'staff:user_index' %}"
             }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         }
+
+        document.getElementById("delete-button").addEventListener("click", () => deleteModalShow({{ form.instance.id }}, '{{ form.instance.full_name|escapejs }}'));
     </script>
     {% if form.instance.id %}
         {% trans 'Send notification email' as title %}
@@ -150,7 +150,9 @@
                     assert(response.ok);
                     window.location="{% url 'staff:user_edit' user_id %}"
                 }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
-            };
+            }
+
+            document.getElementById("resend-email-button").addEventListener("click", () => copyReplaceContributorsModalShow('copy-replace-contributors'));
         </script>
     {% endif %}
 {% endblock %}

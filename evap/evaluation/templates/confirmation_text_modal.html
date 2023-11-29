@@ -11,7 +11,7 @@
                 <div class="modal-body">
                     {{ question|safe }}
                     <div class="my-4">
-                        <input type="text" class="form-control" id="{{ modal_id }}ConfirmationText" oninput="{{ modal_id }}CheckValue();" />
+                        <input type="text" class="form-control check-value-input" id="{{ modal_id }}ConfirmationText"/>
                     </div>
                     <div class="modal-submit-group">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% trans 'Cancel' %}</button>
@@ -41,4 +41,6 @@
             $('#{{ modal_id }}ActionButton').prop('disabled', true);
         }
     }
+
+    document.querySelectorAll(".check-value-input").forEach(input => input.addEventListener("input", {{modal_id}}CheckValue));
 </script>

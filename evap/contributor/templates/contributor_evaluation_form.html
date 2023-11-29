@@ -92,7 +92,7 @@
                     <button name="operation" value="save" type="submit" class="btn btn-primary">{% trans 'Save' %}</button>
                     {# webtest does not allow submission with value "approve" if no such button exists #}
                     <button style="display: none" name="operation" value="approve" type="submit"></button>
-                    <button type="button" onclick="approveEvaluationModalShow(0, '');" class="btn btn-success">{% trans 'Save and approve' %}</button>
+                    <button type="button" id="approve-button" class="btn btn-success">{% trans 'Save and approve' %}</button>
                 {% endif %}
                 <a href="{% url 'contributor:index' %}" class="btn btn-light">{% if edit %}{% trans 'Cancel' %}{% else %}{% trans 'Back' %}{% endif %}</a>
             </div>
@@ -136,6 +136,7 @@
             form.appendChild(input);
             form.requestSubmit();
         };
+        document.getElementById("approve-button").addEventListener("click", () => approveEvaluationModalShow(0, ''));
     </script>
 
     {% blocktrans asvar title with evaluation_name=evaluation.full_name %}Request account creation for {{ evaluation_name }}{% endblocktrans %}

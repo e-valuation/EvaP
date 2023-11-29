@@ -16,7 +16,7 @@
             &nbsp;
             <a href="{% url 'staff:semester_edit' semester.id %}" class="btn btn-sm btn-secondary">{% trans 'Edit' %}</a>
             <button
-                onClick="makeActiveSemesterModalShow({{ semester.id }})" class="btn btn-sm btn-light"
+                class="btn btn-sm btn-light"
                 id="makeActiveSemesterButton" type="button"
                 {% if semester.is_active %}
                     disabled
@@ -25,7 +25,7 @@
                 {% endif %}>
                 {% trans 'Make active' %}
             </button>
-            <button type="button" id="deleteSemesterButton"{% if not semester.can_be_deleted_by_manager %} disabled{% endif %} onclick="deleteSemesterModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-danger">{% trans 'Delete' %}</button>
+            <button type="button" id="deleteSemesterButton"{% if not semester.can_be_deleted_by_manager %} disabled{% endif %} class="btn btn-sm btn-danger">{% trans 'Delete' %}</button>
         {% endif %}
     </h3>
 
@@ -37,7 +37,7 @@
             <div class="collapse{% if semester.participations_are_archived or semester.grade_documents_are_deleted or semester.results_are_archived %} show{% endif %}" id="archivingCard">
                 <div class="card-body">
                     {% if semester.participations_can_be_archived %}
-                        <button type="button" onclick="archiveParticipationsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning">{% trans 'Archive participations' %}</button>
+                        <button type="button" id="archiveParticipationsButton" class="btn btn-sm btn-warning">{% trans 'Archive participations' %}</button>
                     {% elif semester.participations_are_archived %}
                         <button type="button" disabled class="btn btn-sm btn-success">{% trans 'Participations have been archived' %}</button>
                     {% else %}
@@ -46,12 +46,12 @@
                             {% trans 'Archive participations' %}</button>
                     {% endif %}
                     {% if semester.grade_documents_can_be_deleted %}
-                        <button type="button" onclick="deleteGradeDocumentsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning">{% trans 'Delete grade documents' %}</button>
+                        <button type="button" id="deleteGradeDocumentsButton" class="btn btn-sm btn-warning">{% trans 'Delete grade documents' %}</button>
                     {% elif semester.grade_documents_are_deleted %}
                         <button type="button" class="btn btn-sm btn-success disabled">{% trans 'Grade documents have been deleted' %}</button>
                     {% endif %}
                     {% if semester.results_can_be_archived %}
-                        <button type="button" onclick="archiveResultsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning">{% trans 'Archive results' %}</button>
+                        <button type="button" id="archiveResultsButton" class="btn btn-sm btn-warning">{% trans 'Archive results' %}</button>
                     {% elif semester.results_are_archived %}
                         <button type="button" disabled class="btn btn-sm btn-success">{% trans 'Results have been archived' %}</button>
                     {% endif %}
@@ -72,7 +72,7 @@
                     <div class="btn-switch ms-2">
                         <div class="btn-switch-label">{% trans 'Reward points active' %}</div>
                         <div class="btn-switch btn-group icon-buttons">
-                            <button type="button" onclick="activateRewardPointsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-light{% if rewards_active %} active{% endif %}"><span class="fas fa-check" aria-hidden="true"></span></button>
+                            <button type="button" id="activateRewardPointsButton" class="btn btn-sm btn-light{% if rewards_active %} active{% endif %}"><span class="fas fa-check" aria-hidden="true"></span></button>
                             <button type="submit" name="activation_status" value="off" form="form_activation_status" class="btn btn-sm btn-light{% if not rewards_active %} active{% endif %}"><span class="fas fa-xmark" aria-hidden="true"></span></button>
                         </div>
                     </div>
@@ -421,7 +421,7 @@
                                             </a>
                                         {% endif %}
                                         {% if course.can_be_deleted_by_manager %}
-                                            <button type="button" onclick="deleteCourseModalShow({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
+                                            <button type="button" data-course-id="{{ course.id }}" data-course-name="{{ course.name }}" class="btn btn-sm btn-outline-danger delete-course-button" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
                                                 <span class="fas fa-trash" aria-hidden="true"></span>
                                             </button>
                                         {% endif %}
@@ -463,14 +463,15 @@
                 location.reload();
             }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         }
+        makeActiveSemesterButton.addEventListener("click", () => makeActiveSemesterModalShow({{ semester.id }}));
     </script>
     {% trans 'Delete semester' as title %}
     {% blocktrans asvar question %}Do you really want to delete the semester <strong data-label=""></strong>? All courses and evaluations will be deleted as well as all results. If you are sure, enter the name of the semester below.{% endblocktrans %}
     {% trans 'Delete semester' as action_text %}
     {% include 'confirmation_text_modal.html' with modal_id='deleteSemesterModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript" nonce="{{ CSP_NONCE }}">
+        const deleteButton = document.getElementById('deleteSemesterButton');
         function deleteSemesterModalAction(dataId) {
-            const deleteButton = document.getElementById('deleteSemesterButton');
             deleteButton.disabled = true;
             deleteButton.textContent = "{% trans 'Deleting...' %}";
 
@@ -482,8 +483,10 @@
                 assert(response.ok);
                 location.replace("{% url 'staff:index' %}");
             }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
-        };
+        }
+        deleteButton.addEventListener("click", () => deleteSemesterModalShow({{ semester.id }}, '{{ semester.name|escapejs }}'));
     </script>
+
     {% trans 'Archive participations' as title %}
     {% blocktrans asvar question %}Do you really want to archive all participations in the semester <strong data-label=""></strong>? Further changes to the evaluations won't be possible and you can't undo this action.{% endblocktrans %}
     {% trans 'Archive participations' as action_text %}
@@ -498,8 +501,13 @@
                 assert(response.ok);
                 location.reload();
             }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
-        };
+        }
+        const archiveButton = document.getElementById("archiveParticipationsButton");
+        if(archiveButton !== null) {
+            archiveButton.addEventListener("click", () => archiveParticipationsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}'));
+        }
     </script>
+
     {% trans 'Delete grade documents' as title %}
     {% blocktrans asvar question %}Do you really want to delete the grade documents in the semester <strong data-label=""></strong>? This will delete all existing grade documents for this semester's courses and will disable new uploads. You can't undo this action.{% endblocktrans %}
     {% trans 'Delete grade documents' as action_text %}
@@ -514,7 +522,8 @@
                 assert(response.ok);
                 location.reload();
             }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
-        };
+        }
+        document.getElementById("deleteGradeDocumentsButton").addEventListener("click", () => deleteGradeDocumentsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}'));
     </script>
     {% trans 'Archive results' as title %}
     {% blocktrans asvar question %}Do you really want to archive the results in the semester <strong data-label=""></strong>? This will make the results of all evaluations inaccessible for all users except their contributors and managers. You can't undo this action.{% endblocktrans %}
@@ -530,7 +539,8 @@
                 assert(response.ok);
                 location.reload();
             }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
-        };
+        }
+        document.getElementById("archiveResultsButton").addEventListener("click", () => archiveResultsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}'));
     </script>
     {% trans 'Delete evaluation' as title %}
     {% trans 'Do you really want to delete the evaluation <strong data-label=""></strong>?' as question %}
@@ -546,7 +556,7 @@
                 assert(response.ok);
                 fadeOutThenRemove(document.getElementById('evaluation-row-'+dataId))
             }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
-        };
+        }
     </script>
     {% trans 'Delete course' as title %}
     {% trans 'Do you really want to delete the course <strong data-label=""></strong>?' as question %}
@@ -562,7 +572,10 @@
                 assert(response.ok);
                 fadeOutThenRemove(document.getElementById('#course-row-'+dataId))
             }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
-        };
+        }
+        for (const button of document.querySelectorAll(".delete-course-button")) {
+            button.addEventListener("click", () => deleteCourseModalShow(button.dataset.courseId, button.dataset.courseName));
+        }
     </script>
     {% trans 'Activate reward points' as title %}
     {% blocktrans asvar question %}Do you want to activate the reward points for the semester <strong data-label=""></strong>? The activation will allow participants to receive reward points when voting and will also grant all eligible points for participants who have already voted so far. The process will take a while.{% endblocktrans %}
@@ -572,6 +585,7 @@
         function activateRewardPointsModalAction() {
             document.getElementById("form_activation_status").requestSubmit();
         }
+        document.getElementById("activateRewardPointsButton").addEventListener("click", () => activateRewardPointsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}'));
     </script>
 {% endblock %}
 

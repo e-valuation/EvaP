@@ -64,7 +64,7 @@
                                     {% if num_final_grades > 0 %}
                                         <span class="fas fa-file"></span> {{ num_final_grades }}
                                     {% elif course.gets_no_grade_documents %}
-                                       <a href="#" onclick="confirmLateruploadModalShow({{ course.id }}, '{{ course.name|escapejs }}');">
+                                        <a href="#" class="confirm-later-upload-button" data-course-id="{{ course.id }}" data-course-name="{{ course.name }}">
                                             <span class="fas fa-xmark light-link" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Grade documents for this course will not be uploaded. Click to change.' %}"></span>
                                         </a>
                                     {% endif %}
@@ -72,7 +72,7 @@
                                 <td class="text-end" style="min-width:72px">
                                     {% if not course.gets_no_grade_documents %}
                                         {% if num_final_grades == 0 %}
-                                            <button type="button" onclick="confirmNouploadModalShow({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Confirm that final grades have been submitted but will not be uploaded.' %}">
+                                            <button type="button" class="btn btn-sm btn-secondary confirm-noupload-button" data-bs-toggle="tooltip" data-bs-placement="top" data-course-id="{{ course.id }}" data-course-name="{{ course.name }}" title="{% trans 'Confirm that final grades have been submitted but will not be uploaded.' %}">
                                                 <span class="fas fa-xmark"></span>
                                             </button>
                                             <div class="btn-group" role="group" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Upload grade document' %}">
@@ -110,6 +110,9 @@
         function confirmNouploadModalAction(dataId) {
             updateGradeStatusOfCourse(dataId, true);
         }
+        for(const button of document.querySelectorAll(".confirm-noupload-button")) {
+            button.addEventListener("click", () => confirmNouploadModalShow(button.dataset.courseId, button.dataset.courseName));
+        }
 
         function updateGradeStatusOfCourse(dataId, status) {
             fetch("{% url 'grades:set_no_grades'%}", {
@@ -129,7 +132,10 @@
     <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function confirmLateruploadModalAction(dataId) {
             updateGradeStatusOfCourse(dataId, false);
-        };
+        }
+        for (const button of document.querySelectorAll(".confirm-later-upload-button")) {
+            button.addEventListener("click", () => confirmLateruploadModalShow(button.dataset.courseId, button.dataset.courseName));
+        }
     </script>
 {% endblock %}
 

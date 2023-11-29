@@ -28,14 +28,6 @@
     <body>
         <script type="text/javascript" src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}" nonce="{{ CSP_NONCE }}"></script>
 
-        {% block modals %}
-            {% if user.is_authenticated %}
-                {% trans 'Feedback' as title %}
-                {% trans 'You are welcome to submit feedback regarding the evaluation platform or specific evaluations. Please let us know how we can improve your experience on EvaP.' as teaser %}
-                {% include 'contact_modal.html' with modal_id='feedbackModal' user=request.user title=title teaser=teaser %}
-            {% endif %}
-        {% endblock %}
-
         <div class="sticky-top d-print-none z-over-fixed">
             {% include_navbar user LANGUAGE_CODE %}
 
@@ -70,6 +62,14 @@
         </div>
 
         {% include 'footer.html' %}
+
+        {% block modals %}
+            {% if user.is_authenticated %}
+                {% trans 'Feedback' as title %}
+                {% trans 'You are welcome to submit feedback regarding the evaluation platform or specific evaluations. Please let us know how we can improve your experience on EvaP.' as teaser %}
+                {% include 'contact_modal.html' with modal_id='feedbackModal' user=request.user title=title teaser=teaser %}
+            {% endif %}
+        {% endblock %}
 
         <script src="{% url 'javascript-catalog' %}" nonce="{{ CSP_NONCE }}"></script>
 

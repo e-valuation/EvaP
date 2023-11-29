@@ -52,7 +52,7 @@
                                 <a href="{% url 'staff:questionnaire_copy' questionnaire.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Copy' %}"><span class="fas fa-copy fa-fw"></span></a>
                                 <a href="{% url 'staff:questionnaire_view' questionnaire.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Preview' %}"><span class="fas fa-eye fa-fw"></span></a>
                                 {% if questionnaire.can_be_deleted_by_manager %}
-                                    <button type="button" onclick="deleteQuestionnaireModalShow({{ questionnaire.id }}, '{{ questionnaire.name|escapejs }}');" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
+                                <button type="button" class="btn btn-sm btn-danger delete-questionnaire-button" data-questionnaire-id="{{ questionnaire.id }}" data-questionnaire-name="{{ questionnaire.name }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
                                         <span class="fas fa-trash"></span>
                                     </button>
                                 {% else %}

@@ -62,6 +62,9 @@
                 fadeOutThenRemove(document.querySelector('#questionnaire-row-'+dataId));
             }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         };
+        for (const button of document.querySelectorAll(".delete-questionnaire-button")) {
+            button.addEventListener("click", () => deleteQuestionnaireModalShow(button.dataset.questionnaireId, button.dataset.questionnaireName));
+        }
     </script>
 {% endblock %}
 

@@ -33,7 +33,7 @@
                     <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
                 {% else %}
                     <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
-                    <button name="operation" value="import" type="button" onclick="importUserModalShow('import');" class="btn btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
+                    <button name="operation" value="import" type="button" id="import-users-button" class="btn btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
                 {% endif %}
             </div>
         </div>
@@ -56,7 +56,8 @@
             const form = document.getElementById("user-import-form");
             form.appendChild(input);
             form.requestSubmit();
-        };
+        }
+        document.getElementById("import-users-button").addEventListener("click", () => importUserModalShow("import"));
     </script>
 
 {% endblock %}

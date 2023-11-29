@@ -44,5 +44,8 @@
                 fadeOutThenRemove(document.querySelector('#event-row-'+dataId));
             }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         };
+        for(const button of document.querySelectorAll(".delete-event-button")) {
+            button.addEventListener("click", () => deleteEventModalShow(button.dataset.eventId, button.dataset.eventName));
+        }
     </script>
 {% endblock %}

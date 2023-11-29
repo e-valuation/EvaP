@@ -30,7 +30,7 @@
                                     <a href="{% url 'grades:download_grades' grade_document.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Download' %}"><span class="fas fa-download"></span></a>
                                     {% if user.is_grade_publisher %}
                                         <a href="{% url 'grades:edit_grades' grade_document.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Edit' %}"><span class="fas fa-pencil"></span></a>
-                                        <button type="button" onclick="deleteGradedocumentModalShow({{ grade_document.id }}, '{{ grade_document.description|escapejs }}');" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
+                                        <button type="button" class="btn btn-sm btn-danger delete-grade-document-button" data-grade-document-id="{{ grade_document.id }}" data-grade-document-description="{{ grade_document.description }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
                                             <span class="fas fa-trash"></span>
                                         </button>
                                     {% endif %}
@@ -67,5 +67,8 @@
                 fadeOutThenRemove(document.getElementById('grade_document-row-'+dataId));
             }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
         };
+        for (const button of document.querySelectorAll("delete-grade-document-button")) {
+            button.addEventListener("click", () => deleteGradedocumentModalShow(button.dataset.gradeDocumentId, button.dataset.gradeDocumentDescription));
+        }
     </script>
 {% endblock %}

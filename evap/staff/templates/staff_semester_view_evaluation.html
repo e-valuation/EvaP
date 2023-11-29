@@ -208,9 +208,12 @@
             </a>
         {% endif %}
         {% if request.user.is_manager and evaluation.can_be_deleted_by_manager %}
-            <button type="button" onclick="deleteEvaluationModalShow({{ evaluation.id }}, '{{ evaluation.full_name|escapejs }}');" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
+            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
                 <span class="fas fa-trash" aria-hidden="true"></span>
             </button>
+            <script type="text/javascript" nonce="{{ CSP_NONCE }}">
+                document.currentScript.previousSibling.addEventListener("click", () => deleteEvaluationModalShow({{ evaluation.id }}, '{{ evaluation.full_name|escapejs }}'));
+            </script>
         {% endif %}
     {% endif %}
 </td>

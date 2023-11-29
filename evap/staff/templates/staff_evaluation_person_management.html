@@ -28,8 +28,8 @@
                         {% else %}
                             <button name="operation" value="test-participants" type="submit" class="btn btn-sm btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
                             <div class="mt-2">
-                                <button name="operation" value="import-participants" type="button" onclick="importParticipantsModalShow('import-participants');" class="btn btn-sm btn-primary me-1 form-submit-btn";>{% trans 'Import previously uploaded file' %}</button>
-                                <button name="operation" value="import-replace-participants" type="button" onclick="replaceParticipantsModalShow('import-replace-participants');" class="btn btn-sm btn-danger form-submit-btn">{% trans 'Replace participants' %}</button>
+                                <button name="operation" value="import-participants" type="button" id="import-participants-button" class="btn btn-sm btn-primary me-1 form-submit-btn";>{% trans 'Import previously uploaded file' %}</button>
+                                <button name="operation" value="import-replace-participants" type="button" id="import-replace-participants-button" class="btn btn-sm btn-danger form-submit-btn">{% trans 'Replace participants' %}</button>
                             </div>
                         {% endif %}
                     </div>
@@ -47,8 +47,8 @@
                         {% include 'bootstrap_form.html' with form=participant_copy_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
-                        <button name="operation" value="copy-participants" type="button" onclick="copyParticipantsModalShow('copy-participants');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Copy participants' %}</button>
-                        <button name="operation" value="copy-replace-participants" type="button" onclick="copyReplaceParticipantsModalShow('copy-replace-participants');" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace participants' %}</button>
+                        <button name="operation" value="copy-participants" type="button" id="copy-participants-button" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Copy participants' %}</button>
+                        <button name="operation" value="copy-replace-participants" type="button" id="copy-replace-participants-button" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace participants' %}</button>
                     </div>
                 </div>
             </form>
@@ -77,8 +77,8 @@
                         {% else %}
                             <button name="operation" value="test-contributors" type="submit" class="btn btn-sm btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
                             <div class="mt-2">
-                                <button name="operation" value="import-contributors" type="button" onclick="importContributorsModalShow('import-contributors');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
-                                <button name="operation" value="import-replace-contributors" type="button" onclick="replaceContributorsModalShow('import-replace-contributors');" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace contributors' %}</button>
+                                <button name="operation" value="import-contributors" type="button" id="import-contributors-button" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
+                                <button name="operation" value="import-replace-contributors" type="button" id="import-replace-contributors-button" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace contributors' %}</button>
                             </div>
                         {% endif %}
                     </div>
@@ -96,8 +96,8 @@
                         {% include 'bootstrap_form.html' with form=contributor_copy_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
-                        <button name="operation" value="copy-contributors" type="button" onclick="copyContributorsModalShow('copy-contributors');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Copy contributors' %}</button>
-                        <button name="operation" value="copy-replace-contributors" type="button" onclick="copyReplaceContributorsModalShow('copy-replace-contributors');" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace contributors' %}</button>
+                        <button name="operation" value="copy-contributors" type="button" id="copy-contributors-button" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Copy contributors' %}</button>
+                        <button name="operation" value="copy-replace-contributors" type="button" id="copy-replace-contributors-button" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace contributors' %}</button>
                     </div>
                 </div>
             </form>
@@ -129,7 +129,7 @@
 {% endblock %}
 
 {% block modals %}
-{{ block.super }}
+    {{ block.super }}
     {% trans 'Import participants' as title %}
     {% blocktrans asvar question %}Do you really want to import the Excel file with participant data?{% endblocktrans %}
     {% trans 'Import participants' as action_text %}
@@ -144,7 +144,8 @@
             const form = document.getElementById("participant-import-form");
             form.appendChild(input);
             form.requestSubmit();
-        };
+        }
+        document.getElementById("import-participants-button").addEventListener("click", () => importParticipantsModalShow('import-participants'));
     </script>
 
     {% trans 'Replace participants' as title %}
@@ -161,7 +162,8 @@
             const form = document.getElementById("participant-import-form");
             form.appendChild(input);
             form.requestSubmit();
-        };
+        }
+        document.getElementById("import-replace-participants-button").addEventListener("click", () => replaceParticipantsModalShow('import-replace-participants'));
     </script>
 
     {% trans 'Copy participants' as title %}
@@ -178,7 +180,8 @@
             const form = document.getElementById("participant-copy-form");
             form.appendChild(input);
             form.requestSubmit();
-        };
+        }
+        document.getElementById("copy-participants-button").addEventListener("click", () => copyParticipantsModalShow('copy-participants'));
     </script>
 
     {% trans 'Replace participants' as title %}
@@ -195,7 +198,8 @@
             const form = document.getElementById("participant-copy-form");
             form.appendChild(input);
             form.requestSubmit();
-        };
+        }
+        document.getElementById("copy-replace-participants-button").addEventListener("click", () => copyReplaceParticipantsModalShow('copy-replace-participants'));
     </script>
 
     {% trans 'Import contributors' as title %}
@@ -212,7 +216,8 @@
             const form = document.getElementById("contributor-import-form");
             form.appendChild(input);
             form.requestSubmit();
-        };
+        }
+        document.getElementById("import-contributors-button").addEventListener("click", () => importContributorsModalShow('import-contributors'));
     </script>
 
     {% trans 'Replace contributors' as title %}
@@ -229,7 +234,8 @@
             const form = document.getElementById("contributor-import-form");
             form.appendChild(input);
             form.requestSubmit();
-        };
+        }
+        document.getElementById("import-replace-contributors-button").addEventListener("click", () => replaceContributorsModalShow('import-replace-contributors'));
     </script>
 
     {% trans 'Copy contributors' as title %}
@@ -246,7 +252,8 @@
             const form = document.getElementById("contributor-copy-form");
             form.appendChild(input);
             form.requestSubmit();
-        };
+        }
+        document.getElementById("copy-contributors-button").addEventListener("click", () => copyContributorsModalShow('copy-contributors'));
     </script>
 
     {% trans 'Replace contributors' as title %}
@@ -263,9 +270,9 @@
             const form = document.getElementById("contributor-copy-form");
             form.appendChild(input);
             form.requestSubmit();
-        };
+        }
+        document.getElementById("copy-replace-contributors-button").addEventListener("click", () => copyReplaceContributorsModalShow('copy-replace-contributors'));
     </script>
-
 {% endblock %}
 
 {% block additional_javascript %}
