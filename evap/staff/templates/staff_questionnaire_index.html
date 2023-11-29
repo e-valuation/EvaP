@@ -96,6 +96,9 @@
                 questionnaire.querySelectorAll(`button[data-visibility="${visibility}"]`).forEach(button => {button.classList.add("active");});
             }).catch(error => {window.alert("{% translate 'The server is not responding.' %}");});
         }
+        for (const button of document.querySelectorAll(".change-visibility-button")) {
+            button.addEventListener("click", () => changeVisibility(button));
+        }
 
         function changeLocked(element) {
             const questionnaire = element.closest(".questionnaire");
@@ -110,6 +113,9 @@
                 questionnaire.querySelectorAll(`button[data-is-locked]`).forEach(button => {button.classList.remove("active");});
                 questionnaire.querySelectorAll(`button[data-is-locked="${is_locked}"]`).forEach(button => {button.classList.add("active");});
             }).catch(error => {window.alert("{% translate 'The server is not responding.' %}");});
+        }
+        for (const button of document.querySelectorAll(".change-is-locked-button")) {
+            button.addEventListener("click", () => changeLocked(button));
         }
     </script>
 {% endblock %}
