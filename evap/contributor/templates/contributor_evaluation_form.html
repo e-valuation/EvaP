@@ -91,7 +91,7 @@
                     <button name="operation" value="preview" type="submit" class="btn btn-light">{% trans 'Preview' %}</button>
                     <button name="operation" value="save" type="submit" class="btn btn-primary">{% trans 'Save' %}</button>
                     {# webtest does not allow submission with value "approve" if no such button exists #}
-                    <button style="display: none" name="operation" value="approve" type="submit"></button>
+                    <button class="d-none" name="operation" value="approve" type="submit"></button>
                     <button type="button" id="approve-button" class="btn btn-success">{% trans 'Save and approve' %}</button>
                 {% endif %}
                 <a href="{% url 'contributor:index' %}" class="btn btn-light">{% if edit %}{% trans 'Cancel' %}{% else %}{% trans 'Back' %}{% endif %}</a>
