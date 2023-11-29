@@ -62,7 +62,7 @@
 
     <div class="card collapsible mb-3">
         <div class="card-header d-flex">
-            <a class="collapse-toggle collapsed" data-bs-toggle="collapse" href="#overviewCard" aria-expanded="false" aria-controls="overviewCard" onclick="saveCollapseState()">{% trans 'Overview' %}</a>
+            <a id="collapseButton" class="collapse-toggle collapsed" data-bs-toggle="collapse" href="#overviewCard" aria-expanded="false" aria-controls="overviewCard">{% trans 'Overview' %}</a>
             {% if request.user.is_manager %}
                 <div class="ms-auto">
                     {% if not semester.participations_are_archived %}
@@ -123,12 +123,12 @@
         <div class="card-header d-flex">
             <ul class="nav nav-pills" role="tablist">
                 <li class="nav-item">
-                    <a class="nav-link active" id="evaluationsTab" data-bs-toggle="pill" href="#evaluations" role="tab" onclick="saveSelectedTab('evaluations');">
+                    <a class="nav-link active" id="evaluationsTab" data-bs-toggle="pill" href="#evaluations" role="tab">
                         <span class="fas fa-clipboard-check"></span> {% trans 'Evaluations' %}
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="coursesTab" data-bs-toggle="pill" href="#courses" role="tab" onclick="saveSelectedTab('courses');">
+                    <a class="nav-link" id="coursesTab" data-bs-toggle="pill" href="#courses" role="tab">
                         <span class="fas fa-chalkboard-user"></span> {% trans 'Courses' %}
                     </a>
                 </li>
@@ -304,14 +304,8 @@
 
                     {% if request.user.is_manager and not semester.participations_are_archived %}
                         <div class="my-2">
-                            <button type="button" class="btn btn-sm btn-secondary"
-                                onclick="document.querySelectorAll('#evaluation_operation_form input[type=checkbox][name=evaluation]').forEach(c => {c.checked = true;})">
-                                {% trans 'Select all' %}
-                            </button>
-                            <button type="button" class="btn btn-sm btn-secondary"
-                                onclick="document.querySelectorAll('#evaluation_operation_form input[type=checkbox][name=evaluation]').forEach(c => {c.checked = false;})">
-                                {% trans 'Select none' %}
-                            </button>
+                            <button type="button" class="btn btn-sm btn-secondary" id="selectAllButton">{% trans 'Select all' %}</button>
+                            <button type="button" class="btn btn-sm btn-secondary" id="selectNoneButton">{% trans 'Select none' %}</button>
                         </div>
                         <div>
                             <button name="target_state" value="{{ Evaluation.State.PREPARED }}" type="submit" class="btn btn-sm btn-light"
@@ -600,6 +594,7 @@
             var state = localStorage['show_overview'] === 'true';
             localStorage['show_overview'] = (!state).toString();
         }
+        document.getElementById("collapseButton").addEventListener("click", saveCollapseState);
 
         if(localStorage['selected_tab'] === 'courses') {
             var coursesTab = document.getElementById('coursesTab');
@@ -610,10 +605,18 @@
         function saveSelectedTab(tab) {
             localStorage['selected_tab'] = tab;
         }
+        document.getElementById("evaluationsTab").addEventListener("click", () => saveSelectedTab("evaluations"));
+        document.getElementById("coursesTab").addEventListener("click", () => saveSelectedTab("courses"));
 
         window.addEventListener("pageshow", () => {
             document.querySelectorAll('#evaluation_operation_form input[type=checkbox]').forEach(checkbox => {checkbox.checked = false;}); // prevent wrong autofills
         });
+
+        document.getElementById("selectAllButton").addEventListener("click", () =>
+            document.querySelectorAll('#evaluation_operation_form input[type=checkbox][name=evaluation]').forEach(c => {c.checked = true;}));
+
+        document.getElementById("selectNoneButton").addEventListener("click", () =>
+            document.querySelectorAll('#evaluation_operation_form input[type=checkbox][name=evaluation]').forEach(c => {c.checked = false;}));
     </script>
     <script type="module" nonce="{{ CSP_NONCE }}">
         import {EvaluationGrid, TableGrid} from "{% static 'js/datagrid.js' %}";

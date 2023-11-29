@@ -19,7 +19,7 @@
                 <p>
                     {% trans 'Upload Excel file' %}
                     (<a href="{% url 'staff:download_sample_file' 'sample.xlsx' %}">{% trans 'Download sample file' %}</a>,
-                    <button type="button" class="btn btn-link" onClick="copyHeaders(['Degree', 'Participant last name', 'Participant first name', 'Participant email address', 'Course kind', 'Course is graded', 'Course name (de)', 'Course name (en)', 'Responsible title', 'Responsible last name', 'Responsible first name', 'Responsible email address'])">
+                    <button type="button" class="btn btn-link" id="copy-headers-button">
                         {% trans 'Copy headers to clipboard' %}</button>).
                     {% trans 'This will create all containing participants, contributors and courses and connect them. It will also set the entered values as default for all evaluations.' %}
                 </p>
@@ -65,4 +65,11 @@
 {% block additional_javascript %}
     {% include 'bootstrap_datetimepicker.html' %}
     <script type="text/javascript" src="{% static 'js/copy-to-clipboard.js' %}" nonce="{{ CSP_NONCE }}"></script>
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
+        document.getElementById("copy-headers-button").addEventListener("click", () => copyHeaders([
+            'Degree', 'Participant last name', 'Participant first name', 'Participant email address', 'Course kind',
+            'Course is graded', 'Course name (de)', 'Course name (en)', 'Responsible title', 'Responsible last name',
+            'Responsible first name', 'Responsible email address'])
+        );
+    </script>
 {% endblock %}

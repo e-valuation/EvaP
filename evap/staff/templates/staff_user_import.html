@@ -21,7 +21,7 @@
                 <p>
                     {% trans 'Upload Excel file' %}
                     (<a href="{% url 'staff:download_sample_file' 'sample_user.xlsx' %}">{% trans 'Download sample file' %}</a>,
-                    <button type="button" class="btn btn-link" onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">{% trans 'Copy headers to clipboard' %}</button>).
+                    <button type="button" class="btn btn-link" id="copy-user-headers-button">{% trans 'Copy headers to clipboard' %}</button>).
                     {% trans 'This will create all contained users.' %}
                 </p>
                 {% include 'bootstrap_form.html' with form=excel_form %}
@@ -64,4 +64,7 @@
 
 {% block additional_javascript %}
     <script type="text/javascript" src="{% static 'js/copy-to-clipboard.js' %}" nonce="{{ CSP_NONCE }}"></script>
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
+        document.getElementById("copy-user-headers-button").addEventListener("click", () => copyHeaders(['Title', 'First name', 'Last name', 'Email']));
+    </script>
 {% endblock %}

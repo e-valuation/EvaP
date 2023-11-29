@@ -21,7 +21,7 @@
                 <div class="col-3">
                     <p>{% trans 'The following variables are available for this email template:' %}</p>
                     {% for variable in available_variables %}
-                        <button type="button" class="btn btn-sm btn-link text-dark pe-1" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Copy to clipboard' %}" onClick="copyToClipboard('{{ variable }}')">
+                        <button type="button" class="btn btn-sm btn-link text-dark pe-1 copy-to-clipboard-btn" data-variable="{{ variable }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Copy to clipboard' %}">
                             <span class="fas fa-clipboard"></span>
                         </button>
                         <code>{{ variable }}</code>
@@ -41,4 +41,10 @@
 
 {% block additional_javascript %}
     <script type="text/javascript" src="{% static 'js/copy-to-clipboard.js' %}" nonce="{{ CSP_NONCE }}"></script>
+
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
+        for(const button of document.querySelectorAll(".copy-to-clipboard-btn")) {
+            button.addEventListener("click", (event) => copyToClipboard(event.srcElement.dataset.variable));
+        }
+    </script>
 {% endblock %}
