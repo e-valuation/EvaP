@@ -3,7 +3,7 @@
 <span class="progress-container{% if warning %} progress-container-warning{% endif %} d-flex">
     {% spaceless %}
         <span class="progress">
-            <span class="progress-bar" style="width: {% widthratio done total 100 %}%;"></span>
+            <span class="progress-bar width-percent-{% widthratio done total 100 %}"></span>
             <span class="progress-bartext">
                 {% if icon %}
                     <small><span class="fas fa-{{ icon }}"></span></small>&nbsp;
