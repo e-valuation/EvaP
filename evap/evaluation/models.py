@@ -779,19 +779,19 @@ class Evaluation(LoggedModel):
         self._participant_count = None
 
     STATE_STR_CONVERSION = {
-        State.NEW: "new",
-        State.PREPARED: "prepared",
-        State.EDITOR_APPROVED: "editor_approved",
-        State.APPROVED: "approved",
-        State.IN_EVALUATION: "in_evaluation",
-        State.EVALUATED: "evaluated",
-        State.REVIEWED: "reviewed",
-        State.PUBLISHED: "published",
+        State.NEW: _("new"),
+        State.PREPARED: _("prepared"),
+        State.EDITOR_APPROVED: _("editor_approved"),
+        State.APPROVED: _("approved"),
+        State.IN_EVALUATION: _("in_evaluation"),
+        State.EVALUATED: _("evaluated"),
+        State.REVIEWED: _("reviewed"),
+        State.PUBLISHED: _("published"),
     }
 
     @classmethod
     def state_to_str(cls, state):
-        return _(cls.STATE_STR_CONVERSION[state])
+        return cls.STATE_STR_CONVERSION[state]
 
     @property
     def state_str(self):
