@@ -54,7 +54,7 @@ or, to combine all three, simply run `./manage.py precommit`.
 You can also set up `pylint`, `isort`, `black` and `prettier` in your IDE to avoid doing this manually all the time.
 
 ### Creating a Pull Request (Workflow Suggestion)
-1. (once) [Fork](https://github.com/e-valuation/EvaP/fork) the repository so you have a GitHub Repo that you have write-access to.
+1. (once) [Fork](https://github.com/e-valuation/EvaP/fork) the repository so you have a GitHub Repo that you have write access to.
 
 2. (once) Set up some Authentication for GitHub that allows push access. A common option is using [SSH keys](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/about-ssh), the remaining instructions assume an SSH key setup. An alternative is using the [GitHub CLI tool](https://cli.github.com/).
 
