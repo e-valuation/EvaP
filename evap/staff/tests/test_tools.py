@@ -235,14 +235,14 @@ class EnrollmentPreprocessorTest(WebTest):
     @classmethod
     def setUpTestData(cls) -> None:
         cls.xslx_file = BytesIO(create_memory_excel_file(valid_user_courses_import_filedata))
-        cls.data = valid_user_courses_import_users
+        cls.data = [["Title", "Last name", "First name", "Email"]] + valid_user_courses_import_users
 
     @patch("builtins.input", side_effect=cycle(("n", "y")))
     def test_parse(self, input_patch: MagicMock):
-        self.data[0][1] = "Conflicting Lastname"
-        self.data[1][0] = "Conflicting Title"
-        self.data[2][2] = "Conflicting Firstname"
-        self.data[3][3] = "new@email.com"
+        self.data[1][1] = "Conflicting Lastname"
+        self.data[2][0] = "Conflicting Title"
+        self.data[3][2] = "Conflicting Firstname"
+        self.data[4][3] = "new@email.com"
         modified = run_preprocessor(self.xslx_file, create_memory_csv_file(self.data))
         self.assertEqual(input_patch.call_count, 3)
         workbook = load_workbook(modified, read_only=True)

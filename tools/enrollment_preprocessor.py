@@ -64,7 +64,8 @@ def fix_user(users: dict[str, User], imported_cells: UserCells) -> None:
 def run_preprocessor(enrollment_data: str | BytesIO, user_data: TextIO) -> BytesIO:
     workbook = load_workbook(enrollment_data)
     users = {}
-    reader = csv.DictReader(user_data, delimiter=";", lineterminator="\n")
+    reader = csv.reader(user_data, delimiter=";", lineterminator="\n")
+    next(reader)  # skip header
     for row in reader:
         user = User(*row)
         users[user.email] = user
