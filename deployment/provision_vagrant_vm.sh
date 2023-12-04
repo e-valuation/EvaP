@@ -37,11 +37,10 @@ service redis-server restart
 apt-get -q install -y apache2 apache2-dev libapache2-mod-wsgi-py3
 
 # With docker for mac, root will own the mount point (uid=0). chmod does not touch the host file system in these cases.
-OWNER=$(stat -c %U "$MOUNTPOINT/evap")
-if [ "$OWNER" == "root" ]; then chown -R 1042 "$MOUNTPOINT"; fi
+if [ $(stat -c "%u" "$MOUNTPOINT/evap") == "root" ]; then chown -R 1042 "$MOUNTPOINT"; fi
 
 # make user, create home folder, set uid to the same set in the Vagrantfile (required for becoming the synced folder owner), set default shell to bash
-useradd -m -u $(stat -c "%u" "$MOUNTPOINT/evap") -s /bin/bash evap
+useradd -m -u 1042 -s /bin/bash evap
 # allow ssh login
 cp -r /home/vagrant/.ssh /home/$USER/.ssh
 chown -R $USER:$USER /home/$USER/.ssh
