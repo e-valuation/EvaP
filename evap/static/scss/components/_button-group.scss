@@ -17,3 +17,25 @@ div.vote-inputs > textarea {
 div.vote-inputs label.choice-error {
     border-color: $evap-red;
 }
+
+// Change .btn-group outlined border style to fix double borders with outlined button style
+// see https://github.com/twbs/bootstrap/issues/25888
+.btn-group.outline-fix {
+
+    // If .btn is not the last element in the group, remove the right border.
+    // Also uses :has to not remove the right border if the next element is a disabled input
+    .btn:not(:last-child):not(.dropdown-toggle):has(+ :not(.btn-check[disabled])), .btn-group:not(:last-child) > .btn {
+        border-right: 0;
+    }
+
+    // Explicitly disable the left border of disabled .btn's to use the right border of the previous button.
+    .btn-check[disabled] + .btn {
+        border-left: 0;
+    }
+
+    // Revert Bootstrap (Prevent double borders when buttons are next to each other)
+    > :not(.btn-check:first-child) + .btn,
+    > .btn-group:not(:first-child) {
+        margin-left: unset;
+    }
+}
