@@ -1,8 +1,9 @@
 import os
 
 from django.conf import settings
-from django.core.management import call_command
 from django.core.management.base import BaseCommand
+
+from evap.evaluation.management.commands.tools import logged_call_command
 
 
 class Command(BaseCommand):
@@ -12,7 +13,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         outfile_name = os.path.join(settings.BASE_DIR, "development", "fixtures", "test_data.json")
-        call_command(
+        logged_call_command(
+            self.stdout,
             "dumpdata",
             "auth.group",
             "evaluation",

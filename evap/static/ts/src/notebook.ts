@@ -1,3 +1,4 @@
+import "./translation.js";
 import { unwrap, assert, selectOrError } from "./utils.js";
 
 const NOTEBOOK_LOCALSTORAGE_KEY = "evap_notebook_open";
@@ -35,7 +36,7 @@ class NotebookFormLogic {
             .catch(() => {
                 this.notebook.setAttribute("data-state", "ready");
                 submitter.disabled = false;
-                alert(submitter.dataset.errormessage);
+                alert(window.gettext("The server is not responding."));
             });
     };
 

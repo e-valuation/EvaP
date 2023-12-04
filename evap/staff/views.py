@@ -14,7 +14,7 @@ from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import IntegrityError, transaction
 from django.db.models import BooleanField, Case, Count, ExpressionWrapper, IntegerField, Prefetch, Q, Sum, When
 from django.dispatch import receiver
-from django.forms import formset_factory
+from django.forms import BaseForm, formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
@@ -580,7 +580,8 @@ class SemesterCreateView(SuccessMessageMixin, CreateView):
     form_class = SemesterForm
     success_message = gettext_lazy("Successfully created semester.")
 
-    def get_success_url(self):
+    def get_success_url(self) -> str:
+        assert self.object is not None
         return reverse("staff:semester_view", args=[self.object.id])
 
 
@@ -592,7 +593,7 @@ class SemesterEditView(SuccessMessageMixin, UpdateView):
     pk_url_kwarg = "semester_id"
     success_message = gettext_lazy("Successfully updated semester.")
 
-    def get_success_url(self):
+    def get_success_url(self) -> str:
         return reverse("staff:semester_view", args=[self.object.id])
 
 
@@ -1050,13 +1051,13 @@ class CourseEditView(SuccessMessageMixin, UpdateView):
 
     object: Course
 
-    def get_object(self, *args, **kwargs):
+    def get_object(self, *args, **kwargs) -> Course:
         course = super().get_object(*args, **kwargs)
         if self.request.method == "POST" and not course.can_be_edited_by_manager:
             raise SuspiciousOperation("Modifying this course is not allowed.")
         return course
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         context_data = super().get_context_data(**kwargs) | {
             "semester": self.object.semester,
             "editable": self.object.can_be_edited_by_manager,
@@ -1065,7 +1066,9 @@ class CourseEditView(SuccessMessageMixin, UpdateView):
         context_data["course_form"] = context_data.pop("form")
         return context_data
 
-    def form_valid(self, form):
+    def form_valid(self, form: BaseForm) -> HttpResponse:
+        assert isinstance(form, CourseForm)  # https://www.github.com/typeddjango/django-stubs/issues/1809
+
         if self.request.POST.get("operation") not in ("save", "save_create_evaluation", "save_create_single_result"):
             raise SuspiciousOperation("Invalid POST operation")
 
@@ -1074,7 +1077,7 @@ class CourseEditView(SuccessMessageMixin, UpdateView):
             update_template_cache_of_published_evaluations_in_course(self.object)
         return response
 
-    def get_success_url(self):
+    def get_success_url(self) -> str:
         match self.request.POST["operation"]:
             case "save":
                 return reverse("staff:semester_view", args=[self.object.semester.id])
@@ -1082,6 +1085,7 @@ class CourseEditView(SuccessMessageMixin, UpdateView):
                 return reverse("staff:evaluation_create_for_course", args=[self.object.id])
             case "save_create_single_result":
                 return reverse("staff:single_result_create_for_course", args=[self.object.id])
+        raise SuspiciousOperation("Unexpected operation")
 
 
 @require_POST
@@ -2223,6 +2227,7 @@ def user_edit(request, user_id):
             "evaluations_contributing_to": evaluations_contributing_to,
             "has_due_evaluations": bool(user.get_sorted_due_evaluations()),
             "user_id": user_id,
+            "user_with_same_email": form.user_with_same_email,
         },
     )
 
@@ -2301,11 +2306,11 @@ class UserMergeSelectionView(FormView):
     form_class = UserMergeSelectionForm
     template_name = "staff_user_merge_selection.html"
 
-    def get_success_url(self):
+    def form_valid(self, form: UserMergeSelectionForm) -> HttpResponse:
         return redirect(
             "staff:user_merge",
-            self.form.cleaned_data["main_user"].id,
-            self.form.cleaned_data["other_user"].id,
+            form.cleaned_data["main_user"].id,
+            form.cleaned_data["other_user"].id,
         )
 
 
@@ -2345,7 +2350,7 @@ class TemplateEditView(SuccessMessageMixin, UpdateView):
     success_url = reverse_lazy("staff:index")
     template_name = "staff_template_form.html"
 
-    def get_context_data(self, **kwargs) -> dict:
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         template = context["template"] = context.pop("emailtemplate")
 
@@ -2388,7 +2393,7 @@ class FaqIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
     success_url = reverse_lazy("staff:faq_index")
     success_message = gettext_lazy("Successfully updated the FAQ sections.")
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         return super().get_context_data(**kwargs) | {"sections": FaqSection.objects.all()}
 
 
