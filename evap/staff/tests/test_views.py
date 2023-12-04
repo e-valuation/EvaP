@@ -576,7 +576,7 @@ class TestUserExportView(WebTestStaffMode):
         }
         response = self.app.get(self.url, user=self.manager)
 
-        reader = csv.reader(response.text.strip().split("\n"))
+        reader = csv.reader(response.text.strip().split("\n"), delimiter=";", lineterminator="\n")
         # skip header
         next(reader)
         self.assertSetEqual({tuple(row) for row in reader}, user_objects)
