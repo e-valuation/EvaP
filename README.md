@@ -66,7 +66,7 @@ You can also set up `pylint`, `isort`, `black` and `prettier` in your IDE to avo
 
 4. Create a branch (`git switch -c <your-branch-name>`), commit your changes (`git add` and `git commit`), and push them (`git push`). "Push" will ask you to specify an upstream branch (`git push -u origin <your-branch-name>`).
 
-5. GitHub should now ask you whether you want to open a Pull Request when reloading the page. If the PR solves an issue, use one of GitHub's [magic keywords](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue) (like "fixes") in the commit message or pull request text to create a link between your PR and the issue.
+5. GitHub should now ask you whether you want to open a pull request ("PR"). If the PR solves an issue, use one of GitHub's [magic keywords](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue) (like "fixes") in the pull request description to create a link between your PR and the issue. If necessary, please also provide a short summary of your changes in the description.
 
 
 ## License
