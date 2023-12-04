@@ -2,7 +2,7 @@ import warnings
 from collections import OrderedDict, defaultdict
 from collections.abc import Iterable
 from itertools import chain, repeat
-from typing import Any, Sequence, cast
+from typing import Any, Sequence
 
 import xlwt
 from django.db.models import Q
@@ -140,7 +140,8 @@ class ResultsExporter(ExcelExporter):
                     question_results: list[QuestionResult] = questionnaire_result.question_results
                     if all(
                         not isinstance(question_result, RatingResult)
-                        or (question_result.counts is None or sum(question_result.counts) == 0)
+                        or question_result.counts is None
+                        or sum(question_result.counts) == 0
                         for question_result in question_results
                     ):
                         continue
@@ -151,22 +152,23 @@ class ResultsExporter(ExcelExporter):
                     ):
                         results.setdefault(questionnaire_result.questionnaire.id, []).extend(question_results)
                         used_questionnaires.add(questionnaire_result.questionnaire)
-            monkeypatched_evaluation: Any = evaluation
-            monkeypatched_evaluation.course_evaluations_count = monkeypatched_evaluation.course.evaluations.count()  # type: ignore[attr-defined]
-            if monkeypatched_evaluation.course_evaluations_count > 1:  # type: ignore[attr-defined]
+            evaluation_as_any: Any = evaluation
+            evaluation_as_any.course_evaluations_count = evaluation_as_any.course.evaluations.count()
+            if evaluation_as_any.course_evaluations_count > 1:
                 course_results_exist = True
-                weight_sum = sum(evaluation.weight for evaluation in monkeypatched_evaluation.course.evaluations.all())
-                monkeypatched_evaluation.weight_percentage = int((evaluation.weight / weight_sum) * 100)  # type: ignore[attr-defined]
-                monkeypatched_evaluation.course.avg_grade = distribution_to_grade(  # type: ignore[attr-defined]
-                    calculate_average_course_distribution(monkeypatched_evaluation.course)
+                weight_sum = sum(evaluation.weight for evaluation in evaluation_as_any.course.evaluations.all())
+                evaluation_as_any.weight_percentage = int((evaluation.weight / weight_sum) * 100)
+                evaluation_as_any.course.avg_grade = distribution_to_grade(
+                    calculate_average_course_distribution(evaluation_as_any.course)
                 )
-            evaluations_with_results.append((monkeypatched_evaluation, results))
+            evaluations_with_results.append((evaluation_as_any, results))
 
         evaluations_with_results.sort(
             key=lambda cr: (cr[0].course.semester.id, cr[0].course.type.order, cr[0].full_name)
         )
+        sorted_questionnaires = sorted(used_questionnaires)
 
-        return evaluations_with_results, sorted(used_questionnaires), course_results_exist
+        return evaluations_with_results, sorted_questionnaires, course_results_exist
 
     def write_headings_and_evaluation_info(
         self,
@@ -232,8 +234,9 @@ class ResultsExporter(ExcelExporter):
         self.write_row(participant_percentages, style="evaluation_rate")
 
         if course_results_exist:
+            evaluations_as_any: Any = evaluations
             # Only query the number of evaluations once and keep track of it here.
-            count_gt_1 = [e.course_evaluations_count > 1 for e in evaluations]  # type: ignore[attr-defined]
+            count_gt_1: list[bool] = [e.course_evaluations_count > 1 for e in evaluations_as_any]
 
             # Borders only if there is a course grade below. Offset by one column
             self.write_empty_row_with_styles(
@@ -242,18 +245,17 @@ class ResultsExporter(ExcelExporter):
 
             self.write_cell(_("Evaluation weight"), "bold")
             weight_percentages: Iterable[str | None] = (
-                f"{e.weight_percentage}%" if gt1 else None  # type: ignore[attr-defined]
-                for e, gt1 in zip(evaluations, count_gt_1)
+                f"{e.weight_percentage}%" if gt1 else None for e, gt1 in zip(evaluations_as_any, count_gt_1)
             )
             self.write_row(weight_percentages, lambda s: "evaluation_weight" if s is not None else "default")
 
             self.write_cell(_("Course Grade"), "bold")
-            for evaluation, gt1 in zip(evaluations, count_gt_1):
+            for evaluation, gt1 in zip(evaluations_as_any, count_gt_1):
                 if not gt1:
                     self.write_cell()
                     continue
 
-                avg = evaluation.course.avg_grade  # type: ignore[attr-defined]
+                avg = evaluation.course.avg_grade
                 style = self.grade_to_style(avg) if avg is not None else "border_left_right"
                 self.write_cell(avg, style)
             self.next_row()
@@ -295,17 +297,11 @@ class ResultsExporter(ExcelExporter):
                     if not grade_result.has_answers:
                         continue
 
-                    # `filter_text_and_heading_questions` filters all text questions
-                    # `grade_result.question.id != question.id` filters the remaining HeadingResults because `question.is_heading_question` filters all heading questions
-                    # so here all `grade_result` from the OrderedDict values are only RatingResults with the same question as the current question which is not a heading question or a text question so it must be a rating question
-                    rating_result = cast(RatingResult, grade_result)
-                    assert hasattr(rating_result, "count_sum")
-                    assert hasattr(rating_result, "average")
-                    values.append(rating_result.average * rating_result.count_sum)
-                    count_sum += rating_result.count_sum
-                    if rating_result.question.is_yes_no_question:
-                        assert hasattr(rating_result, "approval_count")
-                        approval_count += rating_result.approval_count
+                    values.append(grade_result.average * grade_result.count_sum)
+                    count_sum += grade_result.count_sum
+                    if grade_result.question.is_yes_no_question:
+                        assert hasattr(grade_result, "approval_count")
+                        approval_count += grade_result.approval_count
 
                 if not values:
                     self.write_cell(style="border_left_right")
@@ -325,7 +321,7 @@ class ResultsExporter(ExcelExporter):
     def export_impl(
         self,
         semesters: Sequence[Semester],
-        selection_list,
+        selection_list: Sequence[tuple[Iterable[int], Iterable[int]]],
         include_not_enough_voters: bool = False,
         include_unpublished: bool = False,
         contributor: UserProfile | None = None,
