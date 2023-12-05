@@ -418,7 +418,7 @@ except ImportError:
 
 TESTING = "test" in sys.argv or "pytest" in sys.modules
 
-# speed up tests
+# speed up tests and activate typeguard introspection
 if TESTING:
     from typeguard import install_import_hook
 

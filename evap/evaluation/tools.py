@@ -137,6 +137,7 @@ def clean_email(email: EmailT) -> EmailT:
 
 
 def capitalize_first(string: StrOrPromise) -> str:
+    """Realize lazy promise objects and capitalize first letter."""
     return string[0].upper() + string[1:]
 
 
