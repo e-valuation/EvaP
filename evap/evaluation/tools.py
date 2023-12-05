@@ -22,7 +22,8 @@ M = TypeVar("M", bound=Model)
 T = TypeVar("T")
 Key = TypeVar("Key")
 Value = TypeVar("Value")
-CellValue: typing.TypeAlias = str | int | float
+CellValue = str | int | float | None
+CV = TypeVar("CV", bound=CellValue)
 
 
 def unordered_groupby(key_value_pairs: Iterable[tuple[Key, Value]]) -> dict[Key, list[Value]]:
@@ -270,7 +271,7 @@ class ExcelExporter(ABC):
         else:
             self.cur_sheet = None
 
-    def write_cell(self, label: CellValue | None = "", style: str = "default") -> None:
+    def write_cell(self, label: CellValue = "", style: str = "default") -> None:
         """Write a single cell and move to the next column."""
         self.cur_sheet.write(
             self.cur_row,
@@ -285,7 +286,7 @@ class ExcelExporter(ABC):
         self.cur_row += 1
 
     def write_row(
-        self, vals: Iterable[CellValue | None], style: str | typing.Callable[[CellValue | None], str] = "default"
+        self, vals: Iterable[CV], style: str | typing.Callable[[CV], str] = "default"
     ) -> None:
         """
         Write a cell for every value and go to the next row.
