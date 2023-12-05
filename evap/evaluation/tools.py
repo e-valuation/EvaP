@@ -285,9 +285,7 @@ class ExcelExporter(ABC):
         self.cur_col = 0
         self.cur_row += 1
 
-    def write_row(
-        self, vals: Iterable[CV], style: str | typing.Callable[[CV], str] = "default"
-    ) -> None:
+    def write_row(self, vals: Iterable[CV], style: str | typing.Callable[[CV], str] = "default") -> None:
         """
         Write a cell for every value and go to the next row.
         Styling can be chosen
