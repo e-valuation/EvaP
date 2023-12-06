@@ -21,7 +21,7 @@ The easiest setup using [Vagrant](https://www.vagrantup.com) is shown here.
 2. Run the following commands on the command line to clone the repository, create the Vagrant VM and run the Django development server.
    * If you are familiar with the fork-based open source workflow, create a fork and clone that (using SSH if you prefer that).
 
-   * Windows users: We have observed [weird](https://www.github.com/git-for-windows/git/issues/4705) [behavior](https://www.github.com/git-for-windows/git/issues/4704) with ssh in Git Bash on Windows and thus recommend using PowerShell instead.
+   * Windows users: We have observed [weird](https://www.github.com/git-for-windows/git/issues/4705) [behavior](https://www.github.com/git-for-windows/git/issues/4704) with SSH in Git Bash on Windows and thus recommend using PowerShell instead.
 
    * To use Docker, replace `vagrant up` with `vagrant up --provider docker && vagrant provision`.
 
@@ -31,7 +31,7 @@ The easiest setup using [Vagrant](https://www.vagrantup.com) is shown here.
    vagrant up
    vagrant ssh
    ```
-   and, after the last command opened a ssh session in the development machine:
+   and, after the last command opened an SSH session in the development machine:
    ```bash
    ./manage.py run
    ```
@@ -54,11 +54,11 @@ or, to combine all three, simply run `./manage.py precommit`.
 You can also set up `pylint`, `isort`, `black` and `prettier` in your IDE to avoid doing this manually all the time.
 
 ### Creating a Pull Request (Workflow Suggestion)
-1. (once) [Fork](https://github.com/e-valuation/EvaP/fork) the repository so you have a GitHub Repo that you have write access to.
+1. (once) [Fork](https://github.com/e-valuation/EvaP/fork) the repository so you have a GitHub repo that you have write access to.
 
-2. (once) Set up some Authentication for GitHub that allows push access. A common option is using [SSH keys](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/about-ssh), the remaining instructions assume an SSH key setup. An alternative is using the [GitHub CLI tool](https://cli.github.com/).
+2. (once) Set up some authentication for GitHub that allows push access. A common option is using [SSH keys](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/about-ssh), the remaining instructions assume an SSH key setup. An alternative is using the [GitHub CLI tool](https://cli.github.com/).
 
-3. (once) Ensure your [git remotes](https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes) are setup to use SSH. To fetch the up-to-date state of the official repo, it's always useful to have an "upstream" remote configured:
+3. (once) Ensure your [git remotes](https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes) are setup to use SSH. To fetch the up-to-date state of the official repo, it's useful to have an "upstream" remote configured:
    ```bash
    git remote set-url origin git@github.com:<your-username>/EvaP.git
    git remote add upstream git@github.com:e-valuation/EvaP.git
