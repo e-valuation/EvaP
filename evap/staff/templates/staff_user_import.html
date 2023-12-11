@@ -33,8 +33,6 @@
                     <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
                 {% else %}
                     <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
-                    <button name="operation" value="import" type="button" onclick="importUserModalShow('import');" class="btn btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
-
                     <confirmation-modal type="submit" name="operation" value="import">
                         <span slot="title">{% trans 'Import Users' %}</span>
                         <span slot="action-text">{% trans 'Import Users' %}</span>
@@ -44,7 +42,7 @@
                             {% endblocktrans %}
                         </span>
 
-                        <button slot="show-button" type="button" class="btn btn-primary form-submit-button">{% trans 'Save and approve' %}</button>
+                        <button slot="show-button" type="button" class="btn btn-primary form-submit-button">{% trans 'Import previously uploaded file' %}</button>
                     </confirmation-modal>
                 {% endif %}
             </div>
