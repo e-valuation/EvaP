@@ -3,12 +3,14 @@ import os
 from collections.abc import Sequence
 from contextlib import contextmanager
 from datetime import timedelta
+from importlib import import_module
 
 import webtest
 from django.conf import settings
+from django.contrib.auth import login
 from django.contrib.auth.models import Group
 from django.db import DEFAULT_DB_ALIAS, connections
-from django.http.request import QueryDict
+from django.http.request import HttpRequest, QueryDict
 from django.test.selenium import SeleniumTestCase, SeleniumTestCaseBase
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
@@ -261,49 +263,57 @@ def assert_no_database_modifications(*args, **kwargs):
 
 
 class CustomSeleniumTestCaseBase(SeleniumTestCaseBase):
-    external_host = os.environ.get("TEST_HOST", "") or None
-    browsers = ["firefox"]
-    selenium_hub = os.environ.get("TEST_SELENIUM_HUB", "") or None
-    headless = True
-
     def create_options(self):  # pylint: disable=bad-mcs-method-argument
+        # Note: This workaround is probably no longer necessary with Django 5.0
         options = super().create_options()
-
-        if self.browser == "chrome":
-            options.add_argument("--headless")
-            options.add_argument("--no-sandbox")
-            options.add_argument("--disable-dev-shm-usage")
-            options.add_argument("--disable-gpu")
-        elif self.browser == "firefox":
-            options.add_argument("--headless")
-
+        options.add_argument("--headless")
         return options
 
 
 class LiveServerTest(SeleniumTestCase, metaclass=CustomSeleniumTestCaseBase):
+    external_host = os.environ.get("TEST_HOST", "") or None
+    browser = "firefox"
+    selenium_hub = os.environ.get("TEST_SELENIUM_HUB", "") or None
+    headless = True
+
     def _screenshot(self, name):
         self.selenium.save_screenshot(os.path.join(settings.BASE_DIR, f"{name}.png"))
 
     def _create_test_user(self):
-        self.test_user = baker.make(  # pylint: disable=attribute-defined-outside-init
+        """Create a default test user."""
+        test_user = baker.make(
             UserProfile, email="evap@institution.example.com", groups=[Group.objects.get(name="Manager")]
         )
-        self.test_user_password = "evap"  # pylint: disable=attribute-defined-outside-init
-        self.test_user.set_password(self.test_user_password)
-        self.test_user.save()
-        return self.test_user
+        test_user_password = "evap"
+        test_user.set_password(test_user_password)
+        test_user.save()
+        return test_user
 
-    def _login(self):
-        self._create_test_user()
+    def _default_login(self):
+        """Login a default test user."""
+        user = self._create_test_user()
+        self._login(user)
+        return user
+
+    def _login(self, user):
+        """Login a test user by setting the session cookie."""
         self.selenium.get(self.live_server_url)
-        self.selenium.find_element(By.ID, "id_email").click()
-        self.selenium.find_element(By.ID, "id_email").send_keys(self.test_user.email)
-        self.selenium.find_element(By.ID, "id_email").click()
-        self.selenium.find_element(By.ID, "id_password").send_keys(self.test_user_password)
-        self.selenium.find_element(By.CSS_SELECTOR, ".login-button").click()
-        self.selenium.save_screenshot(os.path.join(settings.BASE_DIR, "login_success.png"))
 
-        WebDriverWait(self.selenium, 10).until(expected_conditions.presence_of_element_located((By.ID, "logout-form")))
+        # Create fake session to do user login workflow
+        request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        request.session = engine.SessionStore()
+        login(request, user, "django.contrib.auth.backends.ModelBackend")
+        request.session.save()
+
+        # Create session cookie
+        cookie_data = {
+            "name": settings.SESSION_COOKIE_NAME,
+            "value": request.session.session_key,
+            "path": "/",
+            "secure": settings.SESSION_COOKIE_SECURE or False,
+        }
+        self.selenium.add_cookie(cookie_data)
 
     @classmethod
     def tearDownClass(cls):
