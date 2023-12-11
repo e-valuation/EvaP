@@ -41,28 +41,42 @@ class TextAnswerVisibility:
         self.visible_by_delegation_count = visible_by_delegation_count
 
 
+def create_rating_result(question, answer_counters, additional_text_result=None):
+    if answer_counters is None:
+        return RatingResult(question, answer_counters, additional_text_result)
+    if any(counter.count != 0 for counter in answer_counters):
+        return AnsweredRatingResult(question, answer_counters, additional_text_result)
+    return PublishedRatingResult(question, answer_counters, additional_text_result)
+
+
 class RatingResult:
-    def __init__(self, question, answer_counters, additional_text_result=None):
+    is_published = False
+    has_answers = False
+
+    def __init__(self, question, _, additional_text_result=None):
         assert question.is_rating_question
         self.question = discard_cached_related_objects(copy(question))
         self.additional_text_result = additional_text_result
-
-        if answer_counters is not None:
-            counts = OrderedDict((value, 0) for value in self.choices.values if value != NO_ANSWER)
-            for answer_counter in answer_counters:
-                counts[answer_counter.answer] = answer_counter.count
-            self.counts = tuple(counts.values())
-        else:
-            self.counts = None
 
     @property
     def choices(self):
         return CHOICES[self.question.type]
 
+
+class PublishedRatingResult(RatingResult):
+    is_published = True
+
+    def __init__(self, question, answer_counters, additional_text_result=None):
+        assert not any(counter.count != 0 for counter in answer_counters) or self.__class__ != PublishedRatingResult
+        super().__init__(question, answer_counters, additional_text_result)
+
+        counts = OrderedDict((value, 0) for value in self.choices.values if value != NO_ANSWER)
+        for answer_counter in answer_counters:
+            counts[answer_counter.answer] = answer_counter.count
+        self.counts = tuple(counts.values())
+
     @property
-    def count_sum(self) -> int | None:
-        if not self.is_published:
-            return None
+    def count_sum(self) -> int:
         return sum(self.counts)
 
     @property
@@ -72,25 +86,17 @@ class RatingResult:
         return (self.count_sum - portion_left) / 2
 
     @property
-    def approval_count(self) -> int | None:
+    def approval_count(self) -> int:
         assert self.question.is_yes_no_question
-        if not self.is_published:
-            return None
         return self.counts[0] if self.question.is_positive_yes_no_question else self.counts[1]
 
+
+class AnsweredRatingResult(PublishedRatingResult):
+    has_answers = True
+
     @property
-    def average(self) -> float | None:
-        if not self.has_answers:
-            return None
+    def average(self) -> float:
         return sum(grade * count for count, grade in zip(self.counts, self.choices.grades)) / self.count_sum
-
-    @property
-    def has_answers(self) -> bool:
-        return self.is_published and any(count != 0 for count in self.counts)
-
-    @property
-    def is_published(self) -> bool:
-        return self.counts is not None
 
 
 class TextResult:
@@ -161,7 +167,7 @@ def get_single_result_rating_result(evaluation):
     assert 1 <= len(answer_counters) <= 5
 
     question = Question.objects.get(questionnaire__name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME)
-    return RatingResult(question, answer_counters)
+    return create_rating_result(question, answer_counters)
 
 
 def get_results_cache_key(evaluation):
@@ -234,7 +240,7 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
                         answer_counters = racs_per_contribution_question.get((contribution.id, question.id), [])
                     else:
                         answer_counters = None
-                    results.append(RatingResult(question, answer_counters, additional_text_result=text_result))
+                    results.append(create_rating_result(question, answer_counters, additional_text_result=text_result))
                 elif question.is_text_question and evaluation.can_publish_text_results:
                     assert text_result is not None
                     results.append(text_result)

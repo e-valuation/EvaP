@@ -19,11 +19,11 @@ from evap.evaluation.models import (
 )
 from evap.evaluation.tests.tools import make_rating_answer_counters
 from evap.results.tools import (
-    RatingResult,
     cache_results,
     calculate_average_course_distribution,
     calculate_average_distribution,
     can_textanswer_be_seen_by,
+    create_rating_result,
     distribution_to_grade,
     get_results,
     get_results_cache_key,
@@ -371,7 +371,7 @@ class TestCalculateAverageDistribution(TestCase):
     def test_unipolarized_unipolar(self):
         answer_counters = make_rating_answer_counters(self.question_likert, self.general_contribution, [5, 3, 1, 1, 0])
 
-        result = RatingResult(self.question_likert, answer_counters)
+        result = create_rating_result(self.question_likert, answer_counters)
         distribution = unipolarized_distribution(result)
         self.assertAlmostEqual(distribution[0], 0.5)
         self.assertAlmostEqual(distribution[1], 0.3)
@@ -384,7 +384,7 @@ class TestCalculateAverageDistribution(TestCase):
             self.question_bipolar, self.general_contribution, [0, 1, 4, 8, 2, 2, 3]
         )
 
-        result = RatingResult(self.question_bipolar, answer_counters)
+        result = create_rating_result(self.question_bipolar, answer_counters)
         distribution = unipolarized_distribution(result)
         self.assertAlmostEqual(distribution[0], 0.4)
         self.assertAlmostEqual(distribution[1], 0.2)
@@ -396,7 +396,7 @@ class TestCalculateAverageDistribution(TestCase):
         question_yesno = baker.make(Question, questionnaire=self.questionnaire, type=QuestionType.POSITIVE_YES_NO)
         answer_counters = make_rating_answer_counters(question_yesno, self.general_contribution, [57, 43])
 
-        result = RatingResult(question_yesno, answer_counters)
+        result = create_rating_result(question_yesno, answer_counters)
         distribution = unipolarized_distribution(result)
         self.assertAlmostEqual(distribution[0], 0.57)
         self.assertEqual(distribution[1], 0)
