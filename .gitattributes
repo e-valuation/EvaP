@@ -1,0 +1,7 @@
+# Since text files will be used in a linux environment where LF is expected, git shouldn't change line endings to CRLF on windows machines
+* text=auto eol=lf
+
+# things that fail without this:
+# * bash autocompletion (.sh): -bash: /etc/bash_completion.d/manage_autocompletion.sh: line 8: syntax error near unexpected token `$'\r''
+# * running python files: /usr/bin/env: ‘python3\r’: No such file or directory
+# Since that's a huge part of the code base, it doesn't really make sense to allow automatic EOL conversion for the rest of the files.

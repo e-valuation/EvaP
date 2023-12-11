@@ -177,17 +177,22 @@ class ResultsExporter(ExcelExporter):
         contributor: UserProfile | None,
         degree_ids: Iterable[int],
         course_type_ids: Iterable[int],
+        verbose_heading: bool,
     ) -> None:
-        export_name = "Evaluation"
+        export_name = _("Evaluation")
         if contributor:
             export_name += f"\n{contributor.full_name}"
         elif len(semesters) == 1:
             export_name += f"\n{semesters[0].name}"
-        degree_names = [degree.name for degree in Degree.objects.filter(pk__in=degree_ids)]
-        course_type_names = [course_type.name for course_type in CourseType.objects.filter(pk__in=course_type_ids)]
-        self.write_cell(
-            _("{}\n\n{}\n\n{}").format(export_name, ", ".join(degree_names), ", ".join(course_type_names)), "headline"
-        )
+        if verbose_heading:
+            degree_names = [degree.name for degree in Degree.objects.filter(pk__in=degree_ids)]
+            course_type_names = [course_type.name for course_type in CourseType.objects.filter(pk__in=course_type_ids)]
+            self.write_cell(
+                f"{export_name}\n\n{', '.join(degree_names)}\n\n{', '.join(course_type_names)}",
+                "headline",
+            )
+        else:
+            self.write_cell(export_name, "headline")
 
         for evaluation, __ in evaluations_with_results:
             title = evaluation.full_name
@@ -324,6 +329,7 @@ class ResultsExporter(ExcelExporter):
         include_not_enough_voters: bool = False,
         include_unpublished: bool = False,
         contributor: UserProfile | None = None,
+        verbose_heading: bool = True,
     ) -> None:
         # We want to throw early here, since workbook.save() will throw an IndexError otherwise.
         assert len(selection_list) > 0
@@ -347,7 +353,7 @@ class ResultsExporter(ExcelExporter):
             )
 
             self.write_headings_and_evaluation_info(
-                evaluations_with_results, semesters, contributor, degree_ids, course_type_ids
+                evaluations_with_results, semesters, contributor, degrees, course_types, verbose_heading
             )
 
             for questionnaire in used_questionnaires:

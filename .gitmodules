@@ -1,3 +1,4 @@
 [submodule "evap/static/bootstrap"]
 	path = evap/static/bootstrap
 	url = https://github.com/twbs/bootstrap.git
+	shallow = true
