@@ -107,7 +107,7 @@ class ResultsExporter(ExcelExporter):
     @staticmethod
     def filter_evaluations(
         semesters: Iterable[Semester],
-        evaluation_states: Any,
+        evaluation_states: Iterable[Any],
         degree_ids: Iterable[int],
         course_type_ids: Iterable[int],
         contributor: UserProfile | None,
