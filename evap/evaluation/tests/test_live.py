@@ -9,7 +9,8 @@ from evap.evaluation.tests.tools import LiveServerTest
 
 class ContactModalTests(LiveServerTest):
     def test_contact_modal(self):
-        self._login()
+        test_user = self._default_login()
+
         self.selenium.get(self.live_server_url + reverse("evaluation:index"))
         self.selenium.find_element(By.ID, "feedbackModalShowButton").click()
         self._screenshot("feedback_modal_")
@@ -32,4 +33,4 @@ class ContactModalTests(LiveServerTest):
 
         self.assertEqual(len(mail.outbox), 1)
 
-        self.assertEqual(mail.outbox[0].subject, f"[EvaP] Message from {self.test_user.email}")
+        self.assertEqual(mail.outbox[0].subject, f"[EvaP] Message from {test_user.email}")
