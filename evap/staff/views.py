@@ -2258,7 +2258,7 @@ def user_resend_email(request):
 
     template.send_to_user(user, {}, body_params, use_cc=False)
     messages.success(request, _("Successfully resent evaluation started email."))
-    return HttpResponse()  # 200 OK
+    return redirect("staff:user_edit", user.pk)
 
 
 @manager_required

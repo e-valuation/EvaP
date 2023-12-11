@@ -21,7 +21,21 @@
             <div class="ms-auto d-print-none">
                 {% if has_due_evaluations %}
                     <div>
-                        <button type="button" class="btn btn-sm btn-light" onclick="resendEmailModalShow({{ form.instance.id }}, '{{ form.instance.full_name|escapejs }}');">{% trans 'Resend evaluation started email' %}</button>
+                        <form method="POST" action="{% url 'staff:user_resend_email' %}">
+                            {% csrf_token %}
+
+                            <confirmation-modal type="submit" name="user_id" value="{{ form.instance.id }}" confirm-button-class="btn-success">
+                                <span slot="title">{% trans 'Send notification email' %}</span>
+                                <span slot="action-text">{% trans 'Send email' %}</span>
+                                <span slot="question">
+                                    {% blocktrans %}
+                                        The email will notify the user about all their due evaluations. Do you want to send the email now?
+                                    {% endblocktrans %}
+                                </span>
+
+                                <button slot="show-button" type="button" class="btn btn-sm btn-light">{% trans 'Resend evaluation started email' %}</button>
+                            </confirmation-modal>
+                        </form>
                     </div>
                 {% else %}
                     <div title="{% trans 'This user currently has no due evaluations.' %}" data-bs-toggle="tooltip" data-bs-placement="bottom">
@@ -135,21 +149,5 @@
 {% block modals %}
     {{ block.super }}
     {% if form.instance.id %}
-        {% trans 'Send notification email' as title %}
-        {% trans 'The email will notify the user about all their due evaluations. Do you want to send the email now?' as question %}
-        {% trans 'Send email' as action_text %}
-        {% include 'confirmation_modal.html' with modal_id='resendEmailModal' title=title question=question action_text=action_text btn_type='success' %}
-        <script type="text/javascript">
-            function resendEmailModalAction(dataId) {
-                fetch("{% url 'staff:user_resend_email' %}", {
-                    body: new URLSearchParams({user_id: dataId}),
-                    headers: CSRF_HEADERS,
-                    method: "POST",
-                }).then(response => {
-                    assert(response.ok);
-                    window.location="{% url 'staff:user_edit' user_id %}"
-                }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
-            };
-        </script>
     {% endif %}
 {% endblock %}
