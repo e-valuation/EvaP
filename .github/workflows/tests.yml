@@ -89,7 +89,7 @@ jobs:
         uses: ./.github/setup_python
 
       - name: Run linter
-        run: pylint evap tools -j 0
+        run: pylint evap tools
 
 
   formatter:
