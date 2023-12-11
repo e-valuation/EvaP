@@ -711,9 +711,24 @@ class Evaluation(LoggedModel):
     def manager_approve(self):
         pass
 
-    @transition(field=state, source=[State.PREPARED, State.EDITOR_APPROVED, State.APPROVED], target=State.NEW)
-    def revert_to_new(self):
-        pass
+    @transition(
+        field=state,
+        source=[
+            State.PREPARED,
+            State.EDITOR_APPROVED,
+            State.APPROVED,
+            State.IN_EVALUATION,
+            State.EVALUATED,
+            State.REVIEWED,
+        ],
+        target=State.NEW,
+    )
+    def reset_to_new(self, delete_previous_answers: bool | None = False):
+        """Reset an Evaluation after it started (#1991)"""
+        if delete_previous_answers:
+            for answer_class in Answer.__subclasses__():
+                answer_class._default_manager.filter(contribution__evaluation_id=self.id).delete()
+            self.voters.clear()
 
     @transition(
         field=state,

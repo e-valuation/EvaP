@@ -281,18 +281,19 @@ class EvaluationOperation:
         raise NotImplementedError
 
 
-class RevertToNewOperation(EvaluationOperation):
-    confirmation_message = gettext_lazy("Do you want to revert the following evaluations to preparation?")
+class ResetToNewOperation(EvaluationOperation):
+    confirmation_message = gettext_lazy("Do you want to reset the following evaluations to preparation?")
 
     @staticmethod
-    def applicable_to(evaluation):
-        return Evaluation.State.PREPARED <= evaluation.state <= Evaluation.State.APPROVED
+    def applicable_to(evaluation: Evaluation):
+        # TODO: maybe move this into a helper function?
+        return any(t.name == 'reset_to_new' for t in evaluation.get_available_state_transitions())
 
     @staticmethod
     def warning_for_inapplicables(amount):
         return ngettext(
-            "{} evaluation cannot be reverted, because it already started. It was removed from the selection.",
-            "{} evaluations cannot be reverted, because they already started. They were removed from the selection.",
+            "{} evaluation cannot be reset, because it is already published. It was removed from the selection",
+            "{} evaluations cannot be reset, because they were already published. They were removed from the selection.",
             amount,
         ).format(amount)
 
@@ -304,13 +305,13 @@ class RevertToNewOperation(EvaluationOperation):
         assert email_template_participant is None
 
         for evaluation in evaluations:
-            evaluation.revert_to_new()
+            evaluation.reset_to_new()
             evaluation.save()
         messages.success(
             request,
             ngettext(
-                "Successfully reverted {} evaluation to in preparation.",
-                "Successfully reverted {} evaluations to in preparation.",
+                "Successfully reset {} evaluation to in preparation.",
+                "Successfully reset {} evaluations to in preparation.",
                 len(evaluations),
             ).format(len(evaluations)),
         )
@@ -484,7 +485,7 @@ class PublishOperation(EvaluationOperation):
 
 
 EVALUATION_OPERATIONS = {
-    Evaluation.State.NEW: RevertToNewOperation,
+    Evaluation.State.NEW: ResetToNewOperation,
     Evaluation.State.PREPARED: ReadyForEditorsOperation,
     Evaluation.State.IN_EVALUATION: BeginEvaluationOperation,
     Evaluation.State.REVIEWED: UnpublishOperation,
