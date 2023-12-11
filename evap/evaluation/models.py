@@ -711,6 +711,13 @@ class Evaluation(LoggedModel):
 
     @transition(field=state, source=[State.PREPARED, State.EDITOR_APPROVED, State.APPROVED], target=State.NEW)
     def revert_to_new(self):
+        # TODO: discontinue old function
+        raise NotImplementedError
+
+    @transition(field=state,
+                source=[State.PREPARED, State.EDITOR_APPROVED, State.APPROVED, State.IN_EVALUATION, State.EVALUATED,
+                        State.REVIEWED], target=State.NEW)
+    def reset_to_new(self):
         pass
 
     @transition(

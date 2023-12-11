@@ -287,8 +287,9 @@ class RevertToNewOperation(EvaluationOperation):
     confirmation_message = gettext_lazy("Do you want to revert the following evaluations to preparation?")
 
     @staticmethod
-    def applicable_to(evaluation):
-        return Evaluation.State.PREPARED <= evaluation.state <= Evaluation.State.APPROVED
+    def applicable_to(evaluation: Evaluation):
+        # TODO: maybe move this into a helper function?
+        return any(t.name == 'reset_to_new' for t in evaluation.get_available_state_transitions())
 
     @staticmethod
     def warning_for_inapplicables(amount):
@@ -306,7 +307,7 @@ class RevertToNewOperation(EvaluationOperation):
         assert email_template_participant is None
 
         for evaluation in evaluations:
-            evaluation.revert_to_new()
+            evaluation.reset_to_new()
             evaluation.save()
         messages.success(
             request,
