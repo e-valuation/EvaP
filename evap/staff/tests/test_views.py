@@ -606,7 +606,7 @@ class TestUserImportView(WebTestStaffMode):
         self.assertContains(page, "Import previously uploaded file")
 
         form = page.forms["user-import-form"]
-        form.submit(name="operation", value="import")
+        submit_with_modal(page, form, name="operation", value="import")
 
         page = self.app.get(self.url, user=self.manager)
         self.assertNotContains(page, "Import previously uploaded file")
@@ -2326,7 +2326,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         self.assertEqual(self.evaluation.participants.count(), original_participant_count)
 
         form = page.forms["participant-import-form"]
-        form.submit(name="operation", value="import-participants")
+        submit_with_modal(page, form, name="operation", value="import-participants")
         self.assertEqual(self.evaluation.participants.count(), original_participant_count + 2)
 
         page = self.app.get(self.url, user=self.manager)
@@ -2342,7 +2342,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         self.assertNotEqual(self.evaluation2.participants.count(), 2)
 
         form = page.forms["participant-import-form"]
-        form.submit(name="operation", value="import-replace-participants")
+        submit_with_modal(page, form, name="operation", value="import-replace-participants")
         self.assertEqual(self.evaluation2.participants.count(), 2)
 
         page = self.app.get(self.url2, user=self.manager)

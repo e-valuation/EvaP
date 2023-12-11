@@ -50,7 +50,7 @@ class SampleTableImport(WebTestStaffMode):
         page = form.submit(name="operation", value="test")
 
         form = page.forms["user-import-form"]
-        form.submit(name="operation", value="import")
+        submit_with_modal(page, form, name="operation", value="import")
 
         self.assertEqual(UserProfile.objects.count(), original_user_count + 2)
 
