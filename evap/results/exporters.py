@@ -353,7 +353,7 @@ class ResultsExporter(ExcelExporter):
             )
 
             self.write_headings_and_evaluation_info(
-                evaluations_with_results, semesters, contributor, degrees, course_types, verbose_heading
+                evaluations_with_results, semesters, contributor, degree_ids, course_type_ids, verbose_heading
             )
 
             for questionnaire in used_questionnaires:
