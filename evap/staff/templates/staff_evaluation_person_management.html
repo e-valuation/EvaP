@@ -28,7 +28,18 @@
                         {% else %}
                             <button name="operation" value="test-participants" type="submit" class="btn btn-sm btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
                             <div class="mt-2">
-                                <button name="operation" value="import-participants" type="button" onclick="importParticipantsModalShow('import-participants');" class="btn btn-sm btn-primary me-1 form-submit-btn";>{% trans 'Import previously uploaded file' %}</button>
+                                <confirmation-modal type="submit" name="operation" value="import-participants">
+                                    <span slot="title">{% trans 'Import participants' %}</span>
+                                    <span slot="action-text">{% trans 'Import participants' %}</span>
+                                    <span slot="question">
+                                        {% blocktrans %}
+                                            Do you really want to import the Excel file with participant data?
+                                        {% endblocktrans %}
+                                    </span>
+
+                                    <button slot="show-button" type="button" class="btn btn-sm btn-primary me-1 form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
+                                </confirmation-modal>
+
                                 <button name="operation" value="import-replace-participants" type="button" onclick="replaceParticipantsModalShow('import-replace-participants');" class="btn btn-sm btn-danger form-submit-btn">{% trans 'Replace participants' %}</button>
                             </div>
                         {% endif %}
@@ -130,23 +141,6 @@
 
 {% block modals %}
 {{ block.super }}
-    {% trans 'Import participants' as title %}
-    {% blocktrans asvar question %}Do you really want to import the Excel file with participant data?{% endblocktrans %}
-    {% trans 'Import participants' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='importParticipantsModal' title=title question=question action_text=action_text btn_type='primary' %}
-    <script type="text/javascript">
-        function importParticipantsModalAction(dataId) {
-            const input = document.createElement("input");
-            input.type = "hidden";
-            input.name = "operation";
-            input.value = dataId;
-
-            const form = document.getElementById("participant-import-form");
-            form.appendChild(input);
-            form.requestSubmit();
-        };
-    </script>
-
     {% trans 'Replace participants' as title %}
     {% blocktrans asvar question %}Do you really want to delete all existing participants and replace them with participant data from the Excel file?{% endblocktrans %}
     {% trans 'Replace participants' as action_text %}
