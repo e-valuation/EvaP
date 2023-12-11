@@ -300,7 +300,6 @@ class ResultsExporter(ExcelExporter):
                     values.append(grade_result.average * grade_result.count_sum)
                     count_sum += grade_result.count_sum
                     if grade_result.question.is_yes_no_question:
-                        assert hasattr(grade_result, "approval_count")
                         approval_count += grade_result.approval_count
 
                 if not values:
@@ -329,7 +328,7 @@ class ResultsExporter(ExcelExporter):
         # We want to throw early here, since workbook.save() will throw an IndexError otherwise.
         assert len(selection_list) > 0
 
-        for sheet_counter, (degrees, course_type_ids) in enumerate(selection_list, 1):
+        for sheet_counter, (degree_ids, course_type_ids) in enumerate(selection_list, 1):
             self.cur_sheet = self.workbook.add_sheet("Sheet " + str(sheet_counter))
             self.cur_row = 0
             self.cur_col = 0
@@ -341,14 +340,14 @@ class ResultsExporter(ExcelExporter):
             evaluations_with_results, used_questionnaires, course_results_exist = self.filter_evaluations(
                 semesters,
                 evaluation_states,
-                degrees,
+                degree_ids,
                 course_type_ids,
                 contributor,
                 include_not_enough_voters,
             )
 
             self.write_headings_and_evaluation_info(
-                evaluations_with_results, semesters, contributor, degrees, course_type_ids
+                evaluations_with_results, semesters, contributor, degree_ids, course_type_ids
             )
 
             for questionnaire in used_questionnaires:
