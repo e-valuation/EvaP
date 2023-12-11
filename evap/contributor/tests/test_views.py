@@ -98,7 +98,7 @@ class TestContributorEvaluationView(WebTestWith200Check):
         cls.url = f"/contributor/evaluation/{cls.evaluation.pk}"
 
     def test_wrong_state(self):
-        self.evaluation.revert_to_new()
+        self.evaluation.reset_to_new()
         self.evaluation.save()
         self.app.get(self.url, user=self.responsible, status=403)
 
@@ -125,7 +125,7 @@ class TestContributorEvaluationPreviewView(WebTestWith200Check):
         cls.url = f"/contributor/evaluation/{cls.evaluation.pk}/preview"
 
     def test_wrong_state(self):
-        self.evaluation.revert_to_new()
+        self.evaluation.reset_to_new()
         self.evaluation.save()
         self.app.get(self.url, user=self.responsible, status=403)
 
