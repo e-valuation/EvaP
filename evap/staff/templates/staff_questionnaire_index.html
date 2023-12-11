@@ -32,6 +32,29 @@
     </div>
 
     {% if general_questionnaires_top or general_questionnaires_bottom or contributor_questionnaires %}
+        <form id="questionnaire-deletion-form" method="POST" action="{% url 'staff:questionnaire_delete' %}">
+            {% csrf_token %}
+        </form>
+
+        <script defer>
+            const form = document.getElementById("questionnaire-deletion-form");
+            form.addEventListener("submit", event => {
+                event.preventDefault();
+                const body = new FormData(form);
+                const request = fetch(
+                    form.action,
+                    { method: form.method, body },
+                );
+                request.then(response => {
+                    assert(response.ok);
+                    fadeOutThenRemove(document.querySelector(`#questionnaire-row-${body.get("questionnaire_id")}`));
+                }).catch(error => {
+                    window.alert("{% trans 'The server is not responding.' %}");
+                });;
+            });
+        </script>
+
+
         {% trans 'Top general questionnaires' as headline %}
         {% include 'staff_questionnaire_index_list.html' with questionnaires=general_questionnaires_top headline=headline extra_classes='mb-3' type='top' %}
         {% trans 'Contributor questionnaires' as headline %}
@@ -43,26 +66,6 @@
             {% trans 'There are no questionnaires yet.' %}
         </p>
     {% endif %}
-{% endblock %}
-
-{% block modals %}
-    {{ block.super }}
-    {% trans 'Delete questionnaire' as title %}
-    {% trans 'Do you really want to delete the questionnaire <strong data-label=""></strong>?' as question %}
-    {% trans 'Delete questionnaire' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='deleteQuestionnaireModal' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
-        function deleteQuestionnaireModalAction(dataId) {
-            fetch("{% url 'staff:questionnaire_delete' %}", {
-                body: new URLSearchParams({questionnaire_id: dataId}),
-                headers: CSRF_HEADERS,
-                method: "POST",
-            }).then(response => {
-                assert(response.ok);
-                fadeOutThenRemove(document.querySelector('#questionnaire-row-'+dataId));
-            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
-        };
-    </script>
 {% endblock %}
 
 {% block additional_javascript %}

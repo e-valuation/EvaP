@@ -52,9 +52,19 @@
                                     <a href="{% url 'staff:questionnaire_copy' questionnaire.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Copy' %}"><span class="fas fa-copy fa-fw"></span></a>
                                     <a href="{% url 'staff:questionnaire_view' questionnaire.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Preview' %}"><span class="fas fa-eye fa-fw"></span></a>
                                     {% if questionnaire.can_be_deleted_by_manager %}
-                                        <button type="button" onclick="deleteQuestionnaireModalShow({{ questionnaire.id }}, '{{ questionnaire.name|escapejs }}');" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
-                                            <span class="fas fa-trash"></span>
-                                        </button>
+                                        <confirmation-modal type="submit" form="questionnaire-deletion-form" name="questionnaire_id" value="{{ questionnaire.id }}" confirm-button-class="btn-danger">
+                                            <span slot="title">{% trans 'Delete questionnaire' %}</span>
+                                            <span slot="action-text">{% trans 'Delete questionnaire' %}</span>
+                                            <span slot="question">
+                                                {% blocktrans with questionnaire_name=questionnaire.name %}
+                                                    Do you really want to delete the questionnaire {{questionnaire_name}}?
+                                                {% endblocktrans %}
+                                            </span>
+
+                                            <button slot="show-button" type="button" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
+                                                <span class="fas fa-trash"></span>
+                                            </button>
+                                        </confirmation-modal>
                                     {% else %}
                                         <button type="button" disabled class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top"
                                             title="{% trans 'This questionnaire cannot be deleted because it is already in use.' %}">
