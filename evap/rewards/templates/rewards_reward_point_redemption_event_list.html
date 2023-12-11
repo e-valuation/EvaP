@@ -3,28 +3,6 @@
 </div>
 <div class="card-body">
     {% if events %}
-        <form id="event-deletion-form" method="POST" action="{% url 'rewards:reward_point_redemption_event_delete' %}">
-            {% csrf_token %}
-        </form>
-
-        <script defer>
-            const form = document.getElementById("event-deletion-form");
-            form.addEventListener("submit", event => {
-                event.preventDefault();
-                const body = new FormData(form);
-                const request = fetch(
-                    form.action,
-                    { method: form.method, body },
-                );
-                request.then(response => {
-                    assert(response.ok);
-                    fadeOutThenRemove(document.querySelector(`#event-row-${body.get("event_id")}`));
-                }).catch(error => {
-                    window.alert("{% trans 'The server is not responding.' %}");
-                });;
-            });
-        </script>
-
         <table class="table table-striped">
             <thead>
                 <tr>
