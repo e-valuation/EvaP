@@ -13,7 +13,7 @@
         <a href="{% url 'staff:semester_edit' semester.id %}" class="btn btn-sm btn-secondary">{% trans 'Edit' %}</a>
         <form method="POST" action="{% url 'staff:semester_make_active' %}" class="d-inline">
             {% csrf_token %}
-            <confirmation-modal type="submit" name="semester_id" value="{{ semester.id }}">
+            <confirmation-modal type="submit" name="semester_id" value="{{ semester.id }}" {% if semester.is_active %}data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'This is the active semester' %}" {% endif %}>
                 <span slot="title">{% trans 'Make this the active semester' %}</span>
                 <span slot="action-text">{% trans 'Make active' %}</span>
                 <span slot="question">
@@ -24,13 +24,10 @@
 
                 <button
                     slot="show-button"
-                    class="btn btn-sm btn-light"
                     type="button"
-                    {% if semester.is_active %}
-                        disabled
-                        data-bs-toggle="tooltip" data-bs-placement="top"
-                        title="{% blocktrans %}This is the active semester{% endblocktrans %}"
-                    {% endif %}>
+                    class="btn btn-sm btn-light"
+                    {% if semester.is_active %}disabled{% endif %}
+                >
                     {% trans 'Make active' %}
                 </button>
             </confirmation-modal>
