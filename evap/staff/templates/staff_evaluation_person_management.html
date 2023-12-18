@@ -157,7 +157,17 @@
                         {% include 'bootstrap_form.html' with form=contributor_copy_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
-                        <button name="operation" value="copy-contributors" type="button" onclick="copyContributorsModalShow('copy-contributors');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Copy contributors' %}</button>
+                        <confirmation-modal type="submit" name="operation" value="copy-contributors">
+                            <span slot="title">{% trans 'Copy contributors' %}</span>
+                            <span slot="action-text">{% trans 'Copy contributors' %}</span>
+                            <span slot="question">
+                                {% blocktrans %}
+                                    Do you really want to copy the contributors?
+                                {% endblocktrans %}
+                            </span>
+
+                            <button slot="show-button" type="button" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Copy contributors' %}</button>
+                        </confirmation-modal>
                         <button name="operation" value="copy-replace-contributors" type="button" onclick="copyReplaceContributorsModalShow('copy-replace-contributors');" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace contributors' %}</button>
                     </div>
                 </div>
@@ -191,23 +201,6 @@
 
 {% block modals %}
 {{ block.super }}
-    {% trans 'Copy contributors' as title %}
-    {% blocktrans asvar question %}Do you really want to copy the contributors?{% endblocktrans %}
-    {% trans 'Copy contributors' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='copyContributorsModal' title=title question=question action_text=action_text btn_type='primary' %}
-    <script type="text/javascript">
-        function copyContributorsModalAction(dataId) {
-            const input = document.createElement("input");
-            input.type = "hidden";
-            input.name = "operation";
-            input.value = dataId;
-
-            const form = document.getElementById("contributor-copy-form");
-            form.appendChild(input);
-            form.requestSubmit();
-        };
-    </script>
-
     {% trans 'Replace contributors' as title %}
     {% blocktrans asvar question %}Do you really want to delete all existing contributors and copy the contributors into the evaluation?{% endblocktrans %}
     {% trans 'Replace contributors' as action_text %}
