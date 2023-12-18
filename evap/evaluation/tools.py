@@ -318,3 +318,11 @@ class ExcelExporter(ABC):
         """Convenience method to avoid some boilerplate."""
         self.export_impl(*args, **kwargs)
         self.workbook.save(response)
+
+
+def enum_for_django_template(cls):
+    """Decorator for Enums to make them work inside Django Templates
+    @see https://stackoverflow.com/questions/35953132/how-to-access-enum-types-in-django-templates
+    """
+    cls.do_not_call_in_templates = True
+    return cls

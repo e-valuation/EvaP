@@ -4,7 +4,7 @@ import uuid
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
-from enum import Enum, auto
+from enum import Enum,IntEnum, auto
 from numbers import Real
 
 from django.conf import settings
@@ -37,6 +37,7 @@ from evap.evaluation.tools import (
     StrOrPromise,
     clean_email,
     date_to_datetime,
+    enum_for_django_template,
     is_external_email,
     is_prefetched,
     password_login_is_active,
@@ -381,7 +382,8 @@ class Course(LoggedModel):
 class Evaluation(LoggedModel):
     """Models a single evaluation, e.g. the exam evaluation of the Math 101 course of 2002."""
 
-    class State:
+    @enum_for_django_template
+    class State(IntEnum):
         NEW = 10
         PREPARED = 20
         EDITOR_APPROVED = 30
@@ -711,7 +713,7 @@ class Evaluation(LoggedModel):
     def manager_approve(self):
         pass
 
-    @transition(field=state, source=[State.PREPARED, State.EDITOR_APPROVED, State.APPROVED], target=State.NEW)
+    @transition(field=state, source=[State.PREPARED, State.EDITOR_APPROVED, State.APPROVED, ], target=State.NEW)
     def revert_to_new(self):
         pass
 
