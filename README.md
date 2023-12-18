@@ -42,7 +42,7 @@ That's it!
 
 ## Contributing
 
-We'd love to see contributions, feel free to fork! You should probably branch off `main`, the branch `release` is used for stable revisions.
+We'd love to see contributions! PRs solving existing issues are most helpful to us. It's best if you ask to be assigned for the issue so we won't have multiple people working on the same issue. Feel free to open issues for bugs, setup problems, or feature requests. If you have other questions, feel free to contact the [organization members](https://github.com/orgs/e-valuation/people). You should probably branch off `main`, the branch `release` is used for stable revisions.
 
 Before committing, run the following commands:
 - `./manage.py test` (runs the test suite)
@@ -52,10 +52,6 @@ Before committing, run the following commands:
 or, to combine all three, simply run `./manage.py precommit`.
 
 You can also set up `pylint`, `isort`, `black` and `prettier` in your IDE to avoid doing this manually all the time.
-
-### Meet The Team
-
-Feel free to get in touch! Our core team members are listed [here](https://github.com/orgs/e-valuation/people), feel free to email us to discuss how you can get involved with EvaP. Creating an issue or linking a pull request works just as well as an icebreaker though, do what you're most comfortable with.
 
 ### Creating a Pull Request (Workflow Suggestion)
 1. (once) [Fork](https://github.com/e-valuation/EvaP/fork) the repository so you have a GitHub repo that you have write access to.
