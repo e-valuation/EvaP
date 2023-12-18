@@ -79,7 +79,17 @@
 
                             <button slot="show-button" type="button" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Copy participants' %}</button>
                         </confirmation-modal>
-                        <button name="operation" value="copy-replace-participants" type="button" onclick="copyReplaceParticipantsModalShow('copy-replace-participants');" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace participants' %}</button>
+                        <confirmation-modal type="submit" name="operation" value="copy-replace-participants" confirm-button-class="btn-danger">
+                            <span slot="title">{% trans 'Replace participants' %}</span>
+                            <span slot="action-text">{% trans 'Replace participants' %}</span>
+                            <span slot="question">
+                                {% blocktrans %}
+                                    Do you really want to delete all existing participants and copy the participants into the evaluation?
+                                {% endblocktrans %}
+                            </span>
+
+                            <button slot="show-button" type="button" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace participants' %}</button>
+                        </confirmation-modal>
                     </div>
                 </div>
             </form>
@@ -161,23 +171,6 @@
 
 {% block modals %}
 {{ block.super }}
-    {% trans 'Replace participants' as title %}
-    {% blocktrans asvar question %}Do you really want to delete all existing participants and copy the participants into the evaluation?{% endblocktrans %}
-    {% trans 'Replace participants' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='copyReplaceParticipantsModal' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
-        function copyReplaceParticipantsModalAction(dataId) {
-            const input = document.createElement("input");
-            input.type = "hidden";
-            input.name = "operation";
-            input.value = dataId;
-
-            const form = document.getElementById("participant-copy-form");
-            form.appendChild(input);
-            form.requestSubmit();
-        };
-    </script>
-
     {% trans 'Import contributors' as title %}
     {% blocktrans asvar question %}Do you really want to import the Excel file with contributor data?{% endblocktrans %}
     {% trans 'Import contributors' as action_text %}
