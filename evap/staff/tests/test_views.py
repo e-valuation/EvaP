@@ -2239,7 +2239,7 @@ class TestEvaluationDeleteView(WebTestStaffMode):
             RatingAnswerCounter, contribution__evaluation=self.evaluation, _quantity=5, _bulk_create=True
         )
 
-        self.app.post(self.url, user=self.manager, params=self.post_params, status=200)
+        self.app.post(self.url, user=self.manager, params=self.post_params)
 
         self.assertFalse(Evaluation.objects.filter(pk=self.evaluation.pk).exists())
         self.assertFalse(RatingAnswerCounter.objects.filter(pk__in=[c.pk for c in counters]).exists())
@@ -2355,7 +2355,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
 
         form = page.forms["participant-copy-form"]
         form["pc-evaluation"] = str(self.evaluation2.pk)
-        page = form.submit(name="operation", value="copy-participants")
+        page = submit_with_modal(page, form, name="operation", value="copy-participants")
 
         self.assertEqual(
             self.evaluation.participants.count(), original_participant_count + self.evaluation2.participants.count()
@@ -2368,7 +2368,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
 
         form = page.forms["participant-copy-form"]
         form["pc-evaluation"] = str(self.evaluation2.pk)
-        page = form.submit(name="operation", value="copy-replace-participants")
+        page = submit_with_modal(page, form, name="operation", value="copy-replace-participants")
 
         self.assertEqual(self.evaluation.participants.count(), self.evaluation2.participants.count())
 
@@ -2387,7 +2387,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         )
 
         form = page.forms["contributor-import-form"]
-        form.submit(name="operation", value="import-contributors")
+        submit_with_modal(page, form, name="operation", value="import-contributors")
         self.assertEqual(
             UserProfile.objects.filter(contributions__evaluation=self.evaluation).count(),
             original_contributor_count + 2,
@@ -2406,7 +2406,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         self.assertNotEqual(UserProfile.objects.filter(contributions__evaluation=self.evaluation2).count(), 2)
 
         form = page.forms["contributor-import-form"]
-        form.submit(name="operation", value="import-replace-contributors")
+        submit_with_modal(page, form, name="operation", value="import-replace-contributors")
         self.assertEqual(UserProfile.objects.filter(contributions__evaluation=self.evaluation2).count(), 2)
 
         page = self.app.get(self.url, user=self.manager)
@@ -2419,7 +2419,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
 
         form = page.forms["contributor-copy-form"]
         form["cc-evaluation"] = str(self.evaluation2.pk)
-        page = form.submit(name="operation", value="copy-contributors")
+        page = submit_with_modal(page, form, name="operation", value="copy-contributors")
 
         new_contributor_count = UserProfile.objects.filter(contributions__evaluation=self.evaluation).count()
         self.assertEqual(
@@ -2437,7 +2437,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
 
         form = page.forms["contributor-copy-form"]
         form["cc-evaluation"] = str(self.evaluation2.pk)
-        page = form.submit(name="operation", value="copy-replace-contributors")
+        page = submit_with_modal(page, form, name="operation", value="copy-replace-contributors")
 
         new_contributor_count = UserProfile.objects.filter(contributions__evaluation=self.evaluation).count()
         self.assertEqual(
@@ -3689,7 +3689,7 @@ class TestSemesterActiveStateBehaviour(WebTestStaffMode):
         semester1 = baker.make(Semester, is_active=True)
         semester2 = baker.make(Semester, is_active=False)
 
-        self.app.post(self.url, user=manager, status=200, params={"semester_id": semester2.id})
+        self.app.post(self.url, user=manager, params={"semester_id": semester2.id})
 
         semester1.refresh_from_db()
         semester2.refresh_from_db()
