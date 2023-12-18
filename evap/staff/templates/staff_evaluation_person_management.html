@@ -168,7 +168,17 @@
 
                             <button slot="show-button" type="button" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Copy contributors' %}</button>
                         </confirmation-modal>
-                        <button name="operation" value="copy-replace-contributors" type="button" onclick="copyReplaceContributorsModalShow('copy-replace-contributors');" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace contributors' %}</button>
+                        <confirmation-modal type="submit" name="operation" value="copy-replace-contributors" confirm-button-class="btn-danger">
+                            <span slot="title">{% trans 'Replace contributors' %}</span>
+                            <span slot="action-text">{% trans 'Replace contributors' %}</span>
+                            <span slot="question">
+                                {% blocktrans %}
+                                    Do you really want to delete all existing contributors and copy the contributors into the evaluation?
+                                {% endblocktrans %}
+                            </span>
+
+                            <button slot="show-button" type="button" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace contributors' %}</button>
+                        </confirmation-modal>
                     </div>
                 </div>
             </form>
@@ -197,27 +207,6 @@
             </form>
         </div>
     </div>
-{% endblock %}
-
-{% block modals %}
-{{ block.super }}
-    {% trans 'Replace contributors' as title %}
-    {% blocktrans asvar question %}Do you really want to delete all existing contributors and copy the contributors into the evaluation?{% endblocktrans %}
-    {% trans 'Replace contributors' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='copyReplaceContributorsModal' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
-        function copyReplaceContributorsModalAction(dataId) {
-            const input = document.createElement("input");
-            input.type = "hidden";
-            input.name = "operation";
-            input.value = dataId;
-
-            const form = document.getElementById("contributor-copy-form");
-            form.appendChild(input);
-            form.requestSubmit();
-        };
-    </script>
-
 {% endblock %}
 
 {% block additional_javascript %}
