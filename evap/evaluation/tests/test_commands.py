@@ -39,7 +39,7 @@ class TestAnonymizeCommand(TestCase):
             UserProfile,
             email="secret.email@hpi.de",
             title="Prof.",
-            first_name="Secret",
+            first_name_given="Secret",
             last_name="User",
             login_key=1234567890,
             login_key_valid_until=date.today(),

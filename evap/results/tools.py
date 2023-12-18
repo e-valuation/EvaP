@@ -1,7 +1,8 @@
 from collections import OrderedDict, defaultdict
+from collections.abc import Iterable
 from copy import copy
 from math import ceil, modf
-from typing import Dict, Iterable, List, Optional, Tuple, Union, cast
+from typing import cast
 
 from django.conf import settings
 from django.core.cache import caches
@@ -59,7 +60,7 @@ class RatingResult:
         return CHOICES[self.question.type]
 
     @property
-    def count_sum(self) -> Optional[int]:
+    def count_sum(self) -> int | None:
         if not self.is_published:
             return None
         return sum(self.counts)
@@ -71,14 +72,14 @@ class RatingResult:
         return (self.count_sum - portion_left) / 2
 
     @property
-    def approval_count(self) -> Optional[int]:
+    def approval_count(self) -> int | None:
         assert self.question.is_yes_no_question
         if not self.is_published:
             return None
         return self.counts[0] if self.question.is_positive_yes_no_question else self.counts[1]
 
     @property
-    def average(self) -> Optional[float]:
+    def average(self) -> float | None:
         if not self.has_answers:
             return None
         return sum(grade * count for count, grade in zip(self.counts, self.choices.grades)) / self.count_sum
@@ -97,7 +98,7 @@ class TextResult:
         self,
         question: Question,
         answers: Iterable[TextAnswer],
-        answers_visible_to: Optional[TextAnswerVisibility] = None,
+        answers_visible_to: TextAnswerVisibility | None = None,
     ):
         assert question.can_have_textanswers
         self.question = discard_cached_related_objects(copy(question))
@@ -110,18 +111,18 @@ class HeadingResult:
         self.question = discard_cached_related_objects(copy(question))
 
 
-QuestionResult = Union[RatingResult, TextResult, HeadingResult]
+QuestionResult = RatingResult | TextResult | HeadingResult
 
 
 class QuestionnaireResult:
-    def __init__(self, questionnaire: Questionnaire, question_results: List[QuestionResult]):
+    def __init__(self, questionnaire: Questionnaire, question_results: list[QuestionResult]):
         self.questionnaire = discard_cached_related_objects(copy(questionnaire))
         self.question_results = question_results
 
 
 class ContributionResult:
     def __init__(
-        self, contributor: Optional[UserProfile], label: Optional[str], questionnaire_results: List[QuestionnaireResult]
+        self, contributor: UserProfile | None, label: str | None, questionnaire_results: list[QuestionnaireResult]
     ):
         self.contributor = discard_cached_related_objects(copy(contributor)) if contributor is not None else None
         self.label = label
@@ -141,11 +142,11 @@ class ContributionResult:
 
 
 class EvaluationResult:
-    def __init__(self, contribution_results: List[ContributionResult]):
+    def __init__(self, contribution_results: list[ContributionResult]):
         self.contribution_results = contribution_results
 
     @property
-    def questionnaire_results(self) -> List[QuestionnaireResult]:
+    def questionnaire_results(self) -> list[QuestionnaireResult]:
         return [
             questionnaire_result
             for contribution_result in self.contribution_results
@@ -200,14 +201,14 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
 
     prefetch_related_objects([evaluation], *GET_RESULTS_PREFETCH_LOOKUPS)
 
-    tas_per_contribution_question: Dict[Tuple[int, int], List[TextAnswer]] = unordered_groupby(
+    tas_per_contribution_question: dict[tuple[int, int], list[TextAnswer]] = unordered_groupby(
         ((textanswer.contribution_id, textanswer.question_id), textanswer)
         for contribution in evaluation.contributions.all()
         for textanswer in contribution.textanswer_set.all()
         if textanswer.review_decision in [TextAnswer.ReviewDecision.PRIVATE, TextAnswer.ReviewDecision.PUBLIC]
     )
 
-    racs_per_contribution_question: Dict[Tuple[int, int], List[RatingAnswerCounter]] = unordered_groupby(
+    racs_per_contribution_question: dict[tuple[int, int], list[RatingAnswerCounter]] = unordered_groupby(
         ((counter.contribution_id, counter.question_id), counter)
         for contribution in evaluation.contributions.all()
         for counter in contribution.ratinganswercounter_set.all()
@@ -217,7 +218,7 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
     for contribution in evaluation.contributions.all():
         questionnaire_results = []
         for questionnaire in contribution.questionnaires.all():
-            results: List[Union[HeadingResult, TextResult, RatingResult]] = []
+            results: list[HeadingResult | TextResult | RatingResult] = []
             for question in questionnaire.questions.all():
                 if question.is_heading_question:
                     results.append(HeadingResult(question=question))
@@ -422,7 +423,7 @@ def distribution_to_grade(distribution):
 
 def color_mix(color1, color2, fraction):
     return cast(
-        Tuple[int, int, int], tuple(int(round(color1[i] * (1 - fraction) + color2[i] * fraction)) for i in range(3))
+        tuple[int, int, int], tuple(int(round(color1[i] * (1 - fraction) + color2[i] * fraction)) for i in range(3))
     )
 
 
@@ -451,13 +452,13 @@ def textanswers_visible_to(contribution):
     delegates = {delegate for contributor in non_proxy_contributors for delegate in contributor.delegates.all()}
     num_delegates = len(delegates - contributors)
 
-    sorted_contributors = sorted(contributors, key=lambda user: (user.last_name, user.first_name))
+    sorted_contributors = sorted(contributors, key=UserProfile.ordering_key)
     return TextAnswerVisibility(visible_by_contribution=sorted_contributors, visible_by_delegation_count=num_delegates)
 
 
 def can_textanswer_be_seen_by(
     user: UserProfile,
-    represented_users: List[UserProfile],
+    represented_users: list[UserProfile],
     textanswer: TextAnswer,
     view: str,
 ) -> bool:

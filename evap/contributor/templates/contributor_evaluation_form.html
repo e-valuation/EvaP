@@ -127,8 +127,14 @@
     {% include 'confirmation_modal.html' with modal_id='approveEvaluationModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
         function approveEvaluationModalAction(dataId) {
-            $('#evaluation-form').append('<input type="hidden" name="operation" value="approve" />');
-            $('#evaluation-form').submit();
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "operation";
+            input.value = "approve";
+
+            const form = document.getElementById("evaluation-form");
+            form.appendChild(input);
+            form.requestSubmit();
         };
     </script>
 

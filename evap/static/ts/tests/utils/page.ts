@@ -20,10 +20,22 @@ async function createPage(browser: Browser): Promise<Page> {
         const extension = path.extname(request.url());
         const pathname = new URL(request.url()).pathname;
         if (extension === ".html") {
+            // requests like /evap/evap/static/ts/rendered/results/student.html
             request.continue();
         } else if (pathname.startsWith(staticPrefix)) {
+            // requests like /static/css/tom-select.bootstrap5.min.css
             const asset = pathname.substr(staticPrefix.length);
             const body = fs.readFileSync(path.join(__dirname, "..", "..", "..", asset));
+            request.respond({
+                contentType: contentTypeByExtension.get(extension),
+                body,
+            });
+        } else if (pathname.endsWith("catalog.js")) {
+            // request for /catalog.js
+            // some pages will error out if translation functions are not available
+            // rendered in RenderJsTranslationCatalog
+            const absolute_fs_path = path.join(__dirname, "..", "..", "..", "ts", "rendered", "catalog.js");
+            const body = fs.readFileSync(absolute_fs_path);
             request.respond({
                 contentType: contentTypeByExtension.get(extension),
                 body,

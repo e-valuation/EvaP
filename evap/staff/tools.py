@@ -1,7 +1,7 @@
 import os
+from collections.abc import Iterable
 from datetime import date, datetime, timedelta
 from enum import Enum
-from typing import Iterable
 
 from django.conf import settings
 from django.contrib import messages
@@ -224,9 +224,11 @@ def merge_users(main_user, other_user, preview=False):
     merged_user = {}
     merged_user["is_active"] = main_user.is_active or other_user.is_active
     merged_user["title"] = main_user.title or other_user.title or ""
-    merged_user["first_name"] = main_user.first_name or other_user.first_name or ""
+    merged_user["first_name_chosen"] = main_user.first_name_chosen or other_user.first_name_chosen or ""
+    merged_user["first_name_given"] = main_user.first_name_given or other_user.first_name_given or ""
     merged_user["last_name"] = main_user.last_name or other_user.last_name or ""
     merged_user["email"] = main_user.email or other_user.email or None
+    merged_user["notes"] = "\n".join((main_user.notes, other_user.notes)).strip()
 
     merged_user["groups"] = Group.objects.filter(user__in=[main_user, other_user]).distinct()
     merged_user["is_superuser"] = main_user.is_superuser or other_user.is_superuser

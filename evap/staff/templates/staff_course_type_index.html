@@ -1,5 +1,7 @@
 {% extends 'staff_base.html' %}
 
+{% load static %}
+
 {% block breadcrumb %}
     {{ block.super }}
     <li class="breadcrumb-item">{% trans 'Course types' %}</li>
@@ -12,7 +14,7 @@
         <a href="{% url 'staff:course_type_merge_selection' %}" class="btn btn-sm btn-secondary">{% trans 'Merge course types' %}</a>
     </div>
 
-    <form id="course-type-form" method="POST" enctype="multipart/form-data" class="form-horizontal tomselectform">
+    <form id="course-type-form" method="POST" class="form-horizontal tomselectform">
         {% csrf_token %}
         {{ formset.management_form }}
 
@@ -71,7 +73,7 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    {% include 'sortable_form_js.html' %}
+    <script src="{% static 'js/sortable_form.js' %}"></script>
 
     <script type="text/javascript">
         rowChanged = function(row) {

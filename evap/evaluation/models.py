@@ -5,18 +5,19 @@ from collections import defaultdict
 from datetime import date, datetime, timedelta
 from enum import Enum, auto
 from numbers import Number
-from typing import Dict, List, NamedTuple, Tuple, Union
+from typing import NamedTuple
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group, PermissionsMixin
+from django.contrib.auth.password_validation import validate_password
 from django.contrib.postgres.fields import ArrayField
 from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
-from django.db.models import CheckConstraint, Count, Manager, OuterRef, Q, Subquery
-from django.db.models.functions import Coalesce, Lower
+from django.db.models import CheckConstraint, Count, F, Manager, OuterRef, Q, Subquery, Value
+from django.db.models.functions import Coalesce, Lower, NullIf, TruncDate
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
 from django.template.defaultfilters import linebreaksbr
@@ -25,6 +26,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.safestring import SafeData
+from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django_fsm import FSMIntegerField, transition
 from django_fsm.signals import post_transition
@@ -43,8 +45,8 @@ from evap.evaluation.tools import (
 logger = logging.getLogger(__name__)
 
 
-class NotArchiveable(Exception):
-    """An attempt has been made to archive something that is not archiveable."""
+class NotArchivableError(Exception):
+    """An attempt has been made to archive something that is not archivable."""
 
 
 class Semester(models.Model):
@@ -64,6 +66,7 @@ class Semester(models.Model):
 
     created_at = models.DateField(verbose_name=_("created at"), auto_now_add=True)
 
+    # (unique=True, blank=True, null=True) allows having multiple non-active but only one active semester
     is_active = models.BooleanField(
         default=None, unique=True, blank=True, null=True, verbose_name=_("semester is active")
     )
@@ -103,7 +106,7 @@ class Semester(models.Model):
     @transaction.atomic
     def archive(self):
         if not self.participations_can_be_archived:
-            raise NotArchiveable()
+            raise NotArchivableError()
         for evaluation in self.evaluations.all():
             evaluation._archive()
         self.participations_are_archived = True
@@ -116,14 +119,14 @@ class Semester(models.Model):
         from evap.grades.models import GradeDocument
 
         if not self.grade_documents_can_be_deleted:
-            raise NotArchiveable()
+            raise NotArchivableError()
         GradeDocument.objects.filter(course__semester=self).delete()
         self.grade_documents_are_deleted = True
         self.save()
 
     def archive_results(self):
         if not self.results_can_be_archived:
-            raise NotArchiveable()
+            raise NotArchivableError()
         self.results_are_archived = True
         self.save()
 
@@ -164,16 +167,16 @@ class Questionnaire(models.Model):
     name_en = models.CharField(max_length=1024, unique=True, verbose_name=_("name (english)"))
     name = translate(en="name_en", de="name_de")
 
-    description_de = models.TextField(verbose_name=_("description (german)"), blank=True, null=True)
-    description_en = models.TextField(verbose_name=_("description (english)"), blank=True, null=True)
+    description_de = models.TextField(verbose_name=_("description (german)"), blank=True)
+    description_en = models.TextField(verbose_name=_("description (english)"), blank=True)
     description = translate(en="description_en", de="description_de")
 
     public_name_de = models.CharField(max_length=1024, verbose_name=_("display name (german)"))
     public_name_en = models.CharField(max_length=1024, verbose_name=_("display name (english)"))
     public_name = translate(en="public_name_en", de="public_name_de")
 
-    teaser_de = models.TextField(verbose_name=_("teaser (german)"), blank=True, null=True)
-    teaser_en = models.TextField(verbose_name=_("teaser (english)"), blank=True, null=True)
+    teaser_de = models.TextField(verbose_name=_("teaser (german)"), blank=True)
+    teaser_en = models.TextField(verbose_name=_("teaser (english)"), blank=True)
     teaser = translate(en="teaser_en", de="teaser_de")
 
     order = models.IntegerField(verbose_name=_("ordering index"), default=0)
@@ -455,6 +458,16 @@ class Evaluation(LoggedModel):
         ]
         verbose_name = _("evaluation")
         verbose_name_plural = _("evaluations")
+        constraints = [
+            CheckConstraint(
+                check=Q(vote_end_date__gte=TruncDate(F("vote_start_datetime"))),
+                name="check_evaluation_start_before_end",
+            ),
+            CheckConstraint(
+                check=~(Q(_participant_count__isnull=True) ^ Q(_voter_count__isnull=True)),
+                name="check_evaluation_participant_count_and_voter_count_both_set_or_not_set",
+            ),
+        ]
 
     def __str__(self):
         return self.full_name
@@ -466,8 +479,6 @@ class Evaluation(LoggedModel):
         if not self.general_contribution:
             self.contributions.create(contributor=None)
             del self.general_contribution  # invalidate cached property
-
-        assert self.vote_end_date >= self.vote_start_datetime.date()
 
         if hasattr(self, "state_change_source"):
 
@@ -625,7 +636,7 @@ class Evaluation(LoggedModel):
     def _archive(self):
         """Should be called only via Semester.archive"""
         if not self.participations_can_be_archived:
-            raise NotArchiveable()
+            raise NotArchivableError()
         if self._participant_count is not None:
             assert self._voter_count is not None
             assert (
@@ -1042,7 +1053,7 @@ class Contribution(LoggedModel):
         verbose_name=_("text answer visibility"),
         default=TextAnswerVisibility.OWN_TEXTANSWERS,
     )
-    label = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("label"))
+    label = models.CharField(max_length=255, blank=True, verbose_name=_("label"))
 
     order = models.IntegerField(verbose_name=_("contribution order"), default=-1)
 
@@ -1075,11 +1086,10 @@ class Contribution(LoggedModel):
         RatingAnswerCounter.objects.filter(contribution=self, question__questionnaire__in=questionnaires).delete()
 
 
-class Question(models.Model):
-    """A question including a type."""
-
+class QuestionType:
     TEXT = 0
-    LIKERT = 1
+    POSITIVE_LIKERT = 1
+    NEGATIVE_LIKERT = 12
     GRADE = 2
     EASY_DIFFICULT = 6
     FEW_MANY = 7
@@ -1090,29 +1100,40 @@ class Question(models.Model):
     POSITIVE_YES_NO = 3
     NEGATIVE_YES_NO = 4
     HEADING = 5
+
+
+class Question(models.Model):
+    """A question including a type."""
+
     QUESTION_TYPES = (
-        (_("Text"), ((TEXT, _("Text question")),)),
-        (_("Unipolar Likert"), ((LIKERT, _("Agreement question")),)),
-        (_("Grade"), ((GRADE, _("Grade question")),)),
+        (_("Text"), ((QuestionType.TEXT, _("Text question")),)),
+        (
+            _("Unipolar Likert"),
+            (
+                (QuestionType.POSITIVE_LIKERT, _("Positive agreement question")),
+                (QuestionType.NEGATIVE_LIKERT, _("Negative agreement question")),
+            ),
+        ),
+        (_("Grade"), ((QuestionType.GRADE, _("Grade question")),)),
         (
             _("Bipolar Likert"),
             (
-                (EASY_DIFFICULT, _("Easy-difficult question")),
-                (FEW_MANY, _("Few-many question")),
-                (LITTLE_MUCH, _("Little-much question")),
-                (SMALL_LARGE, _("Small-large question")),
-                (SLOW_FAST, _("Slow-fast question")),
-                (SHORT_LONG, _("Short-long question")),
+                (QuestionType.EASY_DIFFICULT, _("Easy-difficult question")),
+                (QuestionType.FEW_MANY, _("Few-many question")),
+                (QuestionType.LITTLE_MUCH, _("Little-much question")),
+                (QuestionType.SMALL_LARGE, _("Small-large question")),
+                (QuestionType.SLOW_FAST, _("Slow-fast question")),
+                (QuestionType.SHORT_LONG, _("Short-long question")),
             ),
         ),
         (
             _("Yes-no"),
             (
-                (POSITIVE_YES_NO, _("Positive yes-no question")),
-                (NEGATIVE_YES_NO, _("Negative yes-no question")),
+                (QuestionType.POSITIVE_YES_NO, _("Positive yes-no question")),
+                (QuestionType.NEGATIVE_YES_NO, _("Negative yes-no question")),
             ),
         ),
-        (_("Layout"), ((HEADING, _("Heading")),)),
+        (_("Layout"), ((QuestionType.HEADING, _("Heading")),)),
     )
 
     order = models.IntegerField(verbose_name=_("question order"), default=-1)
@@ -1128,9 +1149,16 @@ class Question(models.Model):
         ordering = ["order"]
         verbose_name = _("question")
         verbose_name_plural = _("questions")
+        constraints = [
+            CheckConstraint(
+                check=~(Q(type=QuestionType.TEXT) | Q(type=QuestionType.HEADING))
+                | ~Q(allows_additional_textanswers=True),
+                name="check_evaluation_textanswer_or_heading_question_has_no_additional_textanswers",
+            )
+        ]
 
     def save(self, *args, **kwargs):
-        if self.type in [Question.TEXT, Question.HEADING]:
+        if self.type in [QuestionType.TEXT, QuestionType.HEADING]:
             self.allows_additional_textanswers = False
             if "update_fields" in kwargs:
                 kwargs["update_fields"] = {"allows_additional_textanswers"}.union(kwargs["update_fields"])
@@ -1144,38 +1172,42 @@ class Question(models.Model):
         if self.is_rating_question:
             return RatingAnswerCounter
 
-        assert False, f"Unknown answer type: {self.type!r}"
+        raise AssertionError(f"Unknown answer type: {self.type!r}")
 
     @property
-    def is_likert_question(self):
-        return self.type == self.LIKERT
+    def is_positive_likert_question(self):
+        return self.type == QuestionType.POSITIVE_LIKERT
+
+    @property
+    def is_negative_likert_question(self):
+        return self.type == QuestionType.NEGATIVE_LIKERT
 
     @property
     def is_bipolar_likert_question(self):
         return self.type in (
-            self.EASY_DIFFICULT,
-            self.FEW_MANY,
-            self.LITTLE_MUCH,
-            self.SLOW_FAST,
-            self.SMALL_LARGE,
-            self.SHORT_LONG,
+            QuestionType.EASY_DIFFICULT,
+            QuestionType.FEW_MANY,
+            QuestionType.LITTLE_MUCH,
+            QuestionType.SLOW_FAST,
+            QuestionType.SMALL_LARGE,
+            QuestionType.SHORT_LONG,
         )
 
     @property
     def is_text_question(self):
-        return self.type == self.TEXT
+        return self.type == QuestionType.TEXT
 
     @property
     def is_grade_question(self):
-        return self.type == self.GRADE
+        return self.type == QuestionType.GRADE
 
     @property
     def is_positive_yes_no_question(self):
-        return self.type == self.POSITIVE_YES_NO
+        return self.type == QuestionType.POSITIVE_YES_NO
 
     @property
     def is_negative_yes_no_question(self):
-        return self.type == self.NEGATIVE_YES_NO
+        return self.type == QuestionType.NEGATIVE_YES_NO
 
     @property
     def is_yes_no_question(self):
@@ -1186,7 +1218,8 @@ class Question(models.Model):
         return (
             self.is_grade_question
             or self.is_bipolar_likert_question
-            or self.is_likert_question
+            or self.is_positive_likert_question
+            or self.is_negative_likert_question
             or self.is_yes_no_question
         )
 
@@ -1196,7 +1229,7 @@ class Question(models.Model):
 
     @property
     def is_heading_question(self):
-        return self.type == self.HEADING
+        return self.type == QuestionType.HEADING
 
     @property
     def can_have_textanswers(self):
@@ -1204,28 +1237,25 @@ class Question(models.Model):
 
 
 # Let's deduplicate the fields here once mypy is smart enough to keep up with us :)
-Choices = NamedTuple(
-    "Choices",
-    [
-        ("css_class", str),
-        ("values", Tuple[Number]),
-        ("colors", Tuple[str]),
-        ("grades", Tuple[Number]),
-        ("names", List[StrOrPromise]),
-    ],
-)
-BipolarChoices = NamedTuple(
-    "BipolarChoices",
-    [
-        ("css_class", str),
-        ("values", Tuple[Number]),
-        ("colors", Tuple[str]),
-        ("grades", Tuple[Number]),
-        ("names", List[StrOrPromise]),
-        ("plus_name", StrOrPromise),
-        ("minus_name", StrOrPromise),
-    ],
-)
+class Choices(NamedTuple):
+    css_class: str
+    values: tuple[Number]
+    colors: tuple[str]
+    grades: tuple[Number]
+    names: list[StrOrPromise]
+    is_inverted: bool
+
+
+class BipolarChoices(NamedTuple):
+    css_class: str
+    values: tuple[Number]
+    colors: tuple[str]
+    grades: tuple[Number]
+    names: list[StrOrPromise]
+    plus_name: StrOrPromise
+    minus_name: StrOrPromise
+    is_inverted: bool
+
 
 NO_ANSWER = 6
 BASE_UNIPOLAR_CHOICES = {
@@ -1240,6 +1270,7 @@ BASE_BIPOLAR_CHOICES = {
     "values": (-3, -2, -1, 0, 1, 2, 3, NO_ANSWER),
     "colors": ("red", "orange", "lime", "green", "lime", "orange", "red", "gray"),
     "grades": (5, 11 / 3, 7 / 3, 1, 7 / 3, 11 / 3, 5),
+    "is_inverted": False,
 }
 
 BASE_YES_NO_CHOICES = {
@@ -1249,8 +1280,8 @@ BASE_YES_NO_CHOICES = {
     "grades": (1, 5),
 }
 
-CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
-    Question.LIKERT: Choices(
+CHOICES: dict[int, Choices | BipolarChoices] = {
+    QuestionType.POSITIVE_LIKERT: Choices(
         names=[
             _("Strongly\nagree"),
             _("Agree"),
@@ -1259,9 +1290,22 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
             _("Strongly\ndisagree"),
             _("No answer"),
         ],
+        is_inverted=False,
         **BASE_UNIPOLAR_CHOICES,  # type: ignore
     ),
-    Question.GRADE: Choices(
+    QuestionType.NEGATIVE_LIKERT: Choices(
+        names=[
+            _("Strongly\ndisagree"),
+            _("Disagree"),
+            _("Neutral"),
+            _("Agree"),
+            _("Strongly\nagree"),
+            _("No answer"),
+        ],
+        is_inverted=True,
+        **BASE_UNIPOLAR_CHOICES,  # type: ignore
+    ),
+    QuestionType.GRADE: Choices(
         names=[
             "1",
             "2",
@@ -1270,9 +1314,10 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
             "5",
             _("No answer"),
         ],
+        is_inverted=False,
         **BASE_UNIPOLAR_CHOICES,  # type: ignore
     ),
-    Question.EASY_DIFFICULT: BipolarChoices(
+    QuestionType.EASY_DIFFICULT: BipolarChoices(
         minus_name=_("Easy"),
         plus_name=_("Difficult"),
         names=[
@@ -1287,7 +1332,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
         ],
         **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
-    Question.FEW_MANY: BipolarChoices(
+    QuestionType.FEW_MANY: BipolarChoices(
         minus_name=_("Few"),
         plus_name=_("Many"),
         names=[
@@ -1302,7 +1347,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
         ],
         **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
-    Question.LITTLE_MUCH: BipolarChoices(
+    QuestionType.LITTLE_MUCH: BipolarChoices(
         minus_name=_("Little"),
         plus_name=_("Much"),
         names=[
@@ -1317,7 +1362,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
         ],
         **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
-    Question.SMALL_LARGE: BipolarChoices(
+    QuestionType.SMALL_LARGE: BipolarChoices(
         minus_name=_("Small"),
         plus_name=_("Large"),
         names=[
@@ -1332,7 +1377,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
         ],
         **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
-    Question.SLOW_FAST: BipolarChoices(
+    QuestionType.SLOW_FAST: BipolarChoices(
         minus_name=_("Slow"),
         plus_name=_("Fast"),
         names=[
@@ -1347,7 +1392,7 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
         ],
         **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
-    Question.SHORT_LONG: BipolarChoices(
+    QuestionType.SHORT_LONG: BipolarChoices(
         minus_name=_("Short"),
         plus_name=_("Long"),
         names=[
@@ -1362,20 +1407,22 @@ CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
         ],
         **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
-    Question.POSITIVE_YES_NO: Choices(
+    QuestionType.POSITIVE_YES_NO: Choices(
         names=[
             _("Yes"),
             _("No"),
             _("No answer"),
         ],
+        is_inverted=False,
         **BASE_YES_NO_CHOICES,  # type: ignore
     ),
-    Question.NEGATIVE_YES_NO: Choices(
+    QuestionType.NEGATIVE_YES_NO: Choices(
         names=[
             _("No"),
             _("Yes"),
             _("No answer"),
         ],
+        is_inverted=True,
         **BASE_YES_NO_CHOICES,  # type: ignore
     ),
 }
@@ -1452,6 +1499,9 @@ class TextAnswer(Answer):
         ordering = ["id"]
         verbose_name = _("text answer")
         verbose_name_plural = _("text answers")
+        constraints = [
+            CheckConstraint(check=~Q(answer=F("original_answer")), name="check_evaluation_text_answer_is_modified")
+        ]
 
     @property
     def will_be_deleted(self):
@@ -1481,7 +1531,6 @@ class TextAnswer(Answer):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        assert self.answer != self.original_answer
 
 
 class FaqSection(models.Model):
@@ -1523,9 +1572,9 @@ class FaqQuestion(models.Model):
 class NotHalfEmptyConstraint(CheckConstraint):
     """Constraint, that all supplied fields are either all filled, or all empty."""
 
-    fields: List[str] = []
+    fields: list[str] = []
 
-    def __init__(self, *, fields: List[str], name: str, **kwargs):
+    def __init__(self, *, fields: list[str], name: str, **kwargs):
         self.fields = fields
         assert "check" not in kwargs
 
@@ -1593,15 +1642,19 @@ class Infotext(models.Model):
 
 
 class UserProfileManager(BaseUserManager):
-    def create_user(self, email, password=None, first_name=None, last_name=None):
-        user = self.model(email=self.normalize_email(email), first_name=first_name, last_name=last_name)
+    def create_user(self, *, email, password=None, first_name=None, last_name=None):
+        user = self.model(email=self.normalize_email(email), first_name_given=first_name, last_name=last_name)
+        validate_password(password, user=user)
         user.set_password(password)
         user.save()
         return user
 
-    def create_superuser(self, email, password, first_name=None, last_name=None):
+    def create_superuser(self, *, email, password=None, first_name=None, last_name=None):
         user = self.create_user(
-            password=password, email=self.normalize_email(email), first_name=first_name, last_name=last_name
+            password=password,
+            email=self.normalize_email(email),
+            first_name=first_name,
+            last_name=last_name,
         )
         user.is_superuser = True
         user.save()
@@ -1613,19 +1666,28 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     # null=True because certain external users don't have an address
     email = models.EmailField(max_length=255, unique=True, blank=True, null=True, verbose_name=_("email address"))
 
-    title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Title"))
-    first_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("first name"))
-    last_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("last name"))
+    title = models.CharField(max_length=255, blank=True, default="", verbose_name=_("Title"))
+    first_name_given = models.CharField(max_length=255, blank=True, verbose_name=_("first name"))
+    first_name_chosen = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        verbose_name=_("display name"),
+        help_text=_("This will replace your first name."),
+    )
+    last_name = models.CharField(max_length=255, blank=True, verbose_name=_("last name"))
 
-    language = models.CharField(max_length=8, blank=True, null=True, verbose_name=_("language"))
+    language = models.CharField(max_length=8, blank=True, default="", verbose_name=_("language"))
 
     # delegates of the user, which can also manage their evaluations
     delegates = models.ManyToManyField(
-        "UserProfile", verbose_name=_("Delegates"), related_name="represented_users", blank=True
+        "evaluation.UserProfile", verbose_name=_("Delegates"), related_name="represented_users", blank=True
     )
 
     # users to which all emails should be sent in cc without giving them delegate rights
-    cc_users = models.ManyToManyField("UserProfile", verbose_name=_("CC Users"), related_name="ccing_users", blank=True)
+    cc_users = models.ManyToManyField(
+        "evaluation.UserProfile", verbose_name=_("CC Users"), related_name="ccing_users", blank=True
+    )
 
     # flag for proxy users which represent a group of users
     is_proxy_user = models.BooleanField(default=False, verbose_name=_("Proxy user"))
@@ -1638,13 +1700,34 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     is_active = models.BooleanField(default=True, verbose_name=_("active"))
 
+    notes = models.TextField(verbose_name=_("notes"), blank=True, default="", max_length=1024 * 1024)
+
+    class StartPage(models.TextChoices):
+        DEFAULT = "DE", _("default")
+        STUDENT = "ST", _("student")
+        CONTRIBUTOR = "CO", _("contributor")
+        GRADES = "GR", _("grades")
+
+    startpage = models.CharField(
+        max_length=2,
+        choices=StartPage.choices,
+        verbose_name=_("start page of the user"),
+        default=StartPage.DEFAULT,
+    )
+
     class Meta:
-        ordering = [Lower("last_name"), Lower("first_name"), Lower("email")]
+        # keep in sync with ordering_key
+        ordering = [
+            Lower(NullIf("last_name", Value(""))),
+            Lower(Coalesce(NullIf("first_name_chosen", Value("")), NullIf("first_name_given", Value("")))),
+            Lower("email"),
+        ]
+
         verbose_name = _("user")
         verbose_name_plural = _("users")
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS: List[str] = []
+    REQUIRED_FIELDS = []
 
     objects = UserProfileManager()
 
@@ -1653,6 +1736,17 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
         self.email = clean_email(self.email)
         super().save(*args, **kwargs)
+
+    @property
+    def first_name(self):
+        return self.first_name_chosen or self.first_name_given
+
+    def ordering_key(self):
+        # keep in sync with Meta.ordering
+        lower_last_name = (self.last_name or "").lower()
+        lower_first_name = (self.first_name or "").lower()
+        lower_email = (self.email or "").lower()
+        return (lower_last_name, lower_first_name, lower_email)
 
     @property
     def full_name(self):
@@ -1676,9 +1770,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         name = self.full_name
         if self.is_external:
             return name + " [ext.]"
-        if "@" in self.email:
-            return name + " (" + self.email.split("@")[0] + ")"
-        return name + " (" + self.email + ")"
+        return f"{name} ({self.email})"
 
     def __str__(self):
         return self.full_name
@@ -1782,6 +1874,12 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     @cached_property
     def is_responsible_or_contributor_or_delegate(self):
         return self.is_responsible or self.is_contributor or self.is_delegate
+
+    @cached_property
+    def show_startpage_button(self):
+        return [self.is_participant, self.is_responsible_or_contributor_or_delegate, self.is_grade_publisher].count(
+            True
+        ) > 1
 
     @property
     def is_external(self):
@@ -2090,7 +2188,12 @@ class EmailTemplate(models.Model):
             template.send_to_user(participant, {}, body_params, use_cc=True)
 
     @classmethod
-    def send_textanswer_reminder_to_user(cls, user: UserProfile, evaluation_url_tuples: List[Tuple[Evaluation, str]]):
+    def send_textanswer_reminder_to_user(cls, user: UserProfile, evaluation_url_tuples: list[tuple[Evaluation, str]]):
         body_params = {"user": user, "evaluation_url_tuples": evaluation_url_tuples}
         template = cls.objects.get(name=cls.TEXT_ANSWER_REVIEW_REMINDER)
         template.send_to_user(user, {}, body_params, use_cc=False)
+
+
+class VoteTimestamp(models.Model):
+    evaluation = models.ForeignKey(Evaluation, models.CASCADE)
+    timestamp = models.DateTimeField(verbose_name=_("vote timestamp"), default=now)

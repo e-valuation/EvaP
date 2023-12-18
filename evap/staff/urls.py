@@ -9,15 +9,16 @@ urlpatterns = [
     path("", views.index, name="index"),
 
     path("semester/", RedirectView.as_view(url='/staff/', permanent=True)),
-    path("semester/create", views.semester_create, name="semester_create"),
+    path("semester/create", views.SemesterCreateView.as_view(), name="semester_create"),
     path("semester/<int:semester_id>", views.semester_view, name="semester_view"),
-    path("semester/<int:semester_id>/edit", views.semester_edit, name="semester_edit"),
+    path("semester/<int:semester_id>/edit", views.SemesterEditView.as_view(), name="semester_edit"),
     path("semester/make_active", views.semester_make_active, name="semester_make_active"),
     path("semester/delete", views.semester_delete, name="semester_delete"),
     path("semester/<int:semester_id>/import", views.semester_import, name="semester_import"),
     path("semester/<int:semester_id>/export", views.semester_export, name="semester_export"),
     path("semester/<int:semester_id>/raw_export", views.semester_raw_export, name="semester_raw_export"),
     path("semester/<int:semester_id>/participation_export", views.semester_participation_export, name="semester_participation_export"),
+    path("semester/<int:semester_id>/vote_timestamps_export", views.vote_timestamps_export, name="vote_timestamps_export"),
     path("semester/<int:semester_id>/assign", views.semester_questionnaire_assign, name="semester_questionnaire_assign"),
     path("semester/<int:semester_id>/preparation_reminder", views.semester_preparation_reminder, name="semester_preparation_reminder"),
     path("semester/<int:semester_id>/grade_reminder", views.semester_grade_reminder, name="semester_grade_reminder"),
@@ -39,7 +40,7 @@ urlpatterns = [
 
     path("semester/<int:semester_id>/course/create", views.course_create, name="course_create"),
     path("course/delete", views.course_delete, name="course_delete"),
-    path("course/<int:course_id>/edit", views.course_edit, name="course_edit"),
+    path("course/<int:course_id>/edit", views.CourseEditView.as_view(), name="course_edit"),
     path("course/<int:course_id>/copy", views.course_copy, name="course_copy"),
 
     path("semester/<int:semester_id>/singleresult/create", views.single_result_create_for_semester, name="single_result_create_for_semester"),
@@ -63,31 +64,32 @@ urlpatterns = [
     path("questionnaire/questionnaire_visibility", views.questionnaire_visibility, name="questionnaire_visibility"),
     path("questionnaire/questionnaire_set_locked", views.questionnaire_set_locked, name="questionnaire_set_locked"),
 
-    path("degrees/", views.degree_index, name="degree_index"),
+    path("degrees/", views.DegreeIndexView.as_view(), name="degree_index"),
 
-    path("course_types/", views.course_type_index, name="course_type_index"),
+    path("course_types/", views.CourseTypeIndexView.as_view(), name="course_type_index"),
     path("course_types/merge", views.course_type_merge_selection, name="course_type_merge_selection"),
     path("course_types/<int:main_type_id>/merge/<int:other_type_id>", views.course_type_merge, name="course_type_merge"),
 
     path("user/", views.user_index, name="user_index"),
-    path("user/create", views.user_create, name="user_create"),
+    path("user/create", views.UserCreateView.as_view(), name="user_create"),
     path("user/import", views.user_import, name="user_import"),
     path("user/<int:user_id>/edit", views.user_edit, name="user_edit"),
     path("user/list", views.user_list, name="user_list"),
     path("user/delete", views.user_delete, name="user_delete"),
+    path("user/resend_email", views.user_resend_email, name="user_resend_email"),
     path("user/bulk_update", views.user_bulk_update, name="user_bulk_update"),
-    path("user/merge", views.user_merge_selection, name="user_merge_selection"),
+    path("user/merge", views.UserMergeSelectionView.as_view(), name="user_merge_selection"),
     path("user/<int:main_user_id>/merge/<int:other_user_id>", views.user_merge, name="user_merge"),
 
     path("template/", RedirectView.as_view(url='/staff/', permanent=True)),
-    path("template/<int:template_id>", views.template_edit, name="template_edit"),
+    path("template/<int:template_id>", views.TemplateEditView.as_view(), name="template_edit"),
 
     path("text_answer_warnings/", views.text_answer_warnings_index, name="text_answer_warnings"),
 
-    path("faq/", views.faq_index, name="faq_index"),
+    path("faq/", views.FaqIndexView.as_view(), name="faq_index"),
     path("faq/<int:section_id>", views.faq_section, name="faq_section"),
 
-    path("infotexts/", views.infotexts, name="infotexts"),
+    path("infotexts/", views.InfotextsView.as_view(), name="infotexts"),
 
     path("download_sample_file/<str:filename>", views.download_sample_file, name="download_sample_file"),
 

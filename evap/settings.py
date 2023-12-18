@@ -11,7 +11,9 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 import logging
 import os
 import sys
-from typing import Any, List, Tuple
+from typing import Any
+
+from django.contrib.staticfiles.storage import ManifestStaticFilesStorage
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -70,7 +72,7 @@ INSTITUTION_EMAIL_DOMAINS = ["institution.example.com"]
 # List of tuples defining email domains that should be replaced on saving UserProfiles.
 # Emails ending on the first value will have this part replaced by the second value.
 # e.g.: [("institution.example.com", "institution.com")]
-INSTITUTION_EMAIL_REPLACEMENTS: List[Tuple[str, str]] = []
+INSTITUTION_EMAIL_REPLACEMENTS: list[tuple[str, str]] = []
 
 # the importer accepts only these two strings in the 'graded' column
 IMPORTER_GRADED_YES = "yes"
@@ -98,7 +100,7 @@ EVALUATION_END_WARNING_PERIOD = 5
 ### Installation specific settings
 
 # People who get emails on errors.
-ADMINS: List[Tuple[str, str]] = [
+ADMINS: list[tuple[str, str]] = [
     # ('Your Name', 'your_email@example.com'),
 ]
 
@@ -133,12 +135,17 @@ CACHES = {
     },
 }
 
+
+class ManifestStaticFilesStorageWithJsReplacement(ManifestStaticFilesStorage):
+    support_js_module_import_aggregation = True
+
+
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage",
+        "BACKEND": "evap.settings.ManifestStaticFilesStorageWithJsReplacement",
     },
 }
 
@@ -247,6 +254,7 @@ _TEMPLATE_OPTIONS = {
         "django.contrib.messages.context_processors.messages",
         "evap.context_processors.slogan",
         "evap.context_processors.debug",
+        "evap.context_processors.notebook_form",
         "evap.context_processors.allow_anonymous_feedback_messages",
     ],
     "builtins": ["django.templatetags.i18n"],
@@ -366,6 +374,17 @@ SLOGANS_EN = [
 ]
 
 
+### Allowed chosen first names / display names
+def CHARACTER_ALLOWED_IN_NAME(character):  # pylint: disable=invalid-name
+    return any(
+        (
+            ord(character) in range(32, 127),  # printable ASCII / Basic Latin characters
+            ord(character) in range(160, 256),  # printable Latin-1 Supplement characters
+            ord(character) in range(256, 384),  # Latin Extended-A
+        )
+    )
+
+
 ### OpenID Login
 # replace 'example.com', OIDC_RP_CLIENT_ID and OIDC_RP_CLIENT_SECRET with real values in localsettings when activating
 ACTIVATE_OPEN_ID_LOGIN = False
@@ -399,8 +418,12 @@ except ImportError:
 
 TESTING = "test" in sys.argv or "pytest" in sys.modules
 
-# speed up tests
+# speed up tests and activate typeguard introspection
 if TESTING:
+    from typeguard import install_import_hook
+
+    install_import_hook(("evap", "tools"))
+
     # do not use ManifestStaticFilesStorage as it requires running collectstatic beforehand
     STORAGES["staticfiles"]["BACKEND"] = "django.contrib.staticfiles.storage.StaticFilesStorage"
 

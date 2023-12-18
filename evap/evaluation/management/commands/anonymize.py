@@ -114,14 +114,15 @@ class Command(BaseCommand):
         for user, name in zip(user_profiles, fake_usernames):
             if user.email and user.email.split("@")[0] in Command.ignore_email_usernames:
                 continue
-            user.first_name = name[0]
+            user.first_name_given = name[0]
+            user.first_name_chosen = random.choice(first_names) if random.random() < 0.1 else ""  # nosec
             user.last_name = name[1]
 
             if user.email:
                 old_domain = user.email.split("@")[1]
                 is_institution_domain = old_domain in Command.previous_institution_domains
                 new_domain = Command.new_institution_domain if is_institution_domain else Command.new_external_domain
-                user.email = (user.first_name + "." + user.last_name).lower() + "@" + new_domain
+                user.email = (user.first_name_given + "." + user.last_name).lower() + "@" + new_domain
 
             if user.login_key is not None:
                 # Create a new login key

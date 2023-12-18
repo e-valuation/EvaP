@@ -1,7 +1,7 @@
 import functools
 import operator
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Dict, Iterable, List, Set, Tuple, Union
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
@@ -39,7 +39,7 @@ class UserData:
     @staticmethod
     def bulk_update_fields():
         """Fields passed to bulk_update when updating existing users with new UserData"""
-        return ["first_name", "last_name", "title", "email", "is_active"]
+        return ["first_name_given", "last_name", "title", "email", "is_active"]
 
     def __init__(self, first_name: str, last_name: str, title: str, email: str):
         # object.__setattr__ is needed to initialize instances of frozen dataclasses
@@ -50,7 +50,7 @@ class UserData:
 
     def apply_to_and_make_active(self, user_profile: UserProfile):
         """Intended to update existing UserProfile entries from the database. email is not touched"""
-        user_profile.first_name = self.first_name
+        user_profile.first_name_given = self.first_name
         user_profile.last_name = self.last_name
         user_profile.title = self.title
         user_profile.is_active = True
@@ -135,7 +135,7 @@ class UserDataMismatchChecker(Checker):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         # maps user's mail to UserData instance where it was first seen to have O(1) lookup
-        self.users: Dict[str, UserData] = {}
+        self.users: dict[str, UserData] = {}
 
         self.in_file_mismatch_tracker = FirstLocationAndCountTracker()
 
@@ -169,7 +169,7 @@ class UserDataMismatchChecker(Checker):
 
             if (
                 (db_user.title is not None and db_user.title != user_data.title)
-                or db_user.first_name != user_data.first_name
+                or db_user.first_name_given != user_data.first_name
                 or db_user.last_name != user_data.last_name
             ):
                 self._add_user_data_mismatch_warning(db_user, user_data)
@@ -181,14 +181,14 @@ class UserDataMismatchChecker(Checker):
         same_name_filter = functools.reduce(
             operator.or_,
             (
-                Q(first_name=user.first_name) & Q(last_name=user.last_name) & ~Q(email=user.email)
+                Q(first_name_given=user.first_name) & Q(last_name=user.last_name) & ~Q(email=user.email)
                 for user in self.users.values()
             ),
             Q(pk=None),  # always false Q as initializer, required for empty self.users
         )
 
         db_users_by_name = unordered_groupby(
-            ((db_user.first_name, db_user.last_name), db_user)
+            ((db_user.first_name_given, db_user.last_name), db_user)
             for db_user in UserProfile.objects.filter(same_name_filter)
         )
 
@@ -235,14 +235,14 @@ class UserDataMismatchChecker(Checker):
         self.importer_log.add_warning(msg, category=ImporterLogEntry.Category.DUPL)
 
     @staticmethod
-    def _create_user_string(user: Union[UserProfile, UserData]):
+    def _create_user_string(user: UserProfile | UserData):
         if isinstance(user, UserProfile):
             return format_html(
                 "{} {} {}, {} [{}]",
                 user.title or "",
-                user.first_name,
-                user.last_name,
-                user.email or "",
+                user.first_name_given or "(empty)",
+                user.last_name or "(empty)",
+                user.email or "(empty)",
                 user_edit_link(user.pk),
             )
 
@@ -256,7 +256,7 @@ class UserDataValidationChecker(Checker):
         super().__init__(*args, **kwargs)
 
         # Only give one error per unique user_data.
-        self.already_checked: Set[UserData] = set()
+        self.already_checked: set[UserData] = set()
 
     def check_userdata(self, user_data: UserData, _location: ExcelFileLocation):
         if user_data.email == "":
@@ -281,7 +281,7 @@ class DuplicateUserDataChecker(Checker):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.first_location_by_user_data: Dict[UserData, ExcelFileLocation] = {}
+        self.first_location_by_user_data: dict[UserData, ExcelFileLocation] = {}
 
         self.tracker = FirstLocationAndCountTracker()
 
@@ -318,7 +318,7 @@ class UserDataAdapter(RowCheckerMixin):
 
 
 @transaction.atomic
-def import_users(excel_content: bytes, test_run: bool) -> Tuple[List[UserProfile], ImporterLog]:
+def import_users(excel_content: bytes, test_run: bool) -> tuple[list[UserProfile], ImporterLog]:
     importer_log = ImporterLog()
 
     with ConvertExceptionsToMessages(importer_log):
@@ -369,7 +369,7 @@ def import_users(excel_content: bytes, test_run: bool) -> Tuple[List[UserProfile
     return [], importer_log
 
 
-def get_user_profile_objects(users: Iterable[UserData]) -> Tuple[List[UserProfile], List[UserProfile]]:
+def get_user_profile_objects(users: Iterable[UserData]) -> tuple[list[UserProfile], list[UserProfile]]:
     user_data_by_email = {user_data.email: user_data for user_data in users}
 
     existing_objects = list(UserProfile.objects.filter(email__in=user_data_by_email.keys()))

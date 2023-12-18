@@ -1,3 +1,4 @@
+import datetime
 from functools import partial
 
 from django.test.utils import override_settings
@@ -10,10 +11,12 @@ from evap.evaluation.models import (
     Evaluation,
     Question,
     Questionnaire,
+    QuestionType,
     RatingAnswerCounter,
     Semester,
     TextAnswer,
     UserProfile,
+    VoteTimestamp,
 )
 from evap.evaluation.tests.tools import FuzzyInt, WebTestWith200Check, render_pages
 from evap.student.tools import answer_field_id
@@ -73,39 +76,39 @@ class TestVoteView(WebTest):
         cls.contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
 
         cls.contributor_heading_question = baker.make(
-            Question, questionnaire=cls.contributor_questionnaire, order=0, type=Question.HEADING
+            Question, questionnaire=cls.contributor_questionnaire, order=0, type=QuestionType.HEADING
         )
         cls.contributor_text_question = baker.make(
-            Question, questionnaire=cls.contributor_questionnaire, order=1, type=Question.TEXT
+            Question, questionnaire=cls.contributor_questionnaire, order=1, type=QuestionType.TEXT
         )
         cls.contributor_likert_question = baker.make(
-            Question, questionnaire=cls.contributor_questionnaire, order=2, type=Question.LIKERT
+            Question, questionnaire=cls.contributor_questionnaire, order=2, type=QuestionType.POSITIVE_LIKERT
         )
 
         cls.top_heading_question = baker.make(
-            Question, questionnaire=cls.top_general_questionnaire, order=0, type=Question.HEADING
+            Question, questionnaire=cls.top_general_questionnaire, order=0, type=QuestionType.HEADING
         )
         cls.top_text_question = baker.make(
-            Question, questionnaire=cls.top_general_questionnaire, order=1, type=Question.TEXT
+            Question, questionnaire=cls.top_general_questionnaire, order=1, type=QuestionType.TEXT
         )
         cls.top_likert_question = baker.make(
-            Question, questionnaire=cls.top_general_questionnaire, order=2, type=Question.LIKERT
+            Question, questionnaire=cls.top_general_questionnaire, order=2, type=QuestionType.POSITIVE_LIKERT
         )
         cls.top_grade_question = baker.make(
-            Question, questionnaire=cls.top_general_questionnaire, order=3, type=Question.GRADE
+            Question, questionnaire=cls.top_general_questionnaire, order=3, type=QuestionType.GRADE
         )
 
         cls.bottom_heading_question = baker.make(
-            Question, questionnaire=cls.bottom_general_questionnaire, order=0, type=Question.HEADING
+            Question, questionnaire=cls.bottom_general_questionnaire, order=0, type=QuestionType.HEADING
         )
         cls.bottom_text_question = baker.make(
-            Question, questionnaire=cls.bottom_general_questionnaire, order=1, type=Question.TEXT
+            Question, questionnaire=cls.bottom_general_questionnaire, order=1, type=QuestionType.TEXT
         )
         cls.bottom_likert_question = baker.make(
-            Question, questionnaire=cls.bottom_general_questionnaire, order=2, type=Question.LIKERT
+            Question, questionnaire=cls.bottom_general_questionnaire, order=2, type=QuestionType.POSITIVE_LIKERT
         )
         cls.bottom_grade_question = baker.make(
-            Question, questionnaire=cls.bottom_general_questionnaire, order=3, type=Question.GRADE
+            Question, questionnaire=cls.bottom_general_questionnaire, order=3, type=QuestionType.GRADE
         )
 
         cls.contribution1 = baker.make(
@@ -199,6 +202,7 @@ class TestVoteView(WebTest):
         self.fill_form(form, fill_general_complete=False)
         response = form.submit(status=200)
         self.assertIn("vote for all rating questions", response)
+        self.assertNotIn("skip the questions about a single person", response)
 
         form = page.forms["student-vote-form"]
 
@@ -236,6 +240,7 @@ class TestVoteView(WebTest):
         self.fill_form(form, fill_contributors_complete=False)
         response = form.submit(status=200)
         self.assertIn("vote for all rating questions", response)
+        self.assertIn("skip the questions about a single person", response)
 
         form = page.forms["student-vote-form"]
 
@@ -349,6 +354,17 @@ class TestVoteView(WebTest):
             question=self.bottom_text_question, contribution=self.evaluation.general_contribution
         ).values_list("answer", flat=True)
         self.assertEqual(list(answers), ["some bottom text"] * 2)
+
+    def test_vote_timestamp(self):
+        time_before = datetime.datetime.now()
+        timestamps_before = VoteTimestamp.objects.count()
+        page = self.app.get(self.url, user=self.voting_user1, status=200)
+        form = page.forms["student-vote-form"]
+        self.fill_form(form)
+        form.submit()
+        self.assertEqual(VoteTimestamp.objects.count(), timestamps_before + 1)
+        time = VoteTimestamp.objects.latest("timestamp").timestamp
+        self.assertTrue(time_before < time < datetime.datetime.now())
 
     def test_user_cannot_vote_multiple_times(self):
         page = self.app.get(self.url, user=self.voting_user1, status=200)

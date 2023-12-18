@@ -19,7 +19,11 @@
         <div class="alert alert-danger" role="alert">
             <div class="d-flex align-items-center justify-content-between">
                 <div class="p-2">
-                    {% blocktrans %}Please make sure to vote for all rating questions. You can also click on "I can't give feedback" to skip the questions about a single person.{% endblocktrans %}
+                    {% if contributor_errors_exist %}
+                        {% blocktrans %}Please make sure to vote for all rating questions. You can also click on "I can't give feedback" to skip the questions about a single person.{% endblocktrans %}
+                    {% else %}
+                        {% blocktrans %}Please make sure to vote for all rating questions.{% endblocktrans %}
+                    {% endif %}
                 </div>
                 <button id="btn-jump-unanswered-question" type="button" class="btn btn-light float-end" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Jump to the first unanswered question' %}">
                     <i class="fas fa-arrow-down"></i>
@@ -154,7 +158,7 @@
                             <span class="fas fa-circle-info" data-bs-toggle="tooltip" title="{% trans 'The evaluation can be continued later using the same device and the same browser. But you have to submit it to send it to the server and make it count. After submitting, you can not edit the evaluation anymore.' %}"></span>
                         </div>
                         <button id="vote-submit-btn" type="submit" class="btn btn-success tab-selectable">{% trans 'Submit questionnaire' %}</button>
-                        <p id="submit-error-warning" style="display: none">
+                        <p id="submit-error-warning" style="display: none" class="text-danger">
                             <span class="fas fa-triangle-exclamation"></span>
                             {% blocktrans %}The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire.{% endblocktrans %}
                         </p>
@@ -206,7 +210,7 @@
 
             function updateLastSavedLabel() {
                 const timeNow = new Date();
-                const lastSavedLabel = $('#last-saved');
+                const lastSavedLabel = document.getElementById('last-saved');
                 if (localStorage.getItem(lastSavedStorageKey) !== null) {
                     const lastSavedDate = new Date(localStorage.getItem(lastSavedStorageKey));
                     const delta = Math.round((timeNow - lastSavedDate) / 1000);
@@ -232,9 +236,9 @@
                         + padWithLeadingZeros(lastSavedDate.getHours()) + ":"
                         + padWithLeadingZeros(lastSavedDate.getMinutes());
                     }
-                    lastSavedLabel.text("{% trans 'Last saved locally' %}: " + timeStamp);
+                    lastSavedLabel.innerText = "{% trans 'Last saved locally' %}: " + timeStamp;
                 } else {
-                    lastSavedLabel.text("{% trans 'Could not save your information locally' %}");
+                    lastSavedLabel.innerText = "{% trans 'Could not save your information locally' %}";
                 }
             }
 
@@ -250,50 +254,41 @@
             updateLastSavedLabel();
             setInterval(updateLastSavedLabel, 1000);
 
-            initTextAnswerWarnings(document.querySelectorAll("#student-vote-form textarea"), JSON.parse($("#text-answer-warnings").text()));
+            initTextAnswerWarnings(document.querySelectorAll("#student-vote-form textarea"), JSON.parse(document.getElementById("text-answer-warnings").textContent));
 
-            var form = $('#student-vote-form');
-
-            // Taken from http://stackoverflow.com/questions/9177252/detecting-a-redirect-in-jquery-ajax
-            // This hacks jQuery to give us this xhr object which is used below
-            var xhr;
-            var _orgAjax = jQuery.ajaxSettings.xhr;
-            jQuery.ajaxSettings.xhr = function () {
-              xhr = _orgAjax();
-              return xhr;
-            };
-
-            form.submit(function (event) {
+            const form = document.getElementById('student-vote-form');
+            const submitListener = (event) => {
                 event.preventDefault(); // don't use the default submission
-                var submitButton = $('#vote-submit-btn');
-                var originalText = submitButton.text();
+                const submitButton = document.getElementById('vote-submit-btn');
+                const originalText = submitButton.innerText;
 
-                submitButton.text("{% trans 'Submitting...' %}");
-                submitButton.prop('disabled', true);
+                submitButton.innerText = "{% trans 'Submitting...' %}";
+                submitButton.disabled = true;
 
-                $.ajax({
-                    type: form.attr('method'),
-                    url: form.attr('action'),
-                    data: form.serialize(),
-                    success: function (data, s, req) {
-                        if(data === "{{ success_magic_string }}") {
-                            sisyphus.manuallyReleaseData();
-                            window.location.replace("{{ success_redirect_url }}");
-                        } else {
-                            // resubmit without this handler to show the site with the form errors
-                            form.unbind("submit");
-                            form.submit();
-                        }
-                    },
-                    error: function(data) {
-                        // show a warning if the post isn't successful
-                        document.getElementById('submit-error-warning').style.display = 'block';
-                        submitButton.text(originalText);
-                        submitButton.prop('disabled', false);
+                fetch(form.action, {
+                    body: new FormData(form),
+                    headers: CSRF_HEADERS,
+                    method: form.method,
+                }).then(response => {
+                    assert(response.ok);
+                    return response.text();
+                }).then(response_text => {
+                    if(response_text === "{{ success_magic_string }}") {
+                        sisyphus.manuallyReleaseData();
+                        window.location.replace("{{ success_redirect_url }}");
+                    } else {
+                        // resubmit without this handler to show the site with the form errors
+                        form.removeEventListener("submit", submitListener);
+                        form.requestSubmit();
                     }
+                }).catch(error => {
+                    // show a warning if the post isn't successful
+                    document.getElementById('submit-error-warning').style.display = 'block';
+                    submitButton.innerText = originalText;
+                    submitButton.disabled = false;
                 });
-                return false;
-            });
+            };
+            form.addEventListener("submit", submitListener);
 
             function clearChoiceError(voteButton) {
                 voteButton.closest(".row").querySelectorAll(".choice-error").forEach(highlightedElement => {

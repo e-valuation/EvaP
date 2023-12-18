@@ -15,8 +15,9 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.http import require_POST
 from django.views.i18n import set_language
 
-from evap.evaluation.forms import DelegatesForm, LoginEmailForm, NewKeyForm
-from evap.evaluation.models import EmailTemplate, FaqSection, Semester
+from evap.evaluation.forms import LoginEmailForm, NewKeyForm, NotebookForm, ProfileForm
+from evap.evaluation.models import EmailTemplate, FaqSection, Semester, UserProfile
+from evap.evaluation.tools import HttpResponseNoContent
 from evap.middleware import no_login_required
 
 logger = logging.getLogger(__name__)
@@ -31,11 +32,17 @@ def redirect_user_to_start_page(user):
             return redirect("staff:semester_view", active_semester.id)
         return redirect("staff:index")
 
+    if user.startpage == UserProfile.StartPage.STUDENT and user.is_participant:
+        return redirect("student:index")
+    if user.startpage == UserProfile.StartPage.CONTRIBUTOR and user.is_responsible_or_contributor_or_delegate:
+        return redirect("contributor:index")
+    if user.startpage == UserProfile.StartPage.GRADES and user.is_grade_publisher and active_semester is not None:
+        return redirect("grades:semester_view", active_semester.id)
+
     if user.is_grade_publisher:
         if active_semester is not None:
             return redirect("grades:semester_view", active_semester.id)
         return redirect("grades:index")
-
     if user.is_student:
         return redirect("student:index")
     if user.is_responsible_or_contributor_or_delegate:
@@ -198,29 +205,40 @@ def set_lang(request):
 
 def profile_edit(request):
     user = request.user
-    if user.is_editor:
-        form = DelegatesForm(request.POST or None, request.FILES or None, instance=user)
+    profile_form = ProfileForm(request.POST or None, request.FILES or None, instance=user)
 
-        if form.is_valid():
-            form.save()
-
+    if request.method == "POST":
+        if profile_form.is_valid():
+            profile_form.save()
             messages.success(request, _("Successfully updated your profile."))
             return redirect("evaluation:profile_edit")
 
-        return render(
-            request,
-            "profile.html",
-            {
-                "user": user,
-                "form": form,
-                "delegate_of": user.represented_users.all(),
-                "cc_users": user.cc_users.all(),
-                "ccing_users": user.ccing_users.all(),
-            },
-        )
+    editor_context = {
+        "delegate_of": user.represented_users.all(),
+        "cc_users": user.cc_users.all(),
+        "ccing_users": user.ccing_users.all(),
+    }
 
-    return render(
-        request,
-        "profile.html",
-        {"user": user},
-    )
+    context = {"user": user, "profile_form": profile_form, **(editor_context if user.is_editor else {})}
+
+    return render(request, "profile.html", context)
+
+
+@require_POST
+def set_notes(request):
+    form = NotebookForm(request.POST, instance=request.user)
+    if form.is_valid():
+        form.save()
+        return HttpResponseNoContent()
+    return HttpResponseBadRequest()
+
+
+def set_startpage(request):
+    user = request.user
+    startpage = request.POST.get("page")
+    if startpage not in UserProfile.StartPage.values:
+        return HttpResponseBadRequest()
+    user.startpage = startpage
+    user.save()
+
+    return redirect("evaluation:index")

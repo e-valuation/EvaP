@@ -2,12 +2,26 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.test import override_settings
+from django.urls import reverse
 from django.utils import translation
 from django_webtest import WebTest
 from model_bakery import baker
 
-from evap.evaluation.models import UserProfile
-from evap.evaluation.tests.tools import WebTestWith200Check, create_evaluation_with_responsible_and_editor
+from evap.evaluation.models import Evaluation, Question, QuestionType, UserProfile
+from evap.evaluation.tests.tools import (
+    WebTestWith200Check,
+    create_evaluation_with_responsible_and_editor,
+    store_ts_test_asset,
+)
+
+
+class RenderJsTranslationCatalog(WebTest):
+    url = reverse("javascript-catalog")
+
+    def render_pages(self):
+        # Not using render_pages decorator to manually create a single (special) javascript file
+        content = self.app.get(self.url).content
+        store_ts_test_asset("catalog.js", content)
 
 
 @override_settings(PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"])
@@ -22,7 +36,7 @@ class TestIndexView(WebTest):
         password_form = response.forms["email-login-form"]
         password_form["email"] = "password.user"
         password_form["password"] = "asd"  # nosec
-        password_form.submit(status=200)
+        password_form.submit()
         password_form["password"] = "evap"  # nosec
         password_form.submit(status=302)
 
@@ -79,6 +93,23 @@ class TestIndexView(WebTest):
         self.assertEqual(len(mail.outbox), 1)
         self.assertTrue(mail.outbox[0].to == [email])
         self.assertEqual(len(mail.outbox[0].cc), 0)
+
+
+class TestStartpage(WebTest):
+    def test_default_startpage(self):
+        result = create_evaluation_with_responsible_and_editor()
+        responsible = result["responsible"]
+        evaluation = result["evaluation"]
+
+        evaluation.participants.add(responsible)
+
+        self.assertRedirects(self.app.get(reverse("evaluation:index"), user=responsible), reverse("student:index"))
+
+        page = self.app.get(reverse("contributor:index"), user=responsible)
+        form = page.forms["startpage-form"]
+        form.submit()
+
+        self.assertRedirects(self.app.get(reverse("evaluation:index"), user=responsible), reverse("contributor:index"))
 
 
 class TestLegalNoticeView(WebTestWith200Check):
@@ -143,7 +174,7 @@ class TestChangeLanguageView(WebTest):
 
 
 class TestProfileView(WebTest):
-    url = "/profile"
+    url = reverse("evaluation:profile_edit")
 
     @classmethod
     def setUpTestData(cls):
@@ -156,8 +187,8 @@ class TestProfileView(WebTest):
 
     def test_save_settings(self):
         user = baker.make(UserProfile)
-        page = self.app.get(self.url, user=self.responsible, status=200)
-        form = page.forms["settings-form"]
+        page = self.app.get(self.url, user=self.responsible)
+        form = page.forms["profile-form"]
         form["delegates"] = [user.pk]
         form.submit()
 
@@ -166,7 +197,64 @@ class TestProfileView(WebTest):
 
     def test_view_settings_as_non_editor(self):
         user = baker.make(UserProfile, email="testuser@example.com")
-        page = self.app.get(self.url, user=user, status=200)
+        page = self.app.get(self.url, user=user)
         self.assertIn("Personal information", page)
         self.assertNotIn("Delegates", page)
         self.assertIn(user.email, page)
+
+    def test_edit_display_name(self):
+        page = self.app.get(self.url, user=self.responsible)
+        self.assertNotContains(page, "testdisplayname")
+        self.assertFalse(UserProfile.objects.filter(first_name_chosen="testdisplayname").exists())
+
+        form = page.forms["profile-form"]
+        form["first_name_chosen"] = "testdisplayname"
+        form.submit()
+        self.assertTrue(UserProfile.objects.filter(first_name_chosen="testdisplayname").exists())
+
+        page = self.app.get(self.url, user=self.responsible)
+        self.assertContains(page, "testdisplayname")
+
+
+class TestNegativeLikertQuestions(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.voting_user = baker.make(UserProfile, email="voting_user1@institution.example.com")
+
+        cls.evaluation = baker.make(
+            Evaluation,
+            participants=[cls.voting_user],
+            state=Evaluation.State.IN_EVALUATION,
+        )
+
+        cls.question = baker.make(
+            Question,
+            type=QuestionType.NEGATIVE_LIKERT,
+            text_en="Negative Likert Question",
+            text_de="Negative Likert Frage",
+        )
+
+        cls.evaluation.general_contribution.questionnaires.add(cls.question.questionnaire)
+
+        cls.url = reverse("student:vote", args=[cls.evaluation.pk])
+
+    def test_answer_ordering(self):
+        page = self.app.get(self.url, user=self.voting_user, status=200).body.decode()
+        self.assertLess(page.index("Strongly<br>disagree"), page.index("Strongly<br>agree"))
+        self.assertIn("The answer scale is inverted for this question", page)
+
+
+class TestNotebookView(WebTest):
+    url = reverse("evaluation:profile_edit")  # is used exemplarily, notebook is accessed from all pages
+    note = "Data is so beautiful"
+
+    def test_notebook(self):
+        user = baker.make(UserProfile, email="student@institution.example.com")
+
+        page = self.app.get(self.url, user=user)
+        form = page.forms["notebook-form"]
+        form["notes"] = self.note
+        form.submit()
+
+        user.refresh_from_db()
+        self.assertEqual(user.notes, self.note)

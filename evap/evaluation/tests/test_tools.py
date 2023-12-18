@@ -1,4 +1,3 @@
-from typing import Type
 from unittest.mock import patch
 from uuid import UUID
 
@@ -20,9 +19,9 @@ from evap.evaluation.tools import (
 
 
 class TestLanguageMiddleware(WebTest):
-    def test_sets_language_if_none(self):
+    def test_sets_language_if_empty(self):
         translation.activate("de")
-        user = baker.make(UserProfile, language=None, email="user@institution.example.com")
+        user = baker.make(UserProfile, language="", email="user@institution.example.com")
 
         # Django's LocaleMiddleware should overwrite the active translation with what matches the user (-> "en")
         self.app.get("/", user=user)
@@ -41,12 +40,12 @@ class TestLanguageMiddleware(WebTest):
         translation.activate("en")  # for following tests
 
 
-class SaboteurException(Exception):
+class SaboteurError(Exception):
     """An exception class used for making sure that our mock is raising the exception and not some other unrelated code"""
 
 
 class TestLogExceptionsDecorator(TestCase):
-    @patch("evap.evaluation.models.Evaluation.update_evaluations", side_effect=SaboteurException())
+    @patch("evap.evaluation.models.Evaluation.update_evaluations", side_effect=SaboteurError())
     @patch("evap.evaluation.management.commands.tools.logger.exception")
     def test_log_exceptions_decorator(self, mock_logger, __):
         """
@@ -55,7 +54,7 @@ class TestLogExceptionsDecorator(TestCase):
         One could create a mock management command and call its handle method manually,
         but to me it seemed safer to use a real one.
         """
-        with self.assertRaises(SaboteurException):
+        with self.assertRaises(SaboteurError):
             management.call_command("update_evaluation_states")
 
         self.assertTrue(mock_logger.called)
@@ -67,8 +66,8 @@ class TestHelperMethods(WebTest):
         evaluation = baker.make(Evaluation, voters=[baker.make(UserProfile)])
         baker.make(Contribution, evaluation=evaluation)
 
-        def test_logic(cls: Type[Model], pk: int, field: str) -> None:
-            instance = cls.objects.get(pk=pk)
+        def test_logic(cls: type[Model], pk: int, field: str) -> None:
+            instance = cls._default_manager.get(pk=pk)
             self.assertFalse(is_prefetched(instance, field))
 
             prefetch_related_objects([instance], field)
@@ -77,7 +76,7 @@ class TestHelperMethods(WebTest):
             instance.refresh_from_db(fields=[field])
             self.assertFalse(is_prefetched(instance, field))
 
-            instance = cls.objects.filter(pk=instance.pk).prefetch_related(field).get()
+            instance = cls._default_manager.filter(pk=instance.pk).prefetch_related(field).get()
             self.assertTrue(is_prefetched(instance, field))
 
         test_logic(Evaluation, evaluation.pk, "contributions")  # inverse foreign key

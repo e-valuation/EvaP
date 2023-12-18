@@ -19,6 +19,8 @@
                     <tr><td><kbd>L</kbd></td><td>{% trans 'Delete answer' %}</td></tr>
                     <tr><td><kbd>&#x232b;</kbd></td><td>{% trans 'Unreview answer' %}</td></tr>
                     <tr><td><kbd>E</kbd></td><td>{% trans 'Edit answer' %}</td></tr>
+                    <tr><td><kbd>F</kbd></td><td>{% trans 'Set flag' %}</td></tr>
+                    <tr><td><kbd>D</kbd></td><td>{% trans 'Clear flag' %}</td></tr>
                     <tr><td><kbd>&#x21b2;</kbd></td><td>{% trans 'Review next evaluation' %}</td></tr>
                     <tr><td><kbd>S</kbd></td><td>{% trans 'Skip evaluation' %}</td></tr>
                     <tr><td><kbd>N</kbd></td><td>{% trans 'Show all again' %}</td></tr>
@@ -174,15 +176,14 @@
                     </button>
                 </div>
                 <div class="lcr-right">
-                    {% if user.is_manager %}
-                        <div data-action-set="reviewing">
-                            {% include "staff_evaluation_textanswer_flag_radios.html" with form="shared-full-textanswer-flag-form" id="shared" %}
-
+                    <div data-action-set="reviewing">
+                        {% include "staff_evaluation_textanswer_flag_radios.html" with form="shared-full-textanswer-flag-form" id="shared" %}
+                        {% if user.is_manager %}
                             <button type="submit" name="action" value="textanswer_edit" class="btn btn-sm btn-outline-secondary">
                                 <span class="fas fa-pencil"></span>
                             </button>
-                        </div>
-                    {% endif %}
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>

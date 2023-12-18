@@ -288,6 +288,7 @@ def export_contributor_results(contributor):
         include_not_enough_voters=True,
         include_unpublished=False,
         contributor=contributor,
+        verbose_heading=False,
     )
     return response
 

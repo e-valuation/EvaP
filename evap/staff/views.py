@@ -1,13 +1,15 @@
 import csv
 import itertools
 from collections import OrderedDict, defaultdict, namedtuple
+from collections.abc import Container
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Any, Container, Dict, List, Optional, Tuple, Type, Union, cast
+from typing import Any, cast
 
 import openpyxl
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import IntegrityError, transaction
 from django.db.models import (
@@ -24,16 +26,17 @@ from django.db.models import (
     When,
 )
 from django.dispatch import receiver
-from django.forms import formset_factory
+from django.forms import BaseForm, formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.html import format_html
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy, ngettext
 from django.views.decorators.http import require_POST
+from django.views.generic import CreateView, FormView, UpdateView
 from django_stubs_ext import StrOrPromise
 
 from evap.contributor.views import export_contributor_results
@@ -55,10 +58,13 @@ from evap.evaluation.models import (
     Semester,
     TextAnswer,
     UserProfile,
+    VoteTimestamp,
 )
 from evap.evaluation.tools import (
     AttachmentResponse,
+    FormsetView,
     HttpResponseNoContent,
+    SaveValidFormMixin,
     get_object_from_dict_pk_entry_or_logged_40x,
     get_parameter_from_url_or_session,
     sort_formset,
@@ -81,7 +87,6 @@ from evap.staff.forms import (
     CourseTypeForm,
     CourseTypeMergeSelectionForm,
     DegreeForm,
-    EmailTemplateForm,
     EvaluationCopyForm,
     EvaluationEmailForm,
     EvaluationForm,
@@ -213,7 +218,7 @@ def semester_view(request, semester_id) -> HttpResponse:
         first_start: datetime = datetime(9999, 1, 1)
         last_end: date = date(2000, 1, 1)
 
-    degree_stats: Dict[Degree, Stats] = defaultdict(Stats)
+    degree_stats: dict[Degree, Stats] = defaultdict(Stats)
     total_stats = Stats()
     for evaluation in evaluations:
         if evaluation.is_single_result:
@@ -235,7 +240,7 @@ def semester_view(request, semester_id) -> HttpResponse:
                 stats.last_end = max(stats.last_end, evaluation.vote_end_date)
     degree_stats = OrderedDict(sorted(degree_stats.items(), key=lambda x: x[0].order))
 
-    degree_stats_with_total = cast(Dict[Union[Degree, str], Stats], degree_stats)
+    degree_stats_with_total = cast(dict[Degree | str, Stats], degree_stats)
     degree_stats_with_total["total"] = total_stats
 
     template_data = {
@@ -258,10 +263,10 @@ def semester_view(request, semester_id) -> HttpResponse:
 
 
 class EvaluationOperation:
-    email_template_name: Optional[str] = None
-    email_template_contributor_name: Optional[str] = None
-    email_template_participant_name: Optional[str] = None
-    confirmation_message: Optional[StrOrPromise] = None
+    email_template_name: str | None = None
+    email_template_contributor_name: str | None = None
+    email_template_participant_name: str | None = None
+    confirmation_message: StrOrPromise | None = None
 
     @staticmethod
     def applicable_to(evaluation):
@@ -489,7 +494,7 @@ EVALUATION_OPERATIONS = {
 }
 
 
-def target_state_and_operation_from_str(target_state_str: str) -> Tuple[int, Type[EvaluationOperation]]:
+def target_state_and_operation_from_str(target_state_str: str) -> tuple[int, type[EvaluationOperation]]:
     try:
         target_state = int(target_state_str)
     except (KeyError, ValueError, TypeError) as err:
@@ -581,15 +586,27 @@ def evaluation_operation(request, semester_id):
 
 
 @manager_required
-def semester_create(request):
-    form = SemesterForm(request.POST or None)
+class SemesterCreateView(SuccessMessageMixin, CreateView):
+    template_name = "staff_semester_form.html"
+    model = Semester
+    form_class = SemesterForm
+    success_message = gettext_lazy("Successfully created semester.")
 
-    if form.is_valid():
-        semester = form.save()
-        messages.success(request, _("Successfully created semester."))
-        return redirect("staff:semester_view", semester.id)
+    def get_success_url(self) -> str:
+        assert self.object is not None
+        return reverse("staff:semester_view", args=[self.object.id])
 
-    return render(request, "staff_semester_form.html", {"form": form})
+
+@manager_required
+class SemesterEditView(SuccessMessageMixin, UpdateView):
+    template_name = "staff_semester_form.html"
+    model = Semester
+    form_class = SemesterForm
+    pk_url_kwarg = "semester_id"
+    success_message = gettext_lazy("Successfully updated semester.")
+
+    def get_success_url(self) -> str:
+        return reverse("staff:semester_view", args=[self.object.id])
 
 
 @require_POST
@@ -605,19 +622,6 @@ def semester_make_active(request):
     return HttpResponse()
 
 
-@manager_required
-def semester_edit(request, semester_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-    form = SemesterForm(request.POST or None, instance=semester)
-
-    if form.is_valid():
-        semester = form.save()
-        messages.success(request, _("Successfully updated semester."))
-        return redirect("staff:semester_view", semester.id)
-
-    return render(request, "staff_semester_form.html", {"semester": semester, "form": form})
-
-
 @require_POST
 @manager_required
 def semester_delete(request):
@@ -625,12 +629,13 @@ def semester_delete(request):
 
     if not semester.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting semester not allowed")
-    RatingAnswerCounter.objects.filter(contribution__evaluation__course__semester=semester).delete()
-    TextAnswer.objects.filter(contribution__evaluation__course__semester=semester).delete()
-    Contribution.objects.filter(evaluation__course__semester=semester).delete()
-    Evaluation.objects.filter(course__semester=semester).delete()
-    Course.objects.filter(semester=semester).delete()
-    semester.delete()
+    with transaction.atomic():
+        RatingAnswerCounter.objects.filter(contribution__evaluation__course__semester=semester).delete()
+        TextAnswer.objects.filter(contribution__evaluation__course__semester=semester).delete()
+        Contribution.objects.filter(evaluation__course__semester=semester).delete()
+        Evaluation.objects.filter(course__semester=semester).delete()
+        Course.objects.filter(semester=semester).delete()
+        semester.delete()
     return redirect("staff:index")
 
 
@@ -802,6 +807,41 @@ def semester_participation_export(_request, semester_id):
                 number_of_optional_evaluations_voted_for,
                 number_of_optional_evaluations,
                 earned_reward_points,
+            ]
+        )
+
+    return response
+
+
+@manager_required
+def vote_timestamps_export(_request, semester_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    timestamps = VoteTimestamp.objects.filter(evaluation__course__semester=semester).prefetch_related(
+        "evaluation__course__degrees"
+    )
+
+    filename = f"Voting-Timestamps-{semester.name}.csv"
+    response = AttachmentResponse(filename, content_type="text/csv")
+
+    writer = csv.writer(response, delimiter=";", lineterminator="\n")
+    writer.writerow(
+        [
+            _("Evaluation id"),
+            _("Course type"),
+            _("Course degrees"),
+            _("Vote end date"),
+            _("Timestamp"),
+        ]
+    )
+
+    for timestamp in timestamps:
+        writer.writerow(
+            [
+                timestamp.evaluation.id,
+                timestamp.evaluation.course.type.name,
+                ", ".join([degree.name for degree in timestamp.evaluation.course.degrees.all()]),
+                timestamp.evaluation.vote_end_date,
+                timestamp.timestamp,
             ]
         )
 
@@ -1014,41 +1054,50 @@ def course_copy(request, course_id):
 
 
 @manager_required
-def course_edit(request, course_id):
-    course = get_object_or_404(Course, id=course_id)
+class CourseEditView(SuccessMessageMixin, UpdateView):
+    model = Course
+    pk_url_kwarg = "course_id"
+    form_class = CourseForm
+    template_name = "staff_course_form.html"
+    success_message = gettext_lazy("Successfully updated course.")
 
-    course_form = CourseForm(request.POST or None, instance=course)
-    editable = course.can_be_edited_by_manager
+    object: Course
 
-    if request.method == "POST" and not editable:
-        raise SuspiciousOperation("Modifying this course is not allowed.")
+    def get_object(self, *args, **kwargs) -> Course:
+        course = super().get_object(*args, **kwargs)
+        if self.request.method == "POST" and not course.can_be_edited_by_manager:
+            raise SuspiciousOperation("Modifying this course is not allowed.")
+        return course
 
-    operation = request.POST.get("operation")
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        context_data = super().get_context_data(**kwargs) | {
+            "semester": self.object.semester,
+            "editable": self.object.can_be_edited_by_manager,
+            "disable_breadcrumb_course": True,
+        }
+        context_data["course_form"] = context_data.pop("form")
+        return context_data
 
-    if course_form.is_valid():
-        if operation not in ("save", "save_create_evaluation", "save_create_single_result"):
+    def form_valid(self, form: BaseForm) -> HttpResponse:
+        assert isinstance(form, CourseForm)  # https://www.github.com/typeddjango/django-stubs/issues/1809
+
+        if self.request.POST.get("operation") not in ("save", "save_create_evaluation", "save_create_single_result"):
             raise SuspiciousOperation("Invalid POST operation")
 
-        if course_form.has_changed():
-            course = course_form.save()
-            update_template_cache_of_published_evaluations_in_course(course)
+        response = super().form_valid(form)
+        if form.has_changed():
+            update_template_cache_of_published_evaluations_in_course(self.object)
+        return response
 
-        messages.success(request, _("Successfully updated course."))
-        if operation == "save_create_evaluation":
-            return redirect("staff:evaluation_create_for_course", course.id)
-        if operation == "save_create_single_result":
-            return redirect("staff:single_result_create_for_course", course.id)
-
-        return redirect("staff:semester_view", course.semester.id)
-
-    template_data = {
-        "course": course,
-        "semester": course.semester,
-        "course_form": course_form,
-        "editable": editable,
-        "disable_breadcrumb_course": True,
-    }
-    return render(request, "staff_course_form.html", template_data)
+    def get_success_url(self) -> str:
+        match self.request.POST["operation"]:
+            case "save":
+                return reverse("staff:semester_view", args=[self.object.semester.id])
+            case "save_create_evaluation":
+                return reverse("staff:evaluation_create_for_course", args=[self.object.id])
+            case "save_create_single_result":
+                return reverse("staff:single_result_create_for_course", args=[self.object.id])
+        raise SuspiciousOperation("Unexpected operation")
 
 
 @require_POST
@@ -1061,7 +1110,7 @@ def course_delete(request):
     return HttpResponse()  # 200 OK
 
 
-def evaluation_create_impl(request, semester: Semester, course: Optional[Course]):
+def evaluation_create_impl(request, semester: Semester, course: Course | None):
     if course is not None:
         assert course.semester == semester
     if semester.participations_are_archived:
@@ -1146,7 +1195,7 @@ def evaluation_copy(request, evaluation_id):
     )
 
 
-def single_result_create_impl(request, semester: Semester, course: Optional[Course]):
+def single_result_create_impl(request, semester: Semester, course: Course | None):
     if course is not None:
         assert course.semester == semester
     if semester.participations_are_archived:
@@ -1475,7 +1524,7 @@ TextAnswerSection = namedtuple(
 def get_evaluation_and_contributor_textanswer_sections(
     evaluation: Evaluation,
     textanswer_filter: Q,
-) -> Tuple[List[TextAnswerSection], List[TextAnswerSection]]:
+) -> tuple[list[TextAnswerSection], list[TextAnswerSection]]:
     evaluation_sections = []
     contributor_sections = []
     evaluation_responsibles = list(evaluation.course.responsibles.all())
@@ -1738,7 +1787,7 @@ def questionnaire_create(request):
     return render(request, "staff_questionnaire_form.html", {"form": form, "formset": formset, "editable": True})
 
 
-def disable_all_except_named(fields: Dict[str, Any], names_of_editable: Container[str]):
+def disable_all_except_named(fields: dict[str, Any], names_of_editable: Container[str]):
     for name, field in fields.items():
         if name not in names_of_editable:
             field.disabled = True
@@ -1953,37 +2002,33 @@ def questionnaire_set_locked(request):
 
 
 @manager_required
-def degree_index(request):
-    degrees = Degree.objects.all()
-
-    DegreeFormset = modelformset_factory(
-        Degree, form=DegreeForm, formset=ModelWithImportNamesFormset, can_delete=True, extra=1
+class DegreeIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
+    model = Degree
+    formset_class = modelformset_factory(
+        Degree,
+        form=DegreeForm,
+        formset=ModelWithImportNamesFormset,
+        can_delete=True,
+        extra=1,
     )
-    formset = DegreeFormset(request.POST or None, queryset=degrees)
-
-    if formset.is_valid():
-        formset.save()
-        messages.success(request, _("Successfully updated the degrees."))
-        return redirect("staff:degree_index")
-
-    return render(request, "staff_degree_index.html", {"formset": formset})
+    template_name = "staff_degree_index.html"
+    success_url = reverse_lazy("staff:degree_index")
+    success_message = gettext_lazy("Successfully updated the degrees.")
 
 
 @manager_required
-def course_type_index(request):
-    course_types = CourseType.objects.all()
-
-    CourseTypeFormset = modelformset_factory(
-        CourseType, form=CourseTypeForm, formset=ModelWithImportNamesFormset, can_delete=True, extra=1
+class CourseTypeIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
+    model = CourseType
+    formset_class = modelformset_factory(
+        CourseType,
+        form=CourseTypeForm,
+        formset=ModelWithImportNamesFormset,
+        can_delete=True,
+        extra=1,
     )
-    formset = CourseTypeFormset(request.POST or None, queryset=course_types)
-
-    if formset.is_valid():
-        formset.save()
-        messages.success(request, _("Successfully updated the course types."))
-        return redirect("staff:course_type_index")
-
-    return render(request, "staff_course_type_index.html", {"formset": formset})
+    template_name = "staff_course_type_index.html"
+    success_url = reverse_lazy("staff:course_type_index")
+    success_message = gettext_lazy("Successfully updated the course types.")
 
 
 @manager_required
@@ -2085,22 +2130,19 @@ def user_list(request):
             "ccing_users",
             "courses_responsible_for",
         )
-        .order_by("last_name", "first_name", "email")
+        .order_by(*UserProfile._meta.ordering)
     )
 
     return render(request, "staff_user_list.html", {"users": users, "filter_users": filter_users})
 
 
 @manager_required
-def user_create(request):
-    form = UserForm(request.POST or None, instance=UserProfile())
-
-    if form.is_valid():
-        form.save()
-        messages.success(request, _("Successfully created user."))
-        return redirect("staff:user_index")
-
-    return render(request, "staff_user_form.html", {"form": form})
+class UserCreateView(SuccessMessageMixin, CreateView):
+    model = UserProfile
+    form_class = UserForm
+    template_name = "staff_user_form.html"
+    success_url = reverse_lazy("staff:user_index")
+    success_message = gettext_lazy("Successfully created user.")
 
 
 @manager_required
@@ -2178,7 +2220,15 @@ def user_edit(request, user_id):
         return redirect("staff:user_index")
 
     return render(
-        request, "staff_user_form.html", {"form": form, "evaluations_contributing_to": evaluations_contributing_to}
+        request,
+        "staff_user_form.html",
+        {
+            "form": form,
+            "evaluations_contributing_to": evaluations_contributing_to,
+            "has_due_evaluations": bool(user.get_sorted_due_evaluations()),
+            "user_id": user_id,
+            "user_with_same_email": form.user_with_same_email,
+        },
     )
 
 
@@ -2191,6 +2241,23 @@ def user_delete(request):
         raise SuspiciousOperation("Deleting user not allowed")
     user.delete()
     messages.success(request, _("Successfully deleted user."))
+    return HttpResponse()  # 200 OK
+
+
+@require_POST
+@manager_required
+def user_resend_email(request):
+    user = get_object_from_dict_pk_entry_or_logged_40x(UserProfile, request.POST, "user_id")
+
+    template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
+    body_params = {
+        "user": user,
+        "evaluations": user.get_sorted_due_evaluations(),
+        "due_evaluations": {},
+    }
+
+    template.send_to_user(user, {}, body_params, use_cc=False)
+    messages.success(request, _("Successfully resent evaluation started email."))
     return HttpResponse()  # 200 OK
 
 
@@ -2235,38 +2302,45 @@ def user_bulk_update(request):
 
 
 @manager_required
-def user_merge_selection(request):
-    form = UserMergeSelectionForm(request.POST or None)
+class UserMergeSelectionView(FormView):
+    form_class = UserMergeSelectionForm
+    template_name = "staff_user_merge_selection.html"
 
-    class UserNameFromEmail(Func):
-        # django docs support our usage here:
-        # https://docs.djangoproject.com/en/5.0/ref/models/expressions/#func-expressions
-        # pylint: disable=abstract-method
-        template = "split_part(%(expressions)s, '@', 1)"
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
 
-    query = UserProfile.objects.annotate(username_part_of_email=UserNameFromEmail("email"))
+        class UserNameFromEmail(Func):
+            # django docs support our usage here:
+            # https://docs.djangoproject.com/en/5.0/ref/models/expressions/#func-expressions
+            # pylint: disable=abstract-method
+            template = "split_part(%(expressions)s, '@', 1)"
 
-    users_with_merge_candidates = query.annotate(
-        merge_candidate_pk=query.filter(username_part_of_email=UserNameFromEmail(OuterRef("email")))
-        .exclude(email__gte=OuterRef("email"))
-        .values("pk")[:1]
-    ).exclude(merge_candidate_pk=None)
+        query = UserProfile.objects.annotate(username_part_of_email=UserNameFromEmail("email"))
 
-    merge_candidate_ids = [user.merge_candidate_pk for user in users_with_merge_candidates]
-    merge_candidates_by_id = {user.pk: user for user in UserProfile.objects.filter(pk__in=merge_candidate_ids)}
+        users_with_merge_candidates = query.annotate(
+            merge_candidate_pk=query.filter(username_part_of_email=UserNameFromEmail(OuterRef("email")))
+            .exclude(email__gte=OuterRef("email"))
+            .values("pk")[:1]
+        ).exclude(merge_candidate_pk=None)
 
-    suggested_merges = [
-        (user, merge_candidates_by_id[user.merge_candidate_pk])
-        for user in users_with_merge_candidates
-        if not user.is_external and not merge_candidates_by_id[user.merge_candidate_pk].is_external
-    ]
+        merge_candidate_ids = [user.merge_candidate_pk for user in users_with_merge_candidates]
+        merge_candidates_by_id = {user.pk: user for user in UserProfile.objects.filter(pk__in=merge_candidate_ids)}
 
-    if form.is_valid():
-        main_user = form.cleaned_data["main_user"]
-        other_user = form.cleaned_data["other_user"]
-        return redirect("staff:user_merge", main_user.id, other_user.id)
+        suggested_merges = [
+            (user, merge_candidates_by_id[user.merge_candidate_pk])
+            for user in users_with_merge_candidates
+            if not user.is_external and not merge_candidates_by_id[user.merge_candidate_pk].is_external
+        ]
+        
+        context["suggested_merges"] = suggested_merges
+        return context
 
-    return render(request, "staff_user_merge_selection.html", {"form": form, "suggested_merges": suggested_merges})
+    def form_valid(self, form: UserMergeSelectionForm) -> HttpResponse:
+        return redirect(
+            "staff:user_merge",
+            form.cleaned_data["main_user"].id,
+            form.cleaned_data["other_user"].id,
+        )
 
 
 @manager_required
@@ -2297,61 +2371,59 @@ def user_merge(request, main_user_id, other_user_id):
 
 
 @manager_required
-def template_edit(request, template_id):
-    template = get_object_or_404(EmailTemplate, id=template_id)
-    form = EmailTemplateForm(request.POST or None, request.FILES or None, instance=template)
+class TemplateEditView(SuccessMessageMixin, UpdateView):
+    model = EmailTemplate
+    pk_url_kwarg = "template_id"
+    fields = ("subject", "plain_content", "html_content")
+    success_message = gettext_lazy("Successfully updated template.")
+    success_url = reverse_lazy("staff:index")
+    template_name = "staff_template_form.html"
 
-    if form.is_valid():
-        form.save()
-        messages.success(request, _("Successfully updated template."))
-        return redirect("staff:index")
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        template = context["template"] = context.pop("emailtemplate")
 
-    available_variables = [
-        "contact_email",
-        "page_url",
-        "login_url",  # only if they need it
-        "user",
-    ]
+        available_variables = [
+            "contact_email",
+            "page_url",
+            "login_url",  # only if they need it
+            "user",
+        ]
 
-    if template.name == EmailTemplate.STUDENT_REMINDER:
-        available_variables += ["first_due_in_days", "due_evaluations"]
-    elif template.name in [
-        EmailTemplate.EDITOR_REVIEW_NOTICE,
-        EmailTemplate.EDITOR_REVIEW_REMINDER,
-        EmailTemplate.PUBLISHING_NOTICE_CONTRIBUTOR,
-        EmailTemplate.PUBLISHING_NOTICE_PARTICIPANT,
-    ]:
-        available_variables += ["evaluations"]
-    elif template.name == EmailTemplate.TEXT_ANSWER_REVIEW_REMINDER:
-        available_variables += ["evaluation_url_tuples"]
-    elif template.name == EmailTemplate.EVALUATION_STARTED:
-        available_variables += ["evaluations", "due_evaluations"]
-    elif template.name == EmailTemplate.DIRECT_DELEGATION:
-        available_variables += ["evaluation", "delegate_user"]
+        if template.name == EmailTemplate.STUDENT_REMINDER:
+            available_variables += ["first_due_in_days", "due_evaluations"]
+        elif template.name in [
+            EmailTemplate.EDITOR_REVIEW_NOTICE,
+            EmailTemplate.EDITOR_REVIEW_REMINDER,
+            EmailTemplate.PUBLISHING_NOTICE_CONTRIBUTOR,
+            EmailTemplate.PUBLISHING_NOTICE_PARTICIPANT,
+        ]:
+            available_variables += ["evaluations"]
+        elif template.name == EmailTemplate.TEXT_ANSWER_REVIEW_REMINDER:
+            available_variables += ["evaluation_url_tuples"]
+        elif template.name == EmailTemplate.EVALUATION_STARTED:
+            available_variables += ["evaluations", "due_evaluations"]
+        elif template.name == EmailTemplate.DIRECT_DELEGATION:
+            available_variables += ["evaluation", "delegate_user"]
 
-    available_variables = ["{{ " + variable + " }}" for variable in available_variables]
-    available_variables.sort()
+        available_variables = ["{{ " + variable + " }}" for variable in available_variables]
+        available_variables.sort()
 
-    return render(
-        request,
-        "staff_template_form.html",
-        {"form": form, "template": template, "available_variables": available_variables},
-    )
+        context["available_variables"] = available_variables
+
+        return context
 
 
 @manager_required
-def faq_index(request):
-    sections = FaqSection.objects.all()
+class FaqIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
+    model = FaqSection
+    formset_class = modelformset_factory(FaqSection, form=FaqSectionForm, can_delete=True, extra=1)
+    template_name = "staff_faq_index.html"
+    success_url = reverse_lazy("staff:faq_index")
+    success_message = gettext_lazy("Successfully updated the FAQ sections.")
 
-    SectionFormset = modelformset_factory(FaqSection, form=FaqSectionForm, can_delete=True, extra=1)
-    formset = SectionFormset(request.POST or None, queryset=sections)
-
-    if formset.is_valid():
-        formset.save()
-        messages.success(request, _("Successfully updated the FAQ sections."))
-        return redirect("staff:faq_index")
-
-    return render(request, "staff_faq_index.html", {"formset": formset, "sections": sections})
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        return super().get_context_data(**kwargs) | {"sections": FaqSection.objects.all()}
 
 
 @manager_required
@@ -2374,20 +2446,11 @@ def faq_section(request, section_id):
 
 
 @manager_required
-def infotexts(request):
-    InfotextFormSet = modelformset_factory(Infotext, form=InfotextForm, edit_only=True, extra=0)
-    formset = InfotextFormSet(request.POST or None)
-
-    if formset.is_valid():
-        formset.save()
-        messages.success(request, _("Successfully updated the infotext entries."))
-        return redirect("staff:infotexts")
-
-    return render(
-        request,
-        "staff_infotexts.html",
-        {"formset": formset},
-    )
+class InfotextsView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
+    formset_class = modelformset_factory(Infotext, form=InfotextForm, edit_only=True, extra=0)
+    template_name = "staff_infotexts.html"
+    success_url = reverse_lazy("staff:infotexts")
+    success_message = gettext_lazy("Successfully updated the infotext entries.")
 
 
 @manager_required

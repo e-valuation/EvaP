@@ -5,7 +5,7 @@ from django.utils.formats import localize
 from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, UserProfile
-from evap.evaluation.models_logging import FieldAction
+from evap.evaluation.models_logging import FieldAction, InstanceActionType
 
 
 class TestLoggedModel(TestCase):
@@ -52,7 +52,10 @@ class TestLoggedModel(TestCase):
         )
 
     def test_deletion_data(self):
-        self.assertEqual(self.evaluation._get_change_data(action_type="delete")["course"]["delete"][0], self.course.id)
+        self.assertEqual(
+            self.evaluation._get_change_data(action_type=InstanceActionType.DELETE)["course"]["delete"][0],
+            self.course.id,
+        )
         self.evaluation.delete()
         self.assertEqual(self.evaluation.related_logentries().count(), 0)
 
@@ -122,12 +125,13 @@ class TestLoggedModel(TestCase):
             [participant2.pk],
         )
 
-    def test_none_value_not_included(self):
-        baker.make(Contribution, evaluation=self.evaluation, label="testlabel")
-        self.assertIn("label", self.evaluation.related_logentries().order_by("id").last().data)
+    def test_none_value_not_included_on_creation(self):
+        contributor = baker.make(UserProfile)
+        baker.make(Contribution, evaluation=self.evaluation, contributor=contributor)
+        self.assertIn("contributor", self.evaluation.related_logentries().order_by("id").last().data)
 
-        baker.make(Contribution, evaluation=self.evaluation, label=None)
-        self.assertNotIn("label", self.evaluation.related_logentries().order_by("id").last().data)
+        baker.make(Contribution, evaluation=self.evaluation, contributor=None)
+        self.assertNotIn("contributor", self.evaluation.related_logentries().order_by("id").last().data)
 
     def test_simultaneous_add_and_remove(self):
         # Regression test for https://github.com/e-valuation/EvaP/issues/1594

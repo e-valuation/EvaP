@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from evap.evaluation.auth import participant_required
-from evap.evaluation.models import NO_ANSWER, Evaluation, RatingAnswerCounter, Semester, TextAnswer
+from evap.evaluation.models import NO_ANSWER, Evaluation, RatingAnswerCounter, Semester, TextAnswer, VoteTimestamp
 from evap.results.tools import (
     annotate_distributions_and_grades,
     get_evaluations_with_course_result_attributes,
@@ -161,11 +161,15 @@ def render_vote_page(request, evaluation, preview, for_rendering_in_modal=False)
         evaluation_form_group_top += evaluation_form_group_bottom
         evaluation_form_group_bottom = []
 
+    contributor_errors_exist = any(form.errors for form_group in form_groups.values() for form in form_group)
+    errors_exist = contributor_errors_exist or any(
+        any(form.errors for form in form_group)
+        for form_group in [evaluation_form_group_top, evaluation_form_group_bottom]
+    )
+
     template_data = {
-        "errors_exist": any(
-            any(form.errors for form in form_group)
-            for form_group in [*(form_groups.values()), evaluation_form_group_top, evaluation_form_group_bottom]
-        ),
+        "contributor_errors_exist": contributor_errors_exist,
+        "errors_exist": errors_exist,
         "evaluation_form_group_top": evaluation_form_group_top,
         "evaluation_form_group_bottom": evaluation_form_group_bottom,
         "contributor_form_groups": contributor_form_groups,
@@ -229,6 +233,8 @@ def vote(request, evaluation_id):
                                 TextAnswer.objects.create(
                                     contribution=contribution, question=question, answer=textanswer_value
                                 )
+
+        VoteTimestamp.objects.create(evaluation=evaluation)
 
         # Update all answer rows to make sure no system columns give away which one was last modified
         # see https://github.com/e-valuation/EvaP/issues/1384

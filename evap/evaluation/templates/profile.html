@@ -6,72 +6,32 @@
     {{ block.super }}
     <h3>{% trans 'Profile' %}</h3>
 
-    <div class="row mb-3">
-        <div class="col-6">
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="card-title mb-4">{% trans 'Personal information' %}</h4>
-                    <table class="table table-striped table-vertically-aligned">
-                        <tr>
-                            <td><strong>{% trans 'Title' %}</strong></td>
-                            <td>{{ user.title|default_if_none:"" }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>{% trans 'First name' %}</strong></td>
-                            <td>{{ user.first_name|default_if_none:"" }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>{% trans 'Last name' %}</strong></td>
-                            <td>{{ user.last_name|default_if_none:"" }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>{% trans 'Email' %}</strong></td>
-                            <td>{{ user.email|default_if_none:"" }}</td>
-                        </tr>
-                        {% if user.is_editor %}
-                            <tr>
-                                <td><strong>{% trans 'CC all my emails to' %}</strong></td>
-                                <td>
-                                    {% for cc_user in cc_users %}
-                                        {{ cc_user.full_name }}{% if not forloop.last %}, {% endif %}
-                                    {% endfor %}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>{% blocktrans %}You receive CC'ed emails for{% endblocktrans %}</strong></td>
-                                <td>
-                                    {% for ccing_user in ccing_users %}
-                                        {{ ccing_user.full_name }}{% if not forloop.last %}, {% endif %}
-                                    {% endfor %}
-                                </td>
-                            </tr>
-                        {% endif %}
-                    </table>
-                </div>
-                <div class="card-footer text-center">
-                    <button type="button" class="btn btn-light" id="changeRequestModalShowButton">
-                        {% trans 'Request changes' %}
-                    </button>
+    <form id="profile-form" method="POST" class="form-horizontal multiselect-form">
+        {% csrf_token %}
+        <div class="row row-cols-1 row-cols-md-2 g-4 mb-3">
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">{% trans 'Personal information' %}</h4>
+                        {% for field in profile_form %}
+                            {% if field != profile_form.delegates %}
+                                {% include 'bootstrap_form_field.html' with field=field %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
-        </div>
-        {% if user.is_editor %}
-            <div class="col-6">
-                <form id="settings-form" method="POST" class="form-horizontal multiselect-form settings-form" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    {% include 'bootstrap_form_errors.html' with errors=form.non_field_errors %}
-                    <div class="card">
+            {% if user.is_editor %}
+                <div class="col">
+                    <div class="card h-100">
                         <div class="card-body">
-                            <h4 class="card-title mb-4">{% trans 'Delegates' %}</h4>
-                            <p class="mb-3">
-                                {% trans 'Your delegates will receive all your emails in CC and will be able to prepare evaluations and see results on your behalf.' %}
-                            </p>
-                            <table class="table table-vertically-aligned">
+                            <h4 class="card-title mb-4">{% trans 'Delegates and emails' %}</h4>
+                            <table class="table table-vertically-aligned table-headerless">
                                 <tr>
                                     <td>
-                                    <strong>{% trans 'Your delegates' %}</strong><br />
-                                    {% include 'bootstrap_form_errors.html' with errors=form.delegates.errors %}
-                                    {{ form.delegates }}
+                                        <strong>{% trans 'Your delegates' %}</strong><br />
+                                        {% include 'bootstrap_form_field_widget.html' with field=profile_form.delegates %}
+                                        <div class="form-text">{% trans 'Your delegates will receive emails sent to you in CC, will be able to prepare evaluations on your behalf, and will see the results of your evaluations.' %}</div>
                                     </td>
                                 </tr>
                                 {% if delegate_of %}
@@ -84,16 +44,47 @@
                                         </td>
                                     </tr>
                                 {% endif %}
+                                    <td>
+                                        <strong>{% trans 'CC all my emails to' %}</strong><br />
+                                        {% for cc_user in cc_users %}
+                                            {{ cc_user.full_name }}{% if not forloop.last %}, {% endif %}
+                                        {% empty %}
+                                            <i>{% trans 'Nobody' %}</i>
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>{% blocktrans %}You receive CC'ed emails for{% endblocktrans %}</strong><br />
+                                        {% for ccing_user in ccing_users %}
+                                            {{ ccing_user.full_name }}{% if not forloop.last %}, {% endif %}
+                                        {% empty %}
+                                            <i>{% trans 'Nobody' %}</i>
+                                        {% endfor %}
+                                    </td>
+                                </tr>
                             </table>
                         </div>
-                        <div class="card-footer text-center">
-                            <button type="submit" class="btn btn-primary">{% trans 'Save delegates' %}</button>
-                        </div>
                     </div>
-                </form>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="row row-cols-1 {% if user.is_editor %}row-cols-md-1{% else %}row-cols-md-2{% endif %} g-4">
+            <div class="col">
+                <div class="card card-submit-area card-submit-area-2 text-center">
+                    <div class="card-body tab-row">
+                        <button type="submit" class="btn btn-primary">
+                            {% trans 'Save' %}
+                        </button>
+                        <button type="button" class="btn btn-light" id="changeRequestModalShowButton">
+                            {% trans 'Request changes' %}
+                        </button>
+                    </div>
+                </div>
             </div>
-        {% endif %}
-    </div>
+        </div>
+    </form>
 {% endblock %}
 
 {% block modals %}

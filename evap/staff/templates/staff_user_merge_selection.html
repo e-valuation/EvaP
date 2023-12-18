@@ -13,15 +13,14 @@
             <div class="card">
                 <div class="card-body">
                     <h4 class="card-title">{% trans 'Merge users' %}</h4>
-
-                    <form method="POST" id="user-merge-selection-form" class="form-horizontal">
+                    <form id="user-selection-form" method="POST" class="form-horizontal">
                         {% csrf_token %}
                         <p>{% trans 'Select the users you want to merge.' %}</p>
-                        {% include 'bootstrap_form.html' with form=form wide=False %}
+                        {% include 'bootstrap_form.html' with form=form wide=True %}
                     </form>
                 </div>
                 <div class="card-footer text-center card-submit-area d-flex">
-                    <button type="submit" form="user-merge-selection-form" class="btn btn-light mx-auto my-auto">{% trans 'Show merge info' %}</button>
+                    <button type="submit" form="user-selection-form" class="btn btn-light mx-auto my-auto">{% trans 'Show merge info' %}</button>
                 </div>
             </div>
         </div>

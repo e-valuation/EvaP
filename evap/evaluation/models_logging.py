@@ -44,7 +44,7 @@ class LogJSONEncoder(JSONEncoder):
 
     def default(self, o):
         # o is the object to serialize -- we can't rename the argument in JSONEncoder
-        if isinstance(o, (date, time, datetime)):
+        if isinstance(o, date | time | datetime):
             return localize(o)
         return super().default(o)
 
@@ -84,7 +84,7 @@ class LogEntry(models.Model):
     datetime = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT)
     action_type = models.CharField(max_length=255, choices=[(value, value) for value in InstanceActionType])
-    request_id = models.CharField(max_length=36, null=True, blank=True)
+    request_id = models.CharField(max_length=36, blank=True)
     data = models.JSONField(default=dict, encoder=LogJSONEncoder)
 
     class Meta:
@@ -159,14 +159,14 @@ class LoggedModel(models.Model):
                 if created_value is not None
             }
         elif action_type == InstanceActionType.CHANGE:
-            old_dict = type(self).objects.get(pk=self.pk)._as_dict()
+            old_dict = type(self)._default_manager.get(pk=self.pk)._as_dict()
             changes = {
                 field_name: {FieldActionType.VALUE_CHANGE: [old_value, self_dict[field_name]]}
                 for field_name, old_value in old_dict.items()
                 if old_value != self_dict[field_name]
             }
         elif action_type == InstanceActionType.DELETE:
-            old_dict = type(self).objects.get(pk=self.pk)._as_dict()
+            old_dict = type(self)._default_manager.get(pk=self.pk)._as_dict()
             changes = {
                 field_name: {FieldActionType.INSTANCE_DELETE: [deleted_value]}
                 for field_name, deleted_value in old_dict.items()
@@ -210,7 +210,7 @@ class LoggedModel(models.Model):
             request_id = self.thread.request_id
         except AttributeError:
             user = None
-            request_id = None
+            request_id = ""
 
         attach_to_model, attached_to_object_id = self.object_to_attach_logentries_to
         attached_to_object_type = ContentType.objects.get_for_model(attach_to_model)

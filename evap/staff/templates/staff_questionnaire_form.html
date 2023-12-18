@@ -1,5 +1,7 @@
 {% extends 'staff_questionnaire_base.html' %}
 
+{% load static %}
+
 {% block content %}
     {{ block.super }}
     {% if not editable %}
@@ -79,7 +81,7 @@
 
 {% block additional_javascript %}
     {% if editable %}
-        {% include 'sortable_form_js.html' %}
+        <script src="{% static 'js/sortable_form.js' %}"></script>
         <script type="text/javascript">
             rowChanged = function(row) {
                 nameDe = $(row.find('textarea[id$=-text_de]')).val();
@@ -94,12 +96,12 @@
             makeFormSortable("question_table", "questions", rowChanged, rowAdded, "", true, true);
 
             const selectChangedHandler = function(e) {
-                const checkbox = $($(this).closest("td.question-type")).find("input");
+                const checkbox = this.closest("td.question-type").querySelector("input[type=checkbox]");
                 if (e.currentTarget.value == 0 || e.currentTarget.value == 5) {  // 0: Text question; 5: Heading
-                    checkbox.prop("checked", false);
-                    checkbox.prop("disabled", true);
+                    checkbox.checked = false;
+                    checkbox.disabled = true;
                 } else {
-                    checkbox.prop("disabled", false);
+                    checkbox.disabled = false;
                 }
             };
 
