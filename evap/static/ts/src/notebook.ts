@@ -1,11 +1,6 @@
 import "./translation.js";
 import { unwrap, assert, selectOrError } from "./utils.js";
 
-const NOTEBOOK_LOCALSTORAGE_KEY = "evap_notebook_open";
-const COLLAPSE_TOGGLE_BUTTON_SELECTOR = "#notebookButton";
-const WEBSITE_CONTENT_SELECTOR = "#evapContent";
-const NOTEBOOK_FORM_SELECTOR = "#notebook-form";
-
 class NotebookFormLogic {
     private readonly notebook: HTMLFormElement;
     private readonly updateCooldown = 2000;
@@ -45,17 +40,19 @@ class NotebookFormLogic {
     };
 }
 
-export class NotebookLogic {
+class NotebookLogic {
     private readonly notebookCard: HTMLElement;
     private readonly evapContent: HTMLElement;
     private readonly formLogic: NotebookFormLogic;
     private readonly localStorageKey: string;
+    private readonly collapseNotebookButtonSelector: string;
 
-    constructor(notebookSelector: string) {
+    constructor(notebookSelector: string, noteBookFormSelector: string, evapContentSelector: string, localStorageKey: string, collapseNotebookButtonSelector: string) {
         this.notebookCard = selectOrError(notebookSelector);
-        this.formLogic = new NotebookFormLogic(NOTEBOOK_FORM_SELECTOR);
-        this.evapContent = selectOrError(WEBSITE_CONTENT_SELECTOR);
-        this.localStorageKey = NOTEBOOK_LOCALSTORAGE_KEY + "_" + notebookSelector;
+        this.formLogic = new NotebookFormLogic(noteBookFormSelector);
+        this.evapContent = selectOrError(evapContentSelector);
+        this.localStorageKey = localStorageKey + "_" + notebookSelector;
+        this.collapseNotebookButtonSelector = collapseNotebookButtonSelector;
     }
 
     private onShowNotebook = (): void => {
@@ -63,7 +60,7 @@ export class NotebookLogic {
 
         localStorage.setItem(this.localStorageKey, "true");
         this.evapContent.classList.add("notebook-margin");
-        selectOrError(COLLAPSE_TOGGLE_BUTTON_SELECTOR).classList.replace("show", "hide");
+        selectOrError(this.collapseNotebookButtonSelector).classList.replace("show", "hide");
     };
 
     private onHideNotebook = (): void => {
@@ -71,10 +68,11 @@ export class NotebookLogic {
 
         localStorage.setItem(this.localStorageKey, "false");
         this.evapContent.classList.remove("notebook-margin");
-        selectOrError(COLLAPSE_TOGGLE_BUTTON_SELECTOR).classList.replace("hide", "show");
+        selectOrError(this.collapseNotebookButtonSelector).classList.replace("hide", "show");
     };
 
     public attach = (): void => {
+
         if (localStorage.getItem(this.localStorageKey) == "true") {
             this.notebookCard.classList.add("show");
             this.onShowNotebook();
@@ -85,4 +83,11 @@ export class NotebookLogic {
 
         this.formLogic.attach();
     };
+}
+
+
+export function initNotebook(notebookSelector: string, noteBookFormSelector: string, evapContentSelector: string, localStorageKey: string, collapseNotebookButtonSelector: string): void {
+    if (document.querySelector(notebookSelector) && document.querySelector(noteBookFormSelector) && document.querySelector(evapContentSelector) && localStorageKey && collapseNotebookButtonSelector) {
+
+    new NotebookLogic(notebookSelector, noteBookFormSelector, evapContentSelector, localStorageKey, collapseNotebookButtonSelector).attach();}
 }
