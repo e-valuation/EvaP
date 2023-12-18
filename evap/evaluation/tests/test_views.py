@@ -7,11 +7,12 @@ from django.utils import translation
 from django_webtest import WebTest
 from model_bakery import baker
 
-from evap.evaluation.models import Evaluation, Question, QuestionType, UserProfile, Semester
+from evap.evaluation.models import Evaluation, Question, QuestionType, Semester, UserProfile
 from evap.evaluation.tests.tools import (
     WebTestWith200Check,
     create_evaluation_with_responsible_and_editor,
-    store_ts_test_asset, make_manager,
+    make_manager,
+    store_ts_test_asset,
 )
 from evap.staff.tests.utils import WebTestStaffMode
 
@@ -262,7 +263,6 @@ class TestNotebookView(WebTest):
 
 
 class TestResetEvaluation(WebTestStaffMode):
-
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
@@ -277,7 +277,7 @@ class TestResetEvaluation(WebTestStaffMode):
 
         form["evaluation"] = [evaluation.pk]
 
-        confirmation_page = form.submit("target_state", value=str(Evaluation.State.NEW))
+        confirmation_page = form.submit("target_state", value=str(Evaluation.State.NEW.value))
 
         # TODO: overthink this
         try:
@@ -290,19 +290,34 @@ class TestResetEvaluation(WebTestStaffMode):
 
         assertion(evaluation)
 
-    def test_reset_to_new(self):
-        invalid_start_states = [Evaluation.State.NEW, Evaluation.State.PUBLISHED]
+    def test_valid_source_states(self):
+        invalid_source_states = [Evaluation.State.NEW, Evaluation.State.PUBLISHED]
 
-        valid_start_states = [
+        valid_source_states = [
             Evaluation.State.PREPARED,
             Evaluation.State.EDITOR_APPROVED,
             Evaluation.State.APPROVED,
             Evaluation.State.IN_EVALUATION,
             Evaluation.State.EVALUATED,
-            Evaluation.State.REVIEWED
+            Evaluation.State.REVIEWED,
         ]
 
-        for s in valid_start_states:
-            self.reset_from_x_to_new(s, lambda evaluation: self.assertEqual(evaluation.state, Evaluation.State.NEW,
-                                                                            f"evaluation state was not reset to NEW from {s}"))
+        for s in valid_source_states:
+            self.reset_from_x_to_new(
+                s,
+                lambda evaluation: self.assertEqual(
+                    evaluation.state, Evaluation.State.NEW, f"evaluation state was not reset to NEW from {s}"
+                ),
+            )
 
+        # TODO@Felix: Not valid for NEW and PUBLISHED
+
+    def test_delete_previous_answers(self):
+        pass
+        # TODO@Felix: if checked, all received answers will be deleted
+
+        # TODO@Felix: if checked, voters list is cleared
+
+        # TODO@Felix: if NOT checked, all received answers stay
+
+        # TODO@Felix: if NOT checked, voters list stays the same
