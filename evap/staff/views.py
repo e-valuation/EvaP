@@ -619,7 +619,7 @@ def semester_make_active(request):
     semester.is_active = True
     semester.save()
 
-    return HttpResponse()
+    return redirect("staff:semester_view", semester.id)
 
 
 @require_POST

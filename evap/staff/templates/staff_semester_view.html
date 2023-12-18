@@ -11,16 +11,30 @@
     {% if request.user.is_manager %}
         &nbsp;
         <a href="{% url 'staff:semester_edit' semester.id %}" class="btn btn-sm btn-secondary">{% trans 'Edit' %}</a>
-        <button
-            onClick="makeActiveSemesterModalShow({{ semester.id }})" class="btn btn-sm btn-light"
-            id="makeActiveSemesterButton" type="button"
-            {% if semester.is_active %}
-                disabled
-                data-bs-toggle="tooltip" data-bs-placement="top"
-                title="{% blocktrans %}This is the active semester{% endblocktrans %}"
-            {% endif %}>
-            {% trans 'Make active' %}
-        </button>
+        <form method="POST" action="{% url 'staff:semester_make_active' %}" class="d-inline">
+            {% csrf_token %}
+            <confirmation-modal type="submit" name="semester_id" value="{{ semester.id }}">
+                <span slot="title">{% trans 'Make this the active semester' %}</span>
+                <span slot="action-text">{% trans 'Make active' %}</span>
+                <span slot="question">
+                    {% blocktrans %}
+                        Do you want to make this the active semester?
+                    {% endblocktrans %}
+                </span>
+
+                <button
+                    slot="show-button"
+                    class="btn btn-sm btn-light"
+                    type="button"
+                    {% if semester.is_active %}
+                        disabled
+                        data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="{% blocktrans %}This is the active semester{% endblocktrans %}"
+                    {% endif %}>
+                    {% trans 'Make active' %}
+                </button>
+            </confirmation-modal>
+        </form>
 
         <form method="POST" action="{% url 'staff:semester_delete' %}" class="d-inline">
             {% csrf_token %}
@@ -505,26 +519,6 @@
 
 {% block modals %}
     {{ block.super }}
-    {% trans 'Make this the active semester' as title %}
-    {% trans 'Do you want to make this the active semester?' as question %}
-    {% trans 'Make active' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='makeActiveSemesterModal' title=title question=question action_text=action_text btn_type='primary' %}
-    <script type="text/javascript">
-        function makeActiveSemesterModalAction(dataId) {
-            const makeActiveSemesterButton = document.getElementById('makeActiveSemesterButton');
-            makeActiveSemesterButton.disabled = true;
-            makeActiveSemesterButton.textContent = "{% trans 'Activating...' %}";
-
-            fetch("{% url 'staff:semester_make_active' %}", {
-                body: new URLSearchParams({semester_id: dataId}),
-                headers: CSRF_HEADERS,
-                method: "POST",
-            }).then(response => {
-                assert(response.ok);
-                location.reload();
-            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
-        }
-    </script>
     {% trans 'Archive participations' as title %}
     {% blocktrans asvar question %}Do you really want to archive all participations in the semester <strong data-label=""></strong>? Further changes to the evaluations won't be possible and you can't undo this action.{% endblocktrans %}
     {% trans 'Archive participations' as action_text %}
