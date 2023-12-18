@@ -98,7 +98,7 @@
                                 <span slot="title">{% trans 'Archive participations' %}</span>
                                 <span slot="action-text">{% trans 'Archive participations' %}</span>
                                 <span slot="question">
-                                    {% blocktrans with semster_name=semester.name %}
+                                    {% blocktrans with semester_name=semester.name %}
                                         Do you really want to archive all participations in the semester <strong>{{ semester_name }}</strong>?
                                         Further changes to the evaluations won't be possible and you can't undo this action.
                                     {% endblocktrans %}
