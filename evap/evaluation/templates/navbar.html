@@ -138,6 +138,8 @@
         document.getElementById("button-set-language-{{ language_code }}").addEventListener("click", () => { setSpinnerIcon('span-set-language-{{ language_code }}'); });
     {% endfor %}
 
-    document.getElementById("button-exit-staff-mode").addEventListener("click", () => { setSpinnerIcon('span-exit-staff-mode'); });
-    document.getElementById("button-enter-staff-mode").addEventListener("click", () => { setSpinnerIcon('span-enter-staff-mode'); });
+    {% if user.has_staff_permission %}
+        document.getElementById("button-exit-staff-mode").addEventListener("click", () => { setSpinnerIcon('span-exit-staff-mode'); });
+        document.getElementById("button-enter-staff-mode").addEventListener("click", () => { setSpinnerIcon('span-enter-staff-mode'); });
+    {% endif %}
 </script>
