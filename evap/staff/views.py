@@ -2331,7 +2331,7 @@ class UserMergeSelectionView(FormView):
             for user in users_with_merge_candidates
             if not user.is_external and not merge_candidates_by_id[user.merge_candidate_pk].is_external
         ]
-        
+
         context["suggested_merges"] = suggested_merges
         return context
 
