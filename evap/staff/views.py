@@ -10,7 +10,19 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import IntegrityError, transaction
-from django.db.models import BooleanField, Case, Count, ExpressionWrapper, IntegerField, Prefetch, Q, Sum, When
+from django.db.models import (
+    BooleanField,
+    Case,
+    Count,
+    ExpressionWrapper,
+    Func,
+    IntegerField,
+    OuterRef,
+    Prefetch,
+    Q,
+    Sum,
+    When,
+)
 from django.dispatch import receiver
 from django.forms import formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
@@ -49,7 +61,6 @@ from evap.evaluation.tools import (
     HttpResponseNoContent,
     get_object_from_dict_pk_entry_or_logged_40x,
     get_parameter_from_url_or_session,
-    is_external_email,
     sort_formset,
 )
 from evap.grades.models import GradeDocument
@@ -2227,17 +2238,28 @@ def user_bulk_update(request):
 def user_merge_selection(request):
     form = UserMergeSelectionForm(request.POST or None)
 
-    all_users = list(UserProfile.objects.all())
-    suggested_merges = []
-    for user1 in all_users:
-        if user1 != None and user1.is_external == False:
-            for user2 in all_users:
-                if user2 != None and user2.is_external == False:
-                    if user1.email != user2.email and user1.email.split("@")[0] == user2.email.split("@")[0]:
-                        if user1.id > user2.id:
-                            suggested_merges.append([user1, user2])
-                        else:
-                            suggested_merges.append([user2, user1])
+    class UserNameFromEmail(Func):
+        # django docs support our usage here:
+        # https://docs.djangoproject.com/en/5.0/ref/models/expressions/#func-expressions
+        # pylint: disable=abstract-method
+        template = "split_part(%(expressions)s, '@', 1)"
+
+    query = UserProfile.objects.annotate(username_part_of_email=UserNameFromEmail("email"))
+
+    users_with_merge_candidates = query.annotate(
+        merge_candidate_pk=query.filter(username_part_of_email=UserNameFromEmail(OuterRef("email")))
+        .exclude(email__gte=OuterRef("email"))
+        .values("pk")[:1]
+    ).exclude(merge_candidate_pk=None)
+
+    merge_candidate_ids = [user.merge_candidate_pk for user in users_with_merge_candidates]
+    merge_candidates_by_id = {user.pk: user for user in UserProfile.objects.filter(pk__in=merge_candidate_ids)}
+
+    suggested_merges = [
+        (user, merge_candidates_by_id[user.merge_candidate_pk])
+        for user in users_with_merge_candidates
+        if not user.is_external and not merge_candidates_by_id[user.merge_candidate_pk].is_external
+    ]
 
     if form.is_valid():
         main_user = form.cleaned_data["main_user"]
