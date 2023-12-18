@@ -485,6 +485,27 @@
                     </div>
                 </div>
                 {% if courses %}
+                    <form id="course-deletion-form" method="POST" action="{% url 'staff:course_delete' %}">
+                        {% csrf_token %}
+                    </form>
+                    <script defer>
+                        const form = document.getElementById("course-deletion-form");
+                        form.addEventListener("submit", event => {
+                            event.preventDefault();
+                            const body = new FormData(form);
+                            const request = fetch(
+                                form.action,
+                                { method: form.method, body },
+                            );
+                            request.then(response => {
+                                assert(response.ok);
+                                fadeOutThenRemove(document.querySelector(`#course-row-${body.get("course_id")}`));
+                            }).catch(error => {
+                                window.alert("{% trans 'The server is not responding.' %}");
+                            });
+                        });
+                    </script>
+
                     <table id="course-table" class="table table-striped table-narrow table-vertically-aligned">
                         <colgroup>
                             <col />
@@ -540,9 +561,19 @@
                                             </a>
                                         {% endif %}
                                         {% if course.can_be_deleted_by_manager %}
-                                            <button type="button" onclick="deleteCourseModalShow({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
-                                                <span class="fas fa-trash" aria-hidden="true"></span>
-                                            </button>
+                                            <confirmation-modal type="submit" form="course-deletion-form" name="course_id" value="{{ course.id }}" confirm-button-class="btn-danger">
+                                                <span slot="title">{% trans 'Delete course' %}</span>
+                                                <span slot="action-text">{% trans 'Delete course' %}</span>
+                                                <span slot="question">
+                                                    {% blocktrans with course_name=course.name %}
+                                                        Do you really want to delete the course <strong>{{ course_name }}</strong>?
+                                                    {% endblocktrans %}
+                                                </span>
+
+                                                <button slot="show-button" type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
+                                                    <span class="fas fa-trash" aria-hidden="true"></span>
+                                                </button>
+                                            </confirmation-modal>
                                         {% endif %}
                                     </td>
                                 </tr>
@@ -559,26 +590,6 @@
             </div>
         </div>
     </div>
-{% endblock %}
-
-{% block modals %}
-    {{ block.super }}
-    {% trans 'Delete course' as title %}
-    {% trans 'Do you really want to delete the course <strong data-label=""></strong>?' as question %}
-    {% trans 'Delete course' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='deleteCourseModal' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
-        function deleteCourseModalAction(dataId) {
-            fetch("{% url 'staff:course_delete' %}", {
-                body: new URLSearchParams({course_id: dataId}),
-                headers: CSRF_HEADERS,
-                method: "POST",
-            }).then(response => {
-                assert(response.ok);
-                fadeOutThenRemove(document.getElementById('#course-row-'+dataId))
-            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
-        };
-    </script>
 {% endblock %}
 
 {% block additional_javascript %}
