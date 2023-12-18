@@ -1359,7 +1359,7 @@ def evaluation_delete(request):
         RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation).delete()
     evaluation.delete()
     update_template_cache_of_published_evaluations_in_course(evaluation.course)
-    return HttpResponse()  # 200 OK
+    return redirect("staff:semester_view", evaluation.course.semester.id)
 
 
 @manager_required

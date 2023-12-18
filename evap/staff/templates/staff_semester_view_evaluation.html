@@ -208,9 +208,19 @@
             </a>
         {% endif %}
         {% if request.user.is_manager and evaluation.can_be_deleted_by_manager %}
-            <button type="button" onclick="deleteEvaluationModalShow({{ evaluation.id }}, '{{ evaluation.full_name|escapejs }}');" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
-                <span class="fas fa-trash" aria-hidden="true"></span>
-            </button>
+            <confirmation-modal type="submit" form="evaluation-deletion-form" name="evaluation_id" value="{{ evaluation.id }}" confirm-button-class="btn-danger">
+                <span slot="title">{% trans 'Delete evaluation' %}</span>
+                <span slot="action-text">{% trans 'Delete evaluation' %}</span>
+                <span slot="question">
+                    {% blocktrans with evaluation_name=evaluation.full_name %}
+                        Do you really want to delete the evaluation <strong>{{ evaluation_name }}</strong>?
+                    {% endblocktrans %}
+                </span>
+
+                <button slot="show-button" type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
+                    <span class="fas fa-trash" aria-hidden="true"></span>
+                </button>
+            </confirmation-modal>
         {% endif %}
     {% endif %}
 </td>
