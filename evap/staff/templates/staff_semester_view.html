@@ -135,7 +135,22 @@
                         <button type="button" class="btn btn-sm btn-success disabled">{% trans 'Grade documents have been deleted' %}</button>
                     {% endif %}
                     {% if semester.results_can_be_archived %}
-                        <button type="button" onclick="archiveResultsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning">{% trans 'Archive results' %}</button>
+                        <form method="POST" action="{% url 'staff:semester_archive_results' %}">
+                            {% csrf_token %}
+                            <confirmation-modal type="submit" name="semester_id" value="{{ semester.id }}" confirm-button-class="btn-danger">
+                                <span slot="title">{% trans 'Archive results' %}</span>
+                                <span slot="action-text">{% trans 'Archive results' %}</span>
+                                <span slot="question">
+                                    {% blocktrans with semester_name=semester.name %}
+                                        Do you really want to archive the results in the semester <strong>{{ semester_name }}</strong>?
+                                        This will make the results of all evaluations inaccessible for all users except their contributors and managers.
+                                        You can't undo this action.
+                                    {% endblocktrans %}
+                                </span>
+
+                                <button slot="show-button" type="button" class="btn btn-sm btn-warning">{% trans 'Archive results' %}</button>
+                            </confirmation-modal>
+                        </form>
                     {% elif semester.results_are_archived %}
                         <button type="button" disabled class="btn btn-sm btn-success">{% trans 'Results have been archived' %}</button>
                     {% endif %}
@@ -545,22 +560,6 @@
 
 {% block modals %}
     {{ block.super }}
-    {% trans 'Archive results' as title %}
-    {% blocktrans asvar question %}Do you really want to archive the results in the semester <strong data-label=""></strong>? This will make the results of all evaluations inaccessible for all users except their contributors and managers. You can't undo this action.{% endblocktrans %}
-    {% trans 'Archive results' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='archiveResultsModal' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
-        function archiveResultsModalAction(dataId) {
-            fetch("{% url 'staff:semester_archive_results' %}", {
-                body: new URLSearchParams({semester_id: dataId}),
-                headers: CSRF_HEADERS,
-                method: "POST",
-            }).then(response => {
-                assert(response.ok);
-                location.reload();
-            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
-        };
-    </script>
     {% trans 'Delete evaluation' as title %}
     {% trans 'Do you really want to delete the evaluation <strong data-label=""></strong>?' as question %}
     {% trans 'Delete evaluation' as action_text %}
