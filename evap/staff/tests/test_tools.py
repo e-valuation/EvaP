@@ -1,5 +1,5 @@
 from io import BytesIO
-from itertools import cycle
+from itertools import cycle, repeat
 from unittest.mock import MagicMock, patch
 
 from django.contrib.auth.models import Group
@@ -234,30 +234,30 @@ class ConditionalEscapeTest(TestCase):
 class EnrollmentPreprocessorTest(WebTest):
     @classmethod
     def setUpTestData(cls) -> None:
-        cls.xslx_file = BytesIO(create_memory_excel_file(valid_user_courses_import_filedata))
-        cls.data = [["Title", "Last name", "First name", "Email"]] + valid_user_courses_import_users
+        cls.imported_data = valid_user_courses_import_filedata
+        cls.csv = create_memory_csv_file(
+            [["Title", "Last name", "First name", "Email"]] + valid_user_courses_import_users
+        )
 
     @patch("builtins.input", side_effect=cycle(("n", "y")))
-    def test_parse(self, input_patch: MagicMock):
-        self.data[1][1] = "Conflicting Lastname"
-        self.data[2][0] = " Conflicting Title  "
-        self.data[3][2] = "Conflicting Firstname"
-        self.data[4][3] = "new@email.com"
-        modified = run_preprocessor(self.xslx_file, create_memory_csv_file(self.data))
+    def test_xlsx_data_stripped(self, input_patch: MagicMock):
+        self.imported_data["MA Belegungen"][1][1] = " Accepted  "
+        self.imported_data["MA Belegungen"][1][8] = "   conflicts  "
+        self.imported_data["BA Belegungen"][1][2] = "   are    "
+        self.imported_data["BA Belegungen"][1][11] = "   stripped.   "
+        modified = run_preprocessor(BytesIO(create_memory_excel_file(self.imported_data)), self.csv)
         self.assertEqual(input_patch.call_count, 3)
         workbook = load_workbook(modified, read_only=True)
-        self.assertEqual(workbook["MA Belegungen"]["B2"].value, "Quid")  # conflicting lastname declined
-        self.assertEqual(
-            workbook["MA Belegungen"]["I2"].value, "Conflicting Title"
-        )  # trimmed conflicting title accepted
-        self.assertEqual(workbook["BA Belegungen"]["C2"].value, "Lucilia")  # conflicting Firstname declined
-        self.assertEqual(workbook["BA Belegungen"]["L2"].value, "123@external.com")  # different email is no conflict
+        self.assertEqual(workbook["MA Belegungen"]["B2"].value, "Accepted")  # stripped conflict used
+        self.assertEqual(workbook["MA Belegungen"]["I2"].value, None)  # existing data kept
+        self.assertEqual(workbook["BA Belegungen"]["C2"].value, "are")  # stripped conflict used
+        self.assertEqual(workbook["BA Belegungen"]["L2"].value, "stripped.")  # different email is no conflict
 
-    @patch("builtins.input")
+    @patch("builtins.input", side_effect=repeat("n"))
     def test_empty_email_ignored(self, input_patch: MagicMock):
-        self.data[1][3] = ""
-        self.data[2][3] = ""
-        self.data[3][3] = ""
-        self.data[4][3] = ""
-        run_preprocessor(self.xslx_file, create_memory_csv_file(self.data))
+        self.imported_data["MA Belegungen"][1][3] = ""
+        self.imported_data["MA Belegungen"][1][11] = ""
+        self.imported_data["BA Belegungen"][1][3] = ""
+        self.imported_data["BA Belegungen"][1][11] = ""
+        run_preprocessor(BytesIO(create_memory_excel_file(self.imported_data)), self.csv)
         input_patch.assert_not_called()

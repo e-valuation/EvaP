@@ -4,7 +4,7 @@ import csv
 from argparse import ArgumentParser
 from dataclasses import dataclass
 from io import BytesIO
-from typing import TextIO
+from typing import Iterator, NamedTuple, TextIO
 
 from openpyxl import load_workbook
 from openpyxl.cell import Cell
@@ -18,20 +18,19 @@ class User:
     email: str
 
 
-@dataclass
-class UserCells:
+class UserCells(NamedTuple):
     title: Cell | None
     last_name: Cell
     first_name: Cell
     email: Cell
 
-    def value(self) -> User:
-        return User(
-            str(self.title.value).strip() if self.title and self.title.value else "",
-            str(self.last_name.value).strip(),
-            str(self.first_name.value).strip(),
-            str(self.email.value).strip(),
-        )
+    def clean(self) -> Iterator[str]:
+        for field in iter(self):
+            if not field:
+                yield ""
+                continue
+            field.value = str(field.value or "").strip()
+            yield field.value
 
 
 def user_decision(field: str, existing: str, imported: str) -> str:
@@ -46,7 +45,7 @@ def user_decision(field: str, existing: str, imported: str) -> str:
 
 
 def fix_user(users: dict[str, User], imported_cells: UserCells) -> None:
-    imported = imported_cells.value()
+    imported = User(*imported_cells.clean())
     existing = users.setdefault(imported.email, imported)
     if not imported.email or imported == existing:
         return
