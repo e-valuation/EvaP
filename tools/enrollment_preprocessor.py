@@ -27,10 +27,10 @@ class UserCells:
 
     def value(self) -> User:
         return User(
-            str(self.title.value) if self.title and self.title.value else "",
-            str(self.last_name.value),
-            str(self.first_name.value),
-            str(self.email.value),
+            str(self.title.value).strip() if self.title and self.title.value else "",
+            str(self.last_name.value).strip(),
+            str(self.first_name.value).strip(),
+            str(self.email.value).strip(),
         )
 
 
