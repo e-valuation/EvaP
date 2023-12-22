@@ -48,7 +48,7 @@ def user_decision(field: str, existing: str, imported: str) -> str:
 def fix_user(users: dict[str, User], imported_cells: UserCells) -> None:
     imported = imported_cells.value()
     existing = users.setdefault(imported.email, imported)
-    if imported == existing:
+    if not imported.email or imported == existing:
         return
     print("There is a conflict in the user data.")
     print(f"existing: {existing}.")
