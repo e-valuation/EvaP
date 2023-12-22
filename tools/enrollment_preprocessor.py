@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import csv
 from argparse import ArgumentParser
 from dataclasses import dataclass

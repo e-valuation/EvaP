@@ -3,7 +3,6 @@ import datetime
 import os
 from abc import ABC, abstractmethod
 from io import BytesIO
-from itertools import cycle
 from typing import Literal
 from unittest.mock import PropertyMock, patch
 
@@ -556,7 +555,7 @@ class TestUserBulkUpdateView(WebTestStaffMode):
 
 
 class TestUserExportView(WebTestStaffMode):
-    url = "/staff/user/export"
+    url = reverse("staff:user_export")
 
     @classmethod
     def setUpTestData(cls) -> None:
@@ -566,7 +565,7 @@ class TestUserExportView(WebTestStaffMode):
             UserProfile,
             _quantity=5,
             _fill_optional=["first_name_given", "last_name", "email"],
-            title=cycle(("", "Some", "Custom", "Titles")),
+            title=iter(("", "Some", "Custom", "Titles", "")),
         )
 
     def test_export_all(self):
@@ -579,7 +578,7 @@ class TestUserExportView(WebTestStaffMode):
         reader = csv.reader(response.text.strip().split("\n"), delimiter=";", lineterminator="\n")
         # skip header
         next(reader)
-        self.assertSetEqual({tuple(row) for row in reader}, user_objects)
+        self.assertEqual({tuple(row) for row in reader}, user_objects)
 
 
 class TestUserImportView(WebTestStaffMode):

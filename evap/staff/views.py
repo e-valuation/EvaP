@@ -2128,8 +2128,8 @@ def user_list(request):
 def user_export(request):
     response = AttachmentResponse("exported_users.csv")
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
-    row = (_("Title"), _("Last name"), _("First name"), _("Email"))
-    writer.writerow(row)
+    header_row = (_("Title"), _("Last name"), _("First name"), _("Email"))
+    writer.writerow(header_row)
     writer.writerows(
         (user.title, user.last_name, user.first_name, user.email) for user in UserProfile.objects.iterator()
     )
