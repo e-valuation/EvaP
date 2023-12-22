@@ -240,13 +240,22 @@ class EnrollmentPreprocessorTest(WebTest):
     @patch("builtins.input", side_effect=cycle(("n", "y")))
     def test_parse(self, input_patch: MagicMock):
         self.data[1][1] = "Conflicting Lastname"
-        self.data[2][0] = "Conflicting Title"
+        self.data[2][0] = " Conflicting Title  "
         self.data[3][2] = "Conflicting Firstname"
         self.data[4][3] = "new@email.com"
         modified = run_preprocessor(self.xslx_file, create_memory_csv_file(self.data))
         self.assertEqual(input_patch.call_count, 3)
         workbook = load_workbook(modified, read_only=True)
         self.assertEqual(workbook["MA Belegungen"]["B2"].value, "Quid")  # conflicting lastname declined
-        self.assertEqual(workbook["MA Belegungen"]["I2"].value, "Conflicting Title")  # conflicting title accepted
+        self.assertEqual(workbook["MA Belegungen"]["I2"].value, "Conflicting Title")  # trimmed conflicting title accepted
         self.assertEqual(workbook["BA Belegungen"]["C2"].value, "Lucilia")  # conflicting Firstname declined
         self.assertEqual(workbook["BA Belegungen"]["L2"].value, "123@external.com")  # different email is no conflict
+
+    @patch("builtins.input")
+    def test_empty_email_ignored(self, input_patch: MagicMock):
+        self.data[1][3] = ""
+        self.data[2][3] = ""
+        self.data[3][3] = ""
+        self.data[4][3] = ""
+        run_preprocessor(self.xslx_file, create_memory_csv_file(self.data))
+        input_patch.assert_not_called()
