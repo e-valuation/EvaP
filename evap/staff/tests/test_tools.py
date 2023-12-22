@@ -247,7 +247,9 @@ class EnrollmentPreprocessorTest(WebTest):
         self.assertEqual(input_patch.call_count, 3)
         workbook = load_workbook(modified, read_only=True)
         self.assertEqual(workbook["MA Belegungen"]["B2"].value, "Quid")  # conflicting lastname declined
-        self.assertEqual(workbook["MA Belegungen"]["I2"].value, "Conflicting Title")  # trimmed conflicting title accepted
+        self.assertEqual(
+            workbook["MA Belegungen"]["I2"].value, "Conflicting Title"
+        )  # trimmed conflicting title accepted
         self.assertEqual(workbook["BA Belegungen"]["C2"].value, "Lucilia")  # conflicting Firstname declined
         self.assertEqual(workbook["BA Belegungen"]["L2"].value, "123@external.com")  # different email is no conflict
 
