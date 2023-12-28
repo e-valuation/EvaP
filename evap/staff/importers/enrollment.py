@@ -73,7 +73,14 @@ class CourseData:
         return {field.name for field in fields(self) if getattr(self, field.name) != getattr(other, field.name)}
 
 
-class ValidCourseData(CourseData):
+class ValidCourseDataMeta(type):
+    def __instancecheck__(cls, instance: object) -> TypeGuard["ValidCourseData"]:
+        if not isinstance(instance, CourseData):
+            return False
+        return all_fields_valid(instance)
+
+
+class ValidCourseData(CourseData, metaclass=ValidCourseDataMeta):
     """Typing: CourseData instance where no element is invalid_value"""
 
     degrees: set[Degree]
