@@ -2,7 +2,7 @@ from collections import OrderedDict, defaultdict
 from collections.abc import Iterable
 from copy import copy
 from math import ceil, modf
-from typing import cast
+from typing import TypeGuard, cast
 
 from django.conf import settings
 from django.core.cache import caches
@@ -50,8 +50,13 @@ def create_rating_result(question, answer_counters, additional_text_result=None)
 
 
 class RatingResult:
-    is_published = False
-    has_answers = False
+    @classmethod
+    def is_published(cls, rating_result) -> TypeGuard["PublishedRatingResult"]:
+        return isinstance(rating_result, PublishedRatingResult)
+
+    @classmethod
+    def has_answers(cls, rating_result) -> TypeGuard["AnsweredRatingResult"]:
+        return isinstance(rating_result, AnsweredRatingResult)
 
     def __init__(self, question, _, additional_text_result=None):
         assert question.is_rating_question
@@ -64,8 +69,6 @@ class RatingResult:
 
 
 class PublishedRatingResult(RatingResult):
-    is_published = True
-
     def __init__(self, question, answer_counters, additional_text_result=None):
         super().__init__(question, answer_counters, additional_text_result)
         counts = OrderedDict((value, 0) for value in self.choices.values if value != NO_ANSWER)
@@ -90,8 +93,6 @@ class PublishedRatingResult(RatingResult):
 
 
 class AnsweredRatingResult(PublishedRatingResult):
-    has_answers = True
-
     @property
     def average(self) -> float:
         return sum(grade * count for count, grade in zip(self.counts, self.choices.grades)) / self.count_sum
@@ -141,7 +142,7 @@ class ContributionResult:
                     return True
                 if question.is_rating_question:
                     assert isinstance(question_result, RatingResult)
-                    return question_result.has_answers
+                    return RatingResult.has_answers(question_result)
         return False
 
 
