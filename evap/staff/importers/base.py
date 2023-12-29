@@ -201,7 +201,7 @@ class ExcelFileRowMapper:
     def map(self, file_content: bytes):
         try:
             book = openpyxl.load_workbook(BytesIO(file_content))
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             raise ImporterError(
                 message=_("Couldn't read the file. Error: {}").format(e),
                 category=ImporterLogEntry.Category.SCHEMA,

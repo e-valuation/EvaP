@@ -25,14 +25,13 @@ extend_skip_glob = ["**/migrations/*"]
 [tool.ruff]
 target-version = "py310"
 line-length = 120
-select = ["F", "E", "B", "W", "N", "UP", "YTT", "FIX", "ASYNC", "A", "DJ", "EXE", "ICN", "G", "SLOT", "TID", "TCH", "INT", "C4", "ISC", "INP", "PIE", "RSE", "RET", "COM","PGH","FLY", "PERF", "PL"]  # PYI,Q,SIM,PTH,TRY,RUF
+select = ["F", "E", "B", "W", "N", "UP", "YTT", "FIX", "ASYNC", "A", "DJ", "EXE", "ICN", "G", "SLOT", "TID", "TCH", "INT", "C4", "ISC", "INP", "PIE", "RSE", "RET", "COM","PGH","FLY", "PERF", "PL", "BLE"]  # PYI,Q,SIM,PTH,TRY,RUF
 ignore = [
     "E501",                  # line-too-long: black does code formatting for us
     "FIX004",                # hacks should be possible
     "A003",                  # we shadow some builtins sometime
     "DJ008",                 # do not use __str__ where it is not required
     "COM812",                # incompatible with formatter
-    "PERF203",
     "N802",                  # not as mighty as pylint's invalid-name https://github.com/astral-sh/ruff/issues/7660
     "PLR0913",               # we can't determine a good limit for arguements. reviews should spot bad cases of this.
     "PLR2004", "PLW2901",    # not activated pylint extensions
@@ -95,7 +94,7 @@ disable = [
     "unsupported-binary-operation",   # broken in pylint: https://github.com/PyCQA/pylint/issues/7381
     "use-implicit-booleaness-not-comparison-to-string",  # forces us to use less expressive code
     "use-implicit-booleaness-not-comparison-to-zero",    # forces us to use less expressive code
-    "line-too-long","unused-wildcard-import", "wildcard-import","too-many-arguments", "too-many-statements", "too-many-return-statements",  # covered by ruff
+    "broad-exception-caught", "line-too-long","unused-wildcard-import", "wildcard-import","too-many-arguments", "too-many-statements", "too-many-return-statements",  # covered by ruff
 ]
 
 ##############################################

@@ -2267,7 +2267,7 @@ def user_bulk_update(request):
                 success = False
                 try:
                     success = bulk_update_users(request, file_content, test_run)
-                except Exception:  # pylint: disable=broad-except
+                except Exception:  # noqa: BLE001
                     if settings.DEBUG:
                         raise
                     messages.error(

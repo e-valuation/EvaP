@@ -950,7 +950,7 @@ class Evaluation(LoggedModel):
                             evaluation.publish()
                             evaluation_results_evaluations.append(evaluation)
                     evaluation.save()
-            except Exception:  # pylint: disable=broad-except
+            except Exception:  # noqa: PERF203
                 logger.exception(
                     'An error occured when updating the state of evaluation "%s" (id %d).', evaluation, evaluation.id
                 )
@@ -2092,7 +2092,7 @@ class EmailTemplate(models.Model):
             logger.info('Sent email "%s" to %s.', mail.subject, user.full_name_with_additional_info)
             if send_separate_login_url:
                 self.send_login_url_to_user(user)
-        except Exception:  # pylint: disable=broad-except
+        except Exception:
             logger.exception(
                 'An exception occurred when sending the following email to user "%s":\n%s\n',
                 user.full_name_with_additional_info,
