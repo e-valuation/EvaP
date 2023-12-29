@@ -67,9 +67,7 @@ class PublishedRatingResult(RatingResult):
     is_published = True
 
     def __init__(self, question, answer_counters, additional_text_result=None):
-        assert not any(counter.count != 0 for counter in answer_counters) or self.__class__ != PublishedRatingResult
         super().__init__(question, answer_counters, additional_text_result)
-
         counts = OrderedDict((value, 0) for value in self.choices.values if value != NO_ANSWER)
         for answer_counter in answer_counters:
             counts[answer_counter.answer] = answer_counter.count
