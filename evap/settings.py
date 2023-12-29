@@ -375,7 +375,7 @@ SLOGANS_EN = [
 
 
 ### Allowed chosen first names / display names
-def CHARACTER_ALLOWED_IN_NAME(character):  # noqa: N802
+def CHARACTER_ALLOWED_IN_NAME(character):  # pylint: disable=invalid-name
     return any(
         (
             ord(character) in range(32, 127),  # printable ASCII / Basic Latin characters

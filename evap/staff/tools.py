@@ -100,7 +100,7 @@ def find_matching_internal_user_for_email(request, email):
     return matching_users[0]
 
 
-def bulk_update_users(request, user_file_content, test_run):
+def bulk_update_users(request, user_file_content, test_run):  # noqa: PLR0912
     # pylint: disable=too-many-branches,too-many-locals
     # user_file must have one user per line in the format "{username},{email}"
     imported_emails = {clean_email(line.decode().split(",")[1]) for line in user_file_content.splitlines()}
@@ -215,10 +215,10 @@ def bulk_update_users(request, user_file_content, test_run):
 
 
 @transaction.atomic
-def merge_users(main_user, other_user, preview=False):
+def merge_users(  # noqa: PLR0915  # This is much stuff to do. However, splitting it up into subtasks doesn't make much sense.
+    main_user, other_user, preview=False
+):
     """Merges other_user into main_user"""
-    # This is much stuff to do. However, splitting it up into subtasks doesn't make much sense.
-    # pylint: disable=too-many-statements
 
     merged_user = {}
     merged_user["is_active"] = main_user.is_active or other_user.is_active

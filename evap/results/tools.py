@@ -458,13 +458,12 @@ def textanswers_visible_to(contribution):
     return TextAnswerVisibility(visible_by_contribution=sorted_contributors, visible_by_delegation_count=num_delegates)
 
 
-def can_textanswer_be_seen_by(
+def can_textanswer_be_seen_by(  # noqa: PLR0911
     user: UserProfile,
     represented_users: list[UserProfile],
     textanswer: TextAnswer,
     view: str,
 ) -> bool:
-    # pylint: disable=too-many-return-statements
     assert textanswer.review_decision in [TextAnswer.ReviewDecision.PRIVATE, TextAnswer.ReviewDecision.PUBLIC]
     contributor = textanswer.contribution.contributor
 
