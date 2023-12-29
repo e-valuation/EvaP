@@ -1,4 +1,6 @@
+import xlrd
 from django.core import mail
+from django.urls import reverse
 from django_webtest import WebTest
 from model_bakery import baker
 
@@ -284,3 +286,17 @@ class TestContributorEvaluationEditView(WebTest):
         page = self.app.get(self.url, user=self.responsible)
         self.assertEqual(page.body.decode().count("Request changes"), 0)
         self.assertEqual(page.body.decode().count("Request creation of new account"), 2)
+
+
+class TestContributorResultsExportView(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        result = create_evaluation_with_responsible_and_editor()
+        cls.url = reverse("contributor:export")
+        cls.user = result["responsible"]
+
+    def test_concise_header(self):
+        response = self.app.get(self.url, user=self.user)
+
+        workbook = xlrd.open_workbook(file_contents=response.content)
+        self.assertEqual(workbook.sheets()[0].row_values(0)[0], f"Evaluation\n{self.user.full_name}")

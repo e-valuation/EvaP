@@ -1,5 +1,6 @@
-from django.core.management import call_command
 from django.core.management.base import BaseCommand
+
+from evap.evaluation.management.commands.tools import logged_call_command
 
 
 class Command(BaseCommand):
@@ -7,9 +8,9 @@ class Command(BaseCommand):
     help = 'Execute "makemessages --locale=de --ignore=node_modules/*"'
 
     def handle(self, *args, **options):
-        self.stdout.write('Executing "manage.py makemessages --locale=de --ignore=node_modules/*"')
-        call_command("makemessages", "--locale=de", "--ignore=node_modules/*")
-        call_command(
+        logged_call_command(self.stdout, "makemessages", "--locale=de", "--ignore=node_modules/*")
+        logged_call_command(
+            self.stdout,
             "makemessages",
             "--domain=djangojs",
             "--extension=js,ts",
