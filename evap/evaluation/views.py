@@ -15,8 +15,9 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.http import require_POST
 from django.views.i18n import set_language
 
-from evap.evaluation.forms import LoginEmailForm, NewKeyForm, ProfileForm
+from evap.evaluation.forms import LoginEmailForm, NewKeyForm, NotebookForm, ProfileForm
 from evap.evaluation.models import EmailTemplate, FaqSection, Semester, UserProfile
+from evap.evaluation.tools import HttpResponseNoContent
 from evap.middleware import no_login_required
 
 logger = logging.getLogger(__name__)
@@ -224,6 +225,14 @@ def profile_edit(request):
 
 
 @require_POST
+def set_notes(request):
+    form = NotebookForm(request.POST, instance=request.user)
+    if form.is_valid():
+        form.save()
+        return HttpResponseNoContent()
+    return HttpResponseBadRequest()
+
+
 def set_startpage(request):
     user = request.user
     startpage = request.POST.get("page")

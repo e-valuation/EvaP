@@ -254,6 +254,7 @@ _TEMPLATE_OPTIONS = {
         "django.contrib.messages.context_processors.messages",
         "evap.context_processors.slogan",
         "evap.context_processors.debug",
+        "evap.context_processors.notebook_form",
         "evap.context_processors.allow_anonymous_feedback_messages",
     ],
     "builtins": ["django.templatetags.i18n"],
@@ -417,8 +418,12 @@ except ImportError:
 
 TESTING = "test" in sys.argv or "pytest" in sys.modules
 
-# speed up tests
+# speed up tests and activate typeguard introspection
 if TESTING:
+    from typeguard import install_import_hook
+
+    install_import_hook(("evap", "tools"))
+
     # do not use ManifestStaticFilesStorage as it requires running collectstatic beforehand
     STORAGES["staticfiles"]["BACKEND"] = "django.contrib.staticfiles.storage.StaticFilesStorage"
 

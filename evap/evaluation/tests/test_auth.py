@@ -4,11 +4,15 @@ from unittest.mock import patch
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
+from django.core.exceptions import PermissionDenied
+from django.http import HttpRequest, HttpResponse
 from django.test import override_settings
 from django.urls import reverse
+from django.views import View
 from model_bakery import baker
 
 from evap.evaluation import auth
+from evap.evaluation.auth import class_or_function_check_decorator
 from evap.evaluation.models import Contribution, Evaluation, UserProfile
 from evap.evaluation.tests.tools import WebTest
 
@@ -176,3 +180,51 @@ class LoginTestsWithCSRF(WebTest):
         page = page.forms["enter-staff-mode-form"].submit().follow().follow()
         self.assertTrue("staff_mode_start_time" in self.app.session)
         self.assertContains(page, "Users")
+
+
+class TestAuthDecorators(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        @class_or_function_check_decorator
+        def check_decorator(user: UserProfile) -> bool:
+            return getattr(user, "some_condition")  # mocked later
+
+        @check_decorator
+        def function_based_view(_request):
+            return HttpResponse()
+
+        @check_decorator
+        class ClassBasedView(View):
+            def get(self, _request):
+                return HttpResponse()
+
+        cls.user = baker.make(UserProfile, email="testuser@institution.example.com")
+        cls.function_based_view = function_based_view
+        cls.class_based_view = ClassBasedView.as_view()
+
+    @classmethod
+    def make_request(cls):
+        request = HttpRequest()
+        request.method = "GET"
+        request.user = cls.user
+        return request
+
+    @patch("evap.evaluation.models.UserProfile.some_condition", True, create=True)
+    def test_passing_user_function_based(self):
+        response = self.function_based_view(self.make_request())  # pylint: disable=too-many-function-args
+        self.assertEqual(response.status_code, 200)
+
+    @patch("evap.evaluation.models.UserProfile.some_condition", True, create=True)
+    def test_passing_user_class_based(self):
+        response = self.class_based_view(self.make_request())
+        self.assertEqual(response.status_code, 200)
+
+    @patch("evap.evaluation.models.UserProfile.some_condition", False, create=True)
+    def test_failing_user_function_based(self):
+        with self.assertRaises(PermissionDenied):
+            self.function_based_view(self.make_request())  # pylint: disable=too-many-function-args
+
+    @patch("evap.evaluation.models.UserProfile.some_condition", False, create=True)
+    def test_failing_user_class_based(self):
+        with self.assertRaises(PermissionDenied):
+            self.class_based_view(self.make_request())

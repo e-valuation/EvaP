@@ -1,11 +1,14 @@
 import functools
 import os
 from collections.abc import Sequence
+from contextlib import contextmanager
 from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.auth.models import Group
+from django.db import DEFAULT_DB_ALIAS, connections
 from django.http.request import QueryDict
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 from django_webtest import WebTest
 from model_bakery import baker
@@ -83,6 +86,15 @@ def let_user_vote_for_evaluation(user, evaluation, create_answers=False):
     RatingAnswerCounter.objects.bulk_update(rac_by_contribution_question.values(), ["count"])
 
 
+def store_ts_test_asset(relative_path: str, content) -> None:
+    absolute_path = os.path.join(settings.STATICFILES_DIRS[0], "ts", "rendered", relative_path)
+
+    os.makedirs(os.path.dirname(absolute_path), exist_ok=True)
+
+    with open(absolute_path, "wb") as file:
+        file.write(content)
+
+
 def render_pages(test_item):
     """Decorator which annotates test methods which render pages.
     The containing class is expected to include a `url` attribute which matches a valid path.
@@ -91,19 +103,15 @@ def render_pages(test_item):
     The value is a byte string of the page content."""
 
     @functools.wraps(test_item)
-    def decorator(self):
+    def decorator(self) -> None:
         pages = test_item(self)
 
-        static_directory = settings.STATICFILES_DIRS[0]
-
         url = getattr(self, "render_pages_url", self.url)
-        # Remove the leading slash from the url to prevent that an absolute path is created
-        directory = os.path.join(static_directory, "ts", "rendered", url[1:])
-        os.makedirs(directory, exist_ok=True)
 
         for name, content in pages.items():
-            with open(os.path.join(directory, f"{name}.html"), "wb") as html_file:
-                html_file.write(content)
+            # Remove the leading slash from the url to prevent that an absolute path is created
+            path = os.path.join(url[1:], f"{name}.html")
+            store_ts_test_asset(path, content)
 
     return decorator
 
@@ -211,3 +219,29 @@ def make_rating_answer_counters(
         RatingAnswerCounter.objects.bulk_create(counters)
 
     return counters
+
+
+@contextmanager
+def assert_no_database_modifications(*args, **kwargs):
+    assert len(connections.all()) == 1, "Found more than one connection, so the decorator might monitor the wrong one"
+
+    # may be extended with other non-modifying verbs
+    allowed_prefixes = ["select", "savepoint", "release savepoint"]
+
+    conn = connections[DEFAULT_DB_ALIAS]
+    with CaptureQueriesContext(conn):
+        yield
+
+        for query in conn.queries_log:
+            if (
+                query["sql"].startswith('INSERT INTO "testing_cache_sessions"')
+                or query["sql"].startswith('UPDATE "testing_cache_sessions"')
+                or query["sql"].startswith('DELETE FROM "testing_cache_sessions"')
+            ):
+                # These queries are caused by interacting with the test-app (self.app.get()), since that opens a session.
+                # That's not what we want to test for here
+                continue
+
+            lower_sql = query["sql"].lower()
+            if not any(lower_sql.startswith(prefix) for prefix in allowed_prefixes):
+                raise AssertionError("Unexpected modifying query found: " + query["sql"])

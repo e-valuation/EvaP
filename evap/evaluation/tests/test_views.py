@@ -8,7 +8,20 @@ from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import Evaluation, Question, QuestionType, UserProfile
-from evap.evaluation.tests.tools import WebTestWith200Check, create_evaluation_with_responsible_and_editor
+from evap.evaluation.tests.tools import (
+    WebTestWith200Check,
+    create_evaluation_with_responsible_and_editor,
+    store_ts_test_asset,
+)
+
+
+class RenderJsTranslationCatalog(WebTest):
+    url = reverse("javascript-catalog")
+
+    def render_pages(self):
+        # Not using render_pages decorator to manually create a single (special) javascript file
+        content = self.app.get(self.url).content
+        store_ts_test_asset("catalog.js", content)
 
 
 @override_settings(PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"])
@@ -161,7 +174,7 @@ class TestChangeLanguageView(WebTest):
 
 
 class TestProfileView(WebTest):
-    url = "/profile"
+    url = reverse("evaluation:profile_edit")
 
     @classmethod
     def setUpTestData(cls):
@@ -229,3 +242,19 @@ class TestNegativeLikertQuestions(WebTest):
         page = self.app.get(self.url, user=self.voting_user, status=200).body.decode()
         self.assertLess(page.index("Strongly<br>disagree"), page.index("Strongly<br>agree"))
         self.assertIn("The answer scale is inverted for this question", page)
+
+
+class TestNotebookView(WebTest):
+    url = reverse("evaluation:profile_edit")  # is used exemplarily, notebook is accessed from all pages
+    note = "Data is so beautiful"
+
+    def test_notebook(self):
+        user = baker.make(UserProfile, email="student@institution.example.com")
+
+        page = self.app.get(self.url, user=user)
+        form = page.forms["notebook-form"]
+        form["notes"] = self.note
+        form.submit()
+
+        user.refresh_from_db()
+        self.assertEqual(user.notes, self.note)

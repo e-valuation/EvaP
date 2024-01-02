@@ -135,7 +135,7 @@ class GradeUploadTest(WebTest):
         evaluation.save()
         self.helper_check_final_grade_upload(course, 0)
 
-    def test_toggle_no_grades(self):
+    def test_set_no_grades(self):
         evaluation = self.evaluation
         evaluation.manager_approve()
         evaluation.begin_evaluation()
@@ -146,8 +146,8 @@ class GradeUploadTest(WebTest):
         self.assertFalse(evaluation.course.gets_no_grade_documents)
 
         self.app.post(
-            "/grades/toggle_no_grades",
-            params={"course_id": evaluation.course.id},
+            "/grades/set_no_grades",
+            params={"course_id": evaluation.course.id, "status": "1"},
             user=self.grade_publisher,
             status=200,
         )
@@ -160,8 +160,17 @@ class GradeUploadTest(WebTest):
         )
 
         self.app.post(
-            "/grades/toggle_no_grades",
-            params={"course_id": evaluation.course.id},
+            "/grades/set_no_grades",
+            params={"course_id": evaluation.course.id, "status": "0"},
+            user=self.grade_publisher,
+            status=200,
+        )
+        evaluation = Evaluation.objects.get(id=evaluation.id)
+        self.assertFalse(evaluation.course.gets_no_grade_documents)
+
+        self.app.post(
+            "/grades/set_no_grades",
+            params={"course_id": evaluation.course.id, "status": "0"},
             user=self.grade_publisher,
             status=200,
         )

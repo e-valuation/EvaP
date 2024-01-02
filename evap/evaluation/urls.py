@@ -12,5 +12,6 @@ urlpatterns = [
     path("contact", views.contact, name="contact"),
     path("key/<int:key>", views.login_key_authentication, name="login_key_authentication"),
     path("profile", views.profile_edit, name="profile_edit"),
+    path("set_notes", views.set_notes, name="set_notes"),
     path("set_startpage", views.set_startpage, name="set_startpage"),
 ]

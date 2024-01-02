@@ -471,20 +471,20 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
     def test_default_view_is_public(self):
         cache_results(self.evaluation)
 
-        # the view=public button should have class "active". The rest in-between is just noise.
-        expected_button = (
-            f'<a href="/results/semester/{self.evaluation.course.semester.pk}/evaluation/{self.evaluation.pk}'
-            + '?view=public" role="button" class="btn btn-sm btn-light active"'
-        )
-
         page_without_get_parameter = self.app.get(self.url, user=self.manager)
-        self.assertContains(page_without_get_parameter, expected_button)
+        self.assertEqual(page_without_get_parameter.context["view"], "public")
 
         page_with_get_parameter = self.app.get(self.url + "?view=public", user=self.manager)
-        self.assertContains(page_with_get_parameter, expected_button)
+        self.assertEqual(page_with_get_parameter.context["view"], "public")
 
         page_with_random_get_parameter = self.app.get(self.url + "?view=asdf", user=self.manager)
-        self.assertContains(page_with_random_get_parameter, expected_button)
+        self.assertEqual(page_with_random_get_parameter.context["view"], "public")
+
+        page_with_full_get_parameter = self.app.get(f"{self.url}?view=full", user=self.manager)
+        self.assertEqual(page_with_full_get_parameter.context["view"], "full")
+
+        page_with_export_get_parameter = self.app.get(f"{self.url}?view=export", user=self.manager)
+        self.assertEqual(page_with_export_get_parameter.context["view"], "export")
 
     def test_wrong_state(self):
         helper_exit_staff_mode(self)

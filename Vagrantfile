@@ -18,6 +18,12 @@ Vagrant.configure("2") do |config|
     end
   end
 
+  if Vagrant::Util::Platform.windows? then
+    # workaround for git bash not automatically allocating a tty on windows in some scenarios
+    # see https://github.com/hashicorp/vagrant/issues/9143#issuecomment-401088752
+    config.ssh.extra_args = "-tt"
+  end
+
   config.vm.provider :docker do |d, override|
     d.image = "ubuntu:jammy"
     # Docker container really are supposed to be used differently. Hacky way to make it into a "VM".

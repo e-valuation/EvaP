@@ -221,3 +221,10 @@ def order_by(iterable, attribute):
 @register.filter
 def get(dictionary, key):
     return dictionary.get(key)
+
+
+@register.filter
+def add_class(widget, class_name_to_add: str):
+    new_class = class_name_to_add + " " + widget["attrs"]["class"] if "class" in widget["attrs"] else class_name_to_add
+    widget["attrs"].update({"class": new_class})
+    return widget

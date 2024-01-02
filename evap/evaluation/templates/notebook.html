@@ -1,0 +1,29 @@
+<div class="notebook">
+   <div class="collapse position-fixed collapse-horizontal notebook-animation mt-0 d-print-none" tabindex="-1" id="notebook" aria-expanded="false">
+        <div class="card">
+            <div class="offcanvas-header pt-3 ps-3 pe-3">
+                <h5 class="card-title m-0">
+                    {% trans 'Notebook' %}
+                </h5>
+                <button type="button" class="btn-close text-reset" data-bs-toggle="collapse" data-bs-target="#notebook" id="notebookButtonClose"></button>
+            </div>
+
+            <form method="POST" action="{% url 'evaluation:set_notes' %}" id="notebook-form" data-state="ready">
+                <div class="card-body notebook-card d-flex flex-column">
+                    {% csrf_token %}
+                    {{ notebook_form.notes }}
+                    <div class="d-flex justify-content-center pt-3">
+                        <button class="btn btn-primary" type="submit">
+                            <span class="visible-if-ready">{% trans 'Save' %}</span>
+                            <span class="visible-if-sending">{% trans 'Sending...' %}</span>
+                            <span class="visible-if-successful">{% trans 'Saved successfully' %}</span>
+                        </button>
+                        <div class="align-self-center right-to-element">
+                            <span class="ms-2 fas fa-circle-info" data-bs-toggle="tooltip" data-bs-placement="right" title="{% blocktrans %}Here you can store private notes that you want to keep ready for future evaluations. The notes will be stored in plain text in your account on the EvaP server, but will not be shown to anyone but you.{% endblocktrans %}"></span>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

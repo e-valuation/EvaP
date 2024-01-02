@@ -39,6 +39,7 @@ from evap.evaluation.models import (
 )
 from evap.evaluation.tests.tools import (
     FuzzyInt,
+    assert_no_database_modifications,
     create_evaluation_with_responsible_and_editor,
     let_user_vote_for_evaluation,
     make_manager,
@@ -271,12 +272,22 @@ class TestUserEditView(WebTestStaffMode):
         cls.testuser = baker.make(UserProfile)
         cls.url = f"/staff/user/{cls.testuser.pk}/edit"
 
-    def test_questionnaire_edit(self):
+    def test_user_edit(self):
         page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["user-form"]
-        form["email"] = "lfo9e7bmxp1xi@institution.example.com"
+        form["email"] = "test@institution.example.com"
         form.submit()
-        self.assertTrue(UserProfile.objects.filter(email="lfo9e7bmxp1xi@institution.example.com").exists())
+        self.assertTrue(UserProfile.objects.filter(email="test@institution.example.com").exists())
+
+    def test_user_edit_duplicate_email(self):
+        second_user = baker.make(UserProfile, email="test@institution.example.com")
+        page = self.app.get(self.url, user=self.manager, status=200)
+        form = page.forms["user-form"]
+        form["email"] = second_user.email
+        page = form.submit()
+        self.assertContains(
+            page, "A user with this email address already exists. You probably want to merge the users."
+        )
 
     @patch("evap.staff.forms.remove_user_from_represented_and_ccing_users")
     def test_inactive_edit(self, mock_remove):
@@ -327,14 +338,27 @@ class TestUserDeleteView(DeleteViewTestMixin, WebTestStaffMode):
         return {"user_id": cls.instance.pk}
 
 
-class TestUserMergeSelectionView(WebTestStaffModeWith200Check):
+class TestUserMergeSelectionView(WebTestStaffMode):
     url = "/staff/user/merge"
 
     @classmethod
     def setUpTestData(cls):
-        cls.test_users = [make_manager()]
+        cls.manager = make_manager()
 
-        baker.make(UserProfile)
+        cls.main_user = baker.make(UserProfile, _fill_optional=["email"])
+        cls.other_user = baker.make(UserProfile, _fill_optional=["email"])
+
+    def test_redirection_user_merge_view(self):
+        page = self.app.get(self.url, user=self.manager)
+
+        form = page.forms["user-selection-form"]
+        form["main_user"] = self.main_user.pk
+        form["other_user"] = self.other_user.pk
+
+        page = form.submit().follow()
+
+        self.assertContains(page, self.main_user.email)
+        self.assertContains(page, self.other_user.email)
 
 
 class TestUserMergeView(WebTestStaffModeWith200Check):
@@ -1946,20 +1970,27 @@ class TestCourseEditView(WebTestStaffMode):
         self.course = Course.objects.get(pk=self.course.pk)
         self.assertEqual(self.course.name_en, "A different name")
 
-    @patch("evap.staff.views.redirect")
-    def test_operation_redirects(self, mock_redirect):
-        mock_redirect.side_effect = lambda *_args: HttpResponse()
+    @patch("evap.staff.views.reverse")
+    def test_operation_redirects(self, mock_reverse):
+        mock_reverse.return_value = "/very_legit_url"
 
-        self.prepare_form("a").submit("operation", value="save")
-        self.assertEqual(mock_redirect.call_args.args[0], "staff:semester_view")
+        response = self.prepare_form("a").submit("operation", value="save")
+        self.assertEqual(mock_reverse.call_args.args[0], "staff:semester_view")
+        self.assertRedirects(response, "/very_legit_url", fetch_redirect_response=False)
 
-        self.prepare_form("b").submit("operation", value="save_create_evaluation")
-        self.assertEqual(mock_redirect.call_args.args[0], "staff:evaluation_create_for_course")
+        response = self.prepare_form("b").submit("operation", value="save_create_evaluation")
+        self.assertEqual(mock_reverse.call_args.args[0], "staff:evaluation_create_for_course")
+        self.assertRedirects(response, "/very_legit_url", fetch_redirect_response=False)
 
-        self.prepare_form("c").submit("operation", value="save_create_single_result")
-        self.assertEqual(mock_redirect.call_args.args[0], "staff:single_result_create_for_course")
+        response = self.prepare_form("c").submit("operation", value="save_create_single_result")
+        self.assertEqual(mock_reverse.call_args.args[0], "staff:single_result_create_for_course")
+        self.assertRedirects(response, "/very_legit_url", fetch_redirect_response=False)
 
-        self.assertEqual(mock_redirect.call_count, 3)
+        self.assertEqual(mock_reverse.call_count, 3)
+
+    @patch("evap.evaluation.models.Course.can_be_edited_by_manager", False)
+    def test_uneditable_course(self):
+        self.prepare_form(name_en="A different name").submit("operation", value="save", status=400)
 
 
 class TestCourseDeleteView(DeleteViewTestMixin, WebTestStaffMode):
@@ -3085,12 +3116,9 @@ class TestQuestionnaireUpdateIndicesView(WebTestStaffMode):
         self.app.post(self.url, user=self.manager, params=params, status=400)
 
         # invalid values
-        params = {self.questionnaire1.id: "asd", self.questionnaire2.id: 1}
-        self.app.post(self.url, user=self.manager, params=params, status=400)
-
-        # instance not modified
-        self.questionnaire1.refresh_from_db()
-        self.assertEqual(self.questionnaire1.order, 7)
+        with assert_no_database_modifications():
+            params = {self.questionnaire1.id: "asd", self.questionnaire2.id: 1}
+            self.app.post(self.url, user=self.manager, params=params, status=400)
 
         # correct parameters
         params = {self.questionnaire1.id: 0, self.questionnaire2.id: 1}
@@ -3482,11 +3510,20 @@ class TestTemplateEditView(WebTestStaffMode):
         self.assertEqual(self.template.plain_content, "plain_content: mflkd862xmnbo5")
         self.assertEqual(self.template.html_content, "html_content: <p>mflkd862xmnbo5</p>")
 
-    def test_review_reminder_template_tag(self):
-        review_reminder_template = EmailTemplate.objects.get(name=EmailTemplate.TEXT_ANSWER_REVIEW_REMINDER)
-        page = self.app.get(f"/staff/template/{review_reminder_template.pk}", user=self.manager, status=200)
+    def test_available_variables(self):
+        # We want to trigger all paths to ensure there are no syntax errors.
+        expected_variables = {
+            EmailTemplate.STUDENT_REMINDER: "first_due_in_days",
+            EmailTemplate.EDITOR_REVIEW_NOTICE: "evaluations",
+            EmailTemplate.TEXT_ANSWER_REVIEW_REMINDER: "evaluation_url_tuples",
+            EmailTemplate.EVALUATION_STARTED: "due_evaluations",
+            EmailTemplate.DIRECT_DELEGATION: "delegate_user",
+        }
 
-        self.assertContains(page, "evaluation_url_tuples")
+        for name, variable in expected_variables.items():
+            template = EmailTemplate.objects.get(name=name)
+            page = self.app.get(f"/staff/template/{template.pk}", user=self.manager, status=200)
+            self.assertContains(page, variable)
 
 
 class TestTextAnswerWarningsView(WebTestStaffMode):

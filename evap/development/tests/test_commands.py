@@ -10,7 +10,7 @@ from django.test import TestCase
 class TestDumpTestDataCommand(TestCase):
     @staticmethod
     def test_dumpdata_called():
-        with patch("evap.development.management.commands.dump_testdata.call_command") as mock:
+        with patch("evap.evaluation.management.commands.tools.call_command") as mock:
             management.call_command("dump_testdata")
 
         outfile_name = os.path.join(settings.BASE_DIR, "development", "fixtures", "test_data.json")
@@ -31,7 +31,7 @@ class TestDumpTestDataCommand(TestCase):
 
 class TestReloadTestdataCommand(TestCase):
     @patch("builtins.input")
-    @patch("evap.development.management.commands.reload_testdata.call_command")
+    @patch("evap.evaluation.management.commands.tools.call_command")
     def test_aborts(self, mock_call_command, mock_input):
         mock_input.return_value = "not yes"
 
@@ -40,7 +40,7 @@ class TestReloadTestdataCommand(TestCase):
         self.assertEqual(mock_call_command.call_count, 0)
 
     @patch("builtins.input")
-    @patch("evap.development.management.commands.reload_testdata.call_command")
+    @patch("evap.evaluation.management.commands.tools.call_command")
     def test_executes_key_commands(self, mock_call_command, mock_input):
         mock_input.return_value = "yes"
 

@@ -49,11 +49,14 @@
     {% include 'confirmation_modal.html' with modal_id='importSemesterModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
         function importSemesterModalAction(dataId) {
-            var input = $("<input>")
-               .attr("type", "hidden")
-               .attr("name", "operation").val(dataId);
-            $('#semester-import-form').append(input);
-            $('#semester-import-form').submit();
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "operation";
+            input.value = dataId;
+
+            const form = document.getElementById("semester-import-form");
+            form.appendChild(input);
+            form.requestSubmit();
         };
     </script>
 

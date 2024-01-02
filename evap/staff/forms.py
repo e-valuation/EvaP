@@ -957,6 +957,7 @@ class UserForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.user_with_same_email = None
         evaluations_in_active_semester = Evaluation.objects.filter(course__semester=Semester.active_semester())
         excludes = [x.id for x in evaluations_in_active_semester if x.is_single_result]
         evaluations_in_active_semester = evaluations_in_active_semester.exclude(id__in=excludes)
@@ -998,7 +999,8 @@ class UserForm(forms.ModelForm):
         if self.instance and self.instance.pk:
             user_with_same_email = user_with_same_email.exclude(pk=self.instance.pk)
 
-        if user_with_same_email.exists():
+        if user_with_same_email:
+            self.user_with_same_email = user_with_same_email.first()
             raise forms.ValidationError(_("A user with the email '%s' already exists") % email)
         return email
 
@@ -1046,6 +1048,7 @@ class UserForm(forms.ModelForm):
                 cache_results(evaluation)
 
         self.instance.save()
+        return self.instance
 
 
 class UserMergeSelectionForm(forms.Form):
@@ -1055,12 +1058,6 @@ class UserMergeSelectionForm(forms.Form):
 
 class UserEditSelectionForm(forms.Form):
     user = UserModelChoiceField(UserProfile.objects.all())
-
-
-class EmailTemplateForm(forms.ModelForm):
-    class Meta:
-        model = EmailTemplate
-        fields = ("subject", "plain_content", "html_content")
 
 
 class FaqSectionForm(forms.ModelForm):

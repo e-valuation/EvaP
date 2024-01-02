@@ -24,13 +24,23 @@
                         <button type="button" class="btn btn-sm btn-light" onclick="resendEmailModalShow({{ form.instance.id }}, '{{ form.instance.full_name|escapejs }}');">{% trans 'Resend evaluation started email' %}</button>
                     </div>
                 {% else %}
-                    <div title="This user currently has no due evaluations." data-bs-toggle="tooltip" data-bs-placement="bottom">
+                    <div title="{% trans 'This user currently has no due evaluations.' %}" data-bs-toggle="tooltip" data-bs-placement="bottom">
                         <button disabled type="button" class="btn btn-sm btn-light">{% trans 'Resend evaluation started email' %}</button>
                     </div>
                 {% endif %}
             </div>
         {% endif %}
     </div>
+
+    {% if user_with_same_email %}
+        <div class="alert alert-warning alert-dismissible">
+            <p>
+                {% trans "A user with this email address already exists. You probably want to merge the users." %}
+            </p>
+            <a type="button" class="btn btn-primary btn-sm" href="{% url 'staff:user_merge' user_with_same_email.id form.instance.id %}">{% trans "Merge both users" %}</a>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endif %}
 
 
     <form id="user-form" method="POST" class="form-horizontal multiselect-form">
@@ -115,14 +125,15 @@
     {% include 'confirmation_modal.html' with modal_id='deleteModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
         function deleteModalAction(dataId) {
-            $.ajax({
-                type: "POST",
-                url: "{% url 'staff:user_delete' %}",
-                data: {"user_id": dataId},
-                success: function(){window.location="{% url 'staff:user_index' %}"},
-                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
-            });
-        };
+            fetch("{% url 'staff:user_delete' %}", {
+                body: new URLSearchParams({user_id: dataId}),
+                headers: CSRF_HEADERS,
+                method: "POST",
+            }).then(response => {
+                assert(response.ok);
+                window.location="{% url 'staff:user_index' %}"
+            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
+        }
     </script>
     {% if form.instance.id %}
         {% trans 'Send notification email' as title %}
@@ -131,13 +142,14 @@
         {% include 'confirmation_modal.html' with modal_id='resendEmailModal' title=title question=question action_text=action_text btn_type='success' %}
         <script type="text/javascript">
             function resendEmailModalAction(dataId) {
-                $.ajax({
-                    type: "POST",
-                    url: "{% url 'staff:user_resend_email' %}",
-                    data: {"user_id": dataId},
-                    success: function(){window.location="{% url 'staff:user_edit' user_id %}"},
-                    error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
-                });
+                fetch("{% url 'staff:user_resend_email' %}", {
+                    body: new URLSearchParams({user_id: dataId}),
+                    headers: CSRF_HEADERS,
+                    method: "POST",
+                }).then(response => {
+                    assert(response.ok);
+                    window.location="{% url 'staff:user_edit' user_id %}"
+                }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
             };
         </script>
     {% endif %}

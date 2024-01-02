@@ -1,0 +1,84 @@
+.notebook {
+    form[data-state] {
+        --ready-display: none;
+        --sending-display: none;
+        --successful-display: none;
+        --error-display: none;
+    }
+    form[data-state="ready"] {
+        --ready-display: unset;
+    }
+    form[data-state="sending"] {
+        --sending-display: unset;
+    }
+    form[data-state="successful"] {
+        --successful-display: unset;
+    }
+    form[data-state="error"] {
+        --error-display: unset;
+    }
+    .visible-if-ready {
+        display: var(--ready-display);
+    }
+    .visible-if-sending {
+        display: var(--sending-display);
+    }
+    .visible-if-successful {
+        display: var(--successful-display);
+    }
+
+    .notebook-animation {
+        transition: width .0s !important; // disable predefined bootstrap animation
+    }
+
+    .right-to-element {
+        position: relative;
+        display: inline-block;
+        width: 0;
+        vertical-align: center;
+    }
+
+    .notebook-textarea {
+        resize: none;
+        flex-grow: 1;
+    }
+
+    @media screen and (min-aspect-ratio: $notebook-break) {
+        .notebook-container {
+            width: 25vw;
+            padding-left: $spacer;
+            padding-bottom: $spacer;
+            padding-top: $spacer;
+        }
+
+        .notebook-card {
+            height: calc((100vh - #{$navbar-brand-height}) - (#{$footer-height} + ((#{$spacer} * 1.5) * 5))); // subtract 3 spacer with padding
+        }
+    }
+
+    @media screen and (max-aspect-ratio: $notebook-break) {
+        .notebook-container {
+            width: 100vw;
+            z-index: $zindex-fixed;
+            padding: $spacer;
+        }
+
+        .notebook-card {
+            height: calc(45vh - (#{$spacer} * 1.5) * 2); // subtract spacer with padding
+            min-height: 43.5vh; // approximation for size needed in smallest window (50vh - (spacer + leeway))
+        }
+    }
+}
+
+@media screen and (min-aspect-ratio: $notebook-break) {
+    .notebook-margin {
+        max-width: 75vw;
+        margin-left: 25vw;
+    }
+}
+
+@media screen and (max-aspect-ratio: $notebook-break) {
+    .notebook-margin {
+        margin-top: 50vh;
+    }
+}

@@ -202,6 +202,7 @@ class TestVoteView(WebTest):
         self.fill_form(form, fill_general_complete=False)
         response = form.submit(status=200)
         self.assertIn("vote for all rating questions", response)
+        self.assertNotIn("skip the questions about a single person", response)
 
         form = page.forms["student-vote-form"]
 
@@ -239,6 +240,7 @@ class TestVoteView(WebTest):
         self.fill_form(form, fill_contributors_complete=False)
         response = form.submit(status=200)
         self.assertIn("vote for all rating questions", response)
+        self.assertIn("skip the questions about a single person", response)
 
         form = page.forms["student-vote-form"]
 
