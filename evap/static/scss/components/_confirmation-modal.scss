@@ -6,16 +6,19 @@ confirmation-modal:not(:defined) > :not([slot="submit-group"]) {
 }
 
 dialog.evap-modal-dialog {
-  padding: 0;
+  z-index: 1050;
+  inset-block-start: -70vh; // moves the modal to the top of the page, by default, it is centered
+  max-width: 80ch;
   border: 1px solid $dark-gray;
   border-radius: 0.5rem;
-  z-index: 1050;
-  inset-block-start: -70vh;
+  padding: 0;
 
+  // These attributes are inherited from parent elements, although it usually does not make any sense, because the
+  // dialog is not displayed inside of the parent element. This list might grow over time.
   font-weight: initial;
   line-height: initial;
+  cursor: initial;
 
-  // https://youtu.be/4prVdA7_6u0
   &[open] {
     animation: modal-enter 300ms forwards;
   }
