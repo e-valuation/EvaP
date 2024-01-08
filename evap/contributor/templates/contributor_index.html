@@ -157,22 +157,26 @@
                                                         <span class="fas fa-pencil"></span>
                                                     </a>
                                                     {% if not evaluation|has_nonresponsible_editor %}
-                                                        <confirmation-modal data-evaluation-direct-delegation-url="{% url 'contributor:evaluation_direct_delegation' evaluation.id %}">
-                                                            <span slot="title">{% trans 'Delegate preparation' %}</span>
-                                                            <span slot="action-text">{% trans 'Delegate preparation' %}</span>
-                                                            <span slot="question">
-                                                                {% blocktrans with evaluation_name=evaluation.full_name %}
-                                                                    Do you really want to delegate the preparation of the evaluation {{ evaluation_name }}?
-                                                                {% endblocktrans %}
-                                                                <div class="my-4">
-                                                                    {% include 'bootstrap_form.html' with form=delegate_selection_form wide=True %}
-                                                                </div>
-                                                            </span>
+                                                        <form method="POST" action="{% url 'contributor:evaluation_direct_delegation' evaluation.id %}" class="d-inline">
+                                                            {% csrf_token %}
 
-                                                            <a slot="show-button" href="#" class="btn btn-sm btn-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delegate preparation' %}">
-                                                                <span class="fas fa-hand-point-left"></span>
-                                                            </a>
-                                                        </confirmation-modal>
+                                                            <confirmation-modal type="submit">
+                                                                <span slot="title">{% trans 'Delegate preparation' %}</span>
+                                                                <span slot="action-text">{% trans 'Delegate preparation' %}</span>
+                                                                <span slot="question">
+                                                                    {% blocktrans with evaluation_name=evaluation.full_name %}
+                                                                        Do you really want to delegate the preparation of the evaluation {{ evaluation_name }}?
+                                                                    {% endblocktrans %}
+                                                                    <div class="my-4">
+                                                                        {% include 'bootstrap_form.html' with form=delegate_selection_form wide=True %}
+                                                                    </div>
+                                                                </span>
+
+                                                                <a slot="show-button" href="#" class="btn btn-sm btn-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delegate preparation' %}">
+                                                                    <span class="fas fa-hand-point-left"></span>
+                                                                </a>
+                                                            </confirmation-modal>
+                                                        </form>
                                                     {% endif %}
                                                 {% elif evaluation.state == evaluation.State.EDITOR_APPROVED or evaluation.state == evaluation.State.APPROVED %}
                                                     <a href="{% url 'contributor:evaluation_view' evaluation.id %}" class="btn btn-sm btn-light"

@@ -51,6 +51,7 @@
 
                         <script type="module">
                             import { CSRF_HEADERS } from "{% static 'js/csrf-utils.js' %}";
+                            import { fadeOutThenRemove } from "{% static 'js/utils.js' %}";
 
                             document.querySelectorAll("confirmation-modal[data-delete-document]").forEach(modal => {
                                 modal.addEventListener("confirmed", async () => {
@@ -62,8 +63,7 @@
 
                                     if (response.ok) {
                                         const row = modal.closest("tr");
-                                        // TODO: animate
-                                        row.remove();
+                                        fadeOutThenRemove(row);
                                     } else {
                                         window.alert("{% trans 'The server is not responding.' %}");
                                     }
