@@ -168,12 +168,11 @@
                         <a href="{% url 'staff:semester_preparation_reminder' semester.id %}" class="btn btn-sm btn-light">{% trans 'Preparation reminder' %}</a>
                         <a href="{% url 'staff:semester_grade_reminder' semester.id %}" class="btn btn-sm btn-light ms-2">{% trans 'Grade publish reminder' %}</a>
                     {% endif %}
-                    <div class="btn-switch ms-2">
-                        <div class="btn-switch-label">{% trans 'Reward points active' %}</div>
-                        <div class="btn-switch btn-group icon-buttons">
-                            <form id="form_activation_status" method="post" action="{% url 'rewards:semester_activation_edit' semester.id %}">
-                                {% csrf_token %}
-
+                    <form id="form_activation_status" class="d-inline" method="post" action="{% url 'rewards:semester_activation_edit' semester.id %}">
+                        {% csrf_token %}
+                        <div class="btn-switch ms-2">
+                            <div class="btn-switch-label">{% trans 'Reward points active' %}</div>
+                            <div class="btn-switch btn-group icon-buttons">
                                 <confirmation-modal type="submit" name="activation_status" value="on" confirm-button-class="btn-primary">
                                     <span slot="title">{% trans 'Activate reward points' %}</span>
                                     <span slot="action-text">{% trans 'Activate reward points' %}</span>
@@ -189,9 +188,9 @@
                                 </confirmation-modal>
 
                                 <button type="submit" name="activation_status" value="off" form="form_activation_status" class="btn btn-sm btn-light{% if not rewards_active %} active{% endif %}"><span class="fas fa-xmark" aria-hidden="true"></span></button>
-                            </form>
+                            </div>
                         </div>
-                    </div>
+                    </form>
                 </div>
             {% endif %}
         </div>
