@@ -255,9 +255,23 @@ class EnrollmentPreprocessorTest(WebTest):
 
     @patch("builtins.input", side_effect=repeat("n"))
     def test_empty_email_ignored(self, input_patch: MagicMock):
+        self.imported_data["MA Belegungen"][1][1] = " Add  "
+        self.imported_data["MA Belegungen"][1][8] = "   some  "
+        self.imported_data["BA Belegungen"][1][2] = "   conflicts    "
         self.imported_data["MA Belegungen"][1][3] = ""
         self.imported_data["MA Belegungen"][1][11] = ""
         self.imported_data["BA Belegungen"][1][3] = ""
         self.imported_data["BA Belegungen"][1][11] = ""
         run_preprocessor(BytesIO(create_memory_excel_file(self.imported_data)), self.csv)
         input_patch.assert_not_called()
+
+    @patch("builtins.input", side_effect=repeat("n"))
+    def test_deduplication(self, input_patch: MagicMock):
+        self.imported_data["MA Belegungen"][1][1] = "SoMe CoNfLiCtS"
+        self.imported_data["MA Belegungen"][1][8] = "iN eVeRy"
+        self.imported_data["BA Belegungen"][1][2] = "FiElDs"
+        # copy data and pad with spaces
+        self.imported_data["MA Belegungen"].append([f" {data} " for data in self.imported_data["MA Belegungen"][1]])
+
+        run_preprocessor(BytesIO(create_memory_excel_file(self.imported_data)), self.csv)
+        self.assertEqual(input_patch.call_count, 3)  # conflicts are deduplicated.

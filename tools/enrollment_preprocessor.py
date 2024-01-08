@@ -26,7 +26,7 @@ class UserCells(NamedTuple):
 
     def clean(self) -> Iterator[str]:
         for field in iter(self):
-            if not field:
+            if not field or not field.value:
                 yield ""
                 continue
             field.value = str(field.value or "").strip()
@@ -69,10 +69,18 @@ def run_preprocessor(enrollment_data: str | BytesIO, user_data: TextIO) -> Bytes
     for row in reader:
         user = User(*row)
         users[user.email] = user
+
+    user_cells: dict[tuple[str, ...], UserCells] = dict()
     for sheet in workbook.worksheets:
         for wb_row in sheet.iter_rows(min_row=2, min_col=2):
-            fix_user(users, UserCells(None, *wb_row[:3]))
-            fix_user(users, UserCells(*wb_row[7:]))
+            cells = UserCells(None, *wb_row[:3])
+            user_cells.setdefault(tuple(cells.clean()), cells)
+            cells = UserCells(*wb_row[7:])
+            user_cells.setdefault(tuple(cells.clean()), cells)
+
+    for cells in user_cells.values():
+        fix_user(users, cells)
+
     wb_out = BytesIO()
     workbook.save(wb_out)
     wb_out.seek(0)
