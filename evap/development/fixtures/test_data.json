@@ -133086,6 +133086,78 @@
   }
 },
 {
+  "model": "evaluation.userprofile",
+  "fields": {
+    "password": "eZAyFmtqHydCIFtGdbevAxiVjiRpqMtmaVUCrmkcfXdoJDigmGWPVNHeoYYyRojokKUJjsgPSPvZkjiiIHSIQlBfOKtQFDbZlPEyKnrQRrHdPtEhUYHqJauIlyIkYpBM",
+    "last_login": null,
+    "is_superuser": false,
+    "email": "vincenzo.boston@student.institution.example.com",
+    "title": "",
+    "first_name_given": "",
+    "first_name_chosen": "",
+    "last_name": "",
+    "language": "",
+    "is_proxy_user": false,
+    "login_key": null,
+    "login_key_valid_until": null,
+    "is_active": true,
+    "notes": "",
+    "startpage": "DE",
+    "groups": [],
+    "user_permissions": [],
+    "delegates": [],
+    "cc_users": []
+  }
+},
+{
+  "model": "evaluation.userprofile",
+  "fields": {
+    "password": "utAhMBbTpirVqtaoPpadEHdamaehnXWbEsliMMSnwDBYJcTnHluinAxkTeEupPoBzpuDBMYeXbpwmockMtQNYegbMuxkUBEBKqWGkOEFAWxzUFjdxevtIwYzvAgHCAwD",
+    "last_login": null,
+    "is_superuser": false,
+    "email": "bud.ledbetter@student.institution.example.com",
+    "title": "",
+    "first_name_given": "",
+    "first_name_chosen": "",
+    "last_name": "",
+    "language": "",
+    "is_proxy_user": false,
+    "login_key": null,
+    "login_key_valid_until": null,
+    "is_active": true,
+    "notes": "",
+    "startpage": "DE",
+    "groups": [],
+    "user_permissions": [],
+    "delegates": [],
+    "cc_users": []
+  }
+},
+{
+  "model": "evaluation.userprofile",
+  "fields": {
+    "password": "naFmzOVrFhXrVVLsIGFYceDAarTGwDRFZKGJwBvKhNFCpupezBrwhorUHsyQSpUxLFKSQuOurcIyoBBYRjARXjzcJCbqYRiKRMOwvdTqwNjAbYDhUKbopBPDYhANXUkI",
+    "last_login": null,
+    "is_superuser": false,
+    "email": "melody.large@student.institution.example.com",
+    "title": "",
+    "first_name_given": "",
+    "first_name_chosen": "",
+    "last_name": "",
+    "language": "",
+    "is_proxy_user": false,
+    "login_key": null,
+    "login_key_valid_until": null,
+    "is_active": true,
+    "notes": "",
+    "startpage": "DE",
+    "groups": [],
+    "user_permissions": [],
+    "delegates": [],
+    "cc_users": []
+  }
+},
+{
   "model": "evaluation.emailtemplate",
   "pk": 1,
   "fields": {
