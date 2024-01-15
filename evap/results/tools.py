@@ -58,7 +58,7 @@ class RatingResult:
     def has_answers(cls, rating_result) -> TypeGuard["AnsweredRatingResult"]:
         return isinstance(rating_result, AnsweredRatingResult)
 
-    def __init__(self, question, _, additional_text_result=None):
+    def __init__(self, question, additional_text_result=None):
         assert question.is_rating_question
         self.question = discard_cached_related_objects(copy(question))
         self.additional_text_result = additional_text_result
