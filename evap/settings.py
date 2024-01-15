@@ -107,6 +107,8 @@ EVALUATION_END_OFFSET_HOURS = 3
 # Amount of hours in which participant will be warned
 EVALUATION_END_WARNING_PERIOD = 5
 
+# Questionnaires automatically added to exam evaluations
+EXAM_QUESTIONNAIRES = [83]
 
 ### Installation specific settings
 

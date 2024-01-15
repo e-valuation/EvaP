@@ -180,11 +180,13 @@
             <a href="{% url 'staff:evaluation_copy' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" title="{% translate 'Copy' %}">
                 <span class="fas fa-fw fa-copy"></span>
             </a>
-            <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
-                                                onclick="createExamEvaluationShow({{ evaluation.id }}, '{{ course.name|escapejs }}');"
-                                                title="{% trans 'Create exam evaluation' %}">
-                                                <span class="fas fa-file-pen fa-fw"></span>
-                                            </a>
+            {% if evaluation.has_exam%}
+                <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"  
+                        onclick="createExamEvaluationShow({{ evaluation.id }}, '{{ course.name|escapejs }}');"  
+                        title="{% trans 'Create exam evaluation' %}">  
+                    <span class="fas fa-file-pen fa-fw"></span>  
+                </a>
+            {% endif %}
         {% endif %}
         {% if request.user.is_manager %}
             <a href="{% url 'staff:evaluation_email' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Send email' %}">

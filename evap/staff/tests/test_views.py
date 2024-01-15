@@ -1970,9 +1970,10 @@ class TestEvaluationExamCreation(WebTestStaffMode):
         cls.course = baker.make(Course, semester=cls.semester)
         vote_start_datetime = datetime.datetime.now() - datetime.timedelta(days=50)
         cls.evaluation = baker.make(Evaluation, course=cls.course, vote_start_datetime=vote_start_datetime)
-        baker.make(
+        cls.contributions = baker.make(
             Contribution, evaluation=cls.evaluation, _fill_optional=["contributor"], _quantity=3, _bulk_create=True
         )
+        cls.questionnaire = baker.make(Questionnaire, pk=83)
         cls.url = reverse("staff:create_exam_evaluation")
         cls.exam_date = (
             datetime.date.today()
