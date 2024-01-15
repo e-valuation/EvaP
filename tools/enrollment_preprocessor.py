@@ -65,7 +65,7 @@ def group_conflicts(
 
 def parse_existing(user_data: TextIO) -> dict[str, User]:
     users = {}
-    reader = csv.reader(user_data, delimiter=",", lineterminator="\n")
+    reader = csv.reader(user_data, delimiter=";", lineterminator="\n")
     next(reader)  # skip header
     for row in reader:
         user = User(*row)
