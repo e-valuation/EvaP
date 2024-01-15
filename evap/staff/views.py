@@ -241,6 +241,9 @@ def semester_view(request, semester_id) -> HttpResponse:
     degree_stats_with_total = cast(dict[Degree | str, Stats], degree_stats)
     degree_stats_with_total["total"] = total_stats
 
+    for evaluation in evaluations:
+        evaluation.has_exam = evaluation.course.evaluations.filter(name_de="Klausur", name_en="Exam").exists()
+
     template_data = {
         "semester": semester,
         "evaluations": evaluations,
@@ -1053,6 +1056,7 @@ def course_copy(request, course_id):
 
 @require_POST
 @manager_required
+@transaction.atomic
 def create_exam_evaluation(request):
     evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
     exam_date = datetime.today()  # request.POST.get("date")
@@ -1060,15 +1064,14 @@ def create_exam_evaluation(request):
         raise SuspiciousOperation("Creating an exam evaluation for a single result evaluation is not allowed")
 
     if evaluation.course.evaluations.filter(name_de="Klausur", name_en="Exam").exists():
-        messages.error(request, _("An exam evaluation already exists for this course."))
-        return HttpResponse()  # 200 OK
+        raise SuspiciousOperation("An exam evaluation already exists for this course.")
 
     evaluation.weight = 9
-
-    course_evaluation_end_date = exam_date - timedelta(days=1)
-    if evaluation.vote_start_datetime > course_evaluation_end_date:
-        raise SuspiciousOperation("The selected date is before the start date")
-    evaluation.vote_end_date = course_evaluation_end_date
+    evaluation_end_date = exam_date - timedelta(days=1)
+    if evaluation.vote_start_datetime > evaluation_end_date:
+        raise SuspiciousOperation("The exam date is before the start date of the main evaluation")
+    evaluation.vote_end_date = evaluation_end_date
+    evaluation.save()
 
     exam_evaluation = Evaluation(
         course=evaluation.course, name_de="Klausur", name_en="Exam", weight=1, is_rewarded=False
@@ -1077,11 +1080,9 @@ def create_exam_evaluation(request):
     exam_evaluation.vote_end_date = exam_date + timedelta(days=3)
     exam_evaluation.save()
     exam_evaluation.participants.set(evaluation.participants.all())
-    for contribution in evaluation.contributions.all().filter(contributor__isnull=False):
+    for contribution in evaluation.contributions.exclude(contributor=None):
         exam_evaluation.contributions.create(contributor=contribution.contributor)
-    exam_evaluation.general_contribution.questionnaires.set([Questionnaire.objects.get(id=1)])
-
-    evaluation.save()
+    exam_evaluation.general_contribution.questionnaires.set(settings.EXAM_QUESTIONNAIRES)
     messages.success(request, _("Successfully created exam evaluation."))
     return HttpResponse()  # 200 OK
 
