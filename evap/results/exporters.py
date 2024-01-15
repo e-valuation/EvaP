@@ -9,6 +9,7 @@ from django.utils.translation import gettext as _
 from evap.evaluation.models import CourseType, Degree, Evaluation, Questionnaire
 from evap.evaluation.tools import ExcelExporter
 from evap.results.tools import (
+    RatingResult,
     calculate_average_course_distribution,
     calculate_average_distribution,
     distribution_to_grade,
@@ -127,9 +128,7 @@ class ResultsExporter(ExcelExporter):
                 for questionnaire_result in contribution_result.questionnaire_results:
                     # RatingQuestion.counts is a tuple of integers or None, if this tuple is all zero, we want to exclude it
                     if all(
-                        not question_result.question.is_rating_question
-                        or question_result.counts is None
-                        or sum(question_result.counts) == 0
+                        not question_result.question.is_rating_question or not RatingResult.has_answers(question_result)
                         for question_result in questionnaire_result.question_results
                     ):
                         continue
@@ -266,7 +265,7 @@ class ResultsExporter(ExcelExporter):
                 approval_count = 0
 
                 for grade_result in results[questionnaire.id]:
-                    if grade_result.question.id != question.id or not grade_result.has_answers:
+                    if grade_result.question.id != question.id or not RatingResult.has_answers(grade_result):
                         continue
                     values.append(grade_result.average * grade_result.count_sum)
                     count_sum += grade_result.count_sum

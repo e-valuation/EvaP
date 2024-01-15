@@ -1,7 +1,7 @@
 {% load results_templatetags %}
 
 {% spaceless %}
-    {% if question_result.has_answers %}
+    {% if question_result|has_answers %}
         <div class="result-widget d-flex"
             data-bs-toggle="tooltip" data-bs-placement="left" data-fallback-placement='["left", "bottom"]'
             title="{% include 'result_widget_tooltip.html' with question_result=question_result %}"
@@ -15,7 +15,7 @@
         <div class="d-flex" data-bs-toggle="tooltip" data-bs-placement="left" data-fallback-placement='["left", "bottom"]' title="{% trans 'Not enough answers were given.' %}">
             {% include "distribution_with_grade_disabled.html" with icon="far fa-eye-slash" %}
             <div class="badge-participants badge-disabled ms-2 ms-lg-3">
-                {% if question_result.is_published %}
+                {% if question_result|is_published %}
                     <span class="fas fa-user"></span> {{ question_result.count_sum }}
                 {% else %}
                     <span class="far fa-eye-slash"></span>
