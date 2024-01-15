@@ -2319,7 +2319,7 @@ class UserMergeSelectionView(FormView):
 
         users_with_merge_candidates = query.annotate(
             merge_candidate_pk=query.filter(username_part_of_email=UserNameFromEmail(OuterRef("email")))
-            .exclude(email__gte=OuterRef("email"))
+            .filter(pk__lt=OuterRef("pk"))
             .values("pk")[:1]
         ).exclude(merge_candidate_pk=None)
 
