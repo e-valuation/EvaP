@@ -23,6 +23,14 @@
                 <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon_32.png' %}" />
                 <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon_16.png' %}" />
             {% endif %}
+
+            <script type="importmap">
+                {
+                    "imports": {
+                        "contact_modal": "{% static 'js/contact_modal.js' %}",
+                    }
+                }
+            </script>
         {% endblock %}
     </head>
     <body>
