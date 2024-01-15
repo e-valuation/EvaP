@@ -43,7 +43,7 @@ class TextAnswerVisibility:
 
 def create_rating_result(question, answer_counters, additional_text_result=None):
     if answer_counters is None:
-        return RatingResult(question, answer_counters, additional_text_result)
+        return RatingResult(question, additional_text_result)
     if any(counter.count != 0 for counter in answer_counters):
         return AnsweredRatingResult(question, answer_counters, additional_text_result)
     return PublishedRatingResult(question, answer_counters, additional_text_result)
@@ -70,7 +70,7 @@ class RatingResult:
 
 class PublishedRatingResult(RatingResult):
     def __init__(self, question, answer_counters, additional_text_result=None):
-        super().__init__(question, answer_counters, additional_text_result)
+        super().__init__(question, additional_text_result)
         counts = OrderedDict((value, 0) for value in self.choices.values if value != NO_ANSWER)
         for answer_counter in answer_counters:
             counts[answer_counter.answer] = answer_counter.count
