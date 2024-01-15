@@ -2,11 +2,14 @@
 
 import csv
 from argparse import ArgumentParser
+from collections import defaultdict
 from dataclasses import dataclass
+from datetime import datetime
 from io import BytesIO
+from pathlib import Path
 from typing import Iterator, NamedTuple, TextIO
 
-from openpyxl import load_workbook
+from openpyxl import Workbook, load_workbook
 from openpyxl.cell import Cell
 
 
@@ -16,6 +19,12 @@ class User:
     last_name: str
     first_name: str
     email: str
+
+    def full_name(self) -> str:
+        prefix = ""
+        if self.title:
+            prefix = f"{self.title} "
+        return f"{prefix}{self.first_name} {self.last_name}, {self.email}"
 
 
 class UserCells(NamedTuple):
@@ -33,53 +42,66 @@ class UserCells(NamedTuple):
             yield field.value
 
 
-def user_decision(field: str, existing: str, imported: str) -> str:
-    if existing == imported:
-        return existing
-    decision: str = ""
-    while decision not in ("y", "n"):
-        decision = input(f"Do you want to keep the existing user {field}? (y/n) ")
-    if decision == "n":
-        return imported
-    return existing
+def make_bold(text: str) -> str:
+    return f"\x1b[1m{text}\x1b[0m"
 
 
-def fix_user(users: dict[str, User], imported_cells: UserCells) -> None:
-    imported = User(*imported_cells.clean())
-    existing = users.setdefault(imported.email, imported)
-    if not imported.email or imported == existing:
-        return
-    print("There is a conflict in the user data.")
-    print(f"existing: {existing}.")
-    print(f"imported: {imported}.")
-    # None is passed exclusively for participants since they have no title column
-    if imported_cells.title is not None:
-        imported_cells.title.value = user_decision("title", existing.title, imported.title)
-    imported_cells.last_name.value = user_decision("last name", existing.last_name, imported.last_name)
-    imported_cells.first_name.value = user_decision("first name", existing.first_name, imported.first_name)
-    imported_cells.email.value = user_decision("email", existing.email, imported.email)
-    print()
+def group_conflicts(
+    users: dict[str, User], user_cells: dict[tuple[str, ...], UserCells]
+) -> dict[str, list[tuple[UserCells, User]]]:
+    groups = defaultdict(list)
+    for cells in user_cells.values():
+        imported = User(*cells.clean())
+        existing = users.setdefault(imported.email, imported)
+        if not imported.email or imported == existing:
+            continue
+
+        for field in ["title", "last_name", "first_name"]:
+            field_value = getattr(cells, field)
+            if field_value is not None and getattr(existing, field) != getattr(imported, field):
+                groups[field].append((cells, existing))
+    return groups
 
 
-def run_preprocessor(enrollment_data: str | BytesIO, user_data: TextIO) -> BytesIO:
-    workbook = load_workbook(enrollment_data)
+def parse_existing(user_data: TextIO) -> dict[str, User]:
     users = {}
-    reader = csv.reader(user_data, delimiter=";", lineterminator="\n")
+    reader = csv.reader(user_data, delimiter=",", lineterminator="\n")
     next(reader)  # skip header
     for row in reader:
         user = User(*row)
         users[user.email] = user
+    return users
 
-    user_cells: dict[tuple[str, ...], UserCells] = dict()
-    for sheet in workbook.worksheets:
+
+def parse_imported(enrollment_data: Workbook):
+    user_cells: dict[tuple[str, ...], UserCells] = {}
+    for sheet in enrollment_data.worksheets:
         for wb_row in sheet.iter_rows(min_row=2, min_col=2):
             cells = UserCells(None, *wb_row[:3])
             user_cells.setdefault(tuple(cells.clean()), cells)
             cells = UserCells(*wb_row[7:])
             user_cells.setdefault(tuple(cells.clean()), cells)
+    return user_cells
 
-    for cells in user_cells.values():
-        fix_user(users, cells)
+
+def run_preprocessor(enrollment_data: Path | BytesIO, user_data: TextIO) -> BytesIO:
+    workbook = load_workbook(enrollment_data)
+
+    conflict_groups = group_conflicts(parse_existing(user_data), parse_imported(workbook))
+
+    for field, conflicts in conflict_groups.items():
+        print(field.capitalize())
+        print("---------")
+        for cells, existing in conflicts:
+            imported = User(*cells.clean())
+            print(f"existing: '{make_bold(getattr(existing, field))}' ({existing.full_name()})")
+            print(f"imported: '{make_bold(getattr(imported, field))}' ({imported.full_name()})")
+
+            decision: str = ""
+            while decision not in ("e", "i"):
+                decision = input("Which one should be used? (e/i):")
+            if decision == "e":
+                getattr(cells, field).value = getattr(existing, field)
 
     wb_out = BytesIO()
     workbook.save(wb_out)
@@ -92,7 +114,10 @@ if __name__ == "__main__":  # pragma: nocover
     parser.add_argument("user_data", help="Path to a csv file containing an export of all existing users.")
     parser.add_argument("enrollment_data", help="Path to the enrollment data in xlsx format for import.")
     ns = parser.parse_args()
+
+    target = Path(ns.enrollment_data)
+
     with open(ns.user_data, encoding="utf-8") as csvfile:
-        wb = run_preprocessor(ns.enrollment_data, csvfile)
-    with open(ns.enrollment_data, "wb") as out:
+        wb = run_preprocessor(target, csvfile)
+    with open(target.with_stem(f"{target.stem}_{datetime.now().isoformat()}"), "wb") as out:
         out.write(wb.read())

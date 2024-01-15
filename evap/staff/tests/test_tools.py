@@ -239,21 +239,21 @@ class EnrollmentPreprocessorTest(WebTest):
             [["Title", "Last name", "First name", "Email"]] + valid_user_courses_import_users
         )
 
-    @patch("builtins.input", side_effect=cycle(("n", "y")))
+    @patch("builtins.input", side_effect=cycle(("i", "e", "invalid")))
     def test_xlsx_data_stripped(self, input_patch: MagicMock):
         self.imported_data["MA Belegungen"][1][1] = " Accepted  "
         self.imported_data["MA Belegungen"][1][8] = "   conflicts  "
         self.imported_data["BA Belegungen"][1][2] = "   are    "
         self.imported_data["BA Belegungen"][1][11] = "   stripped.   "
         modified = run_preprocessor(BytesIO(create_memory_excel_file(self.imported_data)), self.csv)
-        self.assertEqual(input_patch.call_count, 3)
+        self.assertEqual(input_patch.call_count, 4)
         workbook = load_workbook(modified, read_only=True)
         self.assertEqual(workbook["MA Belegungen"]["B2"].value, "Accepted")  # stripped conflict used
         self.assertEqual(workbook["MA Belegungen"]["I2"].value, None)  # existing data kept
         self.assertEqual(workbook["BA Belegungen"]["C2"].value, "are")  # stripped conflict used
         self.assertEqual(workbook["BA Belegungen"]["L2"].value, "stripped.")  # different email is no conflict
 
-    @patch("builtins.input", side_effect=repeat("n"))
+    @patch("builtins.input", side_effect=repeat("i"))
     def test_empty_email_ignored(self, input_patch: MagicMock):
         self.imported_data["MA Belegungen"][1][1] = " Add  "
         self.imported_data["MA Belegungen"][1][8] = "   some  "
@@ -265,7 +265,7 @@ class EnrollmentPreprocessorTest(WebTest):
         run_preprocessor(BytesIO(create_memory_excel_file(self.imported_data)), self.csv)
         input_patch.assert_not_called()
 
-    @patch("builtins.input", side_effect=repeat("n"))
+    @patch("builtins.input", side_effect=repeat("i"))
     def test_deduplication(self, input_patch: MagicMock):
         self.imported_data["MA Belegungen"][1][1] = "SoMe CoNfLiCtS"
         self.imported_data["MA Belegungen"][1][8] = "iN eVeRy"
