@@ -72,8 +72,8 @@ a.no-underline:hover {
     z-index: $zindex-fixed + 1;
 }
 
-@for $i from 1 through 100 {
+@for $i from 0 through 100 {
     .width-percent-#{$i} {
-        width: $i * 1%;
+        width: $i * 1% !important;
     }
 }
