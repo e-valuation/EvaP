@@ -92,7 +92,7 @@
             <div class="collapse{% if semester.participations_are_archived or semester.grade_documents_are_deleted or semester.results_are_archived %} show{% endif %}" id="archivingCard">
                 <div class="card-body">
                     {% if semester.participations_can_be_archived %}
-                        <form method="POST" action="{% url 'staff:semester_archive_participations' %}">
+                        <form reload-on-success method="POST" action="{% url 'staff:semester_archive_participations' %}">
                             {% csrf_token %}
                             <confirmation-modal type="submit" name="semester_id" value="{{ semester.id }}" confirm-button-class="btn-danger">
                                 <span slot="title">{% trans 'Archive participations' %}</span>
@@ -115,7 +115,7 @@
                             {% trans 'Archive participations' %}</button>
                     {% endif %}
                     {% if semester.grade_documents_can_be_deleted %}
-                        <form method="POST" action="{% url 'staff:semester_delete_grade_documents' %}">
+                        <form reload-on-success method="POST" action="{% url 'staff:semester_delete_grade_documents' %}">
                             {% csrf_token %}
                             <confirmation-modal type="submit" name="semester_id" value="{{ semester.id }}" confirm-button-class="btn-danger">
                                 <span slot="title">{% trans 'Delete grade documents' %}</span>
@@ -135,7 +135,7 @@
                         <button type="button" class="btn btn-sm btn-success disabled">{% trans 'Grade documents have been deleted' %}</button>
                     {% endif %}
                     {% if semester.results_can_be_archived %}
-                        <form method="POST" action="{% url 'staff:semester_archive_results' %}">
+                        <form reload-on-success method="POST" action="{% url 'staff:semester_archive_results' %}">
                             {% csrf_token %}
                             <confirmation-modal type="submit" name="semester_id" value="{{ semester.id }}" confirm-button-class="btn-danger">
                                 <span slot="title">{% trans 'Archive results' %}</span>
@@ -484,24 +484,12 @@
                     </div>
                 </div>
                 {% if courses %}
-                    <form id="course-deletion-form" method="POST" action="{% url 'staff:course_delete' %}">
+                    <form id="course-deletion-form" custom-success method="POST" action="{% url 'staff:course_delete' %}">
                         {% csrf_token %}
                     </form>
                     <script async>
-                        const form = document.getElementById("course-deletion-form");
-                        form.addEventListener("submit", event => {
-                            event.preventDefault();
-                            const body = new FormData(form);
-                            const request = fetch(
-                                form.action,
-                                { method: form.method, body },
-                            );
-                            request.then(response => {
-                                assert(response.ok);
-                                fadeOutThenRemove(document.querySelector(`#course-row-${body.get("course_id")}`));
-                            }).catch(error => {
-                                window.alert("{% trans 'The server is not responding.' %}");
-                            });
+                        document.getElementById("course-deletion-form").addEventListener("submit-success", event => {
+                            fadeOutThenRemove(document.querySelector(`#course-row-${event.detail.body.get("course_id")}`));
                         });
                     </script>
 

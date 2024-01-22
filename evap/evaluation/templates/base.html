@@ -201,6 +201,12 @@
 
         </script>
 
+        <script type="module">
+            import { setupForms } from "{% static 'js/custom-success-form.js' %}";
+
+            setupForms();
+        </script>
+
         {% block additional_javascript %}{% endblock %}
     </body>
 </html>
