@@ -1,5 +1,6 @@
 import functools
 import os
+import time
 from collections.abc import Sequence
 from contextlib import contextmanager
 from datetime import timedelta
@@ -9,16 +10,14 @@ import webtest
 from django.conf import settings
 from django.contrib.auth import login
 from django.contrib.auth.models import Group
+from django.core.management import call_command
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.http.request import HttpRequest, QueryDict
-from django.test.selenium import SeleniumTestCase, SeleniumTestCaseBase
+from django.test.selenium import SeleniumTestCase
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 from django_webtest import WebTest
 from model_bakery import baker
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.wait import WebDriverWait
 
 from evap.evaluation.models import (
     CHOICES,
@@ -262,19 +261,26 @@ def assert_no_database_modifications(*args, **kwargs):
                 raise AssertionError("Unexpected modifying query found: " + query["sql"])
 
 
-class CustomSeleniumTestCaseBase(SeleniumTestCaseBase):
-    def create_options(self):  # pylint: disable=bad-mcs-method-argument
-        # Note: This workaround is probably no longer necessary with Django 5.0
-        options = super().create_options()
-        options.add_argument("--headless")
-        return options
-
-
-class LiveServerTest(SeleniumTestCase, metaclass=CustomSeleniumTestCaseBase):
+class LiveServerTest(SeleniumTestCase):
     external_host = os.environ.get("TEST_HOST", "") or None
     browser = "firefox"
     selenium_hub = os.environ.get("TEST_SELENIUM_HUB", "") or None
     headless = True
+
+    fixtures = [os.path.join(settings.BASE_DIR, "development", "fixtures", "test_with_migrations.json")]
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        for db_name in cls._databases_names(include_mirrors=False):
+            call_command(
+                "flush",
+                interactive=False,
+                verbosity=0,
+                database=db_name,
+                reset_sequences=False,
+                inhibit_post_migrate=True,
+            )
+        return super().setUpClass()
 
     def _screenshot(self, name):
         self.selenium.save_screenshot(os.path.join(settings.BASE_DIR, f"{name}.png"))
@@ -295,25 +301,41 @@ class LiveServerTest(SeleniumTestCase, metaclass=CustomSeleniumTestCaseBase):
         self._login(user)
         return user
 
+    def _create_session(self):
+        request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        request.session = engine.SessionStore()
+
+        self.request = request  # pylint: disable=attribute-defined-outside-init
+
+    def _update_session(self):
+        self.request.session.save()
+        # Create session cookie
+        cookie_data = {
+            "name": settings.SESSION_COOKIE_NAME,
+            "value": self.request.session.session_key,
+            "path": "/",
+            "secure": settings.SESSION_COOKIE_SECURE or False,
+        }
+        self.selenium.add_cookie(cookie_data)
+
     def _login(self, user):
         """Login a test user by setting the session cookie."""
         self.selenium.get(self.live_server_url)
 
         # Create fake session to do user login workflow
-        request = HttpRequest()
-        engine = import_module(settings.SESSION_ENGINE)
-        request.session = engine.SessionStore()
-        login(request, user, "django.contrib.auth.backends.ModelBackend")
-        request.session.save()
+        self._create_session()
+        login(self.request, user, "django.contrib.auth.backends.ModelBackend")
+        self._update_session()
 
-        # Create session cookie
-        cookie_data = {
-            "name": settings.SESSION_COOKIE_NAME,
-            "value": request.session.session_key,
-            "path": "/",
-            "secure": settings.SESSION_COOKIE_SECURE or False,
-        }
-        self.selenium.add_cookie(cookie_data)
+    def _enter_staff_mode(self):
+        self.request.session["staff_mode_start_time"] = time.time()
+        self._update_session()
+
+    def _exit_staff_mode(self):
+        if "staff_mode_start_time" in self.request.session:
+            del self.request.session["staff_mode_start_time"]
+            self._update_session()
 
     @classmethod
     def tearDownClass(cls):
