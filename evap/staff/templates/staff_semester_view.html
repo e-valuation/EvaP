@@ -487,7 +487,7 @@
                     <form id="course-deletion-form" method="POST" action="{% url 'staff:course_delete' %}">
                         {% csrf_token %}
                     </form>
-                    <script defer>
+                    <script async>
                         const form = document.getElementById("course-deletion-form");
                         form.addEventListener("submit", event => {
                             event.preventDefault();

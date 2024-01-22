@@ -36,7 +36,7 @@
             {% csrf_token %}
         </form>
 
-        <script defer>
+        <script async>
             const form = document.getElementById("questionnaire-deletion-form");
             form.addEventListener("submit", event => {
                 event.preventDefault();
