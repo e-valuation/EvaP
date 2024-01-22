@@ -1,3 +1,4 @@
+{% load static %}
 <div class="notebook">
    <div class="collapse position-fixed collapse-horizontal notebook-animation mt-0 d-print-none" tabindex="-1" id="notebook" aria-expanded="false">
         <div class="card">
@@ -35,7 +36,7 @@
 </div>
 
 <script type="module">
-    import  { initNotebook } from "{% static 'js/notebook.js' %}"
-    initNotebook("#notebook", "#notebook-form", "#evapContent", "evap_notebook_open", "#notebookButton");
+    import { NotebookLogic } from "{% static 'js/notebook.js' %}";
+    import { selectOrError } from "{% static 'js/utils.js' %}";
+    new NotebookLogic(selectOrError("#notebook"), selectOrError("#notebook-form"), selectOrError("#evapContent"), selectOrError("#notebookButton"), "evap_notebook_open").attach();
 </script>
-
