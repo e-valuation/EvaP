@@ -2239,7 +2239,7 @@ class TestEvaluationDeleteView(WebTestStaffMode):
             RatingAnswerCounter, contribution__evaluation=self.evaluation, _quantity=5, _bulk_create=True
         )
 
-        self.app.post(self.url, user=self.manager, params=self.post_params)
+        self.app.post(self.url, user=self.manager, params=self.post_params, status=200)
 
         self.assertFalse(Evaluation.objects.filter(pk=self.evaluation.pk).exists())
         self.assertFalse(RatingAnswerCounter.objects.filter(pk__in=[c.pk for c in counters]).exists())
@@ -3689,7 +3689,7 @@ class TestSemesterActiveStateBehaviour(WebTestStaffMode):
         semester1 = baker.make(Semester, is_active=True)
         semester2 = baker.make(Semester, is_active=False)
 
-        self.app.post(self.url, user=manager, params={"semester_id": semester2.id})
+        self.app.post(self.url, user=manager, status=200, params={"semester_id": semester2.id})
 
         semester1.refresh_from_db()
         semester2.refresh_from_db()
