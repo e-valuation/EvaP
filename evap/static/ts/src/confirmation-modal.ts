@@ -35,8 +35,6 @@ export class ConfirmationModal extends HTMLElement {
         this.closeDialogSlowly();
 
         if (event.submitter?.dataset?.eventType === "confirm") {
-            this.dispatchEvent(new CustomEvent("confirmed", { detail: new FormData(this.dialogForm) }));
-
             if (this.type === "submit") {
                 // Unfortunately, `this` cannot act as the submitter of the form. Instead, we make our `value` attribute
                 // visible to the form until submission is finished (the `submit` handlers of the form might cancel the
@@ -44,6 +42,8 @@ export class ConfirmationModal extends HTMLElement {
                 this.internals.setFormValue(this.getAttribute("value"));
                 this.internals.form?.requestSubmit();
                 this.internals.setFormValue(null);
+            } else {
+                this.dispatchEvent(new CustomEvent("confirmed", { detail: new FormData(this.dialogForm) }));
             }
         }
     };
