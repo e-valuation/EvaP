@@ -64,7 +64,7 @@
                                     {% if num_final_grades > 0 %}
                                         <span class="fas fa-file"></span> {{ num_final_grades }}
                                     {% elif course.gets_no_grade_documents %}
-                                        <form method="POST" action="{% url 'grades:set_no_grades' %}" class="d-contents">
+                                        <form reload-on-success method="POST" action="{% url 'grades:set_no_grades' %}" class="d-contents">
                                             {% csrf_token %}
                                             <input type="hidden" name="course_id" value="{{ course.id }}">
 
@@ -87,7 +87,7 @@
                                 <td class="text-end" style="min-width:72px">
                                     {% if not course.gets_no_grade_documents %}
                                         {% if num_final_grades == 0 %}
-                                            <form method="POST" action="{% url 'grades:set_no_grades' %}" class="d-contents">
+                                            <form reload-on-success method="POST" action="{% url 'grades:set_no_grades' %}" class="d-contents">
                                                 {% csrf_token %}
                                                 <input type="hidden" name="course_id" value="{{ course.id }}">
 

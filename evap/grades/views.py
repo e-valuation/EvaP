@@ -165,7 +165,7 @@ def set_no_grades(request):
     if course.gets_no_grade_documents:
         on_grading_process_finished(course)
 
-    return redirect("grades:semester_view", course.semester.id)
+    return HttpResponse()  # 200 OK
 
 
 @require_GET

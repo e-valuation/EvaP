@@ -149,7 +149,8 @@ class GradeUploadTest(WebTest):
             "/grades/set_no_grades",
             params={"course_id": evaluation.course.id, "status": "1"},
             user=self.grade_publisher,
-        ).follow(status=200)
+            status=200,
+        )
         evaluation = Evaluation.objects.get(id=evaluation.id)
         self.assertTrue(evaluation.course.gets_no_grade_documents)
         # evaluation should get published here
@@ -162,7 +163,8 @@ class GradeUploadTest(WebTest):
             "/grades/set_no_grades",
             params={"course_id": evaluation.course.id, "status": "0"},
             user=self.grade_publisher,
-        ).follow(status=200)
+            status=200,
+        )
         evaluation = Evaluation.objects.get(id=evaluation.id)
         self.assertFalse(evaluation.course.gets_no_grade_documents)
 
@@ -170,7 +172,8 @@ class GradeUploadTest(WebTest):
             "/grades/set_no_grades",
             params={"course_id": evaluation.course.id, "status": "0"},
             user=self.grade_publisher,
-        ).follow(status=200)
+            status=200,
+        )
         evaluation = Evaluation.objects.get(id=evaluation.id)
         self.assertFalse(evaluation.course.gets_no_grade_documents)
 
