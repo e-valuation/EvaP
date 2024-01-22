@@ -140,8 +140,7 @@ class ResultsExporter(ExcelExporter):
                     question_results: list[QuestionResult] = questionnaire_result.question_results
                     if all(
                         not isinstance(question_result, RatingResult)
-                        or question_result.counts is None
-                        or sum(question_result.counts) == 0
+or not RatingResult.has_answers(question_result)
                         for question_result in question_results
                     ):
                         continue
@@ -295,7 +294,7 @@ class ResultsExporter(ExcelExporter):
                 approval_count = 0
 
                 for grade_result in results[questionnaire.id]:
-                    if grade_result.question.id != question.id:
+                    if grade_result.question.id != question.id or not RatingResult.has_answers(grade_result):
                         continue
 
                     assert isinstance(grade_result, RatingResult)

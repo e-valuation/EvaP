@@ -42,7 +42,7 @@ That's it!
 
 ## Contributing
 
-We'd love to see contributions, feel free to fork! You should probably branch off `main`, the branch `release` is used for stable revisions.
+We'd love to see contributions! PRs solving existing issues are most helpful to us. It's best if you ask to be assigned for the issue so we won't have multiple people working on the same issue. Feel free to open issues for bugs, setup problems, or feature requests. If you have other questions, feel free to contact the [organization members](https://github.com/orgs/e-valuation/people). You should probably branch off `main`, the branch `release` is used for stable revisions.
 
 Before committing, run the following commands:
 - `./manage.py test` (runs the test suite)
