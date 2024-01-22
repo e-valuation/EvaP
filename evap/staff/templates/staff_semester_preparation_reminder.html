@@ -14,7 +14,7 @@
         <div class="d-flex mb-3">
             <div class="me-auto">
 
-                <form method="POST" action="{% url 'staff:semester_preparation_reminder' semester_id=semester.id %}">
+                <form reload-on-success method="POST" action="{% url 'staff:semester_preparation_reminder' semester_id=semester.id %}">
                     {% csrf_token %}
 
                     <input type="hidden" name="semester_id" value="{{ semester.id }}" />

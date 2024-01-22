@@ -21,7 +21,7 @@
             <div class="ms-auto d-print-none">
                 {% if has_due_evaluations %}
                     <div>
-                        <form method="POST" action="{% url 'staff:user_resend_email' %}">
+                        <form reload-on-success method="POST" action="{% url 'staff:user_resend_email' %}">
                             {% csrf_token %}
 
                             <confirmation-modal type="submit" name="user_id" value="{{ form.instance.id }}" confirm-button-class="btn-success">
@@ -119,7 +119,7 @@
                 {% if form.instance and form.instance.can_be_deleted_by_manager %}
 
 
-                    <form method="POST" action="{% url 'staff:user_delete' %}">
+                    <form reload-on-success method="POST" action="{% url 'staff:user_delete' %}">
                         {% csrf_token %}
 
                         <confirmation-modal type="submit" name="user_id" value="{{ form.instance.id }}" confirm-button-class="btn-danger">
