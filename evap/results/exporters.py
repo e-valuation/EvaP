@@ -1,11 +1,10 @@
 import warnings
 from collections import OrderedDict, defaultdict
-from collections.abc import Iterable
 from itertools import chain, repeat
-from typing import Any, Sequence
+from typing import Any, Iterable, Sequence
 
 import xlwt
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 from django.utils.translation import gettext as _
 
 from evap.evaluation.models import CourseType, Degree, Evaluation, Question, Questionnaire, Semester, UserProfile
@@ -106,7 +105,7 @@ class ResultsExporter(ExcelExporter):
 
     @staticmethod
     def filter_evaluations(
-        semesters: Iterable[Semester],
+        semesters: Sequence[Semester] | QuerySet[Semester],
         evaluation_states: Iterable[Any],
         degree_ids: Iterable[int],
         course_type_ids: Iterable[int],
@@ -139,8 +138,7 @@ class ResultsExporter(ExcelExporter):
                     # RatingQuestion.counts is a tuple of integers or None, if this tuple is all zero, we want to exclude it
                     question_results: list[QuestionResult] = questionnaire_result.question_results
                     if all(
-                        not isinstance(question_result, RatingResult)
-or not RatingResult.has_answers(question_result)
+                        not isinstance(question_result, RatingResult) or not RatingResult.has_answers(question_result)
                         for question_result in question_results
                     ):
                         continue
@@ -172,7 +170,7 @@ or not RatingResult.has_answers(question_result)
     def write_headings_and_evaluation_info(
         self,
         evaluations_with_results: list[tuple[Evaluation, OrderedDict[int, list[QuestionResult]]]],
-        semesters: Sequence[Semester],
+        semesters: Sequence[Semester] | QuerySet[Semester],
         contributor: UserProfile | None,
         degree_ids: Iterable[int],
         course_type_ids: Iterable[int],
@@ -298,7 +296,7 @@ or not RatingResult.has_answers(question_result)
                         continue
 
                     assert isinstance(grade_result, RatingResult)
-                    if not grade_result.has_answers:
+                    if not RatingResult.has_answers(grade_result):
                         continue
 
                     values.append(grade_result.average * grade_result.count_sum)
@@ -323,7 +321,7 @@ or not RatingResult.has_answers(question_result)
     # pylint: disable=arguments-differ
     def export_impl(
         self,
-        semesters: Sequence[Semester],
+        semesters: Sequence[Semester] | QuerySet[Semester],
         selection_list: Sequence[tuple[Iterable[int], Iterable[int]]],
         include_not_enough_voters: bool = False,
         include_unpublished: bool = False,
