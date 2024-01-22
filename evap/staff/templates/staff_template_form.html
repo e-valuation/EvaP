@@ -44,7 +44,7 @@
 
     <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         for(const button of document.querySelectorAll(".copy-to-clipboard-btn")) {
-            button.addEventListener("click", (event) => copyToClipboard(event.srcElement.dataset.variable));
+            button.addEventListener("click", event => copyToClipboard(button.dataset.variable));
         }
     </script>
 {% endblock %}
