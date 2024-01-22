@@ -731,7 +731,13 @@ class Evaluation(LoggedModel):
         ],
         target=State.NEW,
     )
-    def reset_to_new(self):
+    def reset_to_new(self, delete_previous_answers: bool = False):
+        """ Reset an Evaluation after it started (#1991) """
+        assert Answer.__subclasses__() == {TextAnswer, RatingAnswerCounter}, \
+            "assumes the only answer-types are TextAnswer and RatingAnswerCounter"
+        if delete_previous_answers:
+            TextAnswer.objects.filter().delete()
+            RatingAnswerCounter.objects.filter().delete()
         pass
 
     @transition(

@@ -22,7 +22,7 @@ from evap.evaluation.models import (
     RatingAnswerCounter,
     Semester,
     TextAnswer,
-    UserProfile,
+    UserProfile, Answer,
 )
 from evap.evaluation.tests.tools import (
     let_user_vote_for_evaluation,
@@ -1103,3 +1103,34 @@ class QuestionnaireTests(TestCase):
     def test_locked_contributor_questionnaire(self):
         questionnaire = baker.prepare(Questionnaire, is_locked=True, type=Questionnaire.Type.CONTRIBUTOR)
         self.assertRaises(ValidationError, questionnaire.clean)
+
+
+class TestResetEvaluation(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        assert Answer.__subclasses__() == {TextAnswer, RatingAnswerCounter}, \
+            "Test assumes the only answers are TextAnswer and RatingAnswerCounter"
+
+    def setUp(self):
+        initial_state = Evaluation.State.IN_EVALUATION
+        self.evaluation = baker.make(Evaluation, state=initial_state, voters=10)
+
+        self.text_answers = baker.make(TextAnswer, _quantity=10, evaluation=self.evaluation)
+        self.rating_answers = baker.make(RatingAnswerCounter, _quantity=10, evaluation=self.evaluation)
+
+        self.additional_text_answers = baker.make(TextAnswer, _quantity=10)
+        self.additional_rating_answers = baker.make(RatingAnswerCounter, _quantity=10)
+
+    def test_delete_answers_when_checked(self):
+        # if checked, all received answers will be deleted
+        self.evaluation.reset_to_new(delete_previous_answers=True)
+
+        self.assertEqual(self.evaluation.state, Evaluation.State.NEW)
+
+        self.assertQuerySetEqual(TextAnswer.objects.all(), self.additional_text_answers)
+        self.assertQuerySetEqual(RatingAnswerCounter.objects.all(), self.additional_rating_answers)
+
+    def test_delete_answers_when_not_checked(self):
+        # if not checked, all received answers will be preserved
+        self.assertQuerysetEqual(TextAnswer.objects.all(), self.text_answers)
+        self.assertQuerysetEqual(RatingAnswerCounter.objects.all(), self.rating_answers)

@@ -7,7 +7,7 @@ from django.utils import translation
 from django_webtest import WebTest
 from model_bakery import baker
 
-from evap.evaluation.models import Evaluation, Question, QuestionType, Semester, UserProfile
+from evap.evaluation.models import Evaluation, Question, QuestionType, Semester, UserProfile, TextAnswer
 from evap.evaluation.tests.tools import (
     WebTestWith200Check,
     create_evaluation_with_responsible_and_editor,
@@ -312,10 +312,17 @@ class TestResetEvaluation(WebTestStaffMode):
 
         # TODO@Felix: Not valid for NEW and PUBLISHED
 
+    def test_delete_answers_when_checked(self):
+        # TODO@Felix: if checked, all received answers will be deleted
+        initial_state = Evaluation.State.IN_EVALUATION
+
+        evaluation = baker.make(Evaluation, state=initial_state, course__semester=self.semester)
+        baker.make(TextAnswer, _quantity=10, evaluation=evaluation)
+
+        evaluation.reset_to_new()
+
     def test_delete_previous_answers(self):
         pass
-        # TODO@Felix: if checked, all received answers will be deleted
-
         # TODO@Felix: if checked, voters list is cleared
 
         # TODO@Felix: if NOT checked, all received answers stay
