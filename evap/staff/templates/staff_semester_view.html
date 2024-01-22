@@ -374,9 +374,16 @@
                         </div>
                     </div>
                 </div>
-                <form id="evaluation-deletion-form" method="POST" action="{% url 'staff:evaluation_delete' %}">
+                <form id="evaluation-deletion-form" custom-success method="POST" action="{% url 'staff:evaluation_delete' %}">
                     {% csrf_token %}
                 </form>
+
+                <script async>
+                    document.getElementById("evaluation-deletion-form").addEventListener("submit-success", event => {
+                        fadeOutThenRemove(document.getElementById(`evaluation-row-${event.detail.body.get("evaluation_id")}`))
+                    });
+                </script>
+
                 <form id="evaluation_operation_form" method="GET" action="{% url 'staff:evaluation_operation' semester.pk %}">
                     {% if num_evaluations > 0 %}
                         <table id="evaluation-table" class="table table-striped table-narrow table-vertically-aligned">
