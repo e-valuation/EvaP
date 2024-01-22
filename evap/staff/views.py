@@ -619,7 +619,7 @@ def semester_make_active(request):
     semester.is_active = True
     semester.save()
 
-    return redirect("staff:semester_view", semester.id)
+    return HttpResponse()
 
 
 @require_POST
@@ -899,7 +899,7 @@ def semester_preparation_reminder(request, semester_id):
             body_params = {"user": responsible, "evaluations": evaluations}
             template.send_to_user(responsible, subject_params, body_params, use_cc=True, request=request)
         messages.success(request, _("Successfully sent reminders to everyone."))
-        return redirect("staff:semester_preparation_reminder", semester.id)
+        return HttpResponse()
 
     template_data = {"semester": semester, "responsible_list": responsible_list}
     return render(request, "staff_semester_preparation_reminder.html", template_data)
@@ -1359,7 +1359,7 @@ def evaluation_delete(request):
         RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation).delete()
     evaluation.delete()
     update_template_cache_of_published_evaluations_in_course(evaluation.course)
-    return redirect("staff:semester_view", evaluation.course.semester.id)
+    return HttpResponse()  # 200 OK
 
 
 @manager_required
@@ -2241,7 +2241,7 @@ def user_delete(request):
         raise SuspiciousOperation("Deleting user not allowed")
     user.delete()
     messages.success(request, _("Successfully deleted user."))
-    return redirect("staff:user_index")
+    return HttpResponse()  # 200 OK
 
 
 @require_POST
@@ -2258,7 +2258,7 @@ def user_resend_email(request):
 
     template.send_to_user(user, {}, body_params, use_cc=False)
     messages.success(request, _("Successfully resent evaluation started email."))
-    return redirect("staff:user_edit", user.pk)
+    return HttpResponse()  # 200 OK
 
 
 @manager_required
