@@ -405,12 +405,12 @@ OIDC_OP_JWKS_ENDPOINT = "https://example.com/certs"
 
 
 ### Content Security Policy
-CSP_OBJECT_SRC = ("'none'", )
-CSP_SCRIPT_SRC = ("'strict-dynamic'", )  # scripts require a correct nonce or to be loaded by a trusted script
-CSP_STYLE_SRC = ("'unsafe-inline'", "'self'") # inline-styles are allowed
-CSP_IMG_SRC = ("'self'", "data:") # images from same host or as data: url are allowed
-CSP_BASE_URI = ("'none'", )
-CSP_INCLUDE_NONCE_IN=['script-src']
+CSP_OBJECT_SRC = ("'none'",)
+CSP_SCRIPT_SRC = ("'strict-dynamic'",)  # scripts require a correct nonce or to be loaded by a trusted script
+CSP_STYLE_SRC = ("'unsafe-inline'", "'self'")  # inline-styles are allowed
+CSP_IMG_SRC = ("'self'", "data:")  # images from same host or as data: url are allowed
+CSP_BASE_URI = ("'none'",)
+CSP_INCLUDE_NONCE_IN = ["script-src"]
 
 ### Other
 
