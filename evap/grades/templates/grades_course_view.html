@@ -1,5 +1,4 @@
 {% extends 'grades_course_base.html' %}
-{% load static %}
 
 {% block content %}
     {{ block.super }}
@@ -40,7 +39,7 @@
                                                 {% endblocktrans %}
                                             </span>
 
-                                            <button slot="show-button" type="button" {{ disable_if_archived }} class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
+                                            <button slot="show-button" type="button" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
                                                 <span class="fas fa-trash"></span>
                                             </button>
                                         </confirmation-modal>
@@ -50,9 +49,6 @@
                         {% endfor %}
 
                         <script type="module">
-                            import { CSRF_HEADERS } from "{% static 'js/csrf-utils.js' %}";
-                            import { fadeOutThenRemove } from "{% static 'js/utils.js' %}";
-
                             document.querySelectorAll("confirmation-modal[data-delete-document]").forEach(modal => {
                                 modal.addEventListener("confirmed", async () => {
                                     const response = await fetch("{% url 'grades:delete_grades' %}", {

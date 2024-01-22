@@ -18,6 +18,7 @@ dialog.evap-modal-dialog {
   font-weight: initial;
   line-height: initial;
   cursor: initial;
+  text-align: initial;
 
   &[open] {
     animation: modal-enter 300ms forwards;
