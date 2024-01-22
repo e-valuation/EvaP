@@ -25,7 +25,7 @@ def include_navbar(context, user, language):
     ]
 
     return {
-        "request": context["request"],
+        "CSP_NONCE": context["request"].csp_nonce,
         "user": user,
         "current_language": language,
         "languages": LANGUAGES,

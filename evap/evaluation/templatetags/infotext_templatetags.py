@@ -13,9 +13,7 @@ def show_infotext(context, page_name):
         "student_index": Infotext.Page.STUDENT_INDEX,
     }
 
-    print(context["request"].csp_nonce)
-
     return {
-        "request": context["request"],
+        "CSP_NONCE": context["request"].csp_nonce,
         "infotext": Infotext.objects.get(page=to_page_id[page_name])
     }

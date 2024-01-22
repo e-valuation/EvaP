@@ -133,7 +133,7 @@
     </div>
 </nav>
 
-<script type="text/javascript" nonce="{{ request.csp_nonce }}">
+<script type="text/javascript" nonce="{{ CSP_NONCE }}">
     {% for language_code, language_name in languages %}
         document.getElementById("button-set-language-{{ language_code }}").addEventListener("click", () => { setSpinnerIcon('span-set-language-{{ language_code }}'); });
     {% endfor %}
