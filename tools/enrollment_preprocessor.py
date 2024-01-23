@@ -43,7 +43,7 @@ class UserCells(NamedTuple):
 
 
 def make_bold(text: str) -> str:
-    return f"\x1b[1m{text}\x1b[0m"
+    return f"\033[1m{text}\033[0m"
 
 
 def group_conflicts(
