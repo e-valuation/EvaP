@@ -11,6 +11,7 @@ from openpyxl import load_workbook
 
 from evap.evaluation.models import Contribution, Course, Evaluation, UserProfile
 from evap.evaluation.tests.tools import assert_no_database_modifications
+from evap.evaluation.tools import assert_not_none
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption
 from evap.staff.fixtures.excel_files_test_data import (
     create_memory_csv_file,
@@ -246,8 +247,9 @@ class EnrollmentPreprocessorTest(WebTest):
         self.imported_data["BA Belegungen"][1][2] = "   are    "
         self.imported_data["BA Belegungen"][1][11] = "   stripped.   "
         modified = run_preprocessor(BytesIO(create_memory_excel_file(self.imported_data)), self.csv)
+        self.assertIsNotNone(modified)
         self.assertEqual(input_patch.call_count, 4)
-        workbook = load_workbook(modified, read_only=True)
+        workbook = load_workbook(assert_not_none(modified), read_only=True)
         self.assertEqual(workbook["MA Belegungen"]["B2"].value, "Accepted")  # stripped conflict used
         self.assertEqual(workbook["MA Belegungen"]["I2"].value, None)  # existing data kept
         self.assertEqual(workbook["BA Belegungen"]["C2"].value, "are")  # stripped conflict used
@@ -262,7 +264,8 @@ class EnrollmentPreprocessorTest(WebTest):
         self.imported_data["MA Belegungen"][1][11] = ""
         self.imported_data["BA Belegungen"][1][3] = ""
         self.imported_data["BA Belegungen"][1][11] = ""
-        run_preprocessor(BytesIO(create_memory_excel_file(self.imported_data)), self.csv)
+        res = run_preprocessor(BytesIO(create_memory_excel_file(self.imported_data)), self.csv)
+        self.assertIsNone(res)
         input_patch.assert_not_called()
 
     @patch("builtins.input", side_effect=repeat("i"))
@@ -273,5 +276,6 @@ class EnrollmentPreprocessorTest(WebTest):
         # copy data and pad with spaces
         self.imported_data["MA Belegungen"].append([f" {data} " for data in self.imported_data["MA Belegungen"][1]])
 
-        run_preprocessor(BytesIO(create_memory_excel_file(self.imported_data)), self.csv)
+        res = run_preprocessor(BytesIO(create_memory_excel_file(self.imported_data)), self.csv)
+        self.assertIsNone(res)
         self.assertEqual(input_patch.call_count, 3)  # conflicts are deduplicated.

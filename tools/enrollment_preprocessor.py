@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import csv
+import sys
 from argparse import ArgumentParser
 from collections import defaultdict
 from dataclasses import dataclass
@@ -84,11 +85,12 @@ def parse_imported(enrollment_data: Workbook):
     return user_cells
 
 
-def run_preprocessor(enrollment_data: Path | BytesIO, user_data: TextIO) -> BytesIO:
+def run_preprocessor(enrollment_data: Path | BytesIO, user_data: TextIO) -> BytesIO | None:
     workbook = load_workbook(enrollment_data)
 
     conflict_groups = group_conflicts(parse_existing(user_data), parse_imported(workbook))
 
+    changed = False
     for field, conflicts in conflict_groups.items():
         print(field.capitalize())
         print("---------")
@@ -105,6 +107,8 @@ def run_preprocessor(enrollment_data: Path | BytesIO, user_data: TextIO) -> Byte
                 changed = True
         print()
 
+    if not changed:
+        return None
     wb_out = BytesIO()
     workbook.save(wb_out)
     wb_out.seek(0)
@@ -121,5 +125,7 @@ if __name__ == "__main__":  # pragma: nocover
 
     with open(ns.user_data, encoding="utf-8") as csvfile:
         wb = run_preprocessor(target, csvfile)
+        if wb is None:
+            sys.exit()
     with open(target.with_stem(f"{target.stem}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"), "wb") as out:
         out.write(wb.read())
