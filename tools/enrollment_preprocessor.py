@@ -99,9 +99,11 @@ def run_preprocessor(enrollment_data: Path | BytesIO, user_data: TextIO) -> Byte
 
             decision: str = ""
             while decision not in ("e", "i"):
-                decision = input("Which one should be used? (e/i):")
+                decision = input("Which one should be used? (e/i):\n")
             if decision == "e":
                 getattr(cells, field).value = getattr(existing, field)
+                changed = True
+        print()
 
     wb_out = BytesIO()
     workbook.save(wb_out)
