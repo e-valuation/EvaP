@@ -121,5 +121,5 @@ if __name__ == "__main__":  # pragma: nocover
 
     with open(ns.user_data, encoding="utf-8") as csvfile:
         wb = run_preprocessor(target, csvfile)
-    with open(target.with_stem(f"{target.stem}_{datetime.now().isoformat()}"), "wb") as out:
+    with open(target.with_stem(f"{target.stem}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"), "wb") as out:
         out.write(wb.read())
