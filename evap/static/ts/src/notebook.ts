@@ -49,13 +49,13 @@ export class NotebookLogic {
 
     constructor(
         notebook: HTMLElement,
-        noteBookForm: HTMLFormElement,
+        notebookForm: HTMLFormElement,
         evapContent: HTMLElement,
         collapseNotebookButton: HTMLElement,
         localStorageKey: string,
     ) {
         this.notebookCard = notebook;
-        this.formLogic = new NotebookFormLogic(noteBookForm);
+        this.formLogic = new NotebookFormLogic(notebookForm);
         this.evapContent = evapContent;
         this.localStorageKey = localStorageKey;
         this.collapseNotebookButton = collapseNotebookButton;
