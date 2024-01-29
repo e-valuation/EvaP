@@ -66,7 +66,7 @@
 
 {% block additional_javascript %}
     <script type="module">
-        import {TableGrid} from "{% static 'js/datagrid.js' %}";
+        import {TableGrid} from "datagrid";
         new TableGrid({
             storageKey: "user-index-data-grid",
             table: document.querySelector(".user-table"),

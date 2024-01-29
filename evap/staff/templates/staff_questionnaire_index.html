@@ -67,7 +67,7 @@
 
 {% block additional_javascript %}
     <script type="module">
-        import {QuestionnaireGrid} from "{% static 'js/datagrid.js' %}";
+        import {QuestionnaireGrid} from "datagrid";
         document.querySelectorAll(".questionnaire-table").forEach(table => {
             new QuestionnaireGrid({
                 storageKey: "questionnaires-data-grid",
