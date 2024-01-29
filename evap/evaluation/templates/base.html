@@ -47,12 +47,6 @@
 
         {% if user.is_authenticated %}
             {% include 'notebook.html' %}
-
-            <div class="collapse show" tabindex="-1" id="notebookButton">
-                <button class="btn btn-outline-secondary button-open-notebook" type="button" data-bs-toggle="collapse" data-bs-target="#notebook">
-                    <span class="fas fa-pen-to-square"></span>
-                </button>
-            </div>
         {% endif %}
 
         <div class="p-3 mb-4" id="evapContent">
@@ -206,11 +200,6 @@
                 element.className = "fas fa-spinner fa-spin";  // clears all other classes
             };
 
-        </script>
-        <script type="module">
-            import  { NotebookLogic } from "{% static 'js/notebook.js' %}"
-
-            new NotebookLogic("#notebook").attach();
         </script>
 
         {% block additional_javascript %}{% endblock %}
