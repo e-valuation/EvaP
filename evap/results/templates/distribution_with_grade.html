@@ -5,7 +5,7 @@
     <div class="distribution-bar {{ question_result.choices.css_class }}"
         {% if question_result.question.is_bipolar_likert_question %} style="left: {{ question_result.minus_balance_count|percentage_one_decimal:question_result.count_sum }}"{% endif %}
     >
-        {% with colors=question_result.choices|to_colors %}
+        {% with colors=question_result|to_colors %}
             {% for value, color in distribution|zip:colors %}
                 {% if value != 0 %}
                     <div class="vote-bg-{{ color }}" style="width: {{ value|percentage_one_decimal:1 }};">&nbsp;</div>
