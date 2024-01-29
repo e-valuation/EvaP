@@ -7,7 +7,6 @@ confirmation-modal:not(:defined) > :not([slot="submit-group"]) {
 
 dialog.evap-modal-dialog {
   z-index: $zindex-modal;
-  inset-block-start: -70vh; // moves the modal to the top of the page, by default, it is centered
   max-width: 80ch;
   border: 1px solid $dark-gray;
   border-radius: 0.5rem;
