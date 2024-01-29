@@ -34,7 +34,7 @@ ignore = [
     "COM812",                # incompatible with formatter
     "N802",                  # not as mighty as pylint's invalid-name https://github.com/astral-sh/ruff/issues/7660
     "PLR0913",               # we can't determine a good limit for arguements. reviews should spot bad cases of this.
-    "PLR2004", "PLW2901",    # not activated pylint extensions
+    "PLR2004", "PLW2901"
 ]
 
 ignore-init-module-imports = true
@@ -94,7 +94,7 @@ disable = [
     "unsupported-binary-operation",   # broken in pylint: https://github.com/PyCQA/pylint/issues/7381
     "use-implicit-booleaness-not-comparison-to-string",  # forces us to use less expressive code
     "use-implicit-booleaness-not-comparison-to-zero",    # forces us to use less expressive code
-    "broad-exception-caught", "line-too-long","unused-wildcard-import", "wildcard-import","too-many-arguments", "too-many-statements", "too-many-return-statements",  # covered by ruff
+    "broad-exception-caught", "line-too-long","unused-wildcard-import", "wildcard-import","too-many-arguments", "too-many-statements", "too-many-return-statements"
 ]
 
 ##############################################
