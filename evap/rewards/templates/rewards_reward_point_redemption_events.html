@@ -20,7 +20,7 @@
         {% csrf_token %}
     </form>
 
-    <script async>
+    <script type="module">
         const form = document.getElementById("event-deletion-form");
         form.addEventListener("submit", event => {
             event.preventDefault();

@@ -494,7 +494,7 @@
                     <form id="course-deletion-form" custom-success method="POST" action="{% url 'staff:course_delete' %}">
                         {% csrf_token %}
                     </form>
-                    <script async>
+                    <script type="module">
                         document.getElementById("course-deletion-form").addEventListener("submit-success", event => {
                             fadeOutThenRemove(document.querySelector(`#course-row-${event.detail.body.get("course_id")}`));
                         });
