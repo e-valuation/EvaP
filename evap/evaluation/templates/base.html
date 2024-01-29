@@ -23,6 +23,19 @@
                 <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon_32.png' %}" />
                 <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon_16.png' %}" />
             {% endif %}
+
+            <script type="importmap">
+                {
+                    "imports": {
+                        "contact_modal": "{% static 'js/contact_modal.js' %}",
+                        "infobox": "{% static 'js/infobox.js' %}",
+                        "notebook": "{% static 'js/notebook.js' %}",
+                        "datagrid": "{% static 'js/datagrid.js' %}",
+                        "text-answer-warnings": "{% static 'js/text-answer-warnings.js' %}",
+                        "quick-review-slider": "{% static 'js/quick-review-slider.js' %}"
+                    }
+                }
+            </script>
         {% endblock %}
     </head>
     <body>
@@ -208,7 +221,7 @@
 
         </script>
         <script type="module">
-            import  { NotebookLogic } from "{% static 'js/notebook.js' %}"
+            import  { NotebookLogic } from "notebook"
 
             new NotebookLogic("#notebook").attach();
         </script>

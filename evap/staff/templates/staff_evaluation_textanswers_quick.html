@@ -1,7 +1,5 @@
 {% extends 'staff_evaluation_textanswers.html' %}
 
-{% load static %}
-
 {% block content %}
     {{ block.super }}
 
@@ -192,7 +190,7 @@
 
 {% block additional_javascript %}
     <script type="module">
-        import { QuickReviewSlider } from "{% static 'js/quick-review-slider.js' %}";
+        import { QuickReviewSlider } from "quick-review-slider";
 
         const slider = new QuickReviewSlider(
             document.querySelector(".slider"),

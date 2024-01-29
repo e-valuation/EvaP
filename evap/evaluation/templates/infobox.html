@@ -1,5 +1,3 @@
-{% load static %}
-
 {% if not infotext.is_empty %}
     <div id="infobox-{{ infotext.page }}" class="infobox callout callout-info callout-infobox">
         <div class="callout-header d-flex">
@@ -19,7 +17,7 @@
     </div>
 
     <script type="module">
-        import { InfoboxLogic } from "{% static 'js/infobox.js' %}";
+        import { InfoboxLogic } from "infobox";
 
         new InfoboxLogic("{{ infotext.page }}").attach();
     </script>

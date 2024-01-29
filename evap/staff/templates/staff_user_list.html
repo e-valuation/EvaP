@@ -1,7 +1,5 @@
 {% extends 'staff_base.html' %}
 
-{% load static %}
-
 {% block breadcrumb %}
     {{ block.super }}
     <li class="breadcrumb-item"><a href="{% url 'staff:user_index' %}">{% trans 'Users' %}</a></li>
@@ -66,7 +64,7 @@
 
 {% block additional_javascript %}
     <script type="module">
-        import {TableGrid} from "{% static 'js/datagrid.js' %}";
+        import {TableGrid} from "datagrid";
         new TableGrid({
             storageKey: "user-index-data-grid",
             table: document.querySelector(".user-table"),

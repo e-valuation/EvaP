@@ -176,7 +176,7 @@
         {{ text_answer_warnings|text_answer_warning_trigger_strings|json_script:'text-answer-warnings' }}
 
         <script type="module">
-            import {initTextAnswerWarnings} from "{% static 'js/text-answer-warnings.js' %}";
+            import {initTextAnswerWarnings} from "text-answer-warnings";
             const lastSavedStorageKey = "student-vote-last-saved-at-{{ evaluation.id }}-{{ request.user.id }}";
             const textResultsPublishConfirmation = {
                 top: document.querySelector("#text_results_publish_confirmation_top"),

@@ -1,7 +1,5 @@
 {% extends 'staff_questionnaire_base.html' %}
 
-{% load static %}
-
 {% block content %}
     {{ block.super }}
     <div class="row mb-3 align-items-center">
@@ -67,7 +65,7 @@
 
 {% block additional_javascript %}
     <script type="module">
-        import {QuestionnaireGrid} from "{% static 'js/datagrid.js' %}";
+        import {QuestionnaireGrid} from "datagrid";
         document.querySelectorAll(".questionnaire-table").forEach(table => {
             new QuestionnaireGrid({
                 storageKey: "questionnaires-data-grid",
