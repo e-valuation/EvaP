@@ -50,15 +50,13 @@
             {{ evaluation.course.responsibles_names }}
         </div>
     {% endif %}
-    {% if evaluation.is_single_result %}
-        {# data-order="-1" sorts single results before all other results #}
-        <div data-col="voters" class="text-center" data-order="-1"><span class="fas fa-user"></span>&nbsp;{{ evaluation.single_result_rating_result.count_sum }}</div>
-    {% else %}
-        <div data-col="voters" data-order="{{ evaluation.voter_ratio|unlocalize }}">
+    <div data-col="voters" class="text-center" data-order="{{ evaluation|voters_order }}">
+        {% if evaluation.is_single_result %}
+            <span class="fas fa-user"></span>&nbsp;{{ evaluation.single_result_rating_result.count_sum }}
+        {% else %}
             {% include 'progress_bar.html' with done=evaluation.num_voters total=evaluation.num_participants %}
-        </div>
-    {% endif %}
-
+        {% endif %}
+    </div>
     <div data-col="result"{% if not is_subentry %} data-order="{% if evaluation.is_single_result %}{{ evaluation.single_result_rating_result.average }}{% else %}{{ evaluation.avg_grade|default:7 }}{% endif %}"{% endif %}>
         {% if not evaluation.can_staff_see_average_grade %}
             <div class="d-flex" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Evaluation result is not yet available.' %}">

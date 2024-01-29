@@ -1,3 +1,5 @@
+from typing import Any, Iterable
+
 from django.template import Library
 
 from evap.results.tools import STATES_WITH_RESULT_TEMPLATE_CACHING, get_grade_color, normalized_distribution
@@ -25,3 +27,14 @@ def evaluation_results_cache_timeout(evaluation):
 @register.filter(name="participationclass")
 def participationclass(number_of_voters, number_of_participants):
     return round((number_of_voters / number_of_participants) * 10)
+
+
+@register.filter
+def voters_order(evaluation) -> str:
+    """float to string conversion done in python to circumvent localization breaking number parsing"""
+    return str(evaluation.voter_ratio)
+
+
+@register.filter
+def aggregated_voters_order(evaluations: Iterable[Any]) -> str:
+    return str(max(evaluation.voter_ratio for evaluation in evaluations))
