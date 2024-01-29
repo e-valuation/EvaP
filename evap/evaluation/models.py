@@ -714,11 +714,6 @@ class Evaluation(LoggedModel):
     def manager_approve(self):
         pass
 
-    @transition(field=state, source=[State.PREPARED, State.EDITOR_APPROVED, State.APPROVED], target=State.NEW)
-    def revert_to_new(self):
-        # TODO: discontinue old function
-        raise NotImplementedError
-
     @transition(
         field=state,
         source=[
@@ -733,12 +728,9 @@ class Evaluation(LoggedModel):
     )
     def reset_to_new(self, delete_previous_answers: bool = False):
         """ Reset an Evaluation after it started (#1991) """
-        assert Answer.__subclasses__() == {TextAnswer, RatingAnswerCounter}, \
-            "assumes the only answer-types are TextAnswer and RatingAnswerCounter"
         if delete_previous_answers:
-            TextAnswer.objects.filter().delete()
-            RatingAnswerCounter.objects.filter().delete()
-        pass
+            for answer_class in Answer.__subclasses__():
+                answer_class.objects.filter(contribution__evaluation_id=self.id).delete()
 
     @transition(
         field=state,

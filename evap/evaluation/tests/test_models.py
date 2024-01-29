@@ -8,6 +8,7 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 from django_webtest import WebTest
 from model_bakery import baker
+from django.conf import settings
 
 from evap.evaluation.models import (
     Contribution,
@@ -1108,18 +1109,23 @@ class QuestionnaireTests(TestCase):
 class TestResetEvaluation(TestCase):
     @classmethod
     def setUpClass(cls):
-        assert Answer.__subclasses__() == {TextAnswer, RatingAnswerCounter}, \
+        super().setUpClass()
+        assert (set(Answer.__subclasses__()) == {TextAnswer, RatingAnswerCounter}), \
             "Test assumes the only answers are TextAnswer and RatingAnswerCounter"
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         initial_state = Evaluation.State.IN_EVALUATION
-        self.evaluation = baker.make(Evaluation, state=initial_state, voters=10)
+        voters = baker.make(settings.AUTH_USER_MODEL, _quantity=3)
+        cls.voters = voters
+        evaluation = baker.make(Evaluation, state=initial_state, voters=voters, make_m2m=True)
+        cls.evaluation = evaluation
 
-        self.text_answers = baker.make(TextAnswer, _quantity=10, evaluation=self.evaluation)
-        self.rating_answers = baker.make(RatingAnswerCounter, _quantity=10, evaluation=self.evaluation)
+        cls.text_answers = baker.make(TextAnswer, _quantity=10, contribution__evaluation=evaluation)
+        cls.rating_answers = baker.make(RatingAnswerCounter, _quantity=10, contribution__evaluation=evaluation)
 
-        self.additional_text_answers = baker.make(TextAnswer, _quantity=10)
-        self.additional_rating_answers = baker.make(RatingAnswerCounter, _quantity=10)
+        cls.additional_text_answers = baker.make(TextAnswer, _quantity=10)
+        cls.additional_rating_answers = baker.make(RatingAnswerCounter, _quantity=10)
 
     def test_delete_answers_when_checked(self):
         # if checked, all received answers will be deleted
@@ -1127,10 +1133,14 @@ class TestResetEvaluation(TestCase):
 
         self.assertEqual(self.evaluation.state, Evaluation.State.NEW)
 
-        self.assertQuerySetEqual(TextAnswer.objects.all(), self.additional_text_answers)
-        self.assertQuerySetEqual(RatingAnswerCounter.objects.all(), self.additional_rating_answers)
+        self.assertCountEqual(TextAnswer.objects.all(), self.additional_text_answers)
+        self.assertCountEqual(RatingAnswerCounter.objects.all(), self.additional_rating_answers)
 
     def test_delete_answers_when_not_checked(self):
         # if not checked, all received answers will be preserved
-        self.assertQuerysetEqual(TextAnswer.objects.all(), self.text_answers)
-        self.assertQuerysetEqual(RatingAnswerCounter.objects.all(), self.rating_answers)
+        self.evaluation.reset_to_new(delete_previous_answers=False)
+
+        self.assertEqual(self.evaluation.state, Evaluation.State.NEW)
+
+        self.assertCountEqual(TextAnswer.objects.all(), self.text_answers + self.additional_text_answers)
+        self.assertCountEqual(RatingAnswerCounter.objects.all(), self.rating_answers + self.additional_rating_answers)
