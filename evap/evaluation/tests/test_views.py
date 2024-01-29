@@ -268,6 +268,8 @@ class TestResetEvaluation(WebTestStaffMode):
         cls.manager = make_manager()
         cls.semester = baker.make(Semester, results_are_archived=True)
 
+    # TODO@Felix: rewrite view test to check only gui functionality
+    #             bzw think about different test_... files
     def reset_from_x_to_new(self, x: Evaluation.State, assertion):
         evaluation = baker.make(Evaluation, state=x, course__semester=self.semester)
 
@@ -289,42 +291,3 @@ class TestResetEvaluation(WebTestStaffMode):
         evaluation = Evaluation.objects.filter(pk=evaluation.pk).first()  # is this needed?
 
         assertion(evaluation)
-
-    def test_valid_source_states(self):
-        invalid_source_states = [Evaluation.State.NEW, Evaluation.State.PUBLISHED]
-
-        valid_source_states = [
-            Evaluation.State.PREPARED,
-            Evaluation.State.EDITOR_APPROVED,
-            Evaluation.State.APPROVED,
-            Evaluation.State.IN_EVALUATION,
-            Evaluation.State.EVALUATED,
-            Evaluation.State.REVIEWED,
-        ]
-
-        for s in valid_source_states:
-            self.reset_from_x_to_new(
-                s,
-                lambda evaluation: self.assertEqual(
-                    evaluation.state, Evaluation.State.NEW, f"evaluation state was not reset to NEW from {s}"
-                ),
-            )
-
-        # TODO@Felix: Not valid for NEW and PUBLISHED
-
-    def test_delete_answers_when_checked(self):
-        # TODO@Felix: if checked, all received answers will be deleted
-        initial_state = Evaluation.State.IN_EVALUATION
-
-        evaluation = baker.make(Evaluation, state=initial_state, course__semester=self.semester)
-        baker.make(TextAnswer, _quantity=10, evaluation=evaluation)
-
-        evaluation.reset_to_new()
-
-    def test_delete_previous_answers(self):
-        pass
-        # TODO@Felix: if checked, voters list is cleared
-
-        # TODO@Felix: if NOT checked, all received answers stay
-
-        # TODO@Felix: if NOT checked, voters list stays the same

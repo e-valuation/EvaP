@@ -1107,7 +1107,7 @@ class QuestionnaireTests(TestCase):
 
 
 class TestResetEvaluation(TestCase):
-    """Tests Evaluation.reset_to_new()"""
+    """Tests if Evaluation.reset_to_new() respects the delete_previous_answer parameter correctly"""
 
     @classmethod
     def setUpClass(cls):
@@ -1148,3 +1148,28 @@ class TestResetEvaluation(TestCase):
 
         self.assertCountEqual(TextAnswer.objects.all(), self.text_answers + self.additional_text_answers)
         self.assertCountEqual(RatingAnswerCounter.objects.all(), self.rating_answers + self.additional_rating_answers)
+
+
+class TestResetEvaluationValidSourceStates(TestCase):
+    """Tests if Evaluation.reset_to_new() resets and only resets from valid source states"""
+    invalid_source_states = [Evaluation.State.NEW, Evaluation.State.PUBLISHED]
+    valid_source_states = [
+        Evaluation.State.PREPARED,
+        Evaluation.State.EDITOR_APPROVED,
+        Evaluation.State.APPROVED,
+        Evaluation.State.IN_EVALUATION,
+        Evaluation.State.EVALUATED,
+        Evaluation.State.REVIEWED,
+    ]
+
+    def test_valid_source_states(self):
+        for s in self.valid_source_states:
+            evaluation = baker.make(Evaluation, state=s)
+            evaluation.reset_to_new()
+            self.assertEqual(evaluation.state, Evaluation.State.NEW, f"Could not reset from {s} to NEW")
+
+    def test_invalid_source_states(self):
+        for s in self.invalid_source_states:
+            evaluation = baker.make(Evaluation, state=s)
+            with self.assertRaises(Exception, msg=f"Could wrongly reset evaluation from source state {s}"):
+                evaluation.reset_to_new()
