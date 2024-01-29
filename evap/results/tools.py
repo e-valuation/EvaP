@@ -187,7 +187,7 @@ def get_results(evaluation: Evaluation) -> EvaluationResult:
 
     cache_key = get_results_cache_key(evaluation)
     result = caches["results"].get(cache_key)
-    assert result is not None
+    assert isinstance(result, EvaluationResult)
     return result
 
 
