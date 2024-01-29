@@ -158,7 +158,7 @@
                             <span class="fas fa-circle-info" data-bs-toggle="tooltip" title="{% trans 'The evaluation can be continued later using the same device and the same browser. But you have to submit it to send it to the server and make it count. After submitting, you can not edit the evaluation anymore.' %}"></span>
                         </div>
                         <button id="vote-submit-btn" type="submit" class="btn btn-success tab-selectable">{% trans 'Submit questionnaire' %}</button>
-                        <p id="submit-error-warning" style="display: none" class="text-danger">
+                        <p id="submit-error-warning" class="text-danger d-none">
                             <span class="fas fa-triangle-exclamation"></span>
                             {% blocktrans %}The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire.{% endblocktrans %}
                         </p>
@@ -171,11 +171,11 @@
 
 {% block additional_javascript %}
     {% if not preview %}
-        <script type="text/javascript" src="{% static 'js/sisyphus.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/sisyphus.min.js' %}" nonce="{{ CSP_NONCE }}"></script>
 
         {{ text_answer_warnings|text_answer_warning_trigger_strings|json_script:'text-answer-warnings' }}
 
-        <script type="module">
+        <script type="module" nonce="{{ CSP_NONCE }}">
             import {initTextAnswerWarnings} from "{% static 'js/text-answer-warnings.js' %}";
             const lastSavedStorageKey = "student-vote-last-saved-at-{{ evaluation.id }}-{{ request.user.id }}";
             const textResultsPublishConfirmation = {
@@ -283,7 +283,7 @@
                     }
                 }).catch(error => {
                     // show a warning if the post isn't successful
-                    document.getElementById('submit-error-warning').style.display = 'block';
+                    document.getElementById('submit-error-warning').classList.remove("d-none");
                     submitButton.innerText = originalText;
                     submitButton.disabled = false;
                 });
@@ -378,6 +378,6 @@
                 });
             }
         </script>
-        <script type="module" src="{% static 'js/student-vote.js' %}"></script>
+        <script type="module" src="{% static 'js/student-vote.js' %}" nonce="{{ CSP_NONCE }}"></script>
     {% endif %}
 {% endblock %}

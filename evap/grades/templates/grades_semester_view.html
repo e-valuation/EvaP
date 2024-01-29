@@ -35,12 +35,12 @@
                 <table class="table table-striped grade-course-table table-vertically-aligned">
                     <thead>
                         <tr>
-                            <th style="width: 35%" class="col-order" data-col="name">{% trans 'Name' %}</th>
-                            <th style="width: 20%" class="col-order" data-col="responsible">{% trans 'Responsible' %}</th>
-                            <th style="width: 10%" class="col-order" data-col="complete">{% trans 'Evaluation completed' %}</th>
-                            <th style="width: 10%" class="col-order" data-col="midterm-grades">{% trans 'Midterm grade documents' %}</th>
-                            <th style="width: 10%" class="col-order" data-col="final-grades">{% trans 'Final grade documents' %}</th>
-                            <th style="width: 15%" class="text-end">{% trans 'Actions' %}</th>
+                            <th class="width-percent-35 col-order" data-col="name">{% trans 'Name' %}</th>
+                            <th class="width-percent-20 col-order" data-col="responsible">{% trans 'Responsible' %}</th>
+                            <th class="width-percent-10 col-order" data-col="complete">{% trans 'Evaluation completed' %}</th>
+                            <th class="width-percent-10 col-order" data-col="midterm-grades">{% trans 'Midterm grade documents' %}</th>
+                            <th class="width-percent-10 col-order" data-col="final-grades">{% trans 'Final grade documents' %}</th>
+                            <th class="width-percent-15 text-end">{% trans 'Actions' %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -64,7 +64,7 @@
                                     {% if num_final_grades > 0 %}
                                         <span class="fas fa-file"></span> {{ num_final_grades }}
                                     {% elif course.gets_no_grade_documents %}
-                                       <a href="#" onclick="confirmLateruploadModalShow({{ course.id }}, '{{ course.name|escapejs }}');">
+                                        <a href="#" class="confirm-later-upload-button" data-course-id="{{ course.id }}" data-course-name="{{ course.name }}">
                                             <span class="fas fa-xmark light-link" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Grade documents for this course will not be uploaded. Click to change.' %}"></span>
                                         </a>
                                     {% endif %}
@@ -72,7 +72,7 @@
                                 <td class="text-end" style="min-width:72px">
                                     {% if not course.gets_no_grade_documents %}
                                         {% if num_final_grades == 0 %}
-                                            <button type="button" onclick="confirmNouploadModalShow({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Confirm that final grades have been submitted but will not be uploaded.' %}">
+                                            <button type="button" class="btn btn-sm btn-secondary confirm-noupload-button" data-bs-toggle="tooltip" data-bs-placement="top" data-course-id="{{ course.id }}" data-course-name="{{ course.name }}" title="{% trans 'Confirm that final grades have been submitted but will not be uploaded.' %}">
                                                 <span class="fas fa-xmark"></span>
                                             </button>
                                             <div class="btn-group" role="group" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Upload grade document' %}">
@@ -106,9 +106,12 @@
     {% trans 'Please confirm that the final grades for the course <strong data-label=""></strong> have been submitted but will not be uploaded.' as question %}
     {% trans 'Confirm' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='confirmNouploadModal' title=title question=question action_text=action_text btn_type='primary' %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function confirmNouploadModalAction(dataId) {
             updateGradeStatusOfCourse(dataId, true);
+        }
+        for(const button of document.querySelectorAll(".confirm-noupload-button")) {
+            button.addEventListener("click", () => confirmNouploadModalShow(button.dataset.courseId, button.dataset.courseName));
         }
 
         function updateGradeStatusOfCourse(dataId, status) {
@@ -126,15 +129,18 @@
     {% trans 'Please confirm that a grade document for the course <strong data-label=""></strong> will be uploaded later on.' as question %}
     {% trans 'Confirm' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='confirmLateruploadModal' title=title question=question action_text=action_text btn_type='primary' %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function confirmLateruploadModalAction(dataId) {
             updateGradeStatusOfCourse(dataId, false);
-        };
+        }
+        for (const button of document.querySelectorAll(".confirm-later-upload-button")) {
+            button.addEventListener("click", () => confirmLateruploadModalShow(button.dataset.courseId, button.dataset.courseName));
+        }
     </script>
 {% endblock %}
 
 {% block additional_javascript %}
-    <script type="module">
+    <script type="module" nonce="{{ CSP_NONCE }}">
         import {TableGrid} from "{% static 'js/datagrid.js' %}";
         const table = document.querySelector(".grade-course-table");
         if (table) {

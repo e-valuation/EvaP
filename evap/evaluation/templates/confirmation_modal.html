@@ -20,7 +20,7 @@
     </div>
 </div>
 
-<script type="text/javascript">
+<script type="text/javascript" nonce="{{ CSP_NONCE }}">
     function {{ modal_id }}Show(dataId, dataLabel) {
         // call the modal's action function when action button was pressed and give dataId as parameter
         $('#btn-action-{{ modal_id }}').unbind().click(function(){ {{ modal_id }}Action(dataId); });

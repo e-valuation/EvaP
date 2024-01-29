@@ -17,7 +17,7 @@
                         <h6 class="card-subtitle mb-2 text-muted">{% trans 'From Excel file' %}</h6>
                         <p class="card-text">
                             {% trans 'Upload Excel file with participant data' %} (<a href="{% url 'staff:download_sample_file' 'sample_user.xlsx' %}">{% trans 'Download sample file' %}</a>,
-                            <button type="button" class="btn btn-link" onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">{% trans 'Copy headers to clipboard' %}</button>).
+                            <button type="button" class="btn btn-link copy-user-headers-button">{% trans 'Copy headers to clipboard' %}</button>).
                             {% trans 'This will create all containing users.' %}
                         </p>
                         {% include 'bootstrap_form.html' with form=participant_excel_form wide=True %}
@@ -28,8 +28,8 @@
                         {% else %}
                             <button name="operation" value="test-participants" type="submit" class="btn btn-sm btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
                             <div class="mt-2">
-                                <button name="operation" value="import-participants" type="button" onclick="importParticipantsModalShow('import-participants');" class="btn btn-sm btn-primary me-1 form-submit-btn";>{% trans 'Import previously uploaded file' %}</button>
-                                <button name="operation" value="import-replace-participants" type="button" onclick="replaceParticipantsModalShow('import-replace-participants');" class="btn btn-sm btn-danger form-submit-btn">{% trans 'Replace participants' %}</button>
+                                <button name="operation" value="import-participants" type="button" id="import-participants-button" class="btn btn-sm btn-primary me-1 form-submit-btn";>{% trans 'Import previously uploaded file' %}</button>
+                                <button name="operation" value="import-replace-participants" type="button" id="import-replace-participants-button" class="btn btn-sm btn-danger form-submit-btn">{% trans 'Replace participants' %}</button>
                             </div>
                         {% endif %}
                     </div>
@@ -47,8 +47,8 @@
                         {% include 'bootstrap_form.html' with form=participant_copy_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
-                        <button name="operation" value="copy-participants" type="button" onclick="copyParticipantsModalShow('copy-participants');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Copy participants' %}</button>
-                        <button name="operation" value="copy-replace-participants" type="button" onclick="copyReplaceParticipantsModalShow('copy-replace-participants');" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace participants' %}</button>
+                        <button name="operation" value="copy-participants" type="button" id="copy-participants-button" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Copy participants' %}</button>
+                        <button name="operation" value="copy-replace-participants" type="button" id="copy-replace-participants-button" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace participants' %}</button>
                     </div>
                 </div>
             </form>
@@ -66,7 +66,7 @@
                         <p class="card-text">
                             {% trans 'Upload Excel file with contributor data' %}
                             (<a href="{% url 'staff:download_sample_file' 'sample_user.xlsx' %}">{% trans 'Download sample file' %}</a>,
-                            <button type="button" class="btn btn-link" onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">{% trans 'Copy headers to clipboard' %}</button>).
+                            <button type="button" class="btn btn-link copy-user-headers-button">{% trans 'Copy headers to clipboard' %}</button>).
                             {% trans 'This will create all containing users.' %}
                         </p>
                         {% include 'bootstrap_form.html' with form=contributor_excel_form wide=True %}
@@ -77,8 +77,8 @@
                         {% else %}
                             <button name="operation" value="test-contributors" type="submit" class="btn btn-sm btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
                             <div class="mt-2">
-                                <button name="operation" value="import-contributors" type="button" onclick="importContributorsModalShow('import-contributors');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
-                                <button name="operation" value="import-replace-contributors" type="button" onclick="replaceContributorsModalShow('import-replace-contributors');" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace contributors' %}</button>
+                                <button name="operation" value="import-contributors" type="button" id="import-contributors-button" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
+                                <button name="operation" value="import-replace-contributors" type="button" id="import-replace-contributors-button" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace contributors' %}</button>
                             </div>
                         {% endif %}
                     </div>
@@ -96,8 +96,8 @@
                         {% include 'bootstrap_form.html' with form=contributor_copy_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
-                        <button name="operation" value="copy-contributors" type="button" onclick="copyContributorsModalShow('copy-contributors');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Copy contributors' %}</button>
-                        <button name="operation" value="copy-replace-contributors" type="button" onclick="copyReplaceContributorsModalShow('copy-replace-contributors');" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace contributors' %}</button>
+                        <button name="operation" value="copy-contributors" type="button" id="copy-contributors-button" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Copy contributors' %}</button>
+                        <button name="operation" value="copy-replace-contributors" type="button" id="copy-replace-contributors-button" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace contributors' %}</button>
                     </div>
                 </div>
             </form>
@@ -129,12 +129,12 @@
 {% endblock %}
 
 {% block modals %}
-{{ block.super }}
+    {{ block.super }}
     {% trans 'Import participants' as title %}
     {% blocktrans asvar question %}Do you really want to import the Excel file with participant data?{% endblocktrans %}
     {% trans 'Import participants' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='importParticipantsModal' title=title question=question action_text=action_text btn_type='primary' %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function importParticipantsModalAction(dataId) {
             const input = document.createElement("input");
             input.type = "hidden";
@@ -144,14 +144,15 @@
             const form = document.getElementById("participant-import-form");
             form.appendChild(input);
             form.requestSubmit();
-        };
+        }
+        document.getElementById("import-participants-button").addEventListener("click", () => importParticipantsModalShow('import-participants'));
     </script>
 
     {% trans 'Replace participants' as title %}
     {% blocktrans asvar question %}Do you really want to delete all existing participants and replace them with participant data from the Excel file?{% endblocktrans %}
     {% trans 'Replace participants' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='replaceParticipantsModal' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function replaceParticipantsModalAction(dataId) {
             const input = document.createElement("input");
             input.type = "hidden";
@@ -161,14 +162,15 @@
             const form = document.getElementById("participant-import-form");
             form.appendChild(input);
             form.requestSubmit();
-        };
+        }
+        document.getElementById("import-replace-participants-button").addEventListener("click", () => replaceParticipantsModalShow('import-replace-participants'));
     </script>
 
     {% trans 'Copy participants' as title %}
     {% blocktrans asvar question %}Do you really want to copy the participants?{% endblocktrans %}
     {% trans 'Copy participants' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='copyParticipantsModal' title=title question=question action_text=action_text btn_type='primary' %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function copyParticipantsModalAction(dataId) {
             const input = document.createElement("input");
             input.type = "hidden";
@@ -178,14 +180,15 @@
             const form = document.getElementById("participant-copy-form");
             form.appendChild(input);
             form.requestSubmit();
-        };
+        }
+        document.getElementById("copy-participants-button").addEventListener("click", () => copyParticipantsModalShow('copy-participants'));
     </script>
 
     {% trans 'Replace participants' as title %}
     {% blocktrans asvar question %}Do you really want to delete all existing participants and copy the participants into the evaluation?{% endblocktrans %}
     {% trans 'Replace participants' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='copyReplaceParticipantsModal' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function copyReplaceParticipantsModalAction(dataId) {
             const input = document.createElement("input");
             input.type = "hidden";
@@ -195,14 +198,15 @@
             const form = document.getElementById("participant-copy-form");
             form.appendChild(input);
             form.requestSubmit();
-        };
+        }
+        document.getElementById("copy-replace-participants-button").addEventListener("click", () => copyReplaceParticipantsModalShow('copy-replace-participants'));
     </script>
 
     {% trans 'Import contributors' as title %}
     {% blocktrans asvar question %}Do you really want to import the Excel file with contributor data?{% endblocktrans %}
     {% trans 'Import contributors' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='importContributorsModal' title=title question=question action_text=action_text btn_type='primary' %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function importContributorsModalAction(dataId) {
             const input = document.createElement("input");
             input.type = "hidden";
@@ -212,14 +216,15 @@
             const form = document.getElementById("contributor-import-form");
             form.appendChild(input);
             form.requestSubmit();
-        };
+        }
+        document.getElementById("import-contributors-button").addEventListener("click", () => importContributorsModalShow('import-contributors'));
     </script>
 
     {% trans 'Replace contributors' as title %}
     {% blocktrans asvar question %}Do you really want to delete all existing contributors and replace them with contributor data from the Excel file?{% endblocktrans %}
     {% trans 'Replace contributors' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='replaceContributorsModal' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function replaceContributorsModalAction(dataId) {
             const input = document.createElement("input");
             input.type = "hidden";
@@ -229,14 +234,15 @@
             const form = document.getElementById("contributor-import-form");
             form.appendChild(input);
             form.requestSubmit();
-        };
+        }
+        document.getElementById("import-replace-contributors-button").addEventListener("click", () => replaceContributorsModalShow('import-replace-contributors'));
     </script>
 
     {% trans 'Copy contributors' as title %}
     {% blocktrans asvar question %}Do you really want to copy the contributors?{% endblocktrans %}
     {% trans 'Copy contributors' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='copyContributorsModal' title=title question=question action_text=action_text btn_type='primary' %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function copyContributorsModalAction(dataId) {
             const input = document.createElement("input");
             input.type = "hidden";
@@ -246,14 +252,15 @@
             const form = document.getElementById("contributor-copy-form");
             form.appendChild(input);
             form.requestSubmit();
-        };
+        }
+        document.getElementById("copy-contributors-button").addEventListener("click", () => copyContributorsModalShow('copy-contributors'));
     </script>
 
     {% trans 'Replace contributors' as title %}
     {% blocktrans asvar question %}Do you really want to delete all existing contributors and copy the contributors into the evaluation?{% endblocktrans %}
     {% trans 'Replace contributors' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='copyReplaceContributorsModal' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function copyReplaceContributorsModalAction(dataId) {
             const input = document.createElement("input");
             input.type = "hidden";
@@ -263,11 +270,17 @@
             const form = document.getElementById("contributor-copy-form");
             form.appendChild(input);
             form.requestSubmit();
-        };
+        }
+        document.getElementById("copy-replace-contributors-button").addEventListener("click", () => copyReplaceContributorsModalShow('copy-replace-contributors'));
     </script>
-
 {% endblock %}
 
 {% block additional_javascript %}
-    <script type="text/javascript" src="{% static 'js/copy-to-clipboard.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/copy-to-clipboard.js' %}" nonce="{{ CSP_NONCE }}"></script>
+
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
+        for(const button of document.querySelectorAll(".copy-user-headers-button")) {
+            button.addEventListener("click", () => copyHeaders(['Title', 'First name', 'Last name', 'Email']));
+        }
+    </script>
 {% endblock %}

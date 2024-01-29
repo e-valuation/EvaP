@@ -1,11 +1,11 @@
 {% load static %}
 {% get_current_language as LANGUAGE_CODE %}
 
-<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/moment_de.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/bootstrap-datetimepicker.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/moment.min.js' %}" nonce="{{ CSP_NONCE }}"></script>
+<script type="text/javascript" src="{% static 'js/moment_de.js' %}" nonce="{{ CSP_NONCE }}"></script>
+<script type="text/javascript" src="{% static 'js/bootstrap-datetimepicker.min.js' %}" nonce="{{ CSP_NONCE }}"></script>
 
-<script type="text/javascript">
+<script type="text/javascript" nonce="{{ CSP_NONCE }}">
     // run the bootstrap datepicker plugin
     $("input[name$='date']:not([readonly='True'])").datetimepicker({
         locale: "{{ LANGUAGE_CODE }}",

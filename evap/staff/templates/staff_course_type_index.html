@@ -24,10 +24,10 @@
                     <thead>
                         <tr>
                             <th class="movable"></th>
-                            <th style="width: 30%">{% trans 'Name (German)' %}</th>
-                            <th style="width: 30%">{% trans 'Name (English)' %}</th>
-                            <th style="width: 30%">{% trans 'Import names' %}</th>
-                            <th class="text-end" style="width: 10%">{% trans 'Actions' %}</th>
+                            <th class="width-percent-30">{% trans 'Name (German)' %}</th>
+                            <th class="width-percent-30">{% trans 'Name (English)' %}</th>
+                            <th class="width-percent-30">{% trans 'Import names' %}</th>
+                            <th class="width-percent-10 text-end">{% trans 'Actions' %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -73,9 +73,9 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script src="{% static 'js/sortable_form.js' %}"></script>
+    <script src="{% static 'js/sortable_form.js' %}" nonce="{{ CSP_NONCE }}"></script>
 
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         rowChanged = function(row) {
             nameDe = $(row.find('input[id$=-name_de]')).val();
             nameEn = $(row.find('input[id$=-name_en]')).val();

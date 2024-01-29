@@ -46,11 +46,11 @@
                 <table class="table table-seamless-links table-vertically-aligned">
                     <thead>
                     <tr>
-                        <th style="width: 35%">{% trans 'Name' %}</th>
-                        <th style="width: 15%">{% trans 'State' %}</th>
-                        <th style="width: 17%">{% trans 'Evaluation period' %}</th>
-                        <th style="width: 15%">{% trans 'Participants' %}</th>
-                        <th style="width: 18%"></th>
+                        <th class="width-percent-35">{% trans 'Name' %}</th>
+                        <th class="width-percent-15">{% trans 'State' %}</th>
+                        <th class="width-percent-17">{% trans 'Evaluation period' %}</th>
+                        <th class="width-percent-15">{% trans 'Participants' %}</th>
+                        <th class="width-percent-18"></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -157,9 +157,13 @@
                                                         <span class="fas fa-pencil"></span>
                                                     </a>
                                                     {% if not evaluation|has_nonresponsible_editor %}
-                                                        <a href="#" class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
-                                                            data-bs-placement="top" title="{% trans 'Delegate preparation' %}"
-                                                            onclick="delegateSelectionModalShow(`{{ evaluation.full_name }}`, `{% url 'contributor:evaluation_direct_delegation' evaluation.id %}`);return false;"
+                                                        <a href="#"
+                                                            class="btn btn-sm btn-dark delegate-button"
+                                                            data-bs-toggle="tooltip"
+                                                            data-bs-placement="top"
+                                                            title="{% trans 'Delegate preparation' %}"
+                                                            data-evaluation-name="{{ evaluation.full_name }}"
+                                                            data-delegation-url="{% url 'contributor:evaluation_direct_delegation' evaluation.id %}"
                                                         >
                                                             <span class="fas fa-hand-point-left"></span>
                                                         </a>
@@ -226,7 +230,7 @@
             </div>
         </div>
 
-        <script type="text/javascript">
+        <script type="text/javascript" nonce="{{ CSP_NONCE }}">
             function {{ modal_id }}Show(evaluationName, action) {
                 const modal = document.getElementById("{{ modal_id }}");
                 // set form's action location
@@ -241,6 +245,10 @@
                 // show modal
                 var {{ modal_id }} = new bootstrap.Modal(document.getElementById('{{ modal_id }}'));
                 {{ modal_id }}.show();
+            }
+
+            for (const button of document.querySelectorAll(".delegate-button")) {
+                button.addEventListener("click", () => delegateSelectionModalShow(button.dataset.evaluationName, button.dataset.delegationUrl));
             }
         </script>
     {% endwith %}

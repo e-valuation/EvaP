@@ -27,7 +27,7 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         const anchor = window.location.hash.replace("#", "").split('-');
         const id = anchor[1];
         const type = anchor[2];

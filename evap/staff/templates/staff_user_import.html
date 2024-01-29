@@ -21,7 +21,7 @@
                 <p>
                     {% trans 'Upload Excel file' %}
                     (<a href="{% url 'staff:download_sample_file' 'sample_user.xlsx' %}">{% trans 'Download sample file' %}</a>,
-                    <button type="button" class="btn btn-link" onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">{% trans 'Copy headers to clipboard' %}</button>).
+                    <button type="button" class="btn btn-link" id="copy-user-headers-button">{% trans 'Copy headers to clipboard' %}</button>).
                     {% trans 'This will create all contained users.' %}
                 </p>
                 {% include 'bootstrap_form.html' with form=excel_form %}
@@ -33,7 +33,7 @@
                     <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
                 {% else %}
                     <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
-                    <button name="operation" value="import" type="button" onclick="importUserModalShow('import');" class="btn btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
+                    <button name="operation" value="import" type="button" id="import-users-button" class="btn btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
                 {% endif %}
             </div>
         </div>
@@ -41,12 +41,12 @@
 {% endblock %}
 
 {% block modals %}
-{{ block.super }}
+    {{ block.super }}
     {% trans 'Import Users' as title %}
     {% blocktrans asvar question %}Do you really want to import the users from the Excel file?{% endblocktrans %}
     {% trans 'Import Users' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='importUserModal' title=title question=question action_text=action_text btn_type='primary' %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
         function importUserModalAction(dataId) {
             const input = document.createElement("input");
             input.type = "hidden";
@@ -56,11 +56,15 @@
             const form = document.getElementById("user-import-form");
             form.appendChild(input);
             form.requestSubmit();
-        };
+        }
+        document.getElementById("import-users-button").addEventListener("click", () => importUserModalShow("import"));
     </script>
 
 {% endblock %}
 
 {% block additional_javascript %}
-    <script type="text/javascript" src="{% static 'js/copy-to-clipboard.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/copy-to-clipboard.js' %}" nonce="{{ CSP_NONCE }}"></script>
+    <script type="text/javascript" nonce="{{ CSP_NONCE }}">
+        document.getElementById("copy-user-headers-button").addEventListener("click", () => copyHeaders(['Title', 'First name', 'Last name', 'Email']));
+    </script>
 {% endblock %}

@@ -191,7 +191,7 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script type="module">
+    <script type="module" nonce="{{ CSP_NONCE }}">
         import { QuickReviewSlider } from "{% static 'js/quick-review-slider.js' %}";
 
         const slider = new QuickReviewSlider(
