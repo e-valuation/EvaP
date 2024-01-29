@@ -731,6 +731,7 @@ class Evaluation(LoggedModel):
         if delete_previous_answers:
             for answer_class in Answer.__subclasses__():
                 answer_class.objects.filter(contribution__evaluation_id=self.id).delete()
+            self.voters.clear()
 
     @transition(
         field=state,

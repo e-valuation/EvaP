@@ -1107,6 +1107,8 @@ class QuestionnaireTests(TestCase):
 
 
 class TestResetEvaluation(TestCase):
+    """Tests Evaluation.reset_to_new()"""
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -1116,31 +1118,33 @@ class TestResetEvaluation(TestCase):
     @classmethod
     def setUpTestData(cls):
         initial_state = Evaluation.State.IN_EVALUATION
-        voters = baker.make(settings.AUTH_USER_MODEL, _quantity=3)
-        cls.voters = voters
-        evaluation = baker.make(Evaluation, state=initial_state, voters=voters, make_m2m=True)
-        cls.evaluation = evaluation
+        cls.voters = baker.make(UserProfile, _quantity=3)
+        cls.evaluation = baker.make(Evaluation, state=initial_state, voters=cls.voters, make_m2m=True)
 
-        cls.text_answers = baker.make(TextAnswer, _quantity=10, contribution__evaluation=evaluation)
-        cls.rating_answers = baker.make(RatingAnswerCounter, _quantity=10, contribution__evaluation=evaluation)
+        cls.text_answers = baker.make(TextAnswer, _quantity=10, contribution__evaluation=cls.evaluation)
+        cls.rating_answers = baker.make(RatingAnswerCounter, _quantity=10, contribution__evaluation=cls.evaluation)
 
         cls.additional_text_answers = baker.make(TextAnswer, _quantity=10)
         cls.additional_rating_answers = baker.make(RatingAnswerCounter, _quantity=10)
 
-    def test_delete_answers_when_checked(self):
-        # if checked, all received answers will be deleted
+    def test_reset_when_checked(self):
+        # if checked, all received answers will be deleted & voters will be cleared
         self.evaluation.reset_to_new(delete_previous_answers=True)
 
         self.assertEqual(self.evaluation.state, Evaluation.State.NEW)
 
+        self.assertEqual(self.evaluation.voters.count(), 0)
+        self.assertTrue(UserProfile.objects.count() > 0)
+
         self.assertCountEqual(TextAnswer.objects.all(), self.additional_text_answers)
         self.assertCountEqual(RatingAnswerCounter.objects.all(), self.additional_rating_answers)
 
-    def test_delete_answers_when_not_checked(self):
+    def test_reset_when_not_checked(self):
         # if not checked, all received answers will be preserved
         self.evaluation.reset_to_new(delete_previous_answers=False)
 
         self.assertEqual(self.evaluation.state, Evaluation.State.NEW)
+        self.assertCountEqual(self.evaluation.voters.all(), self.voters)
 
         self.assertCountEqual(TextAnswer.objects.all(), self.text_answers + self.additional_text_answers)
         self.assertCountEqual(RatingAnswerCounter.objects.all(), self.rating_answers + self.additional_rating_answers)
