@@ -295,10 +295,6 @@ class ResultsExporter(ExcelExporter):
                     if grade_result.question.id != question.id or not RatingResult.has_answers(grade_result):
                         continue
 
-                    assert isinstance(grade_result, RatingResult)
-                    if not RatingResult.has_answers(grade_result):
-                        continue
-
                     values.append(grade_result.average * grade_result.count_sum)
                     count_sum += grade_result.count_sum
                     if grade_result.question.is_yes_no_question:

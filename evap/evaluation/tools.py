@@ -20,7 +20,6 @@ from django_stubs_ext import StrOrPromise
 
 M = TypeVar("M", bound=Model)
 T = TypeVar("T")
-OptionalStrOrOptionalFloat = TypeVar("OptionalStrOrOptionalFloat", str | None, float | None)
 Key = TypeVar("Key")
 Value = TypeVar("Value")
 CellValue = str | int | float | None
