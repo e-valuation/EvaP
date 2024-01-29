@@ -41,12 +41,9 @@ ignore-init-module-imports = true
 pep8-naming.extend-ignore-names = ["assert*", "*Formset"]  # custom assert methods use camelCase; Formsets use PascalCase
 
 [tool.ruff.per-file-ignores]
-# migrations have model classes as local variables, we use PascalCase for these
-"**/migrations/*.py" = ["N806"]
-# printing in commands is ok
-"**/commands/*.py" = ["T201"]
-# not intended for direct import
-"deployment/*.py" = ["INP001"]
+"**/migrations/*.py" = ["N806"]  # migrations have model classes as local variables, we use PascalCase for these
+"**/commands/*.py" = ["T201"]  # printing in commands is ok
+"deployment/*.py" = ["INP001"]  # not intended for direct import
 
 [tool.ruff.format]
 exclude = ["**/urls.py", "**/migrations/*.py"]
