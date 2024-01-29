@@ -52,9 +52,9 @@
     {% endif %}
     {% if evaluation.is_single_result %}
         {# data-order="-1" sorts single results before all other results #}
-        <div data-col="participants" class="text-center" data-order="-1"><span class="fas fa-user"></span>&nbsp;{{ evaluation.single_result_rating_result.count_sum }}</div>
+        <div data-col="voters" class="text-center" data-order="-1"><span class="fas fa-user"></span>&nbsp;{{ evaluation.single_result_rating_result.count_sum }}</div>
     {% else %}
-        <div data-col="participants" data-order="{{ evaluation.voter_ratio|unlocalize }}">
+        <div data-col="voters" data-order="{{ evaluation.voter_ratio|unlocalize }}">
             {% include 'progress_bar.html' with done=evaluation.num_voters total=evaluation.num_participants %}
         </div>
     {% endif %}

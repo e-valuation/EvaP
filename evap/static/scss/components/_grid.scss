@@ -74,13 +74,13 @@
     @extend %grid-row;
 
     grid:
-        "name semester responsible participants result"
-        / auto    6rem       12rem         7rem  11rem;
+        "name semester responsible voters result"
+        / auto    6rem       12rem   7rem  11rem;
 
     @include media-breakpoint-down(lg) {
         grid:
             "name semester  responsible responsible"
-            "name semester participants      result"
+            "name semester       voters      result"
             / auto    3rem         7rem       10rem;
     }
 
@@ -88,7 +88,7 @@
         grid:
             "        name        name    semester"
             " responsible responsible responsible"
-            "participants      result      result"
+            "      voters      result      result"
             /         1fr         1fr        6rem;
     }
 
@@ -96,7 +96,7 @@
         font-style: italic;
     }
 
-    [data-col=participants] {
+    [data-col=voters] {
         max-width: 8rem;
     }
 
@@ -122,7 +122,7 @@
     }
 }
 
-@each $col in name, semester, responsible, participants, result {
+@each $col in name, semester, responsible, voters, result {
     [data-col=#{$col}] {
         grid-area: $col;
     }
