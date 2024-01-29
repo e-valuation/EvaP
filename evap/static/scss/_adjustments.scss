@@ -140,7 +140,7 @@ $alert-colors: (
 
     // If .btn is not the last element in the group, remove the right border.
     // Also uses :has to not remove the right border if the next element is a disabled input
-    .btn:not(:last-child):not(.dropdown-toggle):has(+ :not(.btn-check[disabled])), .btn-group:not(:last-child) > .btn {
+    .btn:not(:last-child):has(+ :not(.btn-check[disabled])) {
         border-right: 0;
     }
 
@@ -149,9 +149,8 @@ $alert-colors: (
         border-left: 0;
     }
 
-    // Revert Bootstrap (Prevent double borders when buttons are next to each other)
-    > :not(.btn-check:first-child) + .btn,
-    > .btn-group:not(:first-child) {
+    // Revert Bootstrap's hack, that uses negative margin which would appear as double borders
+    :not(.btn-check:first-child) + .btn {
         margin-left: unset;
     }
 }
