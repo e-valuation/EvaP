@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
@@ -23,7 +25,7 @@ from evap.grades.models import GradeDocument
 class IndexView(TemplateView):
     template_name = "grades_index.html"
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         return super().get_context_data(**kwargs) | {
             "semesters": Semester.objects.filter(grade_documents_are_deleted=False),
             "disable_breadcrumb_grades": True,
@@ -51,19 +53,19 @@ class SemesterView(DetailView):
 
     object: Semester
 
-    def get_object(self, *args, **kwargs):
+    def get_object(self, *args, **kwargs) -> Semester:
         semester = super().get_object(*args, **kwargs)
         if semester.grade_documents_are_deleted:
             raise PermissionDenied
         return semester
 
-    def get_context_data(self, **kwargs):
-        courses = (
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        query = (
             self.object.courses.filter(evaluations__wait_for_grade_upload_before_publishing=True)
             .exclude(evaluations__state=Evaluation.State.NEW)
             .distinct()
         )
-        courses = course_grade_document_count_tuples(courses)
+        courses = course_grade_document_count_tuples(query)
 
         return super().get_context_data(**kwargs) | {
             "courses": courses,
@@ -77,13 +79,13 @@ class CourseView(DetailView):
     model = Course
     pk_url_kwarg = "course_id"
 
-    def get_object(self, *args, **kwargs):
+    def get_object(self, *args, **kwargs) -> Course:
         course = super().get_object(*args, **kwargs)
         if course.semester.grade_documents_are_deleted:
             raise PermissionDenied
         return course
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         return super().get_context_data(**kwargs) | {
             "semester": self.object.semester,
             "grade_documents": self.object.grade_documents.all(),

@@ -446,7 +446,7 @@ export class ResultGrid extends DataGrid {
             // To store filter values independent of the language, use the corresponding id from the checkbox
             const values = [...row.querySelectorAll(selector)]
                 .map(element => element.textContent!.trim())
-                .map(filterName => checkboxes.find(checkbox => checkbox.dataset.filter === filterName)!.value);
+                .map(filterName => checkboxes.find(checkbox => checkbox.dataset.filter === filterName)?.value);
             filterValues.set(name, values);
         }
         return filterValues;

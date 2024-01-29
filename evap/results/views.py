@@ -367,7 +367,7 @@ def add_warnings(evaluation, evaluation_result):
         for rating_result in rating_results:
             rating_result.warning = (
                 questionnaire_result.warning
-                or rating_result.has_answers
+                or RatingResult.has_answers(rating_result)
                 and rating_result.count_sum < questionnaire_warning_thresholds[questionnaire_result.questionnaire]
             )
 

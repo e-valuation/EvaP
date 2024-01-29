@@ -67,7 +67,7 @@ TEXTANSWER_REVIEW_REMINDER_WEEKDAYS = [3]
 
 # email domains for the internal users of the hosting institution used to
 # figure out who is an internal user
-INSTITUTION_EMAIL_DOMAINS = ["institution.example.com"]
+INSTITUTION_EMAIL_DOMAINS = ["institution.example.com", "student.institution.example.com"]
 
 # List of tuples defining email domains that should be replaced on saving UserProfiles.
 # Emails ending on the first value will have this part replaced by the second value.
@@ -418,8 +418,12 @@ except ImportError:
 
 TESTING = "test" in sys.argv or "pytest" in sys.modules
 
-# speed up tests
+# speed up tests and activate typeguard introspection
 if TESTING:
+    from typeguard import install_import_hook
+
+    install_import_hook(("evap", "tools"))
+
     # do not use ManifestStaticFilesStorage as it requires running collectstatic beforehand
     STORAGES["staticfiles"]["BACKEND"] = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
