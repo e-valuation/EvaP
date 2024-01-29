@@ -1529,9 +1529,6 @@ class TextAnswer(Answer):
     def is_reviewed(self):
         return self.review_decision != self.ReviewDecision.UNDECIDED
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-
 
 class FaqSection(models.Model):
     """Section in the frequently asked questions"""
