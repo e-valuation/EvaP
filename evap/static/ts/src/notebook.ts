@@ -2,12 +2,9 @@ import "./translation.js";
 import { unwrap, assert } from "./utils.js";
 
 class NotebookFormLogic {
-    private readonly notebook: HTMLFormElement;
     private readonly updateCooldown = 2000;
 
-    constructor(notebook: HTMLFormElement) {
-        this.notebook = notebook;
-    }
+    constructor(private readonly notebook: HTMLFormElement) {}
 
     private onSubmit = (event: SubmitEvent): void => {
         event.preventDefault();
@@ -41,24 +38,16 @@ class NotebookFormLogic {
 }
 
 export class NotebookLogic {
-    private readonly notebookCard: HTMLElement;
-    private readonly evapContent: HTMLElement;
     private readonly formLogic: NotebookFormLogic;
-    private readonly localStorageKey: string;
-    private readonly collapseNotebookButton: HTMLElement;
 
     constructor(
-        notebook: HTMLElement,
+        private readonly notebookCard: HTMLElement,
         notebookForm: HTMLFormElement,
-        evapContent: HTMLElement,
-        collapseNotebookButton: HTMLElement,
-        localStorageKey: string,
+        private readonly evapContent: HTMLElement,
+        private readonly collapseNotebookButton: HTMLElement,
+        private readonly localStorageKey: string,
     ) {
-        this.notebookCard = notebook;
         this.formLogic = new NotebookFormLogic(notebookForm);
-        this.evapContent = evapContent;
-        this.localStorageKey = localStorageKey;
-        this.collapseNotebookButton = collapseNotebookButton;
     }
 
     private onShowNotebook = (): void => {
