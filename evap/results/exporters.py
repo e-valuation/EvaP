@@ -105,7 +105,10 @@ class ResultsExporter(ExcelExporter):
 
     @staticmethod
     def filter_evaluations(
-        semesters: Sequence[Semester] | QuerySet[Semester],
+        semesters: Sequence[Semester]
+        | QuerySet[
+            Semester
+        ],  # see https://github.com/typeddjango/django-stubs/issues/1924 why this is not a Collection
         evaluation_states: Iterable[Any],
         degree_ids: Iterable[int],
         course_type_ids: Iterable[int],
@@ -170,7 +173,10 @@ class ResultsExporter(ExcelExporter):
     def write_headings_and_evaluation_info(
         self,
         evaluations_with_results: list[tuple[Evaluation, OrderedDict[int, list[QuestionResult]]]],
-        semesters: Sequence[Semester] | QuerySet[Semester],
+        semesters: Sequence[Semester]
+        | QuerySet[
+            Semester
+        ],  # see https://github.com/typeddjango/django-stubs/issues/1924 why this is not a Collection
         contributor: UserProfile | None,
         degree_ids: Iterable[int],
         course_type_ids: Iterable[int],
@@ -317,7 +323,10 @@ class ResultsExporter(ExcelExporter):
     # pylint: disable=arguments-differ
     def export_impl(
         self,
-        semesters: Sequence[Semester] | QuerySet[Semester],
+        semesters: Sequence[Semester]
+        | QuerySet[
+            Semester
+        ],  # see https://github.com/typeddjango/django-stubs/issues/1924 why this is not a Collection
         selection_list: Sequence[tuple[Iterable[int], Iterable[int]]],
         include_not_enough_voters: bool = False,
         include_unpublished: bool = False,
