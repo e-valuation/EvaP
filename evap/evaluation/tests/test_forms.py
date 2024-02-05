@@ -53,3 +53,43 @@ class ProfileFormTests(TestCase):
         form_data["first_name_chosen"] = "Hello \u202eWorld"
         form = ProfileForm(form_data, instance=user)
         self.assertFalse(form.is_valid())
+
+
+class ResetToNewFormTest(WebTestStaffMode):
+    @classmethod
+    def setUpTestData(cls):
+        cls.manager = make_manager()
+        cls.semester = baker.make(Semester, results_are_archived=True)
+
+    def test_reset_to_new(self):
+        states = list(Evaluation.State)
+        states.remove(Evaluation.State.NEW)
+        states.remove(Evaluation.State.PUBLISHED)
+
+        for state in states:  # TODO@Felix: maybe only testing for one state?
+            evaluation = baker.make(Evaluation, state=state, course__semester=self.semester)
+
+            semester_overview_page = self.app.get(f"/staff/semester/{self.semester.pk}", user=self.manager, status=200)
+
+            form = semester_overview_page.forms["evaluation_operation_form"]
+
+            form["evaluation"] = [evaluation.pk]
+
+            confirmation_page = form.submit("target_state", value=str(Evaluation.State.NEW.value))
+
+            # TODO: overthink this
+            try:
+                confirmation_form = confirmation_page.forms["evaluation-operation-form"]
+            except KeyError:
+                self.assertTrue(False, "WARNING! no confirmation modal was shown!")
+                return
+
+            self.assertIn("delete-previous-answers", confirmation_form.fields)
+
+            # TODO@Felix: check if button is checked
+            # TODO@Felix: check if checking/unchecking button makes the right stuff
+
+            confirmation_form.submit()
+
+            evaluation = Evaluation.objects.get(pk=evaluation.pk)  # re-get evaluation
+            self.assertEqual(evaluation.state, Evaluation.State.NEW, "Did not reset the evaluation")
