@@ -164,7 +164,7 @@
                                                                 <span slot="title">{% trans 'Delegate preparation' %}</span>
                                                                 <span slot="action-text">{% trans 'Delegate preparation' %}</span>
                                                                 <span slot="question">
-                                                                    {% blocktrans with evaluation_name=evaluation.full_name %}
+                                                                    {% blocktrans trimmed with evaluation_name=evaluation.full_name %}
                                                                         Do you really want to delegate the preparation of the evaluation {{ evaluation_name }}?
                                                                     {% endblocktrans %}
                                                                     <div class="my-4">

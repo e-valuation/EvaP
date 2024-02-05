@@ -72,7 +72,7 @@
                                                 <span slot="title">{% trans 'Will final grades be uploaded?' %}</span>
                                                 <span slot="action-text">{% trans 'Confirm' %}</span>
                                                 <span slot="question">
-                                                    {% blocktrans with course_name=course.name %}
+                                                    {% blocktrans trimmed with course_name=course.name %}
                                                         Please confirm that a grade document for the course <strong>{{ course_name }}</strong> will be uploaded later on.
                                                     {% endblocktrans %}
                                                 </span>
@@ -95,7 +95,7 @@
                                                     <span slot="title">{% trans 'Have final grades been submitted?' %}</span>
                                                     <span slot="action-text">{% trans 'Confirm' %}</span>
                                                     <span slot="question">
-                                                        {% blocktrans with course_name=course.name %}
+                                                        {% blocktrans trimmed with course_name=course.name %}
                                                             Please confirm that the final grades for the course <strong>{{ course_name }}</strong> have been submitted but will not be uploaded.
                                                         {% endblocktrans %}
                                                     </span>

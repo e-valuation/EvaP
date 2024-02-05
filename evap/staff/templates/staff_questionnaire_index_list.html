@@ -56,7 +56,7 @@
                                             <span slot="title">{% trans 'Delete questionnaire' %}</span>
                                             <span slot="action-text">{% trans 'Delete questionnaire' %}</span>
                                             <span slot="question">
-                                                {% blocktrans with questionnaire_name=questionnaire.name %}
+                                                {% blocktrans trimmed with questionnaire_name=questionnaire.name %}
                                                     Do you really want to delete the questionnaire <strong>{{questionnaire_name}}</strong>?
                                                 {% endblocktrans %}
                                             </span>

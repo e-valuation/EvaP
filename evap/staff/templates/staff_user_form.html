@@ -28,7 +28,7 @@
                                 <span slot="title">{% trans 'Send notification email' %}</span>
                                 <span slot="action-text">{% trans 'Send email' %}</span>
                                 <span slot="question">
-                                    {% blocktrans %}
+                                    {% blocktrans trimmed %}
                                         The email will notify the user about all their due evaluations. Do you want to send the email now?
                                     {% endblocktrans %}
                                 </span>
@@ -126,7 +126,7 @@
                             <span slot="title">{% trans 'Delete user' %}</span>
                             <span slot="action-text">{% trans 'Delete user' %}</span>
                             <span slot="question">
-                                {% blocktrans with user_fullname=form.instance.full_name %}
+                                {% blocktrans trimmed with user_fullname=form.instance.full_name %}
                                     Do you really want to delete the user <strong>{{ user_fullname }}</strong>?<br/>
                                     This person will also be removed from every other user having this person as a delegated or CC-user.
                                 {% endblocktrans %}
