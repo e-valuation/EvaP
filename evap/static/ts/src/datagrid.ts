@@ -160,7 +160,8 @@ abstract class DataGrid {
         for (const [column, ordering] of this.state.order) {
             const header = this.sortableHeaders.get(column);
             if (header === undefined) {
-                // Silently ignore non-existing columns: They were probably renamed, users will have to rebuild their localstorage entry
+                // Silently ignore non-existing columns: They were probably renamed.
+                // A correct state will be built the next time the user sorts the datagrid.
                 continue;
             }
             header.classList.add(`col-order-${ordering}`);
