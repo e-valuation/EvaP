@@ -127,11 +127,10 @@ class TestEvaluations(WebTest):
             wait_for_grade_upload_before_publishing=False,
         )
 
-        with patch(
-            "evap.evaluation.models.EmailTemplate.send_participant_publish_notifications"
-        ) as participant_mock, patch(
-            "evap.evaluation.models.EmailTemplate.send_contributor_publish_notifications"
-        ) as contributor_mock:
+        with (
+            patch("evap.evaluation.models.EmailTemplate.send_participant_publish_notifications") as participant_mock,
+            patch("evap.evaluation.models.EmailTemplate.send_contributor_publish_notifications") as contributor_mock,
+        ):
             Evaluation.update_evaluations()
 
         participant_mock.assert_called_once_with([evaluation])
