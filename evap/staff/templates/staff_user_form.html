@@ -24,7 +24,7 @@
                         <form reload-on-success method="POST" action="{% url 'staff:user_resend_email' %}">
                             {% csrf_token %}
 
-                            <confirmation-modal type="submit" name="user_id" value="{{ form.instance.id }}" confirm-button-class="btn-success">
+                            <confirmation-modal type="submit" name="user_id" value="{{ form.instance.id }}" confirm-button-class="btn-primary">
                                 <span slot="title">{% trans 'Send notification email' %}</span>
                                 <span slot="action-text">{% trans 'Send email' %}</span>
                                 <span slot="question">

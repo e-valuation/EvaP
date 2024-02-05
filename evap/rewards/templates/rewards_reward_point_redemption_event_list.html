@@ -29,7 +29,7 @@
                                     <span slot="action-text">{% trans 'Delete event' %}</span>
                                     <span slot="question">
                                         {% blocktrans with event_name=event.name %}
-                                            Do you really want to delete the event {{ event_name }}?
+                                            Do you really want to delete the event <strong>{{ event_name }}</strong>?
                                         {% endblocktrans %}
                                     </span>
 
