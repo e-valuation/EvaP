@@ -3,7 +3,7 @@ import typing
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from collections.abc import Iterable, Mapping
-from typing import Any, Protocol, TypeVar
+from typing import TYPE_CHECKING, Any, Protocol, TypeVar
 from urllib.parse import quote
 
 import xlwt
@@ -16,7 +16,11 @@ from django.shortcuts import get_object_or_404
 from django.utils.datastructures import MultiValueDict
 from django.utils.translation import get_language
 from django.views.generic import FormView
-from django_stubs_ext import StrOrPromise
+
+if TYPE_CHECKING:
+    from django_stubs_ext import StrOrPromise
+else:
+    StrOrPromise = Any
 
 M = TypeVar("M", bound=Model)
 T = TypeVar("T")
