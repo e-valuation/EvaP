@@ -137,10 +137,7 @@
                             {# we cannot add a class to the actual row because it is cached globally. so we use a + selector in css to style the following row. #}
                             <div class="current-row-follows"></div>
                         {% endif %}
-                        {% include 'results_index_evaluation.html' with
-                            evaluation=course_evaluation
-                            links_to_results_page=course_evaluation|can_results_page_be_seen_by:request.user
-                            is_subentry=True %}
+                        {% include 'results_index_evaluation.html' with evaluation=course_evaluation links_to_results_page=course_evaluation|can_results_page_be_seen_by:request.user is_subentry=True %}
                     {% endfor %}
                 {% else %}
                     {% include 'results_index_evaluation.html' with links_to_results_page=False is_subentry=False %}
