@@ -348,10 +348,6 @@ class TestUserMergeSelectionView(WebTestStaffMode):
         cls.main_user = baker.make(UserProfile, _fill_optional=["email"])
         cls.other_user = baker.make(UserProfile, _fill_optional=["email"])
 
-        # The merge candidate is created first, so the account is older.
-        cls.suggested_merge_candidate = baker.make(UserProfile, email="user@student.institution.example.com")
-        cls.suggested_main_user = baker.make(UserProfile, email="user@institution.example.com")
-
     def test_redirection_user_merge_view(self):
         page = self.app.get(self.url, user=self.manager)
 
@@ -364,15 +360,19 @@ class TestUserMergeSelectionView(WebTestStaffMode):
         self.assertContains(page, self.main_user.email)
         self.assertContains(page, self.other_user.email)
 
+    @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com", "student.institution.example.com"])
     def test_suggested_merge(self):
+        suggested_merge_candidate = baker.make(UserProfile, email="user@student.institution.example.com")
+        suggested_main_user = baker.make(UserProfile, email="user@institution.example.com")
+
+        # Ensure that the merge candidate has the lower pk / seems older
+        if suggested_merge_candidate.pk > suggested_main_user.pk:
+            suggested_merge_candidate, suggested_main_user = suggested_main_user, suggested_merge_candidate
+
         page = self.app.get(self.url, user=self.manager)
 
-        expected_url = reverse(
-            "staff:user_merge", args=[self.suggested_main_user.id, self.suggested_merge_candidate.id]
-        )
-        unexpected_url = reverse(
-            "staff:user_merge", args=[self.suggested_merge_candidate.id, self.suggested_main_user.id]
-        )
+        expected_url = reverse("staff:user_merge", args=[suggested_main_user.pk, suggested_merge_candidate.pk])
+        unexpected_url = reverse("staff:user_merge", args=[suggested_merge_candidate.pk, suggested_main_user.pk])
 
         self.assertContains(page, f'<a href="{expected_url}"')
         self.assertNotContains(page, f'<a href="{unexpected_url}"')
