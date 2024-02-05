@@ -1,10 +1,11 @@
 import warnings
 from collections import OrderedDict, defaultdict
 from itertools import chain, repeat
-from typing import Any, Iterable, Sequence
+from typing import Any, Iterable, Sequence, TypeVar
 
 import xlwt
 from django.db.models import Q, QuerySet
+from django.db.models.base import Model
 from django.utils.translation import gettext as _
 
 from evap.evaluation.models import CourseType, Degree, Evaluation, Question, Questionnaire, Semester, UserProfile
@@ -18,6 +19,9 @@ from evap.results.tools import (
     get_grade_color,
     get_results,
 )
+
+T = TypeVar("T", bound=Model)
+QuerySetOrSequence = QuerySet[T] | Sequence[T]
 
 
 class ResultsExporter(ExcelExporter):
@@ -105,10 +109,7 @@ class ResultsExporter(ExcelExporter):
 
     @staticmethod
     def filter_evaluations(
-        semesters: Sequence[Semester]
-        | QuerySet[
-            Semester
-        ],  # see https://github.com/typeddjango/django-stubs/issues/1924 why this is not a Collection
+        semesters: Iterable[Semester],
         evaluation_states: Iterable[Any],
         degree_ids: Iterable[int],
         course_type_ids: Iterable[int],
@@ -173,10 +174,7 @@ class ResultsExporter(ExcelExporter):
     def write_headings_and_evaluation_info(
         self,
         evaluations_with_results: list[tuple[Evaluation, OrderedDict[int, list[QuestionResult]]]],
-        semesters: Sequence[Semester]
-        | QuerySet[
-            Semester
-        ],  # see https://github.com/typeddjango/django-stubs/issues/1924 why this is not a Collection
+        semesters: QuerySetOrSequence[Semester],
         contributor: UserProfile | None,
         degree_ids: Iterable[int],
         course_type_ids: Iterable[int],
