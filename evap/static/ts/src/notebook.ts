@@ -1,18 +1,10 @@
 import "./translation.js";
-import { unwrap, assert, selectOrError } from "./utils.js";
-
-const NOTEBOOK_LOCALSTORAGE_KEY = "evap_notebook_open";
-const COLLAPSE_TOGGLE_BUTTON_SELECTOR = "#notebookButton";
-const WEBSITE_CONTENT_SELECTOR = "#evapContent";
-const NOTEBOOK_FORM_SELECTOR = "#notebook-form";
+import { unwrap, assert } from "./utils.js";
 
 class NotebookFormLogic {
-    private readonly notebook: HTMLFormElement;
     private readonly updateCooldown = 2000;
 
-    constructor(notebookFormId: string) {
-        this.notebook = selectOrError(notebookFormId);
-    }
+    constructor(private readonly notebook: HTMLFormElement) {}
 
     private onSubmit = (event: SubmitEvent): void => {
         event.preventDefault();
@@ -46,16 +38,16 @@ class NotebookFormLogic {
 }
 
 export class NotebookLogic {
-    private readonly notebookCard: HTMLElement;
-    private readonly evapContent: HTMLElement;
     private readonly formLogic: NotebookFormLogic;
-    private readonly localStorageKey: string;
 
-    constructor(notebookSelector: string) {
-        this.notebookCard = selectOrError(notebookSelector);
-        this.formLogic = new NotebookFormLogic(NOTEBOOK_FORM_SELECTOR);
-        this.evapContent = selectOrError(WEBSITE_CONTENT_SELECTOR);
-        this.localStorageKey = NOTEBOOK_LOCALSTORAGE_KEY + "_" + notebookSelector;
+    constructor(
+        private readonly notebookCard: HTMLElement,
+        notebookForm: HTMLFormElement,
+        private readonly evapContent: HTMLElement,
+        private readonly collapseNotebookButton: HTMLElement,
+        private readonly localStorageKey: string,
+    ) {
+        this.formLogic = new NotebookFormLogic(notebookForm);
     }
 
     private onShowNotebook = (): void => {
@@ -63,7 +55,7 @@ export class NotebookLogic {
 
         localStorage.setItem(this.localStorageKey, "true");
         this.evapContent.classList.add("notebook-margin");
-        selectOrError(COLLAPSE_TOGGLE_BUTTON_SELECTOR).classList.replace("show", "hide");
+        this.collapseNotebookButton.classList.replace("show", "hide");
     };
 
     private onHideNotebook = (): void => {
@@ -71,7 +63,7 @@ export class NotebookLogic {
 
         localStorage.setItem(this.localStorageKey, "false");
         this.evapContent.classList.remove("notebook-margin");
-        selectOrError(COLLAPSE_TOGGLE_BUTTON_SELECTOR).classList.replace("hide", "show");
+        this.collapseNotebookButton.classList.replace("hide", "show");
     };
 
     public attach = (): void => {

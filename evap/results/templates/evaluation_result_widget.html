@@ -7,7 +7,7 @@
         data-bs-toggle="tooltip" data-bs-placement="left" data-fallback-placement='["left", "bottom"]'
         title="{% spaceless %}{% include 'result_widget_tooltip.html' with question_result=course_or_evaluation.single_result_rating_result weight_info=course_or_evaluation|weight_info %}{% endspaceless %}"
     >
-        {% include "distribution_with_grade.html" with distribution=course_or_evaluation.distribution average=course_or_evaluation.avg_grade weight_info=course_or_evaluation|weight_info %}
+        {% include "distribution_with_grade.html" with distribution=course_or_evaluation.distribution average=course_or_evaluation.avg_grade weight_info=course_or_evaluation|weight_info question_result=None %}
     </div>
 {% else %}
     <div class="d-flex" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Not enough answers were given.' %}">

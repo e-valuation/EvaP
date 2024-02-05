@@ -12,7 +12,19 @@ from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import IntegrityError, transaction
-from django.db.models import BooleanField, Case, Count, ExpressionWrapper, IntegerField, Prefetch, Q, Sum, When
+from django.db.models import (
+    BooleanField,
+    Case,
+    Count,
+    ExpressionWrapper,
+    Func,
+    IntegerField,
+    OuterRef,
+    Prefetch,
+    Q,
+    Sum,
+    When,
+)
 from django.dispatch import receiver
 from django.forms import BaseForm, formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
@@ -2293,6 +2305,35 @@ def user_bulk_update(request):
 class UserMergeSelectionView(FormView):
     form_class = UserMergeSelectionForm
     template_name = "staff_user_merge_selection.html"
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        class UserNameFromEmail(Func):
+            # django docs support our usage here:
+            # https://docs.djangoproject.com/en/5.0/ref/models/expressions/#func-expressions
+            # pylint: disable=abstract-method
+            template = "split_part(%(expressions)s, '@', 1)"
+
+        query = UserProfile.objects.annotate(username_part_of_email=UserNameFromEmail("email"))
+
+        users_with_merge_candidates = query.annotate(
+            merge_candidate_pk=query.filter(username_part_of_email=UserNameFromEmail(OuterRef("email")))
+            .filter(pk__lt=OuterRef("pk"))
+            .values("pk")[:1]
+        ).exclude(merge_candidate_pk=None)
+
+        merge_candidate_ids = [user.merge_candidate_pk for user in users_with_merge_candidates]
+        merge_candidates_by_id = {user.pk: user for user in UserProfile.objects.filter(pk__in=merge_candidate_ids)}
+
+        suggested_merges = [
+            (user, merge_candidates_by_id[user.merge_candidate_pk])
+            for user in users_with_merge_candidates
+            if not user.is_external and not merge_candidates_by_id[user.merge_candidate_pk].is_external
+        ]
+
+        context["suggested_merges"] = suggested_merges
+        return context
 
     def form_valid(self, form: UserMergeSelectionForm) -> HttpResponse:
         return redirect(

@@ -8,20 +8,50 @@
 
 {% block content %}
     {{ block.super }}
-    <h3>{% trans 'Merge users' %}</h3>
+    <div class="row row-cols-1 row-cols-xl-2">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">{% trans 'Merge users' %}</h4>
+                    <form id="user-selection-form" method="POST" class="form-horizontal">
+                        {% csrf_token %}
+                        <p>{% trans 'Select the users you want to merge.' %}</p>
+                        {% include 'bootstrap_form.html' with form=form wide=True %}
+                    </form>
+                </div>
+                <div class="card-footer text-center card-submit-area d-flex">
+                    <button type="submit" form="user-selection-form" class="btn btn-light mx-auto my-auto">{% trans 'Show merge info' %}</button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">{% trans 'Merge suggestions' %}</h4>
+                    <table class="table table-striped table-narrow table-vertically-aligned">
+                        <tbody>
+                            {% for main_user, merge_candidate in suggested_merges %}
+                                <tr>
+                                    <td>
+                                        <b>{{ main_user.full_name }}</b> <br />
+                                        <b>{{ merge_candidate.full_name }}</b>
+                                    </td>
+                                    <td>
+                                        {{ main_user.email }} <br />
+                                        {{ merge_candidate.email }}
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="{% url 'staff:user_merge' main_user.id merge_candidate.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Show merge info' %}">
+                                            <span class="fas fa-object-group"></span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <form id="user-selection-form" method="POST" class="form-horizontal">
-        {% csrf_token %}
-        <div class="card mb-3">
-            <div class="card-body">
-                <p>{% trans 'Select the users you want to merge.' %}</p>
-                {% include 'bootstrap_form.html' with form=form wide=True %}
-            </div>
-        </div>
-        <div class="card card-submit-area text-center mb-3">
-            <div class="card-body">
-                <button type="submit" class="btn btn-primary">{% trans 'Show merge info' %}</button>
-            </div>
-        </div>
-    </form>
 {% endblock %}

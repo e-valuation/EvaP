@@ -1,3 +1,4 @@
+{% load static %}
 <div class="notebook">
    <div class="collapse position-fixed collapse-horizontal notebook-animation mt-0 d-print-none" tabindex="-1" id="notebook" aria-expanded="false">
         <div class="card">
@@ -27,3 +28,15 @@
         </div>
     </div>
 </div>
+
+<div class="collapse show" tabindex="-1" id="notebookButton">
+    <button class="btn btn-outline-secondary button-open-notebook" type="button" data-bs-toggle="collapse" data-bs-target="#notebook">
+        <span class="fas fa-pen-to-square"></span>
+    </button>
+</div>
+
+<script type="module">
+    import { NotebookLogic } from "{% static 'js/notebook.js' %}";
+    import { selectOrError } from "{% static 'js/utils.js' %}";
+    new NotebookLogic(selectOrError("#notebook"), selectOrError("#notebook-form"), selectOrError("#evapContent"), selectOrError("#notebookButton"), "evap_notebook_open").attach();
+</script>

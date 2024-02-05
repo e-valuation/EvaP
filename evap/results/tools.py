@@ -58,10 +58,13 @@ class RatingResult:
     def has_answers(cls, rating_result) -> TypeGuard["AnsweredRatingResult"]:
         return isinstance(rating_result, AnsweredRatingResult)
 
-    def __init__(self, question, additional_text_result=None):
+    def __init__(self, question, additional_text_result=None) -> None:
         assert question.is_rating_question
         self.question = discard_cached_related_objects(copy(question))
         self.additional_text_result = additional_text_result
+        self.colors = tuple(
+            color for _, color, value in self.choices.as_name_color_value_tuples() if value != NO_ANSWER
+        )
 
     @property
     def choices(self):
@@ -69,12 +72,17 @@ class RatingResult:
 
 
 class PublishedRatingResult(RatingResult):
-    def __init__(self, question, answer_counters, additional_text_result=None):
+    def __init__(self, question, answer_counters, additional_text_result=None) -> None:
         super().__init__(question, additional_text_result)
-        counts = OrderedDict((value, 0) for value in self.choices.values if value != NO_ANSWER)
+        counts = OrderedDict(
+            (value, [0, name, color, value]) for (name, color, value) in self.choices.as_name_color_value_tuples()
+        )
+        counts.pop(NO_ANSWER)
         for answer_counter in answer_counters:
-            counts[answer_counter.answer] = answer_counter.count
-        self.counts = tuple(counts.values())
+            assert counts[answer_counter.answer][0] == 0
+            counts[answer_counter.answer][0] = answer_counter.count
+        self.counts = tuple(count for count, _, _, _ in counts.values())
+        self.zipped_choices = tuple(counts.values())
 
     @property
     def count_sum(self) -> int:
