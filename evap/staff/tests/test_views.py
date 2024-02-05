@@ -365,9 +365,7 @@ class TestUserMergeSelectionView(WebTestStaffMode):
         suggested_merge_candidate = baker.make(UserProfile, email="user@student.institution.example.com")
         suggested_main_user = baker.make(UserProfile, email="user@institution.example.com")
 
-        # Ensure that the merge candidate has the lower pk / seems older
-        if suggested_merge_candidate.pk > suggested_main_user.pk:
-            suggested_merge_candidate, suggested_main_user = suggested_main_user, suggested_merge_candidate
+        self.assertLess(suggested_merge_candidate.pk, suggested_main_user.pk)
 
         page = self.app.get(self.url, user=self.manager)
 
