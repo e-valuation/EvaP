@@ -17,6 +17,7 @@
     <div data-col="responsible" data-order="{{ course.responsibles.first.last_name|lower }}">
         {{ course.responsibles_names }}
     </div>
+    <div data-col="voters" data-order="{{ evaluations|aggregated_voters_order }}"></div>
     <div data-col="result" data-order="{{ course.avg_grade|default:7 }}">
         {% if course.not_all_evaluations_are_published %}
             <div class="d-flex" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Course result is not yet available.' %}">

@@ -158,7 +158,13 @@ abstract class DataGrid {
             header.classList.remove("col-order-asc", "col-order-desc");
         }
         for (const [column, ordering] of this.state.order) {
-            this.sortableHeaders.get(column)!.classList.add(`col-order-${ordering}`);
+            const header = this.sortableHeaders.get(column);
+            if (header === undefined) {
+                // Silently ignore non-existing columns: They were probably renamed.
+                // A correct state will be built the next time the user sorts the datagrid.
+                continue;
+            }
+            header.classList.add(`col-order-${ordering}`);
         }
 
         this.rows.sort((a, b) => {

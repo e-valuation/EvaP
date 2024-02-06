@@ -1,5 +1,6 @@
 {% load evaluation_filters %}
 {% load results_templatetags %}
+{% load l10n %}
 
 <{% if links_to_results_page %}a href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}"{% else %}div{% endif %}
         class="results-grid-row {% if not is_subentry %}heading-row{% else %}evaluation-row{% endif %}
@@ -49,14 +50,13 @@
             {{ evaluation.course.responsibles_names }}
         </div>
     {% endif %}
-    {% if evaluation.is_single_result %}
-        <div data-col="participants" class="text-center"><span class="fas fa-user"></span>&nbsp;{{ evaluation.single_result_rating_result.count_sum }}</div>
-    {% else %}
-        {% with num_participants=evaluation.num_participants num_voters=evaluation.num_voters %}
-            <div data-col="participants">{% include 'progress_bar.html' with done=num_voters total=num_participants %}</div>
-        {% endwith %}
-    {% endif %}
-
+    <div data-col="voters" class="text-center" data-order="{{ evaluation|voters_order }}">
+        {% if evaluation.is_single_result %}
+            <span class="fas fa-user"></span>&nbsp;{{ evaluation.single_result_rating_result.count_sum }}
+        {% else %}
+            {% include 'progress_bar.html' with done=evaluation.num_voters total=evaluation.num_participants %}
+        {% endif %}
+    </div>
     <div data-col="result"{% if not is_subentry %} data-order="{% if evaluation.is_single_result %}{{ evaluation.single_result_rating_result.average }}{% else %}{{ evaluation.avg_grade|default:7 }}{% endif %}"{% endif %}>
         {% if not evaluation.can_staff_see_average_grade %}
             <div class="d-flex" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Evaluation result is not yet available.' %}">
