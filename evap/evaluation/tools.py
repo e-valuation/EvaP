@@ -17,9 +17,10 @@ from django.utils.datastructures import MultiValueDict
 from django.utils.translation import get_language
 from django.views.generic import FormView
 
-if TYPE_CHECKING:
+try:
     from django_stubs_ext import StrOrPromise
-else:
+except ImportError:
+    assert not TYPE_CHECKING
     StrOrPromise = Any
 
 M = TypeVar("M", bound=Model)
