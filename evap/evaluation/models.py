@@ -2,10 +2,10 @@ import logging
 import secrets
 import uuid
 from collections import defaultdict
+from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from enum import Enum, auto
-from numbers import Number
-from typing import NamedTuple
+from numbers import Real
 
 from django.conf import settings
 from django.contrib import messages
@@ -389,7 +389,7 @@ class Evaluation(LoggedModel):
         REVIEWED = 70
         PUBLISHED = 80
 
-    state = FSMIntegerField(default=State.NEW, protected=True)
+    state = FSMIntegerField(default=State.NEW, protected=True, verbose_name=_("state"))
 
     course = models.ForeignKey(Course, models.PROTECT, verbose_name=_("course"), related_name="evaluations")
 
@@ -779,14 +779,14 @@ class Evaluation(LoggedModel):
         self._participant_count = None
 
     STATE_STR_CONVERSION = {
-        State.NEW: "new",
-        State.PREPARED: "prepared",
-        State.EDITOR_APPROVED: "editor_approved",
-        State.APPROVED: "approved",
-        State.IN_EVALUATION: "in_evaluation",
-        State.EVALUATED: "evaluated",
-        State.REVIEWED: "reviewed",
-        State.PUBLISHED: "published",
+        State.NEW: _("new"),
+        State.PREPARED: _("prepared"),
+        State.EDITOR_APPROVED: _("editor_approved"),
+        State.APPROVED: _("approved"),
+        State.IN_EVALUATION: _("in_evaluation"),
+        State.EVALUATED: _("evaluated"),
+        State.REVIEWED: _("reviewed"),
+        State.PUBLISHED: _("published"),
     }
 
     @classmethod
@@ -812,6 +812,12 @@ class Evaluation(LoggedModel):
         if self._voter_count is not None:
             return self._voter_count
         return self.voters.count()
+
+    @property
+    def voter_ratio(self):
+        if self.is_single_result or self.num_participants == 0:
+            return 0
+        return self.num_voters / self.num_participants
 
     @property
     def due_participants(self):
@@ -994,7 +1000,7 @@ class Evaluation(LoggedModel):
 
     @classmethod
     def transform_log_action(cls, field_action):
-        if field_action.label == "State":
+        if field_action.label.lower() == Evaluation.state.field.verbose_name.lower():
             return FieldAction(
                 field_action.label, field_action.type, [cls.state_to_str(state) for state in field_action.items]
             )
@@ -1236,25 +1242,23 @@ class Question(models.Model):
         return self.is_text_question or self.is_rating_question and self.allows_additional_textanswers
 
 
-# Let's deduplicate the fields here once mypy is smart enough to keep up with us :)
-class Choices(NamedTuple):
+@dataclass
+class Choices:
     css_class: str
-    values: tuple[Number]
+    values: tuple[Real]
     colors: tuple[str]
-    grades: tuple[Number]
+    grades: tuple[Real]
     names: list[StrOrPromise]
     is_inverted: bool
 
+    def as_name_color_value_tuples(self):
+        return zip(self.names, self.colors, self.values, strict=True)
 
-class BipolarChoices(NamedTuple):
-    css_class: str
-    values: tuple[Number]
-    colors: tuple[str]
-    grades: tuple[Number]
-    names: list[StrOrPromise]
+
+@dataclass
+class BipolarChoices(Choices):
     plus_name: StrOrPromise
     minus_name: StrOrPromise
-    is_inverted: bool
 
 
 NO_ANSWER = 6

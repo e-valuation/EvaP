@@ -35,7 +35,7 @@
 
                                     <input type="hidden" name="answer_id" value="{{ answer.id }}" />
 
-                                    <div class="btn-group btn-group-sm" role="group">
+                                    <div class="btn-group btn-group-sm outline-fix" role="group">
                                         <input type="radio" class="btn-check" name="action" value="publish" id="{{ answer.id }}-radio-publish" autocomplete="off" {% if answer.will_be_public %}checked{% endif %}>
                                         <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-publish">{% trans 'Publish' %}</label>
 

@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Q
-from django.utils.html import format_html
+from django.utils.html import escape, format_html
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
@@ -199,9 +199,9 @@ class UserDataMismatchChecker(Checker):
 
     def _add_user_data_mismatch_warning(self, user: UserProfile, user_data: UserData):
         if self.test_run:
-            msg = format_html(_("The existing user would be overwritten with the following data:"))
+            msg = escape(_("The existing user would be overwritten with the following data:"))
         else:
-            msg = format_html(_("The existing user was overwritten with the following data:"))
+            msg = escape(_("The existing user was overwritten with the following data:"))
 
         msg = (
             msg
@@ -227,7 +227,7 @@ class UserDataMismatchChecker(Checker):
         self.importer_log.add_warning(msg, category=ImporterLogEntry.Category.INACTIVE)
 
     def _add_user_name_collision_warning(self, user_data: UserData, users_with_same_names: Iterable[UserProfile]):
-        msg = format_html(_("A user in the import file has the same first and last name as an existing user:"))
+        msg = escape(_("A user in the import file has the same first and last name as an existing user:"))
         for user in users_with_same_names:
             msg += format_html("<br /> - {} ({})", self._create_user_string(user), _("existing"))
         msg += format_html("<br /> - {} ({})", self._create_user_string(user_data), _("import"))
