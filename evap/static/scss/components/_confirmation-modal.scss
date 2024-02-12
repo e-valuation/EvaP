@@ -72,6 +72,12 @@ dialog.evap-modal-dialog {
       justify-content: space-between;
     }
 
+    .question-area {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
     .button-area {
       display: flex;
       flex-flow: wrap;
