@@ -90,7 +90,7 @@
                 <a class="collapse-toggle{% if not semester.participations_are_archived and not semester.grade_documents_are_deleted and not semester.results_are_archived %} collapsed{% endif %}" data-bs-toggle="collapse" href="#archivingCard">{% trans 'Archiving' %}</a>
             </div>
             <div class="collapse{% if semester.participations_are_archived or semester.grade_documents_are_deleted or semester.results_are_archived %} show{% endif %}" id="archivingCard">
-                <div class="card-body">
+                <div class="card-body d-flex flex-wrap gap-2">
                     {% if semester.participations_can_be_archived %}
                         <form reload-on-success method="POST" action="{% url 'staff:semester_archive_participations' %}">
                             {% csrf_token %}
