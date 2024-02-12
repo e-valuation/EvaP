@@ -136,6 +136,11 @@ def index(request):
         additional_evaluations = get_evaluations_with_course_result_attributes(additional_evaluations)
         evaluations += additional_evaluations
 
+    # TODO: make this nice (within datagrid)
+    max_participants = 0
+    for evaluation in evaluations:
+        max_participants = max(evaluation.num_participants, max_participants)
+
     # put evaluations into a dict that maps from course to a list of evaluations.
     # this dict is sorted by course.pk (important for the zip below)
     # (this relies on python 3.7's guarantee that the insertion order of the dict is preserved)
@@ -158,6 +163,7 @@ def index(request):
         "degrees": degrees,
         "course_types": course_types,
         "semesters": semesters,
+        "max_participants": max_participants,
     }
     return render(request, "results_index.html", template_data)
 

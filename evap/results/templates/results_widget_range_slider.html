@@ -1,0 +1,38 @@
+<section class="range-slider">
+    <div class="row mt-3">
+        <span class="col-4 text-start text-secondary">0</span>
+        <span class="col-4 range-values"></span>
+        <span class="col-4 text-end text-secondary">{{ max_participants }}</span>
+    </div>
+    <input class="form-range" value="0" min="0" max="{{ max_participants }}" step="1" type="range">
+    <input class="form-range" value="{{ max_participants }}" min="0" max="{{ max_participants }}" step="1" type="range">
+</section>
+
+{% block additional_javascript %}
+    <script type="module">
+        // TODO: refactor me
+        function getValues(){
+            var slides = this.parentNode.getElementsByTagName("input");
+            var slider1 = parseFloat(slides[0].value);
+            var slider2 = parseFloat(slides[1].value);
+            if(slider1 > slider2){var tmp = slider2; slider2 = slider1; slider1 = tmp;}
+
+            var displayElement = this.parentNode.getElementsByClassName("range-values")[0];
+            displayElement.innerHTML = slider1 + " – " + slider2;
+        }
+
+        window.onload = function(){
+            var sliderSections = document.getElementsByClassName("range-slider");
+            for(var x = 0; x < sliderSections.length; x++){
+                var sliders = sliderSections[x].getElementsByTagName("input");
+                for(var y = 0; y < sliders.length; y++){
+                    if(sliders[y].type === "range"){
+                        sliders[y].oninput = getValues;
+                        // Manually trigger event first time to display values
+                        sliders[y].oninput();
+                    }
+                }
+            }
+        }
+    </script>
+{% endblock %}

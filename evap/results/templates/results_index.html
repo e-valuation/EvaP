@@ -19,8 +19,13 @@
                 </span>
             </h5>
             <div class="row">
-                <div class="col-12 col-lg">
+                <div class="col-12 col-lg mb-3 mb-lg-0">
                     <input type="search" name="search" class="form-control mb-3" placeholder="{% translate 'Search...' %}" />
+
+                    <h6 class="card-subtitle mt-4 mb-1">{% trans 'Participants' %}</h6>
+                    <div id="participant-filter">
+                        {% include 'results_widget_range_slider.html' with max_participants=max_participants %}
+                    </div>
                 </div>
                 <div class="col-6 col-sm-4 col-md">
                     <h6 class="card-subtitle mb-1">{% translate 'Degrees' %}</h6>
