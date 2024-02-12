@@ -56,22 +56,26 @@
         {% endif %}
         <input type="hidden" name="target_state" value="{{ target_state }}" />
 
-        <div class="card card-submit-area card-submit-area-2 text-center mb-3">
-            <div class="card-body">
-                <!-- TODO@Felix: Delete previous answers checkbox here -->
-                <div class="row">
-                    <div class="col">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" name="delete-previous-answers"
-                                   id="delete-previous-answers">
-                            <!-- TOD@Felix: Text Translation-->
-                            <label class="form-check-label" for="delete-previous-answers">
-                                DELETE PREV ANSWERS
-                            </label>
+        {% if show_delete_answers_checkbox %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="delete-previous-answers"
+                                       id="delete-previous-answers">
+                                <label class="form-check-label" for="delete-previous-answers">
+                                    {% trans "Delete previous answers" %}
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        {% endif %}
 
+        <div class="card card-submit-area card-submit-area-2 text-center mb-3">
+            <div class="card-body">
                 <button type="submit" class="btn btn-primary">{% translate 'Confirm' %}</button>
                 <a href="{% url 'staff:semester_view' semester.id %}" class="btn btn-light">{% translate 'Cancel' %}</a>
             </div>
