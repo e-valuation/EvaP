@@ -6,84 +6,86 @@
 {% block content %}
     {{ block.super }}
 
-    <h3 class="d-inline">{{ semester.name }}</h3>
+    <header class="pb-3 d-flex flex-wrap gap-2 align-items-start">
+        <h3 class="m-0 me-1">{{ semester.name }}</h3>
 
-    {% if request.user.is_manager %}
-        &nbsp;
-        <a href="{% url 'staff:semester_edit' semester.id %}" class="btn btn-sm btn-secondary">{% trans 'Edit' %}</a>
-        <form reload-on-success method="POST" action="{% url 'staff:semester_make_active' %}" class="d-inline">
-            {% csrf_token %}
-            <confirmation-modal type="submit" name="semester_id" value="{{ semester.id }}" {% if semester.is_active %}data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'This is the active semester' %}" {% endif %}>
-                <span slot="title">{% trans 'Make this the active semester' %}</span>
-                <span slot="action-text">{% trans 'Make active' %}</span>
-                <span slot="question">
-                    {% blocktrans trimmed %}
-                        Do you want to make this the active semester?
-                    {% endblocktrans %}
-                </span>
+        <div class="d-inline-flex flex-wrap gap-2 align-items-start justify-content-start">
+            {% if request.user.is_manager %}
+                <a href="{% url 'staff:semester_edit' semester.id %}" class="btn btn-sm btn-secondary">{% trans 'Edit' %}</a>
+                <form reload-on-success method="POST" action="{% url 'staff:semester_make_active' %}" class="d-inline">
+                    {% csrf_token %}
+                    <confirmation-modal type="submit" name="semester_id" value="{{ semester.id }}" {% if semester.is_active %}data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'This is the active semester' %}" {% endif %}>
+                        <span slot="title">{% trans 'Make this the active semester' %}</span>
+                        <span slot="action-text">{% trans 'Make active' %}</span>
+                        <span slot="question">
+                            {% blocktrans trimmed %}
+                                Do you want to make this the active semester?
+                            {% endblocktrans %}
+                        </span>
 
-                <button
-                    slot="show-button"
-                    type="button"
-                    class="btn btn-sm btn-light"
-                    {% if semester.is_active %}disabled{% endif %}
-                >
-                    {% trans 'Make active' %}
-                </button>
-            </confirmation-modal>
-        </form>
+                        <button
+                            slot="show-button"
+                            type="button"
+                            class="btn btn-sm btn-light"
+                            {% if semester.is_active %}disabled{% endif %}
+                        >
+                            {% trans 'Make active' %}
+                        </button>
+                    </confirmation-modal>
+                </form>
 
-        <form method="POST" action="{% url 'staff:semester_delete' %}" class="d-inline">
-            {% csrf_token %}
-            <input type="hidden" name="semester_id" value="{{ semester.pk }}" />
+                <form method="POST" action="{% url 'staff:semester_delete' %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="semester_id" value="{{ semester.pk }}" />
 
-            <confirmation-modal type="submit" confirm-button-class="btn-danger">
-                <span slot="title">{% trans 'Delete semester' %}</span>
-                <span slot="question">
-                    {% blocktrans trimmed with semester_name=semester.name %}
-                        Do you really want to delete the semester <strong>{{ semester_name }}</strong>?
-                        All courses and evaluations will be deleted as well as all results.
-                        If you are sure, enter the name of the semester below.
-                    {% endblocktrans %}
-                </span>
+                    <confirmation-modal type="submit" confirm-button-class="btn-danger">
+                        <span slot="title">{% trans 'Delete semester' %}</span>
+                        <span slot="question">
+                            {% blocktrans trimmed with semester_name=semester.name %}
+                                Do you really want to delete the semester <strong>{{ semester_name }}</strong>?
+                                All courses and evaluations will be deleted as well as all results.
+                                If you are sure, enter the name of the semester below.
+                            {% endblocktrans %}
+                        </span>
 
-                <div slot="extra-inputs">
-                    <input type="text" name="validated-semester-name" data-must-equal="{{ semester.name }}" />
-                </div>
+                        <div slot="extra-inputs">
+                            <input type="text" name="validated-semester-name" data-must-equal="{{ semester.name }}" />
+                        </div>
 
-                <span slot="submit-group">
-                    <button class="btn btn-danger ms-2">{% trans 'Delete semester.' %}</button>
-                </span>
+                        <span slot="submit-group">
+                            <button class="btn btn-danger ms-2">{% trans 'Delete semester.' %}</button>
+                        </span>
 
-                <button
-                    slot="show-button"
-                    type="button"
-                    {% if not semester.can_be_deleted_by_manager %}disabled{% endif %}
-                    class="btn btn-sm btn-danger"
-                >
-                    {% trans 'Delete' %}
-                </button>
+                        <button
+                            slot="show-button"
+                            type="button"
+                            {% if not semester.can_be_deleted_by_manager %}disabled{% endif %}
+                            class="btn btn-sm btn-danger"
+                        >
+                            {% trans 'Delete' %}
+                        </button>
 
-                <script type="text/javascript">
-                    const modal = document.currentScript.closest("confirmation-modal");
+                        <script type="text/javascript">
+                            const modal = document.currentScript.closest("confirmation-modal");
 
-                    modal.querySelectorAll("[data-must-equal]").forEach(element => {
-                        element.addEventListener("change", () => {
-                            if (element.value === element.dataset.mustEqual) {
-                                element.setCustomValidity("");
-                            } else {
-                                element.setCustomValidity("{% trans 'Please enter the required text.' %}");
-                            }
+                            modal.querySelectorAll("[data-must-equal]").forEach(element => {
+                                element.addEventListener("change", () => {
+                                    if (element.value === element.dataset.mustEqual) {
+                                        element.setCustomValidity("");
+                                    } else {
+                                        element.setCustomValidity("{% trans 'Please enter the required text.' %}");
+                                    }
 
-                            element.reportValidity();
-                        });
-                        element.dispatchEvent(new Event("change"));
-                    });
-                </script>
-            </confirmation-modal>
-        </form>
-    {% endif %}
-
+                                    element.reportValidity();
+                                });
+                                element.dispatchEvent(new Event("change"));
+                            });
+                        </script>
+                    </confirmation-modal>
+                </form>
+            </div>
+        {% endif %}
+    </header>
     {% if request.user.is_manager %}
         <div class="card collapsible mb-3">
             <div class="card-header d-flex">
