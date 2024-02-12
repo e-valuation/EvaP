@@ -265,7 +265,7 @@ class EnrollmentPreprocessorTest(WebTest):
         self.imported_data["BA Belegungen"][1][3] = ""
         self.imported_data["BA Belegungen"][1][11] = ""
         res = run_preprocessor(BytesIO(create_memory_excel_file(self.imported_data)), self.csv)
-        self.assertIsNotNone(res)
+        self.assertIsNone(res)
         input_patch.assert_not_called()
 
     @patch("builtins.input", side_effect=repeat("i"))

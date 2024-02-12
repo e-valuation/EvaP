@@ -57,8 +57,13 @@ def group_conflicts(
     for user_entries in user_cells.values():
         for cells in user_entries:
             imported = cells.clean_user()
+
+            if not imported.email:
+                continue
+
             existing = users.setdefault(imported.email, imported)
-            if not imported.email or imported == existing:
+
+            if imported == existing:
                 continue
 
             for field in ["title", "last_name", "first_name"]:
@@ -126,6 +131,8 @@ def run_preprocessor(enrollment_data: Path | BytesIO, user_data: TextIO) -> Byte
     # apply decisions
     changed = False
     for email, user in decisions.items():
+        if not email:
+            continue
         for outdated_user in import_data[email]:
             for cell, user_field in zip(iter(outdated_user), [user.title, user.last_name, user.first_name, user.email]):
                 if cell and cell.value and cell.value != user_field:
