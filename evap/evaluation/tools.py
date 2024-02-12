@@ -17,11 +17,13 @@ from django.utils.datastructures import MultiValueDict
 from django.utils.translation import get_language
 from django.views.generic import FormView
 
-try:
-    from django_stubs_ext import StrOrPromise
-except ImportError:
-    assert not TYPE_CHECKING
-    StrOrPromise = Any
+if TYPE_CHECKING:
+    from django_stubs_ext import StrOrPromise  # use proper definition with mypy
+else:
+    try:
+        from django_stubs_ext import StrOrPromise  # if installed, use proper definition for typeguard
+    except ImportError:
+        StrOrPromise = Any  # on production setups, type alias to Any
 
 M = TypeVar("M", bound=Model)
 T = TypeVar("T")
