@@ -279,3 +279,28 @@ class EnrollmentPreprocessorTest(WebTest):
         res = run_preprocessor(BytesIO(create_memory_excel_file(self.imported_data)), self.csv)
         self.assertIsNone(res)
         self.assertEqual(input_patch.call_count, 3)  # conflicts are deduplicated.
+
+    @patch("builtins.input", side_effect=cycle(("i", "e","e",  "invalid")))
+    def test_changes_applied_globally(self, input_patch: MagicMock):
+        self.imported_data["MA Belegungen"][1][1] = "SoMe CoNfLiCtS"
+        self.imported_data["MA Belegungen"][1][8] = "iN eVeRy"
+        self.imported_data["BA Belegungen"][1][2] = "FiElDs"
+        # copy data and pad with spaces and add conflict
+        self.imported_data["MA Belegungen"].append([f" {data} " for data in self.imported_data["MA Belegungen"][1]])
+        self.imported_data["BA Belegungen"].append([f" {data} " for data in self.imported_data["BA Belegungen"][1]])
+        self.imported_data["MA Belegungen"][2][1] += "modified"
+        self.imported_data["MA Belegungen"][2][8] += "modified"
+        self.imported_data["BA Belegungen"][2][2] += "modified"
+        modified = run_preprocessor(BytesIO(create_memory_excel_file(self.imported_data)), self.csv)
+        self.assertIsNotNone(modified)
+        self.assertEqual(input_patch.call_count, 7)
+        workbook = load_workbook(assert_not_none(modified), read_only=True)
+        self.assertEqual(workbook["MA Belegungen"]["B2"].value, "SoMe CoNfLiCtS")
+        self.assertEqual(workbook["MA Belegungen"]["B3"].value, "SoMe CoNfLiCtS")
+        self.assertEqual(workbook["MA Belegungen"]["I2"].value, "iN eVeRy modified")
+        self.assertEqual(workbook["MA Belegungen"]["I3"].value, "iN eVeRy modified")
+        self.assertEqual(workbook["BA Belegungen"]["C2"].value, "Lucilia")
+        self.assertEqual(workbook["BA Belegungen"]["C3"].value, "Lucilia")
+
+        with open("./smaple.xlsx", "wb") as file:
+            file.write(create_memory_excel_file(self.imported_data))
