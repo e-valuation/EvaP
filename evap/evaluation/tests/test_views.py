@@ -262,18 +262,18 @@ class TestNotebookView(WebTest):
         self.assertEqual(user.notes, self.note)
 
 
-class TestResetEvaluation(WebTestStaffMode):
+class ResetToNewFormTest(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
         cls.semester = baker.make(Semester, results_are_archived=True)
 
-    def test_reset_from_to_new(self):
+    def test_reset_to_new(self):
         states = list(Evaluation.State)
         states.remove(Evaluation.State.NEW)
         states.remove(Evaluation.State.PUBLISHED)
 
-        for state in states:
+        for state in states:  # TODO@Felix: maybe only testing for one state?
             evaluation = baker.make(Evaluation, state=state, course__semester=self.semester)
 
             semester_overview_page = self.app.get(f"/staff/semester/{self.semester.pk}", user=self.manager, status=200)
@@ -292,6 +292,9 @@ class TestResetEvaluation(WebTestStaffMode):
                 return
 
             self.assertIn("delete-previous-answers", confirmation_form.fields)
+
+            # TODO@Felix: check if button is checked
+            # TODO@Felix: check if checking/unchecking button makes the right stuff
 
             confirmation_form.submit()
 
