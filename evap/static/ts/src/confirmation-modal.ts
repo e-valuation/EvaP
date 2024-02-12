@@ -19,13 +19,22 @@ export class ConfirmationModal extends HTMLElement {
         this.internals = this.attachInternals();
 
         this.dialog = selectOrError("dialog", shadowRoot);
-        this.dialogForm = selectOrError("form[method=dialog]", this.dialog);
 
         const confirmButton = selectOrError("[data-event-type=confirm]", this.dialog);
         const confirmButtonExtraClass = this.getAttribute("confirm-button-class") ?? "btn-primary";
         confirmButton.className += " " + confirmButtonExtraClass;
 
-        selectOrError("[slot=show-button]", this).addEventListener("click", () => this.dialog.showModal());
+        const showButton = selectOrError("[slot=show-button]", this);
+        showButton.addEventListener("click", () => this.dialog.showModal());
+        const updateDisabledAttribute = () => {
+            this.toggleAttribute("disabled", showButton.hasAttribute("disabled"));
+        };
+        new MutationObserver(updateDisabledAttribute).observe(showButton, {
+            attributeFilter: ["disabled"],
+        });
+        updateDisabledAttribute();
+
+        this.dialogForm = selectOrError("form[method=dialog]", this.dialog);
         this.dialogForm.addEventListener("submit", this.onDialogFormSubmit);
     }
 
@@ -55,7 +64,7 @@ export class ConfirmationModal extends HTMLElement {
                 this.dialog.removeAttribute("closing");
                 this.dialog.close();
             },
-            { once: true },
+            { once: true }
         );
         this.dialog.setAttribute("closing", "");
     };
