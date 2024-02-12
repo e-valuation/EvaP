@@ -34,7 +34,7 @@ class UserCells(NamedTuple):
     first_name: Cell
     email: Cell
 
-    def clean(self) -> Iterator[str]:
+    def _clean(self) -> Iterator[str]:
         for field in iter(self):
             if not field or not field.value:
                 yield ""
@@ -42,25 +42,29 @@ class UserCells(NamedTuple):
             field.value = str(field.value or "").strip()
             yield field.value
 
+    def clean_user(self):
+        return User(*self._clean())
+
 
 def make_bold(text: str) -> str:
     return f"\033[1m{text}\033[0m"
 
 
 def group_conflicts(
-    users: dict[str, User], user_cells: dict[tuple[str, ...], UserCells]
-) -> dict[str, list[tuple[UserCells, User]]]:
+    users: dict[str, User], user_cells: dict[str, list[UserCells]]
+) -> dict[str, list[tuple[UserCells, str]]]:
     groups = defaultdict(list)
-    for cells in user_cells.values():
-        imported = User(*cells.clean())
-        existing = users.setdefault(imported.email, imported)
-        if not imported.email or imported == existing:
-            continue
+    for user_entries in user_cells.values():
+        for cells in user_entries:
+            imported = cells.clean_user()
+            existing = users.setdefault(imported.email, imported)
+            if not imported.email or imported == existing:
+                continue
 
-        for field in ["title", "last_name", "first_name"]:
-            field_value = getattr(cells, field)
-            if field_value is not None and getattr(existing, field) != getattr(imported, field):
-                groups[field].append((cells, existing))
+            for field in ["title", "last_name", "first_name"]:
+                field_value = getattr(cells, field)
+                if field_value is not None and getattr(existing, field) != getattr(imported, field):
+                    groups[field].append((cells, existing.email))
     return groups
 
 
@@ -75,37 +79,53 @@ def parse_existing(user_data: TextIO) -> dict[str, User]:
 
 
 def parse_imported(enrollment_data: Workbook):
-    user_cells: dict[tuple[str, ...], UserCells] = {}
+    user_cells: dict[str, list[UserCells]] = defaultdict(list)
     for sheet in enrollment_data.worksheets:
         for wb_row in sheet.iter_rows(min_row=2, min_col=2):
             cells = UserCells(None, *wb_row[:3])
-            user_cells.setdefault(tuple(cells.clean()), cells)
+            user_cells[cells.clean_user().email].append(cells)
             cells = UserCells(*wb_row[7:])
-            user_cells.setdefault(tuple(cells.clean()), cells)
+            user_cells[cells.clean_user().email].append(cells)
     return user_cells
 
 
 def run_preprocessor(enrollment_data: Path | BytesIO, user_data: TextIO) -> BytesIO | None:
     workbook = load_workbook(enrollment_data)
 
-    conflict_groups = group_conflicts(parse_existing(user_data), parse_imported(workbook))
+    import_data = parse_imported(workbook)
+    decisions = parse_existing(user_data)
+    conflict_groups = group_conflicts(decisions, import_data)
 
-    changed = False
+    # get user decisions
     for field, conflicts in conflict_groups.items():
         print(field.capitalize())
         print("---------")
-        for cells, existing in conflicts:
-            imported = User(*cells.clean())
+        for cells, existing_email in conflicts:
+            imported = cells.clean_user()
+            existing = decisions[existing_email]  # existing is current user decision
+
+            if getattr(existing, field) == getattr(imported, field):
+                continue
+
             print(f"existing: '{make_bold(getattr(existing, field))}' ({existing.full_name()})")
             print(f"imported: '{make_bold(getattr(imported, field))}' ({imported.full_name()})")
 
             decision: str = ""
             while decision not in ("e", "i"):
                 decision = input("Which one should be used? (e/i):\n")
-            if decision == "e":
-                getattr(cells, field).value = getattr(existing, field)
-                changed = True
+            choice = existing if decision == "e" else imported
+
+            setattr(decisions[choice.email], field, getattr(choice, field))
         print()
+
+    # apply decisions
+    changed = False
+    for email, user in decisions.items():
+        for outdated_user in import_data[email]:
+            for cell, user_field in zip(iter(outdated_user), [user.title, user.last_name, user.first_name, user.email]):
+                if cell and cell.value and cell.value != user_field:
+                    changed = True
+                    cell.value = user_field
 
     if not changed:
         return None
