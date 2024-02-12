@@ -280,7 +280,7 @@ class EnrollmentPreprocessorTest(WebTest):
         self.assertIsNone(res)
         self.assertEqual(input_patch.call_count, 3)  # conflicts are deduplicated.
 
-    @patch("builtins.input", side_effect=cycle(("i", "e","e",  "invalid")))
+    @patch("builtins.input", side_effect=cycle(("i", "e", "e", "invalid")))
     def test_changes_applied_globally(self, input_patch: MagicMock):
         self.imported_data["MA Belegungen"][1][1] = "SoMe CoNfLiCtS"
         self.imported_data["MA Belegungen"][1][8] = "iN eVeRy"
