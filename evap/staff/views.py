@@ -277,9 +277,8 @@ class EvaluationOperation:
         raise NotImplementedError
 
     @staticmethod
-    def apply(
-        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
-    ):
+    def apply(request, evaluations, email_template=None, email_template_contributor=None,
+              email_template_participant=None, delete_previous_answers=None):
         raise NotImplementedError
 
 
@@ -301,14 +300,13 @@ class RevertToNewOperation(EvaluationOperation):
         ).format(amount)
 
     @staticmethod
-    def apply(
-        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
-    ):
+    def apply(request, evaluations, email_template=None, email_template_contributor=None,
+              email_template_participant=None, delete_previous_answers=None):
         assert email_template_contributor is None
         assert email_template_participant is None
 
         for evaluation in evaluations:
-            evaluation.reset_to_new()
+            evaluation.reset_to_new(delete_previous_answers)
             evaluation.save()
         messages.success(
             request,
@@ -337,11 +335,11 @@ class ReadyForEditorsOperation(EvaluationOperation):
         ).format(amount)
 
     @staticmethod
-    def apply(
-        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
-    ):
+    def apply(request, evaluations, email_template=None, email_template_contributor=None,
+              email_template_participant=None, delete_previous_answers=None):
         assert email_template_contributor is None
         assert email_template_participant is None
+        assert delete_previous_answers is None
 
         for evaluation in evaluations:
             evaluation.ready_for_editors()
@@ -393,11 +391,11 @@ class BeginEvaluationOperation(EvaluationOperation):
         ).format(amount)
 
     @staticmethod
-    def apply(
-        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
-    ):
+    def apply(request, evaluations, email_template=None, email_template_contributor=None,
+              email_template_participant=None, delete_previous_answers=None):
         assert email_template_contributor is None
         assert email_template_participant is None
+        assert delete_previous_answers is None
 
         for evaluation in evaluations:
             evaluation.vote_start_datetime = datetime.now()
@@ -431,11 +429,11 @@ class UnpublishOperation(EvaluationOperation):
         ).format(amount)
 
     @staticmethod
-    def apply(
-        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
-    ):
+    def apply(request, evaluations, email_template=None, email_template_contributor=None,
+              email_template_participant=None, delete_previous_answers=None):
         assert email_template_contributor is None
         assert email_template_participant is None
+        assert delete_previous_answers is None
 
         for evaluation in evaluations:
             evaluation.unpublish()
@@ -466,10 +464,10 @@ class PublishOperation(EvaluationOperation):
         ).format(amount)
 
     @staticmethod
-    def apply(
-        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
-    ):
+    def apply(request, evaluations, email_template=None, email_template_contributor=None,
+              email_template_participant=None, delete_previous_answers=None):
         assert email_template is None
+        assert delete_previous_answers is None
 
         for evaluation in evaluations:
             evaluation.publish()
@@ -531,6 +529,7 @@ def evaluation_operation(request, semester_id):
         email_template = None
         email_template_contributor = None
         email_template_participant = None
+        delete_previous_answers = None
         if request.POST.get("send_email") == "on":
             email_template = EmailTemplate(
                 subject=request.POST["email_subject"],
@@ -549,8 +548,11 @@ def evaluation_operation(request, semester_id):
                 plain_content=request.POST["email_plain_participant"],
                 html_content=request.POST["email_html_participant"],
             )
+        if request.POST.get("delete-previous-answers") == "on":
+            delete_previous_answers = True
 
-        operation.apply(request, evaluations, email_template, email_template_contributor, email_template_participant)
+        operation.apply(request, evaluations, email_template, email_template_contributor, email_template_participant,
+                        delete_previous_answers)
         return redirect("staff:semester_view", semester.id)
 
     applicable_evaluations = list(filter(operation.applicable_to, evaluations))
@@ -582,6 +584,7 @@ def evaluation_operation(request, semester_id):
         "show_email_checkbox": email_template is not None
         or email_template_contributor is not None
         or email_template_participant is not None,
+        "show_delete_answers_checkbox": target_state == Evaluation.State.NEW,
     }
 
     return render(request, "staff_evaluation_operation.html", template_data)
