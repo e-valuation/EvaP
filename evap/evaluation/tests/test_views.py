@@ -293,8 +293,9 @@ class ResetToNewFormTest(WebTestStaffMode):
 
             self.assertIn("delete-previous-answers", confirmation_form.fields)
 
-            # TODO@Felix: check if button is checked
+            # TODO@Felix: check if button is checked by default
             # TODO@Felix: check if checking/unchecking button makes the right stuff
+            # TODO@Felix: check if confirmation popup is shown
 
             confirmation_form.submit()
 
