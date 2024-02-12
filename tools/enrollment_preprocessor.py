@@ -89,14 +89,8 @@ def parse_imported(enrollment_data: Workbook):
     return user_cells
 
 
-def run_preprocessor(enrollment_data: Path | BytesIO, user_data: TextIO) -> BytesIO | None:
-    workbook = load_workbook(enrollment_data)
-
-    import_data = parse_imported(workbook)
-    decisions = parse_existing(user_data)
+def get_user_decisions(decisions: dict[str, User], import_data: dict[str, list[UserCells]]) -> dict[str, User]:
     conflict_groups = group_conflicts(decisions, import_data)
-
-    # get user decisions
     for field, conflicts in conflict_groups.items():
         print(field.capitalize())
         print("---------")
@@ -117,6 +111,17 @@ def run_preprocessor(enrollment_data: Path | BytesIO, user_data: TextIO) -> Byte
 
             setattr(decisions[choice.email], field, getattr(choice, field))
         print()
+    return decisions
+
+
+def run_preprocessor(enrollment_data: Path | BytesIO, user_data: TextIO) -> BytesIO | None:
+    workbook = load_workbook(enrollment_data)
+
+    import_data = parse_imported(workbook)
+    decisions = get_user_decisions(
+        parse_existing(user_data),
+        import_data,
+    )
 
     # apply decisions
     changed = False
