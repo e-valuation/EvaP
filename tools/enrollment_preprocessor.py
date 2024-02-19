@@ -7,6 +7,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime
 from io import BytesIO
+from itertools import chain
 from pathlib import Path
 from typing import Iterator, NamedTuple, TextIO
 
@@ -46,31 +47,15 @@ class UserCells(NamedTuple):
         return User(*self._clean())
 
 
+def user_from_row(row: tuple[Cell, ...]):
+    return [
+        UserCells(None, *row[:3]).clean_user(),
+        UserCells(*row[7:]).clean_user(),
+    ]
+
+
 def make_bold(text: str) -> str:
     return f"\033[1m{text}\033[0m"
-
-
-def conflicts_by_field(
-    users: dict[str, User], user_cells: dict[str, list[UserCells]]
-) -> dict[str, list[tuple[UserCells, str]]]:
-    groups = defaultdict(list)
-    for user_entries in user_cells.values():
-        for cells in user_entries:
-            imported = cells.clean_user()
-
-            if not imported.email:
-                continue
-
-            existing = users.setdefault(imported.email, imported)
-
-            if imported == existing:
-                continue
-
-            for field in ["title", "last_name", "first_name"]:
-                field_value = getattr(cells, field)
-                if field_value is not None and getattr(existing, field) != getattr(imported, field):
-                    groups[field].append((cells, existing.email))
-    return groups
 
 
 def csv_users_by_email(user_data: TextIO) -> dict[str, User]:
@@ -83,25 +68,25 @@ def csv_users_by_email(user_data: TextIO) -> dict[str, User]:
     return users
 
 
-def user_cells_by_email(enrollment_data: Workbook):
-    user_cells: dict[str, list[UserCells]] = defaultdict(list)
-    for sheet in enrollment_data.worksheets:
-        for wb_row in sheet.iter_rows(min_row=2, min_col=2):
-            cells = UserCells(None, *wb_row[:3])
-            user_cells[cells.clean_user().email].append(cells)
-            cells = UserCells(*wb_row[7:])
-            user_cells[cells.clean_user().email].append(cells)
-    return user_cells
-
-
-def get_user_decisions(decisions: dict[str, User], import_data: dict[str, list[UserCells]]) -> dict[str, User]:
-    conflict_groups = conflicts_by_field(decisions, import_data)
-    for field, conflicts in conflict_groups.items():
+def get_user_decisions(database_users: dict[str, User], workbook: Workbook) -> dict[str, User]:
+    conflicts_by_field: dict[str, list[User]] = defaultdict(list)
+    for sheet in workbook.worksheets:  # parse enrollment data and group conflicts
+        for imported in chain.from_iterable(map(user_from_row, sheet.iter_rows(min_row=2, min_col=2))):
+            if not imported.email:
+                continue
+            existing = database_users.setdefault(imported.email, imported)
+            if imported == existing:
+                continue
+            for field in ["title", "last_name", "first_name"]:
+                field_value = getattr(imported, field)
+                if field_value is not None and getattr(existing, field) != getattr(imported, field):
+                    conflicts_by_field[field].append(imported)
+    # ask user for decision
+    for field, conflicts in conflicts_by_field.items():
         print(field.capitalize())
         print("---------")
-        for cells, existing_email in conflicts:
-            imported = cells.clean_user()
-            existing = decisions[existing_email]  # existing is current user decision
+        for imported in conflicts:
+            existing = database_users[imported.email]
 
             if getattr(existing, field) == getattr(imported, field):
                 continue
@@ -114,30 +99,44 @@ def get_user_decisions(decisions: dict[str, User], import_data: dict[str, list[U
                 decision = input("Which one should be used? (e/i):\n")
             choice = existing if decision == "e" else imported
 
-            setattr(decisions[choice.email], field, getattr(choice, field))
+            setattr(database_users[choice.email], field, getattr(choice, field))
         print()
-    return decisions
+    return database_users
+
+
+def update_cells(cells: UserCells, user: User | None) -> bool:
+    if not user:
+        return False
+    changed = False
+    for cell, field_value in zip(cells, [user.title, user.last_name, user.first_name, user.email], strict=True):
+        if cell and cell.value != field_value:
+            changed = True
+            cell.value = field_value
+    return changed
 
 
 def run_preprocessor(enrollment_data: Path | BytesIO, user_data: TextIO) -> BytesIO | None:
     workbook = load_workbook(enrollment_data)
 
-    import_data = user_cells_by_email(workbook)
-    decisions = get_user_decisions(
+    correct_user_data_by_email = get_user_decisions(
         csv_users_by_email(user_data),
-        import_data,
+        workbook,
     )
 
     # apply decisions
     changed = False
-    for email, user in decisions.items():
-        if not email:
-            continue
-        for outdated_user in import_data[email]:
-            for cell, user_field in zip(iter(outdated_user), [user.title, user.last_name, user.first_name, user.email]):
-                if cell and cell.value and cell.value != user_field:
-                    changed = True
-                    cell.value = user_field
+    for sheet in workbook.worksheets:
+        for wb_row in sheet.iter_rows(min_row=2, min_col=2):
+            if wb_row[2] and wb_row[2].value:
+                changed = (
+                    update_cells(UserCells(None, *wb_row[:3]), correct_user_data_by_email.get(wb_row[2].value.strip()))
+                    or changed
+                )
+            if wb_row[-1] and wb_row[-1].value:
+                changed = (
+                    update_cells(UserCells(*wb_row[7:]), correct_user_data_by_email.get(wb_row[-1].value.strip()))
+                    or changed
+                )
 
     if not changed:
         return None
