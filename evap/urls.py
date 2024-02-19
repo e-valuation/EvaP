@@ -1,6 +1,9 @@
 import django.contrib.auth.views
 from django.conf import settings
 from django.urls import include, path
+from django.views.i18n import JavaScriptCatalog
+
+from evap.middleware import no_login_required
 
 urlpatterns = [
     path("", include('evap.evaluation.urls')),
@@ -13,6 +16,8 @@ urlpatterns = [
 
     path("logout", django.contrib.auth.views.LogoutView.as_view(next_page="/"), name="django-auth-logout"),
     path("oidc/", include('mozilla_django_oidc.urls')),
+
+    path("catalog.js", no_login_required(JavaScriptCatalog.as_view()), name="javascript-catalog"),
 ]
 
 if settings.DEBUG:

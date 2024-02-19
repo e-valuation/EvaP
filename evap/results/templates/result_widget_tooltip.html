@@ -13,7 +13,7 @@
     {% endif %}
     {% with question_result.question.is_bipolar_likert_question as is_bipolar %}
         <p>
-            {% for count, name, color, value in question_result.counts|zip_choices:question_result.choices %}
+            {% for count, name, color, value in question_result.zipped_choices %}
                 <span class='vote-text-{{ color }} fas fa-fw-absolute
                     {% if is_bipolar and value < 0 %}fa-caret-down pole-icon
                     {% elif is_bipolar and value > 0 %}fa-caret-up pole-icon

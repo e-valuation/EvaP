@@ -86,7 +86,7 @@ class ImporterLog:
 
     def raise_if_has_errors(self) -> None:
         if self.has_errors():
-            raise ImporterException(message="")
+            raise ImporterError(message="")
 
     def success_messages(self) -> list[ImporterLogEntry]:
         return self._messages_with_level_sorted_by_category(ImporterLogEntry.Level.SUCCESS)
@@ -117,7 +117,7 @@ class ImporterLog:
         return self.add_message(ImporterLogEntry(ImporterLogEntry.Level.SUCCESS, category, message_text))
 
 
-class ImporterException(Exception):
+class ImporterError(Exception):
     """Used to abort the import run immediately"""
 
     def __init__(
@@ -145,7 +145,7 @@ class ConvertExceptionsToMessages:
         pass
 
     def __exit__(self, exc_type, exc_value, traceback) -> bool:
-        if isinstance(exc_value, ImporterException):
+        if isinstance(exc_value, ImporterError):
             # Importers raise these to immediately abort with a message
             if exc_value.message:
                 self.importer_log.add_message(exc_value.as_importer_message())
@@ -202,7 +202,7 @@ class ExcelFileRowMapper:
         try:
             book = openpyxl.load_workbook(BytesIO(file_content))
         except Exception as e:
-            raise ImporterException(
+            raise ImporterError(
                 message=_("Couldn't read the file. Error: {}").format(e),
                 category=ImporterLogEntry.Category.SCHEMA,
             ) from e
@@ -213,7 +213,7 @@ class ExcelFileRowMapper:
                 continue
 
             if sheet.max_column != self.row_cls.column_count:
-                raise ImporterException(
+                raise ImporterError(
                     message=_("Wrong number of columns in sheet '{}'. Expected: {}, actual: {}").format(
                         sheet.title, self.row_cls.column_count, sheet.max_column
                     )

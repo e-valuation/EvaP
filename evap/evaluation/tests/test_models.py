@@ -15,7 +15,7 @@ from evap.evaluation.models import (
     CourseType,
     EmailTemplate,
     Evaluation,
-    NotArchiveable,
+    NotArchivableError,
     Question,
     Questionnaire,
     QuestionType,
@@ -127,11 +127,10 @@ class TestEvaluations(WebTest):
             wait_for_grade_upload_before_publishing=False,
         )
 
-        with patch(
-            "evap.evaluation.models.EmailTemplate.send_participant_publish_notifications"
-        ) as participant_mock, patch(
-            "evap.evaluation.models.EmailTemplate.send_contributor_publish_notifications"
-        ) as contributor_mock:
+        with (
+            patch("evap.evaluation.models.EmailTemplate.send_participant_publish_notifications") as participant_mock,
+            patch("evap.evaluation.models.EmailTemplate.send_contributor_publish_notifications") as contributor_mock,
+        ):
             Evaluation.update_evaluations()
 
         participant_mock.assert_called_once_with([evaluation])
@@ -748,9 +747,9 @@ class ParticipationArchivingTests(TestCase):
 
     def test_archiving_participations_twice_raises_exception(self):
         self.semester.archive()
-        with self.assertRaises(NotArchiveable):
+        with self.assertRaises(NotArchivableError):
             self.semester.archive()
-        with self.assertRaises(NotArchiveable):
+        with self.assertRaises(NotArchivableError):
             self.semester.courses.first().evaluations.first()._archive()
 
     def test_evaluation_participations_are_not_archived_if_participant_count_is_set(self):

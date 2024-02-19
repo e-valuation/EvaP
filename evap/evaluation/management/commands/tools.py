@@ -2,6 +2,7 @@ import logging
 import sys
 
 from django.conf import settings
+from django.core.management import call_command
 
 logger = logging.getLogger(__name__)
 
@@ -40,3 +41,9 @@ def log_exceptions(cls):
                 raise
 
     return NewClass
+
+
+def logged_call_command(stdout, *args, **kwargs):
+    """Log execution of management command with all args."""
+    stdout.write("Executing python manage.py " + " ".join(list(args) + [f"{a}={b}" for a, b in kwargs.items()]))
+    call_command(*args, **kwargs)

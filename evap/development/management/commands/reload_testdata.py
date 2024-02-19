@@ -1,7 +1,6 @@
-from django.core.management import call_command
 from django.core.management.base import BaseCommand
 
-from evap.evaluation.management.commands.tools import confirm_harmful_operation
+from evap.evaluation.management.commands.tools import confirm_harmful_operation, logged_call_command
 
 
 class Command(BaseCommand):
@@ -14,24 +13,18 @@ class Command(BaseCommand):
         if not confirm_harmful_operation(self.stdout):
             return
 
-        self.stdout.write('Executing "python manage.py reset_db"')
-        call_command("reset_db", interactive=False)
+        logged_call_command(self.stdout, "reset_db", interactive=False)
 
-        self.stdout.write('Executing "python manage.py migrate"')
-        call_command("migrate")
+        logged_call_command(self.stdout, "migrate")
 
         # clear any data the migrations created.
         # their pks might differ from the ones in the dump, which results in errors on loaddata
-        self.stdout.write('Executing "python manage.py flush"')
-        call_command("flush", interactive=False)
+        logged_call_command(self.stdout, "flush", interactive=False)
 
-        self.stdout.write('Executing "python manage.py loaddata test_data"')
-        call_command("loaddata", "test_data")
+        logged_call_command(self.stdout, "loaddata", "test_data")
 
-        self.stdout.write('Executing "python manage.py clear_cache --all -v=1"')
-        call_command("clear_cache", "--all", "-v=1")
+        logged_call_command(self.stdout, "clear_cache", "--all", "-v=1")
 
-        self.stdout.write('Executing "python manage.py refresh_results_cache"')
-        call_command("refresh_results_cache")
+        logged_call_command(self.stdout, "refresh_results_cache")
 
         self.stdout.write("Done.")

@@ -158,7 +158,13 @@ abstract class DataGrid {
             header.classList.remove("col-order-asc", "col-order-desc");
         }
         for (const [column, ordering] of this.state.order) {
-            this.sortableHeaders.get(column)!.classList.add(`col-order-${ordering}`);
+            const header = this.sortableHeaders.get(column);
+            if (header === undefined) {
+                // Silently ignore non-existing columns: They were probably renamed.
+                // A correct state will be built the next time the user sorts the datagrid.
+                continue;
+            }
+            header.classList.add(`col-order-${ordering}`);
         }
 
         this.rows.sort((a, b) => {
@@ -441,7 +447,7 @@ export class ResultGrid extends DataGrid {
             // To store filter values independent of the language, use the corresponding id from the checkbox
             const values = [...row.querySelectorAll(selector)]
                 .map(element => element.textContent!.trim())
-                .map(filterName => checkboxes.find(checkbox => checkbox.dataset.filter === filterName)!.value);
+                .map(filterName => checkboxes.find(checkbox => checkbox.dataset.filter === filterName)?.value);
             filterValues.set(name, values);
         }
         return filterValues;

@@ -5,7 +5,7 @@ from django.utils.formats import localize
 from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, UserProfile
-from evap.evaluation.models_logging import FieldAction
+from evap.evaluation.models_logging import FieldAction, InstanceActionType
 
 
 class TestLoggedModel(TestCase):
@@ -52,7 +52,10 @@ class TestLoggedModel(TestCase):
         )
 
     def test_deletion_data(self):
-        self.assertEqual(self.evaluation._get_change_data(action_type="delete")["course"]["delete"][0], self.course.id)
+        self.assertEqual(
+            self.evaluation._get_change_data(action_type=InstanceActionType.DELETE)["course"]["delete"][0],
+            self.course.id,
+        )
         self.evaluation.delete()
         self.assertEqual(self.evaluation.related_logentries().count(), 0)
 

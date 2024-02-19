@@ -61,7 +61,8 @@ def _delete_course_template_cache_impl(course):
 def update_template_cache(evaluations):
     assert all(evaluation.state in STATES_WITH_RESULT_TEMPLATE_CACHING for evaluation in evaluations)
     evaluations = get_evaluations_with_course_result_attributes(get_evaluations_with_prefetched_data(evaluations))
-    courses_to_render = {evaluation.course for evaluation in evaluations if evaluation.course.evaluation_count > 1}
+
+    courses_and_evaluations = unordered_groupby((evaluation.course, evaluation) for evaluation in evaluations)
 
     current_language = translation.get_language()
 
@@ -72,25 +73,25 @@ def update_template_cache(evaluations):
         for lang in ["en", "de"]:
             translation.activate(lang)
 
-            for course in courses_to_render:
-                caches["results"].set(
-                    get_course_result_template_fragment_cache_key(course.id, lang),
-                    results_index_course_template.render({"course": course}),
-                )
+            for course, course_evaluations in courses_and_evaluations.items():
+                if len(course_evaluations) > 1:
+                    caches["results"].set(
+                        get_course_result_template_fragment_cache_key(course.id, lang),
+                        results_index_course_template.render({"course": course, "evaluations": course_evaluations}),
+                    )
 
-            for evaluation in evaluations:
-                assert evaluation.state in STATES_WITH_RESULT_TEMPLATE_CACHING
-                is_subentry = evaluation.course.evaluation_count > 1
-                base_args = {"evaluation": evaluation, "is_subentry": is_subentry}
+                for evaluation in course_evaluations:
+                    assert evaluation.state in STATES_WITH_RESULT_TEMPLATE_CACHING
+                    base_args = {"evaluation": evaluation, "is_subentry": len(course_evaluations) > 1}
 
-                caches["results"].set(
-                    get_evaluation_result_template_fragment_cache_key(evaluation.id, lang, True),
-                    results_index_evaluation_template.render({**base_args, "links_to_results_page": True}),
-                )
-                caches["results"].set(
-                    get_evaluation_result_template_fragment_cache_key(evaluation.id, lang, False),
-                    results_index_evaluation_template.render({**base_args, "links_to_results_page": False}),
-                )
+                    caches["results"].set(
+                        get_evaluation_result_template_fragment_cache_key(evaluation.id, lang, True),
+                        results_index_evaluation_template.render({**base_args, "links_to_results_page": True}),
+                    )
+                    caches["results"].set(
+                        get_evaluation_result_template_fragment_cache_key(evaluation.id, lang, False),
+                        results_index_evaluation_template.render({**base_args, "links_to_results_page": False}),
+                    )
 
     finally:
         translation.activate(current_language)  # reset to previously set language to prevent unwanted side effects
@@ -366,7 +367,7 @@ def add_warnings(evaluation, evaluation_result):
         for rating_result in rating_results:
             rating_result.warning = (
                 questionnaire_result.warning
-                or rating_result.has_answers
+                or RatingResult.has_answers(rating_result)
                 and rating_result.count_sum < questionnaire_warning_thresholds[questionnaire_result.questionnaire]
             )
 

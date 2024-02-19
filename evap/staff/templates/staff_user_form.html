@@ -32,6 +32,16 @@
         {% endif %}
     </div>
 
+    {% if user_with_same_email %}
+        <div class="alert alert-warning alert-dismissible">
+            <p>
+                {% trans "A user with this email address already exists. You probably want to merge the users." %}
+            </p>
+            <a type="button" class="btn btn-primary btn-sm" href="{% url 'staff:user_merge' user_with_same_email.id form.instance.id %}">{% trans "Merge both users" %}</a>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endif %}
+
 
     <form id="user-form" method="POST" class="form-horizontal multiselect-form">
         {% csrf_token %}

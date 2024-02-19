@@ -169,9 +169,9 @@ class TestVoteView(WebTest):
         form[answer_field_id(contribution, questionnaire, self.top_text_question)] = "some text"
         form[answer_field_id(contribution, questionnaire, self.top_grade_question)] = 3
         form[answer_field_id(contribution, questionnaire, self.top_likert_question)] = 1
-        form[
-            answer_field_id(contribution, questionnaire, self.top_likert_question, additional_textanswer=True)
-        ] = "some additional text"
+        form[answer_field_id(contribution, questionnaire, self.top_likert_question, additional_textanswer=True)] = (
+            "some additional text"
+        )
 
         questionnaire = self.bottom_general_questionnaire
         form[answer_field_id(contribution, questionnaire, self.bottom_text_question)] = "some bottom text"
@@ -202,6 +202,7 @@ class TestVoteView(WebTest):
         self.fill_form(form, fill_general_complete=False)
         response = form.submit(status=200)
         self.assertIn("vote for all rating questions", response)
+        self.assertNotIn("skip the questions about a single person", response)
 
         form = page.forms["student-vote-form"]
 
@@ -239,6 +240,7 @@ class TestVoteView(WebTest):
         self.fill_form(form, fill_contributors_complete=False)
         response = form.submit(status=200)
         self.assertIn("vote for all rating questions", response)
+        self.assertIn("skip the questions about a single person", response)
 
         form = page.forms["student-vote-form"]
 

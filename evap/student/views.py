@@ -161,11 +161,15 @@ def render_vote_page(request, evaluation, preview, for_rendering_in_modal=False)
         evaluation_form_group_top += evaluation_form_group_bottom
         evaluation_form_group_bottom = []
 
+    contributor_errors_exist = any(form.errors for form_group in form_groups.values() for form in form_group)
+    errors_exist = contributor_errors_exist or any(
+        any(form.errors for form in form_group)
+        for form_group in [evaluation_form_group_top, evaluation_form_group_bottom]
+    )
+
     template_data = {
-        "errors_exist": any(
-            any(form.errors for form in form_group)
-            for form_group in [*(form_groups.values()), evaluation_form_group_top, evaluation_form_group_bottom]
-        ),
+        "contributor_errors_exist": contributor_errors_exist,
+        "errors_exist": errors_exist,
         "evaluation_form_group_top": evaluation_form_group_top,
         "evaluation_form_group_bottom": evaluation_form_group_bottom,
         "contributor_form_groups": contributor_form_groups,

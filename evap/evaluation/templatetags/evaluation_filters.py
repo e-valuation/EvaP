@@ -5,6 +5,7 @@ from django.template import Library
 from django.utils.translation import gettext_lazy as _
 
 from evap.evaluation.models import BASE_UNIPOLAR_CHOICES, Contribution, Evaluation
+from evap.results.tools import RatingResult
 from evap.rewards.tools import can_reward_points_be_used_by
 from evap.student.forms import HeadingField
 
@@ -76,12 +77,7 @@ register = Library()
 
 @register.filter(name="zip")
 def _zip(a, b):
-    return zip(a, b)
-
-
-@register.filter()
-def zip_choices(counts, choices):
-    return zip(counts, choices.names, choices.colors, choices.values)
+    return zip(a, b, strict=True)
 
 
 @register.filter
@@ -115,12 +111,12 @@ def percentage_one_decimal(fraction, population):
 
 
 @register.filter
-def to_colors(choices):
-    if not choices:
+def to_colors(question_result: RatingResult | None):
+    if question_result is None:
         # When displaying the course distribution, there are no associated voting choices.
         # In that case, we just use the colors of a unipolar scale.
-        return BASE_UNIPOLAR_CHOICES["colors"]
-    return choices.colors
+        return BASE_UNIPOLAR_CHOICES["colors"][:-1]
+    return question_result.colors
 
 
 @register.filter
