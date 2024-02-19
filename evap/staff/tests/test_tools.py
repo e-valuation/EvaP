@@ -270,9 +270,9 @@ class EnrollmentPreprocessorTest(WebTest):
 
     @patch("builtins.input", side_effect=repeat("i"))
     def test_deduplication(self, input_patch: MagicMock):
-        self.imported_data["MA Belegungen"][1][1] = "SoMe CoNfLiCtS"
-        self.imported_data["MA Belegungen"][1][8] = "iN eVeRy"
-        self.imported_data["BA Belegungen"][1][2] = "FiElDs"
+        self.imported_data["MA Belegungen"][1][1] = "Some conflicts"
+        self.imported_data["MA Belegungen"][1][8] = "in all"
+        self.imported_data["BA Belegungen"][1][2] = "fields"
         # copy data and pad with spaces
         self.imported_data["MA Belegungen"].append([f" {data} " for data in self.imported_data["MA Belegungen"][1]])
 
@@ -282,9 +282,9 @@ class EnrollmentPreprocessorTest(WebTest):
 
     @patch("builtins.input", side_effect=cycle(("i", "e", "e", "invalid")))
     def test_changes_applied_globally(self, input_patch: MagicMock):
-        self.imported_data["MA Belegungen"][1][1] = "SoMe CoNfLiCtS"
-        self.imported_data["MA Belegungen"][1][8] = "iN eVeRy"
-        self.imported_data["BA Belegungen"][1][2] = "FiElDs"
+        self.imported_data["MA Belegungen"][1][1] = "some conflicts"
+        self.imported_data["MA Belegungen"][1][8] = "in all"
+        self.imported_data["BA Belegungen"][1][2] = "fields"
         # copy data and pad with spaces and add conflict
         self.imported_data["MA Belegungen"].append([f" {data} " for data in self.imported_data["MA Belegungen"][1]])
         self.imported_data["BA Belegungen"].append([f" {data} " for data in self.imported_data["BA Belegungen"][1]])
@@ -295,10 +295,10 @@ class EnrollmentPreprocessorTest(WebTest):
         self.assertIsNotNone(modified)
         self.assertEqual(input_patch.call_count, 7)
         workbook = load_workbook(assert_not_none(modified), read_only=True)
-        self.assertEqual(workbook["MA Belegungen"]["B2"].value, "SoMe CoNfLiCtS")
-        self.assertEqual(workbook["MA Belegungen"]["B3"].value, "SoMe CoNfLiCtS")
-        self.assertEqual(workbook["MA Belegungen"]["I2"].value, "iN eVeRy modified")
-        self.assertEqual(workbook["MA Belegungen"]["I3"].value, "iN eVeRy modified")
+        self.assertEqual(workbook["MA Belegungen"]["B2"].value, "some conflicts")
+        self.assertEqual(workbook["MA Belegungen"]["B3"].value, "some conflicts")
+        self.assertEqual(workbook["MA Belegungen"]["I2"].value, "in all modified")
+        self.assertEqual(workbook["MA Belegungen"]["I3"].value, "in all modified")
         self.assertEqual(workbook["BA Belegungen"]["C2"].value, "Lucilia")
         self.assertEqual(workbook["BA Belegungen"]["C3"].value, "Lucilia")
 

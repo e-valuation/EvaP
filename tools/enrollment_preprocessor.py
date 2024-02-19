@@ -39,7 +39,7 @@ class UserCells(NamedTuple):
             if not field or not field.value:
                 yield ""
                 continue
-            field.value = str(field.value or "").strip()
+            field.value = str(field.value).strip()
             yield field.value
 
     def clean_user(self):
@@ -50,7 +50,7 @@ def make_bold(text: str) -> str:
     return f"\033[1m{text}\033[0m"
 
 
-def group_conflicts(
+def conflicts_by_field(
     users: dict[str, User], user_cells: dict[str, list[UserCells]]
 ) -> dict[str, list[tuple[UserCells, str]]]:
     groups = defaultdict(list)
@@ -73,7 +73,7 @@ def group_conflicts(
     return groups
 
 
-def parse_existing(user_data: TextIO) -> dict[str, User]:
+def csv_users_by_email(user_data: TextIO) -> dict[str, User]:
     users = {}
     reader = csv.reader(user_data, delimiter=";", lineterminator="\n")
     next(reader)  # skip header
@@ -83,7 +83,7 @@ def parse_existing(user_data: TextIO) -> dict[str, User]:
     return users
 
 
-def parse_imported(enrollment_data: Workbook):
+def user_cells_by_email(enrollment_data: Workbook):
     user_cells: dict[str, list[UserCells]] = defaultdict(list)
     for sheet in enrollment_data.worksheets:
         for wb_row in sheet.iter_rows(min_row=2, min_col=2):
@@ -95,7 +95,7 @@ def parse_imported(enrollment_data: Workbook):
 
 
 def get_user_decisions(decisions: dict[str, User], import_data: dict[str, list[UserCells]]) -> dict[str, User]:
-    conflict_groups = group_conflicts(decisions, import_data)
+    conflict_groups = conflicts_by_field(decisions, import_data)
     for field, conflicts in conflict_groups.items():
         print(field.capitalize())
         print("---------")
@@ -109,7 +109,7 @@ def get_user_decisions(decisions: dict[str, User], import_data: dict[str, list[U
             print(f"existing: '{make_bold(getattr(existing, field))}' ({existing.full_name()})")
             print(f"imported: '{make_bold(getattr(imported, field))}' ({imported.full_name()})")
 
-            decision: str = ""
+            decision = ""
             while decision not in ("e", "i"):
                 decision = input("Which one should be used? (e/i):\n")
             choice = existing if decision == "e" else imported
@@ -122,9 +122,9 @@ def get_user_decisions(decisions: dict[str, User], import_data: dict[str, list[U
 def run_preprocessor(enrollment_data: Path | BytesIO, user_data: TextIO) -> BytesIO | None:
     workbook = load_workbook(enrollment_data)
 
-    import_data = parse_imported(workbook)
+    import_data = user_cells_by_email(workbook)
     decisions = get_user_decisions(
-        parse_existing(user_data),
+        csv_users_by_email(user_data),
         import_data,
     )
 
