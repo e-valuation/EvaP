@@ -1995,6 +1995,25 @@ class TestEvaluationExamCreation(WebTestStaffMode):
         self.assertEqual(exam_evaluation.participants.count(), self.evaluation.participants.count())
         self.assertEqual(exam_evaluation.weight, 1)
 
+    def test_exam_evaluation_for_single_result(self):
+        self.evaluation.is_single_result = True
+        self.evaluation.save()
+        self.app.post(self.url, user=self.manager, status=400, params={"evaluation_id": self.evaluation.pk})
+        self.assertFalse(self.evaluation.has_exam)
+
+    def test_exam_evaluation_for_already_existing_exam_evaluation(self):
+        baker.make(Evaluation, course=self.course, name_en="Exam", name_de="Klausur")
+        self.assertTrue(self.evaluation.has_exam)
+        self.app.post(self.url, user=self.manager, status=400, params={"evaluation_id": self.evaluation.pk})
+
+    def test_exam_evaluation_with_wrong_date(self):
+        self.evaluation.vote_start_datetime = datetime.datetime.now() + datetime.timedelta(days=100)
+        self.evaluation.vote_end_date = datetime.date.today() + datetime.timedelta(days=150)
+        self.evaluation.save()
+
+        self.app.post(self.url, user=self.manager, status=400, params={"evaluation_id": self.evaluation.pk})
+        self.assertFalse(self.evaluation.has_exam)
+
 
 class TestCourseCopyView(WebTestStaffMode):
     @classmethod

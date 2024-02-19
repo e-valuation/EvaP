@@ -1102,7 +1102,7 @@ def create_exam_evaluation(request):
     if evaluation.is_single_result:
         raise SuspiciousOperation("Creating an exam evaluation for a single result evaluation is not allowed")
 
-    if evaluation.course.evaluations.filter(name_de="Klausur", name_en="Exam").exists():
+    if evaluation.has_exam:
         raise SuspiciousOperation("An exam evaluation already exists for this course.")
 
     evaluation_end_date = exam_date - timedelta(days=1)
