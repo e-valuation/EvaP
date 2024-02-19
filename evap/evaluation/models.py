@@ -2,7 +2,7 @@ import logging
 import secrets
 import uuid
 from collections import defaultdict
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
 from enum import Enum, auto
 from numbers import Number
 from typing import NamedTuple
@@ -442,6 +442,19 @@ class Evaluation(LoggedModel):
     wait_for_grade_upload_before_publishing = models.BooleanField(
         verbose_name=_("wait for grade upload before publishing"), default=True
     )
+
+    @property
+    def has_exam(self):
+        return self.course.evaluations.filter(name_de="Klausur", name_en="Exam").exists()
+
+    def make_exam_evaluation(self, exam_date: date, participants, eval_contributions):
+        self.vote_start_datetime = datetime.combine(exam_date + timedelta(days=1), time(8, 0))
+        self.vote_end_date = exam_date + timedelta(days=3)
+        self.save()
+        self.participants.set(participants)
+        for contribution in eval_contributions:
+            self.contributions.create(contributor=contribution.contributor)
+        self.general_contribution.questionnaires.set(settings.EXAM_QUESTIONNAIRES)
 
     class TextAnswerReviewState(Enum):
         do_not_call_in_templates = True  # pylint: disable=invalid-name
