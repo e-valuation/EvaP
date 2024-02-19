@@ -180,7 +180,7 @@
             <a href="{% url 'staff:evaluation_copy' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" title="{% translate 'Copy' %}">
                 <span class="fas fa-fw fa-copy"></span>
             </a>
-            {% if evaluation.has_exam%}
+            {% if not evaluation.has_exam%}
                 <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"  
                         onclick="createExamEvaluationShow({{ evaluation.id }}, '{{ course.name|escapejs }}');"  
                         title="{% trans 'Create exam evaluation' %}">  

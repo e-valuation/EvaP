@@ -244,9 +244,6 @@ def semester_view(request, semester_id) -> HttpResponse:
     program_stats_with_total = cast(dict[Program | str, Stats], program_stats)
     program_stats_with_total["total"] = total_stats
 
-    for evaluation in evaluations:
-        evaluation.has_exam = evaluation.course.evaluations.filter(name_de="Klausur", name_en="Exam").exists()
-
     template_data = {
         "semester": semester,
         "evaluations": evaluations,
@@ -1108,23 +1105,22 @@ def create_exam_evaluation(request):
     if evaluation.course.evaluations.filter(name_de="Klausur", name_en="Exam").exists():
         raise SuspiciousOperation("An exam evaluation already exists for this course.")
 
-    evaluation.weight = 9
     evaluation_end_date = exam_date - timedelta(days=1)
     if evaluation.vote_start_datetime > evaluation_end_date:
         raise SuspiciousOperation("The exam date is before the start date of the main evaluation")
+
+    evaluation.weight = 9
     evaluation.vote_end_date = evaluation_end_date
     evaluation.save()
 
     exam_evaluation = Evaluation(
         course=evaluation.course, name_de="Klausur", name_en="Exam", weight=1, is_rewarded=False
     )
-    exam_evaluation.vote_start_datetime = datetime.combine(exam_date + timedelta(days=1), time(8, 0))
-    exam_evaluation.vote_end_date = exam_date + timedelta(days=3)
-    exam_evaluation.save()
-    exam_evaluation.participants.set(evaluation.participants.all())
-    for contribution in evaluation.contributions.exclude(contributor=None):
-        exam_evaluation.contributions.create(contributor=contribution.contributor)
-    exam_evaluation.general_contribution.questionnaires.set(settings.EXAM_QUESTIONNAIRES)
+    exam_evaluation.make_exam_evaluation(
+        exam_date=exam_date,
+        participants=evaluation.participants.all(),
+        eval_contributions=evaluation.contributions.exclude(contributor=None),
+    )
     messages.success(request, _("Successfully created exam evaluation."))
     return HttpResponse()  # 200 OK
 
