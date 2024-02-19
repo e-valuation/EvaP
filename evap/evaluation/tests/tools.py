@@ -269,9 +269,8 @@ class LiveServerTest(SeleniumTestCase):
 
     fixtures = [os.path.join(settings.BASE_DIR, "development", "fixtures", "test_with_migrations.json")]
 
-    @classmethod
-    def setUpClass(cls) -> None:
-        for db_name in cls._databases_names(include_mirrors=False):
+    def _pre_setup(self):
+        for db_name in self._databases_names(include_mirrors=False):
             call_command(
                 "flush",
                 interactive=False,
@@ -280,7 +279,7 @@ class LiveServerTest(SeleniumTestCase):
                 reset_sequences=False,
                 inhibit_post_migrate=True,
             )
-        return super().setUpClass()
+        return super()._pre_setup()
 
     def _screenshot(self, name):
         self.selenium.save_screenshot(os.path.join(settings.BASE_DIR, f"{name}.png"))
