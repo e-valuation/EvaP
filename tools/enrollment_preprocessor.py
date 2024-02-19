@@ -104,9 +104,7 @@ def get_user_decisions(database_users: dict[str, User], workbook: Workbook) -> d
     return database_users
 
 
-def update_cells(cells: UserCells, user: User | None) -> bool:
-    if not user:
-        return False
+def update_cells(cells: UserCells, user: User) -> bool:
     changed = False
     for cell, field_value in zip(cells, [user.title, user.last_name, user.first_name, user.email], strict=True):
         if cell and cell.value != field_value:
@@ -129,12 +127,12 @@ def run_preprocessor(enrollment_data: Path | BytesIO, user_data: TextIO) -> Byte
         for wb_row in sheet.iter_rows(min_row=2, min_col=2):
             if wb_row[2] and wb_row[2].value:
                 changed = (
-                    update_cells(UserCells(None, *wb_row[:3]), correct_user_data_by_email.get(wb_row[2].value.strip()))
+                    update_cells(UserCells(None, *wb_row[:3]), correct_user_data_by_email[wb_row[2].value.strip()])
                     or changed
                 )
             if wb_row[-1] and wb_row[-1].value:
                 changed = (
-                    update_cells(UserCells(*wb_row[7:]), correct_user_data_by_email.get(wb_row[-1].value.strip()))
+                    update_cells(UserCells(*wb_row[7:]), correct_user_data_by_email[wb_row[-1].value.strip()])
                     or changed
                 )
 

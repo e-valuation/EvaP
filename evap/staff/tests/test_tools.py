@@ -260,10 +260,10 @@ class EnrollmentPreprocessorTest(WebTest):
         self.imported_data["MA Belegungen"][1][1] = " Add  "
         self.imported_data["MA Belegungen"][1][8] = "   some  "
         self.imported_data["BA Belegungen"][1][2] = "   conflicts    "
-        self.imported_data["MA Belegungen"][1][3] = ""
-        self.imported_data["MA Belegungen"][1][11] = ""
-        self.imported_data["BA Belegungen"][1][3] = ""
-        self.imported_data["BA Belegungen"][1][11] = ""
+        self.imported_data["MA Belegungen"][1][3] = " "
+        self.imported_data["MA Belegungen"][1][11] = "   "
+        self.imported_data["BA Belegungen"][1][3] = " \t    "
+        self.imported_data["BA Belegungen"][1][11] = "  \n   "
         res = run_preprocessor(BytesIO(create_memory_excel_file(self.imported_data)), self.csv)
         self.assertIsNone(res)
         input_patch.assert_not_called()
