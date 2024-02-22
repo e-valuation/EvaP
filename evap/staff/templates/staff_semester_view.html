@@ -380,7 +380,7 @@
                     {% csrf_token %}
                 </form>
 
-                <script async>
+                <script type="module">
                     document.getElementById("evaluation-deletion-form").addEventListener("submit-success", event => {
                         fadeOutThenRemove(document.getElementById(`evaluation-row-${event.detail.body.get("evaluation_id")}`))
                     });

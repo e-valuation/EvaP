@@ -54,7 +54,7 @@
                     </tbody>
                 </table>
 
-                <script async>
+                <script type="module">
                     document.getElementById("grade-document-deletion-form").addEventListener("submit-success", event => {
                         fadeOutThenRemove(document.getElementById(`grade-document-row-${event.detail.body.get("grade_document_id")}`));
                     });
