@@ -13,46 +13,46 @@
             {% if grade_documents %}
                 <form id="grade-document-deletion-form" custom-success method="POST" action="{% url 'grades:delete_grades' %}">
                     {% csrf_token %}
-
-                    <table class="table table-striped table-vertically-aligned">
-                        <thead>
-                            <tr>
-                                <th style="width: 40%">{% trans 'Description' %}</th>
-                                <th style="width: 20%">{% trans 'Type' %}</th>
-                                <th style="width: 25%">{% trans 'Last edited' %}</th>
-                                <th style="width: 15%">{% trans 'Actions' %}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for grade_document in grade_documents %}
-                                <tr id="grade-document-row-{{ grade_document.id }}">
-                                    <td>{{ grade_document.description }}</td>
-                                    <td>{{ grade_document.get_type_display }}</td>
-                                    <td>{{ grade_document.last_modified_time }}, {% trans 'by' %} {{ grade_document.last_modified_user }}</td>
-                                    <td>
-                                        <a href="{% url 'grades:download_grades' grade_document.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Download' %}"><span class="fas fa-download"></span></a>
-                                        {% if user.is_grade_publisher %}
-                                            <a href="{% url 'grades:edit_grades' grade_document.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Edit' %}"><span class="fas fa-pencil"></span></a>
-                                            <confirmation-modal type="submit" name="grade_document_id" value="{{ grade_document.id }}" confirm-button-class="btn-danger">
-                                                <span slot="title">{% trans 'Delete grade document' %}</span>
-                                                <span slot="action-text">{% trans 'Delete grade document' %}</span>
-                                                <span slot="question">
-                                                    {% blocktrans trimmed with description=grade_document.description %}
-                                                        Do you really want to delete the grade document <strong>{{ description }}</strong>?
-                                                    {% endblocktrans %}
-                                                </span>
-
-                                                <button slot="show-button" type="button" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
-                                                    <span class="fas fa-trash"></span>
-                                                </button>
-                                            </confirmation-modal>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
                 </form>
+
+                <table class="table table-striped table-vertically-aligned">
+                    <thead>
+                        <tr>
+                            <th style="width: 40%">{% trans 'Description' %}</th>
+                            <th style="width: 20%">{% trans 'Type' %}</th>
+                            <th style="width: 25%">{% trans 'Last edited' %}</th>
+                            <th style="width: 15%">{% trans 'Actions' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for grade_document in grade_documents %}
+                            <tr id="grade-document-row-{{ grade_document.id }}">
+                                <td>{{ grade_document.description }}</td>
+                                <td>{{ grade_document.get_type_display }}</td>
+                                <td>{{ grade_document.last_modified_time }}, {% trans 'by' %} {{ grade_document.last_modified_user }}</td>
+                                <td>
+                                    <a href="{% url 'grades:download_grades' grade_document.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Download' %}"><span class="fas fa-download"></span></a>
+                                    {% if user.is_grade_publisher %}
+                                        <a href="{% url 'grades:edit_grades' grade_document.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Edit' %}"><span class="fas fa-pencil"></span></a>
+                                        <confirmation-modal type="submit" form="grade-document-deletion-form" name="grade_document_id" value="{{ grade_document.id }}" confirm-button-class="btn-danger">
+                                            <span slot="title">{% trans 'Delete grade document' %}</span>
+                                            <span slot="action-text">{% trans 'Delete grade document' %}</span>
+                                            <span slot="question">
+                                                {% blocktrans trimmed with description=grade_document.description %}
+                                                    Do you really want to delete the grade document <strong>{{ description }}</strong>?
+                                                {% endblocktrans %}
+                                            </span>
+
+                                            <button slot="show-button" type="button" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
+                                                <span class="fas fa-trash"></span>
+                                            </button>
+                                        </confirmation-modal>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
 
                 <script async>
                     document.getElementById("grade-document-deletion-form").addEventListener("submit-success", event => {
