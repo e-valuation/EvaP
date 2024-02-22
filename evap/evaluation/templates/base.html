@@ -179,12 +179,9 @@
 
             // activate clickable hover tables
             document.querySelectorAll(".table-seamless-links [data-url]").forEach(row => {
-                for(const table_data of row.children) {
-                    const wrapping_anchor = document.createElement("a");
-                    wrapping_anchor.href = row.dataset["url"];
-                    wrapping_anchor.append(...table_data.childNodes);
-                    table_data.replaceChildren(wrapping_anchor);
-                }
+                row.addEventListener("click", () => {
+                    window.location.assign(row.dataset.url);
+                });
             });
 
             document.querySelectorAll(".hover-row").forEach(row => {
