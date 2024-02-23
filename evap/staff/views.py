@@ -3,7 +3,7 @@ import itertools
 from collections import OrderedDict, defaultdict, namedtuple
 from collections.abc import Container
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Any, cast
 
 import openpyxl
@@ -1051,6 +1051,38 @@ def course_copy(request, course_id):
             "disable_breadcrumb_course": True,
         },
     )
+
+
+@require_POST
+@manager_required
+@transaction.atomic
+def create_exam_evaluation(request):
+    evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
+    exam_date = datetime.today()  # request.POST.get("date")
+    if evaluation.is_single_result:
+        raise SuspiciousOperation("Creating an exam evaluation for a single result evaluation is not allowed")
+
+    if evaluation.has_exam:
+        raise SuspiciousOperation("An exam evaluation already exists for this course.")
+
+    evaluation_end_date = exam_date - timedelta(days=1)
+    if evaluation.vote_start_datetime > evaluation_end_date:
+        raise SuspiciousOperation("The exam date is before the start date of the main evaluation")
+
+    evaluation.weight = 9
+    evaluation.vote_end_date = evaluation_end_date
+    evaluation.save()
+
+    exam_evaluation = Evaluation(
+        course=evaluation.course, name_de="Klausur", name_en="Exam", weight=1, is_rewarded=False
+    )
+    exam_evaluation.make_exam_evaluation(
+        exam_date=exam_date,
+        participants=evaluation.participants.all(),
+        eval_contributions=evaluation.contributions.exclude(contributor=None),
+    )
+    messages.success(request, _("Successfully created exam evaluation."))
+    return HttpResponse()  # 200 OK
 
 
 @manager_required
