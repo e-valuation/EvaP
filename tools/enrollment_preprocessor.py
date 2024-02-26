@@ -46,6 +46,14 @@ class UserCells(NamedTuple):
     def clean_user(self):
         return User(*self._clean())
 
+    def update_from(self, user: User) -> bool:
+        changed = False
+        for cell, field_value in zip(self, [user.title, user.last_name, user.first_name, user.email], strict=True):
+            if cell is not None and cell.value != field_value:
+                changed = True
+                cell.value = field_value
+        return changed
+
 
 def user_from_row(row: tuple[Cell, ...]):
     return [
@@ -75,8 +83,6 @@ def get_user_decisions(database_users: dict[str, User], workbook: Workbook) -> d
             if not imported.email:
                 continue
             existing = database_users.setdefault(imported.email, imported)
-            if imported == existing:
-                continue
             for field in ["title", "last_name", "first_name"]:
                 field_value = getattr(imported, field)
                 if field_value is not None and getattr(existing, field) != getattr(imported, field):
@@ -104,15 +110,6 @@ def get_user_decisions(database_users: dict[str, User], workbook: Workbook) -> d
     return database_users
 
 
-def update_cells(cells: UserCells, user: User) -> bool:
-    changed = False
-    for cell, field_value in zip(cells, [user.title, user.last_name, user.first_name, user.email], strict=True):
-        if cell and cell.value != field_value:
-            changed = True
-            cell.value = field_value
-    return changed
-
-
 def run_preprocessor(enrollment_data: Path | BytesIO, user_data: TextIO) -> BytesIO | None:
     workbook = load_workbook(enrollment_data)
 
@@ -126,15 +123,10 @@ def run_preprocessor(enrollment_data: Path | BytesIO, user_data: TextIO) -> Byte
     for sheet in workbook.worksheets:
         for wb_row in sheet.iter_rows(min_row=2, min_col=2):
             if wb_row[2] and wb_row[2].value:
-                changed = (
-                    update_cells(UserCells(None, *wb_row[:3]), correct_user_data_by_email[wb_row[2].value.strip()])
-                    or changed
-                )
+                changed |= UserCells(None, *wb_row[:3]).update_from(correct_user_data_by_email[wb_row[2].value.strip()])
+
             if wb_row[-1] and wb_row[-1].value:
-                changed = (
-                    update_cells(UserCells(*wb_row[7:]), correct_user_data_by_email[wb_row[-1].value.strip()])
-                    or changed
-                )
+                changed |= UserCells(*wb_row[7:]).update_from(correct_user_data_by_email[wb_row[-1].value.strip()])
 
     if not changed:
         return None
