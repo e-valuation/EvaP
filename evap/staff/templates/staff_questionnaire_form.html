@@ -22,7 +22,7 @@
 
         <fieldset>
             <div class="card mb-3">
-                <div class="card-body">
+                <div class="card-body table-responsive">
                     <h5 class="card-title">{% trans 'Questions' %}</h5>
                     {{ formset.management_form }}
                     {% include 'bootstrap_form_errors.html' with errors=formset.non_form_errors %}

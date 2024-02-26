@@ -15,7 +15,7 @@
         <div class="card-header">
             {% trans 'Redeem points' %}
         </div>
-        <div class="card-body">
+        <div class="card-body table-responsive">
             <p><b>{% trans 'Total points available' %}: {{ total_points_available }}</b></p>
             {% if total_points_available > 0 %}
                 {% if events %}
@@ -62,7 +62,7 @@
         <div class="card-header">
             {% trans 'Reward points history' %}
         </div>
-        <div class="card-body">
+        <div class="card-body table-responsive">
             {% if reward_point_actions %}
                 <table class="table table-striped">
                     <thead>

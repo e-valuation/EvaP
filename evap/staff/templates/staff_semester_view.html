@@ -80,7 +80,7 @@
             {% endif %}
         </div>
         <div class="collapse" id="overviewCard">
-            <div class="card-body">
+            <div class="card-body table-responsive">
                 <table class="table">
                     <thead>
                         <tr>
@@ -259,7 +259,7 @@
                         </div>
                     </div>
                 </div>
-                <form id="evaluation_operation_form" method="GET" action="{% url 'staff:evaluation_operation' semester.pk %}">
+                <form id="evaluation_operation_form" class="table-responsive" method="GET" action="{% url 'staff:evaluation_operation' semester.pk %}">
                     {% if num_evaluations > 0 %}
                         <table id="evaluation-table" class="table table-striped table-narrow table-vertically-aligned">
                             <colgroup>
