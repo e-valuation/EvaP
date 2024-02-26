@@ -158,7 +158,7 @@ a:not([href]):not(.disabled) {
     .button-open-notebook {
         position: fixed;
         bottom: $footer-height + 20px;
-        z-index: $zindex-sticky - 1;
+        z-index: $zindex-fixed;
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
     }
