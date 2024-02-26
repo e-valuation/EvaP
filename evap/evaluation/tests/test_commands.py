@@ -336,7 +336,7 @@ class TestSendRemindersCommand(TestCase):
         self.assertEqual(mock.call_count, 0)
         self.assertEqual(len(mail.outbox), 0)
 
-    @override_settings(TEXTANSWER_REVIEW_REMINDER_WEEKDAYS=list(range(8)))
+    @override_settings(TEXTANSWER_REVIEW_REMINDER_WEEKDAYS=list(range(7)))
     def test_send_text_answer_review_reminder(self):
         make_manager()
         evaluation = baker.make(
