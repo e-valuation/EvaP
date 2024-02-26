@@ -8,7 +8,7 @@
     {{ block.super }}
 
     <div class="callout callout-info small">
-        {% blocktrans %}You will get reward points by taking part in evaluations. These points can be redeemed for different events. You will receive vouchers for food and drinks at the event you selected below. We'll inform you about any upcoming event where you can redeem your reward points.{% endblocktrans %}
+        {% blocktranslate %}You will get reward points by taking part in evaluations. These points can be redeemed for different events. You will receive vouchers for food and drinks at the event you selected below. We'll inform you about any upcoming event where you can redeem your reward points.{% endblocktrans %}
     </div>
 
     <div class="card card-outline-primary mb-3">
@@ -50,10 +50,10 @@
                         </span>
                     </form>
                 {% else %}
-                    <p class="fst-italic">{% blocktrans %}Currently there are no events available for which you can redeem points. We'll send you a message when this changes.{% endblocktrans %}</p>
+                    <p class="fst-italic">{% blocktranslate %}Currently there are no events available for which you can redeem points. We'll send you a message when this changes.{% endblocktrans %}</p>
                 {% endif %}
             {% else %}
-                <p class="fst-italic">{% blocktrans %}You don't have any reward points that you could redeem.{% endblocktrans %}</p>
+                <p class="fst-italic">{% blocktranslate %}You don't have any reward points that you could redeem.{% endblocktrans %}</p>
             {% endif %}
         </div>
     </div>

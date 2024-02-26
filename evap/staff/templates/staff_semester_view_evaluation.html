@@ -147,12 +147,12 @@
                 {% if info_only or not request.user.is_manager %}
                     <span data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Grade documents (Midterm, Final)' %}">
                         <span class="fas fa-file"></span>
-                        {% blocktrans with midterm=evaluation.midterm_grade_documents_count final=evaluation.final_grade_documents_count %}M: {{ midterm }}, F: {{ final }}{% endblocktrans %}
+                        {% blocktranslate with midterm=evaluation.midterm_grade_documents_count final=evaluation.final_grade_documents_count %}M: {{ midterm }}, F: {{ final }}{% endblocktrans %}
                     </span>
                 {% else %}
                     <a href="{% url 'grades:course_view' evaluation.course.id %}" data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Grade documents (Midterm, Final)' %}">
                         <span class="fas fa-file"></span>
-                        {% blocktrans with midterm=evaluation.midterm_grade_documents_count final=evaluation.final_grade_documents_count %}M: {{ midterm }}, F: {{ final }}{% endblocktrans %}
+                        {% blocktranslate with midterm=evaluation.midterm_grade_documents_count final=evaluation.final_grade_documents_count %}M: {{ midterm }}, F: {{ final }}{% endblocktrans %}
                     </a>
                 {% endif %}
                 {% if evaluation.final_grade_documents_count %}
@@ -212,7 +212,7 @@
                 <span slot="title">{% translate 'Delete evaluation' %}</span>
                 <span slot="action-text">{% translate 'Delete evaluation' %}</span>
                 <span slot="question">
-                    {% blocktrans trimmed with evaluation_name=evaluation.full_name %}
+                    {% blocktranslate trimmed with evaluation_name=evaluation.full_name %}
                         Do you really want to delete the evaluation <strong>{{ evaluation_name }}</strong>?
                     {% endblocktrans %}
                 </span>

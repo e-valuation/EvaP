@@ -28,8 +28,8 @@
                                 <td>
                                     <strong class="questionnaire-name">{{ questionnaire.name }}</strong>
                                     <br />
-                                    {% blocktrans count questionnaire.questions.count as count %}{{ count }} question{% plural %}{{ count }} questions{% endblocktrans %},
-                                    {% blocktrans count questionnaire.contributions.count as count %}used {{ count }} time{% plural %}used {{ count }} times{% endblocktrans %}
+                                    {% blocktranslate count questionnaire.questions.count as count %}{{ count }} question{% plural %}{{ count }} questions{% endblocktrans %},
+                                    {% blocktranslate count questionnaire.contributions.count as count %}used {{ count }} time{% plural %}used {{ count }} times{% endblocktrans %}
                                 </td>
                                 <td>
                                     {% if type != 'contributor' %}
@@ -41,7 +41,7 @@
                                 </td>
                                 <td>
                                     <div class="btn-group icon-buttons">
-                                        <button data-visibility="0" type="button" onclick="changeVisibility(this);" class="btn btn-sm btn-light{% if questionnaire.visibility == 0 %} active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% blocktrans %}Hide in lists{% endblocktrans %}"><span class="fas fa-fw fa-eye-slash" aria-hidden="true"></span></button>
+                                        <button data-visibility="0" type="button" onclick="changeVisibility(this);" class="btn btn-sm btn-light{% if questionnaire.visibility == 0 %} active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% blocktranslate %}Hide in lists{% endblocktrans %}"><span class="fas fa-fw fa-eye-slash" aria-hidden="true"></span></button>
                                         <button data-visibility="1" type="button" onclick="changeVisibility(this);" class="btn btn-sm btn-light{% if questionnaire.visibility == 1 %} active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Show only for managers' %}"><span class="fas fa-fw fa-briefcase" aria-hidden="true"></span></button>
                                         <button data-visibility="2" type="button" onclick="changeVisibility(this);" class="btn btn-sm btn-light{% if questionnaire.visibility == 2 %} active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Show for managers and editors' %}"><span class="fas fa-fw fa-person-chalkboard" aria-hidden="true"></span></button>
                                     </div>
@@ -56,7 +56,7 @@
                                             <span slot="title">{% translate 'Delete questionnaire' %}</span>
                                             <span slot="action-text">{% translate 'Delete questionnaire' %}</span>
                                             <span slot="question">
-                                                {% blocktrans trimmed with questionnaire_name=questionnaire.name %}
+                                                {% blocktranslate trimmed with questionnaire_name=questionnaire.name %}
                                                     Do you really want to delete the questionnaire <strong>{{questionnaire_name}}</strong>?
                                                 {% endblocktrans %}
                                             </span>

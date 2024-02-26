@@ -28,7 +28,7 @@
                                     <span slot="title">{% translate 'Delete event' %}</span>
                                     <span slot="action-text">{% translate 'Delete event' %}</span>
                                     <span slot="question">
-                                        {% blocktrans trimmed with event_name=event.name %}
+                                        {% blocktranslate trimmed with event_name=event.name %}
                                             Do you really want to delete the event <strong>{{ event_name }}</strong>?
                                         {% endblocktrans %}
                                     </span>

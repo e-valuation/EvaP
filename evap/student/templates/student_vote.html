@@ -22,9 +22,9 @@
             <div class="d-flex align-items-center justify-content-between">
                 <div class="p-2">
                     {% if contributor_errors_exist %}
-                        {% blocktrans %}Please make sure to vote for all rating questions. You can also click on "I can't give feedback" to skip the questions about a single person.{% endblocktrans %}
+                        {% blocktranslate %}Please make sure to vote for all rating questions. You can also click on "I can't give feedback" to skip the questions about a single person.{% endblocktrans %}
                     {% else %}
-                        {% blocktrans %}Please make sure to vote for all rating questions.{% endblocktrans %}
+                        {% blocktranslate %}Please make sure to vote for all rating questions.{% endblocktrans %}
                     {% endif %}
                 </div>
                 <button id="btn-jump-unanswered-question" type="button" class="btn btn-light float-end" data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Jump to the first unanswered question' %}">
@@ -47,7 +47,7 @@
         <div class="callout callout-info">
             <small>
                 <b>{% translate 'Questionnaire Preview' %}</b><br />
-                {% blocktrans %}This is a preview of the questionnaire for the evaluation. Participants will see the questions below.{% endblocktrans %}
+                {% blocktranslate %}This is a preview of the questionnaire for the evaluation. Participants will see the questions below.{% endblocktrans %}
             </small>
         </div>
     {% endif %}
@@ -61,10 +61,10 @@
                     <span class="fas fa-triangle-exclamation"></span> {% translate 'Small number of participants' %}
                 </div>
                 <div class="card-body tab-row">
-                    {% blocktrans %}Only a small number of people can take part in this evaluation. You should be aware that contributors might be able to guess who voted for a specific answer and who wrote a text answer. Results will only be published if two or more people participated in the evaluation.{% endblocktrans %}
+                    {% blocktranslate %}Only a small number of people can take part in this evaluation. You should be aware that contributors might be able to guess who voted for a specific answer and who wrote a text answer. Results will only be published if two or more people participated in the evaluation.{% endblocktrans %}
                     {% if evaluation.num_voters == 0 %}
                         <br />
-                        {% blocktrans %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktrans %}
+                        {% blocktranslate %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktrans %}
 
                         <div class="form-check mt-3">
                             <input class="form-check-input tab-selectable" id="text_results_publish_confirmation_top" type="checkbox"
@@ -96,7 +96,7 @@
                 <div class="card-body">
                     {% if not preview %}
                         <div class="callout callout-info">
-                            {% blocktrans %}Please vote for all contributors you worked with. Click on "I can't give feedback" to skip a person.{% endblocktrans %}
+                            {% blocktranslate %}Please vote for all contributors you worked with. Click on "I can't give feedback" to skip a person.{% endblocktrans %}
                         </div>
                     {% endif %}
 
@@ -137,7 +137,7 @@
                     <span class="fas fa-triangle-exclamation"></span> {% translate 'Small number of participants' %}
                 </div>
                 <div class="card-body tab-row">
-                    {% blocktrans %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktrans %}
+                    {% blocktranslate %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktrans %}
 
                     <div class="form-check mt-3">
                         <input class="form-check-input tab-selectable" id="text_results_publish_confirmation_bottom" type="checkbox"
@@ -162,7 +162,7 @@
                         <button id="vote-submit-btn" type="submit" class="btn btn-success tab-selectable">{% translate 'Submit questionnaire' %}</button>
                         <p id="submit-error-warning" style="display: none" class="text-danger">
                             <span class="fas fa-triangle-exclamation"></span>
-                            {% blocktrans %}The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire.{% endblocktrans %}
+                            {% blocktranslate %}The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire.{% endblocktrans %}
                         </p>
                     {% endif %}
                 </div>

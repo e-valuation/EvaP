@@ -18,7 +18,7 @@
                         <span slot="title">{% translate 'Make this the active semester' %}</span>
                         <span slot="action-text">{% translate 'Make active' %}</span>
                         <span slot="question">
-                            {% blocktrans trimmed %}
+                            {% blocktranslate trimmed %}
                                 Do you want to make this the active semester?
                             {% endblocktrans %}
                         </span>
@@ -41,7 +41,7 @@
                     <confirmation-modal type="submit" confirm-button-class="btn-danger">
                         <span slot="title">{% translate 'Delete semester' %}</span>
                         <span slot="question">
-                            {% blocktrans trimmed with semester_name=semester.name %}
+                            {% blocktranslate trimmed with semester_name=semester.name %}
                                 Do you really want to delete the semester <strong>{{ semester_name }}</strong>?
                                 All courses and evaluations will be deleted as well as all results.
                                 If you are sure, enter the name of the semester below.
@@ -100,7 +100,7 @@
                                 <span slot="title">{% translate 'Archive participations' %}</span>
                                 <span slot="action-text">{% translate 'Archive participations' %}</span>
                                 <span slot="question">
-                                    {% blocktrans trimmed with semester_name=semester.name %}
+                                    {% blocktranslate trimmed with semester_name=semester.name %}
                                         Do you really want to archive all participations in the semester <strong>{{ semester_name }}</strong>?
                                         Further changes to the evaluations won't be possible and you can't undo this action.
                                     {% endblocktrans %}
@@ -123,7 +123,7 @@
                                 <span slot="title">{% translate 'Delete grade documents' %}</span>
                                 <span slot="action-text">{% translate 'Delete grade documents' %}</span>
                                 <span slot="question">
-                                    {% blocktrans trimmed with semester_name=semester.name %}
+                                    {% blocktranslate trimmed with semester_name=semester.name %}
                                         Do you really want to delete the grade documents in the semester <strong>{{ semester_name }}</strong>?
                                         This will delete all existing grade documents for this semester's courses and will disable new uploads.
                                         You can't undo this action.
@@ -143,7 +143,7 @@
                                 <span slot="title">{% translate 'Archive results' %}</span>
                                 <span slot="action-text">{% translate 'Archive results' %}</span>
                                 <span slot="question">
-                                    {% blocktrans trimmed with semester_name=semester.name %}
+                                    {% blocktranslate trimmed with semester_name=semester.name %}
                                         Do you really want to archive the results in the semester <strong>{{ semester_name }}</strong>?
                                         This will make the results of all evaluations inaccessible for all users except their contributors and managers.
                                         You can't undo this action.
@@ -179,7 +179,7 @@
                                     <span slot="title">{% translate 'Activate reward points' %}</span>
                                     <span slot="action-text">{% translate 'Activate reward points' %}</span>
                                     <span slot="question">
-                                        {% blocktrans trimmed with semester_name=semester.name %}
+                                        {% blocktranslate trimmed with semester_name=semester.name %}
                                             Do you want to activate the reward points for the semester <strong>{{ semester_name }}</strong>?
                                             The activation will allow participants to receive reward points when voting and will also grant all eligible points for participants who have already voted so far.
                                             The process will take a while.
@@ -562,7 +562,7 @@
                                                 <span slot="title">{% translate 'Delete course' %}</span>
                                                 <span slot="action-text">{% translate 'Delete course' %}</span>
                                                 <span slot="question">
-                                                    {% blocktrans trimmed with course_name=course.name %}
+                                                    {% blocktranslate trimmed with course_name=course.name %}
                                                         Do you really want to delete the course <strong>{{ course_name }}</strong>?
                                                     {% endblocktrans %}
                                                 </span>

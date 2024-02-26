@@ -124,7 +124,7 @@
                         {% endif %}
                         {% for next_evaluation in next_evaluations %}
                             <span data-next-evaluation-index="{{ forloop.counter0 }}" data-evaluation="{{ next_evaluation.pk }}">
-                                {% blocktrans with name=next_evaluation.full_name count answers=next_evaluation.num_unreviewed_textanswers %}The next evaluation "{{ name }}" has got {{ answers }} unreviewed text answer.{% plural %}The next evaluation "{{ name }}" has got {{ answers }} unreviewed text answers.{% endblocktrans %}
+                                {% blocktranslate with name=next_evaluation.full_name count answers=next_evaluation.num_unreviewed_textanswers %}The next evaluation "{{ name }}" has got {{ answers }} unreviewed text answer.{% plural %}The next evaluation "{{ name }}" has got {{ answers }} unreviewed text answers.{% endblocktrans %}
                             </span>
                         {% endfor %}
                     </div>
@@ -150,7 +150,7 @@
                         {% translate 'Publish' %}
                     </button>
                     <button type="submit" name="action" value="make_private" class="btn btn-sm btn-outline-secondary" disabled
-                        title="{% blocktrans %}This answer is for a general question and can't be made private.{% endblocktrans %}" data-bs-toggle="tooltip">
+                        title="{% blocktranslate %}This answer is for a general question and can't be made private.{% endblocktrans %}" data-bs-toggle="tooltip">
                         {% translate 'Private' %}
                     </button>
                     <button type="submit" name="action" value="delete" class="btn btn-sm btn-outline-secondary">

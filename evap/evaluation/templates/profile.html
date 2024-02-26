@@ -55,7 +55,7 @@
                                 </tr>
                                 <tr>
                                     <td>
-                                        <strong>{% blocktrans %}You receive CC'ed emails for{% endblocktrans %}</strong><br />
+                                        <strong>{% blocktranslate %}You receive CC'ed emails for{% endblocktrans %}</strong><br />
                                         {% for ccing_user in ccing_users %}
                                             {{ ccing_user.full_name }}{% if not forloop.last %}, {% endif %}
                                         {% empty %}

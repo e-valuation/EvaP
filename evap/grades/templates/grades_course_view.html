@@ -38,7 +38,7 @@
                                             <span slot="title">{% translate 'Delete grade document' %}</span>
                                             <span slot="action-text">{% translate 'Delete grade document' %}</span>
                                             <span slot="question">
-                                                {% blocktrans trimmed with description=grade_document.description %}
+                                                {% blocktranslate trimmed with description=grade_document.description %}
                                                     Do you really want to delete the grade document <strong>{{ description }}</strong>?
                                                 {% endblocktrans %}
                                             </span>

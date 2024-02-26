@@ -3,7 +3,7 @@
 <div class="w-100">
     <div class="float-end text-end">
         <span class="d-print-none">
-            {% blocktrans asvar intro_text %}These text answers can be seen by:{% endblocktrans %}
+            {% blocktranslate asvar intro_text %}These text answers can be seen by:{% endblocktrans %}
             {% include 'textanswer_visibility_info.html' with intro_text=intro_text visible_by_contribution=question_result.answers_visible_to.visible_by_contribution visible_by_delegation_count=question_result.answers_visible_to.visible_by_delegation_count %}
         </span>
         <div class="d-inline-block badge-participants badge-participants-{{ num_answers|participationclass:num_voters }} ms-2">
