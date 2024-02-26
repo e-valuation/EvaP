@@ -28,6 +28,8 @@ runs:
     - name: Restore venv cache
       uses: syphar/restore-virtualenv@v1
       id: cache-virtualenv
+      with:
+        requirement_files: ${{ env.requirements_txt }}
 
     - name: Restore pip download cache
       uses: syphar/restore-pip-download-cache@v1
