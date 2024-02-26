@@ -6,7 +6,7 @@
 <td>
     {% if request.user.is_manager and not info_only and not semester.participations_are_archived %}
         {% if state <= evaluation.State.APPROVED or state >= evaluation.State.REVIEWED %}
-            <div class="form-check" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Select for evaluation operation' %}">
+            <div class="form-check" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Select for evaluation operation' %}">
                 <input class="form-check-input" type="checkbox" name="evaluation" id="evaluation{{ evaluation.id }}" value="{{ evaluation.id }}" />
                 <label class="form-check-label" for="evaluation{{ evaluation.id }}"></label>
             </div>
@@ -22,57 +22,57 @@
 
 {% if state < evaluation.State.APPROVED %}
     <td class="icon" data-col="state-evaluating" data-order="1" data-filter="evaluation_not_yet_started">
-        <span class="fas fa-pause icon-gray" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Evaluation did not start yet' %}"></span>
+        <span class="fas fa-pause icon-gray" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Evaluation did not start yet' %}"></span>
     </td>
 {% elif state == evaluation.State.APPROVED %}
     <td class="icon" data-col="state-evaluating" data-order="1" data-filter="evaluation_not_yet_started">
-        <span class="fas fa-pause icon-gray" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Waiting for evaluation period to start' %}"></span>
+        <span class="fas fa-pause icon-gray" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Waiting for evaluation period to start' %}"></span>
     </td>
 {% elif state == evaluation.State.IN_EVALUATION %}
     <td class="icon" data-col="state-evaluating" data-order="2" data-filter="in_evaluation">
-        <span class="fas fa-play icon-gray" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'In evaluation' %}"></span>
+        <span class="fas fa-play icon-gray" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'In evaluation' %}"></span>
     </td>
 {% elif state >= evaluation.State.EVALUATED %}
     <td class="icon" data-col="state-evaluating" data-order="3" data-filter="evaluated">
-        <span class="fas fa-stop icon-green" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Evaluated' %}"></span>
+        <span class="fas fa-stop icon-green" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Evaluated' %}"></span>
     </td>
 {% endif %}
 
 {% if evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.NO_TEXTANSWERS or evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.NO_REVIEW_NEEDED %}
     <td class="icon" data-col="state-textanswers" data-order="3" data-filter="no_review">
-        <span class="fas fa-comment icon-gray" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'No text answers available or evaluation not yet finished' %}"></span>
+        <span class="fas fa-comment icon-gray" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'No text answers available or evaluation not yet finished' %}"></span>
     </td>
 {% elif evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.REVIEW_URGENT %}
     <td class="icon" data-col="state-textanswers" data-order="1" data-filter="unreviewed_textanswers_urgent">
-        <span class="fas fa-comment icon-red" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Text answers awaiting urgent review because grading process is finished' %}"></span>
+        <span class="fas fa-comment icon-red" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Text answers awaiting urgent review because grading process is finished' %}"></span>
     </td>
 {% elif evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.REVIEW_NEEDED %}
     <td class="icon" data-col="state-textanswers" data-order="2" data-filter="unreviewed_textanswers">
-        <span class="fas fa-comment icon-yellow" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Text answers awaiting review' %}"></span>
+        <span class="fas fa-comment icon-yellow" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Text answers awaiting review' %}"></span>
     </td>
 {% else %}
     <td class="icon" data-col="state-textanswers" data-order="4" data-filter="textanswers_reviewed">
-        <span class="fas fa-comment icon-green" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Text answers reviewed' %}"></span>
+        <span class="fas fa-comment icon-green" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Text answers reviewed' %}"></span>
     </td>
 {% endif %}
 
 {% if state < evaluation.State.REVIEWED %}
     <td class="icon" data-col="state-results" data-order="2" data-filter="evaluation_not_finished">
-        <span class="fas fa-chart-simple icon-gray" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Evaluation not finished' %}"></span>
+        <span class="fas fa-chart-simple icon-gray" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Evaluation not finished' %}"></span>
     </td>
 {% elif state == evaluation.State.REVIEWED %}
     {% if evaluation.is_single_result or evaluation.grading_process_is_finished %}
         <td class="icon text-center" data-col="state-results" data-order="0" data-filter="results_not_published">
-            <span class="fas fa-chart-simple icon-red" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Results not yet published although grading process is finished' %}"></span>
+            <span class="fas fa-chart-simple icon-red" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Results not yet published although grading process is finished' %}"></span>
         </td>
     {% else %}
         <td class="icon text-center" data-col="state-results" data-order="1" data-filter="results_not_yet_published">
-            <span class="fas fa-chart-simple icon-yellow" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Results not yet published' %}"></span>
+            <span class="fas fa-chart-simple icon-yellow" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Results not yet published' %}"></span>
         </td>
     {% endif %}
 {% elif state == evaluation.State.PUBLISHED %}
     <td class="icon" data-col="state-results" data-order="3" data-filter="results_published">
-        <span class="fas fa-chart-simple icon-green" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Results published' %}"></span>
+        <span class="fas fa-chart-simple icon-green" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Results published' %}"></span>
     </td>
 {% endif %}
 
@@ -80,7 +80,7 @@
     <div>
     {% if not info_only and request.user.is_manager %}
         <a href="{% url 'staff:evaluation_edit' evaluation.id %}">{{ evaluation.full_name }}</a>
-        <a class="small no-underline" href="{% url 'staff:course_edit' evaluation.course.id %}" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Edit course' %}">
+        <a class="small no-underline" href="{% url 'staff:course_edit' evaluation.course.id %}" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Edit course' %}">
             <span class="fas fa-chalkboard-user"></span>
         </a>
     {% else %}
@@ -90,26 +90,26 @@
     <div class="fst-italic">
         {{ evaluation.course.responsibles_names }}
         {% if info_only or not request.user.is_manager or state >= evaluation.State.IN_EVALUATION %}
-            <span class="small" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Number of contributors' %}">
+            <span class="small" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Number of contributors' %}">
                 ({{ evaluation.num_contributors }} <span class="fas fa-person-chalkboard"></span>)
             </span>
         {% else %}
-            <a class="small no-underline" href="{% url 'staff:evaluation_person_management' evaluation.id %}" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Manage contributors' %}">
+            <a class="small no-underline" href="{% url 'staff:evaluation_person_management' evaluation.id %}" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Manage contributors' %}">
                 ({{ evaluation.num_contributors }} <span class="fas fa-person-chalkboard"></span>)
             </a>
         {% endif %}
     </div>
     {% include 'evaluation_badges.html' with mode='manager' %}
     {% if evaluation.num_course_evaluations > 1 %}
-        <span class="badge rounded-pill bg-dark" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Weight' %}">{{ evaluation.weight }}</span>
+        <span class="badge rounded-pill bg-dark" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Weight' %}">{{ evaluation.weight }}</span>
     {% endif %}
 
     {% if state < evaluation.State.APPROVED %}
         {% if not evaluation.all_contributions_have_questionnaires %}
             {% if not evaluation.general_contribution_has_questionnaires %}
-                <span class="badge bg-danger">{% trans 'Evaluation has no questionnaires' %}</span>
+                <span class="badge bg-danger">{% translate 'Evaluation has no questionnaires' %}</span>
             {% else %}
-                <span class="badge bg-warning">{% trans 'Not all contributors have questionnaires' %}</span>
+                <span class="badge bg-warning">{% translate 'Not all contributors have questionnaires' %}</span>
             {% endif %}
         {% endif %}
     {% endif %}
@@ -121,63 +121,63 @@
     {% if not evaluation.is_single_result %}
         <td class="multi-progress-bar">
             {% if evaluation.can_publish_average_grade %}
-                <span data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Number of voters' %}">
+                <span data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Number of voters' %}">
                     {% include 'progress_bar.html' with done=evaluation.num_voters total=evaluation.num_participants icon='user' %}
                 </span>
             {% else %}
-                <span data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Not enough voters to publish average grade' %}">
+                <span data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Not enough voters to publish average grade' %}">
                     {% include 'progress_bar.html' with done=evaluation.num_voters total=evaluation.num_participants icon='user' warning=True %}
                 </span>
             {% endif %}
             {% if evaluation.num_textanswers > 0 and state != evaluation.State.PUBLISHED and not info_only %}
-                <a class="no-underline" href="{% url 'staff:evaluation_textanswers' evaluation.id %}" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Review text answers' %}">
+                <a class="no-underline" href="{% url 'staff:evaluation_textanswers' evaluation.id %}" data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Review text answers' %}">
                     {% include 'progress_bar.html' with done=evaluation.num_reviewed_textanswers total=evaluation.num_textanswers icon='comment' %}
                 </a>
             {% elif info_only %}
-                <span data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Number of text answers' %}">
+                <span data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Number of text answers' %}">
                     {% include 'progress_bar.html' with done=evaluation.num_reviewed_textanswers total=evaluation.num_textanswers icon='comment' %}
                 </span>
             {% else %}
-                <span data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Number of text answers' %}">
+                <span data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Number of text answers' %}">
                     <span class="fas fa-comment"></span> {{ evaluation.num_textanswers }}
                 </span>
                 <br />
             {% endif %}
             {% if evaluation.wait_for_grade_upload_before_publishing %}
                 {% if info_only or not request.user.is_manager %}
-                    <span data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Grade documents (Midterm, Final)' %}">
+                    <span data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Grade documents (Midterm, Final)' %}">
                         <span class="fas fa-file"></span>
                         {% blocktrans with midterm=evaluation.midterm_grade_documents_count final=evaluation.final_grade_documents_count %}M: {{ midterm }}, F: {{ final }}{% endblocktrans %}
                     </span>
                 {% else %}
-                    <a href="{% url 'grades:course_view' evaluation.course.id %}" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Grade documents (Midterm, Final)' %}">
+                    <a href="{% url 'grades:course_view' evaluation.course.id %}" data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Grade documents (Midterm, Final)' %}">
                         <span class="fas fa-file"></span>
                         {% blocktrans with midterm=evaluation.midterm_grade_documents_count final=evaluation.final_grade_documents_count %}M: {{ midterm }}, F: {{ final }}{% endblocktrans %}
                     </a>
                 {% endif %}
                 {% if evaluation.final_grade_documents_count %}
-                    <span class="fas fa-check" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Final grades have been uploaded' %}"></span>
+                    <span class="fas fa-check" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Final grades have been uploaded' %}"></span>
                 {% elif evaluation.course.gets_no_grade_documents %}
-                    <span class="fas fa-check" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'It was confirmed that final grades have been submitted' %}"></span>
+                    <span class="fas fa-check" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'It was confirmed that final grades have been submitted' %}"></span>
                 {% endif %}
             {% endif %}
         </td>
     {% else %}
         <td>
-            <span data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Number of voters' %}">
+            <span data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Number of voters' %}">
                 <span class="fas fa-user"></span> {{ evaluation.num_voters }}
             </span>
         </td>
     {% endif %}
 {% elif info_only or not request.user.is_manager %}
     <td>
-        <span {% if evaluation.num_participants == 0 %}class="text-danger" {% endif %}data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Number of participants' %}">
+        <span {% if evaluation.num_participants == 0 %}class="text-danger" {% endif %}data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Number of participants' %}">
             <span class="fas fa-user"></span> {{ evaluation.num_participants }}
         </span>
     </td>
 {% else %}
     <td>
-        <a class="no-underline{% if evaluation.num_participants == 0 %} text-danger{% endif %}" href="{% url 'staff:evaluation_person_management' evaluation.id %}" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Manage participants' %}">
+        <a class="no-underline{% if evaluation.num_participants == 0 %} text-danger{% endif %}" href="{% url 'staff:evaluation_person_management' evaluation.id %}" data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Manage participants' %}">
             <span class="fas fa-user"></span> {{ evaluation.num_participants }}
         </a>
     </td>
@@ -185,39 +185,39 @@
 <td class="icon-buttons">
     {% if not info_only %}
         {% if not evaluation.is_single_result and request.user.is_manager %}
-            <a href="{% url 'staff:evaluation_copy' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" title="{% trans "Copy" %}">
+            <a href="{% url 'staff:evaluation_copy' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" title="{% translate "Copy" %}">
                 <span class="fas fa-copy"></span>
             </a>
         {% endif %}
         {% if request.user.is_manager %}
-            <a href="{% url 'staff:evaluation_email' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Send email' %}">
+            <a href="{% url 'staff:evaluation_email' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Send email' %}">
                 <span class="fas fa-envelope" aria-hidden="true"></span>
             </a>
         {% endif %}
         {% if state < evaluation.State.IN_EVALUATION %}
-            <a href="{% url 'staff:evaluation_preview' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Preview' %}">
+            <a href="{% url 'staff:evaluation_preview' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Preview' %}">
                 <span class="fas fa-eye" aria-hidden="true"></span>
             </a>
         {% elif state < evaluation.State.PUBLISHED and evaluation|can_results_page_be_seen_by:request.user %}
-            <a href="{% url 'results:evaluation_detail' semester.id evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Preview results' %}">
+            <a href="{% url 'results:evaluation_detail' semester.id evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Preview results' %}">
                 <span class="fas fa-chart-simple" aria-hidden="true"></span>
             </a>
         {% elif state == evaluation.State.PUBLISHED and evaluation|can_results_page_be_seen_by:request.user %}
-            <a href="{% url 'results:evaluation_detail' semester.id evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Results' %}">
+            <a href="{% url 'results:evaluation_detail' semester.id evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Results' %}">
                 <span class="fas fa-chart-simple" aria-hidden="true"></span>
             </a>
         {% endif %}
         {% if request.user.is_manager and evaluation.can_be_deleted_by_manager %}
             <confirmation-modal type="submit" form="evaluation-deletion-form" name="evaluation_id" value="{{ evaluation.id }}" confirm-button-class="btn-danger">
-                <span slot="title">{% trans 'Delete evaluation' %}</span>
-                <span slot="action-text">{% trans 'Delete evaluation' %}</span>
+                <span slot="title">{% translate 'Delete evaluation' %}</span>
+                <span slot="action-text">{% translate 'Delete evaluation' %}</span>
                 <span slot="question">
                     {% blocktrans trimmed with evaluation_name=evaluation.full_name %}
                         Do you really want to delete the evaluation <strong>{{ evaluation_name }}</strong>?
                     {% endblocktrans %}
                 </span>
 
-                <button slot="show-button" type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
+                <button slot="show-button" type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Delete' %}">
                     <span class="fas fa-trash" aria-hidden="true"></span>
                 </button>
             </confirmation-modal>

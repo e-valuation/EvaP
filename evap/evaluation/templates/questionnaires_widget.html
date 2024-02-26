@@ -9,7 +9,7 @@
         {% endifchanged %}
         <li class="form-check" data-bs-toggle="tooltip" data-bs-placement="left" title="{% spaceless %}
             {% if questionnaire.is_locked and not manager %}
-                {% trans 'This questionnaire is locked, its selection cannot be changed.' %}<br /><br />
+                {% translate 'This questionnaire is locked, its selection cannot be changed.' %}<br /><br />
             {% endif %}
             {% if questionnaire.description %}
                 {{ questionnaire.description }}<br />

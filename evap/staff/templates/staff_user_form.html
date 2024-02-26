@@ -4,11 +4,11 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'staff:user_index' %}">{% trans 'Users' %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'staff:user_index' %}">{% translate 'Users' %}</a></li>
     {% if form.instance.id %}
         <li class="breadcrumb-item">{{ form.instance.full_name }}</li>
     {% else %}
-        <li class="breadcrumb-item">{% trans 'Create user' %}</li>
+        <li class="breadcrumb-item">{% translate 'Create user' %}</li>
     {% endif %}
 {% endblock %}
 
@@ -16,7 +16,7 @@
     {{ block.super }}
 
     <div class="d-flex">
-        <h3>{% if form.instance.id %}{% trans 'Edit user' %}{% else %}{% trans 'Create user' %}{% endif %}</h3>
+        <h3>{% if form.instance.id %}{% translate 'Edit user' %}{% else %}{% translate 'Create user' %}{% endif %}</h3>
         {% if form.instance.id %}
             <div class="ms-auto d-print-none">
                 {% if has_due_evaluations %}
@@ -25,21 +25,21 @@
                             {% csrf_token %}
 
                             <confirmation-modal type="submit" name="user_id" value="{{ form.instance.id }}" confirm-button-class="btn-primary">
-                                <span slot="title">{% trans 'Send notification email' %}</span>
-                                <span slot="action-text">{% trans 'Send email' %}</span>
+                                <span slot="title">{% translate 'Send notification email' %}</span>
+                                <span slot="action-text">{% translate 'Send email' %}</span>
                                 <span slot="question">
                                     {% blocktrans trimmed %}
                                         The email will notify the user about all their due evaluations. Do you want to send the email now?
                                     {% endblocktrans %}
                                 </span>
 
-                                <button slot="show-button" type="button" class="btn btn-sm btn-light">{% trans 'Resend evaluation started email' %}</button>
+                                <button slot="show-button" type="button" class="btn btn-sm btn-light">{% translate 'Resend evaluation started email' %}</button>
                             </confirmation-modal>
                         </form>
                     </div>
                 {% else %}
-                    <div title="{% trans 'This user currently has no due evaluations.' %}" data-bs-toggle="tooltip" data-bs-placement="bottom">
-                        <button disabled type="button" class="btn btn-sm btn-light">{% trans 'Resend evaluation started email' %}</button>
+                    <div title="{% translate 'This user currently has no due evaluations.' %}" data-bs-toggle="tooltip" data-bs-placement="bottom">
+                        <button disabled type="button" class="btn btn-sm btn-light">{% translate 'Resend evaluation started email' %}</button>
                     </div>
                 {% endif %}
             </div>
@@ -49,9 +49,9 @@
     {% if user_with_same_email %}
         <div class="alert alert-warning alert-dismissible">
             <p>
-                {% trans "A user with this email address already exists. You probably want to merge the users." %}
+                {% translate "A user with this email address already exists. You probably want to merge the users." %}
             </p>
-            <a type="button" class="btn btn-primary btn-sm" href="{% url 'staff:user_merge' user_with_same_email.id form.instance.id %}">{% trans "Merge both users" %}</a>
+            <a type="button" class="btn btn-primary btn-sm" href="{% url 'staff:user_merge' user_with_same_email.id form.instance.id %}">{% translate "Merge both users" %}</a>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     {% endif %}
@@ -71,13 +71,13 @@
         {% if form.instance.pk %}
             <div class="card mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">{% trans 'Represented Users' %}</h5>
+                    <h5 class="card-title">{% translate 'Represented Users' %}</h5>
                     {% include 'user_list_with_links.html' with users=form.instance.represented_users.all %}
                 </div>
             </div>
             <div class="card mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">{% trans 'CC-User for' %}</h5>
+                    <h5 class="card-title">{% translate 'CC-User for' %}</h5>
                     {% include 'user_list_with_links.html' with users=form.instance.ccing_users.all %}
                 </div>
             </div>
@@ -85,9 +85,9 @@
                 <div class="card mb-3">
                     <div class="card-body">
                         <div class="d-flex">
-                            <h5 class="card-title me-auto">{% trans 'Export evaluation results' %}</h5>
+                            <h5 class="card-title me-auto">{% translate 'Export evaluation results' %}</h5>
                             <div>
-                                <a href="{% url 'staff:export_contributor_results' form.instance.id %}" class="btn btn-sm btn-light">{% trans 'Export all results' %}</a>
+                                <a href="{% url 'staff:export_contributor_results' form.instance.id %}" class="btn btn-sm btn-light">{% translate 'Export all results' %}</a>
                             </div>
                         </div>
                         <ul>
@@ -115,7 +115,7 @@
         {% endif %}
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
-                <button type="submit" class="btn btn-primary">{% trans 'Save user' %}</button>
+                <button type="submit" class="btn btn-primary">{% translate 'Save user' %}</button>
                 {% if form.instance and form.instance.can_be_deleted_by_manager %}
 
 
@@ -123,8 +123,8 @@
                         {% csrf_token %}
 
                         <confirmation-modal type="submit" name="user_id" value="{{ form.instance.id }}" confirm-button-class="btn-danger">
-                            <span slot="title">{% trans 'Delete user' %}</span>
-                            <span slot="action-text">{% trans 'Delete user' %}</span>
+                            <span slot="title">{% translate 'Delete user' %}</span>
+                            <span slot="action-text">{% translate 'Delete user' %}</span>
                             <span slot="question">
                                 {% blocktrans trimmed with user_fullname=form.instance.full_name %}
                                     Do you really want to delete the user <strong>{{ user_fullname }}</strong>?<br/>
@@ -132,13 +132,13 @@
                                 {% endblocktrans %}
                             </span>
 
-                            <button slot="show-button" type="button" class="btn btn-danger">{% trans 'Delete user' %}</button>
+                            <button slot="show-button" type="button" class="btn btn-danger">{% translate 'Delete user' %}</button>
                         </confirmation-modal>
                     </form>
                 {% else %}
                     <span tabindex="0" data-bs-toggle="tooltip" title="{% blocktrans %}This user contributes to an evaluation, participates in an evaluation whose participations haven't been archived yet or has special rights and as such cannot be deleted.{% endblocktrans %}">
                     <button type="button" disabled class="btn btn-danger">
-                        {% trans 'Delete user' %}
+                        {% translate 'Delete user' %}
                     </button>
                 {% endif %}
             </div>

@@ -9,7 +9,7 @@
                 </span>
                 {% if semester.results_are_archived %}
                     <span class="archive-info">
-                        <span class="fas fa-box-archive"></span> {% trans 'The results of this semester have been archived.' %}
+                        <span class="fas fa-box-archive"></span> {% translate 'The results of this semester have been archived.' %}
                     </span>
                 {% endif %}
             </div>
@@ -54,7 +54,7 @@
                                     <td>
                                         {% if semester.results_are_archived %}
                                         {% elif course.not_all_evaluations_are_published %}
-                                            <div class="d-flex" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'The total grade will be calculated once all evaluation results have been published.' %}">
+                                            <div class="d-flex" data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'The total grade will be calculated once all evaluation results have been published.' %}">
                                                 {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass" %}
                                             </div>
                                         {% else %}
@@ -75,17 +75,17 @@
                                     <td class="ps-2 fs-5">
                                         {% if not evaluation.is_single_result %}
                                             {% if evaluation.voted_for %}
-                                                <span class="text text-success" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'You gave us your feedback in this evaluation. Thank you!' %}"><span class="fas fa-fw fa-check" aria-hidden="true"></span></span>
+                                                <span class="text text-success" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'You gave us your feedback in this evaluation. Thank you!' %}"><span class="fas fa-fw fa-check" aria-hidden="true"></span></span>
                                             {% elif evaluation.participates_in %}
                                                 {% if evaluation.state > evaluation.State.IN_EVALUATION %}
-                                                    <span class="text text-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'You did not take part in this evaluation.' %}"><span class="fas fa-fw fa-xmark" aria-hidden="true"></span></span>
+                                                    <span class="text text-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'You did not take part in this evaluation.' %}"><span class="fas fa-fw fa-xmark" aria-hidden="true"></span></span>
                                                 {% elif evaluation.state == evaluation.State.IN_EVALUATION %}
-                                                    <span class="text text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'You can take part in this evaluation.' %}"><span class="fas fa-fw fa-arrow-right" aria-hidden="true"></span></span>
+                                                    <span class="text text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'You can take part in this evaluation.' %}"><span class="fas fa-fw fa-arrow-right" aria-hidden="true"></span></span>
                                                 {% else %}
-                                                    <span class="text text-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'This evaluation will start in the future.' %}"><span class="far fa-fw fa-hourglass" aria-hidden="true"></span></span>
+                                                    <span class="text text-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'This evaluation will start in the future.' %}"><span class="far fa-fw fa-hourglass" aria-hidden="true"></span></span>
                                                 {% endif %}
                                             {% else %}
-                                                <span class="text text-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'You are not listed as a participant for this evaluation.' %}">
+                                                <span class="text text-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'You are not listed as a participant for this evaluation.' %}">
                                                     <span class="fas fa-fw fa-minus"></span>
                                                 </span>
                                             {% endif %}
@@ -128,10 +128,10 @@
                                             <span class="badge bg-secondary">{{ course.type }}</span>
                                         {% endif %}
                                         {% if evaluation.is_midterm_evaluation %}
-                                            <span class="badge bg-dark">{% trans 'Midterm evaluation' %}</span>
+                                            <span class="badge bg-dark">{% translate 'Midterm evaluation' %}</span>
                                         {% endif %}
                                         {% if evaluation.is_single_result %}
-                                            <span class="badge bg-success">{% trans 'Single result' %}</span>
+                                            <span class="badge bg-success">{% translate 'Single result' %}</span>
                                         {% endif %}
                                         {% if course.evaluation_count == 1 %}
                                             <i class="small">{{ course.responsibles_names }}</i>
@@ -141,7 +141,7 @@
                                         {% if not semester.results_are_archived %}
                                             {% if evaluation.is_single_result %}
                                                 {% if evaluation.state == evaluation.State.PUBLISHED %}
-                                                    <span data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Individual participants are not stored for single results. The number shown here is the number of votes received.' %}">
+                                                    <span data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Individual participants are not stored for single results. The number shown here is the number of votes received.' %}">
                                                         {% include 'progress_bar_fill.html' with icon='user' total=evaluation.single_result_rating_result.count_sum fill=100 %}
                                                     </span>
                                                 {% endif %}
@@ -157,11 +157,11 @@
                                     <td class="text-end">
                                         {% if not semester.results_are_archived %}
                                             {% if evaluation.state == evaluation.State.IN_EVALUATION and evaluation.participates_in and not evaluation.voted_for and evaluation.is_in_evaluation_period  %}
-                                                <a class="btn btn-sm btn-primary btn-row-hover" href="{% url 'student:vote' evaluation.id %}">{% trans 'Evaluate' %}</a>
+                                                <a class="btn btn-sm btn-primary btn-row-hover" href="{% url 'student:vote' evaluation.id %}">{% translate 'Evaluate' %}</a>
                                             {% elif evaluation.state == evaluation.State.PUBLISHED %}
                                                 {% include 'evaluation_result_widget.html' with course_or_evaluation=evaluation %}
                                             {% elif not evaluation.participates_in or evaluation.voted_for and evaluation.State.IN_EVALUATION <= evaluation.state and evaluation.state <= evaluation.State.REVIEWED %}
-                                                <div class="d-flex" data-bs-toggle="tooltip" data-bs-placement="left" title="{% if evaluation|weight_info %}{% blocktrans with percentage=evaluation|weight_info %}This evaluation contributes {{ percentage }} to the final grade of the course.{% endblocktrans %} {% endif %}{% trans 'The results have not been published yet.' %}{% if evaluation.participates_in %} {% trans 'You will receive an email when the results are published.' %}{% endif %}">
+                                                <div class="d-flex" data-bs-toggle="tooltip" data-bs-placement="left" title="{% if evaluation|weight_info %}{% blocktrans with percentage=evaluation|weight_info %}This evaluation contributes {{ percentage }} to the final grade of the course.{% endblocktrans %} {% endif %}{% translate 'The results have not been published yet.' %}{% if evaluation.participates_in %} {% translate 'You will receive an email when the results are published.' %}{% endif %}">
                                                     {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass" weight_info=evaluation|weight_info %}
                                                 </div>
                                             {% endif %}

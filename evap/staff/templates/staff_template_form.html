@@ -4,7 +4,7 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% trans 'Templates' %}</li>
+    <li class="breadcrumb-item">{% translate 'Templates' %}</li>
     <li class="breadcrumb-item">{{ template.name }}</li>
 {% endblock %}
 
@@ -19,9 +19,9 @@
                     {% include 'bootstrap_form.html' with form=form email_form=True fields_as_pills=form.visible_fields|slice:"-2:" %}
                 </div>
                 <div class="col-3">
-                    <p>{% trans 'The following variables are available for this email template:' %}</p>
+                    <p>{% translate 'The following variables are available for this email template:' %}</p>
                     {% for variable in available_variables %}
-                        <button type="button" class="btn btn-sm btn-link text-dark pe-1" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Copy to clipboard' %}" onClick="copyToClipboard('{{ variable }}')">
+                        <button type="button" class="btn btn-sm btn-link text-dark pe-1" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Copy to clipboard' %}" onClick="copyToClipboard('{{ variable }}')">
                             <span class="fas fa-clipboard"></span>
                         </button>
                         <code>{{ variable }}</code>
@@ -32,7 +32,7 @@
         </div>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
-                <button type="submit" class="btn btn-primary">{% trans 'Save template' %}</button>
+                <button type="submit" class="btn btn-primary">{% translate 'Save template' %}</button>
             </div>
         </div>
     </form>

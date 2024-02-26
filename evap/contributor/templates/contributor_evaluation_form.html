@@ -2,7 +2,7 @@
 
 {% load evaluation_filters %}
 
-{% block title %}{% trans 'Your EvaP' %} - {{ block.super }}{% endblock %}
+{% block title %}{% translate 'Your EvaP' %} - {{ block.super }}{% endblock %}
 
 {% block breadcrumb_bar %}
     <div class="breadcrumb-bar">
@@ -31,21 +31,21 @@
         {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">
-                <h5 class="card-title">{% trans 'Course data' %}</h5>
+                <h5 class="card-title">{% translate 'Course data' %}</h5>
                 <div class="d-flex">
-                    <label class="col-md-3 pe-4 form-label">{% trans 'Name (German)' %}</label>
+                    <label class="col-md-3 pe-4 form-label">{% translate 'Name (German)' %}</label>
                     <div class="col-md-7 form-static-text">{{ evaluation.course.name_de }}</div>
                 </div>
                 <div class="d-flex">
-                    <label class="col-md-3 pe-4 form-label">{% trans 'Name (English)' %}</label>
+                    <label class="col-md-3 pe-4 form-label">{% translate 'Name (English)' %}</label>
                     <div class="col-md-7 form-static-text">{{ evaluation.course.name_en }}</div>
                 </div>
                 <div class="d-flex">
-                    <label class="col-md-3 pe-4 form-label">{% trans 'Responsibles' %}</label>
+                    <label class="col-md-3 pe-4 form-label">{% translate 'Responsibles' %}</label>
                     <div class="col-md-7 form-static-text">{{ evaluation.course.responsibles_names }}</div>
                 </div>
                 <div class="d-flex">
-                    <label class="col-md-3 pe-4 form-label">{% trans 'Degrees' %}</label>
+                    <label class="col-md-3 pe-4 form-label">{% translate 'Degrees' %}</label>
                     <div class="col-md-7 form-static-text">
                         {% for degree in evaluation.course.degrees.all %}
                             <span class="badge bg-primary">{{ degree }}</span>
@@ -53,7 +53,7 @@
                     </div>
                 </div>
                 <div class="d-flex">
-                    <label class="col-md-3 pe-4 form-label">{% trans 'Course type' %}</label>
+                    <label class="col-md-3 pe-4 form-label">{% translate 'Course type' %}</label>
                     <div class="col-md-7 form-static-text">
                         <span class="badge bg-secondary">{{ evaluation.course.type }}</span>
                     </div>
@@ -63,17 +63,17 @@
         <div class="card mb-3">
             <div class="card-body table-responsive">
                 <div class="d-flex">
-                    <h5 class="card-title me-auto">{% trans 'Evaluation data' %}</h5>
+                    <h5 class="card-title me-auto">{% translate 'Evaluation data' %}</h5>
                     {% if evaluation.allow_editors_to_edit %}
                         <div>
                             <button type="button" class="btn btn-sm btn-light mb-3 createAccountRequestModalShowButton">
-                                {% trans 'Request creation of new account' %}
+                                {% translate 'Request creation of new account' %}
                             </button>
                         </div>
                     {% else %}
                         <div>
                             <button type="button" class="btn btn-sm btn-light changeEvaluationRequestModalShowButton">
-                                {% trans 'Request changes' %}
+                                {% translate 'Request changes' %}
                             </button>
                         </div>
                     {% endif %}
@@ -90,22 +90,22 @@
         <div class="card card-submit-area card-submit-area-3 text-center mb-3">
             <div class="card-body">
                 {% if editable %}
-                    <button name="operation" value="preview" type="submit" class="btn btn-light">{% trans 'Preview' %}</button>
-                    <button name="operation" value="save" type="submit" class="btn btn-primary">{% trans 'Save' %}</button>
+                    <button name="operation" value="preview" type="submit" class="btn btn-light">{% translate 'Preview' %}</button>
+                    <button name="operation" value="save" type="submit" class="btn btn-primary">{% translate 'Save' %}</button>
 
                     <confirmation-modal type="submit" name="operation" value="approve">
-                        <span slot="title">{% trans 'Approve evaluation' %}</span>
-                        <span slot="action-text">{% trans 'Approve evaluation' %}</span>
+                        <span slot="title">{% translate 'Approve evaluation' %}</span>
+                        <span slot="action-text">{% translate 'Approve evaluation' %}</span>
                         <span slot="question">
                             {% blocktrans trimmed %}
                                 Do you want to approve this evaluation? This will allow the evaluation team to proceed with the preparation, but you won't be able to make any further changes.
                             {% endblocktrans %}
                         </span>
 
-                        <button slot="show-button" type="button" class="btn btn-success">{% trans 'Save and approve' %}</button>
+                        <button slot="show-button" type="button" class="btn btn-success">{% translate 'Save and approve' %}</button>
                     </confirmation-modal>
                 {% endif %}
-                <a href="{% url 'contributor:index' %}" class="btn btn-light">{% if edit %}{% trans 'Cancel' %}{% else %}{% trans 'Back' %}{% endif %}</a>
+                <a href="{% url 'contributor:index' %}" class="btn btn-light">{% if edit %}{% translate 'Cancel' %}{% else %}{% translate 'Back' %}{% endif %}</a>
             </div>
         </div>
     </form>
@@ -115,14 +115,14 @@
             <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="previewModalLabel">{% trans 'Preview' %}</h5>
+                        <h5 class="modal-title" id="previewModalLabel">{% translate 'Preview' %}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         {{ preview_html }}
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% trans 'Close' %}</button>
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% translate 'Close' %}</button>
                     </div>
                 </div>
             </div>
@@ -134,11 +134,11 @@
     {{ block.super }}
 
     {% blocktrans asvar title with evaluation_name=evaluation.full_name %}Request account creation for {{ evaluation_name }}{% endblocktrans %}
-    {% trans 'Please tell us which new account we should create. We need the name and email for all new accounts.' as teaser %}
+    {% translate 'Please tell us which new account we should create. We need the name and email for all new accounts.' as teaser %}
     {% include 'contact_modal.html' with modal_id='createAccountRequestModal' user=request.user title=title teaser=teaser %}
 
     {% blocktrans asvar title with evaluation_name=evaluation.full_name %}Request evaluation changes for {{ evaluation_name }}{% endblocktrans %}
-    {% trans 'Please tell us what changes to the evaluation we should make.' as teaser %}
+    {% translate 'Please tell us what changes to the evaluation we should make.' as teaser %}
     {% include 'contact_modal.html' with modal_id='changeEvaluationRequestModal' user=request.user title=title teaser=teaser %}
 {% endblock %}
 

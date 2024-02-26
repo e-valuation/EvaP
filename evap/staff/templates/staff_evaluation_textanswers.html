@@ -4,7 +4,7 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% trans 'Text answers' %}</li>
+    <li class="breadcrumb-item">{% translate 'Text answers' %}</li>
 {% endblock %}
 
 {% block content %}
@@ -16,35 +16,35 @@
         </div>
         <div class="col-auto">
             <div class="btn-switch btn-switch-light my-auto d-print-none">
-                <div class="btn-switch-label">{% trans 'View' %}</div>
+                <div class="btn-switch-label">{% translate 'View' %}</div>
                 <div class="btn-switch btn-group">
                     <a
                         href="{% url 'staff:evaluation_textanswers' evaluation.id %}"
                         role="button"
                         class="btn btn-sm btn-light{% if view == 'quick' %} active{% endif %}"
                     >
-                        {% trans 'Quick' %}
+                        {% translate 'Quick' %}
                     </a>
                     <a
                         href="{% url 'staff:evaluation_textanswers' evaluation.id %}?view=full"
                         role="button"
                         class="btn btn-sm btn-light{% if view == 'full' %} active{% endif %}"
                     >
-                        {% trans 'Full' %}
+                        {% translate 'Full' %}
                     </a>
                     <a
                         href="{% url 'staff:evaluation_textanswers' evaluation.id %}?view=undecided"
                         role="button"
                         class="btn btn-sm btn-light{% if view == 'undecided' %} active{% endif %}"
                     >
-                        {% trans 'Undecided' %}
+                        {% translate 'Undecided' %}
                     </a>
                     <a
                         href="{% url 'staff:evaluation_textanswers' evaluation.id %}?view=flagged"
                         role="button"
                         class="btn btn-sm btn-light{% if view == 'flagged' %} active{% endif %}"
                     >
-                        {% trans 'Flagged' %}
+                        {% translate 'Flagged' %}
                     </a>
                 </div>
             </div>
@@ -52,9 +52,9 @@
     </div>
     <div class="mb-2">
         {% if evaluation.state == evaluation.State.IN_EVALUATION %}
-            <span class="badge bg-warning"><span class="fas fa-play icon-gray"></span> {% trans 'Still in evaluation' %}</span>
+            <span class="badge bg-warning"><span class="fas fa-play icon-gray"></span> {% translate 'Still in evaluation' %}</span>
         {% else %}
-            <span class="badge bg-light"><span class="fas fa-stop icon-green"></span> {% trans 'Evaluation finished' %}</span>
+            <span class="badge bg-light"><span class="fas fa-stop icon-green"></span> {% translate 'Evaluation finished' %}</span>
         {% endif %}
         {% include 'evaluation_badges.html' with mode='manager' %}
     </div>

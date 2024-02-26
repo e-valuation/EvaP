@@ -37,12 +37,12 @@
                                 <span class="me-1">
 
                                     {% if field.field.widget.attrs.choices.is_inverted %}
-                                        <span class="fas fa-triangle-exclamation warning-label" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'The answer scale is inverted for this question.' %}"></span>
+                                        <span class="fas fa-triangle-exclamation warning-label" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'The answer scale is inverted for this question.' %}"></span>
                                     {% endif %}
                                     {{ field.label }}
                                 </span>
                                 {% if allows_textanswer %}
-                                    <span class="my-auto" data-bs-toggle="tooltip" data-container=".col-question" title="{% trans 'Add a text answer to this question' %}">
+                                    <span class="my-auto" data-bs-toggle="tooltip" data-container=".col-question" title="{% translate 'Add a text answer to this question' %}">
                                         <button type="button" class="btn btn-light btn-textanswer collapsed" data-bs-toggle="collapse" data-bs-target=".collapse-{{ field.name }}" tabindex="-1">
                                             <span class="far fa-comment"></span>
                                         </button>

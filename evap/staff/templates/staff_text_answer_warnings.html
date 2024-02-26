@@ -5,7 +5,7 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% trans 'Text answer warnings' %}</li>
+    <li class="breadcrumb-item">{% translate 'Text answer warnings' %}</li>
 {% endblock %}
 
 {% block content %}
@@ -28,10 +28,10 @@
                     <thead>
                         <tr>
                             <th class="movable"></th>
-                            <th>{% trans 'Trigger strings (case-insensitive)' %}</th>
-                            <th>{% trans 'Warning text (German)' %}</th>
-                            <th>{% trans 'Warning text (English)' %}</th>
-                            <th class="text-end">{% trans 'Actions' %}</th>
+                            <th>{% translate 'Trigger strings (case-insensitive)' %}</th>
+                            <th>{% translate 'Warning text (German)' %}</th>
+                            <th>{% translate 'Warning text (English)' %}</th>
+                            <th class="text-end">{% translate 'Actions' %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -63,21 +63,21 @@
         </div>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
-                <button type="submit" class="btn btn-primary">{% trans 'Save text answer warnings' %}</button>
+                <button type="submit" class="btn btn-primary">{% translate 'Save text answer warnings' %}</button>
             </div>
         </div>
         <div class="card">
             <div class="card-header">
-                {% trans 'Preview' %}
+                {% translate 'Preview' %}
             </div>
             <div class="card-body">
                 <p>
-                    {% trans 'Changes of the form above are only reflected after the form has been saved.' %}
+                    {% translate 'Changes of the form above are only reflected after the form has been saved.' %}
                 </p>
                 <div class="row">
                     <div class="col-question col-lg-4 col-xl-5 d-flex flex-column">
                         <label for="preview-textarea">
-                            {% trans 'Test textarea' %}
+                            {% translate 'Test textarea' %}
                         </label>
                         {% include 'student_text_answer_warnings.html' with text_answer_warnings=text_answer_warnings %}
                     </div>

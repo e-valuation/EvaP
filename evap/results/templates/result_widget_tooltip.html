@@ -8,7 +8,7 @@
 {% if question_result %}
     {% if question_result.warning %}
         <p>
-            {% trans 'Only a few participants answered this question.' %}
+            {% translate 'Only a few participants answered this question.' %}
         </p>
     {% endif %}
     {% with question_result.question.is_bipolar_likert_question as is_bipolar %}

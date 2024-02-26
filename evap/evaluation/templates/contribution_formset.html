@@ -2,11 +2,11 @@
 
 <fieldset>
     <div class="d-flex mb-2">
-        <h5 class="card-title me-auto">{% trans 'Contributors' %}</h5>
+        <h5 class="card-title me-auto">{% translate 'Contributors' %}</h5>
         {% if not manager %}
             <div>
                 <button type="button" class="btn btn-sm btn-light" id="createAccountRequestModalShowButton">
-                    {% trans 'Request creation of new account' %}
+                    {% translate 'Request creation of new account' %}
                 </button>
             </div>
         {% endif %}
@@ -18,9 +18,9 @@
         <thead>
             <tr>
                 <th></th>
-                <th style="width: 30%">{% trans 'Contributor' %}</th>
-                <th style="width: 30%">{% trans 'Questionnaires' %}</th>
-                <th style="width: 30%">{% trans 'Options' %}</th>
+                <th style="width: 30%">{% translate 'Contributor' %}</th>
+                <th style="width: 30%">{% translate 'Questionnaires' %}</th>
+                <th style="width: 30%">{% translate 'Options' %}</th>
                 <th style="width: 10%"></th>
             </tr>
         </thead>
@@ -50,13 +50,13 @@
                         {% include 'questionnaires_widget.html' with field=form.questionnaires questionnaires_with_answers=questionnaires_with_answers_per_contributor|get:form.instance.contributor %}
                     </td>
                     <td>
-                        {% trans 'Responsibility' %}:<br />
+                        {% translate 'Responsibility' %}:<br />
                         {% include 'role_buttons.html' with form=form %}
                         <br /><br />
-                        {% trans 'Text answer visibility' %}:<br />
+                        {% translate 'Text answer visibility' %}:<br />
                         {% include 'textanswer_visibility_buttons.html' with form=form %}
                         <br /><br />
-                        <span class="{% if form.label.errors %}error-label{% endif %}">{% trans 'Label' %}:
+                        <span class="{% if form.label.errors %}error-label{% endif %}">{% translate 'Label' %}:
                             <span data-bs-toggle="tooltip" data-bs-placement="right" class="fas fa-circle-info"
                                 title="{% blocktrans %}This text will be shown next to the contributor's name in the questionnaire.{% endblocktrans %}">
                             </span>
