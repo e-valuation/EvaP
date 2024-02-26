@@ -4,7 +4,7 @@ from collections import defaultdict
 from datetime import date, datetime, timedelta
 from io import StringIO
 from itertools import chain, cycle
-from unittest.mock import call, patch
+from unittest.mock import MagicMock, call, patch
 
 from django.conf import settings
 from django.core import mail, management
@@ -366,11 +366,12 @@ class TestSendRemindersCommand(TestCase):
 
 
 class TestLintCommand(TestCase):
-    @staticmethod
     @patch("subprocess.run")
-    def test_pylint_called(mock_subprocess_run):
-        management.call_command("lint")
-        mock_subprocess_run.assert_called_once_with(["pylint", "evap"], check=False)
+    def test_pylint_called(self, mock_subprocess_run: MagicMock):
+        management.call_command("lint", stdout=StringIO())
+        self.assertEqual(mock_subprocess_run.call_count, 2)
+        mock_subprocess_run.assert_any_call(["ruff", "."], check=False)
+        mock_subprocess_run.assert_any_call(["pylint", "evap"], check=False)
 
 
 class TestFormatCommand(TestCase):

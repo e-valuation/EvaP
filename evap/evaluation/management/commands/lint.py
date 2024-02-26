@@ -9,7 +9,7 @@ class Command(BaseCommand):
     requires_migrations_checks = False
 
     def handle(self, *args, **options):
-        print("Executing ruff .")
+        self.stdout.write("Executing ruff .")
         subprocess.run(["ruff", "."], check=False)  # nosec
-        print("Executing pylint evap")
+        self.stdout.write("Executing pylint evap")
         subprocess.run(["pylint", "evap"], check=False)  # nosec
