@@ -33,7 +33,7 @@ ignore = [
     "DJ008",                 # do not use __str__ where it is not required
     "COM812",                # incompatible with formatter
     "N802",                  # not as mighty as pylint's invalid-name https://github.com/astral-sh/ruff/issues/7660
-    "PLR0913",               # we can't determine a good limit for arguements. reviews should spot bad cases of this.
+    "PLR0913",               # we can't determine a good limit for arguments. reviews should spot bad cases of this.
     "PLR2004", "PLW2901"
 ]
 
