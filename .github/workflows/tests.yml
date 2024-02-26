@@ -88,11 +88,11 @@ jobs:
       - name: Setup python
         uses: ./.github/setup_python
 
-      - name: Run pylint
-        run: pylint evap -j 0
-
       - name: Run ruff
         run: ruff .
+
+      - name: Run pylint
+        run: pylint evap -j 0
 
 
   formatter:
