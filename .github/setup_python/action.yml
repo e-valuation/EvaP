@@ -2,10 +2,10 @@ name: "Setup Python"
 description: "Sets up Python for use in actions with caching and copy localsettings"
 
 inputs:
-  install-dev-requirements:
+  requirements-file:
     description: "if disabled this will only install runtime dependencies"
     required: false
-    default: "true"
+    default: requirements-dev.txt
 
 runs:
   using: "composite"
@@ -15,32 +15,21 @@ runs:
       with:
         python-version: "3.10"
 
-    - name: Deduce requirements file
-      env:
-        install_dev: ${{ inputs.install-dev-requirements }}
-      run: |
-        if [[ $install_dev == 'true' ]]; then \
-          REQUIREMENTS_TXT='requirements-dev.txt'; \
-        else REQUIREMENTS_TXT='requirements.txt'; fi
-
-        echo "requirements_txt=$REQUIREMENTS_TXT" >> $GITHUB_ENV
-      shell: bash
-
     - name: Restore venv cache
       uses: syphar/restore-virtualenv@v1
       id: cache-virtualenv
       with:
-        requirement_files: ${{ env.requirements_txt }}
+        requirement_files: ${{ inputs.requirements-file }}
 
     - name: Restore pip download cache
       uses: syphar/restore-pip-download-cache@v1
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
       with:
-        requirement_files: ${{ env.requirements_txt }}
+        requirement_files: ${{ inputs.requirements-file }}
 
     - name: Install dependencies
       env:
-        requirements_txt: ${{ env.requirements_txt }}
+        requirements_txt: ${{ inputs.requirements-file }}
       run: pip install -r $requirements_txt
       shell: bash
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
