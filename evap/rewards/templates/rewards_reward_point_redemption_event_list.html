@@ -30,7 +30,7 @@
                                     <span slot="question">
                                         {% blocktranslate trimmed with event_name=event.name %}
                                             Do you really want to delete the event <strong>{{ event_name }}</strong>?
-                                        {% endblocktrans %}
+                                        {% endblocktranslate %}
                                     </span>
 
                                     <button slot="show-button" type="button" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Delete' %}">

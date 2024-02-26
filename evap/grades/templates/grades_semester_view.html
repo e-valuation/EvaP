@@ -74,7 +74,7 @@
                                                 <span slot="question">
                                                     {% blocktranslate trimmed with course_name=course.name %}
                                                         Please confirm that a grade document for the course <strong>{{ course_name }}</strong> will be uploaded later on.
-                                                    {% endblocktrans %}
+                                                    {% endblocktranslate %}
                                                 </span>
 
                                                 <a slot="show-button" href="#">
@@ -97,7 +97,7 @@
                                                     <span slot="question">
                                                         {% blocktranslate trimmed with course_name=course.name %}
                                                             Please confirm that the final grades for the course <strong>{{ course_name }}</strong> have been submitted but will not be uploaded.
-                                                        {% endblocktrans %}
+                                                        {% endblocktranslate %}
                                                     </span>
 
                                                     <button slot="show-button" type="button" {{ disable_if_archived }} class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Confirm that final grades have been submitted but will not be uploaded.' %}">

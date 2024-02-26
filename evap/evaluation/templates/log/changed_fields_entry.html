@@ -16,7 +16,7 @@
                 {% elif action.type == "clear" %}
                     {{ action.label }} {% translate "cleared" %}
                 {% elif action.type == "delete" %}
-                    {% blocktranslate with label=action.label count count=action.items|length %}{{ label }} was{% plural %}{{ label }} were{% endblocktrans %}:
+                    {% blocktranslate with label=action.label count count=action.items|length %}{{ label }} was{% plural %}{{ label }} were{% endblocktranslate %}:
                     {{ action.items|join:", " }}
                 {% elif action.type == "change" %}
                     {{ action.label }}: {{ action.items.0 }} &#8594; {{ action.items.1 }}

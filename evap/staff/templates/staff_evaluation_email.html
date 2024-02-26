@@ -5,7 +5,7 @@
 {% block content %}
     {{ block.super }}
     {% if form.errors %}
-        <div class="alert alert-danger" role="alert">{% blocktranslate %}Please fill out all required fields and select at least one recipient group.{% endblocktrans %}</div>
+        <div class="alert alert-danger" role="alert">{% blocktranslate %}Please fill out all required fields and select at least one recipient group.{% endblocktranslate %}</div>
     {% endif %}
     <form id="evaluation-email-form" method="POST" class="form-horizontal">
         {% csrf_token %}

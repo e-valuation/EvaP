@@ -38,7 +38,7 @@
                         {% endfor %}
                         {% include 'bootstrap_form_errors.html' with errors=form.contributor.errors %}
                         {{ form.contributor }}
-                        <div class="form-check mt-2" data-bs-toggle="tooltip" data-bs-placement="right" title="{% blocktranslate %}Select this option if no questions about this person shall be included in the evaluation. This can be used if the person does not visibly contribute and is solely added to receive permissions for editing the evaluation or viewing text answers.{% endblocktrans %}">
+                        <div class="form-check mt-2" data-bs-toggle="tooltip" data-bs-placement="right" title="{% blocktranslate %}Select this option if no questions about this person shall be included in the evaluation. This can be used if the person does not visibly contribute and is solely added to receive permissions for editing the evaluation or viewing text answers.{% endblocktranslate %}">
                             <input class="form-check-input" id="{{ form.does_not_contribute.id_for_label }}" name="{{ form.does_not_contribute.html_name }}"
                                 type="checkbox"{% if form.does_not_contribute.value %} checked{% endif %}
                                 {% if form.does_not_contribute.field.disabled %} disabled{% endif %} />
@@ -58,7 +58,7 @@
                         <br /><br />
                         <span class="{% if form.label.errors %}error-label{% endif %}">{% translate 'Label' %}:
                             <span data-bs-toggle="tooltip" data-bs-placement="right" class="fas fa-circle-info"
-                                title="{% blocktranslate %}This text will be shown next to the contributor's name in the questionnaire.{% endblocktrans %}">
+                                title="{% blocktranslate %}This text will be shown next to the contributor's name in the questionnaire.{% endblocktranslate %}">
                             </span>
                         </span>
                         <br />

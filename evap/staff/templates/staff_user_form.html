@@ -30,7 +30,7 @@
                                 <span slot="question">
                                     {% blocktranslate trimmed %}
                                         The email will notify the user about all their due evaluations. Do you want to send the email now?
-                                    {% endblocktrans %}
+                                    {% endblocktranslate %}
                                 </span>
 
                                 <button slot="show-button" type="button" class="btn btn-sm btn-light">{% translate 'Resend evaluation started email' %}</button>
@@ -129,14 +129,14 @@
                                 {% blocktranslate trimmed with user_fullname=form.instance.full_name %}
                                     Do you really want to delete the user <strong>{{ user_fullname }}</strong>?<br/>
                                     This person will also be removed from every other user having this person as a delegated or CC-user.
-                                {% endblocktrans %}
+                                {% endblocktranslate %}
                             </span>
 
                             <button slot="show-button" type="button" class="btn btn-danger">{% translate 'Delete user' %}</button>
                         </confirmation-modal>
                     </form>
                 {% else %}
-                    <span tabindex="0" data-bs-toggle="tooltip" title="{% blocktranslate %}This user contributes to an evaluation, participates in an evaluation whose participations haven't been archived yet or has special rights and as such cannot be deleted.{% endblocktrans %}">
+                    <span tabindex="0" data-bs-toggle="tooltip" title="{% blocktranslate %}This user contributes to an evaluation, participates in an evaluation whose participations haven't been archived yet or has special rights and as such cannot be deleted.{% endblocktranslate %}">
                     <button type="button" disabled class="btn btn-danger">
                         {% translate 'Delete user' %}
                     </button>

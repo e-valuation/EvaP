@@ -11,7 +11,7 @@
                     data-mark-no-answers-for="{{ contributor.id }}"
                     {% if preview %}disabled{% endif %}
                 >
-                    {% blocktranslate %}I can't give feedback about this contributor{% endblocktrans %}
+                    {% blocktranslate %}I can't give feedback about this contributor{% endblocktranslate %}
                 </button>
             </div>
         {% endif%}
@@ -78,7 +78,7 @@
                                         <textarea id="{{ field.id_for_label }}" class="form-control tab-selectable" name="{{ field.name }}"{% if preview %} disabled{% endif %}>{{ field.value|default_if_none:"" }}</textarea>
                                     </div>
                                     <div>
-                                        {% blocktranslate asvar intro_text %}After publishing, this text answer can be seen by:{% endblocktrans %}
+                                        {% blocktranslate asvar intro_text %}After publishing, this text answer can be seen by:{% endblocktranslate %}
                                         {% include 'textanswer_visibility_info.html' with intro_text=intro_text visible_by_contribution=textanswers_visible_to.visible_by_contribution visible_by_delegation_count=textanswers_visible_to.visible_by_delegation_count %}
                                     </div>
                                 </div>

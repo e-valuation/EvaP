@@ -40,7 +40,7 @@
                                             <span slot="question">
                                                 {% blocktranslate trimmed with description=grade_document.description %}
                                                     Do you really want to delete the grade document <strong>{{ description }}</strong>?
-                                                {% endblocktrans %}
+                                                {% endblocktranslate %}
                                             </span>
 
                                             <button slot="show-button" type="button" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Delete' %}">

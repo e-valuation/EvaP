@@ -44,7 +44,7 @@
                                 class="btn btn-sm btn-light{% if view == 'export' %} active{% endif %}"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="bottom"
-                                title="{% blocktranslate %}Shows filtered view meant for personal export. Other contributors' results and private answers are hidden.{% endblocktrans %}"
+                                title="{% blocktranslate %}Shows filtered view meant for personal export. Other contributors' results and private answers are hidden.{% endblocktranslate %}"
                             >
                                 {% translate 'Export' context 'view mode' %}
                             </a>
@@ -67,7 +67,7 @@
                                 class="btn btn-sm btn-light"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="bottom"
-                                title="{% blocktranslate %}The results of this evaluation have not been published because it didn't get enough votes.{% endblocktrans %}"
+                                title="{% blocktranslate %}The results of this evaluation have not been published because it didn't get enough votes.{% endblocktranslate %}"
                             >
                                 {% if evaluation.course.is_private %}
                                     {% translate 'Participant' %}
