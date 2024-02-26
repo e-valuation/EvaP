@@ -28,6 +28,8 @@
     <body>
         <script type="text/javascript" src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
 
+        {% include "custom_elements.html" %}
+
         {% block modals %}
             {% if user.is_authenticated %}
                 {% trans 'Feedback' as title %}
@@ -197,6 +199,12 @@
                 element.className = "fas fa-spinner fa-spin";  // clears all other classes
             };
 
+        </script>
+
+        <script type="module">
+            import { setupForms } from "{% static 'js/custom-success-form.js' %}";
+
+            setupForms();
         </script>
 
         {% block additional_javascript %}{% endblock %}

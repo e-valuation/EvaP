@@ -5,7 +5,12 @@ from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, UserProfile
-from evap.evaluation.tests.tools import WebTestWith200Check, create_evaluation_with_responsible_and_editor, render_pages
+from evap.evaluation.tests.tools import (
+    WebTestWith200Check,
+    create_evaluation_with_responsible_and_editor,
+    render_pages,
+    submit_with_modal,
+)
 
 
 class TestContributorDirectDelegationView(WebTest):
@@ -197,7 +202,7 @@ class TestContributorEvaluationEditView(WebTest):
         self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
         self.assertEqual(self.evaluation.state, Evaluation.State.PREPARED)
 
-        form.submit(name="operation", value="approve")
+        submit_with_modal(page, form, name="operation", value="approve")
         self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
         self.assertEqual(self.evaluation.state, Evaluation.State.EDITOR_APPROVED)
 

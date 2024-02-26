@@ -64,17 +64,48 @@
                                     {% if num_final_grades > 0 %}
                                         <span class="fas fa-file"></span> {{ num_final_grades }}
                                     {% elif course.gets_no_grade_documents %}
-                                       <a href="#" onclick="confirmLateruploadModalShow({{ course.id }}, '{{ course.name|escapejs }}');">
-                                            <span class="fas fa-xmark light-link" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Grade documents for this course will not be uploaded. Click to change.' %}"></span>
-                                        </a>
+                                        <form reload-on-success method="POST" action="{% url 'grades:set_no_grades' %}" class="d-contents">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="course_id" value="{{ course.id }}">
+
+                                            <confirmation-modal type="submit" name="status" value="0" confirm-button-class="btn-primary">
+                                                <span slot="title">{% trans 'Will final grades be uploaded?' %}</span>
+                                                <span slot="action-text">{% trans 'Confirm' %}</span>
+                                                <span slot="question">
+                                                    {% blocktrans trimmed with course_name=course.name %}
+                                                        Please confirm that a grade document for the course <strong>{{ course_name }}</strong> will be uploaded later on.
+                                                    {% endblocktrans %}
+                                                </span>
+
+                                                <a slot="show-button" href="#">
+                                                    <span class="fas fa-xmark light-link" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Grade documents for this course will not be uploaded. Click to change.' %}"></span>
+                                                </a>
+                                            </confirmation-modal>
+                                        </form>
                                     {% endif %}
                                 </td>
                                 <td class="text-end" style="min-width:72px">
                                     {% if not course.gets_no_grade_documents %}
                                         {% if num_final_grades == 0 %}
-                                            <button type="button" onclick="confirmNouploadModalShow({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Confirm that final grades have been submitted but will not be uploaded.' %}">
-                                                <span class="fas fa-xmark"></span>
-                                            </button>
+                                            <form reload-on-success method="POST" action="{% url 'grades:set_no_grades' %}" class="d-contents">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="course_id" value="{{ course.id }}">
+
+                                                <confirmation-modal type="submit" name="status" value="1" confirm-button-class="btn-primary">
+                                                    <span slot="title">{% trans 'Have final grades been submitted?' %}</span>
+                                                    <span slot="action-text">{% trans 'Confirm' %}</span>
+                                                    <span slot="question">
+                                                        {% blocktrans trimmed with course_name=course.name %}
+                                                            Please confirm that the final grades for the course <strong>{{ course_name }}</strong> have been submitted but will not be uploaded.
+                                                        {% endblocktrans %}
+                                                    </span>
+
+                                                    <button slot="show-button" type="button" {{ disable_if_archived }} class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Confirm that final grades have been submitted but will not be uploaded.' %}">
+                                                        <span class="fas fa-xmark"></span>
+                                                    </button>
+                                                </confirmation-modal>
+                                            </form>
+
                                             <div class="btn-group" role="group" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Upload grade document' %}">
                                                 <button type="button" id="btnUpload{{ course.id }}" class="btn btn-sm btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                     <span class="fas fa-upload"></span>
@@ -98,39 +129,6 @@
             {% endif %}
         </div>
     </div>
-{% endblock %}
-
-{% block modals %}
-    {{ block.super }}
-    {% trans 'Have final grades been submitted?' as title %}
-    {% trans 'Please confirm that the final grades for the course <strong data-label=""></strong> have been submitted but will not be uploaded.' as question %}
-    {% trans 'Confirm' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='confirmNouploadModal' title=title question=question action_text=action_text btn_type='primary' %}
-    <script type="text/javascript">
-        function confirmNouploadModalAction(dataId) {
-            updateGradeStatusOfCourse(dataId, true);
-        }
-
-        function updateGradeStatusOfCourse(dataId, status) {
-            fetch("{% url 'grades:set_no_grades'%}", {
-                body: new URLSearchParams({course_id: dataId, status: `${Number(status)}` }),
-                headers: CSRF_HEADERS,
-                method: "POST",
-            }).then(response => {
-                assert(response.ok);
-                location.reload();
-            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
-        };
-    </script>
-    {% trans 'Will final grades be uploaded?' as title %}
-    {% trans 'Please confirm that a grade document for the course <strong data-label=""></strong> will be uploaded later on.' as question %}
-    {% trans 'Confirm' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='confirmLateruploadModal' title=title question=question action_text=action_text btn_type='primary' %}
-    <script type="text/javascript">
-        function confirmLateruploadModalAction(dataId) {
-            updateGradeStatusOfCourse(dataId, false);
-        };
-    </script>
 {% endblock %}
 
 {% block additional_javascript %}
