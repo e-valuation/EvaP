@@ -127,19 +127,17 @@
                         <div data-col="name">{% trans 'Evaluation' %}</div>
                         <div data-col="semester">{% trans 'Semester' %}</div>
                         <div data-col="responsible">{% trans 'Responsible' %}</div>
-                        <div data-col="participants">{% trans 'Voters' %}</div>
+                        <div data-col="voters">{% trans 'Voters' %}</div>
                         <div data-col="result">{% trans 'Distribution and average grade' %}</div>
                 </div>
                 {% if course_evaluations %}
-                    {% include 'results_index_course.html' %}
+                    {% include 'results_index_course.html' with evaluations=course_evaluations %}
                     {% for course_evaluation in course_evaluations|dictsort:"name" %}
                         {% if course_evaluation.pk == evaluation.pk %}
                             {# we cannot add a class to the actual row because it is cached globally. so we use a + selector in css to style the following row. #}
                             <div class="current-row-follows"></div>
                         {% endif %}
-                        {% with evaluation=course_evaluation %}
-                            {% include 'results_index_evaluation.html' with links_to_results_page=evaluation|can_results_page_be_seen_by:request.user is_subentry=True %}
-                        {% endwith %}
+                        {% include 'results_index_evaluation.html' with evaluation=course_evaluation links_to_results_page=course_evaluation|can_results_page_be_seen_by:request.user is_subentry=True %}
                     {% endfor %}
                 {% else %}
                     {% include 'results_index_evaluation.html' with links_to_results_page=False is_subentry=False %}

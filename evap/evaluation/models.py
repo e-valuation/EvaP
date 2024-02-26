@@ -814,6 +814,12 @@ class Evaluation(LoggedModel):
         return self.voters.count()
 
     @property
+    def voter_ratio(self):
+        if self.is_single_result or self.num_participants == 0:
+            return 0
+        return self.num_voters / self.num_participants
+
+    @property
     def due_participants(self):
         return self.participants.exclude(pk__in=self.voters.all())
 

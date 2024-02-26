@@ -965,9 +965,10 @@ class EvaluationFormTests(TestCase):
         form_data = get_form_data_from_instance(EvaluationForm, evaluation)
         form = EvaluationForm(form_data, instance=evaluation, semester=semester)
         self.assertTrue(form.is_valid())
-        with patch("evap.results.views._delete_course_template_cache_impl") as delete_call, patch(
-            "evap.results.views.update_template_cache"
-        ) as update_call:
+        with (
+            patch("evap.results.views._delete_course_template_cache_impl") as delete_call,
+            patch("evap.results.views.update_template_cache") as update_call,
+        ):
             # save without changes
             form.save()
             self.assertEqual(Evaluation.objects.get(pk=evaluation.pk).course, course1)

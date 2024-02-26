@@ -169,9 +169,9 @@ class TestVoteView(WebTest):
         form[answer_field_id(contribution, questionnaire, self.top_text_question)] = "some text"
         form[answer_field_id(contribution, questionnaire, self.top_grade_question)] = 3
         form[answer_field_id(contribution, questionnaire, self.top_likert_question)] = 1
-        form[
-            answer_field_id(contribution, questionnaire, self.top_likert_question, additional_textanswer=True)
-        ] = "some additional text"
+        form[answer_field_id(contribution, questionnaire, self.top_likert_question, additional_textanswer=True)] = (
+            "some additional text"
+        )
 
         questionnaire = self.bottom_general_questionnaire
         form[answer_field_id(contribution, questionnaire, self.bottom_text_question)] = "some bottom text"
