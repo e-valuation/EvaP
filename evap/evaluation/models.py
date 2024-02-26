@@ -30,10 +30,10 @@ from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django_fsm import FSMIntegerField, transition
 from django_fsm.signals import post_transition
-from django_stubs_ext import StrOrPromise
 
 from evap.evaluation.models_logging import FieldAction, LoggedModel
 from evap.evaluation.tools import (
+    StrOrPromise,
     clean_email,
     date_to_datetime,
     is_external_email,
