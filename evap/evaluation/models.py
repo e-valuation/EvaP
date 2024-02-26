@@ -4,7 +4,7 @@ import uuid
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
-from enum import Enum,IntEnum, auto
+from enum import Enum, IntEnum, auto
 from numbers import Real
 
 from django.conf import settings
@@ -726,11 +726,11 @@ class Evaluation(LoggedModel):
         ],
         target=State.NEW,
     )
-    def reset_to_new(self, delete_previous_answers: bool = False):
-        """ Reset an Evaluation after it started (#1991) """
+    def reset_to_new(self, delete_previous_answers: bool | None = False):
+        """Reset an Evaluation after it started (#1991)"""
         if delete_previous_answers:
             for answer_class in Answer.__subclasses__():
-                answer_class.objects.filter(contribution__evaluation_id=self.id).delete()
+                answer_class._default_manager.filter(contribution__evaluation_id=self.id).delete()
             self.voters.clear()
 
     @transition(

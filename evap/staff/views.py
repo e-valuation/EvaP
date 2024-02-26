@@ -37,6 +37,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy, ngettext
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, FormView, UpdateView
+from django_fsm import get_available_FIELD_transitions
 
 from evap.contributor.views import export_contributor_results
 from evap.evaluation.auth import manager_required, reviewer_required, staff_permission_required
@@ -288,8 +289,7 @@ class RevertToNewOperation(EvaluationOperation):
     @staticmethod
     def applicable_to(evaluation: Evaluation):
         # TODO: maybe move this into a helper function?
-        # TODO: fix linter here
-        return any(t.name == "reset_to_new" for t in evaluation.get_available_state_transitions())
+        return any(t.name == "reset_to_new" for t in get_available_FIELD_transitions(evaluation, Evaluation.state))
 
     @staticmethod
     def warning_for_inapplicables(amount):

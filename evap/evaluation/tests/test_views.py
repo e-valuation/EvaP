@@ -7,7 +7,7 @@ from django.utils import translation
 from django_webtest import WebTest
 from model_bakery import baker
 
-from evap.evaluation.models import Evaluation, Question, QuestionType, Semester, UserProfile, TextAnswer
+from evap.evaluation.models import Evaluation, Question, QuestionType, Semester, TextAnswer, UserProfile
 from evap.evaluation.tests.tools import (
     WebTestWith200Check,
     create_evaluation_with_responsible_and_editor,
@@ -263,41 +263,78 @@ class TestNotebookView(WebTest):
 
 
 class ResetToNewFormTest(WebTestStaffMode):
+    # TODO@Felix: check if button is checked by default
+    # self.assertInHTML('<input class="form-check-input" type="checkbox" name="delete-previous-answers" id="delete-previous-answers" checked>', str( semester_overview_page.html))
+
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
         cls.semester = baker.make(Semester, results_are_archived=True)
+        cls.voters = baker.make(UserProfile, _quantity=3)
+        cls.evaluation = baker.make(
+            Evaluation,
+            participants=cls.voters,
+            voters=cls.voters,
+            state=Evaluation.State.IN_EVALUATION,
+            course__semester=cls.semester,
+        )
+        cls.text_answers = baker.make(TextAnswer, _quantity=10, contribution=cls.evaluation.general_contribution)
 
-    def test_reset_to_new(self):
-        states = list(Evaluation.State)
-        states.remove(Evaluation.State.NEW)
-        states.remove(Evaluation.State.PUBLISHED)
+    def _open_confirmation_form(self):
+        semester_overview_page = self.app.get(f"/staff/semester/{self.semester.pk}", user=self.manager, status=200)
 
-        for state in states:  # TODO@Felix: maybe only testing for one state?
-            evaluation = baker.make(Evaluation, state=state, course__semester=self.semester)
+        form = semester_overview_page.forms["evaluation_operation_form"]
 
-            semester_overview_page = self.app.get(f"/staff/semester/{self.semester.pk}", user=self.manager, status=200)
+        form["evaluation"] = [self.evaluation.pk]
 
-            form = semester_overview_page.forms["evaluation_operation_form"]
+        confirmation_page = form.submit("target_state", value=str(Evaluation.State.NEW.value))
 
-            form["evaluation"] = [evaluation.pk]
+        self.assertIn("evaluation-operation-form", confirmation_page.forms, "No confirmation page was shown")
+        confirmation_form = confirmation_page.forms["evaluation-operation-form"]
 
-            confirmation_page = form.submit("target_state", value=str(Evaluation.State.NEW.value))
+        self.assertIn("delete-previous-answers", confirmation_form.fields, "delete-previous-answers checkbox not found")
 
-            # TODO: overthink this
-            try:
-                confirmation_form = confirmation_page.forms["evaluation-operation-form"]
-            except KeyError:
-                self.assertTrue(False, "WARNING! no confirmation modal was shown!")
-                return
+        cb = confirmation_form["delete-previous-answers"]
+        self.assertTrue(cb.checked, "delete-previous-answers checkbox is not checked by default.")
 
-            self.assertIn("delete-previous-answers", confirmation_form.fields)
+        return confirmation_form
 
-            # TODO@Felix: check if button is checked by default
-            # TODO@Felix: check if checking/unchecking button makes the right stuff
-            # TODO@Felix: check if confirmation popup is shown
+    def test_keep_previous_answers(self):
+        confirmation_form = self._open_confirmation_form()
 
-            confirmation_form.submit()
+        confirmation_form["delete-previous-answers"] = False
 
-            evaluation = Evaluation.objects.get(pk=evaluation.pk)  # re-get evaluation
-            self.assertEqual(evaluation.state, Evaluation.State.NEW, "Did not reset the evaluation")
+        confirmation_form.submit()
+
+        evaluation = Evaluation.objects.get(pk=self.evaluation.pk)  # re-get evaluation
+        self.assertEqual(
+            evaluation.voters.count(),
+            len(self.voters),
+            "The voters list has been cleared when it should have been kept.",
+        )
+        self.assertEqual(
+            evaluation.textanswer_set.count(),
+            len(self.text_answers),
+            "The answers list has been cleared when it should have been kept.",
+        )
+
+        self.assertEqual(evaluation.state, Evaluation.State.NEW, "Did not reset the evaluation")
+
+    def test_delete_previous_answers(self):
+        self._open_confirmation_form().submit()
+
+        # TODO@Felix: check if confirmation popup is shown
+
+        evaluation = Evaluation.objects.get(pk=self.evaluation.pk)  # re-get evaluation
+        self.assertEqual(
+            evaluation.voters.count(),
+            0,
+            "The voters list has not been cleared when delete-previous-answers was checked.",
+        )
+        self.assertEqual(
+            evaluation.textanswer_set.count(),
+            0,
+            "The answer list has not been cleared when delete-previous-answers was checked.",
+        )
+
+        self.assertEqual(evaluation.state, Evaluation.State.NEW, "Did not reset the evaluation")
