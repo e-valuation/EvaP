@@ -1,13 +1,19 @@
 name: "Setup Python"
 description: "Sets up Python for use in actions with caching and copy localsettings"
 
+inputs:
+  install-dev-requirements:
+    description: "if disabled this will only install runtime dependencies"
+    required: false
+    default: "true"
+
 runs:
   using: "composite"
   steps:
     - name: Setup python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: "3.10"
 
     - name: Restore venv cache
       uses: syphar/restore-virtualenv@v1
@@ -18,7 +24,12 @@ runs:
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
     - name: Install dependencies
-      run: pip install -r requirements-dev.txt
+      env:
+        install_dev: ${{ inputs.install-dev-requirements }}
+      run: |
+        if [[ $install_dev == 'true' ]]; then 
+          pip install -r requirements-dev.txt 
+        else pip install -r requirements.txt; fi
       shell: bash
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
