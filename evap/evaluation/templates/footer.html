@@ -10,10 +10,10 @@
         <div class="collapse navbar-collapse justify-content-between">
             <ul class="navbar-nav justify-content-start">
                 <li class="nav-item my-auto">
-                    <a class="nav-link nav-link-multiline" href="{% url 'evaluation:legal_notice' %}">{% trans 'Legal Notice' %}<br />{% trans 'Data Privacy' %}</a>
+                    <a class="nav-link nav-link-multiline" href="{% url 'evaluation:legal_notice' %}">{% translate 'Legal Notice' %}<br />{% translate 'Data Privacy' %}</a>
                 </li>
                 <li class="d-none d-sm-block nav-item">
-                    <a class="nav-link" href="https://github.com/e-valuation/EvaP" target="_blank"><span class="fas fa-arrow-up-right-from-square"></span> {% trans 'GitHub project' %}</a>
+                    <a class="nav-link" href="https://github.com/e-valuation/EvaP" target="_blank"><span class="fas fa-arrow-up-right-from-square"></span> {% translate 'GitHub project' %}</a>
                 </li>
             </ul>
             <div class="d-none d-lg-block navbar-nav justify-content-center text-center">
@@ -23,7 +23,7 @@
                 {% if user.is_authenticated %}
                     <span class="feedback-button">
                         <button id="feedbackModalShowButton" type="button" class="btn btn-dark">
-                            {% trans 'Problems/Feedback' %}
+                            {% translate 'Problems/Feedback' %}
                         </button>
                     </span>
                 {% endif %}

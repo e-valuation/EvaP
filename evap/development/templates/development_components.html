@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
-{% block title %}{% trans 'Development' %} - {{ block.super }}{% endblock %}
+{% block title %}{% translate 'Development' %} - {{ block.super }}{% endblock %}
 
 {% block breadcrumb_bar %}
     <div class="breadcrumb-bar">
         <ul class="breadcrumb">
             {% block breadcrumb %}
-                <li class="breadcrumb-item">{% trans 'Development' %}</li>
+                <li class="breadcrumb-item">{% translate 'Development' %}</li>
             {% endblock %}
         </ul>
     </div>

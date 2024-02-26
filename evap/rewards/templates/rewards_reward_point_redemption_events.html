@@ -2,17 +2,17 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% trans 'Reward Point Redemption Events' %}</li>
+    <li class="breadcrumb-item">{% translate 'Reward Point Redemption Events' %}</li>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
     <div class="row mb-2">
         <div class="col">
-            <a href="{% url 'rewards:reward_point_redemption_event_create' %}" class="btn btn-dark btn-sm">{% trans 'Create new event' %}</a>
+            <a href="{% url 'rewards:reward_point_redemption_event_create' %}" class="btn btn-dark btn-sm">{% translate 'Create new event' %}</a>
         </div>
         <div class="col text-end">
-            {% trans 'Available reward points' %}: {{ total_points_available }}
+            {% translate 'Available reward points' %}: {{ total_points_available }}
         </div>
     </div>
 
@@ -33,18 +33,18 @@
                 assert(response.ok);
                 fadeOutThenRemove(document.querySelector(`#event-row-${body.get("event_id")}`));
             }).catch(error => {
-                window.alert("{% trans 'The server is not responding.' %}");
+                window.alert("{% translate 'The server is not responding.' %}");
             });
         });
     </script>
 
     <div class="card card-outline-primary mb-3">
-        {% trans 'Upcoming events' as title %}
+        {% translate 'Upcoming events' as title %}
         {% include 'rewards_reward_point_redemption_event_list.html' with title=title events=upcoming_events %}
     </div>
 
     <div class="card">
-        {% trans 'Past events' as title %}
+        {% translate 'Past events' as title %}
         {% include 'rewards_reward_point_redemption_event_list.html' with title=title events=past_events %}
     </div>
 {% endblock %}

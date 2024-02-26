@@ -18,8 +18,8 @@
                 </div>
             {% endif %}
             <div class="input-group">
-                <input type="search" name="search" class="form-control" placeholder="{% trans 'Search...' %}" />
-                <button class="btn btn-light text-secondary" type="button" data-reset="search" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Clear search filter' %}">
+                <input type="search" name="search" class="form-control" placeholder="{% translate 'Search...' %}" />
+                <button class="btn btn-light text-secondary" type="button" data-reset="search" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Clear search filter' %}">
                     <span class="fas fa-delete-left"></span>
                 </button>
             </div>
@@ -28,19 +28,19 @@
 
     <div class="card">
         <div class="card-header">
-            {% trans 'Courses' %}
+            {% translate 'Courses' %}
         </div>
         <div class="card-body table-responsive">
             {% if courses %}
                 <table class="table table-striped grade-course-table table-vertically-aligned">
                     <thead>
                         <tr>
-                            <th style="width: 35%" class="col-order" data-col="name">{% trans 'Name' %}</th>
-                            <th style="width: 20%" class="col-order" data-col="responsible">{% trans 'Responsible' %}</th>
-                            <th style="width: 10%" class="col-order" data-col="complete">{% trans 'Evaluation completed' %}</th>
-                            <th style="width: 10%" class="col-order" data-col="midterm-grades">{% trans 'Midterm grade documents' %}</th>
-                            <th style="width: 10%" class="col-order" data-col="final-grades">{% trans 'Final grade documents' %}</th>
-                            <th style="width: 15%" class="text-end">{% trans 'Actions' %}</th>
+                            <th style="width: 35%" class="col-order" data-col="name">{% translate 'Name' %}</th>
+                            <th style="width: 20%" class="col-order" data-col="responsible">{% translate 'Responsible' %}</th>
+                            <th style="width: 10%" class="col-order" data-col="complete">{% translate 'Evaluation completed' %}</th>
+                            <th style="width: 10%" class="col-order" data-col="midterm-grades">{% translate 'Midterm grade documents' %}</th>
+                            <th style="width: 10%" class="col-order" data-col="final-grades">{% translate 'Final grade documents' %}</th>
+                            <th style="width: 15%" class="text-end">{% translate 'Actions' %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -69,16 +69,16 @@
                                             <input type="hidden" name="course_id" value="{{ course.id }}">
 
                                             <confirmation-modal type="submit" name="status" value="0" confirm-button-class="btn-primary">
-                                                <span slot="title">{% trans 'Will final grades be uploaded?' %}</span>
-                                                <span slot="action-text">{% trans 'Confirm' %}</span>
+                                                <span slot="title">{% translate 'Will final grades be uploaded?' %}</span>
+                                                <span slot="action-text">{% translate 'Confirm' %}</span>
                                                 <span slot="question">
-                                                    {% blocktrans trimmed with course_name=course.name %}
+                                                    {% blocktranslate trimmed with course_name=course.name %}
                                                         Please confirm that a grade document for the course <strong>{{ course_name }}</strong> will be uploaded later on.
-                                                    {% endblocktrans %}
+                                                    {% endblocktranslate %}
                                                 </span>
 
                                                 <a slot="show-button" href="#">
-                                                    <span class="fas fa-xmark light-link" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Grade documents for this course will not be uploaded. Click to change.' %}"></span>
+                                                    <span class="fas fa-xmark light-link" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Grade documents for this course will not be uploaded. Click to change.' %}"></span>
                                                 </a>
                                             </confirmation-modal>
                                         </form>
@@ -92,31 +92,31 @@
                                                 <input type="hidden" name="course_id" value="{{ course.id }}">
 
                                                 <confirmation-modal type="submit" name="status" value="1" confirm-button-class="btn-primary">
-                                                    <span slot="title">{% trans 'Have final grades been submitted?' %}</span>
-                                                    <span slot="action-text">{% trans 'Confirm' %}</span>
+                                                    <span slot="title">{% translate 'Have final grades been submitted?' %}</span>
+                                                    <span slot="action-text">{% translate 'Confirm' %}</span>
                                                     <span slot="question">
-                                                        {% blocktrans trimmed with course_name=course.name %}
+                                                        {% blocktranslate trimmed with course_name=course.name %}
                                                             Please confirm that the final grades for the course <strong>{{ course_name }}</strong> have been submitted but will not be uploaded.
-                                                        {% endblocktrans %}
+                                                        {% endblocktranslate %}
                                                     </span>
 
-                                                    <button slot="show-button" type="button" {{ disable_if_archived }} class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Confirm that final grades have been submitted but will not be uploaded.' %}">
+                                                    <button slot="show-button" type="button" {{ disable_if_archived }} class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Confirm that final grades have been submitted but will not be uploaded.' %}">
                                                         <span class="fas fa-xmark"></span>
                                                     </button>
                                                 </confirmation-modal>
                                             </form>
 
-                                            <div class="btn-group" role="group" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Upload grade document' %}">
+                                            <div class="btn-group" role="group" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Upload grade document' %}">
                                                 <button type="button" id="btnUpload{{ course.id }}" class="btn btn-sm btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                     <span class="fas fa-upload"></span>
                                                 </button>
                                                 <div class="dropdown-menu" aria-labelledby="btnUpload{{ course.id }}">
-                                                    <a class="dropdown-item" href="{% url 'grades:upload_grades' course.id %}">{% trans 'Midterm grades' %}</a>
-                                                    <a class="dropdown-item" href="{% url 'grades:upload_grades' course.id %}?final=true">{% trans 'Final grades' %}</a>
+                                                    <a class="dropdown-item" href="{% url 'grades:upload_grades' course.id %}">{% translate 'Midterm grades' %}</a>
+                                                    <a class="dropdown-item" href="{% url 'grades:upload_grades' course.id %}?final=true">{% translate 'Final grades' %}</a>
                                                 </div>
                                             </div>
                                         {% else %}
-                                            <a href="{% url 'grades:course_view' course.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Change grade document' %}"><span class="fas fa-pencil"></span></a>
+                                            <a href="{% url 'grades:course_view' course.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Change grade document' %}"><span class="fas fa-pencil"></span></a>
                                         {% endif %}
                                     {% endif %}
                                 </td>
@@ -125,7 +125,7 @@
                     </tbody>
                 </table>
             {% else %}
-                <span class="fst-italic">{% trans 'No courses have been created yet' %}</span>
+                <span class="fst-italic">{% translate 'No courses have been created yet' %}</span>
             {% endif %}
         </div>
     </div>

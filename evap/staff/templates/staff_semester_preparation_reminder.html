@@ -4,7 +4,7 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% trans 'Preparation reminder' %}</li>
+    <li class="breadcrumb-item">{% translate 'Preparation reminder' %}</li>
 {% endblock %}
 
 {% block content %}
@@ -20,11 +20,11 @@
                     <input type="hidden" name="semester_id" value="{{ semester.id }}" />
 
                     <confirmation-modal type="submit">
-                        <span slot="title">{% trans 'Remind all' %}</span>
-                        <span slot="action-text">{% trans 'Remind all' %}</span>
-                        <span slot="question">{% trans 'Do you really want to remind everyone?' %}</span>
+                        <span slot="title">{% translate 'Remind all' %}</span>
+                        <span slot="action-text">{% translate 'Remind all' %}</span>
+                        <span slot="question">{% translate 'Do you really want to remind everyone?' %}</span>
 
-                        <button slot="show-button" type="button" id="remindAllButton" class="btn btn-sm btn-light">{% trans 'Remind all' %}</button>
+                        <button slot="show-button" type="button" id="remindAllButton" class="btn btn-sm btn-light">{% translate 'Remind all' %}</button>
                     </confirmation-modal>
                 </form>
             </div>
@@ -35,7 +35,7 @@
         <div class="card{% if not forloop.last %} mb-3{% endif %}">
             <div class="card-header d-flex">
                 <span class="ps-1 me-auto">
-                    <a href="{% url 'staff:user_edit' responsible.id %}">{{ responsible.full_name }}</a>, {% trans 'Delegates' %}:
+                    <a href="{% url 'staff:user_edit' responsible.id %}">{{ responsible.full_name }}</a>, {% translate 'Delegates' %}:
                     {% for delegate in delegates %}
                         <a href="{% url 'staff:user_edit' delegate.id %}">{{ delegate.full_name }}</a>{% if not forloop.last %},{% endif %}
                     {% empty %}
@@ -43,16 +43,16 @@
                     {% endfor %}
                 </span>
                 <div>
-                    <a href="{% url 'staff:send_reminder' semester.id responsible.id %}" class="btn btn-sm btn-light">{% trans 'Send reminder' %}</a>
+                    <a href="{% url 'staff:send_reminder' semester.id responsible.id %}" class="btn btn-sm btn-light">{% translate 'Send reminder' %}</a>
                 </div>
             </div>
             <div class="card-body">
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th style="width: 57%">{% trans 'Name' %}</th>
-                            <th style="width: 18%">{% trans 'Start of evaluation' %}</th>
-                            <th style="width: 25%">{% trans 'Last modified by' %}</th>
+                            <th style="width: 57%">{% translate 'Name' %}</th>
+                            <th style="width: 18%">{% translate 'Start of evaluation' %}</th>
+                            <th style="width: 25%">{% translate 'Last modified by' %}</th>
                        </tr>
                     </thead>
                     <tbody>
