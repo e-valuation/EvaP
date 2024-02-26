@@ -20,9 +20,8 @@ runs:
         install_dev: ${{ inputs.install-dev-requirements }}
       run: |
         if [[ $install_dev == 'true' ]]; then \
-          REQUIREMENTS_TXT='requirements-dev.txt' \
-        else REQUIREMENTS_TXT='requirements.txt' fi
-        
+          set REQUIREMENTS_TXT 'requirements-dev.txt' \
+        else set REQUIREMENTS_TXT 'requirements.txt' fi
         echo "requirements_txt=$REQUIREMENTS_TXT" >> $GITHUB_ENV
       shell: bash
 
