@@ -17,7 +17,7 @@
         </div>
         {% if user.is_delegate %}
             <div class="btn-switch btn-switch-light ms-2 d-print-none">
-                <div class="btn-switch-label"><span class="fas fa-people-arrows-left-right"></span> {% trans 'Delegated evaluations' %}</div>
+                <div class="btn-switch-label text-break break-spaces"><span class="fas fa-people-arrows-left-right"></span> {% trans 'Delegated evaluations' %}</div>
                 <div class="btn-switch btn-group">
                     <a href="{% url 'contributor:index' %}?show_delegated=true" role="button" class="btn btn-sm btn-light{% if show_delegated %} active{% endif %}">
                         {% trans 'Show' %}
@@ -42,7 +42,7 @@
             <div class="card-header">
                 {{ semester.semester_name }}
             </div>
-            <div class="card-body">
+            <div class="card-body table-responsive">
                 <table class="table table-seamless-links table-vertically-aligned">
                     <thead>
                     <tr>

@@ -75,3 +75,7 @@ a.no-underline:hover {
 .z-over-fixed {
     z-index: $zindex-fixed + 1;
 }
+
+.break-spaces {
+    white-space: break-spaces;
+}

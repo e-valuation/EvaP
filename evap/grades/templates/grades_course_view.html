@@ -9,7 +9,7 @@
         <div class="card-header">
             {% trans 'Uploaded grade documents' %}
         </div>
-        <div class="card-body">
+        <div class="card-body table-responsive">
             {% if grade_documents %}
                 <form id="grade-document-deletion-form" custom-success method="POST" action="{% url 'grades:delete_grades' %}">
                     {% csrf_token %}
