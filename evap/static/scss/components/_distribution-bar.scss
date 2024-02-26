@@ -63,7 +63,7 @@
     }
 
     &:not(:empty) {
-        min-width: calc(3ch + 2*3px);
+        min-width: calc(3ch + 2*3px); // 3 characters + left and right border
     }
 
 }
