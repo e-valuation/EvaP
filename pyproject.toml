@@ -25,6 +25,8 @@ extend_skip_glob = ["**/migrations/*"]
 [tool.ruff]
 target-version = "py310"
 line-length = 120
+
+[tool.ruff.lint]
 # Those are interesting, but not yet addressed: PYI,Q,SIM,PTH,TRY,RUF
 select = ["F", "E", "B", "W", "N", "UP", "YTT", "FIX", "ASYNC", "A", "DJ", "EXE", "ICN", "G", "SLOT", "TID", "TCH", "INT", "C4", "ISC", "INP", "PIE", "RSE", "RET", "COM","PGH","FLY", "PERF", "PL", "BLE"]
 ignore = [
@@ -41,7 +43,7 @@ ignore = [
 ignore-init-module-imports = true
 pep8-naming.extend-ignore-names = ["assert*", "*Formset"]  # custom assert methods use camelCase; Formsets use PascalCase
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "**/migrations/*.py" = ["N806"]  # migrations have model classes as local variables, we use PascalCase for these
 "**/commands/*.py" = ["T201"]  # printing in commands is ok
 "deployment/*.py" = ["INP001"]  # not intended for direct import
