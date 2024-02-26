@@ -16,24 +16,40 @@ runs:
         python-version: "3.10"
 
     - name: Restore venv cache
-      uses: syphar/restore-virtualenv@v1
       id: cache-virtualenv
+      uses: actions/cache@v3
       with:
-        requirement_files: ${{ inputs.requirements-file }}
+        path: .venv
+        key: venv-${{ runner.os }}-${{ hashFiles( inputs.requirements-file ) }}-${{ inputs.requirements-file }}
+        restore-keys: venv-${{ runner.os }}-${{ hashFiles( inputs.requirements-file ) }}-${{ inputs.requirements-file }}
 
     - name: Restore pip download cache
-      uses: syphar/restore-pip-download-cache@v1
-      if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+      uses: actions/cache@v3
       with:
-        requirement_files: ${{ inputs.requirements-file }}
+        path: ~/.cache/pip
+        key: pip-${{ runner.os }}-${{ hashFiles( inputs.requirements-file ) }}-${{ inputs.requirements-file }}
+        restore-keys: pip-${{ runner.os }}-${{ hashFiles( inputs.requirements-file ) }}-${{ inputs.requirements-file }}
+      if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
     - name: Install dependencies
       env:
         requirements_txt: ${{ inputs.requirements-file }}
-      run: pip install -r $requirements_txt
+      run: |
+        python -m venv .venv
+        source .venv/bin/activate
+        pip install -r $requirements_txt
       shell: bash
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
     - name: Add localsettings
       run: cp evap/settings_test.py evap/localsettings.py
+      shell: bash
+
+    - name: Activate venv
+      run: |
+        source .venv/bin/activate
+        echo $PATH >> $GITHUB_PATH
+        echo PATH=$PATH >> $GITHUB_ENV
+        echo VIRTUAL_ENV=$VIRTUAL_ENV >> $GITHUB_ENV
+        echo PYTHONHOME=$PYTHONHOME >> $GITHUB_ENV
       shell: bash
