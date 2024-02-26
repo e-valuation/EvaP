@@ -17,7 +17,7 @@
         </div>
         {% if user.is_delegate %}
             <div class="btn-switch btn-switch-light ms-2 d-print-none">
-                <div class="btn-switch-label"><span class="fas fa-people-arrows-left-right"></span> {% trans 'Delegated evaluations' %}</div>
+                <div class="btn-switch-label text-break break-spaces"><span class="fas fa-people-arrows-left-right"></span> {% trans 'Delegated evaluations' %}</div>
                 <div class="btn-switch btn-group">
                     <a href="{% url 'contributor:index' %}?show_delegated=true" role="button" class="btn btn-sm btn-light{% if show_delegated %} active{% endif %}">
                         {% trans 'Show' %}
@@ -42,7 +42,7 @@
             <div class="card-header">
                 {{ semester.semester_name }}
             </div>
-            <div class="card-body">
+            <div class="card-body table-responsive">
                 <table class="table table-seamless-links table-vertically-aligned">
                     <thead>
                     <tr>
@@ -157,12 +157,13 @@
                                                         <span class="fas fa-pencil"></span>
                                                     </a>
                                                     {% if not evaluation|has_nonresponsible_editor %}
-                                                        <a href="#" class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
+                                                        <button class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
                                                             data-bs-placement="top" title="{% trans 'Delegate preparation' %}"
-                                                            onclick="delegateSelectionModalShow(`{{ evaluation.full_name }}`, `{% url 'contributor:evaluation_direct_delegation' evaluation.id %}`);return false;"
+                                                            data-evaluation-name="{{ evaluation.full_name }}"
+                                                            data-delegation-url="{% url 'contributor:evaluation_direct_delegation' evaluation.id %}"
                                                         >
                                                             <span class="fas fa-hand-point-left"></span>
-                                                        </a>
+                                                        </button>
                                                     {% endif %}
                                                 {% elif evaluation.state == evaluation.State.EDITOR_APPROVED or evaluation.state == evaluation.State.APPROVED %}
                                                     <a href="{% url 'contributor:evaluation_view' evaluation.id %}" class="btn btn-sm btn-light"
@@ -226,22 +227,26 @@
             </div>
         </div>
 
-        <script type="text/javascript">
-            function {{ modal_id }}Show(evaluationName, action) {
-                const modal = document.getElementById("{{ modal_id }}");
-                // set form's action location
-                modal.querySelectorAll("form").forEach(form => form.action = action);
+        <script type="module">
+            document.querySelectorAll("[data-evaluation-name][data-delegation-url]").forEach(showButton => {
+                showButton.addEventListener("click", event => {
+                    event.stopPropagation();
 
-                // put the correct evaluation name in the modal
-                modal.querySelectorAll('[data-label=""]').forEach(el => el.innerText = evaluationName);
+                    const modal = document.getElementById("{{ modal_id }}");
+                    // set form's action location
+                    modal.querySelectorAll("form").forEach(form => form.action = showButton.dataset.delegationUrl);
 
-                // unselect any previously selected options in the modal
-                modal.querySelectorAll("select").forEach(select => select.tomselect.clear());
+                    // put the correct evaluation name in the modal
+                    modal.querySelectorAll('[data-label=""]').forEach(el => el.innerText = showButton.dataset.evaluationName);
 
-                // show modal
-                var {{ modal_id }} = new bootstrap.Modal(document.getElementById('{{ modal_id }}'));
-                {{ modal_id }}.show();
-            }
+                    // unselect any previously selected options in the modal
+                    modal.querySelectorAll("select").forEach(select => select.tomselect.clear());
+
+                    // show modal
+                    var {{ modal_id }} = new bootstrap.Modal(document.getElementById('{{ modal_id }}'));
+                    {{ modal_id }}.show();
+                });
+            });
         </script>
     {% endwith %}
 {% endblock %}

@@ -1,0 +1,17 @@
+.staff-index-card-columns {
+    @include media-breakpoint-up(sm) {
+        column-count: 2;
+    }
+    @include media-breakpoint-up(lg) {
+        column-count: 3;
+    }
+
+    .card {
+        margin-bottom: 1rem;
+
+        @include media-breakpoint-up(sm) {
+            display: inline-block;
+            width: 100%;
+        }
+    }
+}

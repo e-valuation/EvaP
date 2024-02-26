@@ -13,7 +13,20 @@
     {% if responsible_list %}
         <div class="d-flex mb-3">
             <div class="me-auto">
-                <button type="button" id="remindAllButton" onClick="remindAllModalShow()" class="btn btn-sm btn-light">{% trans 'Remind all' %}</button>
+
+                <form reload-on-success method="POST" action="{% url 'staff:semester_preparation_reminder' semester_id=semester.id %}">
+                    {% csrf_token %}
+
+                    <input type="hidden" name="semester_id" value="{{ semester.id }}" />
+
+                    <confirmation-modal type="submit">
+                        <span slot="title">{% trans 'Remind all' %}</span>
+                        <span slot="action-text">{% trans 'Remind all' %}</span>
+                        <span slot="question">{% trans 'Do you really want to remind everyone?' %}</span>
+
+                        <button slot="show-button" type="button" id="remindAllButton" class="btn btn-sm btn-light">{% trans 'Remind all' %}</button>
+                    </confirmation-modal>
+                </form>
             </div>
         </div>
     {% endif %}
@@ -68,27 +81,4 @@
         </div>
     {% endfor %}
 
-{% endblock %}
-
-{% block modals %}
-    {{ block.super }}
-    {% trans 'Remind all' as title %}
-    {% trans 'Do you really want to remind everyone?' as question %}
-    {% trans 'Remind all' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='remindAllModal' title=title question=question action_text=action_text btn_type='primary' %}
-    <script type="text/javascript">
-        function remindAllModalAction() {
-            const remindAllButton = document.getElementById('remindAllButton');
-            remindAllButton.disabled = true;
-            remindAllButton.innerText = "{% trans 'Reminding everyone' %}";
-
-            fetch("{% url 'staff:semester_preparation_reminder' semester_id=semester.id %}", {
-                headers: CSRF_HEADERS,
-                method: "POST",
-            }).then(response => {
-                assert(response.ok);
-                location.reload();
-            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
-        }
-    </script>
 {% endblock %}

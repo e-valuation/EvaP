@@ -129,6 +129,7 @@ module = [
     "debug_toolbar.*",
     "mozilla_django_oidc.*",
     "model_bakery.*",
+    "webtest.*",
     "xlrd.*",
     "xlwt.*",
 

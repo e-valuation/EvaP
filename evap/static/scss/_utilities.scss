@@ -53,6 +53,10 @@ a.no-underline:hover {
     }
 }
 
+.d-contents {
+    display: contents !important;
+}
+
 .fa-fw-absolute {
     text-align: center;
     width: #{20rem / 16};
@@ -70,4 +74,8 @@ a.no-underline:hover {
 
 .z-over-fixed {
     z-index: $zindex-fixed + 1;
+}
+
+.break-spaces {
+    white-space: break-spaces;
 }

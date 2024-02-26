@@ -28,6 +28,8 @@
     <body>
         <script type="text/javascript" src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
 
+        {% include "custom_elements.html" %}
+
         {% block modals %}
             {% if user.is_authenticated %}
                 {% trans 'Feedback' as title %}
@@ -179,12 +181,9 @@
 
             // activate clickable hover tables
             document.querySelectorAll(".table-seamless-links [data-url]").forEach(row => {
-                for(const table_data of row.children) {
-                    const wrapping_anchor = document.createElement("a");
-                    wrapping_anchor.href = row.dataset["url"];
-                    wrapping_anchor.append(...table_data.childNodes);
-                    table_data.replaceChildren(wrapping_anchor);
-                }
+                row.addEventListener("click", () => {
+                    window.location.assign(row.dataset.url);
+                });
             });
 
             document.querySelectorAll(".hover-row").forEach(row => {
@@ -200,6 +199,12 @@
                 element.className = "fas fa-spinner fa-spin";  // clears all other classes
             };
 
+        </script>
+
+        <script type="module">
+            import { setupForms } from "{% static 'js/custom-success-form.js' %}";
+
+            setupForms();
         </script>
 
         {% block additional_javascript %}{% endblock %}
