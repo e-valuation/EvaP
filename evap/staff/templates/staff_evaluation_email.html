@@ -5,7 +5,7 @@
 {% block content %}
     {{ block.super }}
     {% if form.errors %}
-        <div class="alert alert-danger" role="alert">{% blocktrans %}Please fill out all required fields and select at least one recipient group.{% endblocktrans %}</div>
+        <div class="alert alert-danger" role="alert">{% blocktranslate %}Please fill out all required fields and select at least one recipient group.{% endblocktranslate %}</div>
     {% endif %}
     <form id="evaluation-email-form" method="POST" class="form-horizontal">
         {% csrf_token %}
@@ -28,7 +28,7 @@
                                                         </label>
                                                     {% endfor %}
                                                 </div>
-                                                <button name="export" type="submit" formnovalidate class="btn btn-sm btn-secondary">{% trans 'Show Recipients' %}</button>
+                                                <button name="export" type="submit" formnovalidate class="btn btn-sm btn-secondary">{% translate 'Show Recipients' %}</button>
                                             </div>
                                         </div>
                                     {% else %}
@@ -44,7 +44,7 @@
         </div>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
-                <button name="send" type="submit" class="btn btn-primary">{% trans 'Send email' %}</button>
+                <button name="send" type="submit" class="btn btn-primary">{% translate 'Send email' %}</button>
             </div>
         </div>
     </form>

@@ -1,5 +1,5 @@
 {% if user.reward_point_grantings.all %}
-    {% trans 'Grantings' %}:
+    {% translate 'Grantings' %}:
     <ul>
         {% for reward_point_granting in user.reward_point_grantings.all %}
             <li>{{ reward_point_granting.semester.name }} ({{ reward_point_granting.value }})</li>
@@ -7,7 +7,7 @@
     </ul>
 {% endif %}
 {% if user.reward_point_redemptions.all %}
-    {% trans 'Redemptions' %}:
+    {% translate 'Redemptions' %}:
     <ul>
         {% for reward_point_redemption in user.reward_point_redemptions.all %}
             <li>{{ reward_point_redemption.event.name }} ({{ reward_point_redemption.value }})</li>

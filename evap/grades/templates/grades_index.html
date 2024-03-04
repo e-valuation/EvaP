@@ -5,7 +5,7 @@
 {% block content %}
     {% show_infotext "grades_pages" %}
 
-    <h3>{% trans 'Semesters' %}</h3>
+    <h3>{% translate 'Semesters' %}</h3>
     <div class="card mb-3">
         <div class="card-body">
             {% if semesters %}
@@ -15,7 +15,7 @@
                 {% endfor %}
                 </ul>
             {% else %}
-                {% trans 'There are no semesters yet.' %}
+                {% translate 'There are no semesters yet.' %}
             {% endif %}
         </div>
     </div>

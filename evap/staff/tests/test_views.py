@@ -46,6 +46,7 @@ from evap.evaluation.tests.tools import (
     make_manager,
     make_rating_answer_counters,
     render_pages,
+    submit_with_modal,
 )
 from evap.grades.models import GradeDocument
 from evap.results.tools import TextResult, cache_results, get_results
@@ -633,7 +634,7 @@ class TestUserImportView(WebTestStaffMode):
         self.assertContains(page, "Import previously uploaded file")
 
         form = page.forms["user-import-form"]
-        form.submit(name="operation", value="import")
+        submit_with_modal(page, form, name="operation", value="import")
 
         page = self.app.get(self.url, user=self.manager)
         self.assertNotContains(page, "Import previously uploaded file")
@@ -1095,7 +1096,7 @@ class TestSemesterImportView(WebTestStaffMode):
         form = page.forms["semester-import-form"]
         form["vote_start_datetime"] = "2000-01-01 00:00:00"
         form["vote_end_date"] = "2012-01-01"
-        form.submit(name="operation", value="import")
+        submit_with_modal(page, form, name="operation", value="import")
 
         self.assertEqual(UserProfile.objects.count(), original_user_count + 23)
 
@@ -1244,8 +1245,7 @@ class TestSemesterImportView(WebTestStaffMode):
         )
         page = form.submit(name="operation", value="test")
 
-        form = page.forms["semester-import-form"]
-        page = form.submit(name="operation", value="import")
+        page = submit_with_modal(page, page.forms["semester-import-form"], name="operation", value="import")
 
         self.assertContains(page, "This field is required.")
         self.assertContains(page, "Import previously uploaded file")
@@ -2354,7 +2354,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         self.assertEqual(self.evaluation.participants.count(), original_participant_count)
 
         form = page.forms["participant-import-form"]
-        form.submit(name="operation", value="import-participants")
+        submit_with_modal(page, form, name="operation", value="import-participants")
         self.assertEqual(self.evaluation.participants.count(), original_participant_count + 2)
 
         page = self.app.get(self.url, user=self.manager)
@@ -2370,7 +2370,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         self.assertNotEqual(self.evaluation2.participants.count(), 2)
 
         form = page.forms["participant-import-form"]
-        form.submit(name="operation", value="import-replace-participants")
+        submit_with_modal(page, form, name="operation", value="import-replace-participants")
         self.assertEqual(self.evaluation2.participants.count(), 2)
 
         page = self.app.get(self.url2, user=self.manager)
@@ -2383,7 +2383,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
 
         form = page.forms["participant-copy-form"]
         form["pc-evaluation"] = str(self.evaluation2.pk)
-        page = form.submit(name="operation", value="copy-participants")
+        page = submit_with_modal(page, form, name="operation", value="copy-participants")
 
         self.assertEqual(
             self.evaluation.participants.count(), original_participant_count + self.evaluation2.participants.count()
@@ -2396,7 +2396,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
 
         form = page.forms["participant-copy-form"]
         form["pc-evaluation"] = str(self.evaluation2.pk)
-        page = form.submit(name="operation", value="copy-replace-participants")
+        page = submit_with_modal(page, form, name="operation", value="copy-replace-participants")
 
         self.assertEqual(self.evaluation.participants.count(), self.evaluation2.participants.count())
 
@@ -2415,7 +2415,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         )
 
         form = page.forms["contributor-import-form"]
-        form.submit(name="operation", value="import-contributors")
+        submit_with_modal(page, form, name="operation", value="import-contributors")
         self.assertEqual(
             UserProfile.objects.filter(contributions__evaluation=self.evaluation).count(),
             original_contributor_count + 2,
@@ -2434,7 +2434,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         self.assertNotEqual(UserProfile.objects.filter(contributions__evaluation=self.evaluation2).count(), 2)
 
         form = page.forms["contributor-import-form"]
-        form.submit(name="operation", value="import-replace-contributors")
+        submit_with_modal(page, form, name="operation", value="import-replace-contributors")
         self.assertEqual(UserProfile.objects.filter(contributions__evaluation=self.evaluation2).count(), 2)
 
         page = self.app.get(self.url, user=self.manager)
@@ -2447,7 +2447,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
 
         form = page.forms["contributor-copy-form"]
         form["cc-evaluation"] = str(self.evaluation2.pk)
-        page = form.submit(name="operation", value="copy-contributors")
+        page = submit_with_modal(page, form, name="operation", value="copy-contributors")
 
         new_contributor_count = UserProfile.objects.filter(contributions__evaluation=self.evaluation).count()
         self.assertEqual(
@@ -2465,7 +2465,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
 
         form = page.forms["contributor-copy-form"]
         form["cc-evaluation"] = str(self.evaluation2.pk)
-        page = form.submit(name="operation", value="copy-replace-contributors")
+        page = submit_with_modal(page, form, name="operation", value="copy-replace-contributors")
 
         new_contributor_count = UserProfile.objects.filter(contributions__evaluation=self.evaluation).count()
         self.assertEqual(

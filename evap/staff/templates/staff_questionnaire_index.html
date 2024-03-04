@@ -6,25 +6,25 @@
     {{ block.super }}
     <div class="row mb-3 align-items-center">
         <div class="col">
-            <a href="{% url 'staff:questionnaire_create' %}" class="btn btn-sm btn-dark">{% trans 'Create new questionnaire' %}</a>
+            <a href="{% url 'staff:questionnaire_create' %}" class="btn btn-sm btn-dark">{% translate 'Create new questionnaire' %}</a>
         </div>
         <div class="col-auto">
             <div class="btn-switch btn-switch-light">
-                <div class="btn-switch-label">{% trans 'Hidden questionnaires' %}</div>
+                <div class="btn-switch-label">{% translate 'Hidden questionnaires' %}</div>
                 <div class="btn-switch btn-group">
                     <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=false" role="button" class="btn btn-sm btn-light{% if not filter_questionnaires %} active{% endif %}">
-                    {% trans 'Show' %}
+                    {% translate 'Show' %}
                     </a>
                     <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=true" role="button" class="btn btn-sm btn-light{% if filter_questionnaires %} active{% endif %}">
-                        {% trans 'Hide' %}
+                        {% translate 'Hide' %}
                     </a>
                 </div>
             </div>
         </div>
         <div class="col-3">
             <div class="input-group">
-                <input type="search" name="search" class="form-control" placeholder="{% trans 'Search...' %}" />
-                <button class="btn btn-light text-secondary" type="button" data-reset="search" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Clear filter' %}">
+                <input type="search" name="search" class="form-control" placeholder="{% translate 'Search...' %}" />
+                <button class="btn btn-light text-secondary" type="button" data-reset="search" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Clear filter' %}">
                     <span class="fas fa-delete-left"></span>
                 </button>
             </div>
@@ -32,37 +32,39 @@
     </div>
 
     {% if general_questionnaires_top or general_questionnaires_bottom or contributor_questionnaires %}
-        {% trans 'Top general questionnaires' as headline %}
+        <form id="questionnaire-deletion-form" method="POST" action="{% url 'staff:questionnaire_delete' %}">
+            {% csrf_token %}
+        </form>
+
+        <script type="module">
+            const form = document.getElementById("questionnaire-deletion-form");
+            form.addEventListener("submit", event => {
+                event.preventDefault();
+                const body = new FormData(form);
+                const request = fetch(
+                    form.action,
+                    { method: form.method, body },
+                );
+                request.then(response => {
+                    assert(response.ok);
+                    fadeOutThenRemove(document.querySelector(`#questionnaire-row-${body.get("questionnaire_id")}`));
+                }).catch(error => {
+                    window.alert("{% translate 'The server is not responding.' %}");
+                });;
+            });
+        </script>
+
+        {% translate 'Top general questionnaires' as headline %}
         {% include 'staff_questionnaire_index_list.html' with questionnaires=general_questionnaires_top headline=headline extra_classes='mb-3' type='top' %}
-        {% trans 'Contributor questionnaires' as headline %}
+        {% translate 'Contributor questionnaires' as headline %}
         {% include 'staff_questionnaire_index_list.html' with questionnaires=contributor_questionnaires headline=headline extra_classes='mb-3' type='contributor' %}
-        {% trans 'Bottom general questionnaires' as headline %}
+        {% translate 'Bottom general questionnaires' as headline %}
         {% include 'staff_questionnaire_index_list.html' with questionnaires=general_questionnaires_bottom headline=headline extra_classes='' type='bottom' %}
     {% else %}
         <p>
-            {% trans 'There are no questionnaires yet.' %}
+            {% translate 'There are no questionnaires yet.' %}
         </p>
     {% endif %}
-{% endblock %}
-
-{% block modals %}
-    {{ block.super }}
-    {% trans 'Delete questionnaire' as title %}
-    {% trans 'Do you really want to delete the questionnaire <strong data-label=""></strong>?' as question %}
-    {% trans 'Delete questionnaire' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='deleteQuestionnaireModal' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
-        function deleteQuestionnaireModalAction(dataId) {
-            fetch("{% url 'staff:questionnaire_delete' %}", {
-                body: new URLSearchParams({questionnaire_id: dataId}),
-                headers: CSRF_HEADERS,
-                method: "POST",
-            }).then(response => {
-                assert(response.ok);
-                fadeOutThenRemove(document.querySelector('#questionnaire-row-'+dataId));
-            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
-        };
-    </script>
 {% endblock %}
 
 {% block additional_javascript %}
@@ -92,7 +94,7 @@
                 assert(response.ok);
                 questionnaire.querySelectorAll(`button[data-visibility]`).forEach(button => {button.classList.remove("active");});
                 questionnaire.querySelectorAll(`button[data-visibility="${visibility}"]`).forEach(button => {button.classList.add("active");});
-            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
+            }).catch(error => {window.alert("{% translate 'The server is not responding.' %}");});
         }
 
         function changeLocked(element) {
@@ -107,7 +109,7 @@
                 assert(response.ok);
                 questionnaire.querySelectorAll(`button[data-is-locked]`).forEach(button => {button.classList.remove("active");});
                 questionnaire.querySelectorAll(`button[data-is-locked="${is_locked}"]`).forEach(button => {button.classList.add("active");});
-            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
+            }).catch(error => {window.alert("{% translate 'The server is not responding.' %}");});
         }
     </script>
 {% endblock %}

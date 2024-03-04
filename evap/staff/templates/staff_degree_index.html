@@ -4,7 +4,7 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% trans 'Degrees' %}</li>
+    <li class="breadcrumb-item">{% translate 'Degrees' %}</li>
 {% endblock %}
 
 {% block content %}
@@ -15,15 +15,15 @@
         {{ formset.management_form }}
 
         <div class="card mb-3">
-            <div class="card-body">
+            <div class="card-body table-responsive">
                 <table id="degree_table" class="table table-vertically-aligned">
                     <thead>
                         <tr>
                             <th class="movable"></th>
-                            <th style="width: 25%">{% trans 'Name (German)' %}</th>
-                            <th style="width: 25%">{% trans 'Name (English)' %}</th>
-                            <th style="width: 40%">{% trans 'Import names' %}</th>
-                            <th class="text-end" style="width: 10%">{% trans 'Actions' %}</th>
+                            <th style="width: 25%">{% translate 'Name (German)' %}</th>
+                            <th style="width: 25%">{% translate 'Name (English)' %}</th>
+                            <th style="width: 40%">{% translate 'Import names' %}</th>
+                            <th class="text-end" style="width: 10%">{% translate 'Actions' %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -49,7 +49,7 @@
                                         {% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}
                                     {% else %}
                                         <button type="button" disabled class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="left"
-                                            title="{% trans 'This degree cannot be deleted because it is used for at least one course.' %}">
+                                            title="{% translate 'This degree cannot be deleted because it is used for at least one course.' %}">
                                             <span class="fas fa-trash"></span>
                                         </button>
                                     {% endif %}
@@ -62,7 +62,7 @@
         </div>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
-                <button type="submit" class="btn btn-primary">{% trans 'Save degrees' %}</button>
+                <button type="submit" class="btn btn-primary">{% translate 'Save degrees' %}</button>
             </div>
         </div>
     </form>

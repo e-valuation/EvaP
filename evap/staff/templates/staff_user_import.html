@@ -4,13 +4,13 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'staff:user_index' %}">{% trans 'Users' %}</a></li>
-    <li class="breadcrumb-item">{% trans 'Import users' %}</li>
+    <li class="breadcrumb-item"><a href="{% url 'staff:user_index' %}">{% translate 'Users' %}</a></li>
+    <li class="breadcrumb-item">{% translate 'Import users' %}</li>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
-    <h3>{% trans 'Import users' %}</h3>
+    <h3>{% translate 'Import users' %}</h3>
 
     {% include 'staff_message_rendering_template.html' with importer_log=importer_log %}
 
@@ -19,10 +19,10 @@
         <div class="card mb-3">
             <div class="card-body">
                 <p>
-                    {% trans 'Upload Excel file' %}
-                    (<a href="{% url 'staff:download_sample_file' 'sample_user.xlsx' %}">{% trans 'Download sample file' %}</a>,
-                    <button type="button" class="btn btn-link" onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">{% trans 'Copy headers to clipboard' %}</button>).
-                    {% trans 'This will create all contained users.' %}
+                    {% translate 'Upload Excel file' %}
+                    (<a href="{% url 'staff:download_sample_file' 'sample_user.xlsx' %}">{% translate 'Download sample file' %}</a>,
+                    <button type="button" class="btn btn-link" onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">{% translate 'Copy headers to clipboard' %}</button>).
+                    {% translate 'This will create all contained users.' %}
                 </p>
                 {% include 'bootstrap_form.html' with form=excel_form %}
             </div>
@@ -30,35 +30,24 @@
         <div class="card card-submit-area{% if test_passed %} card-submit-area-2{% endif %} text-center mb-3">
             <div class="card-body">
                 {% if not test_passed %}
-                    <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
+                    <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% translate 'Upload and test' %}</button>
                 {% else %}
-                    <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
-                    <button name="operation" value="import" type="button" onclick="importUserModalShow('import');" class="btn btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
+                    <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% translate 'Upload and test' %}</button>
+                    <confirmation-modal type="submit" name="operation" value="import">
+                        <span slot="title">{% translate 'Import Users' %}</span>
+                        <span slot="action-text">{% translate 'Import Users' %}</span>
+                        <span slot="question">
+                            {% blocktranslate trimmed %}
+                                Do you really want to import the users from the Excel file?
+                            {% endblocktranslate %}
+                        </span>
+
+                        <button slot="show-button" type="button" class="btn btn-primary form-submit-button">{% translate 'Import previously uploaded file' %}</button>
+                    </confirmation-modal>
                 {% endif %}
             </div>
         </div>
     </form>
-{% endblock %}
-
-{% block modals %}
-{{ block.super }}
-    {% trans 'Import Users' as title %}
-    {% blocktrans asvar question %}Do you really want to import the users from the Excel file?{% endblocktrans %}
-    {% trans 'Import Users' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='importUserModal' title=title question=question action_text=action_text btn_type='primary' %}
-    <script type="text/javascript">
-        function importUserModalAction(dataId) {
-            const input = document.createElement("input");
-            input.type = "hidden";
-            input.name = "operation";
-            input.value = dataId;
-
-            const form = document.getElementById("user-import-form");
-            form.appendChild(input);
-            form.requestSubmit();
-        };
-    </script>
-
 {% endblock %}
 
 {% block additional_javascript %}

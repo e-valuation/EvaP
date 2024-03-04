@@ -37,7 +37,6 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy, ngettext
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, FormView, UpdateView
-from django_stubs_ext import StrOrPromise
 
 from evap.contributor.views import export_contributor_results
 from evap.evaluation.auth import manager_required, reviewer_required, staff_permission_required
@@ -65,6 +64,7 @@ from evap.evaluation.tools import (
     FormsetView,
     HttpResponseNoContent,
     SaveValidFormMixin,
+    StrOrPromise,
     get_object_from_dict_pk_entry_or_logged_40x,
     get_parameter_from_url_or_session,
     sort_formset,

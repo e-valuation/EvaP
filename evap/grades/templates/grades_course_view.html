@@ -7,65 +7,65 @@
 
     <div class="card mb-3">
         <div class="card-header">
-            {% trans 'Uploaded grade documents' %}
+            {% translate 'Uploaded grade documents' %}
         </div>
-        <div class="card-body">
+        <div class="card-body table-responsive">
             {% if grade_documents %}
+                <form id="grade-document-deletion-form" custom-success method="POST" action="{% url 'grades:delete_grades' %}">
+                    {% csrf_token %}
+                </form>
+
                 <table class="table table-striped table-vertically-aligned">
                     <thead>
                         <tr>
-                            <th style="width: 40%">{% trans 'Description' %}</th>
-                            <th style="width: 20%">{% trans 'Type' %}</th>
-                            <th style="width: 25%">{% trans 'Last edited' %}</th>
-                            <th style="width: 15%">{% trans 'Actions' %}</th>
+                            <th style="width: 40%">{% translate 'Description' %}</th>
+                            <th style="width: 20%">{% translate 'Type' %}</th>
+                            <th style="width: 25%">{% translate 'Last edited' %}</th>
+                            <th style="width: 15%">{% translate 'Actions' %}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for grade_document in grade_documents %}
-                            <tr id="grade_document-row-{{ grade_document.id }}">
+                            <tr id="grade-document-row-{{ grade_document.id }}">
                                 <td>{{ grade_document.description }}</td>
                                 <td>{{ grade_document.get_type_display }}</td>
-                                <td>{{ grade_document.last_modified_time }}, {% trans 'by' %} {{ grade_document.last_modified_user }}</td>
+                                <td>{{ grade_document.last_modified_time }}, {% translate 'by' %} {{ grade_document.last_modified_user }}</td>
                                 <td>
-                                    <a href="{% url 'grades:download_grades' grade_document.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Download' %}"><span class="fas fa-download"></span></a>
+                                    <a href="{% url 'grades:download_grades' grade_document.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Download' %}"><span class="fas fa-download"></span></a>
                                     {% if user.is_grade_publisher %}
-                                        <a href="{% url 'grades:edit_grades' grade_document.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Edit' %}"><span class="fas fa-pencil"></span></a>
-                                        <button type="button" onclick="deleteGradedocumentModalShow({{ grade_document.id }}, '{{ grade_document.description|escapejs }}');" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
-                                            <span class="fas fa-trash"></span>
-                                        </button>
+                                        <a href="{% url 'grades:edit_grades' grade_document.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Edit' %}"><span class="fas fa-pencil"></span></a>
+                                        <confirmation-modal type="submit" form="grade-document-deletion-form" name="grade_document_id" value="{{ grade_document.id }}" confirm-button-class="btn-danger">
+                                            <span slot="title">{% translate 'Delete grade document' %}</span>
+                                            <span slot="action-text">{% translate 'Delete grade document' %}</span>
+                                            <span slot="question">
+                                                {% blocktranslate trimmed with description=grade_document.description %}
+                                                    Do you really want to delete the grade document <strong>{{ description }}</strong>?
+                                                {% endblocktranslate %}
+                                            </span>
+
+                                            <button slot="show-button" type="button" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Delete' %}">
+                                                <span class="fas fa-trash"></span>
+                                            </button>
+                                        </confirmation-modal>
                                     {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
+
+                <script type="module">
+                    document.getElementById("grade-document-deletion-form").addEventListener("submit-success", event => {
+                        fadeOutThenRemove(document.getElementById(`grade-document-row-${event.detail.body.get("grade_document_id")}`));
+                    });
+                </script>
             {% else %}
-                <span class="fst-italic">{% trans 'No grade documents have been uploaded yet' %}</span>
+                <span class="fst-italic">{% translate 'No grade documents have been uploaded yet' %}</span>
             {% endif %}
         </div>
     </div>
     {% if user.is_grade_publisher %}
-        <a href="{% url 'grades:upload_grades' course.id %}" class="btn btn-dark">{% trans 'Upload new midterm grades' %}</a>
-        <a href="{% url 'grades:upload_grades' course.id %}?final=true" class="btn btn-dark">{% trans 'Upload new final grades' %}</a>
+        <a href="{% url 'grades:upload_grades' course.id %}" class="btn btn-dark">{% translate 'Upload new midterm grades' %}</a>
+        <a href="{% url 'grades:upload_grades' course.id %}?final=true" class="btn btn-dark">{% translate 'Upload new final grades' %}</a>
     {% endif %}
-{% endblock %}
-
-{% block modals %}
-    {{ block.super }}
-    {% trans 'Delete grade document' as title %}
-    {% trans 'Do you really want to delete the grade document <strong data-label=""></strong>?' as question %}
-    {% trans 'Delete grade document' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='deleteGradedocumentModal' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
-        function deleteGradedocumentModalAction(dataId) {
-            fetch("{% url 'grades:delete_grades' %}", {
-                body: new URLSearchParams({grade_document_id: dataId}),
-                headers: CSRF_HEADERS,
-                method: "POST",
-            }).then(response => {
-                assert(response.ok);
-                fadeOutThenRemove(document.getElementById('grade_document-row-'+dataId));
-            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
-        };
-    </script>
 {% endblock %}
