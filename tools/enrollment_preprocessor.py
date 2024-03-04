@@ -145,6 +145,8 @@ if __name__ == "__main__":  # pragma: nocover
     with open(ns.user_data, encoding="utf-8") as csvfile:
         wb = run_preprocessor(target, csvfile)
         if wb is None:
+            print("Done! No changes to the excel file were necessary!")
             sys.exit()
     with open(target.with_stem(f"{target.stem}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"), "wb") as out:
+        print(f"Done! All conflicts are resolved in ./{out.name} !")
         out.write(wb.read())
