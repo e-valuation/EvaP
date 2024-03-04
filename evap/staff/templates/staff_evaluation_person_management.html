@@ -68,6 +68,9 @@
                         {% include 'bootstrap_form.html' with form=participant_copy_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
+                        {# Prevent submitting the form using enter on a non-submit-button since there are multiple submit buttons #}
+                        <button type="submit" disabled style="display: none" aria-hidden="true" />
+
                         <confirmation-modal type="submit" name="operation" value="copy-participants">
                             <span slot="title">{% translate 'Copy participants' %}</span>
                             <span slot="action-text">{% translate 'Copy participants' %}</span>
@@ -157,6 +160,9 @@
                         {% include 'bootstrap_form.html' with form=contributor_copy_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
+                        {# Prevent submitting the form using enter on a non-submit-button since there are multiple submit buttons #}
+                        <button type="submit" disabled style="display: none" aria-hidden="true" />
+
                         <confirmation-modal type="submit" name="operation" value="copy-contributors">
                             <span slot="title">{% translate 'Copy contributors' %}</span>
                             <span slot="action-text">{% translate 'Copy contributors' %}</span>
