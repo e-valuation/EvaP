@@ -2,14 +2,26 @@ name: "Setup Python"
 description: "Sets up Python for use in actions with caching and copy localsettings"
 
 inputs:
-  requirements-file:
+  install-dev-dependencies:
     description: "if disabled this will only install runtime dependencies"
     required: false
-    default: requirements-dev.txt
+    default: true
 
 runs:
   using: "composite"
   steps:
+    - name: Compute requirements files
+      run: |
+        cache_files="requirements.txt"
+        requirements_file="requirements.txt"
+        if [[ ${{ inputs.install-dev-dependencies }} == 'true' ]]; then
+          cache_files="requirements*.txt"
+          requirements_file="requirements-dev.txt"
+        fi
+        echo cache-files=$cache_files >> $GITHUB_ENV
+        echo requirements-file=$requirements_file >> $GITHUB_ENV
+      shell: bash
+
     - name: Setup python
       uses: actions/setup-python@v4
       with:
@@ -17,25 +29,16 @@ runs:
 
     - name: Restore venv cache
       id: cache-virtualenv
-      uses: actions/cache@v3
+      uses: actions/cache4@v3
       with:
         path: .venv
-        key: venv-${{ runner.os }}-${{ hashFiles( inputs.requirements-file ) }}-${{ inputs.requirements-file }}
-        restore-keys: venv-${{ runner.os }}-${{ hashFiles( inputs.requirements-file ) }}-${{ inputs.requirements-file }}
-
-    - name: Restore pip download cache
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pip
-        key: pip-${{ runner.os }}-${{ hashFiles( inputs.requirements-file ) }}-${{ inputs.requirements-file }}
-        restore-keys: pip-${{ runner.os }}-${{ hashFiles( inputs.requirements-file ) }}-${{ inputs.requirements-file }}
-      if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+        key: venv-${{ runner.os }}-${{ hashFiles( env.cache-files ) }}
 
     - name: Install dependencies
       run: |
         python -m venv .venv
         source .venv/bin/activate
-        pip install -r "${{ inputs.requirements-file }}"
+        pip install -r "${{ env.requirements-file }}"
       shell: bash
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
