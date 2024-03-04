@@ -303,6 +303,3 @@ class EnrollmentPreprocessorTest(WebTest):
         self.assertEqual(workbook["MA Belegungen"]["I3"].value, "in all modified")
         self.assertEqual(workbook["BA Belegungen"]["C2"].value, "Lucilia")
         self.assertEqual(workbook["BA Belegungen"]["C3"].value, "Lucilia")
-
-        with open("./smaple.xlsx", "wb") as file:
-            file.write(create_memory_excel_file(self.imported_data))
