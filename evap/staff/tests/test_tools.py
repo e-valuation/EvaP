@@ -291,6 +291,8 @@ class EnrollmentPreprocessorTest(WebTest):
         self.imported_data["MA Belegungen"][2][1] += "modified"
         self.imported_data["MA Belegungen"][2][8] += "modified"
         self.imported_data["BA Belegungen"][2][2] += "modified"
+        self.imported_data["MA Belegungen"].append([f" {data} " for data in self.imported_data["MA Belegungen"][2]])
+        self.imported_data["BA Belegungen"].append([f" {data} " for data in self.imported_data["BA Belegungen"][2]])
         modified = run_preprocessor(BytesIO(create_memory_excel_file(self.imported_data)), self.csv)
         self.assertIsNotNone(modified)
         self.assertEqual(input_patch.call_count, 7)
