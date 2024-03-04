@@ -3,7 +3,7 @@ description: "Sets up Python for use in actions with caching and copy localsetti
 
 inputs:
   requirements-file:
-    description: "if disabled this will only install runtime dependencies"
+    description: "name of the requirements file to install"
     required: false
     default: requirements-dev.txt
 
