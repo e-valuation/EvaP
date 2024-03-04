@@ -89,7 +89,7 @@ def get_user_decisions(database_users: dict[str, User], workbook: Workbook) -> d
     for field, conflicts in conflicts_by_field.items():
         print(field.capitalize())
         print("---------")
-        for imported in conflicts:
+        for imported in sorted(conflicts):
             existing = database_users[imported.email]
 
             if getattr(existing, field) == getattr(imported, field):
