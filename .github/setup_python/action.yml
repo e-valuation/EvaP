@@ -32,12 +32,10 @@ runs:
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
     - name: Install dependencies
-      env:
-        requirements_txt: ${{ inputs.requirements-file }}
       run: |
         python -m venv .venv
         source .venv/bin/activate
-        pip install -r $requirements_txt
+        pip install -r "${{ inputs.requirements-file }}"
       shell: bash
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
