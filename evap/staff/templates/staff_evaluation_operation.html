@@ -76,7 +76,9 @@
 
         <div class="card card-submit-area card-submit-area-2 text-center mb-3">
             <div class="card-body">
-                <button type="submit" class="btn btn-primary">{% translate 'Confirm' %}</button>
+                <confirmation-modal type="submit" form="evaluation-operation-form">
+                    <!-- TODO: was hier? -->
+                </confirmation-modal>
                 <a href="{% url 'staff:semester_view' semester.id %}" class="btn btn-light">{% translate 'Cancel' %}</a>
             </div>
         </div>

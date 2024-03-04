@@ -323,6 +323,7 @@ class ResetToNewFormTest(WebTestStaffMode):
     def test_delete_previous_answers(self):
         self._open_confirmation_form().submit()
 
+        # TODO@Felix: show confirmation popup
         # TODO@Felix: check if confirmation popup is shown
 
         evaluation = Evaluation.objects.get(pk=self.evaluation.pk)  # re-get evaluation
