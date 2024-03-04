@@ -4,7 +4,6 @@ import csv
 import sys
 from argparse import ArgumentParser
 from collections import defaultdict
-from dataclasses import dataclass
 from datetime import datetime
 from io import BytesIO
 from itertools import chain
@@ -15,8 +14,7 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.cell import Cell
 
 
-@dataclass
-class User:
+class User(NamedTuple):
     title: str
     last_name: str
     first_name: str
@@ -77,7 +75,7 @@ def csv_users_by_email(user_data: TextIO) -> dict[str, User]:
 
 
 def get_user_decisions(database_users: dict[str, User], workbook: Workbook) -> dict[str, User]:
-    conflicts_by_field: dict[str, list[User]] = defaultdict(list)
+    conflicts_by_field: dict[str, set[User]] = defaultdict(set)
     for sheet in workbook.worksheets:  # parse enrollment data and group conflicts
         for imported in chain.from_iterable(map(user_from_row, sheet.iter_rows(min_row=2, min_col=2))):
             if not imported.email:
@@ -86,7 +84,7 @@ def get_user_decisions(database_users: dict[str, User], workbook: Workbook) -> d
             for field in ["title", "last_name", "first_name"]:
                 field_value = getattr(imported, field)
                 if field_value is not None and getattr(existing, field) != getattr(imported, field):
-                    conflicts_by_field[field].append(imported)
+                    conflicts_by_field[field].add(imported)
     # ask user for decision
     for field, conflicts in conflicts_by_field.items():
         print(field.capitalize())
@@ -105,7 +103,7 @@ def get_user_decisions(database_users: dict[str, User], workbook: Workbook) -> d
                 decision = input("Which one should be used? (e/i):\n")
             choice = existing if decision == "e" else imported
 
-            setattr(database_users[choice.email], field, getattr(choice, field))
+            database_users[choice.email] = database_users[choice.email]._replace(**{field: getattr(choice, field)})
         print()
     return database_users
 
