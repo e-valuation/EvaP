@@ -70,7 +70,9 @@
 
     @at-root a#{&} {
         color: $black;
-        text-decoration: none;
+        &:hover {
+            text-decoration: none;
+        }
     }
 
     @include media-breakpoint-up(lg) {
