@@ -147,6 +147,6 @@ if __name__ == "__main__":  # pragma: nocover
         if wb is None:
             print("Done! No changes to the excel file were necessary!")
             sys.exit()
-    with open(target.with_stem(f"{target.stem}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"), "wb") as out:
-        print(f"Done! All conflicts are resolved in ./{out.name} !")
+    with target.with_stem(f"{target.stem}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}").open("wb") as out:
+        print("Done! All conflicts are resolved in a new file!")
         out.write(wb.read())
