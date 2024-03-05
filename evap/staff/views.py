@@ -289,8 +289,8 @@ class EvaluationOperation:
         raise NotImplementedError
 
 
-class RevertToNewOperation(EvaluationOperation):
-    confirmation_message = gettext_lazy("Do you want to revert the following evaluations to preparation?")
+class ResetToNewOperation(EvaluationOperation):
+    confirmation_message = gettext_lazy("Do you want to reset the following evaluations to preparation?")
 
     @staticmethod
     def applicable_to(evaluation: Evaluation):
@@ -301,8 +301,8 @@ class RevertToNewOperation(EvaluationOperation):
     @staticmethod
     def warning_for_inapplicables(amount):
         return ngettext(
-            "{} evaluation can not be reverted, because it already started. It was removed from the selection.",
-            "{} evaluations can not be reverted, because they already started. They were removed from the selection.",
+            "{} evaluation can not be reset, because it is already published. It was removed from the selection",
+            "{} evaluations can not be reset, because they were already published. They were removed from the selection.",
             amount,
         ).format(amount)
 
@@ -324,8 +324,8 @@ class RevertToNewOperation(EvaluationOperation):
         messages.success(
             request,
             ngettext(
-                "Successfully reverted {} evaluation to in preparation.",
-                "Successfully reverted {} evaluations to in preparation.",
+                "Successfully reset {} evaluation to in preparation.",
+                "Successfully reset {} evaluations to in preparation.",
                 len(evaluations),
             ).format(len(evaluations)),
         )
@@ -523,7 +523,7 @@ class PublishOperation(EvaluationOperation):
 
 
 EVALUATION_OPERATIONS = {
-    Evaluation.State.NEW: RevertToNewOperation,
+    Evaluation.State.NEW: ResetToNewOperation,
     Evaluation.State.PREPARED: ReadyForEditorsOperation,
     Evaluation.State.IN_EVALUATION: BeginEvaluationOperation,
     Evaluation.State.REVIEWED: UnpublishOperation,
