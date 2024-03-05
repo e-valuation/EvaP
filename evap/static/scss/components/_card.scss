@@ -75,11 +75,6 @@
     min-width: 190px;
 }
 
-// TODO@Felix: needed for positioning checkbox inside card-submit-area
-.card-submit-area input[type=checkbox] {
-    min-width: unset;
-}
-
 .card-deck-login {
     display: grid;
     grid-gap: 1rem;
