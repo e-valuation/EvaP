@@ -177,24 +177,24 @@
     padding-left: 1em;
     cursor: pointer;
 
-    &::before, &::after {
-        position: absolute;
-        bottom: 0;
-        color: $light-gray;
-    }
-
     &::before {
-        left: 0;
-        content: "↓";
+        position: absolute;
+        bottom: -0.2rem;
+        left: -0.1rem;
+        width: 1.5rem;
+        height: 1.5rem;
+        content: "";
+        background-image: escape-svg($order-button-icon);
+        background-repeat: no-repeat;
+        background-size: 0.75rem;
     }
 
-    &::after {
-        left: 0.4em;
-        content: "↑";
+    &-asc::before {
+        background-image: escape-svg($order-button-down-icon);
     }
 
-    &-asc::before, &-desc::after {
-        color: inherit;
+    &-desc::before {
+        background-image: escape-svg($order-button-up-icon);
     }
 }
 
@@ -206,8 +206,8 @@ table th.col-order {
     }
 
     &::before, &::after {
-        margin-left: 0.2em;
-        bottom: 0.5em;
+        bottom: 0.3rem;
+        left: 0.3rem;
     }
 }
 
