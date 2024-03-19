@@ -53,3 +53,4 @@ class ProfileFormTests(TestCase):
         form_data["first_name_chosen"] = "Hello \u202eWorld"
         form = ProfileForm(form_data, instance=user)
         self.assertFalse(form.is_valid())
+

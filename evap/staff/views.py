@@ -37,6 +37,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy, ngettext
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, FormView, UpdateView
+from django_fsm import get_available_FIELD_transitions
 
 from evap.contributor.views import export_contributor_results
 from evap.evaluation.auth import manager_required, reviewer_required, staff_permission_required
@@ -278,41 +279,53 @@ class EvaluationOperation:
 
     @staticmethod
     def apply(
-        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
+        request,
+        evaluations,
+        email_template=None,
+        email_template_contributor=None,
+        email_template_participant=None,
+        delete_previous_answers=None,
     ):
         raise NotImplementedError
 
 
-class RevertToNewOperation(EvaluationOperation):
-    confirmation_message = gettext_lazy("Do you want to revert the following evaluations to preparation?")
+class ResetToNewOperation(EvaluationOperation):
+    confirmation_message = gettext_lazy("Do you want to reset the following evaluations to preparation?")
 
     @staticmethod
-    def applicable_to(evaluation):
-        return Evaluation.State.PREPARED <= evaluation.state <= Evaluation.State.APPROVED
+    def applicable_to(evaluation: Evaluation):
+        # TODO: maybe move this into a helper function?
+        # TODO: fix typechecker
+        return any(t.name == "reset_to_new" for t in evaluation.get_available_state_transitions())
 
     @staticmethod
     def warning_for_inapplicables(amount):
         return ngettext(
-            "{} evaluation can not be reverted, because it already started. It was removed from the selection.",
-            "{} evaluations can not be reverted, because they already started. They were removed from the selection.",
+            "{} evaluation can not be reset, because it is already published. It was removed from the selection",
+            "{} evaluations can not be reset, because they were already published. They were removed from the selection.",
             amount,
         ).format(amount)
 
     @staticmethod
     def apply(
-        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
+        request,
+        evaluations,
+        email_template=None,
+        email_template_contributor=None,
+        email_template_participant=None,
+        delete_previous_answers=None,
     ):
         assert email_template_contributor is None
         assert email_template_participant is None
 
         for evaluation in evaluations:
-            evaluation.revert_to_new()
+            evaluation.reset_to_new(delete_previous_answers)
             evaluation.save()
         messages.success(
             request,
             ngettext(
-                "Successfully reverted {} evaluation to in preparation.",
-                "Successfully reverted {} evaluations to in preparation.",
+                "Successfully reset {} evaluation to in preparation.",
+                "Successfully reset {} evaluations to in preparation.",
                 len(evaluations),
             ).format(len(evaluations)),
         )
@@ -336,10 +349,16 @@ class ReadyForEditorsOperation(EvaluationOperation):
 
     @staticmethod
     def apply(
-        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
+        request,
+        evaluations,
+        email_template=None,
+        email_template_contributor=None,
+        email_template_participant=None,
+        delete_previous_answers=None,
     ):
         assert email_template_contributor is None
         assert email_template_participant is None
+        assert delete_previous_answers is None
 
         for evaluation in evaluations:
             evaluation.ready_for_editors()
@@ -392,10 +411,16 @@ class BeginEvaluationOperation(EvaluationOperation):
 
     @staticmethod
     def apply(
-        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
+        request,
+        evaluations,
+        email_template=None,
+        email_template_contributor=None,
+        email_template_participant=None,
+        delete_previous_answers=None,
     ):
         assert email_template_contributor is None
         assert email_template_participant is None
+        assert delete_previous_answers is None
 
         for evaluation in evaluations:
             evaluation.vote_start_datetime = datetime.now()
@@ -430,10 +455,16 @@ class UnpublishOperation(EvaluationOperation):
 
     @staticmethod
     def apply(
-        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
+        request,
+        evaluations,
+        email_template=None,
+        email_template_contributor=None,
+        email_template_participant=None,
+        delete_previous_answers=None,
     ):
         assert email_template_contributor is None
         assert email_template_participant is None
+        assert delete_previous_answers is None
 
         for evaluation in evaluations:
             evaluation.unpublish()
@@ -465,9 +496,15 @@ class PublishOperation(EvaluationOperation):
 
     @staticmethod
     def apply(
-        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
+        request,
+        evaluations,
+        email_template=None,
+        email_template_contributor=None,
+        email_template_participant=None,
+        delete_previous_answers=None,
     ):
         assert email_template is None
+        assert delete_previous_answers is None
 
         for evaluation in evaluations:
             evaluation.publish()
@@ -486,7 +523,7 @@ class PublishOperation(EvaluationOperation):
 
 
 EVALUATION_OPERATIONS = {
-    Evaluation.State.NEW: RevertToNewOperation,
+    Evaluation.State.NEW: ResetToNewOperation,
     Evaluation.State.PREPARED: ReadyForEditorsOperation,
     Evaluation.State.IN_EVALUATION: BeginEvaluationOperation,
     Evaluation.State.REVIEWED: UnpublishOperation,
@@ -496,7 +533,7 @@ EVALUATION_OPERATIONS = {
 
 def target_state_and_operation_from_str(target_state_str: str) -> tuple[int, type[EvaluationOperation]]:
     try:
-        target_state = int(target_state_str)
+        target_state = Evaluation.State(int(target_state_str))
     except (KeyError, ValueError, TypeError) as err:
         raise SuspiciousOperation("Could not parse target_state") from err
 
@@ -529,6 +566,7 @@ def evaluation_operation(request, semester_id):
         email_template = None
         email_template_contributor = None
         email_template_participant = None
+        delete_previous_answers = None
         if request.POST.get("send_email") == "on":
             email_template = EmailTemplate(
                 subject=request.POST["email_subject"],
@@ -547,8 +585,17 @@ def evaluation_operation(request, semester_id):
                 plain_content=request.POST["email_plain_participant"],
                 html_content=request.POST["email_html_participant"],
             )
+        if request.POST.get("delete-previous-answers") == "on":
+            delete_previous_answers = True
 
-        operation.apply(request, evaluations, email_template, email_template_contributor, email_template_participant)
+        operation.apply(
+            request,
+            evaluations,
+            email_template,
+            email_template_contributor,
+            email_template_participant,
+            delete_previous_answers,
+        )
         return redirect("staff:semester_view", semester.id)
 
     applicable_evaluations = list(filter(operation.applicable_to, evaluations))
@@ -580,6 +627,7 @@ def evaluation_operation(request, semester_id):
         "show_email_checkbox": email_template is not None
         or email_template_contributor is not None
         or email_template_participant is not None,
+        "show_delete_answers_checkbox": target_state == Evaluation.State.NEW,
     }
 
     return render(request, "staff_evaluation_operation.html", template_data)

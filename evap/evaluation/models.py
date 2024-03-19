@@ -4,7 +4,7 @@ import uuid
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
-from enum import Enum, auto
+from enum import Enum, IntEnum, auto
 from numbers import Real
 
 from django.conf import settings
@@ -36,6 +36,7 @@ from evap.evaluation.tools import (
     StrOrPromise,
     clean_email,
     date_to_datetime,
+    enum_for_django_template,
     is_external_email,
     is_prefetched,
     translate,
@@ -379,7 +380,8 @@ class Course(LoggedModel):
 class Evaluation(LoggedModel):
     """Models a single evaluation, e.g. the exam evaluation of the Math 101 course of 2002."""
 
-    class State:
+    @enum_for_django_template
+    class State(IntEnum):
         NEW = 10
         PREPARED = 20
         EDITOR_APPROVED = 30
@@ -389,6 +391,8 @@ class Evaluation(LoggedModel):
         REVIEWED = 70
         PUBLISHED = 80
 
+    # TODO: specifying choices like this creates logging errors
+    # state = FSMIntegerField(default=State.NEW, choices=[(s, s.name) for s in State], protected=True)
     state = FSMIntegerField(default=State.NEW, protected=True, verbose_name=_("state"))
 
     course = models.ForeignKey(Course, models.PROTECT, verbose_name=_("course"), related_name="evaluations")
@@ -444,6 +448,7 @@ class Evaluation(LoggedModel):
     )
 
     class TextAnswerReviewState(Enum):
+        # TODO: replace with @enum_for_django_template decorator?
         do_not_call_in_templates = True  # pylint: disable=invalid-name
         NO_TEXTANSWERS = auto()
         NO_REVIEW_NEEDED = auto()
@@ -709,9 +714,24 @@ class Evaluation(LoggedModel):
     def manager_approve(self):
         pass
 
-    @transition(field=state, source=[State.PREPARED, State.EDITOR_APPROVED, State.APPROVED], target=State.NEW)
-    def revert_to_new(self):
-        pass
+    @transition(
+        field=state,
+        source=[
+            State.PREPARED,
+            State.EDITOR_APPROVED,
+            State.APPROVED,
+            State.IN_EVALUATION,
+            State.EVALUATED,
+            State.REVIEWED,
+        ],
+        target=State.NEW,
+    )
+    def reset_to_new(self, delete_previous_answers: bool | None = False):
+        """Reset an Evaluation after it started (#1991)"""
+        if delete_previous_answers:
+            for answer_class in Answer.__subclasses__():
+                answer_class._default_manager.filter(contribution__evaluation_id=self.id).delete()
+            self.voters.clear()
 
     @transition(
         field=state,
