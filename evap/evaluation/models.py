@@ -2093,7 +2093,16 @@ class EmailTemplate(models.Model):
 
         try:
             mail.send(False)
-            logger.info('Sent email "%s" to %s.', mail.subject, user.full_name_with_additional_info)
+            if cc_addresses:
+                logger.info(
+                    'Sent email "%s" to %s (%s), CC: %s.',
+                    mail.subject,
+                    user.full_name,
+                    user.email,
+                    ", ".join(cc_addresses),
+                )
+            else:
+                logger.info('Sent email "%s" to %s (%s).', mail.subject, user.full_name, user.email)
             if send_separate_login_url:
                 self.send_login_url_to_user(user)
         except Exception:  # pylint: disable=broad-except
