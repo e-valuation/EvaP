@@ -1021,8 +1021,8 @@ def log_state_transition(instance, name, source, target, **_kwargs):
         'Evaluation "%s" (id %d) moved from state "%s" to state "%s", caused by transition "%s".',
         instance,
         instance.pk,
-        source,
-        target,
+        Evaluation.state_to_str(source),
+        Evaluation.state_to_str(target),
         name,
     )
 
