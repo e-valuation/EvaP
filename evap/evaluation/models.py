@@ -2112,12 +2112,16 @@ class EmailTemplate(models.Model):
         wrapper_template_params = {"email_content": rendered_content, "email_subject": subject, **body_params}
         wrapped_content = render_to_string("email_base.html", wrapper_template_params)
 
+        bcc_addresses = []
+        if settings.SEND_ALL_EMAILS_TO_ADMINS_IN_BCC:
+            bcc_addresses = [a[1] for a in settings.ADMINS]
+
         mail = EmailMultiAlternatives(
             subject=subject,
             body=plain_content,
             to=[to_email],
             cc=cc_addresses,
-            bcc=[a[1] for a in settings.MANAGERS],
+            bcc=bcc_addresses,
             headers={"Reply-To": settings.REPLY_TO_EMAIL},
             alternatives=[(wrapped_content, "text/html")],
         )

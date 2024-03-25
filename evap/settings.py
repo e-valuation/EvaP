@@ -155,6 +155,7 @@ ALLOW_ANONYMOUS_FEEDBACK_MESSAGES = True
 # Config for mail system
 DEFAULT_FROM_EMAIL = "webmaster@localhost"
 REPLY_TO_EMAIL = DEFAULT_FROM_EMAIL
+SEND_ALL_EMAILS_TO_ADMINS_IN_BCC = False
 if DEBUG:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
