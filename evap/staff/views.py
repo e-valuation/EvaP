@@ -2137,6 +2137,18 @@ def user_list(request):
 
 
 @manager_required
+def user_export(request):
+    response = AttachmentResponse("exported_users.csv")
+    writer = csv.writer(response, delimiter=";", lineterminator="\n")
+    header_row = (_("Title"), _("Last name"), _("First name"), _("Email"))
+    writer.writerow(header_row)
+    writer.writerows(
+        (user.title, user.last_name, user.first_name, user.email) for user in UserProfile.objects.iterator()
+    )
+    return response
+
+
+@manager_required
 class UserCreateView(SuccessMessageMixin, CreateView):
     model = UserProfile
     form_class = UserForm
