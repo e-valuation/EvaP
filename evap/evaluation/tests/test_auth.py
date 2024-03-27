@@ -187,7 +187,7 @@ class TestAuthDecorators(WebTest):
     def setUpTestData(cls):
         @class_or_function_check_decorator
         def check_decorator(user: UserProfile) -> bool:
-            return getattr(user, "some_condition")  # mocked later
+            return getattr(user, "some_condition")  # noqa: B009 # mocked later
 
         @check_decorator
         def function_based_view(_request):

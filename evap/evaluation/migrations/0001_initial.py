@@ -257,7 +257,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='course',
-            unique_together=set([('semester', 'degree', 'name_de'), ('semester', 'degree', 'name_en')]),
+            unique_together={('semester', 'degree', 'name_de'), ('semester', 'degree', 'name_en')},
         ),
         migrations.AddField(
             model_name='contribution',
@@ -273,6 +273,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='contribution',
-            unique_together=set([('course', 'contributor')]),
+            unique_together={('course', 'contributor')},
         ),
     ]

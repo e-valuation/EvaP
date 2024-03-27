@@ -377,10 +377,10 @@ class CourseMergeLogic:
 
         if course_with_same_name_en != course_with_same_name_de:
             if course_with_same_name_en is not None:
-                raise self.NameEnCollisionError()
+                raise self.NameEnCollisionError
 
             if course_with_same_name_de is not None:
-                raise self.NameDeCollisionError()
+                raise self.NameDeCollisionError
 
         assert course_with_same_name_en is not None
         assert course_with_same_name_de is not None
@@ -445,7 +445,7 @@ class CourseNameChecker(Checker):
             self.importer_log.add_warning(
                 _(
                     'Course "{course_name}" already exists. The course will not be created, instead users are imported into the '
-                    + "evaluation of the existing course and any additional degrees are added."
+                    "evaluation of the existing course and any additional degrees are added.",
                 ).format(course_name=name_en),
                 category=ImporterLogEntry.Category.EXISTS,
             )
@@ -559,7 +559,7 @@ class ExistingParticipationChecker(Checker, RowCheckerMixin):
         seen_evaluation_names = self.participant_emails_per_course_name_en.keys()
 
         existing_participation_pairs = [
-            (participation.evaluation.course.name_en, participation.userprofile.email)  # type: ignore
+            (participation.evaluation.course.name_en, participation.userprofile.email)  # type: ignore[misc]
             for participation in Evaluation.participants.through._default_manager.filter(
                 evaluation__course__name_en__in=seen_evaluation_names, userprofile__email__in=seen_user_emails
             ).prefetch_related("userprofile", "evaluation__course")

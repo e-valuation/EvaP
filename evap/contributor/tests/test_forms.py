@@ -67,7 +67,7 @@ class ContributionFormsetTests(TestCase):
         )
         formset = InlineContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation})
 
-        expected = set([questionnaire])
+        expected = {questionnaire}
         self.assertEqual(expected, set(formset.forms[0].fields["questionnaires"].queryset))
         self.assertEqual(expected, set(formset.forms[1].fields["questionnaires"].queryset))
 
@@ -79,7 +79,7 @@ class ContributionFormsetTests(TestCase):
         )
         formset = InlineContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation})
 
-        expected = set([questionnaire, questionnaire_managers_only])
+        expected = {questionnaire, questionnaire_managers_only}
         self.assertEqual(expected, set(formset.forms[0].fields["questionnaires"].queryset))
         self.assertEqual(expected, set(formset.forms[1].fields["questionnaires"].queryset))
 

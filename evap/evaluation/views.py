@@ -23,8 +23,7 @@ from evap.middleware import no_login_required
 logger = logging.getLogger(__name__)
 
 
-def redirect_user_to_start_page(user):
-    # pylint: disable=too-many-return-statements
+def redirect_user_to_start_page(user):  # noqa: PLR0911
     active_semester = Semester.active_semester()
 
     if user.is_reviewer:

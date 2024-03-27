@@ -25,6 +25,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='ratinganswercounter',
-            unique_together=set([('question', 'contribution', 'answer')]),
+            unique_together={('question', 'contribution', 'answer')},
         ),
     ]
