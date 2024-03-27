@@ -21,7 +21,7 @@ runs:
       uses: actions/cache@v4
       with:
         path: .venv
-        key: venv-${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{ hashFiles( 'requirements*.txt' ) }}
+        key: venv-${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{ hashFiles( inputs.requirements-file ) }}
 
     - name: Install dependencies
       run: |
