@@ -1,12 +1,12 @@
 -r requirements.txt
-black~=23.12.0
+black~=24.1.1
 coverage[toml]
 django-debug-toolbar~=4.0
 django-stubs==4.2.6
 django-webtest~=1.9.10
 isort~=5.13.1
 model-bakery~=1.17.0
-mypy~=1.7.0
+mypy~=1.8.0
 openpyxl-stubs~=0.1.25
 pylint-django~=2.5.4
 pylint~=3.0.1

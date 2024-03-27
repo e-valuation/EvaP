@@ -36,8 +36,19 @@ service redis-server restart
 # install apache
 apt-get -q install -y apache2 apache2-dev libapache2-mod-wsgi-py3
 
-# With docker for mac, root will own the mount point (uid=0). chmod does not touch the host file system in these cases.
-OWNER=$(stat -c %U "$MOUNTPOINT/evap")
+cp /etc/skel/.bashrc /home/$USER/
+# link the mounted evap folder from the home directory:
+OWNER=$(stat -c %u "$MOUNTPOINT/evap")
+if [ "$OWNER" != 1042 ]; then
+  #  if, for any reason, vagrant failed to mount evap under the correct uid, use bindfs to link it to /opt/evap using the wanted user id
+  #  If you are using docker: Make sure /dev/fuse of your host is forwarded into the container
+  apt-get -q install -y bindfs
+  mkdir -p "$REPO_FOLDER"
+  bindfs --map="$OWNER/1042:@$OWNER/@1042" "$MOUNTPOINT" "$REPO_FOLDER" || exit 1
+  echo "sudo bindfs --map=$OWNER/1042:@$OWNER/@1042 '$MOUNTPOINT' '$REPO_FOLDER'" >> /home/$USER/.bashrc
+else
+  ln -s "$MOUNTPOINT" "$REPO_FOLDER"
+fi
 
 # make user, create home folder, set uid to the same set in the Vagrantfile (required for becoming the synced folder owner), set default shell to bash
 useradd -m -u 1042 -s /bin/bash evap
@@ -47,16 +58,8 @@ chown -R $USER:$USER /home/$USER/.ssh
 # allow sudo without password
 echo "$USER ALL=(ALL) NOPASSWD:ALL" | tee /etc/sudoers.d/evap
 
-cp /etc/skel/.bashrc /home/$USER/
-# link the mounted evap folder from the home directory or mount it with bindfs to map uid and gid
-if [ "$OWNER" == "root" ]; then
-  apt-get -q install -y bindfs && \
-  mkdir -p "$REPO_FOLDER"
-  bindfs --map=0/1042:@0/@1042 "$MOUNTPOINT" "$REPO_FOLDER"
-  echo "sudo bindfs --map=0/1042:@0/@1042 '$MOUNTPOINT' '$REPO_FOLDER'" >> /home/$USER/.bashrc
-else
-  ln -s "$MOUNTPOINT" "$REPO_FOLDER"
-fi
+# link the mounted evap folder from the home directory
+ln -s "$MOUNTPOINT" "$REPO_FOLDER"
 
 sudo -H -u $USER $EVAP_PYTHON -m venv $ENV_FOLDER
 # venv will use ensurepip to install a new version of pip. We need to update that version.
@@ -106,7 +109,7 @@ apt-get -q install -y libasound2 libgconf-2-4 libgbm1 libgtk-3-0 libnss3 libx11-
 wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh --no-verbose --output-document - | sudo -H -u $USER bash
 
 # setup evap
-cd "$REPO_FOLDER"
+cd "$REPO_FOLDER" || exit 1
 sudo -H -u $USER git submodule update --init
 
 sudo -H -u $USER mkdir node_modules

@@ -339,7 +339,7 @@ class TestUserDeleteView(DeleteViewTestMixin, WebTestStaffMode):
 
 
 class TestUserMergeSelectionView(WebTestStaffMode):
-    url = "/staff/user/merge"
+    url = reverse("staff:user_merge_selection")
 
     @classmethod
     def setUpTestData(cls):
@@ -359,6 +359,21 @@ class TestUserMergeSelectionView(WebTestStaffMode):
 
         self.assertContains(page, self.main_user.email)
         self.assertContains(page, self.other_user.email)
+
+    @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com", "student.institution.example.com"])
+    def test_suggested_merge(self):
+        suggested_merge_candidate = baker.make(UserProfile, email="user@student.institution.example.com")
+        suggested_main_user = baker.make(UserProfile, email="user@institution.example.com")
+
+        self.assertLess(suggested_merge_candidate.pk, suggested_main_user.pk)
+
+        page = self.app.get(self.url, user=self.manager)
+
+        expected_url = reverse("staff:user_merge", args=[suggested_main_user.pk, suggested_merge_candidate.pk])
+        unexpected_url = reverse("staff:user_merge", args=[suggested_merge_candidate.pk, suggested_main_user.pk])
+
+        self.assertContains(page, f'<a href="{expected_url}"')
+        self.assertNotContains(page, f'<a href="{unexpected_url}"')
 
 
 class TestUserMergeView(WebTestStaffModeWith200Check):
@@ -2185,6 +2200,17 @@ class TestEvaluationEditView(WebTestStaffMode):
         self.assertIn(
             '<label class="form-check-label badge bg-danger" for="id_contributions-1-questionnaires_0">', page
         )
+
+    @patch.dict(Evaluation.STATE_STR_CONVERSION, {Evaluation.State.PREPARED: "mock-translated-prepared"})
+    def test_state_change_log_translated(self):
+        page = self.app.get(self.url, user=self.manager)
+        self.assertNotIn("mock-translated-prepared", page)
+
+        self.evaluation.ready_for_editors()
+        self.evaluation.save()
+
+        page = self.app.get(self.url, user=self.manager)
+        self.assertIn("mock-translated-prepared", page)
 
 
 class TestEvaluationDeleteView(WebTestStaffMode):
