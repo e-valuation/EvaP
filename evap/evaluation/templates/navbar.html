@@ -91,7 +91,7 @@
                         <form class="d-flex" method="post" action="{% url 'evaluation:set_lang' %}">
                             {% csrf_token %}
                             <input name="language" type="hidden" value="{{ language_code }}">
-                            <button data-bs-toggle="tooltip" data-bs-placement="bottom" id="button-set-language-{{ language_code }}" title="{{ language_name }}" type="submit"
+                            <button data-bs-toggle="tooltip" data-bs-placement="bottom" data-set-spinner-icon="span-set-language-{{ language_code }}" title="{{ language_name }}" type="submit"
                                 class="btn btn-sm{% if current_language == language_code %} active{% endif %}">
                                 <span id="span-set-language-{{ language_code }}">{{ language_code|upper }}</span>
                             </button>
@@ -105,13 +105,13 @@
                         <div class="btn-group">
                             <form class="d-flex" method="post" action="{% url 'staff:exit_staff_mode' %}">
                                 {% csrf_token %}
-                                <button data-bs-toggle="tooltip" data-bs-placement="bottom" id="button-exit-staff-mode" title="{% translate 'Regular mode' %}" type="submit" class="btn btn-sm{% if user.is_staff == False %} active{% endif %}">
+                                <button data-bs-toggle="tooltip" data-bs-placement="bottom" data-set-spinner-icon="span-exit-staff-mode" title="{% translate 'Regular mode' %}" type="submit" class="btn btn-sm{% if user.is_staff == False %} active{% endif %}">
                                     <span id="span-exit-staff-mode" class="fas fa-user"></span>
                                 </button>
                             </form>
                             <form id="enter-staff-mode-form" class="d-flex" method="post" action="{% url 'staff:enter_staff_mode' %}">
                                 {% csrf_token %}
-                                <button data-bs-toggle="tooltip" data-bs-placement="bottom" id="button-enter-staff-mode" title="{% translate 'Staff mode' %}" type="submit" class="btn btn-sm{% if user.is_staff %} active{% endif %}">
+                                <button data-bs-toggle="tooltip" data-bs-placement="bottom" data-set-spinner-icon="span-enter-staff-mode" title="{% translate 'Staff mode' %}" type="submit" class="btn btn-sm{% if user.is_staff %} active{% endif %}">
                                     <span id="span-enter-staff-mode" class="fas fa-briefcase"></span>
                                 </button>
                             </form>
@@ -132,14 +132,3 @@
         </ul>
     </div>
 </nav>
-
-<script type="text/javascript">
-    {% for language_code, language_name in languages %}
-        document.getElementById("button-set-language-{{ language_code }}").addEventListener("click", () => { setSpinnerIcon('span-set-language-{{ language_code }}'); });
-    {% endfor %}
-
-    {% if user.has_staff_permission %}
-        document.getElementById("button-exit-staff-mode").addEventListener("click", () => { setSpinnerIcon('span-exit-staff-mode'); });
-        document.getElementById("button-enter-staff-mode").addEventListener("click", () => { setSpinnerIcon('span-enter-staff-mode'); });
-    {% endif %}
-</script>
