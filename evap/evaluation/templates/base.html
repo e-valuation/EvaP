@@ -199,6 +199,9 @@
                 element.className = "fas fa-spinner fa-spin";  // clears all other classes
             };
 
+            document.querySelectorAll("[data-set-spinner-icon]").forEach(el => {
+                el.addEventListener("click", () => setSpinnerIcon(el.dataset.setSpinnerIcon));
+            });
         </script>
 
         <script type="module">
