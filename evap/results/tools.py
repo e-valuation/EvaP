@@ -354,11 +354,11 @@ def calculate_average_course_distribution(course, check_for_unpublished_evaluati
 
 
 def get_evaluations_with_course_result_attributes(evaluations):
-    courses_with_unpublished_evaluations = (
-        Course.objects.filter(evaluations__in=evaluations)
+    courses_with_unpublished_evaluations = {
+        *Course.objects.filter(evaluations__in=evaluations)
         .filter(Exists(Evaluation.objects.filter(course=OuterRef("pk")).exclude(state=Evaluation.State.PUBLISHED)))
         .values_list("id", flat=True)
-    )
+    }
 
     course_id_evaluation_weight_sum_pairs = (
         Course.objects.annotate(Sum("evaluations__weight"))
