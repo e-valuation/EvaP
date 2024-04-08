@@ -10,6 +10,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.stdout.write("Executing ruff .")
-        subprocess.run(["ruff", "."], check=False)  # nosec
+        subprocess.run(["ruff", "check", "."], check=False)  # nosec
         self.stdout.write("Executing pylint evap")
         subprocess.run(["pylint", "evap", "tools"], check=False)  # nosec
