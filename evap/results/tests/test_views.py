@@ -14,7 +14,6 @@ from model_bakery import baker
 from evap.evaluation.models import (
     Contribution,
     Course,
-    CourseType,
     Degree,
     Evaluation,
     Question,
@@ -24,12 +23,7 @@ from evap.evaluation.models import (
     Semester,
     UserProfile,
 )
-from evap.evaluation.tests.tools import (
-    let_user_vote_for_evaluation,
-    make_manager,
-    make_rating_answer_counters,
-    render_pages,
-)
+from evap.evaluation.tests.tools import let_user_vote_for_evaluation, make_manager, make_rating_answer_counters
 from evap.results.exporters import TextAnswerExporter
 from evap.results.tools import cache_results
 from evap.results.views import get_evaluations_with_prefetched_data, update_template_cache
@@ -38,97 +32,6 @@ from evap.staff.tests.utils import WebTestStaffMode, helper_exit_staff_mode, run
 
 class TestResultsView(WebTest):
     url = "/results/"
-
-    @render_pages
-    def render_pages(self):
-        def make_winter_semester(year):
-            return baker.make(
-                Semester,
-                name_de=f"Wintersemester {year}/{year + 1}",
-                name_en=f"Winter term {year}/{year + 1}",
-                short_name_de=f"WS {year % 1000}/{year % 1000 + 1}",
-                short_name_en=f"WT {year % 1000}/{year % 1000 + 1}",
-            )
-
-        def make_summer_semester(year):
-            return baker.make(
-                Semester,
-                name_de=f"Sommersemester {year}",
-                name_en=f"Summer term {year}",
-                short_name_de=f"SS {year % 1000}",
-                short_name_en=f"ST {year % 1000}",
-            )
-
-        semesters = [
-            make_summer_semester(2014),
-            make_winter_semester(2013),
-            make_summer_semester(2013),
-        ]
-        degrees = {
-            "ba-a": baker.make(Degree, name_de="Bachelor A", name_en="Bachelor A"),
-            "ma-a": baker.make(Degree, name_de="Master A", name_en="Master A"),
-            "ma-b": baker.make(Degree, name_de="Master B", name_en="Master B"),
-        }
-        course_types = {
-            "l": baker.make(CourseType, name_de="Vorlesung", name_en="Lecture"),
-            "s": baker.make(CourseType, name_de="Seminar", name_en="Seminar"),
-        }
-
-        def make_responsible(title, first_name, last_name):
-            return baker.make(
-                UserProfile,
-                title=title,
-                first_name_given=first_name,
-                last_name=last_name,
-            )
-
-        responsibles = {
-            "responsible": make_responsible("Prof. Dr.", "", "responsible"),
-            "goldwasser": make_responsible("Dr.", "Clara", "Goldwasser"),
-            "kuchenbuch": make_responsible("Dr.", "Tony", "Kuchenbuch"),
-        }
-
-        def make_course(name, semester, course_type_name, degree_names, responsible_names):
-            return baker.make(
-                Course,
-                semester=semesters[semester],
-                name_de=f"Veranstaltung {name}",
-                name_en=f"Course {name}",
-                type=course_types[course_type_name],
-                degrees={degrees[degree_name] for degree_name in degree_names},
-                responsibles={responsibles[responsible_name] for responsible_name in responsible_names},
-            )
-
-        courses = {
-            "a-0": make_course("A", 0, "l", {"ba-a"}, {"responsible"}),
-            "a-1": make_course("A", 1, "l", {"ba-a"}, {"responsible"}),
-            "a-2": make_course("A", 2, "l", {"ba-a"}, {"responsible"}),
-            "c": make_course("C", 0, "s", {"ba-a", "ma-a"}, {"goldwasser"}),
-            "d": make_course("D", 0, "l", {"ma-a", "ma-b"}, {"kuchenbuch", "goldwasser"}),
-            "e": make_course("E", 2, "s", {"ma-a"}, {"kuchenbuch"}),
-        }
-
-        def make_evaluation(course_name, participant_count, voter_count, **attrs):
-            baker.make(
-                Evaluation,
-                state=Evaluation.State.PUBLISHED,
-                course=courses[course_name],
-                _participant_count=participant_count,
-                _voter_count=voter_count,
-                **attrs,
-            )
-
-        make_evaluation("a-0", 100, 80)
-        make_evaluation("a-1", 100, 85)
-        make_evaluation("a-2", 100, 80)
-        make_evaluation("a-2", 100, 75, name_de="Klausur", name_en="Exam")
-        make_evaluation("c", 20, 15)
-        make_evaluation("d", 50, 45)
-        make_evaluation("e", 5, 5)
-
-        return {
-            "student": self.app.get(self.url, user="student@institution.example.com").content,
-        }
 
     @patch("evap.evaluation.models.Evaluation.can_be_seen_by", new=(lambda self, user: True))
     def test_multiple_evaluations_per_course(self):
