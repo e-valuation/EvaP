@@ -10,7 +10,6 @@ import webtest
 from django.conf import settings
 from django.contrib.auth import login
 from django.contrib.auth.models import Group
-from django.core.management import call_command
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.http.request import HttpRequest, QueryDict
 from django.test.selenium import SeleniumTestCase
