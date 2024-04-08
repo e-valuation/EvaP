@@ -1021,8 +1021,8 @@ def log_state_transition(instance, name, source, target, **_kwargs):
         'Evaluation "%s" (id %d) moved from state "%s" to state "%s", caused by transition "%s".',
         instance,
         instance.pk,
-        source,
-        target,
+        Evaluation.state_to_str(source),
+        Evaluation.state_to_str(target),
         name,
     )
 
@@ -2090,7 +2090,16 @@ class EmailTemplate(models.Model):
 
         try:
             mail.send(False)
-            logger.info('Sent email "%s" to %s.', mail.subject, user.full_name_with_additional_info)
+            if cc_addresses:
+                logger.info(
+                    'Sent email "%s" to %s (%s), CC: %s.',
+                    mail.subject,
+                    user.full_name,
+                    user.email,
+                    ", ".join(cc_addresses),
+                )
+            else:
+                logger.info('Sent email "%s" to %s (%s).', mail.subject, user.full_name, user.email)
             if send_separate_login_url:
                 self.send_login_url_to_user(user)
         except Exception:
@@ -2109,12 +2118,16 @@ class EmailTemplate(models.Model):
         wrapper_template_params = {"email_content": rendered_content, "email_subject": subject, **body_params}
         wrapped_content = render_to_string("email_base.html", wrapper_template_params)
 
+        bcc_addresses = []
+        if settings.SEND_ALL_EMAILS_TO_ADMINS_IN_BCC:
+            bcc_addresses = [a[1] for a in settings.ADMINS]
+
         return EmailMultiAlternatives(
             subject=subject,
             body=plain_content,
             to=[to_email],
             cc=cc_addresses,
-            bcc=[a[1] for a in settings.MANAGERS],
+            bcc=bcc_addresses,
             headers={"Reply-To": settings.REPLY_TO_EMAIL},
             alternatives=[(wrapped_content, "text/html")],
         )
@@ -2134,7 +2147,7 @@ class EmailTemplate(models.Model):
         body_params = {"user": user}
 
         template.send_to_user(user, subject_params, body_params, use_cc=False)
-        logger.info("Sent login url to %s.", user.email)
+        logger.info("Sent login url email to %s.", user.email)
 
     @classmethod
     def send_contributor_publish_notifications(cls, evaluations, template=None):

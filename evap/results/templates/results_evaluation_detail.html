@@ -134,7 +134,7 @@
                 </div>
                 {% if course_evaluations %}
                     {% include 'results_index_course.html' with evaluations=course_evaluations %}
-                    {% for course_evaluation in course_evaluations|dictsort:"name" %}
+                    {% for course_evaluation in course_evaluations %}
                         {% if course_evaluation.pk == evaluation.pk %}
                             {# we cannot add a class to the actual row because it is cached globally. so we use a + selector in css to style the following row. #}
                             <div class="current-row-follows"></div>

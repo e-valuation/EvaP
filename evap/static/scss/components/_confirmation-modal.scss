@@ -1,4 +1,4 @@
-confirmation-modal:not(:defined) > :not([slot="submit-group"]) {
+confirmation-modal:not(:defined) > :not([slot="show-button"]) {
   // Without this, the elements that are slotted into the dialog element show up as if they are just normal child
   // elements and disappear once the custom element registration is done. To avoid a short flicker of these elements,
   // we hide them until the constructor of the custom element has run.
