@@ -4,7 +4,7 @@
 {% load evaluation_filters %}
 {% load results_templatetags %}
 
-{% block title %}{{ evaluation.full_name }} - {{ evaluation.course.semester.name }} - {% trans 'Results' %} - {{ block.super }}{% endblock %}
+{% block title %}{{ evaluation.full_name }} - {{ evaluation.course.semester.name }} - {% translate 'Results' %} - {{ block.super }}{% endblock %}
 
 {% block breadcrumb_bar %}
     <div class="breadcrumb-bar">
@@ -19,13 +19,13 @@
     {{ block.super }}
 
     {% if evaluation.state != evaluation.State.PUBLISHED %}
-        <div class="alert alert-warning">{% trans 'This is a preview. The results have not been published yet.' %}</div>
+        <div class="alert alert-warning">{% translate 'This is a preview. The results have not been published yet.' %}</div>
     {% endif %}
 
     {% if is_reviewer or is_responsible_or_contributor_or_delegate %}
         {% if evaluation.course.is_private %}
             <div class="alert alert-info d-print-none">
-                <span class="fas fa-lock"></span> {% trans 'This evaluation is private. Only contributors and participants can see the results.' %}
+                <span class="fas fa-lock"></span> {% translate 'This evaluation is private. Only contributors and participants can see the results.' %}
             </div>
         {% endif %}
         <div class="row align-items-end mb-3">
@@ -35,7 +35,7 @@
 
             <div class="col-auto">
                 <div class="btn-switch btn-switch-light my-auto d-print-none">
-                    <div class="btn-switch-label">{% trans 'View' %}</div>
+                    <div class="btn-switch-label">{% translate 'View' %}</div>
                     <div class="btn-switch btn-group">
                         {% if user.is_staff and view == 'export' or is_contributor %}
                             <a
@@ -44,9 +44,9 @@
                                 class="btn btn-sm btn-light{% if view == 'export' %} active{% endif %}"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="bottom"
-                                title="{% blocktrans %}Shows filtered view meant for personal export. Other contributors' results and private answers are hidden.{% endblocktrans %}"
+                                title="{% blocktranslate %}Shows filtered view meant for personal export. Other contributors' results and private answers are hidden.{% endblocktranslate %}"
                             >
-                                {% trans 'Export' context 'view mode' %}
+                                {% translate 'Export' context 'view mode' %}
                             </a>
 
                         {% endif %}
@@ -56,9 +56,9 @@
                             class="btn btn-sm btn-light{% if view == 'full' %} active{% endif %}"
                             data-bs-toggle="tooltip"
                             data-bs-placement="bottom"
-                            title="{% trans 'Shows all results available for you.' %}"
+                            title="{% translate 'Shows all results available for you.' %}"
                         >
-                            {% trans 'Full' %}
+                            {% translate 'Full' %}
                         </a>
                         {% if not evaluation.can_publish_rating_results %}
                             <button
@@ -67,12 +67,12 @@
                                 class="btn btn-sm btn-light"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="bottom"
-                                title="{% blocktrans %}The results of this evaluation have not been published because it didn't get enough votes.{% endblocktrans %}"
+                                title="{% blocktranslate %}The results of this evaluation have not been published because it didn't get enough votes.{% endblocktranslate %}"
                             >
                                 {% if evaluation.course.is_private %}
-                                    {% trans 'Participant' %}
+                                    {% translate 'Participant' %}
                                 {% else %}
-                                    {% trans 'Public' %}
+                                    {% translate 'Public' %}
                                 {% endif %}
                             </button>
                         {% else %}
@@ -84,13 +84,13 @@
                                 data-bs-placement="bottom"
                                 title="
                                     {% if evaluation.course.is_private %}
-                                        {% trans 'Shows results available for the participants.' %}"
+                                        {% translate 'Shows results available for the participants.' %}"
                                         >
-                                        {% trans 'Participant' %}
+                                        {% translate 'Participant' %}
                                     {% else %}
-                                        {% trans 'Shows results available for everyone logged in.' %}"
+                                        {% translate 'Shows results available for everyone logged in.' %}"
                                         >
-                                        {% trans 'Public' %}
+                                        {% translate 'Public' %}
                                     {% endif %}
                             </a>
                         {% endif %}
@@ -104,17 +104,17 @@
 
     <div class="card card-outline-primary mb-3">
         <div class="card-header d-flex">
-            <div class="me-auto">{% trans 'Overview' %}</div>
+            <div class="me-auto">{% translate 'Overview' %}</div>
             {% if can_export_text_answers %}
                 <a class="btn btn-sm btn-light d-print-none" href="{% url 'results:evaluation_text_answers_export' evaluation.id %}?view={{ view }}{% if contributor_id is not None %}&contributor_id={{ contributor_id }}{% endif %}" type="button">
-                    {% trans 'Export text answers' %}
+                    {% translate 'Export text answers' %}
                 </a>
             {% endif %}
             {% if evaluation.course.grade_documents.count == 1 and can_download_grades %}
                 <a class="btn btn-sm btn-light d-print-none ms-2" href="{% url 'grades:download_grades' evaluation.course.grade_documents.first.id %}">{{ evaluation.course.grade_documents.first.description }}</a>
             {% elif evaluation.course.grade_documents.count > 1 and can_download_grades %}
                 <div class="btn-group d-print-none ms-2" role="group">
-                    <button type="button" id="btnDownload" class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Grades' %}</button>
+                    <button type="button" id="btnDownload" class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% translate 'Grades' %}</button>
                     <div class="dropdown-menu" aria-labelledby="btnDownload">
                         {% for grade_document in evaluation.course.grade_documents.all %}
                             <a class="dropdown-item" href="{% url 'grades:download_grades' grade_document.id %}">{{ grade_document.description }}</a>
@@ -126,11 +126,11 @@
         <div class="card-body pt-2">
             <div class="result-grid">
                 <div class="grid-header results-grid-row border-bottom d-none d-lg-grid">
-                        <div data-col="name">{% trans 'Evaluation' %}</div>
-                        <div data-col="semester">{% trans 'Semester' %}</div>
-                        <div data-col="responsible">{% trans 'Responsible' %}</div>
-                        <div data-col="voters">{% trans 'Voters' %}</div>
-                        <div data-col="result">{% trans 'Distribution and average grade' %}</div>
+                        <div data-col="name">{% translate 'Evaluation' %}</div>
+                        <div data-col="semester">{% translate 'Semester' %}</div>
+                        <div data-col="responsible">{% translate 'Responsible' %}</div>
+                        <div data-col="voters">{% translate 'Voters' %}</div>
+                        <div data-col="result">{% translate 'Distribution and average grade' %}</div>
                 </div>
                 {% if course_evaluations %}
                     {% include 'results_index_course.html' with evaluations=course_evaluations %}
@@ -151,7 +151,7 @@
     {% if general_questionnaire_results_top %}
         <div class="card card-outline-primary mb-3">
             <div class="card-header">
-                {% trans 'General' %}
+                {% translate 'General' %}
             </div>
             <div class="card-body">
                 {% for questionnaire_result in general_questionnaire_results_top %}
@@ -164,7 +164,7 @@
     {% if contributor_contribution_results or contributors_with_omitted_results %}
         <div class="card card-outline-primary mb-3">
             <div class="card-header">
-                {% trans 'Contributors' %}
+                {% translate 'Contributors' %}
             </div>
             <div class="card-body">
                 {% for contribution_result in contributor_contribution_results %}
@@ -183,7 +183,7 @@
                             {% if not contribution_result.has_answers %}
                                 <div class="participants-warning">
                                     <span class="fas fa-circle-info"></span>
-                                    {% trans 'There are no results for this person.' %}
+                                    {% translate 'There are no results for this person.' %}
                                 </div>
                             {% endif %}
                         </div>
@@ -199,7 +199,7 @@
                 {% if contributors_with_omitted_results %}
                     <div class="card mt-3">
                         <div class="card-header">
-                            {% trans 'Other contributors' %}
+                            {% translate 'Other contributors' %}
                         </div>
                         <div class="card-body">
                             <ul>
@@ -217,7 +217,7 @@
     {% if general_questionnaire_results_bottom %}
         <div class="card card-outline-primary">
             <div class="card-header">
-                {% trans 'General' %}
+                {% translate 'General' %}
             </div>
             <div class="card-body">
                 {% for questionnaire_result in general_questionnaire_results_bottom %}

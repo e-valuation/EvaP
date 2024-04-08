@@ -4,12 +4,12 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% trans 'Export' %}</li>
+    <li class="breadcrumb-item">{% translate 'Export' %}</li>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
-    <h3>{% trans 'Export' %} {{ semester.name }}</h3>
+    <h3>{% translate 'Export' %} {{ semester.name }}</h3>
 
     <form id="semester-export-form" method="POST" class="form-horizontal multiselect-form">
         {% csrf_token %}
@@ -18,12 +18,12 @@
 
         <div class="card mb-3">
             <div class="card-body">
-                <p>{% trans 'Select the degrees and course types you want to export. An export will include all evaluations of courses that have at least one of the selected degrees and one of the selected course types. Add multiple lines to create an export file with multiple sheets.' %}</p>
+                <p>{% translate 'Select the degrees and course types you want to export. An export will include all evaluations of courses that have at least one of the selected degrees and one of the selected course types. Add multiple lines to create an export file with multiple sheets.' %}</p>
                 <table id="exportsheets-table" class="table">
                     <thead>
                         <tr>
-                            <th style="width: 25%">{% trans 'Degrees' %}</th>
-                            <th style="width: 65%">{% trans 'Course types' %}</th>
+                            <th style="width: 25%">{% translate 'Degrees' %}</th>
+                            <th style="width: 65%">{% translate 'Course types' %}</th>
                             <th style="width: 10%"></th>
                         </tr>
                     </thead>
@@ -52,20 +52,20 @@
                 <div class="form-check">
                     <input class="form-check-input" id="include_unpublished" type="checkbox" name="include_unpublished" />
                     <label class="form-check-label" for="include_unpublished">
-                        {% trans 'Include unpublished evaluations where the evaluation period ended in the export' %}
+                        {% translate 'Include unpublished evaluations where the evaluation period ended in the export' %}
                     </label>
                 </div>
                 <div class="form-check">
                     <input class="form-check-input" id="include_not_enough_voters" type="checkbox" name="include_not_enough_voters" />
                     <label class="form-check-label" for="include_not_enough_voters">
-                        {% trans 'Include evaluations where not enough votes were given in the export' %}
+                        {% translate 'Include evaluations where not enough votes were given in the export' %}
                     </label>
                 </div>
             </div>
         </div>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
-                <button type="submit" class="btn btn-primary form-submit-btn">{% trans 'Export' %}</button>
+                <button type="submit" class="btn btn-primary form-submit-btn">{% translate 'Export' %}</button>
             </div>
         </div>
     </form>

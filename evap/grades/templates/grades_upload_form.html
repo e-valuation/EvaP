@@ -2,7 +2,7 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% trans "Upload document" %}</li>
+    <li class="breadcrumb-item">{% translate "Upload document" %}</li>
 {% endblock %}
 
 {% block content %}
@@ -10,16 +10,16 @@
 
     {% if show_automated_publishing_info %}
         <div class="callout callout-info">
-            <b>{% trans 'Automated publishing' %}</b><br />
-            {% blocktrans %}After this file with final grades was uploaded, the evaluation results will be published automatically once the evaluation ends. If the evaluation has already ended, it will be published immediately. All contributors and participants will receive an email informing them about the published evaluation results and the available grade file document.{% endblocktrans %}
+            <b>{% translate 'Automated publishing' %}</b><br />
+            {% blocktranslate %}After this file with final grades was uploaded, the evaluation results will be published automatically once the evaluation ends. If the evaluation has already ended, it will be published immediately. All contributors and participants will receive an email informing them about the published evaluation results and the available grade file document.{% endblocktranslate %}
         </div>
     {% endif %}
 
     <h3 class="mb-3">
         {% if final_grades %}
-            {% blocktrans with course=course.name semester=semester.name %}Upload final grades for {{ course }} ({{ semester }}){% endblocktrans %}
+            {% blocktranslate with course=course.name semester=semester.name %}Upload final grades for {{ course }} ({{ semester }}){% endblocktranslate %}
         {% else %}
-            {% blocktrans with course=course.name semester=semester.name %}Upload midterm grades for {{ course }} ({{ semester }}){% endblocktrans %}
+            {% blocktranslate with course=course.name semester=semester.name %}Upload midterm grades for {{ course }} ({{ semester }}){% endblocktranslate %}
         {% endif %}
     </h3>
     <form method="POST" class="form-horizontal" id="grades-upload-form" enctype="multipart/form-data">
@@ -31,7 +31,7 @@
         </div>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
-                <button type="submit" class="btn btn-primary">{% trans 'Upload grades' %}</button>
+                <button type="submit" class="btn btn-primary">{% translate 'Upload grades' %}</button>
             </div>
         </div>
     </form>
