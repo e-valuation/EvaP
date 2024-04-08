@@ -269,20 +269,6 @@ class LiveServerTest(SeleniumTestCase):
 
     serialized_rollback = True
 
-    # fixtures = [os.path.join(settings.BASE_DIR, "development", "fixtures", "test_with_migrations.json")]
-
-    # def _pre_setup(self):
-    #     for db_name in self._databases_names(include_mirrors=False):
-    #         call_command(
-    #             "flush",
-    #             interactive=False,
-    #             verbosity=0,
-    #             database=db_name,
-    #             reset_sequences=False,
-    #             inhibit_post_migrate=True,
-    #         )
-    #     return super()._pre_setup()
-
     def _screenshot(self, name):
         self.selenium.save_screenshot(os.path.join(settings.BASE_DIR, f"{name}.png"))
 
