@@ -4,11 +4,12 @@ import csv
 import sys
 from argparse import ArgumentParser
 from collections import defaultdict
+from collections.abc import Iterator
 from datetime import datetime
 from io import BytesIO
 from itertools import chain
 from pathlib import Path
-from typing import Iterator, NamedTuple, TextIO
+from typing import NamedTuple, TextIO
 
 from openpyxl import Workbook, load_workbook
 from openpyxl.cell import Cell

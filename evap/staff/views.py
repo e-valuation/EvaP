@@ -187,9 +187,7 @@ def get_evaluations_with_prefetched_data(semester):
         )
     ).order_by("pk")
     evaluations = annotate_evaluations_with_grade_document_counts(evaluations)
-    evaluations = Evaluation.annotate_with_participant_and_voter_counts(evaluations)
-
-    return evaluations
+    return Evaluation.annotate_with_participant_and_voter_counts(evaluations)
 
 
 @reviewer_required
@@ -705,9 +703,9 @@ def semester_export(request, semester_id):
     if formset.is_valid():
         include_not_enough_voters = request.POST.get("include_not_enough_voters") == "on"
         include_unpublished = request.POST.get("include_unpublished") == "on"
-        selection_list = []
-        for form in formset:
-            selection_list.append((form.cleaned_data["selected_degrees"], form.cleaned_data["selected_course_types"]))
+        selection_list = [
+            (form.cleaned_data["selected_degrees"], form.cleaned_data["selected_course_types"]) for form in formset
+        ]
 
         filename = f"Evaluation-{semester.name}-{get_language()}.xls"
         response = AttachmentResponse(filename, content_type="application/vnd.ms-excel")
@@ -2293,7 +2291,7 @@ def user_bulk_update(request):
                 success = False
                 try:
                     success = bulk_update_users(request, file_content, test_run)
-                except Exception:  # pylint: disable=broad-except
+                except Exception:  # noqa: BLE001
                     if settings.DEBUG:
                         raise
                     messages.error(

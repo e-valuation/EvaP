@@ -22,6 +22,37 @@ extend_skip_glob = ["**/migrations/*"]
 
 ##############################################
 
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+
+[tool.ruff.lint]
+# Those are interesting, but not yet addressed: PYI,Q,SIM,PTH,TRY,RUF
+select = ["F", "E", "B", "W", "N", "UP", "YTT", "FIX", "ASYNC", "A", "DJ", "EXE", "ICN", "G", "SLOT", "TID", "TCH", "INT", "C4", "ISC", "INP", "PIE", "RSE", "RET", "COM","PGH","FLY", "PERF", "PL", "BLE"]
+ignore = [
+    "E501",                  # line-too-long: black does code formatting for us
+    "FIX004",                # hacks should be possible
+    "A003",                  # we shadow some builtins sometime
+    "DJ008",                 # do not use __str__ where it is not required
+    "COM812",                # incompatible with formatter
+    "N802",                  # not as mighty as pylint's invalid-name https://github.com/astral-sh/ruff/issues/7660
+    "PLR0913",               # we can't determine a good limit for arguments. reviews should spot bad cases of this.
+    "PLR2004", "PLW2901"
+]
+
+ignore-init-module-imports = true
+pep8-naming.extend-ignore-names = ["assert*", "*Formset"]  # custom assert methods use camelCase; Formsets use PascalCase
+
+[tool.ruff.lint.per-file-ignores]
+"**/migrations/*.py" = ["N806"]  # migrations have model classes as local variables, we use PascalCase for these
+"deployment/*.py" = ["INP001"]  # not intended for direct import
+
+[tool.ruff.format]
+exclude = ["**/urls.py", "**/migrations/*.py"]
+
+##############################################
+
+
 [tool.pylint.master]
 jobs = 0
 
@@ -50,7 +81,6 @@ enable = ["all"]
 disable = [
     "locally-disabled",               # we allow locally disabling some checks if we think it makes sense to do that.
     "suppressed-message",
-    "line-too-long",                  # black does code formatting for us
     "ungrouped-imports",              # isort
     "wrong-import-order",             # isort
     "too-many-public-methods",        # reported for some models, that won't change
@@ -61,12 +91,13 @@ disable = [
     "missing-docstring",              # yeah... we don't have those
     "protected-access",               # for us that means "be careful", not "don't do it"
     "too-many-lines",                 # we don't currently think that splitting up views.py or test_views.py creates any value
-    "too-many-arguments",             # we can't determine a good limit here. reviews should spot bad cases of this.
     "duplicate-code",                 # Mostly imports and test setup.
     "cyclic-import",                  # We use these inside methods that require models from multiple apps. Tests will catch actual errors.
     "unsupported-binary-operation",   # broken in pylint: https://github.com/PyCQA/pylint/issues/7381
     "use-implicit-booleaness-not-comparison-to-string",  # forces us to use less expressive code
     "use-implicit-booleaness-not-comparison-to-zero",    # forces us to use less expressive code
+    # the following are covered by ruff
+    "broad-exception-caught", "line-too-long","unused-wildcard-import", "wildcard-import","too-many-arguments", "too-many-statements", "too-many-return-statements"
 ]
 
 ##############################################

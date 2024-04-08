@@ -4,7 +4,7 @@ from collections import defaultdict
 from datetime import date, datetime, timedelta
 from io import StringIO
 from itertools import chain, cycle
-from unittest.mock import call, patch
+from unittest.mock import MagicMock, call, patch
 
 from django.conf import settings
 from django.core import mail, management
@@ -336,7 +336,7 @@ class TestSendRemindersCommand(TestCase):
         self.assertEqual(mock.call_count, 0)
         self.assertEqual(len(mail.outbox), 0)
 
-    @override_settings(TEXTANSWER_REVIEW_REMINDER_WEEKDAYS=list(range(0, 8)))
+    @override_settings(TEXTANSWER_REVIEW_REMINDER_WEEKDAYS=list(range(7)))
     def test_send_text_answer_review_reminder(self):
         make_manager()
         evaluation = baker.make(
@@ -366,11 +366,12 @@ class TestSendRemindersCommand(TestCase):
 
 
 class TestLintCommand(TestCase):
-    @staticmethod
     @patch("subprocess.run")
-    def test_pylint_called(mock_subprocess_run):
-        management.call_command("lint")
-        mock_subprocess_run.assert_called_once_with(["pylint", "evap", "tools"], check=False)
+    def test_pylint_called(self, mock_subprocess_run: MagicMock):
+        management.call_command("lint", stdout=StringIO())
+        self.assertEqual(mock_subprocess_run.call_count, 2)
+        mock_subprocess_run.assert_any_call(["ruff", "check", "."], check=False)
+        mock_subprocess_run.assert_any_call(["pylint", "evap", "tools"], check=False)
 
 
 class TestFormatCommand(TestCase):
@@ -409,7 +410,7 @@ class TestPrecommitCommand(TestCase):
         mock_call_command.assert_any_call("format")
 
 
-@override_settings(TEXTANSWER_REVIEW_REMINDER_WEEKDAYS=range(0, 7))
+@override_settings(TEXTANSWER_REVIEW_REMINDER_WEEKDAYS=range(7))
 class TestSendTextanswerRemindersCommand(TestCase):
     def test_send_reminder(self):
         make_manager()

@@ -12,6 +12,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterUniqueTogether(
             name='gradedocument',
-            unique_together=set([('course', 'description_de'), ('course', 'description_en')]),
+            unique_together={('course', 'description_de'), ('course', 'description_en')},
         ),
     ]

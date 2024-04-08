@@ -42,8 +42,7 @@ def staff_mode_middleware(get_response):
             request.user.is_manager = False
             request.user.is_reviewer = False
 
-        response = get_response(request)
-        return response
+        return get_response(request)
 
     return middleware
 

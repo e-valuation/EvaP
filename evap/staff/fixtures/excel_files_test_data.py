@@ -208,7 +208,7 @@ valid_user_courses_import_users = [
     ['Prof. Dr.', 'Prorsus', 'Christoph', '123@external.com']
 ]
 
-random_file_content = b"Hallo Welt\n"
+random_file_content = b"Hallo Welt\n"  # pylint: disable=invalid-name
 
 
 wrong_column_count_excel_data = {

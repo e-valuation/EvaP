@@ -398,9 +398,7 @@ class TestExporters(TestCase):
 
         sheet = self.get_export_sheet(semester, degree, [evaluation1.course.type.id, evaluation2.course.type.id])
 
-        self.assertEqual(
-            set(sheet.row_values(0)[1:]), set((evaluation1.full_name + "\n", evaluation2.full_name + "\n"))
-        )
+        self.assertEqual(set(sheet.row_values(0)[1:]), {evaluation1.full_name + "\n", evaluation2.full_name + "\n"})
 
     def test_correct_grades_and_bottom_numbers(self):
         degree = baker.make(Degree)
@@ -449,7 +447,7 @@ class TestExporters(TestCase):
 
         questionnaire = baker.make(Questionnaire)
         question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire)
-        for grades, e in zip(grades_per_eval, evaluations):
+        for grades, e in zip(grades_per_eval, evaluations, strict=True):
             make_rating_answer_counters(question, e.general_contribution, grades)
             e.general_contribution.questionnaires.set([questionnaire])
         for evaluation in evaluations:

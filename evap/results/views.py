@@ -106,7 +106,7 @@ def update_template_cache_of_published_evaluations_in_course(course):
 
 
 def get_evaluations_with_prefetched_data(evaluations):
-    if isinstance(evaluations, QuerySet):  # type: ignore
+    if isinstance(evaluations, QuerySet):  # type: ignore[misc]
         evaluations = evaluations.select_related("course__type").prefetch_related(
             "course__degrees",
             "course__semester",
@@ -148,7 +148,7 @@ def index(request):
     annotated_courses = (
         Course.objects.filter(pk__in=course_pks).annotate(num_evaluations=Count("evaluations")).order_by("pk").defer()
     )
-    for course, annotated_course in zip(courses_and_evaluations.keys(), annotated_courses):
+    for course, annotated_course in zip(courses_and_evaluations.keys(), annotated_courses, strict=True):
         course.num_evaluations = annotated_course.num_evaluations
 
     degrees = Degree.objects.filter(courses__pk__in=course_pks).distinct()

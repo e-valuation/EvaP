@@ -1397,8 +1397,8 @@ class TestSemesterVoteTimestampsExport(WebTestStaffMode):
         )
         expected_content = (
             "Evaluation id;Course type;Course degrees;Vote end date;Timestamp\n"
-            + f"{self.evaluation_id};Type;;{self.vote_end_date};{self.timestamp_time}\n"
-        ).encode("utf-8")
+            f"{self.evaluation_id};Type;;{self.vote_end_date};{self.timestamp_time}\n"
+        ).encode()
         self.assertEqual(response.content, expected_content)
 
 
@@ -2757,7 +2757,7 @@ class TestEvaluationTextAnswerView(WebTest):
             _quantity=2,
         )
 
-        for evaluation, answer_count in zip(evaluations, [1, 2]):
+        for evaluation, answer_count in zip(evaluations, [1, 2], strict=True):
             contribution = baker.make(Contribution, evaluation=evaluation, _fill_optional=["contributor"])
             baker.make(TextAnswer, contribution=contribution, question__type=QuestionType.TEXT, _quantity=answer_count)
 
@@ -3695,16 +3695,16 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
 
         self.assertEqual(
             set(self.evaluation_1.general_contribution.questionnaires.all()),
-            set([self.questionnaire_1, self.questionnaire_2]),
+            {self.questionnaire_1, self.questionnaire_2},
         )
-        self.assertEqual(set(self.evaluation_2.general_contribution.questionnaires.all()), set([self.questionnaire_2]))
+        self.assertEqual(set(self.evaluation_2.general_contribution.questionnaires.all()), {self.questionnaire_2})
         self.assertEqual(
             set(self.evaluation_1.contributions.get(contributor=self.responsible).questionnaires.all()),
-            set([self.questionnaire_responsible]),
+            {self.questionnaire_responsible},
         )
         self.assertEqual(
             set(self.evaluation_2.contributions.get(contributor=self.responsible).questionnaires.all()),
-            set([self.questionnaire_responsible]),
+            {self.questionnaire_responsible},
         )
 
 
