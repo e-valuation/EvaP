@@ -370,7 +370,7 @@ class TestLintCommand(TestCase):
     @patch("subprocess.run")
     def test_pylint_called(mock_subprocess_run):
         management.call_command("lint")
-        mock_subprocess_run.assert_called_once_with(["pylint", "evap"], check=False)
+        mock_subprocess_run.assert_called_once_with(["pylint", "evap", "tools"], check=False)
 
 
 class TestFormatCommand(TestCase):
@@ -392,7 +392,7 @@ class TestTypecheckCommand(TestCase):
     def test_mypy_called(self, mock_subprocess_run):
         management.call_command("typecheck")
         self.assertEqual(len(mock_subprocess_run.mock_calls), 1)
-        mock_subprocess_run.assert_has_calls([call(["mypy", "-p", "evap"], check=True)])
+        mock_subprocess_run.assert_has_calls([call(["mypy"], check=True)])
 
 
 class TestPrecommitCommand(TestCase):
