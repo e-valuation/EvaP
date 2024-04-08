@@ -370,8 +370,8 @@ class TestLintCommand(TestCase):
     def test_pylint_called(self, mock_subprocess_run: MagicMock):
         management.call_command("lint", stdout=StringIO())
         self.assertEqual(mock_subprocess_run.call_count, 2)
-        mock_subprocess_run.assert_any_call(["ruff", "."], check=False)
-        mock_subprocess_run.assert_any_call(["pylint", "evap"], check=False)
+        mock_subprocess_run.assert_any_call(["ruff", "check", "."], check=False)
+        mock_subprocess_run.assert_any_call(["pylint", "evap", "tools"], check=False)
 
 
 class TestFormatCommand(TestCase):
@@ -393,7 +393,7 @@ class TestTypecheckCommand(TestCase):
     def test_mypy_called(self, mock_subprocess_run):
         management.call_command("typecheck")
         self.assertEqual(len(mock_subprocess_run.mock_calls), 1)
-        mock_subprocess_run.assert_has_calls([call(["mypy", "-p", "evap"], check=True)])
+        mock_subprocess_run.assert_has_calls([call(["mypy"], check=True)])
 
 
 class TestPrecommitCommand(TestCase):

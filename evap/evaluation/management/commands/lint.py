@@ -12,4 +12,4 @@ class Command(BaseCommand):
         self.stdout.write("Executing ruff .")
         subprocess.run(["ruff", "."], check=False)  # nosec
         self.stdout.write("Executing pylint evap")
-        subprocess.run(["pylint", "evap"], check=False)  # nosec
+        subprocess.run(["pylint", "evap", "tools"], check=False)  # nosec

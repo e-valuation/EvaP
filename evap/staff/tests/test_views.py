@@ -1,3 +1,4 @@
+import csv
 import datetime
 import os
 from abc import ABC, abstractmethod
@@ -567,6 +568,33 @@ class TestUserBulkUpdateView(WebTestStaffMode):
         )
         reply = form.submit(name="operation", value="test", status=200)
         self.assertIn("An error happened when processing the file", reply)
+
+
+class TestUserExportView(WebTestStaffMode):
+    url = reverse("staff:user_export")
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+        cls.manager = make_manager()
+        # titles are not filled by baker because it has a default, see https://github.com/model-bakers/model_bakery/discussions/346
+        baker.make(
+            UserProfile,
+            _quantity=5,
+            _fill_optional=["first_name_given", "last_name", "email"],
+            title=iter(("", "Some", "Custom", "Titles", "")),
+        )
+
+    def test_export_all(self):
+        user_objects = {
+            (user.title or "", user.last_name or "", user.first_name or "", user.email or "")
+            for user in UserProfile.objects.iterator()
+        }
+        response = self.app.get(self.url, user=self.manager)
+
+        reader = csv.reader(response.text.strip().split("\n"), delimiter=";", lineterminator="\n")
+        # skip header
+        next(reader)
+        self.assertEqual({tuple(row) for row in reader}, user_objects)
 
 
 class TestUserImportView(WebTestStaffMode):

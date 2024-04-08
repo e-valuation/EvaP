@@ -74,7 +74,7 @@ jobs:
         uses: ./.github/setup_python
 
       - name: Run MyPy
-        run: mypy -p evap
+        run: mypy
 
   linter:
     runs-on: ubuntu-22.04
@@ -89,10 +89,10 @@ jobs:
         uses: ./.github/setup_python
 
       - name: Run ruff
-        run: ruff .
+        run: ruff check .
 
       - name: Run pylint
-        run: pylint evap -j 0
+        run: pylint evap tools
 
 
   formatter:
