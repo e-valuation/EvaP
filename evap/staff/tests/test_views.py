@@ -1975,12 +1975,15 @@ class TestEvaluationExamCreation(WebTestStaffMode):
         )
         cls.questionnaire = baker.make(Questionnaire, pk=83)
         cls.url = reverse("staff:create_exam_evaluation")
-        cls.exam_date = (
-            datetime.date.today()
-        )  + datetime.timedelta(days=10)
+        cls.exam_date = (datetime.date.today()) + datetime.timedelta(days=10)
 
     def test_create_exam_evaluation(self):
-        self.app.post(self.url, user=self.manager, status=200, params={"evaluation_id": self.evaluation.pk, "exam_date": self.exam_date})
+        self.app.post(
+            self.url,
+            user=self.manager,
+            status=200,
+            params={"evaluation_id": self.evaluation.pk, "exam_date": self.exam_date},
+        )
         self.assertEqual(Evaluation.objects.count(), 2)
         exam_evaluation = Evaluation.objects.exclude(pk=self.evaluation.pk).get()
         self.assertEqual(exam_evaluation.contributions.count(), self.evaluation.contributions.count())
@@ -1998,20 +2001,35 @@ class TestEvaluationExamCreation(WebTestStaffMode):
     def test_exam_evaluation_for_single_result(self):
         self.evaluation.is_single_result = True
         self.evaluation.save()
-        self.app.post(self.url, user=self.manager, status=400, params={"evaluation_id": self.evaluation.pk, "exam_date": self.exam_date})
+        self.app.post(
+            self.url,
+            user=self.manager,
+            status=400,
+            params={"evaluation_id": self.evaluation.pk, "exam_date": self.exam_date},
+        )
         self.assertFalse(self.evaluation.has_exam)
 
     def test_exam_evaluation_for_already_existing_exam_evaluation(self):
         baker.make(Evaluation, course=self.course, name_en="Exam", name_de="Klausur")
         self.assertTrue(self.evaluation.has_exam)
-        self.app.post(self.url, user=self.manager, status=400, params={"evaluation_id": self.evaluation.pk, "exam_date": self.exam_date})
+        self.app.post(
+            self.url,
+            user=self.manager,
+            status=400,
+            params={"evaluation_id": self.evaluation.pk, "exam_date": self.exam_date},
+        )
 
     def test_exam_evaluation_with_wrong_date(self):
         self.evaluation.vote_start_datetime = datetime.datetime.now() + datetime.timedelta(days=100)
         self.evaluation.vote_end_date = datetime.date.today() + datetime.timedelta(days=150)
         self.evaluation.save()
 
-        self.app.post(self.url, user=self.manager, status=400, params={"evaluation_id": self.evaluation.pk, "exam_date": self.exam_date})
+        self.app.post(
+            self.url,
+            user=self.manager,
+            status=400,
+            params={"evaluation_id": self.evaluation.pk, "exam_date": self.exam_date},
+        )
         self.assertFalse(self.evaluation.has_exam)
 
 
