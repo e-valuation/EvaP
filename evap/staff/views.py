@@ -1098,7 +1098,9 @@ def course_copy(request, course_id):
 @transaction.atomic
 def create_exam_evaluation(request):
     evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
-    exam_date = datetime.today()  # request.POST.get("date")
+    exam_date = request.POST.get("exam_date")
+    exam_date = datetime.combine(datetime.strptime(exam_date, "%Y-%m-%d"), datetime.min.time())
+
     if evaluation.is_single_result:
         raise SuspiciousOperation("Creating an exam evaluation for a single result evaluation is not allowed")
 

@@ -394,6 +394,11 @@
                             Create an exam evaluation based on this evaluation. This will copy all the participants and contributors from the original evaluation. It will set the weight of the original evaluation to 9 and its end date will be set to the day before the exam.
                             {% endblocktranslate %}
                         </span>
+                        <span slot="extra-inputs">
+                            <label for="exam_date">{% translate 'Exam Date:' %}</label>
+                            <input type="date" id="exam_date" name="exam_date" required>
+                        </span>
+
                         <button slot="show-button" type="button" class="btn btn-sm btn-light"><span class="fas fa-file-pen fa-fw"></span></button>
                     </confirmation-modal>
                 </form>
