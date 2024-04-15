@@ -180,12 +180,8 @@
             <a href="{% url 'staff:evaluation_copy' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" title="{% translate 'Copy' %}">
                 <span class="fas fa-fw fa-copy"></span>
             </a>
-            {% if not evaluation.has_exam%}
-                <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"  
-                        onclick="createExamEvaluationShow({{ evaluation.id }}, '{{ course.name|escapejs }}');"  
-                        title="{% trans 'Create exam evaluation' %}">  
-                    <span class="fas fa-file-pen fa-fw"></span>  
-                </a>
+            {% if not evaluation.has_exam %}
+            <button id="openModalBtn" type="button" class="btn btn-sm btn-light" evaluation_id="{{ evaluation.id }}"><span class="fas fa-file-pen fa-fw"></span></button>
             {% endif %}
         {% endif %}
         {% if request.user.is_manager %}
@@ -223,5 +219,18 @@
         {% endif %}
     {% endif %}
 </td>
+
+<script>
+    var exam_creation_modal = document.getElementById("exam_creation_modal");
+    var btn = document.querySelectorAll('button[evaluation_id="{{ evaluation.id }}"]')[0];
+    var span = document.getElementsByClassName("close")[0];
+
+    // When the user clicks the button, open the modal
+    btn.onclick = function() {
+        var modalForm = exam_creation_modal.querySelector("form");
+        exam_creation_modal.setAttribute("value", this.getAttribute("evaluation_id"));
+        exam_creation_modal.dialog.showModal();
+    }
+</script>
 
 {% endwith %}
