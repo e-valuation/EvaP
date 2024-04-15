@@ -243,12 +243,10 @@ class TestTsCommend(TestCase):
 
     @patch("subprocess.run")
     @patch("evap.evaluation.management.commands.ts.call_command")
-    @patch("evap.evaluation.management.commands.ts.Command.render_pages")
-    def test_ts_test(self, mock_render_pages, mock_call_command, mock_subprocess_run):
+    def test_ts_test(self, mock_call_command, mock_subprocess_run):
         management.call_command("ts", "test")
 
         # Mock render pages to prevent a second call into the test framework
-        mock_render_pages.assert_called_once()
         mock_call_command.assert_called_once_with("scss")
         mock_subprocess_run.assert_has_calls(
             [

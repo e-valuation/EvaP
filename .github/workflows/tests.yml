@@ -197,51 +197,11 @@ jobs:
           path: evap/static/css/evap.css
 
 
-  render_pages:
-    runs-on: ubuntu-22.04
-
-    name: Render Html pages
-
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: evap
-        ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-      redis:
-        image: redis
-        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
-        ports:
-          - 6379:6379
-
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v3
-
-      - name: Setup python
-        uses: ./.github/setup_python
-
-      - name: Render pages
-        run: coverage run manage.py ts render_pages
-      - name: Upload coverage
-        uses: codecov/codecov-action@v3
-        with:
-          flags: render-pages
-      - name: Store rendered pages
-        uses: actions/upload-artifact@v3
-        with:
-          name: rendered-pages
-          path: evap/static/ts/rendered
-
 
   typescript:
     runs-on: ubuntu-22.04
 
-    needs: [ compile_scss, render_pages ]
+    needs: [ compile_scss ]
 
     name: Test Typescript
 

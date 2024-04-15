@@ -45,7 +45,6 @@ from evap.evaluation.tests.tools import (
     let_user_vote_for_evaluation,
     make_manager,
     make_rating_answer_counters,
-    render_pages,
     submit_with_modal,
 )
 from evap.grades.models import GradeDocument
@@ -609,12 +608,6 @@ class TestUserImportView(WebTestStaffMode):
         cls.random_excel_file_content = excel_data.random_file_content
 
         cls.manager = make_manager()
-
-    @render_pages
-    def render_pages(self):
-        return {
-            "normal": self.app.get(self.url, user=self.manager).content,
-        }
 
     def test_success_handling(self):
         """
@@ -2054,8 +2047,6 @@ class TestCourseDeleteView(DeleteViewTestMixin, WebTestStaffMode):
     ]
 )
 class TestEvaluationEditView(WebTestStaffMode):
-    render_pages_url = "/staff/semester/PK/evaluation/PK/edit"
-
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
@@ -2096,12 +2087,6 @@ class TestEvaluationEditView(WebTestStaffMode):
         )
         cls.contribution1.questionnaires.set([cls.contributor_questionnaire])
         cls.contribution2.questionnaires.set([cls.contributor_questionnaire])
-
-    @render_pages
-    def render_pages(self):
-        return {
-            "normal": self.app.get(self.url, user=self.manager).content,
-        }
 
     def test_edit_evaluation(self):
         page = self.app.get(self.url, user=self.manager)
