@@ -90,9 +90,6 @@ sed -i -e "s/\${SECRET_KEY}/$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
 # setup vm auto-completion
 cp $REPO_FOLDER/deployment/manage_autocompletion.sh /etc/bash_completion.d/
 
-# install chrome, see: https://github.com/puppeteer/puppeteer/issues/7740
-apt-get -q install -y chromium-browser
-
 # install firefox and geckodriver
 sudo install -d -m 0755 /etc/apt/keyrings
 wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- | sudo tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
@@ -108,9 +105,6 @@ apt -q install -y firefox
 wget https://github.com/mozilla/geckodriver/releases/download/v0.34.0/geckodriver-v0.34.0-linux64.tar.gz -O geckodriver.tar.gz
 tar xzf geckodriver.tar.gz -C /usr/local/bin/
 chmod +x /usr/local/bin/geckodriver
-
-# install libraries for puppeteer
-apt-get -q install -y libasound2 libgconf-2-4 libgbm1 libgtk-3-0 libnss3 libx11-xcb1 libxss1 libxshmfence-dev
 
 # install nvm
 wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh --no-verbose --output-document - | sudo -H -u $USER bash
