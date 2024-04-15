@@ -384,6 +384,20 @@
                     });
                 </script>
 
+                <form reload-on-success method="post" action="{% url 'staff:create_exam_evaluation' %}">
+                    {% csrf_token %}
+                    <confirmation-modal type="submit" id="exam_creation_modal" name="evaluation_id" value="{{ evaluation.id }}" confirm-button-class="btn-primary" title="{% translate 'Create exam evaluations' %}">
+                        <span slot="title">{% translate 'Create exam evaluations' %}</span>
+                        <span slot="action-text">{% translate 'Create exam evaluation' %}</span>
+                        <span slot="question">
+                            {% blocktranslate %}
+                            Create an exam evaluation based on this evaluation. This will copy all the participants and contributors from the original evaluation. It will set the weight of the original evaluation to 9 and its end date will be set to the day before the exam.
+                            {% endblocktranslate %}
+                        </span>
+                        <button slot="show-button" type="button" class="btn btn-sm btn-light"><span class="fas fa-file-pen fa-fw"></span></button>
+                    </confirmation-modal>
+                </form>
+
                 <form id="evaluation_operation_form" class="table-responsive" method="GET" action="{% url 'staff:evaluation_operation' semester.pk %}">
                     {% if num_evaluations > 0 %}
                         <table id="evaluation-table" class="table table-striped table-narrow table-vertically-aligned">
@@ -466,6 +480,7 @@
                     {% endif %}
                 </form>
             </div>
+
             <div class="tab-pane" id="courses" role="tabpanel">
                 <div class="row align-items-center mb-3">
                     <div class="col-9">
@@ -578,26 +593,6 @@
             </div>
         </div>
     </div>
-{% endblock %}
-
-{% block modals %}
-    {{ block.super }}
-    {% trans 'Create exam evaluation' as title %}
-    {% blocktrans asvar question %}Create an exam evaluation based on this evaluation. This will copy all the participants and contributors from the original evaluation. It will set the weight of the original evaluation to 9 and its end date will be set to the day before the exam. {% endblocktrans %}
-    {% trans 'Create exam evaluation' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='createExamEvaluation' title=title question=question action_text=action_text btn_type='primary' %}
-    <script type="text/javascript">
-        function createExamEvaluationAction(dataId) {
-            fetch("{% url 'staff:create_exam_evaluation' %}", {
-                body: new URLSearchParams({evaluation_id: dataId}),
-                headers: CSRF_HEADERS,
-                method: "POST",
-            }).then(response => {
-                assert(response.ok);
-                location.reload();
-            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
-        };
-    </script>
 {% endblock %}
 
 {% block additional_javascript %}
