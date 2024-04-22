@@ -53,3 +53,5 @@ GLOBAL_EVALUATION_PROGRESS_INFO_TEXT = {
     "de": mark_safe("Deine Teilnahme am Evaluationsprojekt wird helfen. Evaluiere also <b>jetzt</b>!"),
     "en": mark_safe("Your participation in the evaluation helps, so evaluate <b>now</b>!"),
 }
+# Questionnaires automatically added to exam evaluations
+EXAM_QUESTIONNAIRE_IDS = [83]

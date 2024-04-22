@@ -108,7 +108,7 @@ EVALUATION_END_OFFSET_HOURS = 3
 EVALUATION_END_WARNING_PERIOD = 5
 
 # Questionnaires automatically added to exam evaluations
-EXAM_QUESTIONNAIRES = [83]
+EXAM_QUESTIONNAIRE_IDS = []
 
 ### Installation specific settings
 

@@ -181,7 +181,21 @@
                 <span class="fas fa-fw fa-copy"></span>
             </a>
             {% if not evaluation.has_exam %}
-            <button id="openModalBtn" type="button" class="btn btn-sm btn-light" evaluation_id="{{ evaluation.id }}"><span class="fas fa-file-pen fa-fw"></span></button>
+            <confirmation-modal type="submit" id="exam_creation_modal" name="evaluation_id" value="{{ evaluation.id }}" confirm-button-class="btn-primary" title="{% translate 'Create exam evaluations' %}" form="exam_creation_form_{{ evaluation.id }}">
+                <span slot="title">{% translate 'Create exam evaluations' %}</span>
+                <span slot="action-text">{% translate 'Create exam evaluation' %}</span>
+                <span slot="question">
+                    {% blocktranslate %}
+                    Create an exam evaluation based on this evaluation. This will copy all the participants and contributors from the original evaluation. It will set the weight of the original evaluation to 9 and its end date will be set to the day before the exam.
+                    {% endblocktranslate %}
+                </span>
+                <span slot="extra-inputs">
+                    <label for="exam_date">{% translate 'Exam Date:' %}</label>
+                    <input type="date" id="exam_date" name="exam_date" required form="exam_creation_form_{{ evaluation.id }}">
+                </span>
+
+                <button slot="show-button" type="button" class="btn btn-sm btn-light" title="{% translate 'Create exam evaluation' %}" data-bs-placement="top" data-bs-toggle="tooltip"><span class="fas fa-file-pen fa-fw"></span></button>
+            </confirmation-modal>
             {% endif %}
         {% endif %}
         {% if request.user.is_manager %}
@@ -219,18 +233,5 @@
         {% endif %}
     {% endif %}
 </td>
-
-<script>
-    var exam_creation_modal = document.getElementById("exam_creation_modal");
-    var btn = document.querySelectorAll('button[evaluation_id="{{ evaluation.id }}"]')[0];
-    var span = document.getElementsByClassName("close")[0];
-
-    // When the user clicks the button, open the modal
-    btn.onclick = function() {
-        var modalForm = exam_creation_modal.querySelector("form");
-        exam_creation_modal.setAttribute("value", this.getAttribute("evaluation_id"));
-        exam_creation_modal.dialog.showModal();
-    }
-</script>
 
 {% endwith %}
