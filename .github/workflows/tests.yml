@@ -216,11 +216,6 @@ jobs:
 
       - name: Compile Typescript
         run: npx tsc --project evap/static/ts/tsconfig.compile.json
-      - name: Load rendered pages
-        uses: actions/download-artifact@v3
-        with:
-          name: rendered-pages
-          path: evap/static/ts/rendered
       - name: Load Css
         uses: actions/download-artifact@v3
         with:
