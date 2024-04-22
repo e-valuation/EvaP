@@ -4,7 +4,7 @@ import uuid
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
-from enum import Enum,IntEnum, auto
+from enum import Enum, IntEnum, auto
 from numbers import Real
 
 from django.conf import settings
@@ -782,12 +782,12 @@ class Evaluation(LoggedModel):
         self._participant_count = None
 
     @classmethod
-    def state_to_str(cls, state):
-        return cls.State(state).label
+    def state_to_str(cls, state: "Evaluation.State | int") -> StrOrPromise:
+        return Evaluation.State(state).label
 
     @property
     def state_str(self):
-        return self.state.label
+        return Evaluation.state_to_str(self.state)
 
     @cached_property
     def general_contribution(self):
@@ -1002,7 +1002,7 @@ def evaluation_state_change(instance, source, **_kwargs):
 
 
 @receiver(post_transition, sender=Evaluation)
-def log_state_transition(instance, name, source, target, **_kwargs):
+def log_state_transition(instance, name, source: int, target: int, **_kwargs):
     logger.info(
         'Evaluation "%s" (id %d) moved from state "%s" to state "%s", caused by transition "%s".',
         instance,
