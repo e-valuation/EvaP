@@ -374,6 +374,12 @@
                     </div>
                 </div>
 
+                {% for evaluation in evaluations %}
+                    <form id="exam_creation_form_{{ evaluation.id }}" reload-on-success method="post" action="{% url 'staff:create_exam_evaluation' %}">
+                        {% csrf_token %}
+                    </form>
+                {% endfor %}
+
                 <form id="evaluation-deletion-form" custom-success method="POST" action="{% url 'staff:evaluation_delete' %}">
                     {% csrf_token %}
                 </form>
@@ -383,25 +389,6 @@
                         fadeOutThenRemove(document.getElementById(`evaluation-row-${event.detail.body.get("evaluation_id")}`))
                     });
                 </script>
-
-                <form reload-on-success method="post" action="{% url 'staff:create_exam_evaluation' %}">
-                    {% csrf_token %}
-                    <confirmation-modal type="submit" id="exam_creation_modal" name="evaluation_id" value="{{ evaluation.id }}" confirm-button-class="btn-primary" title="{% translate 'Create exam evaluations' %}">
-                        <span slot="title">{% translate 'Create exam evaluations' %}</span>
-                        <span slot="action-text">{% translate 'Create exam evaluation' %}</span>
-                        <span slot="question">
-                            {% blocktranslate %}
-                            Create an exam evaluation based on this evaluation. This will copy all the participants and contributors from the original evaluation. It will set the weight of the original evaluation to 9 and its end date will be set to the day before the exam.
-                            {% endblocktranslate %}
-                        </span>
-                        <span slot="extra-inputs">
-                            <label for="exam_date">{% translate 'Exam Date:' %}</label>
-                            <input type="date" id="exam_date" name="exam_date" required>
-                        </span>
-
-                        <button slot="show-button" type="button" class="btn btn-sm btn-light"><span class="fas fa-file-pen fa-fw"></span></button>
-                    </confirmation-modal>
-                </form>
 
                 <form id="evaluation_operation_form" class="table-responsive" method="GET" action="{% url 'staff:evaluation_operation' semester.pk %}">
                     {% if num_evaluations > 0 %}

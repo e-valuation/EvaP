@@ -456,7 +456,7 @@ class Evaluation(LoggedModel):
         self.participants.set(participants)
         for contribution in eval_contributions:
             self.contributions.create(contributor=contribution.contributor)
-        self.general_contribution.questionnaires.set(settings.EXAM_QUESTIONNAIRES)
+        self.general_contribution.questionnaires.set(settings.EXAM_QUESTIONNAIRE_IDS)
 
     class TextAnswerReviewState(Enum):
         do_not_call_in_templates = True  # pylint: disable=invalid-name
