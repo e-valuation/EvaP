@@ -1,5 +1,3 @@
-from time import sleep
-
 from django.urls import reverse
 from model_bakery import baker
 from selenium.webdriver.common.by import By
@@ -138,7 +136,9 @@ class ResultsLiveTests(LiveServerTest):
 
         self.selenium.find_element(By.CSS_SELECTOR, "input[name=search]").send_keys("Exam")
 
-        sleep(0.2)
+        WebDriverWait(self.selenium, 10).until(
+            expected_conditions.invisibility_of_element_located((By.XPATH, "//span[contains(text(),'Course C')]"))
+        )
 
         self.assertEqual(self._get_visible_rows(), [("Course A", "ST 13")])
 
