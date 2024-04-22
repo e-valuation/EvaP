@@ -43,11 +43,11 @@
                     </div>
                 {% else %}
                     <div class="col">
-                        {% trans 'Notify Contributors' as heading %}
+                        {% translate 'Notify Contributors' as heading %}
                         {% include "staff_email_preview_form.html" with email_template=email_template_contributor id_suffix="_contributor" heading=heading %}
                     </div>
                     <div class="col">
-                        {% trans 'Notify Participants' as heading %}
+                        {% translate 'Notify Participants' as heading %}
                         {% include "staff_email_preview_form.html" with email_template=email_template_participant id_suffix="_participant" heading=heading %}
                     </div>
                 {% endif %}
@@ -57,8 +57,8 @@
 
         <div class="card card-submit-area card-submit-area-2 text-center mb-3">
             <div class="card-body">
-                <button type="submit" class="btn btn-primary">{% trans 'Confirm' %}</button>
-                <a href="{% url 'staff:semester_view' semester.id %}" class="btn btn-light">{% trans 'Cancel' %}</a>
+                <button type="submit" class="btn btn-primary">{% translate 'Confirm' %}</button>
+                <a href="{% url 'staff:semester_view' semester.id %}" class="btn btn-light">{% translate 'Cancel' %}</a>
             </div>
         </div>
     </form>

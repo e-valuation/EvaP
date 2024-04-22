@@ -4,7 +4,7 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% trans 'Users' %}</li>
+    <li class="breadcrumb-item">{% translate 'Users' %}</li>
 {% endblock %}
 
 {% block content %}
@@ -15,12 +15,13 @@
             <div class="card h-100">
                 <div class="card-body">
                     <ul>
-                        <li><a href="{% url 'staff:user_list' %}" class="">{% trans 'User list' %}</a></li>
-                        <li><a href="{% url 'staff:user_import' %}" class="">{% trans 'Import users' %}</a></li>
-                        <li><a href="{% url 'staff:user_merge_selection' %}" class="">{% trans 'Merge users' %}</a></li>
-                        <li><a href="{% url 'staff:user_bulk_update' %}" class="">{% trans 'Bulk update users' %}</a></li>
+                        <li><a href="{% url 'staff:user_list' %}" class="">{% translate 'User list' %}</a></li>
+                        <li><a href="{% url 'staff:user_import' %}" class="">{% translate 'Import users' %}</a></li>
+                        <li><a href="{% url 'staff:user_export' %}" class="">{% trans 'Export users' %}</a></li>
+                        <li><a href="{% url 'staff:user_merge_selection' %}" class="">{% translate 'Merge users' %}</a></li>
+                        <li><a href="{% url 'staff:user_bulk_update' %}" class="">{% translate 'Bulk update users' %}</a></li>
                     </ul>
-                    <a href="{% url 'staff:user_create' %}" class="btn btn-sm btn-dark mt-2">{% trans 'Create new user' %}</a>
+                    <a href="{% url 'staff:user_create' %}" class="btn btn-sm btn-dark mt-2">{% translate 'Create new user' %}</a>
                 </div>
             </div>
         </div>
@@ -29,12 +30,12 @@
                 <div class="card-body">
                     <form id="user-edit-form" method="POST" class="form-horizontal">
                         {% csrf_token %}
-                        <h4 class="card-title">{% trans 'Edit user' %}</h4>
+                        <h4 class="card-title">{% translate 'Edit user' %}</h4>
                         {% include 'bootstrap_form_field_widget.html' with field=form.user %}
                     </form>
                 </div>
                 <div class="card-footer text-center card-submit-area d-flex">
-                    <button type="submit" form="user-edit-form" class="btn btn-primary mx-auto my-auto">{% trans 'Edit' %}</button>
+                    <button type="submit" form="user-edit-form" class="btn btn-primary mx-auto my-auto">{% translate 'Edit' %}</button>
                 </div>
             </div>
         </div>

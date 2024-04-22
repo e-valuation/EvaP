@@ -103,7 +103,9 @@ class PublishedRatingResult(RatingResult):
 class AnsweredRatingResult(PublishedRatingResult):
     @property
     def average(self) -> float:
-        return sum(grade * count for count, grade in zip(self.counts, self.choices.grades)) / self.count_sum
+        return (
+            sum(grade * count for count, grade in zip(self.counts, self.choices.grades, strict=True)) / self.count_sum
+        )
 
 
 class TextResult:
@@ -288,7 +290,7 @@ def unipolarized_distribution(result):
     if not result.counts:
         return None
 
-    for counts, grade in zip(result.counts, result.choices.grades):
+    for counts, grade in zip(result.counts, result.choices.grades, strict=True):
         grade_fraction, grade = modf(grade)
         grade = int(grade)
         summed_distribution[grade - 1] += (1 - grade_fraction) * counts
@@ -469,13 +471,12 @@ def textanswers_visible_to(contribution):
     return TextAnswerVisibility(visible_by_contribution=sorted_contributors, visible_by_delegation_count=num_delegates)
 
 
-def can_textanswer_be_seen_by(
+def can_textanswer_be_seen_by(  # noqa: PLR0911
     user: UserProfile,
     represented_users: list[UserProfile],
     textanswer: TextAnswer,
     view: str,
 ) -> bool:
-    # pylint: disable=too-many-return-statements
     assert textanswer.review_decision in [TextAnswer.ReviewDecision.PRIVATE, TextAnswer.ReviewDecision.PUBLIC]
     contributor = textanswer.contribution.contributor
 

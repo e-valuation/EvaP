@@ -10,10 +10,10 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterUniqueTogether(
             name='gradeanswercounter',
-            unique_together=set([('question', 'contribution', 'answer')]),
+            unique_together={('question', 'contribution', 'answer')},
         ),
         migrations.AlterUniqueTogether(
             name='likertanswercounter',
-            unique_together=set([('question', 'contribution', 'answer')]),
+            unique_together={('question', 'contribution', 'answer')},
         ),
     ]

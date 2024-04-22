@@ -3,7 +3,7 @@
 {% load infotext_templatetags %}
 {% load evaluation_filters %}
 
-{% block title %}{% trans 'Evaluation' %} - {{ block.super }}{% endblock %}
+{% block title %}{% translate 'Evaluation' %} - {{ block.super }}{% endblock %}
 
 {% block content %}
     {{ block.super }}
@@ -20,7 +20,7 @@
     {% if unfinished_evaluations %}
         <div class="card card-outline-primary mb-3">
             <div class="card-header">
-                {% trans 'Open and upcoming evaluations' %}
+                {% translate 'Open and upcoming evaluations' %}
             </div>
             <div class="card-body table-responsive">
                 {% include 'student_index_unfinished_evaluations_list.html' %}

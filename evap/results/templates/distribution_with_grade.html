@@ -25,17 +25,17 @@
         </div>
     {% elif question_result.question.is_positive_yes_no_question %}
         <div class="left">
-            <span class="adjective">{% trans 'Yes' %}</span>
+            <span class="adjective">{% translate 'Yes' %}</span>
         </div>
         <div class="right">
-            <span class="adjective">{% trans 'No' %}</span>
+            <span class="adjective">{% translate 'No' %}</span>
         </div>
     {% elif question_result.question.is_negative_yes_no_question %}
         <div class="left">
-            <span class="adjective">{% trans 'No' %}</span>
+            <span class="adjective">{% translate 'No' %}</span>
         </div>
         <div class="right">
-            <span class="adjective">{% trans 'Yes' %}</span>
+            <span class="adjective">{% translate 'Yes' %}</span>
         </div>
     {% endif %}
     {% if weight_info %}

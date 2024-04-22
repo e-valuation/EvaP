@@ -25,3 +25,7 @@
         border-right: 13px solid transparent;
     }
 }
+
+.breadcrumb-bar {
+    overflow-x: hidden; /* breadcrumb::after must not overflow screen */
+}

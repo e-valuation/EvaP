@@ -2,18 +2,18 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% trans 'Assign questionnaires' %}</li>
+    <li class="breadcrumb-item">{% translate 'Assign questionnaires' %}</li>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
-    <h3>{% trans 'Assign questionnaires' %}</h3>
+    <h3>{% translate 'Assign questionnaires' %}</h3>
 
     <form id="questionnaire-assign-form" method="POST" class="form-horizontal multiselect-form">
         {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">
-                <p>{% trans 'Select the questionnaires which shall be assigned each of these course types and the contributors. This will only change evaluations in preparation. If you do select nothing, the currently applied questionnaires for the corresponding course type or contributor will not be changed.' %}</p>
+                <p>{% translate 'Select the questionnaires which shall be assigned each of these course types and the contributors. This will only change evaluations in preparation. If you do select nothing, the currently applied questionnaires for the corresponding course type or contributor will not be changed.' %}</p>
                 <fieldset>
                     {% include 'bootstrap_form.html' with form=form %}
                 </fieldset>
@@ -21,7 +21,7 @@
         </div>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
-                <button type="submit" class="btn btn-primary">{% trans 'Assign questionnaires' %}</button>
+                <button type="submit" class="btn btn-primary">{% translate 'Assign questionnaires' %}</button>
             </div>
         </div>
     </form>

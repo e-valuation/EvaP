@@ -2,7 +2,7 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% trans 'Infotexts' %}</li>
+    <li class="breadcrumb-item">{% translate 'Infotexts' %}</li>
 {% endblock %}
 
 {% block content %}
@@ -14,14 +14,14 @@
         {% for form in formset %}
             <div class="card mb-3">
                 <div class="card-header">
-                    {% trans form.instance.get_page_display %}
+                    {% translate form.instance.get_page_display %}
                 </div>
                 <div class="card-body infotext-edit-grid">
                     {% for hidden in form.hidden_fields %}
                         {{ hidden }}
                     {% endfor %}
-                    <label class="card-subtitle pb-2">{% trans 'Title/Content (German)' %}</label>
-                    <label class="card-subtitle pb-2">{% trans 'Title/Content (English)' %}</label>
+                    <label class="card-subtitle pb-2">{% translate 'Title/Content (German)' %}</label>
+                    <label class="card-subtitle pb-2">{% translate 'Title/Content (English)' %}</label>
 
                     {% include 'bootstrap_form_field_widget.html' with field=form.title_de %}
                     {% include 'bootstrap_form_field_widget.html' with field=form.title_en %}
@@ -33,7 +33,7 @@
         {% endfor %}
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
-                <button type="submit" class="btn btn-primary">{% trans 'Save infotexts' %}</button>
+                <button type="submit" class="btn btn-primary">{% translate 'Save infotexts' %}</button>
             </div>
         </div>
     </form>

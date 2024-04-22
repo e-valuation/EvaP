@@ -665,7 +665,7 @@ class TestEnrollmentImport(ImporterTestCase):
 
         self.assertIn(
             'Course "Shake" already exists. The course will not be created, instead users are imported into the '
-            + "evaluation of the existing course and any additional degrees are added.",
+            "evaluation of the existing course and any additional degrees are added.",
             warnings_test,
         )
         self.assertListEqual(warnings_test, warnings_notest)
@@ -716,9 +716,9 @@ class TestEnrollmentImport(ImporterTestCase):
             importer_log,
             ImporterLogEntry.Category.COURSE,
             "Sheet &quot;BA Belegungen&quot;, row 2 and 1 other place: Course &quot;Shake&quot; already exists in this "
-            + "semester, but the courses can not be merged for the following reasons:"
-            + "<br /> - the course type does not match"
-            + "<br /> - the responsibles of the course do not match",
+            "semester, but the courses can not be merged for the following reasons:"
+            "<br /> - the course type does not match"
+            "<br /> - the responsibles of the course do not match",
         )
 
     def test_existing_course_with_published_evaluation(self):
@@ -737,8 +737,8 @@ class TestEnrollmentImport(ImporterTestCase):
             importer_log,
             ImporterLogEntry.Category.COURSE,
             "Sheet &quot;BA Belegungen&quot;, row 2 and 1 other place: "
-            + "Course &quot;Shake&quot; already exists in this semester, but the courses can not be merged for the following reasons:<br /> "
-            + "- the import would add participants to the existing evaluation but the evaluation is already running",
+            "Course &quot;Shake&quot; already exists in this semester, but the courses can not be merged for the following reasons:<br /> "
+            "- the import would add participants to the existing evaluation but the evaluation is already running",
         )
 
         # Attempt with earlier state but set _participant_count
@@ -772,8 +772,8 @@ class TestEnrollmentImport(ImporterTestCase):
             importer_log,
             ImporterLogEntry.Category.COURSE,
             "Sheet &quot;BA Belegungen&quot;, row 2 and 1 other place: "
-            + "Course &quot;Shake&quot; already exists in this semester, but the courses can not be merged for the following reasons:<br /> "
-            + "- the evaluation of the existing course is a single result",
+            "Course &quot;Shake&quot; already exists in this semester, but the courses can not be merged for the following reasons:<br /> "
+            "- the evaluation of the existing course is a single result",
         )
 
     def test_existing_course_equal_except_evaluations(self):
@@ -790,8 +790,8 @@ class TestEnrollmentImport(ImporterTestCase):
             importer_log,
             ImporterLogEntry.Category.COURSE,
             "Sheet &quot;BA Belegungen&quot;, row 2 and 1 other place: Course &quot;Shake&quot; already exists in "
-            + "this semester, but the courses can not be merged for the following reasons:"
-            + "<br /> - the existing course does not have exactly one evaluation",
+            "this semester, but the courses can not be merged for the following reasons:"
+            "<br /> - the existing course does not have exactly one evaluation",
         )
 
     def test_existing_course_different_grading(self):
@@ -809,8 +809,8 @@ class TestEnrollmentImport(ImporterTestCase):
             importer_log,
             ImporterLogEntry.Category.COURSE,
             "Sheet &quot;BA Belegungen&quot;, row 2 and 1 other place: Course &quot;Shake&quot; already exists in this "
-            + "semester, but the courses can not be merged for the following reasons:"
-            + "<br /> - the evaluation of the existing course has a mismatching grading specification",
+            "semester, but the courses can not be merged for the following reasons:"
+            "<br /> - the evaluation of the existing course has a mismatching grading specification",
         )
 
     def test_wrong_column_count(self):
@@ -983,7 +983,7 @@ class TestPersonImport(ImporterTestCase):
         self.assertEqual(self.evaluation1.contributions.count(), 3)
         self.assertEqual(
             set(UserProfile.objects.filter(contributions__evaluation=self.evaluation1)),
-            set([self.contributor1, self.contributor2]),
+            {self.contributor1, self.contributor2},
         )
 
     def test_import_existing_participant(self):
@@ -1032,7 +1032,7 @@ class TestPersonImport(ImporterTestCase):
         self.assertIn(f"{self.participant2.email}", "".join(success_messages))
 
         self.assertEqual(self.evaluation1.participants.count(), 2)
-        self.assertEqual(set(self.evaluation1.participants.all()), set([self.participant1, self.participant2]))
+        self.assertEqual(set(self.evaluation1.participants.all()), {self.participant1, self.participant2})
 
     def test_imported_participants_are_made_active(self):
         self.participant2.is_active = False

@@ -2,13 +2,13 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% trans 'Flagged textanswers' %}</li>
+    <li class="breadcrumb-item">{% translate 'Flagged textanswers' %}</li>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
     <h3>
-        {% trans 'Flagged textanswers' %} ({{ semester.name }})
+        {% translate 'Flagged textanswers' %} ({{ semester.name }})
     </h3>
     <div class="card">
         <div class="card-body">
@@ -28,7 +28,7 @@
                     </ul>
                 {% endfor %}
             {% else %}
-                <i>{% trans 'There are no flagged textanswers in this semester.' %}</i>
+                <i>{% translate 'There are no flagged textanswers in this semester.' %}</i>
             {% endif %}
         </div>
     </div>

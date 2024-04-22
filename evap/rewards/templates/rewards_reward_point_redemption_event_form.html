@@ -2,8 +2,8 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'rewards:reward_point_redemption_events' %}">{% trans 'Reward Point Redemption Events' %}</a></li>
-    <li class="breadcrumb-item">{% trans 'Edit event' %}</li>
+    <li class="breadcrumb-item"><a href="{% url 'rewards:reward_point_redemption_events' %}">{% translate 'Reward Point Redemption Events' %}</a></li>
+    <li class="breadcrumb-item">{% translate 'Edit event' %}</li>
 {% endblock %}
 
 {% block content %}
@@ -17,7 +17,7 @@
         </div>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
-                <button type="submit" class="btn btn-primary">{% trans 'Save event' %}</button>
+                <button type="submit" class="btn btn-primary">{% translate 'Save event' %}</button>
             </div>
         </div>
     </form>

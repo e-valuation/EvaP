@@ -1,0 +1,87 @@
+confirmation-modal:not(:defined) > :not([slot="show-button"]) {
+  // Without this, the elements that are slotted into the dialog element show up as if they are just normal child
+  // elements and disappear once the custom element registration is done. To avoid a short flicker of these elements,
+  // we hide them until the constructor of the custom element has run.
+  display: none;
+}
+
+dialog.evap-modal-dialog {
+  z-index: $zindex-modal;
+  max-width: 80ch;
+  border: 1px solid $dark-gray;
+  border-radius: 0.5rem;
+  padding: 0;
+
+  // These attributes are inherited from parent elements, although it usually does not make any sense, because the
+  // dialog is not displayed inside of the parent element. This list might grow over time.
+  font-weight: initial;
+  line-height: initial;
+  cursor: initial;
+  text-align: initial;
+
+  &[open] {
+    animation: modal-enter 300ms forwards;
+  }
+
+  &[closing] {
+    display: block;
+    pointer-events: none;
+    animation: modal-exit 300ms forwards;
+  }
+
+  @keyframes modal-enter {
+    from {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0%);
+      opacity: 1;
+    }
+  }
+
+  @keyframes modal-exit {
+    from {
+      transform: translateY(0%);
+      opacity: 1;
+    }
+    to {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+  }
+
+  &::backdrop {
+    z-index: $zindex-modal-backdrop;
+    background-color: black;
+    opacity: 50%;
+  }
+
+  .evap-modal-container {
+    > * {
+      padding: 1rem;
+    }
+
+    > :not(:first-child) {
+      border-top: 1px solid $light-gray;
+    }
+
+    header {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    .question-area {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .button-area {
+      display: flex;
+      flex-flow: wrap;
+      justify-content: center;
+    }
+  }
+}

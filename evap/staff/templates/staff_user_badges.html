@@ -1,28 +1,28 @@
 {% if user.pk %}
     {% if user.is_manager %}
-        <span class="badge bg-primary">{% trans 'Manager' %}</span>
+        <span class="badge bg-primary">{% translate 'Manager' %}</span>
     {% elif user.is_reviewer %}
-        <span class="badge bg-primary">{% trans 'Reviewer' %}</span>
+        <span class="badge bg-primary">{% translate 'Reviewer' %}</span>
     {% endif %}
     {% if user.is_grade_publisher %}
-        <span class="badge bg-primary">{% trans 'Grade publisher' %}</span>
+        <span class="badge bg-primary">{% translate 'Grade publisher' %}</span>
     {% endif %}
     {% if user.is_contributor %}
-        <span class="badge bg-info">{% trans 'Contributor' %}</span>
+        <span class="badge bg-info">{% translate 'Contributor' %}</span>
     {% endif %}
     {% if user.is_responsible %}
-        <span class="badge bg-info">{% trans 'Responsible' %}</span>
+        <span class="badge bg-info">{% translate 'Responsible' %}</span>
     {% endif %}
     {% if user.is_proxy_user %}
-        <span class="badge bg-dark">{% trans 'Proxy user' %}</span>
+        <span class="badge bg-dark">{% translate 'Proxy user' %}</span>
     {% endif %}
     {% if user.is_external %}
-        <span class="badge bg-dark">{% trans 'External' %}</span>
+        <span class="badge bg-dark">{% translate 'External' %}</span>
     {% endif %}
     {% if not user.is_active %}
-        <span class="badge bg-danger">{% trans 'Inactive' %}</span>
+        <span class="badge bg-danger">{% translate 'Inactive' %}</span>
     {% endif %}
     {% if not user.email %}
-        <span class="badge bg-danger">{% trans 'No email' %}</span>
+        <span class="badge bg-danger">{% translate 'No email' %}</span>
     {% endif %}
 {% endif %}

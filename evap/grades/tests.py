@@ -61,14 +61,13 @@ class GradeUploadTest(WebTest):
         upload_files = [("file", "grades.txt", b"Some content")]
 
         final = "?final=true" if final_grades else ""
-        response = self.app.post(
+        return self.app.post(
             f"{reverse('grades:upload_grades', args=[course.id])}{final}",
             params={"description_en": "Grades", "description_de": "Grades"},
             user=self.grade_publisher,
             content_type="multipart/form-data",
             upload_files=upload_files,
         ).follow(status=200)
-        return response
 
     def helper_check_final_grade_upload(self, course, expected_number_of_emails):
         response = self.helper_upload_grades(course, final_grades=True)

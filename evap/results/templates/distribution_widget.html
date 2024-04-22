@@ -12,7 +12,7 @@
             </div>
         </div>
     {% else %}
-        <div class="d-flex" data-bs-toggle="tooltip" data-bs-placement="left" data-fallback-placement='["left", "bottom"]' title="{% trans 'Not enough answers were given.' %}">
+        <div class="d-flex" data-bs-toggle="tooltip" data-bs-placement="left" data-fallback-placement='["left", "bottom"]' title="{% translate 'Not enough answers were given.' %}">
             {% include "distribution_with_grade_disabled.html" with icon="far fa-eye-slash" %}
             <div class="badge-participants badge-disabled ms-2 ms-lg-3">
                 {% if question_result|is_published %}

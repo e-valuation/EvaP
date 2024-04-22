@@ -4,24 +4,24 @@
     {{ block.super }}
 
     <div class="jumbotron-evap">
-        <h1 class="display-4">{% trans 'Welcome to the evaluation platform!' %}</h1>
+        <h1 class="display-4">{% translate 'Welcome to the evaluation platform!' %}</h1>
         <hr class="my-4" />
         <div class="card-deck-login">
             <div class="card border-primary">
                 <div class="card-body">
                     <h4 class="card-title text-primary">
-                        {% trans 'HPI login' %}
+                        {% translate 'HPI login' %}
                     </h4>
                     {% if openid_active %}
                         <p class="card-text">
-                            {% trans 'Log in using Keycloak.' %}
+                            {% translate 'Log in using Keycloak.' %}
                         </p>
                         <div class="text-center mt-5">
-                            <a href="{% url 'oidc_authentication_init' %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" class="btn btn-primary login-button" autofocus>{% trans 'Login' %}</a>
+                            <a href="{% url 'oidc_authentication_init' %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" class="btn btn-primary login-button" autofocus>{% translate 'Login' %}</a>
                         </div>
                     {% else %}
                         <p class="card-text">
-                            {% trans 'Log in using email and password.' %}
+                            {% translate 'Log in using email and password.' %}
                         </p>
                         <form id="email-login-form" class="d-flex flex-column" role="form"
                             action="{% url 'evaluation:index' %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
@@ -31,7 +31,7 @@
                                 {% include 'bootstrap_form_field.html' with field=field wide=True %}
                             {% endfor %}
                             <div class="d-flex justify-content-center">
-                                <button type="submit" class="btn btn-primary login-button">{% trans 'Login' %}</button>
+                                <button type="submit" class="btn btn-primary login-button">{% translate 'Login' %}</button>
                             </div>
                         </form>
                     {% endif %}
@@ -43,16 +43,16 @@
                     {% csrf_token %}
                     <input type="hidden" name="submit_type" value="new_key" />
                     <h4 class="card-title text-dark">
-                        {% trans 'D-School, E-School and externals' %}
+                        {% translate 'D-School, E-School and externals' %}
                     </h4>
                     <p class="card-text mb-lg-auto">
-                        {% trans 'Here you can request a one-time login URL. We will send it to your email address.' %}
+                        {% translate 'Here you can request a one-time login URL. We will send it to your email address.' %}
                     </p>
                     {% include 'bootstrap_form_field.html' with field=new_key_form.email wide=True %}
                     <div class="d-flex justify-content-center">
-                        <button type="submit" class="btn btn-dark login-button">{% trans 'Request login URL' %}</button>
+                        <button type="submit" class="btn btn-dark login-button">{% translate 'Request login URL' %}</button>
                         <button type="button" class="btn btn-light ms-1" data-bs-toggle="modal" data-bs-target="#loginProblemsModal">
-                            {% trans 'Help' %}
+                            {% translate 'Help' %}
                         </button>
                     </div>
                 </form>
@@ -67,13 +67,13 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="loginProblemsModalLabel">{% trans 'Login problems' %}</h5>
+                <h5 class="modal-title" id="loginProblemsModalLabel">{% translate 'Login problems' %}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                {% trans 'You should have received an evaluation invitation via email that included a URL to login on this platform. You can also request a new login URL on this page. If you encounter any problems with your login, please let us know by answering to the evaluation email you received.' %}
+                {% translate 'You should have received an evaluation invitation via email that included a URL to login on this platform. You can also request a new login URL on this page. If you encounter any problems with your login, please let us know by answering to the evaluation email you received.' %}
                 <div class="modal-submit-group">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% trans 'Close' %}</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% translate 'Close' %}</button>
                 </div>
             </div>
         </div>

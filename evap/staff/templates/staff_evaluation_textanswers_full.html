@@ -5,7 +5,7 @@
 
     <div class="card card-outline-primary mb-3">
         <div class="card-header">
-            {% trans 'General text answers' %}
+            {% translate 'General text answers' %}
         </div>
         <div class="card-body">
             {% if evaluation_sections %}
@@ -13,14 +13,14 @@
                     {% include 'staff_evaluation_textanswers_section.html' with evaluation_id=evaluation.id %}
                 {% endwith %}
             {% else %}
-                <span class="fst-italic">{% trans 'No text answers' %}</span>
+                <span class="fst-italic">{% translate 'No text answers' %}</span>
             {% endif %}
         </div>
     </div>
 
     <div class="card card-outline-primary">
         <div class="card-header">
-            {% trans 'Text answers about the contributors' %}
+            {% translate 'Text answers about the contributors' %}
         </div>
         <div class="card-body">
             {% if contributor_sections %}
@@ -28,7 +28,7 @@
                     {% include 'staff_evaluation_textanswers_section.html' with evaluation_id=evaluation.id %}
                 {% endwith %}
             {% else %}
-                <span class="fst-italic">{% trans 'No text answers' %}</span>
+                <span class="fst-italic">{% translate 'No text answers' %}</span>
             {% endif %}
         </div>
     </div>

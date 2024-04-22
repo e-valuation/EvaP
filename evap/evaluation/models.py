@@ -30,10 +30,10 @@ from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django_fsm import FSMIntegerField, transition
 from django_fsm.signals import post_transition
-from django_stubs_ext import StrOrPromise
 
 from evap.evaluation.models_logging import FieldAction, LoggedModel
 from evap.evaluation.tools import (
+    StrOrPromise,
     clean_email,
     date_to_datetime,
     is_external_email,
@@ -106,7 +106,7 @@ class Semester(models.Model):
     @transaction.atomic
     def archive(self):
         if not self.participations_can_be_archived:
-            raise NotArchivableError()
+            raise NotArchivableError
         for evaluation in self.evaluations.all():
             evaluation._archive()
         self.participations_are_archived = True
@@ -119,14 +119,14 @@ class Semester(models.Model):
         from evap.grades.models import GradeDocument
 
         if not self.grade_documents_can_be_deleted:
-            raise NotArchivableError()
+            raise NotArchivableError
         GradeDocument.objects.filter(course__semester=self).delete()
         self.grade_documents_are_deleted = True
         self.save()
 
     def archive_results(self):
         if not self.results_can_be_archived:
-            raise NotArchivableError()
+            raise NotArchivableError
         self.results_are_archived = True
         self.save()
 
@@ -194,10 +194,6 @@ class Questionnaire(models.Model):
 
     objects = QuestionnaireManager()
 
-    def clean(self):
-        if self.type == self.Type.CONTRIBUTOR and self.is_locked:
-            raise ValidationError({"is_locked": _("Contributor questionnaires cannot be locked.")})
-
     class Meta:
         ordering = ["type", "order", "pk"]
         verbose_name = _("questionnaire")
@@ -205,6 +201,10 @@ class Questionnaire(models.Model):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        if self.type == self.Type.CONTRIBUTOR and self.is_locked:
+            raise ValidationError({"is_locked": _("Contributor questionnaires cannot be locked.")})
 
     def __lt__(self, other):
         return (self.type, self.order, self.pk) < (other.type, other.order, other.pk)
@@ -636,7 +636,7 @@ class Evaluation(LoggedModel):
     def _archive(self):
         """Should be called only via Semester.archive"""
         if not self.participations_can_be_archived:
-            raise NotArchivableError()
+            raise NotArchivableError
         if self._participant_count is not None:
             assert self._voter_count is not None
             assert (
@@ -956,7 +956,7 @@ class Evaluation(LoggedModel):
                             evaluation.publish()
                             evaluation_results_evaluations.append(evaluation)
                     evaluation.save()
-            except Exception:  # pylint: disable=broad-except
+            except Exception:  # noqa: PERF203
                 logger.exception(
                     'An error occured when updating the state of evaluation "%s" (id %d).', evaluation, evaluation.id
                 )
@@ -1021,8 +1021,8 @@ def log_state_transition(instance, name, source, target, **_kwargs):
         'Evaluation "%s" (id %d) moved from state "%s" to state "%s", caused by transition "%s".',
         instance,
         instance.pk,
-        source,
-        target,
+        Evaluation.state_to_str(source),
+        Evaluation.state_to_str(target),
         name,
     )
 
@@ -1295,7 +1295,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("No answer"),
         ],
         is_inverted=False,
-        **BASE_UNIPOLAR_CHOICES,  # type: ignore
+        **BASE_UNIPOLAR_CHOICES,  # type: ignore[arg-type]
     ),
     QuestionType.NEGATIVE_LIKERT: Choices(
         names=[
@@ -1307,7 +1307,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("No answer"),
         ],
         is_inverted=True,
-        **BASE_UNIPOLAR_CHOICES,  # type: ignore
+        **BASE_UNIPOLAR_CHOICES,  # type: ignore[arg-type]
     ),
     QuestionType.GRADE: Choices(
         names=[
@@ -1319,7 +1319,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("No answer"),
         ],
         is_inverted=False,
-        **BASE_UNIPOLAR_CHOICES,  # type: ignore
+        **BASE_UNIPOLAR_CHOICES,  # type: ignore[arg-type]
     ),
     QuestionType.EASY_DIFFICULT: BipolarChoices(
         minus_name=_("Easy"),
@@ -1334,7 +1334,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("Way too\ndifficult"),
             _("No answer"),
         ],
-        **BASE_BIPOLAR_CHOICES,  # type: ignore
+        **BASE_BIPOLAR_CHOICES,  # type: ignore[arg-type]
     ),
     QuestionType.FEW_MANY: BipolarChoices(
         minus_name=_("Few"),
@@ -1349,7 +1349,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("Way too\nmany"),
             _("No answer"),
         ],
-        **BASE_BIPOLAR_CHOICES,  # type: ignore
+        **BASE_BIPOLAR_CHOICES,  # type: ignore[arg-type]
     ),
     QuestionType.LITTLE_MUCH: BipolarChoices(
         minus_name=_("Little"),
@@ -1364,7 +1364,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("Way too\nmuch"),
             _("No answer"),
         ],
-        **BASE_BIPOLAR_CHOICES,  # type: ignore
+        **BASE_BIPOLAR_CHOICES,  # type: ignore[arg-type]
     ),
     QuestionType.SMALL_LARGE: BipolarChoices(
         minus_name=_("Small"),
@@ -1379,7 +1379,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("Way too\nlarge"),
             _("No answer"),
         ],
-        **BASE_BIPOLAR_CHOICES,  # type: ignore
+        **BASE_BIPOLAR_CHOICES,  # type: ignore[arg-type]
     ),
     QuestionType.SLOW_FAST: BipolarChoices(
         minus_name=_("Slow"),
@@ -1394,7 +1394,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("Way too\nfast"),
             _("No answer"),
         ],
-        **BASE_BIPOLAR_CHOICES,  # type: ignore
+        **BASE_BIPOLAR_CHOICES,  # type: ignore[arg-type]
     ),
     QuestionType.SHORT_LONG: BipolarChoices(
         minus_name=_("Short"),
@@ -1409,7 +1409,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("Way too\nlong"),
             _("No answer"),
         ],
-        **BASE_BIPOLAR_CHOICES,  # type: ignore
+        **BASE_BIPOLAR_CHOICES,  # type: ignore[arg-type]
     ),
     QuestionType.POSITIVE_YES_NO: Choices(
         names=[
@@ -1418,7 +1418,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("No answer"),
         ],
         is_inverted=False,
-        **BASE_YES_NO_CHOICES,  # type: ignore
+        **BASE_YES_NO_CHOICES,  # type: ignore[arg-type]
     ),
     QuestionType.NEGATIVE_YES_NO: Choices(
         names=[
@@ -1427,7 +1427,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
             _("No answer"),
         ],
         is_inverted=True,
-        **BASE_YES_NO_CHOICES,  # type: ignore
+        **BASE_YES_NO_CHOICES,  # type: ignore[arg-type]
     ),
 }
 
@@ -1474,7 +1474,7 @@ class TextAnswer(Answer):
 
     answer = models.TextField(verbose_name=_("answer"))
     # If the text answer was changed during review, original_answer holds the original text. Otherwise, it's null.
-    original_answer = models.TextField(verbose_name=_("original answer"), blank=True, null=True)
+    original_answer = models.TextField(verbose_name=_("original answer"), blank=True, null=True)  # noqa: DJ001
 
     class ReviewDecision(models.TextChoices):
         """
@@ -1532,9 +1532,6 @@ class TextAnswer(Answer):
     @property
     def is_reviewed(self):
         return self.review_decision != self.ReviewDecision.UNDECIDED
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
 
 
 class FaqSection(models.Model):
@@ -1617,9 +1614,6 @@ class Infotext(models.Model):
     content_en = models.TextField(verbose_name=_("content (english)"), blank=True)
     content = translate(en="content_en", de="content_de")
 
-    def is_empty(self):
-        return not (self.title or self.content)
-
     class Page(models.TextChoices):
         STUDENT_INDEX = ("student_index", "Student index page")
         CONTRIBUTOR_INDEX = ("contributor_index", "Contributor index page")
@@ -1643,6 +1637,9 @@ class Infotext(models.Model):
                 fields=["title_de", "title_en", "content_de", "content_en"],
             ),
         )
+
+    def is_empty(self):
+        return not (self.title or self.content)
 
 
 class UserProfileManager(BaseUserManager):
@@ -1909,7 +1906,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
             return
 
         while True:
-            key = secrets.choice(range(0, UserProfile.MAX_LOGIN_KEY))
+            key = secrets.choice(range(UserProfile.MAX_LOGIN_KEY))
             try:
                 self.login_key = key
                 self.reset_login_key_validity()
@@ -2093,10 +2090,19 @@ class EmailTemplate(models.Model):
 
         try:
             mail.send(False)
-            logger.info('Sent email "%s" to %s.', mail.subject, user.full_name_with_additional_info)
+            if cc_addresses:
+                logger.info(
+                    'Sent email "%s" to %s (%s), CC: %s.',
+                    mail.subject,
+                    user.full_name,
+                    user.email,
+                    ", ".join(cc_addresses),
+                )
+            else:
+                logger.info('Sent email "%s" to %s (%s).', mail.subject, user.full_name, user.email)
             if send_separate_login_url:
                 self.send_login_url_to_user(user)
-        except Exception:  # pylint: disable=broad-except
+        except Exception:
             logger.exception(
                 'An exception occurred when sending the following email to user "%s":\n%s\n',
                 user.full_name_with_additional_info,
@@ -2112,17 +2118,19 @@ class EmailTemplate(models.Model):
         wrapper_template_params = {"email_content": rendered_content, "email_subject": subject, **body_params}
         wrapped_content = render_to_string("email_base.html", wrapper_template_params)
 
-        mail = EmailMultiAlternatives(
+        bcc_addresses = []
+        if settings.SEND_ALL_EMAILS_TO_ADMINS_IN_BCC:
+            bcc_addresses = [a[1] for a in settings.ADMINS]
+
+        return EmailMultiAlternatives(
             subject=subject,
             body=plain_content,
             to=[to_email],
             cc=cc_addresses,
-            bcc=[a[1] for a in settings.MANAGERS],
+            bcc=bcc_addresses,
             headers={"Reply-To": settings.REPLY_TO_EMAIL},
             alternatives=[(wrapped_content, "text/html")],
         )
-
-        return mail
 
     @classmethod
     def send_reminder_to_user(cls, user, first_due_in_days, due_evaluations):
@@ -2139,7 +2147,7 @@ class EmailTemplate(models.Model):
         body_params = {"user": user}
 
         template.send_to_user(user, subject_params, body_params, use_cc=False)
-        logger.info("Sent login url to %s.", user.email)
+        logger.info("Sent login url email to %s.", user.email)
 
     @classmethod
     def send_contributor_publish_notifications(cls, evaluations, template=None):

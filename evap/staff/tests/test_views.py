@@ -1,3 +1,4 @@
+import csv
 import datetime
 import os
 from abc import ABC, abstractmethod
@@ -45,6 +46,7 @@ from evap.evaluation.tests.tools import (
     make_manager,
     make_rating_answer_counters,
     render_pages,
+    submit_with_modal,
 )
 from evap.grades.models import GradeDocument
 from evap.results.tools import TextResult, cache_results, get_results
@@ -348,10 +350,6 @@ class TestUserMergeSelectionView(WebTestStaffMode):
         cls.main_user = baker.make(UserProfile, _fill_optional=["email"])
         cls.other_user = baker.make(UserProfile, _fill_optional=["email"])
 
-        # The merge candidate is created first, so the account is older.
-        cls.suggested_merge_candidate = baker.make(UserProfile, email="user@student.institution.example.com")
-        cls.suggested_main_user = baker.make(UserProfile, email="user@institution.example.com")
-
     def test_redirection_user_merge_view(self):
         page = self.app.get(self.url, user=self.manager)
 
@@ -364,15 +362,17 @@ class TestUserMergeSelectionView(WebTestStaffMode):
         self.assertContains(page, self.main_user.email)
         self.assertContains(page, self.other_user.email)
 
+    @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com", "student.institution.example.com"])
     def test_suggested_merge(self):
+        suggested_merge_candidate = baker.make(UserProfile, email="user@student.institution.example.com")
+        suggested_main_user = baker.make(UserProfile, email="user@institution.example.com")
+
+        self.assertLess(suggested_merge_candidate.pk, suggested_main_user.pk)
+
         page = self.app.get(self.url, user=self.manager)
 
-        expected_url = reverse(
-            "staff:user_merge", args=[self.suggested_main_user.id, self.suggested_merge_candidate.id]
-        )
-        unexpected_url = reverse(
-            "staff:user_merge", args=[self.suggested_merge_candidate.id, self.suggested_main_user.id]
-        )
+        expected_url = reverse("staff:user_merge", args=[suggested_main_user.pk, suggested_merge_candidate.pk])
+        unexpected_url = reverse("staff:user_merge", args=[suggested_merge_candidate.pk, suggested_main_user.pk])
 
         self.assertContains(page, f'<a href="{expected_url}"')
         self.assertNotContains(page, f'<a href="{unexpected_url}"')
@@ -570,6 +570,33 @@ class TestUserBulkUpdateView(WebTestStaffMode):
         self.assertIn("An error happened when processing the file", reply)
 
 
+class TestUserExportView(WebTestStaffMode):
+    url = reverse("staff:user_export")
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+        cls.manager = make_manager()
+        # titles are not filled by baker because it has a default, see https://github.com/model-bakers/model_bakery/discussions/346
+        baker.make(
+            UserProfile,
+            _quantity=5,
+            _fill_optional=["first_name_given", "last_name", "email"],
+            title=iter(("", "Some", "Custom", "Titles", "")),
+        )
+
+    def test_export_all(self):
+        user_objects = {
+            (user.title or "", user.last_name or "", user.first_name or "", user.email or "")
+            for user in UserProfile.objects.iterator()
+        }
+        response = self.app.get(self.url, user=self.manager)
+
+        reader = csv.reader(response.text.strip().split("\n"), delimiter=";", lineterminator="\n")
+        # skip header
+        next(reader)
+        self.assertEqual({tuple(row) for row in reader}, user_objects)
+
+
 class TestUserImportView(WebTestStaffMode):
     url = "/staff/user/import"
 
@@ -607,7 +634,7 @@ class TestUserImportView(WebTestStaffMode):
         self.assertContains(page, "Import previously uploaded file")
 
         form = page.forms["user-import-form"]
-        form.submit(name="operation", value="import")
+        submit_with_modal(page, form, name="operation", value="import")
 
         page = self.app.get(self.url, user=self.manager)
         self.assertNotContains(page, "Import previously uploaded file")
@@ -1069,7 +1096,7 @@ class TestSemesterImportView(WebTestStaffMode):
         form = page.forms["semester-import-form"]
         form["vote_start_datetime"] = "2000-01-01 00:00:00"
         form["vote_end_date"] = "2012-01-01"
-        form.submit(name="operation", value="import")
+        submit_with_modal(page, form, name="operation", value="import")
 
         self.assertEqual(UserProfile.objects.count(), original_user_count + 23)
 
@@ -1218,8 +1245,7 @@ class TestSemesterImportView(WebTestStaffMode):
         )
         page = form.submit(name="operation", value="test")
 
-        form = page.forms["semester-import-form"]
-        page = form.submit(name="operation", value="import")
+        page = submit_with_modal(page, page.forms["semester-import-form"], name="operation", value="import")
 
         self.assertContains(page, "This field is required.")
         self.assertContains(page, "Import previously uploaded file")
@@ -1371,8 +1397,8 @@ class TestSemesterVoteTimestampsExport(WebTestStaffMode):
         )
         expected_content = (
             "Evaluation id;Course type;Course degrees;Vote end date;Timestamp\n"
-            + f"{self.evaluation_id};Type;;{self.vote_end_date};{self.timestamp_time}\n"
-        ).encode("utf-8")
+            f"{self.evaluation_id};Type;;{self.vote_end_date};{self.timestamp_time}\n"
+        ).encode()
         self.assertEqual(response.content, expected_content)
 
 
@@ -2328,7 +2354,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         self.assertEqual(self.evaluation.participants.count(), original_participant_count)
 
         form = page.forms["participant-import-form"]
-        form.submit(name="operation", value="import-participants")
+        submit_with_modal(page, form, name="operation", value="import-participants")
         self.assertEqual(self.evaluation.participants.count(), original_participant_count + 2)
 
         page = self.app.get(self.url, user=self.manager)
@@ -2344,7 +2370,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         self.assertNotEqual(self.evaluation2.participants.count(), 2)
 
         form = page.forms["participant-import-form"]
-        form.submit(name="operation", value="import-replace-participants")
+        submit_with_modal(page, form, name="operation", value="import-replace-participants")
         self.assertEqual(self.evaluation2.participants.count(), 2)
 
         page = self.app.get(self.url2, user=self.manager)
@@ -2357,7 +2383,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
 
         form = page.forms["participant-copy-form"]
         form["pc-evaluation"] = str(self.evaluation2.pk)
-        page = form.submit(name="operation", value="copy-participants")
+        page = submit_with_modal(page, form, name="operation", value="copy-participants")
 
         self.assertEqual(
             self.evaluation.participants.count(), original_participant_count + self.evaluation2.participants.count()
@@ -2370,7 +2396,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
 
         form = page.forms["participant-copy-form"]
         form["pc-evaluation"] = str(self.evaluation2.pk)
-        page = form.submit(name="operation", value="copy-replace-participants")
+        page = submit_with_modal(page, form, name="operation", value="copy-replace-participants")
 
         self.assertEqual(self.evaluation.participants.count(), self.evaluation2.participants.count())
 
@@ -2389,7 +2415,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         )
 
         form = page.forms["contributor-import-form"]
-        form.submit(name="operation", value="import-contributors")
+        submit_with_modal(page, form, name="operation", value="import-contributors")
         self.assertEqual(
             UserProfile.objects.filter(contributions__evaluation=self.evaluation).count(),
             original_contributor_count + 2,
@@ -2408,7 +2434,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         self.assertNotEqual(UserProfile.objects.filter(contributions__evaluation=self.evaluation2).count(), 2)
 
         form = page.forms["contributor-import-form"]
-        form.submit(name="operation", value="import-replace-contributors")
+        submit_with_modal(page, form, name="operation", value="import-replace-contributors")
         self.assertEqual(UserProfile.objects.filter(contributions__evaluation=self.evaluation2).count(), 2)
 
         page = self.app.get(self.url, user=self.manager)
@@ -2421,7 +2447,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
 
         form = page.forms["contributor-copy-form"]
         form["cc-evaluation"] = str(self.evaluation2.pk)
-        page = form.submit(name="operation", value="copy-contributors")
+        page = submit_with_modal(page, form, name="operation", value="copy-contributors")
 
         new_contributor_count = UserProfile.objects.filter(contributions__evaluation=self.evaluation).count()
         self.assertEqual(
@@ -2439,7 +2465,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
 
         form = page.forms["contributor-copy-form"]
         form["cc-evaluation"] = str(self.evaluation2.pk)
-        page = form.submit(name="operation", value="copy-replace-contributors")
+        page = submit_with_modal(page, form, name="operation", value="copy-replace-contributors")
 
         new_contributor_count = UserProfile.objects.filter(contributions__evaluation=self.evaluation).count()
         self.assertEqual(
@@ -2731,7 +2757,7 @@ class TestEvaluationTextAnswerView(WebTest):
             _quantity=2,
         )
 
-        for evaluation, answer_count in zip(evaluations, [1, 2]):
+        for evaluation, answer_count in zip(evaluations, [1, 2], strict=True):
             contribution = baker.make(Contribution, evaluation=evaluation, _fill_optional=["contributor"])
             baker.make(TextAnswer, contribution=contribution, question__type=QuestionType.TEXT, _quantity=answer_count)
 
@@ -3669,16 +3695,16 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
 
         self.assertEqual(
             set(self.evaluation_1.general_contribution.questionnaires.all()),
-            set([self.questionnaire_1, self.questionnaire_2]),
+            {self.questionnaire_1, self.questionnaire_2},
         )
-        self.assertEqual(set(self.evaluation_2.general_contribution.questionnaires.all()), set([self.questionnaire_2]))
+        self.assertEqual(set(self.evaluation_2.general_contribution.questionnaires.all()), {self.questionnaire_2})
         self.assertEqual(
             set(self.evaluation_1.contributions.get(contributor=self.responsible).questionnaires.all()),
-            set([self.questionnaire_responsible]),
+            {self.questionnaire_responsible},
         )
         self.assertEqual(
             set(self.evaluation_2.contributions.get(contributor=self.responsible).questionnaires.all()),
-            set([self.questionnaire_responsible]),
+            {self.questionnaire_responsible},
         )
 
 

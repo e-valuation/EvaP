@@ -133,3 +133,24 @@ $alert-colors: (
     border-color: $input-focus-border-color;
     box-shadow: $input-focus-box-shadow;
 }
+
+// Change .btn-group outlined border style to fix double borders with outlined button style
+// see https://github.com/twbs/bootstrap/issues/25888
+.btn-group.outline-fix {
+
+    // If .btn is not the last element in the group, remove the right border.
+    // Also uses :has to not remove the right border if the next element is a disabled input
+    .btn:not(:last-child):has(+ :not(.btn-check[disabled])) {
+        border-right: 0;
+    }
+
+    // Explicitly disable the left border of disabled .btn's to use the right border of the previous button.
+    .btn-check[disabled] + .btn {
+        border-left: 0;
+    }
+
+    // Revert Bootstrap's hack, that uses negative margin which would appear as double borders
+    :not(.btn-check:first-child) + .btn {
+        margin-left: unset;
+    }
+}

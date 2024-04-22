@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %}{% trans 'FAQ' %} - {{ block.super }}{% endblock %}
+{% block title %}{% translate 'FAQ' %} - {{ block.super }}{% endblock %}
 
 {% block content %}
-    <h2 class="mb-4">{% trans 'Frequently Asked Questions (FAQs)' %}</h2>
+    <h2 class="mb-4">{% translate 'Frequently Asked Questions (FAQs)' %}</h2>
 
     <div class="accordion accordion-flush pb-4" id="accordionFAQ">
         {% for section in sections %}

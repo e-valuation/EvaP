@@ -1,12 +1,12 @@
 {% if user.startpage == page %}
-    <div data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'This is your startpage' %}">
+    <div data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'This is your startpage' %}">
         <button type="button" class="btn {{ btnClass }} btn-light" disabled><span class="fas fa-house"></span></button>
     </div>
 {% else %}
     <form id="startpage-form" class="d-flex" method="post" action="{% url 'evaluation:set_startpage' %}">
         {% csrf_token %}
         <input name="page" type="hidden" value="{{ page }}">
-        <button type="submit" class="btn {{ btnClass }} btn-light" onclick="setSpinnerIcon('span-set-startpage')" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Make this my startpage' %}">
+        <button type="submit" class="btn {{ btnClass }} btn-light" data-set-spinner-icon="span-set-startpage" data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Make this my startpage' %}">
             <span id="span-set-startpage" class="fas fa-house"></span>
         </button>
     </form>

@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %}{% trans 'Legal Notice' %}/{% trans 'Data Privacy Notice' %} - {{ block.super }}{% endblock %}
+{% block title %}{% translate 'Legal Notice' %}/{% translate 'Data Privacy Notice' %} - {{ block.super }}{% endblock %}
 
 {% block content %}
-    <h1>{% trans 'Legal Notice' %}/{% trans 'Data Privacy Notice' %}</h1>
+    <h1>{% translate 'Legal Notice' %}/{% translate 'Data Privacy Notice' %}</h1>
     <div class="card">
         <div class="card-body">
             {% include 'legal_notice_text.html' %}

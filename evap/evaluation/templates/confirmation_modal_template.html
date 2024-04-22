@@ -1,0 +1,33 @@
+{% load static %}
+
+<template id="confirmation-modal-template">
+    <link rel="stylesheet" href="{% static 'css/evap.css' %}" />
+
+    <dialog class="evap-modal-dialog">
+        <form method="dialog">
+            <div class="evap-modal-container">
+                <header>
+                    <h5 class="mb-0"><slot name="title"></slot></h5>
+                    <button class="btn-close"></button>
+                </header>
+                <section class="question-area">
+                    <slot name="question"></slot>
+                    <slot name="extra-inputs"></slot>
+                </section>
+                <section class="button-area">
+                    <button class="btn btn-light" autofocus>{% translate 'Cancel' %}</button>
+                    <slot name="submit-group">
+                        <button class="btn ms-2" data-event-type="confirm">
+                            <slot name="action-text"></slot>
+                        </button>
+                    </slot>
+                </section>
+            </div>
+        </form>
+    </dialog>
+
+    <slot name="show-button"></slot>
+
+    {# All children without the "slot" attribute go into this unnamed slot #}
+    <slot></slot>
+</template>

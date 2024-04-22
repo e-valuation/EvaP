@@ -2,48 +2,49 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% trans 'Reward Point Redemption Events' %}</li>
+    <li class="breadcrumb-item">{% translate 'Reward Point Redemption Events' %}</li>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
     <div class="row mb-2">
         <div class="col">
-            <a href="{% url 'rewards:reward_point_redemption_event_create' %}" class="btn btn-dark btn-sm">{% trans 'Create new event' %}</a>
+            <a href="{% url 'rewards:reward_point_redemption_event_create' %}" class="btn btn-dark btn-sm">{% translate 'Create new event' %}</a>
         </div>
         <div class="col text-end">
-            {% trans 'Available reward points' %}: {{ total_points_available }}
+            {% translate 'Available reward points' %}: {{ total_points_available }}
         </div>
     </div>
 
+    <form id="event-deletion-form" method="POST" action="{% url 'rewards:reward_point_redemption_event_delete' %}">
+        {% csrf_token %}
+    </form>
+
+    <script type="module">
+        const form = document.getElementById("event-deletion-form");
+        form.addEventListener("submit", event => {
+            event.preventDefault();
+            const body = new FormData(form);
+            const request = fetch(
+                form.action,
+                { method: form.method, body },
+            );
+            request.then(response => {
+                assert(response.ok);
+                fadeOutThenRemove(document.querySelector(`#event-row-${body.get("event_id")}`));
+            }).catch(error => {
+                window.alert("{% translate 'The server is not responding.' %}");
+            });
+        });
+    </script>
+
     <div class="card card-outline-primary mb-3">
-        {% trans 'Upcoming events' as title %}
+        {% translate 'Upcoming events' as title %}
         {% include 'rewards_reward_point_redemption_event_list.html' with title=title events=upcoming_events %}
     </div>
 
     <div class="card">
-        {% trans 'Past events' as title %}
+        {% translate 'Past events' as title %}
         {% include 'rewards_reward_point_redemption_event_list.html' with title=title events=past_events %}
     </div>
-{% endblock %}
-
-{% block modals %}
-    {{ block.super }}
-    {% trans 'Delete event' as title %}
-    {% trans 'Do you really want to delete the event <strong data-label=""></strong>?' as question %}
-    {% trans 'Delete event' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='deleteEventModal' title=title question=question action_text=action_text btn_type='danger' %}
-
-    <script type="text/javascript">
-        function deleteEventModalAction(dataId) {
-            fetch("{% url 'rewards:reward_point_redemption_event_delete' %}", {
-                body: new URLSearchParams({event_id: dataId}),
-                headers: CSRF_HEADERS,
-                method: "POST",
-            }).then(response => {
-                assert(response.ok);
-                fadeOutThenRemove(document.querySelector('#event-row-'+dataId));
-            }).catch(error => {window.alert("{% trans 'The server is not responding.' %}");});
-        };
-    </script>
 {% endblock %}

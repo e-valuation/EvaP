@@ -4,7 +4,7 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'staff:semester_preparation_reminder' semester.id %}">{% trans 'Preparation reminder' %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'staff:semester_preparation_reminder' semester.id %}">{% translate 'Preparation reminder' %}</a></li>
     <li class="breadcrumb-item">{{ responsible }}</li>
 {% endblock %}
 
@@ -25,7 +25,7 @@
         </div>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
-                <button type="submit" class="btn btn-primary">{% trans 'Send email' %}</button>
+                <button type="submit" class="btn btn-primary">{% translate 'Send email' %}</button>
             </div>
         </div>
     </form>

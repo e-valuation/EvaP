@@ -9,7 +9,7 @@ from django.urls import reverse
 from model_bakery import baker
 
 from evap.evaluation.models import CourseType, Degree, Semester, UserProfile
-from evap.evaluation.tests.tools import make_manager
+from evap.evaluation.tests.tools import make_manager, submit_with_modal
 from evap.staff.tests.utils import WebTestStaffMode
 
 
@@ -36,7 +36,7 @@ class SampleTableImport(WebTestStaffMode):
         form = page.forms["semester-import-form"]
         form["vote_start_datetime"] = "2015-01-01 11:11:11"
         form["vote_end_date"] = "2099-01-01"
-        form.submit(name="operation", value="import")
+        submit_with_modal(page, form, name="operation", value="import")
 
         self.assertEqual(UserProfile.objects.count(), original_user_count + 4)
 
@@ -50,7 +50,7 @@ class SampleTableImport(WebTestStaffMode):
         page = form.submit(name="operation", value="test")
 
         form = page.forms["user-import-form"]
-        form.submit(name="operation", value="import")
+        submit_with_modal(page, form, name="operation", value="import")
 
         self.assertEqual(UserProfile.objects.count(), original_user_count + 2)
 

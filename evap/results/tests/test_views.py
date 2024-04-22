@@ -567,6 +567,24 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         self.app.get(self.url + "?contributor_id=asd", user=self.manager, status=400)
         self.app.get(self.url + "?contributor_id=1234", user=self.manager, status=404)
 
+    def test_evaluation_sorting(self):
+        names = ["EvaluationB", "EvaluationA", "EvaluationC"]
+        additional_evaluations = baker.make(
+            Evaluation,
+            state=Evaluation.State.PUBLISHED,
+            course=self.evaluation.course,
+            _quantity=3,
+            _bulk_create=True,
+            name_en=iter(names),
+            name_de=iter(names),
+        )
+
+        for evaluation in (self.evaluation, *additional_evaluations):
+            cache_results(evaluation)
+
+        body = self.app.get(self.url, user=self.manager).body.decode()
+        self.assertTrue(body.find("EvaluationA") < body.find("EvaluationB") < body.find("EvaluationC"))
+
 
 class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
     @classmethod

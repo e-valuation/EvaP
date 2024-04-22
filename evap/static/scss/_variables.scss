@@ -2,6 +2,8 @@
 
 $fa-font-path: "../font-awesome/webfonts";
 
+$brand-height: 42px;
+
 $enable-smooth-scroll: false;
 
 $grid-breakpoints: (
@@ -49,12 +51,9 @@ $accordion-icon-transform: rotate(90deg);
 $accordion-button-icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$dark-gray}'><path fill-rule='evenodd' d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/></svg>");
 $accordion-button-active-icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$accordion-button-active-color}'><path fill-rule='evenodd' d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/></svg>");
 
-$accordion-border-width: 0;
-$accordion-button-active-bg: $evap-light-blue;
-$accordion-button-active-color: $evap-dark-blue;
-$accordion-icon-transform: rotate(90deg);
-$accordion-button-icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$dark-gray}'><path fill-rule='evenodd' d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/></svg>");
-$accordion-button-active-icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$accordion-button-active-color}'><path fill-rule='evenodd' d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/></svg>");
+$order-button-icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 512'><path fill-rule='evenodd' d='M137.4,41.4C149.9,28.9 170.2,28.9 182.7,41.4L310.7,169.4C319.9,178.6 322.6,192.3 317.6,204.3C312.6,216.3 301,224.1 288,224.1L32,224.1C19.1,224.1 7.4,216.3 2.4,204.3C-2.6,192.3 0.2,178.6 9.3,169.4L137.3,41.4L137.4,41.4Z' style='fill:#{$light-gray};'/><path d='M137.4,470.7L9.4,342.7C0.2,333.5 -2.5,319.8 2.5,307.8C7.5,295.8 19.1,288 32.1,288L288,288C300.9,288 312.6,295.8 317.6,307.8C322.6,319.8 319.8,333.5 310.7,342.7L182.7,470.7C170.2,483.2 149.9,483.2 137.4,470.7Z' style='fill:#{$light-gray};'/></svg>");
+$order-button-up-icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 512'><path fill-rule='evenodd' d='M137.4,41.4C149.9,28.9 170.2,28.9 182.7,41.4L310.7,169.4C319.9,178.6 322.6,192.3 317.6,204.3C312.6,216.3 301,224.1 288,224.1L32,224.1C19.1,224.1 7.4,216.3 2.4,204.3C-2.6,192.3 0.2,178.6 9.3,169.4L137.3,41.4L137.4,41.4Z' style='fill:#{$dark-gray};'/><path d='M137.4,470.7L9.4,342.7C0.2,333.5 -2.5,319.8 2.5,307.8C7.5,295.8 19.1,288 32.1,288L288,288C300.9,288 312.6,295.8 317.6,307.8C322.6,319.8 319.8,333.5 310.7,342.7L182.7,470.7C170.2,483.2 149.9,483.2 137.4,470.7Z' style='fill:#{$light-gray};'/></svg>");
+$order-button-down-icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 512'><path fill-rule='evenodd' d='M137.4,41.4C149.9,28.9 170.2,28.9 182.7,41.4L310.7,169.4C319.9,178.6 322.6,192.3 317.6,204.3C312.6,216.3 301,224.1 288,224.1L32,224.1C19.1,224.1 7.4,216.3 2.4,204.3C-2.6,192.3 0.2,178.6 9.3,169.4L137.3,41.4L137.4,41.4Z' style='fill:#{$light-gray};'/><path d='M137.4,470.7L9.4,342.7C0.2,333.5 -2.5,319.8 2.5,307.8C7.5,295.8 19.1,288 32.1,288L288,288C300.9,288 312.6,295.8 317.6,307.8C322.6,319.8 319.8,333.5 310.7,342.7L182.7,470.7C170.2,483.2 149.9,483.2 137.4,470.7Z' style='fill:#{$dark-gray};'/></svg>");
 
 $btn-disabled-opacity: 0.45;
 

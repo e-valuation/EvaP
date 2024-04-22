@@ -3,7 +3,7 @@ import typing
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from collections.abc import Iterable, Mapping
-from typing import Any, Protocol, TypeVar
+from typing import TYPE_CHECKING, Any, Protocol, TypeVar
 from urllib.parse import quote
 
 import xlwt
@@ -16,7 +16,14 @@ from django.shortcuts import get_object_or_404
 from django.utils.datastructures import MultiValueDict
 from django.utils.translation import get_language
 from django.views.generic import FormView
-from django_stubs_ext import StrOrPromise
+
+if TYPE_CHECKING:
+    from django_stubs_ext import StrOrPromise  # use proper definition with mypy
+else:
+    try:
+        from django_stubs_ext import StrOrPromise  # if installed, use proper definition for typeguard
+    except ImportError:
+        StrOrPromise = Any  # on production setups, type alias to Any
 
 M = TypeVar("M", bound=Model)
 T = TypeVar("T")
@@ -74,15 +81,15 @@ def discard_cached_related_objects(instance: M) -> M:
     hierarchy (e.g. for storing instances in a cache)
     """
     # Extracted from django's refresh_from_db, which sadly doesn't offer this part alone (without hitting the DB).
-    for field in instance._meta.concrete_fields:  # type: ignore
+    for field in instance._meta.concrete_fields:  # type: ignore[attr-defined]
         if field.is_relation and field.is_cached(instance):
             field.delete_cached_value(instance)
 
-    for field in instance._meta.related_objects:  # type: ignore
+    for field in instance._meta.related_objects:  # type: ignore[attr-defined]
         if field.is_cached(instance):
             field.delete_cached_value(instance)
 
-    instance._prefetched_objects_cache = {}  # type: ignore
+    instance._prefetched_objects_cache = {}  # type: ignore[attr-defined]
 
     return instance
 
@@ -237,7 +244,7 @@ class HttpResponseNoContent(HttpResponse):
         super().__init__(*args, **kwargs)
         del self["content-type"]
 
-    @HttpResponse.content.setter  # type: ignore
+    @HttpResponse.content.setter  # type: ignore[attr-defined]
     def content(self, value):
         if value:
             raise AttributeError("You cannot set content to a 204 (No Content) response")

@@ -1,4 +1,4 @@
-export const selectOrError = <T extends Element>(selector: string, root: Element | Document = document): T => {
+export const selectOrError = <T extends Element>(selector: string, root: ParentNode = document): T => {
     const elem = root.querySelector<T>(selector);
     assert(elem, `Element with selector ${selector} not found`);
     return elem;

@@ -3,17 +3,17 @@
 {% for questionnaire, contributor, label, is_responsible, results in sections %}
     <div class="card{% if not forloop.last %} mb-3{% endif %}">
         <div class="card-header">
-            {{ questionnaire.public_name }}{% if contributor %}: {{ contributor.full_name }}{% if is_responsible %} ({% trans 'responsible' %}){% endif %}{% if label %} &ndash; <span class="fst-italic">{{ label }}</span>{% endif %}{% endif %}
+            {{ questionnaire.public_name }}{% if contributor %}: {{ contributor.full_name }}{% if is_responsible %} ({% translate 'responsible' %}){% endif %}{% if label %} &ndash; <span class="fst-italic">{{ label }}</span>{% endif %}{% endif %}
         </div>
         <div class="card-body">
             {% for result in results %}
                 <p>{{ result.question.text }}</p>
                 <div class="grid-striped textanswer-review-grid container{% if not forloop.last %} mb-4{% endif %}">
                     <div class="grid-row fw-bold">
-                        <div>{% trans 'Text answer' %}</div>
+                        <div>{% translate 'Text answer' %}</div>
                         <div></div>
-                        <div>{% trans 'Decision' %}</div>
-                        <div>{% trans 'Flag' %}</div>
+                        <div>{% translate 'Decision' %}</div>
+                        <div>{% translate 'Flag' %}</div>
                     </div>
                     {% for answer in result.answers %}
                         <div class="grid-row" id="{{ answer.id }}">
@@ -35,18 +35,18 @@
 
                                     <input type="hidden" name="answer_id" value="{{ answer.id }}" />
 
-                                    <div class="btn-group btn-group-sm" role="group">
+                                    <div class="btn-group btn-group-sm outline-fix" role="group">
                                         <input type="radio" class="btn-check" name="action" value="publish" id="{{ answer.id }}-radio-publish" autocomplete="off" {% if answer.will_be_public %}checked{% endif %}>
-                                        <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-publish">{% trans 'Publish' %}</label>
+                                        <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-publish">{% translate 'Publish' %}</label>
 
                                         <input type="radio" class="btn-check" name="action" value="make_private" id="{{ answer.id }}-radio-private" autocomplete="off" {% if answer.will_be_private %}checked{% endif %} {% if not contributor %}disabled{% endif %}>
-                                        <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-private">{% trans 'Private' %}</label>
+                                        <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-private">{% translate 'Private' %}</label>
 
                                         <input type="radio" class="btn-check" name="action" value="unreview" id="{{ answer.id }}-radio-undecided" autocomplete="off" {% if not answer.is_reviewed %}checked{% endif %}>
-                                        <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-undecided">{% trans 'Undecided' %}</label>
+                                        <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-undecided">{% translate 'Undecided' %}</label>
 
                                         <input type="radio" class="btn-check" name="action" value="delete" id="{{ answer.id }}-radio-delete" autocomplete="off" {% if answer.will_be_deleted %}checked{% endif %}>
-                                        <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-delete">{% trans 'Delete' %}</label>
+                                        <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-delete">{% translate 'Delete' %}</label>
                                     </div>
                                 </form>
                             </div>

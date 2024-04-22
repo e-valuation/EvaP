@@ -4,10 +4,10 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="successMessageModalLabel_{{ modal_id }}">{% trans 'Message sent' %}</h5>
+                <h5 class="modal-title" id="successMessageModalLabel_{{ modal_id }}">{% translate 'Message sent' %}</h5>
             </div>
             <div class="modal-body">
-                {% trans 'Your message was successfully sent.' %}
+                {% translate 'Your message was successfully sent.' %}
             </div>
         </div>
     </div>
@@ -24,24 +24,24 @@
                 <div class="modal-body">
                     {{ teaser }}
                     <div class="modal-grid">
-                        <label for="{{ modal_id }}SenderName" class="control-label my-auto pe-4">{% trans 'Sender' %}</label>
+                        <label for="{{ modal_id }}SenderName" class="control-label my-auto pe-4">{% translate 'Sender' %}</label>
                         {% if modal_id == "feedbackModal" and allow_anonymous_feedback_messages %}
                             <div class="btn-group text-wrap" role="group" aria-label="{{ modal_id }} Radio Group">
                                 <input type="radio" class="btn-check" name="{{ modal_id }}RadioGroup" id="{{ modal_id }}SenderName" checked>
                                 <label class="btn btn-sm btn-outline-primary text-break" for="{{ modal_id }}SenderName">{{ user.full_name }}</label>
                                 <input type="radio" class="btn-check" name="{{ modal_id }}RadioGroup" id="{{ modal_id }}AnonymousName">
-                                <label class="btn btn-sm btn-outline-primary" for="{{ modal_id }}AnonymousName">{% trans 'Anonymous' %}</label>
+                                <label class="btn btn-sm btn-outline-primary text-break" for="{{ modal_id }}AnonymousName">{% translate 'Anonymous' %}</label>
                             </div>
                         {% else %}
                             <input type="text" class="form-control mx-auto text-break" id="{{ modal_id }}SenderName" disabled value="{{ user.full_name }}"/>
                         {% endif %}
-                        <label for="{{ modal_id }}Subject" class="control-label my-auto pe-4 text-break">{% trans 'Subject' %}</label>
+                        <label for="{{ modal_id }}Subject" class="control-label my-auto pe-4 text-break">{% translate 'Subject' %}</label>
                         <input type="text" class="form-control mx-auto" id="{{ modal_id }}Subject" disabled value="{{ title }}"/>
                     </div>
                     <textarea autofocus class="form-control modal-textfield my-4" id="{{ modal_id }}MessageText"></textarea>
                     <div class="modal-submit-group">
-                        <button type="button" class="btn btn-light me-1" data-bs-dismiss="modal">{% trans 'Cancel' %}</button>
-                        <button type="submit" id="{{ modal_id }}ActionButton" class="btn btn-primary ms-1">{% trans 'Send Message' %}</button>
+                        <button type="button" class="btn btn-light me-1" data-bs-dismiss="modal">{% translate 'Cancel' %}</button>
+                        <button type="submit" id="{{ modal_id }}ActionButton" class="btn btn-primary ms-1">{% translate 'Send Message' %}</button>
                     </div>
                 </div>
             </form>

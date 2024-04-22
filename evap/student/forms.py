@@ -60,7 +60,7 @@ class RatingAnswerField(forms.TypedChoiceField):
     def from_question(cls, question: Question):
         return cls(
             widget_choices=CHOICES[question.type],
-            choices=zip(CHOICES[question.type].values, CHOICES[question.type].names),
+            choices=zip(CHOICES[question.type].values, CHOICES[question.type].names, strict=True),
             label=question.text,
             allows_textanswer=question.allows_additional_textanswers,
         )

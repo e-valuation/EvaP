@@ -2,21 +2,21 @@
 
 {% load evaluation_filters %}
 
-{% block title %}{% trans 'Rewards' %} - {{ block.super }}{% endblock %}
+{% block title %}{% translate 'Rewards' %} - {{ block.super }}{% endblock %}
 
 {% block content %}
     {{ block.super }}
 
     <div class="callout callout-info small">
-        {% blocktrans %}You will get reward points by taking part in evaluations. These points can be redeemed for different events. You will receive vouchers for food and drinks at the event you selected below. We'll inform you about any upcoming event where you can redeem your reward points.{% endblocktrans %}
+        {% blocktranslate %}You will get reward points by taking part in evaluations. These points can be redeemed for different events. You will receive vouchers for food and drinks at the event you selected below. We'll inform you about any upcoming event where you can redeem your reward points.{% endblocktranslate %}
     </div>
 
     <div class="card card-outline-primary mb-3">
         <div class="card-header">
-            {% trans 'Redeem points' %}
+            {% translate 'Redeem points' %}
         </div>
-        <div class="card-body">
-            <p><b>{% trans 'Total points available' %}: {{ total_points_available }}</b></p>
+        <div class="card-body table-responsive">
+            <p><b>{% translate 'Total points available' %}: {{ total_points_available }}</b></p>
             {% if total_points_available > 0 %}
                 {% if events %}
                     <form id="reward-redemption-form" action="#" method="POST" class="form-horizontal multiselect-form">
@@ -26,10 +26,10 @@
                         <table class="table table-striped table-vertically-aligned mb-3">
                             <thead>
                                 <tr>
-                                    <th style="width: 20%">{% trans 'Date' %}</th>
-                                    <th style="width: 40%">{% trans 'Event' %}</th>
-                                    <th style="width: 20%">{% trans 'Available until' %}</th>
-                                    <th style="width: 20%">{% trans 'Redeem points' %}</th>
+                                    <th class="width-percent-20">{% translate 'Date' %}</th>
+                                    <th class="width-percent-40">{% translate 'Event' %}</th>
+                                    <th class="width-percent-20">{% translate 'Available until' %}</th>
+                                    <th class="width-percent-20">{% translate 'Redeem points' %}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -46,31 +46,31 @@
                             </tbody>
                         </table>
                         <span class="d-flex">
-                            <button type="submit" class="btn btn-primary ms-auto">{% trans 'Redeem' %}</button>
+                            <button type="submit" class="btn btn-primary ms-auto">{% translate 'Redeem' %}</button>
                         </span>
                     </form>
                 {% else %}
-                    <p class="fst-italic">{% blocktrans %}Currently there are no events available for which you can redeem points. We'll send you a message when this changes.{% endblocktrans %}</p>
+                    <p class="fst-italic">{% blocktranslate %}Currently there are no events available for which you can redeem points. We'll send you a message when this changes.{% endblocktranslate %}</p>
                 {% endif %}
             {% else %}
-                <p class="fst-italic">{% blocktrans %}You don't have any reward points that you could redeem.{% endblocktrans %}</p>
+                <p class="fst-italic">{% blocktranslate %}You don't have any reward points that you could redeem.{% endblocktranslate %}</p>
             {% endif %}
         </div>
     </div>
 
     <div class="card">
         <div class="card-header">
-            {% trans 'Reward points history' %}
+            {% translate 'Reward points history' %}
         </div>
-        <div class="card-body">
+        <div class="card-body table-responsive">
             {% if reward_point_actions %}
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th style="width: 20%">{% trans 'Date' %}</th>
-                            <th style="width: 40%">{% trans 'Action' %}</th>
-                            <th style="width: 20%" class="text-end">{% trans 'Granted points' %}</th>
-                            <th style="width: 20%" class="text-end">{% trans 'Redeemed points' %}</th>
+                            <th class="width-percent-20">{% translate 'Date' %}</th>
+                            <th class="width-percent-40">{% translate 'Action' %}</th>
+                            <th class="width-percent-20 text-end">{% translate 'Granted points' %}</th>
+                            <th class="width-percent-20 text-end">{% translate 'Redeemed points' %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -85,7 +85,7 @@
                     </tbody>
                 </table>
             {% else %}
-                <p class="fst-italic">{% trans 'No reward points earned yet.' %}</p>
+                <p class="fst-italic">{% translate 'No reward points earned yet.' %}</p>
             {% endif %}
         </div>
     </div>
