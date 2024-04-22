@@ -33,6 +33,14 @@ CellValue = str | int | float | None
 CV = TypeVar("CV", bound=CellValue)
 
 
+def openid_login_is_active() -> bool:
+    return settings.ACTIVATE_OPEN_ID_LOGIN
+
+
+def password_login_is_active() -> bool:
+    return not openid_login_is_active()
+
+
 def unordered_groupby(key_value_pairs: Iterable[tuple[Key, Value]]) -> dict[Key, list[Value]]:
     """
     We need this in several places: Take list of (key, value) pairs and make

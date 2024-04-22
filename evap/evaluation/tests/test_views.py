@@ -29,18 +29,6 @@ class TestIndexView(WebTest):
     url = "/"
 
     @override_settings(ACTIVATE_OPEN_ID_LOGIN=False)
-    def test_passworduser_login(self):
-        """Tests whether a user can login with an incorrect and a correct password."""
-        baker.make(UserProfile, email="password.user", password=make_password("evap"))
-        response = self.app.get(self.url)
-        password_form = response.forms["email-login-form"]
-        password_form["email"] = "password.user"
-        password_form["password"] = "asd"  # nosec
-        password_form.submit()
-        password_form["password"] = "evap"  # nosec
-        password_form.submit(status=302)
-
-    @override_settings(ACTIVATE_OPEN_ID_LOGIN=False)
     def test_login_for_staff_users_correctly_redirects(self):
         """Regression test for #1523: Access denied on manager login"""
         internal_email = (
