@@ -308,6 +308,11 @@ SESSION_COOKIE_AGE = 60 * 60 * 24 * 365  # one year
 STAFF_MODE_TIMEOUT = 3 * 60 * 60  # three hours
 STAFF_MODE_INFO_TIMEOUT = 3 * 60 * 60  # three hours
 
+# Disable the check for number of post parameters to enable, e.g., large numbers of participants in forms
+# see https://docs.djangoproject.com/en/5.0/ref/settings/#data-upload-max-number-fields
+DATA_UPLOAD_MAX_NUMBER_FIELDS = None
+
+
 ### Internationalization
 
 LANGUAGE_CODE = "en"
