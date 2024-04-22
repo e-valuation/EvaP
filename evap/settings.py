@@ -108,7 +108,7 @@ EVALUATION_END_OFFSET_HOURS = 3
 EVALUATION_END_WARNING_PERIOD = 5
 
 # Questionnaires automatically added to exam evaluations
-EXAM_QUESTIONNAIRE_IDS = []
+EXAM_QUESTIONNAIRE_IDS: list[int] = []
 
 ### Installation specific settings
 
