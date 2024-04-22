@@ -1,7 +1,8 @@
 import warnings
 from collections import OrderedDict, defaultdict
+from collections.abc import Iterable, Sequence
 from itertools import chain, repeat
-from typing import Any, Iterable, Sequence, TypeVar
+from typing import Any, TypeVar
 
 import xlwt
 from django.db.models import Q, QuerySet
@@ -252,12 +253,13 @@ class ResultsExporter(ExcelExporter):
 
             self.write_cell(_("Evaluation weight"), "bold")
             weight_percentages = (
-                f"{e.weight_percentage}%" if gt1 else None for e, gt1 in zip(evaluations, count_gt_1, strict=True)
+                f"{e.weight_percentage}%" if gt1 else None
+                for e, gt1 in zip(evaluations_as_any, count_gt_1, strict=True)
             )
             self.write_row(weight_percentages, lambda s: "evaluation_weight" if s is not None else "default")
 
             self.write_cell(_("Course Grade"), "bold")
-            for evaluation, gt1 in zip(evaluations, count_gt_1, strict=True):
+            for evaluation, gt1 in zip(evaluations_as_any, count_gt_1, strict=True):
                 if not gt1:
                     self.write_cell()
                     continue
