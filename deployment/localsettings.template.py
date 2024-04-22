@@ -15,3 +15,6 @@ SECRET_KEY = "${SECRET_KEY}"  # nosec
 
 # Make apache work when DEBUG == False
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+
+# Questionnaires automatically added to exam evaluations
+EXAM_QUESTIONNAIRE_IDS = [83]
