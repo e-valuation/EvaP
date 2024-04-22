@@ -958,6 +958,8 @@ class Evaluation(LoggedModel):
                             evaluation_results_evaluations.append(evaluation)
                     evaluation.save()
             except Exception:  # noqa: PERF203
+                if settings.DEBUG:
+                    raise
                 logger.exception(
                     'An error occured when updating the state of evaluation "%s" (id %d).', evaluation, evaluation.id
                 )
@@ -2109,6 +2111,8 @@ class EmailTemplate(models.Model):
             if send_separate_login_url:
                 self.send_login_url_to_user(user)
         except Exception:
+            if settings.DEBUG:
+                raise
             logger.exception(
                 'An exception occurred when sending the following email to user "%s":\n%s\n',
                 user.full_name_with_additional_info,
