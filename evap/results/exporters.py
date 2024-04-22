@@ -325,7 +325,7 @@ class ResultsExporter(ExcelExporter):
     def export_impl(
         self,
         semesters: (
-            Sequence[Semester] | QuerySet[Semester]
+            QuerySetOrSequence
         ),  # see https://github.com/typeddjango/django-stubs/issues/1924 why this is not a Collection
         selection_list: Sequence[tuple[Iterable[int], Iterable[int]]],
         include_not_enough_voters: bool = False,
