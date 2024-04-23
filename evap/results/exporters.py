@@ -242,7 +242,7 @@ class ResultsExporter(ExcelExporter):
         self.write_row(participant_percentages, style="evaluation_rate")
 
         if course_results_exist:
-            evaluations_as_any: Any = evaluations
+            evaluations_as_any: list[Any] = evaluations
             # Only query the number of evaluations once and keep track of it here.
             count_gt_1: list[bool] = [e.course_evaluations_count > 1 for e in evaluations_as_any]
 
