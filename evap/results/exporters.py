@@ -324,9 +324,7 @@ class ResultsExporter(ExcelExporter):
     # pylint: disable=arguments-differ
     def export_impl(
         self,
-        semesters: (
-            QuerySetOrSequence
-        ),  # see https://github.com/typeddjango/django-stubs/issues/1924 why this is not a Collection
+        semesters: QuerySetOrSequence[Semester]
         selection_list: Sequence[tuple[Iterable[int], Iterable[int]]],
         include_not_enough_voters: bool = False,
         include_unpublished: bool = False,
