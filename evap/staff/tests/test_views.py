@@ -18,6 +18,7 @@ from django.test.testcases import TestCase
 from django.urls import reverse
 from django_webtest import WebTest
 from model_bakery import baker
+from django.utils import translation
 
 import evap.staff.fixtures.excel_files_test_data as excel_data
 from evap.evaluation.models import (
@@ -2227,17 +2228,33 @@ class TestEvaluationEditView(WebTestStaffMode):
             '<label class="form-check-label badge bg-danger" for="id_contributions-1-questionnaires_0">', page
         )
 
-    @patch.dict(Evaluation.STATE_STR_CONVERSION, {Evaluation.State.PREPARED: "mock-translated-prepared"})
     def test_state_change_log_translated(self):
-        page = self.app.get(self.url, user=self.manager)
-        self.assertNotIn("mock-translated-prepared", page)
-
         self.evaluation.ready_for_editors()
         self.evaluation.save()
 
-        page = self.app.get(self.url, user=self.manager)
-        self.assertIn("mock-translated-prepared", page)
+        translation.activate("en")
+        self.manager.language = "en"
+        self.manager.save()
 
+        page_en = self.app.get(self.url, user=self.manager)
+
+        new_en = translation.gettext("new")
+        prepared_en = translation.gettext("prepared")
+
+        self.assertIn(new_en, page_en)
+        self.assertIn(prepared_en, page_en)
+
+        translation.activate("de")
+        self.manager.language = "de"
+        self.manager.save()
+
+        new_de = translation.gettext("new")
+        prepared_de = translation.gettext("prepared")
+
+        page_de = self.app.get(self.url, user=self.manager)
+
+        self.assertIn(new_de, page_de)
+        self.assertIn(prepared_de, page_de)
 
 class TestEvaluationDeleteView(WebTestStaffMode):
     csrf_checks = False

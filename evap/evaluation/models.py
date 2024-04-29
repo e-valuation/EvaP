@@ -382,18 +382,17 @@ class Course(LoggedModel):
 class Evaluation(LoggedModel):
     """Models a single evaluation, e.g. the exam evaluation of the Math 101 course of 2002."""
 
-    @enum_for_django_template
-    class State(IntEnum):
-        NEW = 10
-        PREPARED = 20
-        EDITOR_APPROVED = 30
-        APPROVED = 40
-        IN_EVALUATION = 50
-        EVALUATED = 60
-        REVIEWED = 70
-        PUBLISHED = 80
+    class State(models.IntegerChoices):
+        NEW = 10, _("new")
+        PREPARED = 20, _("prepared")
+        EDITOR_APPROVED = 30, _("editor_approved")
+        APPROVED = 40, _("approved")
+        IN_EVALUATION = 50, _("in_evaluation")
+        EVALUATED = 60, _("evaluated")
+        REVIEWED = 70, _("reviewed")
+        PUBLISHED = 80, _("published")
 
-    state = FSMIntegerField(default=State.NEW, protected=True, verbose_name=_("state"))
+    state = FSMIntegerField(default=State.NEW, protected=True, choices=State, verbose_name=_("state"))
 
     course = models.ForeignKey(Course, models.PROTECT, verbose_name=_("course"), related_name="evaluations")
 
@@ -1003,14 +1002,6 @@ class Evaluation(LoggedModel):
             "_voter_count",
             "_participant_count",
         ]
-
-    @classmethod
-    def transform_log_action(cls, field_action):
-        if field_action.label.lower() == Evaluation.state.field.verbose_name.lower():
-            return FieldAction(
-                field_action.label, field_action.type, [cls.state_to_str(state) for state in field_action.items]
-            )
-        return field_action
 
 
 @receiver(post_transition, sender=Evaluation)
