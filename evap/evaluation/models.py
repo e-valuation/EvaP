@@ -27,7 +27,8 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.safestring import SafeData
 from django.utils.timezone import now
-from django.utils.translation import gettext_lazy as _, gettext_noop
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_noop
 from django_fsm import FSMIntegerField, transition
 from django_fsm.signals import post_transition
 
