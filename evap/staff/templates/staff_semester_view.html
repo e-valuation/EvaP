@@ -436,31 +436,31 @@
                             <button type="button" class="btn btn-sm btn-secondary" id="selectNoneButton">{% translate 'Select none' %}</button>
                         </div>
                         <div>
-                            <button name="target_state" value="{{ Evaluation.State.PREPARED.value }}" type="submit" class="btn btn-sm btn-light"
+                            <button name="target_state" value="{{ Evaluation.State.PREPARED }}" type="submit" class="btn btn-sm btn-light"
                                 data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Evaluations in preparation or approved by editors' %}">
                                 <span class="{{ Evaluation.State.NEW|approval_state_icon }}"></span>
                                 <span class="{{ Evaluation.State.EDITOR_APPROVED|approval_state_icon }}"></span>
                                 {% translate 'Ask for editor review' %}
                             </button>
-                            <button name="target_state" value="{{ Evaluation.State.NEW.value }}" type="submit" class="btn btn-sm btn-light"
+                            <button name="target_state" value="{{ Evaluation.State.NEW }}" type="submit" class="btn btn-sm btn-light"
                                 data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Evaluations awaiting editor review, approved by editor or approved by manager' %}">
                                 <span class="{{ Evaluation.State.PREPARED|approval_state_icon }}"></span>
                                 <span class="{{ Evaluation.State.EDITOR_APPROVED|approval_state_icon }}"></span>
                                 <span class="{{ Evaluation.State.APPROVED|approval_state_icon }}"></span>
                                 {% translate 'Revert to preparation' %}
                             </button>
-                            <button name="target_state" value="{{ Evaluation.State.IN_EVALUATION.value }}" type="submit" class="btn btn-sm btn-light"
+                            <button name="target_state" value="{{ Evaluation.State.IN_EVALUATION }}" type="submit" class="btn btn-sm btn-light"
                                 data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Evaluations waiting for evaluation period to start' %}">
                                 <span class="fas fa-pause icon-gray"></span>
                                 {% translate 'Start evaluation' %}
                             </button>
-                            <button name="target_state" value="{{ Evaluation.State.PUBLISHED.value }}" type="submit" class="btn btn-sm btn-light"
+                            <button name="target_state" value="{{ Evaluation.State.PUBLISHED }}" type="submit" class="btn btn-sm btn-light"
                                 data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Unpublished evaluations' %}">
                                 <span class="fas fa-chart-simple icon-yellow"></span>
                                 <span class="fas fa-chart-simple icon-red"></span>
                                 {% translate 'Publish' %}
                             </button>
-                            <button name="target_state" value="{{ Evaluation.State.REVIEWED.value }}" type="submit" class="btn btn-sm btn-light"
+                            <button name="target_state" value="{{ Evaluation.State.REVIEWED }}" type="submit" class="btn btn-sm btn-light"
                                 data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Published evaluations' %}">
                                 <span class="fas fa-chart-simple icon-green"></span>
                                 {% translate 'Unpublish' %}

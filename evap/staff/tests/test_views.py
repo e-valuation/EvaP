@@ -1444,7 +1444,7 @@ class TestEvaluationOperationView(WebTestStaffMode):
         page = self.app.get(f"/staff/semester/{self.semester.pk}", user=self.manager)
         form = page.forms["evaluation_operation_form"]
         form["evaluation"] = evaluation.pk
-        response = form.submit("target_state", value=str(Evaluation.State.PUBLISHED.value))
+        response = form.submit("target_state", value=str(Evaluation.State.PUBLISHED))
 
         form = response.forms["evaluation-operation-form"]
         form["send_email_contributor"] = contributors
