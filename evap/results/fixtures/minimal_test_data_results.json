@@ -139,7 +139,7 @@
     "question": 3,
     "original_answer": null,
     "contribution": 1,
-    "review_decision": "HI"
+    "review_decision": "DE"
   }
 },
 {
@@ -194,7 +194,7 @@
     "question": 1,
     "original_answer": null,
     "contribution": 6,
-    "review_decision": "HI"
+    "review_decision": "DE"
   }
 },
 {
@@ -227,7 +227,7 @@
     "question": 1,
     "original_answer": null,
     "contribution": 6,
-    "review_decision": "NR"
+    "review_decision": "UN"
   }
 },
 {
@@ -260,7 +260,7 @@
     "question": 2,
     "original_answer": null,
     "contribution": 6,
-    "review_decision": "HI"
+    "review_decision": "DE"
   }
 },
 {
@@ -282,7 +282,7 @@
     "question": 4,
     "original_answer": null,
     "contribution": 1,
-    "review_decision": "HI"
+    "review_decision": "DE"
   }
 },
 {
