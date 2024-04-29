@@ -781,24 +781,13 @@ class Evaluation(LoggedModel):
         self._voter_count = None
         self._participant_count = None
 
-    STATE_STR_CONVERSION = {
-        State.NEW: _("new"),
-        State.PREPARED: _("prepared"),
-        State.EDITOR_APPROVED: _("editor_approved"),
-        State.APPROVED: _("approved"),
-        State.IN_EVALUATION: _("in_evaluation"),
-        State.EVALUATED: _("evaluated"),
-        State.REVIEWED: _("reviewed"),
-        State.PUBLISHED: _("published"),
-    }
-
     @classmethod
     def state_to_str(cls, state):
-        return cls.STATE_STR_CONVERSION[state]
+        return cls.State(state).label
 
     @property
     def state_str(self):
-        return self.state_to_str(self.state)
+        return self.state.label
 
     @cached_property
     def general_contribution(self):
