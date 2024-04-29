@@ -31,4 +31,3 @@ updates:
         patterns: ["*"]
     labels:
       - "[T] Dependencies"
-      - "[C] Tests and CI"
