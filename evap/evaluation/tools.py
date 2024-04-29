@@ -213,7 +213,7 @@ class SaveValidFormMixin:
 
     def form_valid(self: HasFormValid, form) -> HttpResponse:
         form.save()
-        return super().form_valid(form)
+        return super().form_valid(form)  # type: ignore[safe-super]  # https://www.github.com/python/mypy/issues/17192
 
 
 class AttachmentResponse(HttpResponse):
