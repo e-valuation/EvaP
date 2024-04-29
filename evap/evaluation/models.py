@@ -27,7 +27,7 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.safestring import SafeData
 from django.utils.timezone import now
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, gettext_noop
 from django_fsm import FSMIntegerField, transition
 from django_fsm.signals import post_transition
 
@@ -2061,17 +2061,15 @@ class EmailTemplate(models.Model):
 
     def send_to_user(self, user, subject_params, body_params, use_cc, additional_cc_users=(), request=None):
         if not user.email:
-            message = _("{} has no email address defined. Could not send email.").format(
-                user.full_name_with_additional_info
-            )
+            message = gettext_noop("{} has no email address defined. Could not send email.")
+            level = logging.ERROR
             # If this method is triggered by a cronjob changing evaluation states, the request is None.
             # In this case warnings should be sent to the admins via email (configured in the settings for logger.error).
             # If a request exists, the page is displayed in the browser and the message can be shown on the page (messages.warning).
             if request is not None:
-                logger.warning(message)
-                messages.warning(request, message)
-            else:
-                logger.error(message)
+                level = logging.WARNING
+                messages.warning(request, _(message).format(user.full_name_with_additional_info))
+            logger.log(level, message.format(user.full_name_with_additional_info))
             return
 
         cc_users = set(additional_cc_users)
