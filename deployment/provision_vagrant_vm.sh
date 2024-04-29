@@ -41,7 +41,6 @@ cp /etc/skel/.bashrc /home/$USER/
 OWNER=$(stat -c %u "$MOUNTPOINT/evap")
 if [ "$OWNER" != 1042 ]; then
   #  if, for any reason, vagrant failed to mount evap under the correct uid, use bindfs to link it to /opt/evap using the wanted user id
-  #  If you are using docker: Make sure /dev/fuse of your host is forwarded into the container
   apt-get -q install -y bindfs
   mkdir -p "$REPO_FOLDER"
   bindfs --map="$OWNER/1042:@$OWNER/@1042" "$MOUNTPOINT" "$REPO_FOLDER" || exit 1
