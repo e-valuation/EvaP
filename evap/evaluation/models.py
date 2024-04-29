@@ -2062,14 +2062,15 @@ class EmailTemplate(models.Model):
     def send_to_user(self, user, subject_params, body_params, use_cc, additional_cc_users=(), request=None):
         if not user.email:
             message = gettext_noop("{} has no email address defined. Could not send email.")
-            level = logging.ERROR
+            log_message = message.format(user.full_name_with_additional_info)
             # If this method is triggered by a cronjob changing evaluation states, the request is None.
             # In this case warnings should be sent to the admins via email (configured in the settings for logger.error).
             # If a request exists, the page is displayed in the browser and the message can be shown on the page (messages.warning).
             if request is not None:
-                level = logging.WARNING
+                logger.warning(log_message)
                 messages.warning(request, _(message).format(user.full_name_with_additional_info))
-            logger.log(level, message.format(user.full_name_with_additional_info))
+            else:
+                logger.error(log_message)
             return
 
         cc_users = set(additional_cc_users)
