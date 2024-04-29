@@ -1067,7 +1067,9 @@ def create_exam_evaluation(request):
 
     evaluation_end_date = exam_date - timedelta(days=1)
     if evaluation.vote_start_datetime > evaluation_end_date:
-        messages.error(request, _("The exam date is before the start date of the main evaluation. No exam evaluation created."))
+        messages.error(
+            request, _("The exam date is before the start date of the main evaluation. No exam evaluation created.")
+        )
         return HttpResponse()
 
     evaluation.weight = 9
