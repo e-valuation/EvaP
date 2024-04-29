@@ -4,7 +4,7 @@ import uuid
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
-from enum import Enum, IntEnum, auto
+from enum import Enum, auto
 from numbers import Real
 
 from django.conf import settings
@@ -32,12 +32,11 @@ from django.utils.translation import gettext_noop
 from django_fsm import FSMIntegerField, transition
 from django_fsm.signals import post_transition
 
-from evap.evaluation.models_logging import FieldAction, LoggedModel
+from evap.evaluation.models_logging import LoggedModel
 from evap.evaluation.tools import (
     StrOrPromise,
     clean_email,
     date_to_datetime,
-    enum_for_django_template,
     is_external_email,
     is_prefetched,
     password_login_is_active,
@@ -712,7 +711,7 @@ class Evaluation(LoggedModel):
     def manager_approve(self):
         pass
 
-    @transition(field=state, source=[State.PREPARED, State.EDITOR_APPROVED, State.APPROVED, ], target=State.NEW)
+    @transition(field=state, source=[State.PREPARED, State.EDITOR_APPROVED, State.APPROVED], target=State.NEW)
     def revert_to_new(self):
         pass
 

@@ -16,9 +16,9 @@ from django.http import HttpResponse
 from django.test import override_settings
 from django.test.testcases import TestCase
 from django.urls import reverse
+from django.utils import translation
 from django_webtest import WebTest
 from model_bakery import baker
-from django.utils import translation
 
 import evap.staff.fixtures.excel_files_test_data as excel_data
 from evap.evaluation.models import (
@@ -2255,6 +2255,7 @@ class TestEvaluationEditView(WebTestStaffMode):
 
         self.assertIn(new_de, page_de)
         self.assertIn(prepared_de, page_de)
+
 
 class TestEvaluationDeleteView(WebTestStaffMode):
     csrf_checks = False

@@ -7,11 +7,12 @@ from django.utils import translation
 from django_webtest import WebTest
 from model_bakery import baker
 
-from evap.evaluation.models import Evaluation, Question, QuestionType, UserProfile, Semester
+from evap.evaluation.models import Evaluation, Question, QuestionType, Semester, UserProfile
 from evap.evaluation.tests.tools import (
     WebTestWith200Check,
     create_evaluation_with_responsible_and_editor,
-    store_ts_test_asset, make_manager,
+    make_manager,
+    store_ts_test_asset,
 )
 from evap.staff.tests.utils import WebTestStaffMode
 
@@ -265,13 +266,11 @@ class TestResetEvaluation(WebTestStaffMode):
 
         form["evaluation"] = [evaluation.pk]
 
-        confirmation_page = form.submit("target_state", value=str(Evaluation.State.NEW))
+        confirmation_page = form.submit(name="target_state", value=str(Evaluation.State.NEW))
         confirmation_form = confirmation_page.forms["evaluation-operation-form"]
         confirmation_form.submit()
 
-        evaluation = Evaluation.objects.filter(pk=evaluation.pk).first()  # is this needed?
-
-        assertion(evaluation)
+        assertion(Evaluation.objects.get(pk=evaluation.pk))
 
     def test_reset_to_new(self):
         invalid_start_states = [Evaluation.State.NEW, Evaluation.State.PUBLISHED]
@@ -287,10 +286,13 @@ class TestResetEvaluation(WebTestStaffMode):
         ]
 
         for s in valid_start_states:
-            self.reset_from_x_to_new(s, lambda evaluation: self.assertEqual(evaluation.state, Evaluation.State.NEW,
-                                                                            f"evaluation state was not reset to NEW from {s}"))
+            assertion_message = f"evaluation state was not reset to NEW from {s}"
+            self.reset_from_x_to_new(
+                s,
+                lambda evaluation, m=assertion_message: self.assertEqual(evaluation.state, Evaluation.State.NEW, m),
+            )
 
         for s in invalid_start_states:
             # Invalid Operation should not show the confirmation dialog
             with self.assertRaises(KeyError):
-                self.reset_from_x_to_new(s, lambda evaluation: self.assertTrue(False))
+                self.reset_from_x_to_new(s, None)
