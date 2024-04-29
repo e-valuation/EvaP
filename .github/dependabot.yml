@@ -22,3 +22,12 @@ updates:
         update-types: ["version-update:semver-minor"]
     labels:
       - "[T] Dependencies"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns: ["*"]
+    labels:
+      - "[T] Dependencies"
