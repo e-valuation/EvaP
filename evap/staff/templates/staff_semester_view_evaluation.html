@@ -182,7 +182,7 @@
             </a>
             {% if not evaluation.has_exam %}
             <confirmation-modal type="submit" id="exam_creation_modal" name="evaluation_id" value="{{ evaluation.id }}" confirm-button-class="btn-primary" title="{% translate 'Create exam evaluations' %}" form="exam_creation_form_{{ evaluation.id }}">
-                <span slot="title">{% translate 'Create exam evaluations' %}</span>
+                <span slot="title">{% translate 'Create exam evaluation' %}</span>
                 <span slot="action-text">{% translate 'Create exam evaluation' %}</span>
                 <span slot="question">
                     {% blocktranslate %}

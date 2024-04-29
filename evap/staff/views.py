@@ -1105,11 +1105,12 @@ def create_exam_evaluation(request):
         raise SuspiciousOperation("Creating an exam evaluation for a single result evaluation is not allowed")
 
     if evaluation.has_exam:
-        raise SuspiciousOperation("An exam evaluation already exists for this course.")
+        raise SuspiciousOperation("An exam evaluation already exists for this course")
 
     evaluation_end_date = exam_date - timedelta(days=1)
     if evaluation.vote_start_datetime > evaluation_end_date:
-        raise SuspiciousOperation("The exam date is before the start date of the main evaluation")
+        messages.error(request, _("The exam date is before the start date of the main evaluation. No exam evaluation created."))
+        return HttpResponse()
 
     evaluation.weight = 9
     evaluation.vote_end_date = evaluation_end_date

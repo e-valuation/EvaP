@@ -2027,7 +2027,7 @@ class TestEvaluationExamCreation(WebTestStaffMode):
         self.app.post(
             self.url,
             user=self.manager,
-            status=400,
+            status=200,
             params={"evaluation_id": self.evaluation.pk, "exam_date": self.exam_date},
         )
         self.assertFalse(self.evaluation.has_exam)
