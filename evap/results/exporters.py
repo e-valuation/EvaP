@@ -12,6 +12,7 @@ from django.utils.translation import gettext as _
 from evap.evaluation.models import CourseType, Degree, Evaluation, Question, Questionnaire, Semester, UserProfile
 from evap.evaluation.tools import ExcelExporter
 from evap.results.tools import (
+    AnsweredRatingResult,
     QuestionResult,
     RatingResult,
     calculate_average_course_distribution,
@@ -23,6 +24,7 @@ from evap.results.tools import (
 
 T = TypeVar("T", bound=Model)
 QuerySetOrSequence = QuerySet[T] | Sequence[T]
+AnnotatedEvaluation = Any
 
 
 class ResultsExporter(ExcelExporter):
@@ -112,7 +114,7 @@ class ResultsExporter(ExcelExporter):
     @staticmethod
     def filter_evaluations(
         semesters: Iterable[Semester],
-        evaluation_states: Iterable[Any],
+        evaluation_states: Iterable[int],
         degree_ids: Iterable[int],
         course_type_ids: Iterable[int],
         contributor: UserProfile | None,
@@ -144,8 +146,7 @@ class ResultsExporter(ExcelExporter):
                     # RatingQuestion.counts is a tuple of integers or None, if this tuple is all zero, we want to exclude it
                     question_results: list[QuestionResult] = questionnaire_result.question_results
                     if all(
-                        not isinstance(question_result, RatingResult) or not RatingResult.has_answers(question_result)
-                        for question_result in question_results
+                        not isinstance(question_result, AnsweredRatingResult) for question_result in question_results
                     ):
                         continue
                     if (
@@ -221,7 +222,7 @@ class ResultsExporter(ExcelExporter):
 
     def write_overall_results(
         self,
-        evaluations_with_results: list[tuple[Evaluation, OrderedDict[int, list[QuestionResult]]]],
+        evaluations_with_results: list[tuple[AnnotatedEvaluation, OrderedDict[int, list[QuestionResult]]]],
         course_results_exist: bool,
     ) -> None:
         evaluations = [e for e, __ in evaluations_with_results]
@@ -324,7 +325,7 @@ class ResultsExporter(ExcelExporter):
     # pylint: disable=arguments-differ
     def export_impl(
         self,
-        semesters: QuerySetOrSequence[Semester]
+        semesters: QuerySetOrSequence[Semester],
         selection_list: Sequence[tuple[Iterable[int], Iterable[int]]],
         include_not_enough_voters: bool = False,
         include_unpublished: bool = False,
