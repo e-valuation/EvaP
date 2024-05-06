@@ -144,7 +144,7 @@ class ResultsExporter(ExcelExporter):
             for contribution_result in get_results(evaluation).contribution_results:
                 for questionnaire_result in contribution_result.questionnaire_results:
                     # RatingQuestion.counts is a tuple of integers or None, if this tuple is all zero, we want to exclude it
-                    question_results: list[QuestionResult] = questionnaire_result.question_results
+                    question_results = questionnaire_result.question_results
                     if all(
                         not isinstance(question_result, AnsweredRatingResult) for question_result in question_results
                     ):
