@@ -1501,7 +1501,7 @@ class TestEvaluationOperationView(WebTestStaffMode):
         form = page.forms["evaluation_operation_form"]
         self.assertEqual(evaluation.state, old_state)
         form["evaluation"] = evaluation.pk
-        response = form.submit("target_state", value=str(new_state.value))
+        response = form.submit("target_state", value=str(new_state))
 
         form = response.forms["evaluation-operation-form"]
         response = form.submit().follow()
