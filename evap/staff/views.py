@@ -492,7 +492,7 @@ EVALUATION_OPERATIONS = {
 }
 
 
-def target_state_and_operation_from_str(target_state_str: str) -> tuple[int, type[EvaluationOperation]]:
+def target_state_and_operation_from_str(target_state_str: str) -> tuple[Evaluation.State, type[EvaluationOperation]]:
     try:
         target_state = Evaluation.State(int(target_state_str))
     except (KeyError, ValueError, TypeError) as err:
