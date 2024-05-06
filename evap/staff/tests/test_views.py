@@ -2228,21 +2228,27 @@ class TestEvaluationEditView(WebTestStaffMode):
             '<label class="form-check-label badge bg-danger" for="id_contributions-1-questionnaires_0">', page
         )
 
-    def test_state_change_log_translated(self):
+    # TODO(felix): what is the patching order?
+    @patch("evap.evaluation.models_logging._")
+    @patch("evap.evaluation.models._")
+    def test_state_change_log_translated(self, mock_models_gettext, mock_models_logging_gettext):
+        mock_models_logging_gettext.side_effect = lambda s: "[MOCK:models_logging]"
+        mock_models_gettext.side_effect = lambda s: "[MOCK:models]"
+
         self.evaluation.ready_for_editors()
         self.evaluation.save()
 
-        translation.activate("en")
-        self.manager.language = "en"
-        self.manager.save()
+        # translation.activate("en")
+        # self.manager.language = "en"
+        # self.manager.save()
 
         self.app.get(self.url, user=self.manager).mustcontain(
             "<li> State: new &#8594; prepared </li>", no="<li> State: neu &#8594; vorbereitet </li>"
         )
 
-        translation.activate("de")
-        self.manager.language = "de"
-        self.manager.save()
+        # translation.activate("de")
+        # self.manager.language = "de"
+        # self.manager.save()
 
         self.app.get(self.url, user=self.manager).mustcontain(
             "<li> State: neu &#8594; vorbereitet </li>", no="<li> State: new &#8594; prepared </li>"
