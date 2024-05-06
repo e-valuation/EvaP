@@ -36,7 +36,10 @@ service redis-server restart
 # install apache
 apt-get -q install -y apache2 apache2-dev libapache2-mod-wsgi-py3
 
+# make user, create home folder, set uid to the same set in the Vagrantfile (required for becoming the synced folder owner), set default shell to bash
+useradd -m -u 1042 -s /bin/bash evap
 cp /etc/skel/.bashrc /home/$USER/
+
 # link the mounted evap folder from the home directory:
 OWNER=$(stat -c %u "$MOUNTPOINT/evap")
 if [ "$OWNER" != 1042 ]; then
@@ -46,19 +49,15 @@ if [ "$OWNER" != 1042 ]; then
   bindfs --map="$OWNER/1042:@$OWNER/@1042" "$MOUNTPOINT" "$REPO_FOLDER" || exit 1
   echo "sudo bindfs --map=$OWNER/1042:@$OWNER/@1042 '$MOUNTPOINT' '$REPO_FOLDER'" >> /home/$USER/.bashrc
 else
+  # link the mounted evap folder from the home directory
   ln -s "$MOUNTPOINT" "$REPO_FOLDER"
 fi
 
-# make user, create home folder, set uid to the same set in the Vagrantfile (required for becoming the synced folder owner), set default shell to bash
-useradd -m -u 1042 -s /bin/bash evap
 # allow ssh login
 cp -r /home/vagrant/.ssh /home/$USER/.ssh
 chown -R $USER:$USER /home/$USER/.ssh
 # allow sudo without password
 echo "$USER ALL=(ALL) NOPASSWD:ALL" | tee /etc/sudoers.d/evap
-
-# link the mounted evap folder from the home directory
-ln -s "$MOUNTPOINT" "$REPO_FOLDER"
 
 sudo -H -u $USER $EVAP_PYTHON -m venv $ENV_FOLDER
 # venv will use ensurepip to install a new version of pip. We need to update that version.
