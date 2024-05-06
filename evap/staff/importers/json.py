@@ -72,7 +72,16 @@ class JSONImporter:
             self.user_profile_map[entry["gguid"]] = user_profile
 
     def _import_lecturers(self, data: list[ImportLecturer]):
-        pass
+        for entry in data:
+            email = clean_email(entry["email"])
+            user_profile = UserProfile.objects.update_or_create(
+                email=email,
+                defaults=dict(
+                    last_name=entry["name"], first_name_given=entry["christianname"], title=entry["titlefront"]
+                ),
+            )
+
+            self.user_profile_map[entry["gguid"]] = user_profile
 
     def _import_events(self, data: list[ImportEvent]):
         pass
