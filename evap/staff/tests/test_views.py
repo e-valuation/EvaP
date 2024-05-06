@@ -2238,11 +2238,17 @@ class TestEvaluationEditView(WebTestStaffMode):
 
         page_en = self.app.get(self.url, user=self.manager).unicode_normal_body
 
+        print("PAGE EN:\n")
+        print(page_en)
+
         self.assertInHTML("<li> State: new → prepared </li>", page_en)
 
         translation.activate("de")
         self.manager.language = "de"
         self.manager.save()
+
+        print("PAGE DE:\n")
+        print(page_de)
 
         page_de = self.app.get(self.url, user=self.manager).unicode_normal_body
 
