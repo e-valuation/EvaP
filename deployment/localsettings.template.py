@@ -17,4 +17,4 @@ SECRET_KEY = "${SECRET_KEY}"  # nosec
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 # Questionnaires automatically added to exam evaluations
-EXAM_QUESTIONNAIRE_IDS = [83]
+EXAM_QUESTIONNAIRE_IDS = [111]
