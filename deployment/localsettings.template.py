@@ -54,4 +54,4 @@ GLOBAL_EVALUATION_PROGRESS_INFO_TEXT = {
     "en": mark_safe("Your participation in the evaluation helps, so evaluate <b>now</b>!"),
 }
 # Questionnaires automatically added to exam evaluations
-EXAM_QUESTIONNAIRE_IDS = [83]
+EXAM_QUESTIONNAIRE_IDS = [111]
