@@ -40,18 +40,12 @@ apt-get -q install -y apache2 apache2-dev libapache2-mod-wsgi-py3
 useradd -m -u 1042 -s /bin/bash evap
 cp /etc/skel/.bashrc /home/$USER/
 
-# link the mounted evap folder from the home directory:
+# remount the mounted evap folder from the home directory. Use bindfs to map the owner in all setups.
 OWNER=$(stat -c %u "$MOUNTPOINT/evap")
-if [ "$OWNER" != 1042 ]; then
-  #  if, for any reason, vagrant failed to mount evap under the correct uid, use bindfs to link it to /opt/evap using the wanted user id
-  apt-get -q install -y bindfs
-  mkdir -p "$REPO_FOLDER"
-  bindfs --map="$OWNER/1042:@$OWNER/@1042" "$MOUNTPOINT" "$REPO_FOLDER" || exit 1
-  echo "sudo bindfs --map=$OWNER/1042:@$OWNER/@1042 '$MOUNTPOINT' '$REPO_FOLDER'" >> /home/$USER/.bashrc
-else
-  # link the mounted evap folder from the home directory
-  ln -s "$MOUNTPOINT" "$REPO_FOLDER"
-fi
+apt-get -q install -y bindfs
+mkdir -p "$REPO_FOLDER"
+bindfs --map="$OWNER/1042:@$OWNER/@1042" "$MOUNTPOINT" "$REPO_FOLDER" || exit 1
+echo "sudo bindfs --map=$OWNER/1042:@$OWNER/@1042 '$MOUNTPOINT' '$REPO_FOLDER'" >> /home/$USER/.bashrc
 
 # allow ssh login
 cp -r /home/vagrant/.ssh /home/$USER/.ssh
