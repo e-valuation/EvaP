@@ -57,6 +57,7 @@ class ImportStudentsTestCase(TestCase):
     @classmethod
     def setUp(self):
         self.students = EXAMPLE_DATA["students"]
+        self.lecturers = EXAMPLE_DATA["lecturers"]
 
         self.semester = baker.make(Semester)
 
@@ -89,3 +90,35 @@ class ImportStudentsTestCase(TestCase):
         self.assertEqual(user_profile.email, self.students[0]["email"])
         self.assertEqual(user_profile.last_name, self.students[0]["name"])
         self.assertEqual(user_profile.first_name_given, self.students[0]["christianname"])
+
+    def test_import_lecturers(self):
+        self.assertEqual(UserProfile.objects.all().count(), 0)
+
+        importer = JSONImporter(self.semester)
+        importer._import_lecturers(self.lecturers)
+
+        user_profiles = UserProfile.objects.all()
+        self.assertEqual(user_profiles.count(), 2)
+
+        for i, user_profile in enumerate(user_profiles):
+            self.assertEqual(user_profile.email, self.lecturers[i]["email"])
+            self.assertEqual(user_profile.last_name, self.lecturers[i]["name"])
+            self.assertEqual(user_profile.first_name_given, self.lecturers[i]["christianname"])
+            self.assertEqual(user_profile.title, self.lecturers[i]["titlefront"])
+
+    def test_import_existing_lecturers(self):
+
+        user_profile = baker.make(UserProfile, email=self.lecturers[0]["email"])
+        print(user_profile.email)
+
+        importer = JSONImporter(self.semester)
+        importer._import_lecturers(self.lecturers)
+
+        assert UserProfile.objects.all().count() == 2
+
+        user_profile.refresh_from_db()
+
+        self.assertEqual(user_profile.email, self.lecturers[0]["email"])
+        self.assertEqual(user_profile.last_name, self.lecturers[0]["name"])
+        self.assertEqual(user_profile.first_name_given, self.lecturers[0]["christianname"])
+        self.assertEqual(user_profile.title, self.lecturers[0]["titlefront"])
