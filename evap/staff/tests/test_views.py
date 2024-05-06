@@ -2236,23 +2236,17 @@ class TestEvaluationEditView(WebTestStaffMode):
         self.manager.language = "en"
         self.manager.save()
 
-        page_en = self.app.get(self.url, user=self.manager).unicode_normal_body
-
-        print("PAGE EN:\n")
-        print(page_en)
-
-        self.assertInHTML("<li> State: new → prepared </li>", page_en)
+        self.app.get(self.url, user=self.manager).mustcontain(
+            "<li> State: new &#8594; prepared </li>", no="<li> State: neu &#8594; vorbereitet </li>"
+        )
 
         translation.activate("de")
         self.manager.language = "de"
         self.manager.save()
 
-        print("PAGE DE:\n")
-        print(page_de)
-
-        page_de = self.app.get(self.url, user=self.manager).unicode_normal_body
-
-        self.assertInHTML("<li> State: neu → vorbereitet </li>", page_de)
+        self.app.get(self.url, user=self.manager).mustcontain(
+            "<li> State: neu &#8594; vorbereitet </li>", no="<li> State: new &#8594; prepared </li>"
+        )
 
 
 class TestEvaluationDeleteView(WebTestStaffMode):
