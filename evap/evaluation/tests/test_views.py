@@ -257,7 +257,7 @@ class TestResetEvaluation(WebTestStaffMode):
         cls.manager = make_manager()
         cls.semester = baker.make(Semester, results_are_archived=True)
 
-    def reset_from_x_to_new(self, x, assertion):
+    def reset_from_x_to_new(self, x, success_expected: bool):
         evaluation = baker.make(Evaluation, state=x, course__semester=self.semester)
 
         semester_overview_page = self.app.get(f"/staff/semester/{self.semester.pk}", user=self.manager, status=200)
@@ -270,7 +270,8 @@ class TestResetEvaluation(WebTestStaffMode):
         confirmation_form = confirmation_page.forms["evaluation-operation-form"]
         confirmation_form.submit()
 
-        assertion(Evaluation.objects.get(pk=evaluation.pk))
+        self.assertTrue(success_expected, "Should have raised exception by now")
+        self.assertEqual(Evaluation.objects.get(pk=evaluation.pk).state, Evaluation.State.NEW)
 
     def test_reset_to_new(self):
         invalid_start_states = [Evaluation.State.NEW, Evaluation.State.PUBLISHED]
@@ -282,13 +283,8 @@ class TestResetEvaluation(WebTestStaffMode):
         ]
 
         for s in valid_start_states:
-            assertion_message = f"evaluation state was not reset to NEW from {s}"
-            self.reset_from_x_to_new(
-                s,
-                lambda evaluation, m=assertion_message: self.assertEqual(evaluation.state, Evaluation.State.NEW, m),
-            )
-
+            self.reset_from_x_to_new(s, True)
         for s in invalid_start_states:
             # Invalid Operation should not show the confirmation dialog
-            with self.assertRaises(KeyError):
-                self.reset_from_x_to_new(s, None)
+            with self.assertRaises(KeyError, msg=f"evaluation state was not reset to NEW from {s}"):
+                self.reset_from_x_to_new(s, False)
