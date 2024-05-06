@@ -2229,6 +2229,18 @@ class TestEvaluationEditView(WebTestStaffMode):
         )
 
     def test_state_change_log_translated(self):
+        new_en = "mocked-new-EN"
+        prepared_en = "mocked-prepared-EN"
+        new_de = "mocked-new-DE"
+        prepared_de = "mocked-prepared-DE"
+
+        lang_en = translation.trans_real.translation("en")
+        lang_en._catalog["new"] = new_en
+        lang_en._catalog["prepared"] = prepared_en
+        lang_de = translation.trans_real.translation("de")
+        lang_de._catalog["new"] = new_de
+        lang_de._catalog["prepared"] = prepared_de
+
         self.evaluation.ready_for_editors()
         self.evaluation.save()
 
