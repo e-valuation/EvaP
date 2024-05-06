@@ -2229,18 +2229,6 @@ class TestEvaluationEditView(WebTestStaffMode):
         )
 
     def test_state_change_log_translated(self):
-        new_en = "mocked-new-EN"
-        prepared_en = "mocked-prepared-EN"
-        new_de = "mocked-new-DE"
-        prepared_de = "mocked-prepared-DE"
-
-        lang_en = translation.trans_real.translation("en")
-        lang_en._catalog["new"] = new_en
-        lang_en._catalog["prepared"] = prepared_en
-        lang_de = translation.trans_real.translation("de")
-        lang_de._catalog["new"] = new_de
-        lang_de._catalog["prepared"] = prepared_de
-
         self.evaluation.ready_for_editors()
         self.evaluation.save()
 
@@ -2248,25 +2236,17 @@ class TestEvaluationEditView(WebTestStaffMode):
         self.manager.language = "en"
         self.manager.save()
 
-        page_en = self.app.get(self.url, user=self.manager)
+        page_en = self.app.get(self.url, user=self.manager).unicode_normal_body
 
-        new_en = translation.gettext("new")
-        prepared_en = translation.gettext("prepared")
-
-        self.assertIn(new_en, page_en)
-        self.assertIn(prepared_en, page_en)
+        self.assertInHTML("<li> State: new → prepared </li>", page_en)
 
         translation.activate("de")
         self.manager.language = "de"
         self.manager.save()
 
-        new_de = translation.gettext("new")
-        prepared_de = translation.gettext("prepared")
+        page_de = self.app.get(self.url, user=self.manager).unicode_normal_body
 
-        page_de = self.app.get(self.url, user=self.manager)
-
-        self.assertIn(new_de, page_de)
-        self.assertIn(prepared_de, page_de)
+        self.assertInHTML("<li> State: neu → vorbereitet </li>", page_de)
 
 
 class TestEvaluationDeleteView(WebTestStaffMode):
