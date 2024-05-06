@@ -31,3 +31,21 @@ updates:
         patterns: ["*"]
     labels:
       - "[T] Dependencies"
+  - package-ecosystem: "github-actions"
+    directory: "/actions/setup_nodejs"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns: ["*"]
+    labels:
+      - "[T] Dependencies"
+  - package-ecosystem: "github-actions"
+    directory: "/actions/setup_python"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns: ["*"]
+    labels:
+      - "[T] Dependencies"
