@@ -279,10 +279,6 @@ class TestResetEvaluation(WebTestStaffMode):
             Evaluation.State.PREPARED,
             Evaluation.State.EDITOR_APPROVED,
             Evaluation.State.APPROVED,
-            # TODO: allow those states:
-            # Evaluation.State.IN_EVALUATION,
-            # Evaluation.State.EVALUATED,
-            # Evaluation.State.REVIEWED
         ]
 
         for s in valid_start_states:
