@@ -21,7 +21,7 @@ from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
-from django.db.models import CheckConstraint, Count, Exists, F, Manager, OuterRef, Q, Subquery, UniqueConstraint, Value
+from django.db.models import CheckConstraint, Count, Exists, F, Manager, OuterRef, Q, Subquery, Value
 from django.db.models.functions import Coalesce, Lower, NullIf, TruncDate
 from django.dispatch import Signal, receiver
 from django.http import HttpRequest
@@ -335,7 +335,9 @@ class Course(LoggedModel):
     gets_no_grade_documents = models.BooleanField(verbose_name=_("gets no grade documents"), default=False)
 
     # unique reference for import from campus management system
-    cms_id = models.CharField(verbose_name=_("campus management system id"), blank=True, max_length=255)
+    cms_id = models.CharField(
+        verbose_name=_("campus management system id"), blank=True, null=True, unique=True, max_length=255
+    )
 
     class Meta:
         unique_together = [
@@ -344,9 +346,6 @@ class Course(LoggedModel):
         ]
         verbose_name = _("course")
         verbose_name_plural = _("courses")
-        constraints = [
-            UniqueConstraint(fields=["cms_id"], condition=~Q(cms_id=""), name="unique_cms_id_course"),
-        ]
 
     def __str__(self):
         return self.name
@@ -478,7 +477,9 @@ class Evaluation(LoggedModel):
     )
 
     # unique reference for import from campus management system
-    cms_id = models.CharField(verbose_name=_("campus management system id"), blank=True, max_length=255)
+    cms_id = models.CharField(
+        verbose_name=_("campus management system id"), blank=True, null=True, unique=True, max_length=255
+    )
 
     @property
     def has_exam_evaluation(self):
@@ -534,7 +535,6 @@ class Evaluation(LoggedModel):
                 condition=~(Q(_participant_count__isnull=True) ^ Q(_voter_count__isnull=True)),
                 name="check_evaluation_participant_count_and_voter_count_both_set_or_not_set",
             ),
-            UniqueConstraint(fields=["cms_id"], condition=~Q(cms_id=""), name="unique_cms_id_evaluation"),
         ]
 
     def __str__(self):
