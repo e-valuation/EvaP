@@ -4,7 +4,7 @@ from datetime import date, datetime
 from django.test import TestCase
 from model_bakery import baker
 
-from evap.evaluation.models import Course, Evaluation, Semester, UserProfile
+from evap.evaluation.models import Contribution, Course, Evaluation, Semester, UserProfile
 from evap.staff.importers.json import ImportDict, JSONImporter
 
 EXAMPLE_DATA: ImportDict = {
@@ -164,7 +164,16 @@ class TestImportEvents(TestCase):
             [importer.user_profile_map[student["gguid"]] for student in EXAMPLE_DATA["events"][0]["students"]],
         )
         self.assertTrue(main_evaluation.wait_for_grade_upload_before_publishing)
-        # FIXME lecturers
+
+        self.assertEqual(Contribution.objects.filter(evaluation=main_evaluation).count(), 2)
+        self.assertListEqual(
+            list(
+                Contribution.objects.filter(evaluation=main_evaluation, contributor__isnull=False).values_list(
+                    "contributor_id", flat=True
+                )
+            ),
+            [importer.user_profile_map[student["gguid"]].id for student in EXAMPLE_DATA["events"][0]["lecturers"]],
+        )
 
         exam_evaluation = Evaluation.objects.get(name_en="Exam")
         self.assertEqual(exam_evaluation.course, course)
@@ -178,7 +187,16 @@ class TestImportEvents(TestCase):
             [importer.user_profile_map[student["gguid"]] for student in EXAMPLE_DATA["events"][1]["students"]],
         )
         self.assertFalse(exam_evaluation.wait_for_grade_upload_before_publishing)
-        # FIXME lecturers
+
+        self.assertEqual(Contribution.objects.filter(evaluation=exam_evaluation).count(), 3)
+        self.assertListEqual(
+            list(
+                Contribution.objects.filter(evaluation=exam_evaluation, contributor__isnull=False).values_list(
+                    "contributor_id", flat=True
+                )
+            ),
+            [importer.user_profile_map[student["gguid"]].id for student in EXAMPLE_DATA["events"][1]["lecturers"]],
+        )
 
     def test_import_courses_update(self):
         pass
