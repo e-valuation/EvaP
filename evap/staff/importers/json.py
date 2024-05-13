@@ -3,7 +3,7 @@ from typing import TypedDict
 
 from django.db import transaction
 
-from evap.evaluation.models import Course, CourseType, Degree, Evaluation, Semester, UserProfile
+from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
 from evap.evaluation.tools import clean_email
 
 
@@ -164,7 +164,19 @@ class JSONImporter:
         )
         evaluation.participants.set(participants)
 
+        for lecturer in data["lecturers"]:
+            self._import_contribution(evaluation, lecturer)
+
         return evaluation
+
+    def _import_contribution(self, evaluation: Evaluation, data: ImportRelated):
+        user_profile = self.user_profile_map[data["gguid"]]
+
+        contribution, __ = Contribution.objects.update_or_create(
+            evaluation=evaluation,
+            contributor=user_profile,
+        )
+        return contribution
 
     def _import_events(self, data: list[ImportEvent]):
         # Divide in two lists so corresponding courses are imported before their exams
