@@ -3,7 +3,7 @@ import typing
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from collections.abc import Iterable, Mapping
-from typing import TYPE_CHECKING, Any, Protocol, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 from urllib.parse import quote
 
 import xlwt
@@ -197,12 +197,6 @@ class FormsetView(FormView):
         return super().form_valid(formset)
 
 
-@typing.runtime_checkable
-class HasFormValid(Protocol):
-    def form_valid(self, form):
-        pass
-
-
 class SaveValidFormMixin:
     """
     Call `form.save()` if the submitted form is valid.
@@ -211,9 +205,9 @@ class SaveValidFormMixin:
     example if a formset for a collection of objects is submitted.
     """
 
-    def form_valid(self: HasFormValid, form) -> HttpResponse:
+    def form_valid(self, form) -> HttpResponse:
         form.save()
-        return super().form_valid(form)
+        return super().form_valid(form)  # type: ignore[misc]  # there is no valid way to annotate this
 
 
 class AttachmentResponse(HttpResponse):
