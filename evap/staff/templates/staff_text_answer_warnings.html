@@ -93,7 +93,7 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script src="{% static 'js/sortable_form.js' %}"></script>
+    <script src="{% static 'js/sortable-form.js' %}"></script>
 
     {{ text_answer_warnings|text_answer_warning_trigger_strings|json_script:'text-answer-warnings' }}
 
@@ -103,15 +103,15 @@
         initTextAnswerWarnings([document.querySelector("#preview-textarea")], JSON.parse(document.getElementById("text-answer-warnings").textContent));
 
         const rowChanged = function(row) {
-            const triggerStrings = row.find("select[id$=-trigger_strings]").val();
-            const warningTextDe = row.find("textarea[id$=-warning_text_de]").val();
-            const warningTextEn = row.find("textarea[id$=-warning_text_en]").val();
+            const triggerStrings = row.querySelector("select[id$=-trigger_strings]").value;
+            const warningTextDe = row.querySelector("textarea[id$=-warning_text_de]").value;
+            const warningTextEn = row.querySelector("textarea[id$=-warning_text_en]").value;
             return triggerStrings || warningTextDe || warningTextEn;
         };
         const rowAdded = function(row) {
-            applyTomSelect(row.find("select").get(), tagTomSelectOptions);
+            applyTomSelect(row.querySelectorAll("select"), tagTomSelectOptions);
         };
-        makeFormSortable("text-answer-warnings-table", "form", rowChanged, rowAdded, "", true, true);
+        makeFormSortable("text-answer-warnings-table", "form", rowChanged, rowAdded, true, true);
 
         applyTomSelect(document.querySelectorAll("select:not(.form-template select)"), tagTomSelectOptions);
     </script>

@@ -59,15 +59,15 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script src="{% static 'js/sortable_form.js' %}"></script>
+    <script src="{% static 'js/sortable-form.js' %}"></script>
 
     <script type="text/javascript">
-        rowChanged = function(row) {
-            qDe = $(row.find('input[id$=-question_de]')).val();
-            qEn = $(row.find('input[id$=-question_en]')).val();
-            return qDe || qEn
+        const rowChanged = function(row) {
+            const qDe = row.querySelector('input[id$=-question_de]').value;
+            const qEn = row.querySelector('input[id$=-question_en]').value;
+            return qDe || qEn;
         };
-        rowAdded = function(row) { };
-        makeFormSortable("question_table", "questions", rowChanged, rowAdded, "", true, false);
+        const rowAdded = function(row) { };
+        makeFormSortable("question_table", "questions", rowChanged, rowAdded, true, false);
     </script>
 {% endblock %}
