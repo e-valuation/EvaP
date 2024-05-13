@@ -54,7 +54,7 @@ EXAMPLE_DATA: ImportDict = {
 EXAMPLE_JSON = json.dumps(EXAMPLE_DATA)
 
 
-class ImportUserProfilesTestCase(TestCase):
+class TestImportUserProfiles(TestCase):
     def setUp(self):
         self.students = EXAMPLE_DATA["students"]
         self.lecturers = EXAMPLE_DATA["lecturers"]
@@ -124,7 +124,7 @@ class ImportUserProfilesTestCase(TestCase):
         self.assertEqual(user_profile.title, self.lecturers[0]["titlefront"])
 
 
-class ImportEventsTestCase(TestCase):
+class TestImportEvents(TestCase):
     def setUp(self):
         self.semester = baker.make(Semester)
 

@@ -130,9 +130,7 @@ class JSONImporter:
 
         if data["isexam"]:
             # Set evaluation time frame of three days for exam evaluations:
-            # Start datetime is at 8:00 am one day after the event ends
             evaluation_start_datetime = course_end.replace(hour=8, minute=0) + timedelta(days=1)
-            # End date is three days after the event ends
             evaluation_end_date = (course_end + timedelta(days=3)).date()
 
             name_de = "Klausur"
