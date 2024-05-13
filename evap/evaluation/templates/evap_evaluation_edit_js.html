@@ -1,32 +1,32 @@
 {% load static %}
 
 {% if editable %}
-    <script src="{% static 'js/sortable_form.js' %}"></script>
+    <script src="{% static 'js/sortable-form.js' %}"></script>
     <script type="text/javascript">
-        rowChanged = function(row) {
-            name = $(row.find("select[id$=-contributor]")).find(":selected").text();
-            nameChanged = name && name != "---------";
-            idChanged = row.find("input[id$=-id]").val();
+        const rowChanged = function(row) {
+            const name = row.querySelector("select[id$=-contributor]").querySelector(":selected").textContent;
+            const nameChanged = name && name != "---------";
+            const idChanged = row.querySelector("input[id$=-id]").value;
 
             questionnaireChanged = false;
-            $(row.find("input[name$=-questionnaires]")).each(function () {
-                if (this.checked)
+            row.querySelectorAll("input[name$=-questionnaires]").forEach(el => {
+                if (el.checked)
                     questionnaireChanged = true;
             })
 
-            roleChanged = ! row.find("input[id$=-role_0]").prop("checked");
-            commVisibilityChanged = ! row.find("input[id$=_visibility_0]").prop("checked");
-            labelChanged = row.find("input[id$=-label]").val();
+            const roleChanged = ! row.querySelector("input[id$=-role_0]").checked;
+            const commVisibilityChanged = ! row.querySelector("input[id$=_visibility_0]").checked;
+            const labelChanged = row.querySelector("input[id$=-label]").value;
 
             return idChanged || nameChanged || questionnaireChanged || roleChanged || commVisibilityChanged || labelChanged;
         };
 
-        rowAdded = function(row) {
+        const rowAdded = function(row) {
             assignClickHandlers();
-            applyTomSelect(row.find("select").get());
+            applyTomSelect(row.querySelectorAll("select"));
             activateTooltips('#contribution_table');
         }
-        makeFormSortable("contribution_table", "contributions", rowChanged, rowAdded, "pointer", false, true);
+        makeFormSortable("contribution_table", "contributions", rowChanged, rowAdded, false, true);
     </script>
 {% endif %}
 
