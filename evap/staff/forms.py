@@ -354,7 +354,7 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore[misc]
 
 
 class EvaluationForm(forms.ModelForm):
-    general_questionnaires = forms.ModelMultipleChoiceField(
+    general_questionnaires = forms.ModelMultipleChoiceField[Questionnaire](
         Questionnaire.objects.general_questionnaires().exclude(visibility=Questionnaire.Visibility.HIDDEN),
         widget=CheckboxSelectMultiple,
         label=_("General questions"),
@@ -573,7 +573,7 @@ class ContributionForm(forms.ModelForm):
     evaluation = forms.ModelChoiceField(
         Evaluation.objects.all(), disabled=True, required=False, widget=forms.HiddenInput()
     )
-    questionnaires = forms.ModelMultipleChoiceField(
+    questionnaires = forms.ModelMultipleChoiceField[Questionnaire](
         Questionnaire.objects.contributor_questionnaires().exclude(visibility=Questionnaire.Visibility.HIDDEN),
         required=False,
         widget=CheckboxSelectMultiple,
@@ -934,7 +934,7 @@ class UserForm(forms.ModelForm):
     is_grade_publisher = forms.BooleanField(required=False, label=_("Grade publisher"))
     is_reviewer = forms.BooleanField(required=False, label=_("Reviewer"))
     is_inactive = forms.BooleanField(required=False, label=_("Inactive"))
-    evaluations_participating_in = forms.ModelMultipleChoiceField(
+    evaluations_participating_in = forms.ModelMultipleChoiceField[Questionnaire](
         None, required=False, label=_("Evaluations participating in (active semester)")
     )
 
