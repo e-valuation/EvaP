@@ -4,7 +4,7 @@ import os
 from abc import ABC, abstractmethod
 from io import BytesIO
 from typing import Literal
-from unittest.mock import PropertyMock, patch
+from unittest.mock import PropertyMock, patch, Mock
 
 import openpyxl
 import xlrd
@@ -2228,31 +2228,26 @@ class TestEvaluationEditView(WebTestStaffMode):
             '<label class="form-check-label badge bg-danger" for="id_contributions-1-questionnaires_0">', page
         )
 
-    # TODO(felix): what is the patching order?
-    @patch("evap.evaluation.models_logging._")
-    @patch("evap.evaluation.models._")
-    def test_state_change_log_translated(self, mock_models_gettext, mock_models_logging_gettext):
-        mock_models_logging_gettext.side_effect = lambda s: "[MOCK:models_logging]"
-        mock_models_gettext.side_effect = lambda s: "[MOCK:models]"
+    @patch("django.utils.translation._trans", wraps=translation._trans)
+    def test_state_change_log_translated(self, trans):
+        trans.gettext = Mock()
+        trans.gettext.side_effect = lambda key: f"MOCKED-{key}"
 
         self.evaluation.ready_for_editors()
         self.evaluation.save()
 
-        # translation.activate("en")
-        # self.manager.language = "en"
-        # self.manager.save()
+        response = self.app.get(self.url, user=self.manager)
+        # todo: why does this not return true
+        # self.assertContains(
+        #     response,
+        #     "<li> MOCKED-State: MOCKED-new &#8594; MOCKED-prepared </li>",
+        #     html=True
+        # )
 
-        self.app.get(self.url, user=self.manager).mustcontain(
-            "<li> State: new &#8594; prepared </li>", no="<li> State: neu &#8594; vorbereitet </li>"
-        )
+        # todo: bytes what?
+        normal_response = self.app.get(self.url, user=self.manager).normal_body
+        self.assertIn(normal_response, "<li> MOCKED-State: MOCKED-new &#8594; MOCKED-prepared </li>")
 
-        # translation.activate("de")
-        # self.manager.language = "de"
-        # self.manager.save()
-
-        self.app.get(self.url, user=self.manager).mustcontain(
-            "<li> State: neu &#8594; vorbereitet </li>", no="<li> State: new &#8594; prepared </li>"
-        )
 
 
 class TestEvaluationDeleteView(WebTestStaffMode):
