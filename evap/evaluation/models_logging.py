@@ -94,11 +94,7 @@ class LogEntry(models.Model):
     def field_context_data(self):
         model = self.content_type.model_class()
         return {
-            # todo(felix): this should also be able to be simplified massively
-            field_name: [
-                getattr(model, "transform_log_action", LoggedModel.transform_log_action)(field_action)
-                for field_action in _field_actions_for_field(model._meta.get_field(field_name), actions)
-            ]
+            field_name: list(_field_actions_for_field(model._meta.get_field(field_name), actions))
             for field_name, actions in self.data.items()
         }
 
@@ -324,11 +320,6 @@ class LoggedModel(models.Model):
     def unlogged_fields(self):
         """Specify a list of field names so that these fields don't get logged."""
         return ["id", "order"]
-
-    # todo(felix): i dont think this is needed anymore, delete?
-    @staticmethod
-    def transform_log_action(field_action):
-        return field_action
 
 
 @receiver(m2m_changed)
