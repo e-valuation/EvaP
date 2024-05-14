@@ -4,7 +4,7 @@ import os
 from abc import ABC, abstractmethod
 from io import BytesIO
 from typing import Literal
-from unittest.mock import PropertyMock, patch, Mock
+from unittest.mock import Mock, PropertyMock, patch
 
 import openpyxl
 import xlrd
@@ -2228,26 +2228,18 @@ class TestEvaluationEditView(WebTestStaffMode):
             '<label class="form-check-label badge bg-danger" for="id_contributions-1-questionnaires_0">', page
         )
 
-    @patch("django.utils.translation._trans", wraps=translation._trans)
+    @patch("django.utils.translation._trans", wraps=translation._trans)  # type: ignore[attr-defined]
     def test_state_change_log_translated(self, trans):
         trans.gettext = Mock()
-        trans.gettext.side_effect = lambda key: f"MOCKED-{key}"
+        trans.gettext.side_effect = lambda key: f"TRANSLATED-{key}"
 
         self.evaluation.ready_for_editors()
         self.evaluation.save()
 
         response = self.app.get(self.url, user=self.manager)
-        # todo: why does this not return true
-        # self.assertContains(
-        #     response,
-        #     "<li> MOCKED-State: MOCKED-new &#8594; MOCKED-prepared </li>",
-        #     html=True
-        # )
-
-        # todo: bytes what?
-        normal_response = self.app.get(self.url, user=self.manager).normal_body
-        self.assertIn(normal_response, "<li> MOCKED-State: MOCKED-new &#8594; MOCKED-prepared </li>")
-
+        self.assertContains(
+            response, "<li> TRANSLATED-state: TRANSLATED-new &#8594; TRANSLATED-prepared </li>", html=True
+        )
 
 
 class TestEvaluationDeleteView(WebTestStaffMode):
