@@ -32,7 +32,7 @@ updates:
     labels:
       - "[T] Dependencies"
   - package-ecosystem: "github-actions"
-    directory: "/actions/setup_nodejs"
+    directory: "/.github/setup_nodejs"
     schedule:
       interval: "weekly"
     groups:
@@ -41,7 +41,7 @@ updates:
     labels:
       - "[T] Dependencies"
   - package-ecosystem: "github-actions"
-    directory: "/actions/setup_python"
+    directory: "/.github/setup_python"
     schedule:
       interval: "weekly"
     groups:
