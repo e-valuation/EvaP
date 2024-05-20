@@ -1032,7 +1032,7 @@ def log_state_transition(instance, name, source, target, **_kwargs):
 
 
 class Contribution(LoggedModel):
-    """A contributor who is assigned to an evaluation and his questionnaires."""
+    """A contributor who is assigned to an evaluation and their questionnaires."""
 
     class TextAnswerVisibility(models.TextChoices):
         OWN_TEXTANSWERS = "OWN", _("Own")
