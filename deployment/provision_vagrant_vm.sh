@@ -45,7 +45,7 @@ OWNER=$(stat -c %u "$MOUNTPOINT/evap")
 apt-get -q install -y bindfs
 mkdir -p "$REPO_FOLDER"
 bindfs --map="$OWNER/1042:@$OWNER/@1042" "$MOUNTPOINT" "$REPO_FOLDER" || exit 1
-echo "sudo bindfs --map=$OWNER/1042:@$OWNER/@1042 '$MOUNTPOINT' '$REPO_FOLDER'" >> /home/$USER/.bashrc
+echo "[[ -z \$(ls -A '$REPO_FOLDER') ]] && sudo bindfs --map='$OWNER/1042:@$OWNER/@1042' '$MOUNTPOINT' '$REPO_FOLDER'  #  remount iff folder empty" >> /home/$USER/.bashrc
 
 # allow ssh login
 cp -r /home/vagrant/.ssh /home/$USER/.ssh
