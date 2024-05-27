@@ -4,7 +4,7 @@ from datetime import date, datetime
 from django.test import TestCase
 from model_bakery import baker
 
-from evap.evaluation.models import Contribution, Course, Evaluation, Semester, UserProfile
+from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, Semester, UserProfile
 from evap.staff.importers.json import ImportDict, JSONImporter
 
 EXAMPLE_DATA: ImportDict = {
@@ -197,6 +197,33 @@ class TestImportEvents(TestCase):
             ),
             [importer.user_profile_map[student["gguid"]].id for student in EXAMPLE_DATA["events"][1]["lecturers"]],
         )
+
+    def test_import_courses_evaluation_approved(self):
+        self._import()
+
+        evaluation = Evaluation.objects.get(name_en="")
+
+        evaluation.name_en = "Test"
+        evaluation.save()
+
+        self._import()
+
+        evaluation = Evaluation.objects.get(pk=evaluation.pk)
+
+        self.assertEqual(evaluation.name_en, "")
+
+        evaluation.general_contribution.questionnaires.add(
+            baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
+        )
+        evaluation.manager_approve()
+        evaluation.name_en = "Test"
+        evaluation.save()
+
+        self._import()
+
+        evaluation = Evaluation.objects.get(pk=evaluation.pk)
+
+        self.assertEqual(evaluation.name_en, "Test")
 
     def test_import_courses_update(self):
         pass
