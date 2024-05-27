@@ -55,9 +55,53 @@
         {% endif %}
         <input type="hidden" name="target_state" value="{{ target_state }}" />
 
+        {% if show_delete_answers_checkbox %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="delete-previous-answers"
+                                       id="delete-previous-answers" checked>
+                                <label class="form-check-label" for="delete-previous-answers">
+                                    {% trans "Delete previous answers" %}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
         <div class="card card-submit-area card-submit-area-2 text-center mb-3">
             <div class="card-body">
-                <button type="submit" class="btn btn-primary">{% translate 'Confirm' %}</button>
+                <confirmation-modal type="submit" form="evaluation-operation-form" id="confirmation-modal">
+                    <span slot="title">{% translate 'Reset Evaluation' %}</span>
+                    <span slot="action-text">{% translate 'Reset Evaluation' %}</span>
+                    <span slot="question">
+                        {% blocktranslate trimmed %}
+                            This will delete all previously received answers. Evaluation participants will have to
+                            resubmit their answers.
+                        {% endblocktranslate %}
+                        <span slot="show-button" class="d-none"></span>
+                    </span>
+                </confirmation-modal>
+                <button id="form-confirmation-btn" type="button"
+                        class="btn btn-primary">{% translate 'Confirm' %}</button>
+                <script>
+                    /** @type ConfirmationModal */
+                    const modal = document.getElementById("confirmation-modal");
+                    /** @type HTMLFormElement */
+                    const form = document.getElementById("evaluation-operation-form");
+
+                    document.getElementById("form-confirmation-btn").addEventListener("click", () => {
+                        if (document.getElementById("delete-previous-answers").checked) {
+                            modal.dialog.showModal();
+                        } else {
+                            form.requestSubmit();
+                        }
+                    });
+                </script>
                 <a href="{% url 'staff:semester_view' semester.id %}" class="btn btn-light">{% translate 'Cancel' %}</a>
             </div>
         </div>

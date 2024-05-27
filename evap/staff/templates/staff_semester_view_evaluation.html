@@ -5,9 +5,10 @@
 
 <td>
     {% if request.user.is_manager and not info_only and not semester.participations_are_archived %}
-        <!-- TODO: was this there for a reason? -->
-        <div class="form-check" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Select for evaluation operation' %}">
-            <input class="form-check-input" type="checkbox" name="evaluation" id="evaluation{{ evaluation.id }}" value="{{ evaluation.id }}" />
+        <div class="form-check" data-bs-toggle="tooltip" data-bs-placement="top"
+             title="{% translate 'Select for evaluation operation' %}">
+            <input class="form-check-input" type="checkbox" name="evaluation" id="evaluation{{ evaluation.id }}"
+                   value="{{ evaluation.id }}" />
             <label class="form-check-label" for="evaluation{{ evaluation.id }}"></label>
         </div>
     {% endif %}
