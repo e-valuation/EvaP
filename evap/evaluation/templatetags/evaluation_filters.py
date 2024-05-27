@@ -21,8 +21,6 @@ STATE_NAMES = {
     Evaluation.State.PUBLISHED: _("published"),
 }
 
-STR_TO_STATE = {state.label: state for state in list(Evaluation.State)}
-
 
 # the descriptions used in tooltips for contributors
 STATE_DESCRIPTIONS = {
