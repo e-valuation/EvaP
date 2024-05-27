@@ -780,13 +780,9 @@ class Evaluation(LoggedModel):
         self._voter_count = None
         self._participant_count = None
 
-    @classmethod
-    def state_to_str(cls, state: "Evaluation.State | int") -> StrOrPromise:
-        return Evaluation.State(state).label
-
     @property
     def state_str(self):
-        return Evaluation.state_to_str(self.state)
+        return Evaluation.State(self.state).label
 
     @cached_property
     def general_contribution(self):
@@ -1006,8 +1002,8 @@ def log_state_transition(instance, name, source: int, target: int, **_kwargs):
         'Evaluation "%s" (id %d) moved from state "%s" to state "%s", caused by transition "%s".',
         instance,
         instance.pk,
-        Evaluation.state_to_str(source),
-        Evaluation.state_to_str(target),
+        Evaluation.State(source).label,
+        Evaluation.State(target).label,
         name,
     )
 
