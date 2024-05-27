@@ -286,8 +286,7 @@ class ResetToNewOperation(EvaluationOperation):
 
     @staticmethod
     def applicable_to(evaluation: Evaluation):
-        # TODO: maybe move this into a helper function?
-        return any(t.name == 'reset_to_new' for t in evaluation.get_available_state_transitions())
+        return evaluation.can_reset_to_new()
 
     @staticmethod
     def warning_for_inapplicables(amount):
