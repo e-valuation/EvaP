@@ -2237,9 +2237,7 @@ class TestEvaluationEditView(WebTestStaffMode):
         self.evaluation.save()
 
         response = self.app.get(self.url, user=self.manager)
-        self.assertContains(
-            response, "<li> TRANSLATED-state: TRANSLATED-new &#8594; TRANSLATED-prepared </li>", html=True
-        )
+        self.assertContains(response, "TRANSLATED-state: TRANSLATED-new &#8594; TRANSLATED-prepared")
 
 
 class TestEvaluationDeleteView(WebTestStaffMode):
