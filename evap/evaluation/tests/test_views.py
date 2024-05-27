@@ -267,11 +267,13 @@ class TestResetEvaluation(WebTestStaffMode):
         form["evaluation"] = [evaluation.pk]
 
         confirmation_page = form.submit(name="target_state", value=str(Evaluation.State.NEW))
-        confirmation_form = confirmation_page.forms["evaluation-operation-form"]
-        confirmation_form.submit()
 
-        self.assertTrue(success_expected, "Should have raised exception by now")
-        self.assertEqual(Evaluation.objects.get(pk=evaluation.pk).state, Evaluation.State.NEW)
+        if success_expected:
+            confirmation_form = confirmation_page.forms["evaluation-operation-form"]
+            confirmation_form.submit()
+            self.assertEqual(Evaluation.objects.get(pk=evaluation.pk).state, Evaluation.State.NEW)
+        else:  # no confirmation form should exist
+            self.assertNotIn("evaluation-operation-form", confirmation_page.forms)
 
     def test_reset_to_new(self):
         invalid_start_states = [Evaluation.State.NEW, Evaluation.State.PUBLISHED]
@@ -285,6 +287,4 @@ class TestResetEvaluation(WebTestStaffMode):
         for s in valid_start_states:
             self.reset_from_x_to_new(s, True)
         for s in invalid_start_states:
-            # Invalid Operation should not show the confirmation dialog
-            with self.assertRaises(KeyError, msg=f"evaluation state was not reset to NEW from {s}"):
-                self.reset_from_x_to_new(s, False)
+            self.reset_from_x_to_new(s, False)
