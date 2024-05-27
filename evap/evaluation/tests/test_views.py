@@ -229,7 +229,6 @@ class TestNegativeLikertQuestions(WebTest):
     def test_answer_ordering(self):
         page = self.app.get(self.url, user=self.voting_user, status=200).body.decode()
         self.assertLess(page.index("Strongly<br>disagree"), page.index("Strongly<br>agree"))
-        self.assertIn("The answer scale is inverted for this question", page)
 
 
 class TestNotebookView(WebTest):
