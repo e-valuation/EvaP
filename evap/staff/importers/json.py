@@ -151,7 +151,7 @@ class JSONImporter:
 
         participants = self._get_user_profiles(data["students"])
 
-        evaluation, __ = Evaluation.objects.update_or_create(
+        evaluation, __ = Evaluation.objects.get_or_create(
             course=course,
             cms_id=data["gguid"],
             defaults={
@@ -159,13 +159,20 @@ class JSONImporter:
                 "name_en": name_en,
                 "vote_start_datetime": evaluation_start_datetime,
                 "vote_end_date": evaluation_end_date,
-                "wait_for_grade_upload_before_publishing": wait_for_grade_upload_before_publishing,
             },
         )
-        evaluation.participants.set(participants)
+        if evaluation.state < Evaluation.State.APPROVED:
+            evaluation.name_de = name_de
+            evaluation.name_en = name_en
+            evaluation.vote_start_datetime = evaluation_start_datetime
+            evaluation.vote_end_date = evaluation_end_date
+            evaluation.wait_for_grade_upload_before_publishing = wait_for_grade_upload_before_publishing
+            evaluation.save()
 
-        for lecturer in data["lecturers"]:
-            self._import_contribution(evaluation, lecturer)
+            evaluation.participants.set(participants)
+
+            for lecturer in data["lecturers"]:
+                self._import_contribution(evaluation, lecturer)
 
         return evaluation
 
