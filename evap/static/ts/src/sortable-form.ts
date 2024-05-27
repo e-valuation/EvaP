@@ -71,7 +71,10 @@ function makeFormSortable(
 
             //Check the first item in every button group
             row.querySelectorAll(".btn-group").forEach(group => {
-                group.querySelector("input")?.checked = true;
+                const input = group.querySelector("input");
+                if (input) {
+                    input.checked = true;
+                }
             });
 
             //Remove all error messages
