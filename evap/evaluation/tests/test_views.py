@@ -260,7 +260,7 @@ class TestResetEvaluation(WebTestStaffMode):
     def reset_from_x_to_new(self, x, success_expected: bool):
         evaluation = baker.make(Evaluation, state=x, course__semester=self.semester)
 
-        semester_overview_page = self.app.get(f"/staff/semester/{self.semester.pk}", user=self.manager, status=200)
+        semester_overview_page = self.app.get(reverse("staff:semester_view", args=[self.semester.pk]), user=self.manager, status=200)
 
         form = semester_overview_page.forms["evaluation_operation_form"]
 
