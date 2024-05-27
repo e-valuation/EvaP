@@ -1463,7 +1463,7 @@ def evaluation_person_management(request, evaluation_id):
             importer_log.forward_messages_to_django(request)
             return redirect("staff:semester_view", evaluation.course.semester.pk)
 
-        #  "test" in operation
+       assert "test" in operation
         delete_import_file(request.user.id, import_type)  # remove old files if still exist
         excel_form.fields["excel_file"].required = True
         if excel_form.is_valid():
