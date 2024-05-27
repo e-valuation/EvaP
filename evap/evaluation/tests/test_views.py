@@ -253,11 +253,11 @@ class TestNotebookView(WebTest):
 class TestResetEvaluation(WebTestStaffMode):
 
     @classmethod
-    def setUpTestData(cls):
+    def setUpTestData(cls) -> None:
         cls.manager = make_manager()
         cls.semester = baker.make(Semester, results_are_archived=True)
 
-    def reset_from_x_to_new(self, x, success_expected: bool):
+    def reset_from_x_to_new(self, x, success_expected: bool) -> None:
         evaluation = baker.make(Evaluation, state=x, course__semester=self.semester)
 
         semester_overview_page = self.app.get(reverse("staff:semester_view", args=[self.semester.pk]), user=self.manager, status=200)
@@ -275,7 +275,7 @@ class TestResetEvaluation(WebTestStaffMode):
         else:  # no confirmation form should exist
             self.assertNotIn("evaluation-operation-form", confirmation_page.forms)
 
-    def test_reset_to_new(self):
+    def test_reset_to_new(self) -> None:
         invalid_start_states = [Evaluation.State.NEW, Evaluation.State.PUBLISHED]
 
         valid_start_states = [
