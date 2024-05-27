@@ -13,4 +13,4 @@ pylint~=3.1.0
 ruff==0.4.5
 tblib~=3.0.0
 xlrd~=2.0.1
-typeguard~=4.2.1
+typeguard~=4.3.0
