@@ -71,7 +71,7 @@ function makeFormSortable(
 
             //Check the first item in every button group
             row.querySelectorAll(".btn-group").forEach(group => {
-                group.querySelector("input")?.setAttribute("checked", "checked");
+                group.querySelector("input")?.checked = true;
             });
 
             //Remove all error messages
