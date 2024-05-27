@@ -1415,6 +1415,8 @@ def evaluation_person_management(request, evaluation_id):
     contributor_excel_form = UserImportForm(request.POST or None, request.FILES or None, prefix="ce")
     contributor_copy_form = EvaluationParticipantCopyForm(request.POST or None, prefix="cc")
 
+    importer_log = None
+
     if request.method == "POST":
         operation = request.POST.get("operation")
         if operation not in (
@@ -1448,7 +1450,19 @@ def evaluation_person_management(request, evaluation_id):
             elif "copy" in operation:
                 copy_form.evaluation_selection_required = True
                 if not copy_form.is_valid():
-                    raise SuspiciousOperation("Invalid copy form")
+                    return render(
+                        request,
+                        "staff_evaluation_person_management.html",
+                        {
+                            "semester": evaluation.course.semester,
+                            "evaluation": evaluation,
+                            "participant_excel_form": participant_excel_form,
+                            "participant_copy_form": participant_copy_form,
+                            "contributor_excel_form": contributor_excel_form,
+                            "contributor_copy_form": contributor_copy_form,
+                            "importer_log": importer_log,
+                        },
+                    )
                 import_evaluation = copy_form.cleaned_data["evaluation"]
                 importer_log = import_persons_from_evaluation(
                     import_type, evaluation, test_run=False, source_evaluation=import_evaluation
@@ -1463,7 +1477,7 @@ def evaluation_person_management(request, evaluation_id):
             importer_log.forward_messages_to_django(request)
             return redirect("staff:semester_view", evaluation.course.semester.pk)
 
-       assert "test" in operation
+        assert "test" in operation
         delete_import_file(request.user.id, import_type)  # remove old files if still exist
         excel_form.fields["excel_file"].required = True
         if excel_form.is_valid():
