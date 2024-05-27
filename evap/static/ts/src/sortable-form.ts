@@ -43,8 +43,8 @@ function makeFormSortable(
         deleteCssClass: removeAsButton ? "btn btn-danger btn-sm" : "delete-row",
         deleteText: removeAsButton ? '<span class="fas fa-trash"></span>' : window.gettext("Delete"),
         addText: window.gettext("add another"),
-        added: function (rowJQuery) {
-            var row = rowJQuery.get()[0];
+        added: function (rowJQuery: JQuery<HTMLTableRowElement>) {
+            const row = rowJQuery.get()[0];
             (row.querySelectorAll("input[id$=-order]") as NodeListOf<HTMLInputElement>).forEach(input => {
                 input.value = row.parentElement?.childElementCount.toString() ?? "";
             });
@@ -84,11 +84,11 @@ function makeFormSortable(
         formTemplate: usesTemplate ? ".form-template" : null,
     });
 
-    var tableBody = document.querySelector(`#${tableId} tbody`) as HTMLElement | null;
+    const tableBody = document.querySelector(`#${tableId} tbody`) as HTMLElement | null;
     if (tableBody) {
         new Sortable(tableBody, {
-            handle: ".fa-up-down",
             draggable: ".sortable",
+            handle: ".fa-up-down",
             scrollSensitivity: 70,
         });
 
