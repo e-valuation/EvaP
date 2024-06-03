@@ -20,7 +20,7 @@ from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
-from django.db.models import CheckConstraint, Count, Exists, F, Manager, OuterRef, Q, Subquery, Value
+from django.db.models import CheckConstraint, Count, Exists, F, Manager, OuterRef, Q, Subquery, Value, query
 from django.db.models.functions import Coalesce, Lower, NullIf, TruncDate
 from django.dispatch import Signal, receiver
 from django.http import HttpRequest
@@ -474,7 +474,26 @@ class Evaluation(LoggedModel):
     def has_exam(self):
         return self.course.evaluations.filter(name_de="Klausur", name_en="Exam").exists()
 
-    def make_exam_evaluation(self, exam_date: date, participants, eval_contributions):
+    def make_exam_evaluation(
+        self,
+        exam_date: datetime,
+        evaluation_end_date: datetime,
+        participants: query.QuerySet["UserProfile"],
+        eval_contributions: query.QuerySet["Contribution"],
+    ):
+        self.weight = 9
+        self.vote_end_date = evaluation_end_date
+        self.save()
+        exam_evaluation = Evaluation(course=self.course, name_de="Klausur", name_en="Exam", weight=1, is_rewarded=False)
+        exam_evaluation.set_exam_evaluation_attributes(exam_date, participants, eval_contributions)
+        exam_evaluation.save()
+
+    def set_exam_evaluation_attributes(
+        self,
+        exam_date: date,
+        participants: query.QuerySet["UserProfile"],
+        eval_contributions: query.QuerySet["Contribution"],
+    ):
         self.vote_start_datetime = datetime.combine(exam_date + timedelta(days=1), time(8, 0))
         self.vote_end_date = exam_date + timedelta(days=3)
         self.save()

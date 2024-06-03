@@ -30,8 +30,9 @@ from django.dispatch import receiver
 from django.forms import BaseForm, formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import _get_queryset, get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
+from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.html import format_html
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
@@ -1097,34 +1098,32 @@ def course_copy(request, course_id):
 @manager_required
 @transaction.atomic
 def create_exam_evaluation(request):
-    evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
-    exam_date = request.POST.get("exam_date")
-    exam_date = datetime.combine(datetime.strptime(exam_date, "%Y-%m-%d"), datetime.min.time())
-
+    query_set = _get_queryset(Evaluation)
+    try:
+        evaluation = query_set.get(pk=request.POST["evaluation_id"])
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest()
     if evaluation.is_single_result:
         raise SuspiciousOperation("Creating an exam evaluation for a single result evaluation is not allowed")
 
     if evaluation.has_exam:
         raise SuspiciousOperation("An exam evaluation already exists for this course")
+    exam_datetime = request.POST.get("exam_date")
 
-    evaluation_end_date = exam_date - timedelta(days=1)
+    exam_datetime = datetime.combine(datetime.strptime(exam_datetime, "%Y-%m-%d"), datetime.min.time())
+
+    evaluation_end_date = exam_datetime - timedelta(days=1)
     if evaluation.vote_start_datetime > evaluation_end_date:
         messages.error(
-            request, _("The exam date is before the start date of the main evaluation. No exam evaluation created.")
+            request, _("The exam date is before the start date of the main evaluation. No exam evaluation was created.")
         )
         return HttpResponse()
 
-    evaluation.weight = 9
-    evaluation.vote_end_date = evaluation_end_date
-    evaluation.save()
-
-    exam_evaluation = Evaluation(
-        course=evaluation.course, name_de="Klausur", name_en="Exam", weight=1, is_rewarded=False
-    )
-    exam_evaluation.make_exam_evaluation(
-        exam_date=exam_date,
+    evaluation.make_exam_evaluation(
+        exam_date=exam_datetime,
         participants=evaluation.participants.all(),
         eval_contributions=evaluation.contributions.exclude(contributor=None),
+        evaluation_end_date=evaluation_end_date,
     )
     messages.success(request, _("Successfully created exam evaluation."))
     return HttpResponse()  # 200 OK

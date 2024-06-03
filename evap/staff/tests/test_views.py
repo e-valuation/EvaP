@@ -1962,41 +1962,45 @@ class TestEvaluationCopyView(WebTestStaffMode):
 
 class TestEvaluationExamCreation(WebTestStaffMode):
     csrf_checks = False
+    url = reverse("staff:create_exam_evaluation")
 
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.semester = baker.make(Semester)
-        cls.course = baker.make(Course, semester=cls.semester)
+        cls.course = baker.make(Course)
         vote_start_datetime = datetime.datetime.now() - datetime.timedelta(days=50)
         cls.evaluation = baker.make(Evaluation, course=cls.course, vote_start_datetime=vote_start_datetime)
         cls.contributions = baker.make(
             Contribution, evaluation=cls.evaluation, _fill_optional=["contributor"], _quantity=3, _bulk_create=True
         )
-        cls.questionnaire = baker.make(Questionnaire, pk=83)
-        cls.url = reverse("staff:create_exam_evaluation")
-        cls.exam_date = (datetime.date.today()) + datetime.timedelta(days=10)
+        cls.exam_datetime = (datetime.date.today()) + datetime.timedelta(days=10)
+        cls.semester_overview_url = reverse("staff:semester_view", args=[cls.course.semester.pk])
+        # Default the evaluation does not have any participants, so we need to add some
+        cls.evaluation.participants.set(baker.make(UserProfile, _quantity=3))
 
     def test_create_exam_evaluation(self):
         self.app.post(
             self.url,
             user=self.manager,
             status=200,
-            params={"evaluation_id": self.evaluation.pk, "exam_date": self.exam_date},
+            params={"evaluation_id": self.evaluation.pk, "exam_date": self.exam_datetime},
         )
         self.assertEqual(Evaluation.objects.count(), 2)
         exam_evaluation = Evaluation.objects.exclude(pk=self.evaluation.pk).get()
         self.assertEqual(exam_evaluation.contributions.count(), self.evaluation.contributions.count())
         self.assertEqual(
             exam_evaluation.vote_start_datetime,
-            datetime.datetime.combine(self.exam_date + datetime.timedelta(days=1), datetime.time(8, 0)),
+            datetime.datetime.combine(self.exam_datetime + datetime.timedelta(days=1), datetime.time(8, 0)),
         )
-        self.assertEqual(exam_evaluation.vote_end_date, self.exam_date + datetime.timedelta(days=3))
+        self.assertEqual(exam_evaluation.vote_end_date, self.exam_datetime + datetime.timedelta(days=3))
         self.assertEqual(exam_evaluation.name_de, "Klausur")
         self.assertEqual(exam_evaluation.name_en, "Exam")
         self.assertEqual(exam_evaluation.course, self.evaluation.course)
-        self.assertEqual(exam_evaluation.participants.count(), self.evaluation.participants.count())
+        self.assertQuerySetEqual(exam_evaluation.participants.all(), self.evaluation.participants.all())
         self.assertEqual(exam_evaluation.weight, 1)
+
+        evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
+        self.assertEqual(evaluation.weight, 9)
 
     def test_exam_evaluation_for_single_result(self):
         self.evaluation.is_single_result = True
@@ -2005,7 +2009,7 @@ class TestEvaluationExamCreation(WebTestStaffMode):
             self.url,
             user=self.manager,
             status=400,
-            params={"evaluation_id": self.evaluation.pk, "exam_date": self.exam_date},
+            params={"evaluation_id": self.evaluation.pk, "exam_date": self.exam_datetime},
         )
         self.assertFalse(self.evaluation.has_exam)
 
@@ -2016,21 +2020,32 @@ class TestEvaluationExamCreation(WebTestStaffMode):
             self.url,
             user=self.manager,
             status=400,
-            params={"evaluation_id": self.evaluation.pk, "exam_date": self.exam_date},
+            params={"evaluation_id": self.evaluation.pk, "exam_date": self.exam_datetime},
         )
 
     def test_exam_evaluation_with_wrong_date(self):
         self.evaluation.vote_start_datetime = datetime.datetime.now() + datetime.timedelta(days=100)
         self.evaluation.vote_end_date = datetime.date.today() + datetime.timedelta(days=150)
         self.evaluation.save()
+        self.app.get("", user=self.manager)  # Needed to not get a last login database update
 
-        self.app.post(
-            self.url,
+        with assert_no_database_modifications():
+            self.app.post(
+                self.url,
+                user=self.manager,
+                status=200,
+                params={"evaluation_id": self.evaluation.pk, "exam_date": self.exam_datetime},
+            )
+
+        page = self.app.get(
+            self.semester_overview_url,
             user=self.manager,
             status=200,
-            params={"evaluation_id": self.evaluation.pk, "exam_date": self.exam_date},
+            params={"semester_id": self.evaluation.course.semester.pk},
         )
-        self.assertFalse(self.evaluation.has_exam)
+        self.assertContains(
+            page, "The exam date is before the start date of the main evaluation. No exam evaluation was created."
+        )
 
 
 class TestCourseCopyView(WebTestStaffMode):
