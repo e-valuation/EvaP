@@ -2402,7 +2402,12 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
 
         form = page.forms["participant-copy-form"]
         form["pc-evaluation"] = old_pk
-        form.submit(name="operation", value="copy-participants", status=400)
+        res = submit_with_modal(page, form, name="operation", value="copy-participants", status=200)
+        self.assertIn("Please select an evaluation from the dropdown menu.", res.forms["participant-copy-form"].text)
+
+        form["pc-evaluation"] = ""
+        res = submit_with_modal(page, form, name="operation", value="copy-participants", status=200)
+        self.assertIn("Please select an evaluation from the dropdown menu.", res.forms["participant-copy-form"].text)
 
     def test_replace_copy_participants(self):
         page = self.app.get(self.url, user=self.manager)
