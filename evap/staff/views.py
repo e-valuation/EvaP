@@ -291,8 +291,8 @@ class RevertToNewOperation(EvaluationOperation):
     @staticmethod
     def warning_for_inapplicables(amount):
         return ngettext(
-            "{} evaluation can not be reverted, because it already started. It was removed from the selection.",
-            "{} evaluations can not be reverted, because they already started. They were removed from the selection.",
+            "{} evaluation cannot be reverted, because it already started. It was removed from the selection.",
+            "{} evaluations cannot be reverted, because they already started. They were removed from the selection.",
             amount,
         ).format(amount)
 
@@ -327,8 +327,8 @@ class ReadyForEditorsOperation(EvaluationOperation):
     @staticmethod
     def warning_for_inapplicables(amount):
         return ngettext(
-            "{} evaluation can not be reverted, because it was already approved. It was removed from the selection.",
-            "{} evaluations can not be reverted, because they were already approved. They were removed from the selection.",
+            "{} evaluation cannot be reverted, because it was already approved. It was removed from the selection.",
+            "{} evaluations cannot be reverted, because they were already approved. They were removed from the selection.",
             amount,
         ).format(amount)
 
@@ -383,8 +383,8 @@ class BeginEvaluationOperation(EvaluationOperation):
     @staticmethod
     def warning_for_inapplicables(amount):
         return ngettext(
-            "{} evaluation can not be started, because it was not approved, was already evaluated or its evaluation end date lies in the past. It was removed from the selection.",
-            "{} evaluations can not be started, because they were not approved, were already evaluated or their evaluation end dates lie in the past. They were removed from the selection.",
+            "{} evaluation cannot be started, because it was not approved, was already evaluated or its evaluation end date lies in the past. It was removed from the selection.",
+            "{} evaluations cannot be started, because they were not approved, were already evaluated or their evaluation end dates lie in the past. They were removed from the selection.",
             amount,
         ).format(amount)
 
@@ -421,8 +421,8 @@ class UnpublishOperation(EvaluationOperation):
     @staticmethod
     def warning_for_inapplicables(amount):
         return ngettext(
-            "{} evaluation can not be unpublished, because it's results have not been published. It was removed from the selection.",
-            "{} evaluations can not be unpublished because their results have not been published. They were removed from the selection.",
+            "{} evaluation cannot be unpublished, because it's results have not been published. It was removed from the selection.",
+            "{} evaluations cannot be unpublished because their results have not been published. They were removed from the selection.",
             amount,
         ).format(amount)
 
@@ -456,8 +456,8 @@ class PublishOperation(EvaluationOperation):
     @staticmethod
     def warning_for_inapplicables(amount):
         return ngettext(
-            "{} evaluation can not be published, because it's not finished or not all of its text answers have been reviewed. It was removed from the selection.",
-            "{} evaluations can not be published, because they are not finished or not all of their text answers have been reviewed. They were removed from the selection.",
+            "{} evaluation cannot be published, because it's not finished or not all of its text answers have been reviewed. It was removed from the selection.",
+            "{} evaluations cannot be published, because they are not finished or not all of their text answers have been reviewed. They were removed from the selection.",
             amount,
         ).format(amount)
 
