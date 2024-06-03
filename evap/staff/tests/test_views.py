@@ -2233,6 +2233,9 @@ class TestEvaluationEditView(WebTestStaffMode):
         trans.gettext = Mock()
         trans.gettext.side_effect = lambda key: f"TRANSLATED-{key}"
 
+        response = self.app.get(self.url, user=self.manager)
+        self.assertNotContains(response, "TRANSLATED-state: TRANSLATED-new &#8594; TRANSLATED-prepared")
+
         self.evaluation.ready_for_editors()
         self.evaluation.save()
 
