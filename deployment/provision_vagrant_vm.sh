@@ -36,20 +36,22 @@ service redis-server restart
 # install apache
 apt-get -q install -y apache2 apache2-dev libapache2-mod-wsgi-py3
 
-# With docker for mac, root will own the mount point (uid=0). chmod does not touch the host file system in these cases.
-OWNER=$(stat -c %U "$MOUNTPOINT/evap")
-if [ "$OWNER" == "root" ]; then chown -R 1042 "$MOUNTPOINT"; fi
-
 # make user, create home folder, set uid to the same set in the Vagrantfile (required for becoming the synced folder owner), set default shell to bash
-useradd -m -u $(stat -c "%u" "$MOUNTPOINT/evap") -s /bin/bash evap
+useradd -m -u 1042 -s /bin/bash evap
+cp /etc/skel/.bashrc /home/$USER/
+
+# remount the mounted evap folder from the home directory. Use bindfs to map the owner in all setups.
+OWNER=$(stat -c %u "$MOUNTPOINT/evap")
+apt-get -q install -y bindfs
+mkdir -p "$REPO_FOLDER"
+bindfs --map="$OWNER/1042:@$OWNER/@1042" "$MOUNTPOINT" "$REPO_FOLDER" || exit 1
+echo "[[ -z \$(ls -A '$REPO_FOLDER') ]] && sudo bindfs --map='$OWNER/1042:@$OWNER/@1042' '$MOUNTPOINT' '$REPO_FOLDER'  #  remount iff folder empty" >> /home/$USER/.bashrc
+
 # allow ssh login
 cp -r /home/vagrant/.ssh /home/$USER/.ssh
 chown -R $USER:$USER /home/$USER/.ssh
 # allow sudo without password
 echo "$USER ALL=(ALL) NOPASSWD:ALL" | tee /etc/sudoers.d/evap
-
-# link the mounted evap folder from the home directory
-ln -s "$MOUNTPOINT" "$REPO_FOLDER"
 
 sudo -H -u $USER $EVAP_PYTHON -m venv $ENV_FOLDER
 # venv will use ensurepip to install a new version of pip. We need to update that version.
@@ -72,7 +74,6 @@ a2dissite 000-default.conf
 sed -i s,\#.\ /etc/default/locale,.\ /etc/default/locale,g /etc/apache2/envvars
 service apache2 reload
 
-cp /etc/skel/.bashrc /home/$USER/
 # auto cd into /$USER on login and activate venv
 echo "cd $REPO_FOLDER" >> /home/$USER/.bashrc
 echo "source $ENV_FOLDER/bin/activate" >> /home/$USER/.bashrc
@@ -100,7 +101,7 @@ apt-get -q install -y libasound2 libgconf-2-4 libgbm1 libgtk-3-0 libnss3 libx11-
 wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh --no-verbose --output-document - | sudo -H -u $USER bash
 
 # setup evap
-cd "$MOUNTPOINT"
+cd "$REPO_FOLDER" || exit 1
 sudo -H -u $USER git submodule update --init
 
 sudo -H -u $USER mkdir node_modules

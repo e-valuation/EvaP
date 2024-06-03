@@ -455,7 +455,7 @@ class CourseNameChecker(Checker):
             self.importer_log.add_error(
                 format_html(
                     _(
-                        "{location}: Course {course_name} already exists in this semester, but the courses can not be merged for the following reasons:{reasons}"
+                        "{location}: Course {course_name} already exists in this semester, but the courses cannot be merged for the following reasons:{reasons}"
                     ),
                     location=location_string,
                     course_name=f'"{name_en}"',
