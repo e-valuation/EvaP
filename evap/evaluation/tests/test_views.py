@@ -271,10 +271,9 @@ class TestResetEvaluation(WebTestStaffMode):
         confirmation_page = form.submit(name="target_state", value=str(Evaluation.State.NEW))
 
         if success_expected:
-            confirmation_form = confirmation_page.forms["evaluation-operation-form"]
-            confirmation_form.submit()
+            confirmation_page.forms["evaluation-operation-form"].submit()
             self.assertEqual(Evaluation.objects.get(pk=evaluation.pk).state, Evaluation.State.NEW)
-        else:  # no confirmation form should exist
+        else:
             self.assertNotIn("evaluation-operation-form", confirmation_page.forms)
 
     def test_reset_to_new(self) -> None:
