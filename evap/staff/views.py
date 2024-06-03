@@ -327,8 +327,8 @@ class ReadyForEditorsOperation(EvaluationOperation):
     @staticmethod
     def warning_for_inapplicables(amount):
         return ngettext(
-            "{} evaluation can not be reverted, because it already started. It was removed from the selection.",
-            "{} evaluations can not be reverted, because they already started. They were removed from the selection.",
+            "{} evaluation can not be reverted, because it was already approved. It was removed from the selection.",
+            "{} evaluations can not be reverted, because they were already approved. They were removed from the selection.",
             amount,
         ).format(amount)
 
