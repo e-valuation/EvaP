@@ -145,9 +145,9 @@ class IsGradedImportMapper:
     @classmethod
     def is_graded_from_import_string(cls, is_graded: str) -> bool:
         is_graded = is_graded.strip()
-        if is_graded == settings.IMPORTER_GRADED_YES:
+        if is_graded in settings.IMPORTER_GRADED_YES:
             return True
-        if is_graded == settings.IMPORTER_GRADED_NO:
+        if is_graded in settings.IMPORTER_GRADED_NO:
             return False
 
         raise cls.InvalidIsGradedError(invalid_is_graded=is_graded)

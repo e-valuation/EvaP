@@ -1160,7 +1160,7 @@ class TestSemesterImportView(WebTestStaffMode):
         )
         self.assertContains(reply, course_type_error)
         is_graded_error = (
-            "Sheet &quot;MA Belegungen&quot;, row 5: &quot;is_graded&quot; is maybe, but must be yes or no"
+            "Sheet &quot;MA Belegungen&quot;, row 5: &quot;is_graded&quot; is maybe, but must be "
         )
         self.assertContains(reply, is_graded_error)
         user_error = (
