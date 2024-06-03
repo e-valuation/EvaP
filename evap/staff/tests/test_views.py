@@ -2390,21 +2390,19 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         )
 
     def test_copy_invalid_participants(self):
-        page = self.app.get(self.url, user=self.manager)
 
         old_evaluation = baker.make(
             Evaluation,
             course__semester=self.evaluation2.course.semester,
             participants=self.evaluation2.participants.all(),
         )
+        page = self.app.get(self.url, user=self.manager)
         old_pk = old_evaluation.pk
         old_evaluation.delete()
 
         form = page.forms["participant-copy-form"]
-        form["pc-evaluation"] = str(self.evaluation2.pk)
-        params = dict(form.submit_fields() + [("operation", "copy-replace-participants")])
-        params["pc-evaluation"] = str(old_pk)
-        form.response.goto(form.action, method=form.method, params=params, status=400)
+        form["pc-evaluation"] = old_pk
+        form.submit(name="operation", value="copy-participants", status=400)
 
     def test_replace_copy_participants(self):
         page = self.app.get(self.url, user=self.manager)
