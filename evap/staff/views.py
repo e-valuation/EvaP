@@ -1105,10 +1105,9 @@ def create_exam_evaluation(request):
         raise SuspiciousOperation("An exam evaluation already exists for this course")
     try:
         exam_datetime = request.POST.get("exam_date")
+        exam_datetime = datetime.combine(datetime.strptime(exam_datetime, "%Y-%m-%d"), datetime.min.time())
     except ValueError:
         return HttpResponseBadRequest("Exam date missing or invalid.")
-
-    exam_datetime = datetime.combine(datetime.strptime(exam_datetime, "%Y-%m-%d"), datetime.min.time())
 
     evaluation_end_date = exam_datetime - timedelta(days=1)
     if evaluation.vote_start_datetime > evaluation_end_date:
