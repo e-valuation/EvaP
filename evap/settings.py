@@ -74,9 +74,9 @@ INSTITUTION_EMAIL_DOMAINS: list[str] = ["institution.example.com", "student.inst
 # e.g.: [("institution.example.com", "institution.com")]
 INSTITUTION_EMAIL_REPLACEMENTS: list[tuple[str, str]] = []
 
-# the importer accepts only these two strings in the 'graded' column
-IMPORTER_GRADED_YES = "yes"
-IMPORTER_GRADED_NO = "no"
+# the importer accepts only these strings in the 'graded' column
+IMPORTER_GRADED_YES = ["yes", "ja", "graded", "benotet"]
+IMPORTER_GRADED_NO = ["no", "nein", "ungraded", "unbenotet"]
 
 # the importer will warn if any participant has more enrollments than this number
 IMPORTER_MAX_ENROLLMENTS = 7
