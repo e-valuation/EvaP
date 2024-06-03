@@ -30,9 +30,8 @@ from django.dispatch import receiver
 from django.forms import BaseForm, formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
-from django.shortcuts import _get_queryset, get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
-from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.html import format_html
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
@@ -1098,17 +1097,16 @@ def course_copy(request, course_id):
 @manager_required
 @transaction.atomic
 def create_exam_evaluation(request):
-    query_set = _get_queryset(Evaluation)
-    try:
-        evaluation = query_set.get(pk=request.POST["evaluation_id"])
-    except MultiValueDictKeyError:
-        return HttpResponseBadRequest()
+    evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
     if evaluation.is_single_result:
         raise SuspiciousOperation("Creating an exam evaluation for a single result evaluation is not allowed")
 
     if evaluation.has_exam:
         raise SuspiciousOperation("An exam evaluation already exists for this course")
-    exam_datetime = request.POST.get("exam_date")
+    try:
+        exam_datetime = request.POST.get("exam_date")
+    except ValueError:
+        return HttpResponseBadRequest("Exam date missing or invalid.")
 
     exam_datetime = datetime.combine(datetime.strptime(exam_datetime, "%Y-%m-%d"), datetime.min.time())
 
