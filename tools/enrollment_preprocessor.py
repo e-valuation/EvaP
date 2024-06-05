@@ -106,7 +106,7 @@ def get_user_decisions(database_users: dict[str, User], workbook: Workbook) -> d
             choice = existing if decision == "e" else imported
 
             database_users[choice.email] = database_users[choice.email]._replace(**{field: getattr(choice, field)})
-            _stdout.write("\n")
+        _stdout.write("\n")
     return database_users
 
 
