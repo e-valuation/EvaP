@@ -171,7 +171,13 @@ def reward_points_export(request):
             _("Number of points"),
         ]
     )
-    profiles_with_points = UserProfile.objects.annotate(points=Sum("reward_point_grantings__value", default=0) - Sum("reward_point_redemptions__value", default=0)).filter(points__gt=0).order_by("-points")
+    profiles_with_points = (
+        UserProfile.objects.annotate(
+            points=Sum("reward_point_grantings__value", default=0) - Sum("reward_point_redemptions__value", default=0)
+        )
+        .filter(points__gt=0)
+        .order_by("-points")
+    )
 
     for profile in profiles_with_points.all():
         writer.writerow(
@@ -182,6 +188,7 @@ def reward_points_export(request):
         )
 
     return response
+
 
 @require_POST
 @manager_required
