@@ -30,6 +30,9 @@ jobs:
       - name: Setup python
         uses: ./.github/setup_python
 
+      - name: Setup Firefox
+        uses: browser-actions/setup-firefox@v1.5.1
+
       - name: Run tests
         run: coverage run manage.py test
       - name: Upload coverage
@@ -59,6 +62,9 @@ jobs:
 
       - name: Setup python
         uses: ./.github/setup_python
+
+      - name: Setup Firefox
+        uses: browser-actions/setup-firefox@v1.5.1
 
       - name: Run tests
         run: python manage.py test --shuffle
