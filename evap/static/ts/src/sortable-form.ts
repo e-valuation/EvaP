@@ -1,3 +1,5 @@
+import { selectOrError } from "./utils";
+
 declare const Sortable: typeof import("sortablejs");
 
 interface FormsetOptions {
@@ -9,8 +11,10 @@ interface FormsetOptions {
     formTemplate: string | null;
 }
 
-interface JQuery {
-    formset: (arg: FormsetOptions) => void;
+declare global {
+    interface JQuery {
+        formset: (arg: FormsetOptions) => void;
+    }
 }
 
 function makeFormSortable(
@@ -30,7 +34,7 @@ function makeFormSortable(
             } else {
                 // if the row is empty (has no text in the input fields) set the order to -1 (default),
                 // so that the one extra row doesn't change its initial value
-                (tableRow.querySelectorAll("input[id$=-order]") as NodeListOf<HTMLInputElement>).forEach(input => {
+                tableRow.querySelectorAll<HTMLInputElement>("input[id$=-order]").forEach(input => {
                     input.value = "-1";
                 });
             }
@@ -45,28 +49,31 @@ function makeFormSortable(
         addText: window.gettext("add another"),
         added: function (rowJQuery: JQuery<HTMLTableRowElement>) {
             const row = rowJQuery.get()[0];
-            (row.querySelectorAll("input[id$=-order]") as NodeListOf<HTMLInputElement>).forEach(input => {
+            row.querySelectorAll<HTMLInputElement>("input[id$=-order]").forEach(input => {
                 input.value = row.parentElement?.childElementCount.toString() ?? "";
             });
 
             // We have to empty the formset, otherwise sometimes old contents from
             // invalid forms are copied (#644).
             // Checkboxes with 'data-keep' need to stay checked.
-            row.querySelectorAll<HTMLInputElement>("input[type=checkbox]:not([data-keep]),input[type=radio]").forEach(el => {
-                el.checked = false;
-            });
-
-            (row.querySelectorAll("input[type=text],input[type=textarea]") as NodeListOf<HTMLInputElement>).forEach(
-                input => {
-                    input.value = "";
+            row.querySelectorAll<HTMLInputElement>("input[type=checkbox]:not([data-keep]),input[type=radio]").forEach(
+                el => {
+                    el.checked = false;
                 },
             );
+
+            row.querySelectorAll<HTMLInputElement>("input[type=text],input[type=textarea]").forEach(input => {
+                input.value = "";
+            });
 
             row.querySelectorAll("select").forEach(el => {
                 el.querySelectorAll("option[selected]").forEach(option => {
                     option.removeAttribute("selected");
                 });
-                el.querySelector("option")?.setAttribute("selected", "selected");
+                const option = el.querySelector("option");
+                if (option) {
+                    option.selected = true;
+                }
             });
 
             //Check the first item in every button group
@@ -87,19 +94,16 @@ function makeFormSortable(
         formTemplate: usesTemplate ? ".form-template" : null,
     });
 
-    const tableBody = document.querySelector(`#${tableId} tbody`) as HTMLElement | null;
-    if (tableBody) {
-        new Sortable(tableBody, {
-            draggable: ".sortable",
-            handle: ".fa-up-down",
-            scrollSensitivity: 70,
-        });
+    const tableBody = selectOrError<HTMLElement>(`#${tableId} tbody`);
+    new Sortable(tableBody, {
+        draggable: ".sortable",
+        handle: ".fa-up-down",
+        scrollSensitivity: 70,
+    });
 
-        document.querySelectorAll("form").forEach(form => {
-            form.addEventListener("submit", () => {
-                applyOrdering();
-                return true;
-            });
+    document.querySelectorAll("form").forEach(form => {
+        form.addEventListener("submit", () => {
+            applyOrdering();
         });
-    }
+    });
 }
