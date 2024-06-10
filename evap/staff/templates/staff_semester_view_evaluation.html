@@ -129,7 +129,7 @@
                     {% include 'progress_bar.html' with done=evaluation.num_voters total=evaluation.num_participants icon='user' warning=True %}
                 </span>
             {% endif %}
-            {% if evaluation.num_textanswers > 0 and state != evaluation.State.PUBLISHED %}
+            {% if evaluation.num_textanswers > 0 and state < evaluation.State.PUBLISHED %}
                 <span data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Number of text answers' %}">
                     {% include 'progress_bar.html' with done=evaluation.num_reviewed_textanswers total=evaluation.num_textanswers icon='comment' %}
                 </span>
@@ -180,8 +180,8 @@
 {% endif %}
 <td class="icon-buttons">
     {% if not info_only %}
-        {% if evaluation.num_textanswers > 0 and state != evaluation.State.PUBLISHED %}
-            <a href="{% url 'staff:evaluation_textanswers' evaluation.id %}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="{% translate 'Review text answers' %}">
+        {% if evaluation.num_textanswers > 0 and state < evaluation.State.PUBLISHED %}
+            <a href="{% url 'staff:evaluation_textanswers' evaluation.id %}" class="btn btn-sm {% if state == evaluation.State.REVIEWED %}btn-light{% else %}btn-primary{% endif %}" data-bs-toggle="tooltip" title="{% translate 'Review text answers' %}">
                 <span class="fas fa-magnifying-glass"></span>
             </a>
         {% endif %}
