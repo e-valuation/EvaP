@@ -16,6 +16,7 @@ from openpyxl.cell import Cell
 
 _stdout = sys.stdout
 
+
 class User(NamedTuple):
     title: str
     last_name: str
