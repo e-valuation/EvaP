@@ -93,12 +93,11 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script src="{% static 'js/sortable-form.js' %}"></script>
-
     {{ text_answer_warnings|text_answer_warning_trigger_strings|json_script:'text-answer-warnings' }}
 
     <script type="module">
         import {initTextAnswerWarnings} from "{% static 'js/text-answer-warnings.js' %}";
+        import { makeFormSortable } from "{% static 'js/sortable-form.js' %}";
 
         initTextAnswerWarnings([document.querySelector("#preview-textarea")], JSON.parse(document.getElementById("text-answer-warnings").textContent));
 
