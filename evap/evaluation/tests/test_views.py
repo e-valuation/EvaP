@@ -255,7 +255,7 @@ class TestResetEvaluation(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls) -> None:
         cls.manager = make_manager()
-        cls.semester = baker.make(Semester, results_are_archived=True)
+        cls.semester = baker.make(Semester)
         cls.url = reverse("staff:semester_view", args=[cls.semester.pk])
 
     def reset_from_x_to_new(self, x, success_expected: bool) -> None:
