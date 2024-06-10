@@ -283,6 +283,6 @@ class TestResetEvaluation(WebTestStaffMode):
         ]
 
         for s in valid_start_states:
-            self.reset_from_x_to_new(s, True)
+            self.reset_from_x_to_new(s, success_expected=True)
         for s in invalid_start_states:
-            self.reset_from_x_to_new(s, False)
+            self.reset_from_x_to_new(s, success_expected=False)
