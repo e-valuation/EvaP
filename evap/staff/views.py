@@ -1484,7 +1484,6 @@ def evaluation_person_management(request, evaluation_id):
 
     participant_test_passed = import_file_exists(request.user.id, ImportType.PARTICIPANT)
     contributor_test_passed = import_file_exists(request.user.id, ImportType.CONTRIBUTOR)
-    # casting warnings to a normal dict is necessary for the template to iterate over it.
     return render(
         request,
         "staff_evaluation_person_management.html",
