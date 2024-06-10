@@ -256,18 +256,14 @@ class TestResetEvaluation(WebTestStaffMode):
     def setUpTestData(cls) -> None:
         cls.manager = make_manager()
         cls.semester = baker.make(Semester, results_are_archived=True)
+        cls.url = reverse("staff:semester_view", args=[cls.semester.pk])
 
     def reset_from_x_to_new(self, x, success_expected: bool) -> None:
         evaluation = baker.make(Evaluation, state=x, course__semester=self.semester)
 
-        semester_overview_page = self.app.get(
-            reverse("staff:semester_view", args=[self.semester.pk]), user=self.manager, status=200
-        )
-
+        semester_overview_page = self.app.get(self.url, user=self.manager, status=200)
         form = semester_overview_page.forms["evaluation_operation_form"]
-
         form["evaluation"] = [evaluation.pk]
-
         confirmation_page = form.submit(name="target_state", value=str(Evaluation.State.NEW))
 
         if success_expected:
