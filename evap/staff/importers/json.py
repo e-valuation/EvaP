@@ -1,3 +1,4 @@
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import TypedDict
 
@@ -5,6 +6,7 @@ from django.db import transaction
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
 from evap.evaluation.tools import clean_email
+from evap.staff.tools import update_or_create_with_changes, update_with_changes
 
 
 class ImportStudent(TypedDict):
@@ -56,6 +58,24 @@ class ImportDict(TypedDict):
     events: list[ImportEvent]
 
 
+@dataclass
+class NameChange:
+    old_last_name: str
+    old_first_name_given: str
+    new_last_name: str
+    new_first_name_given: str
+
+
+@dataclass
+class ImportStatistics:
+    name_changes: list[NameChange] = field(default_factory=list)
+    new_courses: list[Course] = field(default_factory=list)
+    new_evaluations: list[Evaluation] = field(default_factory=list)
+    updated_courses: list[Course] = field(default_factory=list)
+    updated_evaluations: list[Evaluation] = field(default_factory=list)
+    attempted_changes: list[Evaluation] = field(default_factory=list)
+
+
 class JSONImporter:
     DATETIME_FORMAT = "%d.%m.%Y %H:%M"
 
@@ -65,6 +85,7 @@ class JSONImporter:
         self.course_type_cache: dict[str, CourseType] = {}
         self.degree_cache: dict[str, Degree] = {}
         self.course_map: dict[str, Course] = {}
+        self.statistics = ImportStatistics()
 
     def _get_course_type(self, name: str) -> CourseType:
         if name in self.course_type_cache:
@@ -88,10 +109,28 @@ class JSONImporter:
     def _import_students(self, data: list[ImportStudent]):
         for entry in data:
             email = clean_email(entry["email"])
-            user_profile, __ = UserProfile.objects.update_or_create(
+            user_profile, __, changes = update_or_create_with_changes(
+                UserProfile,
                 email=email,
                 defaults={"last_name": entry["name"], "first_name_given": entry["christianname"]},
             )
+            user_profile: UserProfile
+            if changes:
+                change = NameChange(
+                    old_last_name=changes["last_name"][0] if changes.get("last_name") else user_profile.last_name,
+                    old_first_name_given=(
+                        changes["first_name_given"][0]
+                        if changes.get("first_name_given")
+                        else user_profile.first_name_given
+                    ),
+                    new_last_name=changes["last_name"][1] if changes.get("last_name") else user_profile.last_name,
+                    new_first_name_given=(
+                        changes["first_name_given"][1]
+                        if changes.get("first_name_given")
+                        else user_profile.first_name_given
+                    ),
+                )
+                self.statistics.name_changes.append(change)
 
             self.user_profile_map[entry["gguid"]] = user_profile
 
@@ -113,18 +152,26 @@ class JSONImporter:
         course_type = self._get_course_type(data["type"])
         degrees = [self._get_degree(c["cprid"]) for c in data["courses"]]
         responsibles = self._get_user_profiles(data["lecturers"])
-        course, __ = Course.objects.update_or_create(
+        course, created, changes = update_or_create_with_changes(
+            Course,
             semester=self.semester,
             cms_id=data["gguid"],
             defaults={"name_de": data["title"], "name_en": data["title_en"], "type": course_type},
         )
+        course: Course
         course.degrees.set(degrees)
         course.responsibles.set(responsibles)
+
+        if changes:
+            self.statistics.updated_courses.append(course)
+        if created:
+            self.statistics.new_courses.append(course)
 
         self.course_map[data["gguid"]] = course
 
         return course
 
+    # pylint: disable=too-many-locals
     def _import_evaluation(self, course: Course, data: ImportEvent) -> Evaluation:
         course_end = datetime.strptime(data["appointments"][0]["end"], self.DATETIME_FORMAT)
 
@@ -151,39 +198,49 @@ class JSONImporter:
 
         participants = self._get_user_profiles(data["students"])
 
-        evaluation, __ = Evaluation.objects.get_or_create(
+        defaults = {
+            "name_de": name_de,
+            "name_en": name_en,
+            "vote_start_datetime": evaluation_start_datetime,
+            "vote_end_date": evaluation_end_date,
+            "wait_for_grade_upload_before_publishing": wait_for_grade_upload_before_publishing,
+        }
+        evaluation, created = Evaluation.objects.get_or_create(
             course=course,
             cms_id=data["gguid"],
-            defaults={
-                "name_de": name_de,
-                "name_en": name_en,
-                "vote_start_datetime": evaluation_start_datetime,
-                "vote_end_date": evaluation_end_date,
-            },
+            defaults=defaults,
         )
         if evaluation.state < Evaluation.State.APPROVED:
-            evaluation.name_de = name_de
-            evaluation.name_en = name_en
-            evaluation.vote_start_datetime = evaluation_start_datetime
-            evaluation.vote_end_date = evaluation_end_date
-            evaluation.wait_for_grade_upload_before_publishing = wait_for_grade_upload_before_publishing
-            evaluation.save()
+            direct_changes = update_with_changes(evaluation, defaults)
 
+            participant_changes = set(evaluation.participants.all()) != set(participants)
             evaluation.participants.set(participants)
 
+            lecturers_changes = False
             for lecturer in data["lecturers"]:
-                self._import_contribution(evaluation, lecturer)
+                __, lecturer_created, lecturer_changes = self._import_contribution(evaluation, lecturer)
+                if lecturer_changes or lecturer_created:
+                    lecturers_changes = True
+
+            if direct_changes or participant_changes or lecturers_changes:
+                self.statistics.updated_evaluations.append(evaluation)
+        else:
+            self.statistics.attempted_changes.append(evaluation)
+
+        if created:
+            self.statistics.new_evaluations.append(evaluation)
 
         return evaluation
 
     def _import_contribution(self, evaluation: Evaluation, data: ImportRelated):
         user_profile = self.user_profile_map[data["gguid"]]
 
-        contribution, __ = Contribution.objects.update_or_create(
+        contribution, created, changes = update_or_create_with_changes(
+            Contribution,
             evaluation=evaluation,
             contributor=user_profile,
         )
-        return contribution
+        return contribution, created, changes
 
     def _import_events(self, data: list[ImportEvent]):
         # Divide in two lists so corresponding courses are imported before their exams
