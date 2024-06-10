@@ -1095,7 +1095,6 @@ def course_copy(request, course_id):
 
 @require_POST
 @manager_required
-@transaction.atomic
 def create_exam_evaluation(request):
     evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
     if evaluation.is_single_result:
@@ -1106,7 +1105,7 @@ def create_exam_evaluation(request):
     try:
         exam_datetime = request.POST.get("exam_date")
         exam_datetime = datetime.combine(datetime.strptime(exam_datetime, "%Y-%m-%d"), datetime.min.time())
-    except ValueError:
+    except TypeError:
         return HttpResponseBadRequest("Exam date missing or invalid.")
 
     evaluation_end_date = exam_datetime - timedelta(days=1)
@@ -1116,10 +1115,8 @@ def create_exam_evaluation(request):
         )
         return HttpResponse()
 
-    evaluation.make_exam_evaluation(
+    evaluation.create_exam_evaluation(
         exam_date=exam_datetime,
-        participants=evaluation.participants.all(),
-        eval_contributions=evaluation.contributions.exclude(contributor=None),
         evaluation_end_date=evaluation_end_date,
     )
     messages.success(request, _("Successfully created exam evaluation."))

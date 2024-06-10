@@ -2047,6 +2047,14 @@ class TestEvaluationExamCreation(WebTestStaffMode):
             page, "The exam date is before the start date of the main evaluation. No exam evaluation was created."
         )
 
+    def test_exam_evaluation_with_missing_date(self):
+        self.app.post(
+                self.url,
+                user=self.manager,
+                status=400,
+                params={"evaluation_id": self.evaluation.pk},
+            )
+
 
 class TestCourseCopyView(WebTestStaffMode):
     @classmethod
