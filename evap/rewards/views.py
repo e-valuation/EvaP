@@ -12,6 +12,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, UpdateView
+from typing_extensions import assert_never
 
 from evap.evaluation.auth import manager_required, reward_user_required
 from evap.evaluation.models import Semester
@@ -52,17 +53,21 @@ def redeem_reward_points(request):
         OutdatedRedemptionDataError,
     ) as error:
         status_code = 400
-        if isinstance(error, NoPointsSelectedError):
-            error_string = _("You cannot redeem 0 points.")
-        elif isinstance(error, NotEnoughPointsError):
-            error_string = _("You don't have enough reward points.")
-        elif isinstance(error, RedemptionEventExpiredError):
-            error_string = _("Sorry, the deadline for this event expired already.")
-        elif isinstance(error, OutdatedRedemptionDataError):
-            status_code = 409
-            error_string = _(
-                "It appears that your browser sent multiple redemption requests. You can see all successful redemptions below."
-            )
+        match error:
+            case NoPointsSelectedError():
+                error_string = _("You cannot redeem 0 points.")
+            case NotEnoughPointsError():
+                error_string = _("You don't have enough reward points.")
+            case RedemptionEventExpiredError():
+                error_string = _("Sorry, the deadline for this event expired already.")
+            case OutdatedRedemptionDataError():
+                status_code = 409
+                error_string = _(
+                    "It appears that your browser sent multiple redemption requests. You can see all successful redemptions below."
+                )
+            case _:
+                assert_never(type(error))
+
         messages.error(request, error_string)
         return status_code
     return 200
