@@ -1386,6 +1386,36 @@ def evaluation_email(request, evaluation_id):
     )
 
 
+def import_or_copy_participants(request, operation, import_type, evaluation, copy_form) -> bool:
+    if "test" in operation:
+        return False
+
+    if "replace" in operation:
+        deleted_person_count, deletion_message = helper_delete_users_from_evaluation(evaluation, operation)
+
+    if "import" in operation:
+        file_content = get_import_file_content_or_raise(request.user.id, import_type)
+        importer_log = import_persons_from_file(import_type, evaluation, test_run=False, file_content=file_content)
+        delete_import_file(request.user.id, import_type)
+    elif "copy" in operation:
+        copy_form.evaluation_selection_required = True
+        if not copy_form.is_valid():
+            return False
+        import_evaluation = copy_form.cleaned_data["evaluation"]
+        importer_log = import_persons_from_evaluation(
+            import_type, evaluation, test_run=False, source_evaluation=import_evaluation
+        )
+
+    if "replace" in operation:
+        importer_log.add_success(
+            format_html(deletion_message, deleted_person_count, evaluation.full_name),
+            category=ImporterLogEntry.Category.RESULT,
+        )
+
+    importer_log.forward_messages_to_django(request)
+    return True
+
+
 def helper_delete_users_from_evaluation(evaluation, operation):
     if "participants" in operation:
         deleted_person_count = evaluation.participants.count()
@@ -1437,55 +1467,20 @@ def evaluation_person_management(request, evaluation_id):
         excel_form = participant_excel_form if "participants" in operation else contributor_excel_form
         copy_form = participant_copy_form if "participants" in operation else contributor_copy_form
 
-        if "test" not in operation:
-            if "replace" in operation:
-                deleted_person_count, deletion_message = helper_delete_users_from_evaluation(evaluation, operation)
-
-            if "import" in operation:
-                file_content = get_import_file_content_or_raise(request.user.id, import_type)
+        if "test" in operation:
+            delete_import_file(request.user.id, import_type)  # remove old files if still exist
+            excel_form.fields["excel_file"].required = True
+            if excel_form.is_valid():
+                excel_file = excel_form.cleaned_data["excel_file"]
+                file_content = excel_file.read()
                 importer_log = import_persons_from_file(
-                    import_type, evaluation, test_run=False, file_content=file_content
+                    import_type, evaluation, test_run=True, file_content=file_content
                 )
-                delete_import_file(request.user.id, import_type)
-            elif "copy" in operation:
-                copy_form.evaluation_selection_required = True
-                if not copy_form.is_valid():
-                    return render(
-                        request,
-                        "staff_evaluation_person_management.html",
-                        {
-                            "semester": evaluation.course.semester,
-                            "evaluation": evaluation,
-                            "participant_excel_form": participant_excel_form,
-                            "participant_copy_form": participant_copy_form,
-                            "contributor_excel_form": contributor_excel_form,
-                            "contributor_copy_form": contributor_copy_form,
-                            "importer_log": importer_log,
-                        },
-                    )
-                import_evaluation = copy_form.cleaned_data["evaluation"]
-                importer_log = import_persons_from_evaluation(
-                    import_type, evaluation, test_run=False, source_evaluation=import_evaluation
-                )
+                if not importer_log.has_errors():
+                    save_import_file(excel_file, request.user.id, import_type)
 
-            if "replace" in operation:
-                importer_log.add_success(
-                    format_html(deletion_message, deleted_person_count, evaluation.full_name),
-                    category=ImporterLogEntry.Category.RESULT,
-                )
-
-            importer_log.forward_messages_to_django(request)
+        elif import_or_copy_participants(request, operation, import_type, evaluation, copy_form):
             return redirect("staff:semester_view", evaluation.course.semester.pk)
-
-        assert "test" in operation
-        delete_import_file(request.user.id, import_type)  # remove old files if still exist
-        excel_form.fields["excel_file"].required = True
-        if excel_form.is_valid():
-            excel_file = excel_form.cleaned_data["excel_file"]
-            file_content = excel_file.read()
-            importer_log = import_persons_from_file(import_type, evaluation, test_run=True, file_content=file_content)
-            if not importer_log.has_errors():
-                save_import_file(excel_file, request.user.id, import_type)
 
     participant_test_passed = import_file_exists(request.user.id, ImportType.PARTICIPANT)
     contributor_test_passed = import_file_exists(request.user.id, ImportType.CONTRIBUTOR)
