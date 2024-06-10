@@ -165,12 +165,7 @@ def reward_points_export(request):
     response = AttachmentResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
-    writer.writerow(
-        [
-            _("Email address"),
-            _("Number of points"),
-        ]
-    )
+    writer.writerow([_("Email address"), _("Number of points")])
     profiles_with_points = (
         UserProfile.objects.annotate(
             points=Sum("reward_point_grantings__value", default=0) - Sum("reward_point_redemptions__value", default=0)

@@ -193,7 +193,7 @@ class TestPointsExportView(WebTestStaffModeWith200Check):
     @classmethod
     def setUpTestData(cls):
         cls.test_users = [make_manager()]
-        cls.url = "/rewards/reward_points_export"
+        cls.url = reverse("rewards:reward_points_export")
 
         cls.student = baker.make(UserProfile, email="student@institution.example.com")
         cls.event = baker.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
@@ -202,15 +202,15 @@ class TestPointsExportView(WebTestStaffModeWith200Check):
         baker.make(RewardPointGranting, user_profile=self.student, value=5)
         baker.make(RewardPointRedemption, user_profile=self.student, event=self.event, value=3)
 
-        response = self.app.get(self.url, user=self.test_users[0], status=200).content
-        self.assertTrue("student@institution.example.com;2" in str(response))
+        response = self.app.get(self.url, user=self.test_users[0], status=200)
+        self.assertIn("student@institution.example.com;2", response)
 
     def test_zero_points(self):
         baker.make(RewardPointGranting, user_profile=self.student, value=5)
         baker.make(RewardPointRedemption, user_profile=self.student, event=self.event, value=5)
 
-        response = self.app.get(self.url, user=self.test_users[0], status=200).content
-        self.assertFalse("student@institution.example.com" in str(response))
+        response = self.app.get(self.url, user=self.test_users[0], status=200)
+        self.assertNotIn("student@institution.example.com", response)
 
 
 @override_settings(
