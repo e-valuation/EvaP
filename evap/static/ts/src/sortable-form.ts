@@ -1,12 +1,12 @@
 declare const Sortable: typeof import("sortablejs");
 
-class FormsetOptions {
-    prefix: string = "form";
-    deleteCssClass: string = "delete-row";
-    deleteText: string = "remove";
-    addText: string = "add another";
-    added: null | ((arg: JQuery<HTMLTableRowElement>) => void) = null;
-    formTemplate: string | null = null;
+interface FormsetOptions {
+    prefix: string;
+    deleteCssClass: string;
+    deleteText: string;
+    addText: string;
+    added: (arg: JQuery<HTMLTableRowElement>) => void;
+    formTemplate: string | null;
 }
 
 interface JQuery {
@@ -24,7 +24,7 @@ function makeFormSortable(
     function applyOrdering() {
         document.querySelectorAll("tr").forEach((tableRow, i) => {
             if (rowChanged(tableRow)) {
-                (tableRow.querySelectorAll("input[id$=-order]") as NodeListOf<HTMLInputElement>).forEach(input => {
+                tableRow.querySelectorAll<HTMLInputElement>("input[id$=-order]").forEach(input => {
                     input.value = i.toString();
                 });
             } else {
@@ -52,8 +52,8 @@ function makeFormSortable(
             // We have to empty the formset, otherwise sometimes old contents from
             // invalid forms are copied (#644).
             // Checkboxes with 'data-keep' need to stay checked.
-            row.querySelectorAll("input[type=checkbox]:not([data-keep]),input[type=radio]").forEach(el => {
-                el.removeAttribute("checked");
+            row.querySelectorAll<HTMLInputElement>("input[type=checkbox]:not([data-keep]),input[type=radio]").forEach(el => {
+                el.checked = false;
             });
 
             (row.querySelectorAll("input[type=text],input[type=textarea]") as NodeListOf<HTMLInputElement>).forEach(
