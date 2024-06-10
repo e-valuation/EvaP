@@ -72,9 +72,8 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script src="{% static 'js/sortable-form.js' %}"></script>
-
-    <script type="text/javascript">
+    <script type="module">
+        import { makeFormSortable } from "{% static 'js/sortable-form.js' %}";
         const rowChanged = function(row) {
             const id = row.querySelector("input[id$=-id]").value;
             return id;

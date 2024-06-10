@@ -1,8 +1,8 @@
 {% load static %}
 
 {% if editable %}
-    <script src="{% static 'js/sortable-form.js' %}"></script>
-    <script type="text/javascript">
+    <script type="module">
+        import { makeFormSortable } from "{% static 'js/sortable-form.js' %}";
         const rowChanged = function(row) {
             const name = row.querySelector("select[id$=-contributor]").querySelector(":selected").textContent;
             const nameChanged = name && name != "---------";
