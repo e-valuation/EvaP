@@ -5,7 +5,7 @@ from django.test import TestCase
 from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, Semester, UserProfile
-from evap.staff.importers.json import ImportDict, JSONImporter
+from evap.staff.importers.json import ImportDict, JSONImporter, NameChange
 
 EXAMPLE_DATA: ImportDict = {
     "students": [
@@ -75,10 +75,12 @@ class TestImportUserProfiles(TestCase):
             self.assertEqual(user_profile.last_name, self.students[i]["name"])
             self.assertEqual(user_profile.first_name_given, self.students[i]["christianname"])
 
-    def test_import_existing_students(self):
+        self.assertEqual(importer.statistics.name_changes, [])
 
-        user_profile = baker.make(UserProfile, email=self.students[0]["email"])
-        print(user_profile.email)
+    def test_import_existing_students(self):
+        user_profile = baker.make(
+            UserProfile, email=self.students[0]["email"], last_name="Doe", first_name_given="Jane"
+        )
 
         importer = JSONImporter(self.semester)
         importer._import_students(self.students)
@@ -90,6 +92,18 @@ class TestImportUserProfiles(TestCase):
         self.assertEqual(user_profile.email, self.students[0]["email"])
         self.assertEqual(user_profile.last_name, self.students[0]["name"])
         self.assertEqual(user_profile.first_name_given, self.students[0]["christianname"])
+
+        self.assertEqual(
+            importer.statistics.name_changes,
+            [
+                NameChange(
+                    old_last_name="Doe",
+                    old_first_name_given="Jane",
+                    new_last_name=self.students[0]["name"],
+                    new_first_name_given=self.students[0]["christianname"],
+                )
+            ],
+        )
 
     def test_import_lecturers(self):
         self.assertEqual(UserProfile.objects.all().count(), 0)
@@ -107,14 +121,12 @@ class TestImportUserProfiles(TestCase):
             self.assertEqual(user_profile.title, self.lecturers[i]["titlefront"])
 
     def test_import_existing_lecturers(self):
-
         user_profile = baker.make(UserProfile, email=self.lecturers[0]["email"])
-        print(user_profile.email)
 
         importer = JSONImporter(self.semester)
         importer._import_lecturers(self.lecturers)
 
-        assert UserProfile.objects.all().count() == 2
+        self.assertEqual(UserProfile.objects.all().count(), 2)
 
         user_profile.refresh_from_db()
 
@@ -198,6 +210,9 @@ class TestImportEvents(TestCase):
             [importer.user_profile_map[student["gguid"]].id for student in EXAMPLE_DATA["events"][1]["lecturers"]],
         )
 
+        self.assertEqual(len(importer.statistics.new_courses), 1)
+        self.assertEqual(len(importer.statistics.new_evaluations), 2)
+
     def test_import_courses_evaluation_approved(self):
         self._import()
 
@@ -206,11 +221,12 @@ class TestImportEvents(TestCase):
         evaluation.name_en = "Test"
         evaluation.save()
 
-        self._import()
+        importer = self._import()
 
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
 
         self.assertEqual(evaluation.name_en, "")
+        self.assertEqual(len(importer.statistics.attempted_changes), 0)
 
         evaluation.general_contribution.questionnaires.add(
             baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
@@ -219,11 +235,29 @@ class TestImportEvents(TestCase):
         evaluation.name_en = "Test"
         evaluation.save()
 
-        self._import()
+        importer = self._import()
 
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
 
         self.assertEqual(evaluation.name_en, "Test")
 
+        self.assertEqual(len(importer.statistics.attempted_changes), 1)
+
     def test_import_courses_update(self):
-        pass
+        importer = self._import()
+
+        self.assertEqual(Course.objects.all().count(), 1)
+        course = Course.objects.all()[0]
+        course.name_de = "Doe"
+        course.name_en = "Jane"
+        course.save()
+
+        importer = self._import()
+
+        course.refresh_from_db()
+
+        self.assertEqual(course.name_de, EXAMPLE_DATA["events"][0]["title"])
+        self.assertEqual(course.name_en, EXAMPLE_DATA["events"][0]["title_en"])
+
+        self.assertEqual(len(importer.statistics.updated_courses), 1)
+        self.assertEqual(len(importer.statistics.new_courses), 0)

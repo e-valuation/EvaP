@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.core.exceptions import SuspiciousOperation
 from django.db import transaction
-from django.db.models import Count, Max
+from django.db.models import Count, Max, Model
 from django.urls import reverse
 from django.utils.html import escape, format_html, format_html_join
 from django.utils.safestring import SafeString
@@ -412,3 +412,38 @@ def user_edit_link(user_id):
         reverse("staff:user_edit", kwargs={"user_id": user_id}),
         _("edit user"),
     )
+
+
+def update_or_create_with_changes(
+    model: type[Model],
+    defaults=None,
+    **kwargs,
+) -> tuple[Model, bool, dict[str, tuple[any, any]]]:
+    """Do update_or_create and track changed values."""
+
+    if not defaults:
+        defaults = {}
+
+    obj, created = model.objects.get_or_create(**kwargs, defaults=defaults)
+
+    if created:
+        return obj, True, {}
+
+    changes = update_with_changes(obj, defaults)
+
+    return obj, False, changes
+
+
+def update_with_changes(obj: Model, defaults: dict[str, any]) -> dict[str, tuple[any, any]]:
+    """Update a model instance and track changed values."""
+
+    changes = {}
+    for key, value in defaults.items():
+        if getattr(obj, key) != value:
+            changes[key] = (getattr(obj, key), value)
+            setattr(obj, key, value)
+
+    if changes:
+        obj.save()
+
+    return changes
