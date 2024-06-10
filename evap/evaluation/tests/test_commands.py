@@ -7,6 +7,7 @@ from itertools import chain, cycle
 from unittest.mock import MagicMock, call, patch
 
 from django.conf import settings
+from django.contrib.auth.hashers import make_password
 from django.core import mail, management
 from django.core.management import CommandError
 from django.db.models import Sum
@@ -41,6 +42,7 @@ class TestAnonymizeCommand(TestCase):
             title="Prof.",
             first_name_given="Secret",
             last_name="User",
+            password=make_password(None),
             login_key=1234567890,
             login_key_valid_until=date.today(),
         )
@@ -90,7 +92,7 @@ class TestAnonymizeCommand(TestCase):
             type=cycle(iter(CHOICES.keys())),
         )
 
-        cls.contributor = baker.make(UserProfile)
+        cls.contributor = baker.make(UserProfile, password=make_password(None))
 
         cls.contribution = baker.make(
             Contribution,
@@ -163,6 +165,11 @@ class TestAnonymizeCommand(TestCase):
 
         self.assertLessEqual(RatingAnswerCounter.objects.count(), len(choices))
         self.assertEqual(RatingAnswerCounter.objects.aggregate(Sum("count"))["count__sum"], answer_count_before)
+
+    def test_user_with_password(self):
+        baker.make(UserProfile, password=make_password("evap"))
+        with self.assertRaises(AssertionError):
+            management.call_command("anonymize", stdout=StringIO())
 
 
 class TestRefreshResultsCacheCommand(TestCase):

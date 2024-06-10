@@ -35,10 +35,6 @@
                         {% if field|is_choice_field %}
                             <div class="col-question col-lg-4 col-xl-5 d-flex justify-content-between{% if field.errors %} choice-error{% endif %}">
                                 <span class="me-1">
-
-                                    {% if field.field.widget.attrs.choices.is_inverted %}
-                                        <span class="fas fa-triangle-exclamation warning-label" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'The answer scale is inverted for this question.' %}"></span>
-                                    {% endif %}
                                     {{ field.label }}
                                 </span>
                                 {% if allows_textanswer %}

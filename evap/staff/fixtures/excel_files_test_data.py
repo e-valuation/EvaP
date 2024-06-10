@@ -96,8 +96,8 @@ invalid_enrollment_data_filedata = {
 test_enrollment_data_filedata = {
     'MA Belegungen': [
         ['Degree', 'Student last name', 'Student first name', 'Student email address', 'Course kind', 'Course is graded', 'Course name (de)', 'Course name (en)', 'Responsible title', 'Responsible last name', 'Responsible first name', 'Responsible email address'],
-        ['Master', 'Quid', 'Bastius', 'bastius.quid@external.example.com', 'Seminar', 'no', 'Bauen', 'Build', '', 'Sed', 'Diam', '345@external.example.com'],
-        ['Master', 'Quid', 'Bastius', 'bastius.quid@external.example.com', 'Seminar', 'no', 'Herbringen', 'Bring', 'Dr.', 'Nonumy', 'Eirmod', '456@external.example.com'],
+        ['Master', 'Quid', 'Bastius', 'bastius.quid@external.example.com', 'Seminar', 'ungraded', 'Bauen', 'Build', '', 'Sed', 'Diam', '345@external.example.com'],
+        ['Master', 'Quid', 'Bastius', 'bastius.quid@external.example.com', 'Seminar', 'nein', 'Herbringen', 'Bring', 'Dr.', 'Nonumy', 'Eirmod', '456@external.example.com'],
         ['Master', 'Quid', 'Bastius', 'bastius.quid@external.example.com', 'Seminar', 'no', 'Machen', 'Do', 'Dr.', 'Romano', 'Electram', '111@external.example.com'],
         ['Master', 'Quid', 'Bastius', 'bastius.quid@external.example.com', 'Seminar', 'no', 'Verhandeln', 'Deal', 'Prof. Dr.', 'Tempor', 'Invidunt', '789@external.example.com'],
         ['Master', 'Synephebos', 'Diam', 'diam.synephebos@institution.example.com', 'Seminar', 'no', 'Kaufen', 'Buy', 'Dr.', 'Romano', 'Electram', '111@external.example.com'],
@@ -120,7 +120,7 @@ test_enrollment_data_filedata = {
     ],
     'BA Belegungen': [
         ['Degree', 'Student last name', 'Student first name', 'Student email address', 'Course kind', 'Course is graded', 'Course name (de)', 'Course name (en)', 'Responsible title', 'Responsible last name', 'Responsible first name', 'Responsible email address'],
-        ['Bachelor', 'Manilium', 'Lucilia', 'lucilia.manilium@institution.example.com', 'Vorlesung', 'yes', 'Schütteln', 'Shake', 'Prof. Dr.', 'Prorsus', 'Christoph', '123@institution.example.com'],
+        ['Bachelor', 'Manilium', 'Lucilia', 'lucilia.manilium@institution.example.com', 'Vorlesung', 'benotet', 'Schütteln', 'Shake', 'Prof. Dr.', 'Prorsus', 'Christoph', '123@institution.example.com'],
         ['Bachelor', 'Manilium', 'Lucilia', 'lucilia.manilium@institution.example.com', 'Vorlesung', 'no', 'Singen', 'Sing', 'Dr.', 'Praeterea', 'Eadamque', '345@institution.example.com'],
         ['Bachelor', 'Manilium', 'Lucilia', 'lucilia.manilium@institution.example.com', 'Vorlesung', 'no', 'Sinken', 'Sink', 'Dr.', 'Itaque', 'Ferdi', '789@institution.example.com'],
         ['Bachelor', 'Manilium', 'Lucilia', 'lucilia.manilium@institution.example.com', 'Vorlesung', 'no', 'Sitzen', 'Sit', 'Prof. Dr.', 'Tempor', 'Invidunt', '789@external.example.com'],
@@ -128,7 +128,7 @@ test_enrollment_data_filedata = {
         ['Bachelor', 'Manilium', 'Lucilia', 'lucilia.manilium@institution.example.com', 'Vorlesung', 'no', 'Zeigen', 'Show', 'Dr.', 'Sed', 'Tam', '456@institution.example.com'],
         ['Bachelor', 'Metrodorus', 'Torquate', 'torquate.metrodorus@institution.example.com', 'Vorlesung', 'no', 'Scheinen', 'Shine', 'Prof. Dr.', 'Multi', 'Augendas', '567@institution.example.com'],
         ['Bachelor', 'Metrodorus', 'Torquate', 'torquate.metrodorus@institution.example.com', 'Vorlesung', 'yes', 'Schütteln', 'Shake', 'Prof. Dr.', 'Prorsus', 'Christoph', '123@institution.example.com'],
-        ['Bachelor', 'Metrodorus', 'Torquate', 'torquate.metrodorus@institution.example.com', 'Seminar', 'yes', 'Stehlen', 'Steal', 'Dr.', 'Nonumy', 'Eirmod', '456@external.example.com'],
+        ['Bachelor', 'Metrodorus', 'Torquate', 'torquate.metrodorus@institution.example.com', 'Seminar', 'ja', 'Stehlen', 'Steal', 'Dr.', 'Nonumy', 'Eirmod', '456@external.example.com'],
         ['Bachelor', 'Metrodorus', 'Torquate', 'torquate.metrodorus@institution.example.com', 'Vorlesung', 'yes', 'Sprechen', 'Speak', 'Prof.-Dr.', 'Honoris', 'Invitat', '111@institution.example.com'],
         ['Bachelor', 'Metrodorus', 'Torquate', 'torquate.metrodorus@institution.example.com', 'Vorlesung', 'no', 'Schlafen', 'Sleep', 'Prof. Dr. ', 'Takimata', 'Labore', '678@external.example.com'],
         ['Bachelor', 'Metrodorus', 'Torquate', 'torquate.metrodorus@institution.example.com', 'Vorlesung', 'no', 'Zeigen', 'Show', 'Dr.', 'Sed', 'Tam', '456@institution.example.com']

@@ -25,7 +25,7 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup python
         uses: ./.github/setup_python
@@ -33,7 +33,9 @@ jobs:
       - name: Run tests
         run: coverage run manage.py test
       - name: Upload coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   test_shuffled:
     name: Test (shuffled order)
@@ -53,7 +55,7 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup python
         uses: ./.github/setup_python
@@ -68,7 +70,7 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup python
         uses: ./.github/setup_python
@@ -83,7 +85,7 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup python
         uses: ./.github/setup_python
@@ -102,7 +104,7 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup python
         uses: ./.github/setup_python
@@ -142,7 +144,7 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -181,7 +183,7 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -191,11 +193,10 @@ jobs:
       - name: Compile Scss
         run: npx sass evap/static/scss/evap.scss evap/static/css/evap.css
       - name: Store Css
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: css
           path: evap/static/css/evap.css
-
 
 
   typescript:
@@ -207,7 +208,7 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -217,7 +218,7 @@ jobs:
       - name: Compile Typescript
         run: npx tsc --project evap/static/ts/tsconfig.compile.json
       - name: Load Css
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: css
           path: evap/static/css

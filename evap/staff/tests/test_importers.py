@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from unittest.mock import patch
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms.models import model_to_dict
 from django.test import TestCase, override_settings
@@ -462,7 +463,7 @@ class TestEnrollmentImport(ImporterTestCase):
             errors,
             [
                 'Sheet "MA Belegungen", row 2 and 1 other place: No course type is associated with the import name "jaminar". Please manually create it first.',
-                'Sheet "MA Belegungen", row 2 and 1 other place: "is_graded" is probably not, but must be yes or no',
+                f'Sheet "MA Belegungen", row 2 and 1 other place: "is_graded" is probably not, but must be {settings.IMPORTER_GRADED_YES} or {settings.IMPORTER_GRADED_NO}',
                 'Sheet "MA Belegungen", row 2: No degree is associated with the import name "Grandmaster". Please manually create it first.',
                 'Sheet "MA Belegungen", row 3: No degree is associated with the import name "Beginner". Please manually create it first.',
                 "Errors occurred while parsing the input data. No data was imported.",
@@ -570,7 +571,9 @@ class TestEnrollmentImport(ImporterTestCase):
         )
         self.assertEqual(
             [msg.message for msg in importer_log_test.errors_by_category()[ImporterLogEntry.Category.IS_GRADED]],
-            ['Sheet "MA Belegungen", row 5: "is_graded" is maybe, but must be yes or no'],
+            [
+                f'Sheet "MA Belegungen", row 5: "is_graded" is maybe, but must be {settings.IMPORTER_GRADED_YES} or {settings.IMPORTER_GRADED_NO}'
+            ],
         )
         self.assertEqual(
             [msg.message for msg in importer_log_test.errors_by_category()[ImporterLogEntry.Category.DEGREE]],
@@ -716,7 +719,7 @@ class TestEnrollmentImport(ImporterTestCase):
             importer_log,
             ImporterLogEntry.Category.COURSE,
             "Sheet &quot;BA Belegungen&quot;, row 2 and 1 other place: Course &quot;Shake&quot; already exists in this "
-            "semester, but the courses can not be merged for the following reasons:"
+            "semester, but the courses cannot be merged for the following reasons:"
             "<br /> - the course type does not match"
             "<br /> - the responsibles of the course do not match",
         )
@@ -737,7 +740,7 @@ class TestEnrollmentImport(ImporterTestCase):
             importer_log,
             ImporterLogEntry.Category.COURSE,
             "Sheet &quot;BA Belegungen&quot;, row 2 and 1 other place: "
-            "Course &quot;Shake&quot; already exists in this semester, but the courses can not be merged for the following reasons:<br /> "
+            "Course &quot;Shake&quot; already exists in this semester, but the courses cannot be merged for the following reasons:<br /> "
             "- the import would add participants to the existing evaluation but the evaluation is already running",
         )
 
@@ -772,7 +775,7 @@ class TestEnrollmentImport(ImporterTestCase):
             importer_log,
             ImporterLogEntry.Category.COURSE,
             "Sheet &quot;BA Belegungen&quot;, row 2 and 1 other place: "
-            "Course &quot;Shake&quot; already exists in this semester, but the courses can not be merged for the following reasons:<br /> "
+            "Course &quot;Shake&quot; already exists in this semester, but the courses cannot be merged for the following reasons:<br /> "
             "- the evaluation of the existing course is a single result",
         )
 
@@ -790,7 +793,7 @@ class TestEnrollmentImport(ImporterTestCase):
             importer_log,
             ImporterLogEntry.Category.COURSE,
             "Sheet &quot;BA Belegungen&quot;, row 2 and 1 other place: Course &quot;Shake&quot; already exists in "
-            "this semester, but the courses can not be merged for the following reasons:"
+            "this semester, but the courses cannot be merged for the following reasons:"
             "<br /> - the existing course does not have exactly one evaluation",
         )
 
@@ -809,7 +812,7 @@ class TestEnrollmentImport(ImporterTestCase):
             importer_log,
             ImporterLogEntry.Category.COURSE,
             "Sheet &quot;BA Belegungen&quot;, row 2 and 1 other place: Course &quot;Shake&quot; already exists in this "
-            "semester, but the courses can not be merged for the following reasons:"
+            "semester, but the courses cannot be merged for the following reasons:"
             "<br /> - the evaluation of the existing course has a mismatching grading specification",
         )
 
