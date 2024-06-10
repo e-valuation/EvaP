@@ -7,12 +7,14 @@ from django.utils import translation
 from django_webtest import WebTest
 from model_bakery import baker
 
-from evap.evaluation.models import Evaluation, Question, QuestionType, UserProfile
+from evap.evaluation.models import Evaluation, Question, QuestionType, Semester, UserProfile
 from evap.evaluation.tests.tools import (
     WebTestWith200Check,
     create_evaluation_with_responsible_and_editor,
+    make_manager,
     store_ts_test_asset,
 )
+from evap.staff.tests.utils import WebTestStaffMode
 
 
 class RenderJsTranslationCatalog(WebTest):
@@ -245,3 +247,41 @@ class TestNotebookView(WebTest):
 
         user.refresh_from_db()
         self.assertEqual(user.notes, self.note)
+
+
+class TestResetEvaluation(WebTestStaffMode):
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+        cls.manager = make_manager()
+        cls.semester = baker.make(Semester)
+        cls.url = reverse("staff:semester_view", args=[cls.semester.pk])
+
+    def reset_from_x_to_new(self, x, success_expected: bool) -> None:
+        evaluation = baker.make(Evaluation, state=x, course__semester=self.semester)
+
+        semester_overview_page = self.app.get(self.url, user=self.manager, status=200)
+        form = semester_overview_page.forms["evaluation_operation_form"]
+        form["evaluation"] = [evaluation.pk]
+        confirmation_page = form.submit(name="target_state", value=str(Evaluation.State.NEW))
+
+        if success_expected:
+            confirmation_page.forms["evaluation-operation-form"].submit()
+            self.assertEqual(Evaluation.objects.get(pk=evaluation.pk).state, Evaluation.State.NEW)
+        else:
+            self.assertEqual(Evaluation.objects.get(pk=evaluation.pk).state, x)
+            self.assertNotEqual(confirmation_page.status_int, 200)
+
+    def test_reset_to_new(self) -> None:
+        invalid_start_states = [Evaluation.State.NEW, Evaluation.State.PUBLISHED]
+
+        valid_start_states = [
+            Evaluation.State.PREPARED,
+            Evaluation.State.EDITOR_APPROVED,
+            Evaluation.State.APPROVED,
+        ]
+
+        for s in valid_start_states:
+            self.reset_from_x_to_new(s, success_expected=True)
+        for s in invalid_start_states:
+            self.reset_from_x_to_new(s, success_expected=False)
