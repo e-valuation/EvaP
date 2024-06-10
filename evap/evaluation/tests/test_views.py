@@ -270,7 +270,8 @@ class TestResetEvaluation(WebTestStaffMode):
             confirmation_page.forms["evaluation-operation-form"].submit()
             self.assertEqual(Evaluation.objects.get(pk=evaluation.pk).state, Evaluation.State.NEW)
         else:
-            self.assertNotIn("evaluation-operation-form", confirmation_page.forms)
+            self.assertEqual(Evaluation.objects.get(pk=evaluation.pk).state, x)
+            self.assertNotEqual(confirmation_page.status_int, 200)
 
     def test_reset_to_new(self) -> None:
         invalid_start_states = [Evaluation.State.NEW, Evaluation.State.PUBLISHED]
