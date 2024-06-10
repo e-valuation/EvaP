@@ -81,8 +81,8 @@
 
 {% block additional_javascript %}
     {% if editable %}
-        <script src="{% static 'js/sortable-form.js' %}"></script>
-        <script type="text/javascript">
+        <script type="module">
+            import { makeFormSortable } from "{% static 'js/sortable-form.js' %}";
             const rowChanged = function(row) {
                 const nameDe = row.querySelector('textarea[id$=-text_de]').value;
                 const nameEn = row.querySelector('textarea[id$=-text_en]').value;

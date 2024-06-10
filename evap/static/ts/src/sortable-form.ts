@@ -17,7 +17,7 @@ declare global {
     }
 }
 
-function makeFormSortable(
+export function makeFormSortable(
     tableId: string,
     prefix: string,
     rowChanged: (arg: HTMLTableRowElement) => boolean,

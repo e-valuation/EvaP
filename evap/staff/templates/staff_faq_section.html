@@ -59,9 +59,8 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script src="{% static 'js/sortable-form.js' %}"></script>
-
-    <script type="text/javascript">
+    <script type="module">
+        import { makeFormSortable } from "{% static 'js/sortable-form.js' %}";
         const rowChanged = function(row) {
             const qDe = row.querySelector('input[id$=-question_de]').value;
             const qEn = row.querySelector('input[id$=-question_en]').value;
