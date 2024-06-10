@@ -1,4 +1,4 @@
-import { selectOrError } from "./utils";
+import { selectOrError } from "./utils.js";
 
 declare const Sortable: typeof import("sortablejs");
 
