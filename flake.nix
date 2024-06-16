@@ -24,6 +24,7 @@
       perSystem = { config, system, ... }:
         let
           # see https://github.com/nix-community/poetry2nix/tree/master#api for more functions and examples.
+          version = "2024-06";
           pkgs = nixpkgs.legacyPackages.${system};
           inherit (pkgs) lib;
           poetry2nix = inputs.poetry2nix.lib.mkPoetry2Nix { inherit pkgs; };
@@ -38,6 +39,23 @@
                 django-stubs-ext = prev.django-stubs-ext.override { preferWheel = false; };
               });
             };
+
+            evapnode =
+              let
+                inherit (pkgs) importNpmLock;
+              in
+              pkgs.buildNpmPackage {
+                pname = "evap";
+                inherit version;
+                src = ./.;
+                npmDeps = importNpmLock {
+                  npmRoot = ./.;
+                };
+                npmConfigHook = importNpmLock.npmConfigHook;
+
+                dontNpmBuild = true;
+                PUPPETEER_SKIP_DOWNLOAD = "1";
+              };
           };
 
           # Start with `nix run .#services`
@@ -54,9 +72,9 @@
                 #   { name = "evap"; }
                 # ];
                 initialScript.before = ''
-                    CREATE USER evap;
-                    ALTER USER evap WITH PASSWORD 'evap';
-                    CREATE DATABASE evap OWNER evap;
+                  CREATE USER evap;
+                  ALTER USER evap WITH PASSWORD 'evap';
+                  CREATE DATABASE evap OWNER evap;
                 '';
               };
             };
@@ -67,6 +85,7 @@
               inputsFrom = [ self.packages.${system}.evap ];
               packages = with pkgs; [
                 poetry
+                self.packages.${system}.evapnode
               ];
             };
           };
