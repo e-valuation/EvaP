@@ -38,7 +38,6 @@ ignore = [
     "N802",                  # not as mighty as pylint's invalid-name https://github.com/astral-sh/ruff/issues/7660
     "PLR0913",               # we can't determine a good limit for arguments. reviews should spot bad cases of this.
     "PLR2004", "PLW2901",
-    "PLR0912",             # sevaral ruff bugs: https://www.github.com/astral-sh/ruff/issues/11313, https://www.github.com/astral-sh/ruff/issues/11205
 ]
 
 ignore-init-module-imports = true
@@ -98,7 +97,7 @@ disable = [
     "use-implicit-booleaness-not-comparison-to-string",  # forces us to use less expressive code
     "use-implicit-booleaness-not-comparison-to-zero",    # forces us to use less expressive code
     # the following are covered by ruff
-    "broad-exception-caught", "line-too-long","unused-wildcard-import", "wildcard-import","too-many-arguments", "too-many-statements", "too-many-return-statements"
+    "broad-exception-caught", "line-too-long", "unused-wildcard-import", "wildcard-import", "too-many-arguments", "too-many-statements", "too-many-return-statements", "too-many-branches",
 ]
 
 ##############################################
