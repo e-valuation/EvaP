@@ -343,7 +343,7 @@ export class QuestionnaireGrid extends TableGrid {
             draggable: ".sortable",
             scrollSensitivity: 70,
             onUpdate: event => {
-                if (event.oldIndex && event.newIndex) {
+                if (event.oldIndex !== undefined && event.newIndex !== undefined) {
                     this.reorderRow(event.oldIndex, event.newIndex);
                 }
                 fetch(this.updateUrl, {
