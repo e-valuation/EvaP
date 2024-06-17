@@ -346,11 +346,12 @@ export class QuestionnaireGrid extends TableGrid {
                 if (event.oldIndex && event.newIndex) {
                     this.reorderRow(event.oldIndex, event.newIndex);
                 }
-                const questionnaireIndices = this.rows.map((row, index) => [row.element.dataset.id, index]);
                 fetch(this.updateUrl, {
                     method: "POST",
                     headers: CSRF_HEADERS,
-                    body: new URLSearchParams(Object.fromEntries(questionnaireIndices)),
+                    body: new URLSearchParams(
+                        this.rows.map((row, index) => [row.element.dataset.id!, index.toString()]),
+                    ),
                 }).catch(error => {
                     console.error(error);
                     window.alert(window.gettext("The server is not responding."));
