@@ -350,7 +350,7 @@ export class QuestionnaireGrid extends TableGrid {
                 fetch(this.updateUrl, {
                     method: "POST",
                     headers: CSRF_HEADERS,
-                    body: Object.fromEntries(questionnaireIndices),
+                    body: new URLSearchParams(Object.fromEntries(questionnaireIndices)),
                 }).catch(error => {
                     console.error(error);
                     window.alert(window.gettext("The server is not responding."));
