@@ -55,3 +55,6 @@ todo
 
 # flake8 configuration
 setup.cfg
+
+# User specific vagrant overrides (needs extra config)
+.Vagrantfile.local

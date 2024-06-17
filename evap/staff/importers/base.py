@@ -179,9 +179,9 @@ class InputRow(ABC):
     # MyPy is currently broken with abstract properties: https://github.com/python/mypy/issues/8996
     column_count: int
 
+    @abstractmethod
     def __init__(self, location: ExcelFileLocation, *cells: Iterable[str]):
-        # this can be an abstractmethod from python3.10 on, before it doesn't work with the derived dataclasses
-        raise NotImplementedError  # pragma: no cover
+        pass
 
     @classmethod
     def from_cells(cls, location: ExcelFileLocation, cells: Iterable[str]):
@@ -201,14 +201,14 @@ class ExcelFileRowMapper:
     def map(self, file_content: bytes):
         try:
             book = openpyxl.load_workbook(BytesIO(file_content))
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             raise ImporterError(
                 message=_("Couldn't read the file. Error: {}").format(e),
                 category=ImporterLogEntry.Category.SCHEMA,
             ) from e
 
         rows = []
-        for sheet in book:  # type: ignore
+        for sheet in book:  # type: ignore[attr-defined]
             if sheet.max_row <= self.skip_first_n_rows:
                 continue
 

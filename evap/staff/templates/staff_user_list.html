@@ -4,8 +4,8 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'staff:user_index' %}">{% trans 'Users' %}</a></li>
-    <li class="breadcrumb-item">{% trans 'User list' %}</li>
+    <li class="breadcrumb-item"><a href="{% url 'staff:user_index' %}">{% translate 'Users' %}</a></li>
+    <li class="breadcrumb-item">{% translate 'User list' %}</li>
 {% endblock %}
 
 {% block content %}
@@ -13,22 +13,22 @@
     <div class="row mb-3 align-items-center">
         <div class="col-auto">
             <div class="btn-switch btn-switch-light">
-                <div class="btn-switch-label">{% trans 'Inactive users' %}</div>
+                <div class="btn-switch-label">{% translate 'Inactive users' %}</div>
                 <div class="btn-switch btn-group">
                     <a href="{% url 'staff:user_list' %}?filter_users=false" role="button" class="btn btn-sm btn-light{% if not filter_users %} active{% endif %}">
-                        {% trans 'Show' %}
+                        {% translate 'Show' %}
                     </a>
                     <a href="{% url 'staff:user_list' %}?filter_users=true" role="button" class="btn btn-sm btn-light{% if filter_users %} active{% endif %}">
-                        {% trans 'Hide' %}
+                        {% translate 'Hide' %}
                     </a>
                 </div>
             </div>
         </div>
         <div class="col-3 ms-auto">
             <div class="input-group">
-                <input type="search" name="search" class="form-control" placeholder="{% trans 'Search...' %}" />
+                <input type="search" name="search" class="form-control" placeholder="{% translate 'Search...' %}" />
                 <div class="input-group-append">
-                    <button class="btn btn-light text-secondary" type="button" data-reset="search" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Clear search filter' %}">
+                    <button class="btn btn-light text-secondary" type="button" data-reset="search" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Clear search filter' %}">
                         <span class="fas fa-backspace"></span>
                     </button>
                 </div>
@@ -37,14 +37,14 @@
     </div>
 
     <div class="card mb-3">
-        <div class="card-body">
+        <div class="card-body table-responsive">
             <table class="table table-vertically-aligned table-seamless-links user-table">
                 <thead>
                     <tr>
-                        <th style="width: 25%">{% trans 'Name' %}</th>
-                        <th style="width: 35%">{% trans 'Email' %}</th>
-                        <th style="width: 30%">{% trans 'Information' %}</th>
-                        <th style="width: 10%"></th>
+                        <th class="width-percent-25">{% translate 'Name' %}</th>
+                        <th class="width-percent-35">{% translate 'Email' %}</th>
+                        <th class="width-percent-30">{% translate 'Information' %}</th>
+                        <th class="width-percent-10"></th>
                     </tr>
                 </thead>
                 <tbody>

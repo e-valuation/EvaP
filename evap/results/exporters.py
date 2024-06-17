@@ -9,6 +9,7 @@ from django.utils.translation import gettext as _
 from evap.evaluation.models import CourseType, Degree, Evaluation, Questionnaire
 from evap.evaluation.tools import ExcelExporter
 from evap.results.tools import (
+    RatingResult,
     calculate_average_course_distribution,
     calculate_average_distribution,
     distribution_to_grade,
@@ -71,11 +72,12 @@ class ResultsExporter(ExcelExporter):
                 "This can happen, if the file is imported / run multiple "
                 "times in one application run.",
                 ImportWarning,
+                stacklevel=3,
             )
             return
 
         grade_base_style = "pattern: pattern solid, fore_colour {}; alignment: horiz centre; font: bold on; borders: left medium, right medium"
-        for i in range(0, cls.NUM_GRADE_COLORS):
+        for i in range(cls.NUM_GRADE_COLORS):
             grade = 1 + i * cls.STEP
             color = get_grade_color(grade)
             palette_index = cls.CUSTOM_COLOR_START + i
@@ -127,9 +129,7 @@ class ResultsExporter(ExcelExporter):
                 for questionnaire_result in contribution_result.questionnaire_results:
                     # RatingQuestion.counts is a tuple of integers or None, if this tuple is all zero, we want to exclude it
                     if all(
-                        not question_result.question.is_rating_question
-                        or question_result.counts is None
-                        or sum(question_result.counts) == 0
+                        not question_result.question.is_rating_question or not RatingResult.has_answers(question_result)
                         for question_result in questionnaire_result.question_results
                     ):
                         continue
@@ -227,11 +227,13 @@ class ResultsExporter(ExcelExporter):
             )
 
             self.write_cell(_("Evaluation weight"), "bold")
-            weight_percentages = (f"{e.weight_percentage}%" if gt1 else None for e, gt1 in zip(evaluations, count_gt_1))
+            weight_percentages = (
+                f"{e.weight_percentage}%" if gt1 else None for e, gt1 in zip(evaluations, count_gt_1, strict=True)
+            )
             self.write_row(weight_percentages, lambda s: "evaluation_weight" if s is not None else "default")
 
             self.write_cell(_("Course Grade"), "bold")
-            for evaluation, gt1 in zip(evaluations, count_gt_1):
+            for evaluation, gt1 in zip(evaluations, count_gt_1, strict=True):
                 if not gt1:
                     self.write_cell()
                     continue
@@ -266,7 +268,7 @@ class ResultsExporter(ExcelExporter):
                 approval_count = 0
 
                 for grade_result in results[questionnaire.id]:
-                    if grade_result.question.id != question.id or not grade_result.has_answers:
+                    if grade_result.question.id != question.id or not RatingResult.has_answers(grade_result):
                         continue
                     values.append(grade_result.average * grade_result.count_sum)
                     count_sum += grade_result.count_sum
@@ -378,5 +380,5 @@ class TextAnswerExporter(ExcelExporter):
                 question_title = (f"{contributor_name}: " if contributor_name else "") + question.text
                 first_col = chain([question_title], repeat(""))
 
-                for answer, first_cell, line_style in zip(answers, first_col, line_styles):
+                for answer, first_cell, line_style in zip(answers, first_col, line_styles, strict=False):
                     self.write_row([first_cell, answer], style=line_style)

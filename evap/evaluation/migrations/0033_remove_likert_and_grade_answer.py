@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterUniqueTogether(
             name='gradeanswercounter',
-            unique_together=set([]),
+            unique_together=set(),
         ),
         migrations.RemoveField(
             model_name='gradeanswercounter',
@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='likertanswercounter',
-            unique_together=set([]),
+            unique_together=set(),
         ),
         migrations.RemoveField(
             model_name='likertanswercounter',

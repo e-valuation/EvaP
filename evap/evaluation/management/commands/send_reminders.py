@@ -25,10 +25,7 @@ def get_sorted_evaluation_url_tuples_with_urgent_review() -> list[tuple[Evaluati
         for evaluation in Evaluation.objects.filter(state=Evaluation.State.EVALUATED)
         if evaluation.textanswer_review_state == Evaluation.TextAnswerReviewState.REVIEW_URGENT
     ]
-    evaluation_url_tuples = sorted(
-        evaluation_url_tuples, key=lambda evaluation_url_tuple: evaluation_url_tuple[0].full_name
-    )
-    return evaluation_url_tuples
+    return sorted(evaluation_url_tuples, key=lambda evaluation_url_tuple: evaluation_url_tuple[0].full_name)
 
 
 @log_exceptions
@@ -43,11 +40,10 @@ class Command(BaseCommand):
 
     @staticmethod
     def send_student_reminders():
-        check_dates = []
-
-        # Collect end-dates of evaluations whose participants need to be reminded today.
-        for number_of_days in settings.REMIND_X_DAYS_AHEAD_OF_END_DATE:
-            check_dates.append(datetime.date.today() + datetime.timedelta(days=number_of_days))
+        check_dates = [
+            datetime.date.today() + datetime.timedelta(days=number_of_days)
+            for number_of_days in settings.REMIND_X_DAYS_AHEAD_OF_END_DATE
+        ]
 
         recipients = set()
         for evaluation in Evaluation.objects.filter(
@@ -64,7 +60,7 @@ class Command(BaseCommand):
             EmailTemplate.send_reminder_to_user(
                 recipient, first_due_in_days=first_due_in_days, due_evaluations=due_evaluations
             )
-        logger.info("sent due evaluation reminders to %d people.", len(recipients))
+        logger.info("Sent due evaluation reminder emails to %d people.", len(recipients))
 
     @staticmethod
     def send_textanswer_reminders():

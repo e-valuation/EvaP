@@ -1,3 +1,5 @@
+import { CSRF_HEADERS } from "./csrf-utils.js";
+
 declare const Sortable: typeof import("sortablejs");
 
 interface Row {
@@ -158,7 +160,13 @@ abstract class DataGrid {
             header.classList.remove("col-order-asc", "col-order-desc");
         }
         for (const [column, ordering] of this.state.order) {
-            this.sortableHeaders.get(column)!.classList.add(`col-order-${ordering}`);
+            const header = this.sortableHeaders.get(column);
+            if (header === undefined) {
+                // Silently ignore non-existing columns: They were probably renamed.
+                // A correct state will be built the next time the user sorts the datagrid.
+                continue;
+            }
+            header.classList.add(`col-order-${ordering}`);
         }
 
         this.rows.sort((a, b) => {
@@ -335,11 +343,19 @@ export class QuestionnaireGrid extends TableGrid {
             draggable: ".sortable",
             scrollSensitivity: 70,
             onUpdate: event => {
-                if (event.oldIndex && event.newIndex) {
+                if (event.oldIndex !== undefined && event.newIndex !== undefined) {
                     this.reorderRow(event.oldIndex, event.newIndex);
                 }
-                const questionnaireIndices = this.rows.map((row, index) => [$(row.element).data("id"), index]);
-                $.post(this.updateUrl, Object.fromEntries(questionnaireIndices));
+                fetch(this.updateUrl, {
+                    method: "POST",
+                    headers: CSRF_HEADERS,
+                    body: new URLSearchParams(
+                        this.rows.map((row, index) => [row.element.dataset.id!, index.toString()]),
+                    ),
+                }).catch(error => {
+                    console.error(error);
+                    window.alert(window.gettext("The server is not responding."));
+                });
             },
         });
     }

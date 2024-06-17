@@ -4,26 +4,26 @@
 {% load results_templatetags %}
 {% load evaluation_filters %}
 
-{% block title %}{% trans 'Results' %} - {{ block.super }}{% endblock %}
+{% block title %}{% translate 'Results' %} - {{ block.super }}{% endblock %}
 
 {% block content %}
     {{ block.super }}
-    <h3>{% trans 'Evaluation results' %}</h3>
+    <h3>{% translate 'Evaluation results' %}</h3>
     <div class="card mb-1">
         <div class="card-body">
             <h5 class="card-title">
-                {% trans 'Filter' %}
+                {% translate 'Filter' %}
                 <span class="reset-button float-end" data-reset="filter">
                     <span class="fas fa-eraser"></span>
-                    {% trans 'Clear all filters' %}
+                    {% translate 'Clear all filters' %}
                 </span>
             </h5>
             <div class="row">
                 <div class="col-12 col-lg">
-                    <input type="search" name="search" class="form-control mb-3" placeholder="{% trans 'Search...' %}" />
+                    <input type="search" name="search" class="form-control mb-3" placeholder="{% translate 'Search...' %}" />
                 </div>
                 <div class="col-6 col-sm-4 col-md">
-                    <h6 class="card-subtitle mb-1">{% trans 'Degrees' %}</h6>
+                    <h6 class="card-subtitle mb-1">{% translate 'Degrees' %}</h6>
                     <div id="degree-select" class="result-filter-list">
                         {% for degree in degrees %}
                             <div class="form-check">
@@ -36,7 +36,7 @@
                     </div>
                 </div>
                 <div class="col-6 col-sm-4 col-md">
-                    <h6 class="card-subtitle mb-1">{% trans 'Course types' %}</h6>
+                    <h6 class="card-subtitle mb-1">{% translate 'Course types' %}</h6>
                     <div id="course-type-select" class="result-filter-list">
                         {% for course_type in course_types %}
                             <div class="form-check">
@@ -49,7 +49,7 @@
                     </div>
                 </div>
                 <div class="col-sm-4 col-md">
-                    <h6 class="card-subtitle mb-1">{% trans 'Semester' %}</h6>
+                    <h6 class="card-subtitle mb-1">{% translate 'Semester' %}</h6>
                     <div id="semester-select" class="result-filter-list">
                         {% for semester in semesters %}
                             <div class="form-check">
@@ -67,18 +67,18 @@
     <div class="card mb-1">
         <div class="card-body pb-lg-0">
             <h5 class="card-title mb-lg-0">
-                {% trans 'Order' %}
+                {% translate 'Order' %}
                 <span class="reset-button float-end d-none d-lg-block" data-reset="order">
                     <span class="fas fa-arrow-down-wide-short"></span>
-                    {% trans 'Order by evaluation and semester' %}
+                    {% translate 'Order by evaluation and semester' %}
                 </span>
             </h5>
             <div class="grid-header results-grid-row d-none d-lg-grid">
-                <div data-col="name" class="col-order">{% trans 'Evaluation' %}</div>
-                <div data-col="semester" class="col-order">{% trans 'Semester' %}</div>
-                <div data-col="responsible" class="col-order">{% trans 'Responsible' %}</div>
-                <div data-col="participants">{% trans 'Voters' %}</div>
-                <div data-col="result" class="col-order">{% trans 'Distribution and average grade' %}</div>
+                <div data-col="name" class="col-order">{% translate 'Evaluation' %}</div>
+                <div data-col="semester" class="col-order">{% translate 'Semester' %}</div>
+                <div data-col="responsible" class="col-order">{% translate 'Responsible' %}</div>
+                <div data-col="voters" class="col-order">{% translate 'Voters' %}</div>
+                <div data-col="result" class="col-order">{% translate 'Distribution and average grade' %}</div>
             </div>
             <div class="d-flex d-lg-none">
                 <div class="me-2 btn-group icon-buttons" data-bs-toggle="buttons">
@@ -92,11 +92,12 @@
                     </label>
                 </div>
                 <select name="result-sort-column" class="form-select no-tomselect">
-                    <option value="name-semester">{% trans 'Evaluation and semester' %}</option>
-                    <option value="name">{% trans 'Evaluation' %}</option>
-                    <option value="semester">{% trans 'Semester' %}</option>
-                    <option value="responsible">{% trans 'Responsible' %}</option>
-                    <option value="result">{% trans 'Distribution and average grade' %}</option>
+                    <option value="name-semester">{% translate 'Evaluation and semester' %}</option>
+                    <option value="name">{% translate 'Evaluation' %}</option>
+                    <option value="semester">{% translate 'Semester' %}</option>
+                    <option value="responsible">{% translate 'Responsible' %}</option>
+                    <option value="voters">{% translate 'Voters' %}</option>
+                    <option value="result">{% translate 'Distribution and average grade' %}</option>
                 </select>
             </div>
         </div>

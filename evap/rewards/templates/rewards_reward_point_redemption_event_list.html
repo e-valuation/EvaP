@@ -1,16 +1,16 @@
 <div class="card-header">
-    {% trans title %}
+    {% translate title %}
 </div>
-<div class="card-body">
+<div class="card-body table-responsive">
     {% if events %}
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th style="width: 20%">{% trans 'Event date' %}</th>
-                    <th style="width: 20%">{% trans 'Redemption end date' %}</th>
-                    <th style="width: 30%">{% trans 'Event name' %}</th>
-                    <th style="width: 15%">{% trans 'Redemptions' %}</th>
-                    <th class="text-end" style="width: 15%">{% trans 'Actions' %}</th>
+                    <th class="width-percent-20">{% translate 'Event date' %}</th>
+                    <th class="width-percent-20">{% translate 'Redemption end date' %}</th>
+                    <th class="width-percent-30">{% translate 'Event name' %}</th>
+                    <th class="width-percent-15">{% translate 'Redemptions' %}</th>
+                    <th class="width-percent-15 text-end">{% translate 'Actions' %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -19,17 +19,27 @@
                         <td>{{ event.date }}</td>
                         <td>{{ event.redeem_end_date }}</td>
                         <td>{{ event.name }}</td>
-                        <td><span class="fas fa-user"></span> {{ event.redemptions_by_user|length }}
-                        <td class="text-end">
-                            <a href="{% url 'rewards:reward_point_redemption_event_export' event.id %}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Export Redemptions' %}"><span class="fas fa-download"></span></a>
-                            <a href="{% url 'rewards:reward_point_redemption_event_edit' event.id %}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Edit' %}"><span class="fas fa-pencil"></span></a>
+                        <td><span class="fas fa-user"></span> {{ event.redemptions_by_user|length }}</td>
+                        <td class="d-flex justify-content-end gap-1">
+                            <a href="{% url 'rewards:reward_point_redemption_event_export' event.id %}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Export Redemptions' %}"><span class="fas fa-download"></span></a>
+                            <a href="{% url 'rewards:reward_point_redemption_event_edit' event.id %}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Edit' %}"><span class="fas fa-pencil"></span></a>
                             {% if event.can_delete %}
-                                <button type="button" onclick="deleteEventModalShow({{ event.id }}, '{{ event.name|escapejs }}');" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
-                                    <span class="fas fa-trash"></span>
-                                </button>
+                                <confirmation-modal type="submit" form="event-deletion-form" name="event_id" value="{{ event.id }}" confirm-button-class="btn-danger">
+                                    <span slot="title">{% translate 'Delete event' %}</span>
+                                    <span slot="action-text">{% translate 'Delete event' %}</span>
+                                    <span slot="question">
+                                        {% blocktranslate trimmed with event_name=event.name %}
+                                            Do you really want to delete the event <strong>{{ event_name }}</strong>?
+                                        {% endblocktranslate %}
+                                    </span>
+
+                                    <button slot="show-button" type="button" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Delete' %}">
+                                        <span class="fas fa-trash"></span>
+                                    </button>
+                                </confirmation-modal>
                             {% else %}
                                 <button disabled type="button" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top"
-                                    title="{% trans 'This event cannot be deleted because some users already redeemed points for it.' %}">
+                                    title="{% translate 'This event cannot be deleted because some users already redeemed points for it.' %}">
                                     <span class="fas fa-trash"></span>
                                 </button>
                             {% endif %}
@@ -39,6 +49,6 @@
             </tbody>
         </table>
     {% else %}
-        <span class="fst-italic">{% trans 'No events exist.' %}</span>
+        <span class="fst-italic">{% translate 'No events exist.' %}</span>
     {% endif %}
 </div>

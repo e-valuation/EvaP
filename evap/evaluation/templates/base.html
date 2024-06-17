@@ -28,10 +28,12 @@
     <body>
         <script type="text/javascript" src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
 
+        {% include "custom_elements.html" %}
+
         {% block modals %}
             {% if user.is_authenticated %}
-                {% trans 'Feedback' as title %}
-                {% trans 'You are welcome to submit feedback regarding the evaluation platform or specific evaluations. Please let us know how we can improve your experience on EvaP.' as teaser %}
+                {% translate 'Feedback' as title %}
+                {% translate 'You are welcome to submit feedback regarding the evaluation platform or specific evaluations. Please let us know how we can improve your experience on EvaP.' as teaser %}
                 {% include 'contact_modal.html' with modal_id='feedbackModal' user=request.user title=title teaser=teaser %}
             {% endif %}
         {% endblock %}
@@ -43,16 +45,10 @@
             {% endblock %}
         </div>
 
-        <img class="print-brand-image d-none d-print-block" src="{% static 'images/evap.png' %}" alt="{% trans 'Evaluation Platform' %}" />
+        <img class="print-brand-image d-none d-print-block" src="{% static 'images/evap.png' %}" alt="{% translate 'Evaluation Platform' %}" />
 
         {% if user.is_authenticated %}
             {% include 'notebook.html' %}
-
-            <div class="collapse show" tabindex="-1" id="notebookButton">
-                <button class="btn btn-outline-secondary button-open-notebook" type="button" data-bs-toggle="collapse" data-bs-target="#notebook">
-                    <span class="fas fa-pen-to-square"></span>
-                </button>
-            </div>
         {% endif %}
 
         <div class="p-3 mb-4" id="evapContent">
@@ -151,16 +147,16 @@
                     }
                     const baseOptions = {
                         createOnBlur: true,
-                        placeholder: "{% trans 'Please select...' %}",
+                        placeholder: "{% translate 'Please select...' %}",
                         hidePlaceholder: true,
                         minimumInputLength,
                         render: {
                             option_create: (data, escape) => `<div class="create">${ escape(data.input) }</div>`,
                             no_results: (data, escape) => {
                                 if(data.input.length < minimumInputLength) {
-                                    return `<div class="no-results">{% trans "Please enter ${ minimumInputLength } characters or more..." %}</div>`;
+                                    return `<div class="no-results">{% translate "Please enter ${ minimumInputLength } characters or more..." %}</div>`;
                                 } else {
-                                    return '<div class="no-results">{% trans "No results found" %}</div>';
+                                    return '<div class="no-results">{% translate "No results found" %}</div>';
                                 }
                             }
                         },
@@ -173,8 +169,8 @@
                         baseOptions.render.item = (data, escape) => `<div class="w-100"><span class="w-100">${ escape(data.text) }</span></div>`;
                     }
                     if(element.multiple) {
-                        baseOptions.plugins.clear_button = {"title": "{% trans 'Remove all items' %}"};
-                        baseOptions.plugins.remove_button = {"title": "{% trans 'Remove this item' %}"};
+                        baseOptions.plugins.clear_button = {"title": "{% translate 'Remove all items' %}"};
+                        baseOptions.plugins.remove_button = {"title": "{% translate 'Remove this item' %}"};
                     }
                     new MinimumInputLengthTomSelect(element, Object.assign({}, baseOptions, additionalOptions));
                 });
@@ -185,12 +181,9 @@
 
             // activate clickable hover tables
             document.querySelectorAll(".table-seamless-links [data-url]").forEach(row => {
-                for(const table_data of row.children) {
-                    const wrapping_anchor = document.createElement("a");
-                    wrapping_anchor.href = row.dataset["url"];
-                    wrapping_anchor.append(...table_data.childNodes);
-                    table_data.replaceChildren(wrapping_anchor);
-                }
+                row.addEventListener("click", () => {
+                    window.location.assign(row.dataset.url);
+                });
             });
 
             document.querySelectorAll(".hover-row").forEach(row => {
@@ -206,11 +199,15 @@
                 element.className = "fas fa-spinner fa-spin";  // clears all other classes
             };
 
+            document.querySelectorAll("[data-set-spinner-icon]").forEach(el => {
+                el.addEventListener("click", () => setSpinnerIcon(el.dataset.setSpinnerIcon));
+            });
         </script>
-        <script type="module">
-            import  { NotebookLogic } from "{% static 'js/notebook.js' %}"
 
-            new NotebookLogic("#notebook").attach();
+        <script type="module">
+            import { setupForms } from "{% static 'js/custom-success-form.js' %}";
+
+            setupForms();
         </script>
 
         {% block additional_javascript %}{% endblock %}

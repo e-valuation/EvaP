@@ -206,9 +206,8 @@ def bulk_update_users(request, user_file_content, test_run):
             for user, email in users_to_be_updated:
                 user.email = email
                 user.save()
-            userprofiles_to_create = []
-            for email in emails_of_users_to_be_created:
-                userprofiles_to_create.append(UserProfile(email=email))
+            userprofiles_to_create = [UserProfile(email=email) for email in emails_of_users_to_be_created]
+
             UserProfile.objects.bulk_create(userprofiles_to_create)
             messages.success(request, _("Users have been successfully updated."))
 
@@ -216,10 +215,10 @@ def bulk_update_users(request, user_file_content, test_run):
 
 
 @transaction.atomic
-def merge_users(main_user, other_user, preview=False):
+def merge_users(  # noqa: PLR0915  # This is much stuff to do. However, splitting it up into subtasks doesn't make much sense.
+    main_user, other_user, preview=False
+):
     """Merges other_user into main_user"""
-    # This is much stuff to do. However, splitting it up into subtasks doesn't make much sense.
-    # pylint: disable=too-many-statements
 
     merged_user = {}
     merged_user["is_active"] = main_user.is_active or other_user.is_active
@@ -228,7 +227,7 @@ def merge_users(main_user, other_user, preview=False):
     merged_user["first_name_given"] = main_user.first_name_given or other_user.first_name_given or ""
     merged_user["last_name"] = main_user.last_name or other_user.last_name or ""
     merged_user["email"] = main_user.email or other_user.email or None
-    merged_user["notes"] = "\n".join((main_user.notes, other_user.notes)).strip()
+    merged_user["notes"] = f"{main_user.notes}\n{other_user.notes}".strip()
 
     merged_user["groups"] = Group.objects.filter(user__in=[main_user, other_user]).distinct()
     merged_user["is_superuser"] = main_user.is_superuser or other_user.is_superuser

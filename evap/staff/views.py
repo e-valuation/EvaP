@@ -12,7 +12,19 @@ from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import IntegrityError, transaction
-from django.db.models import BooleanField, Case, Count, ExpressionWrapper, IntegerField, Prefetch, Q, Sum, When
+from django.db.models import (
+    BooleanField,
+    Case,
+    Count,
+    ExpressionWrapper,
+    Func,
+    IntegerField,
+    OuterRef,
+    Prefetch,
+    Q,
+    Sum,
+    When,
+)
 from django.dispatch import receiver
 from django.forms import BaseForm, formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
@@ -25,7 +37,6 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy, ngettext
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, FormView, UpdateView
-from django_stubs_ext import StrOrPromise
 
 from evap.contributor.views import export_contributor_results
 from evap.evaluation.auth import manager_required, reviewer_required, staff_permission_required
@@ -53,6 +64,7 @@ from evap.evaluation.tools import (
     FormsetView,
     HttpResponseNoContent,
     SaveValidFormMixin,
+    StrOrPromise,
     get_object_from_dict_pk_entry_or_logged_40x,
     get_parameter_from_url_or_session,
     sort_formset,
@@ -175,9 +187,7 @@ def get_evaluations_with_prefetched_data(semester):
         )
     ).order_by("pk")
     evaluations = annotate_evaluations_with_grade_document_counts(evaluations)
-    evaluations = Evaluation.annotate_with_participant_and_voter_counts(evaluations)
-
-    return evaluations
+    return Evaluation.annotate_with_participant_and_voter_counts(evaluations)
 
 
 @reviewer_required
@@ -281,8 +291,8 @@ class RevertToNewOperation(EvaluationOperation):
     @staticmethod
     def warning_for_inapplicables(amount):
         return ngettext(
-            "{} evaluation can not be reverted, because it already started. It was removed from the selection.",
-            "{} evaluations can not be reverted, because they already started. They were removed from the selection.",
+            "{} evaluation cannot be reverted, because it already started. It was removed from the selection.",
+            "{} evaluations cannot be reverted, because they already started. They were removed from the selection.",
             amount,
         ).format(amount)
 
@@ -317,8 +327,8 @@ class ReadyForEditorsOperation(EvaluationOperation):
     @staticmethod
     def warning_for_inapplicables(amount):
         return ngettext(
-            "{} evaluation can not be reverted, because it already started. It was removed from the selection.",
-            "{} evaluations can not be reverted, because they already started. They were removed from the selection.",
+            "{} evaluation cannot be reverted, because it was already approved. It was removed from the selection.",
+            "{} evaluations cannot be reverted, because they were already approved. They were removed from the selection.",
             amount,
         ).format(amount)
 
@@ -373,8 +383,8 @@ class BeginEvaluationOperation(EvaluationOperation):
     @staticmethod
     def warning_for_inapplicables(amount):
         return ngettext(
-            "{} evaluation can not be started, because it was not approved, was already evaluated or its evaluation end date lies in the past. It was removed from the selection.",
-            "{} evaluations can not be started, because they were not approved, were already evaluated or their evaluation end dates lie in the past. They were removed from the selection.",
+            "{} evaluation cannot be started, because it was not approved, was already evaluated or its evaluation end date lies in the past. It was removed from the selection.",
+            "{} evaluations cannot be started, because they were not approved, were already evaluated or their evaluation end dates lie in the past. They were removed from the selection.",
             amount,
         ).format(amount)
 
@@ -411,8 +421,8 @@ class UnpublishOperation(EvaluationOperation):
     @staticmethod
     def warning_for_inapplicables(amount):
         return ngettext(
-            "{} evaluation can not be unpublished, because it's results have not been published. It was removed from the selection.",
-            "{} evaluations can not be unpublished because their results have not been published. They were removed from the selection.",
+            "{} evaluation cannot be unpublished, because it's results have not been published. It was removed from the selection.",
+            "{} evaluations cannot be unpublished because their results have not been published. They were removed from the selection.",
             amount,
         ).format(amount)
 
@@ -446,8 +456,8 @@ class PublishOperation(EvaluationOperation):
     @staticmethod
     def warning_for_inapplicables(amount):
         return ngettext(
-            "{} evaluation can not be published, because it's not finished or not all of its text answers have been reviewed. It was removed from the selection.",
-            "{} evaluations can not be published, because they are not finished or not all of their text answers have been reviewed. They were removed from the selection.",
+            "{} evaluation cannot be published, because it's not finished or not all of its text answers have been reviewed. It was removed from the selection.",
+            "{} evaluations cannot be published, because they are not finished or not all of their text answers have been reviewed. They were removed from the selection.",
             amount,
         ).format(amount)
 
@@ -482,9 +492,9 @@ EVALUATION_OPERATIONS = {
 }
 
 
-def target_state_and_operation_from_str(target_state_str: str) -> tuple[int, type[EvaluationOperation]]:
+def target_state_and_operation_from_str(target_state_str: str) -> tuple[Evaluation.State, type[EvaluationOperation]]:
     try:
-        target_state = int(target_state_str)
+        target_state = Evaluation.State(int(target_state_str))
     except (KeyError, ValueError, TypeError) as err:
         raise SuspiciousOperation("Could not parse target_state") from err
 
@@ -693,9 +703,9 @@ def semester_export(request, semester_id):
     if formset.is_valid():
         include_not_enough_voters = request.POST.get("include_not_enough_voters") == "on"
         include_unpublished = request.POST.get("include_unpublished") == "on"
-        selection_list = []
-        for form in formset:
-            selection_list.append((form.cleaned_data["selected_degrees"], form.cleaned_data["selected_course_types"]))
+        selection_list = [
+            (form.cleaned_data["selected_degrees"], form.cleaned_data["selected_course_types"]) for form in formset
+        ]
 
         filename = f"Evaluation-{semester.name}-{get_language()}.xls"
         response = AttachmentResponse(filename, content_type="application/vnd.ms-excel")
@@ -2125,6 +2135,18 @@ def user_list(request):
 
 
 @manager_required
+def user_export(request):
+    response = AttachmentResponse("exported_users.csv")
+    writer = csv.writer(response, delimiter=";", lineterminator="\n")
+    header_row = (_("Title"), _("Last name"), _("First name"), _("Email"))
+    writer.writerow(header_row)
+    writer.writerows(
+        (user.title, user.last_name, user.first_name, user.email) for user in UserProfile.objects.iterator()
+    )
+    return response
+
+
+@manager_required
 class UserCreateView(SuccessMessageMixin, CreateView):
     model = UserProfile
     form_class = UserForm
@@ -2269,7 +2291,7 @@ def user_bulk_update(request):
                 success = False
                 try:
                     success = bulk_update_users(request, file_content, test_run)
-                except Exception:  # pylint: disable=broad-except
+                except Exception:  # noqa: BLE001
                     if settings.DEBUG:
                         raise
                     messages.error(
@@ -2293,6 +2315,35 @@ def user_bulk_update(request):
 class UserMergeSelectionView(FormView):
     form_class = UserMergeSelectionForm
     template_name = "staff_user_merge_selection.html"
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        class UserNameFromEmail(Func):
+            # django docs support our usage here:
+            # https://docs.djangoproject.com/en/5.0/ref/models/expressions/#func-expressions
+            # pylint: disable=abstract-method
+            template = "split_part(%(expressions)s, '@', 1)"
+
+        query = UserProfile.objects.annotate(username_part_of_email=UserNameFromEmail("email"))
+
+        users_with_merge_candidates = query.annotate(
+            merge_candidate_pk=query.filter(username_part_of_email=UserNameFromEmail(OuterRef("email")))
+            .filter(pk__lt=OuterRef("pk"))
+            .values("pk")[:1]
+        ).exclude(merge_candidate_pk=None)
+
+        merge_candidate_ids = [user.merge_candidate_pk for user in users_with_merge_candidates]
+        merge_candidates_by_id = {user.pk: user for user in UserProfile.objects.filter(pk__in=merge_candidate_ids)}
+
+        suggested_merges = [
+            (user, merge_candidates_by_id[user.merge_candidate_pk])
+            for user in users_with_merge_candidates
+            if not user.is_external and not merge_candidates_by_id[user.merge_candidate_pk].is_external
+        ]
+
+        context["suggested_merges"] = suggested_merges
+        return context
 
     def form_valid(self, form: UserMergeSelectionForm) -> HttpResponse:
         return redirect(

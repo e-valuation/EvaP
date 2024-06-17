@@ -4,13 +4,15 @@
 {% load evaluation_filters %}
 {% load student_filters %}
 
-{% block title %}{{ evaluation.full_name }} - {% trans 'Evaluation' %} - {{ block.super }}{% endblock %}
+{% block title %}{{ evaluation.full_name }} - {% translate 'Evaluation' %} - {{ block.super }}{% endblock %}
 
 {% block breadcrumb_bar %}
-    <ul class="breadcrumb">
-        <li class="breadcrumb-item">{{ evaluation.course.semester.name }}</li>
-        <li class="breadcrumb-item">{{ evaluation.full_name }}</li>
-    </ul>
+    <div class="breadcrumb-bar">
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item">{{ evaluation.course.semester.name }}</li>
+            <li class="breadcrumb-item">{{ evaluation.full_name }}</li>
+        </ul>
+    </div>
 {% endblock %}
 
 {% block content %}
@@ -20,32 +22,32 @@
             <div class="d-flex align-items-center justify-content-between">
                 <div class="p-2">
                     {% if contributor_errors_exist %}
-                        {% blocktrans %}Please make sure to vote for all rating questions. You can also click on "I can't give feedback" to skip the questions about a single person.{% endblocktrans %}
+                        {% blocktranslate %}Please make sure to vote for all rating questions. You can also click on "I can't give feedback" to skip the questions about a single person.{% endblocktranslate %}
                     {% else %}
-                        {% blocktrans %}Please make sure to vote for all rating questions.{% endblocktrans %}
+                        {% blocktranslate %}Please make sure to vote for all rating questions.{% endblocktranslate %}
                     {% endif %}
                 </div>
-                <button id="btn-jump-unanswered-question" type="button" class="btn btn-light float-end" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Jump to the first unanswered question' %}">
+                <button id="btn-jump-unanswered-question" type="button" class="btn btn-light float-end" data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Jump to the first unanswered question' %}">
                     <i class="fas fa-arrow-down"></i>
                 </button>
             </div>
         </div>
     {% endif %}
     {% if evaluation.is_midterm_evaluation %}
-        <div class="callout callout-warning">{% trans 'The results of this evaluation will be published while the course is still running. This means that the contributors will receive this feedback before the final grades for the course have been published.' %}</div>
+        <div class="callout callout-warning">{% translate 'The results of this evaluation will be published while the course is still running. This means that the contributors will receive this feedback before the final grades for the course have been published.' %}</div>
     {% endif %}
     {% if evaluation.ends_soon %}
         <div class="callout callout-danger">
-            {% trans 'The evaluation period will end in' %}
+            {% translate 'The evaluation period will end in' %}
             {{ evaluation.vote_end_datetime|timeuntil }} ({{ evaluation.vote_end_datetime }}).
-            {% trans 'Your evaluation will only be accepted if you send the completed questionnaire before this deadline ends.' %}
+            {% translate 'Your evaluation will only be accepted if you send the completed questionnaire before this deadline ends.' %}
         </div>
     {% endif %}
     {% if preview and not for_rendering_in_modal %}
         <div class="callout callout-info">
             <small>
-                <b>{% trans 'Questionnaire Preview' %}</b><br />
-                {% blocktrans %}This is a preview of the questionnaire for the evaluation. Participants will see the questions below.{% endblocktrans %}
+                <b>{% translate 'Questionnaire Preview' %}</b><br />
+                {% blocktranslate %}This is a preview of the questionnaire for the evaluation. Participants will see the questions below.{% endblocktranslate %}
             </small>
         </div>
     {% endif %}
@@ -56,19 +58,19 @@
         {% if small_evaluation_size_warning and not preview %}
             <div class="card card-outline-warning mb-3">
                 <div class="card-header">
-                    <span class="fas fa-triangle-exclamation"></span> {% trans 'Small number of participants' %}
+                    <span class="fas fa-triangle-exclamation"></span> {% translate 'Small number of participants' %}
                 </div>
                 <div class="card-body tab-row">
-                    {% blocktrans %}Only a small number of people can take part in this evaluation. You should be aware that contributors might be able to guess who voted for a specific answer and who wrote a text answer. Results will only be published if two or more people participated in the evaluation.{% endblocktrans %}
+                    {% blocktranslate %}Only a small number of people can take part in this evaluation. You should be aware that contributors might be able to guess who voted for a specific answer and who wrote a text answer. Results will only be published if two or more people participated in the evaluation.{% endblocktranslate %}
                     {% if evaluation.num_voters == 0 %}
                         <br />
-                        {% blocktrans %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktrans %}
+                        {% blocktranslate %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktranslate %}
 
                         <div class="form-check mt-3">
                             <input class="form-check-input tab-selectable" id="text_results_publish_confirmation_top" type="checkbox"
                                 name="text_results_publish_confirmation_top" />
                             <label class="form-check-label" for="text_results_publish_confirmation_top">
-                                {% trans 'Show my text answers to the contributors even if I remain the only person who takes part in this evaluation.' %}
+                                {% translate 'Show my text answers to the contributors even if I remain the only person who takes part in this evaluation.' %}
                             </label>
                         </div>
                     {% endif %}
@@ -79,7 +81,7 @@
         {% if evaluation_form_group_top %}
             <div class="card card-outline-primary mb-3">
                 <div class="card-header">
-                    {% trans 'General questions' %}
+                    {% translate 'General questions' %}
                 </div>
                 <div class="card-body">
                     {% include 'student_vote_questionnaire_group.html' with questionnaire_group=evaluation_form_group_top textanswers_visible_to=general_contribution_textanswers_visible_to preview=preview %}
@@ -89,12 +91,12 @@
         {% if contributor_form_groups %}
             <div class="card card-outline-primary mb-3">
                 <div class="card-header">
-                    {% trans 'Questions about the contributors' %}
+                    {% translate 'Questions about the contributors' %}
                 </div>
                 <div class="card-body">
                     {% if not preview %}
                         <div class="callout callout-info">
-                            {% blocktrans %}Please vote for all contributors you worked with. Click on "I can't give feedback" to skip a person.{% endblocktrans %}
+                            {% blocktranslate %}Please vote for all contributors you worked with. Click on "I can't give feedback" to skip a person.{% endblocktranslate %}
                         </div>
                     {% endif %}
 
@@ -122,7 +124,7 @@
         {% if evaluation_form_group_bottom %}
             <div class="card card-outline-primary mb-3">
                 <div class="card-header">
-                    {% trans "General questions" %}
+                    {% translate "General questions" %}
                 </div>
                 <div class="card-body">
                     {% include "student_vote_questionnaire_group.html" with questionnaire_group=evaluation_form_group_bottom textanswers_visible_to=general_contribution_textanswers_visible_to preview=preview %}
@@ -132,16 +134,16 @@
         {% if small_evaluation_size_warning and not preview and evaluation.num_voters == 0 %}
             <div class="card card-outline-warning mb-3" id="bottom_text_results_publish_confirmation_card">
                 <div class="card-header">
-                    <span class="fas fa-triangle-exclamation"></span> {% trans 'Small number of participants' %}
+                    <span class="fas fa-triangle-exclamation"></span> {% translate 'Small number of participants' %}
                 </div>
                 <div class="card-body tab-row">
-                    {% blocktrans %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktrans %}
+                    {% blocktranslate %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktranslate %}
 
                     <div class="form-check mt-3">
                         <input class="form-check-input tab-selectable" id="text_results_publish_confirmation_bottom" type="checkbox"
                             name="text_results_publish_confirmation_bottom" />
                         <label class="form-check-label" for="text_results_publish_confirmation_bottom">
-                            {% trans 'Show my text answers to the contributors even if I remain the only person who takes part in this evaluation.' %}
+                            {% translate 'Show my text answers to the contributors even if I remain the only person who takes part in this evaluation.' %}
                         </label>
                     </div>
                 </div>
@@ -151,16 +153,16 @@
             <div class="card card-submit-area{% if not preview %} card-submit-area-2{% endif %} text-center">
                 <div class="card-body tab-row">
                     {% if preview %}
-                        <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">{% trans 'Back' %}</a>
+                        <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">{% translate 'Back' %}</a>
                     {% else %}
                         <div class="pb-3 text-secondary">
                             <span id="last-saved"></span>
-                            <span class="fas fa-circle-info" data-bs-toggle="tooltip" title="{% trans 'The evaluation can be continued later using the same device and the same browser. But you have to submit it to send it to the server and make it count. After submitting, you can not edit the evaluation anymore.' %}"></span>
+                            <span class="fas fa-circle-info" data-bs-toggle="tooltip" title="{% translate 'The evaluation can be continued later using the same device and the same browser. But you have to submit it to send it to the server and make it count. After submitting, you cannot edit the evaluation anymore.' %}"></span>
                         </div>
-                        <button id="vote-submit-btn" type="submit" class="btn btn-success tab-selectable">{% trans 'Submit questionnaire' %}</button>
-                        <p id="submit-error-warning" style="display: none" class="text-danger">
+                        <button id="vote-submit-btn" type="submit" class="btn btn-success tab-selectable">{% translate 'Submit questionnaire' %}</button>
+                        <p id="submit-error-warning" class="text-danger d-none">
                             <span class="fas fa-triangle-exclamation"></span>
-                            {% blocktrans %}The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire.{% endblocktrans %}
+                            {% blocktranslate %}The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire.{% endblocktranslate %}
                         </p>
                     {% endif %}
                 </div>
@@ -218,13 +220,13 @@
                     const relativeTimeFormat = new Intl.RelativeTimeFormat(languageCode);
                     let timeStamp;
                     if (delta < 3) {
-                        timeStamp = "{% trans 'just now' %}";
+                        timeStamp = "{% translate 'just now' %}";
                     } else if (delta < 10) {
-                        timeStamp = "{% trans 'less than 10 seconds ago' %}";
+                        timeStamp = "{% translate 'less than 10 seconds ago' %}";
                     } else if (delta < 30) {
-                        timeStamp = "{% trans 'less than 30 seconds ago' %}";
+                        timeStamp = "{% translate 'less than 30 seconds ago' %}";
                     } else if (delta < 60) {
-                        timeStamp = "{% trans 'less than 1 minute ago' %}";
+                        timeStamp = "{% translate 'less than 1 minute ago' %}";
                     } else if (delta < 60 * 30) {
                         timeStamp = relativeTimeFormat.format(-Math.round(delta / 60), 'minutes');
                     } else if (delta < 60 * 60 * 12) {
@@ -236,9 +238,9 @@
                         + padWithLeadingZeros(lastSavedDate.getHours()) + ":"
                         + padWithLeadingZeros(lastSavedDate.getMinutes());
                     }
-                    lastSavedLabel.innerText = "{% trans 'Last saved locally' %}: " + timeStamp;
+                    lastSavedLabel.innerText = "{% translate 'Last saved locally' %}: " + timeStamp;
                 } else {
-                    lastSavedLabel.innerText = "{% trans 'Could not save your information locally' %}";
+                    lastSavedLabel.innerText = "{% translate 'Could not save your information locally' %}";
                 }
             }
 
@@ -262,7 +264,7 @@
                 const submitButton = document.getElementById('vote-submit-btn');
                 const originalText = submitButton.innerText;
 
-                submitButton.innerText = "{% trans 'Submitting...' %}";
+                submitButton.innerText = "{% translate 'Submitting...' %}";
                 submitButton.disabled = true;
 
                 fetch(form.action, {
@@ -283,7 +285,7 @@
                     }
                 }).catch(error => {
                     // show a warning if the post isn't successful
-                    document.getElementById('submit-error-warning').style.display = 'block';
+                    document.getElementById('submit-error-warning').classList.remove("d-none");
                     submitButton.innerText = originalText;
                     submitButton.disabled = false;
                 });

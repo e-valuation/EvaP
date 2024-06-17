@@ -25,7 +25,7 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup python
         uses: ./.github/setup_python
@@ -33,7 +33,9 @@ jobs:
       - name: Run tests
         run: coverage run manage.py test
       - name: Upload coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   test_shuffled:
     name: Test (shuffled order)
@@ -53,7 +55,7 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup python
         uses: ./.github/setup_python
@@ -68,13 +70,13 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup python
         uses: ./.github/setup_python
 
       - name: Run MyPy
-        run: mypy -p evap
+        run: mypy
 
   linter:
     runs-on: ubuntu-22.04
@@ -83,13 +85,16 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup python
         uses: ./.github/setup_python
 
-      - name: Run linter
-        run: pylint evap -j 0
+      - name: Run ruff
+        run: ruff check .
+
+      - name: Run pylint
+        run: pylint evap tools
 
 
   formatter:
@@ -99,7 +104,7 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup python
         uses: ./.github/setup_python
@@ -108,7 +113,7 @@ jobs:
         uses: ./.github/setup_nodejs
 
       - name: Check code formatting
-        run: black --check evap
+        run: black --check .
       - name: Check imports formatting
         run: isort . --check --diff
       - run: ls -laR evap/static/ts
@@ -139,12 +144,14 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
 
       - name: Setup python
         uses: ./.github/setup_python
+        with:
+          requirements-file: requirements.txt
 
       - name: Setup nodejs
         uses: ./.github/setup_nodejs
@@ -176,7 +183,7 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -186,7 +193,7 @@ jobs:
       - name: Compile Scss
         run: npx sass evap/static/scss/evap.scss evap/static/css/evap.css
       - name: Store Css
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: css
           path: evap/static/css/evap.css
@@ -215,7 +222,7 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup python
         uses: ./.github/setup_python
@@ -223,11 +230,12 @@ jobs:
       - name: Render pages
         run: coverage run manage.py ts render_pages
       - name: Upload coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           flags: render-pages
+          token: ${{ secrets.CODECOV_TOKEN }}
       - name: Store rendered pages
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rendered-pages
           path: evap/static/ts/rendered
@@ -242,7 +250,7 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -252,12 +260,12 @@ jobs:
       - name: Compile Typescript
         run: npx tsc --project evap/static/ts/tsconfig.compile.json
       - name: Load rendered pages
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: rendered-pages
           path: evap/static/ts/rendered
       - name: Load Css
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: css
           path: evap/static/css

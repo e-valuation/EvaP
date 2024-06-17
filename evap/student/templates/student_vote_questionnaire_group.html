@@ -11,7 +11,7 @@
                     data-mark-no-answers-for="{{ contributor.id }}"
                     {% if preview %}disabled{% endif %}
                 >
-                    {% blocktrans %}I can't give feedback about this contributor{% endblocktrans %}
+                    {% blocktranslate %}I can't give feedback about this contributor{% endblocktranslate %}
                 </button>
             </div>
         {% endif%}
@@ -35,14 +35,10 @@
                         {% if field|is_choice_field %}
                             <div class="col-question col-lg-4 col-xl-5 d-flex justify-content-between{% if field.errors %} choice-error{% endif %}">
                                 <span class="me-1">
-
-                                    {% if field.field.widget.attrs.choices.is_inverted %}
-                                        <span class="fas fa-triangle-exclamation warning-label" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'The answer scale is inverted for this question.' %}"></span>
-                                    {% endif %}
                                     {{ field.label }}
                                 </span>
                                 {% if allows_textanswer %}
-                                    <span class="my-auto" data-bs-toggle="tooltip" data-container=".col-question" title="{% trans 'Add a text answer to this question' %}">
+                                    <span class="my-auto" data-bs-toggle="tooltip" data-container=".col-question" title="{% translate 'Add a text answer to this question' %}">
                                         <button type="button" class="btn btn-light btn-textanswer collapsed" data-bs-toggle="collapse" data-bs-target=".collapse-{{ field.name }}" tabindex="-1">
                                             <span class="far fa-comment"></span>
                                         </button>
@@ -78,7 +74,7 @@
                                         <textarea id="{{ field.id_for_label }}" class="form-control tab-selectable" name="{{ field.name }}"{% if preview %} disabled{% endif %}>{{ field.value|default_if_none:"" }}</textarea>
                                     </div>
                                     <div>
-                                        {% blocktrans asvar intro_text %}After publishing, this text answer can be seen by:{% endblocktrans %}
+                                        {% blocktranslate asvar intro_text %}After publishing, this text answer can be seen by:{% endblocktranslate %}
                                         {% include 'textanswer_visibility_info.html' with intro_text=intro_text visible_by_contribution=textanswers_visible_to.visible_by_contribution visible_by_delegation_count=textanswers_visible_to.visible_by_delegation_count %}
                                     </div>
                                 </div>

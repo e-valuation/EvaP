@@ -260,7 +260,7 @@ class CourseFormMixin:
                     self.add_error(name_field, e)
 
 
-class CourseForm(CourseFormMixin, forms.ModelForm):  # type: ignore
+class CourseForm(CourseFormMixin, forms.ModelForm):  # type: ignore[misc]
     semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
 
     def __init__(self, *args, **kwargs):
@@ -270,7 +270,7 @@ class CourseForm(CourseFormMixin, forms.ModelForm):  # type: ignore
             disable_all_fields(self)
 
 
-class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore
+class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore[misc]
     semester = forms.ModelChoiceField(Semester.objects.all())
     vote_start_datetime = forms.DateTimeField(label=_("Start of evaluations"), localize=True)
     vote_end_date = forms.DateField(label=_("Last day of evaluations"), localize=True)
@@ -354,7 +354,7 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore
 
 
 class EvaluationForm(forms.ModelForm):
-    general_questionnaires = forms.ModelMultipleChoiceField(
+    general_questionnaires: "forms.ModelMultipleChoiceField[Questionnaire]" = forms.ModelMultipleChoiceField(
         Questionnaire.objects.general_questionnaires().exclude(visibility=Questionnaire.Visibility.HIDDEN),
         widget=CheckboxSelectMultiple,
         label=_("General questions"),
@@ -573,7 +573,7 @@ class ContributionForm(forms.ModelForm):
     evaluation = forms.ModelChoiceField(
         Evaluation.objects.all(), disabled=True, required=False, widget=forms.HiddenInput()
     )
-    questionnaires = forms.ModelMultipleChoiceField(
+    questionnaires: "forms.ModelMultipleChoiceField[Questionnaire]" = forms.ModelMultipleChoiceField(
         Questionnaire.objects.contributor_questionnaires().exclude(visibility=Questionnaire.Visibility.HIDDEN),
         required=False,
         widget=CheckboxSelectMultiple,
@@ -683,7 +683,7 @@ class EvaluationEmailForm(forms.Form):
         recipients = self.template.recipient_list_for_evaluation(
             self.evaluation, self.recipient_groups, filter_users_in_cc=False
         )
-        return set(user.email for user in recipients if user.email)
+        return {user.email for user in recipients if user.email}
 
     def send(self, request):
         self.template.subject = self.cleaned_data.get("subject")
@@ -817,7 +817,7 @@ class ContributionFormset(BaseInlineFormSet):
             evaluation = None
 
         total_forms = int(data["contributions-TOTAL_FORMS"])
-        for i in range(0, total_forms):
+        for i in range(total_forms):
             prefix = "contributions-" + str(i) + "-"
             current_id = data.get(prefix + "id", "")
             contributor = data.get(prefix + "contributor", "")
@@ -833,7 +833,7 @@ class ContributionFormset(BaseInlineFormSet):
                 continue
 
             # find the form with that previous contribution and then swap the contributions
-            for j in range(0, total_forms):
+            for j in range(total_forms):
                 other_prefix = "contributions-" + str(j) + "-"
                 other_id = data[other_prefix + "id"]
                 if other_id == previous_id:
@@ -934,7 +934,7 @@ class UserForm(forms.ModelForm):
     is_grade_publisher = forms.BooleanField(required=False, label=_("Grade publisher"))
     is_reviewer = forms.BooleanField(required=False, label=_("Reviewer"))
     is_inactive = forms.BooleanField(required=False, label=_("Inactive"))
-    evaluations_participating_in = forms.ModelMultipleChoiceField(
+    evaluations_participating_in: "forms.ModelMultipleChoiceField[Questionnaire]" = forms.ModelMultipleChoiceField(
         None, required=False, label=_("Evaluations participating in (active semester)")
     )
 

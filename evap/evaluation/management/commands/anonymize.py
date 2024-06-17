@@ -94,8 +94,8 @@ class Command(BaseCommand):
         if len(first_names) * len(last_names) < len(user_profiles) * 1.5:
             self.stdout.write(
                 "Warning: There are few example names compared to all that real data to be anonymized. "
-                + "Consider adding more data to the first_names.txt and last_names.txt files in the anonymize_data "
-                + "folder."
+                "Consider adding more data to the first_names.txt and last_names.txt files in the anonymize_data "
+                "folder."
             )
 
         while len(fake_usernames) < len(user_profiles):
@@ -111,7 +111,7 @@ class Command(BaseCommand):
 
         # Actually replace all the real user data
         self.stdout.write("Replacing email addresses and login keys with fake ones...")
-        for user, name in zip(user_profiles, fake_usernames):
+        for user, name in zip(user_profiles, fake_usernames, strict=True):
             if user.email and user.email.split("@")[0] in Command.ignore_email_usernames:
                 continue
             user.first_name_given = name[0]
@@ -131,6 +131,8 @@ class Command(BaseCommand):
                 user.ensure_valid_login_key()
                 # Invalidate some keys
                 user.valid_until = date.today() + random.choice([1, -1]) * timedelta(365 * 100)  # nosec
+
+            assert not user.has_usable_password()
 
             user.save()
 
@@ -161,7 +163,7 @@ class Command(BaseCommand):
             # Shuffle public courses' names in order to decouple them from the results.
             # Also, assign public courses' names to private ones as their names may be confidential.
             self.stdout.write("Shuffling course names...")
-            public_names = list(set(map(lambda c: (c.name_de, c.name_en), public_courses)))
+            public_names = list({(c.name_de, c.name_en) for c in public_courses})
             random.shuffle(public_names)
 
             for i, course in enumerate(courses):
@@ -188,7 +190,7 @@ class Command(BaseCommand):
 
             self.stdout.write("Shuffling evaluation names...")
             named_evaluations = (evaluation for evaluation in evaluations if evaluation.name_de and evaluation.name_en)
-            names = list(set(map(lambda c: (c.name_de, c.name_en), named_evaluations)))
+            names = list({(c.name_de, c.name_en) for c in named_evaluations})
             random.shuffle(names)
 
             for i, evaluation in enumerate(evaluations):
@@ -244,7 +246,7 @@ class Command(BaseCommand):
                 for question, counters in counters_per_question.items():
                     original_sum = sum(counter.count for counter in counters)
 
-                    missing_values = set(CHOICES[question.type].values).difference(set(c.answer for c in counters))
+                    missing_values = set(CHOICES[question.type].values).difference({c.answer for c in counters})
                     missing_values.discard(NO_ANSWER)  # don't add NO_ANSWER counter if it didn't exist before
                     for value in missing_values:
                         counters.append(
@@ -259,7 +261,7 @@ class Command(BaseCommand):
                     index = random.randint(0, len(generated_counts) - 1)  # nosec
                     generated_counts[index] += to_add
 
-                    for counter, generated_count in zip(counters, generated_counts):
+                    for counter, generated_count in zip(counters, generated_counts, strict=True):
                         assert generated_count >= 0
                         counter.count = generated_count
 

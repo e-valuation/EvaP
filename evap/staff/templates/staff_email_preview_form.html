@@ -2,23 +2,22 @@
     <div class="card-body">
          {% if heading %}<h4 class="card-title">{{ heading }}</h4>{% endif %}
         <div class="form-check mb-2">
-            <input class="form-check-input" id="send_email{{ id_suffix }}" type="checkbox" name="send_email{{ id_suffix }}"
-                checked onclick="document.getElementById('email_form').classList.toggle('d-none');" />
-            <label class="form-check-label" for="send_email{{ id_suffix }}">{% trans 'Send email notifications' %}</label>
+            <input class="form-check-input" id="send_email{{ id_suffix }}" type="checkbox" name="send_email{{ id_suffix }}" checked/>
+            <label class="form-check-label" for="send_email{{ id_suffix }}">{% translate 'Send email notifications' %}</label>
         </div>
-        <div class="email-form" id="email_form{{ id_suffix}}">
+        <div class="email-form" id="email_form{{ id_suffix }}">
             <div class="mb-3 d-flex">
-                <div class="form-label pe-4">{% trans 'Email subject' %}</div>
+                <div class="form-label pe-4">{% translate 'Email subject' %}</div>
                 <div class="form-field"><input class="form-control" name="email_subject{{ id_suffix }}" type="text" value="{{ email_template.subject }}" /></div>
             </div>
             <div class="mb-3 d-flex">
                 <div class="form-label pe-4">
                     <div class="nav nav-pills btn-switch btn-group-vertical float-end" role="tablist">
                         <a class="p-1 space-normal fw-bold btn btn-light text-center nav-link show active" href="#tab-plain{{ id_suffix }}" data-bs-toggle="pill" role="tab" aria-controls="pills-plain{{ id_suffix }}" aria-selected="true">
-                            {% trans 'Plain Text' %}
+                            {% translate 'Plain Text' %}
                         </a>
                         <a class="p-1 space-normal fw-bold btn btn-light text-center nav-link" href="#tab-html{{ id_suffix }}" data-bs-toggle="pill" role="tab" aria-controls="pills-html{{ id_suffix }}" aria-selected="false">
-                            {% trans 'HTML' %}
+                            {% translate 'HTML' %}
                         </a>
                     </div>
                 </div>
@@ -34,3 +33,6 @@
         </div>
     </div>
 </div>
+<script type="text/javascript">
+    document.getElementById("send_email{{ id_suffix }}").addEventListener("click", () => document.getElementById("email_form{{ id_suffix }}").classList.toggle("d-none"));
+</script>

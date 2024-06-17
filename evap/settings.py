@@ -67,16 +67,16 @@ TEXTANSWER_REVIEW_REMINDER_WEEKDAYS = [3]
 
 # email domains for the internal users of the hosting institution used to
 # figure out who is an internal user
-INSTITUTION_EMAIL_DOMAINS = ["institution.example.com"]
+INSTITUTION_EMAIL_DOMAINS: list[str] = ["institution.example.com", "student.institution.example.com"]
 
 # List of tuples defining email domains that should be replaced on saving UserProfiles.
 # Emails ending on the first value will have this part replaced by the second value.
 # e.g.: [("institution.example.com", "institution.com")]
 INSTITUTION_EMAIL_REPLACEMENTS: list[tuple[str, str]] = []
 
-# the importer accepts only these two strings in the 'graded' column
-IMPORTER_GRADED_YES = "yes"
-IMPORTER_GRADED_NO = "no"
+# the importer accepts only these strings in the 'graded' column
+IMPORTER_GRADED_YES = ["yes", "ja", "graded", "benotet"]
+IMPORTER_GRADED_NO = ["no", "nein", "ungraded", "unbenotet"]
 
 # the importer will warn if any participant has more enrollments than this number
 IMPORTER_MAX_ENROLLMENTS = 7
@@ -155,6 +155,7 @@ ALLOW_ANONYMOUS_FEEDBACK_MESSAGES = True
 # Config for mail system
 DEFAULT_FROM_EMAIL = "webmaster@localhost"
 REPLY_TO_EMAIL = DEFAULT_FROM_EMAIL
+SEND_ALL_EMAILS_TO_ADMINS_IN_BCC = False
 if DEBUG:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
@@ -307,6 +308,11 @@ SESSION_COOKIE_AGE = 60 * 60 * 24 * 365  # one year
 STAFF_MODE_TIMEOUT = 3 * 60 * 60  # three hours
 STAFF_MODE_INFO_TIMEOUT = 3 * 60 * 60  # three hours
 
+# Disable the check for number of post parameters to enable, e.g., large numbers of participants in forms
+# see https://docs.djangoproject.com/en/5.0/ref/settings/#data-upload-max-number-fields
+DATA_UPLOAD_MAX_NUMBER_FIELDS = None
+
+
 ### Internationalization
 
 LANGUAGE_CODE = "en"
@@ -407,12 +413,10 @@ OIDC_OP_JWKS_ENDPOINT = "https://example.com/certs"
 # Create a localsettings.py if you want to locally override settings
 # and don't want the changes to appear in 'git status'.
 try:
-    # if a localsettings file exists (vagrant), this will cause wildcard-import errors
-    # if it does not, (GitHub), it would cause useless-suppression
-    # pylint: disable=unused-wildcard-import,wildcard-import,useless-suppression
+    # localsettings file may (vagrant) or may not (CI run) exist
 
     # the import can overwrite locals with a slightly different type (e.g. DATABASES), which is fine.
-    from evap.localsettings import *  # type: ignore
+    from evap.localsettings import *  # type: ignore  # noqa: F403,PGH003
 except ImportError:
     pass
 

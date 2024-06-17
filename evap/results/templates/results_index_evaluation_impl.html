@@ -1,5 +1,6 @@
 {% load evaluation_filters %}
 {% load results_templatetags %}
+{% load l10n %}
 
 <{% if links_to_results_page %}a href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}"{% else %}div{% endif %}
         class="results-grid-row {% if not is_subentry %}heading-row{% else %}evaluation-row{% endif %}
@@ -27,14 +28,14 @@
             {% endif %}
             {% if evaluation.is_single_result %} ({{ evaluation.vote_start_datetime|date }}){% endif %}
             {% if evaluation.state == evaluation.State.IN_EVALUATION %}
-                <span data-bs-toggle="tooltip" data-bs-placement="top" class="fas fa-play icon-gray" title="{% trans 'This evaluation is still running' %}"></span>
+                <span data-bs-toggle="tooltip" data-bs-placement="top" class="fas fa-play icon-gray" title="{% translate 'This evaluation is still running' %}"></span>
             {% elif evaluation.state == evaluation.State.EVALUATED %}
-                <span data-bs-toggle="tooltip" data-bs-placement="top" class="fas fa-chart-simple icon-yellow" title="{% trans 'Results not yet published' %}"></span>
+                <span data-bs-toggle="tooltip" data-bs-placement="top" class="fas fa-chart-simple icon-yellow" title="{% translate 'Results not yet published' %}"></span>
             {% elif evaluation.state == evaluation.State.REVIEWED %}
                 {% if evaluation.is_single_result or evaluation.grading_process_is_finished %}
-                    <span data-bs-toggle="tooltip" data-bs-placement="top" class="fas fa-chart-simple icon-red" title="{% trans 'Results not yet published although grading process is finished' %}"></span>
+                    <span data-bs-toggle="tooltip" data-bs-placement="top" class="fas fa-chart-simple icon-red" title="{% translate 'Results not yet published although grading process is finished' %}"></span>
                 {% else %}
-                    <span data-bs-toggle="tooltip" data-bs-placement="top" class="fas fa-chart-simple icon-yellow" title="{% trans 'Results not yet published' %}"></span>
+                    <span data-bs-toggle="tooltip" data-bs-placement="top" class="fas fa-chart-simple icon-yellow" title="{% translate 'Results not yet published' %}"></span>
                 {% endif %}
             {% endif %}
         </span>
@@ -49,17 +50,16 @@
             {{ evaluation.course.responsibles_names }}
         </div>
     {% endif %}
-    {% if evaluation.is_single_result %}
-        <div data-col="participants" class="text-center"><span class="fas fa-user"></span>&nbsp;{{ evaluation.single_result_rating_result.count_sum }}</div>
-    {% else %}
-        {% with num_participants=evaluation.num_participants num_voters=evaluation.num_voters %}
-            <div data-col="participants">{% include 'progress_bar.html' with done=num_voters total=num_participants %}</div>
-        {% endwith %}
-    {% endif %}
-
+    <div data-col="voters" class="text-center" data-order="{{ evaluation|voters_order }}">
+        {% if evaluation.is_single_result %}
+            <span class="fas fa-user"></span>&nbsp;{{ evaluation.single_result_rating_result.count_sum }}
+        {% else %}
+            {% include 'progress_bar.html' with done=evaluation.num_voters total=evaluation.num_participants %}
+        {% endif %}
+    </div>
     <div data-col="result"{% if not is_subentry %} data-order="{% if evaluation.is_single_result %}{{ evaluation.single_result_rating_result.average }}{% else %}{{ evaluation.avg_grade|default:7 }}{% endif %}"{% endif %}>
         {% if not evaluation.can_staff_see_average_grade %}
-            <div class="d-flex" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Evaluation result is not yet available.' %}">
+            <div class="d-flex" data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Evaluation result is not yet available.' %}">
                 {% include "distribution_with_grade_disabled.html" with icon="fas fa-hourglass" %}
             </div>
         {% else %}

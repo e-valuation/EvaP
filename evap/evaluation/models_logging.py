@@ -94,10 +94,7 @@ class LogEntry(models.Model):
     def field_context_data(self):
         model = self.content_type.model_class()
         return {
-            field_name: [
-                getattr(model, "transform_log_action", LoggedModel.transform_log_action)(field_action)
-                for field_action in _field_actions_for_field(model._meta.get_field(field_name), actions)
-            ]
+            field_name: list(_field_actions_for_field(model._meta.get_field(field_name), actions))
             for field_name, actions in self.data.items()
         }
 
@@ -127,6 +124,19 @@ class LoggedModel(models.Model):
 
     class Meta:
         abstract = True
+
+    def save(self, *args, **kw):
+        # Are we creating a new instance?
+        # https://docs.djangoproject.com/en/3.0/ref/models/instances/#customizing-model-loading
+        if self._state.adding:
+            # we need to attach a logentry to an existing object, so we save this newly created instance first
+            super().save(*args, **kw)
+            self.log_instance_create()
+        else:
+            # when saving an existing instance, we get changes by comparing to the version from the database
+            # therefore we save the instance after building the logentry
+            self.log_instance_change()
+            super().save(*args, **kw)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -239,19 +249,6 @@ class LoggedModel(models.Model):
         if store_in_db:
             self._logentry.save()
 
-    def save(self, *args, **kw):
-        # Are we creating a new instance?
-        # https://docs.djangoproject.com/en/3.0/ref/models/instances/#customizing-model-loading
-        if self._state.adding:
-            # we need to attach a logentry to an existing object, so we save this newly created instance first
-            super().save(*args, **kw)
-            self.log_instance_create()
-        else:
-            # when saving an existing instance, we get changes by comparing to the version from the database
-            # therefore we save the instance after building the logentry
-            self.log_instance_change()
-            super().save(*args, **kw)
-
     def delete(self, *args, **kw):
         self.log_instance_delete()
         self.related_logentries().delete()
@@ -323,10 +320,6 @@ class LoggedModel(models.Model):
     def unlogged_fields(self):
         """Specify a list of field names so that these fields don't get logged."""
         return ["id", "order"]
-
-    @staticmethod
-    def transform_log_action(field_action):
-        return field_action
 
 
 @receiver(m2m_changed)

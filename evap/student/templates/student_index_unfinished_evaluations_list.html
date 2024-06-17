@@ -6,7 +6,7 @@
             <tr{% if evaluation.state == evaluation.State.IN_EVALUATION and not evaluation.voted_for and evaluation.is_in_evaluation_period %}
                     class="hover-row hover-row-info" data-url="{% url 'student:vote' evaluation.id %}"
                 {% else %} class="deactivate"{% endif %}>
-                <td style="width: 62%">
+                <td class="width-percent-62">
                     <div>
                         <span class="evaluation-name fw-bold {% if evaluation.state == evaluation.State.IN_EVALUATION and not evaluation.voted_for %} text-primary{% endif %}">
                             {{ evaluation.full_name }}
@@ -14,18 +14,18 @@
                         {% if not evaluation.course.semester.is_active %}({{ evaluation.course.semester.name }}){% endif %}
                     </div>
                     <span class="badge bg-secondary">{{ evaluation.course.type }}</span>
-                    {% if evaluation.is_midterm_evaluation %}<span class="badge bg-dark">{% trans 'Midterm evaluation' %}</span>{% endif %}
-                    <span class="badge bg-secondary-outline" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Number of participants' %}">
+                    {% if evaluation.is_midterm_evaluation %}<span class="badge bg-dark">{% translate 'Midterm evaluation' %}</span>{% endif %}
+                    <span class="badge bg-secondary-outline" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Number of participants' %}">
                         <span class="fas fa-user"></span> {{ evaluation.num_participants }}
                     </span>
                     <i class="small">{{ evaluation.course.responsibles_names }}</i>
                 </td>
-                <td style="width: 18%">
+                <td class="width-percent-18">
                     {% include 'student_index_evaluation_period.html' %}
                 </td>
-                <td style="width: 20%" class="text-end">
+                <td class="width-percent-20 text-end">
                     {% if evaluation.state == evaluation.State.IN_EVALUATION and not evaluation.voted_for and evaluation.is_in_evaluation_period  %}
-                        <a class="btn btn-sm btn-primary btn-row-hover" href="{% url 'student:vote' evaluation.id %}">{% trans 'Evaluate' %}</a>
+                        <a class="btn btn-sm btn-primary btn-row-hover" href="{% url 'student:vote' evaluation.id %}">{% translate 'Evaluate' %}</a>
                     {% endif %}
                 </td>
             </tr>

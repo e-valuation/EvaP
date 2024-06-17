@@ -1,6 +1,6 @@
 import inspect
+from collections.abc import Callable
 from functools import wraps
-from typing import Callable
 
 from django.contrib.auth.backends import ModelBackend
 from django.core.exceptions import PermissionDenied
@@ -8,7 +8,7 @@ from django.utils.decorators import method_decorator
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 
 from evap.evaluation.models import UserProfile
-from evap.evaluation.tools import clean_email
+from evap.evaluation.tools import clean_email, openid_login_is_active, password_login_is_active
 from evap.rewards.tools import can_reward_points_be_used_by
 
 
@@ -28,8 +28,7 @@ class RequestAuthUserBackend(ModelBackend):
             return None
 
         try:
-            user = UserProfile.objects.get(login_key=key)
-            return user
+            return UserProfile.objects.get(login_key=key)
         except UserProfile.DoesNotExist:
             return None
 
@@ -37,6 +36,7 @@ class RequestAuthUserBackend(ModelBackend):
 class EmailAuthenticationBackend(ModelBackend):
     # https://docs.djangoproject.com/en/3.1/topics/auth/customizing/#writing-an-authentication-backend
     def authenticate(self, request, email=None, password=None):  # pylint: disable=arguments-differ,arguments-renamed
+        assert password_login_is_active()
         try:
             user = UserProfile.objects.get(email=email)
         except UserProfile.DoesNotExist:
@@ -134,6 +134,7 @@ def reward_user_required(user):
 # see https://mozilla-django-oidc.readthedocs.io/en/stable/
 class OpenIDAuthenticationBackend(OIDCAuthenticationBackend):
     def filter_users_by_claims(self, claims):
+        assert openid_login_is_active()
         email = claims.get("email")
         if not email:
             return []
@@ -144,14 +145,15 @@ class OpenIDAuthenticationBackend(OIDCAuthenticationBackend):
             return []
 
     def create_user(self, claims):
-        user = self.UserModel.objects.create(
+        assert openid_login_is_active()
+        return self.UserModel.objects.create(
             email=claims.get("email"),
             first_name_given=claims.get("given_name", ""),
             last_name=claims.get("family_name", ""),
         )
-        return user
 
     def update_user(self, user, claims):
+        assert openid_login_is_active()
         if not user.first_name_given:
             user.first_name_given = claims.get("given_name", "")
             user.save()

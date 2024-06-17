@@ -145,9 +145,9 @@ class IsGradedImportMapper:
     @classmethod
     def is_graded_from_import_string(cls, is_graded: str) -> bool:
         is_graded = is_graded.strip()
-        if is_graded == settings.IMPORTER_GRADED_YES:
+        if is_graded in settings.IMPORTER_GRADED_YES:
             return True
-        if is_graded == settings.IMPORTER_GRADED_NO:
+        if is_graded in settings.IMPORTER_GRADED_NO:
             return False
 
         raise cls.InvalidIsGradedError(invalid_is_graded=is_graded)
@@ -377,10 +377,10 @@ class CourseMergeLogic:
 
         if course_with_same_name_en != course_with_same_name_de:
             if course_with_same_name_en is not None:
-                raise self.NameEnCollisionError()
+                raise self.NameEnCollisionError
 
             if course_with_same_name_de is not None:
-                raise self.NameDeCollisionError()
+                raise self.NameDeCollisionError
 
         assert course_with_same_name_en is not None
         assert course_with_same_name_de is not None
@@ -445,7 +445,7 @@ class CourseNameChecker(Checker):
             self.importer_log.add_warning(
                 _(
                     'Course "{course_name}" already exists. The course will not be created, instead users are imported into the '
-                    + "evaluation of the existing course and any additional degrees are added."
+                    "evaluation of the existing course and any additional degrees are added.",
                 ).format(course_name=name_en),
                 category=ImporterLogEntry.Category.EXISTS,
             )
@@ -455,7 +455,7 @@ class CourseNameChecker(Checker):
             self.importer_log.add_error(
                 format_html(
                     _(
-                        "{location}: Course {course_name} already exists in this semester, but the courses can not be merged for the following reasons:{reasons}"
+                        "{location}: Course {course_name} already exists in this semester, but the courses cannot be merged for the following reasons:{reasons}"
                     ),
                     location=location_string,
                     course_name=f'"{name_en}"',
@@ -559,7 +559,7 @@ class ExistingParticipationChecker(Checker, RowCheckerMixin):
         seen_evaluation_names = self.participant_emails_per_course_name_en.keys()
 
         existing_participation_pairs = [
-            (participation.evaluation.course.name_en, participation.userprofile.email)  # type: ignore
+            (participation.evaluation.course.name_en, participation.userprofile.email)  # type: ignore[misc]
             for participation in Evaluation.participants.through._default_manager.filter(
                 evaluation__course__name_en__in=seen_evaluation_names, userprofile__email__in=seen_user_emails
             ).prefetch_related("userprofile", "evaluation__course")

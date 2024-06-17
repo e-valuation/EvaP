@@ -4,9 +4,10 @@ from collections import defaultdict
 from datetime import date, datetime, timedelta
 from io import StringIO
 from itertools import chain, cycle
-from unittest.mock import call, patch
+from unittest.mock import MagicMock, call, patch
 
 from django.conf import settings
+from django.contrib.auth.hashers import make_password
 from django.core import mail, management
 from django.core.management import CommandError
 from django.db.models import Sum
@@ -41,6 +42,7 @@ class TestAnonymizeCommand(TestCase):
             title="Prof.",
             first_name_given="Secret",
             last_name="User",
+            password=make_password(None),
             login_key=1234567890,
             login_key_valid_until=date.today(),
         )
@@ -90,7 +92,7 @@ class TestAnonymizeCommand(TestCase):
             type=cycle(iter(CHOICES.keys())),
         )
 
-        cls.contributor = baker.make(UserProfile)
+        cls.contributor = baker.make(UserProfile, password=make_password(None))
 
         cls.contribution = baker.make(
             Contribution,
@@ -163,6 +165,11 @@ class TestAnonymizeCommand(TestCase):
 
         self.assertLessEqual(RatingAnswerCounter.objects.count(), len(choices))
         self.assertEqual(RatingAnswerCounter.objects.aggregate(Sum("count"))["count__sum"], answer_count_before)
+
+    def test_user_with_password(self):
+        baker.make(UserProfile, password=make_password("evap"))
+        with self.assertRaises(AssertionError):
+            management.call_command("anonymize", stdout=StringIO())
 
 
 class TestRefreshResultsCacheCommand(TestCase):
@@ -336,7 +343,7 @@ class TestSendRemindersCommand(TestCase):
         self.assertEqual(mock.call_count, 0)
         self.assertEqual(len(mail.outbox), 0)
 
-    @override_settings(TEXTANSWER_REVIEW_REMINDER_WEEKDAYS=list(range(0, 8)))
+    @override_settings(TEXTANSWER_REVIEW_REMINDER_WEEKDAYS=list(range(7)))
     def test_send_text_answer_review_reminder(self):
         make_manager()
         evaluation = baker.make(
@@ -366,11 +373,12 @@ class TestSendRemindersCommand(TestCase):
 
 
 class TestLintCommand(TestCase):
-    @staticmethod
     @patch("subprocess.run")
-    def test_pylint_called(mock_subprocess_run):
-        management.call_command("lint")
-        mock_subprocess_run.assert_called_once_with(["pylint", "evap"], check=False)
+    def test_pylint_called(self, mock_subprocess_run: MagicMock):
+        management.call_command("lint", stdout=StringIO())
+        self.assertEqual(mock_subprocess_run.call_count, 2)
+        mock_subprocess_run.assert_any_call(["ruff", "check", "."], check=False)
+        mock_subprocess_run.assert_any_call(["pylint", "evap", "tools"], check=False)
 
 
 class TestFormatCommand(TestCase):
@@ -380,7 +388,7 @@ class TestFormatCommand(TestCase):
         self.assertEqual(len(mock_subprocess_run.mock_calls), 3)
         mock_subprocess_run.assert_has_calls(
             [
-                call(["black", "evap"], check=False),
+                call(["black", "."], check=False),
                 call(["isort", "."], check=False),
                 call(["npx", "prettier", "--write", "evap/static/ts/**/*.ts"], check=False),
             ]
@@ -392,7 +400,7 @@ class TestTypecheckCommand(TestCase):
     def test_mypy_called(self, mock_subprocess_run):
         management.call_command("typecheck")
         self.assertEqual(len(mock_subprocess_run.mock_calls), 1)
-        mock_subprocess_run.assert_has_calls([call(["mypy", "-p", "evap"], check=True)])
+        mock_subprocess_run.assert_has_calls([call(["mypy"], check=True)])
 
 
 class TestPrecommitCommand(TestCase):
@@ -409,7 +417,7 @@ class TestPrecommitCommand(TestCase):
         mock_call_command.assert_any_call("format")
 
 
-@override_settings(TEXTANSWER_REVIEW_REMINDER_WEEKDAYS=range(0, 7))
+@override_settings(TEXTANSWER_REVIEW_REMINDER_WEEKDAYS=range(7))
 class TestSendTextanswerRemindersCommand(TestCase):
     def test_send_reminder(self):
         make_manager()

@@ -6,7 +6,7 @@
         {% if course_form.instance.id %}
             {{ course.name }} ({{ course.semester.name }})
         {% else %}
-            {% trans 'Create course' %}
+            {% translate 'Create course' %}
         {% endif %}
     </h3>
     <form id="course-form" method="POST" class="form-horizontal multiselect-form tomselectform">
@@ -21,7 +21,7 @@
         {% if course_form.instance.id %}
             <div class="card mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">{% trans 'Evaluations' %}</h5>
+                    <h5 class="card-title">{% translate 'Evaluations' %}</h5>
                     {% if course.evaluations.count > 0 %}
                         <ul>
                             {% for evaluation in course.evaluations.all %}
@@ -33,7 +33,7 @@
                             {% endfor %}
                         </ul>
                     {% else %}
-                        <span class="fst-italic">{% trans 'There are no evaluations for this course.' %}</span>
+                        <span class="fst-italic">{% translate 'There are no evaluations for this course.' %}</span>
                     {% endif %}
                 </div>
             </div>
@@ -42,9 +42,9 @@
         {% if editable %}
             <div class="card card-submit-area card-submit-area-3 text-center mb-3">
                 <div class="card-body">
-                    <button name="operation" value="save" type="submit" class="btn btn-primary">{% trans 'Save' %}</button>
-                    <button name="operation" value="save_create_evaluation" type="submit" class="btn btn-dark">{% trans 'Save and create evaluation' %}</button>
-                    <button name="operation" value="save_create_single_result" type="submit" class="btn btn-dark">{% trans 'Save and create single result' %}</button>
+                    <button name="operation" value="save" type="submit" class="btn btn-primary">{% translate 'Save' %}</button>
+                    <button name="operation" value="save_create_evaluation" type="submit" class="btn btn-dark">{% translate 'Save and create evaluation' %}</button>
+                    <button name="operation" value="save_create_single_result" type="submit" class="btn btn-dark">{% translate 'Save and create single result' %}</button>
                 </div>
             </div>
         {% endif %}

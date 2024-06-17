@@ -2,7 +2,8 @@ import urllib
 from unittest.mock import patch
 
 from django.conf import settings
-from django.contrib.auth.models import Group
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import AnonymousUser, Group
 from django.core import mail
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
@@ -20,6 +21,7 @@ from evap.evaluation.tests.tools import WebTest
 @override_settings(PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"])
 class LoginTests(WebTest):
     csrf_checks = False
+    url = reverse("evaluation:index")
 
     @classmethod
     def setUpTestData(cls):
@@ -60,6 +62,7 @@ class LoginTests(WebTest):
         self.assertContains(page, self.external_user.full_name)
 
         page = self.app.post(url_with_key).follow().follow()
+        self.assertEqual(page.context["user"], self.external_user)
         self.assertContains(page, "Logout")
         self.assertContains(page, self.external_user.full_name)
 
@@ -69,9 +72,11 @@ class LoginTests(WebTest):
 
         url_with_key = reverse("evaluation:login_key_authentication", args=[self.external_user.login_key])
         page = self.app.post(url_with_key).follow().follow()
+        self.assertEqual(page.context["user"], self.external_user)
         self.assertContains(page, "Logout")
 
         page = page.forms["logout-form"].submit().follow()
+        self.assertIsInstance(page.context["user"], AnonymousUser)
         self.assertNotContains(page, "Logout")
 
         page = self.app.get(url_with_key).follow()
@@ -87,11 +92,12 @@ class LoginTests(WebTest):
             reverse("evaluation:login_key_authentication", args=[self.inactive_external_user.login_key])
         ).follow()
         self.assertContains(page, "Inactive users are not allowed to login")
+        self.assertIsInstance(page.context["user"], AnonymousUser)
         self.assertNotContains(page, "Logout")
 
     def test_login_key_resend_if_still_valid(self):
         old_key = self.external_user.login_key
-        page = self.app.post("/", params={"submit_type": "new_key", "email": self.external_user.email}).follow()
+        page = self.app.post(self.url, params={"submit_type": "new_key", "email": self.external_user.email}).follow()
         new_key = UserProfile.objects.get(id=self.external_user.id).login_key
 
         self.assertEqual(old_key, new_key)
@@ -104,9 +110,9 @@ class LoginTests(WebTest):
     )
     def test_oidc_login(self):
         # This should send them to /oidc/authenticate
-        page = self.app.get("/").click("Login")
+        page = self.app.get(self.url).click("Login")
 
-        # which should then redirect them to OIDC_OP_AUTHORIZTATION_ENDPOINT
+        # which should then redirect them to OIDC_OP_AUTHORIZATION_ENDPOINT
         location = page.headers["location"]
         self.assertIn(settings.OIDC_OP_AUTHORIZATION_ENDPOINT, location)
 
@@ -128,15 +134,46 @@ class LoginTests(WebTest):
         # Thus, at this point, the user should be logged in and be redirected back to the start page.
         location = page.headers["location"]
         parse_result = urllib.parse.urlparse(location)
-        self.assertEqual(parse_result.path, "/")
+        self.assertEqual(parse_result.path, self.url)
 
         page = self.app.get(location)
         # A GET here should then redirect to the users real start page.
         # This should be a 403 since the user is external and has no course participation
         page = page.follow(status=403)
 
-        # user should see the Logout button then.
         self.assertIn("Logout", page.body.decode())
+        self.assertEqual(page.context["user"], user)
+
+    @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
+    def test_passworduser_login(self):
+        """Tests whether a user can login with an incorrect and a correct password."""
+        user = baker.make(UserProfile, email="user@example.com", password=make_password("evap"))
+
+        # wrong password
+        with override_settings(ACTIVATE_OPEN_ID_LOGIN=False):
+            page = self.app.get(self.url)
+            password_form = page.forms["email-login-form"]
+            password_form["email"] = user.email
+            password_form["password"] = "asd"  # nosec
+            response = password_form.submit()
+            self.assertIsInstance(response.context["user"], AnonymousUser)
+            self.assertNotContains(response, "Logout")
+
+        # correct password while password login is disabled
+        with override_settings(ACTIVATE_OPEN_ID_LOGIN=True):
+            self.assertFalse(auth.password_login_is_active())
+
+            password_form["password"] = "evap"  # nosec
+            response = password_form.submit(status=400)
+            self.assertFalse(response.context["user"])
+
+        # correct password while password login is enabled
+        with override_settings(ACTIVATE_OPEN_ID_LOGIN=False):
+            self.assertTrue(auth.password_login_is_active())
+
+            response = password_form.submit(status=302).follow().follow()
+            self.assertEqual(response.context["user"], user)
+            self.assertContains(response, "Logout")
 
 
 @override_settings(PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"])
@@ -187,7 +224,7 @@ class TestAuthDecorators(WebTest):
     def setUpTestData(cls):
         @class_or_function_check_decorator
         def check_decorator(user: UserProfile) -> bool:
-            return getattr(user, "some_condition")  # mocked later
+            return getattr(user, "some_condition")  # noqa: B009 # mocked later
 
         @check_decorator
         def function_based_view(_request):

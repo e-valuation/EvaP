@@ -4,6 +4,7 @@ from collections.abc import Sequence
 from contextlib import contextmanager
 from datetime import timedelta
 
+import webtest
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.db import DEFAULT_DB_ALIAS, connections
@@ -123,6 +124,14 @@ class WebTestWith200Check(WebTest):
     def test_check_response_code_200(self):
         for user in self.test_users:
             self.app.get(self.url, user=user, status=200)
+
+
+def submit_with_modal(page: webtest.TestResponse, form: webtest.Form, *, name: str, value: str) -> webtest.TestResponse:
+    # Like form.submit, but looks for a modal instead of a submit button.
+    assert page.forms[form.id] == form
+    assert page.html.select_one(f"confirmation-modal[type=submit][name={name}][value={value}]")
+    params = form.submit_fields() + [(name, value)]
+    return form.response.goto(form.action, method=form.method, params=params)
 
 
 def get_form_data_from_instance(form_cls, instance, **kwargs):

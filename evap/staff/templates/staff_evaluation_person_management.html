@@ -13,23 +13,44 @@
                 {% csrf_token %}
                 <div class="card">
                     <div class="card-body h-100">
-                        <h4 class="card-title">{% trans 'Import participants' %}</h4>
-                        <h6 class="card-subtitle mb-2 text-muted">{% trans 'From Excel file' %}</h6>
+                        <h4 class="card-title">{% translate 'Import participants' %}</h4>
+                        <h6 class="card-subtitle mb-2 text-muted">{% translate 'From Excel file' %}</h6>
                         <p class="card-text">
-                            {% trans 'Upload Excel file with participant data' %} (<a href="{% url 'staff:download_sample_file' 'sample_user.xlsx' %}">{% trans 'Download sample file' %}</a>,
-                            <button type="button" class="btn btn-link" onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">{% trans 'Copy headers to clipboard' %}</button>).
-                            {% trans 'This will create all containing users.' %}
+                            {% translate 'Upload Excel file with participant data' %} (<a href="{% url 'staff:download_sample_file' 'sample_user.xlsx' %}">{% translate 'Download sample file' %}</a>,
+                            <button type="button" class="btn btn-link copy-user-headers-button">{% translate 'Copy headers to clipboard' %}</button>).
+                            {% translate 'This will create all containing users.' %}
                         </p>
                         {% include 'bootstrap_form.html' with form=participant_excel_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
                         {% if not participant_test_passed %}
-                            <button name="operation" value="test-participants" type="submit" class="btn btn-sm btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
+                            <button name="operation" value="test-participants" type="submit" class="btn btn-sm btn-light form-submit-btn">{% translate 'Upload and test' %}</button>
                         {% else %}
-                            <button name="operation" value="test-participants" type="submit" class="btn btn-sm btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
+                            <button name="operation" value="test-participants" type="submit" class="btn btn-sm btn-light form-submit-btn">{% translate 'Upload and test' %}</button>
                             <div class="mt-2">
-                                <button name="operation" value="import-participants" type="button" onclick="importParticipantsModalShow('import-participants');" class="btn btn-sm btn-primary me-1 form-submit-btn";>{% trans 'Import previously uploaded file' %}</button>
-                                <button name="operation" value="import-replace-participants" type="button" onclick="replaceParticipantsModalShow('import-replace-participants');" class="btn btn-sm btn-danger form-submit-btn">{% trans 'Replace participants' %}</button>
+                                <confirmation-modal type="submit" name="operation" value="import-participants">
+                                    <span slot="title">{% translate 'Import participants' %}</span>
+                                    <span slot="action-text">{% translate 'Import participants' %}</span>
+                                    <span slot="question">
+                                        {% blocktranslate trimmed %}
+                                            Do you really want to import the Excel file with participant data?
+                                        {% endblocktranslate %}
+                                    </span>
+
+                                    <button slot="show-button" type="button" class="btn btn-sm btn-primary me-1 form-submit-btn">{% translate 'Import previously uploaded file' %}</button>
+                                </confirmation-modal>
+
+                                <confirmation-modal type="submit" name="operation" value="import-replace-participants" confirm-button-class="btn-danger">
+                                    <span slot="title">{% translate 'Replace participants' %}</span>
+                                    <span slot="action-text">{% translate 'Replace participants' %}</span>
+                                    <span slot="question">
+                                        {% blocktranslate trimmed %}
+                                            Do you really want to delete all existing participants and replace them with participant data from the Excel file?
+                                        {% endblocktranslate %}
+                                    </span>
+
+                                    <button slot="show-button" type="button" class="btn btn-sm btn-danger form-submit-btn">{% translate 'Replace participants' %}</button>
+                                </confirmation-modal>
                             </div>
                         {% endif %}
                     </div>
@@ -41,14 +62,37 @@
                 {% csrf_token %}
                 <div class="card h-100">
                     <div class="card-body">
-                        <h4 class="card-title">{% trans 'Copy participants' %}</h4>
-                    <h6 class="card-subtitle mb-2 text-muted">{% trans 'From other evaluation' %}</h6>
-                        <p class="card-text">{% trans 'Copy participants from another evaluation.' %}</p>
+                        <h4 class="card-title">{% translate 'Copy participants' %}</h4>
+                    <h6 class="card-subtitle mb-2 text-muted">{% translate 'From other evaluation' %}</h6>
+                        <p class="card-text">{% translate 'Copy participants from another evaluation.' %}</p>
                         {% include 'bootstrap_form.html' with form=participant_copy_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
-                        <button name="operation" value="copy-participants" type="button" onclick="copyParticipantsModalShow('copy-participants');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Copy participants' %}</button>
-                        <button name="operation" value="copy-replace-participants" type="button" onclick="copyReplaceParticipantsModalShow('copy-replace-participants');" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace participants' %}</button>
+                        {# Prevent submitting the form using enter on a non-submit-button since there are multiple submit buttons #}
+                        <button type="submit" disabled style="display: none" aria-hidden="true"></button>
+
+                        <confirmation-modal type="submit" name="operation" value="copy-participants">
+                            <span slot="title">{% translate 'Copy participants' %}</span>
+                            <span slot="action-text">{% translate 'Copy participants' %}</span>
+                            <span slot="question">
+                                {% blocktranslate trimmed %}
+                                    Do you really want to copy the participants?
+                                {% endblocktranslate %}
+                            </span>
+
+                            <button slot="show-button" type="button" class="btn btn-sm btn-primary form-submit-btn">{% translate 'Copy participants' %}</button>
+                        </confirmation-modal>
+                        <confirmation-modal type="submit" name="operation" value="copy-replace-participants" confirm-button-class="btn-danger">
+                            <span slot="title">{% translate 'Replace participants' %}</span>
+                            <span slot="action-text">{% translate 'Replace participants' %}</span>
+                            <span slot="question">
+                                {% blocktranslate trimmed %}
+                                    Do you really want to delete all existing participants and copy the participants into the evaluation?
+                                {% endblocktranslate %}
+                            </span>
+
+                            <button slot="show-button" type="button" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% translate 'Replace participants' %}</button>
+                        </confirmation-modal>
                     </div>
                 </div>
             </form>
@@ -61,24 +105,44 @@
                 {% csrf_token %}
                 <div class="card h-100">
                     <div class="card-body">
-                        <h4 class="card-title">{% trans 'Import contributors' %}</h4>
-                        <h6 class="card-subtitle mb-2 text-muted">{% trans 'From Excel file' %}</h6>
+                        <h4 class="card-title">{% translate 'Import contributors' %}</h4>
+                        <h6 class="card-subtitle mb-2 text-muted">{% translate 'From Excel file' %}</h6>
                         <p class="card-text">
-                            {% trans 'Upload Excel file with contributor data' %}
-                            (<a href="{% url 'staff:download_sample_file' 'sample_user.xlsx' %}">{% trans 'Download sample file' %}</a>,
-                            <button type="button" class="btn btn-link" onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">{% trans 'Copy headers to clipboard' %}</button>).
-                            {% trans 'This will create all containing users.' %}
+                            {% translate 'Upload Excel file with contributor data' %}
+                            (<a href="{% url 'staff:download_sample_file' 'sample_user.xlsx' %}">{% translate 'Download sample file' %}</a>,
+                            <button type="button" class="btn btn-link copy-user-headers-button">{% translate 'Copy headers to clipboard' %}</button>).
+                            {% translate 'This will create all containing users.' %}
                         </p>
                         {% include 'bootstrap_form.html' with form=contributor_excel_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
                         {% if not contributor_test_passed %}
-                            <button name="operation" value="test-contributors" type="submit" class="btn btn-sm btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
+                            <button name="operation" value="test-contributors" type="submit" class="btn btn-sm btn-light form-submit-btn">{% translate 'Upload and test' %}</button>
                         {% else %}
-                            <button name="operation" value="test-contributors" type="submit" class="btn btn-sm btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
+                            <button name="operation" value="test-contributors" type="submit" class="btn btn-sm btn-light form-submit-btn">{% translate 'Upload and test' %}</button>
                             <div class="mt-2">
-                                <button name="operation" value="import-contributors" type="button" onclick="importContributorsModalShow('import-contributors');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
-                                <button name="operation" value="import-replace-contributors" type="button" onclick="replaceContributorsModalShow('import-replace-contributors');" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace contributors' %}</button>
+                                <confirmation-modal type="submit" name="operation" value="import-contributors">
+                                    <span slot="title">{% translate 'Import contributors' %}</span>
+                                    <span slot="action-text">{% translate 'Import contributors' %}</span>
+                                    <span slot="question">
+                                        {% blocktranslate trimmed %}
+                                            Do you really want to import the Excel file with contributor data?
+                                        {% endblocktranslate %}
+                                    </span>
+
+                                    <button slot="show-button" type="button" class="btn btn-sm btn-primary form-submit-btn">{% translate 'Import previously uploaded file' %}</button>
+                                </confirmation-modal>
+                                <confirmation-modal type="submit" name="operation" value="import-replace-contributors" confirm-button-class="btn-danger">
+                                    <span slot="title">{% translate 'Replace contributors' %}</span>
+                                    <span slot="action-text">{% translate 'Replace contributors' %}</span>
+                                    <span slot="question">
+                                        {% blocktranslate trimmed %}
+                                            Do you really want to delete all existing contributors and replace them with contributor data from the Excel file?
+                                        {% endblocktranslate %}
+                                    </span>
+
+                                    <button slot="show-button" type="button" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% translate 'Replace contributors' %}</button>
+                                </confirmation-modal>
                             </div>
                         {% endif %}
                     </div>
@@ -90,14 +154,37 @@
                 {% csrf_token %}
                 <div class="card h-100">
                     <div class="card-body">
-                        <h4 class="card-title">{% trans 'Copy contributors' %}</h4>
-                    <h6 class="card-subtitle mb-2 text-muted">{% trans 'From other evaluation' %}</h6>
-                        <p class="card-text">{% trans 'Copy contributors from another evaluation.' %}</p>
+                        <h4 class="card-title">{% translate 'Copy contributors' %}</h4>
+                    <h6 class="card-subtitle mb-2 text-muted">{% translate 'From other evaluation' %}</h6>
+                        <p class="card-text">{% translate 'Copy contributors from another evaluation.' %}</p>
                         {% include 'bootstrap_form.html' with form=contributor_copy_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
-                        <button name="operation" value="copy-contributors" type="button" onclick="copyContributorsModalShow('copy-contributors');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Copy contributors' %}</button>
-                        <button name="operation" value="copy-replace-contributors" type="button" onclick="copyReplaceContributorsModalShow('copy-replace-contributors');" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace contributors' %}</button>
+                        {# Prevent submitting the form using enter on a non-submit-button since there are multiple submit buttons #}
+                        <button type="submit" disabled style="display: none" aria-hidden="true"></button>
+
+                        <confirmation-modal type="submit" name="operation" value="copy-contributors">
+                            <span slot="title">{% translate 'Copy contributors' %}</span>
+                            <span slot="action-text">{% translate 'Copy contributors' %}</span>
+                            <span slot="question">
+                                {% blocktranslate trimmed %}
+                                    Do you really want to copy the contributors?
+                                {% endblocktranslate %}
+                            </span>
+
+                            <button slot="show-button" type="button" class="btn btn-sm btn-primary form-submit-btn">{% translate 'Copy contributors' %}</button>
+                        </confirmation-modal>
+                        <confirmation-modal type="submit" name="operation" value="copy-replace-contributors" confirm-button-class="btn-danger">
+                            <span slot="title">{% translate 'Replace contributors' %}</span>
+                            <span slot="action-text">{% translate 'Replace contributors' %}</span>
+                            <span slot="question">
+                                {% blocktranslate trimmed %}
+                                    Do you really want to delete all existing contributors and copy the contributors into the evaluation?
+                                {% endblocktranslate %}
+                            </span>
+
+                            <button slot="show-button" type="button" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% translate 'Replace contributors' %}</button>
+                        </confirmation-modal>
                     </div>
                 </div>
             </form>
@@ -110,15 +197,15 @@
                 {% csrf_token %}
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">{% trans 'Export login keys' %}</h4>
-                        <h6 class="card-subtitle mb-2 text-muted">{% trans 'To CSV file' %}</h6>
-                        <p class="card-text">{% trans 'This will create a CSV file containing login keys for all external participants.' %}</p>
+                        <h4 class="card-title">{% translate 'Export login keys' %}</h4>
+                        <h6 class="card-subtitle mb-2 text-muted">{% translate 'To CSV file' %}</h6>
+                        <p class="card-text">{% translate 'This will create a CSV file containing login keys for all external participants.' %}</p>
                     </div>
                     <div class="card-footer text-center">
-                        <div{% if not evaluation.has_external_participant %} data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans "This evaluation has no external participants." %}"{% endif %}>
+                        <div{% if not evaluation.has_external_participant %} data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate "This evaluation has no external participants." %}"{% endif %}>
                             <button name="operation" value="export-login-keys" type="submit" class="btn btn-sm btn-primary form-submit-btn"
                             {% if not evaluation.has_external_participant %} disabled{% endif %}>
-                                {% trans 'Export login keys' %}
+                                {% translate 'Export login keys' %}
                             </button>
                         </div>
                     </div>
@@ -128,146 +215,12 @@
     </div>
 {% endblock %}
 
-{% block modals %}
-{{ block.super }}
-    {% trans 'Import participants' as title %}
-    {% blocktrans asvar question %}Do you really want to import the Excel file with participant data?{% endblocktrans %}
-    {% trans 'Import participants' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='importParticipantsModal' title=title question=question action_text=action_text btn_type='primary' %}
-    <script type="text/javascript">
-        function importParticipantsModalAction(dataId) {
-            const input = document.createElement("input");
-            input.type = "hidden";
-            input.name = "operation";
-            input.value = dataId;
-
-            const form = document.getElementById("participant-import-form");
-            form.appendChild(input);
-            form.requestSubmit();
-        };
-    </script>
-
-    {% trans 'Replace participants' as title %}
-    {% blocktrans asvar question %}Do you really want to delete all existing participants and replace them with participant data from the Excel file?{% endblocktrans %}
-    {% trans 'Replace participants' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='replaceParticipantsModal' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
-        function replaceParticipantsModalAction(dataId) {
-            const input = document.createElement("input");
-            input.type = "hidden";
-            input.name = "operation";
-            input.value = dataId;
-
-            const form = document.getElementById("participant-import-form");
-            form.appendChild(input);
-            form.requestSubmit();
-        };
-    </script>
-
-    {% trans 'Copy participants' as title %}
-    {% blocktrans asvar question %}Do you really want to copy the participants?{% endblocktrans %}
-    {% trans 'Copy participants' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='copyParticipantsModal' title=title question=question action_text=action_text btn_type='primary' %}
-    <script type="text/javascript">
-        function copyParticipantsModalAction(dataId) {
-            const input = document.createElement("input");
-            input.type = "hidden";
-            input.name = "operation";
-            input.value = dataId;
-
-            const form = document.getElementById("participant-copy-form");
-            form.appendChild(input);
-            form.requestSubmit();
-        };
-    </script>
-
-    {% trans 'Replace participants' as title %}
-    {% blocktrans asvar question %}Do you really want to delete all existing participants and copy the participants into the evaluation?{% endblocktrans %}
-    {% trans 'Replace participants' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='copyReplaceParticipantsModal' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
-        function copyReplaceParticipantsModalAction(dataId) {
-            const input = document.createElement("input");
-            input.type = "hidden";
-            input.name = "operation";
-            input.value = dataId;
-
-            const form = document.getElementById("participant-copy-form");
-            form.appendChild(input);
-            form.requestSubmit();
-        };
-    </script>
-
-    {% trans 'Import contributors' as title %}
-    {% blocktrans asvar question %}Do you really want to import the Excel file with contributor data?{% endblocktrans %}
-    {% trans 'Import contributors' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='importContributorsModal' title=title question=question action_text=action_text btn_type='primary' %}
-    <script type="text/javascript">
-        function importContributorsModalAction(dataId) {
-            const input = document.createElement("input");
-            input.type = "hidden";
-            input.name = "operation";
-            input.value = dataId;
-
-            const form = document.getElementById("contributor-import-form");
-            form.appendChild(input);
-            form.requestSubmit();
-        };
-    </script>
-
-    {% trans 'Replace contributors' as title %}
-    {% blocktrans asvar question %}Do you really want to delete all existing contributors and replace them with contributor data from the Excel file?{% endblocktrans %}
-    {% trans 'Replace contributors' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='replaceContributorsModal' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
-        function replaceContributorsModalAction(dataId) {
-            const input = document.createElement("input");
-            input.type = "hidden";
-            input.name = "operation";
-            input.value = dataId;
-
-            const form = document.getElementById("contributor-import-form");
-            form.appendChild(input);
-            form.requestSubmit();
-        };
-    </script>
-
-    {% trans 'Copy contributors' as title %}
-    {% blocktrans asvar question %}Do you really want to copy the contributors?{% endblocktrans %}
-    {% trans 'Copy contributors' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='copyContributorsModal' title=title question=question action_text=action_text btn_type='primary' %}
-    <script type="text/javascript">
-        function copyContributorsModalAction(dataId) {
-            const input = document.createElement("input");
-            input.type = "hidden";
-            input.name = "operation";
-            input.value = dataId;
-
-            const form = document.getElementById("contributor-copy-form");
-            form.appendChild(input);
-            form.requestSubmit();
-        };
-    </script>
-
-    {% trans 'Replace contributors' as title %}
-    {% blocktrans asvar question %}Do you really want to delete all existing contributors and copy the contributors into the evaluation?{% endblocktrans %}
-    {% trans 'Replace contributors' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='copyReplaceContributorsModal' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
-        function copyReplaceContributorsModalAction(dataId) {
-            const input = document.createElement("input");
-            input.type = "hidden";
-            input.name = "operation";
-            input.value = dataId;
-
-            const form = document.getElementById("contributor-copy-form");
-            form.appendChild(input);
-            form.requestSubmit();
-        };
-    </script>
-
-{% endblock %}
-
 {% block additional_javascript %}
     <script type="text/javascript" src="{% static 'js/copy-to-clipboard.js' %}"></script>
+
+    <script type="text/javascript">
+        for(const button of document.querySelectorAll(".copy-user-headers-button")) {
+            button.addEventListener("click", () => copyHeaders(['Title', 'First name', 'Last name', 'Email']));
+        }
+    </script>
 {% endblock %}

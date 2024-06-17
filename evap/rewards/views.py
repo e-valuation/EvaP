@@ -1,3 +1,4 @@
+import csv
 from datetime import datetime
 
 from django.contrib import messages
@@ -14,7 +15,7 @@ from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, UpdateView
 
 from evap.evaluation.auth import manager_required, reward_user_required
-from evap.evaluation.models import Semester
+from evap.evaluation.models import Semester, UserProfile
 from evap.evaluation.tools import AttachmentResponse, get_object_from_dict_pk_entry_or_logged_40x
 from evap.rewards.exporters import RewardsExporter
 from evap.rewards.forms import RewardPointRedemptionEventForm
@@ -78,15 +79,18 @@ def index(request):
     reward_point_redemptions = RewardPointRedemption.objects.filter(user_profile=request.user)
     events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now()).order_by("date")
 
-    reward_point_actions = []
-    for granting in reward_point_grantings:
-        reward_point_actions.append(
-            (granting.granting_time, _("Reward for") + " " + granting.semester.name, granting.value, "")
-        )
-    for redemption in reward_point_redemptions:
-        reward_point_actions.append((redemption.redemption_time, redemption.event.name, "", redemption.value))
+    granted_point_actions = [
+        (granting.granting_time, _("Reward for") + " " + granting.semester.name, granting.value, "")
+        for granting in reward_point_grantings
+    ]
+    redemption_point_actions = [
+        (redemption.redemption_time, redemption.event.name, "", redemption.value)
+        for redemption in reward_point_redemptions
+    ]
 
-    reward_point_actions.sort(key=lambda action: action[0], reverse=True)
+    reward_point_actions = sorted(
+        granted_point_actions + redemption_point_actions, key=lambda action: action[0], reverse=True
+    )
 
     template_data = {
         "reward_point_actions": reward_point_actions,
@@ -151,6 +155,32 @@ def reward_point_redemption_event_export(request, event_id):
     response = AttachmentResponse(filename, content_type="application/vnd.ms-excel")
 
     RewardsExporter().export(response, event.redemptions_by_user())
+
+    return response
+
+
+@manager_required
+def reward_points_export(request):
+    filename = _("RewardPoints") + f"-{get_language()}.csv"
+    response = AttachmentResponse(filename, content_type="text/csv")
+
+    writer = csv.writer(response, delimiter=";", lineterminator="\n")
+    writer.writerow([_("Email address"), _("Number of points")])
+    profiles_with_points = (
+        UserProfile.objects.annotate(
+            points=Sum("reward_point_grantings__value", default=0) - Sum("reward_point_redemptions__value", default=0)
+        )
+        .filter(points__gt=0)
+        .order_by("-points")
+    )
+
+    for profile in profiles_with_points.all():
+        writer.writerow(
+            [
+                profile.email,
+                profile.points,
+            ]
+        )
 
     return response
 

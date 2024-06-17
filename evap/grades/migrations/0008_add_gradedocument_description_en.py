@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='gradedocument',
-            unique_together=set([('course', 'description_de')]),
+            unique_together={('course', 'description_de')},
         ),
         migrations.AlterField(
             model_name='gradedocument',

@@ -13,7 +13,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if not os.path.isfile("./manage.py"):
-            print("Please call me from the evap root directory (where manage.py resides)")
+            self.stdout.write("Please call me from the evap root directory (where manage.py resides)")
             sys.exit(1)
 
         call_command("typecheck")
