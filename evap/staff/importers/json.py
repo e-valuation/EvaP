@@ -1,12 +1,16 @@
+import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import TypedDict
 
 from django.db import transaction
+from django.utils.timezone import now
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
 from evap.evaluation.tools import clean_email
 from evap.staff.tools import update_or_create_with_changes, update_with_changes
+
+logger = logging.getLogger("import")
 
 
 class ImportStudent(TypedDict):
@@ -74,6 +78,51 @@ class ImportStatistics:
     updated_courses: list[Course] = field(default_factory=list)
     updated_evaluations: list[Evaluation] = field(default_factory=list)
     attempted_changes: list[Evaluation] = field(default_factory=list)
+
+    @staticmethod
+    def _make_heading(heading: str) -> str:
+        heading += "\n" + "".join(["-" for i in heading]) + "\n"
+        return heading
+
+    @staticmethod
+    def _make_total(total: int) -> str:
+        return f"({total} in total)\n\n"
+
+    def get_log(self) -> str:
+        log = "JSON IMPORTER REPORT\n"
+        log += "====================\n\n"
+        log += f"Import finished at {now()}\n\n"
+        log += self._make_heading("Name Changes")
+        for name_change in self.name_changes:
+            log += f"- {name_change.old_first_name_given} {name_change.old_last_name} → {name_change.new_first_name_given} {name_change.new_last_name}\n"
+        log += self._make_total(len(self.name_changes))
+
+        log += self._make_heading("New Courses")
+        for new_course in self.new_courses:
+            log += f"- {new_course}\n"
+        log += self._make_total(len(self.new_courses))
+
+        log += self._make_heading("New Evaluations")
+        for new_evaluation in self.new_evaluations:
+            log += f"- {new_evaluation}\n"
+        log += self._make_total(len(self.new_evaluations))
+
+        log += self._make_heading("Updated Courses")
+        for updated_course in self.updated_courses:
+            log += f"- {updated_course}\n"
+        log += self._make_total(len(self.updated_courses))
+
+        log += self._make_heading("Updated Evaluations")
+        for updated_evaluation in self.updated_evaluations:
+            log += f"- {updated_evaluation}\n"
+        log += self._make_total(len(self.updated_evaluations))
+
+        log += self._make_heading("Attempted Changes")
+        for attempted_change in self.attempted_changes:
+            log += f"- {attempted_change}\n"
+        log += self._make_total(len(self.attempted_changes))
+
+        return log
 
 
 class JSONImporter:
@@ -261,8 +310,13 @@ class JSONImporter:
 
             self._import_evaluation(course, event)
 
+    def _process_log(self):
+        log = self.statistics.get_log()
+        logger.info(log)
+
     @transaction.atomic
     def import_json(self, data: ImportDict):
         self._import_students(data["students"])
         self._import_lecturers(data["lecturers"])
         self._import_events(data["events"])
+        self._process_log()
