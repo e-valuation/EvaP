@@ -1,4 +1,4 @@
-import {CSRF_HEADERS} from "../../../static_collected/ts/src/csrf-utils";
+import { CSRF_HEADERS } from "./csrf-utils.js";
 
 declare const Sortable: typeof import("sortablejs");
 
@@ -35,7 +35,7 @@ abstract class DataGrid {
     private delayTimer: any | null;
     protected state: State;
 
-    protected constructor({storageKey, head, container, searchInput}: DataGridParameters) {
+    protected constructor({ storageKey, head, container, searchInput }: DataGridParameters) {
         this.storageKey = storageKey;
         this.sortableHeaders = new Map();
         head.querySelectorAll<HTMLElement>(".col-order").forEach(header => {
@@ -223,7 +223,7 @@ interface TableGridParameters extends BaseParameters {
 export class TableGrid extends DataGrid {
     private resetSearch: HTMLButtonElement;
 
-    constructor({table, resetSearch, ...options}: TableGridParameters) {
+    constructor({ table, resetSearch, ...options }: TableGridParameters) {
         super({
             head: table.querySelector("thead")!,
             container: table.querySelector("tbody")!,
@@ -267,7 +267,7 @@ interface EvaluationGridParameters extends TableGridParameters {
 export class EvaluationGrid extends TableGrid {
     private filterButtons: HTMLButtonElement[];
 
-    constructor({filterButtons, ...options}: EvaluationGridParameters) {
+    constructor({ filterButtons, ...options }: EvaluationGridParameters) {
         super(options);
         this.filterButtons = filterButtons;
     }
@@ -331,7 +331,7 @@ interface QuestionnaireParameters extends TableGridParameters {
 export class QuestionnaireGrid extends TableGrid {
     private readonly updateUrl: string;
 
-    constructor({updateUrl, ...options}: QuestionnaireParameters) {
+    constructor({ updateUrl, ...options }: QuestionnaireParameters) {
         super(options);
         this.updateUrl = updateUrl;
     }
@@ -360,7 +360,7 @@ export class QuestionnaireGrid extends TableGrid {
     }
 
     private reorderRow(oldPosition: number, newPosition: number) {
-        const displayedRows = this.rows.map((row, index) => ({row, index})).filter(({row}) => row.isDisplayed);
+        const displayedRows = this.rows.map((row, index) => ({ row, index })).filter(({ row }) => row.isDisplayed);
         this.rows.splice(displayedRows[oldPosition].index, 1);
         this.rows.splice(displayedRows[newPosition].index, 0, displayedRows[oldPosition].row);
     }
@@ -383,13 +383,13 @@ export class ResultGrid extends DataGrid {
     private resetOrder: HTMLButtonElement;
 
     constructor({
-                    filterCheckboxes,
-                    sortColumnSelect,
-                    sortOrderCheckboxes,
-                    resetFilter,
-                    resetOrder,
-                    ...options
-                }: ResultGridParameters) {
+        filterCheckboxes,
+        sortColumnSelect,
+        sortOrderCheckboxes,
+        resetFilter,
+        resetOrder,
+        ...options
+    }: ResultGridParameters) {
         super(options);
         this.filterCheckboxes = filterCheckboxes;
         this.sortColumnSelect = sortColumnSelect;
@@ -400,7 +400,7 @@ export class ResultGrid extends DataGrid {
 
     public bindEvents() {
         super.bindEvents();
-        for (const [name, {checkboxes}] of this.filterCheckboxes.entries()) {
+        for (const [name, { checkboxes }] of this.filterCheckboxes.entries()) {
             checkboxes.forEach(checkbox => {
                 checkbox.addEventListener("change", () => {
                     const values = checkboxes.filter(checkbox => checkbox.checked).map(elem => elem.value);
@@ -452,7 +452,7 @@ export class ResultGrid extends DataGrid {
 
     protected fetchRowFilterValues(row: HTMLElement): Map<string, string[]> {
         let filterValues = new Map();
-        for (const [name, {selector, checkboxes}] of this.filterCheckboxes.entries()) {
+        for (const [name, { selector, checkboxes }] of this.filterCheckboxes.entries()) {
             // To store filter values independent of the language, use the corresponding id from the checkbox
             const values = [...row.querySelectorAll(selector)]
                 .map(element => element.textContent!.trim())
@@ -471,7 +471,7 @@ export class ResultGrid extends DataGrid {
 
     protected reflectFilterStateOnInputs() {
         super.reflectFilterStateOnInputs();
-        for (const [name, {checkboxes}] of this.filterCheckboxes.entries()) {
+        for (const [name, { checkboxes }] of this.filterCheckboxes.entries()) {
             checkboxes.forEach(checkbox => {
                 let isActive;
                 if (this.state.filter.has(name)) {
