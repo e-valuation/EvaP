@@ -384,9 +384,9 @@ class Evaluation(LoggedModel):
     class State(models.IntegerChoices):
         NEW = 10, _("new")
         PREPARED = 20, _("prepared")
-        EDITOR_APPROVED = 30, _("editor_approved")
+        EDITOR_APPROVED = 30, _("editor approved")
         APPROVED = 40, _("approved")
-        IN_EVALUATION = 50, _("in_evaluation")
+        IN_EVALUATION = 50, _("in evaluation")
         EVALUATED = 60, _("evaluated")
         REVIEWED = 70, _("reviewed")
         PUBLISHED = 80, _("published")
