@@ -145,8 +145,8 @@ class ResultsExporter(ExcelExporter):
                 for questionnaire_result in contribution_result.questionnaire_results:
                     # RatingQuestion.counts is a tuple of integers or None, if this tuple is all zero, we want to exclude it
                     question_results = questionnaire_result.question_results
-                    if all(
-                        not isinstance(question_result, AnsweredRatingResult) for question_result in question_results
+                    if not any(
+                        isinstance(question_result, AnsweredRatingResult) for question_result in question_results
                     ):
                         continue
                     if (
@@ -156,16 +156,16 @@ class ResultsExporter(ExcelExporter):
                     ):
                         results.setdefault(questionnaire_result.questionnaire.id, []).extend(question_results)
                         used_questionnaires.add(questionnaire_result.questionnaire)
-            evaluation_as_any: Any = evaluation
-            evaluation_as_any.course_evaluations_count = evaluation_as_any.course.evaluations.count()
-            if evaluation_as_any.course_evaluations_count > 1:
+            annotated_evaluation: Any = evaluation
+            annotated_evaluation.course_evaluations_count = annotated_evaluation.course.evaluations.count()
+            if annotated_evaluation.course_evaluations_count > 1:
                 course_results_exist = True
-                weight_sum = sum(evaluation.weight for evaluation in evaluation_as_any.course.evaluations.all())
-                evaluation_as_any.weight_percentage = int((evaluation.weight / weight_sum) * 100)
-                evaluation_as_any.course.avg_grade = distribution_to_grade(
-                    calculate_average_course_distribution(evaluation_as_any.course)
+                weight_sum = sum(evaluation.weight for evaluation in annotated_evaluation.course.evaluations.all())
+                annotated_evaluation.weight_percentage = int((evaluation.weight / weight_sum) * 100)
+                annotated_evaluation.course.avg_grade = distribution_to_grade(
+                    calculate_average_course_distribution(annotated_evaluation.course)
                 )
-            evaluations_with_results.append((evaluation_as_any, results))
+            evaluations_with_results.append((annotated_evaluation, results))
 
         evaluations_with_results.sort(
             key=lambda cr: (cr[0].course.semester.id, cr[0].course.type.order, cr[0].full_name)
