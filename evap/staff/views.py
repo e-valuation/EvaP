@@ -1323,6 +1323,7 @@ def helper_evaluation_edit(request, evaluation):
         "editable": editable,
         "questionnaires_with_answers_per_contributor": questionnaires_with_answers_per_contributor,
     }
+    del notify_reward_points  # cleanup receiver
     return render(request, "staff_evaluation_form.html", template_data)
 
 
@@ -2228,7 +2229,7 @@ def user_edit(request, user_id):
         for message in form.remove_messages:
             messages.warning(request, message)
         return redirect("staff:user_index")
-
+    del notify_reward_points  # cleanup receiver
     return render(
         request,
         "staff_user_form.html",
