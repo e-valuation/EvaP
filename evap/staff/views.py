@@ -1,10 +1,10 @@
 import csv
-from enum import StrEnum
 import itertools
 from collections import OrderedDict, defaultdict, namedtuple
 from collections.abc import Container
 from dataclasses import dataclass
 from datetime import date, datetime
+from enum import Enum
 from typing import Any, cast, Literal
 
 import openpyxl
@@ -1388,7 +1388,7 @@ def evaluation_email(request, evaluation_id):
     )
 
 
-class ImportAction(StrEnum):
+class ImportAction(Enum):
     COPY = "copy"
     IMPORT = "import"
     TEST = "test"
