@@ -2390,7 +2390,6 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         )
 
     def test_copy_invalid_participants(self):
-
         old_evaluation = baker.make(
             Evaluation,
             course__semester=self.evaluation2.course.semester,

@@ -1,10 +1,11 @@
 import csv
+from enum import StrEnum
 import itertools
 from collections import OrderedDict, defaultdict, namedtuple
 from collections.abc import Container
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Any, cast
+from typing import Any, cast, Literal
 
 import openpyxl
 from django.conf import settings
@@ -37,6 +38,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy, ngettext
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, FormView, UpdateView
+from typing_extensions import assert_never
 
 from evap.contributor.views import export_contributor_results
 from evap.evaluation.auth import manager_required, reviewer_required, staff_permission_required
@@ -1386,18 +1388,44 @@ def evaluation_email(request, evaluation_id):
     )
 
 
-def import_or_copy_participants(request, operation, import_type, evaluation, copy_form) -> bool:
-    if "test" in operation:
-        return False
+class ImportAction(StrEnum):
+    COPY = "copy"
+    IMPORT = "import"
+    TEST = "test"
 
-    if "replace" in operation:
-        deleted_person_count, deletion_message = helper_delete_users_from_evaluation(evaluation, operation)
+    @classmethod
+    def from_operation(cls, operation: str) -> "ImportAction":
+        if "copy" in operation:
+            return cls.COPY
+        if "import" in operation:
+            return cls.IMPORT
+        if "test" in operation:
+            return cls.TEST
+        raise ValueError(f"Unknown operation: {operation}")
 
-    if "import" in operation:
+
+def import_or_copy_participants(
+    request,
+    replace: bool,
+    import_action: Literal[ImportAction.COPY, ImportAction.IMPORT],
+    import_type: ImportType,
+    evaluation: Evaluation,
+    copy_form: EvaluationParticipantCopyForm,
+) -> bool:
+    if replace:
+        if import_type == ImportType.PARTICIPANT:
+            deleted_person_count = evaluation.participants.count()
+            deletion_message = _("{} participants were deleted from evaluation {}")
+            evaluation.participants.clear()
+        elif import_type == ImportType.CONTRIBUTOR:
+            deleted_person_count = evaluation.contributions.exclude(contributor=None).count()
+            deletion_message = _("{} contributors were deleted from evaluation {}")
+            evaluation.contributions.exclude(contributor=None).delete()
+    if import_action == ImportAction.IMPORT:
         file_content = get_import_file_content_or_raise(request.user.id, import_type)
         importer_log = import_persons_from_file(import_type, evaluation, test_run=False, file_content=file_content)
         delete_import_file(request.user.id, import_type)
-    elif "copy" in operation:
+    elif import_action == ImportAction.COPY:
         copy_form.evaluation_selection_required = True
         if not copy_form.is_valid():
             return False
@@ -1405,8 +1433,10 @@ def import_or_copy_participants(request, operation, import_type, evaluation, cop
         importer_log = import_persons_from_evaluation(
             import_type, evaluation, test_run=False, source_evaluation=import_evaluation
         )
+    else:
+        assert_never(import_action)
 
-    if "replace" in operation:
+    if replace:
         importer_log.add_success(
             format_html(deletion_message, deleted_person_count, evaluation.full_name),
             category=ImporterLogEntry.Category.RESULT,
@@ -1416,22 +1446,9 @@ def import_or_copy_participants(request, operation, import_type, evaluation, cop
     return True
 
 
-def helper_delete_users_from_evaluation(evaluation, operation):
-    if "participants" in operation:
-        deleted_person_count = evaluation.participants.count()
-        deletion_message = _("{} participants were deleted from evaluation {}")
-        evaluation.participants.clear()
-    elif "contributors" in operation:
-        deleted_person_count = evaluation.contributions.exclude(contributor=None).count()
-        deletion_message = _("{} contributors were deleted from evaluation {}")
-        evaluation.contributions.exclude(contributor=None).delete()
-
-    return deleted_person_count, deletion_message
-
-
 @manager_required
 @transaction.atomic
-def evaluation_person_management(request, evaluation_id):
+def evaluation_person_management(request, evaluation_id: int):
     # This view indeed handles 4 tasks. However, they are tightly coupled, splitting them up
     # would lead to more code duplication. Thus, we decided to leave it as is for now
     # pylint: disable=too-many-locals
@@ -1463,11 +1480,12 @@ def evaluation_person_management(request, evaluation_id):
         ):
             raise SuspiciousOperation("Invalid POST operation")
 
+        import_action = ImportAction.from_operation(operation)
         import_type = ImportType.PARTICIPANT if "participants" in operation else ImportType.CONTRIBUTOR
         excel_form = participant_excel_form if "participants" in operation else contributor_excel_form
         copy_form = participant_copy_form if "participants" in operation else contributor_copy_form
 
-        if "test" in operation:
+        if import_action == ImportAction.TEST:
             delete_import_file(request.user.id, import_type)  # remove old files if still exist
             excel_form.fields["excel_file"].required = True
             if excel_form.is_valid():
@@ -1478,9 +1496,12 @@ def evaluation_person_management(request, evaluation_id):
                 )
                 if not importer_log.has_errors():
                     save_import_file(excel_file, request.user.id, import_type)
-
-        elif import_or_copy_participants(request, operation, import_type, evaluation, copy_form):
-            return redirect("staff:semester_view", evaluation.course.semester.pk)
+        else:
+            successfully_processed = import_or_copy_participants(
+                request, "replace" in operation, import_action, import_type, evaluation, copy_form
+            )
+            if successfully_processed:
+                return redirect("staff:semester_view", evaluation.course.semester.pk)
 
     participant_test_passed = import_file_exists(request.user.id, ImportType.PARTICIPANT)
     contributor_test_passed = import_file_exists(request.user.id, ImportType.CONTRIBUTOR)
