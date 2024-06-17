@@ -5,7 +5,7 @@ from collections.abc import Container
 from dataclasses import dataclass
 from datetime import date, datetime
 from enum import Enum
-from typing import Any, cast, Literal
+from typing import Any, Literal, cast
 
 import openpyxl
 from django.conf import settings
