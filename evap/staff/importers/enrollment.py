@@ -145,9 +145,9 @@ class IsGradedImportMapper:
     @classmethod
     def is_graded_from_import_string(cls, is_graded: str) -> bool:
         is_graded = is_graded.strip()
-        if is_graded == settings.IMPORTER_GRADED_YES:
+        if is_graded in settings.IMPORTER_GRADED_YES:
             return True
-        if is_graded == settings.IMPORTER_GRADED_NO:
+        if is_graded in settings.IMPORTER_GRADED_NO:
             return False
 
         raise cls.InvalidIsGradedError(invalid_is_graded=is_graded)
@@ -455,7 +455,7 @@ class CourseNameChecker(Checker):
             self.importer_log.add_error(
                 format_html(
                     _(
-                        "{location}: Course {course_name} already exists in this semester, but the courses can not be merged for the following reasons:{reasons}"
+                        "{location}: Course {course_name} already exists in this semester, but the courses cannot be merged for the following reasons:{reasons}"
                     ),
                     location=location_string,
                     course_name=f'"{name_en}"',

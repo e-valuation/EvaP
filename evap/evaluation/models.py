@@ -28,16 +28,18 @@ from django.utils.functional import cached_property
 from django.utils.safestring import SafeData
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_noop
 from django_fsm import FSMIntegerField, transition
 from django_fsm.signals import post_transition
 
-from evap.evaluation.models_logging import FieldAction, LoggedModel
+from evap.evaluation.models_logging import LoggedModel
 from evap.evaluation.tools import (
     StrOrPromise,
     clean_email,
     date_to_datetime,
     is_external_email,
     is_prefetched,
+    password_login_is_active,
     translate,
     vote_end_datetime,
 )
@@ -379,17 +381,17 @@ class Course(LoggedModel):
 class Evaluation(LoggedModel):
     """Models a single evaluation, e.g. the exam evaluation of the Math 101 course of 2002."""
 
-    class State:
-        NEW = 10
-        PREPARED = 20
-        EDITOR_APPROVED = 30
-        APPROVED = 40
-        IN_EVALUATION = 50
-        EVALUATED = 60
-        REVIEWED = 70
-        PUBLISHED = 80
+    class State(models.IntegerChoices):
+        NEW = 10, _("new")
+        PREPARED = 20, _("prepared")
+        EDITOR_APPROVED = 30, _("editor_approved")
+        APPROVED = 40, _("approved")
+        IN_EVALUATION = 50, _("in_evaluation")
+        EVALUATED = 60, _("evaluated")
+        REVIEWED = 70, _("reviewed")
+        PUBLISHED = 80, _("published")
 
-    state = FSMIntegerField(default=State.NEW, protected=True, verbose_name=_("state"))
+    state = FSMIntegerField(default=State.NEW, protected=True, choices=State, verbose_name=_("state"))
 
     course = models.ForeignKey(Course, models.PROTECT, verbose_name=_("course"), related_name="evaluations")
 
@@ -778,24 +780,9 @@ class Evaluation(LoggedModel):
         self._voter_count = None
         self._participant_count = None
 
-    STATE_STR_CONVERSION = {
-        State.NEW: _("new"),
-        State.PREPARED: _("prepared"),
-        State.EDITOR_APPROVED: _("editor_approved"),
-        State.APPROVED: _("approved"),
-        State.IN_EVALUATION: _("in_evaluation"),
-        State.EVALUATED: _("evaluated"),
-        State.REVIEWED: _("reviewed"),
-        State.PUBLISHED: _("published"),
-    }
-
-    @classmethod
-    def state_to_str(cls, state):
-        return cls.STATE_STR_CONVERSION[state]
-
     @property
     def state_str(self):
-        return self.state_to_str(self.state)
+        return Evaluation.State(self.state).label
 
     @cached_property
     def general_contribution(self):
@@ -957,6 +944,8 @@ class Evaluation(LoggedModel):
                             evaluation_results_evaluations.append(evaluation)
                     evaluation.save()
             except Exception:  # noqa: PERF203
+                if settings.DEBUG:
+                    raise
                 logger.exception(
                     'An error occured when updating the state of evaluation "%s" (id %d).', evaluation, evaluation.id
                 )
@@ -998,14 +987,6 @@ class Evaluation(LoggedModel):
             "_participant_count",
         ]
 
-    @classmethod
-    def transform_log_action(cls, field_action):
-        if field_action.label.lower() == Evaluation.state.field.verbose_name.lower():
-            return FieldAction(
-                field_action.label, field_action.type, [cls.state_to_str(state) for state in field_action.items]
-            )
-        return field_action
-
 
 @receiver(post_transition, sender=Evaluation)
 def evaluation_state_change(instance, source, **_kwargs):
@@ -1016,19 +997,19 @@ def evaluation_state_change(instance, source, **_kwargs):
 
 
 @receiver(post_transition, sender=Evaluation)
-def log_state_transition(instance, name, source, target, **_kwargs):
+def log_state_transition(instance, name, source: int, target: int, **_kwargs):
     logger.info(
         'Evaluation "%s" (id %d) moved from state "%s" to state "%s", caused by transition "%s".',
         instance,
         instance.pk,
-        Evaluation.state_to_str(source),
-        Evaluation.state_to_str(target),
+        Evaluation.State(source).label,
+        Evaluation.State(target).label,
         name,
     )
 
 
 class Contribution(LoggedModel):
-    """A contributor who is assigned to an evaluation and his questionnaires."""
+    """A contributor who is assigned to an evaluation and their questionnaires."""
 
     class TextAnswerVisibility(models.TextChoices):
         OWN_TEXTANSWERS = "OWN", _("Own")
@@ -1735,6 +1716,11 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def save(self, *args, **kwargs):
         # This is not guaranteed to be called on every insert. For example, the importers use bulk insertion.
 
+        if self.has_usable_password and not password_login_is_active():
+            # We don't want this to happen, but if it happens, it shouldn't be a showstopper since password login
+            # isn't possible anyway -> if triggered, debug how the situation came to be, and prevent that
+            logger.warning("User %s has a usable password set while password login is disabled", self)
+
         self.email = clean_email(self.email)
         super().save(*args, **kwargs)
 
@@ -2053,17 +2039,16 @@ class EmailTemplate(models.Model):
 
     def send_to_user(self, user, subject_params, body_params, use_cc, additional_cc_users=(), request=None):
         if not user.email:
-            warning_message = (
-                f"{user.full_name_with_additional_info} has no email address defined. Could not send email."
-            )
+            message = gettext_noop("{} has no email address defined. Could not send email.")
+            log_message = message.format(user.full_name_with_additional_info)
             # If this method is triggered by a cronjob changing evaluation states, the request is None.
             # In this case warnings should be sent to the admins via email (configured in the settings for logger.error).
             # If a request exists, the page is displayed in the browser and the message can be shown on the page (messages.warning).
             if request is not None:
-                logger.warning(warning_message)
-                messages.warning(request, _(warning_message))
+                logger.warning(log_message)
+                messages.warning(request, _(message).format(user.full_name_with_additional_info))
             else:
-                logger.error(warning_message)
+                logger.error(log_message)
             return
 
         cc_users = set(additional_cc_users)
@@ -2103,6 +2088,8 @@ class EmailTemplate(models.Model):
             if send_separate_login_url:
                 self.send_login_url_to_user(user)
         except Exception:
+            if settings.DEBUG:
+                raise
             logger.exception(
                 'An exception occurred when sending the following email to user "%s":\n%s\n',
                 user.full_name_with_additional_info,

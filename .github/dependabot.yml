@@ -22,3 +22,30 @@ updates:
         update-types: ["version-update:semver-minor"]
     labels:
       - "[T] Dependencies"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns: ["*"]
+    labels:
+      - "[T] Dependencies"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/setup_nodejs"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns: ["*"]
+    labels:
+      - "[T] Dependencies"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/setup_python"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns: ["*"]
+    labels:
+      - "[T] Dependencies"

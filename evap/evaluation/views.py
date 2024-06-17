@@ -17,7 +17,7 @@ from django.views.i18n import set_language
 
 from evap.evaluation.forms import LoginEmailForm, NewKeyForm, NotebookForm, ProfileForm
 from evap.evaluation.models import EmailTemplate, FaqSection, Semester, UserProfile
-from evap.evaluation.tools import HttpResponseNoContent
+from evap.evaluation.tools import HttpResponseNoContent, openid_login_is_active, password_login_is_active
 from evap.middleware import no_login_required
 
 logger = logging.getLogger(__name__)
@@ -61,6 +61,10 @@ def index(request):
     # parse the form data into the respective form
     submit_type = request.POST.get("submit_type", "no_submit")
     new_key_form = NewKeyForm(request.POST if submit_type == "new_key" else None)
+
+    if submit_type == "login_email" and not password_login_is_active():
+        raise SuspiciousOperation
+
     login_email_form = LoginEmailForm(request, request.POST if submit_type == "login_email" else None)
 
     # process form data
@@ -77,6 +81,7 @@ def index(request):
             return redirect("evaluation:index")
 
         if login_email_form.is_valid():
+            assert password_login_is_active()
             # user would like to login with email and password and passed password test
             auth.login(request, login_email_form.get_user())
 
@@ -97,7 +102,7 @@ def index(request):
         template_data = {
             "new_key_form": new_key_form,
             "login_email_form": login_email_form,
-            "openid_active": settings.ACTIVATE_OPEN_ID_LOGIN,
+            "openid_active": openid_login_is_active(),
         }
         return render(request, "index.html", template_data)
 

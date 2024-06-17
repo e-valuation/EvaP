@@ -100,7 +100,7 @@ def find_matching_internal_user_for_email(request, email):
     return matching_users[0]
 
 
-def bulk_update_users(request, user_file_content, test_run):  # noqa: PLR0912
+def bulk_update_users(request, user_file_content, test_run):
     # pylint: disable=too-many-branches,too-many-locals
     # user_file must have one user per line in the format "{username},{email}"
     imported_emails = {clean_email(line.decode().split(",")[1]) for line in user_file_content.splitlines()}

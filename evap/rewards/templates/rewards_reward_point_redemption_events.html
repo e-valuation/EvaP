@@ -13,6 +13,7 @@
         </div>
         <div class="col text-end">
             {% translate 'Available reward points' %}: {{ total_points_available }}
+            <a href="{% url 'rewards:reward_points_export' %}" class="btn btn-light btn-sm ms-2">{% translate 'Export reward points' %}</a>
         </div>
     </div>
 

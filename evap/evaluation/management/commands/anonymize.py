@@ -132,6 +132,8 @@ class Command(BaseCommand):
                 # Invalidate some keys
                 user.valid_until = date.today() + random.choice([1, -1]) * timedelta(365 * 100)  # nosec
 
+            assert not user.has_usable_password()
+
             user.save()
 
     def anonymize_courses(self):

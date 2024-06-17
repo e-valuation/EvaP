@@ -129,11 +129,7 @@
                     {% include 'progress_bar.html' with done=evaluation.num_voters total=evaluation.num_participants icon='user' warning=True %}
                 </span>
             {% endif %}
-            {% if evaluation.num_textanswers > 0 and state != evaluation.State.PUBLISHED and not info_only %}
-                <a class="no-underline" href="{% url 'staff:evaluation_textanswers' evaluation.id %}" data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Review text answers' %}">
-                    {% include 'progress_bar.html' with done=evaluation.num_reviewed_textanswers total=evaluation.num_textanswers icon='comment' %}
-                </a>
-            {% elif info_only %}
+            {% if evaluation.num_textanswers > 0 and state < evaluation.State.PUBLISHED %}
                 <span data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Number of text answers' %}">
                     {% include 'progress_bar.html' with done=evaluation.num_reviewed_textanswers total=evaluation.num_textanswers icon='comment' %}
                 </span>
@@ -184,8 +180,13 @@
 {% endif %}
 <td class="icon-buttons">
     {% if not info_only %}
+        {% if evaluation.num_textanswers > 0 and state < evaluation.State.PUBLISHED %}
+            <a href="{% url 'staff:evaluation_textanswers' evaluation.id %}" class="btn btn-sm {% if state == evaluation.State.REVIEWED %}btn-light{% else %}btn-primary{% endif %}" data-bs-toggle="tooltip" title="{% translate 'Review text answers' %}">
+                <span class="fas fa-magnifying-glass"></span>
+            </a>
+        {% endif %}
         {% if not evaluation.is_single_result and request.user.is_manager %}
-            <a href="{% url 'staff:evaluation_copy' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" title="{% translate "Copy" %}">
+            <a href="{% url 'staff:evaluation_copy' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" title="{% translate 'Copy' %}">
                 <span class="fas fa-copy"></span>
             </a>
         {% endif %}
