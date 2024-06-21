@@ -62,8 +62,8 @@
     <script type="module">
         import { makeFormSortable } from "{% static 'js/sortable-form.js' %}";
         const rowChanged = function(row) {
-            const qDe = row.querySelector('input[id$=-question_de]').value;
-            const qEn = row.querySelector('input[id$=-question_en]').value;
+            const qDe = row.querySelector('input[id$=-question_de]')?.value;
+            const qEn = row.querySelector('input[id$=-question_en]')?.value;
             return qDe || qEn;
         };
         const rowAdded = function(row) { };

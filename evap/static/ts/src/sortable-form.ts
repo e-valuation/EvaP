@@ -26,7 +26,7 @@ export function makeFormSortable(
     usesTemplate: boolean,
 ) {
     function applyOrdering() {
-        document.querySelectorAll("tr").forEach((tableRow, i) => {
+        document.querySelectorAll<HTMLTableRowElement>(`#${tableId} tbody tr`).forEach((tableRow, i) => {
             if (rowChanged(tableRow)) {
                 tableRow.querySelectorAll<HTMLInputElement>("input[id$=-order]").forEach(input => {
                     input.value = i.toString();
