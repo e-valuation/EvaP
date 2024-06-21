@@ -76,8 +76,8 @@
     <script type="module">
         import { makeFormSortable } from "{% static 'js/sortable-form.js' %}";
         const rowChanged = function(row) {
-            const nameDe = row.querySelector('input[id$=-name_de]').value;
-            const nameEn = row.querySelector('input[id$=-name_en]').value;
+            const nameDe = row.querySelector('input[id$=-name_de]')?.value;
+            const nameEn = row.querySelector('input[id$=-name_en]')?.value;
             return nameDe || nameEn;
         };
         const rowAdded = function(row) {
