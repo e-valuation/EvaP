@@ -1,3 +1,4 @@
+import json
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -128,7 +129,7 @@ class ImportStatistics:
 class JSONImporter:
     DATETIME_FORMAT = "%d.%m.%Y %H:%M"
 
-    def __init__(self, semester: Semester):
+    def __init__(self, semester: Semester) -> None:
         self.semester = semester
         self.user_profile_map: dict[str, UserProfile] = {}
         self.course_type_cache: dict[str, CourseType] = {}
@@ -155,7 +156,7 @@ class JSONImporter:
     def _get_user_profiles(self, data: list[ImportRelated]) -> list[UserProfile]:
         return [self.user_profile_map[related["gguid"]] for related in data]
 
-    def _import_students(self, data: list[ImportStudent]):
+    def _import_students(self, data: list[ImportStudent]) -> None:
         for entry in data:
             email = clean_email(entry["email"])
             user_profile, __, changes = update_or_create_with_changes(
@@ -183,7 +184,7 @@ class JSONImporter:
 
             self.user_profile_map[entry["gguid"]] = user_profile
 
-    def _import_lecturers(self, data: list[ImportLecturer]):
+    def _import_lecturers(self, data: list[ImportLecturer]) -> None:
         for entry in data:
             email = clean_email(entry["email"])
             user_profile, __ = UserProfile.objects.update_or_create(
@@ -281,7 +282,9 @@ class JSONImporter:
 
         return evaluation
 
-    def _import_contribution(self, evaluation: Evaluation, data: ImportRelated):
+    def _import_contribution(
+        self, evaluation: Evaluation, data: ImportRelated
+    ) -> tuple[Contribution, bool, dict[str, tuple[any, any]]]:
         user_profile = self.user_profile_map[data["gguid"]]
 
         contribution, created, changes = update_or_create_with_changes(
@@ -291,32 +294,32 @@ class JSONImporter:
         )
         return contribution, created, changes
 
-    def _import_events(self, data: list[ImportEvent]):
+    def _import_events(self, data: list[ImportEvent]) -> None:
         # Divide in two lists so corresponding courses are imported before their exams
-        normal_events = filter(lambda e: not e["isexam"], data)
-        exam_events = filter(lambda e: e["isexam"], data)
+        normal_events = (event for event in data if not event["isexam"])
+        exam_events = (event for event in data if event["isexam"])
 
         for event in normal_events:
-            event: ImportEvent
-
             course = self._import_course(event)
 
             self._import_evaluation(course, event)
 
         for event in exam_events:
-            event: ImportEvent
-
             course = self.course_map[event["relatedevents"]["gguid"]]
 
             self._import_evaluation(course, event)
 
-    def _process_log(self):
+    def _process_log(self) -> None:
         log = self.statistics.get_log()
         logger.info(log)
 
     @transaction.atomic
-    def import_json(self, data: ImportDict):
+    def import_dict(self, data: ImportDict) -> None:
         self._import_students(data["students"])
         self._import_lecturers(data["lecturers"])
         self._import_events(data["events"])
         self._process_log()
+
+    def import_json(self, data: str) -> None:
+        data = json.loads(data)
+        self.import_dict(data)

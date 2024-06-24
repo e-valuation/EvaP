@@ -85,7 +85,7 @@ class TestImportUserProfiles(TestCase):
         importer = JSONImporter(self.semester)
         importer._import_students(self.students)
 
-        assert UserProfile.objects.all().count() == 2
+        self.assertEqual(UserProfile.objects.all().count(), 2)
 
         user_profile.refresh_from_db()
 
@@ -244,7 +244,7 @@ class TestImportEvents(TestCase):
         self.assertEqual(len(importer.statistics.attempted_changes), 1)
 
     def test_import_courses_update(self):
-        importer = self._import()
+        self._import()
 
         self.assertEqual(Course.objects.all().count(), 1)
         course = Course.objects.all()[0]
