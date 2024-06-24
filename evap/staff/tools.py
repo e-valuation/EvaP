@@ -2,6 +2,7 @@ from collections.abc import Iterable
 from datetime import date, datetime, timedelta
 from enum import Enum
 from pathlib import Path
+from typing import TypeVar
 
 from django.conf import settings
 from django.contrib import messages
@@ -414,11 +415,14 @@ def user_edit_link(user_id):
     )
 
 
+T = TypeVar("T")
+
+
 def update_or_create_with_changes(
-    model: type[Model],
+    model: type[T],
     defaults=None,
     **kwargs,
-) -> tuple[Model, bool, dict[str, tuple[any, any]]]:
+) -> tuple[T, bool, dict[str, tuple[any, any]]]:
     """Do update_or_create and track changed values."""
 
     if not defaults:

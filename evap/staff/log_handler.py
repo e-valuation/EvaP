@@ -5,6 +5,7 @@ from django.utils.log import AdminEmailHandler
 
 def mail_managers(subject, message, fail_silently=False, connection=None, html_message=None):
     """Send a message to the managers, as defined by the MANAGERS setting."""
+    # pylint: disable=import-outside-toplevel
     from evap.evaluation.models import UserProfile
 
     managers = UserProfile.objects.filter(groups__name="Manager", email__isnull=False)
