@@ -83,8 +83,10 @@
                             This will delete all previously received answers. Evaluation participants will have to
                             resubmit their answers.
                         {% endblocktranslate %}
-                        <span slot="show-button" class="d-none"></span>
                     </span>
+                    {# The modal needs an element in the slot, otherwise it throws an error.
+                       No button is needed, as the modal is conditionally shown via JS.     #}
+                    <span slot="show-button"></span>
                 </confirmation-modal>
                 <button id="form-confirmation-btn" type="button"
                         class="btn btn-primary">{% translate 'Confirm' %}</button>
