@@ -250,7 +250,6 @@ class TestNotebookView(WebTest):
 
 
 class TestResetEvaluation(WebTestStaffMode):
-
     @classmethod
     def setUpTestData(cls) -> None:
         cls.manager = make_manager()
