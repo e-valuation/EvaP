@@ -618,7 +618,6 @@ class Evaluation(LoggedModel):
         return self.can_be_seen_by(user)
 
     def can_reset_to_new(self):
-        """Is it possible to execute .reset_to_new() for this evaluation?"""
         return any(
             state_transition.name == "reset_to_new" for state_transition in self.get_available_state_transitions()
         )  # get_available_<fieldname>_transitions() is available for all fsm-fields on a class
@@ -729,8 +728,7 @@ class Evaluation(LoggedModel):
         ],
         target=State.NEW,
     )
-    def reset_to_new(self, delete_previous_answers: bool | None = False):
-        """Reset an Evaluation after it started (#1991)"""
+    def reset_to_new(self, delete_previous_answers: bool):
         if delete_previous_answers:
             for answer_class in Answer.__subclasses__():
                 answer_class._default_manager.filter(contribution__evaluation_id=self.id).delete()
