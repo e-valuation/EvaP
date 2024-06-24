@@ -1498,7 +1498,7 @@ def evaluation_person_management(request, evaluation_id: int):
                     save_import_file(excel_file, request.user.id, import_type)
         else:
             successfully_processed = import_or_copy_participants(
-                request, "replace" in operation, import_action, import_type, evaluation, copy_form
+                request, "-replace-" in operation, import_action, import_type, evaluation, copy_form
             )
             if successfully_processed:
                 return redirect("staff:semester_view", evaluation.course.semester.pk)
