@@ -15,7 +15,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get -q update
 
 # system utilities that docker containers don't have
-apt-get -q install -y sudo wget git bash-completion
+apt-get -q install -y sudo wget git bash-completion software-properties-common
 # docker weirdly needs this -- see https://stackoverflow.com/questions/46247032/how-to-solve-invoke-rc-d-policy-rc-d-denied-execution-of-start-when-building
 printf '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d
 
@@ -91,11 +91,21 @@ sed -i -e "s/\${SECRET_KEY}/$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
 # setup vm auto-completion
 cp $REPO_FOLDER/deployment/manage_autocompletion.sh /etc/bash_completion.d/
 
-# install chrome, see: https://github.com/puppeteer/puppeteer/issues/7740
-apt-get -q install -y chromium-browser
+# install firefox and geckodriver
+sudo install -d -m 0755 /etc/apt/keyrings
+wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- | sudo tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
+echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | sudo tee -a /etc/apt/sources.list.d/mozilla.list > /dev/null
+echo '
+Package: *
+Pin: origin packages.mozilla.org
+Pin-Priority: 1000
+' | sudo tee /etc/apt/preferences.d/mozilla 
+apt update
+apt -q install -y firefox
 
-# install libraries for puppeteer
-apt-get -q install -y libasound2 libgconf-2-4 libgbm1 libgtk-3-0 libnss3 libx11-xcb1 libxss1 libxshmfence-dev
+wget https://github.com/mozilla/geckodriver/releases/download/v0.34.0/geckodriver-v0.34.0-linux64.tar.gz -O geckodriver.tar.gz
+tar xzf geckodriver.tar.gz -C /usr/local/bin/
+chmod +x /usr/local/bin/geckodriver
 
 # install nvm
 wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh --no-verbose --output-document - | sudo -H -u $USER bash
