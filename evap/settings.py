@@ -352,6 +352,17 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static_collected")
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 MEDIA_ROOT = os.path.join(BASE_DIR, "upload")
 
+### Evaluation progress rewards
+GLOBAL_EVALUATION_PROGRESS_REWARDS: list[tuple[float, str]] = [
+    (0, "0€"),
+    (0.25, "1.000€"),
+    (0.6, "3.000€"),
+    (0.7, "7.000€"),
+    (0.9, "10.000€"),
+]
+EXCLUDED_COURSE_TYPE_IDS: list[int] = []
+EXCLUDED_EVALUATION_IDS: list[int] = []
+PARTICIPANT_PROGRESS_TEXT = "Deine Teilnahme am Evaluationsprojekt wird helfen. Evaluiere also <b>jetzt</b>!"
 
 ### Slogans
 SLOGANS_DE = [

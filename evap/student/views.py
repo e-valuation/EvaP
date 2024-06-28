@@ -1,10 +1,10 @@
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Exists, F, OuterRef, Q
+from django.db.models import Exists, F, OuterRef, Q, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -25,7 +25,7 @@ SUCCESS_MAGIC_STRING = "vote submitted successfully"
 
 
 @participant_required
-def index(request):
+def index(request):  # pylint: disable=too-many-locals
     query = (
         Evaluation.objects.annotate(
             participates_in=Exists(Evaluation.objects.filter(id=OuterRef("id"), participants=request.user))
@@ -105,12 +105,51 @@ def index(request):
         )
 
     unfinished_evaluations.sort(key=sorter)
+    info = Evaluation.annotate_with_participant_and_voter_counts(
+        Semester.active_semester()
+        .evaluations.filter(is_single_result=False)
+        .exclude(state__lt=Evaluation.State.APPROVED)
+        .exclude(is_rewarded=False)
+        .exclude(id__in=settings.EXCLUDED_EVALUATION_IDS)
+        .exclude(course__type__id__in=settings.EXCLUDED_COURSE_TYPE_IDS)
+        .exclude(course__is_private=True)
+    ).aggregate(
+        total_votes=Sum("num_voters"),
+        participants=Sum("num_participants"),
+    )
+    if settings.GLOBAL_EVALUATION_PROGRESS_REWARDS:
+        max_reward = max(settings.GLOBAL_EVALUATION_PROGRESS_REWARDS)
+        final_goal = round(info["participants"] * max_reward[0])
+        next_goal = final_goal
+        next_reward = max_reward[1]
+        for percentage, reward in settings.GLOBAL_EVALUATION_PROGRESS_REWARDS:
+            candidate = info["participants"] * percentage
+            if info["total_votes"] < candidate < next_goal:
+                next_goal = round(candidate)
+                next_reward = reward
+        positioned_labels = [
+            (percentage / max_reward[0], percentage, label)
+            for percentage, label in settings.GLOBAL_EVALUATION_PROGRESS_REWARDS
+        ]
+
+    else:
+        final_goal = None
+        positioned_labels = None
+        info = defaultdict(lambda: 0)
+        next_goal = 0
+        next_reward = 0
 
     template_data = {
         "semester_list": semester_list,
         "can_download_grades": request.user.can_download_grades,
         "unfinished_evaluations": unfinished_evaluations,
         "evaluation_end_warning_period": settings.EVALUATION_END_WARNING_PERIOD,
+        "num_total_votes": info["total_votes"],
+        "final_goal": final_goal,
+        "global_progress_rewards": positioned_labels,
+        "remaining_votes": next_goal - info["total_votes"],
+        "next_reward": next_reward,
+        "progress_description": settings.PARTICIPANT_PROGRESS_TEXT,
     }
 
     return render(request, "student_index.html", template_data)
