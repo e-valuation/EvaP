@@ -1,6 +1,6 @@
 import datetime
 import math
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
 from dataclasses import dataclass
 
 from django.conf import settings
@@ -43,7 +43,7 @@ class GlobalRewards:
     next_reward_text: str
     last_evaluation_datetime: datetime.datetime
     rewards_with_progress: list[GlobalRewardWithProgress]
-    description: str
+    info_text: str
 
 
 def get_global_rewards() -> GlobalRewards | None:
@@ -70,7 +70,7 @@ def get_global_rewards() -> GlobalRewards | None:
 
     current_vote_ratio = current_votes / current_participations
 
-    max_reward_vote_ratio, max_reward_text = max(settings.GLOBAL_EVALUATION_PROGRESS_REWARDS)
+    max_reward_vote_ratio, _ = max(settings.GLOBAL_EVALUATION_PROGRESS_REWARDS)
     next_reward_vote_ratio, next_reward_text = min(
         reward for reward in settings.GLOBAL_EVALUATION_PROGRESS_REWARDS if current_vote_ratio < reward[0]
     )
@@ -89,12 +89,12 @@ def get_global_rewards() -> GlobalRewards | None:
         next_reward_text=next_reward_text,
         last_evaluation_datetime=last_evaluation_datetime,
         rewards_with_progress=rewards_with_progress,
-        description=settings.GLOBAL_EVALUATION_PROGRESS_INFO_TEXT[get_language()],
+        info_text=settings.GLOBAL_EVALUATION_PROGRESS_INFO_TEXT[get_language()],
     )
 
 
 @participant_required
-def index(request):  # pylint: disable=too-many-locals
+def index(request):
     query = (
         Evaluation.objects.annotate(
             participates_in=Exists(Evaluation.objects.filter(id=OuterRef("id"), participants=request.user))
