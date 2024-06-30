@@ -36,11 +36,12 @@ class GlobalRewardWithProgress:
 
 
 @dataclass
-class GlobalRewards:
+class GlobalRewards:  # pylint: disable=too-many-instance-attributes
     current_votes: int
     max_reward_votes: int
+    bar_width_votes: int
     next_reward_remaining_votes: int
-    next_reward_text: str
+    next_reward_text: str | None
     last_vote_datetime: datetime.datetime
     rewards_with_progress: list[GlobalRewardWithProgress]
     info_text: str
@@ -55,7 +56,7 @@ def get_global_rewards() -> GlobalRewards | None:
 
     evaluations = (
         Semester.active_semester()
-        .evaluations.filter(is_single_result=False)  # TODO: Issue doesn't say anything about single results
+        .evaluations.filter(is_single_result=False)
         .exclude(state__lt=Evaluation.State.APPROVED)
         .exclude(is_rewarded=False)
         .exclude(id__in=settings.GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS)
@@ -69,15 +70,15 @@ def get_global_rewards() -> GlobalRewards | None:
         .values()
     )
 
-    current_vote_ratio = current_votes / current_participations if current_participations else 0
+    current_vote_ratio = current_votes / current_participations if current_participations else 1
 
     max_reward_vote_ratio, __ = max(settings.GLOBAL_EVALUATION_PROGRESS_REWARDS)
     next_reward_vote_ratio, next_reward_text = min(
         (reward for reward in settings.GLOBAL_EVALUATION_PROGRESS_REWARDS if current_vote_ratio < reward[0]),
-        default=(max_reward_vote_ratio, ""),  # TODO: What should the UI look like here?
+        default=(0, None),
     )
     max_reward_votes = math.ceil(max_reward_vote_ratio * current_participations)
-    next_reward_remaining_votes = math.ceil(next_reward_vote_ratio * current_participations) - current_votes
+    next_reward_remaining_votes = max(0, math.ceil(next_reward_vote_ratio * current_participations) - current_votes)
 
     rewards_with_progress = [
         GlobalRewardWithProgress(progress=vote_ratio / max_reward_vote_ratio, vote_ratio=vote_ratio, text=text)
@@ -89,8 +90,9 @@ def get_global_rewards() -> GlobalRewards | None:
     ]
 
     return GlobalRewards(
-        current_votes=min(current_votes, max_reward_votes),
+        current_votes=current_votes,
         max_reward_votes=max_reward_votes,
+        bar_width_votes=min(current_votes, max_reward_votes),
         next_reward_remaining_votes=next_reward_remaining_votes,
         next_reward_text=next_reward_text,
         last_vote_datetime=last_vote_datetime,

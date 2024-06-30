@@ -19,20 +19,28 @@
     {% if global_rewards %}
         <div class="card mb-3">
             <div class="card-header">
-                {% blocktranslate with next_reward=global_rewards.next_reward_text %}Next reward: {{ next_reward }}{% endblocktranslate %}
+                {% if global_rewards.next_reward_text %}
+                    {% blocktranslate with next_reward=global_rewards.next_reward_text %}Next reward: {{ next_reward }}{% endblocktranslate %}
+                {% else %}
+                    {% blocktranslate %}All rewards achieved{% endblocktranslate %}
+                {% endif %}
             </div>
             <div class="card-body">
                 <div>
-                    {% blocktranslate with remaining_votes=global_rewards.next_reward_remaining_votes %}{{ remaining_votes }} more evaluations required.{% endblocktranslate %}
-                    {% blocktranslate trimmed with time_interval=global_rewards.last_vote_datetime|timesince %}
-                        The last evaluation was submitted {{time_interval}} ago.
-                    {% endblocktranslate %}
+                    {% if global_rewards.next_reward_remaining_votes %}
+                        {% blocktranslate with remaining_votes=global_rewards.next_reward_remaining_votes %}{{ remaining_votes }} more evaluations required.{% endblocktranslate %}
+                    {% endif %}
+                    {% if global_rewards.last_vote_datetime %}
+                        {% blocktranslate trimmed with time_interval=global_rewards.last_vote_datetime|timesince %}
+                            The last evaluation was submitted {{time_interval}} ago.
+                        {% endblocktranslate %}
+                    {% endif %}
                 </div>
                 <div class="position-relative d-grid py-2 px-4">
                     <span class="progress-container d-flex" style="height: 25px; grid-column-start: 1; grid-row-start: 1">
                         <span class="progress m-0 bg-info">
                             <span class="progress-bar progress-bar-striped progress-bar-animated bg-success
-                                width-percent-{% widthratio global_rewards.current_votes global_rewards.max_reward_votes 100 %}"></span>
+                                width-percent-{% widthratio global_rewards.bar_width_votes global_rewards.max_reward_votes 100 %}"></span>
                             <span class="progress-bartext">
                                 {{ global_rewards.current_votes }}/{{ global_rewards.max_reward_votes }}
                             </span>

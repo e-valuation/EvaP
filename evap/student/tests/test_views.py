@@ -81,16 +81,15 @@ class TestStudentIndexView(WebTestWith200Check):
             baker.make(Evaluation, _voter_count=123, _participant_count=456, **baker_kwargs),
         ]
 
-        # TODO: Max goal == 100% handling correct/intended here?
         expected_participants = sum(e.num_participants for e in included_evaluations) * 0.5
         expected_voters = sum(e.num_voters for e in included_evaluations)
 
         page = self.app.get(self.url, user=self.user)
         self.assertIn("info_text_str", page)
         self.assertIn(f"{expected_voters}/{expected_participants:.0f}", page)
-        self.assertIn("a dog", page)
+        self.assertIn("Next reward: a quokka", page)
         self.assertIn("at 10%", page)
-        self.assertIn("a quokka", page)
+        self.assertIn("a dog", page)
         self.assertIn("at 50%", page)
 
     @override_settings(GLOBAL_EVALUATION_PROGRESS_REWARDS=[(0.1, "a dog")])
@@ -101,16 +100,16 @@ class TestStudentIndexView(WebTestWith200Check):
         self.assertNotIn("at 10%", page)
         self.assertNotIn("a dog", page)
 
-        # TODO: Check UI in this condition
         # no voters / participants -> possibly zero division
+        # also: no last vote timestamp
         semester = baker.make(Semester, is_active=True)
         page = self.app.get(self.url, user=self.user)
-        self.assertIn("0 more evaluations required", page)
+        self.assertNotIn("The last evaluation was submitted", page)
+        self.assertNotIn("more evaluations required", page)
         self.assertIn("0/0", page)
         self.assertIn("at 10%", page)
         self.assertIn("a dog", page)
 
-        # TODO: Check UI in this condition
         # more voters than required for last reward
         baker.make(
             Evaluation,
@@ -120,8 +119,10 @@ class TestStudentIndexView(WebTestWith200Check):
             state=Evaluation.State.EVALUATED,
         )
         page = self.app.get(self.url, user=self.user)
-        self.assertIn("0 more evaluations required", page)
-        self.assertIn("100/100", page)
+        self.assertNotIn("Next reward: ", page)
+        self.assertIn("All rewards achieved", page)
+        self.assertNotIn("more evaluations required", page)
+        self.assertIn("1000/100", page)
         self.assertIn("at 10%", page)
         self.assertIn("a dog", page)
 
