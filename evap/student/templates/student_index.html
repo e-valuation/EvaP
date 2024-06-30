@@ -24,7 +24,7 @@
             <div class="card-body">
                 <div>
                     {% blocktranslate with remaining_votes=global_rewards.next_reward_remaining_votes %}{{ remaining_votes }} more evaluations required.{% endblocktranslate %}
-                    {% blocktranslate trimmed with time_interval=global_rewards.last_evaluation_datetime|timesince %}
+                    {% blocktranslate trimmed with time_interval=global_rewards.last_vote_datetime|timesince %}
                         The last evaluation was submitted {{time_interval}} ago.
                     {% endblocktranslate %}
                 </div>

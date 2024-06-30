@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Exists, F, OuterRef, Q, Sum
+from django.db.models import Exists, F, Max, OuterRef, Q, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -41,7 +41,7 @@ class GlobalRewards:
     max_reward_votes: int
     next_reward_remaining_votes: int
     next_reward_text: str
-    last_evaluation_datetime: datetime.datetime
+    last_vote_datetime: datetime.datetime
     rewards_with_progress: list[GlobalRewardWithProgress]
     info_text: str
 
@@ -66,11 +66,9 @@ def get_global_rewards() -> GlobalRewards | None:
         .values()
     )
 
-    last_evaluation_datetime = datetime.datetime.combine(datetime.date.today(), datetime.datetime.min.time())  # TODO
-
     current_vote_ratio = current_votes / current_participations
 
-    max_reward_vote_ratio, _ = max(settings.GLOBAL_EVALUATION_PROGRESS_REWARDS)
+    max_reward_vote_ratio, __ = max(settings.GLOBAL_EVALUATION_PROGRESS_REWARDS)
     next_reward_vote_ratio, next_reward_text = min(
         reward for reward in settings.GLOBAL_EVALUATION_PROGRESS_REWARDS if current_vote_ratio < reward[0]
     )
@@ -82,12 +80,16 @@ def get_global_rewards() -> GlobalRewards | None:
         for vote_ratio, text in settings.GLOBAL_EVALUATION_PROGRESS_REWARDS
     ]
 
+    last_vote_datetime = VoteTimestamp.objects.filter(evaluation__in=evaluations).aggregate(Max("timestamp"))[
+        "timestamp__max"
+    ]
+
     return GlobalRewards(
         current_votes=current_votes,
         max_reward_votes=max_reward_votes,
         next_reward_remaining_votes=next_reward_remaining_votes,
         next_reward_text=next_reward_text,
-        last_evaluation_datetime=last_evaluation_datetime,
+        last_vote_datetime=last_vote_datetime,
         rewards_with_progress=rewards_with_progress,
         info_text=settings.GLOBAL_EVALUATION_PROGRESS_INFO_TEXT[get_language()],
     )
