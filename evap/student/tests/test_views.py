@@ -30,7 +30,8 @@ class TestStudentIndexView(WebTestWith200Check):
     def setUpTestData(cls):
         # View is only visible to users participating in at least one evaluation.
         cls.user = baker.make(UserProfile, email="student@institution.example.com")
-        baker.make(Evaluation, participants=[cls.user])
+        cls.semester = baker.make(Semester, is_active=True)
+        cls.evaluation = baker.make(Evaluation, course__semester=cls.semester, participants=[cls.user])
 
         cls.test_users = [cls.user]
 
@@ -51,6 +52,87 @@ class TestStudentIndexView(WebTestWith200Check):
 
         with self.assertNumQueries(FuzzyInt(0, 100)):
             self.app.get(self.url, user=self.user)
+
+    @override_settings(
+        GLOBAL_EVALUATION_PROGRESS_REWARDS=[(0.1, "a dog"), (0.5, "a quokka")],
+        GLOBAL_EVALUATION_PROGRESS_INFO_TEXT={"de": "info_text_str", "en": "info_text_str"},
+        GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS=[1042],
+        GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS=[1043],
+    )
+    def test_global_reward_progress(self):
+        excluded_states = [state for state, __ in Evaluation.state.field.choices if state < Evaluation.State.APPROVED]
+        included_states = [state for state, __ in Evaluation.state.field.choices if state >= Evaluation.State.APPROVED]
+
+        users = baker.make(UserProfile, _quantity=20, _bulk_create=True)
+        baker_base_kwargs = {"course__semester": self.semester, "participants": users, "voters": users[:10]}
+        baker_kwargs = {"state": Evaluation.State.APPROVED, **baker_base_kwargs}
+
+        # excluded
+        baker.make(Evaluation, is_rewarded=False, **baker_kwargs)
+        baker.make(Evaluation, is_single_result=True, **baker_kwargs)
+        baker.make(Evaluation, course__is_private=True, **baker_kwargs)
+        baker.make(Evaluation, id=1043, **baker_kwargs)
+        baker.make(Evaluation, course__type__id=1042, **baker_kwargs)
+        baker.make(Evaluation, _quantity=len(excluded_states), state=iter(excluded_states), **baker_base_kwargs)
+
+        # included
+        included_evaluations = [
+            *baker.make(Evaluation, _quantity=len(included_states), state=iter(included_states), **baker_base_kwargs),
+            baker.make(Evaluation, _voter_count=123, _participant_count=456, **baker_kwargs),
+        ]
+
+        # TODO: Max goal == 100% handling correct/intended here?
+        expected_participants = sum(e.num_participants for e in included_evaluations) * 0.5
+        expected_voters = sum(e.num_voters for e in included_evaluations)
+
+        page = self.app.get(self.url, user=self.user)
+        self.assertIn("info_text_str", page)
+        self.assertIn(f"{expected_voters}/{expected_participants:.0f}", page)
+        self.assertIn("a dog", page)
+        self.assertIn("at 10%", page)
+        self.assertIn("a quokka", page)
+        self.assertIn("at 50%", page)
+
+    @override_settings(GLOBAL_EVALUATION_PROGRESS_REWARDS=[(0.1, "a dog")])
+    def test_global_reward_progress_edge_cases(self):
+        # no active semester
+        Semester.objects.update(is_active=False)
+        page = self.app.get(self.url, user=self.user)
+        self.assertNotIn("at 10%", page)
+        self.assertNotIn("a dog", page)
+
+        # TODO: Check UI in this condition
+        # no voters / participants -> possibly zero division
+        semester = baker.make(Semester, is_active=True)
+        page = self.app.get(self.url, user=self.user)
+        self.assertIn("0 more evaluations required", page)
+        self.assertIn("0/0", page)
+        self.assertIn("at 10%", page)
+        self.assertIn("a dog", page)
+
+        # TODO: Check UI in this condition
+        # more voters than required for last reward
+        baker.make(
+            Evaluation,
+            course__semester=semester,
+            _voter_count=1000,
+            _participant_count=1000,
+            state=Evaluation.State.EVALUATED,
+        )
+        page = self.app.get(self.url, user=self.user)
+        self.assertIn("0 more evaluations required", page)
+        self.assertIn("100/100", page)
+        self.assertIn("at 10%", page)
+        self.assertIn("a dog", page)
+
+    @override_settings(
+        GLOBAL_EVALUATION_PROGRESS_REWARDS=[],
+        GLOBAL_EVALUATION_PROGRESS_INFO_TEXT={"de": "info_text_str", "en": "info_text_str"},
+    )
+    def test_global_reward_progress_hidden(self):
+        page = self.app.get(self.url, user=self.user)
+        self.assertNotIn("Next reward", page)
+        self.assertNotIn("info_text_str", page)
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])

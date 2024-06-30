@@ -50,9 +50,12 @@ def get_global_rewards() -> GlobalRewards | None:
     if not settings.GLOBAL_EVALUATION_PROGRESS_REWARDS:
         return None
 
+    if not Semester.active_semester():
+        return None
+
     evaluations = (
         Semester.active_semester()
-        .evaluations.filter(is_single_result=False)
+        .evaluations.filter(is_single_result=False)  # TODO: Issue doesn't say anything about single results
         .exclude(state__lt=Evaluation.State.APPROVED)
         .exclude(is_rewarded=False)
         .exclude(id__in=settings.GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS)
@@ -62,15 +65,16 @@ def get_global_rewards() -> GlobalRewards | None:
 
     current_votes, current_participations = (
         Evaluation.annotate_with_participant_and_voter_counts(evaluations)
-        .aggregate(Sum("num_voters"), Sum("num_participants"))
+        .aggregate(Sum("num_voters", default=0), Sum("num_participants", default=0))
         .values()
     )
 
-    current_vote_ratio = current_votes / current_participations
+    current_vote_ratio = current_votes / current_participations if current_participations else 0
 
     max_reward_vote_ratio, __ = max(settings.GLOBAL_EVALUATION_PROGRESS_REWARDS)
     next_reward_vote_ratio, next_reward_text = min(
-        reward for reward in settings.GLOBAL_EVALUATION_PROGRESS_REWARDS if current_vote_ratio < reward[0]
+        (reward for reward in settings.GLOBAL_EVALUATION_PROGRESS_REWARDS if current_vote_ratio < reward[0]),
+        default=(max_reward_vote_ratio, ""),  # TODO: What should the UI look like here?
     )
     max_reward_votes = math.ceil(max_reward_vote_ratio * current_participations)
     next_reward_remaining_votes = math.ceil(next_reward_vote_ratio * current_participations) - current_votes
@@ -85,7 +89,7 @@ def get_global_rewards() -> GlobalRewards | None:
     ]
 
     return GlobalRewards(
-        current_votes=current_votes,
+        current_votes=min(current_votes, max_reward_votes),
         max_reward_votes=max_reward_votes,
         next_reward_remaining_votes=next_reward_remaining_votes,
         next_reward_text=next_reward_text,
