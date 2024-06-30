@@ -1,4 +1,7 @@
+import datetime
+import math
 from collections import OrderedDict, defaultdict
+from dataclasses import dataclass
 
 from django.conf import settings
 from django.contrib import messages
@@ -8,6 +11,7 @@ from django.db.models import Exists, F, OuterRef, Q, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 
 from evap.evaluation.auth import participant_required
@@ -22,6 +26,71 @@ from evap.student.models import TextAnswerWarning
 from evap.student.tools import answer_field_id
 
 SUCCESS_MAGIC_STRING = "vote submitted successfully"
+
+
+@dataclass
+class GlobalRewardWithProgress:
+    progress: float  # progress towards this reward, relative to max reward, between 0 and 1
+    vote_ratio: float
+    text: str
+
+
+@dataclass
+class GlobalRewards:
+    current_votes: int
+    max_reward_votes: int
+    next_reward_remaining_votes: int
+    next_reward_text: str
+    last_evaluation_datetime: datetime.datetime
+    rewards_with_progress: list[GlobalRewardWithProgress]
+    description: str
+
+
+def get_global_rewards() -> GlobalRewards | None:
+    if not settings.GLOBAL_EVALUATION_PROGRESS_REWARDS:
+        return None
+
+    evaluations = (
+        Semester.active_semester()
+        .evaluations.filter(is_single_result=False)
+        .exclude(state__lt=Evaluation.State.APPROVED)
+        .exclude(is_rewarded=False)
+        .exclude(id__in=settings.GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS)
+        .exclude(course__type__id__in=settings.GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS)
+        .exclude(course__is_private=True)
+    )
+
+    current_votes, current_participations = (
+        Evaluation.annotate_with_participant_and_voter_counts(evaluations)
+        .aggregate(Sum("num_voters"), Sum("num_participants"))
+        .values()
+    )
+
+    last_evaluation_datetime = datetime.datetime.combine(datetime.date.today(), datetime.datetime.min.time())  # TODO
+
+    current_vote_ratio = current_votes / current_participations
+
+    max_reward_vote_ratio, max_reward_text = max(settings.GLOBAL_EVALUATION_PROGRESS_REWARDS)
+    next_reward_vote_ratio, next_reward_text = min(
+        reward for reward in settings.GLOBAL_EVALUATION_PROGRESS_REWARDS if current_vote_ratio < reward[0]
+    )
+    max_reward_votes = math.ceil(max_reward_vote_ratio * current_participations)
+    next_reward_remaining_votes = math.ceil(next_reward_vote_ratio * current_participations) - current_votes
+
+    rewards_with_progress = [
+        GlobalRewardWithProgress(progress=vote_ratio / max_reward_vote_ratio, vote_ratio=vote_ratio, text=text)
+        for vote_ratio, text in settings.GLOBAL_EVALUATION_PROGRESS_REWARDS
+    ]
+
+    return GlobalRewards(
+        current_votes=current_votes,
+        max_reward_votes=max_reward_votes,
+        next_reward_remaining_votes=next_reward_remaining_votes,
+        next_reward_text=next_reward_text,
+        last_evaluation_datetime=last_evaluation_datetime,
+        rewards_with_progress=rewards_with_progress,
+        description=settings.GLOBAL_EVALUATION_PROGRESS_INFO_TEXT[get_language()],
+    )
 
 
 @participant_required
@@ -105,51 +174,13 @@ def index(request):  # pylint: disable=too-many-locals
         )
 
     unfinished_evaluations.sort(key=sorter)
-    info = Evaluation.annotate_with_participant_and_voter_counts(
-        Semester.active_semester()
-        .evaluations.filter(is_single_result=False)
-        .exclude(state__lt=Evaluation.State.APPROVED)
-        .exclude(is_rewarded=False)
-        .exclude(id__in=settings.EXCLUDED_EVALUATION_IDS)
-        .exclude(course__type__id__in=settings.EXCLUDED_COURSE_TYPE_IDS)
-        .exclude(course__is_private=True)
-    ).aggregate(
-        total_votes=Sum("num_voters"),
-        participants=Sum("num_participants"),
-    )
-    if settings.GLOBAL_EVALUATION_PROGRESS_REWARDS:
-        max_reward = max(settings.GLOBAL_EVALUATION_PROGRESS_REWARDS)
-        final_goal = round(info["participants"] * max_reward[0])
-        next_goal = final_goal
-        next_reward = max_reward[1]
-        for percentage, reward in settings.GLOBAL_EVALUATION_PROGRESS_REWARDS:
-            candidate = info["participants"] * percentage
-            if info["total_votes"] < candidate < next_goal:
-                next_goal = round(candidate)
-                next_reward = reward
-        positioned_labels = [
-            (percentage / max_reward[0], percentage, label)
-            for percentage, label in settings.GLOBAL_EVALUATION_PROGRESS_REWARDS
-        ]
-
-    else:
-        final_goal = None
-        positioned_labels = None
-        info = defaultdict(lambda: 0)
-        next_goal = 0
-        next_reward = 0
 
     template_data = {
         "semester_list": semester_list,
         "can_download_grades": request.user.can_download_grades,
         "unfinished_evaluations": unfinished_evaluations,
         "evaluation_end_warning_period": settings.EVALUATION_END_WARNING_PERIOD,
-        "num_total_votes": info["total_votes"],
-        "final_goal": final_goal,
-        "global_progress_rewards": positioned_labels,
-        "remaining_votes": next_goal - info["total_votes"],
-        "next_reward": next_reward,
-        "progress_description": settings.PARTICIPANT_PROGRESS_TEXT,
+        "global_rewards": get_global_rewards(),
     }
 
     return render(request, "student_index.html", template_data)

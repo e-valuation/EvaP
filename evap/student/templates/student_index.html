@@ -16,40 +16,48 @@
             </div>
         </div>
     {% endif %}
-{% if global_progress_rewards %}
-    <div class="card mb-3">
-        <div class="card-header">Nächstes Spendenziel: {{ next_reward }}</div>
-        <div class="card-body">
-            <div>
-                noch {{ remaining_votes }} Evaluierungen benötigt
+    {% if global_rewards %}
+        <div class="card mb-3">
+            <div class="card-header">
+                {% blocktranslate with next_reward=global_rewards.next_reward_text %}Next reward: {{ next_reward }}{% endblocktranslate %}
             </div>
-
-            <div class="position-relative d-grid py-2 px-4">
-            <span class="progress-container d-flex" style="height: 25px; grid-column-start: 1; grid-row-start: 1">
-                <span class="progress m-0 bg-info">
-                    <span class="progress-bar progress-bar-striped progress-bar-animated bg-success width-percent-{% widthratio num_total_votes final_goal 100 %}"></span>
-                    <span class="progress-bartext">
-                        {{ num_total_votes }}/{{ final_goal }}
+            <div class="card-body">
+                <div>
+                    {% blocktranslate with remaining_votes=global_rewards.next_reward_remaining_votes %}{{ remaining_votes }} more evaluations required.{% endblocktranslate %}
+                    {% blocktranslate trimmed with time_interval=global_rewards.last_evaluation_datetime|timesince %}
+                        The last evaluation was submitted {{time_interval}} ago.
+                    {% endblocktranslate %}
+                </div>
+                <div class="position-relative d-grid py-2 px-4">
+                    <span class="progress-container d-flex" style="height: 25px; grid-column-start: 1; grid-row-start: 1">
+                        <span class="progress m-0 bg-info">
+                            <span class="progress-bar progress-bar-striped progress-bar-animated bg-success
+                                width-percent-{% widthratio global_rewards.current_votes global_rewards.max_reward_votes 100 %}"></span>
+                            <span class="progress-bartext">
+                                {{ global_rewards.current_votes }}/{{ global_rewards.max_reward_votes }}
+                            </span>
+                        </span>
                     </span>
-                </span>
-            </span>
-                {% for ratio, global_ratio, tag in global_progress_rewards %}
-                    <div class="position-relative "
-                         style="left: {% widthratio ratio 1 100 %}%; transform: translateX(-50%); width: fit-content;grid-column-start: 1; grid-row-start: 2">
-                        <div style="width: fit-content">
-                            <div class="text-center">|</div>
-                            <div class="text-lg-center fw-semibold">{{ tag }}</div>
-                            <div class="text-center">bei {% widthratio global_ratio 1 100 %}%</div>
+                    {% for reward in global_rewards.rewards_with_progress %}
+                        <div class="position-relative "
+                             style="left: {% widthratio reward.progress 1 100 %}%; transform: translateX(-50%); width: fit-content;grid-column-start: 1; grid-row-start: 2">
+                            <div style="width: fit-content">
+                                <div class="text-center">|</div>
+                                <div class="text-lg-center fw-semibold">{{ reward.text }}</div>
+                                <div class="text-center">
+                                    {% widthratio reward.vote_ratio 1 100 as percent %}
+                                    {% blocktranslate %}at {{percent}}%{% endblocktranslate %}
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                {% endfor %}
+                    {% endfor %}
+                </div>
+                TODO collapsible, collapsed by default.<br/>
+                {{ global_rewards.description }}
+                <br>
             </div>
-            {{ progress_description | safe }}. This should be collapsed by default.
-            <br>
-            The last evaluation was submitted N minutes/hours/days ago.
         </div>
-    </div>
-{% endif %}
+    {% endif %}
     {% if unfinished_evaluations %}
         <div class="card card-outline-primary mb-3">
             <div class="card-header">
