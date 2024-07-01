@@ -6,6 +6,7 @@ export class InfoboxLogic {
     private readonly infobox: HTMLDivElement;
     private readonly closeButton: HTMLButtonElement;
     private readonly storageKey: string;
+    private timeout?: number;
 
     constructor(infobox_id: string) {
         this.infobox = selectOrError("#infobox-" + infobox_id);
@@ -18,6 +19,7 @@ export class InfoboxLogic {
         this.closeButton.addEventListener("click", event => {
             this.infobox.classList.add("closing");
             this.infobox.classList.remove("opening");
+            clearTimeout(this.timeout);
             setTimeout(() => {
                 this.infobox.classList.replace("closing", "closed");
             }, OPEN_CLOSE_TIMEOUT);
@@ -29,7 +31,7 @@ export class InfoboxLogic {
         this.infobox.addEventListener("click", _ => {
             if (this.infobox.className.includes("closed")) {
                 this.infobox.classList.replace("closed", "opening");
-                setTimeout(() => {
+                this.timeout = setTimeout(() => {
                     this.infobox.classList.remove("opening");
                 }, OPEN_CLOSE_TIMEOUT);
                 localStorage[this.storageKey] = "show";
