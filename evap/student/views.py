@@ -186,8 +186,8 @@ def render_vote_page(request, evaluation, preview, for_rendering_in_modal=False)
 
 
 @participant_required
-def vote(request, evaluation_id):
-    # pylint: disable=too-many-nested-blocks,too-many-branches
+def vote(request, evaluation_id):  # noqa: PLR0912
+    # pylint: disable=too-many-nested-blocks
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
     if not evaluation.can_be_voted_for_by(request.user):
         raise PermissionDenied
