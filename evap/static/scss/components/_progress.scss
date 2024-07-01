@@ -54,3 +54,9 @@
 .multi-progress-bar .progress-container {
     padding-bottom: 3px;
 }
+
+.progress-step {
+    width: 1px;
+    height: 8px;
+    border: $dark-gray 1px solid;
+}

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 import logging
 import os
 import sys
+from fractions import Fraction
 from typing import Any
 
 from django.contrib.staticfiles.storage import ManifestStaticFilesStorage
@@ -352,6 +353,13 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static_collected")
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 MEDIA_ROOT = os.path.join(BASE_DIR, "upload")
 
+### Evaluation progress rewards
+GLOBAL_EVALUATION_PROGRESS_REWARDS: list[tuple[Fraction, str]] = (
+    []
+)  # (required_voter_ratio between 0 and 1, reward_text)
+GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS: list[int] = []
+GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS: list[int] = []
+GLOBAL_EVALUATION_PROGRESS_INFO_TEXT: dict[str, str] = {"de": "", "en": ""}
 
 ### Slogans
 SLOGANS_DE = [

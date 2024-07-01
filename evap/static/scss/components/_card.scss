@@ -26,6 +26,14 @@
     }
 }
 
+.card-outline-light {
+    border-color: $light-gray;
+
+    > .card-header {
+        background-color: rgba($lighter-gray, 0.5);
+    }
+}
+
 .card-noflex {
     flex: none;
     display: block;

@@ -1,4 +1,6 @@
 import datetime
+import math
+from fractions import Fraction
 from functools import partial
 
 from django.test.utils import override_settings
@@ -30,7 +32,8 @@ class TestStudentIndexView(WebTestWith200Check):
     def setUpTestData(cls):
         # View is only visible to users participating in at least one evaluation.
         cls.user = baker.make(UserProfile, email="student@institution.example.com")
-        baker.make(Evaluation, participants=[cls.user])
+        cls.semester = baker.make(Semester, is_active=True)
+        cls.evaluation = baker.make(Evaluation, course__semester=cls.semester, participants=[cls.user])
 
         cls.test_users = [cls.user]
 
@@ -51,6 +54,108 @@ class TestStudentIndexView(WebTestWith200Check):
 
         with self.assertNumQueries(FuzzyInt(0, 100)):
             self.app.get(self.url, user=self.user)
+
+    @override_settings(
+        GLOBAL_EVALUATION_PROGRESS_REWARDS=[(0.1, "a dog"), (0.5, "a quokka")],
+        GLOBAL_EVALUATION_PROGRESS_INFO_TEXT={"de": "info_text_str", "en": "info_text_str"},
+        GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS=[1042],
+        GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS=[1043],
+    )
+    def test_global_reward_progress(self):
+        excluded_states = [state for state in Evaluation.State if state < Evaluation.State.APPROVED]
+        included_states = [state for state in Evaluation.State if state >= Evaluation.State.APPROVED]
+
+        users = baker.make(UserProfile, _quantity=20, _bulk_create=True)
+        make_evaluation = partial(
+            baker.make,
+            Evaluation,
+            course__semester=self.semester,
+            participants=users,
+            voters=users[:10],
+            state=Evaluation.State.APPROVED,
+        )
+
+        # excluded
+        make_evaluation(is_rewarded=False)
+        make_evaluation(is_single_result=True)
+        make_evaluation(course__is_private=True)
+        make_evaluation(id=1043)
+        make_evaluation(course__type__id=1042)
+        make_evaluation(_quantity=len(excluded_states), state=iter(excluded_states))
+
+        # included
+        included_evaluations = [
+            *make_evaluation(_quantity=len(included_states), state=iter(included_states)),
+            make_evaluation(_voter_count=123, _participant_count=456),
+        ]
+
+        expected_participants = sum(e.num_participants for e in included_evaluations) * 0.5
+        expected_voters = sum(e.num_voters for e in included_evaluations)
+
+        page = self.app.get(self.url, user=self.user)
+        self.assertIn("info_text_str", page)
+        self.assertIn(f"{expected_voters}/{expected_participants:.0f}", page)
+        self.assertIn("Next reward: a quokka", page)
+        self.assertIn("at 10%", page)
+        self.assertIn("a dog", page)
+        self.assertIn("at 50%", page)
+
+    @override_settings(GLOBAL_EVALUATION_PROGRESS_REWARDS=[(Fraction("0.07"), "a dog")])
+    def test_global_reward_progress_edge_cases(self):
+        # no active semester
+        Semester.objects.update(is_active=False)
+        page = self.app.get(self.url, user=self.user)
+        self.assertNotIn("at 7%", page)
+        self.assertNotIn("a dog", page)
+
+        # no voters / participants -> possibly zero division
+        # also: no last vote timestamp
+        semester = baker.make(Semester, is_active=True)
+        page = self.app.get(self.url, user=self.user)
+        self.assertNotIn("The last evaluation was submitted", page)
+        self.assertNotIn("more evaluations required", page)
+        self.assertIn("0/0", page)
+        self.assertIn("at 7%", page)
+        self.assertIn("a dog", page)
+
+        # more voters than required for last reward
+        baker.make(
+            Evaluation,
+            course__semester=semester,
+            _voter_count=1000,
+            _participant_count=100,
+            state=Evaluation.State.EVALUATED,
+        )
+        page = self.app.get(self.url, user=self.user)
+        self.assertNotIn("Next reward: ", page)
+        self.assertIn("All rewards achieved", page)
+        self.assertNotIn("more evaluations required", page)
+        self.assertEqual(math.ceil(0.07 * 100), 8)
+        self.assertIn("1000/7", page, "max_reward_votes not correctly rounded")
+        self.assertIn("at 7%", page)
+        self.assertIn("a dog", page)
+
+        # _some_ more participants
+        baker.make(
+            Evaluation,
+            course__semester=semester,
+            _voter_count=0,
+            _participant_count=100000,
+            state=Evaluation.State.EVALUATED,
+        )
+        page = self.app.get(self.url, user=self.user)
+        self.assertIn("Next reward: ", page)
+        self.assertEqual(math.ceil(0.07 * 100100) - 1000, 6008)
+        self.assertIn("6007 more evaluations required", page, "next_reward_remaining_votes not ceiled correctly ")
+
+    @override_settings(
+        GLOBAL_EVALUATION_PROGRESS_REWARDS=[],
+        GLOBAL_EVALUATION_PROGRESS_INFO_TEXT={"de": "info_text_str", "en": "info_text_str"},
+    )
+    def test_global_reward_progress_hidden(self):
+        page = self.app.get(self.url, user=self.user)
+        self.assertNotIn("Next reward", page)
+        self.assertNotIn("info_text_str", page)
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
