@@ -32,7 +32,7 @@
                     {% endif %}
                     {% if global_rewards.last_vote_datetime %}
                         {% blocktranslate trimmed with time_interval=global_rewards.last_vote_datetime|timesince %}
-                            The last evaluation was submitted {{time_interval}} ago.
+                            The last evaluation was submitted {{ time_interval }} ago.
                         {% endblocktranslate %}
                     {% endif %}
                 </div>
@@ -54,7 +54,7 @@
                                 <div class="text-lg-center fw-semibold">{{ reward.text }}</div>
                                 <div class="text-center">
                                     {% widthratio reward.vote_ratio 1 100 as percent %}
-                                    {% blocktranslate %}at {{percent}}%{% endblocktranslate %}
+                                    {% blocktranslate %}at {{ percent }}%{% endblocktranslate %}
                                 </div>
                             </div>
                         </div>

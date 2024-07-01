@@ -60,25 +60,31 @@ class TestStudentIndexView(WebTestWith200Check):
         GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS=[1043],
     )
     def test_global_reward_progress(self):
-        excluded_states = [state for state, __ in Evaluation.state.field.choices if state < Evaluation.State.APPROVED]
-        included_states = [state for state, __ in Evaluation.state.field.choices if state >= Evaluation.State.APPROVED]
+        excluded_states = [state for state in Evaluation.State if state < Evaluation.State.APPROVED]
+        included_states = [state for state in Evaluation.State if state >= Evaluation.State.APPROVED]
 
         users = baker.make(UserProfile, _quantity=20, _bulk_create=True)
-        baker_base_kwargs = {"course__semester": self.semester, "participants": users, "voters": users[:10]}
-        baker_kwargs = {"state": Evaluation.State.APPROVED, **baker_base_kwargs}
+        make_evaluation = partial(
+            baker.make,
+            Evaluation,
+            course__semester=self.semester,
+            participants=users,
+            voters=users[:10],
+            state=Evaluation.State.APPROVED,
+        )
 
         # excluded
-        baker.make(Evaluation, is_rewarded=False, **baker_kwargs)
-        baker.make(Evaluation, is_single_result=True, **baker_kwargs)
-        baker.make(Evaluation, course__is_private=True, **baker_kwargs)
-        baker.make(Evaluation, id=1043, **baker_kwargs)
-        baker.make(Evaluation, course__type__id=1042, **baker_kwargs)
-        baker.make(Evaluation, _quantity=len(excluded_states), state=iter(excluded_states), **baker_base_kwargs)
+        make_evaluation(is_rewarded=False)
+        make_evaluation(is_single_result=True)
+        make_evaluation(course__is_private=True)
+        make_evaluation(id=1043)
+        make_evaluation(course__type__id=1042)
+        make_evaluation(_quantity=len(excluded_states), state=iter(excluded_states))
 
         # included
         included_evaluations = [
-            *baker.make(Evaluation, _quantity=len(included_states), state=iter(included_states), **baker_base_kwargs),
-            baker.make(Evaluation, _voter_count=123, _participant_count=456, **baker_kwargs),
+            *make_evaluation(_quantity=len(included_states), state=iter(included_states)),
+            make_evaluation(_voter_count=123, _participant_count=456),
         ]
 
         expected_participants = sum(e.num_participants for e in included_evaluations) * 0.5
