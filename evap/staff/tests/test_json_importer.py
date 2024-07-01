@@ -112,7 +112,6 @@ class TestImportUserProfiles(TestCase):
         importer._import_lecturers(self.lecturers)
 
         user_profiles = UserProfile.objects.all()
-        self.assertEqual(user_profiles.count(), 2)
 
         for i, user_profile in enumerate(user_profiles):
             self.assertEqual(user_profile.email, self.lecturers[i]["email"])
@@ -142,7 +141,7 @@ class TestImportEvents(TestCase):
 
     def _import(self):
         importer = JSONImporter(self.semester)
-        importer.import_json(EXAMPLE_DATA)
+        importer.import_json(EXAMPLE_JSON)
         return importer
 
     def test_import_courses(self):

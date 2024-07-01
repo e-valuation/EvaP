@@ -1,4 +1,3 @@
-import json
 import logging
 
 from django.core.management.base import BaseCommand
@@ -20,7 +19,6 @@ class Command(BaseCommand):
         parser.add_argument("file", type=str)
 
     def handle(self, *args, **options):
-        print(args, options)
         try:
             semester = Semester.objects.get(pk=options["semester"])
         except Semester.DoesNotExist:
@@ -28,7 +26,4 @@ class Command(BaseCommand):
             return
 
         with open(options["file"]) as file:
-
-            import_dict = json.load(file)
-            importer = JSONImporter(semester)
-            importer.import_json(import_dict)
+            JSONImporter(semester).import_json(file.read())
