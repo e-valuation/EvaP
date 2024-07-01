@@ -1395,11 +1395,11 @@ class ImportAction(Enum):
 
     @classmethod
     def from_operation(cls, operation: str) -> "ImportAction":
-        if "copy" in operation:
+        if operation.startswith("copy-"):
             return cls.COPY
-        if "import" in operation:
+        if operation.startswith("import-"):
             return cls.IMPORT
-        if "test" in operation:
+        if operation.startswith("test-"):
             return cls.TEST
         raise ValueError(f"Unknown operation: {operation}")
 
