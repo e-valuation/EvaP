@@ -81,47 +81,36 @@ class ImportStatistics:
     attempted_changes: list[Evaluation] = field(default_factory=list)
 
     @staticmethod
-    def _make_heading(heading: str) -> str:
-        heading += "\n" + "".join(["-" for i in heading]) + "\n"
-        return heading
+    def _make_heading(heading: str, separator: str = "-") -> str:
+        return "\n" + separator * len(heading) + "\n"
 
     @staticmethod
     def _make_total(total: int) -> str:
         return f"({total} in total)\n\n"
 
+    @staticmethod
+    def _make_stats(heading: str, new_objects: list) -> str:
+        log = ImportStatistics._make_heading(heading)
+        log += ImportStatistics._make_total(len(new_objects))
+        for new_course in new_objects:
+            log += f"- {new_course}\n"
+        return log
+
     def get_log(self) -> str:
-        log = "JSON IMPORTER REPORT\n"
-        log += "====================\n\n"
+        log = self._make_heading("JSON IMPORTER REPORT", "=")
+        log += "\n"
         log += f"Import finished at {now()}\n\n"
+
         log += self._make_heading("Name Changes")
+        log += self._make_total(len(self.name_changes))
         for name_change in self.name_changes:
             log += f"- {name_change.old_first_name_given} {name_change.old_last_name} → {name_change.new_first_name_given} {name_change.new_last_name}\n"
-        log += self._make_total(len(self.name_changes))
 
-        log += self._make_heading("New Courses")
-        for new_course in self.new_courses:
-            log += f"- {new_course}\n"
-        log += self._make_total(len(self.new_courses))
-
-        log += self._make_heading("New Evaluations")
-        for new_evaluation in self.new_evaluations:
-            log += f"- {new_evaluation}\n"
-        log += self._make_total(len(self.new_evaluations))
-
-        log += self._make_heading("Updated Courses")
-        for updated_course in self.updated_courses:
-            log += f"- {updated_course}\n"
-        log += self._make_total(len(self.updated_courses))
-
-        log += self._make_heading("Updated Evaluations")
-        for updated_evaluation in self.updated_evaluations:
-            log += f"- {updated_evaluation}\n"
-        log += self._make_total(len(self.updated_evaluations))
-
-        log += self._make_heading("Attempted Changes")
-        for attempted_change in self.attempted_changes:
-            log += f"- {attempted_change}\n"
-        log += self._make_total(len(self.attempted_changes))
+        log += self._make_stats("New Courses", self.new_courses)
+        log += self._make_stats("New Evaluations", self.new_evaluations)
+        log += self._make_stats("Updated Courses", self.updated_courses)
+        log += self._make_stats("Updated Evaluations", self.updated_evaluations)
+        log += self._make_stats("Attempted Changes", self.attempted_changes)
 
         return log
 
@@ -164,7 +153,6 @@ class JSONImporter:
                 email=email,
                 defaults={"last_name": entry["name"], "first_name_given": entry["christianname"]},
             )
-            user_profile: UserProfile
             if changes:
                 change = NameChange(
                     old_last_name=changes["last_name"][0] if changes.get("last_name") else user_profile.last_name,
@@ -173,12 +161,8 @@ class JSONImporter:
                         if changes.get("first_name_given")
                         else user_profile.first_name_given
                     ),
-                    new_last_name=changes["last_name"][1] if changes.get("last_name") else user_profile.last_name,
-                    new_first_name_given=(
-                        changes["first_name_given"][1]
-                        if changes.get("first_name_given")
-                        else user_profile.first_name_given
-                    ),
+                    new_last_name=user_profile.last_name,
+                    new_first_name_given=user_profile.first_name_given,
                 )
                 self.statistics.name_changes.append(change)
 
@@ -208,7 +192,6 @@ class JSONImporter:
             cms_id=data["gguid"],
             defaults={"name_de": data["title"], "name_en": data["title_en"], "type": course_type},
         )
-        course: Course
         course.degrees.set(degrees)
         course.responsibles.set(responsibles)
 
@@ -227,7 +210,9 @@ class JSONImporter:
 
         if data["isexam"]:
             # Set evaluation time frame of three days for exam evaluations:
-            evaluation_start_datetime = course_end.replace(hour=8, minute=0) + timedelta(days=1)
+            evaluation_start_datetime = course_end.replace(hour=8, minute=0, second=0, microsecond=0) + timedelta(
+                days=1
+            )
             evaluation_end_date = (course_end + timedelta(days=3)).date()
 
             name_de = "Klausur"
@@ -235,7 +220,7 @@ class JSONImporter:
         else:
             # Set evaluation time frame of two weeks for normal evaluations:
             # Start datetime is at 8:00 am on the monday in the week before the event ends
-            evaluation_start_datetime = course_end.replace(hour=8, minute=0) - timedelta(
+            evaluation_start_datetime = course_end.replace(hour=8, minute=0, second=0, microsecond=0) - timedelta(
                 weeks=1, days=course_end.weekday()
             )
             # End date is on the sunday in the week the event ends
@@ -244,7 +229,7 @@ class JSONImporter:
             name_de, name_en = "", ""
 
         # If events are graded for any degree, wait for grade upload before publishing
-        wait_for_grade_upload_before_publishing = any(filter(lambda grade: grade["scale"], data["courses"]))
+        wait_for_grade_upload_before_publishing = any(grade["scale"] for grade in data["courses"])
 
         participants = self._get_user_profiles(data["students"])
 
@@ -266,13 +251,13 @@ class JSONImporter:
             participant_changes = set(evaluation.participants.all()) != set(participants)
             evaluation.participants.set(participants)
 
-            lecturers_changes = False
+            any_lecturers_changed = False
             for lecturer in data["lecturers"]:
                 __, lecturer_created, lecturer_changes = self._import_contribution(evaluation, lecturer)
                 if lecturer_changes or lecturer_created:
-                    lecturers_changes = True
+                    any_lecturers_changed = True
 
-            if direct_changes or participant_changes or lecturers_changes:
+            if direct_changes or participant_changes or any_lecturers_changed:
                 self.statistics.updated_evaluations.append(evaluation)
         else:
             self.statistics.attempted_changes.append(evaluation)
@@ -296,10 +281,10 @@ class JSONImporter:
 
     def _import_events(self, data: list[ImportEvent]) -> None:
         # Divide in two lists so corresponding courses are imported before their exams
-        normal_events = (event for event in data if not event["isexam"])
+        non_exam_events = (event for event in data if not event["isexam"])
         exam_events = (event for event in data if event["isexam"])
 
-        for event in normal_events:
+        for event in non_exam_events:
             course = self._import_course(event)
 
             self._import_evaluation(course, event)
@@ -321,5 +306,4 @@ class JSONImporter:
         self._process_log()
 
     def import_json(self, data: str) -> None:
-        data = json.loads(data)
-        self.import_dict(data)
+        self.import_dict(json.loads(data))
