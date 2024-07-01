@@ -2,6 +2,7 @@ import datetime
 import math
 from collections import OrderedDict
 from dataclasses import dataclass
+from fractions import Fraction
 
 from django.conf import settings
 from django.contrib import messages
@@ -33,8 +34,8 @@ class GlobalRewards:  # pylint: disable=too-many-instance-attributes
 
     @dataclass
     class RewardProgress:
-        progress: float  # progress towards this reward, relative to max reward, between 0 and 1
-        vote_ratio: float
+        progress: Fraction  # progress towards this reward, relative to max reward, between 0 and 1
+        vote_ratio: Fraction
         text: str
 
     current_votes: int
@@ -43,7 +44,7 @@ class GlobalRewards:  # pylint: disable=too-many-instance-attributes
     next_reward_remaining_votes: int
     next_reward_text: str | None
     last_vote_datetime: datetime.datetime
-    rewards_with_progress: list[GlobalRewardWithProgress]
+    rewards_with_progress: list[RewardProgress]
     info_text: str
 
     @staticmethod

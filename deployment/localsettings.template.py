@@ -1,3 +1,5 @@
+from fractions import Fraction
+
 from django.utils.safestring import mark_safe
 
 DATABASES = {
@@ -19,12 +21,12 @@ SECRET_KEY = "${SECRET_KEY}"  # nosec
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 ### Evaluation progress rewards
-GLOBAL_EVALUATION_PROGRESS_REWARDS: list[tuple[float, str]] = [
-    (0, "0€"),
-    (0.25, "1.000€"),
-    (0.6, "3.000€"),
-    (0.7, "7.000€"),
-    (0.9, "10.000€"),
+GLOBAL_EVALUATION_PROGRESS_REWARDS: list[tuple[Fraction, str]] = [
+    (Fraction("0"), "0€"),
+    (Fraction("0.25"), "1.000€"),
+    (Fraction("0.6"), "3.000€"),
+    (Fraction("0.7"), "7.000€"),
+    (Fraction("0.9"), "10.000€"),
 ]
 GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS: list[int] = []
 GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS: list[int] = []
