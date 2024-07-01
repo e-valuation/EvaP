@@ -1,0 +1,57 @@
+{% if global_rewards %}
+    <div class="card mb-3">
+        <div class="card-header d-flex">
+            {% translate "Fundraising" %}
+            {% if global_rewards.last_vote_datetime %}
+                <div class="ms-auto fw-normal fst-italic">
+                    {% blocktranslate trimmed with time_interval=global_rewards.last_vote_datetime|timesince %}
+                        Last evaluation: {{ time_interval }} ago
+                    {% endblocktranslate %}
+                </div>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            <div class="position-relative d-grid pt-2 px-4">
+                    <span class="progress-container d-flex"
+                          style="height: 25px; grid-column-start: 1; grid-row-start: 1">
+                        <span class="progress m-0 bg-info">
+                            <span class="progress-bar bg-primary
+                                width-percent-{% widthratio global_rewards.bar_width_votes global_rewards.max_reward_votes 100 %}"></span>
+                            <span class="progress-bartext">
+                                {% widthratio global_rewards.vote_count global_rewards.participation_count 100 as percent %}
+                                {% blocktranslate with votes=global_rewards.vote_count %}{{ votes }} submitted
+                                    evaluations ({{ percent }}%){% endblocktranslate %}
+                            </span>
+                        </span>
+                    </span>
+                {% for reward in global_rewards.rewards_with_progress %}
+                    <div class="position-relative "
+                         style="left: {% widthratio reward.progress 1 100 %}%; transform: translateX(-50%); width: fit-content;grid-column-start: 1; grid-row-start: 2">
+                        <div style="width: fit-content">
+                            <div class="mx-auto progress-step"></div>
+                            <div class="small text-center">
+                                {% widthratio reward.vote_ratio 1 100 as percent %}
+                                {% blocktranslate %}{{ percent }}%{% endblocktranslate %}
+                            </div>
+                            <div class="text-lg-center fw-semibold">{{ reward.text }}</div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="card card-outline-light collapsible mt-2">
+                <div class="card-header d-flex">
+                    <a class="collapse-toggle collapse-toggle-light collapsed"
+                       data-bs-toggle="collapse" href="#goal-info-text"
+                       aria-controls="goal-info-text">
+                        {% translate "Every vote counts! Read more about our fundraising goal." %}
+                    </a>
+                </div>
+                <div class="collapse" id="goal-info-text">
+                    <div class="card-body">
+                        {{ global_rewards.info_text }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
