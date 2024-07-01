@@ -1,4 +1,5 @@
 import datetime
+import math
 from fractions import Fraction
 from functools import partial
 
@@ -129,6 +130,7 @@ class TestStudentIndexView(WebTestWith200Check):
         self.assertNotIn("Next reward: ", page)
         self.assertIn("All rewards achieved", page)
         self.assertNotIn("more evaluations required", page)
+        self.assertEqual(math.ceil(0.07 * 100), 8)
         self.assertIn("1000/7", page, "upper limit not correctly rounded")
         self.assertIn("at 7%", page)
         self.assertIn("a dog", page)
@@ -143,6 +145,7 @@ class TestStudentIndexView(WebTestWith200Check):
         )
         page = self.app.get(self.url, user=self.user)
         self.assertIn("Next reward: ", page)
+        self.assertEqual(math.ceil(0.07 * 100100) - 1000, 6008)
         self.assertIn("6007 more evaluations required", page, "required evaluations not ceiled correctly ")
 
     @override_settings(
