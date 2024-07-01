@@ -31,14 +31,13 @@ SUCCESS_MAGIC_STRING = "vote submitted successfully"
 
 @dataclass
 class GlobalRewards:  # pylint: disable=too-many-instance-attributes
-
     @dataclass
     class RewardProgress:
         progress: Fraction  # progress towards this reward, relative to max reward, between 0 and 1
         vote_ratio: Fraction
         text: str
 
-    current_votes: int
+    vote_count: int
     participation_count: int
     max_reward_votes: int
     bar_width_votes: int
@@ -64,16 +63,16 @@ class GlobalRewards:  # pylint: disable=too-many-instance-attributes
             .exclude(course__is_private=True)
         )
 
-        current_votes, current_participations = (
+        vote_count, participation_count = (
             Evaluation.annotate_with_participant_and_voter_counts(evaluations)
             .aggregate(Sum("num_voters", default=0), Sum("num_participants", default=0))
             .values()
         )
 
-        current_vote_ratio = current_votes / current_participations if current_participations else 1
+        current_vote_ratio = vote_count / participation_count if participation_count else 1
 
         max_reward_vote_ratio, __ = max(settings.GLOBAL_EVALUATION_PROGRESS_REWARDS)
-        max_reward_votes = math.ceil(max_reward_vote_ratio * current_participations)
+        max_reward_votes = math.ceil(max_reward_vote_ratio * participation_count)
 
         rewards_with_progress = [
             GlobalRewards.RewardProgress(progress=vote_ratio / max_reward_vote_ratio, vote_ratio=vote_ratio, text=text)
@@ -85,10 +84,10 @@ class GlobalRewards:  # pylint: disable=too-many-instance-attributes
         ]
 
         return GlobalRewards(
-            current_votes=current_votes,
-            participation_count=current_participations,
+            vote_count=vote_count,
+            participation_count=participation_count,
             max_reward_votes=max_reward_votes,
-            bar_width_votes=min(current_votes, max_reward_votes),
+            bar_width_votes=min(vote_count, max_reward_votes),
             last_vote_datetime=last_vote_datetime,
             rewards_with_progress=rewards_with_progress,
             info_text=settings.GLOBAL_EVALUATION_PROGRESS_INFO_TEXT[get_language()],

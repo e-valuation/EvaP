@@ -35,8 +35,8 @@
                             <span class="progress-bar bg-primary
                                 width-percent-{% widthratio global_rewards.bar_width_votes global_rewards.max_reward_votes 100 %}"></span>
                             <span class="progress-bartext">
-                                {% widthratio global_rewards.current_votes global_rewards.participation_count 100 as percent %}
-                                {% blocktranslate with votes=global_rewards.current_votes %}{{ votes }} submitted evaluations ({{ percent }}%){% endblocktranslate %}
+                                {% widthratio global_rewards.vote_count global_rewards.participation_count 100 as percent %}
+                                {% blocktranslate with votes=global_rewards.vote_count %}{{ votes }} submitted evaluations ({{ percent }}%){% endblocktranslate %}
                             </span>
                         </span>
                     </span>
