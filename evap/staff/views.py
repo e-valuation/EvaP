@@ -1113,7 +1113,7 @@ def create_exam_evaluation(request):
         messages.error(
             request, _("The exam date is before the start date of the main evaluation. No exam evaluation was created.")
         )
-        return HttpResponse()
+        raise SuspiciousOperation("The exam date is before the start date of the main evaluation. No exam evaluation was created.")
 
     evaluation.create_exam_evaluation(
         exam_date=exam_datetime,

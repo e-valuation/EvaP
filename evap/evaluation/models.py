@@ -479,30 +479,21 @@ class Evaluation(LoggedModel):
     def create_exam_evaluation(
         self,
         exam_date: datetime,
-        evaluation_end_date: datetime,
+        evaluation_end_date: date,
     ):
-        def _set_exam_evaluation_attributes(
-            exam_evaluation: Evaluation,
-            exam_date: date,
-            participants: QuerySet["UserProfile"],
-            eval_contributions: QuerySet["Contribution"],
-        ):
-            exam_evaluation.vote_start_datetime = datetime.combine(exam_date + timedelta(days=1), time(8, 0))
-            exam_evaluation.vote_end_date = exam_date + timedelta(days=3)
-            exam_evaluation.save()
-            exam_evaluation.participants.set(participants)
-            for contribution in eval_contributions:
-                exam_evaluation.contributions.create(contributor=contribution.contributor)
-            exam_evaluation.general_contribution.questionnaires.set(settings.EXAM_QUESTIONNAIRE_IDS)
-            exam_evaluation.save()
-
         self.weight = 9
         self.vote_end_date = evaluation_end_date
         self.save()
         participants = self.participants.all()
         eval_contributions = self.contributions.exclude(contributor=None)
         exam_evaluation = Evaluation(course=self.course, name_de="Klausur", name_en="Exam", weight=1, is_rewarded=False)
-        _set_exam_evaluation_attributes(exam_evaluation, exam_date, participants, eval_contributions)
+        exam_evaluation.vote_start_datetime = datetime.combine(exam_date + timedelta(days=1), time(8, 0))
+        exam_evaluation.vote_end_date = exam_date + timedelta(days=3)
+        exam_evaluation.participants.set(participants)
+        for contribution in eval_contributions:
+            exam_evaluation.contributions.create(contributor=contribution.contributor)
+        exam_evaluation.general_contribution.questionnaires.set(settings.EXAM_QUESTIONNAIRE_IDS)
+        exam_evaluation.save()
 
 
     class TextAnswerReviewState(Enum):
