@@ -1,4 +1,5 @@
 import datetime
+from fractions import Fraction
 from functools import partial
 
 from django.test.utils import override_settings
@@ -98,12 +99,12 @@ class TestStudentIndexView(WebTestWith200Check):
         self.assertIn("a dog", page)
         self.assertIn("at 50%", page)
 
-    @override_settings(GLOBAL_EVALUATION_PROGRESS_REWARDS=[(0.1, "a dog")])
+    @override_settings(GLOBAL_EVALUATION_PROGRESS_REWARDS=[(Fraction("0.07"), "a dog")])
     def test_global_reward_progress_edge_cases(self):
         # no active semester
         Semester.objects.update(is_active=False)
         page = self.app.get(self.url, user=self.user)
-        self.assertNotIn("at 10%", page)
+        self.assertNotIn("at 7%", page)
         self.assertNotIn("a dog", page)
 
         # no voters / participants -> possibly zero division
@@ -113,7 +114,7 @@ class TestStudentIndexView(WebTestWith200Check):
         self.assertNotIn("The last evaluation was submitted", page)
         self.assertNotIn("more evaluations required", page)
         self.assertIn("0/0", page)
-        self.assertIn("at 10%", page)
+        self.assertIn("at 7%", page)
         self.assertIn("a dog", page)
 
         # more voters than required for last reward
@@ -121,15 +122,15 @@ class TestStudentIndexView(WebTestWith200Check):
             Evaluation,
             course__semester=semester,
             _voter_count=1000,
-            _participant_count=1000,
+            _participant_count=100,
             state=Evaluation.State.EVALUATED,
         )
         page = self.app.get(self.url, user=self.user)
         self.assertNotIn("Next reward: ", page)
         self.assertIn("All rewards achieved", page)
         self.assertNotIn("more evaluations required", page)
-        self.assertIn("1000/100", page)
-        self.assertIn("at 10%", page)
+        self.assertIn("1000/7", page, "upper limit not correctly rounded")
+        self.assertIn("at 7%", page)
         self.assertIn("a dog", page)
 
     @override_settings(
