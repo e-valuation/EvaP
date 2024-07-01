@@ -42,8 +42,6 @@ class GlobalRewards:  # pylint: disable=too-many-instance-attributes
     participation_count: int
     max_reward_votes: int
     bar_width_votes: int
-    next_reward_remaining_votes: int
-    next_reward_text: str | None
     last_vote_datetime: datetime.datetime
     rewards_with_progress: list[RewardProgress]
     info_text: str
@@ -75,12 +73,7 @@ class GlobalRewards:  # pylint: disable=too-many-instance-attributes
         current_vote_ratio = current_votes / current_participations if current_participations else 1
 
         max_reward_vote_ratio, __ = max(settings.GLOBAL_EVALUATION_PROGRESS_REWARDS)
-        next_reward_vote_ratio, next_reward_text = min(
-            (reward for reward in settings.GLOBAL_EVALUATION_PROGRESS_REWARDS if current_vote_ratio < reward[0]),
-            default=(0, None),
-        )
         max_reward_votes = math.ceil(max_reward_vote_ratio * current_participations)
-        next_reward_remaining_votes = max(0, math.ceil(next_reward_vote_ratio * current_participations) - current_votes)
 
         rewards_with_progress = [
             GlobalRewards.RewardProgress(progress=vote_ratio / max_reward_vote_ratio, vote_ratio=vote_ratio, text=text)
@@ -96,8 +89,6 @@ class GlobalRewards:  # pylint: disable=too-many-instance-attributes
             participation_count=current_participations,
             max_reward_votes=max_reward_votes,
             bar_width_votes=min(current_votes, max_reward_votes),
-            next_reward_remaining_votes=next_reward_remaining_votes,
-            next_reward_text=next_reward_text,
             last_vote_datetime=last_vote_datetime,
             rewards_with_progress=rewards_with_progress,
             info_text=settings.GLOBAL_EVALUATION_PROGRESS_INFO_TEXT[get_language()],
