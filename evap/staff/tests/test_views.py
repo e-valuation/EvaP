@@ -2391,6 +2391,29 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
             self.evaluation.participants.count(), original_participant_count + self.evaluation2.participants.count()
         )
 
+    def test_copy_invalid_participants(self):
+        old_evaluation = baker.make(
+            Evaluation,
+            course__semester=self.evaluation2.course.semester,
+            participants=self.evaluation2.participants.all(),
+        )
+        page = self.app.get(self.url, user=self.manager)
+        old_pk = old_evaluation.pk
+        old_evaluation.delete()
+
+        form = page.forms["participant-copy-form"]
+        form["pc-evaluation"] = old_pk
+        response = submit_with_modal(page, form, name="operation", value="copy-participants", status=200)
+        self.assertIn(
+            "Please select an evaluation from the dropdown menu.", response.forms["participant-copy-form"].text
+        )
+
+        form["pc-evaluation"] = ""
+        response = submit_with_modal(page, form, name="operation", value="copy-participants", status=200)
+        self.assertIn(
+            "Please select an evaluation from the dropdown menu.", response.forms["participant-copy-form"].text
+        )
+
     def test_replace_copy_participants(self):
         page = self.app.get(self.url, user=self.manager)
 
