@@ -562,8 +562,8 @@ class TestTextAnswerVisibilityInfo(TestCase):
         for user in UserProfile.objects.all():
             represented_users = [user] + list(user.represented_users.all())
             for i, textanswer in enumerate(textanswers):
-                if can_textanswer_be_seen_by(user, represented_users, textanswer, "full"):
-                    if can_textanswer_be_seen_by(user, [user], textanswer, "full"):
+                if can_textanswer_be_seen_by(user, represented_users, textanswer, "full", "full"):
+                    if can_textanswer_be_seen_by(user, [user], textanswer, "full", "full"):
                         users_seeing_contribution[i][0].add(user)
                     else:
                         users_seeing_contribution[i][1].add(user)
