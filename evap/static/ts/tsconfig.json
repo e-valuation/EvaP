@@ -5,7 +5,6 @@
         "strict": true,
         "esModuleInterop": true,
         "moduleResolution": "node",
-        "types": ["bootstrap", "jquery", "sortablejs"],
     },
     "include": ["**/*.ts"]
 }

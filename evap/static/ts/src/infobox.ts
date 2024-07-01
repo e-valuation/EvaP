@@ -6,7 +6,7 @@ export class InfoboxLogic {
     private readonly infobox: HTMLDivElement;
     private readonly closeButton: HTMLButtonElement;
     private readonly storageKey: string;
-    private timeout?: number;
+    private timeout?: NodeJS.Timeout;
 
     constructor(infobox_id: string) {
         this.infobox = selectOrError("#infobox-" + infobox_id);
