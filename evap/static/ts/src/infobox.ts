@@ -17,6 +17,7 @@ export class InfoboxLogic {
         // close the infobox and save state
         this.closeButton.addEventListener("click", event => {
             this.infobox.classList.add("closing");
+            this.infobox.classList.remove("opening");
             setTimeout(() => {
                 this.infobox.classList.replace("closing", "closed");
             }, OPEN_CLOSE_TIMEOUT);
