@@ -1,6 +1,11 @@
 import json
+import os
 from datetime import date, datetime
+from io import StringIO
+from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
+from django.core.management import call_command
 from django.test import TestCase
 from model_bakery import baker
 
@@ -260,3 +265,15 @@ class TestImportEvents(TestCase):
 
         self.assertEqual(len(importer.statistics.updated_courses), 1)
         self.assertEqual(len(importer.statistics.new_courses), 0)
+
+    @patch("evap.staff.importers.json.JSONImporter.import_json")
+    def test_management_command(self, mock_import_json):
+        output = StringIO()
+
+        with TemporaryDirectory() as temp_dir:
+            test_filename = os.path.join(temp_dir, "test.json")
+            with open(test_filename, "w", encoding="utf-8") as f:
+                f.write(EXAMPLE_JSON)
+            call_command("json_import", self.semester.id, test_filename, stdout=output)
+
+            mock_import_json.assert_called_once_with(EXAMPLE_JSON)
