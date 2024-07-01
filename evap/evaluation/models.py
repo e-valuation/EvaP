@@ -617,6 +617,11 @@ class Evaluation(LoggedModel):
             return self.is_user_responsible_or_contributor_or_delegate(user)
         return self.can_be_seen_by(user)
 
+    def can_reset_to_new(self):
+        return any(
+            state_transition.name == "reset_to_new" for state_transition in self.get_available_state_transitions()
+        )  # get_available_<fieldname>_transitions() is available for all fsm-fields on a class
+
     @property
     def can_be_edited_by_manager(self):
         return not self.participations_are_archived and self.state < Evaluation.State.PUBLISHED
@@ -711,9 +716,23 @@ class Evaluation(LoggedModel):
     def manager_approve(self):
         pass
 
-    @transition(field=state, source=[State.PREPARED, State.EDITOR_APPROVED, State.APPROVED], target=State.NEW)
-    def revert_to_new(self):
-        pass
+    @transition(
+        field=state,
+        source=[
+            State.PREPARED,
+            State.EDITOR_APPROVED,
+            State.APPROVED,
+            State.IN_EVALUATION,
+            State.EVALUATED,
+            State.REVIEWED,
+        ],
+        target=State.NEW,
+    )
+    def reset_to_new(self, *, delete_previous_answers: bool):
+        if delete_previous_answers:
+            for answer_class in Answer.__subclasses__():
+                answer_class._default_manager.filter(contribution__evaluation_id=self.id).delete()
+            self.voters.clear()
 
     @transition(
         field=state,
