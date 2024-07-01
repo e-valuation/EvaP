@@ -14,6 +14,8 @@ from typing import NamedTuple, TextIO
 from openpyxl import Workbook, load_workbook
 from openpyxl.cell import Cell
 
+_stdout = sys.stdout
+
 
 class User(NamedTuple):
     title: str
@@ -88,16 +90,16 @@ def get_user_decisions(database_users: dict[str, User], workbook: Workbook) -> d
                     conflicts_by_field[field].add(imported)
     # ask user for decision
     for field, conflicts in conflicts_by_field.items():
-        print(field.capitalize())
-        print("---------")
+        _stdout.write(f"{field.capitalize()}\n")
+        _stdout.write("---------\n")
         for imported in sorted(conflicts):
             existing = database_users[imported.email]
 
             if getattr(existing, field) == getattr(imported, field):
                 continue
 
-            print(f"existing: '{make_bold(getattr(existing, field))}' ({existing.full_name()})")
-            print(f"imported: '{make_bold(getattr(imported, field))}' ({imported.full_name()})")
+            _stdout.write(f"existing: '{make_bold(getattr(existing, field))}' ({existing.full_name()})\n")
+            _stdout.write(f"imported: '{make_bold(getattr(imported, field))}' ({imported.full_name()})\n")
 
             decision = ""
             while decision not in ("e", "i"):
@@ -105,7 +107,7 @@ def get_user_decisions(database_users: dict[str, User], workbook: Workbook) -> d
             choice = existing if decision == "e" else imported
 
             database_users[choice.email] = database_users[choice.email]._replace(**{field: getattr(choice, field)})
-        print()
+        _stdout.write("\n")
     return database_users
 
 
@@ -146,8 +148,8 @@ if __name__ == "__main__":  # pragma: nocover
     with open(ns.user_data, encoding="utf-8") as csvfile:
         wb = run_preprocessor(target, csvfile)
         if wb is None:
-            print("Done! No changes to the excel file were necessary!")
+            _stdout.write("Done! No changes to the excel file were necessary!\n")
             sys.exit()
     with target.with_stem(f"{target.stem}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}").open("wb") as out:
-        print("Done! All conflicts are resolved in a new file!")
+        _stdout.write("Done! All conflicts are resolved in a new file!\n")
         out.write(wb.read())

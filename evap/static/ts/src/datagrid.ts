@@ -1,3 +1,5 @@
+import { CSRF_HEADERS } from "./csrf-utils.js";
+
 declare const Sortable: typeof import("sortablejs");
 
 interface Row {
@@ -341,11 +343,19 @@ export class QuestionnaireGrid extends TableGrid {
             draggable: ".sortable",
             scrollSensitivity: 70,
             onUpdate: event => {
-                if (event.oldIndex && event.newIndex) {
+                if (event.oldIndex !== undefined && event.newIndex !== undefined) {
                     this.reorderRow(event.oldIndex, event.newIndex);
                 }
-                const questionnaireIndices = this.rows.map((row, index) => [$(row.element).data("id"), index]);
-                $.post(this.updateUrl, Object.fromEntries(questionnaireIndices));
+                fetch(this.updateUrl, {
+                    method: "POST",
+                    headers: CSRF_HEADERS,
+                    body: new URLSearchParams(
+                        this.rows.map((row, index) => [row.element.dataset.id!, index.toString()]),
+                    ),
+                }).catch(error => {
+                    console.error(error);
+                    window.alert(window.gettext("The server is not responding."));
+                });
             },
         });
     }

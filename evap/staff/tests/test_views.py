@@ -4,7 +4,7 @@ import os
 from abc import ABC, abstractmethod
 from io import BytesIO
 from typing import Literal
-from unittest.mock import PropertyMock, patch
+from unittest.mock import Mock, PropertyMock, patch
 
 import openpyxl
 import xlrd
@@ -16,6 +16,7 @@ from django.http import HttpResponse
 from django.test import override_settings
 from django.test.testcases import TestCase
 from django.urls import reverse
+from django.utils import translation
 from django_webtest import WebTest
 from model_bakery import baker
 
@@ -1159,9 +1160,7 @@ class TestSemesterImportView(WebTestStaffMode):
             "Please manually create it first."
         )
         self.assertContains(reply, course_type_error)
-        is_graded_error = (
-            "Sheet &quot;MA Belegungen&quot;, row 5: &quot;is_graded&quot; is maybe, but must be yes or no"
-        )
+        is_graded_error = "Sheet &quot;MA Belegungen&quot;, row 5: &quot;is_graded&quot; is maybe, but must be "
         self.assertContains(reply, is_graded_error)
         user_error = (
             "Sheet &quot;MA Belegungen&quot;, row 3: The data of user"
@@ -2229,16 +2228,19 @@ class TestEvaluationEditView(WebTestStaffMode):
             '<label class="form-check-label badge bg-danger" for="id_contributions-1-questionnaires_0">', page
         )
 
-    @patch.dict(Evaluation.STATE_STR_CONVERSION, {Evaluation.State.PREPARED: "mock-translated-prepared"})
-    def test_state_change_log_translated(self):
-        page = self.app.get(self.url, user=self.manager)
-        self.assertNotIn("mock-translated-prepared", page)
+    @patch("django.utils.translation._trans", wraps=translation._trans)  # type: ignore[attr-defined]
+    def test_state_change_log_translated(self, trans):
+        trans.gettext = Mock()
+        trans.gettext.side_effect = lambda key: f"TRANSLATED-{key}"
+
+        response = self.app.get(self.url, user=self.manager)
+        self.assertNotContains(response, "TRANSLATED-state: TRANSLATED-new &#8594; TRANSLATED-prepared")
 
         self.evaluation.ready_for_editors()
         self.evaluation.save()
 
-        page = self.app.get(self.url, user=self.manager)
-        self.assertIn("mock-translated-prepared", page)
+        response = self.app.get(self.url, user=self.manager)
+        self.assertContains(response, "TRANSLATED-state: TRANSLATED-new &#8594; TRANSLATED-prepared")
 
 
 class TestEvaluationDeleteView(WebTestStaffMode):

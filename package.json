@@ -10,11 +10,11 @@
         "jest-environment-puppeteer": "^10.0.0",
         "jest-jasmine2": "^29.7.0",
         "jest-ts-webcompat-resolver": "^1.0.0",
-        "prettier": "^3.2.2",
+        "prettier": "^3.3.0",
         "puppeteer": "^21.0.1",
         "sass": "1.77.1",
         "ts-jest": "^29.1.0",
-        "typescript": "^5.4.2"
+        "typescript": "^5.5.2"
     },
     "jest": {
         "testRunner": "jest-jasmine2",

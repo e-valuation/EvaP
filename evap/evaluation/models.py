@@ -32,7 +32,7 @@ from django.utils.translation import gettext_noop
 from django_fsm import FSMIntegerField, transition
 from django_fsm.signals import post_transition
 
-from evap.evaluation.models_logging import FieldAction, LoggedModel
+from evap.evaluation.models_logging import LoggedModel
 from evap.evaluation.tools import (
     StrOrPromise,
     clean_email,
@@ -381,17 +381,17 @@ class Course(LoggedModel):
 class Evaluation(LoggedModel):
     """Models a single evaluation, e.g. the exam evaluation of the Math 101 course of 2002."""
 
-    class State:
-        NEW = 10
-        PREPARED = 20
-        EDITOR_APPROVED = 30
-        APPROVED = 40
-        IN_EVALUATION = 50
-        EVALUATED = 60
-        REVIEWED = 70
-        PUBLISHED = 80
+    class State(models.IntegerChoices):
+        NEW = 10, _("new")
+        PREPARED = 20, _("prepared")
+        EDITOR_APPROVED = 30, _("editor approved")
+        APPROVED = 40, _("approved")
+        IN_EVALUATION = 50, _("in evaluation")
+        EVALUATED = 60, _("evaluated")
+        REVIEWED = 70, _("reviewed")
+        PUBLISHED = 80, _("published")
 
-    state = FSMIntegerField(default=State.NEW, protected=True, verbose_name=_("state"))
+    state = FSMIntegerField(default=State.NEW, protected=True, choices=State, verbose_name=_("state"))
 
     course = models.ForeignKey(Course, models.PROTECT, verbose_name=_("course"), related_name="evaluations")
 
@@ -780,24 +780,9 @@ class Evaluation(LoggedModel):
         self._voter_count = None
         self._participant_count = None
 
-    STATE_STR_CONVERSION = {
-        State.NEW: _("new"),
-        State.PREPARED: _("prepared"),
-        State.EDITOR_APPROVED: _("editor_approved"),
-        State.APPROVED: _("approved"),
-        State.IN_EVALUATION: _("in_evaluation"),
-        State.EVALUATED: _("evaluated"),
-        State.REVIEWED: _("reviewed"),
-        State.PUBLISHED: _("published"),
-    }
-
-    @classmethod
-    def state_to_str(cls, state):
-        return cls.STATE_STR_CONVERSION[state]
-
     @property
     def state_str(self):
-        return self.state_to_str(self.state)
+        return Evaluation.State(self.state).label
 
     @cached_property
     def general_contribution(self):
@@ -1002,14 +987,6 @@ class Evaluation(LoggedModel):
             "_participant_count",
         ]
 
-    @classmethod
-    def transform_log_action(cls, field_action):
-        if field_action.label.lower() == Evaluation.state.field.verbose_name.lower():
-            return FieldAction(
-                field_action.label, field_action.type, [cls.state_to_str(state) for state in field_action.items]
-            )
-        return field_action
-
 
 @receiver(post_transition, sender=Evaluation)
 def evaluation_state_change(instance, source, **_kwargs):
@@ -1020,13 +997,13 @@ def evaluation_state_change(instance, source, **_kwargs):
 
 
 @receiver(post_transition, sender=Evaluation)
-def log_state_transition(instance, name, source, target, **_kwargs):
+def log_state_transition(instance, name, source: int, target: int, **_kwargs):
     logger.info(
         'Evaluation "%s" (id %d) moved from state "%s" to state "%s", caused by transition "%s".',
         instance,
         instance.pk,
-        Evaluation.state_to_str(source),
-        Evaluation.state_to_str(target),
+        Evaluation.State(source).label,
+        Evaluation.State(target).label,
         name,
     )
 

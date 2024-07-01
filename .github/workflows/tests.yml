@@ -113,7 +113,7 @@ jobs:
         uses: ./.github/setup_nodejs
 
       - name: Check code formatting
-        run: black --check evap
+        run: black --check .
       - name: Check imports formatting
         run: isort . --check --diff
       - run: ls -laR evap/static/ts

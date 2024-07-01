@@ -388,7 +388,7 @@ class TestFormatCommand(TestCase):
         self.assertEqual(len(mock_subprocess_run.mock_calls), 3)
         mock_subprocess_run.assert_has_calls(
             [
-                call(["black", "evap"], check=False),
+                call(["black", "."], check=False),
                 call(["isort", "."], check=False),
                 call(["npx", "prettier", "--write", "evap/static/ts/**/*.ts"], check=False),
             ]
