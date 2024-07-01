@@ -75,7 +75,7 @@ class TestImportUserProfiles(TestCase):
         user_profiles = UserProfile.objects.all()
         self.assertEqual(user_profiles.count(), 2)
 
-        for i, user_profile in enumerate(user_profiles):
+        for i, user_profile in enumerate(user_profiles.order_by("email")):
             self.assertEqual(user_profile.email, self.students[i]["email"])
             self.assertEqual(user_profile.last_name, self.students[i]["name"])
             self.assertEqual(user_profile.first_name_given, self.students[i]["christianname"])
@@ -118,7 +118,7 @@ class TestImportUserProfiles(TestCase):
 
         user_profiles = UserProfile.objects.all()
 
-        for i, user_profile in enumerate(user_profiles):
+        for i, user_profile in enumerate(user_profiles.order_by("email")):
             self.assertEqual(user_profile.email, self.lecturers[i]["email"])
             self.assertEqual(user_profile.last_name, self.lecturers[i]["name"])
             self.assertEqual(user_profile.first_name_given, self.lecturers[i]["christianname"])
@@ -160,12 +160,12 @@ class TestImportEvents(TestCase):
         self.assertEqual(course.name_de, EXAMPLE_DATA["events"][0]["title"])
         self.assertEqual(course.name_en, EXAMPLE_DATA["events"][0]["title_en"])
         self.assertEqual(course.type.name_de, EXAMPLE_DATA["events"][0]["type"])
-        self.assertListEqual(
-            [d.name_de for d in course.degrees.all()], [d["cprid"] for d in EXAMPLE_DATA["events"][0]["courses"]]
+        self.assertSetEqual(
+            {d.name_de for d in course.degrees.all()}, {d["cprid"] for d in EXAMPLE_DATA["events"][0]["courses"]}
         )
-        self.assertListEqual(
-            list(course.responsibles.all()),
-            [importer.user_profile_map[lecturer["gguid"]] for lecturer in EXAMPLE_DATA["events"][0]["lecturers"]],
+        self.assertSetEqual(
+            set(course.responsibles.values_list("email", flat=True)),
+            {"3@example.com"},
         )
 
         main_evaluation = Evaluation.objects.get(name_en="")
@@ -175,20 +175,20 @@ class TestImportEvents(TestCase):
         # [{"begin": "15.04.2024 10:15", "end": "15.07.2024 11:45"}]
         self.assertEqual(main_evaluation.vote_start_datetime, datetime(2024, 7, 8, 8, 0))
         self.assertEqual(main_evaluation.vote_end_date, date(2024, 7, 21))
-        self.assertListEqual(
-            list(main_evaluation.participants.all()),
-            [importer.user_profile_map[student["gguid"]] for student in EXAMPLE_DATA["events"][0]["students"]],
+        self.assertSetEqual(
+            set(main_evaluation.participants.values_list("email", flat=True)),
+            {"1@example.com", "2@example.com"},
         )
         self.assertTrue(main_evaluation.wait_for_grade_upload_before_publishing)
 
         self.assertEqual(Contribution.objects.filter(evaluation=main_evaluation).count(), 2)
-        self.assertListEqual(
-            list(
+        self.assertSetEqual(
+            set(
                 Contribution.objects.filter(evaluation=main_evaluation, contributor__isnull=False).values_list(
-                    "contributor_id", flat=True
+                    "contributor__email", flat=True
                 )
             ),
-            [importer.user_profile_map[student["gguid"]].id for student in EXAMPLE_DATA["events"][0]["lecturers"]],
+            {"3@example.com"},
         )
 
         exam_evaluation = Evaluation.objects.get(name_en="Exam")
@@ -198,20 +198,20 @@ class TestImportEvents(TestCase):
         # [{"begin": "29.07.2024 10:15", "end": "29.07.2024 11:45"}]
         self.assertEqual(exam_evaluation.vote_start_datetime, datetime(2024, 7, 30, 8, 0))
         self.assertEqual(exam_evaluation.vote_end_date, date(2024, 8, 1))
-        self.assertListEqual(
-            list(exam_evaluation.participants.all()),
-            [importer.user_profile_map[student["gguid"]] for student in EXAMPLE_DATA["events"][1]["students"]],
+        self.assertSetEqual(
+            set(exam_evaluation.participants.values_list("email", flat=True)),
+            {"1@example.com", "2@example.com"},
         )
         self.assertFalse(exam_evaluation.wait_for_grade_upload_before_publishing)
 
         self.assertEqual(Contribution.objects.filter(evaluation=exam_evaluation).count(), 3)
-        self.assertListEqual(
-            list(
+        self.assertSetEqual(
+            set(
                 Contribution.objects.filter(evaluation=exam_evaluation, contributor__isnull=False).values_list(
-                    "contributor_id", flat=True
+                    "contributor__email", flat=True
                 )
             ),
-            [importer.user_profile_map[student["gguid"]].id for student in EXAMPLE_DATA["events"][1]["lecturers"]],
+            {"3@example.com", "4@example.com"},
         )
 
         self.assertEqual(len(importer.statistics.new_courses), 1)
