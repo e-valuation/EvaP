@@ -133,6 +133,18 @@ class TestStudentIndexView(WebTestWith200Check):
         self.assertIn("at 7%", page)
         self.assertIn("a dog", page)
 
+        # _some_ more participants
+        baker.make(
+            Evaluation,
+            course__semester=semester,
+            _voter_count=0,
+            _participant_count=100000,
+            state=Evaluation.State.EVALUATED,
+        )
+        page = self.app.get(self.url, user=self.user)
+        self.assertIn("Next reward: ", page)
+        self.assertIn("6007 more evaluations required", page, "required evaluations not ceiled correctly ")
+
     @override_settings(
         GLOBAL_EVALUATION_PROGRESS_REWARDS=[],
         GLOBAL_EVALUATION_PROGRESS_INFO_TEXT={"de": "info_text_str", "en": "info_text_str"},
