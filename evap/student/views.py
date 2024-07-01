@@ -39,6 +39,7 @@ class GlobalRewards:  # pylint: disable=too-many-instance-attributes
         text: str
 
     current_votes: int
+    participation_count: int
     max_reward_votes: int
     bar_width_votes: int
     next_reward_remaining_votes: int
@@ -92,6 +93,7 @@ class GlobalRewards:  # pylint: disable=too-many-instance-attributes
 
         return GlobalRewards(
             current_votes=current_votes,
+            participation_count=current_participations,
             max_reward_votes=max_reward_votes,
             bar_width_votes=min(current_votes, max_reward_votes),
             next_reward_remaining_votes=next_reward_remaining_votes,
