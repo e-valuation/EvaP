@@ -3,7 +3,7 @@ import secrets
 import uuid
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
 from enum import Enum, auto
 from numbers import Real
 
@@ -18,6 +18,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
 from django.db.models import CheckConstraint, Count, F, Manager, OuterRef, Q, Subquery, Value
 from django.db.models.functions import Coalesce, Lower, NullIf, TruncDate
+from django.db.models.query import QuerySet
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
 from django.template.defaultfilters import linebreaksbr
@@ -444,6 +445,31 @@ class Evaluation(LoggedModel):
     wait_for_grade_upload_before_publishing = models.BooleanField(
         verbose_name=_("wait for grade upload before publishing"), default=True
     )
+
+    @property
+    def has_exam(self):
+        return self.course.evaluations.filter(name_de="Klausur", name_en="Exam").exists()
+
+    @transaction.atomic
+    def create_exam_evaluation(
+        self,
+        exam_date: datetime,
+        evaluation_end_date: date,
+    ):
+        self.weight = 9
+        self.vote_end_date = evaluation_end_date
+        self.save()
+        participants = self.participants.all()
+        eval_contributions = self.contributions.exclude(contributor=None)
+        exam_evaluation = Evaluation(course=self.course, name_de="Klausur", name_en="Exam", weight=1, is_rewarded=False)
+        exam_evaluation.vote_start_datetime = datetime.combine(exam_date + timedelta(days=1), time(8, 0))
+        exam_evaluation.vote_end_date = exam_date + timedelta(days=3)
+        exam_evaluation.participants.set(participants)
+        for contribution in eval_contributions:
+            exam_evaluation.contributions.create(contributor=contribution.contributor)
+        exam_evaluation.general_contribution.questionnaires.set(settings.EXAM_QUESTIONNAIRE_IDS)
+        exam_evaluation.save()
+
 
     class TextAnswerReviewState(Enum):
         do_not_call_in_templates = True  # pylint: disable=invalid-name
