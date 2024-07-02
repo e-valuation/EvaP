@@ -11,9 +11,8 @@
             {% endif %}
         </div>
         <div class="card-body">
-            <div class="position-relative d-grid pt-2 px-4">
-                    <span class="progress-container d-flex"
-                          style="height: 25px; grid-column-start: 1; grid-row-start: 1">
+            <div class="global-rewards-progress-bar pt-2 px-4">
+                    <span class="progress-container">
                         <span class="progress m-0 bg-info">
                             <span class="progress-bar bg-primary
                                 width-percent-{% widthratio global_rewards.bar_width_votes global_rewards.max_reward_votes 100 %}"></span>
@@ -25,9 +24,9 @@
                         </span>
                     </span>
                 {% for reward in global_rewards.rewards_with_progress %}
-                    <div class="position-relative"
-                         style="left: {% widthratio reward.progress 1 100 %}%; transform: translateX(-50%); width: fit-content;grid-column-start: 1; grid-row-start: 2">
-                        <div class="mx-auto progress-step"></div>
+                    <div class="position-relative progress-step"
+                         style="left: {% widthratio reward.progress 1 100 %}%">
+                        <div class="mx-auto seperator"></div>
                         <div class="small text-center">
                             {% widthratio reward.vote_ratio 1 100 as percent %}
                             {% blocktranslate %}{{ percent }}%{% endblocktranslate %}
