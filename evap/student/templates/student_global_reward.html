@@ -25,16 +25,14 @@
                         </span>
                     </span>
                 {% for reward in global_rewards.rewards_with_progress %}
-                    <div class="position-relative "
+                    <div class="position-relative"
                          style="left: {% widthratio reward.progress 1 100 %}%; transform: translateX(-50%); width: fit-content;grid-column-start: 1; grid-row-start: 2">
-                        <div style="width: fit-content">
-                            <div class="mx-auto progress-step"></div>
-                            <div class="small text-center">
-                                {% widthratio reward.vote_ratio 1 100 as percent %}
-                                {% blocktranslate %}{{ percent }}%{% endblocktranslate %}
-                            </div>
-                            <div class="text-lg-center fw-semibold">{{ reward.text }}</div>
+                        <div class="mx-auto progress-step"></div>
+                        <div class="small text-center">
+                            {% widthratio reward.vote_ratio 1 100 as percent %}
+                            {% blocktranslate %}{{ percent }}%{% endblocktranslate %}
                         </div>
+                        <div class="text-lg-center fw-semibold">{{ reward.text }}</div>
                     </div>
                 {% endfor %}
             </div>
