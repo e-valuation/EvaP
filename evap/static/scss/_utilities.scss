@@ -84,4 +84,8 @@ a.no-underline:hover {
     .width-percent-#{$i} {
         width: $i * 1% !important;
     }
+
+    .left-percent-#{$i} {
+        left: $i * 1% !important;
+    }
 }

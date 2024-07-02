@@ -24,8 +24,7 @@
                         </span>
                     </span>
                 {% for reward in global_rewards.rewards_with_progress %}
-                    <div class="position-relative progress-step"
-                         style="left: {% widthratio reward.progress 1 100 %}%">
+                    <div class="position-relative progress-step left-percent-{% widthratio reward.progress 1 100 %}">
                         <div class="mx-auto seperator"></div>
                         <div class="small text-center">
                             {% widthratio reward.vote_ratio 1 100 as percent %}
