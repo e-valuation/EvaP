@@ -1,5 +1,4 @@
 import datetime
-import math
 from fractions import Fraction
 from functools import partial
 
@@ -98,7 +97,7 @@ class TestStudentIndexView(WebTestWith200Check):
         page = self.app.get(self.url, user=self.user)
         self.assertIn("Fundraising", page)
         self.assertIn("info_text_str", page)
-        self.assertIn(f"Last evaluation:", page)
+        self.assertIn("Last evaluation:", page)
         self.assertIn(f"{expected_voters} submitted evaluations ({expected_voter_percent}%)", page)
         self.assertIn("a quokka", page)
         self.assertIn("10%", page)
