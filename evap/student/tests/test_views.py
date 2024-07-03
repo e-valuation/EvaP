@@ -89,64 +89,51 @@ class TestStudentIndexView(WebTestWith200Check):
             make_evaluation(_voter_count=123, _participant_count=456),
         ]
 
-        expected_participants = sum(e.num_participants for e in included_evaluations) * 0.5
+        baker.make(VoteTimestamp, evaluation=included_evaluations[0])
+
+        expected_participants = sum(e.num_participants for e in included_evaluations)
         expected_voters = sum(e.num_voters for e in included_evaluations)
+        expected_voter_percent = 100 * expected_voters // expected_participants
 
         page = self.app.get(self.url, user=self.user)
+        self.assertIn("Fundraising", page)
         self.assertIn("info_text_str", page)
-        self.assertIn(f"{expected_voters}/{expected_participants:.0f}", page)
-        self.assertIn("Next reward: a quokka", page)
-        self.assertIn("at 10%", page)
+        self.assertIn(f"Last evaluation:", page)
+        self.assertIn(f"{expected_voters} submitted evaluations ({expected_voter_percent}%)", page)
+        self.assertIn("a quokka", page)
+        self.assertIn("10%", page)
         self.assertIn("a dog", page)
-        self.assertIn("at 50%", page)
+        self.assertIn("50%", page)
 
     @override_settings(GLOBAL_EVALUATION_PROGRESS_REWARDS=[(Fraction("0.07"), "a dog")])
     def test_global_reward_progress_edge_cases(self):
         # no active semester
         Semester.objects.update(is_active=False)
         page = self.app.get(self.url, user=self.user)
-        self.assertNotIn("at 7%", page)
+        self.assertNotIn("7%", page)
         self.assertNotIn("a dog", page)
 
         # no voters / participants -> possibly zero division
         # also: no last vote timestamp
         semester = baker.make(Semester, is_active=True)
         page = self.app.get(self.url, user=self.user)
-        self.assertNotIn("The last evaluation was submitted", page)
-        self.assertNotIn("more evaluations required", page)
-        self.assertIn("0/0", page)
-        self.assertIn("at 7%", page)
+        self.assertNotIn("Last evaluation:", page)
+        self.assertIn("0 submitted evaluations (0%)", page)
+        self.assertIn("7%", page)
         self.assertIn("a dog", page)
 
         # more voters than required for last reward
         baker.make(
             Evaluation,
             course__semester=semester,
-            _voter_count=1000,
-            _participant_count=100,
+            _voter_count=89,
+            _participant_count=97,
             state=Evaluation.State.EVALUATED,
         )
         page = self.app.get(self.url, user=self.user)
-        self.assertNotIn("Next reward: ", page)
-        self.assertIn("All rewards achieved", page)
-        self.assertNotIn("more evaluations required", page)
-        self.assertEqual(math.ceil(0.07 * 100), 8)
-        self.assertIn("1000/7", page, "max_reward_votes not correctly rounded")
-        self.assertIn("at 7%", page)
+        self.assertIn("89 submitted evaluations (91%)", page)  # 91% is intentionally rounded down
+        self.assertIn("7%", page)
         self.assertIn("a dog", page)
-
-        # _some_ more participants
-        baker.make(
-            Evaluation,
-            course__semester=semester,
-            _voter_count=0,
-            _participant_count=100000,
-            state=Evaluation.State.EVALUATED,
-        )
-        page = self.app.get(self.url, user=self.user)
-        self.assertIn("Next reward: ", page)
-        self.assertEqual(math.ceil(0.07 * 100100) - 1000, 6008)
-        self.assertIn("6007 more evaluations required", page, "next_reward_remaining_votes not ceiled correctly ")
 
     @override_settings(
         GLOBAL_EVALUATION_PROGRESS_REWARDS=[],
@@ -154,7 +141,7 @@ class TestStudentIndexView(WebTestWith200Check):
     )
     def test_global_reward_progress_hidden(self):
         page = self.app.get(self.url, user=self.user)
-        self.assertNotIn("Next reward", page)
+        self.assertNotIn("Fundraising", page)
         self.assertNotIn("info_text_str", page)
 
 
