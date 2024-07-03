@@ -69,8 +69,6 @@ class GlobalRewards:  # pylint: disable=too-many-instance-attributes
             .values()
         )
 
-        current_vote_ratio = vote_count / participation_count if participation_count else 1
-
         max_reward_vote_ratio, __ = max(settings.GLOBAL_EVALUATION_PROGRESS_REWARDS)
         max_reward_votes = math.ceil(max_reward_vote_ratio * participation_count)
 
