@@ -1,3 +1,5 @@
+{% load evaluation_filters %}
+
 {% if global_rewards %}
     <div class="card mb-3">
         <div class="card-header d-flex">
@@ -16,11 +18,10 @@
                     <span class="progress m-0 bg-info">
                         <span class="progress-bar bg-primary width-percent-{% widthratio global_rewards.bar_width_votes global_rewards.max_reward_votes 100 %}"></span>
                         <span class="progress-bartext">
-                            {% widthratio global_rewards.vote_count global_rewards.participation_count 100 as percent %}
-                            {% blocktranslate trimmed count votes=global_rewards.vote_count %}
-                                {{ votes }} submitted evaluation ({{ percent }}%)
+                            {% blocktranslate trimmed count votes=global_rewards.vote_count with percent=global_rewards.vote_count|percentage_zero_on_error:global_rewards.participation_count %}
+                                {{ votes }} submitted evaluation ({{ percent }})
                             {% plural %}
-                                {{ votes }} submitted evaluations ({{ percent }}%)
+                                {{ votes }} submitted evaluations ({{ percent }})
                             {% endblocktranslate %}
                         </span>
                     </span>
@@ -29,7 +30,7 @@
                     <div class="position-relative progress-step left-percent-{% widthratio reward.progress 1 100 %}">
                         <div class="mx-auto seperator"></div>
                         <div class="small text-center">
-                            {% widthratio reward.vote_ratio 1 100 %}%
+                            {{ reward.vote_ratio|percentage:1 }}
                         </div>
                         <div class="text-lg-center fw-semibold">{{ reward.text }}</div>
                     </div>
