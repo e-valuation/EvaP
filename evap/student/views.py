@@ -30,7 +30,7 @@ SUCCESS_MAGIC_STRING = "vote submitted successfully"
 
 
 @dataclass
-class GlobalRewards:  # pylint: disable=too-many-instance-attributes
+class GlobalRewards:
     @dataclass
     class RewardProgress:
         progress: Fraction  # progress towards this reward, relative to max reward, between 0 and 1
