@@ -29,8 +29,7 @@
                     <div class="position-relative progress-step left-percent-{% widthratio reward.progress 1 100 %}">
                         <div class="mx-auto seperator"></div>
                         <div class="small text-center">
-                            {% widthratio reward.vote_ratio 1 100 as percent %}
-                            {% blocktranslate %}{{ percent }}%{% endblocktranslate %}
+                            {% widthratio reward.vote_ratio 1 100 %}%
                         </div>
                         <div class="text-lg-center fw-semibold">{{ reward.text }}</div>
                     </div>
