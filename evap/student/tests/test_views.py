@@ -55,7 +55,7 @@ class TestStudentIndexView(WebTestWith200Check):
             self.app.get(self.url, user=self.user)
 
     @override_settings(
-        GLOBAL_EVALUATION_PROGRESS_REWARDS=[(0.1, "a dog"), (0.5, "a quokka")],
+        GLOBAL_EVALUATION_PROGRESS_REWARDS=[(Fraction(1, 10), "a dog"), (Fraction(5, 10), "a quokka")],
         GLOBAL_EVALUATION_PROGRESS_INFO_TEXT={"de": "info_text_str", "en": "info_text_str"},
         GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS=[1042],
         GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS=[1043],
