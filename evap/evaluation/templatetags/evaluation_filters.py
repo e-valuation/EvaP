@@ -112,9 +112,7 @@ def percentage_one_decimal(fraction, population):
 def percentage_zero_on_error(fraction, population):
     try:
         return f"{int(float(fraction) / float(population) * 100):.0f}%"
-    except ValueError:
-        return "0%"
-    except ZeroDivisionError:
+    except (ZeroDivisionError, ValueError):
         return "0%"
 
 
