@@ -109,6 +109,14 @@ def percentage_one_decimal(fraction, population):
 
 
 @register.filter
+def percentage_zero_on_error(fraction, population):
+    try:
+        return f"{int(float(fraction) / float(population) * 100):.0f}%"
+    except (ZeroDivisionError, ValueError):
+        return "0%"
+
+
+@register.filter
 def to_colors(question_result: RatingResult | None):
     if question_result is None:
         # When displaying the course distribution, there are no associated voting choices.
