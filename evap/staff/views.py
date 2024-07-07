@@ -1391,7 +1391,8 @@ def helper_delete_users_from_evaluation(evaluation, operation):
         deleted_person_count = evaluation.participants.count()
         deletion_message = _("{} participants were deleted from evaluation {}")
         evaluation.participants.clear()
-    elif "contributors" in operation:
+    else:
+        assert "contributors" in operation
         deleted_person_count = evaluation.contributions.exclude(contributor=None).count()
         deletion_message = _("{} contributors were deleted from evaluation {}")
         evaluation.contributions.exclude(contributor=None).delete()

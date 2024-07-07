@@ -54,3 +54,31 @@
 .multi-progress-bar .progress-container {
     padding-bottom: 3px;
 }
+
+.global-rewards-progress-bar {
+    position: relative;
+    display: grid;
+    padding-top: .5rem;
+    padding-inline: 1.5rem;
+
+    .progress-container {
+        display: flex;
+        height: 25px;
+        grid-column-start: 1;
+        grid-row-start: 1;
+    }
+}
+
+.progress-step {
+    transform: translateX(-50%);
+    width: fit-content;
+    grid-column-start: 1;
+    grid-row-start: 2;
+
+    .seperator {
+        width: 1px;
+        height: 8px;
+        border: $dark-gray 1px solid;
+    }
+}
+
