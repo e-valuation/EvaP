@@ -316,7 +316,7 @@ class ResetToNewOperation(EvaluationOperation):
         assert email_template_participant is None
 
         for evaluation in evaluations:
-            evaluation.reset_to_new(delete_previous_answers)
+            evaluation.reset_to_new(delete_previous_answers=delete_previous_answers)
             evaluation.save()
         messages.success(
             request,
