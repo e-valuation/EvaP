@@ -36,7 +36,7 @@
                 <div class="row">
                     <div class="col-auto">
                         <div class="btn-switch btn-switch-light my-auto d-print-none">
-                            <div class="btn-switch-label">{% trans 'General results' %}</div>
+                            <div class="btn-switch-label">{% translate 'General results' %}</div>
                             <div class="btn-switch btn-group">
 
                                     <a
@@ -45,9 +45,9 @@
                                         class="btn btn-sm btn-light{% if view_general_text == 'full' %} active{% endif %}"
                                         data-bs-toggle="tooltip"
                                         data-bs-placement="bottom"
-                                        title="{% blocktrans %}Tooltip shown{% endblocktrans %}"
+                                        title="{% blocktranslate %}Shows all general results available for you (with text answers){% endblocktranslate %}"
                                     >
-                                        {% trans 'Full'%}
+                                        {% translate 'Full'%}
                                     </a>
         
                                 
@@ -57,9 +57,9 @@
                                     class="btn btn-sm btn-light{% if view_general_text == 'ratings' %} active{% endif %}"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="bottom"
-                                    title="{% trans 'Tooltip hidden' %}"
+                                    title="{% translate 'Shows all general ratings available for you (without text answers)' %}"
                                 >
-                                    {% trans 'Ratings' %}
+                                    {% translate 'Ratings' %}
                                 </a>
                             </div>
                         </div>
@@ -68,7 +68,7 @@
                 <div class="row mt-3">
                     <div class="col-auto">
                         <div class="btn-switch btn-switch-light my-auto d-print-none">
-                            <div class="btn-switch-label">{% trans 'Contributor results' %}</div>
+                            <div class="btn-switch-label">{% translate 'Contributor results' %}</div>
                             <div class="btn-switch btn-group">
                                 
                                     <a
@@ -77,9 +77,9 @@
                                         class="btn btn-sm btn-light{% if view_contributor_results == 'full' %} active{% endif %}"
                                         data-bs-toggle="tooltip"
                                         data-bs-placement="bottom"
-                                        title="{% blocktrans %}Shows filtered view meant for personal export. Other contributors' results and private answers are hidden.{% endblocktrans %}"
+                                        title="{% blocktranslate %}Shows all contribution results available for you (with text answers){% endblocktranslate %}"
                                     >
-                                        {% trans 'Full'%}
+                                        {% translate 'Full'%}
                                     </a>
         
                                 
@@ -89,9 +89,9 @@
                                     class="btn btn-sm btn-light{% if view_contributor_results == 'ratings' %} active{% endif %}"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="bottom"
-                                    title="{% trans 'Shows all results available for you.' %}"
+                                    title="{% translate 'Shows all contribution ratings available for you (without text answers)' %}"
                                 >
-                                    {% trans 'Ratings' %}
+                                    {% translate 'Ratings' %}
                                 </a>
                                 {% if user.is_staff and view_contributor_results == 'personal' or is_contributor %}
                                     <a
@@ -100,9 +100,9 @@
                                         class="btn btn-sm btn-light{% if view_contributor_results == 'personal' %} active{% endif %}"
                                         data-bs-toggle="tooltip"
                                         data-bs-placement="bottom"
-                                        title="vallah nein vallah nein vallah nein"
+                                        title="{% translate 'Shows all contribution results regarding yourself' %}"
                                     >
-                                        {% trans 'Personal' %}
+                                        {% translate 'Personal' %}
                                     </a>
                                 {% endif %}
                             </div>
@@ -120,7 +120,7 @@
             <div class="me-auto">{% translate 'Overview' %}</div>
             {% if can_export_text_answers %}
                 <a class="btn btn-sm btn-light d-print-none" href="{% url 'results:evaluation_text_answers_export' evaluation.id %}?view_general_text={{ view_general_text }}&view_contributor_results={{ view_contributor_results }}{% if contributor_id is not None %}&contributor_id={{ contributor_id }}{% endif %}" type="button"> <!--müssen wir den link auch noch ändern? view zu view_general_text und view_contributor_results hinzufügen? hab ich jetzt ma gemacht-->
-                    {% trans 'Export text answers' %}
+                    {% translate 'Export text answers' %}
                 </a>
             {% endif %}
             {% if evaluation.course.grade_documents.count == 1 and can_download_grades %}
