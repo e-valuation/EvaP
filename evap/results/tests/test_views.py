@@ -726,7 +726,7 @@ class TestResultsSemesterEvaluationDetailViewPrivateEvaluation(WebTest):
         self.app.get(url, user=student_external, status=200)
 
 
-class TestResultsTextanswerVisibilityForManager(WebTestStaffMode):
+class TestResultsTextanswerVisibilityForManager(WebTestStaffMode): # hier vielleicht nochmal schauen wegen diesem with root: ???
     fixtures = ["minimal_test_data_results"]
 
     @classmethod
@@ -786,6 +786,7 @@ class TestResultsTextanswerVisibilityForManager(WebTestStaffMode):
         self.assertIn(".responsible_contributor_additional_orig_published.", page)
         self.assertNotIn(".responsible_contributor_additional_orig_hidden.", page)
 
+#NOTE antworten für die zu testende person in eine liste packen, weil die je nach filter immer die gleichen assertions haben(?)
 class TestResultsTextanswerVisibilityForStudent(WebTest):
     fixtures = ["minimal_test_data_results"]
 
@@ -816,18 +817,17 @@ class TestResultsTextanswerVisibilityForStudent(WebTest):
         general_views = ["full", "ratings"] 
         contributor_views = ["full", "ratings", "personal"]
 
-        for general in general_views:
+        for general_view in general_views:
             page = self.app.get(
-            f"/results/semester/1/evaluation/1?view_general_text={general}&view_contributor_results=ratings", 
+            f"/results/semester/1/evaluation/1?view_general_text={general_view}&view_contributor_results=ratings", 
             user="student@institution.example.com")
             self.helper_static(page)
 
-        for contributor in contributor_views:
+        for contributor_view in contributor_views:
             page = self.app.get(
-            f"/results/semester/1/evaluation/1?view_general_text=ratings&view_contributor_results={contributor}", 
+            f"/results/semester/1/evaluation/1?view_general_text=ratings&view_contributor_results={contributor_view}", 
             user="student@institution.example.com")
             self.helper_static(page) 
-
 
 class TestResultsTextanswerVisibilityForResponsible(WebTest):
     fixtures = ["minimal_test_data_results"]
@@ -835,11 +835,6 @@ class TestResultsTextanswerVisibilityForResponsible(WebTest):
     @classmethod
     def setUpTestData(cls):
         cache_results(Evaluation.objects.get(id=1))
-
-
-    #methode, die user und page bekommt, dann so responsible_contributor immer not in, es sei den er isses oder der delegate und so
-
-    #def helper_bumsebiene(self, user, page):
 
     def helper_static(self, page):        
         
@@ -859,60 +854,60 @@ class TestResultsTextanswerVisibilityForResponsible(WebTest):
         
         self.assertNotIn(".general_additional_orig_deleted.", page)
 
-    def test_textanswer_visibility_for_responsible(self):
-        #responsible_contributor@institution.example.com
-
+    def helper_textanswer_visibility_for_responsible(self, responsible_user): # responsible_user in [delegate_for_responsible, responsible]
+        dynamic_answers = [".general_orig_published.", ".general_changed_published.", ".general_additional_orig_published."]
+        
+        #general
         #full:
         page = self.app.get(
             f"/results/semester/1/evaluation/1?view_general_text=full", 
-            user="responsible@institution.example.com")
+            user = responsible_user)
         
-        self.assertIn(".general_orig_published.", page)
-        self.assertIn(".general_changed_published.", page)
-        self.assertIn(".general_additional_orig_published.", page)
-
+        for answer in dynamic_answers:
+            self.assertIn(answer, page)
         self.helper_static(page)
 
         #ratings:
         page = self.app.get(
             f"/results/semester/1/evaluation/1?view_general_text=ratings", 
-            user="responsible@institution.example.com")
+            user = responsible_user)
 
-        self.assertNotIn(".general_orig_published.", page)
-        self.assertNotIn(".general_changed_published.", page)
-        self.assertNotIn(".general_additional_orig_published.", page)
-
+        for answer in dynamic_answers:
+            self.assertNotIn(answer, page)
         self.helper_static(page)
-        
-        #full, standartview für general=full
+
+        #contributor
+        #full
         page = self.app.get(
             f"/results/semester/1/evaluation/1?view_contributor_results=full", 
-            user="responsible@institution.example.com")
-        self.assertIn(".general_orig_published.", page)
-        self.assertIn(".general_changed_published.", page)
-        self.assertIn(".general_additional_orig_published.", page)
+            user = responsible_user)
         
+        for answer in dynamic_answers:
+            self.assertIn(answer, page)
         self.helper_static(page)
 
         #ratings
         page = self.app.get(
             f"/results/semester/1/evaluation/1?view_contributor_results=ratings", 
-            user="responsible@institution.example.com")
-        self.assertIn(".general_orig_published.", page)
-        self.assertIn(".general_changed_published.", page)
-        self.assertIn(".general_additional_orig_published.", page)
-
+            user = responsible_user)
+        
+        for answer in dynamic_answers:
+            self.assertIn(answer, page)
         self.helper_static(page)
 
         #personal:
         page = self.app.get(
             f"/results/semester/1/evaluation/1?view_contributor_results=personal", 
-            user="responsible@institution.example.com")
-        self.assertIn(".general_orig_published.", page)
-        self.assertIn(".general_changed_published.", page)
-        self.assertIn(".general_additional_orig_published.", page)
-
+            user = responsible_user)
+        
+        for answer in dynamic_answers:
+            self.assertIn(answer, page)
         self.helper_static(page)
+    
+    def test_textanswer_visibility_for_responsible(self):
+        self.helper_textanswer_visibility_for_responsible("responsible@institution.example.com") # responsible
+        self.helper_textanswer_visibility_for_responsible("delegate_for_responsible@institution.example.com") # delegate_for_responsible
+        
 
 class TestResultsTextanswerVisibilityForResponsibleContributor(WebTest):
     fixtures = ["minimal_test_data_results"]
@@ -931,10 +926,11 @@ class TestResultsTextanswerVisibilityForResponsibleContributor(WebTest):
         self.assertNotIn(".responsible_contributor_additional_orig_deleted.", page)
         self.assertNotIn(".general_additional_orig_deleted.", page)
 
-    def test_textanswer_visibility_for_responsible_contributor(self):
-        #responsible_contributor@institution.example.com        
+    def test_textanswer_visibility_for_responsible_contributor(self):       
 
         self.user = "responsible_contributor@institution.example.com"
+
+        #general
         #full:
         page = self.app.get(
             f"/results/semester/1/evaluation/1?view_general_text=full",
@@ -963,7 +959,8 @@ class TestResultsTextanswerVisibilityForResponsibleContributor(WebTest):
         self.assertNotIn(".general_additional_orig_published.", page)
         self.helper_static(page)
         
-        #full, standartview für general=full
+        #contributor
+        #full
         page = self.app.get(
             f"/results/semester/1/evaluation/1?view_contributor_results=full", 
             user=self.user)
@@ -1003,6 +1000,96 @@ class TestResultsTextanswerVisibilityForResponsibleContributor(WebTest):
         self.assertIn(".responsible_contributor_orig_private.", page)
         self.assertIn(".responsible_contributor_additional_orig_published.", page)
         self.assertIn(".general_additional_orig_published.", page)
+        self.helper_static(page)
+
+class TestResultsTextanswerVisibilityForContributor(WebTest):
+    fixtures = ["minimal_test_data_results"]
+    
+    @classmethod
+    def setUpTestData(cls):
+        cache_results(Evaluation.objects.get(id=1))
+
+    def helper_static(self, page):
+        #self.assertNotIn(".general_orig_published.", page)
+        self.assertNotIn(".general_orig_hidden.", page)
+        self.assertNotIn(".general_orig_published_changed.", page)
+        #self.assertNotIn(".general_additional_orig_published.", page)
+        self.assertNotIn(".general_additional_orig_hidden.", page)
+        #self.assertNotIn(".general_changed_published.", page)
+        #self.assertIn(".contributor_orig_published.", page)
+        #self.assertIn(".contributor_orig_private.", page)
+        self.assertNotIn(".responsible_contributor_orig_published.", page)
+        self.assertNotIn(".responsible_contributor_orig_hidden.", page)
+        self.assertNotIn(".responsible_contributor_orig_published_changed.", page)
+        self.assertNotIn(".responsible_contributor_changed_published.", page)
+        self.assertNotIn(".responsible_contributor_orig_private.", page)
+        self.assertNotIn(".responsible_contributor_orig_notreviewed.", page)
+        self.assertNotIn(".responsible_contributor_additional_orig_published.", page)
+        self.assertNotIn(".responsible_contributor_additional_orig_hidden.", page)
+        
+
+    def test_textanswer_visibility_for_contributor(self):       
+
+        dynamic_general_answers = [".general_orig_published.", ".general_additional_orig_published.", ".general_changed_published."]
+        dynamic_contributor_answers = [".contributor_orig_published.", ".contributor_orig_private."]
+
+        self.user = "contributor@institution.example.com" # textanswer_visibility in testdata is OWN -> cannot see general results
+
+        #general
+        #full, contributor standard value = full:
+        page = self.app.get(
+            f"/results/semester/1/evaluation/1?view_general_text=full",
+            user=self.user)
+        
+        for answer in dynamic_general_answers:
+            self.assertNotIn(answer, page)
+        for answer in dynamic_contributor_answers:
+            self.assertIn(answer, page)
+        self.helper_static(page)
+
+        #ratings:
+        page = self.app.get(
+            f"/results/semester/1/evaluation/1?view_general_text=ratings", 
+            user=self.user)
+        for answer in dynamic_general_answers:
+            self.assertNotIn(answer, page)
+        for answer in dynamic_contributor_answers:
+            self.assertIn(answer, page)
+        self.helper_static(page)
+        
+        #contributor
+        #full, general standard value = full
+        page = self.app.get(
+            f"/results/semester/1/evaluation/1?view_contributor_results=full", 
+            user=self.user)
+        
+        # same as general
+        for answer in dynamic_general_answers:
+            self.assertNotIn(answer, page)
+        for answer in dynamic_contributor_answers:
+            self.assertIn(answer, page)
+        self.helper_static(page)
+
+        #ratings
+        page = self.app.get(
+            f"/results/semester/1/evaluation/1?view_contributor_results=ratings", 
+            user=self.user)
+        
+        for answer in dynamic_general_answers:
+            self.assertNotIn(answer, page)
+        for answer in dynamic_contributor_answers:
+            self.assertNotIn(answer, page)
+        self.helper_static(page)
+
+        #personal:
+        page = self.app.get(
+            f"/results/semester/1/evaluation/1?view_contributor_results=personal", 
+            user=self.user)
+        
+        for answer in dynamic_general_answers:
+            self.assertNotIn(answer, page)
+        for answer in dynamic_contributor_answers: 
+            self.assertIn(answer, page)
         self.helper_static(page)
 
 
