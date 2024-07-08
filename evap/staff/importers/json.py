@@ -145,6 +145,17 @@ class JSONImporter:
     def _get_user_profiles(self, data: list[ImportRelated]) -> list[UserProfile]:
         return [self.user_profile_map[related["gguid"]] for related in data]
 
+    def _create_name_change_from_changes(self, user_profile: UserProfile, changes: dict[str, tuple[any, any]]):
+        change = NameChange(
+            old_last_name=changes["last_name"][0] if changes.get("last_name") else user_profile.last_name,
+            old_first_name_given=(
+                changes["first_name_given"][0] if changes.get("first_name_given") else user_profile.first_name_given
+            ),
+            new_last_name=user_profile.last_name,
+            new_first_name_given=user_profile.first_name_given,
+        )
+        self.statistics.name_changes.append(change)
+
     def _import_students(self, data: list[ImportStudent]) -> None:
         for entry in data:
             email = clean_email(entry["email"])
@@ -154,24 +165,15 @@ class JSONImporter:
                 defaults={"last_name": entry["name"], "first_name_given": entry["christianname"]},
             )
             if changes:
-                change = NameChange(
-                    old_last_name=changes["last_name"][0] if changes.get("last_name") else user_profile.last_name,
-                    old_first_name_given=(
-                        changes["first_name_given"][0]
-                        if changes.get("first_name_given")
-                        else user_profile.first_name_given
-                    ),
-                    new_last_name=user_profile.last_name,
-                    new_first_name_given=user_profile.first_name_given,
-                )
-                self.statistics.name_changes.append(change)
+                self._create_name_change_from_changes(user_profile, changes)
 
             self.user_profile_map[entry["gguid"]] = user_profile
 
     def _import_lecturers(self, data: list[ImportLecturer]) -> None:
         for entry in data:
             email = clean_email(entry["email"])
-            user_profile, __ = UserProfile.objects.update_or_create(
+            user_profile, __, changes = update_or_create_with_changes(
+                UserProfile,
                 email=email,
                 defaults={
                     "last_name": entry["name"],
@@ -179,6 +181,8 @@ class JSONImporter:
                     "title": entry["titlefront"],
                 },
             )
+            if changes:
+                self._create_name_change_from_changes(user_profile, changes)
 
             self.user_profile_map[entry["gguid"]] = user_profile
 
