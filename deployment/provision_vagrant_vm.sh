@@ -44,7 +44,8 @@ cp /etc/skel/.bashrc /home/$USER/
 OWNER=$(stat -c %u "$MOUNTPOINT/evap")
 apt-get -q install -y bindfs
 mkdir -p "$REPO_FOLDER"
-bindfs --map="$OWNER/1042:@$OWNER/@1042" "$MOUNTPOINT" "$REPO_FOLDER" || exit 1
+# remount if REPO_FOLDER does not contain any files (meaning it is not mounted)
+[[ -z $(ls -A "$REPO_FOLDER") ]] && bindfs --map="$OWNER/1042:@$OWNER/@1042" "$MOUNTPOINT" "$REPO_FOLDER" || exit 1
 echo "[[ -z \$(ls -A '$REPO_FOLDER') ]] && sudo bindfs --map='$OWNER/1042:@$OWNER/@1042' '$MOUNTPOINT' '$REPO_FOLDER'  #  remount iff folder empty" >> /home/$USER/.bashrc
 
 # allow ssh login
