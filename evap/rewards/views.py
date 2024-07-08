@@ -66,7 +66,7 @@ def redeem_reward_points(request):
                 error_string = _(
                     "It appears that your browser sent multiple redemption requests. You can see all successful redemptions below."
                 )
-            case _:  # abc
+            case _:
                 assert_never(type(error))
 
         messages.error(request, error_string)
