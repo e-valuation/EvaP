@@ -1437,7 +1437,7 @@ def import_or_copy_participants(
         assert_never(import_action)
 
     if replace:
-        importer_log.add_success(  # pylint: disable=possibly-used-before-assignment, see https:www.//github.com/pylint-dev/pylint/issues/9780
+        importer_log.add_success(  # pylint: disable=possibly-used-before-assignment  # see https:www.//github.com/pylint-dev/pylint/issues/9780
             format_html(deletion_message, deleted_person_count, evaluation.full_name),
             category=ImporterLogEntry.Category.RESULT,
         )
