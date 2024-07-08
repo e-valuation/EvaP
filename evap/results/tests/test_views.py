@@ -787,6 +787,7 @@ class TestResultsTextanswerVisibilityForManager(WebTestStaffMode): # hier vielle
         self.assertNotIn(".responsible_contributor_additional_orig_hidden.", page)
 
 #NOTE antworten für die zu testende person in eine liste packen, weil die je nach filter immer die gleichen assertions haben(?)
+#test
 class TestResultsTextanswerVisibilityForStudent(WebTest):
     fixtures = ["minimal_test_data_results"]
 
