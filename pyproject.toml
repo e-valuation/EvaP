@@ -108,6 +108,10 @@ source = ["evap", "tools"]
 
 [tool.coverage.report]
 omit = ["*/migrations/*", "*__init__.py"]
+exclude_also = [
+    # mypy asserts these cases are not possible
+    ':(  #.*)?\n\s*assert_never(.*)',
+]
 
 ##############################################
 
