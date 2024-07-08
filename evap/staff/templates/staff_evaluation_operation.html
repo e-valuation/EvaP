@@ -70,6 +70,7 @@
 
         <div class="card card-submit-area card-submit-area-2 text-center mb-3">
             <div class="card-body">
+            {% if show_delete_answers_checkbox %}
                 <confirmation-modal type="submit" form="evaluation-operation-form" id="confirmation-modal">
                     <span slot="title">{% translate 'Reset Evaluation' %}</span>
                     <span slot="action-text">{% translate 'Reset Evaluation' %}</span>
@@ -99,6 +100,9 @@
                         }
                     });
                 </script>
+            {% else %}
+                <button id="form-confirmation-btn" type="submit" class="btn btn-primary">{% translate 'Confirm' %}</button>
+            {% endif %}
                 <a href="{% url 'staff:semester_view' semester.id %}" class="btn btn-light">{% translate 'Cancel' %}</a>
             </div>
         </div>
