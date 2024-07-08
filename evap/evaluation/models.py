@@ -727,6 +727,7 @@ class Evaluation(LoggedModel):
             State.REVIEWED,
         ],
         target=State.NEW,
+        conditions=[lambda self: not self.is_single_result],
     )
     def reset_to_new(self, *, delete_previous_answers: bool | None):
         if delete_previous_answers:
