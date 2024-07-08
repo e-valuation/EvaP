@@ -486,27 +486,15 @@ def can_textanswer_be_seen_by(  # noqa: PLR0911
 
     # NOTE: when changing this behavior, make sure all changes are also reflected in results.tools.textanswers_visible_to
     # and in results.tests.test_tools.TestTextAnswerVisibilityInfo
-
-    # maybe aus dem string ding nen enum machen mit full, ratings und so
-    # PRIVATE ANSWER HANDLING NOCH NICHT GEMACHT - prob gehandelt
-    # Rechteabfragen noch anpassen auch in HTML - yannik sagt is done ig
-    # in HTML die Beschreibung ändern
     # überall wo das alte benutzt wurde anpassen
     if textanswer.is_public:
         if textanswer.contribution.is_general:
-            if view_general_text == "full":
-                # filter auf alle contriubutions
-                # in Klammern mehrere Kriterien, und verknüpft
-                # contributions sind NICHT die antworten, sondern die Leute mit ihren infos
-                # 1.: der aktuelle contributor aus der Liste, ist in meinen represented users
-                # 2.: suchen contributions wo text vis GENERAL is, also person hat own and general rechte
-
-                # wenn user ein reviewer is darf er so
+            if view_general_text == "full": # filters all contributions
+                # reviewer can see everything
                 if user.is_reviewer:
                     return True
 
-                # users can see text answers from general contributions if one of their represented users has text answer
-                # visibility GENERAL_TEXTANSWERS for the evaluation
+                # user can see general textanswer if represented user can see it
                 if textanswer.contribution.evaluation.contributions.filter(
                     contributor__in=represented_users,
                     textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
@@ -515,7 +503,7 @@ def can_textanswer_be_seen_by(  # noqa: PLR0911
 
                 # the people responsible for a course can see all general text answers for all its evaluations
                 if textanswer.contribution.is_general and any(
-                    user in represented_users for user in textanswer.contribution.evaluation.course.responsibles.all()
+                    user in represented_users for user in textanswer.contribution.evaluation.course.responsibles.all() # includes self
                 ):
                     return True
         else:
@@ -528,8 +516,7 @@ def can_textanswer_be_seen_by(  # noqa: PLR0911
                 if contributor in represented_users:
                     return True
     elif textanswer.is_private:
-        # private textanswers should only be seen by the contributor
-        # aber wirklich was is mit reviewer z.B.?? darf er so? ja darf er
+        # private textanswers should only be seen by the contributor and reviewer
         if view_contributor_results in ("personal", "full"):
             if user.is_reviewer:
                 return True
