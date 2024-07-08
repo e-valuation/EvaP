@@ -1004,20 +1004,16 @@ class TestResultsTextanswerVisibilityForResponsibleContributor(WebTest):
 
 class TestResultsTextanswerVisibilityForContributor(WebTest):
     fixtures = ["minimal_test_data_results"]
+    #NOTE dieser test ist wirklich sehr doof mit den drei verschiedenen contributors, vielleicht doch anders machen?
     
     @classmethod
     def setUpTestData(cls):
         cache_results(Evaluation.objects.get(id=1))
 
     def helper_static(self, page):
-        #self.assertNotIn(".general_orig_published.", page)
         self.assertNotIn(".general_orig_hidden.", page)
         self.assertNotIn(".general_orig_published_changed.", page)
-        #self.assertNotIn(".general_additional_orig_published.", page)
         self.assertNotIn(".general_additional_orig_hidden.", page)
-        #self.assertNotIn(".general_changed_published.", page)
-        #self.assertIn(".contributor_orig_published.", page)
-        #self.assertIn(".contributor_orig_private.", page)
         self.assertNotIn(".responsible_contributor_orig_published.", page)
         self.assertNotIn(".responsible_contributor_orig_hidden.", page)
         self.assertNotIn(".responsible_contributor_orig_published_changed.", page)
@@ -1028,55 +1024,92 @@ class TestResultsTextanswerVisibilityForContributor(WebTest):
         self.assertNotIn(".responsible_contributor_additional_orig_hidden.", page)
         
 
-    def test_textanswer_visibility_for_contributor(self):       
+    def helper_textanswer_visibility_for_contributor(self, contributor_user): # contributor_user in [contributor, delegate_for_contributor]
 
         dynamic_general_answers = [".general_orig_published.", ".general_additional_orig_published.", ".general_changed_published."]
         dynamic_contributor_answers = [".contributor_orig_published.", ".contributor_orig_private."]
-
-        self.user = "contributor@institution.example.com" # textanswer_visibility in testdata is OWN -> cannot see general results
 
         #general
         #full, contributor standard value = full:
         page = self.app.get(
             f"/results/semester/1/evaluation/1?view_general_text=full",
-            user=self.user)
+            user=contributor_user)
         
-        for answer in dynamic_general_answers:
-            self.assertNotIn(answer, page)
-        for answer in dynamic_contributor_answers:
-            self.assertIn(answer, page)
+        if contributor_user == "contributor_general_textanswers@institution.example.com":
+            for answer in dynamic_general_answers:
+                self.assertIn(answer, page)
+        else:
+            for answer in dynamic_general_answers:
+                self.assertNotIn(answer, page)
+                
+        if contributor_user == "delegate_for_contributor@institution.example.com":
+            self.assertIn(".contributor_orig_published.", page)
+            self.assertNotIn(".contributor_orig_private.", page) 
+        elif contributor_user == "contributor@institution.example.com":   # contributor
+            for answer in dynamic_contributor_answers:
+                self.assertIn(answer, page)
+        else:   # general textanswers contributor
+            for answer in dynamic_contributor_answers:
+                self.assertNotIn(answer, page)
+
         self.helper_static(page)
 
         #ratings:
         page = self.app.get(
             f"/results/semester/1/evaluation/1?view_general_text=ratings", 
-            user=self.user)
+            user=contributor_user)
+        
         for answer in dynamic_general_answers:
             self.assertNotIn(answer, page)
-        for answer in dynamic_contributor_answers:
-            self.assertIn(answer, page)
+
+        if contributor_user == "delegate_for_contributor@institution.example.com":
+            self.assertIn(".contributor_orig_published.", page)
+            self.assertNotIn(".contributor_orig_private.", page) 
+        elif contributor_user == "contributor@institution.example.com":   # contributor
+            for answer in dynamic_contributor_answers:
+                self.assertIn(answer, page)
+        else:
+            for answer in dynamic_contributor_answers:
+                self.assertNotIn(answer, page)  
         self.helper_static(page)
         
         #contributor
         #full, general standard value = full
         page = self.app.get(
             f"/results/semester/1/evaluation/1?view_contributor_results=full", 
-            user=self.user)
+            user=contributor_user)
         
         # same as general
-        for answer in dynamic_general_answers:
-            self.assertNotIn(answer, page)
-        for answer in dynamic_contributor_answers:
-            self.assertIn(answer, page)
+        if contributor_user == "contributor_general_textanswers@institution.example.com":
+            for answer in dynamic_general_answers:
+                self.assertIn(answer, page)
+        else:
+            for answer in dynamic_general_answers:
+                self.assertNotIn(answer, page)
+
+        if contributor_user == "delegate_for_contributor@institution.example.com":
+            self.assertIn(".contributor_orig_published.", page)
+            self.assertNotIn(".contributor_orig_private.", page) 
+        elif contributor_user == "contributor@institution.example.com":   # contributor
+            for answer in dynamic_contributor_answers:
+                self.assertIn(answer, page)
+        else:   # general text answers contributor
+            for answer in dynamic_contributor_answers:
+                self.assertNotIn(answer, page)
         self.helper_static(page)
 
         #ratings
         page = self.app.get(
             f"/results/semester/1/evaluation/1?view_contributor_results=ratings", 
-            user=self.user)
+            user=contributor_user)
         
-        for answer in dynamic_general_answers:
-            self.assertNotIn(answer, page)
+        if contributor_user == "contributor_general_textanswers@institution.example.com":
+            for answer in dynamic_general_answers:
+                self.assertIn(answer, page)
+        else:
+            for answer in dynamic_general_answers:
+                self.assertNotIn(answer, page)
+
         for answer in dynamic_contributor_answers:
             self.assertNotIn(answer, page)
         self.helper_static(page)
@@ -1084,14 +1117,27 @@ class TestResultsTextanswerVisibilityForContributor(WebTest):
         #personal:
         page = self.app.get(
             f"/results/semester/1/evaluation/1?view_contributor_results=personal", 
-            user=self.user)
+            user=contributor_user)
         
-        for answer in dynamic_general_answers:
-            self.assertNotIn(answer, page)
-        for answer in dynamic_contributor_answers: 
-            self.assertIn(answer, page)
+        if contributor_user == "contributor_general_textanswers@institution.example.com":
+            for answer in dynamic_general_answers:
+                self.assertIn(answer, page)
+        else:
+            for answer in dynamic_general_answers:
+                self.assertNotIn(answer, page)
+
+        if contributor_user == "contributor@institution.example.com":
+             for answer in dynamic_contributor_answers:
+                self.assertIn(answer, page)
+        else:   # general text answers contributor != contributor and delegate has no personal view
+            for answer in dynamic_contributor_answers:
+                self.assertNotIn(answer, page)
         self.helper_static(page)
 
+    def test_textanswer_visibility_for_contributor(self):
+        self.helper_textanswer_visibility_for_contributor("contributor@institution.example.com") # textanswer_visibility in testdata is OWN -> cannot see general text answers
+        self.helper_textanswer_visibility_for_contributor("contributor_general_textanswers@institution.example.com") # textanswer visibility is PU (PUBLIC) -> can see general text answers
+        self.helper_textanswer_visibility_for_contributor("delegate_for_contributor@institution.example.com")
 
 class TestResultsTextanswerVisibility(WebTest):
     fixtures = ["minimal_test_data_results"]
