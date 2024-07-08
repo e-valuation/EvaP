@@ -124,8 +124,12 @@ class TestImportUserProfiles(TestCase):
             self.assertEqual(user_profile.first_name_given, self.lecturers[i]["christianname"])
             self.assertEqual(user_profile.title, self.lecturers[i]["titlefront"])
 
+        self.assertEqual(importer.statistics.name_changes, [])
+
     def test_import_existing_lecturers(self):
-        user_profile = baker.make(UserProfile, email=self.lecturers[0]["email"])
+        user_profile = baker.make(
+            UserProfile, email=self.lecturers[0]["email"], last_name="Doe", first_name_given="Jane"
+        )
 
         importer = JSONImporter(self.semester)
         importer._import_lecturers(self.lecturers)
@@ -138,6 +142,18 @@ class TestImportUserProfiles(TestCase):
         self.assertEqual(user_profile.last_name, self.lecturers[0]["name"])
         self.assertEqual(user_profile.first_name_given, self.lecturers[0]["christianname"])
         self.assertEqual(user_profile.title, self.lecturers[0]["titlefront"])
+
+        self.assertEqual(
+            importer.statistics.name_changes,
+            [
+                NameChange(
+                    old_last_name="Doe",
+                    old_first_name_given="Jane",
+                    new_last_name=self.lecturers[0]["name"],
+                    new_first_name_given=self.lecturers[0]["christianname"],
+                )
+            ],
+        )
 
 
 class TestImportEvents(TestCase):
