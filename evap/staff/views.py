@@ -298,8 +298,8 @@ class ResetToNewOperation(EvaluationOperation):
     @staticmethod
     def warning_for_inapplicables(amount):
         return ngettext(
-            "{} evaluation cannot be reset, because it is already published. It was removed from the selection",
-            "{} evaluations cannot be reset, because they were already published. They were removed from the selection.",
+            "{} evaluation cannot be reset, because it is already in preparation or published. It was removed from the selection",
+            "{} evaluations cannot be reset, because they were already in preparation or published. They were removed from the selection.",
             amount,
         ).format(amount)
 
