@@ -56,6 +56,9 @@
         </div>
     {% endif %}
 
+    <form id="user-deletion-form" class="d-none" method="POST" action="{% url 'staff:user_delete' %}">
+        {% csrf_token %}
+    </form>
 
     <form id="user-form" method="POST" class="form-horizontal multiselect-form">
         {% csrf_token %}
@@ -117,24 +120,18 @@
             <div class="card-body">
                 <button type="submit" class="btn btn-primary">{% translate 'Save user' %}</button>
                 {% if form.instance and form.instance.can_be_deleted_by_manager %}
+                    <confirmation-modal form="user-deletion-form" type="submit" name="user_id" value="{{ form.instance.id }}" confirm-button-class="btn-danger">
+                        <span slot="title">{% translate 'Delete user' %}</span>
+                        <span slot="action-text">{% translate 'Delete user' %}</span>
+                        <span slot="question">
+                            {% blocktranslate trimmed with user_fullname=form.instance.full_name %}
+                                Do you really want to delete the user <strong>{{ user_fullname }}</strong>?<br/>
+                                This person will also be removed from every other user having this person as a delegated or CC-user.
+                            {% endblocktranslate %}
+                        </span>
 
-
-                    <form reload-on-success method="POST" action="{% url 'staff:user_delete' %}">
-                        {% csrf_token %}
-
-                        <confirmation-modal type="submit" name="user_id" value="{{ form.instance.id }}" confirm-button-class="btn-danger">
-                            <span slot="title">{% translate 'Delete user' %}</span>
-                            <span slot="action-text">{% translate 'Delete user' %}</span>
-                            <span slot="question">
-                                {% blocktranslate trimmed with user_fullname=form.instance.full_name %}
-                                    Do you really want to delete the user <strong>{{ user_fullname }}</strong>?<br/>
-                                    This person will also be removed from every other user having this person as a delegated or CC-user.
-                                {% endblocktranslate %}
-                            </span>
-
-                            <button slot="show-button" type="button" class="btn btn-danger">{% translate 'Delete user' %}</button>
-                        </confirmation-modal>
-                    </form>
+                        <button slot="show-button" type="button" class="btn btn-danger">{% translate 'Delete user' %}</button>
+                    </confirmation-modal>
                 {% else %}
                     <span tabindex="0" data-bs-toggle="tooltip" title="{% blocktranslate %}This user contributes to an evaluation, participates in an evaluation whose participations haven't been archived yet or has special rights and as such cannot be deleted.{% endblocktranslate %}">
                     <button type="button" disabled class="btn btn-danger">
