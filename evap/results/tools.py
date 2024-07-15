@@ -473,14 +473,13 @@ def textanswers_visible_to(contribution):
     return TextAnswerVisibility(visible_by_contribution=sorted_contributors, visible_by_delegation_count=num_delegates)
 
 
-def can_textanswer_be_seen_by(  # noqa: PLR0911
+def can_textanswer_be_seen_by(  # noqa: PLR0911,PLR0912
     user: UserProfile,
     represented_users: list[UserProfile],
     textanswer: TextAnswer,
     view_general_text: str,
     view_contributor_results: str,
 ) -> bool:
-    # pylint: disable=too-many-return-statements
     assert textanswer.review_decision in [TextAnswer.ReviewDecision.PRIVATE, TextAnswer.ReviewDecision.PUBLIC]
     contributor = textanswer.contribution.contributor
 
@@ -489,7 +488,7 @@ def can_textanswer_be_seen_by(  # noqa: PLR0911
     # überall wo das alte benutzt wurde anpassen
     if textanswer.is_public:
         if textanswer.contribution.is_general:
-            if view_general_text == "full": # filters all contributions
+            if view_general_text == "full":  # filters all contributions
                 # reviewer can see everything
                 if user.is_reviewer:
                     return True
@@ -503,7 +502,8 @@ def can_textanswer_be_seen_by(  # noqa: PLR0911
 
                 # the people responsible for a course can see all general text answers for all its evaluations
                 if textanswer.contribution.is_general and any(
-                    user in represented_users for user in textanswer.contribution.evaluation.course.responsibles.all() # includes self
+                    user in represented_users
+                    for user in textanswer.contribution.evaluation.course.responsibles.all()  # includes self
                 ):
                     return True
         else:
