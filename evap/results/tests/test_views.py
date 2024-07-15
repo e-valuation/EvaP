@@ -487,7 +487,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
     @override_settings(VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS=0)
     def test_default_view(
         self,
-    ):  # pylint: disable=too-many-return-statements
+    ):
         cache_results(self.evaluation)
 
         page_without_get_parameter = self.app.get(self.url, user=self.manager)
@@ -941,17 +941,17 @@ class TestResultsTextanswerVisibilityForResponsibleContributor(WebTest):
             ".responsible_contributor_additional_orig_published.",
         ]
 
-        self.user = "responsible_contributor@institution.example.com"
+        user = "responsible_contributor@institution.example.com"
 
         # general
         # full:
-        page = self.app.get("/results/semester/1/evaluation/1?view_general_text=full", user=self.user)
+        page = self.app.get("/results/semester/1/evaluation/1?view_general_text=full", user=user)
         for answer in dynamic_general_answers + dynamic_responsible_answers:
             self.assertIn(answer, page)
         self.helper_static(page)
 
         # ratings:
-        page = self.app.get("/results/semester/1/evaluation/1?view_general_text=ratings", user=self.user)
+        page = self.app.get("/results/semester/1/evaluation/1?view_general_text=ratings", user=user)
         for answer in dynamic_general_answers:
             self.assertNotIn(answer, page)
         for answer in dynamic_responsible_answers:
@@ -960,13 +960,13 @@ class TestResultsTextanswerVisibilityForResponsibleContributor(WebTest):
 
         # contributor
         # full
-        page = self.app.get("/results/semester/1/evaluation/1?view_contributor_results=full", user=self.user)
+        page = self.app.get("/results/semester/1/evaluation/1?view_contributor_results=full", user=user)
         for answer in dynamic_general_answers + dynamic_responsible_answers:
             self.assertIn(answer, page)
         self.helper_static(page)
 
         # ratings
-        page = self.app.get("/results/semester/1/evaluation/1?view_contributor_results=ratings", user=self.user)
+        page = self.app.get("/results/semester/1/evaluation/1?view_contributor_results=ratings", user=user)
         for answer in dynamic_general_answers:
             self.assertIn(answer, page)
         for answer in dynamic_responsible_answers:
@@ -974,7 +974,7 @@ class TestResultsTextanswerVisibilityForResponsibleContributor(WebTest):
         self.helper_static(page)
 
         # personal:
-        page = self.app.get("/results/semester/1/evaluation/1?view_contributor_results=personal", user=self.user)
+        page = self.app.get("/results/semester/1/evaluation/1?view_contributor_results=personal", user=user)
         for answer in dynamic_general_answers + dynamic_responsible_answers:
             self.assertIn(answer, page)
         self.helper_static(page)
