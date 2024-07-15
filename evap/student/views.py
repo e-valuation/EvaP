@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Exists, F, Max, OuterRef, Q, Sum
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpRequest
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.translation import get_language
@@ -324,3 +324,20 @@ def vote(request, evaluation_id):  # noqa: PLR0912
 
     messages.success(request, _("Your vote was recorded."))
     return HttpResponse(SUCCESS_MAGIC_STRING)
+
+def render_drop_page(evaluation: Evaluation) -> HttpResponse:
+    """Returns the dropped course evaluation form"""
+    # TODO@felix: explanatory text: "will not be published/ only shown to contributors"
+    # TODO@felix: add "why did you drop" section on top
+    # TODO@felix: select "No answer" for all other questions
+    raise NotImplementedError
+
+@participant_required
+def drop(request: HttpRequest, evaluation_id: int) -> HttpResponse:
+    evaluation = get_object_or_404(Evaluation, id=evaluation_id)
+    # TODO@felix: implement drop view
+
+    # TODO@felix: save result differently from normal results
+    # TODO@felix: show results only to staff, reviewers & responsible contributors
+    return render_drop_page(evaluation)
+
