@@ -152,7 +152,8 @@ class ContributionResult:
                     return True
                 if question.is_rating_question:
                     assert isinstance(question_result, RatingResult)
-                    return RatingResult.has_answers(question_result)
+                    if RatingResult.has_answers(question_result):
+                        return True
         return False
 
 
