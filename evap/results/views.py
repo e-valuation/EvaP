@@ -222,7 +222,7 @@ def evaluation_detail(request, semester_id, evaluation_id):
         "can_download_grades": view_as_user.can_download_grades,
         "can_export_text_answers": (
             (view_general_text == "full" or view_contributor_results in ("personal", "full"))
-            and ((view_as_user.is_reviewer or is_responsible_or_contributor_or_delegate))
+            and (view_as_user.is_reviewer or is_responsible_or_contributor_or_delegate)
         ),
         "view_contributor_results": view_contributor_results,
         "view_general_text": view_general_text,
