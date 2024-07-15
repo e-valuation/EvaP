@@ -9,14 +9,22 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Exists, F, Max, OuterRef, Q, Sum
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 
 from evap.evaluation.auth import participant_required
-from evap.evaluation.models import NO_ANSWER, Evaluation, RatingAnswerCounter, Semester, TextAnswer, VoteTimestamp
+from evap.evaluation.models import (
+    NO_ANSWER,
+    Contribution,
+    Evaluation,
+    RatingAnswerCounter,
+    Semester,
+    TextAnswer,
+    VoteTimestamp,
+)
 from evap.results.tools import (
     annotate_distributions_and_grades,
     get_evaluations_with_course_result_attributes,
@@ -185,7 +193,9 @@ def index(request):
     return render(request, "student_index.html", template_data)
 
 
-def get_vote_page_form_groups(request, evaluation, preview):
+def get_vote_page_form_groups(
+    request: HttpRequest, evaluation: Evaluation, preview: bool
+) -> OrderedDict[Contribution, list[QuestionnaireVotingForm]]:
     contributions_to_vote_on = evaluation.contributions.all()
     # prevent a user from voting on themselves
     if not preview:
@@ -203,7 +213,7 @@ def get_vote_page_form_groups(request, evaluation, preview):
     return form_groups
 
 
-def render_vote_page(request, evaluation, preview, for_rendering_in_modal=False):
+def render_vote_page(request: HttpRequest, evaluation: Evaluation, preview: bool, for_rendering_in_modal: bool = False):
     form_groups = get_vote_page_form_groups(request, evaluation, preview)
 
     assert preview or not all(form.is_valid() for form_group in form_groups.values() for form in form_group)
@@ -255,7 +265,7 @@ def render_vote_page(request, evaluation, preview, for_rendering_in_modal=False)
 
 
 @participant_required
-def vote(request, evaluation_id):  # noqa: PLR0912
+def vote(request: HttpRequest, evaluation_id: int):  # noqa: PLR0912
     # pylint: disable=too-many-nested-blocks
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
     if not evaluation.can_be_voted_for_by(request.user):
@@ -325,12 +335,14 @@ def vote(request, evaluation_id):  # noqa: PLR0912
     messages.success(request, _("Your vote was recorded."))
     return HttpResponse(SUCCESS_MAGIC_STRING)
 
+
 def render_drop_page(evaluation: Evaluation) -> HttpResponse:
     """Returns the dropped course evaluation form"""
     # TODO@felix: explanatory text: "will not be published/ only shown to contributors"
     # TODO@felix: add "why did you drop" section on top
     # TODO@felix: select "No answer" for all other questions
     raise NotImplementedError
+
 
 @participant_required
 def drop(request: HttpRequest, evaluation_id: int) -> HttpResponse:
@@ -340,4 +352,3 @@ def drop(request: HttpRequest, evaluation_id: int) -> HttpResponse:
     # TODO@felix: save result differently from normal results
     # TODO@felix: show results only to staff, reviewers & responsible contributors
     return render_drop_page(evaluation)
-
