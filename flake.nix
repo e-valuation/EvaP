@@ -82,10 +82,9 @@
 
           devShells = {
             default = pkgs.mkShell {
-              inputsFrom = [ self.packages.${system}.evap ];
+              inputsFrom = [ self.packages.${system}.evap self.packages.${system}.evapnode ];
               packages = with pkgs; [
                 poetry
-                self.packages.${system}.evapnode
               ];
             };
           };
