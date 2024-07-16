@@ -110,7 +110,7 @@ source = ["evap", "tools"]
 omit = ["*/migrations/*", "*__init__.py"]
 exclude_also = [
     # mypy asserts these cases are not possible
-    "assert_never(.*)",
+    '\n.*assert_never(\(.*\))',
 ]
 
 ##############################################
