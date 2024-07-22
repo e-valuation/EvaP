@@ -30,6 +30,12 @@ jobs:
       - name: Setup python
         uses: ./.github/setup_python
 
+      - name: Remove Chrome
+        run: sudo apt purge google-chrome-stable
+
+      - name: Remove default Chromium
+        run: sudo apt purge chromium-browser
+
       - name: Setup Firefox
         uses: browser-actions/setup-firefox@v1.5.1
 
