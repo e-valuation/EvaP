@@ -134,9 +134,10 @@
                     </confirmation-modal>
                 {% else %}
                     <span tabindex="0" data-bs-toggle="tooltip" title="{% blocktranslate %}This user contributes to an evaluation, participates in an evaluation whose participations haven't been archived yet or has special rights and as such cannot be deleted.{% endblocktranslate %}">
-                    <button type="button" disabled class="btn btn-danger">
-                        {% translate 'Delete user' %}
-                    </button>
+                        <button type="button" disabled class="btn btn-danger">
+                            {% translate 'Delete user' %}
+                        </button>
+                    </span>
                 {% endif %}
             </div>
         </div>
