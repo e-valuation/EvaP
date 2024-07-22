@@ -135,7 +135,7 @@ def submit_with_modal(page: webtest.TestResponse, form: webtest.Form, *, name: s
 
 
 def get_form_data_from_instance(form_cls, instance, **kwargs):
-    assert form_cls._meta.model == type(instance)
+    assert form_cls._meta.model is type(instance)
     form = form_cls(instance=instance, **kwargs)
     return {field.html_name: field.value() for field in form}
 
