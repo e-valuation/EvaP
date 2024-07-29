@@ -11,8 +11,13 @@ from django.template.loader import get_template
 from django.utils import translation
 
 from evap.evaluation.auth import internal_required
+
 from evap.evaluation.models import Course, CourseType, Evaluation, Program, Semester, UserProfile
 from evap.evaluation.tools import AttachmentResponse
+
+from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
+from evap.evaluation.tools import AttachmentResponse, unordered_groupby
+
 from evap.results.exporters import TextAnswerExporter
 from evap.results.tools import (
     STATES_WITH_RESULT_TEMPLATE_CACHING,
@@ -168,9 +173,8 @@ def evaluation_detail(request, semester_id, evaluation_id):
     semester = get_object_or_404(Semester, id=semester_id)
     evaluation = get_object_or_404(semester.evaluations, id=evaluation_id, course__semester=semester)
 
-    # hier view_general added
     (
-        view_general_text,
+        view_general_results,
         view_contributor_results,
         view_as_user,
         represented_users,
@@ -178,9 +182,8 @@ def evaluation_detail(request, semester_id, evaluation_id):
     ) = evaluation_detail_parse_get_parameters(request, evaluation)
 
     evaluation_result = get_results(evaluation)
-    # hier view_general added
     remove_textanswers_that_the_user_must_not_see(
-        evaluation_result, view_as_user, represented_users, view_general_text, view_contributor_results
+        evaluation_result, view_as_user, represented_users, view_general_results, view_contributor_results
     )
     exclude_empty_headings(evaluation_result)
     remove_empty_questionnaire_and_contribution_results(evaluation_result)
@@ -221,21 +224,22 @@ def evaluation_detail(request, semester_id, evaluation_id):
         "is_responsible_or_contributor_or_delegate": is_responsible_or_contributor_or_delegate,
         "can_download_grades": view_as_user.can_download_grades,
         "can_export_text_answers": (
-            (view_general_text == "full" or view_contributor_results in ("personal", "full"))
+            (view_general_results == "full" or view_contributor_results in ("personal", "full"))
             and (view_as_user.is_reviewer or is_responsible_or_contributor_or_delegate)
         ),
         "view_contributor_results": view_contributor_results,
-        "view_general_text": view_general_text,
+        "view_general_results": view_general_results,
         "view_as_user": view_as_user,
         "contributors_with_omitted_results": contributors_with_omitted_results,
         "contributor_id": contributor_id,
+        "can_see_general_textanswers": Contribution.objects.get(contributor=view_as_user, evaluation=evaluation).textanswer_visibility == Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS if evaluation.is_user_contributor(view_as_user) else False,
     }
     return render(request, "results_evaluation_detail.html", template_data)
 
 
 # hier view_general added
 def remove_textanswers_that_the_user_must_not_see(
-    evaluation_result, user, represented_users, view_general_text, view_contributor_results
+    evaluation_result, user, represented_users, view_general_results, view_contributor_results
 ):
     for questionnaire_result in evaluation_result.questionnaire_results:
         for question_result in questionnaire_result.question_results:
@@ -243,9 +247,8 @@ def remove_textanswers_that_the_user_must_not_see(
                 question_result.answers = [
                     answer
                     for answer in question_result.answers
-                    # hier view_general added
                     if can_textanswer_be_seen_by(
-                        user, represented_users, answer, view_general_text, view_contributor_results
+                        user, represented_users, answer, view_general_results, view_contributor_results
                     )
                 ]
             if isinstance(question_result, RatingResult) and question_result.additional_text_result:
@@ -253,7 +256,7 @@ def remove_textanswers_that_the_user_must_not_see(
                     answer
                     for answer in question_result.additional_text_result.answers
                     if can_textanswer_be_seen_by(
-                        user, represented_users, answer, view_general_text, view_contributor_results
+                        user, represented_users, answer, view_general_results, view_contributor_results
                     )
                 ]
         # remove empty TextResults
@@ -402,15 +405,15 @@ def evaluation_detail_parse_get_parameters(request, evaluation):
     if not evaluation.can_results_page_be_seen_by(request.user):
         raise PermissionDenied
 
-    view_general_text = request.GET.get(
-        "view_general_text",
+    view_general_results = request.GET.get(
+        "view_general_results",
         "full" if request.user.is_reviewer or request.user.is_responsible_or_contributor_or_delegate else "ratings",
     )
-    if view_general_text not in ["full", "ratings"]:
+    if view_general_results not in ["full", "ratings"]:
         if request.user.is_reviewer or request.user.is_responsible_or_contributor_or_delegate:
-            view_general_text = "full"
+            view_general_results = "full"
         else:
-            view_general_text = "ratings"
+            view_general_results = "ratings"
 
     view_contributor_results = request.GET.get(
         "view_contributor_results",
@@ -435,14 +438,14 @@ def evaluation_detail_parse_get_parameters(request, evaluation):
     represented_users = [view_as_user]
     represented_users += list(view_as_user.represented_users.all())
 
-    return view_general_text, view_contributor_results, view_as_user, represented_users, contributor_id
+    return view_general_results, view_contributor_results, view_as_user, represented_users, contributor_id
 
 
 def extract_evaluation_answer_data(request, evaluation):
     # TextAnswerExporter wants a dict from Question to tuple of contributor_name and string list (of the answers)
 
     (
-        view_general_text,
+        view_general_results,
         view_contributor_results,
         view_as_user,
         represented_users,
@@ -452,7 +455,7 @@ def extract_evaluation_answer_data(request, evaluation):
     evaluation_result = get_results(evaluation)
     filter_text_answers(evaluation_result)
     remove_textanswers_that_the_user_must_not_see(
-        evaluation_result, view_as_user, represented_users, view_general_text, view_contributor_results
+        evaluation_result, view_as_user, represented_users, view_general_results, view_contributor_results
     )
 
     results = TextAnswerExporter.InputData(evaluation_result.contribution_results)
