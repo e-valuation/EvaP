@@ -617,6 +617,7 @@ class Evaluation(LoggedModel):
             return self.is_user_responsible_or_contributor_or_delegate(user)
         return self.can_be_seen_by(user)
 
+    @property
     def can_reset_to_new(self):
         allowed_sources = [
             Evaluation.State.PREPARED,
