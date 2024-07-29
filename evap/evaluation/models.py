@@ -496,9 +496,9 @@ class Evaluation(LoggedModel):
             from evap.results.tools import STATES_WITH_RESULT_TEMPLATE_CACHING, STATES_WITH_RESULTS_CACHING
 
             if (
-                    state_changed_to(self, STATES_WITH_RESULTS_CACHING)
-                    or self.state_change_source == Evaluation.State.EVALUATED
-                    and self.state == Evaluation.State.REVIEWED
+                state_changed_to(self, STATES_WITH_RESULTS_CACHING)
+                or self.state_change_source == Evaluation.State.EVALUATED
+                and self.state == Evaluation.State.REVIEWED
             ):  # reviewing changes results -> cache update required
                 from evap.results.tools import cache_results
 
@@ -577,17 +577,17 @@ class Evaluation(LoggedModel):
                 return all(len(contribution.questionnaires) > 0 for contribution in self.contributions)
 
         return (
-                self.general_contribution is not None
-                and not self.contributions.annotate(Count("questionnaires")).filter(questionnaires__count=0).exists()
+            self.general_contribution is not None
+            and not self.contributions.annotate(Count("questionnaires")).filter(questionnaires__count=0).exists()
         )
 
     def can_be_voted_for_by(self, user):
         """Returns whether the user is allowed to vote on this evaluation."""
         return (
-                self.state == Evaluation.State.IN_EVALUATION
-                and self.is_in_evaluation_period
-                and user in self.participants.all()
-                and user not in self.voters.all()
+            self.state == Evaluation.State.IN_EVALUATION
+            and self.is_in_evaluation_period
+            and user in self.participants.all()
+            and user not in self.voters.all()
         )
 
     def can_be_seen_by(self, user):
@@ -599,8 +599,8 @@ class Evaluation(LoggedModel):
             return True
         if self.course.is_private or user.is_external:
             return (
-                    self.is_user_responsible_or_contributor_or_delegate(user)
-                    or self.participants.filter(pk=user.pk).exists()
+                self.is_user_responsible_or_contributor_or_delegate(user)
+                or self.participants.filter(pk=user.pk).exists()
             )
         return True
 
@@ -653,9 +653,9 @@ class Evaluation(LoggedModel):
         if self._participant_count is not None:
             assert self._voter_count is not None
             assert (
-                    self.is_single_result
-                    or self._voter_count == self.voters.count()
-                    and self._participant_count == self.participants.count()
+                self.is_single_result
+                or self._voter_count == self.voters.count()
+                and self._participant_count == self.participants.count()
             )
             return
         assert self._participant_count is None and self._voter_count is None
@@ -693,8 +693,8 @@ class Evaluation(LoggedModel):
 
         # the average grade is only published if at least the configured percentage of participants voted during the evaluation for significance reasons
         return (
-                self.can_publish_rating_results
-                and self.num_voters / self.num_participants >= settings.VOTER_PERCENTAGE_NEEDED_FOR_PUBLISHING_AVERAGE_GRADE
+            self.can_publish_rating_results
+            and self.num_voters / self.num_participants >= settings.VOTER_PERCENTAGE_NEEDED_FOR_PUBLISHING_AVERAGE_GRADE
         )
 
     @property
@@ -787,9 +787,9 @@ class Evaluation(LoggedModel):
     @transition(field=state, source=State.PUBLISHED, target=State.REVIEWED)
     def unpublish(self):
         assert (
-                self.is_single_result
-                or self._voter_count == self.voters.count()
-                and self._participant_count == self.participants.count()
+            self.is_single_result
+            or self._voter_count == self.voters.count()
+            and self._participant_count == self.participants.count()
         )
         self._voter_count = None
         self._participant_count = None
@@ -866,8 +866,8 @@ class Evaluation(LoggedModel):
     def is_user_editor_or_delegate(self, user):
         represented_users = user.represented_users.all() | UserProfile.objects.filter(pk=user.pk)
         return (
-                self.contributions.filter(contributor__in=represented_users, role=Contribution.Role.EDITOR).exists()
-                or self.course.responsibles.filter(pk__in=represented_users).exists()
+            self.contributions.filter(contributor__in=represented_users, role=Contribution.Role.EDITOR).exists()
+            or self.course.responsibles.filter(pk__in=represented_users).exists()
         )
 
     def is_user_responsible_or_contributor_or_delegate(self, user):
@@ -876,8 +876,8 @@ class Evaluation(LoggedModel):
             return False
         represented_users = user.represented_users.all() | UserProfile.objects.filter(pk=user.pk)
         return (
-                self.contributions.filter(contributor__in=represented_users).exists()
-                or self.course.responsibles.filter(pk__in=represented_users).exists()
+            self.contributions.filter(contributor__in=represented_users).exists()
+            or self.course.responsibles.filter(pk__in=represented_users).exists()
         )
 
     def is_user_contributor(self, user):
@@ -928,9 +928,9 @@ class Evaluation(LoggedModel):
     @property
     def grading_process_is_finished(self):
         return (
-                not self.wait_for_grade_upload_before_publishing
-                or self.course.gets_no_grade_documents
-                or self.course.final_grade_documents.exists()
+            not self.wait_for_grade_upload_before_publishing
+            or self.course.gets_no_grade_documents
+            or self.course.final_grade_documents.exists()
         )
 
     @classmethod
@@ -947,8 +947,8 @@ class Evaluation(LoggedModel):
                     evaluation.save()
                     evaluations_new_in_evaluation.append(evaluation)
                 elif (
-                        evaluation.state == Evaluation.State.IN_EVALUATION
-                        and datetime.now() >= evaluation.vote_end_datetime
+                    evaluation.state == Evaluation.State.IN_EVALUATION
+                    and datetime.now() >= evaluation.vote_end_datetime
                 ):
                     evaluation.end_evaluation()
                     if evaluation.is_fully_reviewed:
@@ -1153,7 +1153,7 @@ class Question(models.Model):
         constraints = [
             CheckConstraint(
                 check=~(Q(type=QuestionType.TEXT) | Q(type=QuestionType.HEADING))
-                      | ~Q(allows_additional_textanswers=True),
+                | ~Q(allows_additional_textanswers=True),
                 name="check_evaluation_textanswer_or_heading_question_has_no_additional_textanswers",
             )
         ]
@@ -1217,11 +1217,11 @@ class Question(models.Model):
     @property
     def is_rating_question(self):
         return (
-                self.is_grade_question
-                or self.is_bipolar_likert_question
-                or self.is_positive_likert_question
-                or self.is_negative_likert_question
-                or self.is_yes_no_question
+            self.is_grade_question
+            or self.is_bipolar_likert_question
+            or self.is_positive_likert_question
+            or self.is_negative_likert_question
+            or self.is_yes_no_question
         )
 
     @property
@@ -1689,7 +1689,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     is_proxy_user = models.BooleanField(default=False, verbose_name=_("Proxy user"))
 
     # key for url based login of this user
-    MAX_LOGIN_KEY = 2 ** 31 - 1
+    MAX_LOGIN_KEY = 2**31 - 1
 
     login_key = models.IntegerField(verbose_name=_("Login Key"), unique=True, blank=True, null=True)
     login_key_valid_until = models.DateField(verbose_name=_("Login Key Validity"), blank=True, null=True)
@@ -1812,11 +1812,11 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     @property
     def can_be_deleted_by_manager(self):
         if (
-                self.is_responsible
-                or self.is_contributor
-                or self.is_reviewer
-                or self.is_grade_publisher
-                or self.is_superuser
+            self.is_responsible
+            or self.is_contributor
+            or self.is_reviewer
+            or self.is_grade_publisher
+            or self.is_superuser
         ):
             return False
         if any(not evaluation.participations_are_archived for evaluation in self.evaluations_participating_in.all()):
@@ -1941,8 +1941,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         evaluations_and_days_left = (
             (evaluation, evaluation.days_left_for_evaluation)
             for evaluation in Evaluation.objects.filter(
-            participants=self, state=Evaluation.State.IN_EVALUATION
-        ).exclude(voters=self)
+                participants=self, state=Evaluation.State.IN_EVALUATION
+            ).exclude(voters=self)
         )
         return sorted(evaluations_and_days_left, key=lambda tup: (tup[1], tup[0].full_name))
 
@@ -1985,9 +1985,9 @@ class EmailTemplate(models.Model):
         recipients = set()
 
         if (
-                cls.Recipients.CONTRIBUTORS in recipient_groups
-                or cls.Recipients.EDITORS in recipient_groups
-                or cls.Recipients.RESPONSIBLE in recipient_groups
+            cls.Recipients.CONTRIBUTORS in recipient_groups
+            or cls.Recipients.EDITORS in recipient_groups
+            or cls.Recipients.RESPONSIBLE in recipient_groups
         ):
             recipients.update(evaluation.course.responsibles.all())
             if cls.Recipients.CONTRIBUTORS in recipient_groups:
@@ -2159,8 +2159,8 @@ class EmailTemplate(models.Model):
         for evaluation in evaluations:
             # an average grade is published or a general text answer exists
             relevant_information_published_for_responsibles = (
-                    evaluation.can_publish_average_grade
-                    or evaluation.textanswer_set.filter(contribution=evaluation.general_contribution).exists()
+                evaluation.can_publish_average_grade
+                or evaluation.textanswer_set.filter(contribution=evaluation.general_contribution).exists()
             )
             if relevant_information_published_for_responsibles:
                 for responsible in evaluation.course.responsibles.all():
