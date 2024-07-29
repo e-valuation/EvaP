@@ -46,9 +46,15 @@ export class ConfirmationModal extends HTMLElement {
     onDialogFormSubmit = (event: SubmitEvent) => {
         event.preventDefault();
 
+        const isConfirm = event.submitter?.dataset?.eventType === "confirm";
+
+        if (isConfirm && this.internals.form && !this.internals.form.reportValidity()) {
+            return;
+        }
+
         this.closeDialogSlowly();
 
-        if (event.submitter?.dataset?.eventType === "confirm") {
+        if (isConfirm) {
             if (this.type === "submit") {
                 // Unfortunately, `this` cannot act as the submitter of the form. Instead, we make our `value` attribute
                 // visible to the form until submission is finished (the `submit` handlers of the form might cancel the
