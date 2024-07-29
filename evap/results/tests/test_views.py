@@ -510,7 +510,9 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         # page_with_full_general_get_parameter = self.app.get(self.url + "?view_general_results=full", user=self.manager)
         # self.assertEqual(page_with_full_general_get_parameter.context["view_general_results"], "full")
 
-        page_with_random_get_parameter = self.app.get(self.url + "?view_general_results=josefwarhier", user=self.manager)
+        page_with_random_get_parameter = self.app.get(
+            self.url + "?view_general_results=josefwarhier", user=self.manager
+        )
         self.assertEqual(page_with_random_get_parameter.context["view_general_results"], "full")
 
         # noch für den anderen param? auch von view_contributor_results
