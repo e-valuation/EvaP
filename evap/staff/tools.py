@@ -2,7 +2,7 @@ from collections.abc import Iterable
 from datetime import date, datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from django.conf import settings
 from django.contrib import messages
@@ -422,7 +422,7 @@ def update_or_create_with_changes(
     model: type[T],
     defaults=None,
     **kwargs,
-) -> tuple[T, bool, dict[str, tuple[any, any]]]:
+) -> tuple[T, bool, dict[str, tuple[Any, Any]]]:
     """Do update_or_create and track changed values."""
 
     if not defaults:
@@ -438,7 +438,7 @@ def update_or_create_with_changes(
     return obj, False, changes
 
 
-def update_with_changes(obj: Model, defaults: dict[str, any]) -> dict[str, tuple[any, any]]:
+def update_with_changes(obj: Model, defaults: dict[str, any]) -> dict[str, tuple[Any, Any]]:
     """Update a model instance and track changed values."""
 
     changes = {}

@@ -2,7 +2,7 @@ import json
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import TypedDict
+from typing import Any, TypedDict
 
 from django.db import transaction
 from django.utils.timezone import now
@@ -89,11 +89,11 @@ class ImportStatistics:
         return f"({total} in total)\n\n"
 
     @staticmethod
-    def _make_stats(heading: str, new_objects: list) -> str:
+    def _make_stats(heading: str, objects: list) -> str:
         log = ImportStatistics._make_heading(heading)
-        log += ImportStatistics._make_total(len(new_objects))
-        for new_course in new_objects:
-            log += f"- {new_course}\n"
+        log += ImportStatistics._make_total(len(objects))
+        for obj in objects:
+            log += f"- {obj}\n"
         return log
 
     def get_log(self) -> str:
@@ -145,7 +145,7 @@ class JSONImporter:
     def _get_user_profiles(self, data: list[ImportRelated]) -> list[UserProfile]:
         return [self.user_profile_map[related["gguid"]] for related in data]
 
-    def _create_name_change_from_changes(self, user_profile: UserProfile, changes: dict[str, tuple[any, any]]):
+    def _create_name_change_from_changes(self, user_profile: UserProfile, changes: dict[str, tuple[Any, Any]]) -> None:
         change = NameChange(
             old_last_name=changes["last_name"][0] if changes.get("last_name") else user_profile.last_name,
             old_first_name_given=(

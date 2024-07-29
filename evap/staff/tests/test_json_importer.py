@@ -169,7 +169,7 @@ class TestImportEvents(TestCase):
         importer = self._import()
 
         self.assertEqual(Course.objects.all().count(), 1)
-        course = Course.objects.all()[0]
+        course = Course.objects.first()
 
         self.assertEqual(course.semester, self.semester)
         self.assertEqual(course.cms_id, EXAMPLE_DATA["events"][0]["gguid"])
