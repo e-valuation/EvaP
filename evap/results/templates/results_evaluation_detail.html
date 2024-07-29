@@ -95,7 +95,7 @@
                                 >
                                     {% translate 'Ratings' %}
                                 </a>
-                                {% if user.is_staff and view_contributor_results == 'personal' or is_contributor %} <!-- wenn man als staff 'durch die augen' eines contributors schaut, soll man dessen personal view sehen können-->
+                                {% if user.is_staff and view_contributor_results == 'personal' or is_contributor %}
                                     <a
                                         href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results={{view_general_results}}&view_contributor_results=personal"
                                         role="button"
