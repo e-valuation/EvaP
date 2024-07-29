@@ -13,20 +13,14 @@
     services-flake.url = "github:juspay/services-flake";
   };
 
-  outputs = { self, nixpkgs, flake-parts, ... }@inputs:
+  outputs = { self, flake-parts, ... }@inputs:
     flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
         inputs.process-compose-flake.flakeModule
       ];
-      systems = [
-        "x86_64-linux"
-      ];
-      perSystem = { config, system, ... }:
+      systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
+      perSystem = { self', inputs', pkgs, system, ... }:
         let
-          # see https://github.com/nix-community/poetry2nix/tree/master#api for more functions and examples.
-          version = "2024-06";
-          pkgs = nixpkgs.legacyPackages.${system};
-          inherit (pkgs) lib;
           poetry2nix = inputs.poetry2nix.lib.mkPoetry2Nix { inherit pkgs; };
         in
         {
@@ -39,23 +33,6 @@
                 django-stubs-ext = prev.django-stubs-ext.override { preferWheel = false; };
               });
             };
-
-            evapnode =
-              let
-                inherit (pkgs) importNpmLock;
-              in
-              pkgs.buildNpmPackage {
-                pname = "evap";
-                inherit version;
-                src = ./.;
-                npmDeps = importNpmLock {
-                  npmRoot = ./.;
-                };
-                npmConfigHook = importNpmLock.npmConfigHook;
-
-                dontNpmBuild = true;
-                PUPPETEER_SKIP_DOWNLOAD = "1";
-              };
           };
 
           # Start with `nix run .#services`
@@ -68,9 +45,6 @@
               redis."r1".enable = true;
               postgres."pg1" = {
                 enable = true;
-                # initialDatabases = [
-                #   { name = "evap"; }
-                # ];
                 initialScript.before = ''
                   CREATE USER evap;
                   ALTER USER evap WITH PASSWORD 'evap';
@@ -82,10 +56,17 @@
 
           devShells = {
             default = pkgs.mkShell {
-              inputsFrom = [ self.packages.${system}.evap self.packages.${system}.evapnode ];
+              inputsFrom = [ self'.packages.evap ];
               packages = with pkgs; [
                 poetry
+                nodejs
               ];
+
+              env.PUPPETEER_SKIP_DOWNLOAD = 1;
+
+              shellHook = ''
+                source "${self}/deployment/manage_autocompletion.sh"
+              '';
             };
           };
         };
