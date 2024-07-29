@@ -291,7 +291,7 @@ class ResetToNewOperation(EvaluationOperation):
 
     @staticmethod
     def applicable_to(evaluation: Evaluation):
-        return evaluation.can_reset_to_new()
+        return evaluation.can_reset_to_new
 
     @staticmethod
     def warning_for_inapplicables(amount: int):
