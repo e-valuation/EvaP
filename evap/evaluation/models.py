@@ -618,9 +618,15 @@ class Evaluation(LoggedModel):
         return self.can_be_seen_by(user)
 
     def can_reset_to_new(self):
-        return any(
-            state_transition.name == "reset_to_new" for state_transition in self.get_available_state_transitions()
-        )  # get_available_<fieldname>_transitions() is available for all fsm-fields on a class
+        allowed_sources = [
+            Evaluation.State.PREPARED,
+            Evaluation.State.EDITOR_APPROVED,
+            Evaluation.State.APPROVED,
+            Evaluation.State.IN_EVALUATION,
+            Evaluation.State.EVALUATED,
+            Evaluation.State.REVIEWED,
+        ]
+        return self.state in allowed_sources and not self.is_single_result
 
     @property
     def can_be_edited_by_manager(self):
@@ -716,19 +722,7 @@ class Evaluation(LoggedModel):
     def manager_approve(self):
         pass
 
-    @transition(
-        field=state,
-        source=[
-            State.PREPARED,
-            State.EDITOR_APPROVED,
-            State.APPROVED,
-            State.IN_EVALUATION,
-            State.EVALUATED,
-            State.REVIEWED,
-        ],
-        target=State.NEW,
-        conditions=[lambda self: not self.is_single_result],
-    )
+    @transition(field=state, target=State.NEW, conditions=[lambda self: self.can_reset_to_new])
     def reset_to_new(self, *, delete_previous_answers: bool):
         if delete_previous_answers:
             for answer_class in Answer.__subclasses__():
