@@ -33,6 +33,7 @@
                 <h3 class="mb-0">{{ evaluation.full_name }} ({{ evaluation.course.semester.name }})</h3>
             </div>
             <div class="col-auto">
+                {% if can_see_general_textanswers %}
                 <div class="row">
                     <div class="col-auto">
                         <div class="btn-switch btn-switch-light my-auto d-print-none">
@@ -40,9 +41,9 @@
                             <div class="btn-switch btn-group">
 
                                     <a
-                                        href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_text=full&view_contributor_results={{view_contributor_results}}"
+                                        href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results=full&view_contributor_results={{view_contributor_results}}"
                                         role="button"
-                                        class="btn btn-sm btn-light{% if view_general_text == 'full' %} active{% endif %}"
+                                        class="btn btn-sm btn-light{% if view_general_results == 'full' %} active{% endif %}"
                                         data-bs-toggle="tooltip"
                                         data-bs-placement="bottom"
                                         title="{% blocktranslate %}All results of general questions (including text answers){% endblocktranslate %}"
@@ -52,9 +53,9 @@
         
                                 
                                 <a
-                                    href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_text=ratings&view_contributor_results={{view_contributor_results}}"
+                                    href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results=ratings&view_contributor_results={{view_contributor_results}}"
                                     role="button"
-                                    class="btn btn-sm btn-light{% if view_general_text == 'ratings' %} active{% endif %}"
+                                    class="btn btn-sm btn-light{% if view_general_results == 'ratings' %} active{% endif %}"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="bottom"
                                     title="{% translate 'Only rating results of general questions (without text answers)' %}"
@@ -65,6 +66,7 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
                 <div class="row mt-1">
                     <div class="col-auto">
                         <div class="btn-switch btn-switch-light my-auto d-print-none">
@@ -72,7 +74,7 @@
                             <div class="btn-switch btn-group">
                                 
                                     <a
-                                        href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_text={{view_general_text}}&view_contributor_results=full"
+                                        href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results={{view_general_results}}&view_contributor_results=full"
                                         role="button"
                                         class="btn btn-sm btn-light{% if view_contributor_results == 'full' %} active{% endif %}"
                                         data-bs-toggle="tooltip"
@@ -84,7 +86,7 @@
         
                                 
                                 <a
-                                    href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_text={{view_general_text}}&view_contributor_results=ratings"
+                                    href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results={{view_general_results}}&view_contributor_results=ratings"
                                     role="button"
                                     class="btn btn-sm btn-light{% if view_contributor_results == 'ratings' %} active{% endif %}"
                                     data-bs-toggle="tooltip"
@@ -95,7 +97,7 @@
                                 </a>
                                 {% if user.is_staff and view_contributor_results == 'personal' or is_contributor %} <!-- wenn man als staff 'durch die augen' eines contributors schaut, soll man dessen personal view sehen können-->
                                     <a
-                                        href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_text={{view_general_text}}&view_contributor_results=personal"
+                                        href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results={{view_general_results}}&view_contributor_results=personal"
                                         role="button"
                                         class="btn btn-sm btn-light{% if view_contributor_results == 'personal' %} active{% endif %}"
                                         data-bs-toggle="tooltip"
@@ -119,7 +121,7 @@
         <div class="card-header d-flex">
             <div class="me-auto">{% translate 'Overview' %}</div>
             {% if can_export_text_answers %}
-                <a class="btn btn-sm btn-light d-print-none" href="{% url 'results:evaluation_text_answers_export' evaluation.id %}?view_general_text={{ view_general_text }}&view_contributor_results={{ view_contributor_results }}{% if contributor_id is not None %}&contributor_id={{ contributor_id }}{% endif %}" type="button"> <!--müssen wir den link auch noch ändern? view zu view_general_text und view_contributor_results hinzufügen? hab ich jetzt ma gemacht-->
+                <a class="btn btn-sm btn-light d-print-none" href="{% url 'results:evaluation_text_answers_export' evaluation.id %}?view_general_results={{ view_general_results }}&view_contributor_results={{ view_contributor_results }}{% if contributor_id is not None %}&contributor_id={{ contributor_id }}{% endif %}" type="button">
                     {% translate 'Export visible text answers' %}
                 </a>
             {% endif %}
