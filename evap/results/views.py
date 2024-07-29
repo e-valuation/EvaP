@@ -237,7 +237,6 @@ def evaluation_detail(request, semester_id, evaluation_id):
     return render(request, "results_evaluation_detail.html", template_data)
 
 
-# hier view_general added
 def remove_textanswers_that_the_user_must_not_see(
     evaluation_result, user, represented_users, view_general_results, view_contributor_results
 ):
@@ -407,23 +406,17 @@ def evaluation_detail_parse_get_parameters(request, evaluation):
 
     view_general_results = request.GET.get(
         "view_general_results",
-        "full" if request.user.is_reviewer or request.user.is_responsible_or_contributor_or_delegate else "ratings",
+        "full",
     )
     if view_general_results not in ["full", "ratings"]:
-        if request.user.is_reviewer or request.user.is_responsible_or_contributor_or_delegate:
-            view_general_results = "full"
-        else:
-            view_general_results = "ratings"
+        view_general_results = "full"
 
     view_contributor_results = request.GET.get(
         "view_contributor_results",
-        "full" if request.user.is_reviewer or request.user.is_responsible_or_contributor_or_delegate else "ratings",
+        "full",
     )
     if view_contributor_results not in ["full", "ratings", "personal"]:
-        if request.user.is_reviewer or request.user.is_responsible_or_contributor_or_delegate:
-            view_contributor_results = "full"
-        else:
-            view_contributor_results = "ratings"
+        view_contributor_results = "full"
 
     view_as_user = request.user
     try:
