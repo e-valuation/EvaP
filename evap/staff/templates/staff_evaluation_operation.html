@@ -70,10 +70,9 @@
 
         <div class="card card-submit-area card-submit-area-2 text-center mb-3">
             <div class="card-body">
-            {% if show_delete_answers_checkbox %}
-                <confirmation-modal type="submit" id="confirmation-modal">
+                <confirmation-modal type="submit" data-allow-answer-deletion>
                     <span slot="title">{% translate 'Reset Evaluation' %}</span>
-                    <button slot="submit-group" class="btn ms-2 btn-danger" data-event-type="confirm">
+                    <button slot="submit-group" class="btn ms-2 btn-danger" data-event-type="confirm" data-confirm-answer-deletion>
                         {% translate 'Reset Evaluation' %}
                     </button>
                     <span slot="question">
@@ -87,24 +86,16 @@
                     {% endcomment %}
                     <span slot="show-button"></span>
                 </confirmation-modal>
-                <button id="form-confirmation-btn" type="button" class="btn btn-primary">{% translate 'Confirm' %}</button>
+                <button type="submit" class="btn btn-primary">{% translate 'Confirm' %}</button>
                 <script>
-                    /** @type ConfirmationModal */
-                    const modal = document.getElementById("confirmation-modal");
-                    /** @type HTMLFormElement */
-                    const form = document.getElementById("evaluation-operation-form");
-
-                    document.getElementById("form-confirmation-btn").addEventListener("click", () => {
-                        if (document.getElementById("delete-previous-answers").checked) {
-                            modal.dialog.showModal();
-                        } else {
-                            form.requestSubmit();
+                    document.getElementById("evaluation-operation-form").addEventListener("submit", submitEvent => {
+                        const data = new FormData(submitEvent.target);
+                        if (data.get("delete-previous-answers") === "on" && !submitEvent.submitter?.hasAttribute("data-confirm-answer-deletion")) {
+                            submitEvent.preventDefault()
+                            submitEvent.target.querySelector("confirmation-modal[data-allow-answer-deletion]").dialog.showModal();
                         }
-                    });
+                    })
                 </script>
-            {% else %}
-                <button id="form-confirmation-btn" type="submit" class="btn btn-primary">{% translate 'Confirm' %}</button>
-            {% endif %}
                 <a href="{% url 'staff:semester_view' semester.id %}" class="btn btn-light">{% translate 'Cancel' %}</a>
             </div>
         </div>
