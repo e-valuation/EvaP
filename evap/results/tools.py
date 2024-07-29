@@ -486,7 +486,7 @@ def can_textanswer_be_seen_by(  # noqa: PLR0911,PLR0912
     # überall wo das alte benutzt wurde anpassen
     if textanswer.is_public:
         if textanswer.contribution.is_general:
-            if view_general_text == "full":  # filters all contributions
+            if view_general_text == "full":
                 # reviewer can see everything
                 if user.is_reviewer:
                     return True
@@ -500,8 +500,8 @@ def can_textanswer_be_seen_by(  # noqa: PLR0911,PLR0912
 
                 # the people responsible for a course can see all general text answers for all its evaluations
                 if textanswer.contribution.is_general and any(
-                    user in represented_users
-                    for user in textanswer.contribution.evaluation.course.responsibles.all()  # includes self
+                    user in represented_users  # includes self
+                    for user in textanswer.contribution.evaluation.course.responsibles.all()
                 ):
                     return True
         else:
