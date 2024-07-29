@@ -491,27 +491,27 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         cache_results(self.evaluation)
 
         page_without_get_parameter = self.app.get(self.url, user=self.manager)
-        self.assertEqual(page_without_get_parameter.context["view_general_text"], "full")
+        self.assertEqual(page_without_get_parameter.context["view_general_results"], "full")
         self.assertEqual(page_without_get_parameter.context["view_contributor_results"], "full")
 
         page_with_ratings_general_get_parameter = self.app.get(
-            self.url + "?view_general_text=ratings", user=self.manager
+            self.url + "?view_general_results=ratings", user=self.manager
         )
-        self.assertEqual(page_with_ratings_general_get_parameter.context["view_general_text"], "ratings")
+        self.assertEqual(page_with_ratings_general_get_parameter.context["view_general_results"], "ratings")
         self.assertEqual(page_with_ratings_general_get_parameter.context["view_contributor_results"], "full")
 
         page_with_ratings_general_get_parameter = self.app.get(
             self.url + "?view_contributor_results=ratings", user=self.manager
         )
-        self.assertEqual(page_with_ratings_general_get_parameter.context["view_general_text"], "full")
+        self.assertEqual(page_with_ratings_general_get_parameter.context["view_general_results"], "full")
         self.assertEqual(page_with_ratings_general_get_parameter.context["view_contributor_results"], "ratings")
 
         # digga das doch qustsch unter default view test ihr atzen
-        # page_with_full_general_get_parameter = self.app.get(self.url + "?view_general_text=full", user=self.manager)
-        # self.assertEqual(page_with_full_general_get_parameter.context["view_general_text"], "full")
+        # page_with_full_general_get_parameter = self.app.get(self.url + "?view_general_results=full", user=self.manager)
+        # self.assertEqual(page_with_full_general_get_parameter.context["view_general_results"], "full")
 
-        page_with_random_get_parameter = self.app.get(self.url + "?view_general_text=josefwarhier", user=self.manager)
-        self.assertEqual(page_with_random_get_parameter.context["view_general_text"], "full")
+        page_with_random_get_parameter = self.app.get(self.url + "?view_general_results=josefwarhier", user=self.manager)
+        self.assertEqual(page_with_random_get_parameter.context["view_general_results"], "full")
 
         # noch für den anderen param? auch von view_contributor_results
 
@@ -813,20 +813,20 @@ class TestResultsTextanswerVisibilityForStudent(WebTest):
         self.assertNotIn(".general_additional_orig_deleted.", page)
 
     def test_textanswer_visibility_for_student(self):
-        # NOTE: default values for students are: view_general_text=ratings, view_contributor_results=ratings
+        # NOTE: default values for students are: view_general_results=ratings, view_contributor_results=ratings
         general_views = ["full", "ratings"]
         contributor_views = ["full", "ratings", "personal"]
 
         for general_view in general_views:
             page = self.app.get(
-                f"/results/semester/1/evaluation/1?view_general_text={general_view}&view_contributor_results=ratings",
+                f"/results/semester/1/evaluation/1?view_general_results={general_view}&view_contributor_results=ratings",
                 user="student@institution.example.com",
             )
             self.helper_static(page)
 
         for contributor_view in contributor_views:
             page = self.app.get(
-                f"/results/semester/1/evaluation/1?view_general_text=ratings&view_contributor_results={contributor_view}",
+                f"/results/semester/1/evaluation/1?view_general_results=ratings&view_contributor_results={contributor_view}",
                 user="student@institution.example.com",
             )
             self.helper_static(page)
@@ -868,14 +868,14 @@ class TestResultsTextanswerVisibilityForResponsible(WebTest):
 
         # general
         # full:
-        page = self.app.get("/results/semester/1/evaluation/1?view_general_text=full", user=responsible_user)
+        page = self.app.get("/results/semester/1/evaluation/1?view_general_results=full", user=responsible_user)
 
         for answer in dynamic_answers:
             self.assertIn(answer, page)
         self.helper_static(page)
 
         # ratings:
-        page = self.app.get("/results/semester/1/evaluation/1?view_general_text=ratings", user=responsible_user)
+        page = self.app.get("/results/semester/1/evaluation/1?view_general_results=ratings", user=responsible_user)
 
         for answer in dynamic_answers:
             self.assertNotIn(answer, page)
@@ -945,13 +945,13 @@ class TestResultsTextanswerVisibilityForResponsibleContributor(WebTest):
 
         # general
         # full:
-        page = self.app.get("/results/semester/1/evaluation/1?view_general_text=full", user=user)
+        page = self.app.get("/results/semester/1/evaluation/1?view_general_results=full", user=user)
         for answer in dynamic_general_answers + dynamic_responsible_answers:
             self.assertIn(answer, page)
         self.helper_static(page)
 
         # ratings:
-        page = self.app.get("/results/semester/1/evaluation/1?view_general_text=ratings", user=user)
+        page = self.app.get("/results/semester/1/evaluation/1?view_general_results=ratings", user=user)
         for answer in dynamic_general_answers:
             self.assertNotIn(answer, page)
         for answer in dynamic_responsible_answers:
@@ -1006,7 +1006,7 @@ class TestResultsTextanswerVisibilityForContributor(WebTest):
         user = "contributor_general_textanswers@institution.example.com"
         # general
         # full
-        page = self.app.get("/results/semester/1/evaluation/1?view_general_text=full", user=user)
+        page = self.app.get("/results/semester/1/evaluation/1?view_general_results=full", user=user)
         for answer in dynamic_general_answers:
             self.assertIn(answer, page)
         for answer in dynamic_contributor_answers:
@@ -1014,7 +1014,7 @@ class TestResultsTextanswerVisibilityForContributor(WebTest):
         self.helper_static(page)
 
         # ratings
-        page = self.app.get("/results/semester/1/evaluation/1?view_general_text=ratings", user=user)
+        page = self.app.get("/results/semester/1/evaluation/1?view_general_results=ratings", user=user)
         for answer in dynamic_general_answers + dynamic_contributor_answers:
             self.assertNotIn(answer, page)
         self.helper_static(page)
@@ -1050,7 +1050,7 @@ class TestResultsTextanswerVisibilityForContributor(WebTest):
         user = "delegate_for_contributor@institution.example.com"
         # general
         # full
-        page = self.app.get("/results/semester/1/evaluation/1?view_general_text=full", user=user)
+        page = self.app.get("/results/semester/1/evaluation/1?view_general_results=full", user=user)
         for answer in dynamic_general_answers:
             self.assertNotIn(answer, page)
         self.assertIn(".contributor_orig_published.", page)
@@ -1058,7 +1058,7 @@ class TestResultsTextanswerVisibilityForContributor(WebTest):
         self.helper_static(page)
 
         # ratings
-        page = self.app.get("/results/semester/1/evaluation/1?view_general_text=ratings", user=user)
+        page = self.app.get("/results/semester/1/evaluation/1?view_general_results=ratings", user=user)
         for answer in dynamic_general_answers:
             self.assertNotIn(answer, page)
         self.assertIn(".contributor_orig_published.", page)
@@ -1086,7 +1086,8 @@ class TestResultsTextanswerVisibilityForContributor(WebTest):
         user = "contributor@institution.example.com"
         # general
         # full, contributor standard value = full:
-        page = self.app.get("/results/semester/1/evaluation/1?view_general_text=full", user=user)
+        page = self.app.get("/results/semester/1/evaluation/1?view_general_results=full", user=user)
+        self.assertNotIn("General results", page)
         for answer in dynamic_general_answers:
             self.assertNotIn(answer, page)
         for answer in dynamic_contributor_answers:
@@ -1094,7 +1095,8 @@ class TestResultsTextanswerVisibilityForContributor(WebTest):
         self.helper_static(page)
 
         # ratings
-        page = self.app.get("/results/semester/1/evaluation/1?view_general_text=ratings", user=user)
+        page = self.app.get("/results/semester/1/evaluation/1?view_general_results=ratings", user=user)
+        self.assertNotIn("General results", page)
         for answer in dynamic_general_answers:
             self.assertNotIn(answer, page)
         for answer in dynamic_contributor_answers:
@@ -1104,6 +1106,7 @@ class TestResultsTextanswerVisibilityForContributor(WebTest):
         # contributor
         # full, general standard value = full
         page = self.app.get("/results/semester/1/evaluation/1?view_contributor_results=full", user=user)
+        self.assertNotIn("General results", page)
         for answer in dynamic_general_answers:
             self.assertNotIn(answer, page)
         for answer in dynamic_contributor_answers:
@@ -1112,12 +1115,14 @@ class TestResultsTextanswerVisibilityForContributor(WebTest):
 
         # ratings
         page = self.app.get("/results/semester/1/evaluation/1?view_contributor_results=ratings", user=user)
+        self.assertNotIn("General results", page)
         for answer in dynamic_general_answers + dynamic_contributor_answers:
             self.assertNotIn(answer, page)
         self.helper_static(page)
 
         # personal
         page = self.app.get("/results/semester/1/evaluation/1?view_contributor_results=personal", user=user)
+        self.assertNotIn("General results", page)
         for answer in dynamic_general_answers:
             self.assertNotIn(answer, page)
         for answer in dynamic_contributor_answers:

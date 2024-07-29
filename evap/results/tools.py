@@ -477,7 +477,7 @@ def can_textanswer_be_seen_by(  # noqa: PLR0911,PLR0912
     user: UserProfile,
     represented_users: list[UserProfile],
     textanswer: TextAnswer,
-    view_general_text: str,
+    view_general_results: str,
     view_contributor_results: str,
 ) -> bool:
     assert textanswer.review_decision in [TextAnswer.ReviewDecision.PRIVATE, TextAnswer.ReviewDecision.PUBLIC]
@@ -488,7 +488,7 @@ def can_textanswer_be_seen_by(  # noqa: PLR0911,PLR0912
     # überall wo das alte benutzt wurde anpassen
     if textanswer.is_public:
         if textanswer.contribution.is_general:
-            if view_general_text == "full":
+            if view_general_results == "full":
                 # reviewer can see everything
                 if user.is_reviewer:
                     return True
