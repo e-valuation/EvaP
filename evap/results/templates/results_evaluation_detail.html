@@ -100,7 +100,7 @@
                                         class="btn btn-sm btn-light{% if view_contributor_results == 'personal' %} active{% endif %}"
                                         data-bs-toggle="tooltip"
                                         data-bs-placement="bottom"
-                                        title="{% translate 'Shows all contribution results regarding yourself' %}"
+                                        title="{% translate 'All results of contributor questions regarding yourself, hiding other contributors' %}"
                                     >
                                         {% translate 'Personal' %}
                                     </a>
@@ -120,7 +120,7 @@
             <div class="me-auto">{% translate 'Overview' %}</div>
             {% if can_export_text_answers %}
                 <a class="btn btn-sm btn-light d-print-none" href="{% url 'results:evaluation_text_answers_export' evaluation.id %}?view_general_text={{ view_general_text }}&view_contributor_results={{ view_contributor_results }}{% if contributor_id is not None %}&contributor_id={{ contributor_id }}{% endif %}" type="button"> <!--müssen wir den link auch noch ändern? view zu view_general_text und view_contributor_results hinzufügen? hab ich jetzt ma gemacht-->
-                    {% translate 'Export text answers' %}
+                    {% translate 'Export visible text answers' %}
                 </a>
             {% endif %}
             {% if evaluation.course.grade_documents.count == 1 and can_download_grades %}
