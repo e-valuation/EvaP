@@ -191,7 +191,7 @@ def evaluation_detail(request, semester_id, evaluation_id):
     course_evaluations.sort(key=lambda evaluation: evaluation.name)
 
     contributors_with_omitted_results = []
-    if view_contributor_results == "personal":  # changed
+    if view_contributor_results == "personal":
         contributors_with_omitted_results = [
             contribution_result.contributor
             for contribution_result in evaluation_result.contribution_results
@@ -226,7 +226,12 @@ def evaluation_detail(request, semester_id, evaluation_id):
         "view_as_user": view_as_user,
         "contributors_with_omitted_results": contributors_with_omitted_results,
         "contributor_id": contributor_id,
-        "can_see_general_textanswers": Contribution.objects.get(contributor=view_as_user, evaluation=evaluation).textanswer_visibility == Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS if evaluation.is_user_contributor(view_as_user) else False,
+        "can_see_general_textanswers": (
+            Contribution.objects.get(contributor=view_as_user, evaluation=evaluation).textanswer_visibility
+            == Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
+            if evaluation.is_user_contributor(view_as_user)
+            else False
+        ),
     }
     return render(request, "results_evaluation_detail.html", template_data)
 
@@ -311,11 +316,7 @@ def split_evaluation_result_into_top_bottom_and_contributor(evaluation_result, v
     bottom_results = []
     contributor_results = []
 
-    for (
-        contribution_result
-    ) in (
-        evaluation_result.contribution_results
-    ):  # sort nach contributions_results, sodass jede Antwort ein Contributor hat, ist dieser None, gibts keinen
+    for contribution_result in evaluation_result.contribution_results:
         if contribution_result.contributor is None:
             for questionnaire_result in contribution_result.questionnaire_results:
                 if questionnaire_result.questionnaire.is_below_contributors:
@@ -430,7 +431,6 @@ def evaluation_detail_parse_get_parameters(request, evaluation):
 
 def extract_evaluation_answer_data(request, evaluation):
     # TextAnswerExporter wants a dict from Question to tuple of contributor_name and string list (of the answers)
-
     (
         view_general_results,
         view_contributor_results,
