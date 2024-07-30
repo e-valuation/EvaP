@@ -33,6 +33,7 @@
                 django-stubs-ext = prev.django-stubs-ext.override { preferWheel = false; };
               });
             };
+
           };
 
           # Start with `nix run .#services`
@@ -48,6 +49,7 @@
                 initialScript.before = ''
                   CREATE USER evap;
                   ALTER USER evap WITH PASSWORD 'evap';
+                  ALTER USER evap CREATEDB;
                   CREATE DATABASE evap OWNER evap;
                 '';
               };
@@ -55,19 +57,46 @@
           };
 
           devShells = {
-            default = pkgs.mkShell {
-              inputsFrom = [ self'.packages.evap ];
-              packages = with pkgs; [
-                poetry
-                nodejs
-              ];
+            default =
+              let
+                clean-setup = pkgs.writeShellScriptBin "clean-setup" ''
+                  read -p "Delete node_modules/ and data/? [y/N] "
+                  [[ "$REPLY" =~ ^[Yy]$ ]] || exit 1
+                  set -ex
+                  rm -rf node_modules/ data/
+                '';
 
-              env.PUPPETEER_SKIP_DOWNLOAD = 1;
+                initialize-setup = pkgs.writeShellScriptBin "initialize-setup" ''
+                  set -ex
 
-              shellHook = ''
-                source "${self}/deployment/manage_autocompletion.sh"
-              '';
-            };
+                  npm ci
+                  cp deployment/localsettings.template.py evap/localsettings.py
+                  sed -i -e "s/\$SECRET_KEY/$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)/" evap/localsettings.py
+                  git submodule update --init
+                  ./manage.py migrate --noinput
+                  ./manage.py collectstatic --noinput
+                  ./manage.py compilemessages --locale de
+                  ./manage.py loaddata test_data.json
+                  ./manage.py refresh_results_cache
+                '';
+              in
+              pkgs.mkShell {
+                inputsFrom = [ self'.packages.evap ];
+                packages = with pkgs; [
+                  poetry
+                  nodejs
+
+                  clean-setup
+                  initialize-setup
+                ];
+
+                env.PUPPETEER_SKIP_DOWNLOAD = 1;
+
+                shellHook = ''
+                  # TODO: doesn't work with other shells from direnv
+                  source "${self}/deployment/manage_autocompletion.sh"
+                '';
+              };
           };
         };
     };
