@@ -157,12 +157,7 @@
                                     <td class="text-end">
                                         {% if not semester.results_are_archived %}
                                             {% if evaluation.state == evaluation.State.IN_EVALUATION and evaluation.participates_in and not evaluation.voted_for and evaluation.is_in_evaluation_period  %}
-                                                <a class="btn btn-sm btn-primary btn-row-hover" href="{% url 'student:vote' evaluation.id %}">{% translate 'Evaluate' %}</a>
-                                                <!-- TODO@felix: confirmation modal  -->
-                                                <!-- TODO@felix: put drop button everywhere else-->
-                                                <a class="btn btn-sm btn-secondary btn-row-hover" title="{% translate 'I dropped this course' %}" data-bs-toggle="tooltip" data-bs-placement="top" href="{% url 'student:drop' evaluation.id %}">
-                                                    <span class="fas fa-user-xmark"></span>
-                                                </a>
+                                                {% include 'student_index_evaluate_or_drop.html' %}
                                             {% elif evaluation.state == evaluation.State.PUBLISHED %}
                                                 {% include 'evaluation_result_widget.html' with course_or_evaluation=evaluation %}
                                             {% elif not evaluation.participates_in or evaluation.voted_for and evaluation.State.IN_EVALUATION <= evaluation.state and evaluation.state <= evaluation.State.REVIEWED %}
