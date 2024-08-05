@@ -1,5 +1,5 @@
 -r requirements.txt
-black~=24.4.0
+black~=24.8.0
 coverage[toml]
 django-debug-toolbar~=4.0
 django-stubs==5.0.4
