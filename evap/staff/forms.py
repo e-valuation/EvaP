@@ -368,6 +368,7 @@ class EvaluationForm(forms.ModelForm):
             "name_en",
             "weight",
             "allow_editors_to_edit",
+            "allow_drop_out",
             "is_rewarded",
             "is_midterm_evaluation",
             "wait_for_grade_upload_before_publishing",
