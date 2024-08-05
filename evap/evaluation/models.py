@@ -164,6 +164,12 @@ class QuestionnaireManager(Manager):
     def contributor_questionnaires(self):
         return super().get_queryset().filter(type=Questionnaire.Type.CONTRIBUTOR)
 
+    def dropout_questionnaires(self):
+        return super().get_queryset().filter(type=Questionnaire.Type.DROPOUT)
+
+    def default_dropout_questionnaire(self):
+        return super().get(pk=settings.DROPOUT_QUESTIONNAIRE_ID)
+
 
 class Questionnaire(models.Model):
     """A named collection of questions."""
@@ -172,6 +178,7 @@ class Questionnaire(models.Model):
         TOP = 10, _("Top questionnaire")
         CONTRIBUTOR = 20, _("Contributor questionnaire")
         BOTTOM = 30, _("Bottom questionnaire")
+        DROPOUT = 40, _("Dropout questionnaire")
 
     type = models.IntegerField(choices=Type.choices, verbose_name=_("type"), default=Type.TOP)
 
@@ -233,7 +240,7 @@ class Questionnaire(models.Model):
         return self.type == self.Type.BOTTOM
 
     @property
-    def can_be_edited_by_manager(self):
+    def can_be_edited_by_manager(self): # TODO@Felix: modify this to also work for dropout questionnaires? or change code
         if is_prefetched(self, "contributions"):
             if all(is_prefetched(contribution, "evaluation") for contribution in self.contributions.all()):
                 return all(
