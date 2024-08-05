@@ -6,7 +6,7 @@ from fractions import Fraction
 
 from django.conf import settings
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import transaction
 from django.db.models import Exists, F, Max, OuterRef, Q, Sum
 from django.http import HttpRequest, HttpResponse
@@ -347,8 +347,13 @@ def render_drop_page(evaluation: Evaluation) -> HttpResponse:
 @participant_required
 def drop(request: HttpRequest, evaluation_id: int) -> HttpResponse:
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
+
+    if not evaluation.allow_drop_out:
+        raise SuspiciousOperation("Drop out not allowed")
+
     # TODO@felix: implement drop view
+    return render_drop_page(evaluation)
 
     # TODO@felix: save result differently from normal results
     # TODO@felix: show results only to staff, reviewers & responsible contributors
-    return render_drop_page(evaluation)
+    raise NotImplementedError
