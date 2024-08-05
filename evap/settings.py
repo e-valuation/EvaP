@@ -182,6 +182,10 @@ LOGGING = {
             "level": "ERROR",
             "class": "django.utils.log.AdminEmailHandler",
         },
+        "mail_managers": {
+            "level": "INFO",
+            "class": "evap.staff.log_handler.ManagerEmailHandler",
+        },
         "console": {
             "class": "logging.StreamHandler",
             "formatter": "default",
@@ -202,6 +206,10 @@ LOGGING = {
             "handlers": ["console", "file", "mail_admins"],
             "level": "DEBUG",
             "propagate": True,
+        },
+        "import": {
+            "handlers": ["console", "file", "mail_managers"],
+            "level": "INFO",
         },
     },
 }
