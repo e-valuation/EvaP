@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-17 20:33+0200\n"
-"PO-Revision-Date: 2024-06-17 20:33+0200\n"
+"POT-Creation-Date: 2024-07-06 13:53+0200\n"
+"PO-Revision-Date: 2024-07-06 13:55+0200\n"
 "Last-Translator: Johannes Wolf <janno42@posteo.de>\n"
 "Language-Team: Johannes Wolf (janno42)\n"
 "Language: de\n"
@@ -336,7 +336,7 @@ msgstr "Entwicklung"
 
 #: evap/evaluation/forms.py:19 evap/staff/templates/staff_user_list.html:45
 #: evap/staff/templates/staff_user_merge.html:56 evap/staff/views.py:777
-#: evap/staff/views.py:1507 evap/staff/views.py:2141
+#: evap/staff/views.py:1508 evap/staff/views.py:2142
 msgid "Email"
 msgstr "E‑Mail"
 
@@ -357,7 +357,7 @@ msgstr ""
 "zur Anmeldung benötigt."
 
 #: evap/evaluation/forms.py:63 evap/rewards/exporters.py:14
-#: evap/rewards/views.py:168
+#: evap/rewards/views.py:173
 msgid "Email address"
 msgstr "E‑Mail-Adresse"
 
@@ -1332,7 +1332,7 @@ msgid "email address"
 msgstr "E‑Mail-Adresse"
 
 #: evap/evaluation/models.py:1651 evap/staff/templates/staff_user_merge.html:32
-#: evap/staff/views.py:2141
+#: evap/staff/views.py:2142
 msgid "Title"
 msgstr "Titel"
 
@@ -1458,31 +1458,31 @@ msgstr ""
 msgid "vote timestamp"
 msgstr "Zeitstempel der Abstimmung"
 
-#: evap/evaluation/models_logging.py:67
+#: evap/evaluation/models_logging.py:68
 msgid "<deleted object>"
 msgstr "<gelöschtes Objekt>"
 
-#: evap/evaluation/models_logging.py:105
+#: evap/evaluation/models_logging.py:107
 #, python-brace-format
 msgid "The {cls} {obj} was changed."
 msgstr "{cls} {obj} wurde geändert."
 
-#: evap/evaluation/models_logging.py:107
+#: evap/evaluation/models_logging.py:109
 #, python-brace-format
 msgid "A {cls} was changed."
 msgstr "{cls} wurde geändert."
 
-#: evap/evaluation/models_logging.py:110
+#: evap/evaluation/models_logging.py:112
 #, python-brace-format
 msgid "The {cls} {obj} was created."
 msgstr "{cls} {obj} wurde erstellt."
 
-#: evap/evaluation/models_logging.py:112
+#: evap/evaluation/models_logging.py:114
 #, python-brace-format
 msgid "A {cls} was created."
 msgstr "{cls} wurde erstellt."
 
-#: evap/evaluation/models_logging.py:114
+#: evap/evaluation/models_logging.py:116
 #, python-brace-format
 msgid "A {cls} was deleted."
 msgstr "{cls} wurde gelöscht."
@@ -2619,16 +2619,16 @@ msgid "Redemptions"
 msgstr "Einlösungen"
 
 #: evap/rewards/exporters.py:12 evap/staff/templates/staff_user_merge.html:50
-#: evap/staff/views.py:1507 evap/staff/views.py:2141
+#: evap/staff/views.py:1508 evap/staff/views.py:2142
 msgid "Last name"
 msgstr "Nachname"
 
 #: evap/rewards/exporters.py:13 evap/staff/templates/staff_user_merge.html:38
-#: evap/staff/views.py:1507 evap/staff/views.py:2141
+#: evap/staff/views.py:1508 evap/staff/views.py:2142
 msgid "First name"
 msgstr "Vorname"
 
-#: evap/rewards/exporters.py:15 evap/rewards/views.py:168
+#: evap/rewards/exporters.py:15 evap/rewards/views.py:173
 msgid "Number of points"
 msgstr "Anzahl der Punkte"
 
@@ -2839,23 +2839,23 @@ msgid ""
 "well."
 msgstr "Wir freuen uns auch auf dein Feedback in den anderen Evaluierungen."
 
-#: evap/rewards/views.py:48
+#: evap/rewards/views.py:49
 msgid "You successfully redeemed your points."
 msgstr "Punkte erfolgreich eingelöst."
 
-#: evap/rewards/views.py:57
+#: evap/rewards/views.py:59
 msgid "You cannot redeem 0 points."
 msgstr "Du kannst nicht 0 Punkte einlösen."
 
-#: evap/rewards/views.py:59
+#: evap/rewards/views.py:61
 msgid "You don't have enough reward points."
 msgstr "Du hast nicht genügend Belohnungspunkte."
 
-#: evap/rewards/views.py:61
+#: evap/rewards/views.py:63
 msgid "Sorry, the deadline for this event expired already."
 msgstr "Sorry, die Frist für diese Veranstaltung ist bereits abgelaufen."
 
-#: evap/rewards/views.py:65
+#: evap/rewards/views.py:67
 msgid ""
 "It appears that your browser sent multiple redemption requests. You can see "
 "all successful redemptions below."
@@ -2863,19 +2863,19 @@ msgstr ""
 "Dein Browser scheint mehrere Anfragen zum Einlösen geschickt zu haben. Du "
 "kannst alle erfolgreichen Einlösungen unten sehen."
 
-#: evap/rewards/views.py:83
+#: evap/rewards/views.py:88
 msgid "Reward for"
 msgstr "Belohnung für"
 
-#: evap/rewards/views.py:125
+#: evap/rewards/views.py:130
 msgid "Successfully created event."
 msgstr "Veranstaltung erfolgreich erstellt."
 
-#: evap/rewards/views.py:134
+#: evap/rewards/views.py:139
 msgid "Successfully updated event."
 msgstr "Veranstaltung erfolgreich geändert."
 
-#: evap/rewards/views.py:154 evap/rewards/views.py:164
+#: evap/rewards/views.py:159 evap/rewards/views.py:169
 msgid "RewardPoints"
 msgstr "Belohnungspunkte"
 
@@ -5458,50 +5458,50 @@ msgstr "E-Mails für '%s' wurden erfolgreich versendet."
 msgid "{} participants were deleted from evaluation {}"
 msgstr "{} Teilnehmende wurden aus der Evaluierung {} entfernt"
 
-#: evap/staff/views.py:1396
+#: evap/staff/views.py:1397
 msgid "{} contributors were deleted from evaluation {}"
 msgstr "{} Mitwirkende wurden aus der Evaluierung {} entfernt"
 
-#: evap/staff/views.py:1507
+#: evap/staff/views.py:1508
 msgid "Login key"
 msgstr "Anmeldeschlüssel"
 
-#: evap/staff/views.py:1782 evap/staff/views.py:1884 evap/staff/views.py:1929
+#: evap/staff/views.py:1783 evap/staff/views.py:1885 evap/staff/views.py:1930
 msgid "Successfully created questionnaire."
 msgstr "Fragebogen erfolgreich erstellt."
 
-#: evap/staff/views.py:1848
+#: evap/staff/views.py:1849
 msgid "Successfully updated questionnaire."
 msgstr "Fragebogen erfolgreich geändert."
 
-#: evap/staff/views.py:1904
+#: evap/staff/views.py:1905
 msgid ""
 "Questionnaire creation aborted. A new version was already created today."
 msgstr ""
 "Fragebogen-Erstellung abgebrochen. Es wurde heute bereits eine neue Version "
 "angelegt."
 
-#: evap/staff/views.py:2014
+#: evap/staff/views.py:2015
 msgid "Successfully updated the degrees."
 msgstr "Studiengänge erfolgreich geändert."
 
-#: evap/staff/views.py:2029
+#: evap/staff/views.py:2030
 msgid "Successfully updated the course types."
 msgstr "Veranstaltungstypen erfolgreich geändert."
 
-#: evap/staff/views.py:2054
+#: evap/staff/views.py:2055
 msgid "Successfully merged course types."
 msgstr "Veranstaltungstypen erfolgreich zusammengeführt."
 
-#: evap/staff/views.py:2076
+#: evap/staff/views.py:2077
 msgid "Successfully updated text warning answers."
 msgstr "Textantwort-Warnungen erfolgreich geändert."
 
-#: evap/staff/views.py:2155
+#: evap/staff/views.py:2156
 msgid "Successfully created user."
 msgstr "Account erfolgreich erstellt."
 
-#: evap/staff/views.py:2210
+#: evap/staff/views.py:2211
 #, python-brace-format
 msgid ""
 "The removal of evaluations has granted the user \"{granting.user_profile."
@@ -5518,19 +5518,19 @@ msgstr[1] ""
 "user_profile.email}\" {granting.value} Belohnungspunkte für das aktive "
 "Semester vergeben."
 
-#: evap/staff/views.py:2227
+#: evap/staff/views.py:2228
 msgid "Successfully updated user."
 msgstr "Account erfolgreich geändert."
 
-#: evap/staff/views.py:2253
+#: evap/staff/views.py:2254
 msgid "Successfully deleted user."
 msgstr "Account erfolgreich gelöscht."
 
-#: evap/staff/views.py:2270
+#: evap/staff/views.py:2271
 msgid "Successfully resent evaluation started email."
 msgstr "E-Mail über den Evaluierungsbeginn erfolgreich erneut gesendet."
 
-#: evap/staff/views.py:2299
+#: evap/staff/views.py:2300
 msgid ""
 "An error happened when processing the file. Make sure the file meets the "
 "requirements."
@@ -5538,29 +5538,29 @@ msgstr ""
 "Ein Fehler ist bei der Verarbeitung der Datei aufgetreten. Stelle sicher, "
 "dass die Datei allen Anforderungen genügt."
 
-#: evap/staff/views.py:2364
+#: evap/staff/views.py:2365
 msgid "Merging the users failed. No data was changed."
 msgstr ""
 "Das Zusammenführen der Accounts ist fehlgeschlagen. Es wurden keine Daten "
 "verändert."
 
-#: evap/staff/views.py:2366
+#: evap/staff/views.py:2367
 msgid "Successfully merged users."
 msgstr "Accounts erfolgreich zusammengeführt."
 
-#: evap/staff/views.py:2388
+#: evap/staff/views.py:2389
 msgid "Successfully updated template."
 msgstr "Vorlage erfolgreich geändert."
 
-#: evap/staff/views.py:2433
+#: evap/staff/views.py:2434
 msgid "Successfully updated the FAQ sections."
 msgstr "FAQ-Abschnitte erfolgreich geändert."
 
-#: evap/staff/views.py:2451
+#: evap/staff/views.py:2452
 msgid "Successfully updated the FAQ questions."
 msgstr "FAQ-Fragen erfolgreich geändert."
 
-#: evap/staff/views.py:2463
+#: evap/staff/views.py:2464
 msgid "Successfully updated the infotext entries."
 msgstr "Infotexte erfolgreich geändert."
 
@@ -5568,7 +5568,27 @@ msgstr "Infotexte erfolgreich geändert."
 msgid "Warning order"
 msgstr "Reihenfolge"
 
-#: evap/student/templates/student_index.html:23
+#: evap/student/templates/student_global_reward.html:6
+msgid "Fundraising"
+msgstr "Spendenaktion"
+
+#: evap/student/templates/student_global_reward.html:9
+#, python-format
+msgid "Last evaluation: %(time_interval)s ago"
+msgstr "Letzte Evaluierung: Vor %(time_interval)s"
+
+#: evap/student/templates/student_global_reward.html:21
+#, python-format
+msgid "%(votes)s submitted evaluation (%(percent)s)"
+msgid_plural "%(votes)s submitted evaluations (%(percent)s)"
+msgstr[0] "%(votes)s abgesendete Evaluierung (%(percent)s)"
+msgstr[1] "%(votes)s abgesendete Evaluierungen (%(percent)s)"
+
+#: evap/student/templates/student_global_reward.html:42
+msgid "Every vote counts! Read more about our fundraising goal."
+msgstr "Jede Stimme zählt! Erfahre mehr über unser Spendenziel."
+
+#: evap/student/templates/student_index.html:25
 msgid "Open and upcoming evaluations"
 msgstr "Laufende und bevorstehende Evaluierungen"
 
@@ -5812,6 +5832,6 @@ msgstr "Textantwort zu dieser Frage hinzufügen"
 msgid "After publishing, this text answer can be seen by:"
 msgstr "Nach dem Veröffentlichen können diese Textantwort sehen:"
 
-#: evap/student/views.py:256
+#: evap/student/views.py:325
 msgid "Your vote was recorded."
 msgstr "Deine Antworten wurden gespeichert."

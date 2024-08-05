@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-17 20:37+0200\n"
+"POT-Creation-Date: 2024-07-06 13:53+0200\n"
 "PO-Revision-Date: 2023-12-18 18:41+0100\n"
 "Last-Translator: Johannes Wolf <janno42@posteo.de>\n"
 "Language-Team: Johannes Wolf (janno42)\n"
@@ -22,10 +22,10 @@ msgstr ""
 msgid "The server is not responding."
 msgstr "Der Server reagiert nicht."
 
-#: evap/static/js/sortable-form.js:23 evap/static/js/sortable_form.js:19
+#: evap/static/js/sortable_form.js:19
 msgid "Delete"
 msgstr "Löschen"
 
-#: evap/static/js/sortable-form.js:24 evap/static/js/sortable_form.js:20
+#: evap/static/js/sortable_form.js:20
 msgid "add another"
 msgstr "Weitere·n hinzufügen"
