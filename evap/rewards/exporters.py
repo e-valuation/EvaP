@@ -17,5 +17,5 @@ class RewardsExporter(ExcelExporter):
             "bold",
         )
 
-        for user, value in redemptions_by_user.items():
-            self.write_row([user.last_name, user.first_name, user.email, value])
+        for user in redemptions_by_user:
+            self.write_row([user.last_name, user.first_name, user.email, user.points])
