@@ -2385,10 +2385,38 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
 
         form = page.forms["participant-copy-form"]
         form["pc-evaluation"] = str(self.evaluation2.pk)
-        page = submit_with_modal(page, form, name="operation", value="copy-participants")
+        page = submit_with_modal(page, form, name="operation", value="copy-participants").follow()
 
         self.assertEqual(
             self.evaluation.participants.count(), original_participant_count + self.evaluation2.participants.count()
+        )
+        self.assertContains(
+            page,
+            f"{self.evaluation2.participants.count()} participants added to the evaluation {self.evaluation.name}",
+            msg_prefix="Importer log message should appear",
+        )
+
+    def test_copy_invalid_participants(self):
+        old_evaluation = baker.make(
+            Evaluation,
+            course__semester=self.evaluation2.course.semester,
+            participants=self.evaluation2.participants.all(),
+        )
+        page = self.app.get(self.url, user=self.manager)
+        old_pk = old_evaluation.pk
+        old_evaluation.delete()
+
+        form = page.forms["participant-copy-form"]
+        form["pc-evaluation"] = old_pk
+        response = submit_with_modal(page, form, name="operation", value="copy-participants", status=200)
+        self.assertIn(
+            "Please select an evaluation from the dropdown menu.", response.forms["participant-copy-form"].text
+        )
+
+        form["pc-evaluation"] = ""
+        response = submit_with_modal(page, form, name="operation", value="copy-participants", status=200)
+        self.assertIn(
+            "Please select an evaluation from the dropdown menu.", response.forms["participant-copy-form"].text
         )
 
     def test_replace_copy_participants(self):
@@ -2398,9 +2426,14 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
 
         form = page.forms["participant-copy-form"]
         form["pc-evaluation"] = str(self.evaluation2.pk)
-        page = submit_with_modal(page, form, name="operation", value="copy-replace-participants")
+        page = submit_with_modal(page, form, name="operation", value="copy-replace-participants").follow()
 
         self.assertEqual(self.evaluation.participants.count(), self.evaluation2.participants.count())
+        self.assertContains(
+            page,
+            f"{self.evaluation2.participants.count()} participants added to the evaluation {self.evaluation.name}",
+            msg_prefix="Importer log message should appear",
+        )
 
     def test_import_valid_contributors_file(self):
         page = self.app.get(self.url, user=self.manager)
@@ -2417,14 +2450,14 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         )
 
         form = page.forms["contributor-import-form"]
-        submit_with_modal(page, form, name="operation", value="import-contributors")
+        page = submit_with_modal(page, form, name="operation", value="import-contributors").follow()
         self.assertEqual(
             UserProfile.objects.filter(contributions__evaluation=self.evaluation).count(),
             original_contributor_count + 2,
         )
 
-        page = self.app.get(self.url, user=self.manager)
         self.assertNotContains(page, "Import previously uploaded file")
+        self.assertContains(page, "Successfully read Excel file.", msg_prefix="Importer log message should appear")
 
     def test_replace_valid_contributors_file(self):
         page = self.app.get(self.url2, user=self.manager)
@@ -2436,11 +2469,11 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         self.assertNotEqual(UserProfile.objects.filter(contributions__evaluation=self.evaluation2).count(), 2)
 
         form = page.forms["contributor-import-form"]
-        submit_with_modal(page, form, name="operation", value="import-replace-contributors")
+        page = submit_with_modal(page, form, name="operation", value="import-replace-contributors").follow()
         self.assertEqual(UserProfile.objects.filter(contributions__evaluation=self.evaluation2).count(), 2)
 
-        page = self.app.get(self.url, user=self.manager)
         self.assertNotContains(page, "Import previously uploaded file")
+        self.assertContains(page, "Successfully read Excel file.", msg_prefix="Importer log message should appear")
 
     def test_copy_contributors(self):
         page = self.app.get(self.url, user=self.manager)
@@ -2449,12 +2482,17 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
 
         form = page.forms["contributor-copy-form"]
         form["cc-evaluation"] = str(self.evaluation2.pk)
-        page = submit_with_modal(page, form, name="operation", value="copy-contributors")
+        page = submit_with_modal(page, form, name="operation", value="copy-contributors").follow()
 
         new_contributor_count = UserProfile.objects.filter(contributions__evaluation=self.evaluation).count()
         self.assertEqual(
             new_contributor_count,
             original_contributor_count + UserProfile.objects.filter(contributions__evaluation=self.evaluation2).count(),
+        )
+        self.assertContains(
+            page,
+            f"added to the evaluation {self.evaluation.name}",
+            msg_prefix="Importer log message should appear",
         )
 
     def test_copy_replace_contributors(self):
@@ -2467,11 +2505,16 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
 
         form = page.forms["contributor-copy-form"]
         form["cc-evaluation"] = str(self.evaluation2.pk)
-        page = submit_with_modal(page, form, name="operation", value="copy-replace-contributors")
+        page = submit_with_modal(page, form, name="operation", value="copy-replace-contributors").follow()
 
         new_contributor_count = UserProfile.objects.filter(contributions__evaluation=self.evaluation).count()
         self.assertEqual(
             new_contributor_count, UserProfile.objects.filter(contributions__evaluation=self.evaluation2).count()
+        )
+        self.assertContains(
+            page,
+            f"added to the evaluation {self.evaluation.name}",
+            msg_prefix="Importer log message should appear",
         )
 
     def test_import_participants_error_handling(self):
