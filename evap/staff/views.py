@@ -2279,7 +2279,7 @@ def user_delete(request):
         raise SuspiciousOperation("Deleting user not allowed")
     user.delete()
     messages.success(request, _("Successfully deleted user."))
-    return HttpResponse()  # 200 OK
+    return redirect("staff:user_index")
 
 
 @require_POST
