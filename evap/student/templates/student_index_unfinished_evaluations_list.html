@@ -26,6 +26,9 @@
                 <td class="width-percent-20 text-end">
                     {% if evaluation.state == evaluation.State.IN_EVALUATION and not evaluation.voted_for and evaluation.is_in_evaluation_period  %}
                         <a class="btn btn-sm btn-primary btn-row-hover" href="{% url 'student:vote' evaluation.id %}">{% translate 'Evaluate' %}</a>
+                        <a class="btn btn-sm btn-secondary" title="{% translate 'I dropped this course' %}" data-bs-toggle="tooltip" data-bs-placement="top" href="{% url 'student:drop' evaluation.id %}">
+                            <span class="fas fa-user-xmark"></span>
+                        </a>
                     {% endif %}
                 </td>
             </tr>
