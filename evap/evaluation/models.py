@@ -463,6 +463,8 @@ class Evaluation(LoggedModel):
     # Disable to prevent editors from changing evaluation data
     allow_editors_to_edit = models.BooleanField(verbose_name=_("allow editors to edit"), default=True)
 
+    allow_drop_out = models.BooleanField(verbose_name=_("allow students to drop out"), default=True)
+
     evaluation_evaluated = Signal()
 
     # whether to wait for grade uploading before publishing results
