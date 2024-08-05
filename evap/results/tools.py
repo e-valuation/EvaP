@@ -485,39 +485,40 @@ def can_textanswer_be_seen_by(  # noqa: PLR0911,PLR0912
 
     # NOTE: when changing this behavior, make sure all changes are also reflected in results.tools.textanswers_visible_to
     # and in results.tests.test_tools.TestTextAnswerVisibilityInfo
-    if textanswer.is_public:
-        if textanswer.contribution.is_general:
-            if view_general_results == "full":
-                # reviewer can see everything
-                if user.is_reviewer:
-                    return True
-
-                # user can see general textanswer if represented user can see it
-                if textanswer.contribution.evaluation.contributions.filter(
-                    contributor__in=represented_users,
-                    textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-                ).exists():
-                    return True
-
-                # the people responsible for a course can see all general text answers for all its evaluations
-                if any(
-                    user in represented_users  # includes self
-                    for user in textanswer.contribution.evaluation.course.responsibles.all()
-                ):
-                    return True
-        else:
-            if view_contributor_results == "personal":
-                return contributor == user
-            if view_contributor_results == "full":
-                if user.is_reviewer:
-                    return True
-                # users can see textanswers if the contributor is one of their represented users (which includes the user itself)
-                if contributor in represented_users:
-                    return True
-    elif textanswer.is_private:
-        # private textanswers should only be seen by the contributor and reviewer
-        if view_contributor_results in ("personal", "full"):
+    if textanswer.contribution.is_general:
+        if view_general_results == "ratings":
+            return False
+        elif view_general_results == "full":
+            # reviewer can see everything
             if user.is_reviewer:
                 return True
+
+            # user can see general textanswer if represented user can see it
+            if textanswer.contribution.evaluation.contributions.filter(
+                contributor__in=represented_users,
+                textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            ).exists():
+                return True
+
+            # the people responsible for a course can see all general text answers for all its evaluations
+            if any(
+                user in represented_users  # includes self
+                for user in textanswer.contribution.evaluation.course.responsibles.all()
+            ):
+                return True
+        else: 
+            return False
+    else:
+        if view_contributor_results == "ratings": 
+            return False
+        if user.is_reviewer:
+            return True
+        if view_contributor_results == "personal" or textanswer.is_private: # private textanswers should only be seen by the contributor and reviewer
             return contributor == user
+        if view_contributor_results == "full":
+            # users can see textanswers if the contributor is one of their represented users (which includes the user itself)
+            if contributor in represented_users:
+                return True
+
+        
     return False
