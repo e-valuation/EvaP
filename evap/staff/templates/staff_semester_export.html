@@ -72,14 +72,13 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script src="{% static 'js/sortable_form.js' %}"></script>
-
-    <script type="text/javascript">
-        rowChanged = function(row) {
-            id = row.find("input[id$=-id]").val();
+    <script type="module">
+        import { makeFormSortable } from "{% static 'js/sortable-form.js' %}";
+        const rowChanged = function(row) {
+            const id = row.querySelector("input[id$=-id]")?.value;
             return id;
         };
-        rowAdded = function(row) { };
-        makeFormSortable("exportsheets-table", "form", rowChanged, rowAdded, "", false, false);
+        const rowAdded = function(row) { };
+        makeFormSortable("exportsheets-table", "form", rowChanged, rowAdded, false, false);
     </script>
 {% endblock %}
