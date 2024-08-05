@@ -9,6 +9,11 @@ updates:
     labels:
       - "[T] Dependencies"
     versioning-strategy: "increase-if-necessary"
+    ignore:
+      - dependency-name: "django-stubs"
+        update-types: ["version-update:semver-patch"]
+      - dependency-name: "ruff"
+        update-types: ["version-update:semver-patch"]
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
