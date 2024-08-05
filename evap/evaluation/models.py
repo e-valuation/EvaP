@@ -1643,6 +1643,12 @@ class UserProfileManager(BaseUserManager):
         user.groups.add(Group.objects.get(name="Manager"))
         return user
 
+    def get_by_natural_key(self, pk, email):  # type: ignore[misc] # pylint: disable=arguments-differ  # natural_key is defined like this below
+        candidate = self.get(pk=pk)
+        if candidate.email != email:
+            raise self.model.DoesNotExist
+        return candidate
+
 
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     # null=True because certain external users don't have an address
@@ -1683,6 +1689,9 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True, verbose_name=_("active"))
 
     notes = models.TextField(verbose_name=_("notes"), blank=True, default="", max_length=1024 * 1024)
+
+    def natural_key(self):
+        return self.pk, self.email
 
     class StartPage(models.TextChoices):
         DEFAULT = "DE", _("default")
