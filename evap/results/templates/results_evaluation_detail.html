@@ -33,40 +33,40 @@
                 <h3 class="mb-0">{{ evaluation.full_name }} ({{ evaluation.course.semester.name }})</h3>
             </div>
             <div class="col-auto">
-                {% if can_see_general_textanswers %}
-                <div class="row">
-                    <div class="col-auto">
-                        <div class="btn-switch btn-switch-light my-auto d-print-none">
-                            <div class="btn-switch-label">{% translate 'General results' %}</div>
-                            <div class="btn-switch btn-group">
+                
+                    <div class="row">
+                        <div class="col-auto">
+                            <div class="btn-switch btn-switch-light my-auto d-print-none">
+                                <div class="btn-switch-label">{% translate 'General results' %}</div>
+                                <div class="btn-switch btn-group">
 
+                                        <a
+                                            href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results=full&view_contributor_results={{view_contributor_results}}"
+                                            role="button"
+                                            class="btn btn-sm btn-light{% if view_general_results == 'full' %} active{% endif %} {% if not can_see_general_textanswers %} disabled {% endif %}"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="bottom"
+                                            title="{% blocktranslate %}All results of general questions (including text answers){% endblocktranslate %}"
+                                        >
+                                            {% translate 'Full'%}
+                                        </a>
+            
+                                    
                                     <a
-                                        href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results=full&view_contributor_results={{view_contributor_results}}"
+                                        href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results=ratings&view_contributor_results={{view_contributor_results}}"
                                         role="button"
-                                        class="btn btn-sm btn-light{% if view_general_results == 'full' %} active{% endif %}"
+                                        class="btn btn-sm btn-light{% if view_general_results == 'ratings' %} active{% endif %} {% if not can_see_general_textanswers %} disabled {% endif %}"
                                         data-bs-toggle="tooltip"
                                         data-bs-placement="bottom"
-                                        title="{% blocktranslate %}All results of general questions (including text answers){% endblocktranslate %}"
+                                        title="{% translate 'Only rating results of general questions (without text answers)' %}"
                                     >
-                                        {% translate 'Full'%}
+                                        {% translate 'Ratings' %}
                                     </a>
-        
-                                
-                                <a
-                                    href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results=ratings&view_contributor_results={{view_contributor_results}}"
-                                    role="button"
-                                    class="btn btn-sm btn-light{% if view_general_results == 'ratings' %} active{% endif %}"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="bottom"
-                                    title="{% translate 'Only rating results of general questions (without text answers)' %}"
-                                >
-                                    {% translate 'Ratings' %}
-                                </a>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                {% endif %}
+                
                 <div class="row mt-1">
                     <div class="col-auto">
                         <div class="btn-switch btn-switch-light my-auto d-print-none">
