@@ -82,7 +82,7 @@ class ImportStatistics:
 
     @staticmethod
     def _make_heading(heading: str, separator: str = "-") -> str:
-        return "\n" + separator * len(heading) + "\n"
+        return f"{heading}\n{separator * len(heading)}\n"
 
     @staticmethod
     def _make_total(total: int) -> str:
