@@ -5,7 +5,7 @@ from collections.abc import Container
 from dataclasses import dataclass
 from datetime import date, datetime
 from enum import Enum
-from typing import Any, Literal, cast
+from typing import Any, Literal, cast, Final
 
 import openpyxl
 from django.conf import settings
@@ -1408,7 +1408,7 @@ def import_or_copy_participants(
     request,
     replace: bool,
     import_action: Literal[ImportAction.COPY, ImportAction.IMPORT],
-    import_type: ImportType,
+    import_type: Literal[ImportType.PARTICIPANT, ImportType.CONTRIBUTOR],
     evaluation: Evaluation,
     copy_form: EvaluationParticipantCopyForm,
 ) -> bool:
@@ -1421,6 +1421,8 @@ def import_or_copy_participants(
             deleted_person_count = evaluation.contributions.exclude(contributor=None).count()
             deletion_message = _("{} contributors were deleted from evaluation {}")
             evaluation.contributions.exclude(contributor=None).delete()
+        else:
+            assert_never(import_type)
     if import_action == ImportAction.IMPORT:
         file_content = get_import_file_content_or_raise(request.user.id, import_type)
         importer_log = import_persons_from_file(import_type, evaluation, test_run=False, file_content=file_content)
@@ -1481,7 +1483,7 @@ def evaluation_person_management(request, evaluation_id: int):
             raise SuspiciousOperation("Invalid POST operation")
 
         import_action = ImportAction.from_operation(operation)
-        import_type = ImportType.PARTICIPANT if "participants" in operation else ImportType.CONTRIBUTOR
+        import_type: Final = ImportType.PARTICIPANT if "participants" in operation else ImportType.CONTRIBUTOR
         excel_form = participant_excel_form if "participants" in operation else contributor_excel_form
         copy_form = participant_copy_form if "participants" in operation else contributor_copy_form
 
@@ -1498,7 +1500,7 @@ def evaluation_person_management(request, evaluation_id: int):
                     save_import_file(excel_file, request.user.id, import_type)
         else:
             successfully_processed = import_or_copy_participants(
-                request, "-replace-" in operation, import_action, import_type, evaluation, copy_form
+                request, "-replace-" in operation, import_action, import_type, evaluation, copy_form  # type: ignore[arg-type]  # fixed at mypy master with https://www.github.com/python/mypy/pull/17427
             )
             if successfully_processed:
                 return redirect("staff:semester_view", evaluation.course.semester.pk)
