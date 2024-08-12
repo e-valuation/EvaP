@@ -2033,7 +2033,7 @@ class TestEvaluationExamCreation(WebTestStaffMode):
             self.app.post(
                 self.url,
                 user=self.manager,
-                status=200,
+                status=400,
                 params={"evaluation_id": self.evaluation.pk, "exam_date": self.exam_datetime},
             )
 
