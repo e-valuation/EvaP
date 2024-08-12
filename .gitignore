@@ -58,3 +58,4 @@ setup.cfg
 
 data/
 /result
+overrides.nix
