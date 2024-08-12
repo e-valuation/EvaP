@@ -20,13 +20,24 @@
       ];
       systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
       perSystem = { self', inputs', pkgs, system, ... }:
+        let
+          fs = pkgs.lib.fileset;
+          projectDir = fs.toSource {
+            root = ./.;
+            fileset = fs.difference ./. (fs.unions [
+              (fs.maybeMissing ./result)
+              (fs.maybeMissing ./custom-nix)
+              ./flake.lock
+            ]);
+          };
+        in
         {
           packages.evap = pkgs.callPackage ./nix/evap.nix {
             poetry2nix = inputs.poetry2nix.lib.mkPoetry2Nix { inherit pkgs; };
-            projectDir = self;
+            inherit projectDir;
           };
           devShells.default = pkgs.callPackage ./nix/shell.nix {
-            projectDir = self;
+            inherit projectDir;
             inherit (self'.packages) evap;
           };
 

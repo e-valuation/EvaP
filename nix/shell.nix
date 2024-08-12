@@ -1,4 +1,4 @@
-{ pkgs, evap, projectDir, ... }:
+{ pkgs, evap, projectDir, extraPackages ? [ ], ... }:
 
 let
   clean-setup = pkgs.writeShellScriptBin "clean-setup" ''
@@ -30,7 +30,7 @@ pkgs.mkShell {
 
     clean-setup
     initialize-setup
-  ];
+  ] ++ extraPackages;
 
   env.PUPPETEER_SKIP_DOWNLOAD = 1;
 

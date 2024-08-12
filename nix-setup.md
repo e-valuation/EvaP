@@ -25,6 +25,35 @@ After your first setup, you should run `./manage.py first-time-setup`.
 Finally, you can start EvaP by running `./manage.py run`.
 Open your browser at http://localhost:8000/ and login with email evap@institution.example.com and password evap.
 
+### Custom Development Shell
+
+If you want to do some additional configuration to the development environment, we recommend the following procedure:
+
+1. Create `custom-nix/flake.nix` with something like the following:
+   ```nix
+   {
+     description = "Evap Custom Config";
+
+     inputs.evap.url = "path:..";
+
+     outputs = { evap, ... }:
+       let
+         system = "x86_64-linux";
+         pkgs = import evap.inputs.nixpkgs { inherit system; };
+       in
+       {
+         devShells.${system}.default = evap.devShells.${system}.default.override {
+           extraPackages = with pkgs; [ hello ];
+         };
+       };
+   }
+   ```
+2. Run `nix flake lock` inside the `custom-nix` directory.
+3. Back in the root directory, run `git add --intent-to-add --force custom-nix/flake.nix custom-nix/flake.lock`.
+4. Run `git update-index --assume-unchanged custom-nix/flake.nix custom-nix/flake.lock`.
+
+Now you can use `./custom-nix` as your shell, for example with `nix develop ./custom-nix`. Make sure to regularly update the referenced version of the main flake, for example by passing `--update-input evap` to `nix develop` (or with `use flake ./custom-nix --update-input evap` in your `.envrc`).
+
 # (wiki article with podman setup)
 
 You can use [`podman`](https://podman.io/) to start a container to develop EvaP.
