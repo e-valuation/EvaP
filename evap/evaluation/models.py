@@ -22,7 +22,6 @@ from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
 from django.db.models import CheckConstraint, Count, Exists, F, Manager, OuterRef, Q, Subquery, Value
 from django.db.models.functions import Coalesce, Lower, NullIf, TruncDate
-from django.db.models.query import QuerySet
 from django.dispatch import Signal, receiver
 from django.http import HttpRequest
 from django.template import Context, Template
@@ -496,7 +495,6 @@ class Evaluation(LoggedModel):
             exam_evaluation.contributions.create(contributor=contribution.contributor)
         exam_evaluation.general_contribution.questionnaires.set(settings.EXAM_QUESTIONNAIRE_IDS)
         exam_evaluation.save()
-
 
     class TextAnswerReviewState(Enum):
         NO_TEXTANSWERS = auto()
