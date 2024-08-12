@@ -31,7 +31,7 @@ from evap.evaluation.tests.tools import (
     render_pages,
 )
 from evap.results.exporters import TextAnswerExporter
-from evap.results.tools import cache_results
+from evap.results.tools import ViewContributorResults, ViewGeneralResults, cache_results
 from evap.results.views import get_evaluations_with_prefetched_data, update_template_cache
 from evap.staff.tests.utils import WebTestStaffMode, helper_exit_staff_mode, run_in_staff_mode
 
@@ -491,32 +491,24 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         cache_results(self.evaluation)
 
         page_without_get_parameter = self.app.get(self.url, user=self.manager)
-        self.assertEqual(page_without_get_parameter.context["view_general_results"], "full")
-        self.assertEqual(page_without_get_parameter.context["view_contributor_results"], "full")
+        self.assertEqual(page_without_get_parameter.context["view_general_results"], ViewGeneralResults.FULL)
+        self.assertEqual(page_without_get_parameter.context["view_contributor_results"], ViewContributorResults.FULL)
 
         page_with_ratings_general_get_parameter = self.app.get(
             self.url + "?view_general_results=ratings", user=self.manager
         )
-        self.assertEqual(page_with_ratings_general_get_parameter.context["view_general_results"], "ratings")
-        self.assertEqual(page_with_ratings_general_get_parameter.context["view_contributor_results"], "full")
+        self.assertEqual(page_with_ratings_general_get_parameter.context["view_general_results"], ViewGeneralResults.RATINGS)
+        self.assertEqual(page_with_ratings_general_get_parameter.context["view_contributor_results"], ViewContributorResults.FULL)
 
         page_with_ratings_general_get_parameter = self.app.get(
             self.url + "?view_contributor_results=ratings", user=self.manager
         )
-        self.assertEqual(page_with_ratings_general_get_parameter.context["view_general_results"], "full")
-        self.assertEqual(page_with_ratings_general_get_parameter.context["view_contributor_results"], "ratings")
+        self.assertEqual(page_with_ratings_general_get_parameter.context["view_general_results"], ViewGeneralResults.FULL)
+        self.assertEqual(page_with_ratings_general_get_parameter.context["view_contributor_results"], ViewContributorResults.RATINGS)
 
-        # digga das doch qustsch unter default view test ihr atzen
-        # page_with_full_general_get_parameter = self.app.get(self.url + "?view_general_results=full", user=self.manager)
-        # self.assertEqual(page_with_full_general_get_parameter.context["view_general_results"], "full")
-
-        page_with_random_get_parameter = self.app.get(
-            self.url + "?view_general_results=josefwarhier&view_contributor_results=yannikwarhier", user=self.manager
+        page_with_random_get_parameter = self.app.get( # raises bad request
+            self.url + "?view_general_results=josefwarhier&view_contributor_results=yannikwarhier", user=self.manager, status=400
         )
-        self.assertEqual(page_with_random_get_parameter.context["view_general_results"], "full")
-        self.assertEqual(page_with_random_get_parameter.context["view_contributor_results"], "full")
-
-        # noch für den anderen param? auch von view_contributor_results
 
     def test_wrong_state(self):
         helper_exit_staff_mode(self)
