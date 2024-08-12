@@ -48,7 +48,7 @@
                                             data-bs-placement="bottom"
                                             title="{% blocktranslate %}All results of general questions (including text answers){% endblocktranslate %}"
                                         >
-                                            {% translate 'Full'%}
+                                            {% translate 'Full' %}
                                         </a>
             
                                     
@@ -73,22 +73,22 @@
                             <div class="btn-switch-label">{% translate 'Contributor results' %}</div>
                             <div class="btn-switch btn-group">
                                 
-                                    <a
-                                        href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results={{view_general_results}}&view_contributor_results=full"
-                                        role="button"
-                                        class="btn btn-sm btn-light{% if view_contributor_results == 'full' %} active{% endif %}"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="bottom"
-                                        title="{% blocktranslate %}All results of contributor questions available for you (including text answers){% endblocktranslate %}"
-                                    >
-                                        {% translate 'Full'%}
-                                    </a>
+                                <a
+                                    href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results={{view_general_results}}&view_contributor_results=full"
+                                    role="button"
+                                    class="btn btn-sm btn-light{% if view_contributor_results == 'full' %} active{% endif %} {% if not can_see_contributor_textanswers %} disabled {% endif %}"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="bottom"
+                                    title="{% blocktranslate %}All results of contributor questions available for you (including text answers){% endblocktranslate %}"
+                                >
+                                    {% translate 'Full'%}
+                                </a>
         
                                 
                                 <a
                                     href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results={{view_general_results}}&view_contributor_results=ratings"
                                     role="button"
-                                    class="btn btn-sm btn-light{% if view_contributor_results == 'ratings' %} active{% endif %}"
+                                    class="btn btn-sm btn-light{% if view_contributor_results == 'ratings' %} active{% endif %} {% if not can_see_contributor_textanswers %} disabled {% endif %}"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="bottom"
                                     title="{% translate 'Only rating results of contributor questions (without text answers)' %}"
@@ -99,7 +99,7 @@
                                     <a
                                         href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results={{view_general_results}}&view_contributor_results=personal"
                                         role="button"
-                                        class="btn btn-sm btn-light{% if view_contributor_results == 'personal' %} active{% endif %}"
+                                        class="btn btn-sm btn-light{% if view_contributor_results == 'personal' %} active{% endif %} {% if not can_see_contributor_textanswers %} disabled {% endif %}"
                                         data-bs-toggle="tooltip"
                                         data-bs-placement="bottom"
                                         title="{% translate 'All results of contributor questions regarding yourself, hiding other contributors' %}"
