@@ -1,18 +1,5 @@
 {
   "nodes": {
-    "custom-overrides": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1,
-        "narHash": "sha256-du/RhhwV3yZy42UcBN9qAG7KRJnu24GZt1Wccui1R8s=",
-        "path": "overrides.nix",
-        "type": "path"
-      },
-      "original": {
-        "path": "overrides.nix",
-        "type": "path"
-      }
-    },
     "flake-parts": {
       "inputs": {
         "nixpkgs-lib": "nixpkgs-lib"
@@ -145,7 +132,6 @@
     },
     "root": {
       "inputs": {
-        "custom-overrides": "custom-overrides",
         "flake-parts": "flake-parts",
         "nixpkgs": "nixpkgs",
         "poetry2nix": "poetry2nix",

@@ -58,4 +58,4 @@ setup.cfg
 
 data/
 /result
-overrides.nix
+my-shell.nix
