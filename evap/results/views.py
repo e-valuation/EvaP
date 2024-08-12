@@ -11,7 +11,7 @@ from django.template.loader import get_template
 from django.utils import translation
 
 from evap.evaluation.auth import internal_required
-from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
+from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, TextAnswer, UserProfile
 from evap.evaluation.tools import AttachmentResponse, unordered_groupby
 from evap.results.exporters import TextAnswerExporter
 from evap.results.tools import (
@@ -232,6 +232,7 @@ def evaluation_detail(request, semester_id, evaluation_id):
             if evaluation.is_user_contributor(view_as_user)
             else False
         ),
+        "can_see_contributor_textanswers": TextAnswer.objects.filter(contribution__contributor=view_as_user, contribution__evaluation=evaluation).exists()
     }
     return render(request, "results_evaluation_detail.html", template_data)
 
