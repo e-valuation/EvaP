@@ -27,6 +27,9 @@ class RewardPointRedemptionEvent(models.Model):
     name = models.CharField(max_length=1024, verbose_name=_("event name"))
     date = models.DateField(verbose_name=_("event date"))
     redeem_end_date = models.DateField(verbose_name=_("redemption end date"))
+    step = models.PositiveSmallIntegerField(
+        verbose_name=_("redemption step"), help_text=_("Only multiples of this step can be redeemed."), default=1
+    )
 
     @property
     def can_delete(self):
