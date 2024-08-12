@@ -1,6 +1,7 @@
 from collections import OrderedDict, defaultdict
 from collections.abc import Iterable
 from copy import copy
+from enum import Enum
 from math import ceil, modf
 from typing import TypeGuard, cast
 
@@ -34,6 +35,17 @@ GRADE_COLORS = {
     4: (242, 158, 88),
     5: (235, 89, 90),
 }
+
+
+class ViewGeneralResults(Enum):
+    FULL = "full"
+    RATINGS = "ratings"
+
+
+class ViewContributorResults(Enum):
+    FULL = "full"
+    RATINGS = "ratings"
+    PERSONAL = "personal"
 
 
 class TextAnswerVisibility:
@@ -477,8 +489,8 @@ def can_textanswer_be_seen_by(  # noqa: PLR0911,PLR0912
     user: UserProfile,
     represented_users: list[UserProfile],
     textanswer: TextAnswer,
-    view_general_results: str,
-    view_contributor_results: str,
+    view_general_results: ViewGeneralResults,
+    view_contributor_results: ViewContributorResults,
 ) -> bool:
     assert textanswer.review_decision in [TextAnswer.ReviewDecision.PRIVATE, TextAnswer.ReviewDecision.PUBLIC]
     contributor = textanswer.contribution.contributor
@@ -486,9 +498,9 @@ def can_textanswer_be_seen_by(  # noqa: PLR0911,PLR0912
     # NOTE: when changing this behavior, make sure all changes are also reflected in results.tools.textanswers_visible_to
     # and in results.tests.test_tools.TestTextAnswerVisibilityInfo
     if textanswer.contribution.is_general:
-        if view_general_results == "ratings":
+        if view_general_results == ViewGeneralResults.RATINGS:
             return False
-        elif view_general_results == "full":
+        elif view_general_results == ViewGeneralResults.FULL:
             # reviewer can see everything
             if user.is_reviewer:
                 return True
@@ -506,19 +518,20 @@ def can_textanswer_be_seen_by(  # noqa: PLR0911,PLR0912
                 for user in textanswer.contribution.evaluation.course.responsibles.all()
             ):
                 return True
-        else: 
+        else:
             return False
     else:
-        if view_contributor_results == "ratings": 
+        if view_contributor_results == ViewContributorResults.RATINGS:
             return False
         if user.is_reviewer:
             return True
-        if view_contributor_results == "personal" or textanswer.is_private: # private textanswers should only be seen by the contributor and reviewer
+        if (
+            view_contributor_results == ViewContributorResults.PERSONAL or textanswer.is_private
+        ):  # private textanswers should only be seen by the contributor and reviewer
             return contributor == user
-        if view_contributor_results == "full":
+        if view_contributor_results == ViewContributorResults.FULL:
             # users can see textanswers if the contributor is one of their represented users (which includes the user itself)
             if contributor in represented_users:
                 return True
 
-        
     return False
