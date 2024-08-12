@@ -7,22 +7,6 @@ from django.utils.translation import gettext_lazy as _
 from evap.evaluation.models import Semester, UserProfile
 
 
-class NoPointsSelectedError(Exception):
-    """An attempt has been made to redeem <= 0 points."""
-
-
-class NotEnoughPointsError(Exception):
-    """An attempt has been made to redeem more points than available."""
-
-
-class OutdatedRedemptionDataError(Exception):
-    """A redemption request has been sent with outdated data, e.g. when a request has been sent twice."""
-
-
-class RedemptionEventExpiredError(Exception):
-    """An attempt has been made to redeem more points for an event whose redeem_end_date lies in the past."""
-
-
 class RewardPointRedemptionEvent(models.Model):
     name = models.CharField(max_length=1024, verbose_name=_("event name"))
     date = models.DateField(verbose_name=_("event date"))
