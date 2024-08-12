@@ -40,6 +40,7 @@
 
                     <confirmation-modal type="submit" confirm-button-class="btn-danger">
                         <span slot="title">{% translate 'Delete semester' %}</span>
+                        <span slot="action-text">{% translate 'Delete semester' %}</span>
                         <span slot="question">
                             {% blocktranslate trimmed with semester_name=semester.name %}
                                 Do you really want to delete the semester <strong>{{ semester_name }}</strong>?
@@ -51,10 +52,6 @@
                         <div slot="extra-inputs">
                             <input type="text" name="validated-semester-name" data-must-equal="{{ semester.name }}" class="form-control" />
                         </div>
-
-                        <span slot="submit-group">
-                            <button class="btn btn-danger ms-2">{% translate 'Delete semester' %}</button>
-                        </span>
 
                         <button
                             slot="show-button"
