@@ -181,7 +181,7 @@
                 <span class="fas fa-fw fa-copy"></span>
             </a>
             {% if not evaluation.has_exam %}
-                <confirmation-modal type="submit" id="exam_creation_modal" name="evaluation_id" value="{{ evaluation.id }}" confirm-button-class="btn-primary" form="exam_creation_form_{{ evaluation.id }}">
+                <confirmation-modal type="submit" name="evaluation_id" value="{{ evaluation.id }}" confirm-button-class="btn-primary" form="exam_creation_form">
                     <span slot="title">{% translate 'Create exam evaluation' %}</span>
                     <span slot="action-text" id="submit_button">{% translate 'Create exam evaluation' %}</span>
                     <span slot="question">
@@ -190,8 +190,10 @@
                         {% endblocktranslate %}
                     </span>
                     <div slot="extra-inputs">
-                        <label for="exam_date">{% translate 'Exam Date:' %}</label>
-                        <input type="date" id="exam_date" name="exam_date" data-must-before="{{ evaluation.vote_start_datetime }}" class="form-control" required form="exam_creation_form_{{ evaluation.id }}"/>
+                        <label>
+                            {% translate 'Exam Date:' %}
+                            <input type="date" name="exam_date" evaluationDate="{{ evaluation.vote_start_datetime }}" class="form-control" required form="exam_creation_form"/>
+                        </label>
                     </div>
 
                     <button slot="show-button" type="button" class="btn btn-sm btn-light" title="{% translate 'Create exam evaluation' %}" data-bs-placement="top" data-bs-toggle="tooltip"><span class="fas fa-file-pen fa-fw"></span></button>
@@ -199,7 +201,7 @@
                     <script type="text/javascript">
                         document.getElementById('submit_button').addEventListener('click', function(event) {
                             var inputDate = new Date(document.getElementById('exam_date').value);
-                            var evaluationDate = new Date(document.getElementById('exam_date').dataset.mustBefore);
+                            var evaluationDate = new Date(document.getElementById('exam_date').dataset.evaluationDate);
                 
                             if (inputDate <= evaluationDate) {
                                 document.getElementById('exam_date').setCustomValidity("{% translate 'The exam date is before the start date of the main evaluation.' %}");
@@ -208,25 +210,6 @@
                             }
                         });
                     </script>
-
-                    <!-- <script type="text/javascript">
-                        var examModal = document.currentScript.closest("confirmation-modal");
-
-                        examModal.querySelectorAll("[data-evaluation-date]").forEach(element => {
-                            element.addEventListener("click", () => {
-                                var inputDate = new Date(element.value);
-                                var evaluationDate = new Date(element.dataset.evaluationDate);
-                                if (inputDate <= evaluationDate) {
-                                    element.setCustomValidity("{% translate 'The exam date is before the start date of the main evaluation.' %}");
-                                } else {
-                                    element.setCustomValidity("");
-                                }
-
-                                element.reportValidity();
-                            });
-                            element.dispatchEvent(new Event("change"));
-                        });
-                    </script> -->
 
                 </confirmation-modal>
             {% endif %}
