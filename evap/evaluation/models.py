@@ -154,6 +154,9 @@ class QuestionnaireManager(Manager):
     def contributor_questionnaires(self):
         return super().get_queryset().filter(type=Questionnaire.Type.CONTRIBUTOR)
 
+    def default_dropout_questionnaire(self):
+        return super().get(pk=settings.DROPOUT_QUESTIONNAIRE_ID)
+
 
 class Questionnaire(models.Model):
     """A named collection of questions."""
