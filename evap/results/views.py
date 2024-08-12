@@ -17,6 +17,16 @@ from evap.evaluation.tools import AttachmentResponse
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, TextAnswer, UserProfile
+from evap.evaluation.models import (
+    Contribution,
+    Course,
+    CourseType,
+    Degree,
+    Evaluation,
+    Semester,
+    TextAnswer,
+    UserProfile,
+)
 from evap.evaluation.tools import AttachmentResponse, unordered_groupby
 
 from evap.results.exporters import TextAnswerExporter
@@ -25,6 +35,8 @@ from evap.results.tools import (
     HeadingResult,
     RatingResult,
     TextResult,
+    ViewContributorResults,
+    ViewGeneralResults,
     annotate_distributions_and_grades,
     can_textanswer_be_seen_by,
     get_evaluations_with_course_result_attributes,
@@ -198,7 +210,7 @@ def evaluation_detail(request, semester_id, evaluation_id):
     course_evaluations.sort(key=lambda evaluation: evaluation.name)
 
     contributors_with_omitted_results = []
-    if view_contributor_results == "personal":
+    if view_contributor_results == ViewContributorResults.PERSONAL:
         contributors_with_omitted_results = [
             contribution_result.contributor
             for contribution_result in evaluation_result.contribution_results
@@ -225,7 +237,10 @@ def evaluation_detail(request, semester_id, evaluation_id):
         "is_responsible_or_contributor_or_delegate": is_responsible_or_contributor_or_delegate,
         "can_download_grades": view_as_user.can_download_grades,
         "can_export_text_answers": (
-            (view_general_results == "full" or view_contributor_results in ("personal", "full"))
+            (
+                view_general_results == ViewGeneralResults.FULL
+                or view_contributor_results in (ViewContributorResults.PERSONAL, ViewContributorResults.FULL)
+            )
             and (view_as_user.is_reviewer or is_responsible_or_contributor_or_delegate)
         ),
         "view_contributor_results": view_contributor_results,
@@ -239,7 +254,9 @@ def evaluation_detail(request, semester_id, evaluation_id):
             if evaluation.is_user_contributor(view_as_user)
             else False
         ),
-        "can_see_contributor_textanswers": TextAnswer.objects.filter(contribution__contributor=view_as_user, contribution__evaluation=evaluation).exists()
+        "can_see_contributor_textanswers": TextAnswer.objects.filter(
+            contribution__contributor=view_as_user, contribution__evaluation=evaluation
+        ).exists(),
     }
     return render(request, "results_evaluation_detail.html", template_data)
 
@@ -332,7 +349,10 @@ def split_evaluation_result_into_top_bottom_and_contributor(evaluation_result, v
                 else:
                     top_results.append(questionnaire_result)
 
-        elif view_contributor_results != "personal" or view_as_user.id == contribution_result.contributor.id:
+        elif (
+            view_contributor_results != ViewContributorResults.PERSONAL
+            or view_as_user.id == contribution_result.contributor.id
+        ):
             contributor_results.append(contribution_result)
 
     if not contributor_results:
@@ -407,19 +427,25 @@ def evaluation_detail_parse_get_parameters(request, evaluation):
     if not evaluation.can_results_page_be_seen_by(request.user):
         raise PermissionDenied
 
-    view_general_results = request.GET.get(
-        "view_general_results",
-        "full",
-    )
-    if view_general_results not in ["full", "ratings"]:
-        view_general_results = "full"
+    try:
+        view_contributor_results = ViewContributorResults(
+            request.GET.get(
+                "view_contributor_results",
+                ViewContributorResults.FULL,
+            )
+        )
+    except ValueError as e:
+        raise BadRequest from e
 
-    view_contributor_results = request.GET.get(
-        "view_contributor_results",
-        "full",
-    )
-    if view_contributor_results not in ["full", "ratings", "personal"]:
-        view_contributor_results = "full"
+    try:
+        view_general_results = ViewGeneralResults(
+            request.GET.get(
+                "view_general_results",
+                ViewGeneralResults.FULL,
+            )
+        )
+    except ValueError as e:
+        raise BadRequest from e
 
     view_as_user = request.user
     try:
@@ -427,7 +453,7 @@ def evaluation_detail_parse_get_parameters(request, evaluation):
     except ValueError as e:
         raise BadRequest from e
 
-    if view_contributor_results == "personal" and request.user.is_staff:
+    if view_contributor_results == ViewContributorResults.PERSONAL and request.user.is_staff:
         view_as_user = contributor
     contributor_id = contributor.pk if contributor != request.user else None
 
