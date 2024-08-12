@@ -374,9 +374,11 @@
                     </div>
                 </div>
 
-                <form id="exam_creation_form" reload-on-success method="post" action="{% url 'staff:create_exam_evaluation' %}">
-                    {% csrf_token %}
-                </form>
+                {% for evaluation in evaluations %}
+                    <form id="exam_creation_form_{{ evaluation.id }}" reload-on-success method="post" action="{% url 'staff:create_exam_evaluation' %}">
+                        {% csrf_token %}
+                    </form>
+                {% endfor %}
 
                 <form id="evaluation-deletion-form" custom-success method="POST" action="{% url 'staff:evaluation_delete' %}">
                     {% csrf_token %}
