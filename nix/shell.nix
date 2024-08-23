@@ -1,4 +1,4 @@
-{ pkgs, evap, projectDir, extraPackages ? [ ], ... }:
+{ pkgs, evap, extraPackages ? [ ], ... }:
 
 let
   clean-setup = pkgs.writeShellScriptBin "clean-setup" ''
@@ -33,9 +33,4 @@ pkgs.mkShell {
   ] ++ extraPackages;
 
   env.PUPPETEER_SKIP_DOWNLOAD = 1;
-
-  shellHook = ''
-    # TODO: doesn't work with other shells from direnv
-    source "${projectDir}/deployment/manage_autocompletion.sh"
-  '';
 }
