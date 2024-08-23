@@ -4,7 +4,7 @@ This document describes the experimental nix setup for EvaP.
 
 ## Development Setup
 
-To develop EvaP, you will have to install [`git`](https://git-scm.com/downloads) and [`nix`](https://nixos.org/) (with support for nix flakes).
+To develop EvaP, you will have to install [`git`](https://git-scm.com/downloads) and [`nix`](https://nixos.org/) with support for nix flakes.
 
 If you are using Windows, we recommend that you [install the Windows Terminal](https://aka.ms/terminal) and set up the Windows Subsystem for Linux.
 [Install WSL2](https://learn.microsoft.com/en-us/windows/wsl/install), start an Ubuntu VM, and [enable systemd support](https://devblogs.microsoft.com/commandline/systemd-support-is-now-available-in-wsl/).
@@ -18,43 +18,52 @@ When you are inside the `EvaP` directory, you can
 - use `nix run .#services` to run the database system storing EvaP's data, and
 - run `nix develop` to make all needed development tools available in your current shell session.
 
-You always need to enter the `nix develop` environment before you can use the `./manage.py` script.
-For convenience, you can install [`direnv`](https://direnv.net/) and [`nix-direnv`](https://github.com/nix-community/nix-direnv) to automatically enter the `nix develop` environment.
+To initialize the database and perform additional setup steps, you need to run the `initialize-setup` command that is available in the `nix develop` environment.
+You will only need to perform this step once.
 
-After your first setup, you should run `./manage.py first-time-setup`.
-Finally, you can start EvaP by running `./manage.py run`.
-Open your browser at http://localhost:8000/ and login with email evap@institution.example.com and password evap.
+You can start EvaP by running `./manage.py run`.
+Open your browser at http://localhost:8000/ and login with email `evap@institution.example.com` and password `evap`.
 
-### Custom Development Shell
+For additional tips and tricks around the development setup, see the dedicated wiki page.
 
-If you want to do some additional configuration to the development environment, we recommend the following procedure:
+# Optimizing the Development Environment
 
-1. Create `custom-nix/flake.nix` with something like the following:
-   ```nix
-   {
-     description = "Evap Custom Config";
+This page contains various tips and tricks around the development setup.
 
-     inputs.evap.url = "path:..";
+## Automatic Activation
 
-     outputs = { evap, ... }:
-       let
-         system = "x86_64-linux";
-         pkgs = import evap.inputs.nixpkgs { inherit system; };
-       in
-       {
-         devShells.${system}.default = evap.devShells.${system}.default.override {
-           extraPackages = with pkgs; [ hello ];
-         };
-       };
-   }
-   ```
-2. Run `nix flake lock` inside the `custom-nix` directory.
-3. Back in the root directory, run `git add --intent-to-add --force custom-nix/flake.nix custom-nix/flake.lock`.
-4. Run `git update-index --assume-unchanged custom-nix/flake.nix custom-nix/flake.lock`.
+To automatically activate the `nix develop` environment when entering the `EvaP` directory, you can install [`direnv`](https://direnv.net/) and [`nix-direnv`](https://github.com/nix-community/nix-direnv).
+Afterwards, create the file `.envrc` with the following contents:
+```
+use flake
+```
 
-Now you can use `./custom-nix` as your shell, for example with `nix develop ./custom-nix`. Make sure to regularly update the referenced version of the main flake, for example by passing `--update-input evap` to `nix develop` (or with `use flake ./custom-nix --update-input evap` in your `.envrc`).
+## Shell Completions
 
-# (wiki article with podman setup)
+The file `deployment/manage_autocompletion.sh` contains bash completions (tab completions) for the `./manage.py` script.
+To activate them, use `source deployment/manage_autocompletion.sh`.
+You can also do this in your `.envrc` file (note that the completions only work for `bash` though).
+
+## Extra Packages
+
+To install additional packages in the `nix develop` environment, edit the `devShells` part in `flake.nix` like so:
+
+```nix
+devShells.default = pkgs.callPackage ./nix/shell.nix {
+  inherit (self'.packages) evap;
+  extraPackages = with pkgs; [ hello asciiquarium ]; # <--- added line here
+};
+```
+
+Find the packages you are looking for at https://search.nixos.org/packages.
+Make sure to not include these changes in your git commits.
+You can use `git update-index --assume-unchanged`, if you know what you are doing.
+
+## Clean Setup
+
+To remove the directories created by the `initialize-setup` command, use the `clean-setup` command.
+
+## Development Container with Podman
 
 You can use [`podman`](https://podman.io/) to start a container to develop EvaP.
 The container will be isolated from the rest of your system, so that you do not need to install nix on your computer.
