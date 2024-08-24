@@ -56,7 +56,6 @@ todo
 # flake8 configuration
 setup.cfg
 
-data/
+/data/
 /result
-custom-nix/
-.envrc
+/.envrc
