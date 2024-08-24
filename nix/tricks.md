@@ -43,26 +43,40 @@ The container will be isolated from the rest of your system, so that you do not 
 Create a new file called `Containerfile` (TODO: should we just include this file in the repo?) with the following contents (adapted from https://github.com/DeterminateSystems/nix-installer/blob/04b07fa15e527f23cc4a3c0db0a1b3aaa0160dc0/README.md#in-a-container):
 ```Containerfile
 FROM docker.io/ubuntu:latest
-# TODO: fix a version?
 
-RUN apt-get update -y && apt-get install curl systemd -y
+RUN apt-get update -y && apt-get install -y curl systemd direnv
 
 RUN curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install linux \
   --extra-conf "sandbox = false" \
   --no-start-daemon \
   --no-confirm
 
-# TODO: add a new user?
-# TODO: install direnv
 # TODO: automatically start databases?
 
+RUN groupadd --gid 1001 evap && useradd --uid 1001 --gid 1001 --no-user-group -ms /bin/bash evap
+USER evap
 WORKDIR /evap
+RUN echo 'eval "$(direnv hook bash)"' >> ~/.bashrc
 
+USER root
 CMD [ "/bin/systemd" ]
 ```
 
-Then, build an image with `podman build -t evap-image .` and create a container with `podman create --name evap-container -v /path/to/your/evap/directory:/evap -p 8000:8000 evap-image`.
+Then, build an image and create a container with
+```bash
+podman build -t evap-image .
+podman create --name evap-container --userns=keep-id:uid=1001,gid=1001 -v $PWD:/evap -p 8000:8000 evap-image
+```
 
 From now on, you can use the container whenever you want to work on EvaP.
-Start the container with `podman start evap-container` and enter it with `podman exec -it evap-container /bin/bash`.
+Start the container with `podman start evap-container` and enter it with `podman exec -u evap -it evap-container /bin/bash`.
 After entering the container, you should be able to run `nix develop`.
+
+The container has `direnv` already set up, you can create the following `.envrc` and then allow it with `direnv allow`:
+```
+if ! has nix_direnv_version || ! nix_direnv_version 3.0.5; then
+  source_url "https://raw.githubusercontent.com/nix-community/nix-direnv/3.0.5/direnvrc" "sha256-RuwIS+QKFj/T9M2TFXScjBsLR6V3A17YVoEW/Q6AZ1w="
+fi
+use flake
+source deployment/manage_autocompletion.sh
+```
