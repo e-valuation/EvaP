@@ -93,7 +93,7 @@ jobs:
           submodules: true
       - uses: ./.github/setup_evap
         with:
-          shell: './#evap' # no dev-dependencies
+          shell: .#evap # no dev-dependencies
           start-db: true
 
       - name: Install additional dependencies
