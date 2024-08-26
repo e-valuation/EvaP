@@ -5,7 +5,7 @@ inputs:
   shell:
     description: "name of development shell to use"
     required: false
-    default: '.#evap-dev'
+    default: './#evap-dev'
   start-db:
     description: "whether or not to run the database in the background"
     required: false
