@@ -8,7 +8,7 @@ DATABASES = {
         'NAME': 'evap',
         'USER': 'evap',
         'PASSWORD': 'evap',
-        'HOST': '127.0.0.1',                    # Set to empty string for localhost.
+        'HOST': 'localhost',                    # Set to empty string for localhost.
         'PORT': '',                             # Set to empty string for default.
         'CONN_MAX_AGE': 600,
     }

@@ -3,10 +3,9 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "evap",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
+        "USER": "evap",
+        "PASSWORD": "evap",
         "HOST": "localhost",
-        "PORT": "5432",
     }
 }
 CACHES = {

@@ -112,10 +112,9 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "evap",
-        "USER": "postgres",
-        "PASSWORD": "",
-        "HOST": "",  # Set to empty string for localhost.
-        "PORT": "",  # Set to empty string for default.
+        "USER": "evap",
+        "PASSWORD": "evap",
+        "HOST": "localhost",
         "CONN_MAX_AGE": 600,
     }
 }
