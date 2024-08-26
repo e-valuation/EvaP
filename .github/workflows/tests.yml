@@ -12,24 +12,16 @@ jobs:
 
     runs-on: ubuntu-22.04
 
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: evap
-        ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: Setup python
-        uses: ./.github/setup_python
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - uses: nicknovitski/nix-develop@v1
 
+      - name: Start database
+        run: nix run .#services -- --detach && sleep 5
       - name: Run tests
         run: coverage run manage.py test
       - name: Upload coverage
@@ -42,24 +34,16 @@ jobs:
 
     runs-on: ubuntu-22.04
 
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: evap
-        ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: Setup python
-        uses: ./.github/setup_python
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - uses: nicknovitski/nix-develop@v1
 
+      - name: Start database
+        run: nix run .#services -- --detach && sleep 5
       - name: Run tests
         run: python manage.py test --shuffle
 
@@ -72,8 +56,9 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: Setup python
-        uses: ./.github/setup_python
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - uses: nicknovitski/nix-develop@v1
 
       - name: Run MyPy
         run: mypy
@@ -87,15 +72,15 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: Setup python
-        uses: ./.github/setup_python
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - uses: nicknovitski/nix-develop@v1
 
       - name: Run ruff
         run: ruff check .
 
       - name: Run pylint
         run: pylint evap tools
-
 
   formatter:
     runs-on: ubuntu-22.04
@@ -106,11 +91,12 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: Setup python
-        uses: ./.github/setup_python
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - uses: nicknovitski/nix-develop@v1
 
-      - name: Setup nodejs
-        uses: ./.github/setup_nodejs
+      - name: Install Node dependencies
+        run: npm ci
 
       - name: Check code formatting
         run: black --check .
@@ -120,25 +106,8 @@ jobs:
       - name: Check TypeScript formatting
         run: npx prettier --list-different --loglevel debug 'evap/static/ts/**/*.ts'
 
-
   backup-process:
     runs-on: ubuntu-22.04
-
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: evap
-        ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-      redis:
-        image: redis
-        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
-        ports:
-          - 6379:6379
 
     name: Backup process
 
@@ -148,13 +117,13 @@ jobs:
         with:
           submodules: true
 
-      - name: Setup python
-        uses: ./.github/setup_python
-        with:
-          requirements-file: requirements.txt
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - uses: nicknovitski/nix-develop@v1
+        # TODO: no dev dependencies
 
-      - name: Setup nodejs
-        uses: ./.github/setup_nodejs
+      - name: Install Node dependencies
+        run: npm ci
 
       - name: Install additional dependencies
         run: sudo apt-get update && sudo apt-get install gettext
@@ -187,8 +156,12 @@ jobs:
         with:
           submodules: true
 
-      - name: Setup nodejs
-        uses: ./.github/setup_nodejs
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - uses: nicknovitski/nix-develop@v1
+
+      - name: Install Node dependencies
+        run: npm ci
 
       - name: Compile Scss
         run: npx sass evap/static/scss/evap.scss evap/static/css/evap.css
@@ -198,34 +171,21 @@ jobs:
           name: css
           path: evap/static/css/evap.css
 
-
   render_pages:
     runs-on: ubuntu-22.04
 
     name: Render Html pages
 
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: evap
-        ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-      redis:
-        image: redis
-        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
-        ports:
-          - 6379:6379
-
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: Setup python
-        uses: ./.github/setup_python
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - uses: nicknovitski/nix-develop@v1
+
+      - name: Start database
+        run: nix run .#services -- --detach && sleep 5
 
       - name: Render pages
         run: coverage run manage.py ts render_pages
@@ -240,7 +200,6 @@ jobs:
           name: rendered-pages
           path: evap/static/ts/rendered
 
-
   typescript:
     runs-on: ubuntu-22.04
 
@@ -254,8 +213,12 @@ jobs:
         with:
           submodules: true
 
-      - name: Setup nodejs
-        uses: ./.github/setup_nodejs
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - uses: nicknovitski/nix-develop@v1
+
+      - name: Install Node dependencies
+        run: npm ci
 
       - name: Compile Typescript
         run: npx tsc --project evap/static/ts/tsconfig.compile.json
