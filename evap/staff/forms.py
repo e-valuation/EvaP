@@ -143,7 +143,7 @@ class EvaluationParticipantCopyForm(forms.Form):
         self.fields["evaluation"].choices = choices
 
     def clean(self):
-        if self.evaluation_selection_required and self.cleaned_data["evaluation"] is None:
+        if self.evaluation_selection_required and self.cleaned_data.get("evaluation") is None:
             raise ValidationError(_("Please select an evaluation from the dropdown menu."))
 
 

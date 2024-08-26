@@ -4,7 +4,8 @@ from collections import OrderedDict, defaultdict, namedtuple
 from collections.abc import Container
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Any, cast
+from enum import Enum
+from typing import Any, Final, Literal, cast
 
 import openpyxl
 from django.conf import settings
@@ -37,6 +38,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy, ngettext
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, FormView, UpdateView
+from typing_extensions import assert_never
 
 from evap.contributor.views import export_contributor_results
 from evap.evaluation.auth import manager_required, reviewer_required, staff_permission_required
@@ -1386,23 +1388,69 @@ def evaluation_email(request, evaluation_id):
     )
 
 
-def helper_delete_users_from_evaluation(evaluation, operation):
-    if "participants" in operation:
-        deleted_person_count = evaluation.participants.count()
-        deletion_message = _("{} participants were deleted from evaluation {}")
-        evaluation.participants.clear()
-    else:
-        assert "contributors" in operation
-        deleted_person_count = evaluation.contributions.exclude(contributor=None).count()
-        deletion_message = _("{} contributors were deleted from evaluation {}")
-        evaluation.contributions.exclude(contributor=None).delete()
+class ImportAction(Enum):
+    COPY = "copy"
+    IMPORT = "import"
+    TEST = "test"
 
-    return deleted_person_count, deletion_message
+    @classmethod
+    def from_operation(cls, operation: str) -> "ImportAction":
+        if operation.startswith("copy-"):
+            return cls.COPY
+        if operation.startswith("import-"):
+            return cls.IMPORT
+        if operation.startswith("test-"):
+            return cls.TEST
+        raise ValueError(f"Unknown operation: {operation}")
+
+
+def import_or_copy_participants(
+    request,
+    replace: bool,
+    import_action: Literal[ImportAction.COPY, ImportAction.IMPORT],
+    import_type: Literal[ImportType.PARTICIPANT, ImportType.CONTRIBUTOR],
+    evaluation: Evaluation,
+    copy_form: EvaluationParticipantCopyForm,
+) -> bool:
+    if replace:
+        if import_type == ImportType.PARTICIPANT:
+            deleted_person_count = evaluation.participants.count()
+            deletion_message = _("{} participants were deleted from evaluation {}")
+            evaluation.participants.clear()
+        elif import_type == ImportType.CONTRIBUTOR:
+            deleted_person_count = evaluation.contributions.exclude(contributor=None).count()
+            deletion_message = _("{} contributors were deleted from evaluation {}")
+            evaluation.contributions.exclude(contributor=None).delete()
+        else:
+            assert_never(import_type)
+    if import_action == ImportAction.IMPORT:
+        file_content = get_import_file_content_or_raise(request.user.id, import_type)
+        importer_log = import_persons_from_file(import_type, evaluation, test_run=False, file_content=file_content)
+        delete_import_file(request.user.id, import_type)
+    elif import_action == ImportAction.COPY:
+        copy_form.evaluation_selection_required = True
+        if not copy_form.is_valid():
+            return False
+        import_evaluation = copy_form.cleaned_data["evaluation"]
+        importer_log = import_persons_from_evaluation(
+            import_type, evaluation, test_run=False, source_evaluation=import_evaluation
+        )
+    else:
+        assert_never(import_action)
+
+    if replace:
+        importer_log.add_success(
+            format_html(deletion_message, deleted_person_count, evaluation.full_name),
+            category=ImporterLogEntry.Category.RESULT,
+        )
+
+    importer_log.forward_messages_to_django(request)
+    return True
 
 
 @manager_required
 @transaction.atomic
-def evaluation_person_management(request, evaluation_id):
+def evaluation_person_management(request, evaluation_id: int):
     # This view indeed handles 4 tasks. However, they are tightly coupled, splitting them up
     # would lead to more code duplication. Thus, we decided to leave it as is for now
     # pylint: disable=too-many-locals
@@ -1434,11 +1482,12 @@ def evaluation_person_management(request, evaluation_id):
         ):
             raise SuspiciousOperation("Invalid POST operation")
 
-        import_type = ImportType.PARTICIPANT if "participants" in operation else ImportType.CONTRIBUTOR
+        import_action = ImportAction.from_operation(operation)
+        import_type: Final = ImportType.PARTICIPANT if "participants" in operation else ImportType.CONTRIBUTOR
         excel_form = participant_excel_form if "participants" in operation else contributor_excel_form
         copy_form = participant_copy_form if "participants" in operation else contributor_copy_form
 
-        if "test" in operation:
+        if import_action == ImportAction.TEST:
             delete_import_file(request.user.id, import_type)  # remove old files if still exist
             excel_form.fields["excel_file"].required = True
             if excel_form.is_valid():
@@ -1449,37 +1498,15 @@ def evaluation_person_management(request, evaluation_id):
                 )
                 if not importer_log.has_errors():
                     save_import_file(excel_file, request.user.id, import_type)
-
         else:
-            if "replace" in operation:
-                deleted_person_count, deletion_message = helper_delete_users_from_evaluation(evaluation, operation)
-
-            if "import" in operation:
-                file_content = get_import_file_content_or_raise(request.user.id, import_type)
-                importer_log = import_persons_from_file(
-                    import_type, evaluation, test_run=False, file_content=file_content
-                )
-                delete_import_file(request.user.id, import_type)
-            elif "copy" in operation:
-                copy_form.evaluation_selection_required = True
-                if copy_form.is_valid():
-                    import_evaluation = copy_form.cleaned_data["evaluation"]
-                    importer_log = import_persons_from_evaluation(
-                        import_type, evaluation, test_run=False, source_evaluation=import_evaluation
-                    )
-
-            if "replace" in operation:
-                importer_log.add_success(
-                    format_html(deletion_message, deleted_person_count, evaluation.full_name),
-                    category=ImporterLogEntry.Category.RESULT,
-                )
-
-            importer_log.forward_messages_to_django(request)
-            return redirect("staff:semester_view", evaluation.course.semester.pk)
+            successfully_processed = import_or_copy_participants(
+                request, "-replace-" in operation, import_action, import_type, evaluation, copy_form  # type: ignore[arg-type]  # fixed at mypy master with https://www.github.com/python/mypy/pull/17427
+            )
+            if successfully_processed:
+                return redirect("staff:semester_view", evaluation.course.semester.pk)
 
     participant_test_passed = import_file_exists(request.user.id, ImportType.PARTICIPANT)
     contributor_test_passed = import_file_exists(request.user.id, ImportType.CONTRIBUTOR)
-    # casting warnings to a normal dict is necessary for the template to iterate over it.
     return render(
         request,
         "staff_evaluation_person_management.html",
