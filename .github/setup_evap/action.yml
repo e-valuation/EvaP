@@ -6,9 +6,6 @@ inputs:
     description: "name of development shell to use"
     required: false
     default: '.#evap-dev'
-  fetch-submodules:
-    required: false
-    default: false
   start-db:
     required: false
     default: false
@@ -19,11 +16,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Check out repository code
-      uses: actions/checkout@v4
-      with:
-        submodules: ${{ inputs.fetch-submodules }}
-
     - uses: DeterminateSystems/nix-installer-action@main
     - uses: DeterminateSystems/magic-nix-cache-action@main
     - uses: nicknovitski/nix-develop@v1
