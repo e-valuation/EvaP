@@ -1,14 +1,17 @@
-import functools
 import os
+import time
 from collections.abc import Sequence
 from contextlib import contextmanager
 from datetime import timedelta
+from importlib import import_module
 
 import webtest
 from django.conf import settings
+from django.contrib.auth import login
 from django.contrib.auth.models import Group
 from django.db import DEFAULT_DB_ALIAS, connections
-from django.http.request import QueryDict
+from django.http.request import HttpRequest, QueryDict
+from django.test.selenium import SeleniumTestCase
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 from django_webtest import WebTest
@@ -85,36 +88,6 @@ def let_user_vote_for_evaluation(user, evaluation, create_answers=False):
     TextAnswer.objects.bulk_create(new_textanswers)
     RatingAnswerCounter.objects.bulk_create(new_racs)
     RatingAnswerCounter.objects.bulk_update(rac_by_contribution_question.values(), ["count"])
-
-
-def store_ts_test_asset(relative_path: str, content) -> None:
-    absolute_path = os.path.join(settings.STATICFILES_DIRS[0], "ts", "rendered", relative_path)
-
-    os.makedirs(os.path.dirname(absolute_path), exist_ok=True)
-
-    with open(absolute_path, "wb") as file:
-        file.write(content)
-
-
-def render_pages(test_item):
-    """Decorator which annotates test methods which render pages.
-    The containing class is expected to include a `url` attribute which matches a valid path.
-    Unlike normal test methods, it should not assert anything and is expected to return a dictionary.
-    The key denotes the variant of the page to reflect multiple states, cases or views.
-    The value is a byte string of the page content."""
-
-    @functools.wraps(test_item)
-    def decorator(self) -> None:
-        pages = test_item(self)
-
-        url = getattr(self, "render_pages_url", self.url)
-
-        for name, content in pages.items():
-            # Remove the leading slash from the url to prevent that an absolute path is created
-            path = os.path.join(url[1:], f"{name}.html")
-            store_ts_test_asset(path, content)
-
-    return decorator
 
 
 class WebTestWith200Check(WebTest):
@@ -254,3 +227,71 @@ def assert_no_database_modifications(*args, **kwargs):
             lower_sql = query["sql"].lower()
             if not any(lower_sql.startswith(prefix) for prefix in allowed_prefixes):
                 raise AssertionError("Unexpected modifying query found: " + query["sql"])
+
+
+class LiveServerTest(SeleniumTestCase):
+    external_host = os.environ.get("TEST_HOST", "") or None
+    browser = "firefox"
+    selenium_hub = os.environ.get("TEST_SELENIUM_HUB", "") or None
+    headless = True
+
+    serialized_rollback = True
+
+    def _screenshot(self, name):
+        self.selenium.save_screenshot(os.path.join(settings.BASE_DIR, f"{name}.png"))
+
+    def _create_test_user(self):
+        """Create a default test user."""
+        test_user = baker.make(
+            UserProfile, email="evap@institution.example.com", groups=[Group.objects.get(name="Manager")]
+        )
+        test_user_password = "evap"
+        test_user.set_password(test_user_password)
+        test_user.save()
+        return test_user
+
+    def _default_login(self):
+        """Login a default test user."""
+        user = self._create_test_user()
+        self._login(user)
+        return user
+
+    def _create_session(self):
+        request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        request.session = engine.SessionStore()
+
+        self.request = request  # pylint: disable=attribute-defined-outside-init
+
+    def _update_session(self):
+        self.request.session.save()
+        # Create session cookie
+        cookie_data = {
+            "name": settings.SESSION_COOKIE_NAME,
+            "value": self.request.session.session_key,
+            "path": "/",
+            "secure": settings.SESSION_COOKIE_SECURE or False,
+        }
+        self.selenium.add_cookie(cookie_data)
+
+    def _login(self, user):
+        """Login a test user by setting the session cookie."""
+        self.selenium.get(self.live_server_url)
+
+        # Create fake session to do user login workflow
+        self._create_session()
+        login(self.request, user, "django.contrib.auth.backends.ModelBackend")
+        self._update_session()
+
+    def _enter_staff_mode(self):
+        self.request.session["staff_mode_start_time"] = time.time()
+        self._update_session()
+
+    def _exit_staff_mode(self):
+        if "staff_mode_start_time" in self.request.session:
+            del self.request.session["staff_mode_start_time"]
+            self._update_session()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.selenium.quit()
