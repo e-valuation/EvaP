@@ -176,6 +176,8 @@ jobs:
         with:
           npm-ci: true
 
+      - run: apt-get -q install -y chromium-browser
+
       - name: Compile Typescript
         run: npx tsc --project evap/static/ts/tsconfig.compile.json
       - name: Load rendered pages
