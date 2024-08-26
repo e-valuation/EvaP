@@ -1,4 +1,4 @@
-{ poetry2nix, projectDir, ... }:
+{ projectDir, poetry2nix, poetry-groups ? [], ... }:
 
 poetry2nix.mkPoetryApplication {
   inherit projectDir;
@@ -7,4 +7,5 @@ poetry2nix.mkPoetryApplication {
     # https://github.com/nix-community/poetry2nix/issues/1499
     django-stubs-ext = prev.django-stubs-ext.override { preferWheel = false; };
   });
+  groups = poetry-groups;
 }

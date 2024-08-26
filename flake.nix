@@ -20,12 +20,18 @@
       ];
       systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
       perSystem = { self', inputs', pkgs, system, ... }: {
-        packages.evap = pkgs.callPackage ./nix/evap.nix {
-          poetry2nix = inputs.poetry2nix.lib.mkPoetry2Nix { inherit pkgs; };
-          projectDir = self;
+        packages = rec {
+          evap = pkgs.callPackage ./nix/evap.nix {
+            poetry2nix = inputs.poetry2nix.lib.mkPoetry2Nix { inherit pkgs; };
+            projectDir = self;
+          };
+          evap-dev = evap.override { poetry-groups = [ "dev" ]; };
         };
-        devShells.default = pkgs.callPackage ./nix/shell.nix {
-          inherit (self'.packages) evap;
+
+        devShells = rec {
+          evap = pkgs.callPackage ./nix/shell.nix { inherit (self'.packages) evap; };
+          evap-dev = evap.override { evap = self'.packages.evap-dev; };
+          default = evap-dev;
         };
 
         # Start with `nix run .#services`
