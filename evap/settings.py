@@ -421,7 +421,7 @@ OIDC_OP_JWKS_ENDPOINT = "https://example.com/certs"
 # Create a localsettings.py if you want to locally override settings
 # and don't want the changes to appear in 'git status'.
 try:
-    # localsettings file may (vagrant) or may not (CI run) exist
+    # localsettings file may or may not exist (for example in CI)
 
     # the import can overwrite locals with a slightly different type (e.g. DATABASES), which is fine.
     from evap.localsettings import *  # type: ignore  # noqa: F403,PGH003
