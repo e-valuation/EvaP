@@ -10,8 +10,7 @@ BACKUP_TITLE="backup"
 TIMESTAMP="$(date +%Y-%m-%d_%H:%M:%S)"
 
 USERNAME="evap"
-ENVDIR="/opt/evap/env"
-[[ ! -z "$GITHUB_WORKFLOW" ]] && echo "Detected GitHub" && USERNAME="root" && ENVDIR="${VIRTUAL_ENV}"
+[[ ! -z "$GITHUB_WORKFLOW" ]] && echo "Detected GitHub" && USERNAME="root"
 
 # argument 1 is the title for the backupfile.
 if [ $# -eq 1 ]
@@ -36,20 +35,19 @@ sudo -H -u $USERNAME git fetch
 # match the database layout, or https://github.com/e-valuation/EvaP/issues/1237.
 [[ -z "$GITHUB_WORKFLOW" ]] && sudo ./deployment/enable_maintenance_mode.sh
 
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py dumpdata --natural-foreign --natural-primary --all -e contenttypes -e auth.Permission --indent 2 --output "$FILENAME"
+sudo -H -u "$USERNAME" ./manage.py dumpdata --natural-foreign --natural-primary --all -e contenttypes -e auth.Permission --indent 2 --output "$FILENAME"
 
 [[ ! -z "$EVAP_SKIP_CHECKOUT" ]] && echo "Skipping Checkout"
 [[ ! -z "$EVAP_SKIP_CHECKOUT" ]] || sudo -H -u "$USERNAME" git checkout origin/release
 
-sudo -H -u "$USERNAME" "$ENVDIR/bin/pip" install -r requirements.txt
 # sometimes, this fails for some random i18n test translation files.
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py compilemessages || true
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py scss --production
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py ts compile --fresh
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py collectstatic --noinput
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py migrate
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py clear_cache --all -v=1
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py refresh_results_cache
+sudo -H -u "$USERNAME" ./manage.py compilemessages || true
+sudo -H -u "$USERNAME" ./manage.py scss --production
+sudo -H -u "$USERNAME" ./manage.py ts compile --fresh
+sudo -H -u "$USERNAME" ./manage.py collectstatic --noinput
+sudo -H -u "$USERNAME" ./manage.py migrate
+sudo -H -u "$USERNAME" ./manage.py clear_cache --all -v=1
+sudo -H -u "$USERNAME" ./manage.py refresh_results_cache
 
 [[ -z "$GITHUB_WORKFLOW" ]] && sudo ./deployment/disable_maintenance_mode.sh
 

@@ -7,9 +7,8 @@ set -e # abort on error
 cd "$(dirname "$0")/.." # change to root directory
 
 USERNAME="evap"
-ENVDIR="/opt/evap/env"
 CONDITIONAL_NOINPUT=""
-[[ ! -z "$GITHUB_WORKFLOW" ]] && echo "Detected GitHub" && USERNAME="root" && ENVDIR="${VIRTUAL_ENV}" && CONDITIONAL_NOINPUT="--noinput"
+[[ ! -z "$GITHUB_WORKFLOW" ]] && echo "Detected GitHub" && USERNAME="root" && CONDITIONAL_NOINPUT="--noinput"
 
 COMMIT_HASH="$(git rev-parse --short HEAD)"
 
@@ -43,20 +42,18 @@ fi
 
 [[ -z "$GITHUB_WORKFLOW" ]] && sudo service apache2 stop
 
-sudo -H -u "$USERNAME" "$ENVDIR/bin/pip" install -r requirements.txt
-
 # sometimes, this fails for some random i18n test translation files.
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py compilemessages || true
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py scss --production
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py collectstatic --noinput
+sudo -H -u "$USERNAME" ./manage.py compilemessages || true
+sudo -H -u "$USERNAME" ./manage.py scss --production
+sudo -H -u "$USERNAME" ./manage.py collectstatic --noinput
 
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py reset_db "$CONDITIONAL_NOINPUT"
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py migrate
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py flush "$CONDITIONAL_NOINPUT"
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py loaddata "$1"
+sudo -H -u "$USERNAME" ./manage.py reset_db "$CONDITIONAL_NOINPUT"
+sudo -H -u "$USERNAME" ./manage.py migrate
+sudo -H -u "$USERNAME" ./manage.py flush "$CONDITIONAL_NOINPUT"
+sudo -H -u "$USERNAME" ./manage.py loaddata "$1"
 
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py clear_cache --all -v=1
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py refresh_results_cache
+sudo -H -u "$USERNAME" ./manage.py clear_cache --all -v=1
+sudo -H -u "$USERNAME" ./manage.py refresh_results_cache
 
 [[ -z "$GITHUB_WORKFLOW" ]] && sudo service apache2 start
 
