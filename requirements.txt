@@ -1,6 +1,6 @@
 django-extensions==3.2.3
 django-fsm==2.8.2
-Django~=5.0.0
+Django~=5.1
 mozilla-django-oidc==4.0.1
 openpyxl==3.1.5
 psycopg2-binary==2.9.9
