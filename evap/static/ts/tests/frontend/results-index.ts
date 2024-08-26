@@ -31,7 +31,7 @@ test(
     "filter with search input",
     pageHandler("results/student.html", async page => {
         await page.type("input[name=search]", "Exam");
-        await page.waitForTimeout(200);
+        await new Promise(resolve => setTimeout(resolve, 200)); // wait for input to debounce
 
         expect(await fetchVisibleRows(page)).toEqual([["Course A", "ST 13"]]);
     }),
