@@ -1558,17 +1558,17 @@ class NotHalfEmptyConstraint(CheckConstraint):
 
     def __init__(self, *, fields: list[str], name: str, **kwargs):
         self.fields = fields
-        assert "check" not in kwargs
+        assert "check" not in kwargs and "condition" not in kwargs
 
         super().__init__(
-            check=Q(**{field: "" for field in fields}) | ~Q(**{field: "" for field in fields}, _connector=Q.OR),
+            condition=Q(**{field: "" for field in fields}) | ~Q(**{field: "" for field in fields}, _connector=Q.OR),
             name=name,
             **kwargs,
         )
 
     def deconstruct(self):
         path, args, kwargs = super().deconstruct()
-        kwargs.pop("check")
+        kwargs.pop("condition")
         kwargs["fields"] = self.fields
         return path, args, kwargs
 
