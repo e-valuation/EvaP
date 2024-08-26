@@ -21,7 +21,7 @@ jobs:
       - uses: nicknovitski/nix-develop@v1
 
       - name: Start database
-        run: nix run .#services -- --detach && sleep 5
+        run: nix run .#services -- --detached && sleep 5
       - name: Run tests
         run: coverage run manage.py test
       - name: Upload coverage
@@ -43,7 +43,7 @@ jobs:
       - uses: nicknovitski/nix-develop@v1
 
       - name: Start database
-        run: nix run .#services -- --detach && sleep 5
+        run: nix run .#services -- --detached && sleep 5
       - name: Run tests
         run: python manage.py test --shuffle
 
@@ -185,7 +185,7 @@ jobs:
       - uses: nicknovitski/nix-develop@v1
 
       - name: Start database
-        run: nix run .#services -- --detach && sleep 5
+        run: nix run .#services -- --detached && sleep 5
 
       - name: Render pages
         run: coverage run manage.py ts render_pages
