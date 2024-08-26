@@ -7,9 +7,11 @@ inputs:
     required: false
     default: '.#evap-dev'
   start-db:
+    description: "whether or not to run the database in the background"
     required: false
     default: false
   npm-ci:
+    description: "whether or not to run `npm ci`"
     required: false
     default: false
 
