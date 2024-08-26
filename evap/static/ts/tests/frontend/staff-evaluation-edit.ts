@@ -19,8 +19,8 @@ test(
         });
         assertDefined(managerId);
 
-        const editorLabels = await page.$x("//label[contains(text(), 'Editor')]");
-        const ownAndGeneralLabels = await page.$x("//label[contains(text(), 'Own and general')]");
+        const editorLabels = await page.$$("xpath/.//label[contains(text(), 'Editor')]");
+        const ownAndGeneralLabels = await page.$$("xpath/.//label[contains(text(), 'Own and general')]");
         if (editorLabels.length < 1 || ownAndGeneralLabels.length < 1) {
             throw new Error("Button group buttons not found.");
         }
