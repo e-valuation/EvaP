@@ -1,7 +1,6 @@
-from collections import OrderedDict
-
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models import Q, Sum
 from django.dispatch import Signal
 from django.utils.translation import gettext_lazy as _
 
@@ -33,14 +32,10 @@ class RewardPointRedemptionEvent(models.Model):
     def can_delete(self):
         return not self.reward_point_redemptions.exists()
 
-    def redemptions_by_user(self):
-        redemptions = self.reward_point_redemptions.order_by("user_profile").prefetch_related("user_profile")
-        redemptions_dict = OrderedDict()
-        for redemption in redemptions:
-            if redemption.user_profile not in redemptions_dict:
-                redemptions_dict[redemption.user_profile] = 0
-            redemptions_dict[redemption.user_profile] += redemption.value
-        return redemptions_dict
+    def users_with_redeemed_points(self):
+        return UserProfile.objects.filter(reward_point_redemptions__event=self).annotate(
+            points=Sum("reward_point_redemptions__value", default=0, filter=Q(reward_point_redemptions__event=self))
+        )
 
 
 class RewardPointGranting(models.Model):

@@ -159,7 +159,7 @@ def reward_point_redemption_event_export(request, event_id):
     filename = _("RewardPoints") + f"-{event.date}-{event.name}-{get_language()}.xls"
     response = AttachmentResponse(filename, content_type="application/vnd.ms-excel")
 
-    RewardsExporter().export(response, event.redemptions_by_user())
+    RewardsExporter().export(response, event.users_with_redeemed_points())
 
     return response
 
