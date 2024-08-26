@@ -1,0 +1,42 @@
+name: "Setup EvaP Testing Environment"
+description: "Sets up the nix environment with caching and copy localsettings"
+
+inputs:
+  shell:
+    description: "name of development shell to use"
+    required: false
+    default: '.#evap-dev'
+  fetch-submodules:
+    required: false
+    default: false
+  start-db:
+    required: false
+    default: false
+  npm-ci:
+    required: false
+    default: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Check out repository code
+      uses: actions/checkout@v4
+      with:
+        submodules: ${{ inputs.fetch-submodules }}
+
+    - uses: DeterminateSystems/nix-installer-action@main
+    - uses: DeterminateSystems/magic-nix-cache-action@main
+    - uses: nicknovitski/nix-develop@v1
+      with:
+        arguments: "${{ inputs.shell }}"
+
+    - name: Add localsettings
+      run: cp evap/settings_test.py evap/localsettings.py
+
+    - name: Install Node dependencies
+      run: npm ci
+      if: ${{ inputs.npm-ci }}
+
+    - name: Start database
+      run: nix run .#services -- --detached && sleep 5
+      if: ${{ inputs.start-db }}

@@ -13,15 +13,10 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
+      - uses: ./.github/setup_evap
+        with:
+          start-db: true
 
-      - uses: DeterminateSystems/nix-installer-action@main
-      - uses: DeterminateSystems/magic-nix-cache-action@main
-      - uses: nicknovitski/nix-develop@v1
-
-      - name: Start database
-        run: nix run .#services -- --detached && sleep 5
       - name: Run tests
         run: coverage run manage.py test
       - name: Upload coverage
@@ -35,15 +30,10 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
+      - uses: ./.github/setup_evap
+        with:
+          start-db: true
 
-      - uses: DeterminateSystems/nix-installer-action@main
-      - uses: DeterminateSystems/magic-nix-cache-action@main
-      - uses: nicknovitski/nix-develop@v1
-
-      - name: Start database
-        run: nix run .#services -- --detached && sleep 5
       - name: Run tests
         run: python manage.py test --shuffle
 
@@ -53,13 +43,7 @@ jobs:
     name: MyPy
 
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
-
-      - uses: DeterminateSystems/nix-installer-action@main
-      - uses: DeterminateSystems/magic-nix-cache-action@main
-      - uses: nicknovitski/nix-develop@v1
-
+      - uses: ./.github/setup_evap
       - name: Run MyPy
         run: mypy
 
@@ -69,16 +53,9 @@ jobs:
     name: Linter
 
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
-
-      - uses: DeterminateSystems/nix-installer-action@main
-      - uses: DeterminateSystems/magic-nix-cache-action@main
-      - uses: nicknovitski/nix-develop@v1
-
+      - uses: ./.github/setup_evap
       - name: Run ruff
         run: ruff check .
-
       - name: Run pylint
         run: pylint evap tools
 
@@ -88,15 +65,9 @@ jobs:
     name: Formatting
 
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
-
-      - uses: DeterminateSystems/nix-installer-action@main
-      - uses: DeterminateSystems/magic-nix-cache-action@main
-      - uses: nicknovitski/nix-develop@v1
-
-      - name: Install Node dependencies
-        run: npm ci
+      - uses: ./.github/setup_evap
+        with:
+          npm-ci: true
 
       - name: Check code formatting
         run: black --check .
@@ -112,18 +83,11 @@ jobs:
     name: Backup process
 
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
+      - uses: ./.github/setup_evap
         with:
-          submodules: true
-
-      - uses: DeterminateSystems/nix-installer-action@main
-      - uses: DeterminateSystems/magic-nix-cache-action@main
-      - uses: nicknovitski/nix-develop@v1
-        # TODO: no dev dependencies
-
-      - name: Install Node dependencies
-        run: npm ci
+          fetch-submodules: true
+          shell: '.#evap' # no dev-dependencies
+          start-db: true
 
       - name: Install additional dependencies
         run: sudo apt-get update && sudo apt-get install gettext
@@ -151,17 +115,10 @@ jobs:
     name: Compile Scss
 
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
+      - uses: ./.github/setup_evap
         with:
-          submodules: true
-
-      - uses: DeterminateSystems/nix-installer-action@main
-      - uses: DeterminateSystems/magic-nix-cache-action@main
-      - uses: nicknovitski/nix-develop@v1
-
-      - name: Install Node dependencies
-        run: npm ci
+          fetch-submodules: true
+          npm-ci: true
 
       - name: Compile Scss
         run: npx sass evap/static/scss/evap.scss evap/static/css/evap.css
@@ -177,15 +134,9 @@ jobs:
     name: Render Html pages
 
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
-
-      - uses: DeterminateSystems/nix-installer-action@main
-      - uses: DeterminateSystems/magic-nix-cache-action@main
-      - uses: nicknovitski/nix-develop@v1
-
-      - name: Start database
-        run: nix run .#services -- --detached && sleep 5
+      - uses: ./.github/setup_evap
+        with:
+          start-db: true
 
       - name: Render pages
         run: coverage run manage.py ts render_pages
@@ -208,17 +159,10 @@ jobs:
     name: Test Typescript
 
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
+      - uses: ./.github/setup_evap
         with:
-          submodules: true
-
-      - uses: DeterminateSystems/nix-installer-action@main
-      - uses: DeterminateSystems/magic-nix-cache-action@main
-      - uses: nicknovitski/nix-develop@v1
-
-      - name: Install Node dependencies
-        run: npm ci
+          fetch-submodules: true
+          npm-ci: true
 
       - name: Compile Typescript
         run: npx tsc --project evap/static/ts/tsconfig.compile.json
