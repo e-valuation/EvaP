@@ -26,11 +26,14 @@ runs:
 
     - name: Add localsettings
       run: cp evap/settings_test.py evap/localsettings.py
+      shell: bash
 
     - name: Install Node dependencies
       run: npm ci
+      shell: bash
       if: ${{ inputs.npm-ci }}
 
     - name: Start database
       run: nix run .#services -- --detached && sleep 5
+      shell: bash
       if: ${{ inputs.start-db }}
