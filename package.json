@@ -1,6 +1,4 @@
 {
-    "name": "EvaP",
-    "version": "2024-06",
     "devDependencies": {
         "@types/bootstrap": "^5.2.6",
         "@types/jest": "^29.5.12",
