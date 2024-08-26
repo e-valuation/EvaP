@@ -1,6 +1,7 @@
 [tool.poetry]
+package-mode = false
 name = "evap"
-version = "2024-07-08-dev"
+version = "0.1.0"
 readme = "README.md"
 packages = [{include = "evap"}]
 
