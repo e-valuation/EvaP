@@ -295,7 +295,6 @@ AUTHENTICATION_BACKENDS = [
     "evap.evaluation.auth.RequestAuthUserBackend",
     "evap.evaluation.auth.OpenIDAuthenticationBackend",
     "evap.evaluation.auth.EmailAuthenticationBackend",
-    "django.contrib.auth.backends.ModelBackend",
 ]
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
