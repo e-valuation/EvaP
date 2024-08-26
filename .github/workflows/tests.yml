@@ -176,7 +176,7 @@ jobs:
         with:
           npm-ci: true
 
-      - run: apt-get -q install -y chromium-browser
+      - run: sudo apt-get update && sudo apt-get -q install chromium-browser
 
       - name: Compile Typescript
         run: npx tsc --project evap/static/ts/tsconfig.compile.json
