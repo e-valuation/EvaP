@@ -176,7 +176,7 @@ jobs:
         with:
           npm-ci: true
 
-      - run: sudo apt-get update && sudo apt-get -q install chromium-browser
+      - run: npx puppeteer browsers install chrome
 
       - name: Compile Typescript
         run: npx tsc --project evap/static/ts/tsconfig.compile.json
