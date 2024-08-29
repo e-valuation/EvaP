@@ -35,19 +35,19 @@ sudo -H -u $USERNAME git fetch
 # match the database layout, or https://github.com/e-valuation/EvaP/issues/1237.
 [[ -z "$GITHUB_WORKFLOW" ]] && sudo ./deployment/enable_maintenance_mode.sh
 
-sudo -H -u "$USERNAME" --preserve-env ./manage.py dumpdata --natural-foreign --natural-primary --all -e contenttypes -e auth.Permission --indent 2 --output "$FILENAME"
+sudo -H -u "$USERNAME" --preserve-env=PYTHONPATH ./manage.py dumpdata --natural-foreign --natural-primary --all -e contenttypes -e auth.Permission --indent 2 --output "$FILENAME"
 
 [[ ! -z "$EVAP_SKIP_CHECKOUT" ]] && echo "Skipping Checkout"
 [[ ! -z "$EVAP_SKIP_CHECKOUT" ]] || sudo -H -u "$USERNAME" git checkout origin/release
 
 # sometimes, this fails for some random i18n test translation files.
-sudo -H -u "$USERNAME" --preserve-env ./manage.py compilemessages || true
-sudo -H -u "$USERNAME" --preserve-env ./manage.py scss --production
-sudo -H -u "$USERNAME" --preserve-env ./manage.py ts compile --fresh
-sudo -H -u "$USERNAME" --preserve-env ./manage.py collectstatic --noinput
-sudo -H -u "$USERNAME" --preserve-env ./manage.py migrate
-sudo -H -u "$USERNAME" --preserve-env ./manage.py clear_cache --all -v=1
-sudo -H -u "$USERNAME" --preserve-env ./manage.py refresh_results_cache
+sudo -H -u "$USERNAME" --preserve-env=PYTHONPATH ./manage.py compilemessages || true
+sudo -H -u "$USERNAME" --preserve-env=PYTHONPATH ./manage.py scss --production
+sudo -H -u "$USERNAME" --preserve-env=PYTHONPATH ./manage.py ts compile --fresh
+sudo -H -u "$USERNAME" --preserve-env=PYTHONPATH ./manage.py collectstatic --noinput
+sudo -H -u "$USERNAME" --preserve-env=PYTHONPATH ./manage.py migrate
+sudo -H -u "$USERNAME" --preserve-env=PYTHONPATH ./manage.py clear_cache --all -v=1
+sudo -H -u "$USERNAME" --preserve-env=PYTHONPATH ./manage.py refresh_results_cache
 
 [[ -z "$GITHUB_WORKFLOW" ]] && sudo ./deployment/disable_maintenance_mode.sh
 
