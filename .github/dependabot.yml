@@ -37,16 +37,7 @@ updates:
     labels:
       - "[T] Dependencies"
   - package-ecosystem: "github-actions"
-    directory: "/.github/setup_nodejs"
-    schedule:
-      interval: "weekly"
-    groups:
-      actions:
-        patterns: ["*"]
-    labels:
-      - "[T] Dependencies"
-  - package-ecosystem: "github-actions"
-    directory: "/.github/setup_python"
+    directory: "/.github/setup_evap"
     schedule:
       interval: "weekly"
     groups:
