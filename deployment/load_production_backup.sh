@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Counter part for update_production script.
 # This script will import the backup made by update_production.
@@ -6,9 +6,8 @@
 set -e # abort on error
 cd "$(dirname "$0")/.." # change to root directory
 
-USERNAME="evap"
 CONDITIONAL_NOINPUT=""
-[[ ! -z "$GITHUB_WORKFLOW" ]] && echo "Detected GitHub" && USERNAME="root" && CONDITIONAL_NOINPUT="--noinput"
+[[ ! -z "$GITHUB_WORKFLOW" ]] && echo "Detected GitHub" && CONDITIONAL_NOINPUT="--noinput"
 
 COMMIT_HASH="$(git rev-parse --short HEAD)"
 
@@ -40,22 +39,18 @@ then
     exit 1
 fi
 
-[[ -z "$GITHUB_WORKFLOW" ]] && sudo service apache2 stop
-
 # sometimes, this fails for some random i18n test translation files.
-sudo -H -u "$USERNAME" ./manage.py compilemessages || true
-sudo -H -u "$USERNAME" ./manage.py scss --production
-sudo -H -u "$USERNAME" ./manage.py collectstatic --noinput
+./manage.py compilemessages || true
+./manage.py scss --production
+./manage.py collectstatic --noinput
 
-sudo -H -u "$USERNAME" ./manage.py reset_db "$CONDITIONAL_NOINPUT"
-sudo -H -u "$USERNAME" ./manage.py migrate
-sudo -H -u "$USERNAME" ./manage.py flush "$CONDITIONAL_NOINPUT"
-sudo -H -u "$USERNAME" ./manage.py loaddata "$1"
+./manage.py reset_db "$CONDITIONAL_NOINPUT"
+./manage.py migrate
+./manage.py flush "$CONDITIONAL_NOINPUT"
+./manage.py loaddata "$1"
 
-sudo -H -u "$USERNAME" ./manage.py clear_cache --all -v=1
-sudo -H -u "$USERNAME" ./manage.py refresh_results_cache
-
-[[ -z "$GITHUB_WORKFLOW" ]] && sudo service apache2 start
+./manage.py clear_cache --all -v=1
+./manage.py refresh_results_cache
 
 { set +x; } 2>/dev/null # don't print the echo command, and don't print the 'set +x' itself
 
