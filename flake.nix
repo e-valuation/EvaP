@@ -36,7 +36,12 @@
           ];
 
           services = {
-            redis."r1".enable = true;
+            redis."r1" = {
+              enable = true;
+              extraConfig = ''
+                locale-collate "C"
+              '';
+            };
             postgres."pg1" = {
               enable = true;
               initialScript.before = ''
