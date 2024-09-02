@@ -20,17 +20,12 @@
       ];
       systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
       perSystem = { self', inputs', pkgs, system, ... }: {
-        packages = rec {
-          evap = pkgs.callPackage ./nix/evap.nix {
+        devShells = rec {
+          evap = pkgs.callPackage ./nix/shell.nix {
             poetry2nix = inputs.poetry2nix.lib.mkPoetry2Nix { inherit pkgs; };
             projectDir = self;
           };
           evap-dev = evap.override { poetry-groups = [ "dev" ]; };
-        };
-
-        devShells = rec {
-          evap = pkgs.callPackage ./nix/shell.nix { inherit (self'.packages) evap; };
-          evap-dev = evap.override { evap = self'.packages.evap-dev; };
           default = evap-dev;
         };
 
