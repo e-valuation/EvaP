@@ -339,18 +339,35 @@ class TestResultsViewContributionWarning(WebTest):
             participants=students,
             voters=students,
         )
-        questionnaire = baker.make(Questionnaire)
-        cls.evaluation.general_contribution.questionnaires.set([questionnaire])
+        cls.questionnaire = baker.make(Questionnaire)
+        cls.evaluation.general_contribution.questionnaires.set([cls.questionnaire])
         cls.contribution = baker.make(
             Contribution,
             evaluation=cls.evaluation,
-            questionnaires=[questionnaire],
+            questionnaires=[cls.questionnaire],
             contributor=contributor,
         )
         cls.likert_question = baker.make(
-            Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire, order=2
+            Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=cls.questionnaire, order=2
         )
         cls.url = f"/results/semester/{cls.semester.id}/evaluation/{cls.evaluation.id}"
+
+    def test_contributor_no_results_warning(self):
+        # The contributor card should be collapsed iff all questions have no results
+        # Regression test from https://github.com/e-valuation/EvaP/pull/2245
+        question2 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=self.questionnaire, order=2)
+
+        cache_results(self.evaluation)
+        page = self.app.get(self.url, user=self.manager, status=200)
+        self.assertIn("There are no results for this person", page)
+        self.assertIn('class="collapse"', page)
+
+        make_rating_answer_counters(question2, self.contribution, [0, 0, 10, 0, 0])
+
+        cache_results(self.evaluation)
+        page = self.app.get(self.url, user=self.manager, status=200)
+        self.assertNotIn("There are no results for this person", page)
+        self.assertNotIn('class="collapse"', page)
 
     def test_many_answers_evaluation_no_warning(self):
         make_rating_answer_counters(self.likert_question, self.contribution, [0, 0, 10, 0, 0])

@@ -40,6 +40,7 @@
 
                     <confirmation-modal type="submit" confirm-button-class="btn-danger">
                         <span slot="title">{% translate 'Delete semester' %}</span>
+                        <span slot="action-text">{% translate 'Delete semester' %}</span>
                         <span slot="question">
                             {% blocktranslate trimmed with semester_name=semester.name %}
                                 Do you really want to delete the semester <strong>{{ semester_name }}</strong>?
@@ -51,10 +52,6 @@
                         <div slot="extra-inputs">
                             <input type="text" name="validated-semester-name" data-must-equal="{{ semester.name }}" class="form-control" />
                         </div>
-
-                        <span slot="submit-group">
-                            <button class="btn btn-danger ms-2">{% translate 'Delete semester' %}</button>
-                        </span>
 
                         <button
                             slot="show-button"
@@ -344,7 +341,7 @@
                             <button type="button" class="btn btn-sm btn-light" data-filter="unreviewed_textanswers"
                                 data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
                                 title="{% translate 'Text answers awaiting review' %}">
-                                <span class="fas fa-comment icon-yellow"></span>
+                                <span class="fas fa-comment icon-blue"></span>
                             </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="textanswers_reviewed"
                                 data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
@@ -366,7 +363,7 @@
                             <button type="button" class="btn btn-sm btn-light" data-filter="results_not_yet_published"
                                 data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
                                 title="{% translate 'Results not yet published' %}">
-                                <span class="fas fa-chart-simple icon-yellow"></span>
+                                <span class="fas fa-chart-simple icon-blue"></span>
                             </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="results_published"
                                 data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
@@ -456,7 +453,7 @@
                             </button>
                             <button name="target_state" value="{{ Evaluation.State.PUBLISHED }}" type="submit" class="btn btn-sm btn-light"
                                 data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Unpublished evaluations' %}">
-                                <span class="fas fa-chart-simple icon-yellow"></span>
+                                <span class="fas fa-chart-simple icon-blue"></span>
                                 <span class="fas fa-chart-simple icon-red"></span>
                                 {% translate 'Publish' %}
                             </button>
