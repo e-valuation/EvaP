@@ -386,7 +386,7 @@ class TestSendRemindersCommand(TestCase):
         course2 = baker.make(Course, name_en="A-Course2", semester=semester1, **course_args)
 
         course3 = baker.make(Course, name_en="Course3", semester=semester2, **course_args)
-        course4 = baker.make(Course, name_en="Course4", semester=semester2, **course_args)
+        baker.make(Course, name_en="Course4", semester=semester2, **course_args)
 
         baker.make(
             Evaluation,

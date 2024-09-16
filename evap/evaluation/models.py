@@ -21,7 +21,7 @@ from django.db import IntegrityError, models, transaction
 from django.db.models import CheckConstraint, Count, Exists, F, Manager, OuterRef, Q, Subquery, Value
 from django.db.models.functions import Coalesce, Lower, NullIf, TruncDate
 from django.dispatch import Signal, receiver
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest
 from django.template import Context, Template
 from django.template.defaultfilters import linebreaksbr
 from django.template.exceptions import TemplateSyntaxError
@@ -52,7 +52,7 @@ logger = logging.getLogger(__name__)
 try:
     from typeguard import typeguard_ignore
 except ImportError:
-    typeguard_ignore = lambda func: func
+    typeguard_ignore = lambda f: f  # noqa: E731 - black formats a def with an empty line before.
 
 
 class NotArchivableError(Exception):
@@ -2039,11 +2039,11 @@ class EmailTemplate(models.Model):
 
         if autoescape:
             return result
-        else:
-            # Template.render returns a SafeData instance. If we didn't escape, this should not be marked as safe.
-            unsafe_result = result + ""
-            assert not isinstance(unsafe_result, SafeData)
-            return unsafe_result
+
+        # Template.render returns a SafeData instance. If we didn't escape, this should not be marked as safe.
+        unsafe_result = result + ""
+        assert not isinstance(unsafe_result, SafeData)
+        return unsafe_result
 
     @typeguard_ignore  # workaround for typeguard issue with Recipients here
     def send_to_users_in_evaluations(

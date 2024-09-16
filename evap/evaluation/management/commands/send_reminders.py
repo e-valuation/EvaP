@@ -8,9 +8,8 @@ from django.db.models import Exists, OuterRef, Prefetch
 from django.urls import reverse
 
 from evap.evaluation.management.commands.tools import log_exceptions
-from evap.evaluation.models import Course, EmailTemplate, Evaluation, Semester, UserProfile
+from evap.evaluation.models import Course, EmailTemplate, Evaluation, Semester
 from evap.evaluation.tools import unordered_groupby
-from evap.grades.models import GradeDocument
 
 logger = logging.getLogger(__name__)
 
