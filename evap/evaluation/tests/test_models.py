@@ -854,7 +854,7 @@ class TestEmailTemplate(TestCase):
         """
         user = baker.make(UserProfile, email=None)
         template = EmailTemplate.objects.get(name=EmailTemplate.STUDENT_REMINDER)
-        template.send_to_user(user, {}, {}, False, None)
+        template.send_to_user(user, {}, {}, False, [])
 
     def test_send_multi_alternatives_email(self):
         template = EmailTemplate(
