@@ -143,13 +143,13 @@ abstract class DataGrid {
             });
             const isDisplayedByFilters = [...this.state.filter].every(([name, filterValues]) => {
                 return filterValues.some(filterValue => {
-                    return row.filterValues.get(name)!.some(rowValue => rowValue === filterValue);
+                    return row.filterValues.get(name)?.some(rowValue => rowValue === filterValue);
                 });
             });
             const isDisplayedByRangedFilters = [...this.state.rangedFilter].every(([name, bound]) => {
                 return row.filterValues
-                    .get(name)!
-                    .map(rawValue => parseFloat(rawValue))
+                    .get(name)
+                    ?.map(rawValue => parseFloat(rawValue))
                     .some(rowValue => rowValue >= bound.low && rowValue <= bound.high);
             });
             row.isDisplayed = isDisplayedBySearch && isDisplayedByFilters && isDisplayedByRangedFilters;
@@ -480,14 +480,15 @@ export class ResultGrid extends DataGrid {
         for (const [name, { selector, checkboxes }] of this.filterCheckboxes.entries()) {
             // To store filter values independent of the language, use the corresponding id from the checkbox
             const values = [...row.querySelectorAll(selector)]
-                .map(element => element.textContent!.trim())
-                .map(filterName => checkboxes.find(checkbox => checkbox.dataset.filter === filterName)!.value);
+                .map(element => element.textContent?.trim())
+                .map(filterName => checkboxes.find(checkbox => checkbox.dataset.filter === filterName)?.value)
+                .filter(v => v !== undefined);
             filterValues.set(name, values);
         }
         for (const [name, { selector, slider }] of this.filterSliders.entries()) {
             const values = [...row.querySelectorAll<HTMLElement>(selector)]
                 .map(element => element.dataset.filterValue)
-                .filter(x => x !== undefined);
+                .filter(v => v !== undefined);
             filterValues.set(name, values);
             slider.includeValues(values.map(parseFloat));
         }
@@ -517,8 +518,9 @@ export class ResultGrid extends DataGrid {
             });
         }
         for (const [name, { slider }] of this.filterSliders.entries()) {
-            if (this.state.rangedFilter.has(name)) {
-                slider.range = this.state.rangedFilter.get(name)!;
+            const filterRange = this.state.rangedFilter.get(name);
+            if (filterRange !== undefined) {
+                slider.range = filterRange;
             } else {
                 slider.reset();
             }
