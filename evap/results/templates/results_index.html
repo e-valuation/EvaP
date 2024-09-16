@@ -157,13 +157,13 @@
                 ["courseType", {
                     checkboxes: [...document.querySelectorAll("input[name=courseType]")],
                     selector: ".badge-course-type",
-                }]
+                }],
             ]),
             filterSliders: new Map([
                 ["participants", {
                     slider: new RangeSlider("participant-filter", 0, 0),
                     selector: "[data-col=voters]",
-                }]
+                }],
             ]),
             sortColumnSelect: document.querySelector("[name=result-sort-column]"),
             sortOrderCheckboxes: [...document.querySelectorAll("[name=result-sort-order]")],
