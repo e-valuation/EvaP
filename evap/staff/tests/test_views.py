@@ -999,21 +999,59 @@ class TestGradeReminderView(WebTestStaffMode):
     def setUpTestData(cls):
         cls.manager = make_manager()
         cls.responsible = baker.make(UserProfile, first_name_given="Bastius", last_name="Quid")
-        cls.evaluation = baker.make(
+        cls.semester = baker.make(Semester)
+        cls.url = f"/staff/semester/{cls.semester.pk}/grade_reminder"
+
+        course_args = {"responsibles": [cls.responsible], "gets_no_grade_documents": False, "semester": cls.semester}
+        cls.course1 = baker.make(Course, name_en="A-Course1", name_de="Z-Course1", **course_args)
+        cls.course2 = baker.make(Course, name_en="Z-Course2", name_de="A-Course2", **course_args)
+
+        baker.make(
             Evaluation,
-            course__name_en="How to make a sandwich",
-            course__responsibles=[cls.responsible],
-            course__gets_no_grade_documents=False,
+            course=cls.course1,
             state=Evaluation.State.EVALUATED,
             wait_for_grade_upload_before_publishing=True,
+            _fill_optional=["name_de", "name_en"],
+            _quantity=2,
         )
-        cls.url = f"/staff/semester/{cls.evaluation.course.semester.pk}/grade_reminder"
+        cls.course2_evaluation = baker.make(
+            Evaluation,
+            course=cls.course2,
+            state=Evaluation.State.IN_EVALUATION,  # blocking
+            wait_for_grade_upload_before_publishing=True,  # blocking
+        )
 
-    def test_reminders_are_shown(self):
+    def test_reminders(self):
         page = self.app.get(self.url, user=self.manager)
+        body = page.body.decode()
 
-        self.assertContains(page, "Bastius Quid")
-        self.assertContains(page, "How to make a sandwich")
+        # multiple evaluations should not get the course listed multiple times
+        self.assertEqual(body.count("Bastius Quid"), 1)
+        self.assertEqual(body.count("A-Course1"), 1)
+
+        # reminder requires wait_for_grade_upload_before_publishing and state==EVALUATED
+        self.assertNotContains(page, "Z-Course2")
+
+        self.course2_evaluation.wait_for_grade_upload_before_publishing = False
+        self.course2_evaluation.end_evaluation()
+        self.course2_evaluation.save()
+        page = self.app.get(self.url, user=self.manager)
+        self.assertNotContains(page, "Z-Course2")
+
+        self.course2_evaluation.wait_for_grade_upload_before_publishing = True
+        self.course2_evaluation.save()
+        page = self.app.get(self.url, user=self.manager)
+        body = page.body.decode()
+        self.assertEqual(body.count("Z-Course2"), 1)
+
+        # courses should be ordered
+        self.assertLess(body.index("A-Course1"), body.index("Z-Course2"))
+
+        self.manager.language = "de"
+        self.manager.save()
+        page = self.app.get(self.url, user=self.manager)
+        body = page.body.decode()
+        self.assertLess(body.index("A-Course2"), body.index("Z-Course1"))
 
 
 class TestSendReminderView(WebTestStaffMode):
