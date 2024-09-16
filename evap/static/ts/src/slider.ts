@@ -46,16 +46,14 @@ export class RangeSlider {
         this.maxLabel = selectOrError<HTMLSpanElement>(".text-end", this.rangeSlider);
         this.rangeLabel = selectOrError<HTMLSpanElement>(".range-values", this.rangeSlider);
 
-        this.lowSlider.addEventListener("input", () => {
+        const updateFromSlider = () => {
             this.low = parseFloat(this.lowSlider.value);
-            this.updateRange();
-            this.onRangeChange();
-        });
-        this.highSlider.addEventListener("input", () => {
             this.high = parseFloat(this.highSlider.value);
             this.updateRange();
-            this.onRangeChange();
-        });
+        };
+
+        this.lowSlider.addEventListener("input", updateFromSlider);
+        this.highSlider.addEventListener("input", updateFromSlider);
     }
 
     private updateRange() {
@@ -65,6 +63,7 @@ export class RangeSlider {
             this.high = tmp;
         }
         this.rangeLabel.innerText = `${this.low} – ${this.high}`;
+        this.onRangeChange();
     }
 
     private updateLimits() {
