@@ -70,6 +70,7 @@ from evap.evaluation.tools import (
     get_object_from_dict_pk_entry_or_logged_40x,
     get_parameter_from_url_or_session,
     sort_formset,
+    unordered_groupby,
 )
 from evap.grades.models import GradeDocument
 from evap.results.exporters import ResultsExporter
@@ -912,14 +913,11 @@ def semester_grade_reminder(request, semester_id):
     courses = Course.objects_with_missing_final_grades().filter(semester=semester).prefetch_related("responsibles")
     courses = sorted(courses, key=lambda course: course.name)
 
-    responsibles = UserProfile.objects.filter(courses_responsible_for__in=courses).distinct()
+    responsible_list = unordered_groupby(
+        (responsible, course) for course in courses for responsible in course.responsibles.all()
+    )
 
-    responsible_list = [
-        (responsible, [course for course in courses if responsible in course.responsibles.all()])
-        for responsible in responsibles
-    ]
-
-    template_data = {"semester": semester, "responsible_list": responsible_list}
+    template_data = {"semester": semester, "responsible_list": responsible_list.items()}
     return render(request, "staff_semester_grade_reminder.html", template_data)
 
 
