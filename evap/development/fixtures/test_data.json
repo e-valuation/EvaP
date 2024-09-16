@@ -133248,6 +133248,16 @@
   }
 },
 {
+  "model": "evaluation.emailtemplate",
+  "pk": 10,
+  "fields": {
+    "name": "Grade Reminder",
+    "subject": "[EvaP] Notenveröffentlichung für {{semester.name_de}} / Grade publishing for {{semester.name_en}}",
+    "plain_content": "(English version below)\r\n\r\nLiebes Studienreferat,\r\n\r\nfür die folgenden Veranstaltungen im {{semester.name_de}} wurden bisher keine Notendokumente auf EvaP hochgeladen. Bitte prüfen Sie, ob die Noten bereits vorliegen und die Evaluierungsergebnisse veröffentlicht werden können.\r\n\r\n{% for responsible, courses in responsibles_and_courses_without_final_grades %}\r\n{{ responsible }}\r\n{% for course in courses %}\r\n- {{ course.name_de }} ({{ course.type }})\r\n{% endfor %}\r\n\r\n{% endfor %}\r\n\r\nBei Fragen und Rückmeldungen können Sie sich jederzeit gerne an das Evaluierungsteam wenden ({{ contact_email }}).\r\n\r\nFreundliche Grüße,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear office for student affairs,\r\n\r\nfor the following courses in {{semester.name_en}}, no grade documents have yet been uploaded on EvaP. Please check whether the grades are already available and whether the evaluation results can be published.\r\n\r\n{% for responsible, courses in responsibles_and_courses_without_final_grades %}\r\n{{ responsible }}\r\n{% for course in courses %}\r\n- {{ course.name_en }} ({{ course.type }})\r\n{% endfor %}\r\n\r\n{% endfor %}\r\n\r\nIf you have any questions or feedback, please contact the evaluation team ({{ contact_email }}).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)",
+    "html_content": "(English version below)\r\n\r\nLiebes Studienreferat,\r\n\r\nfür die folgenden Veranstaltungen im {{semester.name_de}} wurden bisher keine Notendokumente auf EvaP hochgeladen. Bitte prüfen Sie, ob die Noten bereits vorliegen und die Evaluierungsergebnisse veröffentlicht werden können.\r\n\r\n{% for responsible, courses in responsibles_and_courses_without_final_grades %}\r\n{{ responsible }}\r\n<ul>\r\n{% for course in courses %}\r\n<li>{{ course.name_de }} ({{ course.type }})</li>\r\n{% endfor %}\r\n</ul>\r\n<br/>\r\n{% endfor %}\r\n\r\nBei Fragen und Rückmeldungen können Sie sich jederzeit gerne an das Evaluierungsteam wenden ({{ contact_email }}).\r\n\r\nFreundliche Grüße,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear office for student affairs,\r\n\r\nfor the following courses in {{semester.name_en}}, no grade documents have yet been uploaded on EvaP. Please check whether the grades are already available and whether the evaluation results can be published.\r\n\r\n{% for responsible, courses in responsibles_and_courses_without_final_grades %}\r\n{{ responsible }}\r\n<ul>\r\n{% for course in courses %}\r\n<li>{{ course.name_en }} ({{ course.type }})</li>\r\n{% endfor %}\r\n</ul>\r\n<br/>\r\n{% endfor %}\r\n\r\nIf you have any questions or feedback, please contact the evaluation team ({{ contact_email }}).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
+  }
+},
+{
   "model": "evaluation.votetimestamp",
   "pk": 1,
   "fields": {

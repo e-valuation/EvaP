@@ -2433,6 +2433,8 @@ class TemplateEditView(SuccessMessageMixin, UpdateView):
             available_variables += ["evaluations", "due_evaluations"]
         elif template.name == EmailTemplate.DIRECT_DELEGATION:
             available_variables += ["evaluation", "delegate_user"]
+        elif template.name == EmailTemplate.GRADE_REMINDER:
+            available_variables += ["semester", "responsibles_and_courses_without_final_grades"]
 
         available_variables = ["{{ " + variable + " }}" for variable in available_variables]
         available_variables.sort()

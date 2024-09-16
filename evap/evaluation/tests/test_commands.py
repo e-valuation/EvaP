@@ -371,6 +371,72 @@ class TestSendRemindersCommand(TestCase):
             ],
         )
 
+    @override_settings(
+        GRADE_REMINDER_EMAIL_RECIPIENTS=["test1@example.com", "test2@example.com"],
+        GRADE_REMINDER_EMAIL_DATES=[date.today(), date.today() + timedelta(days=1)],
+    )
+    def test_send_grade_reminder(self):
+        semester1 = baker.make(Semester)
+        semester2 = baker.make(Semester)
+
+        responsible = baker.make(UserProfile)
+        course_args = {"responsibles": [responsible], "gets_no_grade_documents": False}
+
+        course1 = baker.make(Course, name_en="Z-Course1", semester=semester1, **course_args)
+        course2 = baker.make(Course, name_en="A-Course2", semester=semester1, **course_args)
+
+        course3 = baker.make(Course, name_en="Course3", semester=semester2, **course_args)
+        course4 = baker.make(Course, name_en="Course4", semester=semester2, **course_args)
+
+        baker.make(
+            Evaluation,
+            course=iter([course1, course1, course2, course3]),
+            state=Evaluation.State.EVALUATED,
+            wait_for_grade_upload_before_publishing=True,
+            _fill_optional=["name_de", "name_en"],
+            _quantity=4,
+        )
+
+        with patch("evap.evaluation.models.EmailTemplate.send_to_address") as send_mock:
+            management.call_command("send_reminders")
+
+        send_mock.assert_has_calls(
+            [
+                call(
+                    recipient_email="test1@example.com",
+                    subject_params={"semester": semester1},
+                    body_params={
+                        "semester": semester1,
+                        "responsibles_and_courses_without_final_grades": {responsible: [course2, course1]}.items(),
+                    },
+                ),
+                call(
+                    recipient_email="test2@example.com",
+                    subject_params={"semester": semester1},
+                    body_params={
+                        "semester": semester1,
+                        "responsibles_and_courses_without_final_grades": {responsible: [course2, course1]}.items(),
+                    },
+                ),
+                call(
+                    recipient_email="test1@example.com",
+                    subject_params={"semester": semester2},
+                    body_params={
+                        "semester": semester2,
+                        "responsibles_and_courses_without_final_grades": {responsible: [course3]}.items(),
+                    },
+                ),
+                call(
+                    recipient_email="test2@example.com",
+                    subject_params={"semester": semester2},
+                    body_params={
+                        "semester": semester2,
+                        "responsibles_and_courses_without_final_grades": {responsible: [course3]}.items(),
+                    },
+                ),
+            ]
+        )
+
 
 class TestLintCommand(TestCase):
     @patch("subprocess.run")

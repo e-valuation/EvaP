@@ -1981,6 +1981,7 @@ class EmailTemplate(models.Model):
     EVALUATION_STARTED = "Evaluation Started"
     DIRECT_DELEGATION = "Direct Delegation"
     TEXT_ANSWER_REVIEW_REMINDER = "Text Answer Review Reminder"
+    GRADE_REMINDER = "Grade Reminder"
 
     class Recipients(models.TextChoices):
         ALL_PARTICIPANTS = "all_participants", _("all participants")
@@ -2255,6 +2256,24 @@ class EmailTemplate(models.Model):
         body_params = {"user": user, "evaluation_url_tuples": evaluation_url_tuples}
         template = cls.objects.get(name=cls.TEXT_ANSWER_REVIEW_REMINDER)
         template.send_to_user(user, {}, body_params, use_cc=False)
+
+    @classmethod
+    def send_grade_reminder(
+        cls,
+        recipient_email: str,
+        semester: Semester,
+        responsibles_and_courses_without_final_grades: Iterable[tuple[UserProfile, list[Course]]],
+    ) -> None:
+        subject_params = {"semester": semester}
+        body_params = {
+            "semester": semester,
+            "responsibles_and_courses_without_final_grades": responsibles_and_courses_without_final_grades,
+        }
+
+        template = cls.objects.get(name=cls.GRADE_REMINDER)
+        template.send_to_address(
+            recipient_email=recipient_email, subject_params=subject_params, body_params=body_params
+        )
 
 
 class VoteTimestamp(models.Model):
