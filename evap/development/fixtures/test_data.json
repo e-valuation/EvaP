@@ -657,7 +657,7 @@
   }
 },
 {
-  "model": "evaluation.degree",
+  "model": "evaluation.program",
   "pk": 1,
   "fields": {
     "name_de": "Bachelor",
@@ -667,7 +667,7 @@
   }
 },
 {
-  "model": "evaluation.degree",
+  "model": "evaluation.program",
   "pk": 2,
   "fields": {
     "name_de": "Master",
@@ -677,7 +677,7 @@
   }
 },
 {
-  "model": "evaluation.degree",
+  "model": "evaluation.program",
   "pk": 3,
   "fields": {
     "name_de": "Sonstige",
@@ -162404,7 +162404,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -162424,7 +162424,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -162444,7 +162444,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -162464,7 +162464,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -162484,7 +162484,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -162504,7 +162504,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -162524,7 +162524,7 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -162544,7 +162544,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -162564,7 +162564,7 @@
     "type": 2,
     "is_private": true,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -162584,7 +162584,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -162604,7 +162604,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -162624,7 +162624,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -162644,7 +162644,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -162664,7 +162664,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -162684,7 +162684,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -162704,7 +162704,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -162724,7 +162724,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -162744,7 +162744,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -162764,7 +162764,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -162784,7 +162784,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -162804,7 +162804,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -162824,7 +162824,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -162844,7 +162844,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -162864,7 +162864,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -162884,7 +162884,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -162904,7 +162904,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -162924,7 +162924,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -162944,7 +162944,7 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       3
     ],
     "responsibles": [
@@ -162964,7 +162964,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -162984,7 +162984,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -163004,7 +163004,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163024,7 +163024,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163044,7 +163044,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -163064,7 +163064,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -163084,7 +163084,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -163104,7 +163104,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -163124,7 +163124,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -163144,7 +163144,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -163164,7 +163164,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163184,7 +163184,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -163204,7 +163204,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163224,7 +163224,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -163244,7 +163244,7 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -163264,7 +163264,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163284,7 +163284,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163304,7 +163304,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163324,7 +163324,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163344,7 +163344,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163364,7 +163364,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163384,7 +163384,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -163404,7 +163404,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -163424,7 +163424,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163444,7 +163444,7 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -163464,7 +163464,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -163484,7 +163484,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163504,7 +163504,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163524,7 +163524,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163544,7 +163544,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163564,7 +163564,7 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163584,7 +163584,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -163604,7 +163604,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -163624,7 +163624,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163644,7 +163644,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163664,7 +163664,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163684,7 +163684,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163704,7 +163704,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -163724,7 +163724,7 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -163744,7 +163744,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -163764,7 +163764,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -163784,7 +163784,7 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163804,7 +163804,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163824,7 +163824,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -163844,7 +163844,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163864,7 +163864,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163884,7 +163884,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163904,7 +163904,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163924,7 +163924,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163944,7 +163944,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -163964,7 +163964,7 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -163984,7 +163984,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164004,7 +164004,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -164024,7 +164024,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164044,7 +164044,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164064,7 +164064,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": true,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164084,7 +164084,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164104,7 +164104,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164124,7 +164124,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -164144,7 +164144,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -164164,7 +164164,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -164184,7 +164184,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164204,7 +164204,7 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -164224,7 +164224,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164244,7 +164244,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -164264,7 +164264,7 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164284,7 +164284,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164304,7 +164304,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164324,7 +164324,7 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164344,7 +164344,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164364,7 +164364,7 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164384,7 +164384,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164404,7 +164404,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164424,7 +164424,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -164444,7 +164444,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -164464,7 +164464,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164484,7 +164484,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -164504,7 +164504,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -164524,7 +164524,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -164544,7 +164544,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -164564,7 +164564,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -164584,7 +164584,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -164604,7 +164604,7 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -164624,7 +164624,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -164644,7 +164644,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -164664,7 +164664,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164684,7 +164684,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -164704,7 +164704,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -164724,7 +164724,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164744,7 +164744,7 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164764,7 +164764,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164784,7 +164784,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -164804,7 +164804,7 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164824,7 +164824,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164844,7 +164844,7 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164864,7 +164864,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -164884,7 +164884,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -164904,7 +164904,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -164924,7 +164924,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164944,7 +164944,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -164964,7 +164964,7 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -164984,7 +164984,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       3
     ],
     "responsibles": [
@@ -165004,7 +165004,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -165024,7 +165024,7 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -165044,7 +165044,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -165064,7 +165064,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [
@@ -165084,7 +165084,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       1
     ],
     "responsibles": [
@@ -165104,7 +165104,7 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "degrees": [
+    "programs": [
       2
     ],
     "responsibles": [

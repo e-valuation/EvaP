@@ -18,7 +18,7 @@ from evap.evaluation.models import (
     CHOICES,
     Contribution,
     Course,
-    Degree,
+    Program,
     Evaluation,
     Question,
     Questionnaire,
@@ -150,7 +150,7 @@ def create_evaluation_with_responsible_and_editor():
     tomorrow = (timezone.now() + timedelta(days=1)).date
     evaluation_params = {
         "state": Evaluation.State.PREPARED,
-        "course": baker.make(Course, degrees=[baker.make(Degree)], responsibles=[responsible]),
+        "course": baker.make(Course, programs=[baker.make(Program)], responsibles=[responsible]),
         "vote_start_datetime": in_one_hour,
         "vote_end_date": tomorrow,
     }

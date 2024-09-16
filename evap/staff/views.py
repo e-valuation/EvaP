@@ -47,7 +47,7 @@ from evap.evaluation.models import (
     Contribution,
     Course,
     CourseType,
-    Degree,
+    Program,
     EmailTemplate,
     Evaluation,
     FaqQuestion,
@@ -88,7 +88,7 @@ from evap.staff.forms import (
     CourseForm,
     CourseTypeForm,
     CourseTypeMergeSelectionForm,
-    DegreeForm,
+    ProgramForm,
     EvaluationCopyForm,
     EvaluationEmailForm,
     EvaluationForm,
@@ -168,7 +168,7 @@ def get_evaluations_with_prefetched_data(semester):
             Prefetch(
                 "contributions", queryset=Contribution.objects.filter(contributor=None), to_attr="general_contribution"
             ),
-            "course__degrees",
+            "course__programs",
             "course__responsibles",
             "course__semester",
             "contributions__questionnaires",
@@ -202,10 +202,10 @@ def semester_view(request, semester_id) -> HttpResponse:
     evaluations = get_evaluations_with_prefetched_data(semester)
     evaluations = sorted(evaluations, key=lambda cr: cr.full_name)
     courses = Course.objects.filter(semester=semester).prefetch_related(
-        "type", "degrees", "responsibles", "evaluations"
+        "type", "programs", "responsibles", "evaluations"
     )
 
-    # semester statistics (per degree)
+    # semester statistics (per program)
     @dataclass
     class Stats:
         # pylint: disable=too-many-instance-attributes
@@ -218,13 +218,13 @@ def semester_view(request, semester_id) -> HttpResponse:
         first_start: datetime = datetime(9999, 1, 1)
         last_end: date = date(2000, 1, 1)
 
-    degree_stats: dict[Degree, Stats] = defaultdict(Stats)
+    program_stats: dict[Program, Stats] = defaultdict(Stats)
     total_stats = Stats()
     for evaluation in evaluations:
         if evaluation.is_single_result:
             continue
-        degrees = evaluation.course.degrees.all()
-        stats_objects = [degree_stats[degree] for degree in degrees]
+        programs = evaluation.course.programs.all()
+        stats_objects = [program_stats[program] for program in programs]
         stats_objects += [total_stats]
         for stats in stats_objects:
             if evaluation.state >= Evaluation.State.IN_EVALUATION:
@@ -238,10 +238,10 @@ def semester_view(request, semester_id) -> HttpResponse:
                 stats.num_evaluations += 1
                 stats.first_start = min(stats.first_start, evaluation.vote_start_datetime)
                 stats.last_end = max(stats.last_end, evaluation.vote_end_date)
-    degree_stats = OrderedDict(sorted(degree_stats.items(), key=lambda x: x[0].order))
+    program_stats = OrderedDict(sorted(program_stats.items(), key=lambda x: x[0].order))
 
-    degree_stats_with_total = cast(dict[Degree | str, Stats], degree_stats)
-    degree_stats_with_total["total"] = total_stats
+    program_stats_with_total = cast(dict[Program | str, Stats], program_stats)
+    program_stats_with_total["total"] = total_stats
 
     template_data = {
         "semester": semester,
@@ -250,7 +250,7 @@ def semester_view(request, semester_id) -> HttpResponse:
         "disable_breadcrumb_semester": True,
         "rewards_active": rewards_active,
         "num_evaluations": len(evaluations),
-        "degree_stats": degree_stats_with_total,
+        "program_stats": program_stats_with_total,
         "courses": courses,
         "approval_states": [
             Evaluation.State.NEW,
@@ -706,7 +706,7 @@ def semester_export(request, semester_id):
         include_not_enough_voters = request.POST.get("include_not_enough_voters") == "on"
         include_unpublished = request.POST.get("include_unpublished") == "on"
         selection_list = [
-            (form.cleaned_data["selected_degrees"], form.cleaned_data["selected_course_types"]) for form in formset
+            (form.cleaned_data["selected_programs"], form.cleaned_data["selected_course_types"]) for form in formset
         ]
 
         filename = f"Evaluation-{semester.name}-{get_language()}.xls"
@@ -729,7 +729,7 @@ def semester_raw_export(_request, semester_id):
     writer.writerow(
         [
             _("Name"),
-            _("Degrees"),
+            _("Programs"),
             _("Type"),
             _("Single result"),
             _("State"),
@@ -740,7 +740,7 @@ def semester_raw_export(_request, semester_id):
         ]
     )
     for evaluation in sorted(semester.evaluations.all(), key=lambda cr: cr.full_name):
-        degrees = ", ".join([degree.name for degree in evaluation.course.degrees.all()])
+        programs = ", ".join([program.name for program in evaluation.course.programs.all()])
         avg_grade = ""
         if evaluation.can_staff_see_average_grade:
             distribution = calculate_average_distribution(evaluation)
@@ -749,7 +749,7 @@ def semester_raw_export(_request, semester_id):
         writer.writerow(
             [
                 evaluation.full_name,
-                degrees,
+                programs,
                 evaluation.course.type.name,
                 evaluation.is_single_result,
                 evaluation.state_str,
@@ -817,7 +817,7 @@ def semester_participation_export(_request, semester_id):
 def vote_timestamps_export(_request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     timestamps = VoteTimestamp.objects.filter(evaluation__course__semester=semester).prefetch_related(
-        "evaluation__course__degrees"
+        "evaluation__course__programs"
     )
 
     filename = f"Voting-Timestamps-{semester.name}.csv"
@@ -828,7 +828,7 @@ def vote_timestamps_export(_request, semester_id):
         [
             _("Evaluation id"),
             _("Course type"),
-            _("Course degrees"),
+            _("Course programs"),
             _("Vote end date"),
             _("Timestamp"),
         ]
@@ -839,7 +839,7 @@ def vote_timestamps_export(_request, semester_id):
             [
                 timestamp.evaluation.id,
                 timestamp.evaluation.course.type.name,
-                ", ".join([degree.name for degree in timestamp.evaluation.course.degrees.all()]),
+                ", ".join([program.name for program in timestamp.evaluation.course.programs.all()]),
                 timestamp.evaluation.vote_end_date,
                 timestamp.timestamp,
             ]
@@ -878,7 +878,7 @@ def semester_preparation_reminder(request, semester_id):
 
     evaluations = semester.evaluations.filter(
         state__in=[Evaluation.State.PREPARED, Evaluation.State.EDITOR_APPROVED]
-    ).prefetch_related("course__degrees")
+    ).prefetch_related("course__programs")
 
     prepared_evaluations = semester.evaluations.filter(state=Evaluation.State.PREPARED)
     responsibles = UserProfile.objects.filter(courses_responsible_for__evaluations__in=prepared_evaluations).distinct()
@@ -2028,18 +2028,18 @@ def questionnaire_set_locked(request):
 
 
 @manager_required
-class DegreeIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
-    model = Degree
+class ProgramIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
+    model = Program
     formset_class = modelformset_factory(
-        Degree,
-        form=DegreeForm,
+        Program,
+        form=ProgramForm,
         formset=ModelWithImportNamesFormset,
         can_delete=True,
         extra=1,
     )
-    template_name = "staff_degree_index.html"
-    success_url = reverse_lazy("staff:degree_index")
-    success_message = gettext_lazy("Successfully updated the degrees.")
+    template_name = "staff_program_index.html"
+    success_url = reverse_lazy("staff:program_index")
+    success_message = gettext_lazy("Successfully updated the programs.")
 
 
 @manager_required

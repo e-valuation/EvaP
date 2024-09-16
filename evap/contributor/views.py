@@ -14,7 +14,7 @@ from evap.evaluation.models import (
     Contribution,
     Course,
     CourseType,
-    Degree,
+    Program,
     EmailTemplate,
     Evaluation,
     Semester,
@@ -60,7 +60,7 @@ def index(request):
     own_evaluations = (
         Evaluation.objects.filter(course__in=own_courses)
         .annotate(contributes_to=Exists(Evaluation.objects.filter(id=OuterRef("id"), contributions__contributor=user)))
-        .prefetch_related("course", "course__evaluations", "course__degrees", "course__type", "course__semester")
+        .prefetch_related("course", "course__evaluations", "course__programs", "course__type", "course__semester")
     )
     own_evaluations = [evaluation for evaluation in own_evaluations if evaluation.can_be_seen_by(user)]
 
@@ -78,7 +78,7 @@ def index(request):
             )
         )
         delegated_evaluations = Evaluation.objects.filter(course__in=delegated_courses).prefetch_related(
-            "course", "course__evaluations", "course__degrees", "course__type", "course__semester"
+            "course", "course__evaluations", "course__programs", "course__type", "course__semester"
         )
         delegated_evaluations = [evaluation for evaluation in delegated_evaluations if evaluation.can_be_seen_by(user)]
         for evaluation in delegated_evaluations:
@@ -284,7 +284,7 @@ def export_contributor_results(contributor):
     ResultsExporter().export(
         response,
         Semester.objects.all(),
-        [(Degree.objects.all(), CourseType.objects.all())],
+        [(Program.objects.all(), CourseType.objects.all())],
         include_not_enough_voters=True,
         include_unpublished=False,
         contributor=contributor,
