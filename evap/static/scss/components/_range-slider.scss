@@ -23,13 +23,12 @@ section.range-slider input::-moz-range-thumb {
     position: relative;
     z-index: 10;
     -moz-appearance: none;
-    width: 9px;
 }
 
 section.range-slider input::-moz-range-track {
     position: relative;
     z-index: -1;
-    background-color: rgba(0, 0, 0, 1);
+    background-color: $light-gray;
     border: 0;
 }
 section.range-slider input:last-of-type::-moz-range-track {
