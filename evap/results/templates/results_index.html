@@ -148,27 +148,27 @@
             filterCheckboxes: new Map([
                 ["semester", {
                     checkboxes: [...document.querySelectorAll("input[name=semester]")],
-                    selector: "[data-col=semester]"
+                    selector: "[data-col=semester]",
                 }],
                 ["degree", {
                     checkboxes: [...document.querySelectorAll("input[name=degree]")],
-                    selector: ".badge-degree"
+                    selector: ".badge-degree",
                 }],
                 ["courseType", {
                     checkboxes: [...document.querySelectorAll("input[name=courseType]")],
-                    selector: ".badge-course-type"
+                    selector: ".badge-course-type",
                 }]
             ]),
             filterSliders: new Map([
                 ["participants", {
                     slider: new RangeSlider("participant-filter", 0, 0),
-                    selector: "[data-col=voters]"
+                    selector: "[data-col=voters]",
                 }]
             ]),
             sortColumnSelect: document.querySelector("[name=result-sort-column]"),
             sortOrderCheckboxes: [...document.querySelectorAll("[name=result-sort-order]")],
             resetFilter: document.querySelector("[data-reset=filter]"),
-            resetOrder: document.querySelector("[data-reset=order]")
+            resetOrder: document.querySelector("[data-reset=order]"),
         }).init();
     </script>
 {% endblock %}
