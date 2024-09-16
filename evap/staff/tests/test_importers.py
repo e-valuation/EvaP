@@ -10,7 +10,7 @@ from django.test import TestCase, override_settings
 from model_bakery import baker
 
 import evap.staff.fixtures.excel_files_test_data as excel_data
-from evap.evaluation.models import Contribution, Course, CourseType, Program, Evaluation, Semester, UserProfile
+from evap.evaluation.models import Contribution, Course, CourseType, Evaluation, Program, Semester, UserProfile
 from evap.evaluation.tests.tools import assert_no_database_modifications
 from evap.staff.importers import (
     ImporterLog,

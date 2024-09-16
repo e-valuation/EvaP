@@ -14,9 +14,9 @@ from evap.evaluation.models import (
     Contribution,
     Course,
     CourseType,
-    Program,
     EmailTemplate,
     Evaluation,
+    Program,
     Semester,
     UserProfile,
 )

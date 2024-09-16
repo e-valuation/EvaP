@@ -3,7 +3,7 @@ from django.test import TestCase
 from model_bakery import baker
 
 from evap.contributor.forms import EditorContributionForm, EvaluationForm
-from evap.evaluation.models import Contribution, Program, Evaluation, Questionnaire, UserProfile
+from evap.evaluation.models import Contribution, Evaluation, Program, Questionnaire, UserProfile
 from evap.evaluation.tests.tools import WebTest, get_form_data_from_instance
 from evap.staff.forms import ContributionFormset
 

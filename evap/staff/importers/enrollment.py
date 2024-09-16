@@ -11,7 +11,7 @@ from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
-from evap.evaluation.models import Contribution, Course, CourseType, Program, Evaluation, Semester, UserProfile
+from evap.evaluation.models import Contribution, Course, CourseType, Evaluation, Program, Semester, UserProfile
 from evap.evaluation.tools import clean_email, ilen, unordered_groupby
 from evap.staff.tools import append_user_list_if_not_empty
 
