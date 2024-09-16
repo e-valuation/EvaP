@@ -20,11 +20,14 @@
             </h5>
             <div class="row">
                 <div class="col-12 col-lg mb-3 mb-lg-0">
-                    <input type="search" name="search" class="form-control mb-3" placeholder="{% translate 'Search...' %}" />
+                    <label>
+                        <input type="search" name="search" class="form-control mb-3"
+                               placeholder="{% translate 'Search...' %}" />
+                    </label>
 
                     <h6 class="card-subtitle mt-4 mb-1">{% trans 'Participants' %}</h6>
                     <div id="participant-filter">
-                        {% include 'results_widget_range_slider.html' with max_participants=max_participants %}
+                        {% include 'results_widget_range_slider.html' with min=0 max=max_participants step=1 %}
                     </div>
                 </div>
                 <div class="col-6 col-sm-4 col-md">
@@ -134,7 +137,8 @@
 
 {% block additional_javascript %}
     <script type="module">
-        import {ResultGrid} from "{% static 'js/datagrid.js' %}";
+        import { ResultGrid } from "{% static 'js/datagrid.js' %}";
+        import { RangeSlider } from "{% static 'js/slider.js' %}";
 
         new ResultGrid({
             storageKey: "results-data-grid",
@@ -144,21 +148,27 @@
             filterCheckboxes: new Map([
                 ["semester", {
                     checkboxes: [...document.querySelectorAll("input[name=semester]")],
-                    selector: "[data-col=semester]",
+                    selector: "[data-col=semester]"
                 }],
                 ["degree", {
                     checkboxes: [...document.querySelectorAll("input[name=degree]")],
-                    selector: ".badge-degree",
+                    selector: ".badge-degree"
                 }],
                 ["courseType", {
                     checkboxes: [...document.querySelectorAll("input[name=courseType]")],
-                    selector: ".badge-course-type",
-                }],
+                    selector: ".badge-course-type"
+                }]
+            ]),
+            filterSliders: new Map([
+                ["participants", {
+                    slider: new RangeSlider("participant-filter", 0, 0),
+                    selector: "[data-col=voters]"
+                }]
             ]),
             sortColumnSelect: document.querySelector("[name=result-sort-column]"),
             sortOrderCheckboxes: [...document.querySelectorAll("[name=result-sort-order]")],
             resetFilter: document.querySelector("[data-reset=filter]"),
-            resetOrder: document.querySelector("[data-reset=order]"),
+            resetOrder: document.querySelector("[data-reset=order]")
         }).init();
     </script>
 {% endblock %}
