@@ -15,8 +15,8 @@ from evap.evaluation.models import (
     Contribution,
     Course,
     CourseType,
-    Program,
     Evaluation,
+    Program,
     Question,
     Questionnaire,
     QuestionType,
@@ -1138,7 +1138,9 @@ class TestArchivedResults(WebTest):
         cls.contributor = baker.make(UserProfile, email="contributor@institution.example.com")
         cls.responsible = baker.make(UserProfile, email="responsible@institution.example.com")
 
-        course = baker.make(Course, semester=cls.semester, programs=[baker.make(Program)], responsibles=[cls.responsible])
+        course = baker.make(
+            Course, semester=cls.semester, programs=[baker.make(Program)], responsibles=[cls.responsible]
+        )
         cls.evaluation = baker.make(
             Evaluation,
             course=course,

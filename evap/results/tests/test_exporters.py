@@ -10,8 +10,8 @@ from evap.evaluation.models import (
     Contribution,
     Course,
     CourseType,
-    Program,
     Evaluation,
+    Program,
     Question,
     Questionnaire,
     QuestionType,
@@ -143,14 +143,18 @@ class TestExporters(TestCase):
         evaluation1 = baker.make(
             Evaluation,
             state=Evaluation.State.PUBLISHED,
-            course=baker.make(Course, programs=[program], type=course_type, semester=semester, name_de="A", name_en="B"),
+            course=baker.make(
+                Course, programs=[program], type=course_type, semester=semester, name_de="A", name_en="B"
+            ),
             name_de="Evaluation1",
             name_en="Evaluation1",
         )
         evaluation2 = baker.make(
             Evaluation,
             state=Evaluation.State.PUBLISHED,
-            course=baker.make(Course, programs=[program], type=course_type, semester=semester, name_de="B", name_en="A"),
+            course=baker.make(
+                Course, programs=[program], type=course_type, semester=semester, name_de="B", name_en="A"
+            ),
             name_de="Evaluation2",
             name_en="Evaluation2",
         )

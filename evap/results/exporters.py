@@ -9,7 +9,7 @@ from django.db.models import Q, QuerySet
 from django.db.models.base import Model
 from django.utils.translation import gettext as _
 
-from evap.evaluation.models import CourseType, Program, Evaluation, Question, Questionnaire, Semester, UserProfile
+from evap.evaluation.models import CourseType, Evaluation, Program, Question, Questionnaire, Semester, UserProfile
 from evap.evaluation.tools import ExcelExporter
 from evap.results.tools import (
     AnsweredRatingResult,
