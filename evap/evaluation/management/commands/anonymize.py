@@ -16,7 +16,7 @@ from evap.evaluation.models import (
     Contribution,
     Course,
     CourseType,
-    Degree,
+    Program,
     RatingAnswerCounter,
     Semester,
     TextAnswer,
@@ -137,14 +137,14 @@ class Command(BaseCommand):
             user.save()
 
     def anonymize_courses(self):
-        all_degrees = list(Degree.objects.all())
+        all_programs = list(Program.objects.all())
         all_course_types = CourseType.objects.all()
 
-        # Randomize the degrees
-        self.stdout.write("Randomizing degrees...")
+        # Randomize the programs
+        self.stdout.write("Randomizing programs...")
         for course in Course.objects.all():
-            degrees = random.sample(all_degrees, course.degrees.count())
-            course.degrees.set(degrees)
+            programs = random.sample(all_programs, course.programs.count())
+            course.programs.set(programs)
 
         # Randomize course types
         self.stdout.write("Randomizing course types...")

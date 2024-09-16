@@ -251,7 +251,7 @@ class Questionnaire(models.Model):
         return cls.objects.get(name_en=cls.SINGLE_RESULT_QUESTIONNAIRE_NAME)
 
 
-class Degree(models.Model):
+class Program(models.Model):
     name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"), unique=True)
     name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), unique=True)
     name = translate(en="name_en", de="name_de")
@@ -259,7 +259,7 @@ class Degree(models.Model):
         models.CharField(max_length=1024), default=list, verbose_name=_("import names"), blank=True
     )
 
-    order = models.IntegerField(verbose_name=_("degree order"), default=-1)
+    order = models.IntegerField(verbose_name=_("program order"), default=-1)
 
     class Meta:
         ordering = ["order"]
@@ -310,7 +310,7 @@ class Course(LoggedModel):
     type = models.ForeignKey(CourseType, models.PROTECT, verbose_name=_("course type"), related_name="courses")
 
     # e.g. Bachelor, Master
-    degrees = models.ManyToManyField(Degree, verbose_name=_("degrees"), related_name="courses")
+    programs = models.ManyToManyField(Program, verbose_name=_("programs"), related_name="courses")
 
     # defines whether results can only be seen by contributors and participants
     is_private = models.BooleanField(verbose_name=_("is private"), default=False)

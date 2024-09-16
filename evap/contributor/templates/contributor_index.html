@@ -62,8 +62,8 @@
                                         <div>
                                             {{ course.name }}
                                         </div>
-                                        {% for degree in course.degrees.all %}
-                                            <span class="badge bg-primary">{{ degree }}</span>
+                                        {% for program in course.programs.all %}
+                                            <span class="badge bg-primary">{{ program }}</span>
                                         {% endfor %}
                                         <span class="badge bg-secondary">{{ course.type }}</span>
                                     </td>

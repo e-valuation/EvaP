@@ -9,7 +9,7 @@ from django.db.models import Q, QuerySet
 from django.db.models.base import Model
 from django.utils.translation import gettext as _
 
-from evap.evaluation.models import CourseType, Degree, Evaluation, Question, Questionnaire, Semester, UserProfile
+from evap.evaluation.models import CourseType, Program, Evaluation, Question, Questionnaire, Semester, UserProfile
 from evap.evaluation.tools import ExcelExporter
 from evap.results.tools import (
     AnsweredRatingResult,
@@ -42,7 +42,7 @@ class ResultsExporter(ExcelExporter):
         "total_voters": xlwt.easyxf("alignment: horiz centre; borders: left medium, right medium"),
         "evaluation_rate": xlwt.easyxf("alignment: horiz centre; borders: left medium, bottom medium, right medium"),
         "evaluation_weight": xlwt.easyxf("alignment: horiz centre; borders: left medium, right medium"),
-        "degree": xlwt.easyxf("alignment: wrap on; borders: left medium, right medium"),
+        "program": xlwt.easyxf("alignment: wrap on; borders: left medium, right medium"),
         # Grade styles added in ResultsExporter.init_grade_styles() #
         **ExcelExporter.styles,
     }
@@ -115,7 +115,7 @@ class ResultsExporter(ExcelExporter):
     def filter_evaluations(
         semesters: Iterable[Semester],
         evaluation_states: Iterable[Evaluation.State],
-        degree_ids: Iterable[int],
+        program_ids: Iterable[int],
         course_type_ids: Iterable[int],
         contributor: UserProfile | None,
         include_not_enough_voters: bool,
@@ -127,7 +127,7 @@ class ResultsExporter(ExcelExporter):
         evaluations_filter = Q(
             course__semester__in=semesters,
             state__in=evaluation_states,
-            course__degrees__in=degree_ids,
+            course__programs__in=program_ids,
             course__type__in=course_type_ids,
         )
         if contributor:
@@ -179,7 +179,7 @@ class ResultsExporter(ExcelExporter):
         evaluations_with_results: list[tuple[Evaluation, OrderedDict[int, list[QuestionResult]]]],
         semesters: QuerySetOrSequence[Semester],
         contributor: UserProfile | None,
-        degrees: Iterable[int],
+        programs: Iterable[int],
         course_types: Iterable[int],
         verbose_heading: bool,
     ) -> None:
@@ -189,10 +189,10 @@ class ResultsExporter(ExcelExporter):
         elif len(semesters) == 1:
             export_name += f"\n{semesters[0].name}"
         if verbose_heading:
-            degree_names = [degree.name for degree in Degree.objects.filter(pk__in=degrees)]
+            program_names = [program.name for program in Program.objects.filter(pk__in=programs)]
             course_type_names = [course_type.name for course_type in CourseType.objects.filter(pk__in=course_types)]
             self.write_cell(
-                f"{export_name}\n\n{', '.join(degree_names)}\n\n{', '.join(course_type_names)}",
+                f"{export_name}\n\n{', '.join(program_names)}\n\n{', '.join(course_type_names)}",
                 "headline",
             )
         else:
@@ -207,9 +207,9 @@ class ResultsExporter(ExcelExporter):
             self.write_cell(title, "evaluation")
 
         self.next_row()
-        self.write_cell(_("Degrees"), "bold")
+        self.write_cell(_("Programs"), "bold")
         for evaluation, __ in evaluations_with_results:
-            self.write_cell("\n".join([d.name for d in evaluation.course.degrees.all()]), "degree")
+            self.write_cell("\n".join([d.name for d in evaluation.course.programs.all()]), "program")
 
         self.next_row()
         self.write_cell(_("Course Type"), "bold")
@@ -335,7 +335,7 @@ class ResultsExporter(ExcelExporter):
         # We want to throw early here, since workbook.save() will throw an IndexError otherwise.
         assert len(selection_list) > 0
 
-        for sheet_counter, (degree_ids, course_type_ids) in enumerate(selection_list, 1):
+        for sheet_counter, (program_ids, course_type_ids) in enumerate(selection_list, 1):
             self.cur_sheet = self.workbook.add_sheet("Sheet " + str(sheet_counter))
             self.cur_row = 0
             self.cur_col = 0
@@ -347,14 +347,14 @@ class ResultsExporter(ExcelExporter):
             evaluations_with_results, used_questionnaires, course_results_exist = self.filter_evaluations(
                 semesters,
                 evaluation_states,
-                degree_ids,
+                program_ids,
                 course_type_ids,
                 contributor,
                 include_not_enough_voters,
             )
 
             self.write_headings_and_evaluation_info(
-                evaluations_with_results, semesters, contributor, degree_ids, course_type_ids, verbose_heading
+                evaluations_with_results, semesters, contributor, program_ids, course_type_ids, verbose_heading
             )
 
             for questionnaire in used_questionnaires:
