@@ -1,4 +1,4 @@
-{ pkgs, poetry2nix, projectDir, poetry-groups ? [ ], extraPackages ? [ ], ... }:
+{ pkgs, poetry2nix, projectDir, poetry-groups ? [ ], extraPackages ? [ ], extraPythonPackages ? (ps: [ ]), ... }:
 
 let
   clean-setup = pkgs.writeShellScriptBin "clean-setup" ''
@@ -52,7 +52,7 @@ pkgs.mkShell {
     poetry-env
     clean-setup
     initialize-setup
-  ] ++ extraPackages;
+  ] ++ extraPackages ++ (extraPythonPackages poetry-env.python.pkgs);
 
   env.PUPPETEER_SKIP_DOWNLOAD = 1;
 }
