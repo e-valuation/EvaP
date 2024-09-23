@@ -28,7 +28,7 @@ from django.template.exceptions import TemplateSyntaxError
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.functional import cached_property
-from django.utils.safestring import SafeData, SafeString
+from django.utils.safestring import SafeData
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import gettext_noop
