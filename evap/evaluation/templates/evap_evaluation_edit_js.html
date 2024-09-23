@@ -4,19 +4,19 @@
     <script type="module">
         import { makeFormSortable } from "{% static 'js/sortable-form.js' %}";
         const rowChanged = function(row) {
-            const name = row.querySelector("select[id$=-contributor]").querySelector(":selected").textContent;
+            const name = row.querySelector("select[id$=-contributor] > [selected]")?.textContent;
             const nameChanged = name && name != "---------";
-            const idChanged = row.querySelector("input[id$=-id]").value;
+            const idChanged = row.querySelector("input[id$=-id]")?.value;
 
-            questionnaireChanged = false;
-            row.querySelectorAll("input[name$=-questionnaires]").forEach(el => {
+            var questionnaireChanged = false;
+            row.querySelectorAll("input[name$=-questionnaires]")?.forEach(el => {
                 if (el.checked)
                     questionnaireChanged = true;
             })
 
-            const roleChanged = ! row.querySelector("input[id$=-role_0]").checked;
-            const commVisibilityChanged = ! row.querySelector("input[id$=_visibility_0]").checked;
-            const labelChanged = row.querySelector("input[id$=-label]").value;
+            const roleChanged = ! row.querySelector("input[id$=-role_0]")?.checked;
+            const commVisibilityChanged = ! row.querySelector("input[id$=_visibility_0]")?.checked;
+            const labelChanged = row.querySelector("input[id$=-label]")?.value;
 
             return idChanged || nameChanged || questionnaireChanged || roleChanged || commVisibilityChanged || labelChanged;
         };
