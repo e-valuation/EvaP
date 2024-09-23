@@ -909,17 +909,22 @@ def semester_preparation_reminder(request, semester_id):
 
 
 @manager_required
-def semester_grade_reminder(request, semester_id):
+def semester_grade_reminder(request, semester_id: int) -> HttpResponse:
     semester = get_object_or_404(Semester, id=semester_id)
 
-    courses = Course.objects_with_missing_final_grades().filter(semester=semester).prefetch_related("responsibles")
-    courses = sorted(courses, key=lambda course: course.name)
+    courses = sorted(
+        Course.objects_with_missing_final_grades().filter(semester=semester).prefetch_related("responsibles"),
+        key=lambda course: course.name,
+    )
 
-    responsible_list = unordered_groupby(
+    responsibles_and_courses_without_final_grades = unordered_groupby(
         (responsible, course) for course in courses for responsible in course.responsibles.all()
     )
 
-    template_data = {"semester": semester, "responsible_list": responsible_list.items()}
+    template_data = {
+        "semester": semester,
+        "responsibles_and_courses_without_final_grades": responsibles_and_courses_without_final_grades.items(),
+    }
     return render(request, "staff_semester_grade_reminder.html", template_data)
 
 
