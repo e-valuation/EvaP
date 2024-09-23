@@ -211,6 +211,7 @@ abstract class DataGrid {
 
     private saveStateToStorage() {
         const stored = {
+            rangeFilter: [...this.state.rangeFilter],
             search: this.state.search,
             filter: [...this.state.equalityFilter],
             order: this.state.order,
