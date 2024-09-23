@@ -11,7 +11,31 @@ EvaP is the course evaluation system used internally at Hasso Plattner Institute
 
 For the documentation, please see our [wiki](https://github.com/e-valuation/EvaP/wiki).
 
-## Development Setup
+## Development Setup (Podman)
+
+To develop EvaP, we recommend that you set up a development container.
+This can be done with the configuration file provided by us.
+You will have to install [`git`](https://git-scm.com/downloads) and [`podman`](https://podman.io/).
+Clone the EvaP repository and create the container using
+```bash
+git clone --recurse-submodules https://github.com/e-valuation/EvaP.git
+cd EvaP
+podman build --tag evap-image nix/
+podman create --name evap-container --userns=keep-id:uid=1001,gid=1001 --volume $PWD:/evap --publish 8000:8000 evap-image
+```
+
+From now on, you can use the created container whenever you want to work on EvaP.
+Start the container with `podman start evap-container` and enter it with `podman exec -it evap-container machinectl shell -q evap@`.
+When entering the container for the first time, it may take a while until the database and development environment have finished setting up.
+Once you see a shell prompt like `evap@5b17c1be4315:/evap$`, you should be ready.
+To run the final initialization steps, run the command `initialize-setup`.
+Now, you can start EvaP by running `./manage.py run`.
+Open your web browser at http://localhost:8000/ and login with email `evap@institution.example.com` and password `evap`.
+You can exit the container by pressing `Ctrl-D` and then stop it with `podman stop evap-container` (or it will stop automatically when you shut down your computer).
+
+## Development Setup (Local)
+
+TODO
 
 To develop EvaP, you will have to install [`git`](https://git-scm.com/downloads) and [`nix`](https://nixos.org/) with support for nix flakes.
 
