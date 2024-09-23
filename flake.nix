@@ -49,41 +49,17 @@
             };
             postgres."pg1" = {
               enable = true;
+              superuser = "postgres";
+              createDatabase = false;
               initialScript.before = ''
-                CREATE USER evap;
-                ALTER USER evap WITH PASSWORD 'evap';
-                ALTER USER evap CREATEDB;
+                DROP USER IF EXISTS evap;
+                DROP DATABASE IF EXISTS evap;
+                CREATE USER evap PASSWORD 'evap' CREATEDB;
                 CREATE DATABASE evap OWNER evap;
               '';
             };
           };
         };
-
-        packages.install-services-unit =
-          let
-            # We need to make `bash` available in the path for the readiness-checks.
-            wrapped-services = pkgs.runCommand "wrapped-services" { nativeBuildInputs = [ pkgs.makeWrapper ]; } ''
-              makeWrapper ${self'.packages.services}/bin/services $out/bin/services --prefix PATH ':' ${pkgs.lib.makeBinPath [pkgs.bash]}
-            '';
-          in
-          pkgs.writeShellScriptBin "install-services-unit" ''
-            set -ex
-            WORKING_DIR="''${XDG_DATA_HOME:-$HOME/.local/share}/evap-services/"
-            mkdir -p $WORKING_DIR
-            cat > ''${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user/evap-services.service <<EOF
-                [Unit]
-                Description=EvaP Database Services
-
-                [Service]
-                Type=simple
-                WorkingDirectory=''$WORKING_DIR
-                ExecStart=${wrapped-services}/bin/services up --tui=false
-                ExecStop=${wrapped-services}/bin/services down
-
-                [Install]
-                WantedBy=multi-user.target
-            EOF
-          '';
       };
     };
 }

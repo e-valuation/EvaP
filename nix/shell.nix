@@ -48,6 +48,7 @@ pkgs.mkShell {
   packages = with pkgs; [
     poetry
     nodejs
+    gettext
 
     poetry-env
     clean-setup
