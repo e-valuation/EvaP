@@ -14,6 +14,7 @@ import os
 import sys
 from fractions import Fraction
 from typing import Any
+from evap.tools import MonthAndDay
 
 from django.contrib.staticfiles.storage import ManifestStaticFilesStorage
 
@@ -69,10 +70,10 @@ TEXTANSWER_REVIEW_REMINDER_WEEKDAYS = [3]
 
 # Email addresses that are reminded about uploading grade documents
 GRADE_REMINDER_EMAIL_RECIPIENTS: list[str] = []
-# Dates on which grade upload reminder emails are sent. Only day and month are relevant, the year is ignored.
+# Dates on which grade upload reminder emails are sent.
 GRADE_REMINDER_EMAIL_DATES = [
-    datetime.date(1000, 3, 15),
-    datetime.date(1000, 9, 15),
+    MonthAndDay(month=3, day=15),
+    MonthAndDay(month=9, day=15),
 ]
 
 # email domains for the internal users of the hosting institution used to

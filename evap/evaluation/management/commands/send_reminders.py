@@ -10,6 +10,7 @@ from django.urls import reverse
 from evap.evaluation.management.commands.tools import log_exceptions
 from evap.evaluation.models import Course, EmailTemplate, Evaluation, Semester
 from evap.evaluation.tools import unordered_groupby
+from evap.tools import MonthAndDay
 
 logger = logging.getLogger(__name__)
 
@@ -80,16 +81,8 @@ class Command(BaseCommand):
 
     @staticmethod
     def send_grade_reminders():
-        def should_remind_today():
-            normalized_reminder_dates = {
-                datetime.date(1000, d.month, d.day) for d in settings.GRADE_REMINDER_EMAIL_DATES
-            }
-            today = datetime.date.today()
-            normalized_today = datetime.date(1000, today.month, today.day)
-
-            return normalized_today in normalized_reminder_dates
-
-        if not should_remind_today():
+        today = MonthAndDay(day=datetime.date.today().day, month=datetime.date.today().month)
+        if today not in settings.GRADE_REMINDER_EMAIL_DATES:
             return
 
         courses_without_final_grades = Course.objects_with_missing_final_grades().order_by("name_en")

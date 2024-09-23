@@ -30,6 +30,7 @@ from evap.evaluation.models import (
     UserProfile,
 )
 from evap.evaluation.tests.tools import make_manager, make_rating_answer_counters
+from evap.tools import MonthAndDay
 
 
 class TestAnonymizeCommand(TestCase):
@@ -373,7 +374,10 @@ class TestSendRemindersCommand(TestCase):
 
     @override_settings(
         GRADE_REMINDER_EMAIL_RECIPIENTS=["test1@example.com", "test2@example.com"],
-        GRADE_REMINDER_EMAIL_DATES=[date.today(), date.today() + timedelta(days=1)],
+        GRADE_REMINDER_EMAIL_DATES=[
+            MonthAndDay(month=date.today().month, day=(date.today() + timedelta(days=1)).day),
+            MonthAndDay(month=date.today().month, day=date.today().day),
+        ],
     )
     def test_send_grade_reminder(self):
         semester1 = baker.make(Semester)
