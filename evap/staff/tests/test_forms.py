@@ -9,9 +9,9 @@ from evap.evaluation.models import (
     Answer,
     Contribution,
     Course,
-    Degree,
     EmailTemplate,
     Evaluation,
+    Program,
     Question,
     Questionnaire,
     QuestionType,
@@ -817,7 +817,7 @@ class CourseFormTests(TestCase):
             Course,
             semester=baker.make(Semester),
             responsibles=[baker.make(UserProfile)],
-            degrees=[baker.make(Degree)],
+            programs=[baker.make(Program)],
             _quantity=2,
         )
 
@@ -836,7 +836,7 @@ class CourseFormTests(TestCase):
             Course,
             semester=baker.make(Semester),
             responsibles=[baker.make(UserProfile)],
-            degrees=[baker.make(Degree)],
+            programs=[baker.make(Program)],
             _quantity=2,
         )
 
@@ -849,7 +849,7 @@ class CourseFormTests(TestCase):
         self.assertEqual(form.errors["name_de"], ["Course with this Semester and Name (german) already exists."])
 
     def test_that_proxy_user_can_be_responsible(self):
-        course = baker.make(Course, semester=baker.make(Semester), degrees=[baker.make(Degree)])
+        course = baker.make(Course, semester=baker.make(Semester), programs=[baker.make(Program)])
         proxy = baker.make(UserProfile, is_proxy_user=True, is_active=True)
         form = CourseForm(instance=course)
         self.assertIn(proxy, form.fields["responsibles"].queryset)
@@ -861,7 +861,7 @@ class EvaluationFormTests(TestCase):
         Test whether giving an evaluation the same name as another evaluation
         in the same course in the evaluation edit form is invalid.
         """
-        course = baker.make(Course, degrees=[baker.make(Degree)])
+        course = baker.make(Course, programs=[baker.make(Program)])
         evaluation1 = baker.make(Evaluation, course=course, name_de="Evaluierung 1", name_en="Evaluation 1")
         evaluation2 = baker.make(Evaluation, course=course, name_de="Evaluierung 2", name_en="Evaluation 2")
         evaluation1.general_contribution.questionnaires.set([baker.make(Questionnaire)])
@@ -939,7 +939,7 @@ class EvaluationFormTests(TestCase):
         student = baker.make(UserProfile)
         evaluation = baker.make(
             Evaluation,
-            course=baker.make(Course, degrees=[baker.make(Degree)]),
+            course=baker.make(Course, programs=[baker.make(Program)]),
             participants=[student],
             voters=[student],
         )
@@ -1082,14 +1082,14 @@ class EvaluationFormTests(TestCase):
 
     def test_inactive_participants_remain(self):
         student = baker.make(UserProfile, is_active=False)
-        evaluation = baker.make(Evaluation, course__degrees=[baker.make(Degree)], participants=[student])
+        evaluation = baker.make(Evaluation, course__programs=[baker.make(Program)], participants=[student])
 
         form_data = get_form_data_from_instance(EvaluationForm, evaluation)
         form = EvaluationForm(form_data, instance=evaluation)
         self.assertEqual(len(form["participants"]), 1)
 
     def test_inactive_participants_not_in_queryset(self):
-        evaluation = baker.make(Evaluation, course__degrees=[baker.make(Degree)])
+        evaluation = baker.make(Evaluation, course__programs=[baker.make(Program)])
 
         form_data = get_form_data_from_instance(EvaluationForm, evaluation)
         form = EvaluationForm(form_data, instance=evaluation)

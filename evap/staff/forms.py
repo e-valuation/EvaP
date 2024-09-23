@@ -17,12 +17,12 @@ from evap.evaluation.models import (
     Contribution,
     Course,
     CourseType,
-    Degree,
     EmailTemplate,
     Evaluation,
     FaqQuestion,
     FaqSection,
     Infotext,
+    Program,
     Question,
     Questionnaire,
     QuestionType,
@@ -166,9 +166,9 @@ class SemesterForm(forms.ModelForm):
         return semester
 
 
-class DegreeForm(forms.ModelForm):
+class ProgramForm(forms.ModelForm):
     class Meta:
-        model = Degree
+        model = Program
         fields = ("name_de", "name_en", "import_names", "order")
         field_classes = {
             "import_names": CharArrayField,
@@ -180,15 +180,15 @@ class DegreeForm(forms.ModelForm):
     def clean(self):
         super().clean()
         if self.cleaned_data.get("DELETE") and not self.instance.can_be_deleted_by_manager:
-            raise SuspiciousOperation("Deleting degree not allowed")
+            raise SuspiciousOperation("Deleting program not allowed")
 
     def save(self, *args, **kwargs):
-        degree = super().save(*args, **kwargs)
+        program = super().save(*args, **kwargs)
         if "name_en" in self.changed_data or "name_de" in self.changed_data:
             update_template_cache(
-                Evaluation.objects.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING, course__degrees__in=[degree])
+                Evaluation.objects.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING, course__programs__in=[program])
             )
-        return degree
+        return program
 
 
 class CourseTypeForm(forms.ModelForm):
@@ -233,7 +233,7 @@ class CourseFormMixin:
             "name_de",
             "name_en",
             "type",
-            "degrees",
+            "programs",
             "responsibles",
             "is_private",
             "semester",
@@ -1124,10 +1124,10 @@ class TextAnswerWarningForm(forms.ModelForm):
 class ExportSheetForm(forms.Form):
     def __init__(self, semester, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        degrees = Degree.objects.filter(courses__semester=semester).distinct()
-        degree_tuples = [(degree.pk, degree.name) for degree in degrees]
-        self.fields["selected_degrees"] = forms.MultipleChoiceField(
-            choices=degree_tuples, required=True, widget=forms.CheckboxSelectMultiple(), label=_("Degrees")
+        programs = Program.objects.filter(courses__semester=semester).distinct()
+        program_tuples = [(program.pk, program.name) for program in programs]
+        self.fields["selected_programs"] = forms.MultipleChoiceField(
+            choices=program_tuples, required=True, widget=forms.CheckboxSelectMultiple(), label=_("Programs")
         )
         course_types = CourseType.objects.filter(courses__semester=semester).distinct()
         course_type_tuples = [(course_type.pk, course_type.name) for course_type in course_types]

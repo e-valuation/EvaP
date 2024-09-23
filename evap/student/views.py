@@ -108,7 +108,7 @@ def index(request):
             "course__type",
             "course__evaluations",
             "course__responsibles",
-            "course__degrees",
+            "course__programs",
         )
         .distinct()
     )

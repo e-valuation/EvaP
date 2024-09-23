@@ -3,7 +3,7 @@ from django.test import TestCase
 from model_bakery import baker
 
 from evap.contributor.forms import EditorContributionForm, EvaluationForm
-from evap.evaluation.models import Contribution, Degree, Evaluation, Questionnaire, UserProfile
+from evap.evaluation.models import Contribution, Evaluation, Program, Questionnaire, UserProfile
 from evap.evaluation.tests.tools import WebTest, get_form_data_from_instance
 from evap.staff.forms import ContributionFormset
 
@@ -23,7 +23,7 @@ class EvaluationFormTests(TestCase):
 
     def test_edit_participants(self):
         student = baker.make(UserProfile)
-        evaluation = baker.make(Evaluation, course__degrees=[baker.make(Degree)], participants=[student])
+        evaluation = baker.make(Evaluation, course__programs=[baker.make(Program)], participants=[student])
         evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
 
         form_data = get_form_data_from_instance(EvaluationForm, evaluation)

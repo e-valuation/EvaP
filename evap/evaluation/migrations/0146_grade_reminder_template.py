@@ -23,7 +23,7 @@ def remove_emailtemplates(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0144_alter_evaluation_state'),
+        ('evaluation', '0145_rename_degree_to_program'),
     ]
 
     operations = [

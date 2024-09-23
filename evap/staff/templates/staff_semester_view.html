@@ -198,7 +198,7 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th class="width-percent-19">{% translate 'Degree' %}</th>
+                            <th class="width-percent-19">{% translate 'Program' %}</th>
                             <th class="width-percent-30">{% translate 'Evaluation period' %}</th>
                             <th class="width-percent-17">{% translate 'Finished evaluations' %}</th>
                             <th class="width-percent-17">{% translate 'Reviewed text answers' %}</th>
@@ -206,10 +206,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for degree, stats in degree_stats.items %}
-                        <tr{% if degree == 'total' %} class="table-total-stats"{% endif %}>
+                        {% for program, stats in program_stats.items %}
+                        <tr{% if program == 'total' %} class="table-total-stats"{% endif %}>
                             <td>
-                                {% if degree == 'total' %}{% translate 'Total' %}{% else %}{{ degree }}{% endif %}
+                                {% if program == 'total' %}{% translate 'Total' %}{% else %}{{ program }}{% endif %}
                             </td>
                             <td>
                                 {% if stats.num_evaluations != 0 %}
