@@ -3654,7 +3654,7 @@ class TestTemplateEditView(WebTestStaffMode):
             EmailTemplate.TEXT_ANSWER_REVIEW_REMINDER: "evaluation_url_tuples",
             EmailTemplate.EVALUATION_STARTED: "due_evaluations",
             EmailTemplate.DIRECT_DELEGATION: "delegate_user",
-            EmailTemplate.GRADE_REMINDER: "repsonsibles_and_courses_without_final_grades",
+            EmailTemplate.GRADE_REMINDER: "responsibles_and_courses_without_final_grades",
         }
 
         for name, variable in expected_variables.items():
