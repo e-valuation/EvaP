@@ -1017,8 +1017,8 @@ class TestGradeReminderView(WebTestStaffMode):
         cls.course2_evaluation = baker.make(
             Evaluation,
             course=cls.course2,
-            state=Evaluation.State.IN_EVALUATION,  # blocking
-            wait_for_grade_upload_before_publishing=True,  # blocking
+            state=Evaluation.State.IN_EVALUATION,
+            wait_for_grade_upload_before_publishing=True,
         )
 
     def test_reminders(self):

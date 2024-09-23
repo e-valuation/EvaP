@@ -2,7 +2,7 @@ import logging
 import secrets
 import uuid
 from collections import defaultdict
-from collections.abc import Container, Iterable, Sequence
+from collections.abc import Collection, Container, Iterable, Sequence
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from enum import Enum, auto
@@ -2262,7 +2262,7 @@ class EmailTemplate(models.Model):
         cls,
         recipient_email: str,
         semester: Semester,
-        responsibles_and_courses_without_final_grades: Iterable[tuple[UserProfile, list[Course]]],
+        responsibles_and_courses_without_final_grades: Collection[tuple[UserProfile, list[Course]]],
     ) -> None:
         subject_params = {"semester": semester}
         body_params = {
