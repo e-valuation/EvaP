@@ -6,5 +6,5 @@
         "esModuleInterop": true,
         "moduleResolution": "node"
     },
-    "include": ["**/*.ts"]
+    "include": ["**/*.ts", "eslint.config.js"]
 }
