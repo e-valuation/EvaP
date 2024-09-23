@@ -462,11 +462,11 @@ class Evaluation(LoggedModel):
         verbose_name_plural = _("evaluations")
         constraints = [
             CheckConstraint(
-                check=Q(vote_end_date__gte=TruncDate(F("vote_start_datetime"))),
+                condition=Q(vote_end_date__gte=TruncDate(F("vote_start_datetime"))),
                 name="check_evaluation_start_before_end",
             ),
             CheckConstraint(
-                check=~(Q(_participant_count__isnull=True) ^ Q(_voter_count__isnull=True)),
+                condition=~(Q(_participant_count__isnull=True) ^ Q(_voter_count__isnull=True)),
                 name="check_evaluation_participant_count_and_voter_count_both_set_or_not_set",
             ),
         ]
@@ -1138,8 +1138,9 @@ class Question(models.Model):
         verbose_name_plural = _("questions")
         constraints = [
             CheckConstraint(
-                check=~(Q(type=QuestionType.TEXT) | Q(type=QuestionType.HEADING))
-                | ~Q(allows_additional_textanswers=True),
+                condition=(
+                    ~(Q(type=QuestionType.TEXT) | Q(type=QuestionType.HEADING)) | ~Q(allows_additional_textanswers=True)
+                ),
                 name="check_evaluation_textanswer_or_heading_question_has_no_additional_textanswers",
             )
         ]
@@ -1485,7 +1486,7 @@ class TextAnswer(Answer):
         verbose_name = _("text answer")
         verbose_name_plural = _("text answers")
         constraints = [
-            CheckConstraint(check=~Q(answer=F("original_answer")), name="check_evaluation_text_answer_is_modified")
+            CheckConstraint(condition=~Q(answer=F("original_answer")), name="check_evaluation_text_answer_is_modified")
         ]
 
     @property
@@ -1558,7 +1559,7 @@ class NotHalfEmptyConstraint(CheckConstraint):
 
     def __init__(self, *, fields: list[str], name: str, **kwargs):
         self.fields = fields
-        assert "check" not in kwargs and "condition" not in kwargs
+        assert "condition" not in kwargs
 
         super().__init__(
             condition=Q(**{field: "" for field in fields}) | ~Q(**{field: "" for field in fields}, _connector=Q.OR),

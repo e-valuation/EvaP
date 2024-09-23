@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="evaluation",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     (
                         "vote_end_date__gte",
                         django.db.models.functions.datetime.TruncDate(models.F("vote_start_datetime")),
@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="evaluation",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     ("_participant_count__isnull", True),
                     ("_voter_count__isnull", True),
                     _connector="XOR",
@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="question",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(("type", 0), ("type", 5), _connector="OR", _negated=True),
                     models.Q(("allows_additional_textanswers", True), _negated=True),
                     _connector="OR",
@@ -48,7 +48,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="textanswer",
             constraint=models.CheckConstraint(
-                check=models.Q(("answer", models.F("original_answer")), _negated=True),
+                condition=models.Q(("answer", models.F("original_answer")), _negated=True),
                 name="check_evaluation_text_answer_is_modified",
             ),
         ),
