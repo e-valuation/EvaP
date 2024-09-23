@@ -2074,6 +2074,7 @@ class EmailTemplate(models.Model):
     def send_to_user(
         self,
         user: UserProfile,
+        *,
         subject_params: dict[str, Any],
         body_params: dict[str, Any],
         use_cc: bool,
@@ -2187,7 +2188,7 @@ class EmailTemplate(models.Model):
         subject_params = {"user": user, "first_due_in_days": first_due_in_days}
         body_params = {"user": user, "first_due_in_days": first_due_in_days, "due_evaluations": due_evaluations}
 
-        template.send_to_user(user, subject_params, body_params, use_cc=False)
+        template.send_to_user(user, subject_params=subject_params, body_params=body_params, use_cc=False)
 
     @classmethod
     def send_login_url_to_user(cls, user: UserProfile) -> None:
@@ -2228,7 +2229,7 @@ class EmailTemplate(models.Model):
 
         for contributor, evaluation_set in evaluations_per_contributor.items():
             body_params = {"user": contributor, "evaluations": evaluation_set}
-            template.send_to_user(contributor, {}, body_params, use_cc=True)
+            template.send_to_user(contributor, subject_params={}, body_params=body_params, use_cc=True)
 
     @classmethod
     def send_participant_publish_notifications(
@@ -2247,7 +2248,7 @@ class EmailTemplate(models.Model):
 
         for participant, evaluation_set in evaluations_per_participant.items():
             body_params = {"user": participant, "evaluations": evaluation_set}
-            template.send_to_user(participant, {}, body_params, use_cc=True)
+            template.send_to_user(participant, subject_params={}, body_params=body_params, use_cc=True)
 
     @classmethod
     def send_textanswer_reminder_to_user(
@@ -2255,7 +2256,7 @@ class EmailTemplate(models.Model):
     ) -> None:
         body_params = {"user": user, "evaluation_url_tuples": evaluation_url_tuples}
         template = cls.objects.get(name=cls.TEXT_ANSWER_REVIEW_REMINDER)
-        template.send_to_user(user, {}, body_params, use_cc=False)
+        template.send_to_user(user, subject_params={}, body_params=body_params, use_cc=False)
 
     @classmethod
     def send_grade_reminder(

@@ -346,7 +346,7 @@ class TestSendRemindersCommand(TestCase):
 
     @override_settings(TEXTANSWER_REVIEW_REMINDER_WEEKDAYS=list(range(7)))
     def test_send_text_answer_review_reminder(self):
-        make_manager()
+        manager = make_manager()
         evaluation = baker.make(
             Evaluation,
             state=Evaluation.State.EVALUATED,
@@ -361,15 +361,23 @@ class TestSendRemindersCommand(TestCase):
         with patch("evap.evaluation.models.EmailTemplate.send_to_user") as mock:
             management.call_command("send_reminders")
 
-        self.assertEqual(mock.call_count, 1)
-        self.assertEqual(
-            mock.call_args_list[0][0][2].get("evaluation_url_tuples"),
+        mock.assert_has_calls(
             [
-                (
-                    evaluation,
-                    f"{settings.PAGE_URL}/staff/evaluation/{evaluation.id}/textanswers",
-                )
-            ],
+                call(
+                    manager,
+                    subject_params={},
+                    body_params={
+                        "user": manager,
+                        "evaluation_url_tuples": [
+                            (
+                                evaluation,
+                                f"{settings.PAGE_URL}/staff/evaluation/{evaluation.id}/textanswers",
+                            )
+                        ],
+                    },
+                    use_cc=False,
+                ),
+            ]
         )
 
     @override_settings(

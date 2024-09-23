@@ -898,7 +898,9 @@ def semester_preparation_reminder(request, semester_id):
         subject_params = {}
         for responsible, evaluations, __ in responsible_list:
             body_params = {"user": responsible, "evaluations": evaluations}
-            template.send_to_user(responsible, subject_params, body_params, use_cc=True, request=request)
+            template.send_to_user(
+                responsible, subject_params=subject_params, body_params=body_params, use_cc=True, request=request
+            )
         messages.success(request, _("Successfully sent reminders to everyone."))
         return HttpResponse()
 
@@ -2282,7 +2284,7 @@ def user_resend_email(request):
         "due_evaluations": {},
     }
 
-    template.send_to_user(user, {}, body_params, use_cc=False)
+    template.send_to_user(user, subject_params={}, body_params=body_params, use_cc=False)
     messages.success(request, _("Successfully resent evaluation started email."))
     return HttpResponse()  # 200 OK
 

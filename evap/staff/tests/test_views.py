@@ -986,12 +986,11 @@ class TestSemesterPreparationReminderView(WebTestStaffModeWith200Check):
 
         self.app.post(self.url, user=self.manager, status=200)
 
-        subject_params = {}
-        body_params = {"user": user, "evaluations": [evaluation]}
-        expected = (user, subject_params, body_params)
-
         email_template_mock.send_to_user.assert_called_once()
-        self.assertEqual(email_template_mock.send_to_user.call_args_list[0][0][:4], expected)
+        kwargs = email_template_mock.send_to_user.mock_calls[0][2]
+        self.assertEqual(kwargs["subject_params"], {})
+        self.assertEqual(kwargs["body_params"], {"user": user, "evaluations": [evaluation]})
+        self.assertEqual(kwargs["use_cc"], True)
 
 
 class TestGradeReminderView(WebTestStaffMode):

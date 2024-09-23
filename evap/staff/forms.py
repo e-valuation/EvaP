@@ -721,7 +721,9 @@ class RemindResponsibleForm(forms.Form):
         self.template.html_content = self.cleaned_data.get("html_content")
         subject_params = {}
         body_params = {"user": recipient, "evaluations": evaluations}
-        self.template.send_to_user(recipient, subject_params, body_params, use_cc=True, request=request)
+        self.template.send_to_user(
+            recipient, subject_params=subject_params, body_params=body_params, use_cc=True, request=request
+        )
 
 
 class QuestionnaireForm(forms.ModelForm):
