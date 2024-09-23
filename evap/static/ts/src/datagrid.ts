@@ -14,7 +14,7 @@ interface Row {
 interface State {
     search: string;
     filter: Map<string, string[]>;
-    rangedFilter: Map<string, Range>;
+    rangeFilter: Map<string, Range>;
     order: [string, "asc" | "desc"][];
 }
 
@@ -146,13 +146,13 @@ abstract class DataGrid {
                     return row.filterValues.get(name)?.some(rowValue => rowValue === filterValue);
                 });
             });
-            const isDisplayedByRangedFilters = [...this.state.rangedFilter].every(([name, bound]) => {
+            const isDisplayedByRangeFilters = [...this.state.rangeFilter].every(([name, bound]) => {
                 return row.filterValues
                     .get(name)
                     ?.map(rawValue => parseFloat(rawValue))
                     .some(rowValue => rowValue >= bound.low && rowValue <= bound.high);
             });
-            row.isDisplayed = isDisplayedBySearch && isDisplayedByFilters && isDisplayedByRangedFilters;
+            row.isDisplayed = isDisplayedBySearch && isDisplayedByFilters && isDisplayedByRangeFilters;
         }
     }
 
@@ -202,7 +202,7 @@ abstract class DataGrid {
         return {
             search: stored.search || "",
             filter: new Map(stored.filter),
-            rangedFilter: new Map(stored.rangedFilter),
+            rangeFilter: new Map(stored.rangeFilter),
             order: stored.order || this.defaultOrder,
         };
     }
@@ -430,10 +430,10 @@ export class ResultGrid extends DataGrid {
         }
 
         for (const [name, { slider }] of this.filterSliders.entries()) {
-            this.state.rangedFilter.set(name, slider.range);
+            this.state.rangeFilter.set(name, slider.range);
 
             slider.onRangeChange = () => {
-                this.state.rangedFilter.set(name, slider.range);
+                this.state.rangeFilter.set(name, slider.range);
                 this.filterRows();
                 this.renderToDOM();
             };
@@ -445,7 +445,7 @@ export class ResultGrid extends DataGrid {
         this.resetFilter.addEventListener("click", () => {
             this.state.search = "";
             this.state.filter.clear();
-            this.state.rangedFilter.clear();
+            this.state.rangeFilter.clear();
             this.filterRows();
             this.renderToDOM();
             this.reflectFilterStateOnInputs();
@@ -518,7 +518,7 @@ export class ResultGrid extends DataGrid {
             });
         }
         for (const [name, { slider }] of this.filterSliders.entries()) {
-            const filterRange = this.state.rangedFilter.get(name);
+            const filterRange = this.state.rangeFilter.get(name);
             if (filterRange !== undefined) {
                 slider.range = filterRange;
             } else {
