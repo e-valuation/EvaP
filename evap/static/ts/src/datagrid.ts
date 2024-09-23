@@ -13,7 +13,7 @@ interface Row {
 
 interface State {
     search: string;
-    filter: Map<string, string[]>;
+    equalityFilter: Map<string, string[]>;
     rangeFilter: Map<string, Range>;
     order: [string, "asc" | "desc"][];
 }
@@ -141,7 +141,7 @@ abstract class DataGrid {
             const isDisplayedBySearch = searchWords.every(searchWord => {
                 return row.searchWords.some(rowWord => rowWord.includes(searchWord));
             });
-            const isDisplayedByFilters = [...this.state.filter].every(([name, filterValues]) => {
+            const isDisplayedByFilters = [...this.state.equalityFilter].every(([name, filterValues]) => {
                 return filterValues.some(filterValue => {
                     return row.filterValues.get(name)?.some(rowValue => rowValue === filterValue);
                 });
@@ -201,7 +201,7 @@ abstract class DataGrid {
         const stored = JSON.parse(localStorage.getItem(this.storageKey)!) || {};
         return {
             search: stored.search || "",
-            filter: new Map(stored.filter),
+            equalityFilter: new Map(stored.filter),
             rangeFilter: new Map(stored.rangeFilter),
             order: stored.order || this.defaultOrder,
         };
@@ -212,7 +212,7 @@ abstract class DataGrid {
     private saveStateToStorage() {
         const stored = {
             search: this.state.search,
-            filter: [...this.state.filter],
+            filter: [...this.state.equalityFilter],
             order: this.state.order,
         };
         localStorage.setItem(this.storageKey, JSON.stringify(stored));
@@ -292,11 +292,11 @@ export class EvaluationGrid extends TableGrid {
             button.addEventListener("click", () => {
                 if (button.classList.contains("active")) {
                     button.classList.remove("active");
-                    this.state.filter.delete("evaluationState");
+                    this.state.equalityFilter.delete("evaluationState");
                 } else {
                     this.filterButtons.forEach(button => button.classList.remove("active"));
                     button.classList.add("active");
-                    this.state.filter.set("evaluationState", [button.dataset.filter!]);
+                    this.state.equalityFilter.set("evaluationState", [button.dataset.filter!]);
                 }
                 this.filterRows();
                 this.renderToDOM();
@@ -325,8 +325,8 @@ export class EvaluationGrid extends TableGrid {
 
     protected reflectFilterStateOnInputs() {
         super.reflectFilterStateOnInputs();
-        if (this.state.filter.has("evaluationState")) {
-            const activeEvaluationState = this.state.filter.get("evaluationState")![0];
+        if (this.state.equalityFilter.has("evaluationState")) {
+            const activeEvaluationState = this.state.equalityFilter.get("evaluationState")![0];
             const activeButton = this.filterButtons.find(button => button.dataset.filter === activeEvaluationState)!;
             activeButton.classList.add("active");
         }
@@ -419,9 +419,9 @@ export class ResultGrid extends DataGrid {
                 checkbox.addEventListener("change", () => {
                     const values = checkboxes.filter(checkbox => checkbox.checked).map(elem => elem.value);
                     if (values.length > 0) {
-                        this.state.filter.set(name, values);
+                        this.state.equalityFilter.set(name, values);
                     } else {
-                        this.state.filter.delete(name);
+                        this.state.equalityFilter.delete(name);
                     }
                     this.filterRows();
                     this.renderToDOM();
@@ -444,7 +444,7 @@ export class ResultGrid extends DataGrid {
 
         this.resetFilter.addEventListener("click", () => {
             this.state.search = "";
-            this.state.filter.clear();
+            this.state.equalityFilter.clear();
             this.state.rangeFilter.clear();
             this.filterRows();
             this.renderToDOM();
@@ -507,8 +507,8 @@ export class ResultGrid extends DataGrid {
         for (const [name, { checkboxes }] of this.filterCheckboxes.entries()) {
             checkboxes.forEach(checkbox => {
                 let isActive;
-                if (this.state.filter.has(name)) {
-                    isActive = this.state.filter.get(name)!.some(filterValue => {
+                if (this.state.equalityFilter.has(name)) {
+                    isActive = this.state.equalityFilter.get(name)!.some(filterValue => {
                         return filterValue === checkbox.value;
                     });
                 } else {
