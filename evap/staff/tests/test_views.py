@@ -1000,7 +1000,7 @@ class TestGradeReminderView(WebTestStaffMode):
         cls.manager = make_manager()
         cls.responsible = baker.make(UserProfile, first_name_given="Bastius", last_name="Quid")
         cls.semester = baker.make(Semester)
-        cls.url = f"/staff/semester/{cls.semester.pk}/grade_reminder"
+        cls.url = reverse("staff:semester_grade_reminder", args=[cls.semester.pk])
 
         course_args = {"responsibles": [cls.responsible], "gets_no_grade_documents": False, "semester": cls.semester}
         cls.course1 = baker.make(Course, name_en="A-Course1", name_de="Z-Course1", **course_args)

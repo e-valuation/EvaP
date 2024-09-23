@@ -2034,7 +2034,7 @@ class EmailTemplate(models.Model):
         return list(recipients)
 
     @staticmethod
-    def render_string(text: str, dictionary: dict[str, Any], *, autoescape: bool = True) -> str | SafeString:
+    def render_string(text: str, dictionary: dict[str, Any], *, autoescape: bool = True) -> str:
         result = Template(text).render(Context(dictionary, autoescape))
 
         if autoescape:
@@ -2052,7 +2052,7 @@ class EmailTemplate(models.Model):
         recipient_groups: Container[Recipients],
         use_cc: bool,
         request: HttpRequest,
-    ):
+    ) -> None:
         user_evaluation_map: dict[UserProfile, list[Evaluation]] = {}
         for evaluation in evaluations:
             recipients = self.recipient_list_for_evaluation(evaluation, recipient_groups, filter_users_in_cc=use_cc)
