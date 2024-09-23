@@ -66,9 +66,7 @@ export class RangeSlider {
 
     private updateRange(): void {
         if (this.low > this.high) {
-            const tmp = this.low;
-            this.low = this.high;
-            this.high = tmp;
+            [this.low, this.high] = [this.high, this.low];
         }
         this.rangeLabel.innerText = `${this.low} – ${this.high}`;
         this.onRangeChange();
