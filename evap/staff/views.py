@@ -70,7 +70,6 @@ from evap.evaluation.tools import (
     get_object_from_dict_pk_entry_or_logged_40x,
     get_parameter_from_url_or_session,
     sort_formset,
-    unordered_groupby,
 )
 from evap.grades.models import GradeDocument
 from evap.results.exporters import ResultsExporter
@@ -134,6 +133,7 @@ from evap.staff.tools import (
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.models import TextAnswerWarning
 from evap.student.views import render_vote_page
+from evap.tools import unordered_groupby
 
 
 @manager_required

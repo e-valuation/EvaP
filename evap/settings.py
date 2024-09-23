@@ -8,15 +8,15 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
-import datetime
 import logging
 import os
 import sys
 from fractions import Fraction
 from typing import Any
-from evap.tools import MonthAndDay
 
 from django.contrib.staticfiles.storage import ManifestStaticFilesStorage
+
+from evap.tools import MonthAndDay
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 

@@ -22,7 +22,7 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
-from evap.evaluation.tools import unordered_groupby
+from evap.tools import unordered_groupby
 
 
 class Command(BaseCommand):

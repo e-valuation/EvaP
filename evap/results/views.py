@@ -12,7 +12,7 @@ from django.utils import translation
 
 from evap.evaluation.auth import internal_required
 from evap.evaluation.models import Course, CourseType, Degree, Evaluation, Semester, UserProfile
-from evap.evaluation.tools import AttachmentResponse, unordered_groupby
+from evap.evaluation.tools import AttachmentResponse
 from evap.results.exporters import TextAnswerExporter
 from evap.results.tools import (
     STATES_WITH_RESULT_TEMPLATE_CACHING,
@@ -24,6 +24,7 @@ from evap.results.tools import (
     get_evaluations_with_course_result_attributes,
     get_results,
 )
+from evap.tools import unordered_groupby
 
 
 def get_course_result_template_fragment_cache_key(course_id, language):

@@ -9,8 +9,7 @@ from django.urls import reverse
 
 from evap.evaluation.management.commands.tools import log_exceptions
 from evap.evaluation.models import Course, EmailTemplate, Evaluation, Semester
-from evap.evaluation.tools import unordered_groupby
-from evap.tools import MonthAndDay
+from evap.tools import MonthAndDay, unordered_groupby
 
 logger = logging.getLogger(__name__)
 

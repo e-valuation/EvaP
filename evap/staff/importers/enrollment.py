@@ -12,8 +12,9 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
-from evap.evaluation.tools import clean_email, ilen, unordered_groupby
+from evap.evaluation.tools import clean_email
 from evap.staff.tools import append_user_list_if_not_empty
+from evap.tools import ilen, unordered_groupby
 
 from .base import (
     Checker,

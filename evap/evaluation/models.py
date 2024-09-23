@@ -39,13 +39,13 @@ from evap.evaluation.models_logging import LoggedModel
 from evap.evaluation.tools import (
     StrOrPromise,
     clean_email,
-    date_to_datetime,
     is_external_email,
     is_prefetched,
     password_login_is_active,
     translate,
     vote_end_datetime,
 )
+from evap.tools import date_to_datetime
 
 logger = logging.getLogger(__name__)
 
