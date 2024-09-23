@@ -31,11 +31,13 @@ section.range-slider input::-moz-range-track {
     background-color: $light-gray;
     border: 0;
 }
+
 section.range-slider input:last-of-type::-moz-range-track {
     -moz-appearance: none;
     background: none transparent;
     border: 0;
 }
-  section.range-slider input[type=range]::-moz-focus-outer {
-  border: 0;
+
+section.range-slider input[type=range]::-moz-focus-outer {
+    border: 0;
 }
