@@ -1792,6 +1792,8 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
         default=StartPage.DEFAULT,
     )
 
+    objects = UserProfileManager()
+
     class Meta:
         # keep in sync with ordering_key
         ordering = [
@@ -1806,7 +1808,8 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS: list[str] = []
 
-    objects = UserProfileManager()
+    def __str__(self):
+        return self.full_name
 
     def save(self, *args, **kwargs):
         # This is not guaranteed to be called on every insert. For example, the importers use bulk insertion.
@@ -1853,9 +1856,6 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
         if self.is_external:
             return name + " [ext.]"
         return f"{name} ({self.email})"
-
-    def __str__(self):
-        return self.full_name
 
     @cached_property
     def is_staff(self):
