@@ -12,9 +12,9 @@ interface Row {
 }
 
 interface State {
-    search: string;
     equalityFilter: Map<string, string[]>;
     rangeFilter: Map<string, Range>;
+    search: string;
     order: [string, "asc" | "desc"][];
 }
 
@@ -200,9 +200,9 @@ abstract class DataGrid {
     private restoreStateFromStorage(): State {
         const stored = JSON.parse(localStorage.getItem(this.storageKey)!) || {};
         return {
-            search: stored.search || "",
-            equalityFilter: new Map(stored.filter),
+            equalityFilter: new Map(stored.equalityFilter),
             rangeFilter: new Map(stored.rangeFilter),
+            search: stored.search || "",
             order: stored.order || this.defaultOrder,
         };
     }
@@ -211,9 +211,9 @@ abstract class DataGrid {
 
     private saveStateToStorage() {
         const stored = {
+            equalityFilter: [...this.state.equalityFilter],
             rangeFilter: [...this.state.rangeFilter],
             search: this.state.search,
-            filter: [...this.state.equalityFilter],
             order: this.state.order,
         };
         localStorage.setItem(this.storageKey, JSON.stringify(stored));
