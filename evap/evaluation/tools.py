@@ -102,13 +102,6 @@ def vote_end_datetime(vote_end_date: datetime.date) -> datetime.datetime:
     return date_to_datetime(vote_end_date) + datetime.timedelta(hours=24 + settings.EVALUATION_END_OFFSET_HOURS)
 
 
-def translate(**kwargs):
-    # pylint is really buggy with this method.
-    # pylint: disable=unused-variable, useless-suppression
-    # get_language may return None if there is no session (e.g. during management commands)
-    return property(lambda self: getattr(self, kwargs[get_language() or "en"]))
-
-
 def get_parameter_from_url_or_session(request: HttpRequest, parameter: str, default=False) -> bool:
     result_str = request.GET.get(parameter, None)
     if result_str is None:  # if no parameter is given take session value
@@ -117,6 +110,13 @@ def get_parameter_from_url_or_session(request: HttpRequest, parameter: str, defa
         result = {"true": True, "false": False}.get(result_str.lower())  # convert parameter to boolean
     request.session[parameter] = result  # store value for session
     return result
+
+
+def translate(**kwargs):
+    # pylint is really buggy with this method.
+    # pylint: disable=unused-variable, useless-suppression
+    # get_language may return None if there is no session (e.g. during management commands)
+    return property(lambda self: getattr(self, kwargs[get_language() or "en"]))
 
 
 EmailT = TypeVar("EmailT", str, None)
