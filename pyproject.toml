@@ -99,6 +99,9 @@ disable = [
     "broad-exception-caught", "line-too-long", "unused-wildcard-import", "wildcard-import", "too-many-arguments", "too-many-statements", "too-many-return-statements", "too-many-branches",
 ]
 
+[tool.pylint.design]
+max-positional-arguments = 7
+
 ##############################################
 
 [tool.coverage.run]
