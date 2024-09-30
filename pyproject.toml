@@ -137,6 +137,9 @@ disable = [
     "broad-exception-caught", "line-too-long", "unused-wildcard-import", "wildcard-import", "too-many-arguments", "too-many-statements", "too-many-return-statements", "too-many-branches",
 ]
 
+[tool.pylint.design]
+max-positional-arguments = 7
+
 ##############################################
 
 [tool.coverage.run]
@@ -146,6 +149,10 @@ source = ["evap", "tools"]
 
 [tool.coverage.report]
 omit = ["*/migrations/*", "*__init__.py"]
+exclude_also = [
+    # mypy asserts these cases are not possible
+    '\n.*assert_never\(.*\)', # \n excludes previous line, see https://coverage.readthedocs.io/en/latest/excluding.html#multi-line-exclusion-regexes
+]
 
 ##############################################
 

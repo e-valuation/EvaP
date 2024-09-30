@@ -1,6 +1,6 @@
 {% if not mode == 'student' and not mode == 'subentry' %}
-    {% for degree in evaluation.course.degrees.all %}
-        <span class="badge bg-primary badge-degree">{{ degree }}</span>
+    {% for program in evaluation.course.programs.all %}
+        <span class="badge bg-primary badge-program">{{ program }}</span>
     {% endfor %}
 {% endif %}
 {% if not mode == 'subentry' %}

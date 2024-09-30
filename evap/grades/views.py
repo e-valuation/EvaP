@@ -33,7 +33,7 @@ class IndexView(TemplateView):
 
 
 def course_grade_document_count_tuples(courses: QuerySet[Course]) -> list[tuple[Course, int, int]]:
-    courses = courses.prefetch_related("degrees", "responsibles", "evaluations", "grade_documents")
+    courses = courses.prefetch_related("programs", "responsibles", "evaluations", "grade_documents")
 
     return [
         (

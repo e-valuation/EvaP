@@ -10,7 +10,7 @@ from django.test import TestCase, override_settings
 from model_bakery import baker
 
 import evap.staff.fixtures.excel_files_test_data as excel_data
-from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
+from evap.evaluation.models import Contribution, Course, CourseType, Evaluation, Program, Semester, UserProfile
 from evap.evaluation.tests.tools import assert_no_database_modifications
 from evap.staff.importers import (
     ImporterLog,
@@ -314,8 +314,8 @@ class TestEnrollmentImport(ImporterTestCase):
         cls.vote_end_date = date(2017, 3, 10)
         baker.make(CourseType, name_de="Seminar", import_names=["Seminar", "S"])
         baker.make(CourseType, name_de="Vorlesung", import_names=["Vorlesung", "V"])
-        Degree.objects.filter(name_de="Bachelor").update(import_names=["Bachelor", "B. Sc."])
-        Degree.objects.filter(name_de="Master").update(import_names=["Master", "M. Sc."])
+        Program.objects.filter(name_de="Bachelor").update(import_names=["Bachelor", "B. Sc."])
+        Program.objects.filter(name_de="Master").update(import_names=["Master", "M. Sc."])
         cls.default_excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
         cls.empty_excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_empty_filedata)
 
@@ -326,7 +326,7 @@ class TestEnrollmentImport(ImporterTestCase):
             name_en="Shake",
             semester=self.semester,
             type=CourseType.objects.get(name_de="Vorlesung"),
-            degrees=[Degree.objects.get(name_de="Bachelor")],
+            programs=[Program.objects.get(name_de="Bachelor")],
             responsibles=[
                 baker.make(
                     UserProfile,
@@ -405,8 +405,8 @@ class TestEnrollmentImport(ImporterTestCase):
         )
         self.assertEqual(importer_log.errors_by_category(), {})
 
-    def test_degrees_are_merged(self):
-        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_degree_merge_filedata)
+    def test_programs_are_merged(self):
+        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_program_merge_filedata)
 
         importer_log_test = import_enrollments(excel_content, self.semester, None, None, test_run=True)
         success_messages_test = [msg.message for msg in importer_log_test.success_messages()]
@@ -429,9 +429,9 @@ class TestEnrollmentImport(ImporterTestCase):
         self.assertEqual(Evaluation.objects.all().count(), 1)
 
         course = Course.objects.get(name_de="Bauen")
-        self.assertSetEqual(set(course.degrees.all()), set(Degree.objects.filter(name_de__in=["Master", "Bachelor"])))
+        self.assertSetEqual(set(course.programs.all()), set(Program.objects.filter(name_de__in=["Master", "Bachelor"])))
 
-    def test_user_degree_mismatch_error(self):
+    def test_user_program_mismatch_error(self):
         import_sheets = deepcopy(excel_data.test_enrollment_data_filedata)
         assert import_sheets["MA Belegungen"][2][0] == "Master"
         import_sheets["MA Belegungen"][2][0] = "Bachelor"
@@ -445,8 +445,8 @@ class TestEnrollmentImport(ImporterTestCase):
         self.assertEqual(importer_log_test.messages, importer_log_notest.messages)
         self.assertErrorIs(
             importer_log_test,
-            ImporterLogEntry.Category.DEGREE,
-            'Sheet "MA Belegungen", row 3: The degree of user "bastius.quid@external.example.com" differs from their degree in a previous row.',
+            ImporterLogEntry.Category.PROGRAM,
+            'Sheet "MA Belegungen", row 3: The program of user "bastius.quid@external.example.com" differs from their program in a previous row.',
         )
 
     def test_errors_are_merged(self):
@@ -464,13 +464,13 @@ class TestEnrollmentImport(ImporterTestCase):
             [
                 'Sheet "MA Belegungen", row 2 and 1 other place: No course type is associated with the import name "jaminar". Please manually create it first.',
                 f'Sheet "MA Belegungen", row 2 and 1 other place: "is_graded" is probably not, but must be {settings.IMPORTER_GRADED_YES} or {settings.IMPORTER_GRADED_NO}',
-                'Sheet "MA Belegungen", row 2: No degree is associated with the import name "Grandmaster". Please manually create it first.',
-                'Sheet "MA Belegungen", row 3: No degree is associated with the import name "Beginner". Please manually create it first.',
+                'Sheet "MA Belegungen", row 2: No program is associated with the import name "Grandmaster". Please manually create it first.',
+                'Sheet "MA Belegungen", row 3: No program is associated with the import name "Beginner". Please manually create it first.',
                 "Errors occurred while parsing the input data. No data was imported.",
             ],
         )
 
-    def test_course_type_and_degrees_are_retrieved_with_import_names(self):
+    def test_course_type_and_programs_are_retrieved_with_import_names(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_import_names_filedata)
 
         importer_log = import_enrollments(
@@ -486,10 +486,10 @@ class TestEnrollmentImport(ImporterTestCase):
         self.assertEqual(Course.objects.all().count(), 2)
         course_spelling = Course.objects.get(name_en="Spelling")
         self.assertEqual(course_spelling.type.name_de, "Vorlesung")
-        self.assertEqual(list(course_spelling.degrees.values_list("name_en", flat=True)), ["Bachelor"])
+        self.assertEqual(list(course_spelling.programs.values_list("name_en", flat=True)), ["Bachelor"])
         course_build = Course.objects.get(name_en="Build")
         self.assertEqual(course_build.type.name_de, "Seminar")
-        self.assertEqual(list(course_build.degrees.values_list("name_en", flat=True)), ["Master"])
+        self.assertEqual(list(course_build.programs.values_list("name_en", flat=True)), ["Master"])
 
     @override_settings(IMPORTER_MAX_ENROLLMENTS=1)
     def test_enrollment_importer_high_enrollment_warning(self):
@@ -555,9 +555,9 @@ class TestEnrollmentImport(ImporterTestCase):
             ],
         )
         self.assertEqual(
-            [msg.message for msg in importer_log_test.errors_by_category()[ImporterLogEntry.Category.DEGREE_MISSING]],
+            [msg.message for msg in importer_log_test.errors_by_category()[ImporterLogEntry.Category.PROGRAM_MISSING]],
             [
-                'Sheet "MA Belegungen", row 8 and 1 other place: No degree is associated with the import name "Diploma". Please manually create it first.'
+                'Sheet "MA Belegungen", row 8 and 1 other place: No program is associated with the import name "Diploma". Please manually create it first.'
             ],
         )
         self.assertEqual(
@@ -576,9 +576,9 @@ class TestEnrollmentImport(ImporterTestCase):
             ],
         )
         self.assertEqual(
-            [msg.message for msg in importer_log_test.errors_by_category()[ImporterLogEntry.Category.DEGREE]],
+            [msg.message for msg in importer_log_test.errors_by_category()[ImporterLogEntry.Category.PROGRAM]],
             [
-                'Sheet "MA Belegungen", row 9: The degree of user "diam.synephebos@institution.example.com" differs from their degree in a previous row.',
+                'Sheet "MA Belegungen", row 9: The program of user "diam.synephebos@institution.example.com" differs from their program in a previous row.',
             ],
         )
         self.assertEqual(
@@ -605,16 +605,16 @@ class TestEnrollmentImport(ImporterTestCase):
             },
         )
 
-    def test_unknown_degree_error(self):
-        excel_content = excel_data.create_memory_excel_file(excel_data.test_unknown_degree_error_filedata)
+    def test_unknown_program_error(self):
+        excel_content = excel_data.create_memory_excel_file(excel_data.test_unknown_program_error_filedata)
 
         with assert_no_database_modifications():
             importer_log = import_enrollments(excel_content, self.semester, None, None, test_run=False)
 
         self.assertErrorIs(
             importer_log,
-            ImporterLogEntry.Category.DEGREE_MISSING,
-            'Sheet "Sheet 1", row 3: No degree is associated with the import name "beginner". Please manually create it first.',
+            ImporterLogEntry.Category.PROGRAM_MISSING,
+            'Sheet "Sheet 1", row 3: No program is associated with the import name "beginner". Please manually create it first.',
         )
 
     @patch("evap.evaluation.models.UserProfile.full_clean")
@@ -668,7 +668,7 @@ class TestEnrollmentImport(ImporterTestCase):
 
         self.assertIn(
             'Course "Shake" already exists. The course will not be created, instead users are imported into the '
-            "evaluation of the existing course and any additional degrees are added.",
+            "evaluation of the existing course and any additional programs are added.",
             warnings_test,
         )
         self.assertListEqual(warnings_test, warnings_notest)
@@ -688,11 +688,11 @@ class TestEnrollmentImport(ImporterTestCase):
             existing_course_evaluation.participants.all(),
         )
 
-    def test_existing_course_degree_is_added(self):
+    def test_existing_course_program_is_added(self):
         existing_course, __ = self.create_existing_course()
 
-        # The existing course exactly matches one course in the import data by default. To create a conflict, the degrees are changed
-        existing_course.degrees.set([Degree.objects.get(name_de="Master")])
+        # The existing course exactly matches one course in the import data by default. To create a conflict, the programs are changed
+        existing_course.programs.set([Program.objects.get(name_de="Master")])
 
         importer_log = import_enrollments(
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
@@ -700,7 +700,7 @@ class TestEnrollmentImport(ImporterTestCase):
         self.assertFalse(importer_log.has_errors())
 
         self.assertSetEqual(
-            set(existing_course.degrees.all()), set(Degree.objects.filter(name_de__in=["Master", "Bachelor"]))
+            set(existing_course.programs.all()), set(Program.objects.filter(name_de__in=["Master", "Bachelor"]))
         )
 
     def test_existing_course_different_attributes(self):

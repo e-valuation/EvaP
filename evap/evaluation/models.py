@@ -251,7 +251,7 @@ class Questionnaire(models.Model):
         return cls.objects.get(name_en=cls.SINGLE_RESULT_QUESTIONNAIRE_NAME)
 
 
-class Degree(models.Model):
+class Program(models.Model):
     name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"), unique=True)
     name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), unique=True)
     name = translate(en="name_en", de="name_de")
@@ -259,7 +259,7 @@ class Degree(models.Model):
         models.CharField(max_length=1024), default=list, verbose_name=_("import names"), blank=True
     )
 
-    order = models.IntegerField(verbose_name=_("degree order"), default=-1)
+    order = models.IntegerField(verbose_name=_("program order"), default=-1)
 
     class Meta:
         ordering = ["order"]
@@ -310,7 +310,7 @@ class Course(LoggedModel):
     type = models.ForeignKey(CourseType, models.PROTECT, verbose_name=_("course type"), related_name="courses")
 
     # e.g. Bachelor, Master
-    degrees = models.ManyToManyField(Degree, verbose_name=_("degrees"), related_name="courses")
+    programs = models.ManyToManyField(Program, verbose_name=_("programs"), related_name="courses")
 
     # defines whether results can only be seen by contributors and participants
     is_private = models.BooleanField(verbose_name=_("is private"), default=False)
@@ -462,11 +462,11 @@ class Evaluation(LoggedModel):
         verbose_name_plural = _("evaluations")
         constraints = [
             CheckConstraint(
-                check=Q(vote_end_date__gte=TruncDate(F("vote_start_datetime"))),
+                condition=Q(vote_end_date__gte=TruncDate(F("vote_start_datetime"))),
                 name="check_evaluation_start_before_end",
             ),
             CheckConstraint(
-                check=~(Q(_participant_count__isnull=True) ^ Q(_voter_count__isnull=True)),
+                condition=~(Q(_participant_count__isnull=True) ^ Q(_voter_count__isnull=True)),
                 name="check_evaluation_participant_count_and_voter_count_both_set_or_not_set",
             ),
         ]
@@ -1138,8 +1138,9 @@ class Question(models.Model):
         verbose_name_plural = _("questions")
         constraints = [
             CheckConstraint(
-                check=~(Q(type=QuestionType.TEXT) | Q(type=QuestionType.HEADING))
-                | ~Q(allows_additional_textanswers=True),
+                condition=(
+                    ~(Q(type=QuestionType.TEXT) | Q(type=QuestionType.HEADING)) | ~Q(allows_additional_textanswers=True)
+                ),
                 name="check_evaluation_textanswer_or_heading_question_has_no_additional_textanswers",
             )
         ]
@@ -1485,7 +1486,7 @@ class TextAnswer(Answer):
         verbose_name = _("text answer")
         verbose_name_plural = _("text answers")
         constraints = [
-            CheckConstraint(check=~Q(answer=F("original_answer")), name="check_evaluation_text_answer_is_modified")
+            CheckConstraint(condition=~Q(answer=F("original_answer")), name="check_evaluation_text_answer_is_modified")
         ]
 
     @property
@@ -1558,17 +1559,17 @@ class NotHalfEmptyConstraint(CheckConstraint):
 
     def __init__(self, *, fields: list[str], name: str, **kwargs):
         self.fields = fields
-        assert "check" not in kwargs
+        assert "condition" not in kwargs
 
         super().__init__(
-            check=Q(**{field: "" for field in fields}) | ~Q(**{field: "" for field in fields}, _connector=Q.OR),
+            condition=Q(**{field: "" for field in fields}) | ~Q(**{field: "" for field in fields}, _connector=Q.OR),
             name=name,
             **kwargs,
         )
 
     def deconstruct(self):
         path, args, kwargs = super().deconstruct()
-        kwargs.pop("check")
+        kwargs.pop("condition")
         kwargs["fields"] = self.fields
         return path, args, kwargs
 
