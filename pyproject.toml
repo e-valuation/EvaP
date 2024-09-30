@@ -134,7 +134,8 @@ disable = [
     "use-implicit-booleaness-not-comparison-to-zero",    # forces us to use less expressive code
     # the following are covered by ruff
     "broad-exception-caught", "line-too-long", "unused-wildcard-import", "wildcard-import", "too-many-arguments",
-    "too-many-statements", "too-many-return-statements", "too-many-branches", "unnecessary-lambda-assignment"
+    "too-many-statements", "too-many-return-statements", "too-many-branches", "unnecessary-lambda-assignment",
+    "global-statement",
 ]
 
 [tool.pylint.design]
