@@ -1,0 +1,15 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "rootDir": ".",
+        "types": [
+            "bootstrap",
+            "jquery",
+            "sortablejs"
+        ]
+    },
+    "include": [
+        "**/*.ts",
+        "**/*.mjs"
+    ]
+}
