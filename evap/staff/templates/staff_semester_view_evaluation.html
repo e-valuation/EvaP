@@ -192,7 +192,7 @@
                     <div slot="extra-inputs">
                         <label>
                             {% translate 'Exam Date:' %}
-                            <input type="date" name="exam_date" data-evaluation-date="{{ evaluation.vote_start_datetime }}" class="form-control" required form="exam_creation_form_{{ evaluation.id }}"/>
+                            <input type="date" name="exam_date" data-earliest-legal-exam-evaluation-date="{{ evaluation.vote_start_datetime }}" class="form-control" required form="exam_creation_form_{{ evaluation.id }}"/>
                         </label>
                     </div>
 
@@ -201,9 +201,7 @@
                     <script type="text/javascript">
                         document.querySelectorAll("[data-evaluation-date]").forEach(element => {
                             element.addEventListener("change", () => {
-                                console.log("exam_date",element.value);
-                                console.log("evaluation_date",element.dataset.evaluationDate);
-                                if (element.value <= element.dataset.evaluationDate) {
+                                if (element.value <= element.dataset.earliestLegalExamEvaluationDate) {
                                     element.setCustomValidity("{% translate 'The exam date is before the start date of the main evaluation.' %}");
                                 } else {
                                     element.setCustomValidity("");

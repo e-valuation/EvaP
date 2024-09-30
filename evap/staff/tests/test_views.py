@@ -1973,17 +1973,18 @@ class TestEvaluationExamCreation(WebTestStaffMode):
         cls.contributions = baker.make(
             Contribution, evaluation=cls.evaluation, _fill_optional=["contributor"], _quantity=3, _bulk_create=True
         )
-        cls.exam_datetime = (datetime.date.today()) + datetime.timedelta(days=10)
+        cls.exam_datetime = datetime.date.today() + datetime.timedelta(days=10)
         cls.semester_overview_url = reverse("staff:semester_view", args=[cls.course.semester.pk])
-        # Default the evaluation does not have any participants, so we need to add some
+        # By default the evaluation does not have any participants, so we need to add some
         cls.evaluation.participants.set(baker.make(UserProfile, _quantity=3))
+        cls.params = {"evaluation_id": cls.evaluation.pk, "exam_date": cls.exam_datetime}
 
     def test_create_exam_evaluation(self):
         self.app.post(
             self.url,
             user=self.manager,
             status=200,
-            params={"evaluation_id": self.evaluation.pk, "exam_date": self.exam_datetime},
+            params=self.params,
         )
         self.assertEqual(Evaluation.objects.count(), 2)
         exam_evaluation = Evaluation.objects.exclude(pk=self.evaluation.pk).get()
@@ -2005,23 +2006,25 @@ class TestEvaluationExamCreation(WebTestStaffMode):
     def test_exam_evaluation_for_single_result(self):
         self.evaluation.is_single_result = True
         self.evaluation.save()
-        self.app.post(
-            self.url,
-            user=self.manager,
-            status=400,
-            params={"evaluation_id": self.evaluation.pk, "exam_date": self.exam_datetime},
-        )
-        self.assertFalse(self.evaluation.has_exam)
+        with assert_no_database_modifications():
+            self.app.post(
+                self.url,
+                user=self.manager,
+                status=400,
+                params=self.params,
+            )
 
     def test_exam_evaluation_for_already_existing_exam_evaluation(self):
         baker.make(Evaluation, course=self.course, name_en="Exam", name_de="Klausur")
         self.assertTrue(self.evaluation.has_exam)
-        self.app.post(
-            self.url,
-            user=self.manager,
-            status=400,
-            params={"evaluation_id": self.evaluation.pk, "exam_date": self.exam_datetime},
-        )
+
+        with assert_no_database_modifications():
+            self.app.post(
+                self.url,
+                user=self.manager,
+                status=400,
+                params=self.params,
+            )
 
     def test_exam_evaluation_with_wrong_date(self):
         self.evaluation.vote_start_datetime = datetime.datetime.now() + datetime.timedelta(days=100)
@@ -2034,7 +2037,7 @@ class TestEvaluationExamCreation(WebTestStaffMode):
                 self.url,
                 user=self.manager,
                 status=400,
-                params={"evaluation_id": self.evaluation.pk, "exam_date": self.exam_datetime},
+                params=self.params,
             )
 
         page = self.app.get(
@@ -2048,12 +2051,13 @@ class TestEvaluationExamCreation(WebTestStaffMode):
         )
 
     def test_exam_evaluation_with_missing_date(self):
-        self.app.post(
-            self.url,
-            user=self.manager,
-            status=400,
-            params={"evaluation_id": self.evaluation.pk},
-        )
+        with assert_no_database_modifications():
+            self.app.post(
+                self.url,
+                user=self.manager,
+                status=400,
+                params={"evaluation_id": self.evaluation.pk},
+            )
 
 
 class TestCourseCopyView(WebTestStaffMode):
