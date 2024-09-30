@@ -5,6 +5,8 @@ export interface Range {
     high: number;
 }
 
+const RANGE_DEBOUNCE_MS = 100.0;
+
 export class RangeSlider {
     public readonly lowSlider: HTMLInputElement;
     public readonly highSlider: HTMLInputElement;
@@ -13,10 +15,12 @@ export class RangeSlider {
     private readonly maxLabel: HTMLSpanElement;
     private readonly minLabel: HTMLSpanElement;
     private readonly rangeLabel: HTMLSpanElement;
-    private readonly min: number = 0;
+    private readonly min = 0;
     private max = 0;
     private low = 0;
     private high = 0;
+
+    private debounceTimeout?: number;
 
     public constructor(sliderId: string) {
         this.rangeSlider = selectOrError<HTMLDivElement>("#" + sliderId);
@@ -26,14 +30,12 @@ export class RangeSlider {
         this.maxLabel = selectOrError<HTMLSpanElement>(".text-end", this.rangeSlider);
         this.rangeLabel = selectOrError<HTMLSpanElement>(".range-values", this.rangeSlider);
 
-        const updateFromSlider = (): void => {
-            this.low = parseFloat(this.lowSlider.value);
-            this.high = parseFloat(this.highSlider.value);
-            this.updateRange();
+        const setRangeFromSlider = (): void => {
+            this.range = { low: parseFloat(this.lowSlider.value), high: parseFloat(this.highSlider.value) };
         };
 
-        this.lowSlider.addEventListener("input", updateFromSlider);
-        this.highSlider.addEventListener("input", updateFromSlider);
+        this.lowSlider.addEventListener("input", setRangeFromSlider);
+        this.highSlider.addEventListener("input", setRangeFromSlider);
     }
 
     public get range(): Range {
@@ -43,7 +45,22 @@ export class RangeSlider {
     public set range(range: Range) {
         this.low = range.low;
         this.high = range.high;
-        this.updateRange();
+
+        this.lowSlider.value = this.low.toString();
+        this.highSlider.value = this.high.toString();
+        if (this.low > this.high) {
+            [this.low, this.high] = [this.high, this.low];
+        }
+        this.rangeLabel.innerText = `${this.low} – ${this.high}`;
+
+        // debounce on range change callback
+        if (this.debounceTimeout !== undefined) {
+            clearTimeout(this.debounceTimeout);
+        }
+        this.debounceTimeout = setTimeout(() => {
+            this.onRangeChange();
+            console.error("ABC!");
+        }, RANGE_DEBOUNCE_MS);
     }
 
     public onRangeChange(): void {}
@@ -59,17 +76,6 @@ export class RangeSlider {
 
     public reset(): void {
         this.range = { low: this.min, high: this.max };
-        this.lowSlider.value = this.low.toString();
-        this.highSlider.value = this.high.toString();
-        this.updateRange();
-    }
-
-    private updateRange(): void {
-        if (this.low > this.high) {
-            [this.low, this.high] = [this.high, this.low];
-        }
-        this.rangeLabel.innerText = `${this.low} – ${this.high}`;
-        this.onRangeChange();
     }
 
     private updateLimits(): void {
