@@ -35,6 +35,7 @@ def index(request):
     total_points_available = reward_points_of_user(request.user)
     events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now().date()).order_by("date")
 
+    # pylint: disable=unexpected-keyword-arg
     formset = RewardPointRedemptionFormSet(
         request.POST or None,
         initial=[{"event": e, "points": 0, "total_points_available": total_points_available} for e in events],

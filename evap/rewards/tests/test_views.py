@@ -49,7 +49,7 @@ class TestIndexView(WebTest):
         baker.make(RewardPointGranting, user_profile=cls.student, value=5)
         cls.event1 = baker.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
         cls.event2 = baker.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
-        cls.event_with_multiple = baker.make(
+        cls.event_with_step = baker.make(
             RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1), step=5
         )
 
@@ -78,7 +78,7 @@ class TestIndexView(WebTest):
         self.assertContains(response, "cannot redeem 0 points.")
         self.assertEqual(5, reward_points_of_user(self.student))
 
-    def test_redeem_multiple(self):
+    def test_redeem_step(self):
         response = self.app.get(self.url, user=self.student)
         form = response.forms["reward-redemption-form"]
         form.set("form-2-points", 5)
@@ -86,7 +86,7 @@ class TestIndexView(WebTest):
         self.assertContains(response, "You successfully redeemed your points.")
         self.assertEqual(0, reward_points_of_user(self.student))
 
-    def test_redeem_wrong_multiple(self):
+    def test_redeem_wrong_step(self):
         response = self.app.get(self.url, user=self.student)
         form = response.forms["reward-redemption-form"]
         form.set("form-2-points", 3)
