@@ -59,17 +59,18 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script src="{% static 'js/sortable_form.js' %}"></script>
-
-    <script type="text/javascript">
-        rowChanged = function(row) {
-            nameDe = $(row.find('input[id$=-title_de]')).val();
-            nameEn = $(row.find('input[id$=-title_en]')).val();
-            return nameDe || nameEn
+    <script type="module">
+        import { makeFormSortable } from "{% static 'js/sortable-form.js' %}";
+        const rowChanged = function(row) {
+            const nameDe = row.querySelector('input[id$=-title_de]')?.value;
+            const nameEn = row.querySelector('input[id$=-title_en]')?.value;
+            return nameDe || nameEn;
         };
-        rowAdded = function(row) {
-            row.find('a.btn-secondary').remove();
-        };
-        makeFormSortable("section_table", "form", rowChanged, rowAdded, "", true, false);
+        const rowAdded = function(row) {
+            row.querySelectorAll('a.btn-secondary').forEach(el => {
+                el.remove();
+            });
+        }
+        makeFormSortable("section_table", "form", rowChanged, rowAdded, true, false);
     </script>
 {% endblock %}
