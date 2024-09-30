@@ -1,7 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, StepValueValidator
-from django.db import transaction
 from django.utils.translation import gettext as _
 
 from evap.rewards.models import RewardPointRedemption, RewardPointRedemptionEvent
@@ -56,7 +55,6 @@ class BaseRewardPointRedemptionFormSet(forms.BaseFormSet):
         if total_points_redeemed > total_points_available:
             raise ValidationError(_("You don't have enough reward points."))
 
-    @transaction.atomic
     def save(self) -> list[RewardPointRedemption]:
         # lock these rows to prevent race conditions
         list(self.user.reward_point_grantings.select_for_update())

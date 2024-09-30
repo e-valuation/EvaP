@@ -4,6 +4,7 @@ from datetime import datetime
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import BadRequest, SuspiciousOperation
+from django.db import transaction
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -32,32 +33,33 @@ from evap.rewards.tools import grant_eligible_reward_points_for_semester, redeem
 def index(request):
     status = 200
 
-    total_points_available = reward_points_of_user(request.user)
-    events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now().date()).order_by("date")
+    with transaction.atomic():
+        total_points_available = reward_points_of_user(request.user)
+        events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now().date()).order_by("date")
 
-    # pylint: disable=unexpected-keyword-arg
-    formset = RewardPointRedemptionFormSet(
-        request.POST or None,
-        initial=[{"event": e, "points": 0, "total_points_available": total_points_available} for e in events],
-        user=request.user,
-    )
-    if request.method == "POST":
-        try:
-            previous_redeemed_points = int(request.POST["previous_redeemed_points"])
-        except ValueError as e:
-            raise BadRequest from e
-        if previous_redeemed_points != redeemed_points_of_user(request.user):
-            status = 400
-            messages.error(
-                request,
-                _(
-                    "It appears that your browser sent multiple redemption requests. You can see all successful redemptions below."
-                ),
-            )
-        elif formset.is_valid():
-            formset.save()
-            messages.success(request, _("You successfully redeemed your points."))
-            return redirect("rewards:index")
+        # pylint: disable=unexpected-keyword-arg
+        formset = RewardPointRedemptionFormSet(
+            request.POST or None,
+            initial=[{"event": e, "points": 0, "total_points_available": total_points_available} for e in events],
+            user=request.user,
+        )
+        if request.method == "POST":
+            try:
+                previous_redeemed_points = int(request.POST["previous_redeemed_points"])
+            except ValueError as e:
+                raise BadRequest from e
+            if previous_redeemed_points != redeemed_points_of_user(request.user):
+                status = 400
+                messages.error(
+                    request,
+                    _(
+                        "It appears that your browser sent multiple redemption requests. You can see all successful redemptions below."
+                    ),
+                )
+            elif formset.is_valid():
+                formset.save()
+                messages.success(request, _("You successfully redeemed your points."))
+                return redirect("rewards:index")
 
     total_points_available = reward_points_of_user(request.user)
     reward_point_grantings = RewardPointGranting.objects.filter(user_profile=request.user)
