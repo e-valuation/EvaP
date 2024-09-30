@@ -24,6 +24,7 @@ section.range-slider input::-moz-range-thumb {
     z-index: 10;
     -moz-appearance: none;
 }
+
 section.range-slider input::-webkit-slider-runnable-track {
     background-color: $light-gray;
 }

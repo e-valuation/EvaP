@@ -59,7 +59,6 @@ export class RangeSlider {
         }
         this.debounceTimeout = setTimeout(() => {
             this.onRangeChange();
-            console.error("ABC!");
         }, RANGE_DEBOUNCE_MS);
     }
 
