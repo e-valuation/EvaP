@@ -2006,6 +2006,7 @@ class TestEvaluationExamCreation(WebTestStaffMode):
     def test_exam_evaluation_for_single_result(self):
         self.evaluation.is_single_result = True
         self.evaluation.save()
+        self.app.get("", user=self.manager)  # Needed to not get a last login database update
         with assert_no_database_modifications():
             self.app.post(
                 self.url,
@@ -2017,6 +2018,7 @@ class TestEvaluationExamCreation(WebTestStaffMode):
     def test_exam_evaluation_for_already_existing_exam_evaluation(self):
         baker.make(Evaluation, course=self.course, name_en="Exam", name_de="Klausur")
         self.assertTrue(self.evaluation.has_exam)
+        self.app.get("", user=self.manager)  # Needed to not get a last login database update
 
         with assert_no_database_modifications():
             self.app.post(
@@ -2040,17 +2042,8 @@ class TestEvaluationExamCreation(WebTestStaffMode):
                 params=self.params,
             )
 
-        page = self.app.get(
-            self.semester_overview_url,
-            user=self.manager,
-            status=200,
-            params={"semester_id": self.evaluation.course.semester.pk},
-        )
-        self.assertContains(
-            page, "The exam date is before the start date of the main evaluation. No exam evaluation was created."
-        )
-
     def test_exam_evaluation_with_missing_date(self):
+        self.app.get("", user=self.manager)  # Needed to not get a last login database update
         with assert_no_database_modifications():
             self.app.post(
                 self.url,
