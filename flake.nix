@@ -22,6 +22,7 @@
       perSystem = { self', inputs', pkgs, system, ... }: {
         devShells = rec {
           evap = pkgs.callPackage ./nix/shell.nix {
+            python3 = pkgs.python310;
             poetry2nix = inputs.poetry2nix.lib.mkPoetry2Nix { inherit pkgs; };
             projectDir = self;
           };

@@ -1,4 +1,4 @@
-{ pkgs, poetry2nix, projectDir, poetry-groups ? [ ], extraPackages ? [ ], extraPythonPackages ? (ps: [ ]), ... }:
+{ pkgs, python3, poetry2nix, projectDir, poetry-groups ? [ ], extraPackages ? [ ], extraPythonPackages ? (ps: [ ]), ... }:
 
 let
   clean-setup = pkgs.writeShellScriptBin "clean-setup" ''
@@ -23,6 +23,7 @@ let
   '';
 
   poetry-env = poetry2nix.mkPoetryEnv {
+    python = python3;
     inherit projectDir;
     preferWheels = true;
     overrides = poetry2nix.overrides.withDefaults (final: prev:
@@ -46,7 +47,7 @@ let
 in
 pkgs.mkShell {
   packages = with pkgs; [
-    poetry
+    (poetry.override { inherit python3; })
     nodejs
     gettext
 
