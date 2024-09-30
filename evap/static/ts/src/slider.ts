@@ -1,4 +1,4 @@
-import { selectOrError } from "./utils.js";
+import { assert, selectOrError } from "./utils.js";
 
 export interface Range {
     low: number;
@@ -65,6 +65,7 @@ export class RangeSlider {
     public onRangeChange(): void {}
 
     public includeValues(values: number[]): void {
+        assert(Math.min(...values) >= this.min);
         const max = Math.max(...values);
         if (max > this.max) {
             this.max = max;
