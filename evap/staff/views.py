@@ -133,6 +133,7 @@ from evap.staff.tools import (
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.models import TextAnswerWarning
 from evap.student.views import render_vote_page
+from evap.tools import unordered_groupby
 
 
 @manager_required
@@ -897,7 +898,9 @@ def semester_preparation_reminder(request, semester_id):
         subject_params = {}
         for responsible, evaluations, __ in responsible_list:
             body_params = {"user": responsible, "evaluations": evaluations}
-            template.send_to_user(responsible, subject_params, body_params, use_cc=True, request=request)
+            template.send_to_user(
+                responsible, subject_params=subject_params, body_params=body_params, use_cc=True, request=request
+            )
         messages.success(request, _("Successfully sent reminders to everyone."))
         return HttpResponse()
 
@@ -906,30 +909,22 @@ def semester_preparation_reminder(request, semester_id):
 
 
 @manager_required
-def semester_grade_reminder(request, semester_id):
+def semester_grade_reminder(request, semester_id: int) -> HttpResponse:
     semester = get_object_or_404(Semester, id=semester_id)
 
-    courses = (
-        semester.courses.filter(
-            evaluations__state__gte=Evaluation.State.EVALUATED,
-            evaluations__wait_for_grade_upload_before_publishing=True,
-            gets_no_grade_documents=False,
-        )
-        .distinct()
-        .prefetch_related("responsibles")
+    courses = sorted(
+        Course.objects_with_missing_final_grades().filter(semester=semester).prefetch_related("responsibles"),
+        key=lambda course: course.name,
     )
 
-    courses = [course for course in courses if not course.final_grade_documents.exists()]
-    courses.sort(key=lambda course: course.name)
+    responsibles_and_courses_without_final_grades = unordered_groupby(
+        (responsible, course) for course in courses for responsible in course.responsibles.all()
+    )
 
-    responsibles = UserProfile.objects.filter(courses_responsible_for__in=courses).distinct()
-
-    responsible_list = [
-        (responsible, [course for course in courses if responsible in course.responsibles.all()])
-        for responsible in responsibles
-    ]
-
-    template_data = {"semester": semester, "responsible_list": responsible_list}
+    template_data = {
+        "semester": semester,
+        "responsibles_and_courses_without_final_grades": responsibles_and_courses_without_final_grades.items(),
+    }
     return render(request, "staff_semester_grade_reminder.html", template_data)
 
 
@@ -2294,7 +2289,7 @@ def user_resend_email(request):
         "due_evaluations": {},
     }
 
-    template.send_to_user(user, {}, body_params, use_cc=False)
+    template.send_to_user(user, subject_params={}, body_params=body_params, use_cc=False)
     messages.success(request, _("Successfully resent evaluation started email."))
     return HttpResponse()  # 200 OK
 
@@ -2443,6 +2438,8 @@ class TemplateEditView(SuccessMessageMixin, UpdateView):
             available_variables += ["evaluations", "due_evaluations"]
         elif template.name == EmailTemplate.DIRECT_DELEGATION:
             available_variables += ["evaluation", "delegate_user"]
+        elif template.name == EmailTemplate.GRADE_REMINDER:
+            available_variables += ["semester", "responsibles_and_courses_without_final_grades"]
 
         available_variables = ["{{ " + variable + " }}" for variable in available_variables]
         available_variables.sort()
