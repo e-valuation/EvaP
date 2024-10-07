@@ -165,7 +165,8 @@ class LoginTests(WebTest):
 
             password_form["password"] = "evap"  # nosec
             response = password_form.submit(status=400)
-            self.assertFalse(response.context["user"])
+            self.assertIsInstance(response.context["user"], AnonymousUser)
+            self.assertNotContains(response, "Logout", status_code=400)
 
         # correct password while password login is enabled
         with override_settings(ACTIVATE_OPEN_ID_LOGIN=False):

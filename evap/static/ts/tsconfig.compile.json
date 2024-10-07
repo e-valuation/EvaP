@@ -4,7 +4,12 @@
         "rootDir": "./src",
         "outDir": "../../static/js",
         "incremental": true,
-        "tsBuildInfoFile": ".tsbuildinfo.json"
+        "tsBuildInfoFile": ".tsbuildinfo.json",
+        "types": [
+            "bootstrap",
+            "jquery",
+            "sortablejs"
+        ]
     },
     "include": ["src/**/*.ts"]
 }

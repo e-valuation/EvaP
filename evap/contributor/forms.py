@@ -12,7 +12,7 @@ from evap.staff.forms import ContributionForm
 
 
 class EvaluationForm(forms.ModelForm):
-    general_questionnaires = forms.ModelMultipleChoiceField(
+    general_questionnaires: "forms.ModelMultipleChoiceField[Questionnaire]" = forms.ModelMultipleChoiceField(
         queryset=None, required=False, widget=CheckboxSelectMultiple, label=_("General questionnaires")
     )
     course = forms.ModelChoiceField(Course.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())

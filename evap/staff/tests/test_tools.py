@@ -11,7 +11,6 @@ from openpyxl import load_workbook
 
 from evap.evaluation.models import Contribution, Course, Evaluation, UserProfile
 from evap.evaluation.tests.tools import assert_no_database_modifications
-from evap.evaluation.tools import assert_not_none
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption
 from evap.staff.fixtures.excel_files_test_data import (
     create_memory_csv_file,
@@ -25,6 +24,7 @@ from evap.staff.tools import (
     remove_user_from_represented_and_ccing_users,
     user_edit_link,
 )
+from evap.tools import assert_not_none
 from tools.enrollment_preprocessor import run_preprocessor
 
 
@@ -232,6 +232,7 @@ class ConditionalEscapeTest(TestCase):
         self.assertEqual(conditional_escape("safe"), "safe")
 
 
+@patch("tools.enrollment_preprocessor._stdout")
 class EnrollmentPreprocessorTest(WebTest):
     @classmethod
     def setUpTestData(cls) -> None:
@@ -241,7 +242,7 @@ class EnrollmentPreprocessorTest(WebTest):
         )
 
     @patch("builtins.input", side_effect=cycle(("i", "e", "invalid")))
-    def test_xlsx_data_stripped(self, input_patch: MagicMock):
+    def test_xlsx_data_stripped(self, input_patch: MagicMock, _stdout_patch):
         self.imported_data["MA Belegungen"][1][1] = " Accepted  "
         self.imported_data["MA Belegungen"][1][8] = "   conflicts  "
         self.imported_data["BA Belegungen"][1][2] = "   are    "
@@ -256,7 +257,7 @@ class EnrollmentPreprocessorTest(WebTest):
         self.assertEqual(workbook["BA Belegungen"]["L2"].value, "stripped.")  # different email is no conflict
 
     @patch("builtins.input", side_effect=repeat("i"))
-    def test_empty_email_ignored(self, input_patch: MagicMock):
+    def test_empty_email_ignored(self, input_patch: MagicMock, _stdout_patch):
         self.imported_data["MA Belegungen"][1][1] = " Add  "
         self.imported_data["MA Belegungen"][1][8] = "   some  "
         self.imported_data["BA Belegungen"][1][2] = "   conflicts    "
@@ -269,7 +270,7 @@ class EnrollmentPreprocessorTest(WebTest):
         input_patch.assert_not_called()
 
     @patch("builtins.input", side_effect=repeat("i"))
-    def test_deduplication(self, input_patch: MagicMock):
+    def test_deduplication(self, input_patch: MagicMock, _stdout_patch):
         self.imported_data["MA Belegungen"][1][1] = "Some conflicts"
         self.imported_data["MA Belegungen"][1][8] = "in all"
         self.imported_data["BA Belegungen"][1][2] = "fields"
@@ -281,7 +282,7 @@ class EnrollmentPreprocessorTest(WebTest):
         self.assertEqual(input_patch.call_count, 3)  # conflicts are deduplicated.
 
     @patch("builtins.input", side_effect=cycle(("i", "e", "e", "invalid")))
-    def test_changes_applied_globally(self, input_patch: MagicMock):
+    def test_changes_applied_globally(self, input_patch: MagicMock, _stdout_patch):
         self.imported_data["MA Belegungen"][1][1] = "some conflicts"
         self.imported_data["MA Belegungen"][1][8] = "in all"
         self.imported_data["BA Belegungen"][1][2] = "fields"

@@ -11,9 +11,12 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 import logging
 import os
 import sys
+from fractions import Fraction
 from typing import Any
 
 from django.contrib.staticfiles.storage import ManifestStaticFilesStorage
+
+from evap.tools import MonthAndDay
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -65,18 +68,26 @@ REMIND_X_DAYS_AHEAD_OF_END_DATE = [2, 0]
 # where Monday is 0 and Sunday is 6
 TEXTANSWER_REVIEW_REMINDER_WEEKDAYS = [3]
 
+# Email addresses that are reminded about uploading grade documents
+GRADE_REMINDER_EMAIL_RECIPIENTS: list[str] = []
+# Dates on which grade upload reminder emails are sent.
+GRADE_REMINDER_EMAIL_DATES = [
+    MonthAndDay(month=3, day=15),
+    MonthAndDay(month=9, day=15),
+]
+
 # email domains for the internal users of the hosting institution used to
 # figure out who is an internal user
-INSTITUTION_EMAIL_DOMAINS = ["institution.example.com", "student.institution.example.com"]
+INSTITUTION_EMAIL_DOMAINS: list[str] = ["institution.example.com", "student.institution.example.com"]
 
 # List of tuples defining email domains that should be replaced on saving UserProfiles.
 # Emails ending on the first value will have this part replaced by the second value.
 # e.g.: [("institution.example.com", "institution.com")]
 INSTITUTION_EMAIL_REPLACEMENTS: list[tuple[str, str]] = []
 
-# the importer accepts only these two strings in the 'graded' column
-IMPORTER_GRADED_YES = "yes"
-IMPORTER_GRADED_NO = "no"
+# the importer accepts only these strings in the 'graded' column
+IMPORTER_GRADED_YES = ["yes", "ja", "graded", "benotet"]
+IMPORTER_GRADED_NO = ["no", "nein", "ungraded", "unbenotet"]
 
 # the importer will warn if any participant has more enrollments than this number
 IMPORTER_MAX_ENROLLMENTS = 7
@@ -360,6 +371,13 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static_collected")
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 MEDIA_ROOT = os.path.join(BASE_DIR, "upload")
 
+### Evaluation progress rewards
+GLOBAL_EVALUATION_PROGRESS_REWARDS: list[tuple[Fraction, str]] = (
+    []
+)  # (required_voter_ratio between 0 and 1, reward_text)
+GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS: list[int] = []
+GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS: list[int] = []
+GLOBAL_EVALUATION_PROGRESS_INFO_TEXT: dict[str, str] = {"de": "", "en": ""}
 
 ### Slogans
 SLOGANS_DE = [

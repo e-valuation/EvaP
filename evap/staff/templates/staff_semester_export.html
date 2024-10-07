@@ -18,11 +18,11 @@
 
         <div class="card mb-3">
             <div class="card-body">
-                <p>{% translate 'Select the degrees and course types you want to export. An export will include all evaluations of courses that have at least one of the selected degrees and one of the selected course types. Add multiple lines to create an export file with multiple sheets.' %}</p>
+                <p>{% translate 'Select the programs and course types you want to export. An export will include all evaluations of courses that have at least one of the selected programs and one of the selected course types. Add multiple lines to create an export file with multiple sheets.' %}</p>
                 <table id="exportsheets-table" class="table">
                     <thead>
                         <tr>
-                            <th class="width-percent-25">{% translate 'Degrees' %}</th>
+                            <th class="width-percent-25">{% translate 'Programs' %}</th>
                             <th class="width-percent-65">{% translate 'Course types' %}</th>
                             <th class="width-percent-10"></th>
                         </tr>
@@ -35,7 +35,7 @@
                                     {{ field }}
                                 {% endfor %}
                                 <td>
-                                    {% include 'multiple_checkbox_widget.html' with field=form.selected_degrees %}
+                                    {% include 'multiple_checkbox_widget.html' with field=form.selected_programs %}
                                 </td>
                                 <td>
                                     {% include 'multiple_checkbox_widget.html' with field=form.selected_course_types %}

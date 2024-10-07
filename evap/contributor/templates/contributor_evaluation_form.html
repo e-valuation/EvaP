@@ -45,10 +45,10 @@
                     <div class="col-md-7 form-static-text">{{ evaluation.course.responsibles_names }}</div>
                 </div>
                 <div class="d-flex">
-                    <label class="col-md-3 pe-4 form-label">{% translate 'Degrees' %}</label>
+                    <label class="col-md-3 pe-4 form-label">{% translate 'Programs' %}</label>
                     <div class="col-md-7 form-static-text">
-                        {% for degree in evaluation.course.degrees.all %}
-                            <span class="badge bg-primary">{{ degree }}</span>
+                        {% for program in evaluation.course.programs.all %}
+                            <span class="badge bg-primary">{{ program }}</span>
                         {% endfor %}
                     </div>
                 </div>

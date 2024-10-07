@@ -80,7 +80,8 @@ class QuestionnaireVotingForm(forms.Form):
                 field = TextAnswerField.from_question(question)
             elif question.is_rating_question:
                 field = RatingAnswerField.from_question(question)
-            elif question.is_heading_question:
+            else:
+                assert question.is_heading_question
                 field = HeadingField.from_question(question)
 
             identifier = answer_field_id(contribution, questionnaire, question)

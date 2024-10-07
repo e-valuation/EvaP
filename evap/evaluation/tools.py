@@ -1,9 +1,8 @@
 import datetime
 import typing
 from abc import ABC, abstractmethod
-from collections import defaultdict
 from collections.abc import Iterable, Mapping
-from typing import TYPE_CHECKING, Any, Protocol, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 from urllib.parse import quote
 
 import xlwt
@@ -17,6 +16,8 @@ from django.utils.datastructures import MultiValueDict
 from django.utils.translation import get_language
 from django.views.generic import FormView
 
+from evap.tools import date_to_datetime
+
 if TYPE_CHECKING:
     from django_stubs_ext import StrOrPromise  # use proper definition with mypy
 else:
@@ -27,8 +28,6 @@ else:
 
 M = TypeVar("M", bound=Model)
 T = TypeVar("T")
-Key = TypeVar("Key")
-Value = TypeVar("Value")
 CellValue = str | int | float | None
 CV = TypeVar("CV", bound=CellValue)
 
@@ -39,20 +38,6 @@ def openid_login_is_active() -> bool:
 
 def password_login_is_active() -> bool:
     return not openid_login_is_active()
-
-
-def unordered_groupby(key_value_pairs: Iterable[tuple[Key, Value]]) -> dict[Key, list[Value]]:
-    """
-    We need this in several places: Take list of (key, value) pairs and make
-    them into the aggregated all-values-of-every-unique-key dict. Note that
-    this slightly differs from itertools.groupby (and uniq), as we don't
-    require anything to be sorted and you get a dict as return value.
-    """
-    result = defaultdict(list)
-    for key, value in key_value_pairs:
-        result[key].append(value)
-
-    return dict(result)
 
 
 def get_object_from_dict_pk_entry_or_logged_40x(
@@ -112,10 +97,6 @@ def sort_formset(request: HttpRequest, formset: BaseFormSet) -> None:
         formset.forms.sort(key=lambda f: f.cleaned_data.get("order", 9001))
 
 
-def date_to_datetime(date: datetime.date) -> datetime.datetime:
-    return datetime.datetime(year=date.year, month=date.month, day=date.day)
-
-
 def vote_end_datetime(vote_end_date: datetime.date) -> datetime.datetime:
     # The evaluation actually ends at EVALUATION_END_OFFSET_HOURS:00 of the day AFTER self.vote_end_date.
     return date_to_datetime(vote_end_date) + datetime.timedelta(hours=24 + settings.EVALUATION_END_OFFSET_HOURS)
@@ -157,15 +138,6 @@ def capitalize_first(string: StrOrPromise) -> str:
     return string[0].upper() + string[1:]
 
 
-def ilen(iterable: Iterable) -> int:
-    return sum(1 for _ in iterable)
-
-
-def assert_not_none(value: T | None) -> T:
-    assert value is not None
-    return value
-
-
 class FormsetView(FormView):
     """
     Just like `FormView`, but with a renaming from "form" to "formset".
@@ -197,12 +169,6 @@ class FormsetView(FormView):
         return super().form_valid(formset)
 
 
-@typing.runtime_checkable
-class HasFormValid(Protocol):
-    def form_valid(self, form):
-        pass
-
-
 class SaveValidFormMixin:
     """
     Call `form.save()` if the submitted form is valid.
@@ -211,9 +177,9 @@ class SaveValidFormMixin:
     example if a formset for a collection of objects is submitted.
     """
 
-    def form_valid(self: HasFormValid, form) -> HttpResponse:
+    def form_valid(self, form) -> HttpResponse:
         form.save()
-        return super().form_valid(form)
+        return super().form_valid(form)  # type: ignore[misc]  # there is no valid way to annotate this
 
 
 class AttachmentResponse(HttpResponse):

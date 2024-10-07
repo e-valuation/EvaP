@@ -1,3 +1,4 @@
+import csv
 from datetime import datetime
 
 from django.contrib import messages
@@ -12,9 +13,10 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, UpdateView
+from typing_extensions import assert_never
 
 from evap.evaluation.auth import manager_required, reward_user_required
-from evap.evaluation.models import Semester
+from evap.evaluation.models import Semester, UserProfile
 from evap.evaluation.tools import AttachmentResponse, get_object_from_dict_pk_entry_or_logged_40x
 from evap.rewards.exporters import RewardsExporter
 from evap.rewards.forms import RewardPointRedemptionEventForm
@@ -52,17 +54,21 @@ def redeem_reward_points(request):
         OutdatedRedemptionDataError,
     ) as error:
         status_code = 400
-        if isinstance(error, NoPointsSelectedError):
-            error_string = _("You cannot redeem 0 points.")
-        elif isinstance(error, NotEnoughPointsError):
-            error_string = _("You don't have enough reward points.")
-        elif isinstance(error, RedemptionEventExpiredError):
-            error_string = _("Sorry, the deadline for this event expired already.")
-        elif isinstance(error, OutdatedRedemptionDataError):
-            status_code = 409
-            error_string = _(
-                "It appears that your browser sent multiple redemption requests. You can see all successful redemptions below."
-            )
+        match error:
+            case NoPointsSelectedError():
+                error_string = _("You cannot redeem 0 points.")
+            case NotEnoughPointsError():
+                error_string = _("You don't have enough reward points.")
+            case RedemptionEventExpiredError():
+                error_string = _("Sorry, the deadline for this event expired already.")
+            case OutdatedRedemptionDataError():
+                status_code = 409
+                error_string = _(
+                    "It appears that your browser sent multiple redemption requests. You can see all successful redemptions below."
+                )
+            case _:
+                assert_never(type(error))
+
         messages.error(request, error_string)
         return status_code
     return 200
@@ -153,7 +159,33 @@ def reward_point_redemption_event_export(request, event_id):
     filename = _("RewardPoints") + f"-{event.date}-{event.name}-{get_language()}.xls"
     response = AttachmentResponse(filename, content_type="application/vnd.ms-excel")
 
-    RewardsExporter().export(response, event.redemptions_by_user())
+    RewardsExporter().export(response, event.users_with_redeemed_points())
+
+    return response
+
+
+@manager_required
+def reward_points_export(request):
+    filename = _("RewardPoints") + f"-{get_language()}.csv"
+    response = AttachmentResponse(filename, content_type="text/csv")
+
+    writer = csv.writer(response, delimiter=";", lineterminator="\n")
+    writer.writerow([_("Email address"), _("Number of points")])
+    profiles_with_points = (
+        UserProfile.objects.annotate(
+            points=Sum("reward_point_grantings__value", default=0) - Sum("reward_point_redemptions__value", default=0)
+        )
+        .filter(points__gt=0)
+        .order_by("-points")
+    )
+
+    for profile in profiles_with_points.all():
+        writer.writerow(
+            [
+                profile.email,
+                profile.points,
+            ]
+        )
 
     return response
 

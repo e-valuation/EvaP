@@ -148,7 +148,7 @@
                     const baseOptions = {
                         createOnBlur: true,
                         placeholder: "{% translate 'Please select...' %}",
-                        hidePlaceholder: true,
+                        hidePlaceholder: element.hasAttribute("data-tomselect-fullwidth") ? false : true,
                         minimumInputLength,
                         render: {
                             option_create: (data, escape) => `<div class="create">${ escape(data.input) }</div>`,

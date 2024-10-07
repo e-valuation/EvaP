@@ -23,13 +23,13 @@
                     <input type="search" name="search" class="form-control mb-3" placeholder="{% translate 'Search...' %}" />
                 </div>
                 <div class="col-6 col-sm-4 col-md">
-                    <h6 class="card-subtitle mb-1">{% translate 'Degrees' %}</h6>
-                    <div id="degree-select" class="result-filter-list">
-                        {% for degree in degrees %}
+                    <h6 class="card-subtitle mb-1">{% translate 'Programs' %}</h6>
+                    <div id="program-select" class="result-filter-list">
+                        {% for program in programs %}
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="{{ degree.id }}" data-filter="{{ degree.name }}" name="degree" id="degree-{{ degree.id }}" />
-                                <label class="form-check-label w-100" for="degree-{{ degree.id }}">
-                                    {{ degree.name }}
+                                <input class="form-check-input" type="checkbox" value="{{ program.id }}" data-filter="{{ program.name }}" name="program" id="program-{{ program.id }}" />
+                                <label class="form-check-label w-100" for="program-{{ program.id }}">
+                                    {{ program.name }}
                                 </label>
                             </div>
                         {% endfor %}
@@ -141,9 +141,9 @@
                     checkboxes: [...document.querySelectorAll("input[name=semester]")],
                     selector: "[data-col=semester]",
                 }],
-                ["degree", {
-                    checkboxes: [...document.querySelectorAll("input[name=degree]")],
-                    selector: ".badge-degree",
+                ["program", {
+                    checkboxes: [...document.querySelectorAll("input[name=program]")],
+                    selector: ".badge-program",
                 }],
                 ["courseType", {
                     checkboxes: [...document.querySelectorAll("input[name=courseType]")],

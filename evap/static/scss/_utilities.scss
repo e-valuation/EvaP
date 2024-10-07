@@ -23,8 +23,8 @@
     color: $evap-red !important;
 }
 
-.icon-yellow {
-    color: $evap-dark-yellow !important;
+.icon-blue {
+    color: $evap-dark-blue !important;
 }
 
 .icon-green {
@@ -83,5 +83,9 @@ a.no-underline:hover {
 @for $i from 0 through 100 {
     .width-percent-#{$i} {
         width: $i * 1% !important;
+    }
+
+    .left-percent-#{$i} {
+        left: $i * 1% !important;
     }
 }

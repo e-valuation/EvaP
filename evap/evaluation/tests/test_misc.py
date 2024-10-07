@@ -8,7 +8,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from model_bakery import baker
 
-from evap.evaluation.models import CourseType, Degree, Semester, UserProfile
+from evap.evaluation.models import CourseType, Program, Semester, UserProfile
 from evap.evaluation.tests.tools import make_manager, submit_with_modal
 from evap.staff.tests.utils import WebTestStaffMode
 
@@ -21,8 +21,8 @@ class SampleTableImport(WebTestStaffMode):
         cls.semester = baker.make(Semester)
         baker.make(CourseType, name_de="Vorlesung", name_en="Lecture", import_names=["Vorlesung"])
         baker.make(CourseType, name_de="Seminar", name_en="Seminar", import_names=["Seminar"])
-        Degree.objects.filter(name_de="Bachelor").update(import_names=["Bachelor", "B. Sc."])
-        Degree.objects.filter(name_de="Master").update(import_names=["Master", "M. Sc."])
+        Program.objects.filter(name_de="Bachelor").update(import_names=["Bachelor", "B. Sc."])
+        Program.objects.filter(name_de="Master").update(import_names=["Master", "M. Sc."])
 
     def test_sample_semester_file(self):
         page = self.app.get(reverse("staff:semester_import", args=[self.semester.pk]), user=self.manager)

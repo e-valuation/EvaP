@@ -30,7 +30,7 @@ Vagrant.configure("2") do |config|
     d.cmd = ["tail", "-f", "/dev/null"]
 
     # Required so we can use mount inside the VM -- see e.g. https://github.com/moby/moby/issues/16429
-    d.create_args = ["--cap-add=SYS_ADMIN", "--security-opt=apparmor:unconfined"]
+    d.create_args = ["--cap-add=SYS_ADMIN", "--security-opt=apparmor:unconfined", "--device=/dev/fuse"]
 
     # Workaround for no SSH server as long as https://github.com/hashicorp/vagrant/issues/8145 is still open
     override.trigger.before :provision do |trigger|

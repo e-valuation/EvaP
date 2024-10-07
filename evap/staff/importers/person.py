@@ -3,8 +3,8 @@ from collections.abc import Iterable
 from django.utils.translation import ngettext
 
 from evap.evaluation.models import Contribution, Evaluation, UserProfile
-from evap.evaluation.tools import assert_not_none
 from evap.staff.tools import ImportType, append_user_list_if_not_empty
+from evap.tools import assert_not_none
 
 from .base import ImporterLog
 from .user import import_users

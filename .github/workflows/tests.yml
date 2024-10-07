@@ -34,6 +34,8 @@ jobs:
         run: coverage run manage.py test
       - name: Upload coverage
         uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   test_shuffled:
     name: Test (shuffled order)
@@ -111,7 +113,7 @@ jobs:
         uses: ./.github/setup_nodejs
 
       - name: Check code formatting
-        run: black --check evap
+        run: black --check .
       - name: Check imports formatting
         run: isort . --check --diff
       - run: ls -laR evap/static/ts
@@ -231,6 +233,7 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           flags: render-pages
+          token: ${{ secrets.CODECOV_TOKEN }}
       - name: Store rendered pages
         uses: actions/upload-artifact@v4
         with:

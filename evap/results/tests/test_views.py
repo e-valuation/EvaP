@@ -15,8 +15,8 @@ from evap.evaluation.models import (
     Contribution,
     Course,
     CourseType,
-    Degree,
     Evaluation,
+    Program,
     Question,
     Questionnaire,
     QuestionType,
@@ -64,10 +64,10 @@ class TestResultsView(WebTest):
             make_winter_semester(2013),
             make_summer_semester(2013),
         ]
-        degrees = {
-            "ba-a": baker.make(Degree, name_de="Bachelor A", name_en="Bachelor A"),
-            "ma-a": baker.make(Degree, name_de="Master A", name_en="Master A"),
-            "ma-b": baker.make(Degree, name_de="Master B", name_en="Master B"),
+        programs = {
+            "ba-a": baker.make(Program, name_de="Bachelor A", name_en="Bachelor A"),
+            "ma-a": baker.make(Program, name_de="Master A", name_en="Master A"),
+            "ma-b": baker.make(Program, name_de="Master B", name_en="Master B"),
         }
         course_types = {
             "l": baker.make(CourseType, name_de="Vorlesung", name_en="Lecture"),
@@ -88,14 +88,14 @@ class TestResultsView(WebTest):
             "kuchenbuch": make_responsible("Dr.", "Tony", "Kuchenbuch"),
         }
 
-        def make_course(name, semester, course_type_name, degree_names, responsible_names):
+        def make_course(name, semester, course_type_name, program_names, responsible_names):
             return baker.make(
                 Course,
                 semester=semesters[semester],
                 name_de=f"Veranstaltung {name}",
                 name_en=f"Course {name}",
                 type=course_types[course_type_name],
-                degrees={degrees[degree_name] for degree_name in degree_names},
+                programs={programs[program_name] for program_name in program_names},
                 responsibles={responsibles[responsible_name] for responsible_name in responsible_names},
             )
 
@@ -339,18 +339,35 @@ class TestResultsViewContributionWarning(WebTest):
             participants=students,
             voters=students,
         )
-        questionnaire = baker.make(Questionnaire)
-        cls.evaluation.general_contribution.questionnaires.set([questionnaire])
+        cls.questionnaire = baker.make(Questionnaire)
+        cls.evaluation.general_contribution.questionnaires.set([cls.questionnaire])
         cls.contribution = baker.make(
             Contribution,
             evaluation=cls.evaluation,
-            questionnaires=[questionnaire],
+            questionnaires=[cls.questionnaire],
             contributor=contributor,
         )
         cls.likert_question = baker.make(
-            Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire, order=2
+            Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=cls.questionnaire, order=2
         )
         cls.url = f"/results/semester/{cls.semester.id}/evaluation/{cls.evaluation.id}"
+
+    def test_contributor_no_results_warning(self):
+        # The contributor card should be collapsed iff all questions have no results
+        # Regression test from https://github.com/e-valuation/EvaP/pull/2245
+        question2 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=self.questionnaire, order=2)
+
+        cache_results(self.evaluation)
+        page = self.app.get(self.url, user=self.manager, status=200)
+        self.assertIn("There are no results for this person", page)
+        self.assertIn('class="collapse"', page)
+
+        make_rating_answer_counters(question2, self.contribution, [0, 0, 10, 0, 0])
+
+        cache_results(self.evaluation)
+        page = self.app.get(self.url, user=self.manager, status=200)
+        self.assertNotIn("There are no results for this person", page)
+        self.assertNotIn('class="collapse"', page)
 
     def test_many_answers_evaluation_no_warning(self):
         make_rating_answer_counters(self.likert_question, self.contribution, [0, 0, 10, 0, 0])
@@ -670,9 +687,9 @@ class TestResultsSemesterEvaluationDetailViewPrivateEvaluation(WebTest):
         voter1 = baker.make(UserProfile, email="voter1@institution.example.com")
         voter2 = baker.make(UserProfile, email="voter2@institution.example.com")
         non_participant = baker.make(UserProfile, email="non_participant@institution.example.com")
-        degree = baker.make(Degree)
+        program = baker.make(Program)
         course = baker.make(
-            Course, semester=semester, degrees=[degree], is_private=True, responsibles=[responsible, editor]
+            Course, semester=semester, programs=[program], is_private=True, responsibles=[responsible, editor]
         )
         private_evaluation = baker.make(
             Evaluation,
@@ -1121,7 +1138,9 @@ class TestArchivedResults(WebTest):
         cls.contributor = baker.make(UserProfile, email="contributor@institution.example.com")
         cls.responsible = baker.make(UserProfile, email="responsible@institution.example.com")
 
-        course = baker.make(Course, semester=cls.semester, degrees=[baker.make(Degree)], responsibles=[cls.responsible])
+        course = baker.make(
+            Course, semester=cls.semester, programs=[baker.make(Program)], responsibles=[cls.responsible]
+        )
         cls.evaluation = baker.make(
             Evaluation,
             course=course,

@@ -503,7 +503,7 @@
   "model": "evaluation.course",
   "fields": {
     "name_de": "a new course",
-    "degrees": [1],
+    "programs": [1],
     "semester": 1,
     "responsibles": [2, 9],
     "name_en": "a course",
@@ -529,10 +529,10 @@
 },
 {
   "pk": 1,
-  "model": "evaluation.degree",
+  "model": "evaluation.program",
   "fields": {
-    "name_de": "a degree",
-    "name_en": "a degree"
+    "name_de": "a program",
+    "name_en": "a program"
   }
 }
 ]

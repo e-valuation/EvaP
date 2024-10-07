@@ -4,8 +4,8 @@
 <div class="results-grid-row heading-row course-row">
     <div data-col="name" data-order="{{ course.name|lower }}">
         <div>
-            {% for degree in course.degrees.all %}
-                <span class="badge bg-primary badge-degree">{{ degree }}</span>
+            {% for program in course.programs.all %}
+                <span class="badge bg-primary badge-program">{{ program }}</span>
             {% endfor %}
             <span class="badge bg-secondary badge-course-type">{{ course.type }}</span>
         </div>

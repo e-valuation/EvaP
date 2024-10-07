@@ -37,10 +37,9 @@ ignore = [
     "COM812",                # incompatible with formatter
     "N802",                  # not as mighty as pylint's invalid-name https://github.com/astral-sh/ruff/issues/7660
     "PLR0913",               # we can't determine a good limit for arguments. reviews should spot bad cases of this.
-    "PLR2004", "PLW2901"
+    "PLR2004", "PLW2901",
 ]
 
-ignore-init-module-imports = true
 pep8-naming.extend-ignore-names = ["assert*", "*Formset"]  # custom assert methods use camelCase; Formsets use PascalCase
 
 [tool.ruff.lint.per-file-ignores]
@@ -97,8 +96,12 @@ disable = [
     "use-implicit-booleaness-not-comparison-to-string",  # forces us to use less expressive code
     "use-implicit-booleaness-not-comparison-to-zero",    # forces us to use less expressive code
     # the following are covered by ruff
-    "broad-exception-caught", "line-too-long","unused-wildcard-import", "wildcard-import","too-many-arguments", "too-many-statements", "too-many-return-statements"
+    "broad-exception-caught", "line-too-long", "unused-wildcard-import", "wildcard-import", "too-many-arguments",
+    "too-many-statements", "too-many-return-statements", "too-many-branches", "unnecessary-lambda-assignment"
 ]
+
+[tool.pylint.design]
+max-positional-arguments = 7
 
 ##############################################
 
@@ -109,6 +112,10 @@ source = ["evap", "tools"]
 
 [tool.coverage.report]
 omit = ["*/migrations/*", "*__init__.py"]
+exclude_also = [
+    # mypy asserts these cases are not possible
+    '\n.*assert_never\(.*\)', # \n excludes previous line, see https://coverage.readthedocs.io/en/latest/excluding.html#multi-line-exclusion-regexes
+]
 
 ##############################################
 
@@ -116,7 +123,6 @@ omit = ["*/migrations/*", "*__init__.py"]
 packages = ["evap", "tools"]
 plugins = ["mypy_django_plugin.main"]
 exclude = 'evap/.*/migrations/.*\.py$'
-no_implicit_optional = true
 
 [tool.django-stubs]
 django_settings_module = "evap.settings"
