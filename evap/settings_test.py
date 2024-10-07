@@ -1,3 +1,5 @@
+from pathlib import Path
+
 SECRET_KEY = "evap-github-actions-secret-key"  # nosec
 DATABASES = {
     "default": {
@@ -5,21 +7,24 @@ DATABASES = {
         "NAME": "evap",
         "USER": "evap",
         "PASSWORD": "evap",
-        "HOST": "localhost",
+        'HOST': Path("./data/").resolve(),
     }
 }
+
+redis_url = f"unix://{Path('./data/redis.socket').resolve()}"
+
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://localhost:6379/0",
+        "LOCATION": f"{redis_url}?db=0",
     },
     "results": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://localhost:6379/1",
-        "TIMEOUT": None,
+        "LOCATION": f"{redis_url}?db=1",
+        "TIMEOUT": None,  # is always invalidated manually
     },
     "sessions": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://localhost:6379/2",
+        "LOCATION": f"{redis_url}?db=2",
     },
 }

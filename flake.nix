@@ -19,7 +19,7 @@
         inputs.process-compose-flake.flakeModule
       ];
       systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
-      perSystem = { self', inputs', pkgs, system, ... }: {
+      perSystem = { self', inputs', pkgs, lib, system, ... }: {
         devShells = rec {
           evap = pkgs.callPackage ./nix/shell.nix {
             python3 = pkgs.python310;
@@ -44,13 +44,18 @@
           services = {
             redis."r1" = {
               enable = true;
+              port = 0; # disable listening via TCP
               extraConfig = ''
                 locale-collate "C"
+                unixsocket ../redis.socket
+                unixsocketperm 777
               '';
             };
             postgres."pg1" = {
               enable = true;
               superuser = "postgres";
+              listen_addresses = ""; # disable listening via TCP
+              socketDir = "data";
               createDatabase = false;
               initialScript.before = ''
                 DROP USER IF EXISTS evap;
@@ -60,6 +65,9 @@
               '';
             };
           };
+
+          # See https://github.com/juspay/services-flake/issues/352
+          settings.processes."r1".readiness_probe.exec.command = lib.mkForce "true";
         };
       };
     };
