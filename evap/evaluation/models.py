@@ -619,15 +619,7 @@ class Evaluation(LoggedModel):
 
     @property
     def can_reset_to_new(self):
-        allowed_sources = [
-            Evaluation.State.PREPARED,
-            Evaluation.State.EDITOR_APPROVED,
-            Evaluation.State.APPROVED,
-            Evaluation.State.IN_EVALUATION,
-            Evaluation.State.EVALUATED,
-            Evaluation.State.REVIEWED,
-        ]
-        return self.state in allowed_sources and not self.is_single_result
+        return Evaluation.State.PREPARED <= self.state <= Evaluation.State.REVIEWED and not self.is_single_result
 
     @property
     def can_be_edited_by_manager(self):
