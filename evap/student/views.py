@@ -248,7 +248,10 @@ def render_vote_page(request: HttpRequest, evaluation: Evaluation, preview: bool
     )
 
     if show_dropout_questionnaire:
-        evaluation_form_group_top.insert(0, Questionnaire.objects.default_dropout_questionnaire())
+        dropout_questionnaire = Questionnaire.objects.default_dropout_questionnaire()
+        evaluation_form_group_top.insert(0, QuestionnaireVotingForm(request.POST or None,
+                                                                    contribution=evaluation.general_contribution,
+                                                                    questionnaire=dropout_questionnaire))
 
     template_data = {
         "contributor_errors_exist": contributor_errors_exist,
@@ -328,9 +331,9 @@ def vote(request: HttpRequest, evaluation_id: int):  # noqa: PLR0912
         if not evaluation.can_publish_text_results:
             # enable text result publishing if first user confirmed that publishing is okay or second user voted
             if (
-                request.POST.get("text_results_publish_confirmation_top") == "on"
-                or request.POST.get("text_results_publish_confirmation_bottom") == "on"
-                or evaluation.voters.count() >= 2
+                    request.POST.get("text_results_publish_confirmation_top") == "on"
+                    or request.POST.get("text_results_publish_confirmation_bottom") == "on"
+                    or evaluation.voters.count() >= 2
             ):
                 evaluation.can_publish_text_results = True
                 evaluation.save()
@@ -340,15 +343,6 @@ def vote(request: HttpRequest, evaluation_id: int):  # noqa: PLR0912
     messages.success(request, _("Your vote was recorded."))
     return HttpResponse(SUCCESS_MAGIC_STRING)
 
-
-def render_drop_page(evaluation: Evaluation) -> HttpResponse:
-    """Returns the dropped course evaluation form"""
-    # TODO@felix: explanatory text: "will not be published/ only shown to contributors"
-    # TODO@felix: add "why did you drop" section on top
-    # TODO@felix: select "No answer" for all other questions
-    raise NotImplementedError
-
-
 @participant_required
 def drop(request: HttpRequest, evaluation_id: int) -> HttpResponse:
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
@@ -357,8 +351,10 @@ def drop(request: HttpRequest, evaluation_id: int) -> HttpResponse:
         raise SuspiciousOperation("Drop out not allowed")
 
     # TODO@felix: implement drop view
-    return render_drop_page(evaluation)
+    # TODO@felix: explanatory text: "will not be published/ only shown to contributors"
+    # TODO@felix: add "why did you drop" section on top
+    # TODO@felix: select "No answer" for all other questions
+    return render_vote_page(request, evaluation, preview=False, show_dropout_questionnaire=True)
 
     # TODO@felix: save result differently from normal results
     # TODO@felix: show results only to staff, reviewers & responsible contributors
-    raise NotImplementedError
