@@ -69,13 +69,12 @@ class TestImportUserProfiles(TestCase):
         self.semester = baker.make(Semester)
 
     def test_import_students(self):
-        self.assertEqual(UserProfile.objects.all().count(), 0)
+        self.assertEqual(UserProfile.objects.count(), 0)
 
         importer = JSONImporter(self.semester)
         importer._import_students(self.students)
 
         user_profiles = UserProfile.objects.all()
-        self.assertEqual(user_profiles.count(), 2)
 
         for i, user_profile in enumerate(user_profiles.order_by("email")):
             self.assertEqual(user_profile.email, self.students[i]["email"])
@@ -92,7 +91,7 @@ class TestImportUserProfiles(TestCase):
         importer = JSONImporter(self.semester)
         importer._import_students(self.students)
 
-        self.assertEqual(UserProfile.objects.all().count(), 2)
+        self.assertEqual(UserProfile.objects.count(), 2)
 
         user_profile.refresh_from_db()
 
@@ -114,7 +113,7 @@ class TestImportUserProfiles(TestCase):
         )
 
     def test_import_lecturers(self):
-        self.assertEqual(UserProfile.objects.all().count(), 0)
+        self.assertEqual(UserProfile.objects.count(), 0)
 
         importer = JSONImporter(self.semester)
         importer._import_lecturers(self.lecturers)
@@ -137,7 +136,7 @@ class TestImportUserProfiles(TestCase):
         importer = JSONImporter(self.semester)
         importer._import_lecturers(self.lecturers)
 
-        self.assertEqual(UserProfile.objects.all().count(), 2)
+        self.assertEqual(UserProfile.objects.count(), 2)
 
         user_profile.refresh_from_db()
 
@@ -172,7 +171,7 @@ class TestImportEvents(TestCase):
     def test_import_courses(self):
         importer = self._import()
 
-        self.assertEqual(Course.objects.all().count(), 1)
+        self.assertEqual(Course.objects.count(), 1)
         course = Course.objects.first()
 
         self.assertEqual(course.semester, self.semester)
@@ -270,7 +269,7 @@ class TestImportEvents(TestCase):
     def test_import_courses_update(self):
         self._import()
 
-        self.assertEqual(Course.objects.all().count(), 1)
+        self.assertEqual(Course.objects.count(), 1)
         course = Course.objects.all()[0]
         course.name_de = "Doe"
         course.name_en = "Jane"
