@@ -6,6 +6,7 @@ from collections.abc import Collection, Container, Iterable, Sequence
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from enum import Enum, auto
+from functools import partial
 from numbers import Real
 from typing import Any
 
@@ -1680,6 +1681,8 @@ class EvapBaseUser(models.Model):
     """This is strongly related to the django.contrib.auth.base_user.AbstractBaseUser model, but does not define natural_key."""
 
     password = models.CharField(_("password"), max_length=128)
+    # set unusable password by default: We don't want password resets.
+    password = models.CharField(_("password"), max_length=128, default=partial(make_password, None))
     last_login = models.DateTimeField(_("last login"), blank=True, null=True)
 
     # Stores the raw password if set_password() is called so that it can

@@ -59,7 +59,6 @@ class UserData:
     def get_user_profile_object(self) -> UserProfile:
         """Create a new UserProfile object with the same data. Used for validation and bulk insertion"""
         obj = UserProfile(email=self.email)
-        obj.set_unusable_password()
         self.apply_to_and_make_active(obj)
         return obj
 
