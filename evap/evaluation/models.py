@@ -1688,7 +1688,7 @@ class EvapBaseUser(models.Model):
 
     @property
     def is_anonymous(self):
-        #  django.contrib.auth.checks requires this to be MethodType
+        # django.contrib.auth.checks requires this to be MethodType
         return False
 
     @property
