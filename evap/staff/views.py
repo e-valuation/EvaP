@@ -1103,21 +1103,16 @@ def create_exam_evaluation(request):
     if evaluation.has_exam:
         raise SuspiciousOperation("An exam evaluation already exists for this course")
     try:
-        exam_datetime = request.POST.get("exam_date")
-        exam_datetime = datetime.combine(datetime.strptime(exam_datetime, "%Y-%m-%d"), datetime.min.time())
+        exam_date = request.POST.get("exam_date")
     except TypeError:
         return HttpResponseBadRequest("Exam date missing or invalid.")
 
-    evaluation_end_date = exam_datetime - timedelta(days=1)
-    # The evaluation end date must be after to the earliest legal exam evaluation date, which is the evaluation vote start datetime
-    if evaluation_end_date < evaluation.vote_start_datetime:
+    if exam_date < evaluation.vote_start_datetime.date() + timedelta(days=1):
         raise SuspiciousOperation(
-            "The exam date is before the start date of the main evaluation. No exam evaluation was created."
+            "The end date of the main evaluation would be before its start date. No exam evaluation was created."
         )
 
-    evaluation.create_exam_evaluation(
-        exam_datetime=exam_datetime,
-    )
+    evaluation.create_exam_evaluation(exam_date)
     messages.success(request, _("Successfully created exam evaluation."))
     return HttpResponse()  # 200 OK
 

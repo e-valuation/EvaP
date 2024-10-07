@@ -477,14 +477,14 @@ class Evaluation(LoggedModel):
     @transaction.atomic
     def create_exam_evaluation(
         self,
-        exam_datetime: datetime,
+        exam_date: date,
     ):
         self.weight = 9
-        self.vote_end_date = exam_datetime - timedelta(days=1)
+        self.vote_end_date = exam_date - timedelta(days=1)
         self.save()
         exam_evaluation = Evaluation(course=self.course, name_de="Klausur", name_en="Exam", weight=1, is_rewarded=False)
-        exam_evaluation.vote_start_datetime = datetime.combine(exam_datetime + timedelta(days=1), time(8, 0))
-        exam_evaluation.vote_end_date = exam_datetime + timedelta(days=3)
+        exam_evaluation.vote_start_datetime = datetime.combine(exam_date + timedelta(days=1), time(8, 0))
+        exam_evaluation.vote_end_date = exam_date + timedelta(days=3)
         exam_evaluation.save()
 
         exam_evaluation.participants.set(self.participants.all())
