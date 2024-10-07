@@ -1801,6 +1801,7 @@ def questionnaire_index(request):
     prefetch_list = ("questions", "contributions__evaluation")
     general_questionnaires = Questionnaire.objects.general_questionnaires().prefetch_related(*prefetch_list)
     contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().prefetch_related(*prefetch_list)
+    dropout_questionnaires = Questionnaire.objects.dropout_questionnaires().prefetch_related(*prefetch_list) # TODO@Felix: is prefetch related needed?
 
     if filter_questionnaires:
         general_questionnaires = general_questionnaires.exclude(visibility=Questionnaire.Visibility.HIDDEN)
@@ -1817,6 +1818,7 @@ def questionnaire_index(request):
         "general_questionnaires_top": general_questionnaires_top,
         "general_questionnaires_bottom": general_questionnaires_bottom,
         "contributor_questionnaires": contributor_questionnaires,
+        "dropout_questionnaires": dropout_questionnaires,
         "filter_questionnaires": filter_questionnaires,
     }
     return render(request, "staff_questionnaire_index.html", template_data)
@@ -2065,6 +2067,13 @@ def questionnaire_set_locked(request):
     questionnaire.is_locked = is_locked
     questionnaire.save()
     return HttpResponse()
+
+@require_POST
+@manager_required
+def questionnaire_set_default_dropout(request, questionnaire_id: int):
+    # TODO@Felix: implement setting new default
+    raise NotImplementedError
+
 
 
 @manager_required
