@@ -5,11 +5,13 @@ from io import StringIO
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
+from django.core import mail
 from django.core.management import call_command
 from django.test import TestCase
 from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, Semester, UserProfile
+from evap.evaluation.tests.tools import make_manager
 from evap.staff.importers.json import ImportDict, JSONImporter, NameChange
 
 EXAMPLE_DATA: ImportDict = {
@@ -106,6 +108,7 @@ class TestImportUserProfiles(TestCase):
                     old_first_name_given="Jane",
                     new_last_name=self.students[0]["name"],
                     new_first_name_given=self.students[0]["christianname"],
+                    email=self.students[0]["email"],
                 )
             ],
         )
@@ -151,6 +154,7 @@ class TestImportUserProfiles(TestCase):
                     old_first_name_given="Jane",
                     new_last_name=self.lecturers[0]["name"],
                     new_first_name_given=self.lecturers[0]["christianname"],
+                    email=self.lecturers[0]["email"],
                 )
             ],
         )
@@ -281,6 +285,15 @@ class TestImportEvents(TestCase):
 
         self.assertEqual(len(importer.statistics.updated_courses), 1)
         self.assertEqual(len(importer.statistics.new_courses), 0)
+
+    def test_importer_log_email_sent(self):
+        manager = make_manager()
+
+        self._import()
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, "[EvaP] JSON importer log")
+        self.assertEqual(mail.outbox[0].recipients(), [manager.email])
 
     @patch("evap.staff.importers.json.JSONImporter.import_json")
     def test_management_command(self, mock_import_json):

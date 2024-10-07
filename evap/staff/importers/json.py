@@ -4,6 +4,8 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Any, TypedDict
 
+from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
 from django.db import transaction
 from django.utils.timezone import now
 
@@ -69,6 +71,7 @@ class NameChange:
     old_first_name_given: str
     new_last_name: str
     new_first_name_given: str
+    email: str
 
 
 @dataclass
@@ -94,6 +97,7 @@ class ImportStatistics:
         log += ImportStatistics._make_total(len(objects))
         for obj in objects:
             log += f"- {obj}\n"
+        log += "\n"
         return log
 
     def get_log(self) -> str:
@@ -104,7 +108,7 @@ class ImportStatistics:
         log += self._make_heading("Name Changes")
         log += self._make_total(len(self.name_changes))
         for name_change in self.name_changes:
-            log += f"- {name_change.old_first_name_given} {name_change.old_last_name} → {name_change.new_first_name_given} {name_change.new_last_name}\n"
+            log += f"- {name_change.old_first_name_given} {name_change.old_last_name} → {name_change.new_first_name_given} {name_change.new_last_name} (email: {name_change.email})\n"
 
         log += self._make_stats("New Courses", self.new_courses)
         log += self._make_stats("New Evaluations", self.new_evaluations)
@@ -113,6 +117,20 @@ class ImportStatistics:
         log += self._make_stats("Attempted Changes", self.attempted_changes)
 
         return log
+
+    def send_mail(self):
+        subject = "[EvaP] JSON importer log"
+
+        managers = UserProfile.objects.filter(groups__name="Manager", email__isnull=False)
+        if not managers:
+            return
+        mail = EmailMultiAlternatives(
+            subject,
+            self.get_log(),
+            settings.SERVER_EMAIL,
+            [manager.email for manager in managers],
+        )
+        mail.send()
 
 
 class JSONImporter:
@@ -153,6 +171,7 @@ class JSONImporter:
             ),
             new_last_name=user_profile.last_name,
             new_first_name_given=user_profile.first_name_given,
+            email=user_profile.email,
         )
         self.statistics.name_changes.append(change)
 
@@ -298,16 +317,12 @@ class JSONImporter:
 
             self._import_evaluation(course, event)
 
-    def _process_log(self) -> None:
-        log = self.statistics.get_log()
-        logger.info(log)
-
     @transaction.atomic
     def import_dict(self, data: ImportDict) -> None:
         self._import_students(data["students"])
         self._import_lecturers(data["lecturers"])
         self._import_events(data["events"])
-        self._process_log()
+        self.statistics.send_mail()
 
     def import_json(self, data: str) -> None:
         self.import_dict(json.loads(data))
