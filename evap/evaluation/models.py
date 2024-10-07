@@ -641,6 +641,10 @@ class Evaluation(LoggedModel):
         return self.can_be_seen_by(user)
 
     @property
+    def can_reset_to_new(self):
+        return Evaluation.State.PREPARED <= self.state <= Evaluation.State.REVIEWED and not self.is_single_result
+
+    @property
     def can_be_edited_by_manager(self):
         return not self.participations_are_archived and self.state < Evaluation.State.PUBLISHED
 
@@ -734,9 +738,12 @@ class Evaluation(LoggedModel):
     def manager_approve(self):
         pass
 
-    @transition(field=state, source=[State.PREPARED, State.EDITOR_APPROVED, State.APPROVED], target=State.NEW)
-    def revert_to_new(self):
-        pass
+    @transition(field=state, target=State.NEW, conditions=[lambda self: self.can_reset_to_new])
+    def reset_to_new(self, *, delete_previous_answers: bool):
+        if delete_previous_answers:
+            for answer_class in Answer.__subclasses__():
+                answer_class._default_manager.filter(contribution__evaluation=self).delete()
+            self.voters.clear()
 
     @transition(
         field=state,
