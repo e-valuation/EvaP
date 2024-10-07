@@ -3,7 +3,7 @@ import itertools
 from collections import OrderedDict, defaultdict, namedtuple
 from collections.abc import Container
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from enum import Enum
 from typing import Any, Final, Literal, cast
 
@@ -1046,6 +1046,30 @@ def course_copy(request, course_id):
             "disable_breadcrumb_course": True,
         },
     )
+
+
+@require_POST
+@manager_required
+def create_exam_evaluation(request):
+    evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
+    if evaluation.is_single_result:
+        raise SuspiciousOperation("Creating an exam evaluation for a single result evaluation is not allowed")
+
+    if evaluation.has_exam:
+        raise SuspiciousOperation("An exam evaluation already exists for this course")
+    try:
+        exam_date = request.POST.get("exam_date")
+    except TypeError:
+        return HttpResponseBadRequest("Exam date missing or invalid.")
+
+    if exam_date < evaluation.vote_start_datetime.date() + timedelta(days=1):
+        raise SuspiciousOperation(
+            "The end date of the main evaluation would be before its start date. No exam evaluation was created."
+        )
+
+    evaluation.create_exam_evaluation(exam_date)
+    messages.success(request, _("Successfully created exam evaluation."))
+    return HttpResponse()  # 200 OK
 
 
 @manager_required
