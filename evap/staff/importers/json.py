@@ -7,7 +7,7 @@ from typing import Any, TypedDict
 from django.db import transaction
 from django.utils.timezone import now
 
-from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
+from evap.evaluation.models import Contribution, Course, CourseType, Evaluation, Program, Semester, UserProfile
 from evap.evaluation.tools import clean_email
 from evap.staff.tools import update_or_create_with_changes, update_with_changes
 
@@ -122,7 +122,7 @@ class JSONImporter:
         self.semester = semester
         self.user_profile_map: dict[str, UserProfile] = {}
         self.course_type_cache: dict[str, CourseType] = {}
-        self.degree_cache: dict[str, Degree] = {}
+        self.program_cache: dict[str, Program] = {}
         self.course_map: dict[str, Course] = {}
         self.statistics = ImportStatistics()
 
@@ -134,13 +134,13 @@ class JSONImporter:
         self.course_type_cache[name] = course_type
         return course_type
 
-    def _get_degree(self, name: str) -> Degree:
-        if name in self.degree_cache:
-            return self.degree_cache[name]
+    def _get_program(self, name: str) -> Program:
+        if name in self.program_cache:
+            return self.program_cache[name]
 
-        degree = Degree.objects.get_or_create(name_de=name, defaults={"name_en": name})[0]
-        self.degree_cache[name] = degree
-        return degree
+        program = Program.objects.get_or_create(name_de=name, defaults={"name_en": name})[0]
+        self.program_cache[name] = program
+        return program
 
     def _get_user_profiles(self, data: list[ImportRelated]) -> list[UserProfile]:
         return [self.user_profile_map[related["gguid"]] for related in data]
@@ -188,7 +188,7 @@ class JSONImporter:
 
     def _import_course(self, data: ImportEvent) -> Course:
         course_type = self._get_course_type(data["type"])
-        degrees = [self._get_degree(c["cprid"]) for c in data["courses"]]
+        programs = [self._get_program(c["cprid"]) for c in data["courses"]]
         responsibles = self._get_user_profiles(data["lecturers"])
         course, created, changes = update_or_create_with_changes(
             Course,
@@ -196,7 +196,7 @@ class JSONImporter:
             cms_id=data["gguid"],
             defaults={"name_de": data["title"], "name_en": data["title_en"], "type": course_type},
         )
-        course.degrees.set(degrees)
+        course.programs.set(programs)
         course.responsibles.set(responsibles)
 
         if changes:
@@ -232,7 +232,7 @@ class JSONImporter:
 
             name_de, name_en = "", ""
 
-        # If events are graded for any degree, wait for grade upload before publishing
+        # If events are graded for any program, wait for grade upload before publishing
         wait_for_grade_upload_before_publishing = any(grade["scale"] for grade in data["courses"])
 
         participants = self._get_user_profiles(data["students"])
