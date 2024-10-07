@@ -53,7 +53,7 @@ sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py collectstatic --noinput
 sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py reset_db "$CONDITIONAL_NOINPUT"
 sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py migrate
 sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py flush "$CONDITIONAL_NOINPUT"
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py loaddata "$1"
+sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py loaddata_unlogged "$1"
 
 sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py clear_cache --all -v=1
 sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py refresh_results_cache
