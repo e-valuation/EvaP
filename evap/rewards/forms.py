@@ -1,3 +1,5 @@
+from datetime import date
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, StepValueValidator
@@ -35,6 +37,12 @@ class RewardPointRedemptionForm(forms.Form):
 
         if self.initial["event"].step > 1:
             self.fields["points"].help_text = _("multiples of {}").format(self.initial["event"].step)
+
+    def clean_event(self):
+        event = self.cleaned_data["event"]
+        if event.redeem_end_date < date.today():
+            raise ValidationError(_("Sorry, the deadline for this event expired already."))
+        return event
 
 
 class BaseRewardPointRedemptionFormSet(forms.BaseFormSet):
