@@ -719,7 +719,7 @@ class Evaluation(LoggedModel):
     def reset_to_new(self, *, delete_previous_answers: bool):
         if delete_previous_answers:
             for answer_class in Answer.__subclasses__():
-                answer_class._default_manager.filter(contribution__evaluation_id=self.id).delete()
+                answer_class._default_manager.filter(contribution__evaluation=self).delete()
             self.voters.clear()
 
     @transition(
