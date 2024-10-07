@@ -47,6 +47,10 @@ $table-colors: (
         background-color: rgba(0, 0, 0, 0.075);
         cursor: pointer;
 
+        td {
+            background-color: inherit;  // workaround for bootstrap setting color in ".table > :not(caption) > * > *"
+        }
+
         &.hover-row-info {
             background-color: $evap-light-blue;
 
