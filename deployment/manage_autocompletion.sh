@@ -20,25 +20,4 @@ _managepy_complete()
     fi
 }
 
-_python_complete()
-{
-    local cur prev
-    cur=${COMP_WORDS[COMP_CWORD]}
-    prev=${COMP_WORDS[COMP_CWORD-1]}
-
-    if [ "${COMP_CWORD}" -eq 1 ]; then
-        COMPREPLY=($(compgen -f -o filenames -X '!*.py' -- "${cur}"))
-    fi
-
-    if [ "${COMP_CWORD}" -eq 2 ] && [[ "${prev}" == *manage.py ]]; then
-        COMPREPLY=($(compgen -W "${COMMANDS}" -- "${cur}"))
-    fi
-
-    if [ "${COMP_CWORD}" -eq 3 ] && [ "${prev}" == "ts" ]; then
-        COMPREPLY=($(compgen -W "${TS_COMMANDS}" -- "${cur}"))
-    fi
-}
-
 complete -F _managepy_complete manage.py
-complete -F _python_complete python3
-complete -F _python_complete python

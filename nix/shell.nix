@@ -1,6 +1,12 @@
 { pkgs, python3, poetry2nix, projectDir, poetry-groups ? [ ], extraPackages ? [ ], extraPythonPackages ? (ps: [ ]), ... }:
 
 let
+  # When running a nix shell, XDG_DATA_DIRS will be populated so that bash_completion can (lazily) find this completion script
+  evap-managepy-completion = pkgs.runCommand "evap-managepy-completion" { } ''
+    mkdir -p "$out/share/bash-completion/completions"
+    install ${../deployment/manage_autocompletion.sh} "$out/share/bash-completion/completions/manage.py.bash"
+  '';
+
   clean-setup = pkgs.writeShellScriptBin "clean-setup" ''
     read -p "Delete node_modules/ and data/? [y/N] "
     [[ "$REPLY" =~ ^[Yy]$ ]] || exit 1
@@ -54,6 +60,7 @@ pkgs.mkShell {
     poetry-env
     clean-setup
     initialize-setup
+    evap-managepy-completion
   ] ++ extraPackages ++ (extraPythonPackages poetry-env.python.pkgs);
 
   env.PUPPETEER_SKIP_DOWNLOAD = 1;
