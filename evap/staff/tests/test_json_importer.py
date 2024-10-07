@@ -177,7 +177,7 @@ class TestImportEvents(TestCase):
         self.assertEqual(course.name_en, EXAMPLE_DATA["events"][0]["title_en"])
         self.assertEqual(course.type.name_de, EXAMPLE_DATA["events"][0]["type"])
         self.assertSetEqual(
-            {d.name_de for d in course.degrees.all()}, {d["cprid"] for d in EXAMPLE_DATA["events"][0]["courses"]}
+            {d.name_de for d in course.programs.all()}, {d["cprid"] for d in EXAMPLE_DATA["events"][0]["courses"]}
         )
         self.assertSetEqual(
             set(course.responsibles.values_list("email", flat=True)),
