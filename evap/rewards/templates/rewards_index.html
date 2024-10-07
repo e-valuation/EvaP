@@ -22,6 +22,9 @@
                     <form id="reward-redemption-form" action="#" method="POST" class="form-horizontal multiselect-form">
                         {% csrf_token %}
 
+                        {% include 'bootstrap_form_errors.html' with errors=formset.non_form_errors %}
+                        {{ formset.management_form }}
+
                         <input type="hidden" name="previous_redeemed_points" value="{{ total_points_spent }}">
                         <table class="table table-striped table-vertically-aligned mb-3">
                             <thead>
@@ -33,13 +36,14 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for event in events %}
+                                {% for form, event in forms %}
                                     <tr>
                                         <td>{{ event.date }}</td>
                                         <td>{{ event.name }}</td>
                                         <td>{{ event.redeem_end_date }}</td>
                                         <td>
-                                            <input class="form-control" id="id_points-{{ event.id }}" name="points-{{ event.id }}" type="number" value="0" min="0" max="{{ total_points_available }}">
+                                            {{ form.event }}
+                                            {% include 'bootstrap_form_field_widget.html' with field=form.points %}
                                         </td>
                                     </tr>
                                 {% endfor %}
