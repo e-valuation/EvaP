@@ -15,21 +15,21 @@ DATABASES = {
     }
 }
 
-redis_url = f"unix://{Path('./data/redis.socket').resolve()}"
+REDIS_URL = f"unix://{Path('./data/redis.socket').resolve()}"
 
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": f"{redis_url}?db=0",
+        "LOCATION": f"{REDIS_URL}?db=0",
     },
     "results": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": f"{redis_url}?db=1",
+        "LOCATION": f"{REDIS_URL}?db=1",
         "TIMEOUT": None,  # is always invalidated manually
     },
     "sessions": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": f"{redis_url}?db=2",
+        "LOCATION": f"{REDIS_URL}?db=2",
     },
 }
 
