@@ -34,6 +34,6 @@ runs:
       if: ${{ inputs.npm-ci }}
 
     - name: Start database
-      run: nix run .#services -- --detached && sleep 5
+      run: nix run .#services -- --detached && nix run .#wait-for-pc
       shell: bash
       if: ${{ inputs.start-db }}
