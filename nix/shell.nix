@@ -17,7 +17,6 @@ let
   initialize-setup = pkgs.writeShellScriptBin "initialize-setup" ''
     set -ex
 
-    npm ci
     cp deployment/localsettings.template.py evap/localsettings.py
     sed -i -e "s/\$SECRET_KEY/$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)/" evap/localsettings.py
     git submodule update --init
