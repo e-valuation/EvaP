@@ -2,10 +2,12 @@ import logging
 import secrets
 import uuid
 from collections import defaultdict
+from collections.abc import Collection, Container, Iterable, Sequence
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from enum import Enum, auto
 from numbers import Real
+from typing import Any
 
 from django.conf import settings
 from django.contrib import messages
@@ -14,11 +16,12 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.postgres.fields import ArrayField
 from django.core.cache import caches
 from django.core.exceptions import ValidationError
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
-from django.db.models import CheckConstraint, Count, F, Manager, OuterRef, Q, Subquery, Value
+from django.db.models import CheckConstraint, Count, Exists, F, Manager, OuterRef, Q, Subquery, Value
 from django.db.models.functions import Coalesce, Lower, NullIf, TruncDate
 from django.dispatch import Signal, receiver
+from django.http import HttpRequest
 from django.template import Context, Template
 from django.template.defaultfilters import linebreaksbr
 from django.template.exceptions import TemplateSyntaxError
@@ -36,15 +39,20 @@ from evap.evaluation.models_logging import LoggedModel
 from evap.evaluation.tools import (
     StrOrPromise,
     clean_email,
-    date_to_datetime,
     is_external_email,
     is_prefetched,
     password_login_is_active,
     translate,
     vote_end_datetime,
 )
+from evap.tools import date_to_datetime
 
 logger = logging.getLogger(__name__)
+
+try:
+    from typeguard import typeguard_ignore
+except ImportError:
+    typeguard_ignore = lambda f: f  # noqa: E731 - black formats a def with an empty line before.
 
 
 class NotArchivableError(Exception):
@@ -333,6 +341,21 @@ class Course(LoggedModel):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def objects_with_missing_final_grades(cls):
+        # pylint: disable=import-outside-toplevel
+        from evap.grades.models import GradeDocument
+
+        return (
+            Course.objects.filter(
+                evaluations__state__gte=Evaluation.State.EVALUATED,
+                evaluations__wait_for_grade_upload_before_publishing=True,
+                gets_no_grade_documents=False,
+            )
+            .filter(~Exists(GradeDocument.objects.filter(course=OuterRef("pk"), type=GradeDocument.Type.FINAL_GRADES)))
+            .distinct()
+        )
 
     @property
     def unlogged_fields(self):
@@ -1959,6 +1982,7 @@ class EmailTemplate(models.Model):
     EVALUATION_STARTED = "Evaluation Started"
     DIRECT_DELEGATION = "Direct Delegation"
     TEXT_ANSWER_REVIEW_REMINDER = "Text Answer Review Reminder"
+    GRADE_REMINDER = "Grade Reminder"
 
     class Recipients(models.TextChoices):
         ALL_PARTICIPANTS = "all_participants", _("all participants")
@@ -1968,8 +1992,11 @@ class EmailTemplate(models.Model):
         CONTRIBUTORS = "contributors", _("all contributors")
 
     @classmethod
-    def recipient_list_for_evaluation(cls, evaluation, recipient_groups, filter_users_in_cc):
-        recipients = set()
+    @typeguard_ignore  # workaround for typeguard issue with Recipients here
+    def recipient_list_for_evaluation(
+        cls, evaluation: Evaluation, recipient_groups: Container[Recipients], filter_users_in_cc: bool
+    ) -> list[UserProfile]:
+        recipients: set[UserProfile] = set()
 
         if (
             cls.Recipients.CONTRIBUTORS in recipient_groups
@@ -2008,37 +2035,53 @@ class EmailTemplate(models.Model):
         return list(recipients)
 
     @staticmethod
-    def render_string(text, dictionary, *, autoescape=True):
+    def render_string(text: str, dictionary: dict[str, Any], *, autoescape: bool = True) -> str:
         result = Template(text).render(Context(dictionary, autoescape))
 
-        # Template.render would return a SafeData instance. If we didn't escape, this should not be marked as safe.
-        if not autoescape:
-            result = result + ""
-            assert not isinstance(result, SafeData)
+        if autoescape:
+            return result
 
-        return result
+        # Template.render returns a SafeData instance. If we didn't escape, this should not be marked as safe.
+        unsafe_result = result + ""
+        assert not isinstance(unsafe_result, SafeData)
+        return unsafe_result
 
-    def send_to_users_in_evaluations(self, evaluations, recipient_groups, use_cc, request):
-        user_evaluation_map = {}
+    @typeguard_ignore  # workaround for typeguard issue with Recipients here
+    def send_to_users_in_evaluations(
+        self,
+        evaluations: Iterable[Evaluation],
+        recipient_groups: Container[Recipients],
+        use_cc: bool,
+        request: HttpRequest,
+    ) -> None:
+        user_evaluation_map: dict[UserProfile, list[Evaluation]] = {}
         for evaluation in evaluations:
             recipients = self.recipient_list_for_evaluation(evaluation, recipient_groups, filter_users_in_cc=use_cc)
             for user in recipients:
                 user_evaluation_map.setdefault(user, []).append(evaluation)
 
         for user, user_evaluations in user_evaluation_map.items():
-            subject_params = {}
-            evaluations_with_date = {}
-            for evaluation in user_evaluations:
-                evaluations_with_date[evaluation] = (evaluation.vote_end_date - date.today()).days
-            evaluations_with_date = sorted(evaluations_with_date.items(), key=lambda tup: tup[0].full_name)
+            remaining_days_by_evaluation = {
+                evaluation: (evaluation.vote_end_date - date.today()).days for evaluation in user_evaluations
+            }
+            evaluations_with_days = sorted(remaining_days_by_evaluation.items(), key=lambda tup: tup[0].full_name)
             body_params = {
                 "user": user,
-                "evaluations": evaluations_with_date,
+                "evaluations": evaluations_with_days,
                 "due_evaluations": user.get_sorted_due_evaluations(),
             }
-            self.send_to_user(user, subject_params, body_params, use_cc=use_cc, request=request)
+            self.send_to_user(user, subject_params={}, body_params=body_params, use_cc=use_cc, request=request)
 
-    def send_to_user(self, user, subject_params, body_params, use_cc, additional_cc_users=(), request=None):
+    def send_to_user(
+        self,
+        user: UserProfile,
+        *,
+        subject_params: dict[str, Any],
+        body_params: dict[str, Any],
+        use_cc: bool,
+        additional_cc_users: Iterable[UserProfile] = (),
+        request: HttpRequest | None = None,
+    ) -> None:
         if not user.email:
             message = gettext_noop("{} has no email address defined. Could not send email.")
             log_message = message.format(user.full_name_with_additional_info)
@@ -2069,13 +2112,10 @@ class EmailTemplate(models.Model):
             else:
                 send_separate_login_url = True
 
-        body_params["page_url"] = settings.PAGE_URL
-        body_params["contact_email"] = settings.CONTACT_EMAIL
-
         mail = self.construct_mail(user.email, cc_addresses, subject_params, body_params)
 
         try:
-            mail.send(False)
+            mail.send(fail_silently=False)
             if cc_addresses:
                 logger.info(
                     'Sent email "%s" to %s (%s), CC: %s.',
@@ -2097,7 +2137,28 @@ class EmailTemplate(models.Model):
                 mail.message(),
             )
 
-    def construct_mail(self, to_email, cc_addresses, subject_params, body_params):
+    def send_to_address(
+        self, recipient_email: str, subject_params: dict[str, Any], body_params: dict[str, Any]
+    ) -> None:
+        mail = self.construct_mail(recipient_email, [], subject_params, body_params)
+        try:
+            mail.send(fail_silently=False)
+            logger.info('Sent email "%s" to %s', mail.subject, recipient_email)
+        except Exception:
+            if settings.DEBUG:
+                raise
+            logger.exception(
+                'An exception occurred when sending the following email to "%s":\n%s\n',
+                recipient_email,
+                mail.message(),
+            )
+
+    def construct_mail(
+        self, to_email: str, cc_addresses: Sequence[str], subject_params: dict[str, Any], body_params: dict[str, Any]
+    ) -> EmailMessage:
+        body_params["page_url"] = settings.PAGE_URL
+        body_params["contact_email"] = settings.CONTACT_EMAIL
+
         subject = self.render_string(self.subject, subject_params, autoescape=False)
         plain_content = self.render_string(self.plain_content, body_params, autoescape=False)
 
@@ -2121,24 +2182,25 @@ class EmailTemplate(models.Model):
         )
 
     @classmethod
-    def send_reminder_to_user(cls, user, first_due_in_days, due_evaluations):
+    def send_reminder_to_user(
+        cls, user: UserProfile, first_due_in_days: int, due_evaluations: Iterable[Evaluation]
+    ) -> None:
         template = cls.objects.get(name=cls.STUDENT_REMINDER)
         subject_params = {"user": user, "first_due_in_days": first_due_in_days}
         body_params = {"user": user, "first_due_in_days": first_due_in_days, "due_evaluations": due_evaluations}
 
-        template.send_to_user(user, subject_params, body_params, use_cc=False)
+        template.send_to_user(user, subject_params=subject_params, body_params=body_params, use_cc=False)
 
     @classmethod
-    def send_login_url_to_user(cls, user):
+    def send_login_url_to_user(cls, user: UserProfile) -> None:
         template = cls.objects.get(name=cls.LOGIN_KEY_CREATED)
-        subject_params = {}
-        body_params = {"user": user}
-
-        template.send_to_user(user, subject_params, body_params, use_cc=False)
+        template.send_to_user(user, subject_params={}, body_params={"user": user}, use_cc=False)
         logger.info("Sent login url email to %s.", user.email)
 
     @classmethod
-    def send_contributor_publish_notifications(cls, evaluations, template=None):
+    def send_contributor_publish_notifications(
+        cls, evaluations: Iterable[Evaluation], template: "EmailTemplate | None" = None
+    ) -> None:
         if not template:
             template = cls.objects.get(name=cls.PUBLISHING_NOTICE_CONTRIBUTOR)
 
@@ -2168,10 +2230,12 @@ class EmailTemplate(models.Model):
 
         for contributor, evaluation_set in evaluations_per_contributor.items():
             body_params = {"user": contributor, "evaluations": evaluation_set}
-            template.send_to_user(contributor, {}, body_params, use_cc=True)
+            template.send_to_user(contributor, subject_params={}, body_params=body_params, use_cc=True)
 
     @classmethod
-    def send_participant_publish_notifications(cls, evaluations, template=None):
+    def send_participant_publish_notifications(
+        cls, evaluations: Iterable[Evaluation], template: "EmailTemplate | None" = None
+    ) -> None:
         if not template:
             template = cls.objects.get(name=cls.PUBLISHING_NOTICE_PARTICIPANT)
 
@@ -2185,13 +2249,33 @@ class EmailTemplate(models.Model):
 
         for participant, evaluation_set in evaluations_per_participant.items():
             body_params = {"user": participant, "evaluations": evaluation_set}
-            template.send_to_user(participant, {}, body_params, use_cc=True)
+            template.send_to_user(participant, subject_params={}, body_params=body_params, use_cc=True)
 
     @classmethod
-    def send_textanswer_reminder_to_user(cls, user: UserProfile, evaluation_url_tuples: list[tuple[Evaluation, str]]):
+    def send_textanswer_reminder_to_user(
+        cls, user: UserProfile, evaluation_url_tuples: list[tuple[Evaluation, str]]
+    ) -> None:
         body_params = {"user": user, "evaluation_url_tuples": evaluation_url_tuples}
         template = cls.objects.get(name=cls.TEXT_ANSWER_REVIEW_REMINDER)
-        template.send_to_user(user, {}, body_params, use_cc=False)
+        template.send_to_user(user, subject_params={}, body_params=body_params, use_cc=False)
+
+    @classmethod
+    def send_grade_reminder(
+        cls,
+        recipient_email: str,
+        semester: Semester,
+        responsibles_and_courses_without_final_grades: Collection[tuple[UserProfile, list[Course]]],
+    ) -> None:
+        subject_params = {"semester": semester}
+        body_params = {
+            "semester": semester,
+            "responsibles_and_courses_without_final_grades": responsibles_and_courses_without_final_grades,
+        }
+
+        template = cls.objects.get(name=cls.GRADE_REMINDER)
+        template.send_to_address(
+            recipient_email=recipient_email, subject_params=subject_params, body_params=body_params
+        )
 
 
 class VoteTimestamp(models.Model):

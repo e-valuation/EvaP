@@ -12,7 +12,7 @@
     </h3>
     <div class="card">
         <div class="card-body">
-            {% for responsible, courses in responsible_list %}
+            {% for responsible, courses in responsibles_and_courses_without_final_grades %}
                 <b>{{ responsible.full_name }}</b><br />
                 {% for course in courses %}
                     - {{ course.name }} (<span class="fst-italic">{{ course.type }}</span>)<br />

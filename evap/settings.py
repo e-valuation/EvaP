@@ -16,6 +16,8 @@ from typing import Any
 
 from django.contrib.staticfiles.storage import ManifestStaticFilesStorage
 
+from evap.tools import MonthAndDay
+
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
@@ -65,6 +67,14 @@ REMIND_X_DAYS_AHEAD_OF_END_DATE = [2, 0]
 # days of the week on which managers are reminded to handle urgent text answer reviews
 # where Monday is 0 and Sunday is 6
 TEXTANSWER_REVIEW_REMINDER_WEEKDAYS = [3]
+
+# Email addresses that are reminded about uploading grade documents
+GRADE_REMINDER_EMAIL_RECIPIENTS: list[str] = []
+# Dates on which grade upload reminder emails are sent.
+GRADE_REMINDER_EMAIL_DATES = [
+    MonthAndDay(month=3, day=15),
+    MonthAndDay(month=9, day=15),
+]
 
 # email domains for the internal users of the hosting institution used to
 # figure out who is an internal user
