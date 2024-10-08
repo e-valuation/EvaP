@@ -1,4 +1,4 @@
-{ pkgs, python3, poetry2nix, projectDir, poetry-groups ? [ ], extraPackages ? [ ], extraPythonPackages ? (ps: [ ]), ... }:
+{ pkgs, python3, poetry2nix, pyproject, poetrylock, poetry-groups ? [ ], extraPackages ? [ ], extraPythonPackages ? (ps: [ ]), ... }:
 
 let
   # When running a nix shell, XDG_DATA_DIRS will be populated so that bash_completion can (lazily) find this completion script
@@ -16,7 +16,8 @@ let
 
   poetry-env = poetry2nix.mkPoetryEnv {
     python = python3;
-    inherit projectDir;
+    # We pass these instead of `projectDir` to avoid adding the dependency on other files.
+    inherit pyproject poetrylock;
     preferWheels = true;
     overrides = poetry2nix.overrides.withDefaults (final: prev:
       let
@@ -34,7 +35,6 @@ let
       });
     groups = poetry-groups;
     checkGroups = [ ]; # would otherwise always install dev-dependencies
-    editablePackageSources.evap = ./evap;
   };
 in
 pkgs.mkShell {
