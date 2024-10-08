@@ -11,53 +11,32 @@ EvaP is the course evaluation system used internally at Hasso Plattner Institute
 
 For the documentation, please see our [wiki](https://github.com/e-valuation/EvaP/wiki).
 
-## Development Setup (Podman)
+## Development Setup
 
-To develop EvaP, we recommend that you set up a development container.
-This can be done with the configuration file provided by us.
-You will have to install [`git`](https://git-scm.com/downloads) and [`podman`](https://podman.io/).
-Clone the EvaP repository and create the container using
-```bash
-git clone --recurse-submodules https://github.com/e-valuation/EvaP.git
-cd EvaP
-podman build --tag evap-image nix/
-podman create --name evap-container --userns=keep-id:uid=1001,gid=1001 --volume $PWD:/evap --publish 8000:8000 evap-image
-```
+We use [nix](https://nixos.org/) to manage the development environment.
 
-From now on, you can use the created container whenever you want to work on EvaP.
-Start the container with `podman start evap-container` and enter it with `podman exec -it evap-container machinectl shell -q evap@`.
-When entering the container for the first time, it may take a while until the database and development environment have finished setting up.
-Once you see a shell prompt like `evap@5b17c1be4315:/evap$`, you should be ready.
-To run the final initialization steps, run the command `initialize-setup`.
-Now, you can start EvaP by running `./manage.py run`.
-Open your web browser at http://localhost:8000/ and login with email `evap@institution.example.com` and password `evap`.
-You can exit the container by pressing `Ctrl-D` and then stop it with `podman stop evap-container` (or it will stop automatically when you shut down your computer).
+1. Windows only: Install the Windows Subsystem for Linux (WSL) using `wsl --install -d Ubuntu-24.04` (you may have to restart your computer). Enter the WSL environment using the `wsl` command or by selecting the entry in the [Windows Terminal](https://aka.ms/terminal). On your first entry, you need to choose a username and password - anything works (for example: username "evap", password "evap").
+2. Install [git](https://git-scm.com/downloads) and run the following commands to clone and enter the EvaP repository:
+   ```
+   git clone --recurse-submodules https://github.com/e-valuation/EvaP.git
+   cd EvaP
+   ```
+3. Install [nix](https://nixos.org/). For Linux and WSL, we recommend using our installation script by running `./nix/setup-nix`. For MacOS, we recommend using the [Determinate Nix Installer](https://install.determinate.systems/).
+4. Start the needed background services for EvaP:
+   ```
+   nix run .#services-full -- --detached
+   nix run .#wait-for-pc
+   ```
+5. Enter the development shell and start EvaP:
+   ```
+   nix develop
+   ./manage.py run
+   ```
+6. Open your web browser at http://localhost:8000/ and login with email `evap@institution.example.com` and password `evap`.
 
-## Development Setup (Local)
-
-TODO
-
-To develop EvaP, you will have to install [`git`](https://git-scm.com/downloads) and [`nix`](https://nixos.org/) with support for nix flakes.
-
-If you are using Windows, we recommend that you [install the Windows Terminal](https://aka.ms/terminal) and set up the Windows Subsystem for Linux.
-[Install WSL2](https://learn.microsoft.com/en-us/windows/wsl/install), start an Ubuntu VM, and [enable systemd support](https://devblogs.microsoft.com/commandline/systemd-support-is-now-available-in-wsl/).
-Now, you can follow the Linux instructions to install git and nix.
-
-To install nix on your computer, we recommend that you use the [Determinate Nix Installer](https://install.determinate.systems/).
-Alternatively, you can use a virtual machine or container, as long as it can run nix. For example, see this [example setup with `podman`](./nix/tricks.md#development-container-with-podman).
-
-Next, clone the EvaP repository using `git clone --recurse-submodules https://github.com/e-valuation/EvaP.git`.
-When you are inside the `EvaP` directory, you can
-- use `nix run .#services` to run the database system storing EvaP's data, and
-- run `nix develop` to make all needed development tools available in your current shell session.
-
-To initialize the database and perform additional setup steps, you need to run the `initialize-setup` command that is available in the `nix develop` environment.
-You will only need to perform this step once.
-
-You can start EvaP by running `./manage.py run`.
-Open your browser at http://localhost:8000/ and login with email `evap@institution.example.com` and password `evap`.
-
-For additional tips and tricks around the development setup, see [`nix/tricks.md`](./nix/tricks.md).
+To stop EvaP, press `Ctrl-C`.
+To exit the development shell, press `Ctrl-D` or type `exit`.
+To stop the background services, run `nix run .#services-full -- down`.
 
 ## Contributing
 
