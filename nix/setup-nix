@@ -2,6 +2,11 @@
 
 set -e
 
+if nix --version &> /dev/null; then
+    echo "Nix already installed. Please follow the appropriate steps from the script manually."
+    exit 1
+fi
+
 if apt --version &> /dev/null; then
     set -x
     sudo apt-get update -y
@@ -10,7 +15,7 @@ elif pacman --version &> /dev/null; then
     set -x
     sudo pacman -S nix
 else
-    echo "Failed to detect package manager"
+    echo "Failed to detect package manager."
     exit 1
 fi
 
