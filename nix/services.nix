@@ -1,4 +1,4 @@
-{ pkgs, lib ? pkgs.lib, services-flake, only-databases, ... }: {
+{ pkgs, lib ? pkgs.lib, services-flake, only-databases, poetry-env }: {
   imports = [
     services-flake.processComposeModules.default
   ];
@@ -41,15 +41,45 @@
       name = "npm-ci";
       runtimeInputs = [ pkgs.nodejs ];
       text = ''
+        set -e
         CUR_HASH=$(nix-hash --flat <(cat ./package.json ./package-lock.json))
         echo "Hash is $CUR_HASH"
         if [[ -f node_modules/evap-hash && "$CUR_HASH" == "$(cat node_modules/evap-hash)" ]]; then
             echo "Equal hash found, exiting"
             exit 0
         fi
+        set -x
         npm ci
         echo "$CUR_HASH" > node_modules/evap-hash
       '';
+    };
+    disabled = only-databases;
+  };
+
+  settings.processes."init-django" = {
+    command = pkgs.writeShellApplication {
+      name = "init-django";
+      runtimeInputs = [ poetry-env pkgs.git pkgs.gnused ];
+      text = ''
+        set -e
+        if [[ -f evap/localsettings.py ]]; then
+            echo "Found evap/localsettings.py, exiting"
+            exit 0
+        fi
+        set -x
+        cp deployment/localsettings.template.py evap/localsettings.py
+        sed -i -e "s/\$SECRET_KEY/$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)/" evap/localsettings.py
+        git submodule update --init
+        ./manage.py migrate --noinput
+        ./manage.py collectstatic --noinput
+        ./manage.py compilemessages --locale de
+        ./manage.py loaddata test_data.json
+        ./manage.py refresh_results_cache
+      '';
+    };
+    depends_on = {
+      "pg1".condition = "process_healthy";
+      "r1".condition = "process_healthy";
     };
     disabled = only-databases;
   };

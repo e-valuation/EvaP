@@ -8,23 +8,10 @@ let
   '';
 
   clean-setup = pkgs.writeShellScriptBin "clean-setup" ''
-    read -p "Delete node_modules/ and data/? [y/N] "
+    read -p "Delete node_modules/, data/ and evap/localsettings.py? [y/N] "
     [[ "$REPLY" =~ ^[Yy]$ ]] || exit 1
     set -ex
-    rm -rf node_modules/ data/
-  '';
-
-  initialize-setup = pkgs.writeShellScriptBin "initialize-setup" ''
-    set -ex
-
-    cp deployment/localsettings.template.py evap/localsettings.py
-    sed -i -e "s/\$SECRET_KEY/$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)/" evap/localsettings.py
-    git submodule update --init
-    ./manage.py migrate --noinput
-    ./manage.py collectstatic --noinput
-    ./manage.py compilemessages --locale de
-    ./manage.py loaddata test_data.json
-    ./manage.py refresh_results_cache
+    rm -rf node_modules/ data/ evap/localsettings.py
   '';
 
   poetry-env = poetry2nix.mkPoetryEnv {
@@ -58,9 +45,10 @@ pkgs.mkShell {
 
     poetry-env
     clean-setup
-    initialize-setup
     evap-managepy-completion
   ] ++ extraPackages ++ (extraPythonPackages poetry-env.python.pkgs);
+
+  passthru = { inherit poetry-env; };
 
   env.PUPPETEER_SKIP_DOWNLOAD = 1;
 }

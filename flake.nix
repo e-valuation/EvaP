@@ -31,17 +31,18 @@
         };
 
         # Start with `nix run .#services`
-        process-compose = {
-          services = import ./nix/services.nix {
-            inherit pkgs;
-            inherit (inputs) services-flake;
-            only-databases = true;
+        process-compose =
+          let
+            make = only-databases: import ./nix/services.nix {
+              inherit pkgs only-databases;
+              inherit (inputs) services-flake;
+              inherit (self'.devShells.evap.passthru) poetry-env;
+            };
+          in
+          {
+            services = make true;
+            services-full = make false;
           };
-          services-full = import ./nix/services.nix {
-            inherit pkgs; inherit (inputs) services-flake;
-            only-databases = false;
-          };
-        };
       };
     };
 }
