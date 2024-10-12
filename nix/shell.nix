@@ -39,7 +39,6 @@ let
 in
 pkgs.mkShell {
   packages = with pkgs; [
-    (poetry.override { inherit python3; })
     nodejs
     gettext
 
