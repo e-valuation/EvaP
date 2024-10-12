@@ -15,7 +15,7 @@ elif pacman --version &> /dev/null; then
     set -x
     sudo pacman -S nix
 else
-    echo "Failed to detect package manager."
+    echo "Failed to detect package manager. Please install nix manually."
     exit 1
 fi
 
