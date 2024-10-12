@@ -59,7 +59,7 @@
   settings.processes."init-django" = {
     command = pkgs.writeShellApplication {
       name = "init-django";
-      runtimeInputs = [ poetry-env pkgs.git pkgs.gnused ];
+      runtimeInputs = with pkgs; [ poetry-env git gnused gettext ];
       text = ''
         set -e
         if [[ -f evap/localsettings.py ]]; then
