@@ -42,13 +42,12 @@
       runtimeInputs = [ pkgs.nodejs ];
       text = ''
         set -e
-        CUR_HASH=$(nix-hash --flat <(cat ./package.json ./package-lock.json))
+        CUR_HASH=$(nix-hash --flat ./package.json ./package-lock.json | paste -sd " ")
         echo "Hash is $CUR_HASH"
         if [[ -f node_modules/evap-hash && "$CUR_HASH" == "$(cat node_modules/evap-hash)" ]]; then
             echo "Equal hash found, exiting"
             exit 0
         fi
-        set -x
         npm ci
         echo "$CUR_HASH" > node_modules/evap-hash
       '';
