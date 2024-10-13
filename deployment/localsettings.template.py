@@ -1,4 +1,5 @@
 from fractions import Fraction
+from pathlib import Path
 
 from django.utils.safestring import mark_safe
 
@@ -8,14 +9,32 @@ DATABASES = {
         'NAME': 'evap',
         'USER': 'evap',
         'PASSWORD': 'evap',
-        'HOST': '127.0.0.1',                    # Set to empty string for localhost.
-        'PORT': '',                             # Set to empty string for default.
+        # Absolute path to use unix domain socket
+        'HOST': Path("./data/").resolve(),
         'CONN_MAX_AGE': 600,
     }
 }
 
+REDIS_URL = f"unix://{Path('./data/redis.socket').resolve()}"
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": f"{REDIS_URL}?db=0",
+    },
+    "results": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": f"{REDIS_URL}?db=1",
+        "TIMEOUT": None,  # is always invalidated manually
+    },
+    "sessions": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": f"{REDIS_URL}?db=2",
+    },
+}
+
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = "${SECRET_KEY}"  # nosec
+SECRET_KEY = "$SECRET_KEY"  # nosec
 
 # Make apache work when DEBUG == False
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
