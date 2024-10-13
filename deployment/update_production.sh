@@ -39,6 +39,8 @@ git fetch
 
 [[ ! -z "$EVAP_SKIP_CHECKOUT" ]] && echo "Skipping Checkout"
 [[ ! -z "$EVAP_SKIP_CHECKOUT" ]] || git checkout origin/release
+# NOTE: The Python environment should be updated here with something like
+#   sudo -H -u "$USERNAME" "$ENVDIR/bin/pip" install -r requirements.txt
 
 # sometimes, this fails for some random i18n test translation files.
 ./manage.py compilemessages || true
