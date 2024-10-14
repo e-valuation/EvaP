@@ -986,12 +986,11 @@ class TestSemesterPreparationReminderView(WebTestStaffModeWith200Check):
 
         self.app.post(self.url, user=self.manager, status=200)
 
-        subject_params = {}
-        body_params = {"user": user, "evaluations": [evaluation]}
-        expected = (user, subject_params, body_params)
-
         email_template_mock.send_to_user.assert_called_once()
-        self.assertEqual(email_template_mock.send_to_user.call_args_list[0][0][:4], expected)
+        kwargs = email_template_mock.send_to_user.mock_calls[0][2]
+        self.assertEqual(kwargs["subject_params"], {})
+        self.assertEqual(kwargs["body_params"], {"user": user, "evaluations": [evaluation]})
+        self.assertEqual(kwargs["use_cc"], True)
 
 
 class TestGradeReminderView(WebTestStaffMode):
@@ -999,21 +998,59 @@ class TestGradeReminderView(WebTestStaffMode):
     def setUpTestData(cls):
         cls.manager = make_manager()
         cls.responsible = baker.make(UserProfile, first_name_given="Bastius", last_name="Quid")
-        cls.evaluation = baker.make(
+        cls.semester = baker.make(Semester)
+        cls.url = reverse("staff:semester_grade_reminder", args=[cls.semester.pk])
+
+        course_args = {"responsibles": [cls.responsible], "gets_no_grade_documents": False, "semester": cls.semester}
+        cls.course1 = baker.make(Course, name_en="A-Course1", name_de="Z-Course1", **course_args)
+        cls.course2 = baker.make(Course, name_en="Z-Course2", name_de="A-Course2", **course_args)
+
+        baker.make(
             Evaluation,
-            course__name_en="How to make a sandwich",
-            course__responsibles=[cls.responsible],
-            course__gets_no_grade_documents=False,
+            course=cls.course1,
             state=Evaluation.State.EVALUATED,
             wait_for_grade_upload_before_publishing=True,
+            _fill_optional=["name_de", "name_en"],
+            _quantity=2,
         )
-        cls.url = f"/staff/semester/{cls.evaluation.course.semester.pk}/grade_reminder"
+        cls.course2_evaluation = baker.make(
+            Evaluation,
+            course=cls.course2,
+            state=Evaluation.State.IN_EVALUATION,
+            wait_for_grade_upload_before_publishing=True,
+        )
 
-    def test_reminders_are_shown(self):
+    def test_reminders(self):
         page = self.app.get(self.url, user=self.manager)
+        body = page.body.decode()
 
-        self.assertContains(page, "Bastius Quid")
-        self.assertContains(page, "How to make a sandwich")
+        # multiple evaluations should not get the course listed multiple times
+        self.assertEqual(body.count("Bastius Quid"), 1)
+        self.assertEqual(body.count("A-Course1"), 1)
+
+        # reminder requires wait_for_grade_upload_before_publishing and state==EVALUATED
+        self.assertNotContains(page, "Z-Course2")
+
+        self.course2_evaluation.wait_for_grade_upload_before_publishing = False
+        self.course2_evaluation.end_evaluation()
+        self.course2_evaluation.save()
+        page = self.app.get(self.url, user=self.manager)
+        self.assertNotContains(page, "Z-Course2")
+
+        self.course2_evaluation.wait_for_grade_upload_before_publishing = True
+        self.course2_evaluation.save()
+        page = self.app.get(self.url, user=self.manager)
+        body = page.body.decode()
+        self.assertEqual(body.count("Z-Course2"), 1)
+
+        # courses should be ordered
+        self.assertLess(body.index("A-Course1"), body.index("Z-Course2"))
+
+        self.manager.language = "de"
+        self.manager.save()
+        page = self.app.get(self.url, user=self.manager)
+        body = page.body.decode()
+        self.assertLess(body.index("A-Course2"), body.index("Z-Course1"))
 
 
 class TestSendReminderView(WebTestStaffMode):
@@ -3617,6 +3654,7 @@ class TestTemplateEditView(WebTestStaffMode):
             EmailTemplate.TEXT_ANSWER_REVIEW_REMINDER: "evaluation_url_tuples",
             EmailTemplate.EVALUATION_STARTED: "due_evaluations",
             EmailTemplate.DIRECT_DELEGATION: "delegate_user",
+            EmailTemplate.GRADE_REMINDER: "responsibles_and_courses_without_final_grades",
         }
 
         for name, variable in expected_variables.items():

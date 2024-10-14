@@ -25,6 +25,6 @@ if settings.DEBUG:
 
     if settings.ENABLE_DEBUG_TOOLBAR:
         # pylint does not correctly evaluate this if, so it will raise an import-error on
-        # GitHub actions and a useless-suppression on a vagrant setup. Ignore both cases.
+        # GitHub actions and a useless-suppression otherwise. Ignore both cases.
         import debug_toolbar  # pylint: disable=import-error, useless-suppression
         urlpatterns += [path('__debug__/', include(debug_toolbar.urls))]

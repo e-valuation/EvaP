@@ -26,7 +26,7 @@ updates:
       - dependency-name: "*puppeteer*"
         update-types: ["version-update:semver-minor"]
       - dependency-name: "sass"
-        update-types: ["version-update:semver-major"]
+        update-types: ["version-update:semver-minor"]
     labels:
       - "[T] Dependencies"
   - package-ecosystem: "github-actions"
@@ -39,16 +39,7 @@ updates:
     labels:
       - "[T] Dependencies"
   - package-ecosystem: "github-actions"
-    directory: "/.github/setup_nodejs"
-    schedule:
-      interval: "weekly"
-    groups:
-      actions:
-        patterns: ["*"]
-    labels:
-      - "[T] Dependencies"
-  - package-ecosystem: "github-actions"
-    directory: "/.github/setup_python"
+    directory: "/.github/setup_evap"
     schedule:
       interval: "weekly"
     groups:

@@ -11,7 +11,6 @@ from openpyxl import load_workbook
 
 from evap.evaluation.models import Contribution, Course, Evaluation, UserProfile
 from evap.evaluation.tests.tools import assert_no_database_modifications
-from evap.evaluation.tools import assert_not_none
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption
 from evap.staff.fixtures.excel_files_test_data import (
     create_memory_csv_file,
@@ -25,6 +24,7 @@ from evap.staff.tools import (
     remove_user_from_represented_and_ccing_users,
     user_edit_link,
 )
+from evap.tools import assert_not_none
 from tools.enrollment_preprocessor import run_preprocessor
 
 

@@ -133,6 +133,7 @@ from evap.staff.tools import (
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.models import TextAnswerWarning
 from evap.student.views import render_vote_page
+from evap.tools import unordered_groupby
 
 
 @manager_required
@@ -278,41 +279,51 @@ class EvaluationOperation:
 
     @staticmethod
     def apply(
-        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
+        request,
+        evaluations,
+        email_template=None,
+        email_template_contributor=None,
+        email_template_participant=None,
+        delete_previous_answers=None,
     ):
         raise NotImplementedError
 
 
-class RevertToNewOperation(EvaluationOperation):
-    confirmation_message = gettext_lazy("Do you want to revert the following evaluations to preparation?")
+class ResetToNewOperation(EvaluationOperation):
+    confirmation_message = gettext_lazy("Do you want to reset the following evaluations to preparation?")
 
     @staticmethod
-    def applicable_to(evaluation):
-        return Evaluation.State.PREPARED <= evaluation.state <= Evaluation.State.APPROVED
+    def applicable_to(evaluation: Evaluation):
+        return evaluation.can_reset_to_new
 
     @staticmethod
-    def warning_for_inapplicables(amount):
+    def warning_for_inapplicables(amount: int):
         return ngettext(
-            "{} evaluation cannot be reverted, because it already started. It was removed from the selection.",
-            "{} evaluations cannot be reverted, because they already started. They were removed from the selection.",
+            "{} evaluation cannot be reset, because it is already in preparation, published, or a single result. It was removed from the selection",
+            "{} evaluations cannot be reset, because they were already in preparation, published, or a single result. They were removed from the selection.",
             amount,
         ).format(amount)
 
     @staticmethod
     def apply(
-        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
+        request,
+        evaluations,
+        email_template=None,
+        email_template_contributor=None,
+        email_template_participant=None,
+        delete_previous_answers=None,
     ):
         assert email_template_contributor is None
         assert email_template_participant is None
 
         for evaluation in evaluations:
-            evaluation.revert_to_new()
+            evaluation.reset_to_new(delete_previous_answers=bool(delete_previous_answers))
             evaluation.save()
         messages.success(
             request,
             ngettext(
-                "Successfully reverted {} evaluation to in preparation.",
-                "Successfully reverted {} evaluations to in preparation.",
+                "Successfully reset {} evaluation to in preparation.",
+                "Successfully reset {} evaluations to in preparation.",
                 len(evaluations),
             ).format(len(evaluations)),
         )
@@ -336,10 +347,16 @@ class ReadyForEditorsOperation(EvaluationOperation):
 
     @staticmethod
     def apply(
-        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
+        request,
+        evaluations,
+        email_template=None,
+        email_template_contributor=None,
+        email_template_participant=None,
+        delete_previous_answers=None,
     ):
         assert email_template_contributor is None
         assert email_template_participant is None
+        assert delete_previous_answers is None
 
         for evaluation in evaluations:
             evaluation.ready_for_editors()
@@ -392,10 +409,16 @@ class BeginEvaluationOperation(EvaluationOperation):
 
     @staticmethod
     def apply(
-        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
+        request,
+        evaluations,
+        email_template=None,
+        email_template_contributor=None,
+        email_template_participant=None,
+        delete_previous_answers=None,
     ):
         assert email_template_contributor is None
         assert email_template_participant is None
+        assert delete_previous_answers is None
 
         for evaluation in evaluations:
             evaluation.vote_start_datetime = datetime.now()
@@ -430,10 +453,16 @@ class UnpublishOperation(EvaluationOperation):
 
     @staticmethod
     def apply(
-        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
+        request,
+        evaluations,
+        email_template=None,
+        email_template_contributor=None,
+        email_template_participant=None,
+        delete_previous_answers=None,
     ):
         assert email_template_contributor is None
         assert email_template_participant is None
+        assert delete_previous_answers is None
 
         for evaluation in evaluations:
             evaluation.unpublish()
@@ -465,9 +494,15 @@ class PublishOperation(EvaluationOperation):
 
     @staticmethod
     def apply(
-        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
+        request,
+        evaluations,
+        email_template=None,
+        email_template_contributor=None,
+        email_template_participant=None,
+        delete_previous_answers=None,
     ):
         assert email_template is None
+        assert delete_previous_answers is None
 
         for evaluation in evaluations:
             evaluation.publish()
@@ -486,7 +521,7 @@ class PublishOperation(EvaluationOperation):
 
 
 EVALUATION_OPERATIONS = {
-    Evaluation.State.NEW: RevertToNewOperation,
+    Evaluation.State.NEW: ResetToNewOperation,
     Evaluation.State.PREPARED: ReadyForEditorsOperation,
     Evaluation.State.IN_EVALUATION: BeginEvaluationOperation,
     Evaluation.State.REVIEWED: UnpublishOperation,
@@ -529,6 +564,7 @@ def evaluation_operation(request, semester_id):
         email_template = None
         email_template_contributor = None
         email_template_participant = None
+        delete_previous_answers = None
         if request.POST.get("send_email") == "on":
             email_template = EmailTemplate(
                 subject=request.POST["email_subject"],
@@ -547,8 +583,17 @@ def evaluation_operation(request, semester_id):
                 plain_content=request.POST["email_plain_participant"],
                 html_content=request.POST["email_html_participant"],
             )
+        if request.POST.get("delete-previous-answers") == "on":
+            delete_previous_answers = True
 
-        operation.apply(request, evaluations, email_template, email_template_contributor, email_template_participant)
+        operation.apply(
+            request,
+            evaluations,
+            email_template,
+            email_template_contributor,
+            email_template_participant,
+            delete_previous_answers,
+        )
         return redirect("staff:semester_view", semester.id)
 
     applicable_evaluations = list(filter(operation.applicable_to, evaluations))
@@ -580,6 +625,7 @@ def evaluation_operation(request, semester_id):
         "show_email_checkbox": email_template is not None
         or email_template_contributor is not None
         or email_template_participant is not None,
+        "show_delete_answers_checkbox": target_state == Evaluation.State.NEW,
     }
 
     return render(request, "staff_evaluation_operation.html", template_data)
@@ -897,7 +943,9 @@ def semester_preparation_reminder(request, semester_id):
         subject_params = {}
         for responsible, evaluations, __ in responsible_list:
             body_params = {"user": responsible, "evaluations": evaluations}
-            template.send_to_user(responsible, subject_params, body_params, use_cc=True, request=request)
+            template.send_to_user(
+                responsible, subject_params=subject_params, body_params=body_params, use_cc=True, request=request
+            )
         messages.success(request, _("Successfully sent reminders to everyone."))
         return HttpResponse()
 
@@ -906,30 +954,22 @@ def semester_preparation_reminder(request, semester_id):
 
 
 @manager_required
-def semester_grade_reminder(request, semester_id):
+def semester_grade_reminder(request, semester_id: int) -> HttpResponse:
     semester = get_object_or_404(Semester, id=semester_id)
 
-    courses = (
-        semester.courses.filter(
-            evaluations__state__gte=Evaluation.State.EVALUATED,
-            evaluations__wait_for_grade_upload_before_publishing=True,
-            gets_no_grade_documents=False,
-        )
-        .distinct()
-        .prefetch_related("responsibles")
+    courses = sorted(
+        Course.objects_with_missing_final_grades().filter(semester=semester).prefetch_related("responsibles"),
+        key=lambda course: course.name,
     )
 
-    courses = [course for course in courses if not course.final_grade_documents.exists()]
-    courses.sort(key=lambda course: course.name)
+    responsibles_and_courses_without_final_grades = unordered_groupby(
+        (responsible, course) for course in courses for responsible in course.responsibles.all()
+    )
 
-    responsibles = UserProfile.objects.filter(courses_responsible_for__in=courses).distinct()
-
-    responsible_list = [
-        (responsible, [course for course in courses if responsible in course.responsibles.all()])
-        for responsible in responsibles
-    ]
-
-    template_data = {"semester": semester, "responsible_list": responsible_list}
+    template_data = {
+        "semester": semester,
+        "responsibles_and_courses_without_final_grades": responsibles_and_courses_without_final_grades.items(),
+    }
     return render(request, "staff_semester_grade_reminder.html", template_data)
 
 
@@ -2294,7 +2334,7 @@ def user_resend_email(request):
         "due_evaluations": {},
     }
 
-    template.send_to_user(user, {}, body_params, use_cc=False)
+    template.send_to_user(user, subject_params={}, body_params=body_params, use_cc=False)
     messages.success(request, _("Successfully resent evaluation started email."))
     return HttpResponse()  # 200 OK
 
@@ -2443,6 +2483,8 @@ class TemplateEditView(SuccessMessageMixin, UpdateView):
             available_variables += ["evaluations", "due_evaluations"]
         elif template.name == EmailTemplate.DIRECT_DELEGATION:
             available_variables += ["evaluation", "delegate_user"]
+        elif template.name == EmailTemplate.GRADE_REMINDER:
+            available_variables += ["semester", "responsibles_and_courses_without_final_grades"]
 
         available_variables = ["{{ " + variable + " }}" for variable in available_variables]
         available_variables.sort()

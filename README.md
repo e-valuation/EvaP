@@ -11,34 +11,31 @@ EvaP is the course evaluation system used internally at Hasso Plattner Institute
 
 For the documentation, please see our [wiki](https://github.com/e-valuation/EvaP/wiki).
 
+## Development Setup
 
-## Installation (for Development)
+We use [nix](https://nixos.org/) to manage the development environment.
 
-The easiest setup using [Vagrant](https://www.vagrantup.com) is shown here.
-
-1. Install [git](https://git-scm.com/downloads), [Vagrant](https://www.vagrantup.com/downloads.html), and one of [VirtualBox](https://www.virtualbox.org/wiki/Downloads) (recommended) or [Docker](https://docs.docker.com/engine/install/) (for ARM systems).
-
-2. Run the following commands on the command line to clone the repository, create the Vagrant VM and run the Django development server.
-   * If you are familiar with the fork-based open source workflow, create a fork and clone that (using SSH if you prefer that).
-
-   * Windows users: We have observed [weird](https://www.github.com/git-for-windows/git/issues/4705) [behavior](https://www.github.com/git-for-windows/git/issues/4704) with SSH in Git Bash on Windows and thus recommend using PowerShell instead.
-
-   * To use Docker, replace `vagrant up` with `vagrant up --provider docker && vagrant provision`.
-
-   ```bash
+1. Windows only: Install the Windows Subsystem for Linux (WSL) using `wsl --install -d Ubuntu-24.04` (you may have to restart your computer and run this command again). Enter the WSL environment using the `wsl` command. On your first entry, you need to choose a username and password - anything works (for example: username "evap", password "evap"). Perform the next step outside of `/mnt`, for example by going to your home directory (`cd ~`).
+2. Install [git](https://git-scm.com/downloads). Run the following commands to clone and enter the EvaP repository:
+   ```
    git clone --recurse-submodules https://github.com/e-valuation/EvaP.git
    cd EvaP
-   vagrant up
-   vagrant ssh
    ```
-   and, after the last command opened an SSH session in the development machine:
-   ```bash
+3. On Linux and WSL, install nix by running `./nix/setup-nix`. On MacOS, install nix using the [Determinate Nix Installer](https://install.determinate.systems/). Afterwards, if you get a permission error when running nix, restart your computer.
+4. Start the needed background services for EvaP:
+   ```
+   nix run .#services-full
+   ```
+5. Open a new terminal. Enter the development shell and start EvaP:
+   ```
+   cd EvaP
+   nix develop
    ./manage.py run
    ```
+6. Open your web browser at http://localhost:8000/ and login with email `evap@institution.example.com` and password `evap`.
 
-3. Open your browser at http://localhost:8000/ and login with email `evap@institution.example.com` and password `evap`.
-
-That's it!
+To stop EvaP or the background services, press `Ctrl-C`.
+To exit the development shell, press `Ctrl-D` or type `exit`.
 
 ## Contributing
 

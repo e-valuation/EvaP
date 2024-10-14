@@ -16,6 +16,8 @@ from typing import Any
 
 from django.contrib.staticfiles.storage import ManifestStaticFilesStorage
 
+from evap.tools import MonthAndDay
+
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
@@ -66,6 +68,14 @@ REMIND_X_DAYS_AHEAD_OF_END_DATE = [2, 0]
 # where Monday is 0 and Sunday is 6
 TEXTANSWER_REVIEW_REMINDER_WEEKDAYS = [3]
 
+# Email addresses that are reminded about uploading grade documents
+GRADE_REMINDER_EMAIL_RECIPIENTS: list[str] = []
+# Dates on which grade upload reminder emails are sent.
+GRADE_REMINDER_EMAIL_DATES = [
+    MonthAndDay(month=3, day=15),
+    MonthAndDay(month=9, day=15),
+]
+
 # email domains for the internal users of the hosting institution used to
 # figure out who is an internal user
 INSTITUTION_EMAIL_DOMAINS: list[str] = ["institution.example.com", "student.institution.example.com"]
@@ -112,10 +122,9 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "evap",
-        "USER": "postgres",
-        "PASSWORD": "",
-        "HOST": "",  # Set to empty string for localhost.
-        "PORT": "",  # Set to empty string for default.
+        "USER": "evap",
+        "PASSWORD": "evap",
+        "HOST": "localhost",
         "CONN_MAX_AGE": 600,
     }
 }
@@ -421,7 +430,7 @@ OIDC_OP_JWKS_ENDPOINT = "https://example.com/certs"
 # Create a localsettings.py if you want to locally override settings
 # and don't want the changes to appear in 'git status'.
 try:
-    # localsettings file may (vagrant) or may not (CI run) exist
+    # localsettings file may or may not exist (for example in CI)
 
     # the import can overwrite locals with a slightly different type (e.g. DATABASES), which is fine.
     from evap.localsettings import *  # type: ignore  # noqa: F403,PGH003
