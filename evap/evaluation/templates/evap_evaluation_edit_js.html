@@ -8,11 +8,7 @@
             const nameChanged = name && name !== "---------";
             const idChanged = row.querySelector("input[id$=-id]")?.value;
 
-            var questionnaireChanged = false;
-            row.querySelectorAll("input[name$=-questionnaires]")?.forEach(el => {
-                if (el.checked)
-                    questionnaireChanged = true;
-            })
+            const questionnaireChanged = row.querySelector("input[name$=-questionnaires]:checked") !== null
 
             const roleChanged = ! row.querySelector("input[id$=-role_0]")?.checked;
             const commVisibilityChanged = ! row.querySelector("input[id$=_visibility_0]")?.checked;
