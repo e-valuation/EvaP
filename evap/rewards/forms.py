@@ -1,8 +1,10 @@
+from contextlib import contextmanager
 from datetime import date
 
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, StepValueValidator
+from django.db import transaction
 from django.utils.translation import gettext as _
 
 from evap.rewards.models import RewardPointRedemption, RewardPointRedemptionEvent
@@ -49,8 +51,30 @@ class BaseRewardPointRedemptionFormSet(forms.BaseFormSet):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user")
         super().__init__(*args, **kwargs)
+        self.locked = False
+
+    def get_form_kwargs(self, index):
+        kwargs = super().get_form_kwargs(index)
+        if not self.initial:
+            return kwargs
+        kwargs["initial"] = self.initial[index]
+        kwargs["initial"]["total_points_available"] = reward_points_of_user(self.user)
+        return kwargs
+
+    @contextmanager
+    def lock(self):
+        with transaction.atomic():
+            # lock these rows to prevent race conditions
+            list(self.user.reward_point_grantings.select_for_update())
+            list(self.user.reward_point_redemptions.select_for_update())
+
+            self.locked = True
+            yield
+            self.locked = False
 
     def clean(self):
+        assert self.locked
+
         if any(self.errors):
             return
 
@@ -64,9 +88,7 @@ class BaseRewardPointRedemptionFormSet(forms.BaseFormSet):
             raise ValidationError(_("You don't have enough reward points."))
 
     def save(self) -> list[RewardPointRedemption]:
-        # lock these rows to prevent race conditions
-        list(self.user.reward_point_grantings.select_for_update())
-        list(self.user.reward_point_redemptions.select_for_update())
+        assert self.locked
 
         created = []
         for form in self.forms:
