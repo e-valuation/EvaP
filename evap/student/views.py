@@ -248,7 +248,7 @@ def render_vote_page(request: HttpRequest, evaluation: Evaluation, preview: bool
     )
 
     if show_dropout_questionnaire:
-        dropout_questionnaire = Questionnaire.objects.default_dropout_questionnaire()
+        dropout_questionnaire = Questionnaire.objects.active_dropout_questionnaire()
         evaluation_form_group_top.insert(0, QuestionnaireVotingForm(request.POST or None,
                                                                     contribution=evaluation.general_contribution,
                                                                     questionnaire=dropout_questionnaire))
