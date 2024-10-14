@@ -250,14 +250,13 @@ class TestNotebookView(WebTest):
 
 
 class TestResetEvaluation(WebTestStaffMode):
-
     @classmethod
     def setUpTestData(cls) -> None:
         cls.manager = make_manager()
         cls.semester = baker.make(Semester)
         cls.url = reverse("staff:semester_view", args=[cls.semester.pk])
 
-    def reset_from_x_to_new(self, x, success_expected: bool) -> None:
+    def reset_from_x_to_new(self, x: Evaluation.State, success_expected: bool) -> None:
         evaluation = baker.make(Evaluation, state=x, course__semester=self.semester)
 
         semester_overview_page = self.app.get(self.url, user=self.manager, status=200)
@@ -279,6 +278,9 @@ class TestResetEvaluation(WebTestStaffMode):
             Evaluation.State.PREPARED,
             Evaluation.State.EDITOR_APPROVED,
             Evaluation.State.APPROVED,
+            Evaluation.State.IN_EVALUATION,
+            Evaluation.State.EVALUATED,
+            Evaluation.State.REVIEWED,
         ]
 
         for s in valid_start_states:
