@@ -39,7 +39,7 @@
   settings.processes."npm-ci" = {
     command = pkgs.writeShellApplication {
       name = "npm-ci";
-      runtimeInputs = [ pkgs.nodejs ];
+      runtimeInputs = with pkgs; [ nodejs coreutils ];
       text = ''
         set -e
         CUR_HASH=$(nix-hash --flat ./package.json ./package-lock.json | paste -sd " ")
@@ -58,7 +58,7 @@
   settings.processes."init-django" = {
     command = pkgs.writeShellApplication {
       name = "init-django";
-      runtimeInputs = with pkgs; [ poetry-env git gnused gettext ];
+      runtimeInputs = with pkgs; [ poetry-env git gnused gettext coreutils ];
       text = ''
         set -e
         if [[ -f evap/localsettings.py ]]; then
