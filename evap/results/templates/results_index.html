@@ -19,8 +19,15 @@
                 </span>
             </h5>
             <div class="row">
-                <div class="col-12 col-lg">
-                    <input type="search" name="search" class="form-control mb-3" placeholder="{% translate 'Search...' %}" />
+                <div class="col-12 col-lg mb-3 mb-lg-0">
+                    <label>
+                        <input type="search" name="search" class="form-control mb-3" placeholder="{% translate 'Search...' %}" />
+                    </label>
+
+                    <h6 class="card-subtitle mt-4 mb-1">{% trans 'Participants' %}</h6>
+                    <div id="participant-filter">
+                        {% include 'results_widget_range_slider.html' %}
+                    </div>
                 </div>
                 <div class="col-6 col-sm-4 col-md">
                     <h6 class="card-subtitle mb-1">{% translate 'Programs' %}</h6>
@@ -129,7 +136,8 @@
 
 {% block additional_javascript %}
     <script type="module">
-        import {ResultGrid} from "{% static 'js/datagrid.js' %}";
+        import { ResultGrid } from "{% static 'js/datagrid.js' %}";
+        import { RangeSlider } from "{% static 'js/slider.js' %}";
 
         new ResultGrid({
             storageKey: "results-data-grid",
@@ -148,6 +156,12 @@
                 ["courseType", {
                     checkboxes: [...document.querySelectorAll("input[name=courseType]")],
                     selector: ".badge-course-type",
+                }],
+            ]),
+            filterSliders: new Map([
+                ["participants", {
+                    slider: new RangeSlider("participant-filter"),
+                    selector: "[data-col=voters]",
                 }],
             ]),
             sortColumnSelect: document.querySelector("[name=result-sort-column]"),
