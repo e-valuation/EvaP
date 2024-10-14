@@ -15,19 +15,20 @@ from evap.evaluation.auth import internal_required
 from evap.evaluation.models import Course, CourseType, Evaluation, Program, Semester, UserProfile
 from evap.evaluation.tools import AttachmentResponse
 
-from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
-from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, TextAnswer, UserProfile
+from evap.evaluation.models import Contribution, Course, CourseType, Program, Evaluation, Semester, UserProfile
+from evap.evaluation.models import Contribution, Course, CourseType, Program, Evaluation, Semester, TextAnswer, UserProfile
 from evap.evaluation.models import (
     Contribution,
     Course,
     CourseType,
-    Degree,
+    Program,
     Evaluation,
     Semester,
     TextAnswer,
     UserProfile,
 )
-from evap.evaluation.tools import AttachmentResponse, unordered_groupby
+from evap.evaluation.tools import AttachmentResponse
+from evap.tools import unordered_groupby
 
 from evap.results.exporters import TextAnswerExporter
 from evap.results.tools import (
