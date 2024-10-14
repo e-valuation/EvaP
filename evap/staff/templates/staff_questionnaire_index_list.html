@@ -13,7 +13,9 @@
                             <th class="width-percent-3 movable"></th>
                             <th class="width-percent-52">{% translate 'Questionnaire' %}</th>
                             <th class="width-percent-10">
-                                {% if type != 'contributor' %}
+                                {% if type == 'dropout' %}
+                                    {% translate 'Selected' %}
+                                {% elif type != 'contributor' %}
                                     {% translate 'Locked' %}
                                 {% endif %}
                             </th>
@@ -28,11 +30,19 @@
                                 <td>
                                     <strong class="questionnaire-name">{{ questionnaire.name }}</strong>
                                     <br />
-                                    {% blocktranslate count questionnaire.questions.count as count %}{{ count }} question{% plural %}{{ count }} questions{% endblocktranslate %},
-                                    {% blocktranslate count questionnaire.contributions.count as count %}used {{ count }} time{% plural %}used {{ count }} times{% endblocktranslate %}
+                                    {% blocktranslate count questionnaire.questions.count as count %}{{ count }} question{% plural %}{{ count }} questions{% endblocktranslate %}
+                                    {% if type != 'dropout' %}
+                                        ,
+                                        {% blocktranslate count questionnaire.contributions.count as count %}used {{ count }} time{% plural %}used {{ count }} times{% endblocktranslate %}
+                                    {% endif %}
                                 </td>
                                 <td>
-                                    {% if type != 'contributor' %}
+                                    {% if type == 'dropout' %}
+                                        <button data-id="{{ questionnaire.id }}"
+                                           class="btn btn-sm btn-light is-active-dropout-button{% if questionnaire.is_active_dropout_questionnaire %} active{% endif %}">
+                                            <span class="fas fa-fw fa-check"></span>
+                                        </button>
+                                    {% elif type != 'contributor' %}
                                         <div class="btn-switch btn-group icon-buttons">
                                             <button data-is-locked="0" type="button" class="btn btn-sm change-is-locked-button btn-light{% if questionnaire.is_locked == False %} active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Allow editors to change the selection of this questionnaire' %}"><span class="fas fa-fw fa-lock-open" aria-hidden="true"></span></button>
                                             <button data-is-locked="1" type="button" class="btn btn-sm change-is-locked-button btn-light{% if questionnaire.is_locked == True %} active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Prevent editors from changing the selection of this questionnaire' %}"><span class="fas fa-fw fa-lock" aria-hidden="true"></span></button>
@@ -47,10 +57,6 @@
                                     </div>
                                 </td>
                                 <td class="text-end">
-                                {% if type == "dropout" %}
-                                    <!-- TODO@Felix: select default dropout
-                                    <a href="{% url 'staff:questionnaire_set_default_dropout' %}"></a>
-                                {% endif %}
                                     <a href="{% url 'staff:questionnaire_edit' questionnaire.id %}" class="btn btn-sm {%if questionnaire.can_be_edited_by_manager %}btn-primary{% else %}btn-light{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="{%if questionnaire.can_be_edited_by_manager %}{% translate 'Edit' %}{% else %}{% translate 'Edit (questionnaire is already in use)' %}{% endif %}"><span class="fas fa-pencil fa-fw"></span></a>
                                     <a href="{% url 'staff:questionnaire_new_version' questionnaire.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Hide and create new version' %}"><span class="fas fa-turn-up fa-fw fa-rotate-90"></span></a>
                                     <a href="{% url 'staff:questionnaire_copy' questionnaire.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Copy' %}"><span class="fas fa-copy fa-fw"></span></a>

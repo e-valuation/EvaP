@@ -6,16 +6,19 @@
     {{ block.super }}
     <div class="row mb-3 align-items-center">
         <div class="col">
-            <a href="{% url 'staff:questionnaire_create' %}" class="btn btn-sm btn-dark">{% translate 'Create new questionnaire' %}</a>
+            <a href="{% url 'staff:questionnaire_create' %}"
+               class="btn btn-sm btn-dark">{% translate 'Create new questionnaire' %}</a>
         </div>
         <div class="col-auto">
             <div class="btn-switch btn-switch-light">
                 <div class="btn-switch-label">{% translate 'Hidden questionnaires' %}</div>
                 <div class="btn-switch btn-group">
-                    <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=false" role="button" class="btn btn-sm btn-light{% if not filter_questionnaires %} active{% endif %}">
-                    {% translate 'Show' %}
+                    <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=false" role="button"
+                       class="btn btn-sm btn-light{% if not filter_questionnaires %} active{% endif %}">
+                        {% translate 'Show' %}
                     </a>
-                    <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=true" role="button" class="btn btn-sm btn-light{% if filter_questionnaires %} active{% endif %}">
+                    <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=true" role="button"
+                       class="btn btn-sm btn-light{% if filter_questionnaires %} active{% endif %}">
                         {% translate 'Hide' %}
                     </a>
                 </div>
@@ -23,8 +26,9 @@
         </div>
         <div class="col-3">
             <div class="input-group">
-                <input type="search" name="search" class="form-control" placeholder="{% translate 'Search...' %}" />
-                <button class="btn btn-light text-secondary" type="button" data-reset="search" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Clear filter' %}">
+                <input type="search" name="search" class="form-control" placeholder="{% translate 'Search...' %}"/>
+                <button class="btn btn-light text-secondary" type="button" data-reset="search" data-bs-toggle="tooltip"
+                        data-bs-placement="top" title="{% translate 'Clear filter' %}">
                     <span class="fas fa-delete-left"></span>
                 </button>
             </div>
@@ -43,14 +47,15 @@
                 const body = new FormData(form);
                 const request = fetch(
                     form.action,
-                    { method: form.method, body },
+                    {method: form.method, body},
                 );
                 request.then(response => {
                     assert(response.ok);
                     fadeOutThenRemove(document.querySelector(`#questionnaire-row-${body.get("questionnaire_id")}`));
                 }).catch(error => {
                     window.alert("{% translate 'The server is not responding.' %}");
-                });;
+                });
+                ;
             });
         </script>
 
@@ -72,6 +77,7 @@
 {% block additional_javascript %}
     <script type="module">
         import {QuestionnaireGrid} from "{% static 'js/datagrid.js' %}";
+
         document.querySelectorAll(".questionnaire-table").forEach(table => {
             new QuestionnaireGrid({
                 storageKey: "questionnaires-data-grid",
@@ -94,10 +100,17 @@
                 method: "POST",
             }).then(response => {
                 assert(response.ok);
-                questionnaire.querySelectorAll(`button[data-visibility]`).forEach(button => {button.classList.remove("active");});
-                questionnaire.querySelectorAll(`button[data-visibility="${visibility}"]`).forEach(button => {button.classList.add("active");});
-            }).catch(error => {window.alert("{% translate 'The server is not responding.' %}");});
+                questionnaire.querySelectorAll(`button[data-visibility]`).forEach(button => {
+                    button.classList.remove("active");
+                });
+                questionnaire.querySelectorAll(`button[data-visibility="${visibility}"]`).forEach(button => {
+                    button.classList.add("active");
+                });
+            }).catch(error => {
+                window.alert("{% translate 'The server is not responding.' %}");
+            });
         }
+
         for (const button of document.querySelectorAll(".change-visibility-button")) {
             button.addEventListener("click", () => changeVisibility(button));
         }
@@ -112,12 +125,40 @@
                 method: "POST",
             }).then(response => {
                 assert(response.ok);
-                questionnaire.querySelectorAll(`button[data-is-locked]`).forEach(button => {button.classList.remove("active");});
-                questionnaire.querySelectorAll(`button[data-is-locked="${is_locked}"]`).forEach(button => {button.classList.add("active");});
-            }).catch(error => {window.alert("{% translate 'The server is not responding.' %}");});
+                questionnaire.querySelectorAll(`button[data-is-locked]`).forEach(button => {
+                    button.classList.remove("active");
+                });
+                questionnaire.querySelectorAll(`button[data-is-locked="${is_locked}"]`).forEach(button => {
+                    button.classList.add("active");
+                });
+            }).catch(error => {
+                window.alert("{% translate 'The server is not responding.' %}");
+            });
         }
+
         for (const button of document.querySelectorAll(".change-is-locked-button")) {
             button.addEventListener("click", () => changeLocked(button));
+        }
+
+        const setActiveButtons = document.querySelectorAll(".is-active-dropout-button");
+
+        function setActiveDefault(clickedButton) {
+            fetch("{% url 'staff:questionnaire_set_active_dropout' %}", {
+                body: new URLSearchParams({questionnaire_id: clickedButton.dataset.id}),
+                headers: CSRF_HEADERS,
+                method: "POST",
+            }).then(response => {
+                    assert(response.ok);
+                    setActiveButtons.forEach(button => button.classList.remove("active"));
+                    clickedButton.classList.add("active");
+                }
+            ).catch(error => {
+                window.alert("{% translate 'The server is not responding.' %}");
+            });
+        }
+
+        for (const button of setActiveButtons) {
+            button.addEventListener("click", () => setActiveDefault(button))
         }
     </script>
 {% endblock %}

@@ -2098,10 +2098,13 @@ def questionnaire_set_locked(request):
 
 @require_POST
 @manager_required
-def questionnaire_set_default_dropout(request, questionnaire_id: int):
-    # TODO@Felix: implement setting new default
-    raise NotImplementedError
-
+def questionnaire_set_active_dropout(request):
+    questionnaire = get_object_from_dict_pk_entry_or_logged_40x(Questionnaire, request.POST, "questionnaire_id")
+    try:
+        questionnaire.set_active_dropout()
+    except Exception as e:
+        raise SuspiciousOperation from e
+    return HttpResponse()
 
 
 @manager_required

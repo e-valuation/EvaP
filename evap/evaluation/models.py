@@ -1,6 +1,7 @@
 import logging
 import secrets
 import uuid
+from argparse import ArgumentError
 from collections import defaultdict
 from collections.abc import Collection, Container, Iterable, Sequence
 from dataclasses import dataclass
@@ -167,8 +168,8 @@ class QuestionnaireManager(Manager):
     def dropout_questionnaires(self):
         return super().get_queryset().filter(type=Questionnaire.Type.DROPOUT)
 
-    def default_dropout_questionnaire(self):
-        return super().get(pk=settings.DROPOUT_QUESTIONNAIRE_ID)
+    def active_dropout_questionnaire(self):
+        return super().get_queryset().filter(type=Questionnaire.Type.DROPOUT, is_active_dropout_questionnaire=True)
 
 
 class Questionnaire(models.Model):
@@ -200,6 +201,12 @@ class Questionnaire(models.Model):
 
     order = models.IntegerField(verbose_name=_("ordering index"), default=0)
 
+    # (unique=True, blank=True, null=True) allows having multiple non-active but only one active questionnaire
+    # TODO@Felix: hidden True?
+    is_active_dropout_questionnaire = models.BooleanField(
+        default=None, unique=True, blank=True, null=True, verbose_name=_("questionnaire is selected as active")
+    )
+
     class Visibility(models.IntegerChoices):
         HIDDEN = 0, _("Don't show")
         MANAGERS = 1, _("Managers only")
@@ -230,6 +237,15 @@ class Questionnaire(models.Model):
 
     def __gt__(self, other):
         return (self.type, self.order, self.pk) > (other.type, other.order, other.pk)
+
+    @transaction.atomic()
+    def set_active_dropout(self):
+        if self.type != Questionnaire.Type.DROPOUT:
+            raise ValueError("Can only set DROPOUT-type Questionnaires as active dropout questionnaire.")
+
+        Questionnaire.objects.active_dropout_questionnaire().update(is_active_dropout_questionnaire=None)
+        self.is_active_dropout_questionnaire = True
+        self.save()
 
     @property
     def is_above_contributors(self):
