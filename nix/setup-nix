@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+set -e
+
+if nix --version &> /dev/null; then
+    echo "Nix already installed. Please follow the appropriate steps from the script manually."
+    exit 1
+fi
+
+if apt --version &> /dev/null; then
+    set -x
+    sudo apt-get update -y
+    sudo apt-get install -y nix
+elif pacman --version &> /dev/null; then
+    set -x
+    sudo pacman -S nix
+else
+    echo "Failed to detect package manager. Please install nix manually."
+    exit 1
+fi
+
+XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
+mkdir -p "$XDG_CONFIG_HOME/nix/"
+echo "experimental-features = flakes nix-command" >> "$XDG_CONFIG_HOME/nix/nix.conf"
+echo "max-jobs = auto" >> "$XDG_CONFIG_HOME/nix/nix.conf"
+sudo usermod -aG nix-users $USER
+newgrp nix-users
+sudo systemctl enable --now nix-daemon
