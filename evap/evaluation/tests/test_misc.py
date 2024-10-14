@@ -3,13 +3,12 @@ from io import StringIO
 
 from django.conf import settings
 from django.core.management import call_command
-from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from model_bakery import baker
 
 from evap.evaluation.models import CourseType, Program, Semester, UserProfile
-from evap.evaluation.tests.tools import make_manager, submit_with_modal
+from evap.evaluation.tests.tools import TestCase, make_manager, submit_with_modal
 from evap.staff.tests.utils import WebTestStaffMode
 
 

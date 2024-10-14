@@ -3,7 +3,6 @@ from fractions import Fraction
 from functools import partial
 
 from django.test.utils import override_settings
-from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import (
@@ -19,7 +18,7 @@ from evap.evaluation.models import (
     UserProfile,
     VoteTimestamp,
 )
-from evap.evaluation.tests.tools import FuzzyInt, WebTestWith200Check, render_pages
+from evap.evaluation.tests.tools import FuzzyInt, WebTest, WebTestWith200Check, render_pages
 from evap.student.tools import answer_field_id
 from evap.student.views import SUCCESS_MAGIC_STRING
 
