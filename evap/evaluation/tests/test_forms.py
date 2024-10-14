@@ -1,9 +1,8 @@
-from django.test import TestCase
 from model_bakery import baker
 
 from evap.evaluation.forms import NewKeyForm, ProfileForm
 from evap.evaluation.models import UserProfile
-from evap.evaluation.tests.tools import get_form_data_from_instance
+from evap.evaluation.tests.tools import TestCase, get_form_data_from_instance
 
 
 class TestNewKeyForm(TestCase):
