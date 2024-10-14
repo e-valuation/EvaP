@@ -111,7 +111,7 @@ class TestIndexView(WebTest):
         form2 = response2.forms["reward-redemption-form"]
         form2.set("form-1-points", 2)
         form1.submit()
-        form2.submit(status=400)
+        form2.submit(status=409)
         self.assertEqual(1, RewardPointRedemption.objects.filter(user_profile=self.student).count())
 
 
