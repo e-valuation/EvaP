@@ -7,6 +7,7 @@ from django.core.validators import MaxValueValidator, StepValueValidator
 from django.db import transaction
 from django.utils.translation import gettext as _
 
+from evap.evaluation.models import UserProfile
 from evap.rewards.models import RewardPointRedemption, RewardPointRedemptionEvent
 from evap.rewards.tools import reward_points_of_user
 
@@ -48,8 +49,8 @@ class RewardPointRedemptionForm(forms.Form):
 
 
 class BaseRewardPointRedemptionFormSet(forms.BaseFormSet):
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop("user")
+    def __init__(self, *args, user: UserProfile, **kwargs) -> None:
+        self.user = user
         super().__init__(*args, **kwargs)
         self.locked = False
 

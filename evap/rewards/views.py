@@ -50,7 +50,7 @@ def index(request):
             if previous_redeemed_points != redeemed_points_of_user(request.user):
                 # Do formset validation here in order to do within the lock
                 formset.is_valid()
-                status = 400
+                status = 409
                 messages.error(
                     request,
                     _(
