@@ -2,11 +2,10 @@ from datetime import date, timedelta
 
 from django.test import override_settings
 from django.urls import reverse
-from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import Course, Evaluation, Semester, UserProfile
-from evap.evaluation.tests.tools import make_manager
+from evap.evaluation.tests.tools import WebTest, make_manager
 from evap.rewards.models import (
     RewardPointGranting,
     RewardPointRedemption,

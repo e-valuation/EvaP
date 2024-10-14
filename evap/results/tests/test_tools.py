@@ -3,7 +3,6 @@ from datetime import datetime
 from django.conf import settings
 from django.core.cache import caches
 from django.test import override_settings
-from django.test.testcases import TestCase
 from model_bakery import baker
 
 from evap.evaluation.models import (
@@ -17,7 +16,7 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
-from evap.evaluation.tests.tools import make_rating_answer_counters
+from evap.evaluation.tests.tools import TestCase, make_rating_answer_counters
 from evap.results.tools import (
     cache_results,
     calculate_average_course_distribution,

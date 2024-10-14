@@ -3,12 +3,11 @@ from django.contrib.auth.models import Group
 from django.core import mail
 from django.test import override_settings
 from django.urls import reverse
-from django.utils import translation
-from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import Evaluation, Question, QuestionType, Semester, UserProfile
 from evap.evaluation.tests.tools import (
+    WebTest,
     WebTestWith200Check,
     create_evaluation_with_responsible_and_editor,
     make_manager,
@@ -159,8 +158,6 @@ class TestChangeLanguageView(WebTest):
 
         user.refresh_from_db()
         self.assertEqual(user.language, "en")
-
-        translation.activate("en")  # for following tests
 
 
 class TestProfileView(WebTest):

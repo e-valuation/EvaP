@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
 from django.forms.models import inlineformset_factory
-from django.test import TestCase, override_settings
+from django.test import override_settings
 from model_bakery import baker
 
 from evap.contributor.forms import EvaluationForm as ContributorEvaluationForm
@@ -21,6 +21,7 @@ from evap.evaluation.models import (
     UserProfile,
 )
 from evap.evaluation.tests.tools import (
+    TestCase,
     create_evaluation_with_responsible_and_editor,
     get_form_data_from_instance,
     to_querydict,
