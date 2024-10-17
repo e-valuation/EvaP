@@ -69,16 +69,15 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script src="{% static 'js/sortable_form.js' %}"></script>
-
-    <script type="text/javascript">
-        rowChanged = function(row) {
-            nameDe = $(row.find('input[id$=-name_de]')).val();
-            nameEn = $(row.find('input[id$=-name_en]')).val();
-            return nameDe || nameEn
+    <script type="module">
+        import { makeFormSortable } from "{% static 'js/sortable-form.js' %}";
+        const rowChanged = function(row) {
+            const nameDe = row.querySelector('input[id$=-name_de]')?.value;
+            const nameEn = row.querySelector('input[id$=-name_en]')?.value;
+            return nameDe || nameEn;
         };
-        rowAdded = function(row) {
-            applyTomSelect(row.find("select").get(), tagTomSelectOptions);
+        const rowAdded = function(row) {
+            applyTomSelect(row.querySelectorAll("select"), tagTomSelectOptions);
         };
         makeFormSortable("program_table", "form", rowChanged, rowAdded, "", true, true);
 
