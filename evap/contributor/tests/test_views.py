@@ -1,11 +1,11 @@
 import xlrd
 from django.core import mail
 from django.urls import reverse
-from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, UserProfile
 from evap.evaluation.tests.tools import (
+    WebTest,
     WebTestWith200Check,
     create_evaluation_with_responsible_and_editor,
     render_pages,

@@ -11,7 +11,6 @@ from django.contrib.auth.hashers import make_password
 from django.core import mail, management
 from django.core.management import CommandError
 from django.db.models import Sum
-from django.test import TestCase
 from django.test.utils import override_settings
 from model_bakery import baker
 
@@ -29,7 +28,7 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
-from evap.evaluation.tests.tools import make_manager, make_rating_answer_counters
+from evap.evaluation.tests.tools import TestCase, make_manager, make_rating_answer_counters
 from evap.tools import MonthAndDay
 
 

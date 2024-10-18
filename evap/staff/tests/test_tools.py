@@ -3,14 +3,12 @@ from itertools import cycle, repeat
 from unittest.mock import MagicMock, patch
 
 from django.contrib.auth.models import Group
-from django.test import TestCase
 from django.utils.html import escape
-from django_webtest import WebTest
 from model_bakery import baker
 from openpyxl import load_workbook
 
 from evap.evaluation.models import Contribution, Course, Evaluation, UserProfile
-from evap.evaluation.tests.tools import assert_no_database_modifications
+from evap.evaluation.tests.tools import TestCase, WebTest, assert_no_database_modifications
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption
 from evap.staff.fixtures.excel_files_test_data import (
     create_memory_csv_file,
