@@ -1,54 +1,13 @@
-from datetime import date
-
 from django.conf import settings
 from django.contrib import messages
-from django.db import models, transaction
+from django.db import models
 from django.db.models import Sum
 from django.dispatch import receiver
-from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
 from evap.evaluation.models import Evaluation, Semester, UserProfile
-from evap.rewards.models import (
-    NoPointsSelectedError,
-    NotEnoughPointsError,
-    OutdatedRedemptionDataError,
-    RedemptionEventExpiredError,
-    RewardPointGranting,
-    RewardPointRedemption,
-    RewardPointRedemptionEvent,
-    SemesterActivation,
-)
-
-
-@transaction.atomic
-def save_redemptions(request, redemptions: dict[int, int], previous_redeemed_points: int):
-    # lock these rows to prevent race conditions
-    list(request.user.reward_point_grantings.select_for_update())
-    list(request.user.reward_point_redemptions.select_for_update())
-
-    # check consistent previous redeemed points
-    # do not validate reward points, to allow receiving points after page load
-    if previous_redeemed_points != redeemed_points_of_user(request.user):
-        raise OutdatedRedemptionDataError
-
-    total_points_available = reward_points_of_user(request.user)
-    total_points_redeemed = sum(redemptions.values())
-
-    if total_points_redeemed <= 0:
-        raise NoPointsSelectedError
-
-    if total_points_redeemed > total_points_available:
-        raise NotEnoughPointsError
-
-    for event_id in redemptions:
-        if redemptions[event_id] > 0:
-            event = get_object_or_404(RewardPointRedemptionEvent, pk=event_id)
-            if event.redeem_end_date < date.today():
-                raise RedemptionEventExpiredError
-
-            RewardPointRedemption.objects.create(user_profile=request.user, value=redemptions[event_id], event=event)
+from evap.rewards.models import RewardPointGranting, RewardPointRedemption, SemesterActivation
 
 
 def can_reward_points_be_used_by(user):
