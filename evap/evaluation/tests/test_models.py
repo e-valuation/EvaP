@@ -1138,3 +1138,19 @@ class QuestionnaireTests(TestCase):
     def test_locked_contributor_questionnaire(self):
         questionnaire = baker.prepare(Questionnaire, is_locked=True, type=Questionnaire.Type.CONTRIBUTOR)
         self.assertRaises(ValidationError, questionnaire.clean)
+
+    def test_set_active_removes_active_for_others(self):
+        q1 = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
+        q2 = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
+        q3 = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
+
+        self.assertEqual(Questionnaire.objects.dropout_questionnaires().count(),3)
+        self.assertFalse(Questionnaire.objects.active_dropout_questionnaire().exists())
+
+
+        q1.set_active_dropout()
+        self.assertTrue(q1.is_active_dropout_questionnaire)
+
+        self.assertEqual(Questionnaire.objects.active_dropout_questionnaire().first(), q1)
+
+

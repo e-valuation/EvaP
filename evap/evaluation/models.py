@@ -238,15 +238,12 @@ class Questionnaire(models.Model):
 
     @transaction.atomic()
     def set_active_dropout(self):
-        # TODO@Felix: test this method
         if self.type != Questionnaire.Type.DROPOUT:
             raise ValueError("Can only set DROPOUT-type Questionnaires as active dropout questionnaire.")
 
         Questionnaire.objects.active_dropout_questionnaire().update(is_active_dropout_questionnaire=False)
         self.is_active_dropout_questionnaire = True
         self.save()
-        # TODO@Felix: why does this not work [wip]
-        assert self == Questionnaire.objects.active_dropout_questionnaire(), "assert transaction worked"
 
     @property
     def is_above_contributors(self):
