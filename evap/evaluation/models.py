@@ -241,7 +241,7 @@ class Questionnaire(models.Model):
         if self.type != Questionnaire.Type.DROPOUT:
             raise ValueError("Can only set DROPOUT-type Questionnaires as active dropout questionnaire.")
 
-        Questionnaire.objects.active_dropout_questionnaire().update(is_active_dropout_questionnaire=False)
+        Questionnaire.objects.active_dropout_questionnaire().update(is_active_dropout_questionnaire=None)
         self.is_active_dropout_questionnaire = True
         self.save()
 
