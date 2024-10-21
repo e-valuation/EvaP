@@ -10,7 +10,7 @@ export class ContactModalLogic {
     private readonly successMessageModal: bootstrap.Modal;
     private readonly actionButtonElement: HTMLButtonElement;
     private readonly messageTextElement: HTMLInputElement;
-    private readonly showButtonElements: Array<HTMLElement>;
+    private readonly showButtonElements: HTMLElement[];
     private readonly title: string;
 
     // may be null if anonymous feedback is not enabled

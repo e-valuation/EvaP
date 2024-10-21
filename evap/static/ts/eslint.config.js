@@ -58,7 +58,6 @@ export default tseslint.config(
             "prefer-const": "warn",
             "@typescript-eslint/no-unnecessary-condition": "warn",
             "@typescript-eslint/non-nullable-type-assertion-style": "warn",
-            "@typescript-eslint/array-type": "warn",
             "@typescript-eslint/no-unsafe-return": "warn",
             "@typescript-eslint/no-redundant-type-constituents": "warn",
             "@typescript-eslint/prefer-optional-chain": "warn",

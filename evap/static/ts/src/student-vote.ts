@@ -26,7 +26,7 @@ function selectByNumberKey(row: HTMLElement, num: number) {
 
 const studentForm = document.getElementById("student-vote-form") as HTMLElement;
 const selectables: NodeListOf<HTMLElement> = studentForm.querySelectorAll(".tab-selectable");
-const rows = Array.from(studentForm.getElementsByClassName("tab-row")) as Array<HTMLElement>;
+const rows = Array.from(studentForm.getElementsByClassName("tab-row")) as HTMLElement[];
 const letterRegex = new RegExp("^[A-Za-zÄÖÜäöü.*+-]$");
 
 // Sometimes we just want the browser to do its thing.

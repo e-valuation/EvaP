@@ -55,8 +55,8 @@ export class QuickReviewSlider {
     private readonly slider: HTMLElement;
     private readonly reviewDecisionForm: HTMLFormElement;
     private readonly flagForm: HTMLFormElement;
-    private readonly sliderItems: Array<HTMLElement>;
-    private answerSlides: Array<HTMLElement> = [];
+    private readonly sliderItems: HTMLElement[];
+    private answerSlides: HTMLElement[] = [];
     private selectedSlideIndex = 0;
 
     private readonly alertSlide: HTMLElement;
@@ -66,7 +66,7 @@ export class QuickReviewSlider {
     private nextEvaluationIndex = 0;
 
     private readonly startOverTriggers: { undecided: HTMLElement; all: HTMLElement };
-    private readonly slideTriggers: Array<HTMLElement>;
+    private readonly slideTriggers: HTMLElement[];
     private readonly navigationButtons: { left: NavigationButtonWithCounters; right: NavigationButtonWithCounters };
 
     constructor(
