@@ -25,8 +25,8 @@ test(
             throw new Error("Button group buttons not found.");
         }
 
-        await (editorLabels[0] as ElementHandle<Element>).click();
-        await (ownAndGeneralLabels[0] as ElementHandle<Element>).click();
+        await editorLabels[0].click();
+        await ownAndGeneralLabels[0].click();
 
         const formData = await page.evaluate(() => {
             return Object.fromEntries(new FormData(document.getElementById("evaluation-form") as HTMLFormElement));

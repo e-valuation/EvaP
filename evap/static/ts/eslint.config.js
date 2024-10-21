@@ -53,8 +53,6 @@ export default tseslint.config(
             "@typescript-eslint/no-floating-promises": "warn",
             "@typescript-eslint/no-deprecated": "warn",
             "@typescript-eslint/consistent-generic-constructors": "warn",
-            "@typescript-eslint/no-unnecessary-type-arguments": "warn",
-            "@typescript-eslint/no-unnecessary-type-assertion": "warn",
             "@typescript-eslint/no-unsafe-return": "warn",
             "@typescript-eslint/no-redundant-type-constituents": "warn",
         },

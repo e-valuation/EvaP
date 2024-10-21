@@ -90,7 +90,7 @@ test(
 
         await page.click("[data-reset=filter]");
 
-        expect(await searchInput.evaluate(searchInput => (searchInput as HTMLInputElement).value)).toBe("");
+        expect(await searchInput.evaluate(searchInput => searchInput.value)).toBe("");
         await expect(programCheckbox).not.toBeChecked();
         await expect(courseTypeCheckbox).not.toBeChecked();
         await expect(semesterCheckbox).not.toBeChecked();
