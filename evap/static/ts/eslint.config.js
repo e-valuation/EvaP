@@ -23,6 +23,7 @@ export default tseslint.config(
     {
         rules: {
             "@typescript-eslint/restrict-template-expressions": ["error", { allowNumber: true }],
+            "no-else-return": "error",
             // not fixed in this PR
             "@typescript-eslint/no-misused-promises": "off",
             "@typescript-eslint/no-namespace": "off",

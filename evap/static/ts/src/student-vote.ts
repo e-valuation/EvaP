@@ -145,18 +145,16 @@ function findCorrectInputInRow(row: HTMLElement) {
 
     if (alreadySelectedElement) {
         return alreadySelectedElement;
-    } else {
-        const possibleTargets: NodeListOf<HTMLElement> = row.querySelectorAll(".tab-selectable");
-        if (possibleTargets.length === 3) {
-            // Yes-No / No-Yes question, should focus first element
-            return possibleTargets[0];
-        } else {
-            // Everything else: The middle of all the answers excluding "no answer"
-            // This also handles all the single possibility cases
-            const index = Math.floor((possibleTargets.length - 1) / 2);
-            return possibleTargets[index];
-        }
     }
+    const possibleTargets: NodeListOf<HTMLElement> = row.querySelectorAll(".tab-selectable");
+    if (possibleTargets.length === 3) {
+        // Yes-No / No-Yes question, should focus first element
+        return possibleTargets[0];
+    }
+    // Everything else: The middle of all the answers excluding "no answer"
+    // This also handles all the single possibility cases
+    const index = Math.floor((possibleTargets.length - 1) / 2);
+    return possibleTargets[index];
 }
 
 function fancyFocus(element: HTMLElement) {

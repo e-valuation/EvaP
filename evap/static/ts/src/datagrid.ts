@@ -264,9 +264,8 @@ export class TableGrid extends DataGrid {
         if (this.sortableHeaders.size > 0) {
             const [firstColumn] = this.sortableHeaders.keys();
             return [[firstColumn, "asc"]];
-        } else {
-            return [];
         }
+        return [];
     }
 }
 
