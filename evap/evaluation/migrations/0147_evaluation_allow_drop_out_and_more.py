@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             model_name="questionnaire",
             name="is_active_dropout_questionnaire",
             field=models.BooleanField(
-                blank=True, default=None, null=True, unique=True, verbose_name="questionnaire is selected as active "
+                blank=True, default=None, null=True, unique=True, verbose_name="questionnaire is selected as active"
             ),
         ),
         migrations.AlterField(
