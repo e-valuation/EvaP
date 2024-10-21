@@ -11,14 +11,14 @@ class Migration(migrations.Migration):
         ("evaluation", "0146_grade_reminder_template"),
     ]
 
-    operations = [
+    operations = {
         migrations.AlterField(
             model_name="userprofile",
             name="password",
             field=models.CharField(
-                default=functools.partial(django.contrib.auth.hashers.make_password, *(None,)),
+                default=functools.partial(django.contrib.auth.hashers.make_password, None),
                 max_length=128,
                 verbose_name="password",
             ),
         ),
-    ]
+    }
