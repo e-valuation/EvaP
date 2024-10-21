@@ -383,7 +383,7 @@ def remove_user_from_represented_and_ccing_users(user, ignored_users=None, test_
     return remove_messages
 
 
-def remove_inactive_participations(user, evaluations, test_run):
+def remove_inactive_participations(user, evaluations, test_run=False):
     remove_messages = []
     if test_run:
         remove_messages.append(
