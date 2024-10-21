@@ -2068,16 +2068,14 @@ def questionnaire_set_locked(request):
     questionnaire.save()
     return HttpResponse()
 
-# @require_POST # TODO@Felix: with ajax?
+@require_POST
 @manager_required
-def questionnaire_set_active_dropout(request, questionnaire_id: int):
-    questionnaire = get_object_or_404(Questionnaire, pk=questionnaire_id)
+def questionnaire_set_active_dropout(request):
+    questionnaire = get_object_from_dict_pk_entry_or_logged_40x(Questionnaire, request.POST, "questionnaire_id")
     try:
         questionnaire.set_active_dropout()
     except Exception as e:
-        print(e)
         raise SuspiciousOperation from e
-
     return HttpResponse()
 
 
