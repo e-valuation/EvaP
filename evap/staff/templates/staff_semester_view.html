@@ -374,6 +374,7 @@
                     </div>
                 </div>
 
+                <!-- Each exam_creation_modal needs its own exam date input field. -->
                 {% for evaluation in evaluations %}
                     <form id="exam_creation_form_{{ evaluation.id }}" reload-on-success method="post" action="{% url 'staff:create_exam_evaluation' %}">
                         {% csrf_token %}

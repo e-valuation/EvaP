@@ -1104,6 +1104,7 @@ def create_exam_evaluation(request):
         raise SuspiciousOperation("An exam evaluation already exists for this course")
     try:
         exam_date = request.POST.get("exam_date")
+        exam_date = datetime.strptime(exam_date, "%Y-%m-%d").date()
     except TypeError:
         return HttpResponseBadRequest("Exam date missing or invalid.")
 
