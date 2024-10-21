@@ -60,7 +60,6 @@ export default tseslint.config(
             "@typescript-eslint/non-nullable-type-assertion-style": "warn",
             "@typescript-eslint/array-type": "warn",
             "@typescript-eslint/no-unsafe-enum-comparison": "warn",
-            "@typescript-eslint/use-unknown-in-catch-callback-variable": "warn",
             "@typescript-eslint/no-unsafe-return": "warn",
             "@typescript-eslint/no-redundant-type-constituents": "warn",
             "@typescript-eslint/prefer-optional-chain": "warn",

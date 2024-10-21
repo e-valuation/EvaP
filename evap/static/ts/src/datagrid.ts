@@ -362,7 +362,7 @@ export class QuestionnaireGrid extends TableGrid {
                     body: new URLSearchParams(
                         this.rows.map((row, index) => [row.element.dataset.id!, index.toString()]),
                     ),
-                }).catch(error => {
+                }).catch((error: unknown) => {
                     console.error(error);
                     window.alert(window.gettext("The server is not responding."));
                 });
