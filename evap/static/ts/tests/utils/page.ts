@@ -4,7 +4,7 @@ import { Browser, Page } from "puppeteer";
 import { Global } from "@jest/types/";
 import DoneFn = Global.DoneFn;
 
-const contentTypeByExtension: Map<string, string> = new Map([
+const contentTypeByExtension = new Map<string, string>([
     [".css", "text/css"],
     [".js", "application/javascript"],
     [".png", "image/png"],

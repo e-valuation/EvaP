@@ -52,7 +52,6 @@ export default tseslint.config(
             "@typescript-eslint/await-thenable": "warn",
             "@typescript-eslint/no-floating-promises": "warn",
             "@typescript-eslint/no-deprecated": "warn",
-            "@typescript-eslint/consistent-generic-constructors": "warn",
             "@typescript-eslint/no-unsafe-return": "warn",
             "@typescript-eslint/no-redundant-type-constituents": "warn",
         },
