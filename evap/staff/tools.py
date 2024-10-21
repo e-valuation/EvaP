@@ -199,8 +199,9 @@ def bulk_update_users(request, user_file_content, test_run):  # noqa: PLR0912
             ):
                 messages.warning(request, message)
         for user, evaluations in inactive_users_participation:
-            for message in remove_inactivate_participations(user, evaluations, test_run):
-                messages.warning(request, message)
+            if len(evaluations) > 0:
+                for message in remove_inactivate_participations(user, evaluations, test_run):
+                    messages.warning(request, message)
         if test_run:
             messages.info(request, _("No data was changed in this test run."))
         else:
