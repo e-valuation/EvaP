@@ -19,7 +19,7 @@ xlwt = "~1.3.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "~24.10.0"
-coverage = { version = "7.6.3", extras = ["toml"] }
+coverage = { version = "7.6.4", extras = ["toml"] }
 django-debug-toolbar = "~4.4"
 django-stubs = "5.1.0"
 django-webtest = "~1.9.10"
