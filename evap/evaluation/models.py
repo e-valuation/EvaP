@@ -1677,6 +1677,9 @@ class UserProfileManager(BaseUserManager):
         return user
 
 
+assert settings.AUTH_PASSWORD_VALIDATORS == [], "Password validation configured, but evap will not apply it"
+
+
 class EvapBaseUser(models.Model):
     """This is strongly related to the django.contrib.auth.base_user.AbstractBaseUser model, but does not define natural_key."""
 
