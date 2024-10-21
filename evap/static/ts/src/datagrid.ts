@@ -34,7 +34,7 @@ abstract class DataGrid {
     protected container: HTMLElement;
     private searchInput: HTMLInputElement;
     protected rows: Row[] = [];
-    private delayTimer: any | null;
+    private delayTimer: number | undefined;
     protected state: State;
 
     protected constructor({ storageKey, head, container, searchInput }: DataGridParameters) {
@@ -59,7 +59,7 @@ abstract class DataGrid {
     }
 
     protected bindEvents() {
-        this.delayTimer = null;
+        this.delayTimer = undefined;
         this.searchInput.addEventListener("input", () => {
             clearTimeout(this.delayTimer);
             this.delayTimer = setTimeout(() => {
