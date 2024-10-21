@@ -46,7 +46,7 @@ export class ConfirmationModal extends HTMLElement {
     onDialogFormSubmit = (event: SubmitEvent) => {
         event.preventDefault();
 
-        const isConfirm = event.submitter?.dataset?.eventType === "confirm";
+        const isConfirm = event.submitter?.dataset.eventType === "confirm";
 
         if (isConfirm && this.internals.form && !this.internals.form.reportValidity()) {
             return;
