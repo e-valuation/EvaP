@@ -47,7 +47,7 @@ async function createPage(browser: Browser): Promise<Page> {
     return page;
 }
 
-export function pageHandler(fileName: string, fn: (page: Page) => void): (done?: DoneFn) => void {
+export function pageHandler(fileName: string, fn: (page: Page) => Promise<void>): (done?: DoneFn) => Promise<void> {
     return async done => {
         let finished = false;
         // This wrapper ensures that done() is only called once
@@ -62,7 +62,7 @@ export function pageHandler(fileName: string, fn: (page: Page) => void): (done?:
             }
         }
 
-        const context = await browser.defaultBrowserContext();
+        const context = browser.defaultBrowserContext();
         await context.overridePermissions("file:", ["clipboard-read"]);
 
         const page = await createPage(browser);
