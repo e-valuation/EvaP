@@ -431,10 +431,10 @@ export class ResultGrid extends DataGrid {
         }
 
         for (const [name, { slider }] of this.filterSliders.entries()) {
-            this.state.rangeFilter.set(name, slider.range);
+            this.state.rangeFilter.set(name, slider.selection);
 
             slider.onRangeChange = () => {
-                this.state.rangeFilter.set(name, slider.range);
+                this.state.rangeFilter.set(name, slider.selection);
                 this.filterRows();
                 this.renderToDOM();
             };
@@ -521,7 +521,7 @@ export class ResultGrid extends DataGrid {
         for (const [name, { slider }] of this.filterSliders.entries()) {
             const filterRange = this.state.rangeFilter.get(name);
             if (filterRange !== undefined) {
-                slider.updateSelection(filterRange);
+                slider.selection = filterRange;
             } else {
                 slider.reset();
             }
