@@ -139,7 +139,7 @@ def bulk_update_users(request, user_file_content, test_run):  # noqa: PLR0912
         elif user.is_active and user.can_be_marked_inactive_by_manager:
             users_to_mark_inactive.append(user)
             evaluations = user.evaluations_participating_in.filter(state=Evaluation.State.PUBLISHED,
-                                                                   vote_end_date__lt=datetime.today() - timedelta(-settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS))
+                                                                   vote_end_date__lt=datetime.today() - timedelta(days=settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS))
             inactive_users_participation.append((user, evaluations))
 
     messages.info(
