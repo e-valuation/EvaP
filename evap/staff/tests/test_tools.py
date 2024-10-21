@@ -1,3 +1,4 @@
+from datetime import timedelta, datetime
 from io import BytesIO
 from itertools import cycle, repeat
 from unittest.mock import MagicMock, patch
@@ -22,7 +23,7 @@ from evap.staff.tools import (
     conditional_escape,
     merge_users,
     remove_user_from_represented_and_ccing_users,
-    user_edit_link,
+    user_edit_link, remove_inactive_participations,
 )
 from evap.tools import assert_not_none
 from tools.enrollment_preprocessor import run_preprocessor
@@ -217,6 +218,21 @@ class RemoveUserFromRepresentedAndCCingUsersTest(TestCase):
         self.assertEqual([set(user1.delegates.all()), set(user1.cc_users.all())], [{delete_user}, {delete_user}])
         self.assertEqual([set(user2.delegates.all()), set(user2.cc_users.all())], [{delete_user}, {delete_user}])
         self.assertEqual(len(messages), 4)
+
+class RemoveUserDueToInactivity(TestCase):
+    def test_remove_user_due_to_inactivity(self):
+        inactive_user = baker.make(UserProfile)
+        inactive_user2 = baker.make(UserProfile)
+
+        evaluation1 = baker.make(Evaluation, state=Evaluation.State.PUBLISHED, vote_end_date=datetime.today() + timedelta(days=(18+1)*30), participants=[inactive_user, inactive_user2])
+        evaluation2 = baker.make(Evaluation, state=Evaluation.State.PUBLISHED, vote_end_date=datetime.today() + timedelta(days=(18-1)*30), participants=[inactive_user, inactive_user2])
+
+
+        messages = remove_inactive_participations(inactive_user, evaluation1)
+        self.assertEqual(len(messages), 1)
+
+        messages2 = remove_inactive_participations(inactive_user, evaluation2)
+        self.assertEqual(len(messages2), 0)
 
 
 class UserEditLinkTest(TestCase):
