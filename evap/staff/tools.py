@@ -132,12 +132,16 @@ def bulk_update_users(request, user_file_content, test_run):  # noqa: PLR0912
             users_to_be_updated.append((matching_user, imported_email))
 
     emails_of_non_obsolete_users = set(imported_emails) | {user.email for user, _ in users_to_be_updated}
-    deletable_users, users_to_mark_inactive = [], []
+    deletable_users, users_to_mark_inactive, inactive_users_participation = [], [], []
     for user in UserProfile.objects.exclude(email__in=emails_of_non_obsolete_users):
         if user.can_be_deleted_by_manager:
             deletable_users.append(user)
         elif user.is_active and user.can_be_marked_inactive_by_manager:
             users_to_mark_inactive.append(user)
+            evaluations = Evaluation.objects.filter(participants__in=user,
+                                                    state=Evaluation.State.PUBLISHED,
+                                                    vote_end_date__lt=datetime.now() - settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS)
+            inactive_users_participation.append((user, evaluations))
 
     messages.info(
         request,
@@ -195,6 +199,9 @@ def bulk_update_users(request, user_file_content, test_run):  # noqa: PLR0912
                 user, deletable_users + users_to_mark_inactive, test_run
             ):
                 messages.warning(request, message)
+        for user, evaluations in inactive_users_participation:
+            for message in remove_inactivate_participations(user, evaluations, test_run):
+                messages.warning(request, message)
         if test_run:
             messages.info(request, _("No data was changed in this test run."))
         else:
@@ -203,6 +210,7 @@ def bulk_update_users(request, user_file_content, test_run):  # noqa: PLR0912
             for user in users_to_mark_inactive:
                 user.is_active = False
                 user.save()
+
             for user, email in users_to_be_updated:
                 user.email = email
                 user.save()
@@ -373,6 +381,22 @@ def remove_user_from_represented_and_ccing_users(user, ignored_users=None, test_
             cc_user.cc_users.remove(user)
             remove_messages.append(_("Removed {} from the CC users of {}.").format(user.full_name, cc_user.full_name))
     return remove_messages
+
+
+def remove_inactivate_participations(user, evaluations, test_run):
+    remove_messages = []
+    if test_run:
+        remove_messages.append(
+            _("{} will be removed from {} participation(s) due to inactivity.").format(user.full_name, len(evaluations))
+        )
+    else:
+        for evaluation in evaluations:
+            evaluation.participants.remove(user)
+        remove_messages.append(
+            _("Removed {} from {} participation(s) due to inactivity.").format(user.full_name, len(evaluations))
+        )
+    return remove_messages
+
 
 
 def user_edit_link(user_id):
