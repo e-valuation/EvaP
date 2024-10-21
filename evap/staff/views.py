@@ -1801,6 +1801,7 @@ def questionnaire_index(request):
     prefetch_list = ("questions", "contributions__evaluation")
     general_questionnaires = Questionnaire.objects.general_questionnaires().prefetch_related(*prefetch_list)
     contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().prefetch_related(*prefetch_list)
+    dropout_questionnaires = Questionnaire.objects.dropout_questionnaires().prefetch_related(*prefetch_list) # TODO@Felix: is prefetch related needed?
 
     if filter_questionnaires:
         general_questionnaires = general_questionnaires.exclude(visibility=Questionnaire.Visibility.HIDDEN)
@@ -1817,6 +1818,7 @@ def questionnaire_index(request):
         "general_questionnaires_top": general_questionnaires_top,
         "general_questionnaires_bottom": general_questionnaires_bottom,
         "contributor_questionnaires": contributor_questionnaires,
+        "dropout_questionnaires": dropout_questionnaires,
         "filter_questionnaires": filter_questionnaires,
     }
     return render(request, "staff_questionnaire_index.html", template_data)
@@ -2064,6 +2066,18 @@ def questionnaire_set_locked(request):
 
     questionnaire.is_locked = is_locked
     questionnaire.save()
+    return HttpResponse()
+
+# @require_POST # TODO@Felix: with ajax?
+@manager_required
+def questionnaire_set_active_dropout(request, questionnaire_id: int):
+    questionnaire = get_object_or_404(Questionnaire, pk=questionnaire_id)
+    try:
+        questionnaire.set_active_dropout()
+    except Exception as e:
+        print(e)
+        raise SuspiciousOperation from e
+
     return HttpResponse()
 
 

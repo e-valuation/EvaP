@@ -1,6 +1,7 @@
 import logging
 import secrets
 import uuid
+from argparse import ArgumentError
 from collections import defaultdict
 from collections.abc import Collection, Container, Iterable, Sequence
 from dataclasses import dataclass
@@ -162,6 +163,12 @@ class QuestionnaireManager(Manager):
     def contributor_questionnaires(self):
         return super().get_queryset().filter(type=Questionnaire.Type.CONTRIBUTOR)
 
+    def dropout_questionnaires(self):
+        return super().get_queryset().filter(type=Questionnaire.Type.DROPOUT)
+
+    def active_dropout_questionnaire(self):
+        return super().get_queryset().filter(type=Questionnaire.Type.DROPOUT, is_active_dropout_questionnaire=True)
+
 
 class Questionnaire(models.Model):
     """A named collection of questions."""
@@ -170,6 +177,7 @@ class Questionnaire(models.Model):
         TOP = 10, _("Top questionnaire")
         CONTRIBUTOR = 20, _("Contributor questionnaire")
         BOTTOM = 30, _("Bottom questionnaire")
+        DROPOUT = 40, _("Dropout questionnaire")
 
     type = models.IntegerField(choices=Type.choices, verbose_name=_("type"), default=Type.TOP)
 
@@ -190,6 +198,12 @@ class Questionnaire(models.Model):
     teaser = translate(en="teaser_en", de="teaser_de")
 
     order = models.IntegerField(verbose_name=_("ordering index"), default=0)
+
+    # (unique=True, blank=True, null=True) allows having multiple non-active but only one active questionnaire
+    # TODO@Felix: hidden True?
+    is_active_dropout_questionnaire = models.BooleanField(
+        default=None, unique=True, blank=True, null=True, verbose_name=_("questionnaire is selected as active")
+    )
 
     class Visibility(models.IntegerChoices):
         HIDDEN = 0, _("Don't show")
@@ -222,6 +236,18 @@ class Questionnaire(models.Model):
     def __gt__(self, other):
         return (self.type, self.order, self.pk) > (other.type, other.order, other.pk)
 
+    @transaction.atomic()
+    def set_active_dropout(self):
+        # TODO@Felix: test this method
+        if self.type != Questionnaire.Type.DROPOUT:
+            raise ValueError("Can only set DROPOUT-type Questionnaires as active dropout questionnaire.")
+
+        Questionnaire.objects.active_dropout_questionnaire().update(is_active_dropout_questionnaire=False)
+        self.is_active_dropout_questionnaire = True
+        self.save()
+        # TODO@Felix: why does this not work [wip]
+        assert self == Questionnaire.objects.active_dropout_questionnaire(), "assert transaction worked"
+
     @property
     def is_above_contributors(self):
         return self.type == self.Type.TOP
@@ -231,7 +257,7 @@ class Questionnaire(models.Model):
         return self.type == self.Type.BOTTOM
 
     @property
-    def can_be_edited_by_manager(self):
+    def can_be_edited_by_manager(self): # TODO@Felix: modify this to also work for dropout questionnaires? or change code
         if is_prefetched(self, "contributions"):
             if all(is_prefetched(contribution, "evaluation") for contribution in self.contributions.all()):
                 return all(
@@ -460,6 +486,8 @@ class Evaluation(LoggedModel):
 
     # Disable to prevent editors from changing evaluation data
     allow_editors_to_edit = models.BooleanField(verbose_name=_("allow editors to edit"), default=True)
+
+    allow_drop_out = models.BooleanField(verbose_name=_("allow students to drop out"), default=True)
 
     evaluation_evaluated = Signal()
 
