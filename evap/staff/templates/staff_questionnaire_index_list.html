@@ -37,7 +37,7 @@
                                     {% if type == 'dropout' %}
                                         <!-- TODO@Felix: Selection via AJAX-->
                                         <a href="{% url 'staff:questionnaire_set_active_dropout' questionnaire.id %}"
-                                           class="btn btn-sm btn-light {% if questionnaire.is_active_dropout_questionnaire %} active{% endif %}">
+                                           class="btn btn-sm btn-light{% if questionnaire.is_active_dropout_questionnaire %} active{% endif %}">
                                             <span class="fas fa-fw fa-check" aria-hidden="true"></span>
                                         </a>
                                     {% elif type != 'contributor' %}
