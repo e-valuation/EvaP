@@ -35,11 +35,11 @@
                                 </td>
                                 <td>
                                     {% if type == 'dropout' %}
-                                        <!-- TODO@Felix: Selection via AJAX-->
-                                        <a href="{% url 'staff:questionnaire_set_active_dropout' questionnaire.id %}"
-                                           class="btn btn-sm btn-light{% if questionnaire.is_active_dropout_questionnaire %} active{% endif %}">
+                                        <!-- TODO@Felix: Web Accessibility?  -->
+                                        <button data-id="{{ questionnaire.id }}"
+                                           class="btn btn-sm btn-light is-active-dropout-button{% if questionnaire.is_active_dropout_questionnaire %} active{% endif %}">
                                             <span class="fas fa-fw fa-check" aria-hidden="true"></span>
-                                        </a>
+                                        </button>
                                     {% elif type != 'contributor' %}
                                         <div class="btn-switch btn-group icon-buttons">
                                             <button data-is-locked="0" type="button" class="btn btn-sm change-is-locked-button btn-light{% if questionnaire.is_locked == False %} active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Allow editors to change the selection of this questionnaire' %}"><span class="fas fa-fw fa-lock-open" aria-hidden="true"></span></button>
