@@ -1168,16 +1168,18 @@ class TestResultsTextanswerVisibility(WebTest):
         ".responsible_contributor_additional_orig_deleted.",
     ]
 
+    contributor_views = [ViewContributorResults.FULL, ViewContributorResults.RATINGS, ViewContributorResults.PERSONAL]
+    general_views = [ViewGeneralResults.FULL, ViewGeneralResults.RATINGS]
+
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
         cache_results(Evaluation.objects.get(id=1))
 
-    def helper_test_general(self, user, view_general_results, textanswers_in, textanswers_not_in):
-
-        con_views = [ViewContributorResults.FULL, ViewContributorResults.RATINGS, ViewContributorResults.PERSONAL]
-
-        for con_view in con_views:
+    def helper_test_general(self, user, view_general_results, textanswers_in):
+        
+        textanswers_not_in = list(set(self.general_textanswers) - set(textanswers_in))
+        for con_view in self.contributor_views:
             page = self.app.get(f"/results/semester/1/evaluation/1?view_general_results={view_general_results}&view_contributor_results={con_view}", user=user)
 
             for answer in textanswers_in:
@@ -1187,9 +1189,8 @@ class TestResultsTextanswerVisibility(WebTest):
 
     def helper_test_contributor(self, user, view_contributor_results, textanswers_in, textanswers_not_in):
         
-        gen_views = [ViewGeneralResults.FULL, ViewGeneralResults.RATINGS]
-
-        for gen_view in gen_views:
+        textanswers_not_in = list(set(self.contributor_textanswers) - set(textanswers_in))
+        for gen_view in self.general_views:
             page = self.app.get(f"/results/semester/1/evaluation/1?view_contributor_results={view_contributor_results}&view_general_results={gen_view}", user=user)
 
             for answer in textanswers_in:
@@ -1210,75 +1211,75 @@ class TestResultsTextanswerVisibility(WebTest):
 
         user = "manager@institution.example.com"
 
-        self.helper_test_general(user, ViewGeneralResults.FULL, [".general_orig_published.", ".general_additional_orig_published.", ".general_changed_published."], self.general_textanswers - [".general_orig_published.", ".general_additional_orig_published.", ".general_changed_published."])
+        self.helper_test_general(user, ViewGeneralResults.FULL, [".general_orig_published.", ".general_additional_orig_published.", ".general_changed_published."])
         self.helper_test_general(user, ViewGeneralResults.RATINGS, [], self.general_textanswers)
 
-        self.helper_test_contributor(user, ViewContributorResults.FULL, [".contributor_orig_published.", ".contributor_orig_private.", ".responsible_contributor_orig_published.", ".responsible_contributor_changed_published.", ".responsible_contributor_orig_private.", ".responsible_contributor_additional_orig_published."], [])
-        self.helper_test_contributor(user, ViewContributorResults.RATINGS, [],self.contributor_textanswers)
-        self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [],self.contributor_textanswers)
+        self.helper_test_contributor(user, ViewContributorResults.FULL, [".contributor_orig_published.", ".contributor_orig_private.", ".responsible_contributor_orig_published.", ".responsible_contributor_changed_published.", ".responsible_contributor_orig_private.", ".responsible_contributor_additional_orig_published."])
+        self.helper_test_contributor(user, ViewContributorResults.RATINGS, [])
+        self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [])
 
     def test_manager(self):
         user = "manager@institution.example.com"
 
-        self.helper_test_general(user, ViewGeneralResults.FULL, [".general_orig_published.", ".general_additional_orig_published.", ".general_changed_published."], self.general_textanswers - [".general_orig_published.", ".general_additional_orig_published.", ".general_changed_published."])
-        self.helper_test_general(user, ViewGeneralResults.RATINGS, [], self.general_textanswers)
+        self.helper_test_general(user, ViewGeneralResults.FULL, [".general_orig_published.", ".general_additional_orig_published.", ".general_changed_published."])
+        self.helper_test_general(user, ViewGeneralResults.RATINGS, [])
 
-        self.helper_test_contributor(user, ViewContributorResults.FULL, [".contributor_orig_published.", ".contributor_orig_private.", ".responsible_contributor_orig_published.", ".responsible_contributor_changed_published.", ".responsible_contributor_orig_private.", ".responsible_contributor_additional_orig_published."], [])
-        self.helper_test_contributor(user, ViewContributorResults.RATINGS, [],self.contributor_textanswers)
-        self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [],self.contributor_textanswers)
+        self.helper_test_contributor(user, ViewContributorResults.FULL, [".contributor_orig_published.", ".contributor_orig_private.", ".responsible_contributor_orig_published.", ".responsible_contributor_changed_published.", ".responsible_contributor_orig_private.", ".responsible_contributor_additional_orig_published."])
+        self.helper_test_contributor(user, ViewContributorResults.RATINGS, [])
+        self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [])
         
     def test_student(self):
         user = "student@institution.example.com"
 
-        self.helper_test_general(user, ViewGeneralResults.FULL, [], self.general_textanswers)
-        self.helper_test_general(user, ViewGeneralResults.RATINGS, [], self.general_textanswers)
+        self.helper_test_general(user, ViewGeneralResults.FULL, [])
+        self.helper_test_general(user, ViewGeneralResults.RATINGS, [])
 
-        self.helper_test_contributor(user, ViewContributorResults.FULL, [], self.contributor_textanswers)
-        self.helper_test_contributor(user, ViewContributorResults.RATINGS, [], self.contributor_textanswers)
-        self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [], self.contributor_textanswers)
+        self.helper_test_contributor(user, ViewContributorResults.FULL, [])
+        self.helper_test_contributor(user, ViewContributorResults.RATINGS, [])
+        self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [])
 
 
     def test_responsible(self):
         
         user = "responsible@institution.example.com"
         
-        self.helper_test_general(user, ViewGeneralResults.FULL, [".general_orig_published.", ".general_changed_published.", ".general_additional_orig_published.",], self.general_textanswers - [".general_orig_published.", ".general_changed_published.", ".general_additional_orig_published.",])
-        self.helper_test_general(user, ViewGeneralResults.RATINGS, [], self.general_textanswers)
+        self.helper_test_general(user, ViewGeneralResults.FULL, [".general_orig_published.", ".general_changed_published.", ".general_additional_orig_published.",])
+        self.helper_test_general(user, ViewGeneralResults.RATINGS, [])
 
-        self.helper_test_contributor(user, ViewContributorResults.FULL, [], self.contributor_textanswers)
-        self.helper_test_contributor(user, ViewContributorResults.RATINGS, [], self.contributor_textanswers)
-        self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [], self.contributor_textanswers)
+        self.helper_test_contributor(user, ViewContributorResults.FULL, [])
+        self.helper_test_contributor(user, ViewContributorResults.RATINGS, [])
+        self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [])
 
     def test_responsible_contributor(self):
 
         user = "responsible_contributor@institution.example.com"
 
-        self.helper_test_general(user, ViewGeneralResults.FULL, [".general_orig_published.", ".general_changed_published.", ".general_additional_orig_published.",], self.general_textanswers - [".general_orig_published.", ".general_changed_published.", ".general_additional_orig_published.",])
+        self.helper_test_general(user, ViewGeneralResults.FULL, [".general_orig_published.", ".general_changed_published.", ".general_additional_orig_published.",])
         self.helper_test_general(user, ViewGeneralResults.RATINGS, [], self.general_textanswers)
 
-        self.helper_test_contributor(user, ViewContributorResults.FULL, [".responsible_contributor_orig_published.", ".responsible_contributor_changed_published.", ".responsible_contributor_orig_private.", ".responsible_contributor_additional_orig_published.",], self.contributor_textanswers - [".responsible_contributor_orig_published.", ".responsible_contributor_changed_published.", ".responsible_contributor_orig_private.", ".responsible_contributor_additional_orig_published.",])
-        self.helper_test_contributor(user, ViewContributorResults.RATINGS, [], self.contributor_textanswers)
-        self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [".responsible_contributor_orig_published.", ".responsible_contributor_changed_published.", ".responsible_contributor_orig_private.", ".responsible_contributor_additional_orig_published.",], self.contributor_textanswers - [".responsible_contributor_orig_published.", ".responsible_contributor_changed_published.", ".responsible_contributor_orig_private.", ".responsible_contributor_additional_orig_published.",])
+        self.helper_test_contributor(user, ViewContributorResults.FULL, [".responsible_contributor_orig_published.", ".responsible_contributor_changed_published.", ".responsible_contributor_orig_private.", ".responsible_contributor_additional_orig_published.",])
+        self.helper_test_contributor(user, ViewContributorResults.RATINGS)
+        self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [".responsible_contributor_orig_published.", ".responsible_contributor_changed_published.", ".responsible_contributor_orig_private.", ".responsible_contributor_additional_orig_published.",])
 
     def test_contributor_general_textanswers(self):
         user = "contributor_general_textanswers@institution.example.com"
 
-        self.helper_test_general(user, ViewGeneralResults.FULL, [".general_orig_published.", ".general_additional_orig_published.", ".general_changed_published.",], self.general_textanswers - [".general_orig_published.", ".general_additional_orig_published.", ".general_changed_published.",])
-        self.helper_test_general(user, ViewGeneralResults.RATINGS, [], self.general_textanswers)
+        self.helper_test_general(user, ViewGeneralResults.FULL, [".general_orig_published.", ".general_additional_orig_published.", ".general_changed_published.",])
+        self.helper_test_general(user, ViewGeneralResults.RATINGS, [])
 
-        self.helper_test_contributor(user, ViewContributorResults.FULL, [], self.contributor_textanswers)
-        self.helper_test_contributor(user, ViewContributorResults.RATINGS, [], self.contributor_textanswers)
-        self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [], self.contributor_textanswers)
+        self.helper_test_contributor(user, ViewContributorResults.FULL, [])
+        self.helper_test_contributor(user, ViewContributorResults.RATINGS, [])
+        self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [])
 
     def test_contributor(self):
         user = "contributor@institution.example.com"
 
-        self.helper_test_general(user, ViewGeneralResults.FULL, [], self.general_textanswers)
-        self.helper_test_general(user, ViewGeneralResults.RATINGS, [], self.general_textanswers)
+        self.helper_test_general(user, ViewGeneralResults.FULL, [])
+        self.helper_test_general(user, ViewGeneralResults.RATINGS, [])
 
-        self.helper_test_contributor(user, ViewContributorResults.FULL, [".contributor_orig_published.", ".contributor_orig_private."], self.contributor_textanswers - [".contributor_orig_published.", ".contributor_orig_private."])
-        self.helper_test_contributor(user, ViewContributorResults.RATINGS, [], self.contributor_textanswers)
-        self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [".contributor_orig_published.", ".contributor_orig_private."], self.contributor_textanswers - [".contributor_orig_published.", ".contributor_orig_private."])
+        self.helper_test_contributor(user, ViewContributorResults.FULL, [".contributor_orig_published.", ".contributor_orig_private."])
+        self.helper_test_contributor(user, ViewContributorResults.RATINGS, [])
+        self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [".contributor_orig_published.", ".contributor_orig_private."])
 
 
 class TestResultsOtherContributorsListOnExportView(WebTest):
