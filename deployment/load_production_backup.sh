@@ -49,7 +49,7 @@ fi
 ./manage.py reset_db "$CONDITIONAL_NOINPUT"
 ./manage.py migrate
 ./manage.py flush "$CONDITIONAL_NOINPUT"
-./manage.py loaddata "$1"
+./manage.py loaddata_unlogged "$1"
 
 ./manage.py clear_cache --all -v=1
 ./manage.py refresh_results_cache

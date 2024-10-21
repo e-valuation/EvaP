@@ -6,12 +6,14 @@ from collections.abc import Collection, Container, Iterable, Sequence
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from enum import Enum, auto
+from functools import partial
 from numbers import Real
 from typing import Any
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group, PermissionsMixin
+from django.contrib.auth.hashers import check_password, is_password_usable, make_password
+from django.contrib.auth.models import BaseUserManager, Group, PermissionsMixin
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.postgres.fields import ArrayField
 from django.core.cache import caches
@@ -1675,7 +1677,51 @@ class UserProfileManager(BaseUserManager):
         return user
 
 
-class UserProfile(AbstractBaseUser, PermissionsMixin):
+assert settings.AUTH_PASSWORD_VALIDATORS == [], "Password validation configured, but evap will not apply it"
+
+
+class EvapBaseUser(models.Model):
+    """This is strongly related to the django.contrib.auth.base_user.AbstractBaseUser model, but does not define natural_key."""
+
+    USERNAME_FIELD: str
+
+    # set unusable password by default: We don't want password resets.
+    password = models.CharField(_("password"), max_length=128, default=partial(make_password, None))
+    last_login = models.DateTimeField(_("last login"), blank=True, null=True)
+
+    class Meta:
+        abstract = True
+
+    def get_username(self):
+        # required for django-webtest. See https://github.com/django-webtest/django-webtest/issues/134.
+        return getattr(self, self.USERNAME_FIELD)
+
+    @property
+    def is_anonymous(self):
+        # django.contrib.auth.checks requires this to be MethodType
+        return False
+
+    @property
+    def is_authenticated(self):
+        return True
+
+    def set_password(self, raw_password):
+        self.password = make_password(raw_password)
+
+    def check_password(self, raw_password):
+        def setter(raw_password):
+            self.set_password(raw_password)
+            # Password hash upgrades shouldn't be considered password changes.
+            self.save(update_fields=["password"])
+
+        return check_password(raw_password, self.password, setter)
+
+    def has_usable_password(self):
+        return is_password_usable(self.password)
+
+
+class UserProfile(EvapBaseUser, PermissionsMixin):
+
     # null=True because certain external users don't have an address
     email = models.EmailField(max_length=255, unique=True, blank=True, null=True, verbose_name=_("email address"))
 
@@ -1728,6 +1774,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         default=StartPage.DEFAULT,
     )
 
+    objects = UserProfileManager()
+
     class Meta:
         # keep in sync with ordering_key
         ordering = [
@@ -1740,9 +1788,10 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = _("users")
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS: list[str] = []
 
-    objects = UserProfileManager()
+    def __str__(self):
+        return self.full_name
 
     def save(self, *args, **kwargs):
         # This is not guaranteed to be called on every insert. For example, the importers use bulk insertion.
@@ -1789,9 +1838,6 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         if self.is_external:
             return name + " [ext.]"
         return f"{name} ({self.email})"
-
-    def __str__(self):
-        return self.full_name
 
     @cached_property
     def is_staff(self):
