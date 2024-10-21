@@ -64,6 +64,7 @@ urlpatterns = [
     path("questionnaire/update_indices", views.questionnaire_update_indices, name="questionnaire_update_indices"),
     path("questionnaire/questionnaire_visibility", views.questionnaire_visibility, name="questionnaire_visibility"),
     path("questionnaire/questionnaire_set_locked", views.questionnaire_set_locked, name="questionnaire_set_locked"),
+
     path("programs/", views.ProgramIndexView.as_view(), name="program_index"),
 
     path("course_types/", views.CourseTypeIndexView.as_view(), name="course_type_index"),

@@ -1960,6 +1960,7 @@ class TestEvaluationCopyView(WebTestStaffMode):
         self.assertEqual(copied_evaluation.contributions.count(), 4)
 
 
+@override_settings(EXAM_QUESTIONNAIRE_IDS=[111])
 class TestEvaluationExamCreation(WebTestStaffMode):
     csrf_checks = False
     url = reverse("staff:create_exam_evaluation")
@@ -1967,23 +1968,22 @@ class TestEvaluationExamCreation(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
+        # We need to set the managers language to avoid a database update, when no language is set
+        cls.manager.language = "en"
+        cls.manager.save()
         cls.course = baker.make(Course)
         vote_start_datetime = datetime.datetime.now() - datetime.timedelta(days=50)
         cls.evaluation = baker.make(Evaluation, course=cls.course, vote_start_datetime=vote_start_datetime)
+        cls.evaluation.participants.set(baker.make(UserProfile, _quantity=3))
         cls.contributions = baker.make(
             Contribution, evaluation=cls.evaluation, _fill_optional=["contributor"], _quantity=3, _bulk_create=True
         )
         cls.exam_date = datetime.date.today() + datetime.timedelta(days=10)
-        cls.evaluation.participants.set(baker.make(UserProfile, _quantity=3))
         cls.params = {"evaluation_id": cls.evaluation.pk, "exam_date": cls.exam_date}
+        cls.exam_questionnaire = baker.make(Questionnaire, pk=111)
 
     def test_create_exam_evaluation(self):
-        self.app.post(
-            self.url,
-            user=self.manager,
-            status=200,
-            params=self.params,
-        )
+        self.app.post(self.url, user=self.manager, status=200, params=self.params)
         self.assertEqual(Evaluation.objects.count(), 2)
         exam_evaluation = Evaluation.objects.exclude(pk=self.evaluation.pk).get()
         self.assertEqual(exam_evaluation.contributions.count(), self.evaluation.contributions.count())
@@ -2021,6 +2021,7 @@ class TestEvaluationExamCreation(WebTestStaffMode):
             self.app.post(self.url, user=self.manager, status=400, params=self.params)
 
     def test_exam_evaluation_with_missing_date(self):
+        self.params.pop("exam_date")
         with assert_no_database_modifications():
             self.app.post(self.url, user=self.manager, status=400, params=self.params)
 

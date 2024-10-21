@@ -192,25 +192,11 @@
                     <div slot="extra-inputs">
                         <label>
                             {% translate 'Exam Date:' %}
-                            <input type="date" name="exam_date" data-earliest-legal-exam-date="{{ evaluation.vote_start_datetime.date + datetime.timedelta(days=1) }}" class="form-control" required form="exam_creation_form_{{ evaluation.id }}"/>
+                            <input type="date" name="exam_date" data-earliest-legal-date="{{ evaluation.get_earliest_legal_exam_date }}" data-earliest-date-reason="{% translate 'The end date of the main evaluation would be before its start date.' %}" class="form-control" required form="exam_creation_form_{{ evaluation.id }}"/>
                         </label>
                     </div>
 
                     <button slot="show-button" type="button" class="btn btn-sm btn-light" title="{% translate 'Create exam evaluation' %}" data-bs-placement="top" data-bs-toggle="tooltip"><span class="fas fa-file-pen fa-fw"></span></button>
-
-                    <script type="text/javascript">
-                        document.querySelectorAll("[data-evaluation-date]").forEach(element => {
-                            element.addEventListener("change", () => {
-                                if (element.value < element.dataset.earliestLegalExamEvaluationDate) {
-                                    element.setCustomValidity("{% translate 'The end date of the main evaluation would be before its start date.' %}");
-                                } else {
-                                    element.setCustomValidity("");
-                                }
-
-                            });
-                            element.dispatchEvent(new Event("change"));
-                        });
-                    </script>
 
                 </confirmation-modal>
             {% endif %}

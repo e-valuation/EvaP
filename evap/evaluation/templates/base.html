@@ -211,5 +211,18 @@
         </script>
 
         {% block additional_javascript %}{% endblock %}
+
+        <script type="text/javascript"> 
+            document.querySelectorAll("[data-earliest-legal-date]").forEach(element => {
+                element.addEventListener("change", () => {
+                    if (element.value < element.dataset.earliestLegalDate) {
+                        element.setCustomValidity(element.dataset.earliestDateReason);
+                    } else {
+                        element.setCustomValidity("");
+                    }
+                });
+                element.dispatchEvent(new Event("change"));
+            });
+        </script>
     </body>
 </html>

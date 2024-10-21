@@ -1,5 +1,6 @@
 import functools
 import os
+import re
 from collections.abc import Sequence
 from contextlib import contextmanager
 from datetime import timedelta
@@ -14,7 +15,6 @@ from django.http.request import QueryDict
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone, translation
 from model_bakery import baker
-import re
 
 from evap.evaluation.models import (
     CHOICES,
@@ -259,24 +259,9 @@ def assert_no_database_modifications(*args, **kwargs):
     with CaptureQueriesContext(conn):
         yield
 
-        # TODO: REGEX FOR LAST LOGIN ERROR, still not working
-        # THEN ADD REGEX FOR LANGUAGE COOKIE
-        # def middleware(request):
-#  38             if not (request.user and request.user.is_authenticated):
-#  39                 return get_response(request)
-#  40             if request.user.language == translation.get_language():
-#  41                 return get_response(request)
-#  42
-#  43             if request.user.language:
-#  44                 translation.activate(request.user.language)
-#  45             else:
-#  46                 request.user.language = translation.get_language()
-#  47  ->             request.user.save()
-#  48             lang = request.user.language
-#  49             response = get_response(request)
-#  50             response.set_cookie(settings.LANGUAGE_COOKIE_NAME, lang)
-#  51             return response
-        last_login_pattern = r"""UPDATE "evaluation_userprofile" SET "last_login" = '([0-9T:.]+)'::timestamp WHERE "evaluation_userprofile"\."id" = \d+"""
+        last_login_pattern = re.compile(
+            r"""UPDATE "evaluation_userprofile" SET "last_login" = '\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{6}'::timestamp WHERE "evaluation_userprofile"\."id" = \d+"""
+        )
         for query in conn.queries_log:
             if (
                 query["sql"].startswith('INSERT INTO "testing_cache_sessions"')
@@ -284,10 +269,7 @@ def assert_no_database_modifications(*args, **kwargs):
                 or query["sql"].startswith('DELETE FROM "testing_cache_sessions"')
                 # Check that regex matches the last login update query
                 or last_login_pattern.match(query["sql"])
-                 
-                
                 # UPDATE "evaluation_userprofile" SET "last_login" = '2024-10-07T18:23:56.914156'::timestamp WHERE "evaluation_userprofile"."id" = 75
-                
             ):
                 # These queries are caused by interacting with the test-app (self.app.get()), since that opens a session.
                 # That's not what we want to test for here
