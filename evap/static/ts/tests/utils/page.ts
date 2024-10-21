@@ -16,17 +16,17 @@ async function createPage(browser: Browser): Promise<Page> {
 
     const page = await browser.newPage();
     await page.setRequestInterception(true);
-    page.on("request", request => {
+    page.on("request", async request => {
         const extension = path.extname(request.url());
         const pathname = new URL(request.url()).pathname;
         if (extension === ".html") {
             // requests like /evap/evap/static/ts/rendered/results/student.html
-            request.continue();
+            await request.continue();
         } else if (pathname.startsWith(staticPrefix)) {
             // requests like /static/css/tom-select.bootstrap5.min.css
             const asset = pathname.substring(staticPrefix.length);
             const body = fs.readFileSync(path.join(__dirname, "..", "..", "..", asset));
-            request.respond({
+            await request.respond({
                 contentType: contentTypeByExtension.get(extension),
                 body,
             });
@@ -36,12 +36,12 @@ async function createPage(browser: Browser): Promise<Page> {
             // rendered in RenderJsTranslationCatalog
             const absolute_fs_path = path.join(__dirname, "..", "..", "..", "ts", "rendered", "catalog.js");
             const body = fs.readFileSync(absolute_fs_path);
-            request.respond({
+            await request.respond({
                 contentType: contentTypeByExtension.get(extension),
                 body,
             });
         } else {
-            request.abort();
+            await request.abort();
         }
     });
     return page;
