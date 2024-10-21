@@ -51,7 +51,6 @@ export default tseslint.config(
             "@typescript-eslint/no-confusing-void-expression": "warn",
             "@typescript-eslint/await-thenable": "warn",
             "@typescript-eslint/no-floating-promises": "warn",
-            "@typescript-eslint/no-deprecated": "warn",
             "@typescript-eslint/no-unsafe-return": "warn",
             "@typescript-eslint/no-redundant-type-constituents": "warn",
         },

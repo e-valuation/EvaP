@@ -24,7 +24,7 @@ async function createPage(browser: Browser): Promise<Page> {
             request.continue();
         } else if (pathname.startsWith(staticPrefix)) {
             // requests like /static/css/tom-select.bootstrap5.min.css
-            const asset = pathname.substr(staticPrefix.length);
+            const asset = pathname.substring(staticPrefix.length);
             const body = fs.readFileSync(path.join(__dirname, "..", "..", "..", asset));
             request.respond({
                 contentType: contentTypeByExtension.get(extension),
