@@ -29,8 +29,10 @@ def disable_logentries() -> Iterator[None]:
     global CREATE_LOGENTRIES  # noqa: PLW0603
     old_mode = CREATE_LOGENTRIES
     CREATE_LOGENTRIES = False
-    yield
-    CREATE_LOGENTRIES = old_mode
+    try:
+        yield
+    finally:
+        CREATE_LOGENTRIES = old_mode
 
 
 class FieldActionType(str, Enum):
