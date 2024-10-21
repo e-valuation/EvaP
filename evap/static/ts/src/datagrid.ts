@@ -118,11 +118,11 @@ abstract class DataGrid {
     protected abstract fetchRowFilterValues(row: HTMLElement): Map<string, string[]>;
 
     private fetchRowOrderValues(row: HTMLElement): Map<string, string> {
-        const orderValues = new Map();
+        const orderValues = new Map<string, string>();
         for (const column of this.sortableHeaders.keys()) {
             const cell = row.querySelector<HTMLElement>(`[data-col=${column}]`)!;
             if (cell.matches("[data-order]")) {
-                orderValues.set(column, cell.dataset.order);
+                orderValues.set(column, cell.dataset.order!);
             } else {
                 orderValues.set(column, cell.innerHTML.trim());
             }
