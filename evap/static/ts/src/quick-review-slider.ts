@@ -239,7 +239,7 @@ export class QuickReviewSlider {
     };
 
     private isWrongSubmit = (submitter: SubmitterElement) => {
-        return submitter.value === Action.MakePrivate && !("contribution" in this.selectedSlide.dataset);
+        return (submitter.value as Action) === Action.MakePrivate && !("contribution" in this.selectedSlide.dataset);
     };
 
     private transitionHandler = (item: HTMLElement) => () => {
@@ -421,7 +421,7 @@ export class QuickReviewSlider {
             last.classList.add(`to-${reversed}`);
         }
 
-        if (layer > 0) {
+        if (layer > Layer.Questionnaire) {
             let activeInParentLayer;
             if (nextActiveElement && !this.isShowingEndslide()) {
                 activeInParentLayer =
