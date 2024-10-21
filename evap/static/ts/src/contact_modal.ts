@@ -39,7 +39,7 @@ export class ContactModalLogic {
             try {
                 const response = await fetch("/contact", {
                     body: new URLSearchParams({
-                        anonymous: String(this.anonymousRadioElement !== null && this.anonymousRadioElement.checked),
+                        anonymous: String(this.anonymousRadioElement?.checked),
                         message,
                         title: this.title,
                     }),
