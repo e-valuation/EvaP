@@ -204,7 +204,7 @@ class Questionnaire(models.Model):
     # (unique=True, blank=True, null=True) allows having multiple non-active but only one active questionnaire
     # TODO@Felix: hidden True?
     is_active_dropout_questionnaire = models.BooleanField(
-        default=None, unique=True, blank=True, null=True, verbose_name=_("questionnaire is selected as active ")
+        default=None, unique=True, blank=True, null=True, verbose_name=_("questionnaire is selected as active")
     )
 
     class Visibility(models.IntegerChoices):
