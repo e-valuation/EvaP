@@ -87,7 +87,7 @@ abstract class DataGrid {
     private static NUMBER_REGEX = /^[+-]?\d+(?:[.,]\d*)?$/;
 
     private fetchRows(): Row[] {
-        let rows = [...this.container.children]
+        const rows = [...this.container.children]
             .map(row => row as HTMLElement)
             .map(row => {
                 const searchWords = this.findSearchableCells(row).flatMap(element =>
@@ -118,7 +118,7 @@ abstract class DataGrid {
     protected abstract fetchRowFilterValues(row: HTMLElement): Map<string, string[]>;
 
     private fetchRowOrderValues(row: HTMLElement): Map<string, string> {
-        let orderValues = new Map();
+        const orderValues = new Map();
         for (const column of this.sortableHeaders.keys()) {
             const cell = row.querySelector<HTMLElement>(`[data-col=${column}]`)!;
             if (cell.matches("[data-order]")) {
@@ -476,7 +476,7 @@ export class ResultGrid extends DataGrid {
     }
 
     protected fetchRowFilterValues(row: HTMLElement): Map<string, string[]> {
-        let filterValues = new Map<string, string[]>();
+        const filterValues = new Map<string, string[]>();
         for (const [name, { selector, checkboxes }] of this.filterCheckboxes.entries()) {
             // To store filter values independent of the language, use the corresponding id from the checkbox
             const values = [...row.querySelectorAll(selector)]

@@ -56,7 +56,6 @@ export default tseslint.config(
             "@typescript-eslint/no-unnecessary-type-arguments": "warn",
             "@typescript-eslint/no-unnecessary-type-assertion": "warn",
             "@typescript-eslint/no-inferrable-types": "warn",
-            "prefer-const": "warn",
             "@typescript-eslint/no-unsafe-return": "warn",
             "@typescript-eslint/no-redundant-type-constituents": "warn",
         },
