@@ -15,10 +15,8 @@ export class RangeSlider {
     private readonly maxLabel: HTMLSpanElement;
     private readonly minLabel: HTMLSpanElement;
     private readonly rangeLabel: HTMLSpanElement;
-    private readonly min = 0;
-    private max = 0;
-    private low = 0;
-    private high = 0;
+    private allowed: Range = { low: 0, high: 0 };
+    private _selection: Range = { low: 0, high: 0 };
 
     private debounceTimeout?: number;
 
@@ -31,27 +29,26 @@ export class RangeSlider {
         this.rangeLabel = selectOrError<HTMLSpanElement>(".range-values", this.rangeSlider);
 
         const setRangeFromSlider = (): void => {
-            this.range = { low: parseFloat(this.lowSlider.value), high: parseFloat(this.highSlider.value) };
+            this.selection = { low: parseFloat(this.lowSlider.value), high: parseFloat(this.highSlider.value) };
         };
 
         this.lowSlider.addEventListener("input", setRangeFromSlider);
         this.highSlider.addEventListener("input", setRangeFromSlider);
     }
 
-    public get range(): Range {
-        return { low: this.low, high: this.high };
+    public get selection(): Range {
+        return this._selection;
     }
 
-    public set range(range: Range) {
-        this.low = range.low;
-        this.high = range.high;
+    public set selection(selection: Range) {
+        this._selection = selection;
 
-        this.lowSlider.value = this.low.toString();
-        this.highSlider.value = this.high.toString();
-        if (this.low > this.high) {
-            [this.low, this.high] = [this.high, this.low];
+        this.lowSlider.value = this.selection.low.toString();
+        this.highSlider.value = this.selection.high.toString();
+        if (this.selection.low > this.selection.high) {
+            [this.selection.low, this.selection.high] = [this.selection.high, this.selection.low];
         }
-        this.rangeLabel.innerText = `${this.low} – ${this.high}`;
+        this.rangeLabel.innerText = `${this.selection.low} – ${this.selection.high}`;
 
         // debounce on range change callback
         if (this.debounceTimeout !== undefined) {
@@ -65,25 +62,25 @@ export class RangeSlider {
     public onRangeChange(): void {}
 
     public includeValues(values: number[]): void {
-        assert(Math.min(...values) >= this.min);
+        assert(Math.min(...values) >= this.allowed.low);
         const max = Math.max(...values);
-        if (max > this.max) {
-            this.max = max;
+        if (max > this.allowed.high) {
+            this.allowed.high = max;
             this.updateLimits();
             this.reset();
         }
     }
 
     public reset(): void {
-        this.range = { low: this.min, high: this.max };
+        this.selection = { low: this.allowed.low, high: this.allowed.high };
     }
 
     private updateLimits(): void {
-        this.lowSlider.min = this.min.toString();
-        this.lowSlider.max = this.max.toString();
-        this.highSlider.min = this.min.toString();
-        this.highSlider.max = this.max.toString();
-        this.minLabel.innerText = this.min.toString();
-        this.maxLabel.innerText = this.max.toString();
+        this.lowSlider.min = this.allowed.low.toString();
+        this.lowSlider.max = this.allowed.high.toString();
+        this.highSlider.min = this.allowed.low.toString();
+        this.highSlider.max = this.allowed.high.toString();
+        this.minLabel.innerText = this.allowed.low.toString();
+        this.maxLabel.innerText = this.allowed.high.toString();
     }
 }
