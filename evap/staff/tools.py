@@ -200,7 +200,7 @@ def bulk_update_users(request, user_file_content, test_run):  # noqa: PLR0912
                 messages.warning(request, message)
         for user, evaluations in inactive_users_participation:
             if len(evaluations) > 0:
-                for message in remove_inactivate_participations(user, evaluations, test_run):
+                for message in remove_inactive_participations(user, evaluations, test_run):
                     messages.warning(request, message)
         if test_run:
             messages.info(request, _("No data was changed in this test run."))
@@ -383,7 +383,7 @@ def remove_user_from_represented_and_ccing_users(user, ignored_users=None, test_
     return remove_messages
 
 
-def remove_inactivate_participations(user, evaluations, test_run):
+def remove_inactive_participations(user, evaluations, test_run):
     remove_messages = []
     if test_run:
         remove_messages.append(
