@@ -657,6 +657,24 @@
   }
 },
 {
+  "model": "evaluation.questionnaire",
+  "pk": 111,
+  "fields": {
+    "type": 10,
+    "name_de": "Klausur",
+    "name_en": "Exam",
+    "description_de": "",
+    "description_en": "",
+    "public_name_de": "Klausur",
+    "public_name_en": "Exam",
+    "teaser_de": "",
+    "teaser_en": "",
+    "order": 62,
+    "visibility": 1,
+    "is_locked": false
+  }
+},
+{
   "model": "evaluation.program",
   "pk": 1,
   "fields": {
@@ -2702,6 +2720,18 @@
     "text_en": "... had a comfortable pace.",
     "allows_additional_textanswers": true,
     "type": 10
+  }
+},
+{
+  "model": "evaluation.question",
+  "pk": 478,
+  "fields": {
+    "order": 1,
+    "questionnaire": 111,
+    "text_de": "Wie fandest du die Klausur?",
+    "text_en": "How did you like the exam?",
+    "allows_additional_textanswers": true,
+    "type": 6
   }
 },
 {

@@ -34,6 +34,7 @@ urlpatterns = [
     path("evaluation/<int:evaluation_id>/copy", views.evaluation_copy, name="evaluation_copy"),
     path("evaluation/<int:evaluation_id>/email", views.evaluation_email, name="evaluation_email"),
     path("evaluation/<int:evaluation_id>/preview", views.evaluation_preview, name="evaluation_preview"),
+    path("evaluation/create_exam_evaluation", views.create_exam_evaluation, name="create_exam_evaluation"),
     path("evaluation/<int:evaluation_id>/person_management", views.evaluation_person_management, name="evaluation_person_management"),
     path("evaluation/<int:evaluation_id>/login_key_export", views.evaluation_login_key_export, name="evaluation_login_key_export"),
     path("semester/<int:semester_id>/evaluation/operation", views.evaluation_operation, name="evaluation_operation"),
