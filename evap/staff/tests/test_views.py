@@ -2009,7 +2009,7 @@ class TestEvaluationExamCreation(WebTestStaffMode):
 
     def test_exam_evaluation_for_already_existing_exam_evaluation(self):
         baker.make(Evaluation, course=self.course, name_en="Exam", name_de="Klausur")
-        self.assertTrue(self.evaluation.has_exam)
+        self.assertTrue(self.evaluation.has_exam_evaluation)
         with assert_no_database_modifications():
             self.app.post(self.url, user=self.manager, status=400, params=self.params)
 
