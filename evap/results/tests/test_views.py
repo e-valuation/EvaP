@@ -497,17 +497,27 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         page_with_ratings_general_get_parameter = self.app.get(
             self.url + "?view_general_results=ratings", user=self.manager
         )
-        self.assertEqual(page_with_ratings_general_get_parameter.context["view_general_results"], ViewGeneralResults.RATINGS)
-        self.assertEqual(page_with_ratings_general_get_parameter.context["view_contributor_results"], ViewContributorResults.FULL)
+        self.assertEqual(
+            page_with_ratings_general_get_parameter.context["view_general_results"], ViewGeneralResults.RATINGS
+        )
+        self.assertEqual(
+            page_with_ratings_general_get_parameter.context["view_contributor_results"], ViewContributorResults.FULL
+        )
 
         page_with_ratings_general_get_parameter = self.app.get(
             self.url + "?view_contributor_results=ratings", user=self.manager
         )
-        self.assertEqual(page_with_ratings_general_get_parameter.context["view_general_results"], ViewGeneralResults.FULL)
-        self.assertEqual(page_with_ratings_general_get_parameter.context["view_contributor_results"], ViewContributorResults.RATINGS)
+        self.assertEqual(
+            page_with_ratings_general_get_parameter.context["view_general_results"], ViewGeneralResults.FULL
+        )
+        self.assertEqual(
+            page_with_ratings_general_get_parameter.context["view_contributor_results"], ViewContributorResults.RATINGS
+        )
 
-        page_with_random_get_parameter = self.app.get( # raises bad request
-            self.url + "?view_general_results=josefwarhier&view_contributor_results=yannikwarhier", user=self.manager, status=400
+        page_with_random_get_parameter = self.app.get(  # raises bad request
+            self.url + "?view_general_results=josefwarhier&view_contributor_results=yannikwarhier",
+            user=self.manager,
+            status=400,
         )
 
     def test_wrong_state(self):
@@ -720,6 +730,7 @@ class TestResultsSemesterEvaluationDetailViewPrivateEvaluation(WebTest):
         # this external user participates in the evaluation and can see the results
         self.app.get(url, user=student_external, status=200)
 
+
 class TestResultsTextanswerVisibility(WebTest):
 
     fixtures = ["minimal_test_data_results"]
@@ -754,55 +765,77 @@ class TestResultsTextanswerVisibility(WebTest):
         cache_results(Evaluation.objects.get(id=1))
 
     def helper_test_general(self, user, view_general_results, textanswers_in):
-        
+
         textanswers_not_in = list(set(self.general_textanswers) - set(textanswers_in))
         for con_view in self.contributor_views:
-            page = self.app.get(f"/results/semester/1/evaluation/1?view_general_results={view_general_results.value}&view_contributor_results={con_view.value}", user=user)
+            page = self.app.get(
+                f"/results/semester/1/evaluation/1?view_general_results={view_general_results.value}&view_contributor_results={con_view.value}",
+                user=user,
+            )
 
             for answer in textanswers_in:
-                self.assertIn(answer,page)
+                self.assertIn(answer, page)
             for answer in textanswers_not_in:
-                self.assertNotIn(answer,page)
+                self.assertNotIn(answer, page)
 
     def helper_test_contributor(self, user, view_contributor_results, textanswers_in):
-        
+
         textanswers_not_in = list(set(self.contributor_textanswers) - set(textanswers_in))
         for gen_view in self.general_views:
-            page = self.app.get(f"/results/semester/1/evaluation/1?view_contributor_results={view_contributor_results.value}&view_general_results={gen_view.value}", user=user)
+            page = self.app.get(
+                f"/results/semester/1/evaluation/1?view_contributor_results={view_contributor_results.value}&view_general_results={gen_view.value}",
+                user=user,
+            )
 
             for answer in textanswers_in:
-                self.assertIn(answer,page)
+                self.assertIn(answer, page)
             for answer in textanswers_not_in:
-                self.assertNotIn(answer,page)        
+                self.assertNotIn(answer, page)
 
     def test_manager(self):
-        with run_in_staff_mode(self): # in staff mode, the manager can see everything
+        with run_in_staff_mode(self):  # in staff mode, the manager can see everything
             user = "manager@institution.example.com"
 
-            self.helper_test_general(user, ViewGeneralResults.FULL, [".general_orig_published.", ".general_additional_orig_published.", ".general_changed_published."])
+            self.helper_test_general(
+                user,
+                ViewGeneralResults.FULL,
+                [".general_orig_published.", ".general_additional_orig_published.", ".general_changed_published."],
+            )
             self.helper_test_general(user, ViewGeneralResults.RATINGS, [])
 
-            self.helper_test_contributor(user, ViewContributorResults.FULL, [".contributor_orig_published.", ".contributor_orig_private.", ".responsible_contributor_orig_published.", ".responsible_contributor_changed_published.", ".responsible_contributor_orig_private.", ".responsible_contributor_additional_orig_published."])
+            self.helper_test_contributor(
+                user,
+                ViewContributorResults.FULL,
+                [
+                    ".contributor_orig_published.",
+                    ".contributor_orig_private.",
+                    ".responsible_contributor_orig_published.",
+                    ".responsible_contributor_changed_published.",
+                    ".responsible_contributor_orig_private.",
+                    ".responsible_contributor_additional_orig_published.",
+                ],
+            )
             self.helper_test_contributor(user, ViewContributorResults.RATINGS, [])
             self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [])
-        
+
         user = "manager@institution.example.com"
-        
+
         self.helper_test_general(user, ViewGeneralResults.FULL, [])
         self.helper_test_general(user, ViewGeneralResults.RATINGS, [])
 
         self.helper_test_contributor(user, ViewContributorResults.FULL, [])
         self.helper_test_contributor(user, ViewContributorResults.RATINGS, [])
         self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [])
-        
-    def test_manager_active_buttons(self): # this whether the filter buttons are active or not, this is just a little helper, an elaborate test for this will be implemented
+
+    def test_manager_active_buttons(
+        self,
+    ):  # this whether the filter buttons are active or not, this is just a little helper, an elaborate test for this will be implemented
         with run_in_staff_mode(self):
             user = "manager@institution.example.com"
 
             page = self.app.get("/results/semester/1/evaluation/1", user=user)
             self.assertNotIn("btn btn-sm btn-light  disabled", page)
 
-        
     def test_student(self):
         user = "student@institution.example.com"
 
@@ -813,12 +846,19 @@ class TestResultsTextanswerVisibility(WebTest):
         self.helper_test_contributor(user, ViewContributorResults.RATINGS, [])
         self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [])
 
-
     def test_responsible(self):
-        
+
         user = "responsible@institution.example.com"
-        
-        self.helper_test_general(user, ViewGeneralResults.FULL, [".general_orig_published.", ".general_changed_published.", ".general_additional_orig_published.",])
+
+        self.helper_test_general(
+            user,
+            ViewGeneralResults.FULL,
+            [
+                ".general_orig_published.",
+                ".general_changed_published.",
+                ".general_additional_orig_published.",
+            ],
+        )
         self.helper_test_general(user, ViewGeneralResults.RATINGS, [])
 
         self.helper_test_contributor(user, ViewContributorResults.FULL, [])
@@ -829,17 +869,51 @@ class TestResultsTextanswerVisibility(WebTest):
 
         user = "responsible_contributor@institution.example.com"
 
-        self.helper_test_general(user, ViewGeneralResults.FULL, [".general_orig_published.", ".general_changed_published.", ".general_additional_orig_published.",])
+        self.helper_test_general(
+            user,
+            ViewGeneralResults.FULL,
+            [
+                ".general_orig_published.",
+                ".general_changed_published.",
+                ".general_additional_orig_published.",
+            ],
+        )
         self.helper_test_general(user, ViewGeneralResults.RATINGS, [])
 
-        self.helper_test_contributor(user, ViewContributorResults.FULL, [".responsible_contributor_orig_published.", ".responsible_contributor_changed_published.", ".responsible_contributor_orig_private.", ".responsible_contributor_additional_orig_published.",])
+        self.helper_test_contributor(
+            user,
+            ViewContributorResults.FULL,
+            [
+                ".responsible_contributor_orig_published.",
+                ".responsible_contributor_changed_published.",
+                ".responsible_contributor_orig_private.",
+                ".responsible_contributor_additional_orig_published.",
+            ],
+        )
         self.helper_test_contributor(user, ViewContributorResults.RATINGS, [])
-        self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [".responsible_contributor_orig_published.", ".responsible_contributor_changed_published.", ".responsible_contributor_orig_private.", ".responsible_contributor_additional_orig_published.",])
+        self.helper_test_contributor(
+            user,
+            ViewContributorResults.PERSONAL,
+            [
+                ".responsible_contributor_orig_published.",
+                ".responsible_contributor_changed_published.",
+                ".responsible_contributor_orig_private.",
+                ".responsible_contributor_additional_orig_published.",
+            ],
+        )
 
     def test_contributor_general_textanswers(self):
         user = "contributor_general_textanswers@institution.example.com"
 
-        self.helper_test_general(user, ViewGeneralResults.FULL, [".general_orig_published.", ".general_additional_orig_published.", ".general_changed_published.",])
+        self.helper_test_general(
+            user,
+            ViewGeneralResults.FULL,
+            [
+                ".general_orig_published.",
+                ".general_additional_orig_published.",
+                ".general_changed_published.",
+            ],
+        )
         self.helper_test_general(user, ViewGeneralResults.RATINGS, [])
 
         self.helper_test_contributor(user, ViewContributorResults.FULL, [])
@@ -852,9 +926,13 @@ class TestResultsTextanswerVisibility(WebTest):
         self.helper_test_general(user, ViewGeneralResults.FULL, [])
         self.helper_test_general(user, ViewGeneralResults.RATINGS, [])
 
-        self.helper_test_contributor(user, ViewContributorResults.FULL, [".contributor_orig_published.", ".contributor_orig_private."])
+        self.helper_test_contributor(
+            user, ViewContributorResults.FULL, [".contributor_orig_published.", ".contributor_orig_private."]
+        )
         self.helper_test_contributor(user, ViewContributorResults.RATINGS, [])
-        self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [".contributor_orig_published.", ".contributor_orig_private."])
+        self.helper_test_contributor(
+            user, ViewContributorResults.PERSONAL, [".contributor_orig_published.", ".contributor_orig_private."]
+        )
 
 
 class TestResultsOtherContributorsListOnExportView(WebTest):

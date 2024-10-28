@@ -11,25 +11,17 @@ from django.template.loader import get_template
 from django.utils import translation
 
 from evap.evaluation.auth import internal_required
-
-from evap.evaluation.models import Course, CourseType, Evaluation, Program, Semester, UserProfile
-from evap.evaluation.tools import AttachmentResponse
-
-from evap.evaluation.models import Contribution, Course, CourseType, Program, Evaluation, Semester, UserProfile
-from evap.evaluation.models import Contribution, Course, CourseType, Program, Evaluation, Semester, TextAnswer, UserProfile
 from evap.evaluation.models import (
     Contribution,
     Course,
     CourseType,
-    Program,
     Evaluation,
+    Program,
     Semester,
     TextAnswer,
     UserProfile,
 )
 from evap.evaluation.tools import AttachmentResponse
-from evap.tools import unordered_groupby
-
 from evap.results.exporters import TextAnswerExporter
 from evap.results.tools import (
     STATES_WITH_RESULT_TEMPLATE_CACHING,
@@ -250,7 +242,9 @@ def evaluation_detail(request, semester_id, evaluation_id):
         "contributors_with_omitted_results": contributors_with_omitted_results,
         "contributor_id": contributor_id,
         "can_see_general_textanswers": (
-            Contribution.objects.get(contributor=view_as_user, evaluation=evaluation).textanswer_visibility  # hier nochmal mit janno reden, denn nicht nur leute, die direkt contributor in einer eval waren, sollen diese antworten sehen können (responsible, manager, reviwer,...)
+            Contribution.objects.get(
+                contributor=view_as_user, evaluation=evaluation
+            ).textanswer_visibility  # hier nochmal mit janno reden, denn nicht nur leute, die direkt contributor in einer eval waren, sollen diese antworten sehen können (responsible, manager, reviwer,...)
             == Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
             if evaluation.is_user_contributor(view_as_user)
             else False
