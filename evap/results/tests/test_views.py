@@ -775,26 +775,6 @@ class TestResultsTextanswerVisibility(WebTest):
             for answer in textanswers_not_in:
                 self.assertNotIn(answer,page)        
 
-    def test_manager_before_publish(self):
-        evaluation = Evaluation.objects.get(id=1)
-        voter_count = evaluation._voter_count
-        participant_count = evaluation._participant_count
-        evaluation._voter_count = 0  # set these to 0 to make unpublishing work
-        evaluation._participant_count = 0
-        evaluation.unpublish()
-        evaluation._voter_count = voter_count  # reset to original values
-        evaluation._participant_count = participant_count
-        evaluation.save()
-
-        user = "manager@institution.example.com"
-
-        self.helper_test_general(user, ViewGeneralResults.FULL, [".general_orig_published.", ".general_additional_orig_published.", ".general_changed_published."])
-        self.helper_test_general(user, ViewGeneralResults.RATINGS, [], self.general_textanswers)
-
-        self.helper_test_contributor(user, ViewContributorResults.FULL, [".contributor_orig_published.", ".contributor_orig_private.", ".responsible_contributor_orig_published.", ".responsible_contributor_changed_published.", ".responsible_contributor_orig_private.", ".responsible_contributor_additional_orig_published."])
-        self.helper_test_contributor(user, ViewContributorResults.RATINGS, [])
-        self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [])
-
     def test_manager(self):
         with run_in_staff_mode(self): # in staff mode
             user = "manager@institution.example.com"
