@@ -1,3 +1,4 @@
 #!/bin/sh
-SCRIPTPATH="$(realpath "$(dirname "$0")"/.. )"
-exec nix develop "$SCRIPTPATH" --command python "$@"
+SCRIPTPATH=$(dirname "$0")
+FLAKEPATH=$(realpath "$SCRIPTPATH/..")
+exec nix develop "$FLAKEPATH" --command python "$@"
