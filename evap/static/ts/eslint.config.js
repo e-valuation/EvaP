@@ -25,18 +25,6 @@ export default tseslint.config(
             "@typescript-eslint/restrict-template-expressions": ["error", { allowNumber: true }],
             "@typescript-eslint/no-confusing-void-expression": ["error", { ignoreArrowShorthand: true }],
             "no-else-return": "error",
-            // not fixed in this PR
-            "@typescript-eslint/no-misused-promises": "off",
-            "@typescript-eslint/no-namespace": "off",
-            "@typescript-eslint/no-non-null-assertion": "off",
-            "@typescript-eslint/no-unsafe-call": "off",
-            "@typescript-eslint/no-unsafe-member-access": "off",
-            "@typescript-eslint/no-unsafe-argument": "off",
-            "@typescript-eslint/no-unsafe-assignment": "off",
-            "@typescript-eslint/no-explicit-any": "off",
-            "@typescript-eslint/no-empty-function": "off",
-            "@typescript-eslint/no-unnecessary-type-parameters": "off",
-            // fixed in this PR
             "@typescript-eslint/no-unused-vars": [
                 "warn",
                 {
@@ -49,6 +37,17 @@ export default tseslint.config(
                     ignoreRestSiblings: true,
                 },
             ],
+            "@typescript-eslint/no-empty-function": "off",
+            "@typescript-eslint/no-explicit-any": "off",
+            "@typescript-eslint/no-unnecessary-type-parameters": "off",
+            "@typescript-eslint/no-unnecessary-condition": "warn",
+            "@typescript-eslint/no-misused-promises": "warn",
+            "@typescript-eslint/no-namespace": "warn",
+            "@typescript-eslint/no-non-null-assertion": "warn",
+            "@typescript-eslint/no-unsafe-call": "warn",
+            "@typescript-eslint/no-unsafe-member-access": "warn",
+            "@typescript-eslint/no-unsafe-argument": "warn",
+            "@typescript-eslint/no-unsafe-assignment": "warn",
         },
     },
 );
