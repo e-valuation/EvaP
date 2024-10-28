@@ -248,10 +248,15 @@ def render_vote_page(request: HttpRequest, evaluation: Evaluation, preview: bool
     )
 
     if show_dropout_questionnaire:
-        dropout_questionnaire = Questionnaire.objects.active_dropout_questionnaire()
+        dropout_questionnaire = Questionnaire.objects.active_dropout_questionnaire().first()
         evaluation_form_group_top.insert(0, QuestionnaireVotingForm(request.POST or None,
                                                                     contribution=evaluation.general_contribution,
                                                                     questionnaire=dropout_questionnaire))
+        # TODO@felix: also set contributor questionnaires to default
+        for form in evaluation_form_group_top + evaluation_form_group_bottom:
+            for (name, field) in form.fields.items():
+                if hasattr(field, 'choices'):
+                    field.value = field.choices[-1]  # TODO@Felix: better way to do this?
 
     template_data = {
         "contributor_errors_exist": contributor_errors_exist,
@@ -342,6 +347,7 @@ def vote(request: HttpRequest, evaluation_id: int):  # noqa: PLR0912
 
     messages.success(request, _("Your vote was recorded."))
     return HttpResponse(SUCCESS_MAGIC_STRING)
+
 
 @participant_required
 def drop(request: HttpRequest, evaluation_id: int) -> HttpResponse:
