@@ -469,12 +469,15 @@ class Evaluation(LoggedModel):
     )
 
     class TextAnswerReviewState(Enum):
-        do_not_call_in_templates = True  # pylint: disable=invalid-name
         NO_TEXTANSWERS = auto()
         NO_REVIEW_NEEDED = auto()
         REVIEW_NEEDED = auto()
         REVIEW_URGENT = auto()
         REVIEWED = auto()
+
+        @property
+        def do_not_call_in_templates(self):
+            return True
 
     class Meta:
         unique_together = [
