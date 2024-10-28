@@ -776,7 +776,7 @@ class TestResultsTextanswerVisibility(WebTest):
                 self.assertNotIn(answer,page)        
 
     def test_manager(self):
-        with run_in_staff_mode(self): # in staff mode
+        with run_in_staff_mode(self): # in staff mode, the manager can see everything
             user = "manager@institution.example.com"
 
             self.helper_test_general(user, ViewGeneralResults.FULL, [".general_orig_published.", ".general_additional_orig_published.", ".general_changed_published."])
@@ -795,7 +795,13 @@ class TestResultsTextanswerVisibility(WebTest):
         self.helper_test_contributor(user, ViewContributorResults.RATINGS, [])
         self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [])
         
-        
+    def test_manager_active_buttons(self): # this whether the filter buttons are active or not, this is just a little helper, an elaborate test for this will be implemented
+        with run_in_staff_mode(self):
+            user = "manager@institution.example.com"
+
+            page = self.app.get("/results/semester/1/evaluation/1", user=user)
+            self.assertNotIn("btn btn-sm btn-light  disabled", page)
+
         
     def test_student(self):
         user = "student@institution.example.com"
