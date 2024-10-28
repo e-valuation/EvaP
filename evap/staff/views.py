@@ -1100,7 +1100,7 @@ def create_exam_evaluation(request: HttpRequest) -> HttpResponse:
     if evaluation.is_single_result:
         raise SuspiciousOperation("Creating an exam evaluation for a single result evaluation is not allowed")
 
-    if evaluation.has_exam:
+    if evaluation.has_exam_evaluation:
         raise SuspiciousOperation("An exam evaluation already exists for this course")
     try:
         exam_date = request.POST.get("exam_date")
