@@ -258,6 +258,8 @@ def evaluation_detail(request, semester_id, evaluation_id):
         "can_see_contributor_textanswers": TextAnswer.objects.filter(
             contribution__contributor=view_as_user, contribution__evaluation=evaluation
         ).exists(),
+        "ViewContributorResults": ViewContributorResults,
+        "ViewGeneralResults": ViewGeneralResults,
     }
     return render(request, "results_evaluation_detail.html", template_data)
 

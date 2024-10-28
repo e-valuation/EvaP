@@ -38,11 +38,17 @@ GRADE_COLORS = {
 
 
 class ViewGeneralResults(Enum):
+    @property
+    def do_not_call_in_templates(self):
+        return False # ich darf das weil django kaputt is (pass geht auch :o)
     FULL = "full"
     RATINGS = "ratings"
 
 
 class ViewContributorResults(Enum):
+    @property
+    def do_not_call_in_templates(self):
+        return True
     FULL = "full"
     RATINGS = "ratings"
     PERSONAL = "personal"
