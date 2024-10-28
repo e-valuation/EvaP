@@ -250,12 +250,12 @@ def evaluation_detail(request, semester_id, evaluation_id):
         "contributors_with_omitted_results": contributors_with_omitted_results,
         "contributor_id": contributor_id,
         "can_see_general_textanswers": (
-            Contribution.objects.get(contributor=view_as_user, evaluation=evaluation).textanswer_visibility
+            Contribution.objects.get(contributor=view_as_user, evaluation=evaluation).textanswer_visibility  # hier nochmal mit janno reden, denn nicht nur leute, die direkt contributor in einer eval waren, sollen diese antworten sehen können (responsible, manager, reviwer,...)
             == Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
             if evaluation.is_user_contributor(view_as_user)
             else False
         ),
-        "can_see_contributor_textanswers": TextAnswer.objects.filter(
+        "can_see_contributor_textanswers": TextAnswer.objects.filter(  # hier nochmal mit janno reden, denn auch delegates von contributors können die ja sehen, oder auch reviewer oder manager
             contribution__contributor=view_as_user, contribution__evaluation=evaluation
         ).exists(),
         "ViewContributorResults": ViewContributorResults,
