@@ -183,7 +183,7 @@
             {% if not evaluation.has_exam %}
                 <confirmation-modal type="submit" name="evaluation_id" value="{{ evaluation.id }}" confirm-button-class="btn-primary" form="exam_creation_form_{{ evaluation.id }}">
                     <span slot="title">{% translate 'Create exam evaluation' %}</span>
-                    <span slot="action-text" id="submit_button">{% translate 'Create exam evaluation' %}</span>
+                    <span slot="action-text">{% translate 'Create exam evaluation' %}</span>
                     <span slot="question">
                         {% blocktranslate trimmed %}
                             Create an exam evaluation based on this evaluation. This will copy all the participants and contributors from the original evaluation. It will set the weight of the original evaluation to 9 and its end date will be set to the day before the exam.
@@ -192,7 +192,7 @@
                     <div slot="extra-inputs">
                         <label>
                             {% translate 'Exam Date:' %}
-                            <input type="date" name="exam_date" data-earliest-legal-date="{{ evaluation.get_earliest_legal_exam_date }}" data-earliest-date-reason="{% translate 'The end date of the main evaluation would be before its start date.' %}" class="form-control" required form="exam_creation_form_{{ evaluation.id }}"/>
+                            <input type="date" name="exam_date" data-earliest-possible-exam-date="{{ evaluation.earliest_possible_exam_date }}" data-earliest-date-reason="{% translate 'The end date of the main evaluation would be before its start date.' %}" class="form-control" required form="exam_creation_form_{{ evaluation.id }}"/>
                         </label>
                     </div>
 

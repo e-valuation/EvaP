@@ -1095,7 +1095,7 @@ def course_copy(request, course_id):
 
 @require_POST
 @manager_required
-def create_exam_evaluation(request):
+def create_exam_evaluation(request: HttpRequest) -> HttpResponse:
     evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
     if evaluation.is_single_result:
         raise SuspiciousOperation("Creating an exam evaluation for a single result evaluation is not allowed")
@@ -1108,7 +1108,7 @@ def create_exam_evaluation(request):
     except TypeError:
         return HttpResponseBadRequest("Exam date missing or invalid.")
 
-    if exam_date < evaluation.vote_start_datetime.date() + timedelta(days=1):
+    if exam_date < evaluation.earliest_possible_exam_date:
         raise SuspiciousOperation(
             "The end date of the main evaluation would be before its start date. No exam evaluation was created."
         )

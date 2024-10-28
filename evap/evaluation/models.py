@@ -471,11 +471,11 @@ class Evaluation(LoggedModel):
     )
 
     @property
-    def has_exam(self):
+    def has_exam_evaluation(self):
         return self.course.evaluations.filter(name_de="Klausur", name_en="Exam").exists()
 
     @property
-    def get_earliest_legal_exam_date(self):
+    def earliest_possible_exam_date(self):
         return self.vote_start_datetime.date() + timedelta(days=1)
 
     @transaction.atomic
