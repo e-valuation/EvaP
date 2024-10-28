@@ -18,9 +18,8 @@ from evap.evaluation.models import (
 )
 from evap.evaluation.tests.tools import TestCase, make_rating_answer_counters
 from evap.results.tools import (
-    ViewGeneralResults,
     ViewContributorResults,
-
+    ViewGeneralResults,
     cache_results,
     calculate_average_course_distribution,
     calculate_average_distribution,
@@ -565,8 +564,12 @@ class TestTextAnswerVisibilityInfo(TestCase):
         for user in UserProfile.objects.all():
             represented_users = [user] + list(user.represented_users.all())
             for i, textanswer in enumerate(textanswers):
-                if can_textanswer_be_seen_by(user, represented_users, textanswer, ViewGeneralResults.FULL, ViewContributorResults.FULL):
-                    if can_textanswer_be_seen_by(user, [user], textanswer, ViewGeneralResults.FULL, ViewContributorResults.FULL):
+                if can_textanswer_be_seen_by(
+                    user, represented_users, textanswer, ViewGeneralResults.FULL, ViewContributorResults.FULL
+                ):
+                    if can_textanswer_be_seen_by(
+                        user, [user], textanswer, ViewGeneralResults.FULL, ViewContributorResults.FULL
+                    ):
                         users_seeing_contribution[i][0].add(user)
                     else:
                         users_seeing_contribution[i][1].add(user)
