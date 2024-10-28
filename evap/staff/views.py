@@ -1540,7 +1540,7 @@ def evaluation_person_management(request, evaluation_id: int):
                     save_import_file(excel_file, request.user.id, import_type)
         else:
             successfully_processed = import_or_copy_participants(
-                request, "-replace-" in operation, import_action, import_type, evaluation, copy_form  # type: ignore[arg-type]  # fixed at mypy master with https://www.github.com/python/mypy/pull/17427
+                request, "-replace-" in operation, import_action, import_type, evaluation, copy_form
             )
             if successfully_processed:
                 return redirect("staff:semester_view", evaluation.course.semester.pk)
