@@ -393,7 +393,7 @@ def remove_inactive_participations(user, test_run=False):
             )
         else:
             for evaluation in evaluations:
-                    evaluation.participants.remove(user)
+                evaluation.participants.remove(user)
             remove_messages.append(
                 _("Removed {} from {} participation(s) due to inactivity.").format(user.full_name, len(evaluations))
             )
