@@ -14,6 +14,7 @@ TAGS
 
 # python files
 *.py[cod]
+dist/
 
 # gettext binaries
 *.mo
