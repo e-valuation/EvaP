@@ -4,14 +4,15 @@ from collections.abc import Sequence
 from contextlib import contextmanager
 from datetime import timedelta
 
+import django.test
+import django_webtest
 import webtest
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.http.request import QueryDict
 from django.test.utils import CaptureQueriesContext
-from django.utils import timezone
-from django_webtest import WebTest
+from django.utils import timezone, translation
 from model_bakery import baker
 
 from evap.evaluation.models import (
@@ -26,6 +27,20 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
+
+
+class ResetLanguageOnTearDownMixin:
+    def tearDown(self):
+        translation.activate("en")  # Django by default does not "reset" this, causing test interdependency
+        super().tearDown()
+
+
+class TestCase(ResetLanguageOnTearDownMixin, django.test.TestCase):
+    pass
+
+
+class WebTest(ResetLanguageOnTearDownMixin, django_webtest.WebTest):
+    pass
 
 
 def to_querydict(dictionary):
