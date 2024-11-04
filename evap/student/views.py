@@ -195,7 +195,7 @@ def index(request):
 
 
 def get_vote_page_form_groups(
-    request: HttpRequest, evaluation: Evaluation, preview: bool
+    request: HttpRequest, evaluation: Evaluation, preview: bool, show_dropout_questionnaire=False
 ) -> OrderedDict[Contribution, list[QuestionnaireVotingForm]]:
     contributions_to_vote_on = evaluation.contributions.all()
     # prevent a user from voting on themselves
@@ -208,7 +208,19 @@ def get_vote_page_form_groups(
         if not questionnaires.exists():
             continue
         form_groups[contribution] = [
-            QuestionnaireVotingForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
+            QuestionnaireVotingForm(
+                request.POST or None,
+                contribution=contribution,
+                questionnaire=questionnaire,
+                initial=(
+                    {
+                        answer_field_id(contribution, questionnaire, question): NO_ANSWER
+                        for question in questionnaire.rating_questions
+                    }
+                    if show_dropout_questionnaire
+                    else None
+                ),
+            )
             for questionnaire in questionnaires
         ]
     return form_groups
@@ -221,8 +233,9 @@ def render_vote_page(
     for_rendering_in_modal: bool = False,
     show_dropout_questionnaire: bool = False,
 ):
-    form_groups = get_vote_page_form_groups(request, evaluation, preview)
+    form_groups = get_vote_page_form_groups(request, evaluation, preview, show_dropout_questionnaire)
 
+    # TODO@Felix: why does this assert throw
     assert preview or not all(form.is_valid() for form_group in form_groups.values() for form in form_group)
 
     evaluation_form_group = form_groups.pop(evaluation.general_contribution, default=[])
@@ -264,11 +277,6 @@ def render_vote_page(
                     questionnaire=dropout_questionnaire,
                 ),
             )
-        # TODO@felix: also set contributor questionnaires to default
-        for form in evaluation_form_group_top + evaluation_form_group_bottom:
-            for name, field in form.fields.items():
-                if hasattr(field, "choices"):
-                    field.value = field.choices[-1]  # TODO@Felix: tried doing this with NO_ANSWER, but that didnt work
 
     template_data = {
         "contributor_errors_exist": contributor_errors_exist,
