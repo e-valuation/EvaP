@@ -223,13 +223,10 @@ class RemoveUserFromRepresentedAndCCingUsersTest(TestCase):
 class RemoveUserDueToInactivity(TestCase):
     def test_remove_user_due_to_inactivity(self):
         inactive_user = baker.make(UserProfile, last_name="Inactive User")
-        active_user = baker.make(UserProfile, last_name="Active User")
-
         inactive_evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED,
                                          vote_start_datetime=datetime.today() - timedelta(days=settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS * 30),
                                          vote_end_date=datetime.today() - timedelta(days=settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS * 30),
                                          participants=[inactive_user])
-        active_evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED, participants=[active_user])
 
         semester = inactive_evaluation.course.semester
         semester.archive()
@@ -238,9 +235,14 @@ class RemoveUserDueToInactivity(TestCase):
         self.assertTrue(inactive_user.can_be_marked_inactive_by_manager)
         self.assertEqual(len(messages), 1)
 
-        messages2 = remove_inactive_participations(active_user)
+    def test_do_not_remove_user_due_to_inactivity(self):
+        active_user = baker.make(UserProfile, last_name="Active User")
+
+        baker.make(Evaluation, state=Evaluation.State.PUBLISHED, participants=[active_user])
+
+        messages = remove_inactive_participations(active_user)
         self.assertFalse(active_user.can_be_marked_inactive_by_manager)
-        self.assertEqual(len(messages2), 0)
+        self.assertEqual(len(messages), 0)
 
 
 class UserEditLinkTest(TestCase):
