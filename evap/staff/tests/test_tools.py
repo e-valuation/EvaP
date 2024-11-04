@@ -250,6 +250,23 @@ class RemoveUserDueToInactivity(TestCase):
         self.assertFalse(active_user.can_be_marked_inactive_by_manager)
         self.assertEqual(len(messages), 0)
 
+    def test_do_nothing_if_test_run(self):
+        inactive_user = baker.make(UserProfile, last_name="Test Run User")
+        inactive_evaluation = baker.make(
+            Evaluation,
+            state=Evaluation.State.PUBLISHED,
+            vote_start_datetime=datetime.today()
+            - timedelta(days=settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS + 1),
+            vote_end_date=datetime.today() - timedelta(days=settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS + 1),
+            participants=[inactive_user],
+        )
+
+        inactive_evaluation.course.semester.archive()
+
+        messages = remove_inactive_participations(inactive_user, test_run=True)
+        self.assertTrue(inactive_user.can_be_marked_inactive_by_manager)
+        self.assertEqual(len(messages), 1)
+
 
 class UserEditLinkTest(TestCase):
     def test_user_edit_link(self):
