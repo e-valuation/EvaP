@@ -1829,7 +1829,9 @@ def questionnaire_index(request):
     prefetch_list = ("questions", "contributions__evaluation")
     general_questionnaires = Questionnaire.objects.general_questionnaires().prefetch_related(*prefetch_list)
     contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().prefetch_related(*prefetch_list)
-    dropout_questionnaires = Questionnaire.objects.dropout_questionnaires().prefetch_related(*prefetch_list) # TODO@Felix: is prefetch related needed?
+    dropout_questionnaires = Questionnaire.objects.dropout_questionnaires().prefetch_related(
+        *prefetch_list
+    )  # TODO@Felix: is prefetch related needed?
 
     if filter_questionnaires:
         general_questionnaires = general_questionnaires.exclude(visibility=Questionnaire.Visibility.HIDDEN)
@@ -2095,6 +2097,7 @@ def questionnaire_set_locked(request):
     questionnaire.is_locked = is_locked
     questionnaire.save()
     return HttpResponse()
+
 
 @require_POST
 @manager_required

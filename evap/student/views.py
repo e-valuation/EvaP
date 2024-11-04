@@ -20,10 +20,10 @@ from evap.evaluation.models import (
     NO_ANSWER,
     Contribution,
     Evaluation,
+    Questionnaire,
     RatingAnswerCounter,
     Semester,
     TextAnswer,
-    Questionnaire,
     VoteTimestamp,
 )
 from evap.results.tools import (
@@ -214,7 +214,13 @@ def get_vote_page_form_groups(
     return form_groups
 
 
-def render_vote_page(request: HttpRequest, evaluation: Evaluation, preview: bool, for_rendering_in_modal: bool = False, show_dropout_questionnaire: bool = False):
+def render_vote_page(
+    request: HttpRequest,
+    evaluation: Evaluation,
+    preview: bool,
+    for_rendering_in_modal: bool = False,
+    show_dropout_questionnaire: bool = False,
+):
     form_groups = get_vote_page_form_groups(request, evaluation, preview)
 
     assert preview or not all(form.is_valid() for form_group in form_groups.values() for form in form_group)
@@ -249,14 +255,20 @@ def render_vote_page(request: HttpRequest, evaluation: Evaluation, preview: bool
 
     if show_dropout_questionnaire:
         dropout_questionnaire = Questionnaire.objects.active_dropout_questionnaire().first()
-        evaluation_form_group_top.insert(0, QuestionnaireVotingForm(request.POST or None,
-                                                                    contribution=evaluation.general_contribution,
-                                                                    questionnaire=dropout_questionnaire))
+        if dropout_questionnaire:
+            evaluation_form_group_top.insert(
+                0,
+                QuestionnaireVotingForm(
+                    request.POST or None,
+                    contribution=evaluation.general_contribution,
+                    questionnaire=dropout_questionnaire,
+                ),
+            )
         # TODO@felix: also set contributor questionnaires to default
         for form in evaluation_form_group_top + evaluation_form_group_bottom:
-            for (name, field) in form.fields.items():
-                if hasattr(field, 'choices'):
-                    field.value = field.choices[-1]  # TODO@Felix: better way to do this?
+            for name, field in form.fields.items():
+                if hasattr(field, "choices"):
+                    field.value = field.choices[-1]  # TODO@Felix: tried doing this with NO_ANSWER, but that didnt work
 
     template_data = {
         "contributor_errors_exist": contributor_errors_exist,
@@ -336,9 +348,9 @@ def vote(request: HttpRequest, evaluation_id: int):  # noqa: PLR0912
         if not evaluation.can_publish_text_results:
             # enable text result publishing if first user confirmed that publishing is okay or second user voted
             if (
-                    request.POST.get("text_results_publish_confirmation_top") == "on"
-                    or request.POST.get("text_results_publish_confirmation_bottom") == "on"
-                    or evaluation.voters.count() >= 2
+                request.POST.get("text_results_publish_confirmation_top") == "on"
+                or request.POST.get("text_results_publish_confirmation_bottom") == "on"
+                or evaluation.voters.count() >= 2
             ):
                 evaluation.can_publish_text_results = True
                 evaluation.save()

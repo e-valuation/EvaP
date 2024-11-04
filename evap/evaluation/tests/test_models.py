@@ -463,12 +463,12 @@ class TestEvaluations(WebTest):
         )
 
     def assert_textanswer_review_state(
-            self,
-            evaluation,
-            expected_default_value,
-            expected_value_with_gets_no_grade_documents,
-            expected_value_with_wait_for_grade_upload_before_publishing,
-            expected_value_after_grade_upload,
+        self,
+        evaluation,
+        expected_default_value,
+        expected_value_with_gets_no_grade_documents,
+        expected_value_with_wait_for_grade_upload_before_publishing,
+        expected_value_after_grade_upload,
     ):
         self.assertEqual(evaluation.textanswer_review_state, expected_default_value)
 
