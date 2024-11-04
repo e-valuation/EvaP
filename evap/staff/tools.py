@@ -139,7 +139,6 @@ def bulk_update_users(request, user_file_content, test_run):  # noqa: PLR0912
         elif user.is_active and user.can_be_marked_inactive_by_manager:
             users_to_mark_inactive.append(user)
 
-
     messages.info(
         request,
         _(
@@ -384,12 +383,16 @@ def remove_inactive_participations(user, test_run=False):
     remove_messages = []
     evaluations = []
     if user.is_active and user.can_be_marked_inactive_by_manager:
-        evaluations = user.evaluations_participating_in.filter(state=Evaluation.State.PUBLISHED,
-                                                 vote_end_date__lt=datetime.today() - timedelta(days=settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS))
+        evaluations = user.evaluations_participating_in.filter(
+            state=Evaluation.State.PUBLISHED,
+            vote_end_date__lt=datetime.today() - timedelta(days=settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS),
+        )
     if len(evaluations) > 0:
         if test_run:
             remove_messages.append(
-                _("{} will be removed from {} participation(s) due to inactivity.").format(user.full_name, len(evaluations))
+                _("{} will be removed from {} participation(s) due to inactivity.").format(
+                    user.full_name, len(evaluations)
+                )
             )
         else:
             for evaluation in evaluations:
@@ -398,7 +401,6 @@ def remove_inactive_participations(user, test_run=False):
                 _("Removed {} from {} participation(s) due to inactivity.").format(user.full_name, len(evaluations))
             )
     return remove_messages
-
 
 
 def user_edit_link(user_id):

@@ -24,7 +24,8 @@ from evap.staff.tools import (
     conditional_escape,
     merge_users,
     remove_user_from_represented_and_ccing_users,
-    user_edit_link, remove_inactive_participations,
+    user_edit_link,
+    remove_inactive_participations,
 )
 from evap.tools import assert_not_none
 from tools.enrollment_preprocessor import run_preprocessor
@@ -220,13 +221,18 @@ class RemoveUserFromRepresentedAndCCingUsersTest(TestCase):
         self.assertEqual([set(user2.delegates.all()), set(user2.cc_users.all())], [{delete_user}, {delete_user}])
         self.assertEqual(len(messages), 4)
 
+
 class RemoveUserDueToInactivity(TestCase):
     def test_remove_user_due_to_inactivity(self):
         inactive_user = baker.make(UserProfile, last_name="Inactive User")
-        inactive_evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED,
-                                         vote_start_datetime=datetime.today() - timedelta(days=settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS+1),
-                                         vote_end_date=datetime.today() - timedelta(days=settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS+1),
-                                         participants=[inactive_user])
+        inactive_evaluation = baker.make(
+            Evaluation,
+            state=Evaluation.State.PUBLISHED,
+            vote_start_datetime=datetime.today()
+            - timedelta(days=settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS + 1),
+            vote_end_date=datetime.today() - timedelta(days=settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS + 1),
+            participants=[inactive_user],
+        )
 
         semester = inactive_evaluation.course.semester
         semester.archive()
