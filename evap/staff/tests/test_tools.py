@@ -10,6 +10,7 @@ from django_webtest import WebTest
 from model_bakery import baker
 from openpyxl import load_workbook
 
+from evap import settings
 from evap.evaluation.models import Contribution, Course, Evaluation, UserProfile
 from evap.evaluation.tests.tools import assert_no_database_modifications
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption
@@ -221,17 +222,23 @@ class RemoveUserFromRepresentedAndCCingUsersTest(TestCase):
 
 class RemoveUserDueToInactivity(TestCase):
     def test_remove_user_due_to_inactivity(self):
-        inactive_user = baker.make(UserProfile)
-        inactive_user2 = baker.make(UserProfile)
+        inactive_user = baker.make(UserProfile, last_name="Inactive User")
+        active_user = baker.make(UserProfile, last_name="Active User")
 
-        evaluation1 = baker.make(Evaluation, state=Evaluation.State.PUBLISHED, vote_end_date=datetime.today() + timedelta(days=(18+1)*30), participants=[inactive_user, inactive_user2])
-        evaluation2 = baker.make(Evaluation, state=Evaluation.State.PUBLISHED, vote_end_date=datetime.today() + timedelta(days=(18-1)*30), participants=[inactive_user, inactive_user2])
+        inactive_evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED,
+                                         vote_start_datetime=datetime.today() - timedelta(days=(settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS+1)*30),
+                                         vote_end_date=datetime.today() - timedelta(days=(settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS+1)*30),
+                                         participants=[inactive_user])
 
+        semester = inactive_evaluation.course.semester
+        semester.archive()
 
-        messages = remove_inactive_participations(inactive_user, evaluation1)
+        messages = remove_inactive_participations(inactive_user)
+        self.assertTrue(inactive_user.can_be_marked_inactive_by_manager)
         self.assertEqual(len(messages), 1)
 
-        messages2 = remove_inactive_participations(inactive_user, evaluation2)
+        messages2 = remove_inactive_participations(active_user)
+        self.assertFalse(active_user.can_be_marked_inactive_by_manager)
         self.assertEqual(len(messages2), 0)
 
 
