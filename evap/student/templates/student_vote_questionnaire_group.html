@@ -59,7 +59,7 @@
                             <div class="col-answer col-lg-8 col-xl-7 my-auto d-flex">
                                 <div class="vote-inputs tab-row {{ field.field.widget.attrs.choices.css_class }} btn-group" data-bs-toggle="buttons">
                                 {% for choice, color in field|zip:field.field.widget.attrs.choices.colors %}
-                                    <input id="{{ choice.id_for_label }}" class="tab-selectable num-selectable btn-check" name="{{ choice.data.name }}" type="radio" value="{{ choice.data.value }}" autocomplete="off"{% if field.field.value.0 == choice.data.value %} checked="checked"{% endif %}{% if preview %} disabled{% endif %}/>
+                                    <input id="{{ choice.id_for_label }}" class="tab-selectable num-selectable btn-check" name="{{ choice.data.name }}" type="radio" value="{{ choice.data.value }}" autocomplete="off"{% if field.initial == choice.data.value %} checked="checked"{% endif %}{% if preview %} disabled{% endif %}/>
                                     <label for="{{ choice.id_for_label }}" class="btn btn-sm btn-light vote-btn vote-btn-{{ color }} d-flex{% if field.value == choice.data.value %} active{% endif %}{% if field.errors %} choice-error{% endif %}">
                                         <span class="m-auto vote-btn-text">{{ choice.choice_label|linebreaksbr }} {{ choice.id }}</span>
                                     </label>
