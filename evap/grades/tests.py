@@ -55,6 +55,7 @@ class GradeUploadTest(WebTest):
         for course in Course.objects.all():
             for grade_document in course.grade_documents.all():
                 grade_document.file.delete()
+        super().tearDown()
 
     def helper_upload_grades(self, course, final_grades):
         upload_files = [("file", "grades.txt", b"Some content")]
