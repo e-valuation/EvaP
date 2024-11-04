@@ -132,15 +132,13 @@ def bulk_update_users(request, user_file_content, test_run):  # noqa: PLR0912
             users_to_be_updated.append((matching_user, imported_email))
 
     emails_of_non_obsolete_users = set(imported_emails) | {user.email for user, _ in users_to_be_updated}
-    deletable_users, users_to_mark_inactive, inactive_users_participation = [], [], []
+    deletable_users, users_to_mark_inactive = [], []
     for user in UserProfile.objects.exclude(email__in=emails_of_non_obsolete_users):
         if user.can_be_deleted_by_manager:
             deletable_users.append(user)
         elif user.is_active and user.can_be_marked_inactive_by_manager:
             users_to_mark_inactive.append(user)
-            evaluations = user.evaluations_participating_in.filter(state=Evaluation.State.PUBLISHED,
-                                                                   vote_end_date__lt=datetime.today() - timedelta(days=settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS))
-            inactive_users_participation.append((user, evaluations))
+
 
     messages.info(
         request,
@@ -198,10 +196,9 @@ def bulk_update_users(request, user_file_content, test_run):  # noqa: PLR0912
                 user, deletable_users + users_to_mark_inactive, test_run
             ):
                 messages.warning(request, message)
-        for user, evaluations in inactive_users_participation:
-            if len(evaluations) > 0:
-                for message in remove_inactive_participations(user, evaluations, test_run):
-                    messages.warning(request, message)
+        for user in users_to_mark_inactive:
+            for message in remove_inactive_participations(user, test_run):
+                messages.warning(request, message)
         if test_run:
             messages.info(request, _("No data was changed in this test run."))
         else:
@@ -383,18 +380,23 @@ def remove_user_from_represented_and_ccing_users(user, ignored_users=None, test_
     return remove_messages
 
 
-def remove_inactive_participations(user, evaluations, test_run=False):
+def remove_inactive_participations(user, test_run=False):
     remove_messages = []
-    if test_run:
-        remove_messages.append(
-            _("{} will be removed from {} participation(s) due to inactivity.").format(user.full_name, len(evaluations))
-        )
-    else:
-        for evaluation in evaluations:
-            evaluation.participants.remove(user)
-        remove_messages.append(
-            _("Removed {} from {} participation(s) due to inactivity.").format(user.full_name, len(evaluations))
-        )
+    evaluations = []
+    if user.is_active and user.can_be_marked_inactive_by_manager:
+        evaluations = user.evaluations_participating_in.filter(state=Evaluation.State.PUBLISHED,
+                                                 vote_end_date__lt=datetime.today() - timedelta(days=settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS))
+    if len(evaluations) > 0:
+        if test_run:
+            remove_messages.append(
+                _("{} will be removed from {} participation(s) due to inactivity.").format(user.full_name, len(evaluations))
+            )
+        else:
+            for evaluation in evaluations:
+                    evaluation.participants.remove(user)
+            remove_messages.append(
+                _("Removed {} from {} participation(s) due to inactivity.").format(user.full_name, len(evaluations))
+            )
     return remove_messages
 
 
