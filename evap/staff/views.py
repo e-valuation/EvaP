@@ -1102,11 +1102,14 @@ def create_exam_evaluation(request: HttpRequest) -> HttpResponse:
 
     if evaluation.has_exam_evaluation:
         raise SuspiciousOperation("An exam evaluation already exists for this course")
+
+    exam_date = request.POST.get("exam_date")
+    if not exam_date:
+            return HttpResponseBadRequest("Exam date missing.")
     try:
-        exam_date = request.POST.get("exam_date")
         exam_date = datetime.strptime(exam_date, "%Y-%m-%d").date()
-    except TypeError:
-        return HttpResponseBadRequest("Exam date missing or invalid.")
+    except ValueError:
+        return HttpResponseBadRequest("Exam date invalid.")
 
     if exam_date < evaluation.earliest_possible_exam_date:
         raise SuspiciousOperation(
