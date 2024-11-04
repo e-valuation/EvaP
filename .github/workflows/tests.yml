@@ -58,10 +58,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/setup_evap
+        with:
+          npm-ci: 'true'
+
       - name: Run ruff
         run: ruff check .
       - name: Run pylint
         run: pylint evap tools
+      - name: Run ESLint
+        run: |
+          cd evap/static/ts
+          npx eslint --quiet
 
   formatter:
     runs-on: ubuntu-22.04
