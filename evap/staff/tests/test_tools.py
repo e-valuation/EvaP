@@ -1,4 +1,4 @@
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 from io import BytesIO
 from itertools import cycle, repeat
 from unittest.mock import MagicMock, patch
@@ -23,9 +23,9 @@ from evap.staff.fixtures.excel_files_test_data import (
 from evap.staff.tools import (
     conditional_escape,
     merge_users,
+    remove_inactive_participations,
     remove_user_from_represented_and_ccing_users,
     user_edit_link,
-    remove_inactive_participations,
 )
 from evap.tools import assert_not_none
 from tools.enrollment_preprocessor import run_preprocessor
