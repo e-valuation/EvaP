@@ -2096,6 +2096,7 @@ def questionnaire_set_locked(request):
     questionnaire.save()
     return HttpResponse()
 
+
 @require_POST
 @manager_required
 def questionnaire_set_active_dropout(request):
