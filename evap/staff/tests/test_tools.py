@@ -226,9 +226,10 @@ class RemoveUserDueToInactivity(TestCase):
         active_user = baker.make(UserProfile, last_name="Active User")
 
         inactive_evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED,
-                                         vote_start_datetime=datetime.today() - timedelta(days=(settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS+1)*30),
-                                         vote_end_date=datetime.today() - timedelta(days=(settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS+1)*30),
+                                         vote_start_datetime=datetime.today() - timedelta(days=settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS * 30),
+                                         vote_end_date=datetime.today() - timedelta(days=settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS * 30),
                                          participants=[inactive_user])
+        active_evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED, participants=[active_user])
 
         semester = inactive_evaluation.course.semester
         semester.archive()
