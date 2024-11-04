@@ -5,15 +5,26 @@ from django.test import override_settings
 from django.urls import reverse
 from model_bakery import baker
 
-from evap.evaluation.models import Evaluation, Question, QuestionType, Semester, UserProfile
+from evap.evaluation.models import (
+    NO_ANSWER,
+    Contribution,
+    Evaluation,
+    Question,
+    Questionnaire,
+    QuestionType,
+    Semester,
+    UserProfile,
+)
 from evap.evaluation.tests.tools import (
     WebTest,
     WebTestWith200Check,
     create_evaluation_with_responsible_and_editor,
+    let_user_vote_for_evaluation,
     make_manager,
     store_ts_test_asset,
 )
 from evap.staff.tests.utils import WebTestStaffMode
+from evap.student.tools import answer_field_id
 
 
 class RenderJsTranslationCatalog(WebTest):
@@ -284,3 +295,60 @@ class TestResetEvaluation(WebTestStaffMode):
             self.reset_from_x_to_new(s, success_expected=True)
         for s in invalid_start_states:
             self.reset_from_x_to_new(s, success_expected=False)
+
+
+class TestDropoutQuestionnaire(WebTest):
+    @classmethod
+    def setUpTestData(cls) -> None:
+        cls.user = baker.make(UserProfile, email="student@institution.example.com")
+        cls.evaluation = baker.make(Evaluation, state=Evaluation.State.IN_EVALUATION, participants=[cls.user])
+
+        cls.q1 = baker.make(
+            Question,
+            type=QuestionType.POSITIVE_LIKERT,
+        )
+        cls.evaluation.general_contribution.questionnaires.add(cls.q1.questionnaire)
+
+        cls.q2 = baker.make(
+            Question,
+            type=QuestionType.NEGATIVE_YES_NO,
+        )
+        cls.contribution = baker.make(
+            Contribution,
+            contributor=baker.make(UserProfile, email="contributor@institution.example.com"),
+            questionnaires=[cls.q2.questionnaire],
+            evaluation=cls.evaluation,
+        )
+
+    def assert_NO_ANSWER_set(self, form):
+        self.assertEqual(
+            form.fields[answer_field_id(self.evaluation.general_contribution, self.q1.questionnaire, self.q1)][0].value,
+            str(NO_ANSWER),
+            f"Rating questions in the general contribution should be set to NO_ANSWER (eg. {NO_ANSWER})",
+        )
+        self.assertEqual(
+            form.fields[answer_field_id(self.contribution, self.q2.questionnaire, self.q2)][0].value,
+            str(NO_ANSWER),
+            f"Rating questions in contributor questionnaires should be set to NO_ANSWER (eg. {NO_ANSWER})",
+        )
+
+    def test_no_dropout_questionnaire_chosen_does_still_work(self):
+        self.assertFalse(Questionnaire.objects.dropout_questionnaires().exists())
+        response = self.app.get(url=reverse("student:drop", args=[self.evaluation.id]), user=self.user, status=200)
+
+        self.assert_NO_ANSWER_set(response.forms["student-vote-form"])
+
+    def test_chosing_dropout_sets_to_NO_ANSWER(self):
+        dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
+        dropout_question = baker.make(Question, type=QuestionType.TEXT, questionnaire=dropout_questionnaire)
+
+        dropout_questionnaire.set_active_dropout()
+        response = self.app.get(url=reverse("student:drop", args=[self.evaluation.id]), user=self.user, status=200)
+        form = response.forms["student-vote-form"]
+
+        self.assertIn(
+            answer_field_id(self.evaluation.general_contribution, dropout_questionnaire, dropout_question),
+            form.fields.keys(),
+            "The dropout Questionnaire should be shown",
+        )
+        self.assert_NO_ANSWER_set(form)
