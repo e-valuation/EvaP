@@ -256,7 +256,9 @@ class Questionnaire(models.Model):
         return self.type == self.Type.BOTTOM
 
     @property
-    def can_be_edited_by_manager(self): # TODO@Felix: modify this to also work for dropout questionnaires? or change code
+    def can_be_edited_by_manager(
+        self,
+    ):  # TODO@Felix: modify this to also work for dropout questionnaires? or change code
         if is_prefetched(self, "contributions"):
             if all(is_prefetched(contribution, "evaluation") for contribution in self.contributions.all()):
                 return all(
