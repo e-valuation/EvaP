@@ -6,7 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 
-from evap.evaluation.models import Contribution, Course, Degree, Evaluation, Question, Questionnaire, UserProfile
+from evap.evaluation.models import Contribution, Course, Evaluation, Program, Question, Questionnaire, UserProfile
 from evap.evaluation.tests.tools import LiveServerTest, make_manager
 
 
@@ -37,7 +37,7 @@ class StaffLiveTests(LiveServerTest):
         editor = baker.make(UserProfile)
         evaluation = baker.make(
             Evaluation,
-            course=baker.make(Course, degrees=[baker.make(Degree)], responsibles=[responsible]),
+            course=baker.make(Course, programs=[baker.make(Program)], responsibles=[responsible]),
             vote_start_datetime=datetime(2099, 1, 1, 0, 0),
             vote_end_date=date(2099, 12, 31),
         )

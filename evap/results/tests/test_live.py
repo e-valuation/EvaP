@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 
-from evap.evaluation.models import Course, CourseType, Degree, Evaluation, Semester, UserProfile
+from evap.evaluation.models import Course, CourseType, Evaluation, Program, Semester, UserProfile
 from evap.evaluation.tests.tools import LiveServerTest
 
 
@@ -33,10 +33,10 @@ class ResultsLiveTests(LiveServerTest):
             make_winter_semester(2013),
             make_summer_semester(2013),
         ]
-        degrees = {
-            "ba-a": baker.make(Degree, name_de="Bachelor A", name_en="Bachelor A"),
-            "ma-a": baker.make(Degree, name_de="Master A", name_en="Master A"),
-            "ma-b": baker.make(Degree, name_de="Master B", name_en="Master B"),
+        programs = {
+            "ba-a": baker.make(Program, name_de="Bachelor A", name_en="Bachelor A"),
+            "ma-a": baker.make(Program, name_de="Master A", name_en="Master A"),
+            "ma-b": baker.make(Program, name_de="Master B", name_en="Master B"),
         }
         course_types = {
             "l": baker.make(CourseType, name_de="Vorlesung", name_en="Lecture"),
@@ -57,14 +57,14 @@ class ResultsLiveTests(LiveServerTest):
             "kuchenbuch": make_responsible("Dr.", "Tony", "Kuchenbuch"),
         }
 
-        def make_course(name, semester, course_type_name, degree_names, responsible_names):
+        def make_course(name, semester, course_type_name, program_names, responsible_names):
             return baker.make(
                 Course,
                 semester=semesters[semester],
                 name_de=f"Veranstaltung {name}",
                 name_en=f"Course {name}",
                 type=course_types[course_type_name],
-                degrees={degrees[degree_name] for degree_name in degree_names},
+                programs={programs[program_name] for program_name in program_names},
                 responsibles={responsibles[responsible_name] for responsible_name in responsible_names},
             )
 
@@ -142,10 +142,10 @@ class ResultsLiveTests(LiveServerTest):
 
         self.assertEqual(self._get_visible_rows(), [("Course A", "ST 13")])
 
-    def test_results_filter_with_degree_checkbox(self):
+    def test_results_filter_with_program_checkbox(self):
         self._start_test()
 
-        self.selenium.find_element(By.CSS_SELECTOR, "input[name=degree][data-filter='Bachelor A']").click()
+        self.selenium.find_element(By.CSS_SELECTOR, "input[name=program][data-filter='Bachelor A']").click()
 
         self.assertEqual(
             self._get_visible_rows(),
@@ -187,20 +187,20 @@ class ResultsLiveTests(LiveServerTest):
         self._start_test()
 
         search_input = self.selenium.find_element(By.CSS_SELECTOR, "input[name=search]")
-        degree_checkbox = self.selenium.find_element(By.CSS_SELECTOR, "input[name=degree][data-filter='Bachelor A']")
+        program_checkbox = self.selenium.find_element(By.CSS_SELECTOR, "input[name=program][data-filter='Bachelor A']")
         course_type_checkbox = self.selenium.find_element(
             By.CSS_SELECTOR, "input[name=courseType][data-filter='Lecture']"
         )
         semester_checkbox = self.selenium.find_element(By.CSS_SELECTOR, "input[name=semester][data-filter='ST 14']")
 
         search_input.send_keys("Some search text")
-        degree_checkbox.click()
+        program_checkbox.click()
         course_type_checkbox.click()
         semester_checkbox.click()
 
         self.selenium.find_element(By.CSS_SELECTOR, "[data-reset=filter]").click()
 
         self.assertEqual(search_input.get_attribute("value"), "")
-        assert not degree_checkbox.is_selected()
+        assert not program_checkbox.is_selected()
         assert not course_type_checkbox.is_selected()
         assert not semester_checkbox.is_selected()
