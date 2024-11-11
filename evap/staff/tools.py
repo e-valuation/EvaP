@@ -382,7 +382,7 @@ def remove_user_from_represented_and_ccing_users(user, ignored_users=None, test_
 def remove_inactive_participations(user, test_run=False):
     remove_messages = []
     evaluations = []
-    if user.is_active and user.can_be_marked_inactive_by_manager:
+    if not user.is_active or user.can_be_marked_inactive_by_manager:
         evaluations = user.evaluations_participating_in.filter(
             state=Evaluation.State.PUBLISHED,
             vote_end_date__lt=datetime.today() - timedelta(days=settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS),
