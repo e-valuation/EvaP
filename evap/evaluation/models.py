@@ -480,6 +480,8 @@ class Evaluation(LoggedModel):
     )
     _voter_count = models.IntegerField(verbose_name=_("voter count"), blank=True, null=True, default=None)
 
+    # todo count students who dropout
+
     # when the evaluation takes place
     vote_start_datetime = models.DateTimeField(verbose_name=_("start of evaluation"))
     # Usually the property vote_end_datetime should be used instead of this field
