@@ -48,7 +48,7 @@ StateValues = namedtuple("StateValues", ("order", "icon", "filter", "description
 APPROVAL_STATES = {
     Evaluation.State.NEW: StateValues(
         0,
-        "fas fa-circle icon-yellow",
+        "fas fa-circle icon-blue",
         Evaluation.State.NEW,
         _("In preparation"),
     ),
@@ -60,7 +60,7 @@ APPROVAL_STATES = {
     ),
     Evaluation.State.EDITOR_APPROVED: StateValues(
         1,
-        "far fa-square-check icon-yellow",
+        "far fa-square-check icon-blue",
         Evaluation.State.EDITOR_APPROVED,
         _("Approved by editor, awaiting manager review"),
     ),
@@ -106,6 +106,14 @@ def percentage_one_decimal(fraction, population):
         return None
     except ZeroDivisionError:
         return None
+
+
+@register.filter
+def percentage_zero_on_error(fraction, population):
+    try:
+        return f"{int(float(fraction) / float(population) * 100):.0f}%"
+    except (ZeroDivisionError, ValueError):
+        return "0%"
 
 
 @register.filter

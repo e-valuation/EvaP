@@ -1,11 +1,11 @@
 import xlrd
 from django.core import mail
 from django.urls import reverse
-from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, UserProfile
 from evap.evaluation.tests.tools import (
+    WebTest,
     WebTestWith200Check,
     create_evaluation_with_responsible_and_editor,
     submit_with_modal,
@@ -97,7 +97,7 @@ class TestContributorEvaluationView(WebTestWith200Check):
         cls.url = f"/contributor/evaluation/{cls.evaluation.pk}"
 
     def test_wrong_state(self):
-        self.evaluation.revert_to_new()
+        self.evaluation.reset_to_new(delete_previous_answers=False)
         self.evaluation.save()
         self.app.get(self.url, user=self.responsible, status=403)
 
@@ -124,7 +124,7 @@ class TestContributorEvaluationPreviewView(WebTestWith200Check):
         cls.url = f"/contributor/evaluation/{cls.evaluation.pk}/preview"
 
     def test_wrong_state(self):
-        self.evaluation.revert_to_new()
+        self.evaluation.reset_to_new(delete_previous_answers=False)
         self.evaluation.save()
         self.app.get(self.url, user=self.responsible, status=403)
 

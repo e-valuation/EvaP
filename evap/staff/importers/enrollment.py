@@ -11,9 +11,10 @@ from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
-from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
-from evap.evaluation.tools import clean_email, ilen, unordered_groupby
+from evap.evaluation.models import Contribution, Course, CourseType, Evaluation, Program, Semester, UserProfile
+from evap.evaluation.tools import clean_email
 from evap.staff.tools import append_user_list_if_not_empty
+from evap.tools import ilen, unordered_groupby
 
 from .base import (
     Checker,
@@ -56,7 +57,7 @@ class CourseData:
 
     name_de: str
     name_en: str
-    degrees: MaybeInvalid[set[Degree]]
+    programs: MaybeInvalid[set[Program]]
     course_type: MaybeInvalid[CourseType]
     is_graded: MaybeInvalid[bool]
     responsible_email: str
@@ -83,7 +84,7 @@ class ValidCourseDataMeta(type):
 class ValidCourseData(CourseData, metaclass=ValidCourseDataMeta):
     """Typing: CourseData instance where no element is invalid_value"""
 
-    degrees: set[Degree]
+    programs: set[Program]
     course_type: CourseType
     is_graded: bool
     merge_into_course: Course | None
@@ -93,26 +94,26 @@ def all_fields_valid(course_data: CourseData) -> TypeGuard[ValidCourseData]:
     return all(getattr(course_data, field.name) != invalid_value for field in fields(CourseData))
 
 
-class DegreeImportMapper:
-    class InvalidDegreeNameError(Exception):
-        def __init__(self, *args, invalid_degree_name: str, **kwargs):
-            self.invalid_degree_name = invalid_degree_name
+class ProgramImportMapper:
+    class InvalidProgramNameError(Exception):
+        def __init__(self, *args, invalid_program_name: str, **kwargs):
+            self.invalid_program_name = invalid_program_name
             super().__init__(*args, **kwargs)
 
     def __init__(self) -> None:
-        self.degrees: dict[str, Degree] = {
-            import_name.strip().lower(): degree
-            for degree in Degree.objects.all()
-            for import_name in degree.import_names
+        self.programs: dict[str, Program] = {
+            import_name.strip().lower(): program
+            for program in Program.objects.all()
+            for import_name in program.import_names
         }
 
-    def degree_from_import_string(self, import_string: str) -> Degree:
+    def program_from_import_string(self, import_string: str) -> Program:
         trimmed_name = import_string.strip()
         lookup_key = trimmed_name.lower()
         try:
-            return self.degrees[lookup_key]
+            return self.programs[lookup_key]
         except KeyError as e:
-            raise self.InvalidDegreeNameError(invalid_degree_name=trimmed_name) from e
+            raise self.InvalidProgramNameError(invalid_program_name=trimmed_name) from e
 
 
 class CourseTypeImportMapper:
@@ -164,7 +165,7 @@ class EnrollmentInputRow(InputRow):
     location: ExcelFileLocation
 
     # Cells in the order of appearance in a row of an import file
-    evaluation_degree_name: str
+    evaluation_program_name: str
 
     student_last_name: str
     student_first_name: str
@@ -185,7 +186,7 @@ class EnrollmentInputRow(InputRow):
 class EnrollmentParsedRow:
     """
     Representation of an Enrollment Row after parsing the data into the resulting data structures.
-    For example, the course degree will already be resolved in here.  This is the data structure we want to work with.
+    For example, the course program will already be resolved in here.  This is the data structure we want to work with.
     """
 
     location: ExcelFileLocation
@@ -200,15 +201,15 @@ class EnrollmentInputRowMapper:
         self.importer_log: ImporterLog = importer_log
 
         self.course_type_mapper = CourseTypeImportMapper()
-        self.degree_mapper = DegreeImportMapper()
+        self.program_mapper = ProgramImportMapper()
         self.is_graded_mapper = IsGradedImportMapper()
 
-        self.invalid_degrees_tracker: FirstLocationAndCountTracker | None = None
+        self.invalid_programs_tracker: FirstLocationAndCountTracker | None = None
         self.invalid_course_types_tracker: FirstLocationAndCountTracker | None = None
         self.invalid_is_graded_tracker: FirstLocationAndCountTracker | None = None
 
     def map(self, rows: Iterable[EnrollmentInputRow]) -> Iterable[EnrollmentParsedRow]:
-        self.invalid_degrees_tracker = FirstLocationAndCountTracker()
+        self.invalid_programs_tracker = FirstLocationAndCountTracker()
         self.invalid_course_types_tracker = FirstLocationAndCountTracker()
         self.invalid_is_graded_tracker = FirstLocationAndCountTracker()
 
@@ -217,7 +218,7 @@ class EnrollmentInputRowMapper:
         return result_rows
 
     def _map_row(self, row: EnrollmentInputRow) -> EnrollmentParsedRow:
-        assert self.invalid_degrees_tracker is not None
+        assert self.invalid_programs_tracker is not None
         assert self.invalid_course_types_tracker is not None
         assert self.invalid_is_graded_tracker is not None
 
@@ -235,12 +236,12 @@ class EnrollmentInputRowMapper:
             email=row.responsible_email,
         )
 
-        degrees: MaybeInvalid[set[Degree]]
+        programs: MaybeInvalid[set[Program]]
         try:
-            degrees = {self.degree_mapper.degree_from_import_string(row.evaluation_degree_name)}
-        except DegreeImportMapper.InvalidDegreeNameError as e:
-            degrees = invalid_value
-            self.invalid_degrees_tracker.add_location_for_key(row.location, e.invalid_degree_name)
+            programs = {self.program_mapper.program_from_import_string(row.evaluation_program_name)}
+        except ProgramImportMapper.InvalidProgramNameError as e:
+            programs = invalid_value
+            self.invalid_programs_tracker.add_location_for_key(row.location, e.invalid_program_name)
 
         course_type: MaybeInvalid[CourseType]
         try:
@@ -259,7 +260,7 @@ class EnrollmentInputRowMapper:
         course_data = CourseData(
             name_de=row.evaluation_name_de,
             name_en=row.evaluation_name_en,
-            degrees=degrees,
+            programs=programs,
             course_type=course_type,
             is_graded=is_graded,
             responsible_email=row.responsible_email,
@@ -275,7 +276,7 @@ class EnrollmentInputRowMapper:
     def _log_aggregated_messages(self) -> None:
         assert self.invalid_course_types_tracker
         assert self.invalid_is_graded_tracker
-        assert self.invalid_degrees_tracker
+        assert self.invalid_programs_tracker
 
         for key, location_string in self.invalid_course_types_tracker.aggregated_keys_and_location_strings():
             self.importer_log.add_error(
@@ -299,15 +300,15 @@ class EnrollmentInputRowMapper:
                 category=ImporterLogEntry.Category.IS_GRADED,
             )
 
-        for key, location_string in self.invalid_degrees_tracker.aggregated_keys_and_location_strings():
+        for key, location_string in self.invalid_programs_tracker.aggregated_keys_and_location_strings():
             self.importer_log.add_error(
                 _(
-                    '{location}: No degree is associated with the import name "{degree}". Please manually create it first.'
+                    '{location}: No program is associated with the import name "{program}". Please manually create it first.'
                 ).format(
                     location=location_string,
-                    degree=key,
+                    program=key,
                 ),
-                category=ImporterLogEntry.Category.DEGREE_MISSING,
+                category=ImporterLogEntry.Category.PROGRAM_MISSING,
             )
 
 
@@ -445,7 +446,7 @@ class CourseNameChecker(Checker):
             self.importer_log.add_warning(
                 _(
                     'Course "{course_name}" already exists. The course will not be created, instead users are imported into the '
-                    "evaluation of the existing course and any additional degrees are added.",
+                    "evaluation of the existing course and any additional programs are added.",
                 ).format(course_name=name_en),
                 category=ImporterLogEntry.Category.EXISTS,
             )
@@ -597,8 +598,8 @@ class CourseDataMismatchChecker(Checker):
 
         stored = self.course_data_by_name_en.setdefault(course_data.name_en, course_data)
 
-        # degrees would be merged if course data is equal otherwise.
-        differing_fields = course_data.differing_fields(stored) - {"degrees"}
+        # programs would be merged if course data is equal otherwise.
+        differing_fields = course_data.differing_fields(stored) - {"programs"}
         if differing_fields:
             self.tracker.add_location_for_key(location, (course_data.name_en, tuple(differing_fields)))
 
@@ -616,37 +617,37 @@ class CourseDataMismatchChecker(Checker):
             )
 
 
-class UserDegreeMismatchChecker(Checker, RowCheckerMixin):
-    """Assert that a users degree is consistent between rows"""
+class UserProgramMismatchChecker(Checker, RowCheckerMixin):
+    """Assert that a users program is consistent between rows"""
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-        self.degree_by_email: dict[str, Degree] = {}
+        self.program_by_email: dict[str, Program] = {}
         self.tracker = FirstLocationAndCountTracker()
 
     def check_row(self, row: EnrollmentParsedRow):
         if row.student_data.email == "":
             return
 
-        if isinstance(row.course_data.degrees, InvalidValue):
+        if isinstance(row.course_data.programs, InvalidValue):
             return
 
-        assert len(row.course_data.degrees) == 1, "Checker expected to have courses without merged degrees"
-        degree = next(iter(row.course_data.degrees))
-        stored_degree = self.degree_by_email.setdefault(row.student_data.email, degree)
+        assert len(row.course_data.programs) == 1, "Checker expected to have courses without merged programs"
+        program = next(iter(row.course_data.programs))
+        stored_program = self.program_by_email.setdefault(row.student_data.email, program)
 
-        if stored_degree != degree:
+        if stored_program != program:
             self.tracker.add_location_for_key(row.location, row.student_data.email)
 
     def finalize(self) -> None:
         for student_email, location_string in self.tracker.aggregated_keys_and_location_strings():
             self.importer_log.add_error(
-                _('{location}: The degree of user "{email}" differs from their degree in a previous row.').format(
+                _('{location}: The program of user "{email}" differs from their program in a previous row.').format(
                     location=location_string,
                     email=student_email,
                 ),
-                category=ImporterLogEntry.Category.DEGREE,
+                category=ImporterLogEntry.Category.PROGRAM,
             )
 
 
@@ -718,7 +719,7 @@ def import_enrollments(
         parsed_rows = EnrollmentInputRowMapper(importer_log).map(input_rows)
         for checker in [
             TooManyEnrollmentsChecker(test_run, importer_log),
-            UserDegreeMismatchChecker(test_run, importer_log),
+            UserProgramMismatchChecker(test_run, importer_log),
             CourseDataAdapter(CourseNameChecker(test_run, importer_log, semester=semester)),
             CourseDataAdapter(CourseDataMismatchChecker(test_run, importer_log)),
             CourseDataAdapter(SimilarCourseNameChecker(test_run, importer_log)),
@@ -790,9 +791,9 @@ def normalize_rows(enrollment_rows: Iterable[EnrollmentParsedRow]) -> tuple[list
 
         assert all_fields_valid(row.course_data)
         course_data = course_data_by_name_en.setdefault(row.course_data.name_en, row.course_data)
-        assert course_data.differing_fields(row.course_data) <= {"degrees"}
+        assert course_data.differing_fields(row.course_data) <= {"programs"}
 
-        course_data.degrees.update(row.course_data.degrees)
+        course_data.programs.update(row.course_data.programs)
 
     return list(user_data_by_email.values()), list(course_data_by_name_en.values())
 
@@ -857,17 +858,17 @@ def update_existing_and_create_new_courses(
     for obj in contribution_objects:
         obj.save()
 
-    # Create M2M entries for the degrees of the newly created courses
+    # Create M2M entries for the programs of the newly created courses
     for course in new_course_objects:
-        course.degrees.add(*course_data_by_name_en[course.name_en].degrees)
+        course.programs.add(*course_data_by_name_en[course.name_en].programs)
 
     courses_to_update = semester.courses.filter(
         name_en__in=[course_data.name_en for course_data in course_data_iterable if course_data.merge_into_course]
     )
 
-    # Create M2M entries for the degrees of the courses that are updated
+    # Create M2M entries for the programs of the courses that are updated
     for course in courses_to_update:
-        course.degrees.add(*course_data_by_name_en[course.name_en].degrees)
+        course.programs.add(*course_data_by_name_en[course.name_en].programs)
 
 
 def store_participations_in_db(enrollment_rows: Iterable[EnrollmentParsedRow]):

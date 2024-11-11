@@ -5,8 +5,7 @@ from django.contrib.auth.models import Group
 from django.core import mail
 from django.core.cache import caches
 from django.core.exceptions import ValidationError
-from django.test import TestCase, override_settings
-from django_webtest import WebTest
+from django.test import override_settings
 from model_bakery import baker
 
 from evap.evaluation.models import (
@@ -25,6 +24,8 @@ from evap.evaluation.models import (
     UserProfile,
 )
 from evap.evaluation.tests.tools import (
+    TestCase,
+    WebTest,
     let_user_vote_for_evaluation,
     make_contributor,
     make_editor,
@@ -854,13 +855,13 @@ class TestEmailTemplate(TestCase):
         """
         user = baker.make(UserProfile, email=None)
         template = EmailTemplate.objects.get(name=EmailTemplate.STUDENT_REMINDER)
-        template.send_to_user(user, {}, {}, False, None)
+        template.send_to_user(user, subject_params={}, body_params={}, use_cc=False)
 
     def test_send_multi_alternatives_email(self):
         template = EmailTemplate(
             subject="Example", plain_content="Example plain content", html_content="<p>Example html content</p>"
         )
-        template.send_to_user(self.user, {}, {}, False)
+        template.send_to_user(self.user, subject_params={}, body_params={}, use_cc=False)
         self.assertEqual(len(mail.outbox), 1)
         self.assertTrue(isinstance(mail.outbox[0], mail.message.EmailMultiAlternatives))
         self.assertEqual(mail.outbox[0].body, "Example plain content")
@@ -870,7 +871,7 @@ class TestEmailTemplate(TestCase):
 
     def test_plain_content_escaped_and_copied_on_empty_html_content(self):
         template = EmailTemplate(subject="Subject <>&", plain_content="A\nB <>& {{ some_var }}", html_content="")
-        template.send_to_user(self.user, {}, {"some_var": "0 < 1"}, False)
+        template.send_to_user(self.user, subject_params={}, body_params={"some_var": "0 < 1"}, use_cc=False)
 
         self.assertEqual(len(mail.outbox), 1)
         message = mail.outbox[0]
@@ -888,7 +889,7 @@ class TestEmailTemplate(TestCase):
             plain_content="A\nB <>& {{ some_var }}",
             html_content="Html content &amp;<br/> {{ some_var }}",
         )
-        template.send_to_user(self.user, {}, {"some_var": "0 < 1"}, False)
+        template.send_to_user(self.user, subject_params={}, body_params={"some_var": "0 < 1"}, use_cc=False)
 
         self.assertEqual(len(mail.outbox), 1)
         message = mail.outbox[0]
@@ -904,7 +905,7 @@ class TestEmailTemplate(TestCase):
         delegate_a = baker.make(UserProfile, email="delegate-a@example.com")
         delegate_b = baker.make(UserProfile, email="delegate-b@example.com")
         self.user.delegates.add(delegate_a, delegate_b)
-        self.template.send_to_user(self.user, {}, {}, use_cc=True)
+        self.template.send_to_user(self.user, subject_params={}, body_params={}, use_cc=True)
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(set(mail.outbox[0].cc), {delegate_a.email, delegate_b.email})
@@ -913,7 +914,7 @@ class TestEmailTemplate(TestCase):
         cc_a = baker.make(UserProfile, email="cc-a@example.com")
         cc_b = baker.make(UserProfile, email="cc-b@example.com")
         self.user.cc_users.add(cc_a, cc_b)
-        self.template.send_to_user(self.user, {}, {}, use_cc=True)
+        self.template.send_to_user(self.user, subject_params={}, body_params={}, use_cc=True)
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(set(mail.outbox[0].cc), {cc_a.email, cc_b.email})
@@ -921,7 +922,11 @@ class TestEmailTemplate(TestCase):
     def test_put_additional_cc_users_in_cc(self):
         additional_cc_b = baker.make(UserProfile, email="additional-b@example.com")
         self.template.send_to_user(
-            self.user, {}, {}, use_cc=True, additional_cc_users=[self.additional_cc, additional_cc_b]
+            self.user,
+            subject_params={},
+            body_params={},
+            use_cc=True,
+            additional_cc_users=[self.additional_cc, additional_cc_b],
         )
 
         self.assertEqual(len(mail.outbox), 1)
@@ -931,7 +936,9 @@ class TestEmailTemplate(TestCase):
         additional_delegate_a = baker.make(UserProfile, email="additional-delegate-a@example.com")
         additional_delegate_b = baker.make(UserProfile, email="additional-delegate-b@example.com")
         self.additional_cc.delegates.add(additional_delegate_a, additional_delegate_b)
-        self.template.send_to_user(self.user, {}, {}, use_cc=True, additional_cc_users=[self.additional_cc])
+        self.template.send_to_user(
+            self.user, subject_params={}, body_params={}, use_cc=True, additional_cc_users=[self.additional_cc]
+        )
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(
@@ -946,7 +953,9 @@ class TestEmailTemplate(TestCase):
         self.user.cc_users.add(self.additional_cc, user_b)
         self.additional_cc.delegates.add(user_b, user_c)
         self.additional_cc.cc_users.add(user_a, user_c)
-        self.template.send_to_user(self.user, {}, {}, use_cc=True, additional_cc_users=[self.additional_cc])
+        self.template.send_to_user(
+            self.user, subject_params={}, body_params={}, use_cc=True, additional_cc_users=[self.additional_cc]
+        )
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(len(mail.outbox[0].cc), 4)
@@ -959,7 +968,9 @@ class TestEmailTemplate(TestCase):
         self.user.cc_users.add(cc_user)
         self.additional_cc.delegates.add(delegate)
         self.additional_cc.cc_users.add(cc_user)
-        self.template.send_to_user(self.user, {}, {}, use_cc=False, additional_cc_users=[self.additional_cc])
+        self.template.send_to_user(
+            self.user, subject_params={}, body_params={}, use_cc=False, additional_cc_users=[self.additional_cc]
+        )
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(set(mail.outbox[0].cc), {self.additional_cc.email})
@@ -995,14 +1006,32 @@ class TestEmailTemplate(TestCase):
 
         expected_calls = [
             # these 4 are included since they are contributors for evaluation1 which can publish the average grade
-            call(responsible1, {}, {"user": responsible1, "evaluations": {evaluation1}}, use_cc=True),
-            call(editor1, {}, {"user": editor1, "evaluations": {evaluation1}}, use_cc=True),
-            call(contributor1, {}, {"user": contributor1, "evaluations": {evaluation1}}, use_cc=True),
             call(
-                contributor_both, {}, {"user": contributor_both, "evaluations": {evaluation1, evaluation2}}, use_cc=True
+                responsible1,
+                subject_params={},
+                body_params={"user": responsible1, "evaluations": {evaluation1}},
+                use_cc=True,
+            ),
+            call(editor1, subject_params={}, body_params={"user": editor1, "evaluations": {evaluation1}}, use_cc=True),
+            call(
+                contributor1,
+                subject_params={},
+                body_params={"user": contributor1, "evaluations": {evaluation1}},
+                use_cc=True,
+            ),
+            call(
+                contributor_both,
+                subject_params={},
+                body_params={"user": contributor_both, "evaluations": {evaluation1, evaluation2}},
+                use_cc=True,
             ),
             # contributor2 has textanswers, so they are notified
-            call(contributor2, {}, {"user": contributor2, "evaluations": {evaluation2}}, use_cc=True),
+            call(
+                contributor2,
+                subject_params={},
+                body_params={"user": contributor2, "evaluations": {evaluation2}},
+                use_cc=True,
+            ),
         ]
 
         with patch("evap.evaluation.models.EmailTemplate.send_to_user") as send_to_user_mock:
@@ -1012,7 +1041,14 @@ class TestEmailTemplate(TestCase):
 
         # if general textanswers for an evaluation exist, all responsibles should also be notified
         baker.make(TextAnswer, contribution=evaluation2.general_contribution)
-        expected_calls.append(call(responsible2, {}, {"user": responsible2, "evaluations": {evaluation2}}, use_cc=True))
+        expected_calls.append(
+            call(
+                responsible2,
+                subject_params={},
+                body_params={"user": responsible2, "evaluations": {evaluation2}},
+                use_cc=True,
+            )
+        )
 
         with patch("evap.evaluation.models.EmailTemplate.send_to_user") as send_to_user_mock:
             EmailTemplate.send_contributor_publish_notifications({evaluation1, evaluation2})

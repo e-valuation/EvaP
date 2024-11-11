@@ -3,12 +3,15 @@ from django.contrib.auth.models import Group
 from django.core import mail
 from django.test import override_settings
 from django.urls import reverse
-from django.utils import translation
-from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import Evaluation, Question, QuestionType, Semester, UserProfile
-from evap.evaluation.tests.tools import WebTestWith200Check, create_evaluation_with_responsible_and_editor, make_manager
+from evap.evaluation.tests.tools import (
+    WebTest,
+    WebTestWith200Check,
+    create_evaluation_with_responsible_and_editor,
+    make_manager,
+)
 from evap.staff.tests.utils import WebTestStaffMode
 
 
@@ -146,8 +149,6 @@ class TestChangeLanguageView(WebTest):
         user.refresh_from_db()
         self.assertEqual(user.language, "en")
 
-        translation.activate("en")  # for following tests
-
 
 class TestProfileView(WebTest):
     url = reverse("evaluation:profile_edit")
@@ -236,14 +237,13 @@ class TestNotebookView(WebTest):
 
 
 class TestResetEvaluation(WebTestStaffMode):
-
     @classmethod
     def setUpTestData(cls) -> None:
         cls.manager = make_manager()
         cls.semester = baker.make(Semester)
         cls.url = reverse("staff:semester_view", args=[cls.semester.pk])
 
-    def reset_from_x_to_new(self, x, success_expected: bool) -> None:
+    def reset_from_x_to_new(self, x: Evaluation.State, success_expected: bool) -> None:
         evaluation = baker.make(Evaluation, state=x, course__semester=self.semester)
 
         semester_overview_page = self.app.get(self.url, user=self.manager, status=200)
@@ -265,6 +265,9 @@ class TestResetEvaluation(WebTestStaffMode):
             Evaluation.State.PREPARED,
             Evaluation.State.EDITOR_APPROVED,
             Evaluation.State.APPROVED,
+            Evaluation.State.IN_EVALUATION,
+            Evaluation.State.EVALUATED,
+            Evaluation.State.REVIEWED,
         ]
 
         for s in valid_start_states:

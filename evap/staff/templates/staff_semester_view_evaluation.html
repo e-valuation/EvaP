@@ -5,12 +5,10 @@
 
 <td>
     {% if request.user.is_manager and not info_only and not semester.participations_are_archived %}
-        {% if state <= evaluation.State.APPROVED or state >= evaluation.State.REVIEWED %}
-            <div class="form-check" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Select for evaluation operation' %}">
-                <input class="form-check-input" type="checkbox" name="evaluation" id="evaluation{{ evaluation.id }}" value="{{ evaluation.id }}" />
-                <label class="form-check-label" for="evaluation{{ evaluation.id }}"></label>
-            </div>
-        {% endif %}
+        <div class="form-check" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Select for evaluation operation' %}">
+            <input class="form-check-input" type="checkbox" name="evaluation" id="evaluation{{ evaluation.id }}" value="{{ evaluation.id }}"/>
+            <label class="form-check-label" for="evaluation{{ evaluation.id }}"></label>
+        </div>
     {% endif %}
 </td>
 
@@ -48,7 +46,7 @@
     </td>
 {% elif evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.REVIEW_NEEDED %}
     <td class="icon" data-col="state-textanswers" data-order="2" data-filter="unreviewed_textanswers">
-        <span class="fas fa-comment icon-yellow" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Text answers awaiting review' %}"></span>
+        <span class="fas fa-comment icon-blue" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Text answers awaiting review' %}"></span>
     </td>
 {% else %}
     <td class="icon" data-col="state-textanswers" data-order="4" data-filter="textanswers_reviewed">
@@ -67,7 +65,7 @@
         </td>
     {% else %}
         <td class="icon text-center" data-col="state-results" data-order="1" data-filter="results_not_yet_published">
-            <span class="fas fa-chart-simple icon-yellow" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Results not yet published' %}"></span>
+            <span class="fas fa-chart-simple icon-blue" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Results not yet published' %}"></span>
         </td>
     {% endif %}
 {% elif state == evaluation.State.PUBLISHED %}

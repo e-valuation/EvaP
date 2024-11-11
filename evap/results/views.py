@@ -11,8 +11,8 @@ from django.template.loader import get_template
 from django.utils import translation
 
 from evap.evaluation.auth import internal_required
-from evap.evaluation.models import Course, CourseType, Degree, Evaluation, Semester, UserProfile
-from evap.evaluation.tools import AttachmentResponse, unordered_groupby
+from evap.evaluation.models import Course, CourseType, Evaluation, Program, Semester, UserProfile
+from evap.evaluation.tools import AttachmentResponse
 from evap.results.exporters import TextAnswerExporter
 from evap.results.tools import (
     STATES_WITH_RESULT_TEMPLATE_CACHING,
@@ -24,6 +24,7 @@ from evap.results.tools import (
     get_evaluations_with_course_result_attributes,
     get_results,
 )
+from evap.tools import unordered_groupby
 
 
 def get_course_result_template_fragment_cache_key(course_id, language):
@@ -108,7 +109,7 @@ def update_template_cache_of_published_evaluations_in_course(course):
 def get_evaluations_with_prefetched_data(evaluations):
     if isinstance(evaluations, QuerySet):  # type: ignore[misc]
         evaluations = evaluations.select_related("course__type").prefetch_related(
-            "course__degrees",
+            "course__programs",
             "course__semester",
             "course__responsibles",
         )
@@ -151,11 +152,11 @@ def index(request):
     for course, annotated_course in zip(courses_and_evaluations.keys(), annotated_courses, strict=True):
         course.num_evaluations = annotated_course.num_evaluations
 
-    degrees = Degree.objects.filter(courses__pk__in=course_pks).distinct()
+    programs = Program.objects.filter(courses__pk__in=course_pks).distinct()
     course_types = CourseType.objects.filter(courses__pk__in=course_pks).distinct()
     template_data = {
         "courses_and_evaluations": courses_and_evaluations.items(),
-        "degrees": degrees,
+        "programs": programs,
         "course_types": course_types,
         "semesters": semesters,
     }

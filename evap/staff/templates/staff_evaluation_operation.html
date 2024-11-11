@@ -55,9 +55,47 @@
         {% endif %}
         <input type="hidden" name="target_state" value="{{ target_state }}" />
 
+        {% if show_delete_answers_checkbox %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" type="checkbox" name="delete-previous-answers" checked />
+                            {% trans "Delete previous answers" %}
+                        </label>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
         <div class="card card-submit-area card-submit-area-2 text-center mb-3">
             <div class="card-body">
+                <confirmation-modal type="submit">
+                    <span slot="title">{% translate 'Reset Evaluation' %}</span>
+                    <button slot="submit-group" class="btn ms-2 btn-danger" data-event-type="confirm" data-confirm-answer-deletion>
+                        {% translate 'Reset Evaluation' %}
+                    </button>
+                    <span slot="question">
+                        {% blocktranslate trimmed %}
+                            This will delete all previously received answers. Voters will have to resubmit the evaluation.
+                        {% endblocktranslate %}
+                    </span>
+                    {% comment %}
+                        The modal needs an element in the slot, otherwise it throws an error.
+                        No button is needed, as the modal is conditionally shown via JS.
+                    {% endcomment %}
+                    <span slot="show-button"></span>
+                </confirmation-modal>
                 <button type="submit" class="btn btn-primary">{% translate 'Confirm' %}</button>
+                <script>
+                    document.getElementById("evaluation-operation-form").addEventListener("submit", submitEvent => {
+                        const data = new FormData(submitEvent.target);
+                        if (data.get("delete-previous-answers") === "on" && !submitEvent.submitter?.hasAttribute("data-confirm-answer-deletion")) {
+                            submitEvent.preventDefault()
+                            submitEvent.target.querySelector("confirmation-modal:has([data-confirm-answer-deletion])").dialog.showModal();
+                        }
+                    })
+                </script>
                 <a href="{% url 'staff:semester_view' semester.id %}" class="btn btn-light">{% translate 'Cancel' %}</a>
             </div>
         </div>

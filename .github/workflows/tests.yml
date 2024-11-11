@@ -12,23 +12,11 @@ jobs:
 
     runs-on: ubuntu-22.04
 
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: evap
-        ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
-
-      - name: Setup python
-        uses: ./.github/setup_python
+      - uses: actions/checkout@v4
+      - uses: ./.github/setup_evap
+        with:
+          start-db: true
 
       - name: Remove Chrome
         run: sudo apt purge google-chrome-stable
@@ -56,23 +44,11 @@ jobs:
 
     runs-on: ubuntu-22.04
 
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: evap
-        ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
-
-      - name: Setup python
-        uses: ./.github/setup_python
+      - uses: actions/checkout@v4
+      - uses: ./.github/setup_evap
+        with:
+          start-db: true
 
       - name: Setup Firefox
         uses: browser-actions/setup-firefox@v1.5.1
@@ -91,12 +67,8 @@ jobs:
     name: MyPy
 
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
-
-      - name: Setup python
-        uses: ./.github/setup_python
-
+      - uses: actions/checkout@v4
+      - uses: ./.github/setup_evap
       - name: Run MyPy
         run: mypy
 
@@ -106,18 +78,12 @@ jobs:
     name: Linter
 
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
-
-      - name: Setup python
-        uses: ./.github/setup_python
-
+      - uses: actions/checkout@v4
+      - uses: ./.github/setup_evap
       - name: Run ruff
         run: ruff check .
-
       - name: Run pylint
         run: pylint evap tools
-
 
   formatter:
     runs-on: ubuntu-22.04
@@ -125,58 +91,32 @@ jobs:
     name: Formatting
 
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
-
-      - name: Setup python
-        uses: ./.github/setup_python
-
-      - name: Setup nodejs
-        uses: ./.github/setup_nodejs
+      - uses: actions/checkout@v4
+      - uses: ./.github/setup_evap
+        with:
+          npm-ci: true
 
       - name: Check code formatting
-        run: black --check evap
+        run: black --check .
       - name: Check imports formatting
         run: isort . --check --diff
       - run: ls -laR evap/static/ts
       - name: Check TypeScript formatting
         run: npx prettier --list-different --loglevel debug 'evap/static/ts/**/*.ts'
 
-
   backup-process:
     runs-on: ubuntu-22.04
-
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: evap
-        ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-      redis:
-        image: redis
-        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
-        ports:
-          - 6379:6379
 
     name: Backup process
 
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: true
-
-      - name: Setup python
-        uses: ./.github/setup_python
+      - uses: ./.github/setup_evap
         with:
-          requirements-file: requirements.txt
-
-      - name: Setup nodejs
-        uses: ./.github/setup_nodejs
+          shell: .#evap # no dev-dependencies
+          start-db: true
 
       - name: Install additional dependencies
         run: sudo apt-get update && sudo apt-get install gettext
@@ -204,13 +144,12 @@ jobs:
     name: Compile Scss
 
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: true
-
-      - name: Setup nodejs
-        uses: ./.github/setup_nodejs
+      - uses: ./.github/setup_evap
+        with:
+          npm-ci: true
 
       - name: Compile Scss
         run: npx sass evap/static/scss/evap.scss evap/static/css/evap.css
@@ -229,13 +168,14 @@ jobs:
     name: Test Typescript
 
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: true
+      - uses: ./.github/setup_evap
+        with:
+          npm-ci: true
 
-      - name: Setup nodejs
-        uses: ./.github/setup_nodejs
+      - run: npx puppeteer browsers install chrome
 
       - name: Compile Typescript
         run: npx tsc --project evap/static/ts/tsconfig.compile.json

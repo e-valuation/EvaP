@@ -1,13 +1,18 @@
+import datetime
+import math
 from collections import OrderedDict
+from dataclasses import dataclass
+from fractions import Fraction
 
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Exists, F, OuterRef, Q
+from django.db.models import Exists, F, Max, OuterRef, Q, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 
 from evap.evaluation.auth import participant_required
@@ -22,6 +27,69 @@ from evap.student.models import TextAnswerWarning
 from evap.student.tools import answer_field_id
 
 SUCCESS_MAGIC_STRING = "vote submitted successfully"
+
+
+@dataclass
+class GlobalRewards:
+    @dataclass
+    class RewardProgress:
+        progress: Fraction  # progress towards this reward, relative to max reward, between 0 and 1
+        vote_ratio: Fraction
+        text: str
+
+    vote_count: int
+    participation_count: int
+    max_reward_votes: int
+    bar_width_votes: int
+    last_vote_datetime: datetime.datetime
+    rewards_with_progress: list[RewardProgress]
+    info_text: str
+
+    @staticmethod
+    def from_settings() -> "GlobalRewards | None":
+        if not settings.GLOBAL_EVALUATION_PROGRESS_REWARDS:
+            return None
+
+        if not Semester.active_semester():
+            return None
+
+        evaluations = (
+            Semester.active_semester()
+            .evaluations.filter(is_single_result=False)
+            .exclude(state__lt=Evaluation.State.APPROVED)
+            .exclude(is_rewarded=False)
+            .exclude(id__in=settings.GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS)
+            .exclude(course__type__id__in=settings.GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS)
+            .exclude(course__is_private=True)
+        )
+
+        vote_count, participation_count = (
+            Evaluation.annotate_with_participant_and_voter_counts(evaluations)
+            .aggregate(Sum("num_voters", default=0), Sum("num_participants", default=0))
+            .values()
+        )
+
+        max_reward_vote_ratio, __ = max(settings.GLOBAL_EVALUATION_PROGRESS_REWARDS)
+        max_reward_votes = math.ceil(max_reward_vote_ratio * participation_count)
+
+        rewards_with_progress = [
+            GlobalRewards.RewardProgress(progress=vote_ratio / max_reward_vote_ratio, vote_ratio=vote_ratio, text=text)
+            for vote_ratio, text in settings.GLOBAL_EVALUATION_PROGRESS_REWARDS
+        ]
+
+        last_vote_datetime = VoteTimestamp.objects.filter(evaluation__in=evaluations).aggregate(Max("timestamp"))[
+            "timestamp__max"
+        ]
+
+        return GlobalRewards(
+            vote_count=vote_count,
+            participation_count=participation_count,
+            max_reward_votes=max_reward_votes,
+            bar_width_votes=min(vote_count, max_reward_votes),
+            last_vote_datetime=last_vote_datetime,
+            rewards_with_progress=rewards_with_progress,
+            info_text=settings.GLOBAL_EVALUATION_PROGRESS_INFO_TEXT[get_language()],
+        )
 
 
 @participant_required
@@ -40,7 +108,7 @@ def index(request):
             "course__type",
             "course__evaluations",
             "course__responsibles",
-            "course__degrees",
+            "course__programs",
         )
         .distinct()
     )
@@ -111,6 +179,7 @@ def index(request):
         "can_download_grades": request.user.can_download_grades,
         "unfinished_evaluations": unfinished_evaluations,
         "evaluation_end_warning_period": settings.EVALUATION_END_WARNING_PERIOD,
+        "global_rewards": GlobalRewards.from_settings(),
     }
 
     return render(request, "student_index.html", template_data)
@@ -186,8 +255,8 @@ def render_vote_page(request, evaluation, preview, for_rendering_in_modal=False)
 
 
 @participant_required
-def vote(request, evaluation_id):
-    # pylint: disable=too-many-nested-blocks,too-many-branches
+def vote(request, evaluation_id):  # noqa: PLR0912
+    # pylint: disable=too-many-nested-blocks
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
     if not evaluation.can_be_voted_for_by(request.user):
         raise PermissionDenied

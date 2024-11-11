@@ -2,11 +2,10 @@ from datetime import date, timedelta
 
 from django.test import override_settings
 from django.urls import reverse
-from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import Course, Evaluation, Semester, UserProfile
-from evap.evaluation.tests.tools import make_manager
+from evap.evaluation.tests.tools import WebTest, make_manager
 from evap.rewards.models import (
     RewardPointGranting,
     RewardPointRedemption,
@@ -180,13 +179,37 @@ class TestEventEditView(WebTestStaffMode):
         self.assertEqual(RewardPointRedemptionEvent.objects.get(pk=self.event.pk).name, "new name")
 
 
-class TestExportView(WebTestStaffModeWith200Check):
+class TestEventExportView(WebTestStaffModeWith200Check):
     @classmethod
     def setUpTestData(cls):
         cls.test_users = [make_manager()]
         event = baker.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
         baker.make(RewardPointRedemption, value=1, event=event)
         cls.url = f"/rewards/reward_point_redemption_event/{event.pk}/export"
+
+
+class TestPointsExportView(WebTestStaffModeWith200Check):
+    @classmethod
+    def setUpTestData(cls):
+        cls.test_users = [make_manager()]
+        cls.url = reverse("rewards:reward_points_export")
+
+        cls.student = baker.make(UserProfile, email="student@institution.example.com")
+        cls.event = baker.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
+
+    def test_positive_points(self):
+        baker.make(RewardPointGranting, user_profile=self.student, value=5)
+        baker.make(RewardPointRedemption, user_profile=self.student, event=self.event, value=3)
+
+        response = self.app.get(self.url, user=self.test_users[0], status=200)
+        self.assertIn("student@institution.example.com;2", response)
+
+    def test_zero_points(self):
+        baker.make(RewardPointGranting, user_profile=self.student, value=5)
+        baker.make(RewardPointRedemption, user_profile=self.student, event=self.event, value=5)
+
+        response = self.app.get(self.url, user=self.test_users[0], status=200)
+        self.assertNotIn("student@institution.example.com", response)
 
 
 @override_settings(

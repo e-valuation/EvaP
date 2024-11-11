@@ -11,8 +11,9 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
 from evap.evaluation.models import UserProfile
-from evap.evaluation.tools import clean_email, unordered_groupby
+from evap.evaluation.tools import clean_email
 from evap.staff.tools import append_user_list_if_not_empty, user_edit_link
+from evap.tools import unordered_groupby
 
 from .base import (
     Checker,
@@ -58,7 +59,6 @@ class UserData:
     def get_user_profile_object(self) -> UserProfile:
         """Create a new UserProfile object with the same data. Used for validation and bulk insertion"""
         obj = UserProfile(email=self.email)
-        obj.set_unusable_password()
         self.apply_to_and_make_active(obj)
         return obj
 

@@ -9,6 +9,11 @@ updates:
     labels:
       - "[T] Dependencies"
     versioning-strategy: "increase-if-necessary"
+    ignore:
+      - dependency-name: "django-stubs"
+        update-types: ["version-update:semver-patch"]
+      - dependency-name: "ruff"
+        update-types: ["version-update:semver-patch"]
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -18,6 +23,9 @@ updates:
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-patch"]
+      - dependency-name: "sass"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "@types/sortablejs"
     labels:
       - "[T] Dependencies"
   - package-ecosystem: "github-actions"
@@ -30,16 +38,7 @@ updates:
     labels:
       - "[T] Dependencies"
   - package-ecosystem: "github-actions"
-    directory: "/.github/setup_nodejs"
-    schedule:
-      interval: "weekly"
-    groups:
-      actions:
-        patterns: ["*"]
-    labels:
-      - "[T] Dependencies"
-  - package-ecosystem: "github-actions"
-    directory: "/.github/setup_python"
+    directory: "/.github/setup_evap"
     schedule:
       interval: "weekly"
     groups:

@@ -30,7 +30,7 @@ class ImporterLogEntry:
 
         SCHEMA = _CATEGORY_TUPLE("schema", gettext_lazy("Incorrect Excel format"), 1)
 
-        DEGREE_MISSING = _CATEGORY_TUPLE("missing_degree", gettext_lazy("Missing degrees"), 2)
+        PROGRAM_MISSING = _CATEGORY_TUPLE("missing_program", gettext_lazy("Missing programs"), 2)
         COURSE_TYPE_MISSING = _CATEGORY_TUPLE("missing_course_type", gettext_lazy("Missing course types"), 3)
         COURSE = _CATEGORY_TUPLE("course", gettext_lazy("Course issues"), 4)
         IS_GRADED = _CATEGORY_TUPLE("is_graded", gettext_lazy("Invalid values"), 5)
@@ -44,7 +44,7 @@ class ImporterLogEntry:
         IGNORED = _CATEGORY_TUPLE("ignored", gettext_lazy("Ignored duplicates"), 11)
         ALREADY_PARTICIPATING = _CATEGORY_TUPLE("already_participating", gettext_lazy("Existing participants"), 12)
 
-        DEGREE = _CATEGORY_TUPLE("degree", gettext_lazy("Degree mismatches"), 13)
+        PROGRAM = _CATEGORY_TUPLE("program", gettext_lazy("Program mismatches"), 13)
         TOO_MANY_ENROLLMENTS = _CATEGORY_TUPLE(
             "too_many_enrollments", gettext_lazy("Unusually high number of enrollments"), 14
         )

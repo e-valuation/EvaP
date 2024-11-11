@@ -5,6 +5,8 @@ from contextlib import contextmanager
 from datetime import timedelta
 from importlib import import_module
 
+import django.test
+import django_webtest
 import webtest
 from django.conf import settings
 from django.contrib.auth import login
@@ -13,22 +15,35 @@ from django.db import DEFAULT_DB_ALIAS, connections
 from django.http.request import HttpRequest, QueryDict
 from django.test.selenium import SeleniumTestCase
 from django.test.utils import CaptureQueriesContext
-from django.utils import timezone
-from django_webtest import WebTest
+from django.utils import timezone, translation
 from model_bakery import baker
 
 from evap.evaluation.models import (
     CHOICES,
     Contribution,
     Course,
-    Degree,
     Evaluation,
+    Program,
     Question,
     Questionnaire,
     RatingAnswerCounter,
     TextAnswer,
     UserProfile,
 )
+
+
+class ResetLanguageOnTearDownMixin:
+    def tearDown(self):
+        translation.activate("en")  # Django by default does not "reset" this, causing test interdependency
+        super().tearDown()
+
+
+class TestCase(ResetLanguageOnTearDownMixin, django.test.TestCase):
+    pass
+
+
+class WebTest(ResetLanguageOnTearDownMixin, django_webtest.WebTest):
+    pass
 
 
 def to_querydict(dictionary):
@@ -99,16 +114,18 @@ class WebTestWith200Check(WebTest):
             self.app.get(self.url, user=user, status=200)
 
 
-def submit_with_modal(page: webtest.TestResponse, form: webtest.Form, *, name: str, value: str) -> webtest.TestResponse:
+def submit_with_modal(
+    page: webtest.TestResponse, form: webtest.Form, *, name: str, value: str, **kwargs
+) -> webtest.TestResponse:
     # Like form.submit, but looks for a modal instead of a submit button.
     assert page.forms[form.id] == form
     assert page.html.select_one(f"confirmation-modal[type=submit][name={name}][value={value}]")
     params = form.submit_fields() + [(name, value)]
-    return form.response.goto(form.action, method=form.method, params=params)
+    return form.response.goto(form.action, method=form.method, params=params, **kwargs)
 
 
 def get_form_data_from_instance(form_cls, instance, **kwargs):
-    assert form_cls._meta.model == type(instance)
+    assert form_cls._meta.model is type(instance)
     form = form_cls(instance=instance, **kwargs)
     return {field.html_name: field.value() for field in form}
 
@@ -121,7 +138,7 @@ def create_evaluation_with_responsible_and_editor():
     tomorrow = (timezone.now() + timedelta(days=1)).date
     evaluation_params = {
         "state": Evaluation.State.PREPARED,
-        "course": baker.make(Course, degrees=[baker.make(Degree)], responsibles=[responsible]),
+        "course": baker.make(Course, programs=[baker.make(Program)], responsibles=[responsible]),
         "vote_start_datetime": in_one_hour,
         "vote_end_date": tomorrow,
     }

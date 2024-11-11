@@ -1,7 +1,6 @@
 from io import BytesIO
 
 import xlrd
-from django.test import TestCase
 from django.utils import translation
 from model_bakery import baker
 
@@ -10,8 +9,8 @@ from evap.evaluation.models import (
     Contribution,
     Course,
     CourseType,
-    Degree,
     Evaluation,
+    Program,
     Question,
     Questionnaire,
     QuestionType,
@@ -19,7 +18,7 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
-from evap.evaluation.tests.tools import make_rating_answer_counters
+from evap.evaluation.tests.tools import TestCase, make_rating_answer_counters
 from evap.results.exporters import ResultsExporter, TextAnswerExporter
 from evap.results.tools import cache_results, get_results
 from evap.results.views import filter_text_answers
@@ -42,10 +41,10 @@ class TestExporters(TestCase):
         self.assertEqual(exporter.normalize_number(2.8), 2.8)
 
     def test_questionnaire_ordering(self):
-        degree = baker.make(Degree)
+        program = baker.make(Program)
         evaluation = baker.make(
             Evaluation,
-            course__degrees=[degree],
+            course__programs=[program],
             state=Evaluation.State.PUBLISHED,
             _participant_count=2,
             _voter_count=2,
@@ -76,7 +75,7 @@ class TestExporters(TestCase):
         ResultsExporter().export(
             binary_content,
             [evaluation.course.semester],
-            [([course_degree.id for course_degree in evaluation.course.degrees.all()], [evaluation.course.type.id])],
+            [([course_program.id for course_program in evaluation.course.programs.all()], [evaluation.course.type.id])],
             True,
             True,
         )
@@ -96,10 +95,10 @@ class TestExporters(TestCase):
         self.assertEqual(workbook.sheets()[0].row_values(14)[0], question_4.text)
 
     def test_heading_question_filtering(self):
-        degree = baker.make(Degree)
+        program = baker.make(Program)
         evaluation = baker.make(
             Evaluation,
-            course__degrees=[degree],
+            course__programs=[program],
             state=Evaluation.State.PUBLISHED,
             _participant_count=2,
             _voter_count=2,
@@ -124,7 +123,7 @@ class TestExporters(TestCase):
         ResultsExporter().export(
             binary_content,
             [evaluation.course.semester],
-            [([course_degree.id for course_degree in evaluation.course.degrees.all()], [evaluation.course.type.id])],
+            [([course_program.id for course_program in evaluation.course.programs.all()], [evaluation.course.type.id])],
             True,
             True,
         )
@@ -139,18 +138,22 @@ class TestExporters(TestCase):
     def test_view_excel_file_sorted(self):
         semester = baker.make(Semester)
         course_type = baker.make(CourseType)
-        degree = baker.make(Degree)
+        program = baker.make(Program)
         evaluation1 = baker.make(
             Evaluation,
             state=Evaluation.State.PUBLISHED,
-            course=baker.make(Course, degrees=[degree], type=course_type, semester=semester, name_de="A", name_en="B"),
+            course=baker.make(
+                Course, programs=[program], type=course_type, semester=semester, name_de="A", name_en="B"
+            ),
             name_de="Evaluation1",
             name_en="Evaluation1",
         )
         evaluation2 = baker.make(
             Evaluation,
             state=Evaluation.State.PUBLISHED,
-            course=baker.make(Course, degrees=[degree], type=course_type, semester=semester, name_de="B", name_en="A"),
+            course=baker.make(
+                Course, programs=[program], type=course_type, semester=semester, name_de="B", name_en="A"
+            ),
             name_de="Evaluation2",
             name_en="Evaluation2",
         )
@@ -160,11 +163,11 @@ class TestExporters(TestCase):
 
         content_de = BytesIO()
         with translation.override("de"):
-            ResultsExporter().export(content_de, [semester], [([degree.id], [course_type.id])], True, True)
+            ResultsExporter().export(content_de, [semester], [([program.id], [course_type.id])], True, True)
 
         content_en = BytesIO()
         with translation.override("en"):
-            ResultsExporter().export(content_en, [semester], [([degree.id], [course_type.id])], True, True)
+            ResultsExporter().export(content_en, [semester], [([program.id], [course_type.id])], True, True)
 
         content_de.seek(0)
         content_en.seek(0)
@@ -179,20 +182,20 @@ class TestExporters(TestCase):
         self.assertEqual(workbook.sheets()[0].row_values(0)[2], "B – Evaluation1\n")
 
     def test_course_type_ordering(self):
-        degree = baker.make(Degree)
+        program = baker.make(Program)
         course_type_1 = baker.make(CourseType, order=1)
         course_type_2 = baker.make(CourseType, order=2)
         semester = baker.make(Semester)
         evaluation_1 = baker.make(
             Evaluation,
-            course=baker.make(Course, semester=semester, degrees=[degree], type=course_type_1),
+            course=baker.make(Course, semester=semester, programs=[program], type=course_type_1),
             state=Evaluation.State.PUBLISHED,
             _participant_count=2,
             _voter_count=2,
         )
         evaluation_2 = baker.make(
             Evaluation,
-            course=baker.make(Course, semester=semester, degrees=[degree], type=course_type_2),
+            course=baker.make(Course, semester=semester, programs=[program], type=course_type_2),
             state=Evaluation.State.PUBLISHED,
             _participant_count=2,
             _voter_count=2,
@@ -212,7 +215,7 @@ class TestExporters(TestCase):
 
         binary_content = BytesIO()
         ResultsExporter().export(
-            binary_content, [semester], [([degree.id], [course_type_1.id, course_type_2.id])], True, True
+            binary_content, [semester], [([program.id], [course_type_1.id, course_type_2.id])], True, True
         )
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
@@ -225,7 +228,7 @@ class TestExporters(TestCase):
 
         binary_content = BytesIO()
         ResultsExporter().export(
-            binary_content, [semester], [([degree.id], [course_type_1.id, course_type_2.id])], True, True
+            binary_content, [semester], [([program.id], [course_type_1.id, course_type_2.id])], True, True
         )
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
@@ -244,12 +247,12 @@ class TestExporters(TestCase):
         self.assertEqual(len(workbook.sheets()), 2)
 
     @staticmethod
-    def get_export_sheet(semester, degree, course_types, include_unpublished=True, include_not_enough_voters=True):
+    def get_export_sheet(semester, program, course_types, include_unpublished=True, include_not_enough_voters=True):
         binary_content = BytesIO()
         ResultsExporter().export(
             binary_content,
             [semester],
-            [([degree.id], course_types)],
+            [([program.id], course_types)],
             include_unpublished=include_unpublished,
             include_not_enough_voters=include_not_enough_voters,
         )
@@ -259,19 +262,19 @@ class TestExporters(TestCase):
 
     def test_include_unpublished(self):
         semester = baker.make(Semester)
-        degree = baker.make(Degree)
+        program = baker.make(Program)
         published_evaluation = baker.make(
             Evaluation,
             state=Evaluation.State.PUBLISHED,
             course__semester=semester,
-            course__degrees=[degree],
+            course__programs=[program],
             course__type__order=1,
         )
         unpublished_evaluation = baker.make(
             Evaluation,
             state=Evaluation.State.REVIEWED,
             course__semester=semester,
-            course__degrees=[degree],
+            course__programs=[program],
             course__type__order=2,
         )
         course_types = [published_evaluation.course.type.id, unpublished_evaluation.course.type.id]
@@ -281,14 +284,14 @@ class TestExporters(TestCase):
 
         # First, make sure that the unpublished does not appear
         sheet = self.get_export_sheet(
-            include_unpublished=False, semester=semester, degree=degree, course_types=course_types
+            include_unpublished=False, semester=semester, program=program, course_types=course_types
         )
         self.assertEqual(len(sheet.row_values(0)), 2)
         self.assertEqual(sheet.row_values(0)[1][:-1], published_evaluation.full_name)
 
         # Now, make sure that it appears when wanted
         sheet = self.get_export_sheet(
-            include_unpublished=True, semester=semester, degree=degree, course_types=course_types
+            include_unpublished=True, semester=semester, program=program, course_types=course_types
         )
         self.assertEqual(len(sheet.row_values(0)), 3)
         # These two should be ordered according to evaluation.course.type.order
@@ -297,12 +300,12 @@ class TestExporters(TestCase):
 
     def test_include_not_enough_voters(self):
         semester = baker.make(Semester)
-        degree = baker.make(Degree)
+        program = baker.make(Program)
         enough_voters_evaluation = baker.make(
             Evaluation,
             state=Evaluation.State.PUBLISHED,
             course__semester=semester,
-            course__degrees=[degree],
+            course__programs=[program],
             _voter_count=1000,
             _participant_count=1000,
         )
@@ -310,7 +313,7 @@ class TestExporters(TestCase):
             Evaluation,
             state=Evaluation.State.PUBLISHED,
             course__semester=semester,
-            course__degrees=[degree],
+            course__programs=[program],
             _voter_count=1,
             _participant_count=1000,
         )
@@ -321,42 +324,42 @@ class TestExporters(TestCase):
         course_types = [enough_voters_evaluation.course.type.id, not_enough_voters_evaluation.course.type.id]
 
         # First, make sure that the one with only a single voter does not appear
-        sheet = self.get_export_sheet(semester, degree, course_types, include_not_enough_voters=False)
+        sheet = self.get_export_sheet(semester, program, course_types, include_not_enough_voters=False)
         self.assertEqual(len(sheet.row_values(0)), 2)
         self.assertEqual(sheet.row_values(0)[1][:-1], enough_voters_evaluation.full_name)
 
         # Now, check with the option enabled
-        sheet = self.get_export_sheet(semester, degree, course_types, include_not_enough_voters=True)
+        sheet = self.get_export_sheet(semester, program, course_types, include_not_enough_voters=True)
         self.assertEqual(len(sheet.row_values(0)), 3)
         self.assertEqual(
             {enough_voters_evaluation.full_name, not_enough_voters_evaluation.full_name},
             {sheet.row_values(0)[1][:-1], sheet.row_values(0)[2][:-1]},
         )
 
-    def test_no_degree_or_course_type(self):
+    def test_no_program_or_course_type(self):
         evaluation = baker.make(Evaluation)
         with self.assertRaises(AssertionError):
             ResultsExporter().export(BytesIO(), [evaluation.course.semester], [])
 
     def test_exclude_single_result(self):
-        degree = baker.make(Degree)
+        program = baker.make(Program)
         evaluation = baker.make(
-            Evaluation, is_single_result=True, state=Evaluation.State.PUBLISHED, course__degrees=[degree]
+            Evaluation, is_single_result=True, state=Evaluation.State.PUBLISHED, course__programs=[program]
         )
         cache_results(evaluation)
-        sheet = self.get_export_sheet(evaluation.course.semester, degree, [evaluation.course.type.id])
+        sheet = self.get_export_sheet(evaluation.course.semester, program, [evaluation.course.type.id])
         self.assertEqual(
             len(sheet.row_values(0)), 1, "There should be no column for the evaluation, only the row description"
         )
 
     def test_exclude_used_but_unanswered_questionnaires(self):
-        degree = baker.make(Degree)
+        program = baker.make(Program)
         evaluation = baker.make(
             Evaluation,
             _voter_count=10,
             _participant_count=10,
             state=Evaluation.State.PUBLISHED,
-            course__degrees=[degree],
+            course__programs=[program],
         )
         used_questionnaire = baker.make(Questionnaire)
         used_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=used_questionnaire)
@@ -367,46 +370,46 @@ class TestExporters(TestCase):
         make_rating_answer_counters(used_question, evaluation.general_contribution)
         cache_results(evaluation)
 
-        sheet = self.get_export_sheet(evaluation.course.semester, degree, [evaluation.course.type.id])
+        sheet = self.get_export_sheet(evaluation.course.semester, program, [evaluation.course.type.id])
         self.assertEqual(sheet.row_values(4)[0], used_questionnaire.public_name)
         self.assertEqual(sheet.row_values(5)[0], used_question.text)
         self.assertNotIn(unused_questionnaire.name, sheet.col_values(0))
         self.assertNotIn(unused_question.text, sheet.col_values(0))
 
-    def test_degree_course_type_name(self):
-        degree = baker.make(Degree, name_en="Celsius")
+    def test_program_course_type_name(self):
+        program = baker.make(Program, name_en="Celsius")
         course_type = baker.make(CourseType, name_en="LetsPlay")
         evaluation = baker.make(
-            Evaluation, course__degrees=[degree], course__type=course_type, state=Evaluation.State.PUBLISHED
+            Evaluation, course__programs=[program], course__type=course_type, state=Evaluation.State.PUBLISHED
         )
         cache_results(evaluation)
 
-        sheet = self.get_export_sheet(evaluation.course.semester, degree, [course_type.id])
-        self.assertEqual(sheet.col_values(1)[1:3], [degree.name, course_type.name])
+        sheet = self.get_export_sheet(evaluation.course.semester, program, [course_type.id])
+        self.assertEqual(sheet.col_values(1)[1:3], [program.name, course_type.name])
 
     def test_multiple_evaluations(self):
         semester = baker.make(Semester)
-        degree = baker.make(Degree)
+        program = baker.make(Program)
         evaluation1 = baker.make(
-            Evaluation, course__semester=semester, course__degrees=[degree], state=Evaluation.State.PUBLISHED
+            Evaluation, course__semester=semester, course__programs=[program], state=Evaluation.State.PUBLISHED
         )
         evaluation2 = baker.make(
-            Evaluation, course__semester=semester, course__degrees=[degree], state=Evaluation.State.PUBLISHED
+            Evaluation, course__semester=semester, course__programs=[program], state=Evaluation.State.PUBLISHED
         )
         cache_results(evaluation1)
         cache_results(evaluation2)
 
-        sheet = self.get_export_sheet(semester, degree, [evaluation1.course.type.id, evaluation2.course.type.id])
+        sheet = self.get_export_sheet(semester, program, [evaluation1.course.type.id, evaluation2.course.type.id])
 
         self.assertEqual(set(sheet.row_values(0)[1:]), {evaluation1.full_name + "\n", evaluation2.full_name + "\n"})
 
     def test_correct_grades_and_bottom_numbers(self):
-        degree = baker.make(Degree)
+        program = baker.make(Program)
         evaluation = baker.make(
             Evaluation,
             _voter_count=5,
             _participant_count=10,
-            course__degrees=[degree],
+            course__programs=[program],
             state=Evaluation.State.PUBLISHED,
         )
         questionnaire1 = baker.make(Questionnaire, order=1)
@@ -420,7 +423,7 @@ class TestExporters(TestCase):
         evaluation.general_contribution.questionnaires.set([questionnaire1, questionnaire2])
         cache_results(evaluation)
 
-        sheet = self.get_export_sheet(evaluation.course.semester, degree, [evaluation.course.type.id])
+        sheet = self.get_export_sheet(evaluation.course.semester, program, [evaluation.course.type.id])
 
         self.assertEqual(sheet.row_values(5)[1], 2.0)  # question 1 average
         self.assertEqual(sheet.row_values(8)[1], 3.0)  # question 2 average
@@ -429,8 +432,8 @@ class TestExporters(TestCase):
         self.assertEqual(sheet.row_values(12)[1], "50%")  # Voter percentage
 
     def test_course_grade(self):
-        degree = baker.make(Degree)
-        course = baker.make(Course, degrees=[degree])
+        program = baker.make(Program)
+        course = baker.make(Course, programs=[program])
         evaluations = baker.make(
             Evaluation,
             course=course,
@@ -453,18 +456,18 @@ class TestExporters(TestCase):
         for evaluation in evaluations:
             cache_results(evaluation)
 
-        sheet = self.get_export_sheet(course.semester, degree, [course.type.id])
+        sheet = self.get_export_sheet(course.semester, program, [course.type.id])
         self.assertEqual(sheet.row_values(12)[1], expected_average)
         self.assertEqual(sheet.row_values(12)[2], expected_average)
         self.assertEqual(sheet.row_values(12)[3], expected_average)
 
     def test_yes_no_question_result(self):
-        degree = baker.make(Degree)
+        program = baker.make(Program)
         evaluation = baker.make(
             Evaluation,
             _voter_count=6,
             _participant_count=10,
-            course__degrees=[degree],
+            course__programs=[program],
             state=Evaluation.State.PUBLISHED,
         )
         questionnaire = baker.make(Questionnaire)
@@ -475,24 +478,24 @@ class TestExporters(TestCase):
         evaluation.general_contribution.questionnaires.set([questionnaire])
         cache_results(evaluation)
 
-        sheet = self.get_export_sheet(evaluation.course.semester, degree, [evaluation.course.type.id])
+        sheet = self.get_export_sheet(evaluation.course.semester, program, [evaluation.course.type.id])
         self.assertEqual(sheet.row_values(5)[0], question.text)
         self.assertEqual(sheet.row_values(5)[1], "67%")
 
     def test_contributor_result_export(self):
-        degree = baker.make(Degree)
+        program = baker.make(Program)
         contributor = baker.make(UserProfile)
         other_contributor = baker.make(UserProfile)
         evaluation_1 = baker.make(
             Evaluation,
-            course=baker.make(Course, degrees=[degree], responsibles=[contributor]),
+            course=baker.make(Course, programs=[program], responsibles=[contributor]),
             state=Evaluation.State.PUBLISHED,
             _participant_count=10,
             _voter_count=1,
         )
         evaluation_2 = baker.make(
             Evaluation,
-            course=baker.make(Course, degrees=[degree], responsibles=[other_contributor]),
+            course=baker.make(Course, programs=[program], responsibles=[other_contributor]),
             state=Evaluation.State.PUBLISHED,
             _participant_count=2,
             _voter_count=2,

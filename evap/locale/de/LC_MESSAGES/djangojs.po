@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-18 18:39+0100\n"
+"POT-Creation-Date: 2024-07-06 13:53+0200\n"
 "PO-Revision-Date: 2023-12-18 18:41+0100\n"
 "Last-Translator: Johannes Wolf <janno42@posteo.de>\n"
 "Language-Team: Johannes Wolf (janno42)\n"
@@ -16,7 +16,9 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.4.1\n"
 
-#: evap/static/js/notebook.js:30 evap/static/ts/src/notebook.ts:39
+#: evap/static/js/custom-success-form.js:14 evap/static/js/datagrid.js:267
+#: evap/static/js/notebook.js:27 evap/static/ts/src/custom-success-form.ts:20
+#: evap/static/ts/src/datagrid.ts:357 evap/static/ts/src/notebook.ts:31
 msgid "The server is not responding."
 msgstr "Der Server reagiert nicht."
 

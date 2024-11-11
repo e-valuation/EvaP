@@ -1,6 +1,8 @@
 import itertools
 import threading
 from collections import defaultdict, namedtuple
+from collections.abc import Iterator
+from contextlib import contextmanager
 from datetime import date, datetime, time
 from enum import Enum
 from json import JSONEncoder
@@ -15,8 +17,22 @@ from django.forms.models import model_to_dict
 from django.template.defaultfilters import yesno
 from django.utils.formats import localize
 from django.utils.translation import gettext_lazy as _
+from typing_extensions import assert_never
 
 from evap.evaluation.tools import capitalize_first
+
+CREATE_LOGENTRIES = True
+
+
+@contextmanager
+def disable_logentries() -> Iterator[None]:
+    global CREATE_LOGENTRIES  # noqa: PLW0603
+    old_mode = CREATE_LOGENTRIES
+    CREATE_LOGENTRIES = False
+    try:
+        yield
+    finally:
+        CREATE_LOGENTRIES = old_mode
 
 
 class FieldActionType(str, Enum):
@@ -100,18 +116,21 @@ class LogEntry(models.Model):
 
     @property
     def message(self):
-        if self.action_type == InstanceActionType.CHANGE:
-            if self.content_object:
-                message = _("The {cls} {obj} was changed.")
-            else:  # content_object might be deleted
-                message = _("A {cls} was changed.")
-        elif self.action_type == InstanceActionType.CREATE:
-            if self.content_object:
-                message = _("The {cls} {obj} was created.")
-            else:
-                message = _("A {cls} was created.")
-        elif self.action_type == InstanceActionType.DELETE:
-            message = _("A {cls} was deleted.")
+        match self.action_type:
+            case InstanceActionType.CHANGE:
+                if self.content_object:
+                    message = _("The {cls} {obj} was changed.")
+                else:  # content_object might be deleted
+                    message = _("A {cls} was changed.")
+            case InstanceActionType.CREATE:
+                if self.content_object:
+                    message = _("The {cls} {obj} was created.")
+                else:
+                    message = _("A {cls} was created.")
+            case InstanceActionType.DELETE:
+                message = _("A {cls} was deleted.")
+            case _:
+                assert_never(self.action_type)
 
         return message.format(
             cls=capitalize_first(self.content_type.model_class()._meta.verbose_name),
@@ -238,7 +257,7 @@ class LoggedModel(models.Model):
             self._logentry = self._create_log_entry(*args, **kwargs)
 
     def _update_log(self, changes, action_type: InstanceActionType, store_in_db=True):
-        if not changes:
+        if not changes or not CREATE_LOGENTRIES:
             return
 
         self._attach_log_entry_if_not_exists(action_type)

@@ -25,3 +25,12 @@
         transform: rotate(-90deg);
     }
 }
+
+
+.collapse-toggle-light {
+    font-weight: normal;
+
+    &:hover {
+        text-decoration: none;
+    }
+}

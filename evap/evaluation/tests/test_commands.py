@@ -11,7 +11,6 @@ from django.contrib.auth.hashers import make_password
 from django.core import mail, management
 from django.core.management import CommandError
 from django.db.models import Sum
-from django.test import TestCase
 from django.test.utils import override_settings
 from model_bakery import baker
 
@@ -29,7 +28,8 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
-from evap.evaluation.tests.tools import make_manager, make_rating_answer_counters
+from evap.evaluation.tests.tools import TestCase, make_manager, make_rating_answer_counters
+from evap.tools import MonthAndDay
 
 
 class TestAnonymizeCommand(TestCase):
@@ -343,7 +343,7 @@ class TestSendRemindersCommand(TestCase):
 
     @override_settings(TEXTANSWER_REVIEW_REMINDER_WEEKDAYS=list(range(7)))
     def test_send_text_answer_review_reminder(self):
-        make_manager()
+        manager = make_manager()
         evaluation = baker.make(
             Evaluation,
             state=Evaluation.State.EVALUATED,
@@ -358,15 +358,92 @@ class TestSendRemindersCommand(TestCase):
         with patch("evap.evaluation.models.EmailTemplate.send_to_user") as mock:
             management.call_command("send_reminders")
 
-        self.assertEqual(mock.call_count, 1)
-        self.assertEqual(
-            mock.call_args_list[0][0][2].get("evaluation_url_tuples"),
+        mock.assert_has_calls(
             [
-                (
-                    evaluation,
-                    f"{settings.PAGE_URL}/staff/evaluation/{evaluation.id}/textanswers",
-                )
-            ],
+                call(
+                    manager,
+                    subject_params={},
+                    body_params={
+                        "user": manager,
+                        "evaluation_url_tuples": [
+                            (
+                                evaluation,
+                                f"{settings.PAGE_URL}/staff/evaluation/{evaluation.id}/textanswers",
+                            )
+                        ],
+                    },
+                    use_cc=False,
+                ),
+            ]
+        )
+
+    @override_settings(
+        GRADE_REMINDER_EMAIL_RECIPIENTS=["test1@example.com", "test2@example.com"],
+        GRADE_REMINDER_EMAIL_DATES=[
+            MonthAndDay(month=date.today().month, day=(date.today() + timedelta(days=1)).day),
+            MonthAndDay(month=date.today().month, day=date.today().day),
+        ],
+    )
+    def test_send_grade_reminder(self):
+        semester1 = baker.make(Semester)
+        semester2 = baker.make(Semester)
+
+        responsible = baker.make(UserProfile)
+        course_args = {"responsibles": [responsible], "gets_no_grade_documents": False}
+
+        course1 = baker.make(Course, name_en="Z-Course1", semester=semester1, **course_args)
+        course2 = baker.make(Course, name_en="A-Course2", semester=semester1, **course_args)
+
+        course3 = baker.make(Course, name_en="Course3", semester=semester2, **course_args)
+        baker.make(Course, name_en="Course4", semester=semester2, **course_args)
+
+        baker.make(
+            Evaluation,
+            course=iter([course1, course1, course2, course3]),
+            state=Evaluation.State.EVALUATED,
+            wait_for_grade_upload_before_publishing=True,
+            _fill_optional=["name_de", "name_en"],
+            _quantity=4,
+        )
+
+        with patch("evap.evaluation.models.EmailTemplate.send_to_address") as send_mock:
+            management.call_command("send_reminders")
+
+        send_mock.assert_has_calls(
+            [
+                call(
+                    recipient_email="test1@example.com",
+                    subject_params={"semester": semester1},
+                    body_params={
+                        "semester": semester1,
+                        "responsibles_and_courses_without_final_grades": {responsible: [course2, course1]}.items(),
+                    },
+                ),
+                call(
+                    recipient_email="test2@example.com",
+                    subject_params={"semester": semester1},
+                    body_params={
+                        "semester": semester1,
+                        "responsibles_and_courses_without_final_grades": {responsible: [course2, course1]}.items(),
+                    },
+                ),
+                call(
+                    recipient_email="test1@example.com",
+                    subject_params={"semester": semester2},
+                    body_params={
+                        "semester": semester2,
+                        "responsibles_and_courses_without_final_grades": {responsible: [course3]}.items(),
+                    },
+                ),
+                call(
+                    recipient_email="test2@example.com",
+                    subject_params={"semester": semester2},
+                    body_params={
+                        "semester": semester2,
+                        "responsibles_and_courses_without_final_grades": {responsible: [course3]}.items(),
+                    },
+                ),
+            ]
         )
 
 
@@ -386,7 +463,7 @@ class TestFormatCommand(TestCase):
         self.assertEqual(len(mock_subprocess_run.mock_calls), 3)
         mock_subprocess_run.assert_has_calls(
             [
-                call(["black", "evap"], check=False),
+                call(["black", "."], check=False),
                 call(["isort", "."], check=False),
                 call(["npx", "prettier", "--write", "evap/static/ts/**/*.ts"], check=False),
             ]

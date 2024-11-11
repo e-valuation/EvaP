@@ -14,9 +14,9 @@ from evap.evaluation.models import (
     Contribution,
     Course,
     CourseType,
-    Degree,
     EmailTemplate,
     Evaluation,
+    Program,
     Semester,
     UserProfile,
 )
@@ -60,7 +60,7 @@ def index(request):
     own_evaluations = (
         Evaluation.objects.filter(course__in=own_courses)
         .annotate(contributes_to=Exists(Evaluation.objects.filter(id=OuterRef("id"), contributions__contributor=user)))
-        .prefetch_related("course", "course__evaluations", "course__degrees", "course__type", "course__semester")
+        .prefetch_related("course", "course__evaluations", "course__programs", "course__type", "course__semester")
     )
     own_evaluations = [evaluation for evaluation in own_evaluations if evaluation.can_be_seen_by(user)]
 
@@ -78,7 +78,7 @@ def index(request):
             )
         )
         delegated_evaluations = Evaluation.objects.filter(course__in=delegated_courses).prefetch_related(
-            "course", "course__evaluations", "course__degrees", "course__type", "course__semester"
+            "course", "course__evaluations", "course__programs", "course__type", "course__semester"
         )
         delegated_evaluations = [evaluation for evaluation in delegated_evaluations if evaluation.can_be_seen_by(user)]
         for evaluation in delegated_evaluations:
@@ -265,7 +265,13 @@ def evaluation_direct_delegation(request, evaluation_id):
 
     # we don't provide the request here since send_to_user only uses it to display a warning message in case the user does not have
     # an email address. In this special case, we don't want that warning. Instead, we want a mail to the admins.
-    template.send_to_user(delegate_user, subject_params, body_params, use_cc=True, additional_cc_users=[request.user])
+    template.send_to_user(
+        delegate_user,
+        subject_params=subject_params,
+        body_params=body_params,
+        use_cc=True,
+        additional_cc_users=[request.user],
+    )
 
     messages.add_message(
         request,
@@ -284,7 +290,7 @@ def export_contributor_results(contributor):
     ResultsExporter().export(
         response,
         Semester.objects.all(),
-        [(Degree.objects.all(), CourseType.objects.all())],
+        [(Program.objects.all(), CourseType.objects.all())],
         include_not_enough_voters=True,
         include_unpublished=False,
         contributor=contributor,

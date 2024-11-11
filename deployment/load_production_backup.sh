@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Counter part for update_production script.
 # This script will import the backup made by update_production.
@@ -6,10 +6,8 @@
 set -e # abort on error
 cd "$(dirname "$0")/.." # change to root directory
 
-USERNAME="evap"
-ENVDIR="/opt/evap/env"
 CONDITIONAL_NOINPUT=""
-[[ ! -z "$GITHUB_WORKFLOW" ]] && echo "Detected GitHub" && USERNAME="root" && ENVDIR="${VIRTUAL_ENV}" && CONDITIONAL_NOINPUT="--noinput"
+[[ ! -z "$GITHUB_WORKFLOW" ]] && echo "Detected GitHub" && CONDITIONAL_NOINPUT="--noinput" && EVAP_SKIP_APACHE_STEPS=1
 
 COMMIT_HASH="$(git rev-parse --short HEAD)"
 
@@ -41,24 +39,22 @@ then
     exit 1
 fi
 
-[[ -z "$GITHUB_WORKFLOW" ]] && sudo service apache2 stop
-
-sudo -H -u "$USERNAME" "$ENVDIR/bin/pip" install -r requirements.txt
+[[ -z "$EVAP_SKIP_APACHE_STEPS" ]] && sudo service apache2 stop
 
 # sometimes, this fails for some random i18n test translation files.
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py compilemessages || true
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py scss --production
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py collectstatic --noinput
+./manage.py compilemessages || true
+./manage.py scss --production
+./manage.py collectstatic --noinput
 
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py reset_db "$CONDITIONAL_NOINPUT"
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py migrate
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py flush "$CONDITIONAL_NOINPUT"
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py loaddata "$1"
+./manage.py reset_db "$CONDITIONAL_NOINPUT"
+./manage.py migrate
+./manage.py flush "$CONDITIONAL_NOINPUT"
+./manage.py loaddata_unlogged "$1"
 
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py clear_cache --all -v=1
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py refresh_results_cache
+./manage.py clear_cache --all -v=1
+./manage.py refresh_results_cache
 
-[[ -z "$GITHUB_WORKFLOW" ]] && sudo service apache2 start
+[[ -z "$EVAP_SKIP_APACHE_STEPS" ]] && sudo service apache2 start
 
 { set +x; } 2>/dev/null # don't print the echo command, and don't print the 'set +x' itself
 
