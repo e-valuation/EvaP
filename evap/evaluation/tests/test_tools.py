@@ -5,12 +5,11 @@ from django.core import management
 from django.core.exceptions import SuspiciousOperation
 from django.db.models import Model, prefetch_related_objects
 from django.http import Http404
-from django.test.testcases import TestCase
 from django.utils import translation
 from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer, UserProfile
-from evap.evaluation.tests.tools import WebTest
+from evap.evaluation.tests.tools import TestCase, WebTest
 from evap.evaluation.tools import (
     discard_cached_related_objects,
     get_object_from_dict_pk_entry_or_logged_40x,
@@ -36,8 +35,6 @@ class TestLanguageMiddleware(WebTest):
         user.refresh_from_db()
         self.assertEqual(user.language, "de")
         self.assertEqual(translation.get_language(), "de")
-
-        translation.activate("en")  # for following tests
 
 
 class SaboteurError(Exception):

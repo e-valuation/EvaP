@@ -81,19 +81,21 @@
 
 {% block additional_javascript %}
     {% if editable %}
-        <script src="{% static 'js/sortable_form.js' %}"></script>
-        <script type="text/javascript">
-            rowChanged = function(row) {
-                nameDe = $(row.find('textarea[id$=-text_de]')).val();
-                nameEn = $(row.find('textarea[id$=-text_en]')).val();
-                return nameDe || nameEn
+        <script type="module">
+            import { makeFormSortable } from "{% static 'js/sortable-form.js' %}";
+            const rowChanged = function(row) {
+                const nameDe = row.querySelector('textarea[id$=-text_de]')?.value;
+                const nameEn = row.querySelector('textarea[id$=-text_en]')?.value;
+                return nameDe || nameEn;
             };
-            rowAdded = function(row) {
-                row.find('a.btn-secondary').remove();
-                applyTomSelect(row.find("select").get());
+            const rowAdded = function(row) {
+                row.querySelectorAll('a.btn-secondary').forEach(el => {
+                    el.remove();
+                });
+                applyTomSelect(row.querySelectorAll("select"));
                 registerSelectChangedHandlers();
             };
-            makeFormSortable("question_table", "questions", rowChanged, rowAdded, "", true, true);
+            makeFormSortable("question_table", "questions", rowChanged, rowAdded, true, true);
 
             const selectChangedHandler = function(e) {
                 const checkbox = this.closest("td.question-type").querySelector("input[type=checkbox]");

@@ -12,27 +12,27 @@ django-fsm = "~2.8.2"
 Django = "~5.1.0"
 mozilla-django-oidc = "~4.0.1"
 openpyxl = "~3.1.5"
-psycopg2-binary = "~2.9.9"
-redis = "~5.1.0"
+psycopg = { version = "~3.2.3", extras = ["binary"] }
+redis = "~5.2.0"
 typing-extensions = "~4.12.2"
 xlwt = "~1.3.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "~24.10.0"
-coverage = { version = "7.6.2", extras = ["toml"] }
-django-debug-toolbar = "~4.0"
-django-stubs = "5.1.0"
+coverage = { version = "7.6.4", extras = ["toml"] }
+django-debug-toolbar = "~4.4"
+django-stubs = "5.1.1"
 django-webtest = "~1.9.10"
 isort = "~5.13.1"
 model-bakery = "~1.20.0"
-mypy = "~1.11.0"
+mypy = "~1.13.0"
 openpyxl-stubs = "~0.1.25"
-pylint-django = "~2.5.4"
+pylint-django = "~2.6.1"
 pylint = "~3.3.0"
-ruff = "~0.6.2"
+ruff = "~0.7.0"
 tblib = "~3.0.0"
 xlrd = "~2.0.1"
-typeguard = "~4.3.0"
+typeguard = "~4.4.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -134,7 +134,8 @@ disable = [
     "use-implicit-booleaness-not-comparison-to-zero",    # forces us to use less expressive code
     # the following are covered by ruff
     "broad-exception-caught", "line-too-long", "unused-wildcard-import", "wildcard-import", "too-many-arguments",
-    "too-many-statements", "too-many-return-statements", "too-many-branches", "unnecessary-lambda-assignment"
+    "too-many-statements", "too-many-return-statements", "too-many-branches", "unnecessary-lambda-assignment",
+    "global-statement",
 ]
 
 [tool.pylint.design]

@@ -1,6 +1,8 @@
 import itertools
 import threading
 from collections import defaultdict, namedtuple
+from collections.abc import Iterator
+from contextlib import contextmanager
 from datetime import date, datetime, time
 from enum import Enum
 from json import JSONEncoder
@@ -18,6 +20,19 @@ from django.utils.translation import gettext_lazy as _
 from typing_extensions import assert_never
 
 from evap.evaluation.tools import capitalize_first
+
+CREATE_LOGENTRIES = True
+
+
+@contextmanager
+def disable_logentries() -> Iterator[None]:
+    global CREATE_LOGENTRIES  # noqa: PLW0603
+    old_mode = CREATE_LOGENTRIES
+    CREATE_LOGENTRIES = False
+    try:
+        yield
+    finally:
+        CREATE_LOGENTRIES = old_mode
 
 
 class FieldActionType(str, Enum):
@@ -242,7 +257,7 @@ class LoggedModel(models.Model):
             self._logentry = self._create_log_entry(*args, **kwargs)
 
     def _update_log(self, changes, action_type: InstanceActionType, store_in_db=True):
-        if not changes:
+        if not changes or not CREATE_LOGENTRIES:
             return
 
         self._attach_log_entry_if_not_exists(action_type)

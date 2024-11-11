@@ -14,10 +14,8 @@ from django.core import mail
 from django.db.models import Model
 from django.http import HttpResponse
 from django.test import override_settings
-from django.test.testcases import TestCase
 from django.urls import reverse
 from django.utils import translation
-from django_webtest import WebTest
 from model_bakery import baker
 
 import evap.staff.fixtures.excel_files_test_data as excel_data
@@ -41,6 +39,8 @@ from evap.evaluation.models import (
 )
 from evap.evaluation.tests.tools import (
     FuzzyInt,
+    TestCase,
+    WebTest,
     assert_no_database_modifications,
     create_evaluation_with_responsible_and_editor,
     let_user_vote_for_evaluation,
@@ -2379,6 +2379,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
     def tearDown(self):
         # delete the uploaded file again so other tests can start with no file guaranteed
         helper_delete_all_import_files(self.manager.id)
+        super().tearDown()
 
     def test_import_valid_participants_file(self):
         page = self.app.get(self.url, user=self.manager)

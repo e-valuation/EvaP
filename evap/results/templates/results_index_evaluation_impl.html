@@ -50,7 +50,7 @@
             {{ evaluation.course.responsibles_names }}
         </div>
     {% endif %}
-    <div data-col="voters" class="text-center" data-order="{{ evaluation|voters_order }}">
+    <div data-col="voters" class="text-center" data-order="{{ evaluation|voters_order }}" data-filter-value="{{ evaluation.num_participants }}">
         {% if evaluation.is_single_result %}
             <span class="fas fa-user"></span>&nbsp;{{ evaluation.single_result_rating_result.count_sum }}
         {% else %}
