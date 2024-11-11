@@ -234,26 +234,46 @@ class RemoveUserDueToInactivity(TestCase):
             vote_end_date=six_months_ago.date(),
             participants=[cls.user],
         )
+        cls.evaluation.course.semester.archive()
 
-    @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS=timedelta(6 * 30 - 1))
+    @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS=timedelta(6 * 30))
     def test_remove_user_due_to_inactivity(self):
-        self.evaluation.course.semester.archive()
-
         messages = remove_inactive_participations(self.user)
         self.assertTrue(self.user.can_be_marked_inactive_by_manager)
         self.assertEqual(messages, [f"Removed {self.user.full_name} from {1} participation(s) due to inactivity."])
         self.assertEqual(len(messages), 1)
 
-    @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS=timedelta(6 * 30 + 1))
-    def test_do_not_remove_user_due_to_inactivity(self):
+    @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS=timedelta(30))
+    def test_do_not_remove_user_due_to_inactivity_with_recently_archived_evaluation(self):
+        recently_archived_evaluation = baker.make(
+            Evaluation,
+            state=Evaluation.State.PUBLISHED,
+            vote_start_datetime=datetime.today() - timedelta(days=3),
+            vote_end_date=datetime.today() - timedelta(days=1),
+            participants=[self.user],
+        )
+
+        recently_archived_evaluation.course.semester.archive()
+
+        messages = remove_inactive_participations(self.user)
+        self.assertTrue(
+            self.user.can_be_marked_inactive_by_manager
+        )  # user can be marked inactive since all evaluations are archived but is not inactive for too long
+        self.assertTrue(self.user.is_active)
+        self.assertEqual(len(messages), 0)
+
+    def test_do_not_remove_user_due_to_inactivity_with_active_evaluation(self):
+        not_archived_evaluation = baker.make(
+            Evaluation,
+            participants=[self.user],
+        )
+
         messages = remove_inactive_participations(self.user)
         self.assertFalse(self.user.can_be_marked_inactive_by_manager or not self.user.is_active)
         self.assertEqual(len(messages), 0)
 
-    @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS=timedelta(6 * 30 - 1))
+    @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS=timedelta(6 * 30))
     def test_do_nothing_if_test_run(self):
-        self.evaluation.course.semester.archive()
-
         messages = remove_inactive_participations(self.user, test_run=True)
         self.assertTrue(self.user.can_be_marked_inactive_by_manager)
         self.assertEqual(
