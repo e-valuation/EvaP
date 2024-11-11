@@ -388,12 +388,14 @@ def calculate_average_distribution(evaluation):
     if not evaluation.can_staff_see_average_grade or not evaluation.can_publish_average_grade:
         return None
 
-    # todo@felix: remove dropout questionnaires from calculation
     # will contain a list of question results for each contributor and one for the evaluation (where contributor is None)
     grouped_results = defaultdict(list)
     for contribution_result in get_results(evaluation).contribution_results:
         for questionnaire_result in contribution_result.questionnaire_results:
-            grouped_results[contribution_result.contributor].extend(questionnaire_result.question_results)
+            if (
+                questionnaire_result.questionnaire.type != Questionnaire.Type.DROPOUT
+            ):  # dropout questionnaires are not counted
+                grouped_results[contribution_result.contributor].extend(questionnaire_result.question_results)
 
     evaluation_results = grouped_results.pop(None, [])
 
