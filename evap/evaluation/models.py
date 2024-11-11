@@ -8,7 +8,7 @@ from datetime import date, datetime, timedelta
 from enum import Enum, auto
 from functools import partial
 from numbers import Real
-from typing import Any
+from typing import Any, no_type_check
 
 from django.conf import settings
 from django.contrib import messages
@@ -54,7 +54,7 @@ logger = logging.getLogger(__name__)
 try:
     from typeguard import typeguard_ignore
 except ImportError:
-    typeguard_ignore = lambda f: f  # noqa: E731 - black formats a def with an empty line before.
+    typeguard_ignore = lambda arg: arg  # noqa: E731 - black formats a def with an empty line before.
 
 
 class NotArchivableError(Exception):
