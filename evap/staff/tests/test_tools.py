@@ -263,7 +263,7 @@ class RemoveUserDueToInactivity(TestCase):
         self.assertEqual(len(messages), 0)
 
     def test_do_not_remove_user_due_to_inactivity_with_active_evaluation(self):
-        not_archived_evaluation = baker.make(
+        baker.make(
             Evaluation,
             participants=[self.user],
         )
