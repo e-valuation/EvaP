@@ -54,7 +54,7 @@ logger = logging.getLogger(__name__)
 try:
     from typeguard import typeguard_ignore
 except ImportError:
-    typeguard_ignore = lambda f: f  # noqa: E731 - black formats a def with an empty line before.
+    typeguard_ignore = lambda arg: arg  # noqa: E731 - black formats a def with an empty line before.
 
 
 class NotArchivableError(Exception):
