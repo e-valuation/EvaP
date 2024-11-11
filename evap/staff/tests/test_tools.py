@@ -4,7 +4,7 @@ from itertools import cycle, repeat
 from unittest.mock import MagicMock, patch
 
 from django.contrib.auth.models import Group
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils.html import escape
 from django_webtest import WebTest
 from model_bakery import baker
@@ -223,48 +223,42 @@ class RemoveUserFromRepresentedAndCCingUsersTest(TestCase):
 
 
 class RemoveUserDueToInactivity(TestCase):
-    def test_remove_user_due_to_inactivity(self):
-        inactive_user = baker.make(UserProfile, last_name="Inactive User")
-        inactive_evaluation = baker.make(
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = baker.make(UserProfile)
+        six_months_ago = datetime.today() - timedelta(days=6 * 30)
+        cls.evaluation = baker.make(
             Evaluation,
             state=Evaluation.State.PUBLISHED,
-            vote_start_datetime=datetime.today()
-            - timedelta(days=settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS + 1),
-            vote_end_date=datetime.today() - timedelta(days=settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS + 1),
-            participants=[inactive_user],
+            vote_start_datetime=six_months_ago - settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS,
+            vote_end_date=six_months_ago.date(),
+            participants=[cls.user],
         )
 
-        semester = inactive_evaluation.course.semester
-        semester.archive()
+    @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS=timedelta(6 * 30 - 1))
+    def test_remove_user_due_to_inactivity(self):
+        self.evaluation.course.semester.archive()
 
-        messages = remove_inactive_participations(inactive_user)
-        self.assertTrue(inactive_user.can_be_marked_inactive_by_manager)
+        messages = remove_inactive_participations(self.user)
+        self.assertTrue(self.user.can_be_marked_inactive_by_manager)
+        self.assertEqual(messages, [f"Removed {self.user.full_name} from {1} participation(s) due to inactivity."])
         self.assertEqual(len(messages), 1)
 
+    @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS=timedelta(6 * 30 + 1))
     def test_do_not_remove_user_due_to_inactivity(self):
-        active_user = baker.make(UserProfile, last_name="Active User")
-
-        baker.make(Evaluation, state=Evaluation.State.PUBLISHED, participants=[active_user])
-
-        messages = remove_inactive_participations(active_user)
-        self.assertFalse(active_user.can_be_marked_inactive_by_manager)
+        messages = remove_inactive_participations(self.user)
+        self.assertFalse(self.user.can_be_marked_inactive_by_manager or not self.user.is_active)
         self.assertEqual(len(messages), 0)
 
+    @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS=timedelta(6 * 30 - 1))
     def test_do_nothing_if_test_run(self):
-        inactive_user = baker.make(UserProfile, last_name="Test Run User")
-        inactive_evaluation = baker.make(
-            Evaluation,
-            state=Evaluation.State.PUBLISHED,
-            vote_start_datetime=datetime.today()
-            - timedelta(days=settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS + 1),
-            vote_end_date=datetime.today() - timedelta(days=settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS + 1),
-            participants=[inactive_user],
+        self.evaluation.course.semester.archive()
+
+        messages = remove_inactive_participations(self.user, test_run=True)
+        self.assertTrue(self.user.can_be_marked_inactive_by_manager)
+        self.assertEqual(
+            messages, [f"{self.user.full_name} will be removed from {1} participation(s) due to inactivity."]
         )
-
-        inactive_evaluation.course.semester.archive()
-
-        messages = remove_inactive_participations(inactive_user, test_run=True)
-        self.assertTrue(inactive_user.can_be_marked_inactive_by_manager)
         self.assertEqual(len(messages), 1)
 
 
