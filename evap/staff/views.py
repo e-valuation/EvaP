@@ -1921,12 +1921,12 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
         for question_form in formset.forms:
             disable_all_except_named(question_form.fields, ["id"])
 
-        # disallow type changed from and to contributor
-        form.fields["type"].choices = [
-            choice
-            for choice in Questionnaire.Type.choices
-            if (choice[0] == Questionnaire.Type.CONTRIBUTOR) == (questionnaire.type == Questionnaire.Type.CONTRIBUTOR)
-        ]
+        # disallow type changed from and to contributor or dropout
+        single_types = [Questionnaire.Type.CONTRIBUTOR, Questionnaire.Type.DROPOUT]
+        if questionnaire.type in single_types:
+            form.fields["type"].choices = filter(lambda c: c[0] == questionnaire.type, form.fields["type"].choices)
+        else:
+            form.fields["type"].choices = filter(lambda c: c[0] not in single_types, form.fields["type"].choices)
 
     return form, formset
 
