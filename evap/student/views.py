@@ -208,12 +208,19 @@ def get_vote_page_form_groups(
         if not questionnaires.exists():
             continue
         form_groups[contribution] = [
-            QuestionnaireVotingForm(request.POST or None, contribution=contribution, questionnaire=questionnaire,
-                                    initial={
-                                        answer_field_id(contribution, questionnaire, question): NO_ANSWER for question
-                                        in questionnaire.rating_questions
-                                    } if show_dropout_questionnaire else None
-                                    )
+            QuestionnaireVotingForm(
+                request.POST or None,
+                contribution=contribution,
+                questionnaire=questionnaire,
+                initial=(
+                    {
+                        answer_field_id(contribution, questionnaire, question): NO_ANSWER
+                        for question in questionnaire.rating_questions
+                    }
+                    if show_dropout_questionnaire
+                    else None
+                ),
+            )
             for questionnaire in questionnaires
         ]
     return form_groups
