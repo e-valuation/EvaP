@@ -10,7 +10,7 @@ from django_webtest import WebTest
 from model_bakery import baker
 from openpyxl import load_workbook
 
-from evap import settings
+from django.conf import settings
 from evap.evaluation.models import Contribution, Course, Evaluation, UserProfile
 from evap.evaluation.tests.tools import assert_no_database_modifications
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption
