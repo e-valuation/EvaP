@@ -2,7 +2,6 @@ import os
 from collections.abc import Iterable
 from datetime import date, datetime, timedelta
 from enum import Enum
-from typing import Optional
 
 from django.conf import settings
 from django.contrib import messages
@@ -384,7 +383,7 @@ def remove_user_from_represented_and_ccing_users(user, ignored_users=None, test_
 
 def remove_inactive_participations(user, test_run=False):
     remove_messages = []
-    last_eval: Optional[date] = None
+    last_eval: date | None = None
     if not user.is_active or user.can_be_marked_inactive_by_manager:
         last_eval = user.evaluations_participating_in.aggregate(Max("vote_end_date"))["vote_end_date__max"]
 
