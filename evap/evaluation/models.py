@@ -8,7 +8,7 @@ from datetime import date, datetime, timedelta
 from enum import Enum, auto
 from functools import partial
 from numbers import Real
-from typing import Any, no_type_check
+from typing import Any
 
 from django.conf import settings
 from django.contrib import messages
