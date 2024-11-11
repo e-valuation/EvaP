@@ -218,6 +218,30 @@ def evaluation_detail(request, semester_id, evaluation_id):
 
     is_responsible_or_contributor_or_delegate = evaluation.is_user_responsible_or_contributor_or_delegate(view_as_user)
 
+    can_see_general_text_answers = False
+    can_see_contributor_textanswers = False
+    if view_as_user.is_reviewer or view_as_user.is_manager:
+        can_see_general_text_answers = True
+        can_see_contributor_textanswers = True
+    if view_as_user.represented_users.all():
+        for ruser in view_as_user.represented_users.all():
+            if Contribution.objects.get( 
+                contributor=ruser, evaluation=evaluation
+            ).textanswer_visibility  == Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS:
+                can_see_general_text_answers = True
+            if TextAnswer.objects.filter(
+                contribution__contributor=ruser, contribution__evaluation=evaluation
+            ).exists():
+                can_see_contributor_textanswers = True
+    if evaluation.is_user_contributor(view_as_user): #jtz noch iwie reponsible (is der jtz schon dabei, weil er ja auch contributor is) und delegate
+        can_see_general_text_answers = Contribution.objects.get( 
+                contributor=view_as_user, evaluation=evaluation
+            ).textanswer_visibility  == Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
+        can_see_contributor_textanswers = TextAnswer.objects.filter(
+                contribution__contributor=view_as_user, contribution__evaluation=evaluation
+            ).exists()
+        
+
     template_data = {
         "evaluation": evaluation,
         "course": evaluation.course,
@@ -241,17 +265,8 @@ def evaluation_detail(request, semester_id, evaluation_id):
         "view_as_user": view_as_user,
         "contributors_with_omitted_results": contributors_with_omitted_results,
         "contributor_id": contributor_id,
-        "can_see_general_textanswers": (
-            Contribution.objects.get(
-                contributor=view_as_user, evaluation=evaluation
-            ).textanswer_visibility  # hier nochmal mit janno reden, denn nicht nur leute, die direkt contributor in einer eval waren, sollen diese antworten sehen können (responsible, manager, reviwer,...)
-            == Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
-            if evaluation.is_user_contributor(view_as_user)
-            else False
-        ),
-        "can_see_contributor_textanswers": TextAnswer.objects.filter(  # hier nochmal mit janno reden, denn auch delegates von contributors können die ja sehen, oder auch reviewer oder manager
-            contribution__contributor=view_as_user, contribution__evaluation=evaluation
-        ).exists(),
+        "can_see_general_textanswers": can_see_general_text_answers,
+        "can_see_contributor_textanswers": can_see_contributor_textanswers,
         "ViewContributorResults": ViewContributorResults,
         "ViewGeneralResults": ViewGeneralResults,
     }
