@@ -824,7 +824,6 @@ files = [
 ]
 
 [package.dependencies]
-psycopg-binary = {version = "3.2.3", optional = true, markers = "implementation_name != \"pypy\" and extra == \"binary\""}
 typing-extensions = {version = ">=4.6", markers = "python_version < \"3.13\""}
 tzdata = {version = "*", markers = "sys_platform == \"win32\""}
 
@@ -840,7 +839,7 @@ test = ["anyio (>=4.0)", "mypy (>=1.11)", "pproxy (>=2.7)", "pytest (>=6.2.5)", 
 name = "psycopg-binary"
 version = "3.2.3"
 description = "PostgreSQL database adapter for Python -- C optimisation distribution"
-optional = false
+optional = true
 python-versions = ">=3.8"
 files = [
     {file = "psycopg_binary-3.2.3-cp310-cp310-macosx_12_0_x86_64.whl", hash = "sha256:965455eac8547f32b3181d5ec9ad8b9be500c10fe06193543efaaebe3e4ce70c"},
@@ -907,6 +906,16 @@ files = [
     {file = "psycopg_binary-3.2.3-cp39-cp39-musllinux_1_2_ppc64le.whl", hash = "sha256:f0b018e37608c3bfc6039a1dc4eb461e89334465a19916be0153c757a78ea426"},
     {file = "psycopg_binary-3.2.3-cp39-cp39-musllinux_1_2_x86_64.whl", hash = "sha256:2a29f5294b0b6360bfda69653697eff70aaf2908f58d1073b0acd6f6ab5b5a4f"},
     {file = "psycopg_binary-3.2.3-cp39-cp39-win_amd64.whl", hash = "sha256:e56b1fd529e5dde2d1452a7d72907b37ed1b4f07fdced5d8fb1e963acfff6749"},
+]
+
+[[package]]
+name = "psycopg-c"
+version = "3.2.3"
+description = "PostgreSQL database adapter for Python -- C optimisation distribution"
+optional = true
+python-versions = ">=3.8"
+files = [
+    {file = "psycopg_c-3.2.3.tar.gz", hash = "sha256:06ae7db8eaec1a3845960fa7f997f4ccdb1a7a7ab8dc593a680bcc74e1359671"},
 ]
 
 [[package]]
@@ -1265,7 +1274,11 @@ files = [
     {file = "xlwt-1.3.0.tar.gz", hash = "sha256:c59912717a9b28f1a3c2a98fd60741014b06b043936dcecbc113eaaada156c88"},
 ]
 
+[extras]
+psycopg-binary = ["psycopg-binary"]
+psycopg-c = ["psycopg-c"]
+
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.10.0"
-content-hash = "9554e9cb984e6e02b5b1c80f139eda4b3a864ef09c30824d00633d1eadceeb3f"
+content-hash = "d800aac484055ba0b004eeac5f3130a35295ffb650fce69ac4576bbfe6bd107f"

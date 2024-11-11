@@ -23,6 +23,7 @@
       devShells = forAllSystems (system:
         let
           pkgs = pkgsFor.${system};
+          extras = if pkgs.stdenv.isDarwin then [ "psycopg-c" ] else [ "psycopg-binary" ];
         in
         rec {
           evap = pkgs.callPackage ./nix/shell.nix {
@@ -30,6 +31,7 @@
             poetry2nix = inputs.poetry2nix.lib.mkPoetry2Nix { inherit pkgs; };
             pyproject = ./pyproject.toml;
             poetrylock = ./poetry.lock;
+            inherit extras;
           };
           evap-dev = evap.override { poetry-groups = [ "dev" ]; };
           default = evap-dev;
