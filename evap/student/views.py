@@ -235,7 +235,6 @@ def render_vote_page(
 ):
     form_groups = get_vote_page_form_groups(request, evaluation, preview, show_dropout_questionnaire)
 
-    # TODO@Felix: why does this assert throw
     assert preview or not all(form.is_valid() for form_group in form_groups.values() for form in form_group)
 
     evaluation_form_group = form_groups.pop(evaluation.general_contribution, default=[])
@@ -267,6 +266,7 @@ def render_vote_page(
     )
 
     if show_dropout_questionnaire:
+        # TODO@felix: explanatory text: "will not be published/ only shown to contributors"
         dropout_questionnaire = Questionnaire.objects.active_dropout_questionnaire().first()
         if dropout_questionnaire:
             evaluation_form_group_top.insert(
