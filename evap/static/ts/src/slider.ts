@@ -16,7 +16,7 @@ export class RangeSlider {
     private readonly minLabel: HTMLSpanElement;
     private readonly rangeLabel: HTMLSpanElement;
     private allowed: Range = { low: 0, high: 0 };
-    private _selection: Range = { low: 0, high: 0 };
+    private _value: Range = { low: 0, high: 0 };
 
     private debounceTimeout?: number;
 
@@ -29,26 +29,26 @@ export class RangeSlider {
         this.rangeLabel = selectOrError<HTMLSpanElement>(".range-values", this.rangeSlider);
 
         const setRangeFromSlider = (): void => {
-            this.selection = { low: parseFloat(this.lowSlider.value), high: parseFloat(this.highSlider.value) };
+            this.value = { low: parseFloat(this.lowSlider.value), high: parseFloat(this.highSlider.value) };
         };
 
         this.lowSlider.addEventListener("input", setRangeFromSlider);
         this.highSlider.addEventListener("input", setRangeFromSlider);
     }
 
-    public get selection(): Range {
-        return this._selection;
+    public get value(): Range {
+        return this._value;
     }
 
-    public set selection(selection: Range) {
-        this._selection = selection;
+    public set value(selection: Range) {
+        this._value = selection;
 
-        this.lowSlider.value = this.selection.low.toString();
-        this.highSlider.value = this.selection.high.toString();
-        if (this.selection.low > this.selection.high) {
-            [this.selection.low, this.selection.high] = [this.selection.high, this.selection.low];
+        this.lowSlider.value = this.value.low.toString();
+        this.highSlider.value = this.value.high.toString();
+        if (this.value.low > this.value.high) {
+            [this.value.low, this.value.high] = [this.value.high, this.value.low];
         }
-        this.rangeLabel.innerText = `${this.selection.low} – ${this.selection.high}`;
+        this.rangeLabel.innerText = `${this.value.low} – ${this.value.high}`;
 
         // debounce on range change callback
         if (this.debounceTimeout !== undefined) {
@@ -72,7 +72,7 @@ export class RangeSlider {
     }
 
     public reset(): void {
-        this.selection = { low: this.allowed.low, high: this.allowed.high };
+        this.value = { low: this.allowed.low, high: this.allowed.high };
     }
 
     private updateLimits(): void {
