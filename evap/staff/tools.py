@@ -387,7 +387,7 @@ def remove_inactive_participations(user, test_run=False):
             state=Evaluation.State.PUBLISHED,
             vote_end_date__lt=datetime.today() - timedelta(days=settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS),
         )
-    if len(evaluations) > 0:
+    if evaluations:
         if test_run:
             remove_messages.append(
                 _("{} will be removed from {} participation(s) due to inactivity.").format(
