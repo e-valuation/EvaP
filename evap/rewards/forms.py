@@ -50,8 +50,8 @@ class RewardPointRedemptionForm(forms.Form):
 
 class BaseRewardPointRedemptionFormSet(forms.BaseFormSet):
     def __init__(self, *args, user: UserProfile, **kwargs) -> None:
-        self.user = user
         super().__init__(*args, **kwargs)
+        self.user = user
         self.locked = False
 
     def get_form_kwargs(self, index):
@@ -70,8 +70,10 @@ class BaseRewardPointRedemptionFormSet(forms.BaseFormSet):
             list(self.user.reward_point_redemptions.select_for_update())
 
             self.locked = True
-            yield
-            self.locked = False
+            try:
+                yield
+            finally:
+                self.locked = False
 
     def clean(self):
         assert self.locked
