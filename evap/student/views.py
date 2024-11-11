@@ -298,15 +298,19 @@ def render_vote_page(
 
 
 @participant_required
-def vote(request: HttpRequest, evaluation_id: int):  # noqa: PLR0912
+def vote(request: HttpRequest, evaluation_id: int, do_dropout=False):  # noqa: PLR0912
     # pylint: disable=too-many-nested-blocks
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
+
+    if do_dropout and not evaluation.allow_drop_out:
+        raise SuspiciousOperation("Drop out not allowed")
+
     if not evaluation.can_be_voted_for_by(request.user):
         raise PermissionDenied
 
     form_groups = get_vote_page_form_groups(request, evaluation, preview=False)
     if not all(form.is_valid() for form_group in form_groups.values() for form in form_group):
-        return render_vote_page(request, evaluation, preview=False)
+        return render_vote_page(request, evaluation, preview=False, show_dropout_questionnaire=do_dropout)
 
     # all forms are valid, begin vote operation
     with transaction.atomic():
@@ -367,20 +371,3 @@ def vote(request: HttpRequest, evaluation_id: int):  # noqa: PLR0912
 
     messages.success(request, _("Your vote was recorded."))
     return HttpResponse(SUCCESS_MAGIC_STRING)
-
-
-@participant_required
-def drop(request: HttpRequest, evaluation_id: int) -> HttpResponse:
-    evaluation = get_object_or_404(Evaluation, id=evaluation_id)
-
-    if not evaluation.allow_drop_out:
-        raise SuspiciousOperation("Drop out not allowed")
-
-    # TODO@felix: implement drop view
-    # TODO@felix: explanatory text: "will not be published/ only shown to contributors"
-    # TODO@felix: add "why did you drop" section on top
-    # TODO@felix: select "No answer" for all other questions
-    return render_vote_page(request, evaluation, preview=False, show_dropout_questionnaire=True)
-
-    # TODO@felix: save result differently from normal results
-    # TODO@felix: show results only to staff, reviewers & responsible contributors

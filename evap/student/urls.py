@@ -7,5 +7,5 @@ app_name = "student"
 urlpatterns = [
     path("", views.index, name="index"),
     path("vote/<int:evaluation_id>", views.vote, name="vote"),
-    path("drop/<int:evaluation_id>", views.drop, name="drop"),
+    path("drop/<int:evaluation_id>", views.vote, {"do_dropout":True}, name="drop",),
 ]
