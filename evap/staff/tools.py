@@ -2,13 +2,14 @@ import os
 from collections.abc import Iterable
 from datetime import date, datetime, timedelta
 from enum import Enum
+from typing import Optional
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.core.exceptions import SuspiciousOperation
 from django.db import transaction
-from django.db.models import Count
+from django.db.models import Count, Max
 from django.urls import reverse
 from django.utils.html import escape, format_html, format_html_join
 from django.utils.safestring import SafeString
@@ -383,24 +384,20 @@ def remove_user_from_represented_and_ccing_users(user, ignored_users=None, test_
 
 def remove_inactive_participations(user, test_run=False):
     remove_messages = []
-    evaluations = []
+    last_eval: Optional[date] = None
     if not user.is_active or user.can_be_marked_inactive_by_manager:
-        evaluations = user.evaluations_participating_in.filter(
-            state=Evaluation.State.PUBLISHED,
-            vote_end_date__lt=datetime.today() - timedelta(days=settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS),
-        )
-    if evaluations:
+        last_eval = user.evaluations_participating_in.aggregate(Max("vote_end_date"))["vote_end_date__max"]
+
+    if last_eval and last_eval <= (datetime.today() - settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS).date():
+        number_evals = len(user.evaluations_participating_in.all())
         if test_run:
             remove_messages.append(
-                _("{} will be removed from {} participation(s) due to inactivity.").format(
-                    user.full_name, len(evaluations)
-                )
+                _("{} will be removed from {} participation(s) due to inactivity.").format(user.full_name, number_evals)
             )
         else:
-            for evaluation in evaluations:
-                evaluation.participants.remove(user)
+            user.evaluations_participating_in.clear()
             remove_messages.append(
-                _("Removed {} from {} participation(s) due to inactivity.").format(user.full_name, len(evaluations))
+                _("Removed {} from {} participation(s) due to inactivity.").format(user.full_name, number_evals)
             )
     return remove_messages
 
