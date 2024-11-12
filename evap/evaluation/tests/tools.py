@@ -1,6 +1,5 @@
 import functools
 import os
-import re
 from collections.abc import Sequence
 from contextlib import contextmanager
 from datetime import timedelta
@@ -189,11 +188,12 @@ def create_evaluation_with_responsible_and_editor():
     }
 
 
-def make_manager():
+def make_manager(**kwargs):
     return baker.make(
         UserProfile,
         email="manager@institution.example.com",
         groups=[Group.objects.get(name="Manager")],
+        **kwargs,
     )
 
 
@@ -259,17 +259,12 @@ def assert_no_database_modifications(*args, **kwargs):
     with CaptureQueriesContext(conn):
         yield
 
-        last_login_pattern = re.compile(
-            r"""UPDATE "evaluation_userprofile" SET "last_login" = '\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{6}'::timestamp WHERE "evaluation_userprofile"\."id" = \d+"""
-        )
         for query in conn.queries_log:
             if (
                 query["sql"].startswith('INSERT INTO "testing_cache_sessions"')
                 or query["sql"].startswith('UPDATE "testing_cache_sessions"')
                 or query["sql"].startswith('DELETE FROM "testing_cache_sessions"')
-                # Check that regex matches the last login update query
-                or last_login_pattern.match(query["sql"])
-                # UPDATE "evaluation_userprofile" SET "last_login" = '2024-10-07T18:23:56.914156'::timestamp WHERE "evaluation_userprofile"."id" = 75
+                or query["sql"].startswith('UPDATE "evaluation_userprofile" SET "last_login" = ')
             ):
                 # These queries are caused by interacting with the test-app (self.app.get()), since that opens a session.
                 # That's not what we want to test for here

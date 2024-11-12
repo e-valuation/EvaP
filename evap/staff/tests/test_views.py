@@ -1967,9 +1967,8 @@ class TestEvaluationExamCreation(WebTestStaffMode):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = make_manager()
         # We need to set the managers language to avoid a database update, when no language is set
-        cls.manager.language = "en"
+        cls.manager = make_manager(language="en")
         cls.manager.save()
         cls.course = baker.make(Course)
         vote_start_datetime = datetime.datetime.now() - datetime.timedelta(days=50)

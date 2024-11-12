@@ -180,7 +180,7 @@
             <a href="{% url 'staff:evaluation_copy' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" title="{% translate 'Copy' %}">
                 <span class="fas fa-fw fa-copy"></span>
             </a>
-            {% if not evaluation.has_exam %}
+            {% if not evaluation.has_exam_evaluation %}
                 <confirmation-modal type="submit" name="evaluation_id" value="{{ evaluation.id }}" confirm-button-class="btn-primary" form="exam_creation_form_{{ evaluation.id }}">
                     <span slot="title">{% translate 'Create exam evaluation' %}</span>
                     <span slot="action-text">{% translate 'Create exam evaluation' %}</span>
@@ -192,7 +192,7 @@
                     <div slot="extra-inputs">
                         <label>
                             {% translate 'Exam Date:' %}
-                            <input type="date" name="exam_date" data-earliest-possible-date="{{ evaluation.earliest_possible_exam_date }}" data-earliest-date-reason="{% translate 'The end date of the main evaluation would be before its start date.' %}" class="form-control" required form="exam_creation_form_{{ evaluation.id }}"/>
+                            <input type="date" name="exam_date" data-earliest-possible-date="{{ evaluation.earliest_possible_exam_date }}" data-earliest-possible-date-reason="{% translate 'The end date of the main evaluation would be before its start date.' %}" class="form-control" required form="exam_creation_form_{{ evaluation.id }}"/>
                         </label>
                     </div>
 
