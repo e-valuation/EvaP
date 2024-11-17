@@ -3,8 +3,20 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    poetry2nix = {
-      url = "github:nix-community/poetry2nix";
+
+    pyproject-nix = {
+      url = "github:nix-community/pyproject.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    uv2nix = {
+      url = "github:adisbladis/uv2nix";
+      inputs.pyproject-nix.follows = "pyproject-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    pyproject-build-systems = {
+      url = "github:pyproject-nix/build-system-pkgs";
+      inputs.pyproject-nix.follows = "pyproject-nix";
+      inputs.uv2nix.follows = "uv2nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -23,18 +35,28 @@
       devShells = forAllSystems (system:
         let
           pkgs = pkgsFor.${system};
-          extras = if pkgs.stdenv.isDarwin then [ "psycopg-c" ] else [ "psycopg-binary" ];
+          dependency-groups = if pkgs.stdenv.isDarwin then [ "psycopg-c" ] else [ "psycopg-binary" ];
         in
         rec {
           evap = pkgs.callPackage ./nix/shell.nix {
             inherit (self.packages.${system}) python3;
-            poetry2nix = inputs.poetry2nix.lib.mkPoetry2Nix { inherit pkgs; };
-            pyproject = ./pyproject.toml;
-            poetrylock = ./poetry.lock;
-            inherit extras;
+            inherit (inputs) pyproject-nix uv2nix pyproject-build-systems;
+            inherit dependency-groups;
+            workspaceRoot = ./.;
           };
-          evap-dev = evap.override { poetry-groups = [ "dev" ]; };
+          evap-dev = evap.override (prev: { dependency-groups = (prev.dependency-groups or [ ]) ++ [ "dev" ]; });
           default = evap-dev;
+
+          impure = pkgs.mkShell {
+            packages = with pkgs; [
+              (self.packages.${system}.python3)
+              uv
+              postgresql
+            ];
+            shellHook = ''
+              unset PYTHONPATH
+            '';
+          };
         });
 
       packages = forAllSystems (system:
@@ -48,29 +70,13 @@
                 {
                   inherit pkgs only-databases;
                   inherit (inputs) services-flake;
-                  inherit (self.devShells.${system}.evap.passthru) poetry-env;
+                  inherit (self.devShells.${system}.evap.passthru) venv;
                 })
             ];
           };
         in
         rec {
-          python3 = pkgs.python310.override {
-            self = python3;
-            packageOverrides = lib.composeManyExtensions [
-              (_finalPackages: prevPackages: lib.mapAttrs
-                (_name: package:
-                  if lib.isDerivation package && lib.hasAttr "overridePythonAttrs" package
-                  then package.overridePythonAttrs (_: { doCheck = false; })
-                  else package)
-                prevPackages)
-              (finalPackages: prevPackages: {
-                jeepney = prevPackages.jeepney.overridePythonAttrs (prev: {
-                  buildInputs = prev.buildInputs or [ ] ++ [ finalPackages.outcome finalPackages.trio ];
-                });
-              })
-            ];
-          };
-          poetry = (pkgs.poetry.override { inherit python3; }).overridePythonAttrs { doCheck = false; };
+          python3 = pkgs.python310;
 
           services = make-process-compose true;
           services-full = make-process-compose false;
