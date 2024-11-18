@@ -220,20 +220,26 @@ def evaluation_detail(request, semester_id, evaluation_id):
 
     can_see_general_text_answers = False
     can_see_contributor_textanswers = False
+    print("view_as_user", view_as_user)
+    print("rusers", represented_users)
     if view_as_user.is_reviewer or view_as_user.is_manager:
         can_see_general_text_answers = True
         can_see_contributor_textanswers = True
-    if view_as_user.represented_users.all():
-        for ruser in view_as_user.represented_users.all():
-            if Contribution.objects.get( 
-                contributor=ruser, evaluation=evaluation
-            ).textanswer_visibility  == Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS:
-                can_see_general_text_answers = True
+    if represented_users:
+        for ruser in represented_users:
+            general = Contribution.objects.filter(contributor=ruser, evaluation=evaluation, textanswer_visibility = Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+            #print(general)
+            if general.exists():
+                    can_see_general_text_answers = True
+            #if Contribution.objects.get(  #crasht manchmal, weil empty, vorher check
+             #   contributor=ruser, evaluation=evaluation
+            #).textanswer_visibility  == Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS:
+             #   can_see_general_text_answers = True
             if TextAnswer.objects.filter(
                 contribution__contributor=ruser, contribution__evaluation=evaluation
             ).exists():
                 can_see_contributor_textanswers = True
-    if evaluation.is_user_contributor(view_as_user): #jtz noch iwie reponsible (is der jtz schon dabei, weil er ja auch contributor is) und delegate
+    if evaluation.is_user_contributor(view_as_user): #jtz noch iwie reponsible (is der jtz schon dabei, weil er ja auch contributor is - Lüge ist der gar nicht immer) und delegate
         can_see_general_text_answers = Contribution.objects.get( 
                 contributor=view_as_user, evaluation=evaluation
             ).textanswer_visibility  == Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
