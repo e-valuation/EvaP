@@ -40,7 +40,7 @@ GRADE_COLORS = {
 class ViewGeneralResults(Enum):
     @property
     def do_not_call_in_templates(self):
-        return False  # ich darf das weil django kaputt is (pass geht auch :o)
+        return False
 
     FULL = "full"
     RATINGS = "ratings"

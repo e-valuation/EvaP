@@ -33,25 +33,21 @@
                 <h3 class="mb-0">{{ evaluation.full_name }} ({{ evaluation.course.semester.name }})</h3>
             </div>
             <div class="col-auto">
-                
                     <div class="row">
                         <div class="col-auto">
                             <div class="btn-switch btn-switch-light my-auto d-print-none">
                                 <div class="btn-switch-label">{% translate 'General results' %}</div>
                                 <div class="btn-switch btn-group">
-
-                                        <a
-                                            href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results=full&view_contributor_results={{ view_contributor_results.value }}"
-                                            role="button"
-                                            class="btn btn-sm btn-light {% if not general_textanswers %} disabled {% elif view_general_results == ViewGeneralResults.FULL %} active{% endif %}"
-                                            data-bs-toggle="tooltip"
-                                            data-bs-placement="bottom"
-                                            title="{% blocktranslate %}All results of general questions (including text answers){% endblocktranslate %}"
-                                        >
-                                            {% translate 'Full' %}
-                                        </a>
-            
-                                    
+                                    <a
+                                        href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results=full&view_contributor_results={{ view_contributor_results.value }}"
+                                        role="button"
+                                        class="btn btn-sm btn-light {% if not general_textanswers %} disabled {% elif view_general_results == ViewGeneralResults.FULL %} active{% endif %}"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="bottom"
+                                        title="{% blocktranslate %}All results of general questions (including text answers){% endblocktranslate %}"
+                                    >
+                                        {% translate 'Full' %}
+                                    </a>
                                     <a
                                         href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results=ratings&view_contributor_results={{ view_contributor_results.value }}"
                                         role="button"
@@ -72,7 +68,6 @@
                         <div class="btn-switch btn-switch-light my-auto d-print-none">
                             <div class="btn-switch-label">{% translate 'Contributor results' %}</div>
                             <div class="btn-switch btn-group">
-                                
                                 <a
                                     href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results={{ view_general_results.value }}&view_contributor_results=full"
                                     role="button"
@@ -81,10 +76,8 @@
                                     data-bs-placement="bottom"
                                     title="{% blocktranslate %}All results of contributor questions available for you (including text answers){% endblocktranslate %}"
                                 >
-                                    {% translate 'Full'%}
+                                    {% translate 'Full' %}
                                 </a>
-        
-                                
                                 <a
                                     href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results={{ view_general_results.value }}&view_contributor_results=ratings"
                                     role="button"
@@ -95,18 +88,16 @@
                                 >
                                     {% translate 'Ratings' %}
                                 </a>
-                                {#{% if user.is_staff and view_contributor_results == ViewContributorResults.PERSONAL or is_contributor %}#}
-                                    <a
-                                        href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results={{ view_general_results.value }}&view_contributor_results=personal"
-                                        role="button"
-                                        class="btn btn-sm btn-light {% if not contributor_personal or not contributor_textanswers %} disabled {% elif view_contributor_results  == ViewContributorResults.PERSONAL %} active {% endif %}"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="bottom"
-                                        title="{% translate 'All results of contributor questions regarding yourself, hiding other contributors' %}"
-                                    >
-                                        {% translate 'Personal' %}
-                                    </a>
-                                {#{% endif %}#}
+                                <a
+                                    href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results={{ view_general_results.value }}&view_contributor_results=personal"
+                                    role="button"
+                                    class="btn btn-sm btn-light {% if not contributor_personal or not contributor_textanswers %} disabled {% elif view_contributor_results  == ViewContributorResults.PERSONAL %} active {% endif %}"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="bottom"
+                                    title="{% translate 'All results of contributor questions regarding yourself, hiding other contributors' %}"
+                                >
+                                    {% translate 'Personal' %}
+                                </a>
                             </div>
                         </div>
                     </div>
