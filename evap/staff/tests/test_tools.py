@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from io import BytesIO
 from itertools import cycle, repeat
-from unittest.mock import MagicMock, patch, Mock
+from unittest.mock import MagicMock, patch
 
 from django.conf import settings
 from django.contrib.auth.models import Group
