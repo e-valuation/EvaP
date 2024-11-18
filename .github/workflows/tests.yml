@@ -21,7 +21,7 @@ jobs:
       - name: Run tests
         run: coverage run manage.py test
       - name: Upload coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -151,7 +151,7 @@ jobs:
       - name: Render pages
         run: coverage run manage.py ts render_pages
       - name: Upload coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           flags: render-pages
           token: ${{ secrets.CODECOV_TOKEN }}
