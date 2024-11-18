@@ -11,16 +11,7 @@ from django.template.loader import get_template
 from django.utils import translation
 
 from evap.evaluation.auth import internal_required
-from evap.evaluation.models import (
-    Contribution,
-    Course,
-    CourseType,
-    Evaluation,
-    Program,
-    Semester,
-    TextAnswer,
-    UserProfile,
-)
+from evap.evaluation.models import Contribution, Course, CourseType, Evaluation, Program, Semester, UserProfile
 from evap.evaluation.tools import AttachmentResponse
 from evap.results.exporters import TextAnswerExporter
 from evap.results.tools import (

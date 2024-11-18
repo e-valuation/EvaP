@@ -514,7 +514,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
             page_with_ratings_general_get_parameter.context["view_contributor_results"], ViewContributorResults.RATINGS
         )
 
-        page_with_random_get_parameter = self.app.get(  # raises bad request
+        self.app.get(  # raises bad request
             self.url + "?view_general_results=josefwarhier&view_contributor_results=yannikwarhier",
             user=self.manager,
             status=400,
@@ -826,15 +826,6 @@ class TestResultsTextanswerVisibility(WebTest):
         self.helper_test_contributor(user, ViewContributorResults.FULL, [])
         self.helper_test_contributor(user, ViewContributorResults.RATINGS, [])
         self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [])
-
-    def test_manager_active_buttons(
-        self,
-    ):  # this whether the filter buttons are active or not, this is just a little helper, an elaborate test for this will be implemented
-        with run_in_staff_mode(self):
-            user = "manager@institution.example.com"
-
-            page = self.app.get("/results/semester/1/evaluation/1", user=user)
-            self.assertNotIn("btn btn-sm btn-light  disabled", page)
 
     def test_student(self):
         user = "student@institution.example.com"
