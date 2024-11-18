@@ -40,8 +40,8 @@ export class RangeSlider {
         return this._value;
     }
 
-    public set value(selection: Range) {
-        this._value = selection;
+    public set value(value: Range) {
+        this._value = value;
 
         this.lowSlider.value = this.value.low.toString();
         this.highSlider.value = this.value.high.toString();
