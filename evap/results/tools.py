@@ -493,6 +493,7 @@ def textanswers_visible_to(contribution):
     return TextAnswerVisibility(visible_by_contribution=sorted_contributors, visible_by_delegation_count=num_delegates)
 
 
+# Filter textanswers based on user selection
 def can_textanswer_be_seen_by(  # noqa: PLR0911,PLR0912
     user: UserProfile,
     represented_users: list[UserProfile],
