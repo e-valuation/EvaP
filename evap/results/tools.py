@@ -509,7 +509,7 @@ def can_textanswer_be_seen_by(  # noqa: PLR0911,PLR0912
     if textanswer.contribution.is_general:
         if view_general_results == ViewGeneralResults.RATINGS:
             return False
-        elif view_general_results == ViewGeneralResults.FULL:
+        if view_general_results == ViewGeneralResults.FULL:
             # reviewer can see everything
             if user.is_reviewer:
                 return True
