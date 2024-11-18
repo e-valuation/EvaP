@@ -218,42 +218,32 @@ def evaluation_detail(request, semester_id, evaluation_id):
 
     is_responsible_or_contributor_or_delegate = evaluation.is_user_responsible_or_contributor_or_delegate(view_as_user)
 
-    can_see_general_text_answers = False
-    can_see_contributor_textanswers = False
-    print("view_as_user", view_as_user)
-    print("rusers", represented_users)
-    if view_as_user.is_reviewer or view_as_user.is_manager:
-        can_see_general_text_answers = True
-        can_see_contributor_textanswers = True
-    if represented_users:
-        for ruser in represented_users:
-            print("current ruser: ", ruser)
-            print("eval: ", evaluation)
-            test = Contribution.objects.filter(contributor=ruser, evaluation=evaluation_id)
-            print("test: ", test)
-            general = Contribution.objects.filter(contributor=ruser, evaluation=evaluation_id, textanswer_visibility = Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
-            print("jeneral: ", general)
-            if general.exists():
-                    can_see_general_text_answers = True
-            #if Contribution.objects.get(  #crasht manchmal, weil empty, vorher check
-             #   contributor=ruser, evaluation=evaluation
-            #).textanswer_visibility  == Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS:
-             #   can_see_general_text_answers = True
-            if TextAnswer.objects.filter(
-                contribution__contributor=ruser, contribution__evaluation=evaluation
+    general_textanswers = False
+    contributor_textanswers = False
+    contributor_personal = False
+
+    # allgemein user hat rolle reviewer
+    if view_as_user.is_reviewer:
+        general_textanswers = True
+        contributor_textanswers = True
+        # contributor_personal = False
+
+    if evaluation.is_user_contributor(view_as_user):
+        contributor_personal = True  # nur ich selbst als contributor soll personal btn haben
+    for user in represented_users:
+        if user in evaluation.course.responsibles.all():
+            general_textanswers = True
+        if evaluation.is_user_contributor(user):
+            # check if textanswer visiblity own oder general
+            if Contribution.objects.filter(
+                contributor=user,
+                evaluation=evaluation,
+                textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
             ).exists():
-                can_see_contributor_textanswers = True
-    if evaluation.is_user_contributor(view_as_user): #jtz noch iwie reponsible (is der jtz schon dabei, weil er ja auch contributor is - Lüge ist der gar nicht immer) und delegate
-        can_see_general_text_answers = Contribution.objects.get( 
-                contributor=view_as_user, evaluation=evaluation
-            ).textanswer_visibility  == Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
-        can_see_contributor_textanswers = TextAnswer.objects.filter(
-                contribution__contributor=view_as_user, contribution__evaluation=evaluation
-            ).exists()
-        
-    print("generäl ", can_see_general_text_answers)
-    print("contributör ", can_see_contributor_textanswers)
-        
+                general_textanswers = True
+                contributor_textanswers = True
+            else:
+                contributor_textanswers = True
 
     template_data = {
         "evaluation": evaluation,
@@ -278,8 +268,9 @@ def evaluation_detail(request, semester_id, evaluation_id):
         "view_as_user": view_as_user,
         "contributors_with_omitted_results": contributors_with_omitted_results,
         "contributor_id": contributor_id,
-        "can_see_general_textanswers": can_see_general_text_answers,
-        "can_see_contributor_textanswers": can_see_contributor_textanswers,
+        "general_textanswers": general_textanswers,
+        "contributor_textanswers": contributor_textanswers,
+        "contributor_personal": contributor_personal,
         "ViewContributorResults": ViewContributorResults,
         "ViewGeneralResults": ViewGeneralResults,
     }
