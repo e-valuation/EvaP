@@ -238,11 +238,14 @@ class RemoveParticipationDueToInactivityTest(TestCase):
     @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_TIME=timedelta(6 * 30))
     def test_remove_user_due_to_inactivity(self):
         messages = remove_inactive_participations(self.user)
+        self.assertFalse(self.user.evaluations_participating_in.exists())
         self.assertTrue(self.user.can_be_marked_inactive_by_manager)
         self.assertEqual(messages, [f"Removed {self.user.full_name} from 1 participation(s) due to inactivity."])
         self.assertEqual(len(messages), 1)
 
-    @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS=timedelta(30))
+        messages = remove_inactive_participations(self.user)
+        self.assertEqual(messages, [])
+
     def test_do_not_remove_user_due_to_inactivity_with_recently_archived_evaluation(self):
         recently_archived_evaluation = baker.make(
             Evaluation,
@@ -258,6 +261,7 @@ class RemoveParticipationDueToInactivityTest(TestCase):
         self.assertTrue(
             self.user.can_be_marked_inactive_by_manager
         )  # user can be marked inactive since all evaluations are archived but is not inactive for too long
+        self.assertTrue(self.user.evaluations_participating_in.exists())
         self.assertTrue(self.user.is_active)
         self.assertEqual(messages, [])
 
@@ -268,13 +272,22 @@ class RemoveParticipationDueToInactivityTest(TestCase):
         )
 
         messages = remove_inactive_participations(self.user)
+        self.assertTrue(self.user.evaluations_participating_in.exists())
         self.assertFalse(self.user.can_be_marked_inactive_by_manager)
         self.assertEqual(messages, [])
 
     @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_TIME=timedelta(6 * 30))
     def test_do_nothing_if_test_run(self):
+        self.assertTrue(self.user.evaluations_participating_in.exists())
+
         messages = remove_inactive_participations(self.user, test_run=True)
+        self.assertTrue(self.user.evaluations_participating_in.exists())
         self.assertTrue(self.user.can_be_marked_inactive_by_manager)
+        self.assertEqual(
+            messages, [f"{self.user.full_name} will be removed from 1 participation(s) due to inactivity."]
+        )
+
+        messages = remove_inactive_participations(self.user, test_run=True)
         self.assertEqual(
             messages, [f"{self.user.full_name} will be removed from 1 participation(s) due to inactivity."]
         )
