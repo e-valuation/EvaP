@@ -229,7 +229,7 @@ class RemoveUserDueToInactivity(TestCase):
         cls.evaluation = baker.make(
             Evaluation,
             state=Evaluation.State.PUBLISHED,
-            vote_start_datetime=six_months_ago - settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS,
+            vote_start_datetime=six_months_ago - settings.PARTICIPATION_DELETION_AFTER_INACTIVE_TIME,
             vote_end_date=six_months_ago.date(),
             participants=[cls.user],
         )

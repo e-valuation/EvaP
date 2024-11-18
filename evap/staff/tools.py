@@ -387,7 +387,7 @@ def remove_inactive_participations(user: UserProfile, test_run=False) -> list[St
     last_participation = user.evaluations_participating_in.aggregate(Max("vote_end_date"))["vote_end_date__max"]
     if (
         last_participation is None
-        or (datetime.today() - last_participation) < settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS
+        or (datetime.today() - last_participation) < settings.PARTICIPATION_DELETION_AFTER_INACTIVE_TIME
     ):
         return []
 
