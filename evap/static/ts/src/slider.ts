@@ -28,12 +28,12 @@ export class RangeSlider {
         this.maxLabel = selectOrError<HTMLSpanElement>(".text-end", this.rangeSlider);
         this.rangeLabel = selectOrError<HTMLSpanElement>(".range-values", this.rangeSlider);
 
-        const setRangeFromSlider = (): void => {
+        const setValueFromNestedElements = (): void => {
             this.value = { low: parseFloat(this.lowSlider.value), high: parseFloat(this.highSlider.value) };
         };
 
-        this.lowSlider.addEventListener("input", setRangeFromSlider);
-        this.highSlider.addEventListener("input", setRangeFromSlider);
+        this.lowSlider.addEventListener("input", setValueFromNestedElements);
+        this.highSlider.addEventListener("input", setValueFromNestedElements);
     }
 
     public get value(): Range {
@@ -66,7 +66,7 @@ export class RangeSlider {
         const max = Math.max(...values);
         if (max > this.allowed.high) {
             this.allowed.high = max;
-            this.updateLimits();
+            this.updateNestedElements();
             this.reset();
         }
     }
@@ -75,7 +75,7 @@ export class RangeSlider {
         this.value = { low: this.allowed.low, high: this.allowed.high };
     }
 
-    private updateLimits(): void {
+    private updateNestedElements(): void {
         this.lowSlider.min = this.allowed.low.toString();
         this.lowSlider.max = this.allowed.high.toString();
         this.highSlider.min = this.allowed.low.toString();
