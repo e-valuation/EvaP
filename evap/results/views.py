@@ -227,8 +227,12 @@ def evaluation_detail(request, semester_id, evaluation_id):
         can_see_contributor_textanswers = True
     if represented_users:
         for ruser in represented_users:
-            general = Contribution.objects.filter(contributor=ruser, evaluation=evaluation, textanswer_visibility = Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
-            #print(general)
+            print("current ruser: ", ruser)
+            print("eval: ", evaluation)
+            test = Contribution.objects.filter(contributor=ruser, evaluation=evaluation_id)
+            print("test: ", test)
+            general = Contribution.objects.filter(contributor=ruser, evaluation=evaluation_id, textanswer_visibility = Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+            print("jeneral: ", general)
             if general.exists():
                     can_see_general_text_answers = True
             #if Contribution.objects.get(  #crasht manchmal, weil empty, vorher check
@@ -246,6 +250,9 @@ def evaluation_detail(request, semester_id, evaluation_id):
         can_see_contributor_textanswers = TextAnswer.objects.filter(
                 contribution__contributor=view_as_user, contribution__evaluation=evaluation
             ).exists()
+        
+    print("generäl ", can_see_general_text_answers)
+    print("contributör ", can_see_contributor_textanswers)
         
 
     template_data = {
