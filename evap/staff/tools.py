@@ -16,7 +16,7 @@ from django.utils.translation import gettext_lazy as _
 
 from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer, UserProfile
 from evap.evaluation.models_logging import LogEntry
-from evap.evaluation.tools import clean_email, is_external_email
+from evap.evaluation.tools import StrOrPromise, clean_email, is_external_email
 from evap.grades.models import GradeDocument
 from evap.results.tools import STATES_WITH_RESULTS_CACHING, cache_results
 
@@ -381,24 +381,24 @@ def remove_user_from_represented_and_ccing_users(user, ignored_users=None, test_
     return remove_messages
 
 
-def remove_inactive_participations(user, test_run=False):
-    remove_messages = []
-    last_eval: date | None = None
-    if not user.is_active or user.can_be_marked_inactive_by_manager:
-        last_eval = user.evaluations_participating_in.aggregate(Max("vote_end_date"))["vote_end_date__max"]
+def remove_inactive_participations(user: UserProfile, test_run=False) -> list[StrOrPromise]:
+    if user.is_active or not user.can_be_marked_inactive_by_manager:
+        return []
+    last_participation = user.evaluations_participating_in.aggregate(Max("vote_end_date"))["vote_end_date__max"]
+    if (
+        last_participation is None
+        or (datetime.today() - last_participation) < settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS
+    ):
+        return []
 
-    if last_eval and last_eval <= (datetime.today() - settings.PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS).date():
-        number_evals = len(user.evaluations_participating_in.all())
-        if test_run:
-            remove_messages.append(
-                _("{} will be removed from {} participation(s) due to inactivity.").format(user.full_name, number_evals)
-            )
-        else:
-            user.evaluations_participating_in.clear()
-            remove_messages.append(
-                _("Removed {} from {} participation(s) due to inactivity.").format(user.full_name, number_evals)
-            )
-    return remove_messages
+    evaluation_count = user.evaluations_participating_in.count()
+    if test_run:
+        return [
+            _("{} will be removed from {} participation(s) due to inactivity.").format(user.full_name, evaluation_count)
+        ]
+    else:
+        user.evaluations_participating_in.clear()
+        return [_("Removed {} from {} participation(s) due to inactivity.").format(user.full_name, evaluation_count)]
 
 
 def user_edit_link(user_id):
