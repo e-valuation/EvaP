@@ -498,7 +498,6 @@ class Evaluation(LoggedModel):
         for contribution in self.contributions.exclude(contributor=None):
             exam_evaluation.contributions.create(contributor=contribution.contributor)
         exam_evaluation.general_contribution.questionnaires.set(settings.EXAM_QUESTIONNAIRE_IDS)
-        exam_evaluation.save()
 
     class TextAnswerReviewState(Enum):
         NO_TEXTANSWERS = auto()

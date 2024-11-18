@@ -210,8 +210,6 @@
             setupForms();
         </script>
 
-        {% block additional_javascript %}{% endblock %}
-
         <script type="text/javascript"> 
             document.querySelectorAll("[data-earliest-possible-date]").forEach(element => {
                 element.addEventListener("change", () => {
@@ -224,5 +222,7 @@
                 element.dispatchEvent(new Event("change"));
             });
         </script>
+
+        {% block additional_javascript %}{% endblock %}
     </body>
 </html>

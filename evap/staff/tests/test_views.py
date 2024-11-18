@@ -1998,6 +1998,7 @@ class TestEvaluationExamCreation(WebTestStaffMode):
 
         evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
         self.assertEqual(evaluation.weight, 9)
+        self.assertEqual(evaluation.vote_end_date, self.exam_date - datetime.timedelta(days=1))
 
     def test_exam_evaluation_for_single_result(self):
         self.evaluation.is_single_result = True
@@ -2020,6 +2021,11 @@ class TestEvaluationExamCreation(WebTestStaffMode):
 
     def test_exam_evaluation_with_missing_date(self):
         self.params.pop("exam_date")
+        with assert_no_database_modifications():
+            self.app.post(self.url, user=self.manager, status=400, params=self.params)
+
+    def test_exam_evaluation_with_wrongly_formatted_date(self):
+        self.params["exam_date"] = ""
         with assert_no_database_modifications():
             self.app.post(self.url, user=self.manager, status=400, params=self.params)
 
