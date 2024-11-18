@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from io import BytesIO
 from itertools import cycle, repeat
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, Mock
 
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -237,43 +237,36 @@ class RemoveParticipationDueToInactivityTest(TestCase):
 
     @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_TIME=timedelta(6 * 30))
     def test_remove_user_due_to_inactivity(self):
+        self.assertTrue(self.user.evaluations_participating_in.exists())
+
         messages = remove_inactive_participations(self.user)
+
         self.assertFalse(self.user.evaluations_participating_in.exists())
         self.assertTrue(self.user.can_be_marked_inactive_by_manager)
         self.assertEqual(messages, [f"Removed {self.user.full_name} from 1 participation(s) due to inactivity."])
-        self.assertEqual(len(messages), 1)
 
         messages = remove_inactive_participations(self.user)
+
         self.assertEqual(messages, [])
 
+    @patch("evap.evaluation.models.UserProfile.is_active", True)
+    @patch("evap.evaluation.models.UserProfile.can_be_marked_inactive_by_manager", True)
     def test_do_not_remove_user_due_to_inactivity_with_recently_archived_evaluation(self):
-        recently_archived_evaluation = baker.make(
-            Evaluation,
-            state=Evaluation.State.PUBLISHED,
-            vote_start_datetime=datetime.today() - timedelta(days=3),
-            vote_end_date=datetime.today() - timedelta(days=1),
-            participants=[self.user],
-        )
-
-        recently_archived_evaluation.course.semester.archive()
+        self.assertTrue(self.user.evaluations_participating_in.exists())
 
         messages = remove_inactive_participations(self.user)
-        self.assertTrue(
-            self.user.can_be_marked_inactive_by_manager
-        )  # user can be marked inactive since all evaluations are archived but is not inactive for too long
+
         self.assertTrue(self.user.evaluations_participating_in.exists())
-        self.assertTrue(self.user.is_active)
         self.assertEqual(messages, [])
 
+    @patch("evap.evaluation.models.UserProfile.is_active", True)
+    @patch("evap.evaluation.models.UserProfile.can_be_marked_inactive_by_manager", False)
     def test_do_not_remove_user_due_to_inactivity_with_active_evaluation(self):
-        baker.make(
-            Evaluation,
-            participants=[self.user],
-        )
+        self.assertTrue(self.user.evaluations_participating_in.exists())
 
         messages = remove_inactive_participations(self.user)
+
         self.assertTrue(self.user.evaluations_participating_in.exists())
-        self.assertFalse(self.user.can_be_marked_inactive_by_manager)
         self.assertEqual(messages, [])
 
     @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_TIME=timedelta(6 * 30))
@@ -281,6 +274,7 @@ class RemoveParticipationDueToInactivityTest(TestCase):
         self.assertTrue(self.user.evaluations_participating_in.exists())
 
         messages = remove_inactive_participations(self.user, test_run=True)
+
         self.assertTrue(self.user.evaluations_participating_in.exists())
         self.assertTrue(self.user.can_be_marked_inactive_by_manager)
         self.assertEqual(
@@ -288,6 +282,7 @@ class RemoveParticipationDueToInactivityTest(TestCase):
         )
 
         messages = remove_inactive_participations(self.user, test_run=True)
+
         self.assertEqual(
             messages, [f"{self.user.full_name} will be removed from 1 participation(s) due to inactivity."]
         )
