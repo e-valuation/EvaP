@@ -168,35 +168,35 @@
     {% if not info_only %}
         {% if evaluation.num_textanswers > 0 and state < evaluation.State.PUBLISHED %}
             <a href="{% url 'staff:evaluation_textanswers' evaluation.id %}" class="btn btn-sm {% if state == evaluation.State.REVIEWED %}btn-light{% else %}btn-primary{% endif %}" data-bs-toggle="tooltip" title="{% translate 'Review text answers' %}">
-                <span class="fas fa-magnifying-glass"></span>
+                <span class="fas fa-fw fa-magnifying-glass"></span>
             </a>
         {% endif %}
         {% if not evaluation.is_single_result and request.user.is_manager %}
             {% if state < evaluation.State.IN_EVALUATION %}
                 <a href="{% url 'staff:evaluation_person_management' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" title="{% translate 'Manage participants/contributors' %}">
-                    <span class="fas fa-user"></span>
+                    <span class="fas fa-fw fa-user"></span>
                 </a>
             {% endif %}
             <a href="{% url 'staff:evaluation_copy' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" title="{% translate 'Copy' %}">
-                <span class="fas fa-copy"></span>
+                <span class="fas fa-fw fa-copy"></span>
             </a>
         {% endif %}
         {% if request.user.is_manager %}
             <a href="{% url 'staff:evaluation_email' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Send email' %}">
-                <span class="fas fa-envelope" aria-hidden="true"></span>
+                <span class="fas fa-fw fa-envelope" aria-hidden="true"></span>
             </a>
         {% endif %}
         {% if state < evaluation.State.IN_EVALUATION %}
             <a href="{% url 'staff:evaluation_preview' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Preview' %}">
-                <span class="fas fa-eye" aria-hidden="true"></span>
+                <span class="fas fa-fw fa-eye" aria-hidden="true"></span>
             </a>
         {% elif state < evaluation.State.PUBLISHED and evaluation|can_results_page_be_seen_by:request.user %}
             <a href="{% url 'results:evaluation_detail' semester.id evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Preview results' %}">
-                <span class="fas fa-chart-simple" aria-hidden="true"></span>
+                <span class="fas fa-fw fa-chart-simple" aria-hidden="true"></span>
             </a>
         {% elif state == evaluation.State.PUBLISHED and evaluation|can_results_page_be_seen_by:request.user %}
             <a href="{% url 'results:evaluation_detail' semester.id evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Results' %}">
-                <span class="fas fa-chart-simple" aria-hidden="true"></span>
+                <span class="fas fa-fw fa-chart-simple" aria-hidden="true"></span>
             </a>
         {% endif %}
         {% if request.user.is_manager and evaluation.can_be_deleted_by_manager %}
@@ -210,7 +210,7 @@
                 </span>
 
                 <button slot="show-button" type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Delete' %}">
-                    <span class="fas fa-trash" aria-hidden="true"></span>
+                    <span class="fas fa-fw fa-trash" aria-hidden="true"></span>
                 </button>
             </confirmation-modal>
         {% endif %}
