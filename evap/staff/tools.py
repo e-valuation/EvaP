@@ -396,9 +396,8 @@ def remove_inactive_participations(user: UserProfile, test_run=False) -> list[St
         return [
             _("{} will be removed from {} participation(s) due to inactivity.").format(user.full_name, evaluation_count)
         ]
-    else:
-        user.evaluations_participating_in.clear()
-        return [_("Removed {} from {} participation(s) due to inactivity.").format(user.full_name, evaluation_count)]
+    user.evaluations_participating_in.clear()
+    return [_("Removed {} from {} participation(s) due to inactivity.").format(user.full_name, evaluation_count)]
 
 
 def user_edit_link(user_id):
