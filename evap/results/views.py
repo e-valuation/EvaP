@@ -213,19 +213,16 @@ def evaluation_detail(request, semester_id, evaluation_id):
     contributor_textanswers = False
     contributor_personal = False
 
-    # allgemein user hat rolle reviewer
     if view_as_user.is_reviewer:
         general_textanswers = True
         contributor_textanswers = True
-        # contributor_personal = False
 
     if evaluation.is_user_contributor(view_as_user):
-        contributor_personal = True  # nur ich selbst als contributor soll personal btn haben
+        contributor_personal = True
     for user in represented_users:
         if user in evaluation.course.responsibles.all():
             general_textanswers = True
         if evaluation.is_user_contributor(user):
-            # check if textanswer visiblity own oder general
             if Contribution.objects.filter(
                 contributor=user,
                 evaluation=evaluation,
