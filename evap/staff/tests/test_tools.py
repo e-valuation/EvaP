@@ -235,7 +235,7 @@ class RemoveParticipationDueToInactivityTest(TestCase):
         )
         cls.evaluation.course.semester.archive()
 
-    @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS=timedelta(6 * 30))
+    @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_TIME=timedelta(6 * 30))
     def test_remove_user_due_to_inactivity(self):
         messages = remove_inactive_participations(self.user)
         self.assertTrue(self.user.can_be_marked_inactive_by_manager)
@@ -271,7 +271,7 @@ class RemoveParticipationDueToInactivityTest(TestCase):
         self.assertFalse(self.user.can_be_marked_inactive_by_manager)
         self.assertEqual(messages, [])
 
-    @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_MONTHS=timedelta(6 * 30))
+    @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_TIME=timedelta(6 * 30))
     def test_do_nothing_if_test_run(self):
         messages = remove_inactive_participations(self.user, test_run=True)
         self.assertTrue(self.user.can_be_marked_inactive_by_manager)
