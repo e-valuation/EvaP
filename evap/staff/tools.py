@@ -382,12 +382,12 @@ def remove_user_from_represented_and_ccing_users(user, ignored_users=None, test_
 
 
 def remove_inactive_participations(user: UserProfile, test_run=False) -> list[StrOrPromise]:
-    if user.is_active or not user.can_be_marked_inactive_by_manager:
+    if user.is_active and not user.can_be_marked_inactive_by_manager:
         return []
     last_participation = user.evaluations_participating_in.aggregate(Max("vote_end_date"))["vote_end_date__max"]
     if (
         last_participation is None
-        or (datetime.today() - last_participation) < settings.PARTICIPATION_DELETION_AFTER_INACTIVE_TIME
+        or (date.today() - last_participation) < settings.PARTICIPATION_DELETION_AFTER_INACTIVE_TIME
     ):
         return []
 
