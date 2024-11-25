@@ -1,7 +1,6 @@
 import logging
 import secrets
 import uuid
-from argparse import ArgumentError
 from collections import defaultdict
 from collections.abc import Collection, Container, Iterable, Sequence
 from dataclasses import dataclass
