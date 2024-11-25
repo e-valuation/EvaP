@@ -43,6 +43,9 @@ pkgs.mkShell {
     nodejs
     gettext
 
+    firefox
+    geckodriver
+
     poetry-env
     clean-setup
     evap-managepy-completion
