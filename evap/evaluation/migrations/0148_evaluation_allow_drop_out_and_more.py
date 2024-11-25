@@ -36,4 +36,9 @@ class Migration(migrations.Migration):
                 verbose_name="type",
             ),
         ),
+        migrations.AddField(
+            model_name="evaluation",
+            name="dropout_count",
+            field=models.IntegerField(default=0, verbose_name="dropout count"),
+        ),
     ]
