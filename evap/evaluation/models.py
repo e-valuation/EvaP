@@ -279,6 +279,9 @@ class Questionnaire(models.Model):
 
     @property
     def can_be_deleted_by_manager(self):
+        if self.is_dropout_questionnaire:
+            return self.can_be_edited_by_manager
+
         return not self.contributions.exists()
 
     @property
