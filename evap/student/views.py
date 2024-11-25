@@ -321,6 +321,10 @@ def vote(request: HttpRequest, evaluation_id: int, dropout=False):  # noqa: PLR0
         # not using evaluation.voters.add(request.user) since that fails silently when done twice.
         evaluation.voters.through.objects.create(userprofile_id=request.user.pk, evaluation_id=evaluation.pk)
 
+        if dropout:
+            evaluation.dropout_count += 1
+            evaluation.save()
+
         for contribution, form_group in form_groups.items():
             for questionnaire_form in form_group:
                 questionnaire = questionnaire_form.questionnaire
