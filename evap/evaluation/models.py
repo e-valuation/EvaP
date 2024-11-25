@@ -1660,18 +1660,18 @@ class Infotext(models.Model):
 
 
 class UserProfileManager(BaseUserManager):
-    def create_user(self, *, email, password=None, first_name=None, last_name=None):
-        user = self.model(email=self.normalize_email(email), first_name_given=first_name, last_name=last_name)
+    def create_user(self, *, email, password=None, first_name_given=None, last_name=None):
+        user = self.model(email=self.normalize_email(email), first_name_given=first_name_given, last_name=last_name)
         validate_password(password, user=user)
         user.set_password(password)
         user.save()
         return user
 
-    def create_superuser(self, *, email, password=None, first_name=None, last_name=None):
+    def create_superuser(self, *, email, password=None, first_name_given=None, last_name=None):
         user = self.create_user(
             password=password,
             email=self.normalize_email(email),
-            first_name=first_name,
+            first_name_given=first_name_given,
             last_name=last_name,
         )
         user.is_superuser = True
@@ -1791,7 +1791,7 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
         verbose_name_plural = _("users")
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS: list[str] = []
+    REQUIRED_FIELDS: list[str] = ["first_name_given", "last_name"]
 
     def __str__(self):
         return self.full_name
