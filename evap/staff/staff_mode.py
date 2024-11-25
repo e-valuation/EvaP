@@ -15,7 +15,6 @@ def staff_mode_middleware(get_response):
     """
 
     def middleware(request):
-        print("jetzt hier")
         if is_in_staff_mode(request):
             current_time = time.time()
             if current_time <= request.session.get("staff_mode_start_time", 0) + STAFF_MODE_TIMEOUT:
