@@ -28,9 +28,7 @@ test(
         await editorLabels[0].click();
         await ownAndGeneralLabels[0].click();
 
-        const formData = await page.evaluate(() => {
-            return Object.fromEntries(new FormData(document.getElementById("evaluation-form") as HTMLFormElement));
-        });
+        const formData = await page.evaluate(() => Object.fromEntries(new FormData(document.getElementById("evaluation-form") as HTMLFormElement)));
 
         expect(formData["contributions-0-contributor"]).toBe(managerId);
         expect(formData["contributions-0-order"]).toBe("0");

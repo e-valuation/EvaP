@@ -138,20 +138,20 @@ abstract class DataGrid {
     protected filterRows() {
         const searchWords = DataGrid.searchWordsOf(this.state.search);
         for (const row of this.rows) {
-            const isDisplayedBySearch = searchWords.every(searchWord => {
-                return row.searchWords.some(rowWord => rowWord.includes(searchWord));
-            });
-            const isDisplayedByFilters = [...this.state.equalityFilter].every(([name, filterValues]) => {
-                return filterValues.some(filterValue => {
-                    return row.filterValues.get(name)?.some(rowValue => rowValue === filterValue);
-                });
-            });
-            const isDisplayedByRangeFilters = [...this.state.rangeFilter].every(([name, bound]) => {
-                return row.filterValues
+            const isDisplayedBySearch = searchWords.every(searchWord =>
+                row.searchWords.some(rowWord => rowWord.includes(searchWord)),
+            );
+            const isDisplayedByFilters = [...this.state.equalityFilter].every(([name, filterValues]) =>
+                filterValues.some(filterValue =>
+                    row.filterValues.get(name)?.some(rowValue => rowValue === filterValue),
+                ),
+            );
+            const isDisplayedByRangeFilters = [...this.state.rangeFilter].every(([name, bound]) =>
+                row.filterValues
                     .get(name)
                     ?.map(rawValue => parseFloat(rawValue))
-                    .some(rowValue => rowValue >= bound.low && rowValue <= bound.high);
-            });
+                    .some(rowValue => rowValue >= bound.low && rowValue <= bound.high),
+            );
             row.isDisplayed = isDisplayedBySearch && isDisplayedByFilters && isDisplayedByRangeFilters;
         }
     }
@@ -284,9 +284,9 @@ export class EvaluationGrid extends TableGrid {
     public bindEvents() {
         super.bindEvents();
         this.filterButtons.forEach(button => {
-            const count = this.rows.filter(row => {
-                return row.filterValues.get("evaluationState")!.includes(button.dataset.filter!);
-            }).length;
+            const count = this.rows.filter(row =>
+                row.filterValues.get("evaluationState")!.includes(button.dataset.filter!),
+            ).length;
             button.append(EvaluationGrid.createBadgePill(count));
 
             button.addEventListener("click", () => {
@@ -508,9 +508,7 @@ export class ResultGrid extends DataGrid {
             checkboxes.forEach(checkbox => {
                 let isActive;
                 if (this.state.equalityFilter.has(name)) {
-                    isActive = this.state.equalityFilter.get(name)!.some(filterValue => {
-                        return filterValue === checkbox.value;
-                    });
+                    isActive = this.state.equalityFilter.get(name)!.some(filterValue => filterValue === checkbox.value);
                 } else {
                     isActive = false;
                 }

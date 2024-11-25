@@ -114,6 +114,7 @@ export class QuickReviewSlider {
         assert(!this.isShowingEndslide(), "No answer slide is selected!");
         return this.answerSlides[this.selectedSlideIndex];
     }
+
     public isShowingEndslide = () => this.selectedSlideIndex === this.answerSlides.length;
 
     //
@@ -238,9 +239,8 @@ export class QuickReviewSlider {
         }
     };
 
-    private isWrongSubmit = (submitter: SubmitterElement) => {
-        return (submitter.value as Action) === Action.MakePrivate && !("contribution" in this.selectedSlide.dataset);
-    };
+    private isWrongSubmit = (submitter: SubmitterElement) =>
+        (submitter.value as Action) === Action.MakePrivate && !("contribution" in this.selectedSlide.dataset);
 
     private transitionHandler = (item: HTMLElement) => () => {
         this.updateButtons();
