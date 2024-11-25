@@ -239,7 +239,7 @@ class Questionnaire(models.Model):
 
     @transaction.atomic()
     def set_active_dropout(self):
-        if self.type != Questionnaire.Type.DROPOUT:
+        if not self.is_dropout_questionnaire:
             raise ValueError("Can only set DROPOUT-type Questionnaires as active dropout questionnaire.")
 
         Questionnaire.objects.active_dropout_questionnaire().update(is_active_dropout_questionnaire=None)
@@ -248,17 +248,21 @@ class Questionnaire(models.Model):
 
     @property
     def is_above_contributors(self):
-        return self.type == self.Type.TOP or self.type == self.Type.DROPOUT
+        return self.type == self.Type.TOP
 
     @property
     def is_below_contributors(self):
         return self.type == self.Type.BOTTOM
 
     @property
+    def is_dropout_questionnaire(self):
+        return self.type == self.Type.DROPOUT
+
+    @property
     def can_be_edited_by_manager(
         self,
     ):
-        if self.type == self.Type.DROPOUT:
+        if self.is_dropout_questionnaire:
             assert set(Answer.__subclasses__()) == {TextAnswer, RatingAnswerCounter}
             return (
                 not TextAnswer.objects.filter(question__questionnaire=self).exists()
