@@ -30,8 +30,11 @@
                                 <td>
                                     <strong class="questionnaire-name">{{ questionnaire.name }}</strong>
                                     <br />
-                                    {% blocktranslate count questionnaire.questions.count as count %}{{ count }} question{% plural %}{{ count }} questions{% endblocktranslate %},
-                                    {% blocktranslate count questionnaire.contributions.count as count %}used {{ count }} time{% plural %}used {{ count }} times{% endblocktranslate %}
+                                    {% blocktranslate count questionnaire.questions.count as count %}{{ count }} question{% plural %}{{ count }} questions{% endblocktranslate %}
+                                    {% if type != 'dropout' %}
+                                        ,
+                                        {% blocktranslate count questionnaire.contributions.count as count %}used {{ count }} time{% plural %}used {{ count }} times{% endblocktranslate %}
+                                    {% endif %}
                                 </td>
                                 <td>
                                     {% if type == 'dropout' %}
