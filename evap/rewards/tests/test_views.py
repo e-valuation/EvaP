@@ -91,7 +91,7 @@ class TestIndexView(WebTest):
         form = response.forms["reward-redemption-form"]
         form.set("form-2-points", 3)
         response = form.submit()
-        self.assertContains(response, "this value is a multiple of step size 5.")
+        self.assertContains(response, "this value is a multiple of step size 5")
         self.assertEqual(5, reward_points_of_user(self.student))
 
     def test_redeem_points_for_expired_event(self):
