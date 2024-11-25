@@ -195,7 +195,7 @@ def index(request):
 
 
 def get_vote_page_form_groups(
-    request: HttpRequest, evaluation: Evaluation, preview: bool, show_dropout_questionnaire=False
+    request: HttpRequest, evaluation: Evaluation, preview: bool, dropout=False
 ) -> OrderedDict[Contribution, list[QuestionnaireVotingForm]]:
     contributions_to_vote_on = evaluation.contributions.all()
     # prevent a user from voting on themselves
@@ -217,12 +217,26 @@ def get_vote_page_form_groups(
                         answer_field_id(contribution, questionnaire, question): NO_ANSWER
                         for question in questionnaire.rating_questions
                     }
-                    if show_dropout_questionnaire
+                    if dropout
                     else None
                 ),
             )
             for questionnaire in questionnaires
         ]
+
+    if dropout:
+        # TODO@felix: explanatory text: "will not be published/ only shown to contributors"
+        dropout_questionnaire = Questionnaire.objects.active_dropout_questionnaire().first()
+        if dropout_questionnaire:
+            form_groups[evaluation.general_contribution].insert(
+                0,
+                QuestionnaireVotingForm(
+                    request.POST or None,
+                    contribution=evaluation.general_contribution,
+                    questionnaire=dropout_questionnaire,
+                ),
+            )
+
     return form_groups
 
 
@@ -250,7 +264,9 @@ def render_vote_page(
         for contribution, form_group in form_groups.items()
     ]
     evaluation_form_group_top = [
-        questions_form for questions_form in evaluation_form_group if questions_form.questionnaire.is_above_contributors
+        questions_form
+        for questions_form in evaluation_form_group
+        if questions_form.questionnaire.is_above_contributors or questions_form.questionnaire.is_dropout_questionnaire
     ]
     evaluation_form_group_bottom = [
         questions_form for questions_form in evaluation_form_group if questions_form.questionnaire.is_below_contributors
@@ -264,19 +280,6 @@ def render_vote_page(
         any(form.errors for form in form_group)
         for form_group in [evaluation_form_group_top, evaluation_form_group_bottom]
     )
-
-    if show_dropout_questionnaire:
-        # TODO@felix: explanatory text: "will not be published/ only shown to contributors"
-        dropout_questionnaire = Questionnaire.objects.active_dropout_questionnaire().first()
-        if dropout_questionnaire:
-            evaluation_form_group_top.insert(
-                0,
-                QuestionnaireVotingForm(
-                    request.POST or None,
-                    contribution=evaluation.general_contribution,
-                    questionnaire=dropout_questionnaire,
-                ),
-            )
 
     template_data = {
         "contributor_errors_exist": contributor_errors_exist,
@@ -298,19 +301,19 @@ def render_vote_page(
 
 
 @participant_required
-def vote(request: HttpRequest, evaluation_id: int, do_dropout=False):  # noqa: PLR0912
+def vote(request: HttpRequest, evaluation_id: int, dropout=False):  # noqa: PLR0912
     # pylint: disable=too-many-nested-blocks
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
 
-    if do_dropout and not evaluation.allow_drop_out:
+    if dropout and not evaluation.allow_drop_out:
         raise SuspiciousOperation("Drop out not allowed")
 
     if not evaluation.can_be_voted_for_by(request.user):
         raise PermissionDenied
 
-    form_groups = get_vote_page_form_groups(request, evaluation, preview=False)
+    form_groups = get_vote_page_form_groups(request, evaluation, preview=False, dropout=dropout)
     if not all(form.is_valid() for form_group in form_groups.values() for form in form_group):
-        return render_vote_page(request, evaluation, preview=False, show_dropout_questionnaire=do_dropout)
+        return render_vote_page(request, evaluation, preview=False, show_dropout_questionnaire=dropout)
 
     # all forms are valid, begin vote operation
     with transaction.atomic():
