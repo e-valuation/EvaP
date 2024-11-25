@@ -38,10 +38,9 @@
                                 </td>
                                 <td>
                                     {% if type == 'dropout' %}
-                                        <!-- TODO@Felix: Web Accessibility?  -->
                                         <button data-id="{{ questionnaire.id }}"
                                            class="btn btn-sm btn-light is-active-dropout-button{% if questionnaire.is_active_dropout_questionnaire %} active{% endif %}">
-                                            <span class="fas fa-fw fa-check" aria-hidden="true"></span>
+                                            <span class="fas fa-fw fa-check"></span>
                                         </button>
                                     {% elif type != 'contributor' %}
                                         <div class="btn-switch btn-group icon-buttons">
