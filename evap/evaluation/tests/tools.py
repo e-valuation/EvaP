@@ -297,7 +297,7 @@ class LiveServerTest(SeleniumTestCase):
 
         # Create fake session to do user login workflow
         self._create_session()
-        login(self.request, user, "django.contrib.auth.backends.ModelBackend")
+        login(self.request, user, "evap.evaluation.auth.RequestAuthUserBackend")
         self._update_session()
 
     def _enter_staff_mode(self):
