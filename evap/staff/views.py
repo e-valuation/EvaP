@@ -1833,6 +1833,12 @@ def questionnaire_index(request):
         *prefetch_list
     )  # TODO@Felix: is prefetch related needed?
 
+    # if no dropout questionnaire is active, set the first to be active
+    if not Questionnaire.objects.active_dropout_questionnaire().exists():
+        maybe_questionnaire = Questionnaire.objects.dropout_questionnaires().first()
+        if maybe_questionnaire:
+            maybe_questionnaire.set_active_dropout()
+
     if filter_questionnaires:
         general_questionnaires = general_questionnaires.exclude(visibility=Questionnaire.Visibility.HIDDEN)
         contributor_questionnaires = contributor_questionnaires.exclude(visibility=Questionnaire.Visibility.HIDDEN)
