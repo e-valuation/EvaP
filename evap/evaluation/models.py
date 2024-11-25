@@ -262,7 +262,6 @@ class Questionnaire(models.Model):
     def can_be_edited_by_manager(
         self,
     ):
-        # TODO: does this also need prefetch optimization?
         if self.is_dropout_questionnaire:
             assert set(Answer.__subclasses__()) == {TextAnswer, RatingAnswerCounter}
             return (
