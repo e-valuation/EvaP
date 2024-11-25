@@ -19,7 +19,6 @@ from evap.evaluation.tests.tools import (
     WebTest,
     WebTestWith200Check,
     create_evaluation_with_responsible_and_editor,
-    let_user_vote_for_evaluation,
     make_manager,
     store_ts_test_asset,
 )
