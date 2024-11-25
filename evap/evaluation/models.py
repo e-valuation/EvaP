@@ -248,7 +248,7 @@ class Questionnaire(models.Model):
 
     @property
     def is_above_contributors(self):
-        return self.type == self.Type.TOP
+        return self.type == self.Type.TOP or self.type == self.Type.DROPOUT
 
     @property
     def is_below_contributors(self):
