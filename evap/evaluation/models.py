@@ -490,7 +490,9 @@ class Evaluation(LoggedModel):
     )
     _voter_count = models.IntegerField(verbose_name=_("voter count"), blank=True, null=True, default=None)
 
-    # todo count students who dropout
+    # TODO@Felix: UI for dropout count
+    # TODO@Felix: tests
+    dropout_count = models.IntegerField(verbose_name=_("dropout count"), default=0)
 
     # when the evaluation takes place
     vote_start_datetime = models.DateTimeField(verbose_name=_("start of evaluation"))
@@ -1088,6 +1090,7 @@ class Evaluation(LoggedModel):
             "can_publish_text_results",
             "_voter_count",
             "_participant_count",
+            "dropout_count",
         ]
 
 

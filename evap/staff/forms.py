@@ -311,6 +311,7 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore[misc]
         "_voter_count",
         "voters",
         "votetimestamp",
+        "dropout_count",
     }
 
     CONTRIBUTION_COPIED_FIELDS = {
