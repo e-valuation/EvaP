@@ -1831,6 +1831,12 @@ def questionnaire_index(request):
     contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().prefetch_related(*prefetch_list)
     dropout_questionnaires = Questionnaire.objects.dropout_questionnaires().prefetch_related(*prefetch_list)
 
+    # if no dropout questionnaire is active, set the first to be active
+    if not Questionnaire.objects.active_dropout_questionnaire().exists():
+        maybe_questionnaire = Questionnaire.objects.dropout_questionnaires().first()
+        if maybe_questionnaire:
+            maybe_questionnaire.set_active_dropout()
+
     if filter_questionnaires:
         general_questionnaires = general_questionnaires.exclude(visibility=Questionnaire.Visibility.HIDDEN)
         contributor_questionnaires = contributor_questionnaires.exclude(visibility=Questionnaire.Visibility.HIDDEN)
