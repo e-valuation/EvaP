@@ -367,6 +367,7 @@ class EvaluationForm(forms.ModelForm):
             "course",
             "name_de",
             "name_en",
+            "main_language",
             "weight",
             "allow_editors_to_edit",
             "is_rewarded",
