@@ -62,6 +62,14 @@
     min-height: 65px;
 }
 
+.card-submit-area-small {
+    min-height: inherit;
+
+    .card-body {
+        padding: 0.5rem;
+    }
+}
+
 .card-submit-area input,
 .card-submit-area a,
 .card-submit-area button,
