@@ -1801,9 +1801,7 @@ def questionnaire_index(request):
     prefetch_list = ("questions", "contributions__evaluation")
     general_questionnaires = Questionnaire.objects.general_questionnaires().prefetch_related(*prefetch_list)
     contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().prefetch_related(*prefetch_list)
-    dropout_questionnaires = Questionnaire.objects.dropout_questionnaires().prefetch_related(
-        *prefetch_list
-    )  # TODO@Felix: is prefetch related needed?
+    dropout_questionnaires = Questionnaire.objects.dropout_questionnaires()
 
     # if no dropout questionnaire is active, set the first to be active
     if not Questionnaire.objects.active_dropout_questionnaire().exists():
