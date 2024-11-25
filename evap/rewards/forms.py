@@ -3,7 +3,6 @@ from datetime import date
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.core.validators import MaxValueValidator, StepValueValidator
 from django.db import transaction
 from django.utils.translation import gettext as _
 
@@ -25,21 +24,20 @@ class RewardPointRedemptionEventForm(forms.ModelForm):
 
 class RewardPointRedemptionForm(forms.Form):
     event = forms.ModelChoiceField(queryset=RewardPointRedemptionEvent.objects.all(), widget=forms.HiddenInput())
-    points = forms.IntegerField(min_value=0, label="")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.initial:
             return
 
-        self.fields["points"].validators.append(MaxValueValidator(self.initial["total_points_available"]))
-        self.fields["points"].widget.attrs["max"] = self.initial["total_points_available"]
-
-        self.fields["points"].validators.append(StepValueValidator(self.initial["event"].step))
-        self.fields["points"].widget.attrs["step"] = self.initial["event"].step
-
-        if self.initial["event"].step > 1:
-            self.fields["points"].help_text = _("multiples of {}").format(self.initial["event"].step)
+        help_text = _("multiples of {}").format(self.initial["event"].step) if self.initial["event"].step > 1 else ""
+        self.fields["points"] = forms.IntegerField(
+            min_value=0,
+            max_value=self.initial["total_points_available"],
+            step_size=self.initial["event"].step,
+            label="",
+            help_text=help_text,
+        )
 
     def clean_event(self):
         event = self.cleaned_data["event"]
