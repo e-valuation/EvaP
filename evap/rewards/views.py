@@ -1,5 +1,5 @@
 import csv
-from datetime import datetime
+from datetime import date, datetime
 
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
@@ -32,7 +32,7 @@ from evap.rewards.tools import grant_eligible_reward_points_for_semester, redeem
 def index(request):
     status = 200
 
-    events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now().date()).order_by("date")
+    events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=date.today()).order_by("date")
 
     # pylint: disable=unexpected-keyword-arg
     formset = RewardPointRedemptionFormSet(
@@ -40,8 +40,8 @@ def index(request):
         initial=[{"event": e, "points": 0} for e in events],
         user=request.user,
     )
-    with formset.lock():
-        if request.method == "POST":
+    if request.method == "POST":
+        with formset.lock():
             try:
                 previous_redeemed_points = int(request.POST["previous_redeemed_points"])
             except ValueError as e:

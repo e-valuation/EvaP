@@ -83,6 +83,7 @@ class BaseRewardPointRedemptionFormSet(forms.BaseFormSet):
 
         total_points_available = reward_points_of_user(self.user)
         total_points_redeemed = sum(form.cleaned_data["points"] for form in self.forms)
+        assert all(form.cleaned_data["points"] >= 0 for form in self.forms)
 
         if total_points_redeemed <= 0:
             raise ValidationError(_("You cannot redeem 0 points."))
