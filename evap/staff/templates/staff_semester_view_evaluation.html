@@ -192,7 +192,7 @@
                     <div slot="extra-inputs">
                         <label>
                             {% translate 'Exam Date:' %}
-                            <input type="date" name="exam_date" data-earliest-possible-date="{{ evaluation.earliest_possible_exam_date }}" data-earliest-possible-date-reason="{% translate 'The end date of the main evaluation would be before its start date.' %}" class="form-control" required form="exam_creation_form_{{ evaluation.id }}"/>
+                            <input type="date" name="exam_date" min="{{ evaluation.earliest_possible_exam_date }}" class="form-control" required form="exam_creation_form_{{ evaluation.id }}"/>
                         </label>
                     </div>
 

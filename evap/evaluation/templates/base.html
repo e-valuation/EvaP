@@ -210,19 +210,6 @@
             setupForms();
         </script>
 
-        <script type="text/javascript"> 
-            document.querySelectorAll("[data-earliest-possible-date]").forEach(element => {
-                element.addEventListener("change", () => {
-                    if (element.value < element.dataset.earliestPossibleDate) {
-                        element.setCustomValidity(element.dataset.earliestPossibleDateReason);
-                    } else {
-                        element.setCustomValidity("");
-                    }
-                });
-                element.dispatchEvent(new Event("change"));
-            });
-        </script>
-
         {% block additional_javascript %}{% endblock %}
     </body>
 </html>
