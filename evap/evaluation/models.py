@@ -257,7 +257,14 @@ class Questionnaire(models.Model):
     @property
     def can_be_edited_by_manager(
         self,
-    ):  # TODO@Felix: modify this to also work for dropout questionnaires? or change code
+    ):
+        if self.type == self.Type.DROPOUT:
+            assert set(Answer.__subclasses__()) == {TextAnswer, RatingAnswerCounter}
+            return (
+                not TextAnswer.objects.filter(question__questionnaire=self).exists()
+                and not RatingAnswerCounter.objects.filter(question__questionnaire=self).exists()
+            )
+
         if is_prefetched(self, "contributions"):
             if all(is_prefetched(contribution, "evaluation") for contribution in self.contributions.all()):
                 return all(
