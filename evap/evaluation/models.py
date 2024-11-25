@@ -425,6 +425,15 @@ class Evaluation(LoggedModel):
     name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), blank=True)
     name = translate(en="name_en", de="name_de")
 
+    # questionaire is shown in this language per default
+    main_language = models.CharField(
+        max_length=2,
+        verbose_name=_("main language"),
+        blank=True,
+        default="x",
+        choices=settings.LANGUAGES + [("x", _("undecided"))],
+    )
+
     # defines how large the influence of this evaluation's grade is on the total grade of its course
     weight = models.PositiveSmallIntegerField(verbose_name=_("weight"), default=1)
 
