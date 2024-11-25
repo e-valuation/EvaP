@@ -264,7 +264,9 @@ def render_vote_page(
         for contribution, form_group in form_groups.items()
     ]
     evaluation_form_group_top = [
-        questions_form for questions_form in evaluation_form_group if questions_form.questionnaire.is_above_contributors
+        questions_form
+        for questions_form in evaluation_form_group
+        if questions_form.questionnaire.is_above_contributors or questions_form.questionnaire.is_dropout_questionnaire
     ]
     evaluation_form_group_bottom = [
         questions_form for questions_form in evaluation_form_group if questions_form.questionnaire.is_below_contributors
