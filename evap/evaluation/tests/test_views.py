@@ -322,7 +322,7 @@ class TestDropoutQuestionnaire(WebTest):
             evaluation=cls.evaluation,
         )
 
-    def assert_NO_ANSWER_set(self, form):
+    def assert_no_answer_set(self, form):
         self.assertEqual(
             form.fields[answer_field_id(self.evaluation.general_contribution, self.q1.questionnaire, self.q1)][0].value,
             str(NO_ANSWER),
@@ -338,9 +338,9 @@ class TestDropoutQuestionnaire(WebTest):
         self.assertFalse(Questionnaire.objects.dropout_questionnaires().exists())
         response = self.app.get(url=reverse("student:drop", args=[self.evaluation.id]), user=self.user, status=200)
 
-        self.assert_NO_ANSWER_set(response.forms["student-vote-form"])
+        self.assert_no_answer_set(response.forms["student-vote-form"])
 
-    def test_chosing_dropout_sets_to_NO_ANSWER(self):
+    def test_chosing_dropout_sets_to_no_answer(self):
         dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
         dropout_question = baker.make(Question, type=QuestionType.TEXT, questionnaire=dropout_questionnaire)
 
@@ -353,7 +353,7 @@ class TestDropoutQuestionnaire(WebTest):
             form.fields.keys(),
             "The dropout Questionnaire should be shown",
         )
-        self.assert_NO_ANSWER_set(form)
+        self.assert_no_answer_set(form)
 
     def test_allow_dropout_is_respected(self):
         _ = self.app.get(url=reverse("student:vote", args=[self.evaluation.id]), user=self.user, status=200)
