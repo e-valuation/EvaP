@@ -331,8 +331,7 @@ def vote(request: HttpRequest, evaluation_id: int, dropout=False):  # noqa: PLR0
                     if question.is_heading_question:
                         continue
 
-                    identifier = answer_field_id(contribution, questionnaire, question)
-                    value = questionnaire_form.cleaned_data.get(identifier)
+                    value = questionnaire_form.cleaned_data.get(answer_field_id(contribution, questionnaire, question))
 
                     if question.is_text_question:
                         if value:
