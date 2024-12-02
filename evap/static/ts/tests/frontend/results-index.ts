@@ -4,11 +4,13 @@ import { pageHandler } from "../utils/page";
 import "../utils/matchers";
 
 async function fetchVisibleRows(page: Page): Promise<string[][]> {
-    return await page.$$eval(".heading-row", rows => rows.map(row => {
+    return await page.$$eval(".heading-row", rows =>
+        rows.map(row => {
             const evaluationName = row.querySelector(".evaluation-name")!.textContent!.trim();
             const semester = row.querySelector(".semester-short-name")!.textContent!.trim();
             return [evaluationName, semester];
-        }));
+        }),
+    );
 }
 
 test(
