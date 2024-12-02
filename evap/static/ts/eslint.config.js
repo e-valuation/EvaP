@@ -19,7 +19,6 @@ export default tseslint.config(
             sourceType: "module",
         },
     },
-    // ignore @typescript-eslint/no-misused-promises
     {
         rules: {
             "@typescript-eslint/restrict-template-expressions": ["error", { allowNumber: true }],
