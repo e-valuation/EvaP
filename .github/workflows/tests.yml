@@ -68,7 +68,7 @@ jobs:
       - name: Run ESLint
         run: |
           cd evap/static/ts
-          npx eslint --quiet
+          npx eslint
 
   formatter:
     runs-on: ubuntu-22.04
