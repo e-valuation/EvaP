@@ -181,8 +181,11 @@
 
             // activate clickable hover tables
             document.querySelectorAll(".table-seamless-links [data-url]").forEach(row => {
-                row.addEventListener("click", () => {
-                    window.location.assign(row.dataset.url);
+                row.addEventListener("click", event => {
+                    // We navigate via the <a> tag to enable browser behavior for Ctrl-Click.
+                    const anchor = document.createElement("a");
+                    anchor.href = row.dataset.url;
+                    anchor.dispatchEvent(new PointerEvent("click", event));
                 });
             });
 
