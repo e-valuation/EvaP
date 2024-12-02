@@ -300,7 +300,10 @@ class TestDropoutQuestionnaire(WebTest):
     @classmethod
     def setUpTestData(cls) -> None:
         cls.user = baker.make(UserProfile, email="student@institution.example.com")
-        cls.evaluation = baker.make(Evaluation, state=Evaluation.State.IN_EVALUATION, participants=[cls.user])
+        cls.user2 = baker.make(UserProfile, email="student2@institution.example.com")
+        cls.evaluation = baker.make(
+            Evaluation, state=Evaluation.State.IN_EVALUATION, participants=[cls.user, cls.user2]
+        )
 
         cls.q1 = baker.make(
             Question,
@@ -351,3 +354,33 @@ class TestDropoutQuestionnaire(WebTest):
             "The dropout Questionnaire should be shown",
         )
         self.assert_NO_ANSWER_set(form)
+
+    def test_allow_dropout_is_respected(self):
+        _ = self.app.get(url=reverse("student:vote", args=[self.evaluation.id]), user=self.user, status=200)
+        _ = self.app.get(url=reverse("student:drop", args=[self.evaluation.id]), user=self.user, status=200)
+
+        no_dropout_evaluation = baker.make(
+            Evaluation, state=Evaluation.State.IN_EVALUATION, participants=[self.user], allow_drop_out=False
+        )
+
+        _ = self.app.get(url=reverse("student:vote", args=[no_dropout_evaluation.id]), user=self.user, status=200)
+        _ = self.app.get(url=reverse("student:drop", args=[no_dropout_evaluation.id]), user=self.user, status=400)
+
+    def test_dropping_out_increments_dropout_counter(self):
+        self.assertEqual(self.evaluation.dropout_count, 0, "dropout_count should be initially zero")
+
+        form = self.app.get(url=reverse("student:drop", args=[self.evaluation.id]), user=self.user, status=200).forms[
+            "student-vote-form"
+        ]
+        form.submit()
+        self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
+
+        self.assertEqual(self.evaluation.dropout_count, 1, "dropout count should increment with dropout")
+
+        form = self.app.get(url=reverse("student:vote", args=[self.evaluation.id]), user=self.user2, status=200).forms[
+            "student-vote-form"
+        ]
+        form.submit()
+        self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
+
+        self.assertEqual(self.evaluation.dropout_count, 1, "dropout_count should not change on normal vote")

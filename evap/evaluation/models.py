@@ -494,7 +494,6 @@ class Evaluation(LoggedModel):
     _voter_count = models.IntegerField(verbose_name=_("voter count"), blank=True, null=True, default=None)
 
     # TODO@Felix: UI for dropout count
-    # TODO@Felix: tests
     dropout_count = models.IntegerField(verbose_name=_("dropout count"), default=0)
 
     # when the evaluation takes place
