@@ -634,6 +634,10 @@ class Evaluation(LoggedModel):
         return self.general_contribution and self.general_contribution.questionnaires.count() > 0
 
     @property
+    def has_valid_main_language(self):
+        return self.main_language != "x"
+
+    @property
     def all_contributions_have_questionnaires(self):
         if is_prefetched(self, "contributions"):
             if not self.contributions:
@@ -768,7 +772,12 @@ class Evaluation(LoggedModel):
     def ready_for_editors(self):
         pass
 
-    @transition(field=state, source=State.PREPARED, target=State.EDITOR_APPROVED)
+    @transition(
+        field=state,
+        source=State.PREPARED,
+        target=State.EDITOR_APPROVED,
+        conditions=[lambda self: self.has_valid_main_language],
+    )
     def editor_approve(self):
         pass
 
@@ -776,7 +785,7 @@ class Evaluation(LoggedModel):
         field=state,
         source=[State.NEW, State.PREPARED, State.EDITOR_APPROVED],
         target=State.APPROVED,
-        conditions=[lambda self: self.general_contribution_has_questionnaires],
+        conditions=[lambda self: self.general_contribution_has_questionnaires and self.has_valid_main_language],
     )
     def manager_approve(self):
         pass

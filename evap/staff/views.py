@@ -1330,17 +1330,19 @@ def helper_evaluation_edit(request, evaluation):
         Evaluation, Contribution, formset=ContributionFormset, form=ContributionForm, extra=1 if editable else 0
     )
 
-    evaluation_form = EvaluationForm(request.POST or None, instance=evaluation, semester=evaluation.course.semester)
+    operation = request.POST.get("operation")
+
+    if request.method == "POST" and operation not in ("save", "approve"):
+        raise SuspiciousOperation("Invalid POST operation")
+
+    evaluation_form = EvaluationForm(
+        request.POST or None, instance=evaluation, semester=evaluation.course.semester, operation=operation
+    )
     formset = InlineContributionFormset(
         request.POST or None, instance=evaluation, form_kwargs={"evaluation": evaluation}
     )
 
-    operation = request.POST.get("operation")
-
     if evaluation_form.is_valid() and formset.is_valid():
-        if operation not in ("save", "approve"):
-            raise SuspiciousOperation("Invalid POST operation")
-
         if not evaluation.can_be_edited_by_manager or evaluation.participations_are_archived:
             raise SuspiciousOperation("Modifying this evaluation is not allowed.")
 

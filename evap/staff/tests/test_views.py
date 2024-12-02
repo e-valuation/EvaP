@@ -1939,9 +1939,6 @@ class TestEvaluationCreateView(WebTestStaffMode):
         form["contributions-0-textanswer_visibility"] = Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
 
     def test_evaluation_create_main_language(self):
-        """
-        Tests the evaluation creation view with one valid and one invalid input dataset.
-        """
         response = self.app.get(self.url_for_semester, user=self.manager, status=200)
         form = response.forms["evaluation-form"]
         self._set_valid_form(form)
@@ -2382,6 +2379,19 @@ class TestEvaluationEditView(WebTestStaffMode):
 
         response = self.app.get(self.url, user=self.manager)
         self.assertContains(response, "TRANSLATED-state: TRANSLATED-new &#8594; TRANSLATED-prepared")
+
+    def test_evaluation_confirm_without_main_language(self):
+        response = self.app.get(self.url, user=self.manager, status=200)
+        form = response.forms["evaluation-form"]
+
+        form["main_language"] = "x"
+        response = form.submit("operation", value="approve")
+        self.assertContains(response, "You have to set a main language to approve this evaluation.")
+
+        self.assertNotEqual(Evaluation.objects.first().state, self.evaluation.State.APPROVED)
+
+        form["main_language"] = "en"
+        form.submit("operation", value="approve")
 
 
 class TestEvaluationDeleteView(WebTestStaffMode):

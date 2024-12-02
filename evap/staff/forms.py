@@ -385,6 +385,7 @@ class EvaluationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         semester = kwargs.pop("semester", None)
+        self.operation = kwargs.pop("operation", "save")
         super().__init__(*args, **kwargs)
         self.fields["course"].queryset = Course.objects.filter(semester=semester)
 
@@ -446,6 +447,12 @@ class EvaluationForm(forms.ModelForm):
         if weight == 0 and not course.evaluations.exclude(pk=self.instance.pk).filter(weight__gt=0).exists():
             self.add_error("weight", _("At least one evaluation of the course must have a weight greater than 0."))
         return weight
+
+    def clean_main_language(self):
+        main_language = self.cleaned_data.get("main_language")
+        if self.operation == "approve" and main_language == "x":
+            self.add_error("main_language", _("You have to set a main language to approve this evaluation."))
+        return main_language
 
     def clean(self):
         super().clean()
