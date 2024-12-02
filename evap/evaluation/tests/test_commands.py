@@ -32,6 +32,25 @@ from evap.evaluation.tests.tools import TestCase, make_manager, make_rating_answ
 from evap.tools import MonthAndDay
 
 
+class TestCreateUserCommand(TestCase):
+    # Regression test for #2204 - createsuperuser failing due to misconfigured REQUIRED_FIELDS
+    def test_create_super_user(self):
+        management.call_command(
+            "createsuperuser",
+            "--no-input",
+            "--first_name_given",
+            "Tony",
+            "--last_name",
+            "Kuchenbuch",
+            "--email",
+            "tonykuchenbuch@example.com",
+        )
+
+        user = UserProfile.objects.get(email="tonykuchenbuch@example.com")
+        self.assertEqual(user.first_name_given, "Tony")
+        self.assertEqual(user.last_name, "Kuchenbuch")
+
+
 class TestAnonymizeCommand(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -224,7 +243,7 @@ class TestScssCommand(TestCase):
             management.call_command("scss")
 
 
-class TestTsCommend(TestCase):
+class TestTsCommand(TestCase):
     def setUp(self):
         self.ts_path = os.path.join(settings.STATICFILES_DIRS[0], "ts")
 

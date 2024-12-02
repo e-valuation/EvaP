@@ -8,7 +8,7 @@
         "jest-environment-jsdom": "^29.7.0",
         "jest-jasmine2": "^29.7.0",
         "jest-ts-webcompat-resolver": "^1.0.0",
-        "prettier": "^3.3.0",
+        "prettier": "^3.4.1",
         "sass": "1.77.1",
         "ts-jest": "^29.2.0",
         "typescript": "^5.7.2"

@@ -1,49 +1,54 @@
-[tool.poetry]
-package-mode = false
+[project]
 name = "evap"
 description = "EvaP"
+version = "0.0.0"
 readme = "README.md"
-packages = [{include = "evap"}]
+requires-python = "~=3.10.0"
+dependencies = [
+    "django-extensions~=3.2.3",
+    "django-fsm~=2.8.2",
+    "Django~=5.1.0",
+    "mozilla-django-oidc~=4.0.1",
+    "openpyxl~=3.1.5",
+    "psycopg~=3.2.3",
+    "redis~=5.2.0",
+    "typing-extensions~=4.12.2",
+    "xlwt~=1.3.0",
+]
 
-[tool.poetry.dependencies]
-python = "~3.10.0"
-django-extensions = "~3.2.3"
-django-fsm = "~2.8.2"
-Django = "~5.1.0"
-mozilla-django-oidc = "~4.0.1"
-openpyxl = "~3.1.5"
-psycopg = "~3.2.3"
-psycopg-c = { version = "~3.2.3", optional = true }
-psycopg-binary = { version = "~3.2.3", optional = true }
-redis = "~5.2.0"
-typing-extensions = "~4.12.2"
-xlwt = "~1.3.0"
+[project.optional-dependencies]
+psycopg-binary = ["psycopg[binary]"]
+psycopg-c = ["psycopg[c]"]
 
-[tool.poetry.group.dev.dependencies]
-black = "~24.10.0"
-coverage = { version = "7.6.8", extras = ["toml"] }
-django-debug-toolbar = "~4.4"
-django-stubs = "5.1.1"
-django-webtest = "~1.9.10"
-isort = "~5.13.1"
-model-bakery = "~1.20.0"
-mypy = "~1.13.0"
-openpyxl-stubs = "~0.1.25"
-pylint-django = "~2.6.1"
-pylint = "~3.3.0"
-ruff = "~0.8.0"
-tblib = "~3.0.0"
-xlrd = "~2.0.1"
-typeguard = "~4.4.0"
-selenium = "~4.26.1"
+[dependency-groups]
+dev = [
+    "black~=24.10.0",
+    "coverage[toml]~=7.6.8",
+    "django-debug-toolbar~=4.4",
+    "django-stubs~=5.1.1",
+    "django-webtest~=1.9.10",
+    "isort~=5.13.1",
+    "model-bakery~=1.20.0",
+    "mypy~=1.13.0",
+    "openpyxl-stubs~=0.1.25",
+    "pylint-django~=2.6.1",
+    "pylint~=3.3.0",
+    "ruff~=0.8.0",
+    "tblib~=3.0.0",
+    "xlrd~=2.0.1",
+    "typeguard~=4.4.0",
+    "selenium~=4.27.0"
 
-[tool.poetry.extras]
-psycopg-c = ["psycopg-c"]
-psycopg-binary = ["psycopg-binary"]
+]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+no-binary-package = [
+    "psycopg-c",
+]
 
 ##############################################
 

@@ -86,7 +86,7 @@ jobs:
         run: isort . --check --diff
       - run: ls -laR evap/static/ts
       - name: Check TypeScript formatting
-        run: npx prettier --list-different --loglevel debug 'evap/static/ts/**/*.ts'
+        run: npx prettier --list-different --log-level debug 'evap/static/ts/**/*.ts'
 
   backup-process:
     runs-on: ubuntu-22.04
@@ -170,3 +170,14 @@ jobs:
           path: evap/static/css
       - name: Run tests
         run: xvfb-run --auto-servernum npx jest
+
+  macos-nix-build:
+    runs-on: macos-14
+    name: Build nix environment on MacOS
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: ./.github/setup_evap
+        with:
+          start-db: true

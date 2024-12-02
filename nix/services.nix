@@ -1,12 +1,9 @@
-{ pkgs, lib ? pkgs.lib, services-flake, only-databases, poetry-env }: {
+{ pkgs, lib ? pkgs.lib, services-flake, only-databases, venv }: {
   imports = [
     services-flake.processComposeModules.default
   ];
 
-  httpServer = {
-    enable = true;
-    uds = "process-compose.socket";
-  };
+  cli.options.unix-socket = "process-compose.socket";
 
   services = {
     redis."r1" = {
@@ -58,7 +55,7 @@
   settings.processes."init-django" = {
     command = pkgs.writeShellApplication {
       name = "init-django";
-      runtimeInputs = with pkgs; [ poetry-env git gnused gettext coreutils ];
+      runtimeInputs = with pkgs; [ venv git gnused gettext coreutils ];
       text = ''
         set -e
         if [[ -f evap/localsettings.py ]]; then

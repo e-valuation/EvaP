@@ -87,15 +87,9 @@
     </div>
     <div class="fst-italic">
         {{ evaluation.course.responsibles_names }}
-        {% if info_only or not request.user.is_manager or state >= evaluation.State.IN_EVALUATION %}
-            <span class="small" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Number of contributors' %}">
-                ({{ evaluation.num_contributors }} <span class="fas fa-person-chalkboard"></span>)
-            </span>
-        {% else %}
-            <a class="small no-underline" href="{% url 'staff:evaluation_person_management' evaluation.id %}" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Manage contributors' %}">
-                ({{ evaluation.num_contributors }} <span class="fas fa-person-chalkboard"></span>)
-            </a>
-        {% endif %}
+        <span class="small" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Number of contributors' %}">
+            ({{ evaluation.num_contributors }} <span class="fas fa-person-chalkboard"></span>)
+        </span>
     </div>
     {% include 'evaluation_badges.html' with mode='manager' %}
     {% if evaluation.num_course_evaluations > 1 %}
@@ -163,47 +157,46 @@
             </span>
         </td>
     {% endif %}
-{% elif info_only or not request.user.is_manager %}
-    <td>
-        <span {% if evaluation.num_participants == 0 %}class="text-danger" {% endif %}data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Number of participants' %}">
-            <span class="fas fa-user"></span> {{ evaluation.num_participants }}
-        </span>
-    </td>
 {% else %}
     <td>
-        <a class="no-underline{% if evaluation.num_participants == 0 %} text-danger{% endif %}" href="{% url 'staff:evaluation_person_management' evaluation.id %}" data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Manage participants' %}">
+        <span {% if evaluation.num_participants == 0 %}class="text-danger" {% endif %}data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Number of participants' %}">
             <span class="fas fa-user"></span> {{ evaluation.num_participants }}
-        </a>
+        </span>
     </td>
 {% endif %}
 <td class="icon-buttons">
     {% if not info_only %}
         {% if evaluation.num_textanswers > 0 and state < evaluation.State.PUBLISHED %}
             <a href="{% url 'staff:evaluation_textanswers' evaluation.id %}" class="btn btn-sm {% if state == evaluation.State.REVIEWED %}btn-light{% else %}btn-primary{% endif %}" data-bs-toggle="tooltip" title="{% translate 'Review text answers' %}">
-                <span class="fas fa-magnifying-glass"></span>
+                <span class="fas fa-fw fa-magnifying-glass"></span>
             </a>
         {% endif %}
         {% if not evaluation.is_single_result and request.user.is_manager %}
+            {% if state < evaluation.State.IN_EVALUATION %}
+                <a href="{% url 'staff:evaluation_person_management' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" title="{% translate 'Manage participants/contributors' %}">
+                    <span class="fas fa-fw fa-user"></span>
+                </a>
+            {% endif %}
             <a href="{% url 'staff:evaluation_copy' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" title="{% translate 'Copy' %}">
-                <span class="fas fa-copy"></span>
+                <span class="fas fa-fw fa-copy"></span>
             </a>
         {% endif %}
         {% if request.user.is_manager %}
             <a href="{% url 'staff:evaluation_email' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Send email' %}">
-                <span class="fas fa-envelope" aria-hidden="true"></span>
+                <span class="fas fa-fw fa-envelope" aria-hidden="true"></span>
             </a>
         {% endif %}
         {% if state < evaluation.State.IN_EVALUATION %}
             <a href="{% url 'staff:evaluation_preview' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Preview' %}">
-                <span class="fas fa-eye" aria-hidden="true"></span>
+                <span class="fas fa-fw fa-eye" aria-hidden="true"></span>
             </a>
         {% elif state < evaluation.State.PUBLISHED and evaluation|can_results_page_be_seen_by:request.user %}
             <a href="{% url 'results:evaluation_detail' semester.id evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Preview results' %}">
-                <span class="fas fa-chart-simple" aria-hidden="true"></span>
+                <span class="fas fa-fw fa-chart-simple" aria-hidden="true"></span>
             </a>
         {% elif state == evaluation.State.PUBLISHED and evaluation|can_results_page_be_seen_by:request.user %}
             <a href="{% url 'results:evaluation_detail' semester.id evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Results' %}">
-                <span class="fas fa-chart-simple" aria-hidden="true"></span>
+                <span class="fas fa-fw fa-chart-simple" aria-hidden="true"></span>
             </a>
         {% endif %}
         {% if request.user.is_manager and evaluation.can_be_deleted_by_manager %}
@@ -217,7 +210,7 @@
                 </span>
 
                 <button slot="show-button" type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Delete' %}">
-                    <span class="fas fa-trash" aria-hidden="true"></span>
+                    <span class="fas fa-fw fa-trash" aria-hidden="true"></span>
                 </button>
             </confirmation-modal>
         {% endif %}
