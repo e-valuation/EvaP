@@ -195,7 +195,7 @@ def index(request):
 
 
 def get_vote_page_form_groups(
-    request: HttpRequest, evaluation: Evaluation, preview: bool, dropout=False
+    request, evaluation: Evaluation, preview: bool, dropout=False
 ) -> OrderedDict[Contribution, list[QuestionnaireVotingForm]]:
     contributions_to_vote_on = evaluation.contributions.all()
     # prevent a user from voting on themselves
