@@ -251,6 +251,8 @@ class LiveServerTest(SeleniumTestCase):
     browser = "firefox"
     selenium_hub = os.environ.get("TEST_SELENIUM_HUB", "") or None
     headless = True
+    window_size = (1920,3080)
+
 
     serialized_rollback = True
 
@@ -310,5 +312,6 @@ class LiveServerTest(SeleniumTestCase):
             self._update_session()
 
     @classmethod
-    def tearDownClass(cls):
-        cls.selenium.quit()
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+        cls.selenium.set_window_size(*cls.window_size)
