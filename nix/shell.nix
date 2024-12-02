@@ -34,6 +34,9 @@ pkgs.mkShell {
     gettext
     git
 
+    firefox
+    geckodriver
+
     venv
     clean-setup
     evap-managepy-completion
