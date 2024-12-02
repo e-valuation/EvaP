@@ -32,6 +32,7 @@ pkgs.mkShell {
   packages = with pkgs; [
     nodejs
     gettext
+    git
 
     venv
     clean-setup
