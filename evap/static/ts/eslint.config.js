@@ -12,7 +12,7 @@ export default tseslint.config(
     },
     {
         languageOptions: {
-            ecmaVersion: 5,
+            ecmaVersion: 2019,
             parserOptions: {
                 project: ["tsconfig.json", "tsconfig.compile.json"],
             },
