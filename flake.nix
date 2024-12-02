@@ -35,7 +35,7 @@
       devShells = forAllSystems (system:
         let
           pkgs = pkgsFor.${system};
-          dependency-groups = [ "psycopg-binary" ]; # if pkgs.stdenv.isDarwin then [ "psycopg-c" ] else [ "psycopg-binary" ];
+          dependency-groups = if pkgs.stdenv.isDarwin then [ "psycopg-c" ] else [ "psycopg-binary" ];
         in
         rec {
           evap = pkgs.callPackage ./nix/shell.nix {
