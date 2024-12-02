@@ -1,4 +1,4 @@
-{ pkgs, lib ? pkgs.lib, python3, poetry2nix, pyproject, poetrylock, extras ? [ ], poetry-groups ? [ ], extraPackages ? [ ], extraPythonPackages ? (ps: [ ]), ... }:
+{ pkgs, lib ? pkgs.lib, python3, pyproject-nix, uv2nix, pyproject-build-systems, workspaceRoot, extraPackages ? [ ], dependency-groups ? [ ], ... }:
 
 let
   # When running a nix shell, XDG_DATA_DIRS will be populated so that bash_completion can (lazily) find this completion script
@@ -14,41 +14,38 @@ let
     rm -rf node_modules/ data/ evap/localsettings.py
   '';
 
-  poetry-env = poetry2nix.mkPoetryEnv {
-    python = python3;
-    # We pass these instead of `projectDir` to avoid adding the dependency on other files.
-    inherit pyproject poetrylock extras;
-    preferWheels = true;
-    overrides = poetry2nix.overrides.withDefaults (final: prev: {
-      # https://github.com/nix-community/poetry2nix/issues/1499
-      django-stubs-ext = prev.django-stubs-ext.override { preferWheel = false; };
-
-      psycopg = prev.psycopg.overridePythonAttrs (old: {
-        buildInputs = old.buildInputs or [ ]
-          ++ lib.optionals pkgs.stdenv.isDarwin [ pkgs.openssl ];
-        propagatedBuildInputs = old.propagatedBuildInputs or [ ] ++ [ pkgs.postgresql ];
-      });
-
-      psycopg-c = prev.psycopg-c.overridePythonAttrs (old: {
-        nativeBuildInputs = old.nativeBuildInputs or [ ] ++ [ pkgs.postgresql ];
-        propagatedBuildInputs = old.propagatedBuildInputs or [ ] ++ [ final.setuptools ];
-      });
+  workspace = uv2nix.lib.workspace.loadWorkspace { inherit workspaceRoot; };
+  overlay = workspace.mkPyprojectOverlay { sourcePreference = "wheel"; };
+  package-overrides = final: prev: {
+    psycopg-c = prev.psycopg-c.overrideAttrs (old: {
+      nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.setuptools pkgs.postgresql ];
     });
-    groups = poetry-groups;
-    checkGroups = [ ]; # would otherwise always install dev-dependencies
   };
+  baseSet = pkgs.callPackage pyproject-nix.build.packages { python = python3; };
+  pythonSet = baseSet.overrideScope (lib.composeManyExtensions [ pyproject-build-systems.overlays.default overlay package-overrides ]);
+
+  editableOverlay = workspace.mkEditablePyprojectOverlay { root = "$REPO_ROOT"; };
+  editablePythonSet = pythonSet.overrideScope editableOverlay;
+  venv = editablePythonSet.mkVirtualEnv "evap-dev-env" { evap = dependency-groups; };
 in
 pkgs.mkShell {
   packages = with pkgs; [
     nodejs
     gettext
+    git
 
-    poetry-env
+    venv
     clean-setup
     evap-managepy-completion
-  ] ++ extraPackages ++ (extraPythonPackages poetry-env.python.pkgs);
+  ] ++ extraPackages;
 
-  passthru = { inherit poetry-env; };
+  passthru = { inherit venv; };
 
   env.PUPPETEER_SKIP_DOWNLOAD = 1;
+
+  shellHook = ''
+    unset PYTHONPATH
+    export REPO_ROOT=$(git rev-parse --show-toplevel)
+    export UV_NO_SYNC=1
+  '';
 }
