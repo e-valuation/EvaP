@@ -1098,10 +1098,10 @@ def course_copy(request, course_id):
 def create_exam_evaluation(request: HttpRequest) -> HttpResponse:
     evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
     if evaluation.is_single_result:
-        raise SuspiciousOperation("Creating an exam evaluation for a single result evaluation is not allowed")
+        raise SuspiciousOperation("Creating an exam evaluation for a single result evaluation is not allowed.")
 
     if evaluation.has_exam_evaluation:
-        raise SuspiciousOperation("An exam evaluation already exists for this course")
+        raise SuspiciousOperation("An exam evaluation already exists for this course.")
 
     exam_date_string = request.POST.get("exam_date")
     if not exam_date_string:
