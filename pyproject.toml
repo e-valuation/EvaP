@@ -21,7 +21,7 @@ xlwt = "~1.3.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "~24.10.0"
-coverage = { version = "7.6.7", extras = ["toml"] }
+coverage = { version = "7.6.8", extras = ["toml"] }
 django-debug-toolbar = "~4.4"
 django-stubs = "5.1.1"
 django-webtest = "~1.9.10"
@@ -31,7 +31,7 @@ mypy = "~1.13.0"
 openpyxl-stubs = "~0.1.25"
 pylint-django = "~2.6.1"
 pylint = "~3.3.0"
-ruff = "~0.7.0"
+ruff = "~0.8.0"
 tblib = "~3.0.0"
 xlrd = "~2.0.1"
 typeguard = "~4.4.0"
