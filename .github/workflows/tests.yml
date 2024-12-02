@@ -14,23 +14,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Remove Chrome
+        run: sudo apt purge google-chrome-stable chromium-browser firefox -y
+
       - uses: ./.github/setup_evap
         with:
           start-db: true
-
-      - name: Remove Chrome
-        run: sudo apt purge google-chrome-stable
-
-      - name: Remove default Chromium
-        run: sudo apt purge chromium-browser
-
-      - name: Setup Firefox
-        uses: browser-actions/setup-firefox@v1.5.1
-
-      - name: Setup Geckodriver
-        uses: browser-actions/setup-geckodriver@latest
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run tests
         run: coverage run manage.py test
@@ -46,17 +35,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Remove Chrome
+        run: sudo apt purge google-chrome-stable chromium-browser firefox -y
+
       - uses: ./.github/setup_evap
         with:
           start-db: true
-
-      - name: Setup Firefox
-        uses: browser-actions/setup-firefox@v1.5.1
-
-      - name: Setup Geckodriver
-        uses: browser-actions/setup-geckodriver@latest
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run tests
         run: python manage.py test --shuffle

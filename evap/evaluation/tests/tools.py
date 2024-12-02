@@ -17,6 +17,7 @@ from django.test.selenium import SeleniumTestCase
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone, translation
 from model_bakery import baker
+from selenium.webdriver.firefox.webdriver import WebDriver
 
 from evap.evaluation.models import (
     CHOICES,
@@ -249,7 +250,7 @@ def assert_no_database_modifications(*args, **kwargs):
 class LiveServerTest(SeleniumTestCase):
     external_host = os.environ.get("TEST_HOST", "") or None
     browser = "firefox"
-    selenium_hub = os.environ.get("TEST_SELENIUM_HUB", "") or None
+    selenium_hub = None
     headless = True
     window_size = (1920, 3080)
 
