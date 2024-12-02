@@ -251,8 +251,7 @@ class LiveServerTest(SeleniumTestCase):
     browser = "firefox"
     selenium_hub = os.environ.get("TEST_SELENIUM_HUB", "") or None
     headless = True
-    window_size = (1920,3080)
-
+    window_size = (1920, 3080)
 
     serialized_rollback = True
 
