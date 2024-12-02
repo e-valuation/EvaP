@@ -5,6 +5,7 @@ declare global {
     namespace jest {
         interface Matchers<R> {
             toBeChecked(): Promise<R>;
+
             toHaveClass(className: string): Promise<R>;
         }
     }
@@ -45,17 +46,13 @@ async function createElementMessage(
 
 expect.extend({
     async toBeChecked(received: ElementHandle): Promise<jest.CustomMatcherResult> {
-        const pass = await received.evaluate(element => {
-            return (element as HTMLInputElement).checked;
-        });
+        const pass = await received.evaluate(element => (element as HTMLInputElement).checked);
         const message = await createElementMessage.call(this, "toBeChecked", "be checked", received);
         return { message, pass };
     },
 
     async toHaveClass(received: ElementHandle, className: string): Promise<jest.CustomMatcherResult> {
-        const classList = await received.evaluate(element => {
-            return [...element.classList];
-        });
+        const classList = await received.evaluate(element => [...element.classList]);
         const pass = classList.includes(className);
         const message = await createElementMessage.call(
             this,

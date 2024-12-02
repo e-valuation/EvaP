@@ -4,7 +4,7 @@ export const selectOrError = <T extends Element>(selector: string, root: ParentN
     return elem;
 };
 
-export function assert(condition: unknown, message: string = "Assertion Failed"): asserts condition {
+export function assert(condition: unknown, message = "Assertion Failed"): asserts condition {
     if (!condition) throw new Error(message);
 }
 
@@ -13,9 +13,7 @@ export function assertDefined<T>(val: T): asserts val is NonNullable<T> {
     assert(val !== null);
 }
 
-export const sleep = (ms?: number): Promise<number> => {
-    return new Promise(resolve => window.setTimeout(resolve, ms));
-};
+export const sleep = (ms?: number): Promise<number> => new Promise(resolve => window.setTimeout(resolve, ms));
 
 export const clamp = (val: number, lowest: number, highest: number) => Math.min(highest, Math.max(lowest, val));
 

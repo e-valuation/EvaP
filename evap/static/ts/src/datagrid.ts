@@ -34,7 +34,7 @@ abstract class DataGrid {
     protected container: HTMLElement;
     private searchInput: HTMLInputElement;
     protected rows: Row[] = [];
-    private delayTimer: any | null;
+    private delayTimer: number | undefined;
     protected state: State;
 
     protected constructor({ storageKey, head, container, searchInput }: DataGridParameters) {
@@ -59,7 +59,7 @@ abstract class DataGrid {
     }
 
     protected bindEvents() {
-        this.delayTimer = null;
+        this.delayTimer = undefined;
         this.searchInput.addEventListener("input", () => {
             clearTimeout(this.delayTimer);
             this.delayTimer = setTimeout(() => {
@@ -87,7 +87,7 @@ abstract class DataGrid {
     private static NUMBER_REGEX = /^[+-]?\d+(?:[.,]\d*)?$/;
 
     private fetchRows(): Row[] {
-        let rows = [...this.container.children]
+        const rows = [...this.container.children]
             .map(row => row as HTMLElement)
             .map(row => {
                 const searchWords = this.findSearchableCells(row).flatMap(element =>
@@ -118,11 +118,11 @@ abstract class DataGrid {
     protected abstract fetchRowFilterValues(row: HTMLElement): Map<string, string[]>;
 
     private fetchRowOrderValues(row: HTMLElement): Map<string, string> {
-        let orderValues = new Map();
+        const orderValues = new Map<string, string>();
         for (const column of this.sortableHeaders.keys()) {
             const cell = row.querySelector<HTMLElement>(`[data-col=${column}]`)!;
             if (cell.matches("[data-order]")) {
-                orderValues.set(column, cell.dataset.order);
+                orderValues.set(column, cell.dataset.order!);
             } else {
                 orderValues.set(column, cell.innerHTML.trim());
             }
@@ -138,20 +138,20 @@ abstract class DataGrid {
     protected filterRows() {
         const searchWords = DataGrid.searchWordsOf(this.state.search);
         for (const row of this.rows) {
-            const isDisplayedBySearch = searchWords.every(searchWord => {
-                return row.searchWords.some(rowWord => rowWord.includes(searchWord));
-            });
-            const isDisplayedByFilters = [...this.state.equalityFilter].every(([name, filterValues]) => {
-                return filterValues.some(filterValue => {
-                    return row.filterValues.get(name)?.some(rowValue => rowValue === filterValue);
-                });
-            });
-            const isDisplayedByRangeFilters = [...this.state.rangeFilter].every(([name, bound]) => {
-                return row.filterValues
+            const isDisplayedBySearch = searchWords.every(searchWord =>
+                row.searchWords.some(rowWord => rowWord.includes(searchWord)),
+            );
+            const isDisplayedByFilters = [...this.state.equalityFilter].every(([name, filterValues]) =>
+                filterValues.some(filterValue =>
+                    row.filterValues.get(name)?.some(rowValue => rowValue === filterValue),
+                ),
+            );
+            const isDisplayedByRangeFilters = [...this.state.rangeFilter].every(([name, bound]) =>
+                row.filterValues
                     .get(name)
                     ?.map(rawValue => parseFloat(rawValue))
-                    .some(rowValue => rowValue >= bound.low && rowValue <= bound.high);
-            });
+                    .some(rowValue => rowValue >= bound.low && rowValue <= bound.high),
+            );
             row.isDisplayed = isDisplayedBySearch && isDisplayedByFilters && isDisplayedByRangeFilters;
         }
     }
@@ -264,9 +264,8 @@ export class TableGrid extends DataGrid {
         if (this.sortableHeaders.size > 0) {
             const [firstColumn] = this.sortableHeaders.keys();
             return [[firstColumn, "asc"]];
-        } else {
-            return [];
         }
+        return [];
     }
 }
 
@@ -285,9 +284,9 @@ export class EvaluationGrid extends TableGrid {
     public bindEvents() {
         super.bindEvents();
         this.filterButtons.forEach(button => {
-            const count = this.rows.filter(row => {
-                return row.filterValues.get("evaluationState")!.includes(button.dataset.filter!);
-            }).length;
+            const count = this.rows.filter(row =>
+                row.filterValues.get("evaluationState")!.includes(button.dataset.filter!),
+            ).length;
             button.append(EvaluationGrid.createBadgePill(count));
 
             button.addEventListener("click", () => {
@@ -362,7 +361,7 @@ export class QuestionnaireGrid extends TableGrid {
                     body: new URLSearchParams(
                         this.rows.map((row, index) => [row.element.dataset.id!, index.toString()]),
                     ),
-                }).catch(error => {
+                }).catch((error: unknown) => {
                     console.error(error);
                     window.alert(window.gettext("The server is not responding."));
                 });
@@ -477,7 +476,7 @@ export class ResultGrid extends DataGrid {
     }
 
     protected fetchRowFilterValues(row: HTMLElement): Map<string, string[]> {
-        let filterValues = new Map<string, string[]>();
+        const filterValues = new Map<string, string[]>();
         for (const [name, { selector, checkboxes }] of this.filterCheckboxes.entries()) {
             // To store filter values independent of the language, use the corresponding id from the checkbox
             const values = [...row.querySelectorAll(selector)]
@@ -509,9 +508,7 @@ export class ResultGrid extends DataGrid {
             checkboxes.forEach(checkbox => {
                 let isActive;
                 if (this.state.equalityFilter.has(name)) {
-                    isActive = this.state.equalityFilter.get(name)!.some(filterValue => {
-                        return filterValue === checkbox.value;
-                    });
+                    isActive = this.state.equalityFilter.get(name)!.some(filterValue => filterValue === checkbox.value);
                 } else {
                     isActive = false;
                 }

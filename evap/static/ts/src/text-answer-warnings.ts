@@ -13,7 +13,7 @@ function doesTextContainTriggerString(text: string, triggerStrings: string[]): b
 function updateTextareaWarning(textarea: HTMLTextAreaElement, textAnswerWarnings: string[][]) {
     const text = normalize(textarea.value);
 
-    let matchingWarnings = [];
+    const matchingWarnings = [];
     if (isTextMeaningless(text)) {
         matchingWarnings.push("meaningless");
     }
