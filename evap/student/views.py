@@ -225,7 +225,6 @@ def get_vote_page_form_groups(
         ]
 
     if dropout:
-        # TODO@felix: explanatory text: "will not be published/ only shown to contributors"
         dropout_questionnaire = Questionnaire.objects.active_dropout_questionnaire().first()
         if dropout_questionnaire:
             form_groups[evaluation.general_contribution].insert(

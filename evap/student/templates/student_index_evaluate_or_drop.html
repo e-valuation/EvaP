@@ -4,8 +4,12 @@
 {% if evaluation.allow_drop_out %}
     <confirmation-modal>
         <span slot="title">{% translate 'Did you drop this course?' %}</span>
-        <span slot="question">{% translate 'If you mark this course as dropped, you can still give feedback, but ...' %}</span>
-        <!-- TODO@Felix: explanatory text -->
+        <span slot="question">
+            {% blocktranslate %}
+                If you mark this course as dropped, you will still be able to provide feedback as usual. However, you
+                can only submit the questionnaire once.
+            {% endblocktranslate %}
+        </span>
         <a class="btn btn-danger ms-2" slot="submit-group"
            href="{% url 'student:drop' evaluation.id %}">{% translate 'I dropped this course' %}</a>
         <button slot="show-button" class="btn btn-sm btn-secondary" title="{% translate 'I dropped this course' %}"
