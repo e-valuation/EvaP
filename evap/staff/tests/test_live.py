@@ -59,7 +59,7 @@ class StaffLiveTests(LiveServerTest):
 
         self._screenshot("changes_form_data")
 
-        WebDriverWait(self.selenium, 10).until(
+        self.wait.until(
             expected_conditions.visibility_of_element_located((By.XPATH, "//label[contains(text(), 'Editor')]"))
         )
 

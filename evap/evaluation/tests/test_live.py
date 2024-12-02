@@ -15,7 +15,7 @@ class ContactModalTests(LiveServerTest):
         self.selenium.find_element(By.ID, "feedbackModalShowButton").click()
         self._screenshot("feedback_modal_")
 
-        WebDriverWait(self.selenium, 10).until(
+        self.wait.until(
             expected_conditions.visibility_of_element_located((By.ID, "feedbackModalMessageText"))
         )
         self._screenshot("feedback_modal_2")
@@ -23,7 +23,7 @@ class ContactModalTests(LiveServerTest):
         self._screenshot("feedback_modal_typed")
         self.selenium.find_element(By.ID, "feedbackModalActionButton").click()
 
-        WebDriverWait(self.selenium, 10).until(
+        self.wait.until(
             expected_conditions.text_to_be_present_in_element(
                 (By.CSS_SELECTOR, "#successMessageModal_feedbackModal .modal-body"),
                 "Your message was successfully sent.",

@@ -110,7 +110,7 @@ class ResultsLiveTests(LiveServerTest):
 
         self.selenium.get(self.live_server_url + reverse("results:index"))
 
-        WebDriverWait(self.selenium, 10).until(
+        self.wait.until(
             expected_conditions.visibility_of_element_located((By.CLASS_NAME, "reset-button"))
         )
 
@@ -136,7 +136,7 @@ class ResultsLiveTests(LiveServerTest):
 
         self.selenium.find_element(By.CSS_SELECTOR, "input[name=search]").send_keys("Exam")
 
-        WebDriverWait(self.selenium, 10).until(
+        self.wait.until(
             expected_conditions.invisibility_of_element_located((By.XPATH, "//span[contains(text(),'Course C')]"))
         )
 

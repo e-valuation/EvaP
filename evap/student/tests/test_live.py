@@ -63,7 +63,7 @@ class StudentLiveTests(LiveServerTest):
         )
 
     def _get_elements(self):
-        WebDriverWait(self.selenium, 10).until(
+        self.wait.until(
             expected_conditions.visibility_of_element_located((By.ID, "text_results_publish_confirmation_top"))
         )
         return {
@@ -101,7 +101,7 @@ class StudentLiveTests(LiveServerTest):
         self._login(self.voting_user1)
 
         self.selenium.get(self.live_server_url + reverse("student:vote", args=[self.evaluation.pk]))
-        WebDriverWait(self.selenium, 10).until(
+        self.wait.until(
             expected_conditions.presence_of_element_located((By.ID, "vote-submit-btn"))
         ).click()
 
@@ -121,7 +121,7 @@ class StudentLiveTests(LiveServerTest):
 
             self.selenium.get(self.live_server_url + reverse("student:vote", args=[self.evaluation.pk]))
 
-            button = WebDriverWait(self.selenium, 10).until(
+            button = self.wait.until(
                 expected_conditions.presence_of_element_located((By.CSS_SELECTOR, "[data-mark-no-answers-for]"))
             )
             button.click()
@@ -144,11 +144,11 @@ class StudentLiveTests(LiveServerTest):
 
             self.selenium.get(self.live_server_url + reverse("student:vote", args=[self.evaluation.pk]))
 
-            WebDriverWait(self.selenium, 10).until(
+            self.wait.until(
                 expected_conditions.presence_of_element_located((By.ID, "vote-submit-btn"))
             ).click()
 
-            button = WebDriverWait(self.selenium, 10).until(
+            button = self.wait.until(
                 expected_conditions.presence_of_element_located((By.CSS_SELECTOR, "[data-mark-no-answers-for]"))
             )
             button.click()

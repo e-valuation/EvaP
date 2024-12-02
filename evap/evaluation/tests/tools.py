@@ -17,7 +17,7 @@ from django.test.selenium import SeleniumTestCase
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone, translation
 from model_bakery import baker
-from selenium.webdriver.firefox.webdriver import WebDriver
+from selenium.webdriver.support.wait import WebDriverWait
 
 from evap.evaluation.models import (
     CHOICES,
@@ -310,6 +310,10 @@ class LiveServerTest(SeleniumTestCase):
         if "staff_mode_start_time" in self.request.session:
             del self.request.session["staff_mode_start_time"]
             self._update_session()
+
+    @property
+    def wait(self) -> WebDriverWait:
+        return WebDriverWait(self.selenium, 100)
 
     @classmethod
     def setUpClass(cls) -> None:
