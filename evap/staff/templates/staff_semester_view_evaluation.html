@@ -180,6 +180,25 @@
             <a href="{% url 'staff:evaluation_copy' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" title="{% translate 'Copy' %}">
                 <span class="fas fa-fw fa-copy"></span>
             </a>
+            {% if not evaluation.has_exam_evaluation %}
+                <confirmation-modal type="submit" name="evaluation_id" value="{{ evaluation.id }}" confirm-button-class="btn-primary" form="exam_creation_form_{{ evaluation.id }}">
+                    <span slot="title">{% translate 'Create exam evaluation' %}</span>
+                    <span slot="action-text">{% translate 'Create exam evaluation' %}</span>
+                    <span slot="question">
+                        {% blocktranslate trimmed %}
+                            Create an exam evaluation based on this evaluation. This will copy all the participants and contributors from the original evaluation. It will set the weight of the original evaluation to 9 and its end date will be set to the day before the exam.
+                        {% endblocktranslate %}
+                    </span>
+                    <div slot="extra-inputs">
+                        <label>
+                            {% translate 'Exam Date:' %}
+                            <input type="date" name="exam_date" min="{{ evaluation.earliest_possible_exam_date }}" class="form-control" required form="exam_creation_form_{{ evaluation.id }}"/>
+                        </label>
+                    </div>
+
+                    <button slot="show-button" type="button" class="btn btn-sm btn-light" title="{% translate 'Create exam evaluation' %}" data-bs-placement="top" data-bs-toggle="tooltip"><span class="fas fa-file-pen fa-fw"></span></button>
+                </confirmation-modal>
+            {% endif %}
         {% endif %}
         {% if request.user.is_manager %}
             <a href="{% url 'staff:evaluation_email' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Send email' %}">
