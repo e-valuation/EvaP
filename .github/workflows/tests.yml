@@ -112,7 +112,7 @@ jobs:
         run: deployment/update_production.sh backup.json
         env:
           EVAP_OVERRIDE_BACKUP_FILENAME: true
-          EVAP_SKIP_CHECKOUT: true
+          EVAP_SKIP_UPDATE: true
       - name: Reload backup
         run: echo "yy" | deployment/load_production_backup.sh backup.json
 
