@@ -22,5 +22,5 @@ jobs:
           start-db: true
 
       - name: Run tests
-        run: manage.py test -k test_results_initially_sorted_by_evaluation_and_semester
+        run: ./manage.py test -k test_results_initially_sorted_by_evaluation_and_semester
 
