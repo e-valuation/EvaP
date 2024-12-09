@@ -44,6 +44,7 @@ class TestCreateUserCommand(TestCase):
             "Kuchenbuch",
             "--email",
             "tonykuchenbuch@example.com",
+            stdout=StringIO(),
         )
 
         user = UserProfile.objects.get(email="tonykuchenbuch@example.com")
