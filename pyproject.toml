@@ -1,7 +1,7 @@
 [project]
 name = "evap"
 description = "EvaP"
-version = "0.0.0"
+version = "2024.11.7"
 readme = "README.md"
 requires-python = "~=3.10.0"
 dependencies = [
@@ -39,14 +39,27 @@ dev = [
     "typeguard~=4.4.0",
 ]
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
 [tool.uv]
 no-binary-package = [
     "psycopg-c",
 ]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.sdist]
+packages = ["evap"]
+include = [
+    "evap/**/*.js",
+    "evap/**/*.ts",
+    "evap/**/*.css",
+    "evap/**/*.scss",
+    "evap/**/*.map",
+]
+
+[project.scripts]
+evap = "evap.__main__:main"
 
 ##############################################
 
