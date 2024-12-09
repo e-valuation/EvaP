@@ -14,6 +14,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
+
       - name: Remove Chrome
         run: sudo apt purge google-chrome-stable chromium-browser firefox -y
 
