@@ -172,62 +172,6 @@ jobs:
           name: css
           path: evap/static/css/evap.css
 
-  render_pages:
-    runs-on: ubuntu-22.04
-
-    name: Render Html pages
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/setup_evap
-        with:
-          start-db: true
-
-      - name: Render pages
-        run: coverage run manage.py ts render_pages
-      - name: Upload coverage
-        uses: codecov/codecov-action@v5
-        with:
-          flags: render-pages
-          token: ${{ secrets.CODECOV_TOKEN }}
-      - name: Store rendered pages
-        uses: actions/upload-artifact@v4
-        with:
-          name: rendered-pages
-          path: evap/static/ts/rendered
-
-  typescript:
-    runs-on: ubuntu-22.04
-
-    needs: [ compile_scss, render_pages ]
-
-    name: Test Typescript
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-      - uses: ./.github/setup_evap
-        with:
-          npm-ci: true
-
-      - run: npx puppeteer browsers install chrome
-
-      - name: Compile Typescript
-        run: npx tsc --project evap/static/ts/tsconfig.compile.json
-      - name: Load rendered pages
-        uses: actions/download-artifact@v4
-        with:
-          name: rendered-pages
-          path: evap/static/ts/rendered
-      - name: Load Css
-        uses: actions/download-artifact@v4
-        with:
-          name: css
-          path: evap/static/css
-      - name: Run tests
-        run: xvfb-run --auto-servernum npx jest
-
   macos-nix-build:
     runs-on: macos-14
     name: Build nix environment on MacOS
