@@ -1,7 +1,9 @@
+from pathlib import Path
+import shutil
+
 from django.core.management.base import BaseCommand
 
 from evap.evaluation.management.commands.tools import confirm_harmful_operation, logged_call_command
-
 
 class Command(BaseCommand):
     args = ""
@@ -26,5 +28,9 @@ class Command(BaseCommand):
         logged_call_command(self.stdout, "clear_cache", "--all", "-v=1")
 
         logged_call_command(self.stdout, "refresh_results_cache")
+
+        if Path("data/upload/").exists():
+            shutil.rmtree("data/upload/")
+        shutil.copytree("evap/development/fixtures/upload/", "data/upload")
 
         self.stdout.write("Done.")
