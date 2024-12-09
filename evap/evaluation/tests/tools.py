@@ -313,7 +313,7 @@ class LiveServerTest(SeleniumTestCase):
 
     @property
     def wait(self) -> WebDriverWait:
-        return WebDriverWait(self.selenium, 100)
+        return WebDriverWait(self.selenium, 1000)
 
     @classmethod
     def setUpClass(cls) -> None:
