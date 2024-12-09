@@ -23,4 +23,8 @@ jobs:
 
       - name: Run tests
         run: ./manage.py test -k test_results_initially_sorted_by_evaluation_and_semester
-
+      - name: upload screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: evap
