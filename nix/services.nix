@@ -68,7 +68,7 @@
         git submodule update --init
         ./manage.py collectstatic --noinput
         ./manage.py compilemessages --locale de
-        ./manage.py reload_testdata
+        ./manage.py reload_testdata --noinput
       '';
     };
     depends_on = {
