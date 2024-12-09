@@ -7,13 +7,15 @@ from evap.evaluation.management.commands.tools import confirm_harmful_operation,
 
 
 class Command(BaseCommand):
-    args = ""
-    help = "Drops the database, recreates it and then loads the testdata."
+    help = "Drops the database, recreates it, and then loads the testdata. Also resets the upload directory."
+
+    def add_arguments(self, parser):
+        parser.add_argument("--noinput", action="store_true")
 
     def handle(self, *args, **options):
         self.stdout.write("")
-        self.stdout.write("WARNING! This will drop the database and cause IRREPARABLE DATA LOSS.")
-        if not confirm_harmful_operation(self.stdout):
+        self.stdout.write("WARNING! This will drop the database and upload directory and cause IRREPARABLE DATA LOSS.")
+        if not options["noinput"] and not confirm_harmful_operation(self.stdout):
             return
 
         logged_call_command(self.stdout, "reset_db", interactive=False)
