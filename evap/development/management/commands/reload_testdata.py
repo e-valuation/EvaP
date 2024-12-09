@@ -6,13 +6,15 @@ from django.core.management.base import BaseCommand
 from evap.evaluation.management.commands.tools import confirm_harmful_operation, logged_call_command
 
 class Command(BaseCommand):
-    args = ""
     help = "Drops the database, recreates it and then loads the testdata."
+
+    def add_arguments(self, parser):
+        parser.add_argument("--noinput", action="store_true")
 
     def handle(self, *args, **options):
         self.stdout.write("")
         self.stdout.write("WARNING! This will drop the database and cause IRREPARABLE DATA LOSS.")
-        if not confirm_harmful_operation(self.stdout):
+        if not options["noinput"] and not confirm_harmful_operation(self.stdout):
             return
 
         logged_call_command(self.stdout, "reset_db", interactive=False)
