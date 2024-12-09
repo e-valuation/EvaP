@@ -1,9 +1,10 @@
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 from django.core.management.base import BaseCommand
 
 from evap.evaluation.management.commands.tools import confirm_harmful_operation, logged_call_command
+
 
 class Command(BaseCommand):
     help = "Drops the database, recreates it and then loads the testdata."
