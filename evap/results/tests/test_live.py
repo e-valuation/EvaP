@@ -1,5 +1,3 @@
-from time import sleep
-
 from django.urls import reverse
 from model_bakery import baker
 from selenium.webdriver.common.by import By
