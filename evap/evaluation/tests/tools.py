@@ -35,6 +35,7 @@ from evap.evaluation.models import (
     UserProfile,
 )
 
+
 class SkipLiveServerTestsRunner(DiscoverRunner):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
