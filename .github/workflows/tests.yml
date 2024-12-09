@@ -14,11 +14,40 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - uses: ./.github/setup_evap
+        with:
+          start-db: true
+
+      - name: Run tests
+        run: coverage run manage.py test
+      - name: Upload coverage
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  test_shuffled:
+    name: Test (shuffled order)
+
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/setup_evap
+        with:
+          start-db: true
+
+      - name: Run tests
+        run: python manage.py test --shuffle
+
+  test_frontend:
+    name: Test Frontend
+
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
         with:
           submodules: true
-
-      - name: Remove Chrome
-        run: sudo apt purge google-chrome-stable chromium-browser firefox -y
 
       - uses: ./.github/setup_evap
         with:
@@ -30,11 +59,181 @@ jobs:
           ./manage.py scss
           ./manage.py collectstatic --noinput
 
-      - name: Run tests
-        run: ./manage.py test
+      - name: Run tests (shuffled)
+        run: coverage run manage.py test --shuffle --tag live-server
+      - name: Upload coverage
+        uses: codecov/codecov-action@v5
+        with:
+          flags: frontend-tests
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
         with:
           name: screenshots
           path: evap/*.png
+
+  mypy:
+    runs-on: ubuntu-22.04
+
+    name: MyPy
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/setup_evap
+      - name: Run MyPy
+        run: mypy
+
+  linter:
+    runs-on: ubuntu-22.04
+
+    name: Linter
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/setup_evap
+      - name: Run ruff
+        run: ruff check .
+      - name: Run pylint
+        run: pylint evap tools
+
+  formatter:
+    runs-on: ubuntu-22.04
+
+    name: Formatting
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/setup_evap
+        with:
+          npm-ci: true
+
+      - name: Check code formatting
+        run: black --check .
+      - name: Check imports formatting
+        run: isort . --check --diff
+      - run: ls -laR evap/static/ts
+      - name: Check TypeScript formatting
+        run: npx prettier --list-different --log-level debug 'evap/static/ts/**/*.ts'
+
+  backup-process:
+    runs-on: ubuntu-22.04
+
+    name: Backup process
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: ./.github/setup_evap
+        with:
+          shell: .#evap # no dev-dependencies
+          start-db: true
+
+      - name: Install additional dependencies
+        run: sudo apt-get update && sudo apt-get install gettext
+
+      - name: GitHub actions has wrong file ownership here, the checkout actions has a problem here (see their 1049)
+        run: |
+          git config --global --add safe.directory '*'
+          sudo -H -u root git config --global --add safe.directory '*'
+
+      - name: Load test data
+        run: |
+          python manage.py migrate
+          python manage.py loaddata test_data
+      - name: Backup database
+        run: deployment/update_production.sh backup.json
+        env:
+          EVAP_OVERRIDE_BACKUP_FILENAME: true
+          EVAP_SKIP_CHECKOUT: true
+      - name: Reload backup
+        run: echo "yy" | deployment/load_production_backup.sh backup.json
+
+  compile_scss:
+    runs-on: ubuntu-22.04
+
+    name: Compile Scss
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: ./.github/setup_evap
+        with:
+          npm-ci: true
+
+      - name: Compile Scss
+        run: npx sass evap/static/scss/evap.scss evap/static/css/evap.css
+      - name: Store Css
+        uses: actions/upload-artifact@v4
+        with:
+          name: css
+          path: evap/static/css/evap.css
+
+  render_pages:
+    runs-on: ubuntu-22.04
+
+    name: Render Html pages
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/setup_evap
+        with:
+          start-db: true
+
+      - name: Render pages
+        run: coverage run manage.py ts render_pages
+      - name: Upload coverage
+        uses: codecov/codecov-action@v5
+        with:
+          flags: render-pages
+          token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Store rendered pages
+        uses: actions/upload-artifact@v4
+        with:
+          name: rendered-pages
+          path: evap/static/ts/rendered
+
+  typescript:
+    runs-on: ubuntu-22.04
+
+    needs: [ compile_scss, render_pages ]
+
+    name: Test Typescript
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: ./.github/setup_evap
+        with:
+          npm-ci: true
+
+      - run: npx puppeteer browsers install chrome
+
+      - name: Compile Typescript
+        run: npx tsc --project evap/static/ts/tsconfig.compile.json
+      - name: Load rendered pages
+        uses: actions/download-artifact@v4
+        with:
+          name: rendered-pages
+          path: evap/static/ts/rendered
+      - name: Load Css
+        uses: actions/download-artifact@v4
+        with:
+          name: css
+          path: evap/static/css
+      - name: Run tests
+        run: xvfb-run --auto-servernum npx jest
+
+  macos-nix-build:
+    runs-on: macos-14
+    name: Build nix environment on MacOS
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: ./.github/setup_evap
+        with:
+          start-db: true
