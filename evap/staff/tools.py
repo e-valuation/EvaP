@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.core.exceptions import SuspiciousOperation
 from django.db import transaction
-from django.db.models import Count
+from django.db.models import Count, Max
 from django.urls import reverse
 from django.utils.html import escape, format_html, format_html_join
 from django.utils.safestring import SafeString
@@ -16,7 +16,7 @@ from django.utils.translation import gettext_lazy as _
 
 from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer, UserProfile
 from evap.evaluation.models_logging import LogEntry
-from evap.evaluation.tools import clean_email, is_external_email
+from evap.evaluation.tools import StrOrPromise, clean_email, is_external_email
 from evap.grades.models import GradeDocument
 from evap.results.tools import STATES_WITH_RESULTS_CACHING, cache_results
 
@@ -132,12 +132,14 @@ def bulk_update_users(request, user_file_content, test_run):  # noqa: PLR0912
             users_to_be_updated.append((matching_user, imported_email))
 
     emails_of_non_obsolete_users = set(imported_emails) | {user.email for user, _ in users_to_be_updated}
-    deletable_users, users_to_mark_inactive = [], []
+    deletable_users, users_to_mark_inactive, inactive_users = [], [], []
     for user in UserProfile.objects.exclude(email__in=emails_of_non_obsolete_users):
         if user.can_be_deleted_by_manager:
             deletable_users.append(user)
         elif user.is_active and user.can_be_marked_inactive_by_manager:
             users_to_mark_inactive.append(user)
+        elif not user.is_active:
+            inactive_users.append(user)
 
     messages.info(
         request,
@@ -195,6 +197,9 @@ def bulk_update_users(request, user_file_content, test_run):  # noqa: PLR0912
                 user, deletable_users + users_to_mark_inactive, test_run
             ):
                 messages.warning(request, message)
+        for user in users_to_mark_inactive + inactive_users:
+            for message in remove_inactive_participations(user, test_run):
+                messages.warning(request, message)
         if test_run:
             messages.info(request, _("No data was changed in this test run."))
         else:
@@ -203,6 +208,7 @@ def bulk_update_users(request, user_file_content, test_run):  # noqa: PLR0912
             for user in users_to_mark_inactive:
                 user.is_active = False
                 user.save()
+
             for user, email in users_to_be_updated:
                 user.email = email
                 user.save()
@@ -373,6 +379,25 @@ def remove_user_from_represented_and_ccing_users(user, ignored_users=None, test_
             cc_user.cc_users.remove(user)
             remove_messages.append(_("Removed {} from the CC users of {}.").format(user.full_name, cc_user.full_name))
     return remove_messages
+
+
+def remove_inactive_participations(user: UserProfile, test_run=False) -> list[StrOrPromise]:
+    if user.is_active and not user.can_be_marked_inactive_by_manager:
+        return []
+    last_participation = user.evaluations_participating_in.aggregate(Max("vote_end_date"))["vote_end_date__max"]
+    if (
+        last_participation is None
+        or (date.today() - last_participation) < settings.PARTICIPATION_DELETION_AFTER_INACTIVE_TIME
+    ):
+        return []
+
+    evaluation_count = user.evaluations_participating_in.count()
+    if test_run:
+        return [
+            _("{} will be removed from {} participation(s) due to inactivity.").format(user.full_name, evaluation_count)
+        ]
+    user.evaluations_participating_in.clear()
+    return [_("Removed {} from {} participation(s) due to inactivity.").format(user.full_name, evaluation_count)]
 
 
 def user_edit_link(user_id):
