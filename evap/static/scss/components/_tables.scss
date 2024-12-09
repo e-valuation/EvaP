@@ -35,8 +35,12 @@ $table-colors: (
     padding-bottom: 0.4rem;
 }
 
-.table-seamless-links td {
-    overflow: hidden;
+.table-seamless-links {
+  // Disable outline on cell after Ctrl-Click.
+  -moz-user-select: none;
+  td {
+      overflow: hidden;
+  }
 }
 
 // Hoverable rows
