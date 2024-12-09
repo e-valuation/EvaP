@@ -1960,6 +1960,76 @@ class TestEvaluationCopyView(WebTestStaffMode):
         self.assertEqual(copied_evaluation.contributions.count(), 4)
 
 
+@override_settings(EXAM_QUESTIONNAIRE_IDS=[111])
+class TestEvaluationExamCreation(WebTestStaffMode):
+    csrf_checks = False
+    url = reverse("staff:create_exam_evaluation")
+
+    @classmethod
+    def setUpTestData(cls):
+        # We need to set the managers language to avoid a database update, when no language is set
+        cls.manager = make_manager(language="en")
+        cls.course = baker.make(Course)
+        vote_start_datetime = datetime.datetime.now() - datetime.timedelta(days=50)
+        cls.evaluation = baker.make(Evaluation, course=cls.course, vote_start_datetime=vote_start_datetime)
+        cls.evaluation.participants.set(baker.make(UserProfile, _quantity=3))
+        cls.contributions = baker.make(
+            Contribution, evaluation=cls.evaluation, _fill_optional=["contributor"], _quantity=3, _bulk_create=True
+        )
+        cls.exam_date = datetime.date.today() + datetime.timedelta(days=10)
+        cls.params = {"evaluation_id": cls.evaluation.pk, "exam_date": cls.exam_date}
+        cls.exam_questionnaire = baker.make(Questionnaire, pk=111)
+
+    def test_create_exam_evaluation(self):
+        self.app.post(self.url, user=self.manager, status=200, params=self.params)
+        self.assertEqual(Evaluation.objects.count(), 2)
+        exam_evaluation = Evaluation.objects.exclude(pk=self.evaluation.pk).get()
+        self.assertEqual(exam_evaluation.contributions.count(), self.evaluation.contributions.count())
+        self.assertEqual(
+            exam_evaluation.vote_start_datetime,
+            datetime.datetime.combine(self.exam_date + datetime.timedelta(days=1), datetime.time(8, 0)),
+        )
+        self.assertEqual(exam_evaluation.vote_end_date, self.exam_date + datetime.timedelta(days=3))
+        self.assertEqual(exam_evaluation.name_de, "Klausur")
+        self.assertEqual(exam_evaluation.name_en, "Exam")
+        self.assertEqual(exam_evaluation.course, self.evaluation.course)
+        self.assertQuerySetEqual(exam_evaluation.participants.all(), self.evaluation.participants.all())
+        self.assertEqual(exam_evaluation.weight, 1)
+
+        evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
+        self.assertEqual(evaluation.weight, 9)
+        self.assertEqual(evaluation.vote_end_date, self.exam_date - datetime.timedelta(days=1))
+
+    def test_exam_evaluation_for_single_result(self):
+        self.evaluation.is_single_result = True
+        self.evaluation.save()
+        with assert_no_database_modifications():
+            self.app.post(self.url, user=self.manager, status=400, params=self.params)
+
+    def test_exam_evaluation_for_already_existing_exam_evaluation(self):
+        baker.make(Evaluation, course=self.course, name_en="Exam", name_de="Klausur")
+        self.assertTrue(self.evaluation.has_exam_evaluation)
+        with assert_no_database_modifications():
+            self.app.post(self.url, user=self.manager, status=400, params=self.params)
+
+    def test_exam_evaluation_with_wrong_date(self):
+        self.evaluation.vote_start_datetime = datetime.datetime.now() + datetime.timedelta(days=100)
+        self.evaluation.vote_end_date = datetime.date.today() + datetime.timedelta(days=150)
+        self.evaluation.save()
+        with assert_no_database_modifications():
+            self.app.post(self.url, user=self.manager, status=400, params=self.params)
+
+    def test_exam_evaluation_with_missing_date(self):
+        self.params.pop("exam_date")
+        with assert_no_database_modifications():
+            self.app.post(self.url, user=self.manager, status=400, params=self.params)
+
+    def test_exam_evaluation_with_wrongly_formatted_date(self):
+        self.params["exam_date"] = ""
+        with assert_no_database_modifications():
+            self.app.post(self.url, user=self.manager, status=400, params=self.params)
+
+
 class TestCourseCopyView(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
