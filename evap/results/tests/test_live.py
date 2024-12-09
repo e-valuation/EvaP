@@ -111,9 +111,9 @@ class ResultsLiveTests(LiveServerTest):
 
         self.selenium.get(self.live_server_url + reverse("results:index"))
 
-        for i in range(10):
-            sleep(5)
-            self._screenshot(f"test_results_initially_sorted_by_evaluation_and_semester_{i}")
+        #for i in range(10):
+        #    sleep(5)
+        #    self._screenshot(f"test_results_initially_sorted_by_evaluation_and_semester_{i}")
 
         self.wait.until(expected_conditions.visibility_of_element_located((By.CLASS_NAME, "reset-button")))
 
