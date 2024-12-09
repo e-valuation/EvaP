@@ -35,7 +35,7 @@ git fetch
 # match the database layout, or https://github.com/e-valuation/EvaP/issues/1237.
 [[ -z "$EVAP_SKIP_APACHE_STEPS" ]] && sudo ./deployment/enable_maintenance_mode.sh
 
-./manage.py dumpdata --natural-foreign --natural-primary --all -e contenttypes -e auth.Permission --indent 2 --output "$FILENAME"
+evap dumpdata --natural-foreign --natural-primary --all -e contenttypes -e auth.Permission --indent 2 --output "$FILENAME"
 
 [[ ! -z "$EVAP_SKIP_CHECKOUT" ]] && echo "Skipping Checkout"
 [[ ! -z "$EVAP_SKIP_CHECKOUT" ]] || git checkout origin/release
@@ -43,13 +43,13 @@ git fetch
 #   sudo -H -u "$USERNAME" "$ENVDIR/bin/pip" install -r requirements.txt
 
 # sometimes, this fails for some random i18n test translation files.
-./manage.py compilemessages || true
-./manage.py scss --production
-./manage.py ts compile --fresh
-./manage.py collectstatic --noinput
-./manage.py migrate
-./manage.py clear_cache --all -v=1
-./manage.py refresh_results_cache
+evap compilemessages || true
+evap scss --production
+evap ts compile --fresh
+evap collectstatic --noinput
+evap migrate
+evap clear_cache --all -v=1
+evap refresh_results_cache
 
 [[ -z "$EVAP_SKIP_APACHE_STEPS" ]] && sudo ./deployment/disable_maintenance_mode.sh
 
