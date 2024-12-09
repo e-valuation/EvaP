@@ -182,10 +182,12 @@
             // activate clickable hover tables
             document.querySelectorAll(".table-seamless-links [data-url]").forEach(row => {
                 row.addEventListener("click", event => {
-                    // We navigate via the <a> tag to enable browser behavior for Ctrl-Click.
+                    // We navigate via the <a> tag to enable browser behavior for Ctrl-Click. We cannot insert an actual
+                    // <a> tag, because there cannot be any non-table tags between the for example <tbody> and <tr>.
                     const anchor = document.createElement("a");
                     anchor.href = row.dataset.url;
-                    anchor.dispatchEvent(new PointerEvent("click", event));
+                    // As `event` is bound to `row`, we need to clone it.
+                    anchor.dispatchEvent(new event.constructor(event.type, event));
                 });
             });
 
