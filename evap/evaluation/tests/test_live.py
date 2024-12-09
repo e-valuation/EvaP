@@ -2,7 +2,6 @@ from django.core import mail
 from django.urls import reverse
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.wait import WebDriverWait
 
 from evap.evaluation.tests.tools import LiveServerTest
 
@@ -15,9 +14,7 @@ class ContactModalTests(LiveServerTest):
         self.selenium.find_element(By.ID, "feedbackModalShowButton").click()
         self._screenshot("feedback_modal_")
 
-        self.wait.until(
-            expected_conditions.visibility_of_element_located((By.ID, "feedbackModalMessageText"))
-        )
+        self.wait.until(expected_conditions.visibility_of_element_located((By.ID, "feedbackModalMessageText")))
         self._screenshot("feedback_modal_2")
         self.selenium.find_element(By.ID, "feedbackModalMessageText").send_keys("Testmessage")
         self._screenshot("feedback_modal_typed")

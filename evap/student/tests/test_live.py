@@ -4,7 +4,6 @@ from model_bakery import baker
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.wait import WebDriverWait
 
 from evap.evaluation.models import Contribution, Evaluation, Question, Questionnaire, QuestionType, UserProfile
 from evap.evaluation.tests.tools import LiveServerTest
@@ -101,9 +100,7 @@ class StudentLiveTests(LiveServerTest):
         self._login(self.voting_user1)
 
         self.selenium.get(self.live_server_url + reverse("student:vote", args=[self.evaluation.pk]))
-        self.wait.until(
-            expected_conditions.presence_of_element_located((By.ID, "vote-submit-btn"))
-        ).click()
+        self.wait.until(expected_conditions.presence_of_element_located((By.ID, "vote-submit-btn"))).click()
 
         for row in self.selenium.find_elements(By.CSS_SELECTOR, "#student-vote-form .row"):
             try:
@@ -144,9 +141,7 @@ class StudentLiveTests(LiveServerTest):
 
             self.selenium.get(self.live_server_url + reverse("student:vote", args=[self.evaluation.pk]))
 
-            self.wait.until(
-                expected_conditions.presence_of_element_located((By.ID, "vote-submit-btn"))
-            ).click()
+            self.wait.until(expected_conditions.presence_of_element_located((By.ID, "vote-submit-btn"))).click()
 
             button = self.wait.until(
                 expected_conditions.presence_of_element_located((By.CSS_SELECTOR, "[data-mark-no-answers-for]"))

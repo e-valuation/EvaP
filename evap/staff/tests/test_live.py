@@ -4,7 +4,6 @@ from django.urls import reverse
 from model_bakery import baker
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.wait import WebDriverWait
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Program, Question, Questionnaire, UserProfile
 from evap.evaluation.tests.tools import LiveServerTest, make_manager
