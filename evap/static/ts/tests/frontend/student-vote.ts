@@ -19,9 +19,7 @@ async function query(page: Page): Promise<TextResultsPublishConfirmationElements
 
 async function queryClosest(element: ElementHandle, selector: string): Promise<ElementHandle<Node>> {
     return element
-        .evaluateHandle((element, selector) => {
-            return element.closest(selector);
-        }, selector)
+        .evaluateHandle((element, selector) => element.closest(selector), selector)
         .then(handle => handle.asElement()!);
 }
 
