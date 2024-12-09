@@ -256,6 +256,7 @@ def assert_no_database_modifications(*args, **kwargs):
             if not any(lower_sql.startswith(prefix) for prefix in allowed_prefixes):
                 raise AssertionError("Unexpected modifying query found: " + query["sql"])
 
+
 @tag("live-server")
 class LiveServerTest(SeleniumTestCase):
     external_host = os.environ.get("TEST_HOST", "") or None
