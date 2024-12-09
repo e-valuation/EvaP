@@ -312,7 +312,7 @@ wheels = [
 
 [[package]]
 name = "evap"
-version = "2024.11.6"
+version = "2024.11.7"
 source = { editable = "." }
 dependencies = [
     { name = "django" },
