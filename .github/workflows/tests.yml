@@ -51,6 +51,7 @@ jobs:
 
       - uses: ./.github/setup_evap
         with:
+          shell: .#evap-frontend-dev
           start-db: true
 
       - name: Compile assets
