@@ -4,6 +4,7 @@ from collections.abc import Sequence
 from contextlib import contextmanager
 from datetime import timedelta
 from importlib import import_module
+from typing import Any
 
 import django.test
 import django_webtest
@@ -13,6 +14,8 @@ from django.contrib.auth import login
 from django.contrib.auth.models import Group
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.http.request import HttpRequest, QueryDict
+from django.test import tag
+from django.test.runner import DiscoverRunner
 from django.test.selenium import SeleniumTestCase
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone, translation
@@ -31,6 +34,13 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
+
+
+class SkipLiveServerTestsRunner(DiscoverRunner):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        if not self.tags and not self.exclude_tags:
+            self.exclude_tags = {"live-server"}
 
 
 class ResetLanguageOnTearDownMixin:
@@ -247,6 +257,7 @@ def assert_no_database_modifications(*args, **kwargs):
                 raise AssertionError("Unexpected modifying query found: " + query["sql"])
 
 
+@tag("live-server")
 class LiveServerTest(SeleniumTestCase):
     external_host = os.environ.get("TEST_HOST", "") or None
     browser = "firefox"
@@ -313,7 +324,7 @@ class LiveServerTest(SeleniumTestCase):
 
     @property
     def wait(self) -> WebDriverWait:
-        return WebDriverWait(self.selenium, 1000)
+        return WebDriverWait(self.selenium, 10)
 
     @classmethod
     def setUpClass(cls) -> None:
