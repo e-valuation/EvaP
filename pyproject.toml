@@ -57,9 +57,6 @@ include = [
     "evap/**/*.scss",
     "evap/**/*.map",
 ]
-exclude = [
-    "evap/logs",
-]
 
 [project.scripts]
 evap = "evap.__main__:main"

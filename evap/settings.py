@@ -20,6 +20,7 @@ from evap.tools import MonthAndDay
 
 MODULE = Path(__file__).parent.resolve()
 CWD = Path(".").resolve()
+DATADIR = CWD / "data"
 
 ### Debugging
 
@@ -182,7 +183,7 @@ LOGGING = {
         "file": {
             "level": "DEBUG",
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": CWD / "logs" / "evap.log",
+            "filename": DATADIR / "evap.log",
             "maxBytes": 1024 * 1024 * 10,
             "backupCount": 5,
             "formatter": "default",
@@ -353,13 +354,13 @@ STATICFILES_DIRS = [
 ]
 
 # Absolute path to the directory static files should be collected to.
-STATIC_ROOT = CWD / "static_collected"
+STATIC_ROOT = DATADIR / "static_collected"
 
 
 ### User-uploaded files
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
-MEDIA_ROOT = CWD / "upload"
+MEDIA_ROOT = DATADIR / "upload"
 
 ### Evaluation progress rewards
 GLOBAL_EVALUATION_PROGRESS_REWARDS: list[tuple[Fraction, str]] = (
