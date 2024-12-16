@@ -227,6 +227,17 @@
         </div>
     {% endif %}
 
+    <!-- TODO@Felix: WIP Dropout view -->
+    <div class="card card-outline-primary">
+        <div class="card-header d-flex flex-row justify-content-between">
+            <span>{% translate 'Dropout' %}</span>
+            <span class="bg-secondary-outline">Dropout count: {{ evaluation.dropout_count }}</span>
+        </div>
+        <div class="card-body">
+            {% include 'results_evaluation_detail_questionnaires.html' with questionnaire_result=dropout_results %}
+        </div>
+    </div>
+
     {# Leave some space for big tooltips #}
     <div class="py-5 py-md-0"></div>
 {% endblock %}
