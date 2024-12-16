@@ -14,7 +14,7 @@ class TestDumpTestDataCommand(TestCase):
         with patch("evap.evaluation.management.commands.tools.call_command") as mock:
             management.call_command("dump_testdata", stdout=StringIO())
 
-        outfile_name = os.path.join(settings.BASE_DIR, "development", "fixtures", "test_data.json")
+        outfile_name = os.path.join(settings.MODULE, "development", "fixtures", "test_data.json")
         mock.assert_called_once_with(
             "dumpdata",
             "auth.group",

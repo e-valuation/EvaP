@@ -420,7 +420,7 @@ class TestUserMergeView(WebTestStaffModeWith200Check):
 
 class TestUserBulkUpdateView(WebTestStaffMode):
     url = "/staff/user/bulk_update"
-    filename = os.path.join(settings.BASE_DIR, "staff/fixtures/test_user_bulk_update_file.txt")
+    filename = os.path.join(settings.MODULE, "staff/fixtures/test_user_bulk_update_file.txt")
 
     @classmethod
     def setUpTestData(cls):

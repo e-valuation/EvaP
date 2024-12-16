@@ -42,17 +42,17 @@ fi
 [[ -z "$EVAP_SKIP_APACHE_STEPS" ]] && sudo service apache2 stop
 
 # sometimes, this fails for some random i18n test translation files.
-./manage.py compilemessages || true
-./manage.py scss --production
-./manage.py collectstatic --noinput
+python -m evap compilemessages || true
+python -m evap scss --production
+python -m evap collectstatic --noinput
 
-./manage.py reset_db "$CONDITIONAL_NOINPUT"
-./manage.py migrate
-./manage.py flush "$CONDITIONAL_NOINPUT"
-./manage.py loaddata_unlogged "$1"
+python -m evap reset_db "$CONDITIONAL_NOINPUT"
+python -m evap migrate
+python -m evap flush "$CONDITIONAL_NOINPUT"
+python -m evap loaddata_unlogged "$1"
 
-./manage.py clear_cache --all -v=1
-./manage.py refresh_results_cache
+python -m evap clear_cache --all -v=1
+python -m evap refresh_results_cache
 
 [[ -z "$EVAP_SKIP_APACHE_STEPS" ]] && sudo service apache2 start
 

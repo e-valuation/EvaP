@@ -2568,7 +2568,7 @@ def download_sample_file(_request, filename):
     if filename not in ["sample.xlsx", "sample_user.xlsx"]:
         raise SuspiciousOperation("Invalid file name.")
 
-    book = openpyxl.load_workbook(filename=settings.STATICFILES_DIRS[0] + "/" + filename)
+    book = openpyxl.load_workbook(filename=settings.STATICFILES_DIRS[0] / filename)
     for sheet in book:
         for row in sheet:
             for cell in row:
