@@ -374,6 +374,13 @@
                     </div>
                 </div>
 
+                {% for evaluation in evaluations %}
+                    {# separate forms for each modal since we want separate date-selection inputs because each exam_creation_modal needs its own exam date input field. #}
+                    <form id="exam_creation_form_{{ evaluation.id }}" reload-on-success method="post" action="{% url 'staff:create_exam_evaluation' %}">
+                        {% csrf_token %}
+                    </form>
+                {% endfor %}
+
                 <form id="evaluation-deletion-form" custom-success method="POST" action="{% url 'staff:evaluation_delete' %}">
                     {% csrf_token %}
                 </form>
@@ -466,6 +473,7 @@
                     {% endif %}
                 </form>
             </div>
+
             <div class="tab-pane" id="courses" role="tabpanel">
                 <div class="row align-items-center mb-3">
                     <div class="col-9">
@@ -546,7 +554,7 @@
                                             href="{% url 'staff:course_copy' course.id %}"
                                             title="{% translate 'Copy course' %}">
                                             <span class="fas fa-copy"></span>
-                                            </a>
+                                        </a>
                                         {% endif %}
                                         {% if course.can_be_deleted_by_manager %}
                                             <confirmation-modal type="submit" form="course-deletion-form" name="course_id" value="{{ course.id }}" confirm-button-class="btn-danger">

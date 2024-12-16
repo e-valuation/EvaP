@@ -4,7 +4,7 @@ import uuid
 from collections import defaultdict
 from collections.abc import Collection, Container, Iterable, Sequence
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
 from enum import Enum, auto
 from functools import partial
 from numbers import Real
@@ -469,6 +469,35 @@ class Evaluation(LoggedModel):
     wait_for_grade_upload_before_publishing = models.BooleanField(
         verbose_name=_("wait for grade upload before publishing"), default=True
     )
+
+    @property
+    def has_exam_evaluation(self):
+        return self.course.evaluations.filter(name_de="Klausur", name_en="Exam").exists()
+
+    @property
+    def earliest_possible_exam_date(self):
+        return self.vote_start_datetime.date() + timedelta(days=1)
+
+    @transaction.atomic
+    def create_exam_evaluation(self, exam_date: date):
+        self.weight = 9
+        self.vote_end_date = exam_date - timedelta(days=1)
+        self.save()
+        exam_evaluation = Evaluation(
+            course=self.course,
+            name_de="Klausur",
+            name_en="Exam",
+            weight=1,
+            is_rewarded=False,
+            vote_start_datetime=datetime.combine(exam_date + timedelta(days=1), time(8, 0)),
+            vote_end_date=exam_date + timedelta(days=3),
+        )
+        exam_evaluation.save()
+
+        exam_evaluation.participants.set(self.participants.all())
+        for contribution in self.contributions.exclude(contributor=None):
+            exam_evaluation.contributions.create(contributor=contribution.contributor)
+        exam_evaluation.general_contribution.questionnaires.set(settings.EXAM_QUESTIONNAIRE_IDS)
 
     class TextAnswerReviewState(Enum):
         NO_TEXTANSWERS = auto()

@@ -1093,6 +1093,34 @@ def course_copy(request, course_id):
     )
 
 
+@require_POST
+@manager_required
+def create_exam_evaluation(request: HttpRequest) -> HttpResponse:
+    evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
+    if evaluation.is_single_result:
+        raise SuspiciousOperation("Creating an exam evaluation for a single result evaluation is not allowed.")
+
+    if evaluation.has_exam_evaluation:
+        raise SuspiciousOperation("An exam evaluation already exists for this course.")
+
+    exam_date_string = request.POST.get("exam_date")
+    if not exam_date_string:
+        return HttpResponseBadRequest("Exam date missing.")
+    try:
+        exam_date = datetime.strptime(exam_date_string, "%Y-%m-%d").date()
+    except ValueError:
+        return HttpResponseBadRequest("Exam date invalid.")
+
+    if exam_date < evaluation.earliest_possible_exam_date:
+        raise SuspiciousOperation(
+            "The end date of the main evaluation would be before its start date. No exam evaluation was created."
+        )
+
+    evaluation.create_exam_evaluation(exam_date)
+    messages.success(request, _("Successfully created exam evaluation."))
+    return HttpResponse()  # 200 OK
+
+
 @manager_required
 class CourseEditView(SuccessMessageMixin, UpdateView):
     model = Course
