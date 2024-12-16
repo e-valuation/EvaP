@@ -49,7 +49,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build]
-skip-excluded-dirs = true
+skip-excluded-dirs = false  # otherwise, the artifacts below will be skipped
 exclude = [
     "evap/static/bootstrap",
     "evap/static/font-awesome",
@@ -59,7 +59,9 @@ artifacts = [
     "evap/static/css/evap.css.map",
     "evap/static/js/*.js",
     "evap/static/js/*.map",
-    "evap/static/*.woff2",
+    "evap/static/bootstrap/dist/js/bootstrap.bundle.min.js",
+    "evap/static/bootstrap/dist/js/bootstrap.bundle.min.js.map",
+    "evap/static/font-awesome/webfonts/",
 
     "evap/locale/*.mo",
 ]
