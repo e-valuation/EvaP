@@ -110,6 +110,9 @@ EVALUATION_END_WARNING_PERIOD = 5
 # Questionnaires automatically added to exam evaluations
 EXAM_QUESTIONNAIRE_IDS: list[int] = []
 
+# Questionnaire that is added on top when marking an evaluation as "dropped out"
+DROPOUT_QUESTIONNAIRE_ID = 1
+
 ### Installation specific settings
 
 # People who get emails on errors.
