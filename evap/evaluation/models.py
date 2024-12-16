@@ -180,6 +180,10 @@ class Questionnaire(models.Model):
         BOTTOM = 30, _("Bottom questionnaire")
         DROPOUT = 40, _("Dropout questionnaire")
 
+    # TODO@Felix: switch logic to add the Dropout Questionnaire to general_contribution, if allow_dropout is true
+    # maybe even allow_dropout <=> exists questionnaire in general_contribution with questionnaire.type=Dropout
+    # TODO@Felix: (?) allow selecting Dropout-Questionnaire when creating evaluation
+
     type = models.IntegerField(choices=Type.choices, verbose_name=_("type"), default=Type.TOP)
 
     name_de = models.CharField(max_length=1024, unique=True, verbose_name=_("name (german)"))
