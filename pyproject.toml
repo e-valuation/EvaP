@@ -1,7 +1,7 @@
 [project]
 name = "evap"
 description = "EvaP"
-version = "2024.11.7"
+version = "2024.11.8"
 readme = "README.md"
 requires-python = "~=3.10.0"
 dependencies = [
@@ -50,12 +50,13 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build]
 packages = ["evap"]
+ignore-vcs = true
 include = [
-    "evap/**/*.js",
-    "evap/**/*.ts",
-    "evap/**/*.css",
-    "evap/**/*.scss",
-    "evap/**/*.map",
+    "/evap/**/*.js",
+    "/evap/**/*.ts",
+    "/evap/**/*.css",
+    "/evap/**/*.scss",
+    "/evap/**/*.map",
 ]
 
 [project.scripts]
