@@ -485,9 +485,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         self.assertNotIn(heading_question_2.text, page)
 
     @override_settings(VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS=0)
-    def test_default_view(
-        self,
-    ):
+    def test_default_view(self):
         cache_results(self.evaluation)
 
         page_without_get_parameter = self.app.get(self.url, user=self.manager)
@@ -756,38 +754,41 @@ class TestResultsTextanswerVisibility(WebTest):
         ".responsible_contributor_additional_orig_deleted.",
     ]
 
-    contributor_views = [ViewContributorResults.FULL, ViewContributorResults.RATINGS, ViewContributorResults.PERSONAL]
-    general_views = [ViewGeneralResults.FULL, ViewGeneralResults.RATINGS]
+    standard_general_textanswers = [
+        ".general_orig_published.",
+        ".general_changed_published.",
+        ".general_additional_orig_published.",
+    ]
 
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
         cache_results(Evaluation.objects.get(id=1))
 
-    def helper_test_general(self, user, view_general_results, textanswers_in):
+    def helper_test_general(self, user, view_general_results, expected_visible_textanswers):
 
-        textanswers_not_in = list(set(self.general_textanswers) - set(textanswers_in))
-        for con_view in self.contributor_views:
+        textanswers_not_in = list(set(self.general_textanswers) - set(expected_visible_textanswers))
+        for contributor_view in ViewContributorResults:
             page = self.app.get(
-                f"/results/semester/1/evaluation/1?view_general_results={view_general_results.value}&view_contributor_results={con_view.value}",
+                f"/results/semester/1/evaluation/1?view_general_results={view_general_results.value}&view_contributor_results={contributor_view.value}",
                 user=user,
             )
 
-            for answer in textanswers_in:
+            for answer in expected_visible_textanswers:
                 self.assertIn(answer, page)
             for answer in textanswers_not_in:
                 self.assertNotIn(answer, page)
 
-    def helper_test_contributor(self, user, view_contributor_results, textanswers_in):
+    def helper_test_contributor(self, user, view_contributor_results, expected_visible_textanswers):
 
-        textanswers_not_in = list(set(self.contributor_textanswers) - set(textanswers_in))
-        for gen_view in self.general_views:
+        textanswers_not_in = list(set(self.contributor_textanswers) - set(expected_visible_textanswers))
+        for general_view in ViewGeneralResults:
             page = self.app.get(
-                f"/results/semester/1/evaluation/1?view_contributor_results={view_contributor_results.value}&view_general_results={gen_view.value}",
+                f"/results/semester/1/evaluation/1?view_contributor_results={view_contributor_results.value}&view_general_results={general_view.value}",
                 user=user,
             )
 
-            for answer in textanswers_in:
+            for answer in expected_visible_textanswers:
                 self.assertIn(answer, page)
             for answer in textanswers_not_in:
                 self.assertNotIn(answer, page)
@@ -799,7 +800,7 @@ class TestResultsTextanswerVisibility(WebTest):
             self.helper_test_general(
                 user,
                 ViewGeneralResults.FULL,
-                [".general_orig_published.", ".general_additional_orig_published.", ".general_changed_published."],
+                self.standard_general_textanswers,
             )
             self.helper_test_general(user, ViewGeneralResults.RATINGS, [])
 
@@ -844,11 +845,7 @@ class TestResultsTextanswerVisibility(WebTest):
         self.helper_test_general(
             user,
             ViewGeneralResults.FULL,
-            [
-                ".general_orig_published.",
-                ".general_changed_published.",
-                ".general_additional_orig_published.",
-            ],
+            self.standard_general_textanswers,
         )
         self.helper_test_general(user, ViewGeneralResults.RATINGS, [])
 
@@ -859,38 +856,30 @@ class TestResultsTextanswerVisibility(WebTest):
     def test_responsible_contributor(self):
 
         user = "responsible_contributor@institution.example.com"
+        contributor_textanswers_responsible_contributor_can_see = [
+            ".responsible_contributor_orig_published.",
+            ".responsible_contributor_changed_published.",
+            ".responsible_contributor_orig_private.",
+            ".responsible_contributor_additional_orig_published.",
+        ]
 
         self.helper_test_general(
             user,
             ViewGeneralResults.FULL,
-            [
-                ".general_orig_published.",
-                ".general_changed_published.",
-                ".general_additional_orig_published.",
-            ],
+            self.standard_general_textanswers,
         )
         self.helper_test_general(user, ViewGeneralResults.RATINGS, [])
 
         self.helper_test_contributor(
             user,
             ViewContributorResults.FULL,
-            [
-                ".responsible_contributor_orig_published.",
-                ".responsible_contributor_changed_published.",
-                ".responsible_contributor_orig_private.",
-                ".responsible_contributor_additional_orig_published.",
-            ],
+            contributor_textanswers_responsible_contributor_can_see,
         )
         self.helper_test_contributor(user, ViewContributorResults.RATINGS, [])
         self.helper_test_contributor(
             user,
             ViewContributorResults.PERSONAL,
-            [
-                ".responsible_contributor_orig_published.",
-                ".responsible_contributor_changed_published.",
-                ".responsible_contributor_orig_private.",
-                ".responsible_contributor_additional_orig_published.",
-            ],
+            contributor_textanswers_responsible_contributor_can_see,
         )
 
     def test_contributor_general_textanswers(self):
@@ -899,11 +888,7 @@ class TestResultsTextanswerVisibility(WebTest):
         self.helper_test_general(
             user,
             ViewGeneralResults.FULL,
-            [
-                ".general_orig_published.",
-                ".general_additional_orig_published.",
-                ".general_changed_published.",
-            ],
+            self.standard_general_textanswers,
         )
         self.helper_test_general(user, ViewGeneralResults.RATINGS, [])
 
@@ -913,16 +898,17 @@ class TestResultsTextanswerVisibility(WebTest):
 
     def test_contributor(self):
         user = "contributor@institution.example.com"
+        contributor_textanswers_contributor_can_see = [".contributor_orig_published.", ".contributor_orig_private."]
 
         self.helper_test_general(user, ViewGeneralResults.FULL, [])
         self.helper_test_general(user, ViewGeneralResults.RATINGS, [])
 
         self.helper_test_contributor(
-            user, ViewContributorResults.FULL, [".contributor_orig_published.", ".contributor_orig_private."]
+            user, ViewContributorResults.FULL, contributor_textanswers_contributor_can_see
         )
         self.helper_test_contributor(user, ViewContributorResults.RATINGS, [])
         self.helper_test_contributor(
-            user, ViewContributorResults.PERSONAL, [".contributor_orig_published.", ".contributor_orig_private."]
+            user, ViewContributorResults.PERSONAL, contributor_textanswers_contributor_can_see
         )
 
 

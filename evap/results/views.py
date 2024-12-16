@@ -433,10 +433,7 @@ def evaluation_detail_parse_get_parameters(request, evaluation):
 
     try:
         view_contributor_results = ViewContributorResults(
-            request.GET.get(
-                "view_contributor_results",
-                ViewContributorResults.FULL,
-            )
+            request.GET.get("view_contributor_results", ViewContributorResults.FULL)
         )
     except ValueError as e:
         raise BadRequest from e

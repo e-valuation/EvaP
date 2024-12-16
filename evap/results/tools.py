@@ -40,7 +40,7 @@ GRADE_COLORS = {
 class ViewGeneralResults(Enum):
     @property
     def do_not_call_in_templates(self):
-        return False
+        return True
 
     FULL = "full"
     RATINGS = "ratings"
@@ -493,7 +493,6 @@ def textanswers_visible_to(contribution):
     return TextAnswerVisibility(visible_by_contribution=sorted_contributors, visible_by_delegation_count=num_delegates)
 
 
-# Filter textanswers based on user selection
 def can_textanswer_be_seen_by(  # noqa: PLR0911,PLR0912
     user: UserProfile,
     represented_users: list[UserProfile],
@@ -507,10 +506,7 @@ def can_textanswer_be_seen_by(  # noqa: PLR0911,PLR0912
     # NOTE: when changing this behavior, make sure all changes are also reflected in results.tools.textanswers_visible_to
     # and in results.tests.test_tools.TestTextAnswerVisibilityInfo
     if textanswer.contribution.is_general:
-        if view_general_results == ViewGeneralResults.RATINGS:
-            return False
         if view_general_results == ViewGeneralResults.FULL:
-            # reviewer can see everything
             if user.is_reviewer:
                 return True
 
@@ -527,8 +523,6 @@ def can_textanswer_be_seen_by(  # noqa: PLR0911,PLR0912
                 for user in textanswer.contribution.evaluation.course.responsibles.all()
             ):
                 return True
-        else:
-            return False
     else:
         if view_contributor_results == ViewContributorResults.RATINGS:
             return False
