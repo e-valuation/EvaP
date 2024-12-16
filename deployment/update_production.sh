@@ -33,19 +33,19 @@ set -x # print executed commands. enable this here to not print the if above.
 # match the database layout, or https://github.com/e-valuation/EvaP/issues/1237.
 [[ -z "$EVAP_SKIP_APACHE_STEPS" ]] && sudo ./deployment/enable_maintenance_mode.sh
 
-evap dumpdata --natural-foreign --natural-primary --all -e contenttypes -e auth.Permission --indent 2 --output "$FILENAME"
+python -m evap dumpdata --natural-foreign --natural-primary --all -e contenttypes -e auth.Permission --indent 2 --output "$FILENAME"
 
 [[ ! -z "$EVAP_SKIP_UPDATE" ]] && echo "Skipping Update"
 [[ ! -z "$EVAP_SKIP_UPDATE" ]] || pip install evap[psycopg-binary]
 
 # sometimes, this fails for some random i18n test translation files.
-evap compilemessages || true
-evap scss --production
-evap ts compile --fresh
-evap collectstatic --noinput
-evap migrate
-evap clear_cache --all -v=1
-evap refresh_results_cache
+python -m evap compilemessages || true
+python -m evap scss --production
+python -m evap ts compile --fresh
+python -m evap collectstatic --noinput
+python -m evap migrate
+python -m evap clear_cache --all -v=1
+python -m evap refresh_results_cache
 
 [[ -z "$EVAP_SKIP_APACHE_STEPS" ]] && sudo ./deployment/disable_maintenance_mode.sh
 

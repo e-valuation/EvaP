@@ -59,9 +59,6 @@ include = [
     "/evap/**/*.map",
 ]
 
-[project.scripts]
-evap = "evap.__main__:main"
-
 ##############################################
 
 [tool.black]
