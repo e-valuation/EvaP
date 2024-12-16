@@ -49,6 +49,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build]
+skip-excluded-dirs = true
 exclude = [
     "evap/static/bootstrap",
     "evap/static/font-awesome",
