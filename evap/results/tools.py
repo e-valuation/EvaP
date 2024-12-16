@@ -194,8 +194,10 @@ def cache_results(evaluation, *, refetch_related_objects=True):
 def get_results(evaluation: Evaluation) -> EvaluationResult:
     assert evaluation.state in STATES_WITH_RESULTS_CACHING | {Evaluation.State.IN_EVALUATION}
 
-    if evaluation.state == Evaluation.State.IN_EVALUATION:
-        return _get_results_impl(evaluation)
+    # TODO@remove commenting out
+    # if evaluation.state == Evaluation.State.IN_EVALUATION:
+    #     return _get_results_impl(evaluation)
+    return _get_results_impl(evaluation)
 
     cache_key = get_results_cache_key(evaluation)
     result = caches["results"].get(cache_key)
