@@ -18,20 +18,8 @@ jobs:
           submodules: true
       - uses: DeterminateSystems/nix-installer-action@main
       - uses: DeterminateSystems/magic-nix-cache-action@main
-      - run: nix develop .#evap-dev --command bash -c <<EOF
-          set -ex
-          npm ci
-          ./manage.py compilemessages
-          ./manage.py scss --production
-          ./manage.py ts compile --fresh
-          EOF
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-      - run: |
-          python3 -m venv venv
-          source venv/bin/activate
-          python -m pip install --upgrade build
-          python -m build
+      - run: nix run .#build-dist
+      - run: tar tvf dist/*.tar.gz
+      - run: unzip -l dist/*.whl
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
