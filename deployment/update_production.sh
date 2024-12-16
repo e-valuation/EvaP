@@ -38,10 +38,6 @@ python -m evap dumpdata --natural-foreign --natural-primary --all -e contenttype
 [[ ! -z "$EVAP_SKIP_UPDATE" ]] && echo "Skipping Update"
 [[ ! -z "$EVAP_SKIP_UPDATE" ]] || pip install evap[psycopg-binary]
 
-# sometimes, this fails for some random i18n test translation files.
-python -m evap compilemessages || true
-python -m evap scss --production
-python -m evap ts compile --fresh
 python -m evap collectstatic --noinput
 python -m evap migrate
 python -m evap clear_cache --all -v=1
