@@ -49,14 +49,18 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build]
-packages = ["evap"]
-ignore-vcs = true
-include = [
-    "/evap/**/*.js",
-    "/evap/**/*.ts",
-    "/evap/**/*.css",
-    "/evap/**/*.scss",
-    "/evap/**/*.map",
+exclude = [
+    "evap/static/bootstrap",
+    "evap/static/font-awesome",
+]
+artifacts = [
+    "evap/static/css/evap.css",
+    "evap/static/css/evap.css.map",
+    "evap/static/js/*.js",
+    "evap/static/js/*.map",
+    "evap/static/*.woff2",
+
+    "evap/locale/*.mo",
 ]
 
 ##############################################
