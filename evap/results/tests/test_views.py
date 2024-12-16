@@ -903,13 +903,9 @@ class TestResultsTextanswerVisibility(WebTest):
         self.helper_test_general(user, ViewGeneralResults.FULL, [])
         self.helper_test_general(user, ViewGeneralResults.RATINGS, [])
 
-        self.helper_test_contributor(
-            user, ViewContributorResults.FULL, contributor_textanswers_contributor_can_see
-        )
+        self.helper_test_contributor(user, ViewContributorResults.FULL, contributor_textanswers_contributor_can_see)
         self.helper_test_contributor(user, ViewContributorResults.RATINGS, [])
-        self.helper_test_contributor(
-            user, ViewContributorResults.PERSONAL, contributor_textanswers_contributor_can_see
-        )
+        self.helper_test_contributor(user, ViewContributorResults.PERSONAL, contributor_textanswers_contributor_can_see)
 
 
 class TestResultsOtherContributorsListOnExportView(WebTest):

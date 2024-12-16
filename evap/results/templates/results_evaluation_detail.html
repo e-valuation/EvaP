@@ -41,7 +41,7 @@
                                     <a
                                         href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results=full&view_contributor_results={{ view_contributor_results.value }}"
                                         role="button"
-                                        class="btn btn-sm btn-light {% if not general_textanswers %} disabled {% elif view_general_results == ViewGeneralResults.FULL %} active{% endif %}"
+                                        class="btn btn-sm btn-light {% if not general_textanswers %} disabled {% elif view_general_results == ViewGeneralResults.FULL %} active {% endif %}"
                                         data-bs-toggle="tooltip"
                                         data-bs-placement="bottom"
                                         title="{% blocktranslate %}All results of general questions (including text answers){% endblocktranslate %}"
@@ -51,7 +51,7 @@
                                     <a
                                         href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results=ratings&view_contributor_results={{ view_contributor_results.value }}"
                                         role="button"
-                                        class="btn btn-sm btn-light {% if not general_textanswers %} disabled {% elif view_general_results == ViewGeneralResults.RATINGS %} active {% endif %}"
+                                        class="btn btn-sm btn-light {% if not general_textanswers %} disabled {% endif %} {% if view_general_results == ViewGeneralResults.RATINGS or not general_textanswers %} active{% endif %}"
                                         data-bs-toggle="tooltip"
                                         data-bs-placement="bottom"
                                         title="{% translate 'Only rating results of general questions (without text answers)' %}"
@@ -81,7 +81,7 @@
                                 <a
                                     href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results={{ view_general_results.value }}&view_contributor_results=ratings"
                                     role="button"
-                                    class="btn btn-sm btn-light  {% if not contributor_textanswers %} disabled {% elif view_contributor_results == ViewContributorResults.RATINGS %} active{% endif %}"
+                                    class="btn btn-sm btn-light  {% if not contributor_textanswers %} disabled {% endif %} {% if view_contributor_results == ViewContributorResults.RATINGS or not contributor_textanswers %} active{% endif %}"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="bottom"
                                     title="{% translate 'Only rating results of contributor questions (without text answers)' %}"
