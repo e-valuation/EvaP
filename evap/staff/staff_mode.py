@@ -52,6 +52,9 @@ def is_in_staff_mode(request):
 
 
 def update_staff_mode(request):
+    if not request.user.has_staff_permission: 
+        exit_staff_mode(request)
+        return
     assert request.user.has_staff_permission
 
     request.session["staff_mode_start_time"] = time.time()
