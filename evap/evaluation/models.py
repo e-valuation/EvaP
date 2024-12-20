@@ -164,6 +164,12 @@ class QuestionnaireManager(Manager):
     def contributor_questionnaires(self):
         return super().get_queryset().filter(type=Questionnaire.Type.CONTRIBUTOR)
 
+    def dropout_questionnaires(self):
+        return super().get_queryset().filter(type=Questionnaire.Type.DROPOUT)
+
+    def active_dropout_questionnaire(self):
+        return super().get_queryset().filter(type=Questionnaire.Type.DROPOUT, is_active_dropout_questionnaire=True)
+
 
 class Questionnaire(models.Model):
     """A named collection of questions."""
@@ -172,6 +178,11 @@ class Questionnaire(models.Model):
         TOP = 10, _("Top questionnaire")
         CONTRIBUTOR = 20, _("Contributor questionnaire")
         BOTTOM = 30, _("Bottom questionnaire")
+        DROPOUT = 40, _("Dropout questionnaire")
+
+    # TODO@Felix: switch logic to add the Dropout Questionnaire to general_contribution, if allow_dropout is true
+    # maybe even allow_dropout <=> exists questionnaire in general_contribution with questionnaire.type=Dropout
+    # TODO@Felix: (?) allow selecting Dropout-Questionnaire when creating evaluation
 
     type = models.IntegerField(choices=Type.choices, verbose_name=_("type"), default=Type.TOP)
 
@@ -192,6 +203,12 @@ class Questionnaire(models.Model):
     teaser = translate(en="teaser_en", de="teaser_de")
 
     order = models.IntegerField(verbose_name=_("ordering index"), default=0)
+
+    # (unique=True, blank=True, null=True) allows having multiple non-active but only one active questionnaire
+    # TODO@Felix: hidden True?
+    is_active_dropout_questionnaire = models.BooleanField(
+        default=None, unique=True, blank=True, null=True, verbose_name=_("questionnaire is selected as active")
+    )
 
     class Visibility(models.IntegerChoices):
         HIDDEN = 0, _("Don't show")
@@ -224,6 +241,15 @@ class Questionnaire(models.Model):
     def __gt__(self, other):
         return (self.type, self.order, self.pk) > (other.type, other.order, other.pk)
 
+    @transaction.atomic()
+    def set_active_dropout(self):
+        if not self.is_dropout_questionnaire:
+            raise ValueError("Can only set DROPOUT-type Questionnaires as active dropout questionnaire.")
+
+        Questionnaire.objects.active_dropout_questionnaire().update(is_active_dropout_questionnaire=None)
+        self.is_active_dropout_questionnaire = True
+        self.save()
+
     @property
     def is_above_contributors(self):
         return self.type == self.Type.TOP
@@ -233,7 +259,20 @@ class Questionnaire(models.Model):
         return self.type == self.Type.BOTTOM
 
     @property
-    def can_be_edited_by_manager(self):
+    def is_dropout_questionnaire(self):
+        return self.type == self.Type.DROPOUT
+
+    @property
+    def can_be_edited_by_manager(
+        self,
+    ):
+        if self.is_dropout_questionnaire:
+            assert set(Answer.__subclasses__()) == {TextAnswer, RatingAnswerCounter}
+            return (
+                not TextAnswer.objects.filter(question__questionnaire=self).exists()
+                and not RatingAnswerCounter.objects.filter(question__questionnaire=self).exists()
+            )
+
         if is_prefetched(self, "contributions"):
             if all(is_prefetched(contribution, "evaluation") for contribution in self.contributions.all()):
                 return all(
@@ -244,6 +283,9 @@ class Questionnaire(models.Model):
 
     @property
     def can_be_deleted_by_manager(self):
+        if self.is_dropout_questionnaire:
+            return self.can_be_edited_by_manager
+
         return not self.contributions.exists()
 
     @property
@@ -455,6 +497,9 @@ class Evaluation(LoggedModel):
     )
     _voter_count = models.IntegerField(verbose_name=_("voter count"), blank=True, null=True, default=None)
 
+    # TODO@Felix: UI for dropout count
+    dropout_count = models.IntegerField(verbose_name=_("dropout count"), default=0)
+
     # when the evaluation takes place
     vote_start_datetime = models.DateTimeField(verbose_name=_("start of evaluation"))
     # Usually the property vote_end_datetime should be used instead of this field
@@ -462,6 +507,8 @@ class Evaluation(LoggedModel):
 
     # Disable to prevent editors from changing evaluation data
     allow_editors_to_edit = models.BooleanField(verbose_name=_("allow editors to edit"), default=True)
+
+    allow_drop_out = models.BooleanField(verbose_name=_("allow students to drop out"), default=True)
 
     evaluation_evaluated = Signal()
 

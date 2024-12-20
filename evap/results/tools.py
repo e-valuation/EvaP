@@ -194,8 +194,10 @@ def cache_results(evaluation, *, refetch_related_objects=True):
 def get_results(evaluation: Evaluation) -> EvaluationResult:
     assert evaluation.state in STATES_WITH_RESULTS_CACHING | {Evaluation.State.IN_EVALUATION}
 
-    if evaluation.state == Evaluation.State.IN_EVALUATION:
-        return _get_results_impl(evaluation)
+    # TODO@remove commenting out
+    # if evaluation.state == Evaluation.State.IN_EVALUATION:
+    #     return _get_results_impl(evaluation)
+    return _get_results_impl(evaluation)
 
     cache_key = get_results_cache_key(evaluation)
     result = caches["results"].get(cache_key)
@@ -392,7 +394,10 @@ def calculate_average_distribution(evaluation):
     grouped_results = defaultdict(list)
     for contribution_result in get_results(evaluation).contribution_results:
         for questionnaire_result in contribution_result.questionnaire_results:
-            grouped_results[contribution_result.contributor].extend(questionnaire_result.question_results)
+            if (
+                questionnaire_result.questionnaire.type != Questionnaire.Type.DROPOUT
+            ):  # dropout questionnaires are not counted
+                grouped_results[contribution_result.contributor].extend(questionnaire_result.question_results)
 
     evaluation_results = grouped_results.pop(None, [])
 

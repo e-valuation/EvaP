@@ -1829,6 +1829,13 @@ def questionnaire_index(request):
     prefetch_list = ("questions", "contributions__evaluation")
     general_questionnaires = Questionnaire.objects.general_questionnaires().prefetch_related(*prefetch_list)
     contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().prefetch_related(*prefetch_list)
+    dropout_questionnaires = Questionnaire.objects.dropout_questionnaires()
+
+    # if no dropout questionnaire is active, set the first to be active
+    if not Questionnaire.objects.active_dropout_questionnaire().exists():
+        maybe_questionnaire = Questionnaire.objects.dropout_questionnaires().first()
+        if maybe_questionnaire:
+            maybe_questionnaire.set_active_dropout()
 
     if filter_questionnaires:
         general_questionnaires = general_questionnaires.exclude(visibility=Questionnaire.Visibility.HIDDEN)
@@ -1845,6 +1852,7 @@ def questionnaire_index(request):
         "general_questionnaires_top": general_questionnaires_top,
         "general_questionnaires_bottom": general_questionnaires_bottom,
         "contributor_questionnaires": contributor_questionnaires,
+        "dropout_questionnaires": dropout_questionnaires,
         "filter_questionnaires": filter_questionnaires,
     }
     return render(request, "staff_questionnaire_index.html", template_data)
@@ -1919,12 +1927,12 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
         for question_form in formset.forms:
             disable_all_except_named(question_form.fields, ["id"])
 
-        # disallow type changed from and to contributor
-        form.fields["type"].choices = [
-            choice
-            for choice in Questionnaire.Type.choices
-            if (choice[0] == Questionnaire.Type.CONTRIBUTOR) == (questionnaire.type == Questionnaire.Type.CONTRIBUTOR)
-        ]
+        # disallow type changed from and to contributor or dropout
+        single_types = [Questionnaire.Type.CONTRIBUTOR, Questionnaire.Type.DROPOUT]
+        if questionnaire.type in single_types:
+            form.fields["type"].choices = filter(lambda c: c[0] == questionnaire.type, form.fields["type"].choices)
+        else:
+            form.fields["type"].choices = filter(lambda c: c[0] not in single_types, form.fields["type"].choices)
 
     return form, formset
 
@@ -2092,6 +2100,17 @@ def questionnaire_set_locked(request):
 
     questionnaire.is_locked = is_locked
     questionnaire.save()
+    return HttpResponse()
+
+
+@require_POST
+@manager_required
+def questionnaire_set_active_dropout(request):
+    questionnaire = get_object_from_dict_pk_entry_or_logged_40x(Questionnaire, request.POST, "questionnaire_id")
+    try:
+        questionnaire.set_active_dropout()
+    except Exception as e:
+        raise SuspiciousOperation from e
     return HttpResponse()
 
 

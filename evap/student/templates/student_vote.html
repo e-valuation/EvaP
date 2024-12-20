@@ -55,6 +55,20 @@
     <form id="student-vote-form" method="POST" class="form-horizontal">
         {% csrf_token %}
 
+        {% if show_dropout_questionnaire %}
+            <div class="card card-outline-warning mb-3">
+                <div class="card-header">
+                    <span class="fas fa-triangle-exclamation"></span> {% translate 'Dropout Questionnaire' %}
+                </div>
+                <div class="card-body tab-row">
+                    {% blocktranslate %}
+                        You are marking this course as dropped. Your answers will only be shown to contributors and will
+                        not be counted in this course's final rating.
+                    {% endblocktranslate %}
+                </div>
+            </div>
+        {% endif %}
+
         {% if small_evaluation_size_warning and not preview %}
             <div class="card card-outline-warning mb-3">
                 <div class="card-header">
