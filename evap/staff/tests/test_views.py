@@ -2386,6 +2386,25 @@ class TestEvaluationDeleteView(WebTestStaffMode):
         self.app.post(self.url, user=self.manager, params=self.post_params, status=400)
         self.assertTrue(Evaluation.objects.filter(pk=self.evaluation.pk).exists())
 
+    @patch.object(Evaluation, "can_be_deleted_by_manager", True)
+    def test_reward_point_granting_message(self):
+        already_evaluated = baker.make(Evaluation, course__semester=self.evaluation.course.semester)
+        SemesterActivation.objects.create(semester=self.evaluation.course.semester, is_active=True)
+        student = baker.make(UserProfile, evaluations_participating_in=[self.evaluation])
+
+        baker.make(
+            UserProfile,
+            email=iter(f"{name}@institution.example.com" for name in ["a", "b", "c", "d", "e"]),
+            evaluations_participating_in=[self.evaluation, already_evaluated],
+            evaluations_voted_for=[already_evaluated],
+            _quantity=5,
+        )
+
+        with patch("evap.staff.views.logger") as mock:
+            page = self.app.post(self.url, user=self.manager, params=self.post_params, status=200)
+
+        mock.info.assert_called_with(f"Deletion of evaluation {self.evaluation} has created 5 reward point grantings")
+
 
 class TestSingleResultEditView(WebTestStaffModeWith200Check):
     @classmethod
