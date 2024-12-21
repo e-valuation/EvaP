@@ -55,6 +55,10 @@ class TestCase(ResetLanguageOnTearDownMixin, django.test.TestCase):
     pass
 
 
+class SimpleTestCase(ResetLanguageOnTearDownMixin, django.test.SimpleTestCase):
+    pass
+
+
 class WebTest(ResetLanguageOnTearDownMixin, django_webtest.WebTest):
     pass
 

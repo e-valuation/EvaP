@@ -8,6 +8,7 @@ from urllib.parse import quote
 import xlwt
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation, ValidationError
+from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.models import Model
 from django.forms.formsets import BaseFormSet
 from django.http import HttpRequest, HttpResponse
@@ -85,6 +86,11 @@ def discard_cached_related_objects(instance: M) -> M:
     instance._prefetched_objects_cache = {}  # type: ignore[attr-defined]
 
     return instance
+
+
+def inside_transaction() -> bool:
+    # https://github.com/django/django/blob/402ae37873974afa5093e6d6149175a118979cd9/django/db/transaction.py#L208
+    return connections[DEFAULT_DB_ALIAS].in_atomic_block
 
 
 def is_external_email(email: str) -> bool:
