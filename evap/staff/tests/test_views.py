@@ -302,7 +302,7 @@ class TestUserEditView(WebTestStaffMode):
         mock_remove.assert_called_with(self.testuser)
         self.assertIn(mock_remove.return_value[0], response)
 
-    def test_reward_points_granting_message(self):
+    def test_reward_point_granting(self):
         evaluation = baker.make(Evaluation, course__semester__is_active=True)
         already_evaluated = baker.make(Evaluation, course=baker.make(Course, semester=evaluation.course.semester))
         SemesterActivation.objects.create(semester=evaluation.course.semester, is_active=True)
@@ -317,6 +317,8 @@ class TestUserEditView(WebTestStaffMode):
         form = page.forms["user-form"]
         form["evaluations_participating_in"] = [already_evaluated.pk]
 
+        self.assertEqual(reward_points_of_user(student), 0)
+
         page = form.submit().follow()
         # fetch the user name, which became lowercased
         student.refresh_from_db()
@@ -327,6 +329,8 @@ class TestUserEditView(WebTestStaffMode):
             "3 reward points for the active semester.",
             page,
         )
+
+        self.assertEqual(reward_points_of_user(student), 3)
 
 
 class TestUserDeleteView(DeleteViewTestMixin, WebTestStaffMode):
@@ -2369,6 +2373,36 @@ class TestEvaluationDeleteView(WebTestStaffMode):
     def test_invalid_deletion(self):
         self.app.post(self.url, user=self.manager, params=self.post_params, status=400)
         self.assertTrue(Evaluation.objects.filter(pk=self.evaluation.pk).exists())
+
+    @patch.object(Evaluation, "can_be_deleted_by_manager", True)
+    def test_reward_point_granting(self):
+        already_evaluated = baker.make(Evaluation, course__semester=self.evaluation.course.semester)
+        SemesterActivation.objects.create(semester=self.evaluation.course.semester, is_active=True)
+
+        # does not get reward points as it was the only evaluation in this semester
+        student = baker.make(
+            UserProfile, email="student@institution.example.com", evaluations_participating_in=[self.evaluation]
+        )
+
+        # get reward points
+        baker.make(
+            UserProfile,
+            email=iter(f"{name}@institution.example.com" for name in ["a", "b", "c", "d", "e"]),
+            evaluations_participating_in=[self.evaluation, already_evaluated],
+            evaluations_voted_for=[already_evaluated],
+            _quantity=5,
+        )
+
+        self.assertEqual(reward_points_of_user(student), 0)
+
+        with patch("evap.staff.views.logger") as mock:
+            self.app.post(self.url, user=self.manager, params=self.post_params, status=200)
+
+        self.assertEqual(mock.info.call_args_list[0][1]["extra"]["num_grantings"], 5)
+        self.assertEqual(reward_points_of_user(student), 0)
+
+        user_a = UserProfile.objects.get(email="a@institution.example.com")
+        self.assertEqual(reward_points_of_user(user_a), 3)
 
 
 class TestSingleResultEditView(WebTestStaffModeWith200Check):

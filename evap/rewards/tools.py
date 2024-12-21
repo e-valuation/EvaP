@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.contrib import messages
 from django.db import models
@@ -7,7 +9,10 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
 from evap.evaluation.models import Evaluation, Semester, UserProfile
+from evap.evaluation.tools import inside_transaction
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption, SemesterActivation
+
+logger = logging.getLogger(__name__)
 
 
 def can_reward_points_be_used_by(user):
@@ -100,13 +105,13 @@ def grant_reward_points_after_evaluate(request, semester, **_kwargs):
 
 
 @receiver(models.signals.m2m_changed, sender=Evaluation.participants.through)
-def grant_reward_points_after_delete(instance, action, reverse, pk_set, **_kwargs):
+def grant_reward_points_on_participation_change(instance, action, reverse, pk_set, **_kwargs):
     # if users do not need to evaluate anymore, they may have earned reward points
     if action == "post_remove":
         grantings = []
 
         if reverse:
-            # an evaluation got removed from a participant
+            # one or more evaluations got removed from a participant
             user = instance
 
             for semester in Semester.objects.filter(courses__evaluations__pk__in=pk_set):
@@ -114,7 +119,7 @@ def grant_reward_points_after_delete(instance, action, reverse, pk_set, **_kwarg
                 if granting:
                     grantings = [granting]
         else:
-            # a participant got removed from an evaluation
+            # one or more participants got removed from an evaluation
             evaluation = instance
 
             for user in UserProfile.objects.filter(pk__in=pk_set):
@@ -123,4 +128,27 @@ def grant_reward_points_after_delete(instance, action, reverse, pk_set, **_kwarg
                     grantings.append(granting)
 
         if grantings:
-            RewardPointGranting.granted_by_removal.send(sender=RewardPointGranting, grantings=grantings)
+            RewardPointGranting.granted_by_participation_removal.send(sender=RewardPointGranting, grantings=grantings)
+
+
+@receiver(models.signals.pre_delete, sender=Evaluation)
+def grant_reward_points_on_evaluation_delete(instance, **_kwargs):
+    if not inside_transaction():
+        # This will always be true in a django TestCase, so our tests can't meaningfully catch calls that are not
+        # wrapped in a transaction. Requiring a transaction is a precaution so that an (unlikely) failing .delete()
+        # execution afterwards doesn't leave us in half-deleted state. Chances are, if deletion fails, staff users
+        # will still want to delete the instance.
+        # Currently, only staff:evaluation_delete and staff:semester_delete call .delete()
+        logger.error("Called while not inside transaction")
+
+    grantings = []
+
+    participants = list(instance.participants.all())
+    instance.participants.clear()
+    for user in participants:
+        granting, __ = grant_reward_points_if_eligible(user, instance.course.semester)
+        if granting:
+            grantings.append(granting)
+
+    if grantings:
+        RewardPointGranting.granted_by_evaluation_deletion.send(sender=RewardPointGranting, grantings=grantings)

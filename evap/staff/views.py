@@ -1,5 +1,6 @@
 import csv
 import itertools
+import logging
 from collections import OrderedDict, defaultdict, namedtuple
 from collections.abc import Container
 from dataclasses import dataclass
@@ -134,6 +135,8 @@ from evap.student.forms import QuestionnaireVotingForm
 from evap.student.models import TextAnswerWarning
 from evap.student.views import render_vote_page
 from evap.tools import unordered_groupby
+
+logger = logging.getLogger(__name__)
 
 
 @manager_required
@@ -1313,7 +1316,7 @@ def helper_evaluation_edit(request, evaluation):
     # as the callback is captured by a weak reference in the Django Framework
     # and no other strong references are being kept.
     # See https://github.com/e-valuation/EvaP/issues/1361 for more information and discussion.
-    @receiver(RewardPointGranting.granted_by_removal, weak=True)
+    @receiver(RewardPointGranting.granted_by_participation_removal, weak=True)
     def notify_reward_points(grantings, **_kwargs):
         for granting in grantings:
             messages.info(
@@ -1418,8 +1421,17 @@ def helper_single_result_edit(request, evaluation):
 
 @require_POST
 @manager_required
+@transaction.atomic
 def evaluation_delete(request):
     evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
+
+    # See comment in helper_evaluation_edit
+    @receiver(RewardPointGranting.granted_by_evaluation_deletion, weak=True)
+    def notify_reward_points(grantings, **_kwargs):
+        logger.info(
+            "Deletion of evaluation has created reward point grantings",
+            extra={"evaluation": evaluation, "num_grantings": len(grantings)},
+        )
 
     if not evaluation.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting evaluation not allowed")
@@ -2296,7 +2308,7 @@ def user_import(request):
 @manager_required
 def user_edit(request, user_id):
     # See comment in helper_evaluation_edit
-    @receiver(RewardPointGranting.granted_by_removal, weak=True)
+    @receiver(RewardPointGranting.granted_by_participation_removal, weak=True)
     def notify_reward_points(grantings, **_kwargs):
         assert len(grantings) == 1
 
