@@ -1,5 +1,6 @@
 import csv
 import itertools
+import logging
 from collections import OrderedDict, defaultdict, namedtuple
 from collections.abc import Container
 from dataclasses import dataclass
@@ -134,6 +135,8 @@ from evap.student.forms import QuestionnaireVotingForm
 from evap.student.models import TextAnswerWarning
 from evap.student.views import render_vote_page
 from evap.tools import unordered_groupby
+
+logger = logging.getLogger(__name__)
 
 
 @manager_required
@@ -671,6 +674,8 @@ def semester_make_active(request):
 @require_POST
 @manager_required
 def semester_delete(request):
+    # TODO(rebeling): Do we expect reward point granting here? Do we want to notify? I don't see why it couldn't happen
+
     semester = get_object_from_dict_pk_entry_or_logged_40x(Semester, request.POST, "semester_id")
 
     if not semester.can_be_deleted_by_manager:
@@ -1421,6 +1426,11 @@ def helper_single_result_edit(request, evaluation):
 @transaction.atomic
 def evaluation_delete(request):
     evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
+
+    # See comment in helper_evaluation_edit
+    @receiver(RewardPointGranting.granted_by_evaluation_deletion, weak=True)
+    def notify_reward_points(grantings, **_kwargs):
+        logger.info(f"Deletion of evaluation {evaluation} has created {len(grantings)} reward point grantings")
 
     if not evaluation.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting evaluation not allowed")
