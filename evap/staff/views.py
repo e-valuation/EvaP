@@ -1313,7 +1313,7 @@ def helper_evaluation_edit(request, evaluation):
     # as the callback is captured by a weak reference in the Django Framework
     # and no other strong references are being kept.
     # See https://github.com/e-valuation/EvaP/issues/1361 for more information and discussion.
-    @receiver(RewardPointGranting.granted_by_removal, weak=True)
+    @receiver(RewardPointGranting.granted_by_participation_removal, weak=True)
     def notify_reward_points(grantings, **_kwargs):
         for granting in grantings:
             messages.info(
@@ -1418,6 +1418,7 @@ def helper_single_result_edit(request, evaluation):
 
 @require_POST
 @manager_required
+@transaction.atomic
 def evaluation_delete(request):
     evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
 
@@ -2296,7 +2297,7 @@ def user_import(request):
 @manager_required
 def user_edit(request, user_id):
     # See comment in helper_evaluation_edit
-    @receiver(RewardPointGranting.granted_by_removal, weak=True)
+    @receiver(RewardPointGranting.granted_by_participation_removal, weak=True)
     def notify_reward_points(grantings, **_kwargs):
         assert len(grantings) == 1
 
