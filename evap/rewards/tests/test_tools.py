@@ -97,10 +97,12 @@ class TestGrantRewardPointsParticipationChange(TestCase):
 
     def test_participant_removed_from_evaluation(self):
         self.evaluation.participants.remove(self.student)
-
         self.assertEqual(reward_points_of_user(self.student), 3)
 
     def test_evaluation_removed_from_participant(self):
         self.student.evaluations_participating_in.remove(self.evaluation)
+        self.assertEqual(reward_points_of_user(self.student), 3)
 
+    def test_evaluation_deleted(self):
+        self.evaluation.delete()
         self.assertEqual(reward_points_of_user(self.student), 3)
