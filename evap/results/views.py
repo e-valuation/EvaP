@@ -228,9 +228,7 @@ def evaluation_detail(request, semester_id, evaluation_id):
                 textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
             ).exists():
                 general_textanswers = True
-                contributor_textanswers = True
-            else:
-                contributor_textanswers = True
+            contributor_textanswers = True
 
     template_data = {
         "evaluation": evaluation,
