@@ -518,10 +518,7 @@ def can_textanswer_be_seen_by(  # noqa: PLR0911,PLR0912
                 return True
 
             # the people responsible for a course can see all general text answers for all its evaluations
-            if any(
-                user in represented_users  # includes self
-                for user in textanswer.contribution.evaluation.course.responsibles.all()
-            ):
+            if textanswer.contribution.evaluation.course.responsibles.filter(pk__in=(user.pk for user in represented_users)).exists():
                 return True
     else:
         if view_contributor_results == ViewContributorResults.RATINGS:
