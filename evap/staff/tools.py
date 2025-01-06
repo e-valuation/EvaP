@@ -394,7 +394,11 @@ def remove_inactive_participations(user: UserProfile, test_run=False) -> list[St
     evaluation_count = user.evaluations_participating_in.count()
     if test_run:
         return [
-            _("{} will be removed from {} participation(s) due to inactivity.").format(user.full_name, evaluation_count)
+            ngettext(
+                "{} participation of {} would be removed due to inactivity.",
+                "{} participations of {} would be removed due to inactivity.",
+                evaluation_count,
+            ).format(evaluation_count, user.full_name)
         ]
     user.evaluations_participating_in.clear()
     return [_("Removed {} from {} participation(s) due to inactivity.").format(user.full_name, evaluation_count)]
