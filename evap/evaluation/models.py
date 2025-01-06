@@ -1688,7 +1688,9 @@ class Infotext(models.Model):
         return not (self.title or self.content)
 
 
-class UserProfileManager(BaseUserManager):
+class UserProfileManager(models.Manager["UserProfile"]):
+    normalize_email = BaseUserManager.normalize_email
+
     def create_user(self, *, email, password=None, first_name_given=None, last_name=None):
         user = self.model(email=self.normalize_email(email), first_name_given=first_name_given, last_name=last_name)
         validate_password(password, user=user)
