@@ -223,9 +223,8 @@ def evaluation_detail(request, semester_id, evaluation_id):
         if user in evaluation.course.responsibles.all():
             general_textanswers = True
         if evaluation.is_user_contributor(user):
-            if Contribution.objects.filter(
+            if evaluation.contributions.filter(
                 contributor=user,
-                evaluation=evaluation,
                 textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
             ).exists():
                 general_textanswers = True
