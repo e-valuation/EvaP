@@ -401,7 +401,13 @@ def remove_inactive_participations(user: UserProfile, test_run=False) -> list[St
             ).format(evaluation_count, user.full_name)
         ]
     user.evaluations_participating_in.clear()
-    return [_("Removed {} from {} participation(s) due to inactivity.").format(user.full_name, evaluation_count)]
+    return [
+        ngettext(
+            "{} participation of {} was removed due to inactivity.",
+            "{} participations of {} were removed due to inactivity.",
+            evaluation_count,
+        ).format(evaluation_count, user.full_name)
+    ]
 
 
 def user_edit_link(user_id):
