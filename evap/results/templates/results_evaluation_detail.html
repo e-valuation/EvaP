@@ -36,15 +36,22 @@
                     <div class="row">
                         <div class="col-auto">
                             <div class="btn-switch btn-switch-light my-auto d-print-none">
-                                <div class="btn-switch-label">{% translate 'General results' %}</div>
+                                <div 
+                                    class="btn-switch-label"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="bottom"
+                                    data-bs-html="true"
+                                    title="{% translate 'Show answers for general questions.' %} 
+                                        <ul>
+                                            <li>{% translate 'Full: All results of general questions (including text answers)' %} </li>
+                                            <li>{% translate 'Ratings: Only rating results of general questions (without text answers)' %} </li>
+                                        </ul>"
+                                >{% translate 'General results' %}</div>
                                 <div class="btn-switch btn-group">
                                     <a
                                         href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results=full&view_contributor_results={{ view_contributor_results.value }}"
                                         role="button"
                                         class="btn btn-sm btn-light {% if not general_textanswers %} disabled {% elif view_general_results == ViewGeneralResults.FULL %} active {% endif %}"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="bottom"
-                                        title="{% blocktranslate %}All results of general questions (including text answers){% endblocktranslate %}"
                                     >
                                         {% translate 'Full' %}
                                     </a>
@@ -52,9 +59,6 @@
                                         href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results=ratings&view_contributor_results={{ view_contributor_results.value }}"
                                         role="button"
                                         class="btn btn-sm btn-light {% if not general_textanswers %} disabled {% endif %} {% if view_general_results == ViewGeneralResults.RATINGS or not general_textanswers %} active{% endif %}"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="bottom"
-                                        title="{% translate 'Only rating results of general questions (without text answers)' %}"
                                     >
                                         {% translate 'Ratings' %}
                                     </a>
@@ -66,15 +70,23 @@
                 <div class="row mt-1">
                     <div class="col-auto">
                         <div class="btn-switch btn-switch-light my-auto d-print-none">
-                            <div class="btn-switch-label">{% translate 'Contributor results' %}</div>
+                            <div 
+                                class="btn-switch-label"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="bottom"
+                                data-bs-html="true"
+                                title="{% translate 'Show answers for contributor questions.' %} 
+                                    <ul>
+                                        <li>{% translate 'Full: All results of contributor questions available for you (including text answers)' %} </li>
+                                        <li>{% translate 'Ratings: Only rating results of contributor questions (without text answers)' %} </li>
+                                        <li>{% translate 'Personal: All results of contributor questions regarding yourself, hiding other contributors' %} </li>
+                                    </ul>"
+                            >{% translate 'Contributor results' %}</div>
                             <div class="btn-switch btn-group">
                                 <a
                                     href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results={{ view_general_results.value }}&view_contributor_results=full"
                                     role="button"
                                     class="btn btn-sm btn-light {% if not contributor_textanswers %} disabled {% elif view_contributor_results == ViewContributorResults.FULL %} active {% endif %}"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="bottom"
-                                    title="{% blocktranslate %}All results of contributor questions available for you (including text answers){% endblocktranslate %}"
                                 >
                                     {% translate 'Full' %}
                                 </a>
@@ -82,9 +94,6 @@
                                     href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results={{ view_general_results.value }}&view_contributor_results=ratings"
                                     role="button"
                                     class="btn btn-sm btn-light  {% if not contributor_textanswers %} disabled {% endif %} {% if view_contributor_results == ViewContributorResults.RATINGS or not contributor_textanswers %} active{% endif %}"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="bottom"
-                                    title="{% translate 'Only rating results of contributor questions (without text answers)' %}"
                                 >
                                     {% translate 'Ratings' %}
                                 </a>
@@ -92,9 +101,6 @@
                                     href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results={{ view_general_results.value }}&view_contributor_results=personal"
                                     role="button"
                                     class="btn btn-sm btn-light {% if not contributor_personal or not contributor_textanswers %} disabled {% elif view_contributor_results  == ViewContributorResults.PERSONAL %} active {% endif %}"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="bottom"
-                                    title="{% translate 'All results of contributor questions regarding yourself, hiding other contributors' %}"
                                 >
                                     {% translate 'Personal' %}
                                 </a>
