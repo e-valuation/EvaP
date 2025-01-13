@@ -3,6 +3,12 @@
 from django.db import migrations, models
 
 
+def _migrate(apps, schema_editor):
+    Evaluation = apps.get_model("evaluation", "Evaluation")
+    for evaluation in Evaluation.objects.filter(state__gte=40):
+        evaluation.main_language = "de"
+        evaluation.save()
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -14,11 +20,11 @@ class Migration(migrations.Migration):
             model_name="evaluation",
             name="main_language",
             field=models.CharField(
-                blank=True,
-                choices=[("en", "English"), ("de", "Deutsch"), ("", "undecided")],
+                choices=[("en", "English"), ("de", "Deutsch"), ("x", "undecided")],
                 default="x",
                 max_length=2,
                 verbose_name="main language",
             ),
         ),
+        migrations.RunPython(_migrate),
     ]
