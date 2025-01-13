@@ -429,7 +429,6 @@ class Evaluation(LoggedModel):
     main_language = models.CharField(
         max_length=2,
         verbose_name=_("main language"),
-        blank=True,
         default="x",
         choices=settings.LANGUAGES + [("x", _("undecided"))],
     )
