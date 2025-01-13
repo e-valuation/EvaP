@@ -263,16 +263,7 @@ class Questionnaire(models.Model):
         return self.type == self.Type.DROPOUT
 
     @property
-    def can_be_edited_by_manager(
-        self,
-    ):
-        if self.is_dropout_questionnaire:
-            assert set(Answer.__subclasses__()) == {TextAnswer, RatingAnswerCounter}
-            return (
-                not TextAnswer.objects.filter(question__questionnaire=self).exists()
-                and not RatingAnswerCounter.objects.filter(question__questionnaire=self).exists()
-            )
-
+    def can_be_edited_by_manager(self):
         if is_prefetched(self, "contributions"):
             if all(is_prefetched(contribution, "evaluation") for contribution in self.contributions.all()):
                 return all(
@@ -283,9 +274,9 @@ class Questionnaire(models.Model):
 
     @property
     def can_be_deleted_by_manager(self):
-        if self.is_dropout_questionnaire:
-            return self.can_be_edited_by_manager
-
+        if self.is_active_dropout_questionnaire:
+            # TODO@Felix: refresh delete button UI after setting different active questionnaire
+            return False
         return not self.contributions.exists()
 
     @property
@@ -508,7 +499,9 @@ class Evaluation(LoggedModel):
     # Disable to prevent editors from changing evaluation data
     allow_editors_to_edit = models.BooleanField(verbose_name=_("allow editors to edit"), default=True)
 
-    allow_drop_out = models.BooleanField(verbose_name=_("allow students to drop out"), default=True)
+    # TODO@Felix: [TEST] remove dropout questionnaire from evaluation on 'allow_drop_out = false'
+    # TODO@Felix: two migrations that first add the field and set the default to false, then update it to true
+    allow_drop_out = models.BooleanField(verbose_name=_("allow students to drop out"), default=False)
 
     evaluation_evaluated = Signal()
 
@@ -584,6 +577,15 @@ class Evaluation(LoggedModel):
         # make sure there is a general contribution
         if not self.general_contribution:
             self.contributions.create(contributor=None)
+            del self.general_contribution  # invalidate cached property
+
+        if self.allow_drop_out and self.is_in_evaluation_period and not self.dropout_questionnaire:
+            self.general_contribution.questionnaires.add(Questionnaire.objects.active_dropout_questionnaire().first())
+            # TODO@Felix: check if del ... is needed (here and below)
+            del self.general_contribution  # invalidate cached property
+
+        if not self.allow_drop_out and (dropout_questionnaire := self.dropout_questionnaire):
+            self.general_contribution.questionnaires.remove(dropout_questionnaire)
             del self.general_contribution  # invalidate cached property
 
         if hasattr(self, "state_change_source"):
@@ -833,7 +835,9 @@ class Evaluation(LoggedModel):
         conditions=[lambda self: self.is_in_evaluation_period],
     )
     def begin_evaluation(self):
-        pass
+        # TODO@Felix: talk with janno about this (maybe always when setting to true?)
+        if self.allow_drop_out and not self.dropout_questionnaire:
+            self.general_contribution.questionnaires.add(Questionnaire.objects.active_dropout_questionnaire().first())
 
     @transition(
         field=state,
@@ -1029,6 +1033,11 @@ class Evaluation(LoggedModel):
             or self.course.gets_no_grade_documents
             or self.course.final_grade_documents.exists()
         )
+
+    @property
+    def dropout_questionnaire(self) -> Questionnaire | None:
+        # TODO@Felix: maybe dont use cached general contribution? maybe do...
+        return self.general_contribution.questionnaires.filter(type=Questionnaire.Type.DROPOUT).first()
 
     @classmethod
     def update_evaluations(cls):

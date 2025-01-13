@@ -1,4 +1,5 @@
 import datetime
+import logging
 import math
 from collections import OrderedDict
 from dataclasses import dataclass
@@ -224,18 +225,6 @@ def get_vote_page_form_groups(
             for questionnaire in questionnaires
         ]
 
-    if dropout:
-        dropout_questionnaire = Questionnaire.objects.active_dropout_questionnaire().first()
-        if dropout_questionnaire:
-            form_groups[evaluation.general_contribution].insert(
-                0,
-                QuestionnaireVotingForm(
-                    request.POST or None,
-                    contribution=evaluation.general_contribution,
-                    questionnaire=dropout_questionnaire,
-                ),
-            )
-
     return form_groups
 
 
@@ -263,10 +252,15 @@ def render_vote_page(
         for contribution, form_group in form_groups.items()
     ]
     evaluation_form_group_top = [
-        questions_form
-        for questions_form in evaluation_form_group
-        if questions_form.questionnaire.is_above_contributors or questions_form.questionnaire.is_dropout_questionnaire
+        questions_form for questions_form in evaluation_form_group if questions_form.questionnaire.is_above_contributors
     ]
+
+    if show_dropout_questionnaire:
+        if dropout_form := next(f for f in evaluation_form_group if f.questionnaire.is_dropout_questionnaire):
+            evaluation_form_group_top.insert(0, dropout_form)
+        else:
+            logging.error("Trying to render dropout form with no dropout questionnaire set")
+
     evaluation_form_group_bottom = [
         questions_form for questions_form in evaluation_form_group if questions_form.questionnaire.is_below_contributors
     ]
@@ -310,7 +304,7 @@ def vote(request: HttpRequest, evaluation_id: int, dropout=False):  # noqa: PLR0
     if not evaluation.can_be_voted_for_by(request.user):
         raise PermissionDenied
 
-    form_groups = get_vote_page_form_groups(request, evaluation, preview=False, dropout=dropout)
+    form_groups = get_vote_page_form_groups(request, evaluation, preview=False)
     if not all(form.is_valid() for form_group in form_groups.values() for form in form_group):
         return render_vote_page(request, evaluation, preview=False, show_dropout_questionnaire=dropout)
 

@@ -712,16 +712,35 @@
   "pk": 112,
   "fields": {
     "type": 40,
-    "name_de": "Dropout Fragebogen",
-    "name_en": "Dropout Questionnaire",
+    "name_de": "Dropout 1",
+    "name_en": "Dropout 1",
     "description_de": "",
     "description_en": "",
-    "public_name_de": "Dropout Fragebogen",
-    "public_name_en": "Dropout Questionnaire",
+    "public_name_de": "Dropout 1",
+    "public_name_en": "Dropout 1",
     "teaser_de": "",
     "teaser_en": "",
     "order": 0,
     "is_active_dropout_questionnaire": true,
+    "visibility": 1,
+    "is_locked": false
+  }
+},
+{
+  "model": "evaluation.questionnaire",
+  "pk": 113,
+  "fields": {
+    "type": 40,
+    "name_de": "Dropout 2",
+    "name_en": "Dropout 2",
+    "description_de": "",
+    "description_en": "",
+    "public_name_de": "Dropout 2",
+    "public_name_en": "Dropout 2",
+    "teaser_de": "",
+    "teaser_en": "",
+    "order": 0,
+    "is_active_dropout_questionnaire": null,
     "visibility": 1,
     "is_locked": false
   }
@@ -3273,7 +3292,7 @@
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-06-02",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       143,
@@ -3312,7 +3331,7 @@
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-02-12",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       270,
@@ -3353,7 +3372,7 @@
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-02-08",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       270,
@@ -3388,7 +3407,7 @@
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-03-01",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       310,
@@ -3434,7 +3453,7 @@
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-02-12",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       310,
@@ -3489,7 +3508,7 @@
     "vote_start_datetime": "2022-03-01T00:00:00",
     "vote_end_date": "2022-03-18",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       235,
@@ -3532,7 +3551,7 @@
     "vote_start_datetime": "2022-02-28T00:00:00",
     "vote_end_date": "2022-03-07",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       250,
@@ -3574,7 +3593,7 @@
     "vote_start_datetime": "2022-03-12T00:00:00",
     "vote_end_date": "2022-03-31",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       254,
@@ -3605,7 +3624,7 @@
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-02-12",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       250,
@@ -3703,7 +3722,7 @@
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-02-12",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       235,
@@ -3745,7 +3764,7 @@
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-02-12",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       293,
@@ -3800,7 +3819,7 @@
     "vote_start_datetime": "2024-05-01T00:00:00",
     "vote_end_date": "2024-05-31",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       21,
@@ -3848,7 +3867,7 @@
     "vote_start_datetime": "2024-05-01T00:00:00",
     "vote_end_date": "2024-05-31",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       447,
@@ -3892,7 +3911,7 @@
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-02-12",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       247,
@@ -3933,7 +3952,7 @@
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-02-12",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       378,
@@ -4056,7 +4075,7 @@
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-02-09",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       337,
@@ -4197,7 +4216,7 @@
     "vote_start_datetime": "2022-04-12T00:00:00",
     "vote_end_date": "2022-04-26",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       355,
@@ -4274,7 +4293,7 @@
     "vote_start_datetime": "2022-03-27T00:00:00",
     "vote_end_date": "2022-04-04",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       416,
@@ -4313,7 +4332,7 @@
     "vote_start_datetime": "2022-01-30T00:00:00",
     "vote_end_date": "2022-02-08",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       339,
@@ -4460,7 +4479,7 @@
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-02-12",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       339,
@@ -4615,7 +4634,7 @@
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-02-12",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       488,
@@ -4668,7 +4687,7 @@
     "vote_start_datetime": "2022-01-22T00:00:00",
     "vote_end_date": "2022-01-23",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       55,
@@ -4705,7 +4724,7 @@
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-02-12",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       337,
@@ -4850,7 +4869,7 @@
     "vote_start_datetime": "2022-07-09T00:00:00",
     "vote_end_date": "2022-07-29",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       337,
@@ -4978,7 +4997,7 @@
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       337,
@@ -5119,7 +5138,7 @@
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       378,
@@ -5286,7 +5305,7 @@
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-11",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       339,
@@ -5423,7 +5442,7 @@
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       438,
@@ -5486,7 +5505,7 @@
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       378,
@@ -5533,7 +5552,7 @@
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       372,
@@ -5574,7 +5593,7 @@
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       293,
@@ -5632,7 +5651,7 @@
     "vote_start_datetime": "2022-07-05T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       355,
@@ -5700,7 +5719,7 @@
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       246,
@@ -5749,7 +5768,7 @@
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-12",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       222,
@@ -5804,7 +5823,7 @@
     "vote_start_datetime": "2022-07-05T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       250,
@@ -5869,7 +5888,7 @@
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       640,
@@ -5906,7 +5925,7 @@
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       240,
@@ -5951,7 +5970,7 @@
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       270,
@@ -6008,7 +6027,7 @@
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       461,
@@ -6049,7 +6068,7 @@
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       74,
@@ -6078,7 +6097,7 @@
     "vote_start_datetime": "2022-07-06T00:00:00",
     "vote_end_date": "2022-07-19",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       245,
@@ -6117,7 +6136,7 @@
     "vote_start_datetime": "2022-07-06T00:00:00",
     "vote_end_date": "2022-07-19",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       512,
@@ -6150,7 +6169,7 @@
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       237,
@@ -6188,7 +6207,7 @@
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       472,
@@ -6224,7 +6243,7 @@
     "vote_start_datetime": "2022-08-17T00:00:00",
     "vote_end_date": "2022-08-24",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       293,
@@ -6270,7 +6289,7 @@
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       337,
@@ -6392,7 +6411,7 @@
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       500,
@@ -6422,7 +6441,7 @@
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       461,
@@ -6470,7 +6489,7 @@
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       519,
@@ -6504,7 +6523,7 @@
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       459,
@@ -6616,7 +6635,7 @@
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       477,
@@ -6652,7 +6671,7 @@
     "vote_start_datetime": "2023-04-01T00:00:00",
     "vote_end_date": "2023-04-14",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       337,
@@ -6716,7 +6735,7 @@
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-17",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       560,
@@ -6771,7 +6790,7 @@
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       541,
@@ -6817,7 +6836,7 @@
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-14",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       667,
@@ -6951,7 +6970,7 @@
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       667,
@@ -7098,7 +7117,7 @@
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       393,
@@ -7151,7 +7170,7 @@
     "vote_start_datetime": "2023-10-28T19:16:36.113",
     "vote_end_date": "2099-09-18",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       293,
@@ -7185,7 +7204,7 @@
     "vote_start_datetime": "2024-08-01T00:00:00",
     "vote_end_date": "2024-08-31",
     "allow_editors_to_edit": false,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       31,
@@ -7219,7 +7238,7 @@
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       225,
@@ -7256,7 +7275,7 @@
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       233,
@@ -7300,7 +7319,7 @@
     "vote_start_datetime": "2024-05-01T00:00:00",
     "vote_end_date": "2024-05-31",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       270,
@@ -7333,7 +7352,7 @@
     "vote_start_datetime": "2023-02-04T00:00:00",
     "vote_end_date": "2023-02-17",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       223,
@@ -7376,7 +7395,7 @@
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       627,
@@ -7406,7 +7425,7 @@
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       316,
@@ -7438,7 +7457,7 @@
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       233,
@@ -7500,7 +7519,7 @@
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-28",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       310,
@@ -7541,7 +7560,7 @@
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       293,
@@ -7603,7 +7622,7 @@
     "vote_start_datetime": "2023-01-26T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       443,
@@ -7710,7 +7729,7 @@
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-03-20",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       517,
@@ -7758,7 +7777,7 @@
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       443,
@@ -7840,7 +7859,7 @@
     "vote_start_datetime": "2099-12-01T00:00:00",
     "vote_end_date": "2099-12-31",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       639,
@@ -7871,7 +7890,7 @@
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       270,
@@ -7936,7 +7955,7 @@
     "vote_start_datetime": "2023-02-25T00:00:00",
     "vote_end_date": "2023-03-03",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       293,
@@ -8009,7 +8028,7 @@
     "vote_start_datetime": "2023-06-28T00:00:00",
     "vote_end_date": "2023-07-04",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       455,
@@ -8065,7 +8084,7 @@
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-09-22",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       337,
@@ -8103,7 +8122,7 @@
     "vote_start_datetime": "2099-08-01T00:00:00",
     "vote_end_date": "2099-08-31",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       494,
@@ -8141,7 +8160,7 @@
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-21",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       732,
@@ -8288,7 +8307,7 @@
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-09-30",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       426,
@@ -8322,7 +8341,7 @@
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-21",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       426,
@@ -8373,7 +8392,7 @@
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       337,
@@ -8418,7 +8437,7 @@
     "vote_start_datetime": "2023-09-01T00:00:00",
     "vote_end_date": "2023-09-15",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       536,
@@ -8449,7 +8468,7 @@
     "vote_start_datetime": "2023-08-12T00:00:00",
     "vote_end_date": "2023-08-23",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       443,
@@ -8513,7 +8532,7 @@
     "vote_start_datetime": "2023-06-24T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       355,
@@ -8549,7 +8568,7 @@
     "vote_start_datetime": "2024-05-01T00:00:00",
     "vote_end_date": "2024-05-31",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       637,
@@ -8579,7 +8598,7 @@
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-18",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       667,
@@ -8739,7 +8758,7 @@
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       443,
@@ -8787,7 +8806,7 @@
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       667,
@@ -8925,7 +8944,7 @@
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       694,
@@ -8990,7 +9009,7 @@
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       459,
@@ -9030,7 +9049,7 @@
     "vote_start_datetime": "2024-05-01T00:00:00",
     "vote_end_date": "2024-05-31",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       293,
@@ -9092,7 +9111,7 @@
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       365,
@@ -9134,7 +9153,7 @@
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       743,
@@ -9172,7 +9191,7 @@
     "vote_start_datetime": "2023-06-24T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       344,
@@ -9204,7 +9223,7 @@
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       338,
@@ -9234,7 +9253,7 @@
     "vote_start_datetime": "2023-07-12T00:00:00",
     "vote_end_date": "2023-07-29",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       625,
@@ -9272,7 +9291,7 @@
     "vote_start_datetime": "2023-06-24T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       496,
@@ -9311,7 +9330,7 @@
     "vote_start_datetime": "2023-06-24T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       467,
@@ -9346,7 +9365,7 @@
     "vote_start_datetime": "2024-05-01T00:00:00",
     "vote_end_date": "2024-05-31",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       446,
@@ -9386,7 +9405,7 @@
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       658
@@ -9413,7 +9432,7 @@
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       459,
@@ -9449,7 +9468,7 @@
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       755,
@@ -9498,7 +9517,7 @@
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       473,
@@ -9526,7 +9545,7 @@
     "vote_start_datetime": "2099-12-01T00:00:00",
     "vote_end_date": "2099-12-31",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       354,
@@ -9554,7 +9573,7 @@
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       293,
@@ -9594,7 +9613,7 @@
     "vote_start_datetime": "2024-03-31T00:00:00",
     "vote_end_date": "2024-04-06",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       446,
@@ -9626,7 +9645,7 @@
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       863,
@@ -9658,7 +9677,7 @@
     "vote_start_datetime": "2024-03-31T00:00:00",
     "vote_end_date": "2024-04-06",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       338,
@@ -9691,7 +9710,7 @@
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2099-05-08",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       452,
@@ -9720,7 +9739,7 @@
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       459,
@@ -9764,7 +9783,7 @@
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       443,
@@ -9800,7 +9819,7 @@
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       354,
@@ -9830,7 +9849,7 @@
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       378,
@@ -9866,7 +9885,7 @@
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-16",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       378,
@@ -9904,7 +9923,7 @@
     "vote_start_datetime": "2024-03-31T00:00:00",
     "vote_end_date": "2024-04-06",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       640,
@@ -9935,7 +9954,7 @@
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       732,
@@ -10017,7 +10036,7 @@
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       455,
@@ -10047,7 +10066,7 @@
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       372,
@@ -10079,7 +10098,7 @@
     "vote_start_datetime": "2024-03-31T00:00:00",
     "vote_end_date": "2024-04-06",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       426,
@@ -10115,7 +10134,7 @@
     "vote_start_datetime": "2024-02-11T00:00:00",
     "vote_end_date": "2024-02-16",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       381,
@@ -10153,7 +10172,7 @@
     "vote_start_datetime": "2024-01-28T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       678,
@@ -10211,7 +10230,7 @@
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       378,
@@ -10269,7 +10288,7 @@
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       414,
@@ -10301,7 +10320,7 @@
     "vote_start_datetime": "2024-06-01T00:00:00",
     "vote_end_date": "2099-12-31",
     "allow_editors_to_edit": false,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       459,
@@ -10340,7 +10359,7 @@
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-05",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       846,
@@ -10502,7 +10521,7 @@
     "vote_start_datetime": "2024-01-01T00:00:00",
     "vote_end_date": "2099-12-31",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       528,
@@ -10536,7 +10555,7 @@
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       503,
@@ -10567,7 +10586,7 @@
     "vote_start_datetime": "2024-03-07T00:00:00",
     "vote_end_date": "2024-03-16",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       378,
@@ -10623,7 +10642,7 @@
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-07",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       667,
@@ -10759,7 +10778,7 @@
     "vote_start_datetime": "2024-08-01T00:00:00",
     "vote_end_date": "2024-08-31",
     "allow_editors_to_edit": false,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       406,
@@ -10792,7 +10811,7 @@
     "vote_start_datetime": "2024-06-01T00:00:00",
     "vote_end_date": "2099-12-31",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       640,
@@ -10824,7 +10843,7 @@
     "vote_start_datetime": "2024-02-04T00:00:00",
     "vote_end_date": "2024-02-16",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       443,
@@ -10916,7 +10935,7 @@
     "vote_start_datetime": "2024-02-05T00:00:00",
     "vote_end_date": "2024-02-12",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       519,
@@ -10969,7 +10988,7 @@
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       732,
@@ -11104,7 +11123,7 @@
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       739,
@@ -11148,7 +11167,7 @@
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": false,
     "participants": [
       519,
@@ -11219,7 +11238,7 @@
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       846,
@@ -11366,7 +11385,7 @@
     "vote_start_datetime": "2024-04-06T00:00:00",
     "vote_end_date": "2024-04-13",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       732,
@@ -11450,7 +11469,7 @@
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-14",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       846,
@@ -11599,7 +11618,7 @@
     "vote_start_datetime": "2024-08-01T00:00:00",
     "vote_end_date": "2024-08-31",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       729,
@@ -11632,7 +11651,7 @@
     "vote_start_datetime": "2023-11-01T00:00:00",
     "vote_end_date": "2023-11-01",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": false,
     "participants": [],
     "voters": []
@@ -11657,7 +11676,7 @@
     "vote_start_datetime": "2023-10-01T00:00:00",
     "vote_end_date": "2023-10-01",
     "allow_editors_to_edit": false,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": false,
     "participants": [],
     "voters": []
@@ -11682,7 +11701,7 @@
     "vote_start_datetime": "2024-06-20T00:00:00",
     "vote_end_date": "2024-06-20",
     "allow_editors_to_edit": true,
-    "allow_drop_out": true,
+    "allow_drop_out": false,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [],
     "voters": []
@@ -18346,7 +18365,7 @@
     "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": "",
-    "order": 1,
+    "order": 0,
     "questionnaires": [
       89,
       92
@@ -22158,8 +22177,8 @@
   "fields": {
     "order": 0,
     "questionnaire": 112,
-    "text_de": "Wieso hast du den Kurs abgwählt?",
-    "text_en": "Why did you drop this course",
+    "text_de": "Wieso hast du die Veranstaltung fallengelassen?",
+    "text_en": "Why did you drop this course?",
     "allows_additional_textanswers": false,
     "type": 0
   }
@@ -22169,11 +22188,11 @@
   "pk": 480,
   "fields": {
     "order": 1,
-    "questionnaire": 112,
-    "text_de": "Wirst du den Kurs nochmal belegen?",
+    "questionnaire": 113,
+    "text_de": "Machst du die Veranstaltung nochmal?",
     "text_en": "Will you take this course again?",
     "allows_additional_textanswers": true,
-    "type": 3
+    "type": 1
   }
 },
 {
@@ -140812,8 +140831,8 @@
   "pk": 452,
   "fields": {
     "is_superuser": true,
-    "password": "pbkdf2_sha256$870000$UVyd3hpi8Ph3uyUX68gzPf$qWwnDtbMdQuToW91N+ElW2HQ2dWUVlMvhdUcm9wGcaI=",
-    "last_login": "2024-12-16T18:16:52.245",
+    "password": "pbkdf2_sha256$870000$rLUYMmShHKeG2orsoj3IkS$7qGue4uBbJW2IcpwAVjJedwbuYOSFXUWpJDU8pTwJRY=",
+    "last_login": "2025-01-13T20:37:47.121",
     "email": "evap@institution.example.com",
     "title": "",
     "first_name_given": "",

@@ -461,9 +461,12 @@ class EvaluationForm(forms.ModelForm):
     def save(self, *args, **kw):
         evaluation = super().save(*args, **kw)
         selected_questionnaires = self.cleaned_data.get("general_questionnaires")
+        if dropout_questionnaire := evaluation.dropout_questionnaire:
+            selected_questionnaires = {dropout_questionnaire,  *selected_questionnaires}
         removed_questionnaires = set(self.instance.general_contribution.questionnaires.all()) - set(
             selected_questionnaires
         )
+        # todo@Felix: warn when removing dropout questionnaire?
         evaluation.general_contribution.remove_answers_to_questionnaires(removed_questionnaires)
         evaluation.general_contribution.questionnaires.set(selected_questionnaires)
         if hasattr(self.instance, "old_course"):
