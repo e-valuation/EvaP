@@ -122,11 +122,6 @@ jobs:
       - name: Install wheel
         run: pip install main/dist/*.whl
 
-      - name: GitHub actions has wrong file ownership here, the checkout actions has a problem here (see their 1049)
-        run: |
-          git config --global --add safe.directory '*'
-          sudo -H -u root git config --global --add safe.directory '*'
-
       - name: Load test data
         run: |
           ln -s ../main/data/
