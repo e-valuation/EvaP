@@ -20,7 +20,7 @@ from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
-from django.db.models import CheckConstraint, Count, Exists, F, Manager, OuterRef, Q, Subquery, Value
+from django.db.models import CheckConstraint, Count, Exists, F, Manager, OuterRef, Q, Subquery, Value, QuerySet
 from django.db.models.functions import Coalesce, Lower, NullIf, TruncDate
 from django.dispatch import Signal, receiver
 from django.http import HttpRequest
@@ -157,17 +157,17 @@ class Semester(models.Model):
         return Evaluation.objects.filter(course__semester=self)
 
 
-class QuestionnaireManager(Manager):
-    def general_questionnaires(self):
+class QuestionnaireManager(Manager["Questionnaire"]):
+    def general_questionnaires(self) -> QuerySet["Questionnaire"]:
         return super().get_queryset().exclude(type=Questionnaire.Type.CONTRIBUTOR)
 
-    def contributor_questionnaires(self):
+    def contributor_questionnaires(self) -> QuerySet["Questionnaire"]:
         return super().get_queryset().filter(type=Questionnaire.Type.CONTRIBUTOR)
 
-    def dropout_questionnaires(self):
+    def dropout_questionnaires(self) -> QuerySet["Questionnaire"]:
         return super().get_queryset().filter(type=Questionnaire.Type.DROPOUT)
 
-    def active_dropout_questionnaire(self):
+    def active_dropout_questionnaire(self) -> QuerySet["Questionnaire"]:
         return super().get_queryset().filter(type=Questionnaire.Type.DROPOUT, is_active_dropout_questionnaire=True)
 
 
