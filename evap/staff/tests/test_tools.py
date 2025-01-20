@@ -3,7 +3,6 @@ from io import BytesIO
 from itertools import cycle, repeat
 from unittest.mock import MagicMock, patch
 
-from django.conf import settings
 from django.contrib.auth.models import Group
 from django.test import override_settings
 from django.utils.html import escape
@@ -275,7 +274,7 @@ class RemoveParticipationDueToInactivityTest(TestCase):
         self.assertTrue(self.user.evaluations_participating_in.exists())
 
         messages = remove_inactive_participations(self.user, test_run=True)
-        pre_count = self.user.evaluations_participating_in.count();
+        pre_count = self.user.evaluations_participating_in.count()
 
         self.assertTrue(self.user.evaluations_participating_in.exists())
         self.assertTrue(self.user.can_be_marked_inactive_by_manager)
@@ -283,7 +282,7 @@ class RemoveParticipationDueToInactivityTest(TestCase):
             messages, [f"1 participation of {self.user.full_name} would be removed due to inactivity."]
         )
 
-        post_count = self.user.evaluations_participating_in.count();
+        post_count = self.user.evaluations_participating_in.count()
         self.assertEqual(pre_count, post_count)
 
 
