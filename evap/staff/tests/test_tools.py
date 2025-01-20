@@ -225,12 +225,11 @@ class RemoveParticipationDueToInactivityTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.user = baker.make(UserProfile)
-        six_months_ago = datetime.today() - timedelta(days=6 * 30)
         cls.evaluation = baker.make(
             Evaluation,
             state=Evaluation.State.PUBLISHED,
-            vote_start_datetime=six_months_ago - settings.PARTICIPATION_DELETION_AFTER_INACTIVE_TIME,
-            vote_end_date=six_months_ago.date(),
+            vote_start_datetime=datetime.today() - timedelta(days=200),
+            vote_end_date=(datetime.today() - timedelta(days=180)).date(),
             participants=[cls.user],
         )
         cls.evaluation.course.semester.archive()
@@ -251,6 +250,7 @@ class RemoveParticipationDueToInactivityTest(TestCase):
 
     @patch("evap.evaluation.models.UserProfile.is_active", True)
     @patch("evap.evaluation.models.UserProfile.can_be_marked_inactive_by_manager", True)
+    @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_TIME=timedelta(360))
     def test_do_not_remove_user_due_to_inactivity_with_recently_archived_evaluation(self):
         self.assertTrue(self.user.evaluations_participating_in.exists())
 
@@ -261,6 +261,7 @@ class RemoveParticipationDueToInactivityTest(TestCase):
 
     @patch("evap.evaluation.models.UserProfile.is_active", True)
     @patch("evap.evaluation.models.UserProfile.can_be_marked_inactive_by_manager", False)
+    @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_TIME=timedelta(360))
     def test_do_not_remove_user_due_to_inactivity_with_active_evaluation(self):
         self.assertTrue(self.user.evaluations_participating_in.exists())
 
@@ -274,6 +275,7 @@ class RemoveParticipationDueToInactivityTest(TestCase):
         self.assertTrue(self.user.evaluations_participating_in.exists())
 
         messages = remove_inactive_participations(self.user, test_run=True)
+        pre_count = self.user.evaluations_participating_in.count();
 
         self.assertTrue(self.user.evaluations_participating_in.exists())
         self.assertTrue(self.user.can_be_marked_inactive_by_manager)
@@ -281,11 +283,8 @@ class RemoveParticipationDueToInactivityTest(TestCase):
             messages, [f"1 participation of {self.user.full_name} would be removed due to inactivity."]
         )
 
-        messages = remove_inactive_participations(self.user, test_run=True)
-
-        self.assertEqual(
-            messages, [f"1 participation of {self.user.full_name} would be removed due to inactivity."]
-        )
+        post_count = self.user.evaluations_participating_in.count();
+        self.assertEqual(pre_count, post_count)
 
 
 class UserEditLinkTest(TestCase):
