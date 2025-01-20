@@ -213,6 +213,7 @@ def get_vote_page_form_groups(
                 request.POST or None,
                 contribution=contribution,
                 questionnaire=questionnaire,
+                # TODO@Felix: make this more readable (this initialises all answers to NO_ANSWER if dropout=True)
                 initial=(
                     {
                         answer_field_id(contribution, questionnaire, question): NO_ANSWER
