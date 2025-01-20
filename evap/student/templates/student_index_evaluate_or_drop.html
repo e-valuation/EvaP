@@ -1,7 +1,7 @@
 <a class="btn btn-sm btn-primary btn-row-hover" href="{% url 'student:vote' evaluation.id %}">
     {% translate 'Evaluate' %}
 </a>
-{% if evaluation.allow_drop_out %}
+{% if evaluation.is_dropout_allowed %}
     <confirmation-modal>
         <span slot="title">{% translate 'Did you drop this course?' %}</span>
         <span slot="question">

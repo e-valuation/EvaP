@@ -20,7 +20,7 @@ from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
-from django.db.models import CheckConstraint, Count, Exists, F, Manager, OuterRef, Q, Subquery, Value, QuerySet
+from django.db.models import CheckConstraint, Count, Exists, F, Manager, OuterRef, Q, QuerySet, Subquery, Value
 from django.db.models.functions import Coalesce, Lower, NullIf, TruncDate
 from django.dispatch import Signal, receiver
 from django.http import HttpRequest
@@ -159,7 +159,9 @@ class Semester(models.Model):
 
 class QuestionnaireManager(Manager["Questionnaire"]):
     def general_questionnaires(self) -> QuerySet["Questionnaire"]:
-        return super().get_queryset().exclude(type=Questionnaire.Type.CONTRIBUTOR)
+        return (
+            super().get_queryset().exclude(type=Questionnaire.Type.CONTRIBUTOR).exclude(type=Questionnaire.Type.DROPOUT)
+        )
 
     def contributor_questionnaires(self) -> QuerySet["Questionnaire"]:
         return super().get_queryset().filter(type=Questionnaire.Type.CONTRIBUTOR)
@@ -180,8 +182,6 @@ class Questionnaire(models.Model):
         BOTTOM = 30, _("Bottom questionnaire")
         DROPOUT = 40, _("Dropout questionnaire")
 
-    # TODO@Felix: switch logic to add the Dropout Questionnaire to general_contribution, if allow_dropout is true
-    # maybe even allow_dropout <=> exists questionnaire in general_contribution with questionnaire.type=Dropout
     # TODO@Felix: (?) allow selecting Dropout-Questionnaire when creating evaluation
 
     type = models.IntegerField(choices=Type.choices, verbose_name=_("type"), default=Type.TOP)
@@ -261,6 +261,10 @@ class Questionnaire(models.Model):
     @property
     def is_dropout_questionnaire(self):
         return self.type == self.Type.DROPOUT
+
+    @property
+    def is_general_questionnaire(self):
+        return self.type in (self.Type.TOP, self.Type.BOTTOM)
 
     @property
     def can_be_edited_by_manager(self):
@@ -499,10 +503,6 @@ class Evaluation(LoggedModel):
     # Disable to prevent editors from changing evaluation data
     allow_editors_to_edit = models.BooleanField(verbose_name=_("allow editors to edit"), default=True)
 
-    # TODO@Felix: [TEST] remove dropout questionnaire from evaluation on 'allow_drop_out = false'
-    # TODO@Felix: two migrations that first add the field and set the default to false, then update it to true
-    allow_drop_out = models.BooleanField(verbose_name=_("allow students to drop out"), default=False)
-
     evaluation_evaluated = Signal()
 
     # whether to wait for grade uploading before publishing results
@@ -577,15 +577,6 @@ class Evaluation(LoggedModel):
         # make sure there is a general contribution
         if not self.general_contribution:
             self.contributions.create(contributor=None)
-            del self.general_contribution  # invalidate cached property
-
-        if self.allow_drop_out and self.is_in_evaluation_period and not self.dropout_questionnaire:
-            self.general_contribution.questionnaires.add(Questionnaire.objects.active_dropout_questionnaire().first())
-            # TODO@Felix: check if del ... is needed (here and below)
-            del self.general_contribution  # invalidate cached property
-
-        if not self.allow_drop_out and (dropout_questionnaire := self.dropout_questionnaire):
-            self.general_contribution.questionnaires.remove(dropout_questionnaire)
             del self.general_contribution  # invalidate cached property
 
         if hasattr(self, "state_change_source"):
@@ -668,6 +659,10 @@ class Evaluation(LoggedModel):
     @property
     def is_in_evaluation_period(self):
         return self.vote_start_datetime <= datetime.now() <= self.vote_end_datetime
+
+    @property
+    def is_dropout_allowed(self):
+        return self.general_contribution.questionnaires.filter(type=Questionnaire.Type.DROPOUT).exists()
 
     @property
     def general_contribution_has_questionnaires(self):
@@ -835,9 +830,7 @@ class Evaluation(LoggedModel):
         conditions=[lambda self: self.is_in_evaluation_period],
     )
     def begin_evaluation(self):
-        # TODO@Felix: talk with janno about this (maybe always when setting to true?)
-        if self.allow_drop_out and not self.dropout_questionnaire:
-            self.general_contribution.questionnaires.add(Questionnaire.objects.active_dropout_questionnaire().first())
+        pass
 
     @transition(
         field=state,
@@ -1033,11 +1026,6 @@ class Evaluation(LoggedModel):
             or self.course.gets_no_grade_documents
             or self.course.final_grade_documents.exists()
         )
-
-    @property
-    def dropout_questionnaire(self) -> Questionnaire | None:
-        # TODO@Felix: maybe dont use cached general contribution? maybe do...
-        return self.general_contribution.questionnaires.filter(type=Questionnaire.Type.DROPOUT).first()
 
     @classmethod
     def update_evaluations(cls):

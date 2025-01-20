@@ -298,7 +298,7 @@ def vote(request: HttpRequest, evaluation_id: int, dropout=False):  # noqa: PLR0
     # pylint: disable=too-many-nested-blocks
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
 
-    if dropout and not evaluation.allow_drop_out:
+    if dropout and not evaluation.is_dropout_allowed:
         raise SuspiciousOperation("Drop out not allowed")
 
     if not evaluation.can_be_voted_for_by(request.user):
