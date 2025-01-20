@@ -132,14 +132,13 @@ def bulk_update_users(request, user_file_content, test_run):  # noqa: PLR0912
             users_to_be_updated.append((matching_user, imported_email))
 
     emails_of_non_obsolete_users = set(imported_emails) | {user.email for user, _ in users_to_be_updated}
-    deletable_users, users_to_mark_inactive, inactive_users = [], [], []
+    deletable_users, users_to_mark_inactive = [], []
     for user in UserProfile.objects.exclude(email__in=emails_of_non_obsolete_users):
         if user.can_be_deleted_by_manager:
             deletable_users.append(user)
         elif user.is_active and user.can_be_marked_inactive_by_manager:
             users_to_mark_inactive.append(user)
-        elif not user.is_active:
-            inactive_users.append(user)
+
 
     messages.info(
         request,
@@ -197,7 +196,7 @@ def bulk_update_users(request, user_file_content, test_run):  # noqa: PLR0912
                 user, deletable_users + users_to_mark_inactive, test_run
             ):
                 messages.warning(request, message)
-        for user in users_to_mark_inactive + inactive_users:
+        for user in users_to_mark_inactive:
             for message in remove_inactive_participations(user, test_run):
                 messages.warning(request, message)
         if test_run:
