@@ -1,3 +1,6 @@
+import shutil
+
+from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from evap.evaluation.management.commands.tools import confirm_harmful_operation, logged_call_command
@@ -26,5 +29,10 @@ class Command(BaseCommand):
         logged_call_command(self.stdout, "clear_cache", "--all", "-v=1")
 
         logged_call_command(self.stdout, "refresh_results_cache")
+
+        upload_dir = settings.MEDIA_ROOT
+        if upload_dir.exists():
+            shutil.rmtree(upload_dir)
+        shutil.copytree(settings.MODULE / "development" / "fixtures" / "upload", upload_dir)
 
         self.stdout.write("Done.")
