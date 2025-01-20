@@ -3916,4 +3916,3 @@ class TestStaffMode(WebTest):
         self.app.get(self.some_staff_url, user=manager, status=200)
         manager.groups.remove(manager_group)
         self.app.get(self.some_staff_url, user=manager, status=403)
-        
