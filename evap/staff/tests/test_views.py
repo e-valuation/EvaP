@@ -3907,3 +3907,12 @@ class TestStaffMode(WebTest):
         student_user = baker.make(UserProfile, email="student@institution.example.com")
         self.app.post(self.url_enter, user=student_user, status=403)
         self.app.post(self.url_exit, user=student_user, status=403)
+
+    def test_remove_staff_permission_while_in_staff_mode(self):
+        manager = make_manager()
+        manager_group = Group.objects.get(name="Manager")
+
+        self.app.post(self.url_enter, user=manager).follow().follow()
+        self.app.get(self.some_staff_url, user=manager, status=200)
+        manager.groups.remove(manager_group)
+        self.app.get(self.some_staff_url, user=manager, status=403)
