@@ -39,6 +39,35 @@ jobs:
       - name: Run tests
         run: python manage.py test --shuffle
 
+  test_frontend:
+    name: Test Frontend
+
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: ./.github/setup_evap
+        with:
+          shell: .#evap-frontend-dev
+          start-db: true
+
+      - name: Compile assets
+        run: |
+          ./manage.py ts compile
+          ./manage.py scss
+          ./manage.py collectstatic --noinput
+
+      - name: Run tests (shuffled)
+        run: coverage run manage.py test --shuffle --tag live-server
+      - name: Upload coverage
+        uses: codecov/codecov-action@v5
+        with:
+          flags: frontend-tests
+          token: ${{ secrets.CODECOV_TOKEN }}
+
   mypy:
     runs-on: ubuntu-22.04
 
@@ -143,62 +172,6 @@ jobs:
         with:
           name: css
           path: evap/static/css/evap.css
-
-  render_pages:
-    runs-on: ubuntu-22.04
-
-    name: Render Html pages
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/setup_evap
-        with:
-          start-db: true
-
-      - name: Render pages
-        run: coverage run manage.py ts render_pages
-      - name: Upload coverage
-        uses: codecov/codecov-action@v5
-        with:
-          flags: render-pages
-          token: ${{ secrets.CODECOV_TOKEN }}
-      - name: Store rendered pages
-        uses: actions/upload-artifact@v4
-        with:
-          name: rendered-pages
-          path: evap/static/ts/rendered
-
-  typescript:
-    runs-on: ubuntu-22.04
-
-    needs: [ compile_scss, render_pages ]
-
-    name: Test Typescript
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-      - uses: ./.github/setup_evap
-        with:
-          npm-ci: true
-
-      - run: npx puppeteer browsers install chrome
-
-      - name: Compile Typescript
-        run: npx tsc --project evap/static/ts/tsconfig.compile.json
-      - name: Load rendered pages
-        uses: actions/download-artifact@v4
-        with:
-          name: rendered-pages
-          path: evap/static/ts/rendered
-      - name: Load Css
-        uses: actions/download-artifact@v4
-        with:
-          name: css
-          path: evap/static/css
-      - name: Run tests
-        run: xvfb-run --auto-servernum npx jest
 
   macos-nix-build:
     runs-on: macos-14
