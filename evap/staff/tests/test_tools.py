@@ -243,7 +243,7 @@ class RemoveParticipationDueToInactivityTest(TestCase):
 
         self.assertFalse(self.user.evaluations_participating_in.exists())
         self.assertTrue(self.user.can_be_marked_inactive_by_manager)
-        self.assertEqual(messages, [f"Removed {self.user.full_name} from 1 participation(s) due to inactivity."])
+        self.assertEqual(messages, [f"1 participation of {self.user.full_name} was removed due to inactivity."])
 
         messages = remove_inactive_participations(self.user)
 
@@ -278,13 +278,13 @@ class RemoveParticipationDueToInactivityTest(TestCase):
         self.assertTrue(self.user.evaluations_participating_in.exists())
         self.assertTrue(self.user.can_be_marked_inactive_by_manager)
         self.assertEqual(
-            messages, [f"{self.user.full_name} will be removed from 1 participation(s) due to inactivity."]
+            messages, [f"1 participation of {self.user.full_name} would be removed due to inactivity."]
         )
 
         messages = remove_inactive_participations(self.user, test_run=True)
 
         self.assertEqual(
-            messages, [f"{self.user.full_name} will be removed from 1 participation(s) due to inactivity."]
+            messages, [f"1 participation of {self.user.full_name} would be removed due to inactivity."]
         )
 
 
