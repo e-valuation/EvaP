@@ -265,11 +265,12 @@ class LiveServerTest(SeleniumTestCase):
     selenium: WebDriver
     headless = True
     window_size = (1920, 3080)
-    serialized_rollback = True
+    serialized_rollback = False
 
     def setUp(self) -> None:
         super().setUp()
         self.request = self.make_request()
+        Group.objects.update_or_create(name="Manager")
         self.manager = make_manager()
         self.selenium.get(self.live_server_url)
         self.login(self.manager)
