@@ -1,4 +1,3 @@
-import os
 import subprocess  # nosec
 
 from django.conf import settings
@@ -24,8 +23,8 @@ class Command(BaseCommand):
         command = [
             "npx",
             "sass",
-            os.path.join(static_directory, "scss", "evap.scss"),
-            os.path.join(static_directory, "css", "evap.css"),
+            static_directory / "scss" / "evap.scss",
+            static_directory / "css" / "evap.css",
         ]
 
         if options["watch"]:
