@@ -21,7 +21,7 @@ from evap.staff.fixtures.excel_files_test_data import (
 from evap.staff.tools import (
     conditional_escape,
     merge_users,
-    remove_inactive_participations,
+    remove_participations_if_inactive,
     remove_user_from_represented_and_ccing_users,
     user_edit_link,
 )
@@ -237,13 +237,13 @@ class RemoveParticipationDueToInactivityTest(TestCase):
     def test_remove_user_due_to_inactivity(self):
         self.assertEqual(list(self.user.evaluations_participating_in.all()), [self.evaluation])
 
-        messages = remove_inactive_participations(self.user)
+        messages = remove_participations_if_inactive(self.user)
 
         self.assertFalse(self.user.evaluations_participating_in.exists())
         self.assertTrue(self.user.can_be_marked_inactive_by_manager)
         self.assertEqual(messages, [f"1 participation of {self.user.full_name} was removed due to inactivity."])
 
-        messages = remove_inactive_participations(self.user)
+        messages = remove_participations_if_inactive(self.user)
 
         self.assertEqual(messages, [])
 
@@ -253,7 +253,7 @@ class RemoveParticipationDueToInactivityTest(TestCase):
     def test_do_not_remove_user_due_to_inactivity_with_recently_archived_evaluation(self):
         self.assertEqual(list(self.user.evaluations_participating_in.all()), [self.evaluation])
 
-        messages = remove_inactive_participations(self.user)
+        messages = remove_participations_if_inactive(self.user)
 
         self.assertEqual(list(self.user.evaluations_participating_in.all()), [self.evaluation])
         self.assertEqual(messages, [])
@@ -264,7 +264,7 @@ class RemoveParticipationDueToInactivityTest(TestCase):
     def test_do_not_remove_user_due_to_inactivity_with_active_evaluation(self):
         self.assertEqual(list(self.user.evaluations_participating_in.all()), [self.evaluation])
 
-        messages = remove_inactive_participations(self.user)
+        messages = remove_participations_if_inactive(self.user)
 
         self.assertEqual(list(self.user.evaluations_participating_in.all()), [self.evaluation])
         self.assertEqual(messages, [])
@@ -273,7 +273,7 @@ class RemoveParticipationDueToInactivityTest(TestCase):
     def test_do_nothing_if_test_run(self):
         self.assertTrue(self.user.evaluations_participating_in.exists())
 
-        messages = remove_inactive_participations(self.user, test_run=True)
+        messages = remove_participations_if_inactive(self.user, test_run=True)
         pre_count = self.user.evaluations_participating_in.count()
 
         self.assertEqual(list(self.user.evaluations_participating_in.all()), [self.evaluation])
