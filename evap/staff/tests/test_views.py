@@ -911,12 +911,13 @@ class TestSemesterAssignView(WebTestStaffMode):
         cls.semester = baker.make(Semester)
         cls.url = f"/staff/semester/{cls.semester.pk}/assign"
 
-        lecture_type = baker.make(CourseType, name_de="Vorlesung", name_en="Lecture")
-        seminar_type = baker.make(CourseType, name_de="Seminar", name_en="Seminar")
-        cls.questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        cls.lecture_type = baker.make(CourseType, name_de="Vorlesung", name_en="Lecture")
+        cls.seminar_type = baker.make(CourseType, name_de="Seminar", name_en="Seminar")
+        cls.questionnaire_general = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        cls.questionnaire_contributor = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
 
-        evaluation1 = baker.make(Evaluation, course__type=seminar_type, course__semester=cls.semester)
-        evaluation2 = baker.make(Evaluation, course__type=lecture_type, course__semester=cls.semester)
+        evaluation1 = baker.make(Evaluation, course__type=cls.seminar_type, course__semester=cls.semester)
+        evaluation2 = baker.make(Evaluation, course__type=cls.lecture_type, course__semester=cls.semester)
         baker.make(
             Contribution,
             contributor=baker.make(UserProfile),
@@ -928,16 +929,24 @@ class TestSemesterAssignView(WebTestStaffMode):
             _bulk_create=True,
         )
 
-    def test_assign_questionnaires(self):
+    def test_assign_questionnaires(self) -> None:
         page = self.app.get(self.url, user=self.manager)
         assign_form = page.forms["questionnaire-assign-form"]
-        assign_form["Seminar"] = [self.questionnaire.pk]
-        assign_form["Lecture"] = [self.questionnaire.pk]
+        assign_form["general-" + str(self.seminar_type.id)] = [self.questionnaire_general.pk]
+        assign_form["contributor-" + str(self.lecture_type.id)] = [self.questionnaire_contributor.pk]
         page = assign_form.submit().follow()
 
         for evaluation in self.semester.evaluations.all():
-            self.assertEqual(evaluation.general_contribution.questionnaires.count(), 1)
-            self.assertEqual(evaluation.general_contribution.questionnaires.get(), self.questionnaire)
+            if evaluation.course.type == self.seminar_type:
+                self.assertEqual(evaluation.general_contribution.questionnaires.count(), 1)
+                self.assertEqual(evaluation.general_contribution.questionnaires.get(), self.questionnaire_general)
+                for contribution in evaluation.contributions.exclude(contributor=None):  # contributions without general
+                    self.assertEqual(contribution.questionnaires.count(), 0)
+            if evaluation.course.type == self.lecture_type:
+                self.assertEqual(evaluation.general_contribution.questionnaires.count(), 0)
+                for contribution in evaluation.contributions.exclude(contributor=None):
+                    self.assertEqual(contribution.questionnaires.count(), 1)
+                    self.assertEqual(contribution.questionnaires.get(), self.questionnaire_contributor)
 
 
 class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
@@ -979,9 +988,9 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
     def test_questionnaire_assignment(self):
         page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["questionnaire-assign-form"]
-        form[self.course_type_1.name] = [self.questionnaire_1.pk, self.questionnaire_2.pk]
-        form[self.course_type_2.name] = [self.questionnaire_2.pk]
-        form["all-contributors"] = [self.questionnaire_responsible.pk]
+        form["general-" + str(self.course_type_1.id)] = [self.questionnaire_1.pk, self.questionnaire_2.pk]
+        form["general-" + str(self.course_type_2.id)] = [self.questionnaire_2.pk]
+        form["contributor-" + str(self.course_type_1.id)] = [self.questionnaire_responsible.pk]
 
         response = form.submit().follow()
         self.assertIn("Successfully", str(response))
@@ -997,7 +1006,7 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
         )
         self.assertEqual(
             set(self.evaluation_2.contributions.get(contributor=self.responsible).questionnaires.all()),
-            {self.questionnaire_responsible},
+            set(),
         )
 
 
