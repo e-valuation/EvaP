@@ -203,7 +203,7 @@ class ResultsExporter(ExcelExporter):
         else:
             self.write_cell(export_name, "headline")
 
-        self.write_cell("Average for this Question", "evaluation")
+        self.write_cell(_("Average for this Question"), "evaluation")
 
         for evaluation, __ in evaluations_with_results:
             title = evaluation.full_name
@@ -226,7 +226,7 @@ class ResultsExporter(ExcelExporter):
             self.write_cell(evaluation.course.type.name, "border_left_right")
 
         self.next_row()
-        # One more cell is needed for the question column
+        # One column for the question, one column for the average, n columns for the evaluations
         self.write_empty_row_with_styles(["default"] + ["border_left_right"] * (len(evaluations_with_results) + 1))
 
     def write_overall_results(
@@ -259,7 +259,7 @@ class ResultsExporter(ExcelExporter):
             # Only query the number of evaluations once and keep track of it here.
             count_gt_1: list[bool] = [e.course_evaluations_count > 1 for e in annotated_evaluations]
 
-            # Borders only if there is a course grade below. Offset by one column
+            # Borders only if there is a course grade below. Offset by one column for column title and one for average
             self.write_empty_row_with_styles(
                 ["default", "default"] + ["border_left_right" if gt1 else "default" for gt1 in count_gt_1]
             )
@@ -293,7 +293,7 @@ class ResultsExporter(ExcelExporter):
     def _calculate_display_result(
         cls, questionnaire_id: int, question: Question, results: OrderedDict[int, list[QuestionResult]]
     ) -> tuple[float | None, float | None]:
-        values = []
+        value_sum = 0.0
         count_sum = 0
         approval_count = 0
 
@@ -301,18 +301,18 @@ class ResultsExporter(ExcelExporter):
             if grade_result.question.id != question.id or not RatingResult.has_answers(grade_result):
                 continue
 
-            values.append(grade_result.average * grade_result.count_sum)
+            value_sum += grade_result.average * grade_result.count_sum
             count_sum += grade_result.count_sum
             if grade_result.question.is_yes_no_question:
                 approval_count += grade_result.approval_count
 
-        if not values:
+        if not value_sum:
             return None, None
 
-        avg = sum(values) / count_sum
+        avg = value_sum / count_sum
         if question.is_yes_no_question:
-            percent_approval = approval_count / count_sum if count_sum > 0 else 0
-            return avg, percent_approval
+            average_approval_ratio = approval_count / count_sum if count_sum > 0 else 0
+            return avg, average_approval_ratio
         return avg, None
 
     @classmethod
@@ -322,26 +322,26 @@ class ResultsExporter(ExcelExporter):
         questionnaire_id: int,
         question: Question,
     ) -> tuple[float | None, float | None]:
-        avg_values = []
+        avg_value_sum = 0.0
         count_avg = 0
-        avg_approval = []
+        avg_approval_sum = 0.0
         count_approval = 0
 
         for __, results in evaluations_with_results:
             if (
                 results.get(questionnaire_id) is None
-            ):  # ignore all results without the questionaire for average calculation
+            ):  # we iterate over all distinct questionaires from all evaluations but some evaluations do not include a specific questionaire
                 continue
-            avg, percent_approval = cls._calculate_display_result(questionnaire_id, question, results)
+            avg, average_approval_ratio = cls._calculate_display_result(questionnaire_id, question, results)
             if avg is not None:
-                avg_values.append(avg)
+                avg_value_sum += avg
                 count_avg += 1
-            if percent_approval is not None:
-                avg_approval.append(percent_approval)
+            if average_approval_ratio is not None:
+                avg_approval_sum += average_approval_ratio
                 count_approval += 1
 
-        return sum(avg_values) / count_avg if count_avg else None, (
-            sum(avg_approval) / count_approval if count_approval else None
+        return avg_value_sum / count_avg if count_avg else None, (
+            avg_approval_sum / count_approval if count_approval else None
         )
 
     def write_questionnaire(
@@ -364,15 +364,13 @@ class ResultsExporter(ExcelExporter):
         for question in self.filter_text_and_heading_questions(questionnaire.questions.all()):
             self.write_cell(question.text, "italic" if question.is_heading_question else "default")
 
-            question_average, question_approval_count = self._calculate_display_result_average(
+            average_grade, approval_ratio = self._calculate_display_result_average(
                 all_evaluations_with_results, questionnaire.id, question
             )
-
-            if question_average is not None:
-                if question.is_yes_no_question:
-                    self.write_cell(f"{question_approval_count:.0%}", self.grade_to_style(question_average))
-                else:
-                    self.write_cell(question_average, self.grade_to_style(question_average))
+            if approval_ratio is not None and average_grade is not None:
+                self.write_cell(f"{approval_ratio:.0%}", self.grade_to_style(average_grade))
+            elif average_grade is not None:
+                self.write_cell(average_grade, self.grade_to_style(average_grade))
             else:
                 self.write_cell("", "border_left_right")
 
@@ -382,14 +380,14 @@ class ResultsExporter(ExcelExporter):
                     self.write_cell(style="border_left_right")
                     continue
 
-                avg, percent_approval = self._calculate_display_result(questionnaire.id, question, results)
+                avg, average_approval_ratio = self._calculate_display_result(questionnaire.id, question, results)
 
                 if avg is None:
                     self.write_cell(style="border_left_right")
                     continue
 
                 if question.is_yes_no_question:
-                    self.write_cell(f"{percent_approval:.0%}", self.grade_to_style(avg))
+                    self.write_cell(f"{average_approval_ratio:.0%}", self.grade_to_style(avg))
                 else:
                     self.write_cell(avg, self.grade_to_style(avg))
             self.next_row()
