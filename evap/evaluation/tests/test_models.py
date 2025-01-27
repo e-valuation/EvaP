@@ -1140,30 +1140,3 @@ class QuestionnaireTests(TestCase):
     def test_locked_contributor_questionnaire(self):
         questionnaire = baker.prepare(Questionnaire, is_locked=True, type=Questionnaire.Type.CONTRIBUTOR)
         self.assertRaises(ValidationError, questionnaire.clean)
-
-    def test_two_active_dropout_questionnaires_not_allowed(self):
-        q1 = baker.prepare(Questionnaire, type=Questionnaire.Type.DROPOUT)
-        q2 = baker.prepare(Questionnaire, type=Questionnaire.Type.DROPOUT)
-
-        q1.is_active_dropout_questionnaire = True
-        q1.save()
-
-        with self.assertRaises(django.db.utils.IntegrityError):
-            q2.is_active_dropout_questionnaire = True
-            q2.save()
-
-    def test_set_active_removes_active_for_others(self):
-        q1 = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
-        q2 = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
-        q3 = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
-
-        self.assertEqual(Questionnaire.objects.dropout_questionnaires().count(), 3)
-        self.assertFalse(Questionnaire.objects.active_dropout_questionnaire().exists())
-
-        q1.set_active_dropout()
-        self.assertTrue(q1.is_active_dropout_questionnaire)
-
-        self.assertEqual(Questionnaire.objects.active_dropout_questionnaire().first(), q1)
-
-        q2.set_active_dropout()
-        q3.set_active_dropout()

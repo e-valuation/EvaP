@@ -94,7 +94,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 0,
-    "is_active_dropout_questionnaire": null,
     "visibility": 0,
     "is_locked": false
   }
@@ -113,7 +112,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 0,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -132,7 +130,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 3,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -151,7 +148,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 1,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -170,7 +166,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 2,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -189,7 +184,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 1,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -208,7 +202,6 @@
     "teaser_de": "Der/die Dozent·in ...",
     "teaser_en": "The lecturer ...",
     "order": 15,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -227,7 +220,6 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDer/die Übungsleiter·in ...",
     "teaser_en": "Please select \"No answer\" if you can't evaluate this person.\r\n\r\nThe person supervising the exercises ...",
     "order": 35,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -246,7 +238,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 4,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -265,7 +256,6 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDer/die Seminarleiter·in ...",
     "teaser_en": "Please select \"No answer\" if you can't evaluate this person.\r\n\r\nThe lecturer of the seminar...",
     "order": 25,
-    "is_active_dropout_questionnaire": null,
     "visibility": 0,
     "is_locked": false
   }
@@ -284,7 +274,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 8,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -303,7 +292,6 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDer/die Projektbetreuer·in ...",
     "teaser_en": "Please select \"No answer\" if you can't evaluate this person.\r\n\r\nThe supervisor of the project ...",
     "order": 45,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -322,7 +310,6 @@
     "teaser_de": "Zu einer Lehrveranstaltung gehören nicht nur das Halten von Vorträgen und das Korrigieren von Übungsblättern. Im Vorfeld müssen z.B. auch interessante Themen gefunden oder das Seminarkonzept entworfen werden. Oftmals bekommen wir Studierende diesen Aufwand nicht mit. Hier hast du die Möglichkeit, ein paar Kommentare an den Verantwortlichen zu richten.",
     "teaser_en": "Teaching a course does not only consist of giving talks and correcting exercises. Even before the course starts, someone has to decide on interesting topics or seminar concepts. The amount of work this takes usually isn't visible to students. However, here you can leave some remarks on the responsible person of the course.",
     "order": 60,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -341,7 +328,6 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDer/die Tutor·in ...",
     "teaser_en": "Please select \"No answer\" if you cannot evaluate this person.\r\n\r\nThe tutor ...",
     "order": 35,
-    "is_active_dropout_questionnaire": null,
     "visibility": 0,
     "is_locked": false
   }
@@ -360,7 +346,6 @@
     "teaser_de": "Egal ob Dozent·in, Übungsleiter·in oder Seminar-/Projektbetreuer·in, alle an einer Lehrveranstaltung beteiligten Personen haben viel Zeit in die Vorbereitung und Betreuung gesteckt. Nutze diese Frage, um konstruktives Feedback zu geben. Was fandest du gut? Was könnte verbessert werden?",
     "teaser_en": "All the lecturers and seminar/project/exercise leaders put a lot of time into the preparation and supervision of a course. Please use this question to give constructive feedback. What did you like? What could he/she improve for the next time?",
     "order": 60,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -379,7 +364,6 @@
     "teaser_de": "Falls weitere, unten nicht genannte Personen an der Lehrveranstaltung beteiligt waren, kannst du hier deine Kommentare zu ihnen hinterlassen.",
     "teaser_en": "If more people contributed to the course than those named below, please leave your feedback for them here.",
     "order": 9,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -398,7 +382,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 10,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -417,7 +400,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 11,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -436,7 +418,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 12,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -455,7 +436,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 13,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -474,7 +454,6 @@
     "teaser_de": "Der/die Dozent·in ...",
     "teaser_en": "The lecturer ...",
     "order": 15,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -493,7 +472,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 14,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -512,7 +490,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 15,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -531,7 +508,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 16,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -550,7 +526,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 17,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -569,7 +544,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 5,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -588,7 +562,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 6,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -607,7 +580,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 7,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -626,7 +598,6 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDer/die Seminarleiter·in ...",
     "teaser_en": "Please select \"No answer\" if you can't evaluate this person.\r\n\r\nThe lecturer of the seminar...",
     "order": 25,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -645,7 +616,6 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDer Coach...",
     "teaser_en": "Please select \"No answer\" if you can't evaluate this person.\r\n\r\nThe coach...",
     "order": 25,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -664,7 +634,6 @@
     "teaser_de": "1 ist die beste Note, 5 die schlechteste",
     "teaser_en": "1 is the best grade, 5 the worst",
     "order": 2,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -683,7 +652,6 @@
     "teaser_de": "Zwei Fragen bezüglich Schwierigkeit und zukünftiger Teilnahme am Kurs",
     "teaser_en": "Two questions about the difficulty and a future version of the course",
     "order": 61,
-    "is_active_dropout_questionnaire": null,
     "visibility": 2,
     "is_locked": false
   }
@@ -702,7 +670,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 62,
-    "is_active_dropout_questionnaire": null,
     "visibility": 1,
     "is_locked": false
   }
@@ -712,8 +679,8 @@
   "pk": 112,
   "fields": {
     "type": 40,
-    "name_de": "Dropout 1",
-    "name_en": "Dropout 1",
+    "name_de": "Dropout1",
+    "name_en": "Dropout1",
     "description_de": "",
     "description_en": "",
     "public_name_de": "Dropout 1",
@@ -721,7 +688,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 0,
-    "is_active_dropout_questionnaire": true,
     "visibility": 1,
     "is_locked": false
   }
@@ -18678,7 +18644,8 @@
     "questionnaires": [
       86,
       110,
-      83
+      83,
+      112
     ]
   }
 },
@@ -22016,10 +21983,22 @@
   "fields": {
     "order": 0,
     "questionnaire": 112,
-    "text_de": "Wieso machst du diesen Kurs nicht zuende?",
-    "text_en": "Why did you drop this course",
+    "text_de": "Wieso hast du den Kurs abgewählt?",
+    "text_en": "Why did you drop this course?",
     "allows_additional_textanswers": false,
     "type": 0
+  }
+},
+{
+  "model": "evaluation.question",
+  "pk": 480,
+  "fields": {
+    "order": 1,
+    "questionnaire": 112,
+    "text_de": "Wirst du den Kurs nochmal belegen?",
+    "text_en": "Will you take this course again?",
+    "allows_additional_textanswers": true,
+    "type": 3
   }
 },
 {
@@ -140658,8 +140637,8 @@
   "pk": 452,
   "fields": {
     "is_superuser": true,
-    "password": "pbkdf2_sha256$870000$THQ1LD49eMvmXxamALzOdR$68jjBpZm5p0jjDoDQswU3a3luk8++zjw1fqxdCYCXNk=",
-    "last_login": "2025-01-20T20:18:51.891",
+    "password": "pbkdf2_sha256$870000$FI1vp6JGLvZULamq2a9pIL$TLLlUbFnxARDpJFRmuL+gVR9QtFc9fxww/K7pM1PixM=",
+    "last_login": "2025-01-27T18:41:42.669",
     "email": "evap@institution.example.com",
     "title": "",
     "first_name_given": "",

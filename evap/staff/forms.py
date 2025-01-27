@@ -414,9 +414,12 @@ class EvaluationForm(forms.ModelForm):
         self.fields["participants"].queryset = queryset
 
         if gc := self.instance.general_contribution:
-            self.fields["general_questionnaires"].initial = [q.pk for q in gc.questionnaires.all() if q.is_general_questionnaire]
-            self.fields["dropout_questionnaires"].initial = [q.pk for q in gc.questionnaires.all() if q.is_dropout_questionnaire]
-
+            self.fields["general_questionnaires"].initial = [
+                q.pk for q in gc.questionnaires.all() if q.is_general_questionnaire
+            ]
+            self.fields["dropout_questionnaires"].initial = [
+                q.pk for q in gc.questionnaires.all() if q.is_dropout_questionnaire
+            ]
 
         if Evaluation.State.IN_EVALUATION <= self.instance.state <= Evaluation.State.REVIEWED:
             self.fields["vote_start_datetime"].disabled = True
@@ -471,11 +474,12 @@ class EvaluationForm(forms.ModelForm):
 
     def save(self, *args, **kw):
         evaluation = super().save(*args, **kw)
-        selected_questionnaires = self.cleaned_data.get("general_questionnaires") | self.cleaned_data.get("dropout_questionnaires")
+        selected_questionnaires = self.cleaned_data.get("general_questionnaires") | self.cleaned_data.get(
+            "dropout_questionnaires"
+        )
         removed_questionnaires = set(self.instance.general_contribution.questionnaires.all()) - set(
             selected_questionnaires
         )
-        # todo@Felix: warn when removing dropout questionnaires
         evaluation.general_contribution.remove_answers_to_questionnaires(removed_questionnaires)
         evaluation.general_contribution.questionnaires.set(selected_questionnaires)
         if hasattr(self.instance, "old_course"):
