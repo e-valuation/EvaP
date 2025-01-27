@@ -5,16 +5,7 @@ from django.test import override_settings
 from django.urls import reverse
 from model_bakery import baker
 
-from evap.evaluation.models import (
-    NO_ANSWER,
-    Contribution,
-    Evaluation,
-    Question,
-    Questionnaire,
-    QuestionType,
-    Semester,
-    UserProfile,
-)
+from evap.evaluation.models import NO_ANSWER, Evaluation, Question, Questionnaire, QuestionType, Semester, UserProfile
 from evap.evaluation.tests.tools import (
     WebTest,
     WebTestWith200Check,
@@ -304,10 +295,14 @@ class TestDropoutQuestionnaire(WebTest):
 
         cls.question = baker.make(Question, type=QuestionType.POSITIVE_YES_NO)
 
-        cls.normal_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP, questions=[
-            baker.make(Question,type=QuestionType.TEXT),
-            baker.make(Question, type=QuestionType.EASY_DIFFICULT)
-        ])
+        cls.normal_questionnaire = baker.make(
+            Questionnaire,
+            type=Questionnaire.Type.TOP,
+            questions=[
+                baker.make(Question, type=QuestionType.TEXT),
+                baker.make(Question, type=QuestionType.EASY_DIFFICULT),
+            ],
+        )
         cls.dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT, questions=[cls.question])
 
         cls.evaluation = baker.make(

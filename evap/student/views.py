@@ -21,7 +21,6 @@ from evap.evaluation.models import (
     NO_ANSWER,
     Contribution,
     Evaluation,
-    Questionnaire,
     RatingAnswerCounter,
     Semester,
     TextAnswer,

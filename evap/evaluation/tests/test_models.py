@@ -1,7 +1,6 @@
 from datetime import date, datetime, timedelta
 from unittest.mock import Mock, call, patch
 
-import django.db.utils
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.core.cache import caches
