@@ -917,16 +917,24 @@ class QuestionnairesAssignForm(forms.Form):
     def __init__(self, *args, course_types, **kwargs):
         super().__init__(*args, **kwargs)
 
-        for course_type in course_types:
-            self.fields[course_type.name] = forms.ModelMultipleChoiceField(
-                required=False,
-                queryset=Questionnaire.objects.general_questionnaires().exclude(
-                    visibility=Questionnaire.Visibility.HIDDEN
-                ),
-            )
         contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().exclude(
             visibility=Questionnaire.Visibility.HIDDEN
         )
+        general_questionnaires = Questionnaire.objects.general_questionnaires().exclude(
+            visibility=Questionnaire.Visibility.HIDDEN
+        )
+
+        for course_type in course_types:
+            self.fields[f"general-{course_type.id}"] = forms.ModelMultipleChoiceField(
+                label=course_type.name,
+                required=False,
+                queryset=general_questionnaires,
+            )
+            self.fields[f"contributor-{course_type.id}"] = forms.ModelMultipleChoiceField(
+                label=course_type.name,
+                required=False,
+                queryset=contributor_questionnaires,
+            )
         self.fields["all-contributors"] = forms.ModelMultipleChoiceField(
             label=_("All contributors"), required=False, queryset=contributor_questionnaires
         )
