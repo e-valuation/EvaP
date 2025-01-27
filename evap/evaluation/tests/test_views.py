@@ -301,70 +301,64 @@ class TestDropoutQuestionnaire(WebTest):
     def setUpTestData(cls) -> None:
         cls.user = baker.make(UserProfile, email="student@institution.example.com")
         cls.user2 = baker.make(UserProfile, email="student2@institution.example.com")
+
+        cls.question = baker.make(Question, type=QuestionType.POSITIVE_YES_NO)
+
+        cls.normal_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP, questions=[
+            baker.make(Question,type=QuestionType.TEXT),
+            baker.make(Question, type=QuestionType.EASY_DIFFICULT)
+        ])
+        cls.dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT, questions=[cls.question])
+
         cls.evaluation = baker.make(
             Evaluation, state=Evaluation.State.IN_EVALUATION, participants=[cls.user, cls.user2]
         )
 
-        cls.q1 = baker.make(
-            Question,
-            type=QuestionType.POSITIVE_LIKERT,
-        )
-        cls.evaluation.general_contribution.questionnaires.add(cls.q1.questionnaire)
+        cls.evaluation.general_contribution.questionnaires.add(cls.dropout_questionnaire, cls.normal_questionnaire)
 
-        cls.q2 = baker.make(
-            Question,
-            type=QuestionType.NEGATIVE_YES_NO,
-        )
-        cls.contribution = baker.make(
-            Contribution,
-            contributor=baker.make(UserProfile, email="contributor@institution.example.com"),
-            questionnaires=[cls.q2.questionnaire],
-            evaluation=cls.evaluation,
-        )
+    def assert_no_answer_set_everywhere(self, form):
+        for name, fields in form.fields.items():
+            if name is not None and name.startswith("question_"):
+                field = fields[0]
+                if field.tag == "textarea":
+                    self.assertEqual(
+                        fields[0].value,
+                        "",
+                        f"Answers to Questions in the general contribution should be set to NO_ANSWER (eg. {NO_ANSWER})",
+                    )
+                else:
+                    self.assertEqual(
+                        fields[0].value,
+                        str(NO_ANSWER),
+                        f"Answers to Questions in the general contribution should be set to NO_ANSWER (eg. {NO_ANSWER})",
+                    )
 
-    def assert_no_answer_set(self, form):
-        self.assertEqual(
-            form.fields[answer_field_id(self.evaluation.general_contribution, self.q1.questionnaire, self.q1)][0].value,
-            str(NO_ANSWER),
-            f"Rating questions in the general contribution should be set to NO_ANSWER (eg. {NO_ANSWER})",
-        )
-        self.assertEqual(
-            form.fields[answer_field_id(self.contribution, self.q2.questionnaire, self.q2)][0].value,
-            str(NO_ANSWER),
-            f"Rating questions in contributor questionnaires should be set to NO_ANSWER (eg. {NO_ANSWER})",
-        )
-
-    def test_no_dropout_questionnaire_chosen_does_still_work(self):
-        self.assertFalse(Questionnaire.objects.dropout_questionnaires().exists())
-        response = self.app.get(url=reverse("student:drop", args=[self.evaluation.id]), user=self.user, status=200)
-
-        self.assert_no_answer_set(response.forms["student-vote-form"])
-
-    def test_chosing_dropout_sets_to_no_answer(self):
-        dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
-        dropout_question = baker.make(Question, type=QuestionType.TEXT, questionnaire=dropout_questionnaire)
-
-        dropout_questionnaire.set_active_dropout()
+    def test_choosing_dropout_sets_to_no_answer(self):
         response = self.app.get(url=reverse("student:drop", args=[self.evaluation.id]), user=self.user, status=200)
         form = response.forms["student-vote-form"]
 
         self.assertIn(
-            answer_field_id(self.evaluation.general_contribution, dropout_questionnaire, dropout_question),
+            answer_field_id(self.evaluation.general_contribution, self.dropout_questionnaire, self.question),
             form.fields.keys(),
             "The dropout Questionnaire should be shown",
         )
-        self.assert_no_answer_set(form)
+        self.assert_no_answer_set_everywhere(form)
 
-    def test_allow_dropout_is_respected(self):
-        _ = self.app.get(url=reverse("student:vote", args=[self.evaluation.id]), user=self.user, status=200)
-        _ = self.app.get(url=reverse("student:drop", args=[self.evaluation.id]), user=self.user, status=200)
-
-        no_dropout_evaluation = baker.make(
-            Evaluation, state=Evaluation.State.IN_EVALUATION, participants=[self.user], allow_drop_out=False
+    def test_dropout_possible_iff_dropout_questionnaire_attached(self):
+        self.assertTrue(self.evaluation.is_dropout_allowed)
+        self.assertTrue(
+            self.evaluation.general_contribution.questionnaires.filter(type=Questionnaire.Type.DROPOUT).exists()
         )
 
-        _ = self.app.get(url=reverse("student:vote", args=[no_dropout_evaluation.id]), user=self.user, status=200)
-        _ = self.app.get(url=reverse("student:drop", args=[no_dropout_evaluation.id]), user=self.user, status=400)
+        normal_questionnaires = self.evaluation.general_contribution.questionnaires.exclude(
+            type=Questionnaire.Type.DROPOUT
+        ).all()
+        self.evaluation.general_contribution.questionnaires.set(normal_questionnaires)
+
+        self.assertFalse(self.evaluation.is_dropout_allowed)
+        self.assertFalse(
+            self.evaluation.general_contribution.questionnaires.filter(type=Questionnaire.Type.DROPOUT).exists()
+        )
 
     def test_dropping_out_increments_dropout_counter(self):
         self.assertEqual(self.evaluation.dropout_count, 0, "dropout_count should be initially zero")
@@ -373,14 +367,15 @@ class TestDropoutQuestionnaire(WebTest):
             "student-vote-form"
         ]
         form.submit()
-        self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
+        evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
 
-        self.assertEqual(self.evaluation.dropout_count, 1, "dropout count should increment with dropout")
+        self.assertEqual(evaluation.dropout_count, 1, "dropout count should increment with dropout")
 
         form = self.app.get(url=reverse("student:vote", args=[self.evaluation.id]), user=self.user2, status=200).forms[
             "student-vote-form"
         ]
         form.submit()
-        self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
+        evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
 
-        self.assertEqual(self.evaluation.dropout_count, 1, "dropout_count should not change on normal vote")
+        self.assertEqual(evaluation.dropout_count, 1, "dropout_count should not change on normal vote")
+        self.assertEqual(self.evaluation.dropout_count, 0, "other evaluation should not have been changed")
