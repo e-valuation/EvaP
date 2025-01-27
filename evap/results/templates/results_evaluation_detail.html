@@ -215,7 +215,7 @@
     {% endif %}
 
     {% if general_questionnaire_results_bottom %}
-        <div class="card card-outline-primary">
+        <div class="card card-outline-primary mb-3">
             <div class="card-header">
                 {% translate 'General' %}
             </div>
@@ -227,16 +227,22 @@
         </div>
     {% endif %}
 
-    <!-- TODO@Felix: WIP Dropout view -->
-    <div class="card card-outline-primary">
+    {% if evaluation.is_dropout_allowed or evaluation.dropout_count > 0 or dropout_questionnaire_results %}
+    <div class="card card-outline-primary mb-3">
         <div class="card-header d-flex flex-row justify-content-between">
             <span>{% translate 'Dropout' %}</span>
-            <span class="bg-secondary-outline">Dropout count: {{ evaluation.dropout_count }}</span>
+
+            <div class="badge-participants badge-participants-{{ evaluation.dropout_count|participationclass:evaluation.num_voters }} ms-2 ms-lg-3">
+                <span class="fas fa-user"></span> {{ evaluation.dropout_count }}
+            </div>
         </div>
         <div class="card-body">
-            {% include 'results_evaluation_detail_questionnaires.html' with questionnaire_result=dropout_results %}
+            {% for questionnaire_result in dropout_questionnaire_results %}
+                {% include 'results_evaluation_detail_questionnaires.html' %}
+            {% endfor %}
         </div>
     </div>
+    {% endif %}
 
     {# Leave some space for big tooltips #}
     <div class="py-5 py-md-0"></div>
