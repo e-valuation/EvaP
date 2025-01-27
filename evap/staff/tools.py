@@ -380,7 +380,7 @@ def remove_user_from_represented_and_ccing_users(user, ignored_users=None, test_
     return remove_messages
 
 
-def remove_inactive_participations(user: UserProfile, test_run=False) -> list[StrOrPromise]:
+def remove_participations_if_inactive(user: UserProfile, test_run=False) -> list[StrOrPromise]:
     if user.is_active and not user.can_be_marked_inactive_by_manager:
         return []
     last_participation = user.evaluations_participating_in.aggregate(Max("vote_end_date"))["vote_end_date__max"]
