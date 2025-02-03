@@ -50,6 +50,7 @@ jobs:
         with:
           start-db: true
 
+      - run: python manage.py migrate
       - run: python manage.py dump_testdata
       - run: git diff --exit-code 
 
