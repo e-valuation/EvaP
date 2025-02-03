@@ -14,7 +14,7 @@ interface SisyphusOptions {
     timeout: number;
     autoRelease: boolean;
     onSave: (arg0: Sisyphus) => void;
-    onBeforeRestore: (arg0: Sisyphus) => boolean | void;
+    onBeforeRestore: (arg0: Sisyphus) => boolean | undefined;
     onRestore: (arg0: Sisyphus) => void;
     onRelease: (arg0: Sisyphus) => void;
 }
@@ -60,7 +60,7 @@ export class Sisyphus {
         this.bindSaveData();
     }
 
-    findFieldsToProtect(target: HTMLFormElement): Array<Element> {
+    findFieldsToProtect(target: HTMLFormElement): Element[] {
         return Array.of(...target.elements).filter((el: Element) => {
             if (
                 el instanceof HTMLInputElement &&
@@ -87,7 +87,7 @@ export class Sisyphus {
         return (
             (this.options.locationBased ? this.href : "") +
             this.getFormIdAndName(target) +
-            (field.getAttribute("name") || "") +
+            (field.getAttribute("name") ?? "") +
             this.options.customKeySuffix
         );
     }
@@ -126,7 +126,7 @@ export class Sisyphus {
      */
     saveAllData() {
         for (const target of this.targets) {
-            let multiCheckboxCache: { [key: string]: boolean } = {};
+            const multiCheckboxCache: Record<string, boolean> = {};
 
             for (const field of this.findFieldsToProtect(target)) {
                 if (this.getExcludeFields().includes(field) || !field.getAttribute("name")) {
@@ -134,18 +134,20 @@ export class Sisyphus {
                 }
                 const prefix = this.getPrefix(target, field);
                 const fieldType = field.getAttribute("type");
-                // @ts-ignore
+                // @ts-expect-error All field objects are some kind of input field with value.
                 let value: string | string[] | boolean = field.value;
 
                 if (field instanceof HTMLInputElement && fieldType === "checkbox") {
-                    if (field.name.indexOf("[") !== -1) {
+                    if (field.name.includes("[")) {
                         if (multiCheckboxCache[field.name]) {
                             return;
                         }
-                        let tempValue: string[] = [];
-                        $("[name='" + field.name + "']:checked").each(function () {
-                            tempValue.push(field.value);
-                        });
+                        const tempValue: string[] = [];
+                        for(const partField of document.querySelectorAll("[name='" + field.name + "']:checked")) {
+                            if (partField instanceof HTMLInputElement) {
+                                                            tempValue.push(partField.value);
+                            }
+                        }
                         value = tempValue;
                         multiCheckboxCache[field.name] = true;
                     } else {
@@ -200,24 +202,24 @@ export class Sisyphus {
             field instanceof HTMLInputElement &&
             field.type === "checkbox" &&
             resque !== "false" &&
-            field.name.indexOf("[") === -1
+            !field.name.includes("[")
         ) {
             field.checked = true;
         } else if (
             field instanceof HTMLInputElement &&
             field.type === "checkbox" &&
             resque === "false" &&
-            field.name.indexOf("[") === -1
+            !field.name.includes("[")
         ) {
             field.checked = false;
         } else if (field instanceof HTMLInputElement && field.type === "radio") {
             if (field.value === resque) {
                 field.checked = true;
             }
-        } else if (field instanceof HTMLInputElement && field.name.indexOf("[") === -1) {
+        } else if (field instanceof HTMLInputElement && !field.name.includes("[")) {
             field.value = resque;
         } else {
-            // @ts-ignore
+            // @ts-expect-error Definitely an input field with a value, but not known by type
             field.value = resque.split(",");
         }
     }
@@ -236,7 +238,8 @@ export class Sisyphus {
      */
     saveToBrowserStorage(key: string, value: any, fireCallback?: boolean) {
         // if fireCallback is undefined it should be true
-        fireCallback = fireCallback === undefined ? true : fireCallback;
+        fireCallback = fireCallback ?? true;
+        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
         localStorage.setItem(key, value + "");
         if (fireCallback && value !== "") {
             this.options.onSave(this);
