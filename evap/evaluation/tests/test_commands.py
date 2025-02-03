@@ -1,4 +1,3 @@
-import os
 import random
 from collections import defaultdict
 from datetime import date, datetime, timedelta
@@ -204,8 +203,8 @@ class TestRefreshResultsCacheCommand(TestCase):
 
 class TestScssCommand(TestCase):
     def setUp(self):
-        self.scss_path = os.path.join(settings.STATICFILES_DIRS[0], "scss", "evap.scss")
-        self.css_path = os.path.join(settings.STATICFILES_DIRS[0], "css", "evap.css")
+        self.scss_path = settings.STATICFILES_DIRS[0] / "scss" / "evap.scss"
+        self.css_path = settings.STATICFILES_DIRS[0] / "css" / "evap.css"
 
     @patch("subprocess.run")
     def test_scss_called(self, mock_subprocess_run):
@@ -246,14 +245,14 @@ class TestScssCommand(TestCase):
 
 class TestTsCommand(TestCase):
     def setUp(self):
-        self.ts_path = os.path.join(settings.STATICFILES_DIRS[0], "ts")
+        self.ts_path = settings.STATICFILES_DIRS[0] / "ts"
 
     @patch("subprocess.run")
     def test_ts_compile(self, mock_subprocess_run):
         management.call_command("ts", "compile")
 
         mock_subprocess_run.assert_called_once_with(
-            ["npx", "tsc", "--project", os.path.join(self.ts_path, "tsconfig.compile.json")],
+            ["npx", "tsc", "--project", self.ts_path / "tsconfig.compile.json"],
             check=True,
         )
 
@@ -264,7 +263,7 @@ class TestTsCommand(TestCase):
         management.call_command("ts", "compile", "--watch")
 
         mock_subprocess_run.assert_called_once_with(
-            ["npx", "tsc", "--project", os.path.join(self.ts_path, "tsconfig.compile.json"), "--watch"],
+            ["npx", "tsc", "--project", self.ts_path / "tsconfig.compile.json", "--watch"],
             check=True,
         )
 
@@ -280,7 +279,7 @@ class TestTsCommand(TestCase):
         mock_subprocess_run.assert_has_calls(
             [
                 call(
-                    ["npx", "tsc", "--project", os.path.join(self.ts_path, "tsconfig.compile.json")],
+                    ["npx", "tsc", "--project", self.ts_path / "tsconfig.compile.json"],
                     check=True,
                 ),
                 call(["npx", "jest"], check=True),

@@ -1,4 +1,3 @@
-import os.path
 from io import StringIO
 
 from django.conf import settings
@@ -29,7 +28,7 @@ class SampleTableImport(WebTestStaffMode):
         original_user_count = UserProfile.objects.count()
 
         form = page.forms["semester-import-form"]
-        form["excel_file"] = (os.path.join(settings.BASE_DIR, "static", "sample.xlsx"),)
+        form["excel_file"] = (str(settings.MODULE / "static" / "sample.xlsx"),)
         page = form.submit(name="operation", value="test")
 
         form = page.forms["semester-import-form"]
@@ -45,7 +44,7 @@ class SampleTableImport(WebTestStaffMode):
         original_user_count = UserProfile.objects.count()
 
         form = page.forms["user-import-form"]
-        form["excel_file"] = (os.path.join(settings.BASE_DIR, "static", "sample_user.xlsx"),)
+        form["excel_file"] = (str(settings.MODULE / "static" / "sample_user.xlsx"),)
         page = form.submit(name="operation", value="test")
 
         form = page.forms["user-import-form"]

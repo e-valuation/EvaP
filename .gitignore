@@ -26,10 +26,6 @@ evap/localsettings.py
 evap/static/css/evap.css
 evap/static/css/evap.css.map
 evap/static/ts/rendered
-evap/static_collected
-evap/media
-evap/database.sqlite3
-evap/upload
 
 evap/evaluation/templates/legal_notice_text.html
 

@@ -1,5 +1,3 @@
-import os
-
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
@@ -12,7 +10,7 @@ class Command(BaseCommand):
     requires_migrations_checks = True
 
     def handle(self, *args, **options):
-        outfile_name = os.path.join(settings.BASE_DIR, "development", "fixtures", "test_data.json")
+        outfile_name = settings.MODULE / "development" / "fixtures" / "test_data.json"
         logged_call_command(
             self.stdout,
             "dumpdata",

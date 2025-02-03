@@ -66,11 +66,9 @@
         cp deployment/localsettings.template.py evap/localsettings.py
         sed -i -e "s/\$SECRET_KEY/$(head /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | head -c 32)/" evap/localsettings.py
         git submodule update --init
-        ./manage.py migrate --noinput
         ./manage.py collectstatic --noinput
         ./manage.py compilemessages --locale de
-        ./manage.py loaddata test_data.json
-        ./manage.py refresh_results_cache
+        ./manage.py reload_testdata --noinput
       '';
     };
     depends_on = {

@@ -1,7 +1,7 @@
-import os
 from collections.abc import Iterable
 from datetime import date, datetime, timedelta
 from enum import Enum
+from pathlib import Path
 
 from django.conf import settings
 from django.contrib import messages
@@ -29,37 +29,34 @@ class ImportType(Enum):
     USER_BULK_UPDATE = "user_bulk_update"
 
 
-def generate_import_filename(user_id, import_type):
-    return os.path.join(settings.MEDIA_ROOT, "temp_import_files", f"{user_id}.{import_type.value}.xls")
+def generate_import_path(user_id, import_type) -> Path:
+    return settings.MEDIA_ROOT / "temp_import_files" / f"{user_id}.{import_type.value}.xls"
 
 
 def save_import_file(excel_file, user_id, import_type):
-    filename = generate_import_filename(user_id, import_type)
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
-    with open(filename, "wb") as file:
+    path = generate_import_path(user_id, import_type)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "wb") as file:
         for chunk in excel_file.chunks():
             file.write(chunk)
     excel_file.seek(0)
 
 
 def delete_import_file(user_id, import_type):
-    filename = generate_import_filename(user_id, import_type)
-    try:
-        os.remove(filename)
-    except OSError:
-        pass
+    path = generate_import_path(user_id, import_type)
+    path.unlink(missing_ok=True)
 
 
 def import_file_exists(user_id, import_type):
-    filename = generate_import_filename(user_id, import_type)
-    return os.path.isfile(filename)
+    path = generate_import_path(user_id, import_type)
+    return path.is_file()
 
 
 def get_import_file_content_or_raise(user_id, import_type):
-    filename = generate_import_filename(user_id, import_type)
-    if not os.path.isfile(filename):
+    path = generate_import_path(user_id, import_type)
+    if not path.is_file():
         raise SuspiciousOperation("No test run performed previously.")
-    with open(filename, "rb") as file:
+    with open(path, "rb") as file:
         return file.read()
 
 
