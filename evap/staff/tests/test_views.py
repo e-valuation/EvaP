@@ -3232,7 +3232,26 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
 
         page = self.app.get(self.url, user=self.manager)
         form = page.forms["questionnaire-form"]
-        self.assertEqual(form["type"].options, [("20", True, "Contributor questionnaire")])
+        self.assertEqual(
+            form["type"].options,
+            [("20", True, "Contributor questionnaire")],
+            "Contributor questionnaires should not be changeable to different types",
+        )
+
+        # dropout has no other possible types
+        self.questionnaire.type = Questionnaire.Type.DROPOUT
+        baker.make(
+            TextAnswer, question__questionnaire=self.questionnaire
+        )  # dropout questionnaire is only then partly editable, when there's already an answer for one of its questions
+        self.questionnaire.save()
+
+        page = self.app.get(self.url, user=self.manager)
+        form = page.forms["questionnaire-form"]
+        self.assertEqual(
+            form["type"].options,
+            [("40", True, "Dropout questionnaire")],
+            "Dropout questionnaires should not be changeable to different types",
+        )
 
 
 class TestQuestionnaireViewView(WebTestStaffModeWith200Check):
