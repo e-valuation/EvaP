@@ -173,11 +173,10 @@
 
 {% block additional_javascript %}
     {% if not preview %}
-        <script type="text/javascript" src="{% static 'js/sisyphus.min.js' %}"></script>
-
         {{ text_answer_warnings|text_answer_warning_trigger_strings|json_script:'text-answer-warnings' }}
 
         <script type="module">
+            import { Sisyphus } from "{% static 'js/sisyphus.js' %}";
             import {initTextAnswerWarnings} from "{% static 'js/text-answer-warnings.js' %}";
             const lastSavedStorageKey = "student-vote-last-saved-at-{{ evaluation.id }}-{{ request.user.id }}";
             const textResultsPublishConfirmation = {
@@ -186,9 +185,8 @@
                 bottomCard: document.querySelector("#bottom_text_results_publish_confirmation_card"),
             };
 
-            var sisyphus = $("#student-vote-form").sisyphus({
+            var sisyphus = new Sisyphus("#student-vote-form", {
                 locationBased: true,
-                excludeFields: $("input[type=hidden]"), // exclude the csrf token
                 autoRelease: false, // don't automatically release the data on submit, because the server might not receive the data
                 customKeySuffix: "[user={{ request.user.id }}]", // don't load data for other users
                 onRestore: function () {
