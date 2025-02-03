@@ -30,6 +30,7 @@ def staff_mode_middleware(get_response):
                     messages.info(request, _("Your staff mode timed out."))
 
         if is_in_staff_mode(request):
+            assert request.user.has_staff_permission
             request.user.is_participant = False
             request.user.is_student = False
             request.user.is_editor = False
@@ -52,7 +53,9 @@ def is_in_staff_mode(request):
 
 
 def update_staff_mode(request):
-    assert request.user.has_staff_permission
+    if not request.user.has_staff_permission:
+        exit_staff_mode(request)
+        return
 
     request.session["staff_mode_start_time"] = time.time()
     request.session.modified = True
