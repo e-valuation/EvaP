@@ -1,5 +1,4 @@
 import argparse
-import os
 import subprocess  # nosec
 import unittest
 
@@ -67,17 +66,14 @@ class Command(BaseCommand):
             "npx",
             "tsc",
             "--project",
-            os.path.join(static_directory, "ts", "tsconfig.compile.json"),
+            static_directory / "ts" / "tsconfig.compile.json",
         ]
 
         if watch:
             command += ["--watch"]
 
         if fresh:
-            try:
-                os.remove(os.path.join(static_directory, "ts", ".tsbuildinfo.json"))
-            except FileNotFoundError:
-                pass
+            (static_directory / "ts" / ".tsbuildinfo.json").unlink(missing_ok=True)
 
         self.run_command(command)
 

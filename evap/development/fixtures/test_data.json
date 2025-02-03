@@ -153476,7 +153476,8 @@
   "fields": {
     "name": "Big party",
     "date": "2099-12-31",
-    "redeem_end_date": "2099-12-30"
+    "redeem_end_date": "2099-12-30",
+    "step": 3
   }
 },
 {

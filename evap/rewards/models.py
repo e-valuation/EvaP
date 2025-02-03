@@ -11,6 +11,7 @@ class RewardPointRedemptionEvent(models.Model):
     name = models.CharField(max_length=1024, verbose_name=_("event name"))
     date = models.DateField(verbose_name=_("event date"))
     redeem_end_date = models.DateField(verbose_name=_("redemption end date"))
+    # Note that we allow this value to change throughout the lifetime of the event.
     step = models.PositiveSmallIntegerField(
         verbose_name=_("redemption step"), help_text=_("Only multiples of this step can be redeemed."), default=1
     )

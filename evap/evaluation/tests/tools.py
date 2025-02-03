@@ -103,9 +103,9 @@ def let_user_vote_for_evaluation(user, evaluation, create_answers=False):
 
 
 def store_ts_test_asset(relative_path: str, content) -> None:
-    absolute_path = os.path.join(settings.STATICFILES_DIRS[0], "ts", "rendered", relative_path)
+    absolute_path = settings.STATICFILES_DIRS[0] / "ts" / "rendered" / relative_path
 
-    os.makedirs(os.path.dirname(absolute_path), exist_ok=True)
+    absolute_path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(absolute_path, "wb") as file:
         file.write(content)

@@ -1,9 +1,8 @@
-import os
 import time
 from contextlib import contextmanager
 
 from evap.evaluation.tests.tools import WebTest, WebTestWith200Check
-from evap.staff.tools import ImportType, generate_import_filename
+from evap.staff.tools import ImportType, generate_import_path
 
 
 def helper_enter_staff_mode(webtest):
@@ -46,11 +45,8 @@ class WebTestStaffModeWith200Check(WebTestWith200Check):
 
 def helper_delete_all_import_files(user_id):
     for import_type in ImportType:
-        filename = generate_import_filename(user_id, import_type)
-        try:
-            os.remove(filename)
-        except FileNotFoundError:
-            pass
+        path = generate_import_path(user_id, import_type)
+        path.unlink(missing_ok=True)
 
 
 # For some form fields, like a <select> which can be configured to create new options,
