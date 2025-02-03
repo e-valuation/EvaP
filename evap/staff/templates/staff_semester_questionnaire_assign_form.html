@@ -13,10 +13,34 @@
         {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">
-                <p>{% translate 'Select the questionnaires which shall be assigned each of these course types and the contributors. This will only change evaluations in preparation. If you do select nothing, the currently applied questionnaires for the corresponding course type or contributor will not be changed.' %}</p>
-                <fieldset>
-                    {% include 'bootstrap_form.html' with form=form %}
-                </fieldset>
+                <p>{% translate 'Select the questionnaires to be used for each course type. This will only change evaluations in preparation. Selecting nothing will not change the currently used questionnaires.' %}</p>
+                {% include 'bootstrap_form_errors.html' with errors=form.non_field_errors %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">{% translate 'General' %}</h4>
+                                <fieldset>
+                                    {% for field in general_fields %}
+                                        {% include 'bootstrap_form_field.html' with field=field %}
+                                    {% endfor %}
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">{% translate 'Contributors' %}</h4>
+                                <fieldset>
+                                    {% for field in contributor_fields %}
+                                        {% include 'bootstrap_form_field.html' with field=field %}
+                                    {% endfor %}
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="card card-submit-area text-center mb-3">
