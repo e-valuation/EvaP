@@ -21,7 +21,7 @@ from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
-from django.db.models import CheckConstraint, Count, Exists, F, Manager, OuterRef, Q, Subquery, Value
+from django.db.models import CheckConstraint, Count, Exists, F, Manager, OuterRef, Q, QuerySet, Subquery, Value
 from django.db.models.functions import Coalesce, Lower, NullIf, TruncDate
 from django.dispatch import Signal, receiver
 from django.http import HttpRequest
@@ -158,18 +158,22 @@ class Semester(models.Model):
         return Evaluation.objects.filter(course__semester=self)
 
 
-class QuestionnaireManager(Manager):
-    def general_questionnaires(self):
-        return super().get_queryset().exclude(type=Questionnaire.Type.CONTRIBUTOR)
+class QuestionnaireManager(Manager["Questionnaire"]):
+    def general_questionnaires(self) -> QuerySet["Questionnaire"]:
+        return super().get_queryset().filter(type__in=[Questionnaire.Type.TOP, Questionnaire.Type.BOTTOM])
 
-    def contributor_questionnaires(self):
+    def contributor_questionnaires(self) -> QuerySet["Questionnaire"]:
         return super().get_queryset().filter(type=Questionnaire.Type.CONTRIBUTOR)
+
+    def dropout_questionnaires(self) -> QuerySet["Questionnaire"]:
+        return super().get_queryset().filter(type=Questionnaire.Type.DROPOUT)
 
 
 class Questionnaire(models.Model):
     """A named collection of questions."""
 
     class Type(models.IntegerChoices):
+        DROPOUT = 5, _("Dropout questionnaire")
         TOP = 10, _("Top questionnaire")
         CONTRIBUTOR = 20, _("Contributor questionnaire")
         BOTTOM = 30, _("Bottom questionnaire")
@@ -226,12 +230,20 @@ class Questionnaire(models.Model):
             raise ValidationError({"is_locked": _("Contributor questionnaires cannot be locked.")})
 
     @property
-    def is_above_contributors(self):
+    def is_above_contributors(self) -> bool:
         return self.type == self.Type.TOP
 
     @property
-    def is_below_contributors(self):
+    def is_below_contributors(self) -> bool:
         return self.type == self.Type.BOTTOM
+
+    @property
+    def is_dropout_questionnaire(self):
+        return self.type == self.Type.DROPOUT
+
+    @property
+    def is_general_questionnaire(self):
+        return self.type in (self.Type.TOP, self.Type.BOTTOM)
 
     @property
     def can_be_edited_by_manager(self):
@@ -461,6 +473,8 @@ class Evaluation(LoggedModel):
     )
     _voter_count = models.IntegerField(verbose_name=_("voter count"), blank=True, null=True, default=None)
 
+    dropout_count = models.IntegerField(verbose_name=_("dropout count"), default=0)
+
     # when the evaluation takes place
     vote_start_datetime = models.DateTimeField(verbose_name=_("start of evaluation"))
     # Usually the property vote_end_datetime should be used instead of this field
@@ -628,6 +642,10 @@ class Evaluation(LoggedModel):
     @property
     def is_in_evaluation_period(self):
         return self.vote_start_datetime <= datetime.now() <= self.vote_end_datetime
+
+    @property
+    def is_dropout_allowed(self) -> bool:
+        return self.general_contribution.questionnaires.filter(type=Questionnaire.Type.DROPOUT).exists()
 
     @property
     def general_contribution_has_questionnaires(self):
@@ -1058,6 +1076,7 @@ class Evaluation(LoggedModel):
             "can_publish_text_results",
             "_voter_count",
             "_participant_count",
+            "dropout_count",
         ]
 
 
