@@ -1,0 +1,25 @@
+name: EvaP Release
+
+on:
+  pull_request:
+  # release:
+  #   types: [published]
+
+jobs:
+  pypi-publish:
+    name: upload release to PyPI
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - run: nix run .#build-dist
+      - run: tar tvf dist/*.tar.gz
+      - run: unzip -l dist/*.whl
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

@@ -14,6 +14,9 @@ inputs:
     description: "whether or not to run `npm ci`"
     required: false
     default: false
+  working-directory:
+    required: false
+    default: "."
 
 runs:
   using: "composite"
@@ -22,17 +25,21 @@ runs:
     - uses: nicknovitski/nix-develop@v1
       with:
         arguments: "${{ inputs.shell }}"
+      if: ${{ inputs.shell != '' }}
 
     - name: Add localsettings
       run: cp evap/settings_test.py evap/localsettings.py
       shell: bash
+      working-directory: ${{ inputs.working-directory }}
 
     - name: Install Node dependencies
       run: npm ci
       shell: bash
       if: ${{ inputs.npm-ci }}
+      working-directory: ${{ inputs.working-directory }}
 
     - name: Start database
       run: nix run .#services -- --detached && nix run .#wait-for-pc
       shell: bash
       if: ${{ inputs.start-db }}
+      working-directory: ${{ inputs.working-directory }}
