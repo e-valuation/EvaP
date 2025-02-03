@@ -1,23 +1,10 @@
 import argparse
 import os
 import subprocess  # nosec
-import unittest
 
 from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
-from django.test.runner import DiscoverRunner
-
-
-class RenderPagesRunner(DiscoverRunner):
-    """Test runner which only includes `render_pages.*` methods.
-    The actual logic of the page rendering is implemented in the `@render_pages` decorator."""
-
-    test_loader = unittest.TestLoader()
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.test_loader.testMethodPrefix = "render_pages"
 
 
 class Command(BaseCommand):
@@ -32,7 +19,6 @@ class Command(BaseCommand):
         self.add_fresh_argument(compile_parser)
         test_parser = subparsers.add_parser("test")
         self.add_fresh_argument(test_parser)
-        subparsers.add_parser("render_pages")
 
     @staticmethod
     def add_fresh_argument(parser: argparse.ArgumentParser):
@@ -48,8 +34,6 @@ class Command(BaseCommand):
             self.compile(**options)
         elif options["command"] == "test":
             self.test(**options)
-        elif options["command"] == "render_pages":
-            self.render_pages(**options)
 
     def run_command(self, command):
         try:
@@ -84,14 +68,4 @@ class Command(BaseCommand):
     def test(self, **options):
         call_command("scss")
         self.compile(**options)
-        self.render_pages()
         self.run_command(["npx", "jest"])
-
-    @staticmethod
-    def render_pages(**_options):
-        # Enable debug mode as otherwise a collectstatic beforehand would be necessary,
-        # as missing static files would result into an error.
-        test_runner = RenderPagesRunner(debug_mode=True)
-        failed_tests = test_runner.run_tests([])
-        if failed_tests > 0:
-            raise CommandError("Failures during render_pages")
