@@ -393,7 +393,7 @@ def calculate_average_distribution(evaluation):
     for contribution_result in get_results(evaluation).contribution_results:
         for questionnaire_result in contribution_result.questionnaire_results:
             if (
-                questionnaire_result.questionnaire.type != Questionnaire.Type.DROPOUT
+                not questionnaire_result.questionnaire.is_dropout_questionnaire
             ):  # dropout questionnaires are not counted
                 grouped_results[contribution_result.contributor].extend(questionnaire_result.question_results)
 
