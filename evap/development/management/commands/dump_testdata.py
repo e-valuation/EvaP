@@ -10,7 +10,7 @@ class Command(BaseCommand):
             "-o",
             "--output",
             action="store",
-            default=os.path.join(settings.BASE_DIR, "development", "fixtures", "test_data.json"),
+            default=settings.MODULE / "development" / "fixtures" / "test_data.json",
             help="Specifies the output filepath.",
         )
     help = "Dumps all relevant contents of the database into test_data.json."
