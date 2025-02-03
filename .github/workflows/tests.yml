@@ -39,6 +39,21 @@ jobs:
       - name: Run tests
         run: python manage.py test --shuffle
 
+  test_testdata:
+    name: Reject testdata changes
+
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/setup_evap
+        with:
+          start-db: true
+
+      - run: python manage.py migrate
+      - run: python manage.py dump_testdata
+      - run: git diff --exit-code 
+
   mypy:
     runs-on: ubuntu-22.04
 

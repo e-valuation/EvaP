@@ -5,12 +5,20 @@ from evap.evaluation.management.commands.tools import logged_call_command
 
 
 class Command(BaseCommand):
-    args = ""
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "-o",
+            "--output",
+            action="store",
+            default=settings.MODULE / "development" / "fixtures" / "test_data.json",
+            help="Specifies the output filepath.",
+        )
+
     help = "Dumps all relevant contents of the database into test_data.json."
     requires_migrations_checks = True
 
     def handle(self, *args, **options):
-        outfile_name = settings.MODULE / "development" / "fixtures" / "test_data.json"
+        outfile_name = options["output"]  # os.path.join(settings.BASE_DIR, "development", "fixtures", "test_data.json")
         logged_call_command(
             self.stdout,
             "dumpdata",
