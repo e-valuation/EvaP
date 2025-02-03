@@ -13,6 +13,7 @@ class Command(BaseCommand):
             default=settings.MODULE / "development" / "fixtures" / "test_data.json",
             help="Specifies the output filepath.",
         )
+
     help = "Dumps all relevant contents of the database into test_data.json."
     requires_migrations_checks = True
 
