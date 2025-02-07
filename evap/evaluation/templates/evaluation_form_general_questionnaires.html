@@ -1,8 +1,10 @@
 {% load evaluation_filters %}
 
+<!-- TODO: stimmt dieser template Name ? -->
+
 <fieldset>
     {% for field in evaluation_form %}
-        {% if field == evaluation_form.general_questionnaires %}
+        {% if field == evaluation_form.general_questionnaires or field == evaluation_form.dropout_questionnaires %}
             <div class="mb-3 d-flex">
                 {% include 'bootstrap_form_field_label.html' with field=field class='col-md-3 pe-4' %}
                 <div class="col-md-7{% if field.errors %} is-invalid{% endif %}">
