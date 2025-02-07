@@ -413,12 +413,12 @@ class EvaluationForm(forms.ModelForm):
             queryset = (queryset | self.instance.participants.all()).distinct()
         self.fields["participants"].queryset = queryset
 
-        if gc := self.instance.general_contribution:
+        if general_contribution := self.instance.general_contribution:
             self.fields["general_questionnaires"].initial = [
-                q.pk for q in gc.questionnaires.all() if q.is_general_questionnaire
+                q.pk for q in general_contribution.questionnaires.all() if q.is_general_questionnaire
             ]
             self.fields["dropout_questionnaires"].initial = [
-                q.pk for q in gc.questionnaires.all() if q.is_dropout_questionnaire
+                q.pk for q in general_contribution.questionnaires.all() if q.is_dropout_questionnaire
             ]
 
         if Evaluation.State.IN_EVALUATION <= self.instance.state <= Evaluation.State.REVIEWED:
