@@ -395,8 +395,7 @@ class EvaluationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["course"].queryset = Course.objects.filter(semester=semester)
 
-        # TODO: Wieso hier nicht Visibility.HIDDEN excluden
-        visible_questionnaires = Q(visibility__in=(Questionnaire.Visibility.MANAGERS, Questionnaire.Visibility.EDITORS))
+        visible_questionnaires = ~Q(visibility=Questionnaire.Visibility.HIDDEN)
         if self.instance.pk is not None:
             visible_questionnaires |= Q(contributions__evaluation=self.instance)
 
