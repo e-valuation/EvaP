@@ -374,6 +374,12 @@ class EvaluationForm(forms.ModelForm):
         widget=CheckboxSelectMultiple,
         label=_("General questions"),
     )
+    dropout_questionnaires: "forms.ModelMultipleChoiceField[Questionnaire]" = forms.ModelMultipleChoiceField(
+        Questionnaire.objects.dropout_questionnaires().exclude(visibility=Questionnaire.Visibility.HIDDEN),
+        widget=CheckboxSelectMultiple,
+        label=_("Dropout Questionnaires"),
+        required=False,
+    )
 
     class Meta:
         model = Evaluation
@@ -390,6 +396,7 @@ class EvaluationForm(forms.ModelForm):
             "vote_end_date",
             "participants",
             "general_questionnaires",
+            "dropout_questionnaires",
         )
         localized_fields = ("vote_start_datetime", "vote_end_date")
         field_classes = {
@@ -401,11 +408,16 @@ class EvaluationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["course"].queryset = Course.objects.filter(semester=semester)
 
-        visible_questionnaires = Q(visibility__in=(Questionnaire.Visibility.MANAGERS, Questionnaire.Visibility.EDITORS))
+        visible_questionnaires = ~Q(visibility=Questionnaire.Visibility.HIDDEN)
         if self.instance.pk is not None:
             visible_questionnaires |= Q(contributions__evaluation=self.instance)
+
         self.fields["general_questionnaires"].queryset = (
             Questionnaire.objects.general_questionnaires().filter(visible_questionnaires).distinct()
+        )
+
+        self.fields["dropout_questionnaires"].queryset = (
+            Questionnaire.objects.dropout_questionnaires().filter(visible_questionnaires).distinct()
         )
 
         queryset = UserProfile.objects.exclude(is_active=False)
@@ -413,9 +425,12 @@ class EvaluationForm(forms.ModelForm):
             queryset = (queryset | self.instance.participants.all()).distinct()
         self.fields["participants"].queryset = queryset
 
-        if self.instance.general_contribution:
+        if general_contribution := self.instance.general_contribution:
             self.fields["general_questionnaires"].initial = [
-                q.pk for q in self.instance.general_contribution.questionnaires.all()
+                q.pk for q in general_contribution.questionnaires.all() if q.is_general_questionnaire
+            ]
+            self.fields["dropout_questionnaires"].initial = [
+                q.pk for q in general_contribution.questionnaires.all() if q.is_dropout_questionnaire
             ]
 
         if Evaluation.State.IN_EVALUATION <= self.instance.state <= Evaluation.State.REVIEWED:
@@ -471,7 +486,9 @@ class EvaluationForm(forms.ModelForm):
 
     def save(self, *args, **kw):
         evaluation = super().save(*args, **kw)
-        selected_questionnaires = self.cleaned_data.get("general_questionnaires")
+        selected_questionnaires = self.cleaned_data.get("general_questionnaires") | self.cleaned_data.get(
+            "dropout_questionnaires"
+        )
         removed_questionnaires = set(self.instance.general_contribution.questionnaires.all()) - set(
             selected_questionnaires
         )
