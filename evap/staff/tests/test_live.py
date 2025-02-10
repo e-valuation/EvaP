@@ -3,7 +3,7 @@ from datetime import date, datetime
 from django.urls import reverse
 from model_bakery import baker
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.expected_conditions import visibility_of_element_located, element_to_be_clickable
+from selenium.webdriver.support.expected_conditions import element_to_be_clickable, visibility_of_element_located
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Program, Question, Questionnaire, UserProfile
 from evap.evaluation.tests.tools import LiveServerTest
