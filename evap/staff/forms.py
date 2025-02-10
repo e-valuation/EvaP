@@ -370,15 +370,15 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore[misc]
 
 class EvaluationForm(forms.ModelForm):
     general_questionnaires: "forms.ModelMultipleChoiceField[Questionnaire]" = forms.ModelMultipleChoiceField(
-        Questionnaire.objects.general_questionnaires().exclude(visibility=Questionnaire.Visibility.HIDDEN),
+        queryset=None,
         widget=CheckboxSelectMultiple,
         label=_("General questions"),
     )
     dropout_questionnaires: "forms.ModelMultipleChoiceField[Questionnaire]" = forms.ModelMultipleChoiceField(
-        Questionnaire.objects.dropout_questionnaires().exclude(visibility=Questionnaire.Visibility.HIDDEN),
+        queryset=None,
+        required=False,
         widget=CheckboxSelectMultiple,
         label=_("Dropout Questionnaires"),
-        required=False,
     )
 
     class Meta:
