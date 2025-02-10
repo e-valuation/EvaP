@@ -176,7 +176,7 @@
         {{ text_answer_warnings|text_answer_warning_trigger_strings|json_script:'text-answer-warnings' }}
 
         <script type="module">
-            import { Sisyphus } from "{% static 'js/sisyphus.js' %}";
+            import { AutoFormSaver } from "{% static 'js/auto-form-saver.js' %}";
             import {initTextAnswerWarnings} from "{% static 'js/text-answer-warnings.js' %}";
             const lastSavedStorageKey = "student-vote-last-saved-at-{{ evaluation.id }}-{{ request.user.id }}";
             const textResultsPublishConfirmation = {
@@ -185,9 +185,7 @@
                 bottomCard: document.querySelector("#bottom_text_results_publish_confirmation_card"),
             };
 
-            var sisyphus = new Sisyphus("#student-vote-form", {
-                locationBased: true,
-                autoRelease: false, // don't automatically release the data on submit, because the server might not receive the data
+            const formSaver = new AutoFormSaver(document.getElementById("student-vote-form"), {
                 customKeySuffix: "[user={{ request.user.id }}]", // don't load data for other users
                 onRestore: function () {
                     // restore publish confirmation state
@@ -248,7 +246,7 @@
 
             // save all data after loading the page
             // (the data gets deleted every time the form is submitted, i.e. also when the form had errors and is displayed again)
-            sisyphus.saveAllData();
+            formSaver.saveAllData();
 
             // Initialize lastSavedLabel and update it every second
             updateLastSavedLabel();
@@ -274,7 +272,7 @@
                     return response.text();
                 }).then(response_text => {
                     if(response_text === "{{ success_magic_string }}") {
-                        sisyphus.manuallyReleaseData();
+                        formSaver.releaseData();
                         window.location.replace("{{ success_redirect_url }}");
                     } else {
                         // resubmit without this handler to show the site with the form errors
@@ -307,7 +305,7 @@
                         clearChoiceError(radioInput);
                     });
 
-                    sisyphus.saveAllData();
+                    formSaver.saveAllData();
 
                     // hide questionnaire for contributor
                     const voteAreaCollapse = bootstrap.Collapse.getOrCreateInstance(voteArea);
@@ -374,7 +372,7 @@
                     // which would hide the bottom card.
                     // To keep the top checkbox checked (after a reload or submit), save the form manually.
                     textResultsPublishConfirmation.top.checked = textResultsPublishConfirmation.bottom.checked;
-                    sisyphus.saveAllData();
+                    formSaver.saveAllData();
                 });
             }
         </script>
