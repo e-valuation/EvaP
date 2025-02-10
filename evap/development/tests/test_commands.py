@@ -1,4 +1,3 @@
-import os
 from io import StringIO
 from unittest.mock import call, patch
 
@@ -14,7 +13,7 @@ class TestDumpTestDataCommand(TestCase):
         with patch("evap.evaluation.management.commands.tools.call_command") as mock:
             management.call_command("dump_testdata", stdout=StringIO())
 
-        outfile_name = os.path.join(settings.BASE_DIR, "development", "fixtures", "test_data.json")
+        outfile_name = settings.MODULE / "development" / "fixtures" / "test_data.json"
         mock.assert_called_once_with(
             "dumpdata",
             "auth.group",
@@ -31,20 +30,20 @@ class TestDumpTestDataCommand(TestCase):
 
 
 class TestReloadTestdataCommand(TestCase):
-    @patch("builtins.input")
+    @patch("builtins.input", return_value="not yes")
+    @patch("evap.development.management.commands.reload_testdata.shutil")
     @patch("evap.evaluation.management.commands.tools.call_command")
-    def test_aborts(self, mock_call_command, mock_input):
-        mock_input.return_value = "not yes"
-
+    def test_aborts(self, mock_call_command, mock_shutil, _mock_input):
         management.call_command("reload_testdata", stdout=StringIO())
 
         self.assertEqual(mock_call_command.call_count, 0)
+        self.assertFalse(mock_shutil.method_calls)
 
-    @patch("builtins.input")
+    @patch("builtins.input", return_value="yes")
+    @patch("pathlib.Path.exists", return_value=True)
+    @patch("evap.development.management.commands.reload_testdata.shutil")
     @patch("evap.evaluation.management.commands.tools.call_command")
-    def test_executes_key_commands(self, mock_call_command, mock_input):
-        mock_input.return_value = "yes"
-
+    def test_executes_key_commands(self, mock_call_command, mock_shutil, mock_exists, _mock_input):
         management.call_command("reload_testdata", stdout=StringIO())
 
         mock_call_command.assert_any_call("reset_db", interactive=False)
@@ -55,6 +54,11 @@ class TestReloadTestdataCommand(TestCase):
         mock_call_command.assert_any_call("refresh_results_cache")
 
         self.assertEqual(mock_call_command.call_count, 6)
+
+        # The directory for uploads is cleared and reinitialized
+        mock_exists.assert_called_once()
+        mock_shutil.rmtree.assert_called_once()
+        mock_shutil.copytree.assert_called_once()
 
 
 class TestRunCommand(TestCase):
