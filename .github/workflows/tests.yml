@@ -39,6 +39,23 @@ jobs:
       - name: Run tests
         run: python manage.py test --shuffle
 
+  test_testdata:
+    name: Test if testdata is up to date
+
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/setup_evap
+        with:
+          start-db: true
+      - name: Create new test_data.json
+        run: |
+          python manage.py reload_testdata --noinput
+          python manage.py dump_testdata
+      - name: Check if test_data.json changed
+        run: git diff --exit-code
+
   build_wheel:
     name: Build wheel
     runs-on: ubuntu-22.04
