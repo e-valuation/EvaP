@@ -264,7 +264,7 @@ class LiveServerTest(SeleniumTestCase):
     browser = "firefox"
     selenium: WebDriver
     headless = True
-    window_size = (1920, 3080)
+    window_size = (1920, 4096)  # large height to workaround scrolling
     serialized_rollback = False
 
     def setUp(self) -> None:
