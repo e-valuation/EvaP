@@ -11,6 +11,7 @@ import webtest
 from django.conf import settings
 from django.contrib.auth import login
 from django.contrib.auth.models import Group
+from django.contrib.staticfiles.handlers import StaticFilesHandler
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.http.request import HttpRequest, QueryDict
 from django.test import tag
@@ -266,6 +267,7 @@ class LiveServerTest(SeleniumTestCase):
     headless = True
     window_size = (1920, 4096)  # large height to workaround scrolling
     serialized_rollback = True  # keeps fixture data, may slow down tests
+    static_handler = StaticFilesHandler  # see StaticLiveServerTestCase
 
     def setUp(self) -> None:
         super().setUp()

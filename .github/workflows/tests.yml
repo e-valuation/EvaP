@@ -58,7 +58,6 @@ jobs:
         run: |
           ./manage.py ts compile
           ./manage.py scss
-          ./manage.py collectstatic --noinput
 
       - name: Run tests (shuffled)
         run: coverage run manage.py test --shuffle --tag live-server
