@@ -265,12 +265,11 @@ class LiveServerTest(SeleniumTestCase):
     selenium: WebDriver
     headless = True
     window_size = (1920, 4096)  # large height to workaround scrolling
-    serialized_rollback = False
+    serialized_rollback = True  # keeps fixture data, may slow down tests
 
     def setUp(self) -> None:
         super().setUp()
         self.request = self.make_request()
-        Group.objects.update_or_create(name="Manager")
         self.manager = make_manager()
         self.selenium.get(self.live_server_url)
         self.login(self.manager)
