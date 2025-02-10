@@ -60,7 +60,7 @@ jobs:
           ./manage.py scss
 
       - name: Run tests (shuffled)
-        run: coverage run manage.py test --shuffle --tag live-server
+        run: coverage run manage.py test --shuffle --tag selenium
       - name: Upload coverage
         uses: codecov/codecov-action@v5
         with:
