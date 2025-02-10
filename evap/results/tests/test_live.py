@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.urls import reverse
 from model_bakery import baker
 from selenium.webdriver.common.by import By
@@ -14,7 +16,7 @@ class ResultsIndexLiveTests(LiveServerTest):
     def setUp(self):
         super().setUp()
 
-        def make_winter_semester(year):
+        def make_winter_semester(year: int) -> Semester:
             return baker.make(
                 Semester,
                 name_de=f"Wintersemester {year}/{year + 1}",
@@ -23,7 +25,7 @@ class ResultsIndexLiveTests(LiveServerTest):
                 short_name_en=f"WT {year % 1000}/{year % 1000 + 1}",
             )
 
-        def make_summer_semester(year):
+        def make_summer_semester(year: int) -> Semester:
             return baker.make(
                 Semester,
                 name_de=f"Sommersemester {year}",
@@ -47,7 +49,7 @@ class ResultsIndexLiveTests(LiveServerTest):
             "s": baker.make(CourseType, name_de="Seminar", name_en="Seminar"),
         }
 
-        def make_responsible(title, first_name, last_name):
+        def make_responsible(title: str, first_name: str, last_name: str) -> UserProfile:
             return baker.make(
                 UserProfile,
                 title=title,
@@ -81,7 +83,7 @@ class ResultsIndexLiveTests(LiveServerTest):
             "e": make_course("E", 2, "s", {"ma-a"}, {"kuchenbuch"}),
         }
 
-        def make_evaluation(course_name, participant_count, voter_count, **attrs):
+        def make_evaluation(course_name: str, participant_count: int, voter_count: int, **attrs: Any) -> None:
             baker.make(
                 Evaluation,
                 state=Evaluation.State.PUBLISHED,
