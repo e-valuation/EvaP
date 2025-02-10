@@ -168,6 +168,9 @@ class QuestionnaireManager(Manager["Questionnaire"]):
     def dropout_questionnaires(self) -> QuerySet["Questionnaire"]:
         return super().get_queryset().filter(type=Questionnaire.Type.DROPOUT)
 
+    def non_contributor_questionnaires(self) -> QuerySet["Questionnaire"]:
+        return super().get_queryset().exclude(type=Questionnaire.Type.CONTRIBUTOR)
+
 
 class Questionnaire(models.Model):
     """A named collection of questions."""
