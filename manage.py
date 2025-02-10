@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
 
-from evap.__main__ import main
+import runpy
 
-main()
+runpy.run_module("evap", run_name="__main__")
