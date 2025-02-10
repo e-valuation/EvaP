@@ -939,7 +939,7 @@ class QuestionnairesAssignForm(forms.Form):
         for course_type in course_types:
             self.fields[course_type.name] = forms.ModelMultipleChoiceField(
                 required=False,
-                queryset=Questionnaire.objects.general_questionnaires().exclude(
+                queryset=Questionnaire.objects.non_contributor_questionnaires().exclude(
                     visibility=Questionnaire.Visibility.HIDDEN
                 ),
             )
