@@ -40,8 +40,8 @@ class EvaluationEditLiveTest(LiveServerTest):
             role=Contribution.Role.EDITOR,
         )
 
-        self.enter_staff_mode()
-        self.selenium.get(self.live_server_url + reverse("staff:evaluation_edit", args=[evaluation.pk]))
+        with self.enter_staff_mode():
+            self.selenium.get(self.live_server_url + reverse("staff:evaluation_edit", args=[evaluation.pk]))
 
         row = self.wait.until(visibility_of_element_located((By.CSS_SELECTOR, "#id_contributions-0-contributor")))
         tomselect_options = row.get_property("tomselect")["options"]
@@ -62,7 +62,8 @@ class EvaluationEditLiveTest(LiveServerTest):
         editor_labels[0].click()
         own_and_general_labels[0].click()
 
-        submit_btn.click()
+        with self.enter_staff_mode():
+            submit_btn.click()
 
         contribution1.refresh_from_db()
 
