@@ -951,7 +951,7 @@ class QuestionnairesAssignForm(forms.Form):
         contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().exclude(
             visibility=Questionnaire.Visibility.HIDDEN
         )
-        general_questionnaires = Questionnaire.objects.general_questionnaires().exclude(
+        non_contributor_questionnaires = Questionnaire.objects.non_contributor_questionnaires().exclude(
             visibility=Questionnaire.Visibility.HIDDEN
         )
 
@@ -959,7 +959,7 @@ class QuestionnairesAssignForm(forms.Form):
             self.fields[f"general-{course_type.id}"] = forms.ModelMultipleChoiceField(
                 label=course_type.name,
                 required=False,
-                queryset=general_questionnaires,
+                queryset=non_contributor_questionnaires,
             )
             self.fields[f"contributor-{course_type.id}"] = forms.ModelMultipleChoiceField(
                 label=course_type.name,
