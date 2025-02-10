@@ -1,5 +1,5 @@
 import time
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from datetime import timedelta
 from importlib import import_module
@@ -297,14 +297,13 @@ class LiveServerTest(SeleniumTestCase):
         login(self.request, user, "evap.evaluation.auth.RequestAuthUserBackend")
         self.update_session()
 
-    def enter_staff_mode(self) -> None:
+    @contextmanager
+    def enter_staff_mode(self) -> Iterator[None]:
         self.request.session["staff_mode_start_time"] = time.time()
         self.update_session()
-
-    def exit_staff_mode(self) -> None:
-        if "staff_mode_start_time" in self.request.session:
-            del self.request.session["staff_mode_start_time"]
-            self.update_session()
+        yield
+        del self.request.session["staff_mode_start_time"]
+        self.update_session()
 
     @property
     def wait(self) -> WebDriverWait:
