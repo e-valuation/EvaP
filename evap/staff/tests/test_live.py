@@ -3,7 +3,7 @@ from datetime import date, datetime
 from django.urls import reverse
 from model_bakery import baker
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support.expected_conditions import visibility_of_element_located, element_to_be_clickable
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Program, Question, Questionnaire, UserProfile
 from evap.evaluation.tests.tools import LiveServerTest
@@ -43,8 +43,18 @@ class EvaluationEditLiveTest(LiveServerTest):
         self.enter_staff_mode()
         self.selenium.get(self.live_server_url + reverse("staff:evaluation_edit", args=[evaluation.pk]))
 
+        row = self.wait.until(visibility_of_element_located((By.CSS_SELECTOR, "#id_contributions-0-contributor")))
+        tomselect_options = row.get_property("tomselect")["options"]
+        manager_text = "manager (manager@institution.example.com)"
+        manager_options = [key for key, value in tomselect_options.items() if value["text"] == manager_text]
+        self.assertEqual(len(manager_options), 1)
+        self.selenium.execute_script(
+            f"""let tomselect = document.querySelector("#id_contributions-0-contributor").tomselect;
+            tomselect.setValue("{manager_options[0]}");"""
+        )
+
         submit_btn = self.wait.until(
-            expected_conditions.element_to_be_clickable((By.XPATH, "//button[@name='operation' and @value='save']"))
+            element_to_be_clickable((By.XPATH, "//button[@name='operation' and @value='save']"))
         )
 
         editor_labels = self.selenium.find_elements(By.XPATH, "//label[contains(text(), 'Editor')]")
@@ -56,7 +66,7 @@ class EvaluationEditLiveTest(LiveServerTest):
 
         contribution1.refresh_from_db()
 
-        self.assertEqual(contribution1.contributor_id, responsible.id)
+        self.assertEqual(contribution1.contributor_id, self.manager.id)
         self.assertEqual(contribution1.order, 0)
         self.assertEqual(contribution1.role, Contribution.Role.EDITOR)
         self.assertEqual(contribution1.textanswer_visibility, Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
