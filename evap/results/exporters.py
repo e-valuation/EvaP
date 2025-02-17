@@ -265,7 +265,7 @@ class ResultsExporter(ExcelExporter):
             )
 
             self.write_cell(_("Evaluation weight"), "bold")
-            self.write_cell("")
+            self.write_cell("", "missing_average")
             weight_percentages = (
                 f"{e.weight_percentage}%" if gt1 else None
                 for e, gt1 in zip(annotated_evaluations, count_gt_1, strict=True)
@@ -273,7 +273,7 @@ class ResultsExporter(ExcelExporter):
             self.write_row(weight_percentages, lambda s: "evaluation_weight" if s is not None else "default")
 
             self.write_cell(_("Course Grade"), "bold")
-            self.write_cell("")
+            self.write_cell("", "missing_average")
             for evaluation, gt1 in zip(annotated_evaluations, count_gt_1, strict=True):
                 if not gt1:
                     self.write_cell()
