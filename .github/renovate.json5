@@ -11,7 +11,7 @@
     {
       "groupName": "python dependencies",
       "groupSlug": "python",
-      "matchDatasources": ["pep621"]
+      "matchManagers": ["pep621"]
     },
     {
       "groupName": "node dependencies",
