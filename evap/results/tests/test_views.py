@@ -502,14 +502,14 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
             page_with_ratings_general_get_parameter.context["view_contributor_results"], ViewContributorResults.FULL
         )
 
-        page_with_ratings_general_get_parameter = self.app.get(
+        page_with_ratings_contributor_get_parameter = self.app.get(
             self.url + "?view_contributor_results=ratings", user=self.manager
         )
         self.assertEqual(
-            page_with_ratings_general_get_parameter.context["view_general_results"], ViewGeneralResults.FULL
+            page_with_ratings_contributor_get_parameter.context["view_general_results"], ViewGeneralResults.FULL
         )
         self.assertEqual(
-            page_with_ratings_general_get_parameter.context["view_contributor_results"], ViewContributorResults.RATINGS
+            page_with_ratings_contributor_get_parameter.context["view_contributor_results"], ViewContributorResults.RATINGS
         )
 
         self.app.get(  # raises bad request
