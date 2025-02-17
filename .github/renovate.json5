@@ -20,7 +20,8 @@
     {
       groupName: "github actions",
       groupSlug: "actions",
-      matchDatasources: ["github-tags"],
+      matchManagers: ["github-actions"],
+      matchDepNames: ["!ubuntu"], // keep ubuntu version the same as on the deployment server
     },
     {
       groupName: "nix flakes",
