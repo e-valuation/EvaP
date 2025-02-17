@@ -1,4 +1,5 @@
 from io import StringIO
+from itertools import product
 from unittest.mock import patch
 
 from django.contrib.auth.models import Group
@@ -509,7 +510,8 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
             page_with_ratings_contributor_get_parameter.context["view_general_results"], ViewGeneralResults.FULL
         )
         self.assertEqual(
-            page_with_ratings_contributor_get_parameter.context["view_contributor_results"], ViewContributorResults.RATINGS
+            page_with_ratings_contributor_get_parameter.context["view_contributor_results"],
+            ViewContributorResults.RATINGS,
         )
 
         self.app.get(  # raises bad request
@@ -772,7 +774,7 @@ class TestResultsTextanswerVisibility(WebTest):
         ".responsible_contributor_additional_orig_deleted.",
     ]
 
-    standard_general_textanswers = [
+    standard_general_textanswers = [  # subset of general_textanswers
         ".general_orig_published.",
         ".general_changed_published.",
         ".general_additional_orig_published.",
@@ -783,26 +785,18 @@ class TestResultsTextanswerVisibility(WebTest):
         cls.manager = make_manager()
         cache_results(Evaluation.objects.get(id=1))
 
-    def helper_test_general(self, user, view_general_results, expected_visible_textanswers):
-
-        textanswers_not_in = list(set(self.general_textanswers) - set(expected_visible_textanswers))
-        for contributor_view in ViewContributorResults:
+    def check_with_view(
+        self,
+        user,
+        expected_visible_textanswers,
+        general=ViewGeneralResults,
+        contributor=ViewContributorResults,
+        all_textanswers=general_textanswers + contributor_textanswers,
+    ):
+        textanswers_not_in = list(set(all_textanswers) - set(expected_visible_textanswers))
+        for general_view, contributor_view in product(general, contributor):
             page = self.app.get(
-                f"/results/semester/1/evaluation/1?view_general_results={view_general_results.value}&view_contributor_results={contributor_view.value}",
-                user=user,
-            )
-
-            for answer in expected_visible_textanswers:
-                self.assertIn(answer, page)
-            for answer in textanswers_not_in:
-                self.assertNotIn(answer, page)
-
-    def helper_test_contributor(self, user, view_contributor_results, expected_visible_textanswers):
-
-        textanswers_not_in = list(set(self.contributor_textanswers) - set(expected_visible_textanswers))
-        for general_view in ViewGeneralResults:
-            page = self.app.get(
-                f"/results/semester/1/evaluation/1?view_contributor_results={view_contributor_results.value}&view_general_results={general_view.value}",
+                f"/results/semester/1/evaluation/1?view_general_results={general_view.value}&view_contributor_results={contributor_view.value}",
                 user=user,
             )
 
@@ -812,118 +806,69 @@ class TestResultsTextanswerVisibility(WebTest):
                 self.assertNotIn(answer, page)
 
     def test_manager(self):
-        with run_in_staff_mode(self):  # in staff mode, the manager can see everything
-            user = "manager@institution.example.com"
-
-            self.helper_test_general(
+        user = self.manager
+        self.check_with_view(user, [])
+        with run_in_staff_mode(self):  # in staff mode, the manager can see everything except deleted or changed
+            visible_contributor_textanswers = [
+                ".contributor_orig_published.",
+                ".contributor_orig_private.",
+                ".responsible_contributor_orig_published.",
+                ".responsible_contributor_changed_published.",
+                ".responsible_contributor_orig_private.",
+                ".responsible_contributor_additional_orig_published.",
+            ]
+            self.check_with_view(
                 user,
-                ViewGeneralResults.FULL,
-                self.standard_general_textanswers,
+                self.standard_general_textanswers + visible_contributor_textanswers,
+                [ViewGeneralResults.FULL],
+                [ViewContributorResults.FULL],
             )
-            self.helper_test_general(user, ViewGeneralResults.RATINGS, [])
-
-            self.helper_test_contributor(
+            self.check_with_view(
                 user,
-                ViewContributorResults.FULL,
-                [
-                    ".contributor_orig_published.",
-                    ".contributor_orig_private.",
-                    ".responsible_contributor_orig_published.",
-                    ".responsible_contributor_changed_published.",
-                    ".responsible_contributor_orig_private.",
-                    ".responsible_contributor_additional_orig_published.",
-                ],
+                [],
+                [ViewGeneralResults.RATINGS],
+                [ViewContributorResults.RATINGS, ViewContributorResults.PERSONAL],
             )
-            self.helper_test_contributor(user, ViewContributorResults.RATINGS, [])
-            self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [])
-
-        user = "manager@institution.example.com"
-
-        self.helper_test_general(user, ViewGeneralResults.FULL, [])
-        self.helper_test_general(user, ViewGeneralResults.RATINGS, [])
-
-        self.helper_test_contributor(user, ViewContributorResults.FULL, [])
-        self.helper_test_contributor(user, ViewContributorResults.RATINGS, [])
-        self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [])
 
     def test_student(self):
         user = "student@institution.example.com"
-
-        self.helper_test_general(user, ViewGeneralResults.FULL, [])
-        self.helper_test_general(user, ViewGeneralResults.RATINGS, [])
-
-        self.helper_test_contributor(user, ViewContributorResults.FULL, [])
-        self.helper_test_contributor(user, ViewContributorResults.RATINGS, [])
-        self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [])
+        self.check_with_view(user, [])
 
     def test_responsible(self):
-
         user = "responsible@institution.example.com"
-
-        self.helper_test_general(
-            user,
-            ViewGeneralResults.FULL,
-            self.standard_general_textanswers,
-        )
-        self.helper_test_general(user, ViewGeneralResults.RATINGS, [])
-
-        self.helper_test_contributor(user, ViewContributorResults.FULL, [])
-        self.helper_test_contributor(user, ViewContributorResults.RATINGS, [])
-        self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [])
+        self.check_with_view(user, self.standard_general_textanswers, [ViewGeneralResults.FULL])
+        self.check_with_view(user, [], [ViewGeneralResults.RATINGS])
 
     def test_responsible_contributor(self):
-
         user = "responsible_contributor@institution.example.com"
-        contributor_textanswers_responsible_contributor_can_see = [
+        visible_contributor_textanswers = [
             ".responsible_contributor_orig_published.",
             ".responsible_contributor_changed_published.",
             ".responsible_contributor_orig_private.",
             ".responsible_contributor_additional_orig_published.",
         ]
-
-        self.helper_test_general(
+        self.check_with_view(user, [], [ViewGeneralResults.RATINGS], [ViewContributorResults.RATINGS])
+        self.check_with_view(
             user,
-            ViewGeneralResults.FULL,
-            self.standard_general_textanswers,
-        )
-        self.helper_test_general(user, ViewGeneralResults.RATINGS, [])
-
-        self.helper_test_contributor(
-            user,
-            ViewContributorResults.FULL,
-            contributor_textanswers_responsible_contributor_can_see,
-        )
-        self.helper_test_contributor(user, ViewContributorResults.RATINGS, [])
-        self.helper_test_contributor(
-            user,
-            ViewContributorResults.PERSONAL,
-            contributor_textanswers_responsible_contributor_can_see,
+            self.standard_general_textanswers + visible_contributor_textanswers,
+            [ViewGeneralResults.FULL],
+            [ViewContributorResults.FULL, ViewContributorResults.PERSONAL],
         )
 
     def test_contributor_general_textanswers(self):
         user = "contributor_general_textanswers@institution.example.com"
-
-        self.helper_test_general(
-            user,
-            ViewGeneralResults.FULL,
-            self.standard_general_textanswers,
-        )
-        self.helper_test_general(user, ViewGeneralResults.RATINGS, [])
-
-        self.helper_test_contributor(user, ViewContributorResults.FULL, [])
-        self.helper_test_contributor(user, ViewContributorResults.RATINGS, [])
-        self.helper_test_contributor(user, ViewContributorResults.PERSONAL, [])
+        self.check_with_view(user, self.standard_general_textanswers, [ViewGeneralResults.FULL])
+        self.check_with_view(user, [], [ViewGeneralResults.RATINGS])
 
     def test_contributor(self):
         user = "contributor@institution.example.com"
-        contributor_textanswers_contributor_can_see = [".contributor_orig_published.", ".contributor_orig_private."]
-
-        self.helper_test_general(user, ViewGeneralResults.FULL, [])
-        self.helper_test_general(user, ViewGeneralResults.RATINGS, [])
-
-        self.helper_test_contributor(user, ViewContributorResults.FULL, contributor_textanswers_contributor_can_see)
-        self.helper_test_contributor(user, ViewContributorResults.RATINGS, [])
-        self.helper_test_contributor(user, ViewContributorResults.PERSONAL, contributor_textanswers_contributor_can_see)
+        visible_contributor_textanswers = [".contributor_orig_published.", ".contributor_orig_private."]
+        self.check_with_view(user, [], contributor=[ViewContributorResults.RATINGS])
+        self.check_with_view(
+            user,
+            visible_contributor_textanswers,
+            contributor=[ViewContributorResults.FULL, ViewContributorResults.PERSONAL],
+        )
 
 
 class TestResultsOtherContributorsListOnExportView(WebTest):
