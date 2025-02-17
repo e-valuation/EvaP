@@ -40,13 +40,31 @@ dev = [
     "selenium~=4.27.0",
 ]
 
+[tool.uv]
+no-binary-package = [
+    "psycopg-c",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.uv]
-no-binary-package = [
-    "psycopg-c",
+[tool.hatch.build]
+skip-excluded-dirs = false  # otherwise, the artifacts below will be skipped
+exclude = [
+    "evap/static/bootstrap",
+    "evap/static/font-awesome",
+]
+artifacts = [
+    "evap/static/css/evap.css",
+    "evap/static/css/evap.css.map",
+    "evap/static/js/*.js",
+    "evap/static/js/*.map",
+    "evap/static/bootstrap/dist/js/bootstrap.bundle.min.js",
+    "evap/static/bootstrap/dist/js/bootstrap.bundle.min.js.map",
+    "evap/static/font-awesome/webfonts/",
+
+    "evap/locale/*.mo",
 ]
 
 ##############################################

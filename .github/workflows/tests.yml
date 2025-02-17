@@ -39,6 +39,37 @@ jobs:
       - name: Run tests
         run: python manage.py test --shuffle
 
+  build_wheel:
+    name: Build wheel
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: DeterminateSystems/nix-installer-action@main
+      - run: nix run .#build-dist
+      - run: tar tvf dist/*.tar.gz
+      - run: unzip -l dist/*.whl
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheel
+          path: dist/
+
+  install_wheel:
+    name: Install wheel with system Python
+    needs: build_wheel
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheel
+      - run: pip install *.whl
+      - name: Check that "evaluation" section appears in help string
+        run: python -m evap --help | grep --fixed-strings "[evaluation]"
+
   test_frontend:
     name: Test Frontend
 

@@ -91,6 +91,24 @@
               done
             '';
           };
+
+          build-dist = pkgs.writeShellApplication {
+            name = "build-dist";
+            runtimeInputs = with pkgs; [ nodejs gettext git ];
+            text =
+              let
+                python-dev = self.devShells.${system}.evap-dev.passthru.venv;
+                python-build = self.packages.${system}.python3.withPackages (ps: [ ps.build ]);
+              in
+              ''
+                set -x
+                npm ci
+                ${python-dev}/bin/python ./manage.py compilemessages
+                ${python-dev}/bin/python ./manage.py scss --production
+                ${python-dev}/bin/python ./manage.py ts compile --fresh
+                ${python-build}/bin/python -m build
+              '';
+          };
         });
     };
 }
