@@ -21,7 +21,12 @@
       groupName: "github actions",
       groupSlug: "actions",
       matchManagers: ["github-actions"],
-      matchDepNames: ["!ubuntu"], // keep ubuntu version the same as on the deployment server
+    },
+    {
+      groupName: "ubuntu",
+      groupSlug: "ubuntu",
+      matchDepNames: ["ubuntu"],
+      dependencyDashboardApproval: true, // manual update when deployment is updated
     },
     {
       groupName: "nix flakes",
