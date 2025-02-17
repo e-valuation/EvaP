@@ -1,0 +1,33 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "schedule": ["* 19-21 * * 1"],
+  "nix": {
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      "groupName": "python dependencies",
+      "groupSlug": "python",
+      "matchDatasources": ["uv"]
+    },
+    {
+      "groupName": "node dependencies",
+      "groupSlug": "node",
+      "matchDatasources": ["npm"],
+    },
+    {
+      "groupName": "github actions",
+      "groupSlug": "actions",
+      "matchDepTypes": ["action"]
+    },
+    {
+      "groupName": "nix flakes",
+      "groupSlug": "nix",
+      "matchDepTypes": ["nix"], // TODO: is this right?
+      "schedule": ["* 19-21 1 * *"]
+    }
+  ]
+}
