@@ -290,7 +290,7 @@ class ResultsExporter(ExcelExporter):
             )
 
     @classmethod
-    def _calculate_display_result(
+    def _get_average_grade_and_approval_ratio(
         cls, questionnaire_id: int, question: Question, results: OrderedDict[int, list[QuestionResult]]
     ) -> tuple[float | None, float | None]:
         value_sum = 0.0
@@ -316,7 +316,7 @@ class ResultsExporter(ExcelExporter):
         return avg, None
 
     @classmethod
-    def _calculate_display_result_average(
+    def _get_average_of_average_grade_and_approval_ratio(
         cls,
         evaluations_with_results: list[tuple[Evaluation, OrderedDict[int, list[QuestionResult]]]],
         questionnaire_id: int,
@@ -332,7 +332,7 @@ class ResultsExporter(ExcelExporter):
                 results.get(questionnaire_id) is None
             ):  # we iterate over all distinct questionaires from all evaluations but some evaluations do not include a specific questionaire
                 continue
-            avg, average_approval_ratio = cls._calculate_display_result(questionnaire_id, question, results)
+            avg, average_approval_ratio = cls._get_average_grade_and_approval_ratio(questionnaire_id, question, results)
             if avg is not None:
                 avg_value_sum += avg
                 count_avg += 1
@@ -364,7 +364,7 @@ class ResultsExporter(ExcelExporter):
         for question in self.filter_text_and_heading_questions(questionnaire.questions.all()):
             self.write_cell(question.text, "italic" if question.is_heading_question else "default")
 
-            average_grade, approval_ratio = self._calculate_display_result_average(
+            average_grade, approval_ratio = self._get_average_of_average_grade_and_approval_ratio(
                 all_evaluations_with_results, questionnaire.id, question
             )
             if approval_ratio is not None and average_grade is not None:
@@ -380,7 +380,9 @@ class ResultsExporter(ExcelExporter):
                     self.write_cell(style="border_left_right")
                     continue
 
-                avg, average_approval_ratio = self._calculate_display_result(questionnaire.id, question, results)
+                avg, average_approval_ratio = self._get_average_grade_and_approval_ratio(
+                    questionnaire.id, question, results
+                )
 
                 if avg is None:
                     self.write_cell(style="border_left_right")
