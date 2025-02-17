@@ -3,7 +3,9 @@
   "extends": [
     "config:recommended"
   ],
-  "schedule": ["* 19-21 * * 1"],
+  "schedule": [
+    "* 19-21 * * 1"
+  ],
   "nix": {
     "enabled": true
   },
@@ -12,23 +14,33 @@
     {
       "groupName": "python dependencies",
       "groupSlug": "python",
-      "matchManagers": ["pep621"]
+      "matchManagers": [
+        "pep621"
+      ]
     },
     {
       "groupName": "node dependencies",
       "groupSlug": "node",
-      "matchManagers": ["npm"],
+      "matchManagers": [
+        "npm"
+      ],
     },
     {
       "groupName": "github actions",
       "groupSlug": "actions",
-      "matchManagers": ["github-actions"],
+      "matchManagers": [
+        "github-actions"
+      ],
     },
     {
       "groupName": "nix flakes",
       "groupSlug": "nix",
-      "matchManagers": ["nix"],
-      "schedule": ["* 19-21 1 * *"]
+      "matchManagers": [
+        "nix"
+      ],
+      "schedule": [
+        "* 19-21 1 * *"
+      ]
     }
   ]
 }
