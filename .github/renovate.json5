@@ -11,7 +11,7 @@
     {
       "groupName": "python dependencies",
       "groupSlug": "python",
-      "matchDatasources": ["uv"]
+      "matchDatasources": ["pep621"]
     },
     {
       "groupName": "node dependencies",
@@ -21,12 +21,12 @@
     {
       "groupName": "github actions",
       "groupSlug": "actions",
-      "matchDepTypes": ["action"]
+      "matchDatasources": ["github-actions"]
     },
     {
       "groupName": "nix flakes",
       "groupSlug": "nix",
-      "matchDepTypes": ["nix"], // TODO: is this right?
+      "matchDatasources": ["nix"],
       "schedule": ["* 19-21 1 * *"]
     }
   ]
