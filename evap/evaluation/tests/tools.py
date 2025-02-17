@@ -36,7 +36,9 @@ from evap.evaluation.models import (
 )
 
 
-class SkipLiveServerTestsRunner(DiscoverRunner):
+class EvapTestRunner(DiscoverRunner):
+    """Skips selenium tests by default, if no other tags are specified."""
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         if not self.tags and not self.exclude_tags:

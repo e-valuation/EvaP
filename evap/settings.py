@@ -439,7 +439,7 @@ try:
 except ImportError:
     pass
 
-TEST_RUNNER = "evap.evaluation.tests.tools.SkipLiveServerTestsRunner"
+TEST_RUNNER = "evap.evaluation.tests.tools.EvapTestRunner"
 TESTING = "test" in sys.argv or "pytest" in sys.modules
 
 # speed up tests and activate typeguard introspection
