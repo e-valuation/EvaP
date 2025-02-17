@@ -126,13 +126,13 @@ class ResultsExporter(ExcelExporter):
         used_questionnaires: set[Questionnaire] = set()
 
         evaluations_filter = Q()
-        if semesters:
+        if semesters is not None:
             evaluations_filter &= Q(course__semester__in=semesters)
-        if evaluation_states:
+        if evaluation_states is not None:
             evaluations_filter &= Q(state__in=evaluation_states)
-        if program_ids:
+        if program_ids is not None:
             evaluations_filter &= Q(course__programs__in=program_ids)
-        if course_type_ids:
+        if course_type_ids is not None:
             evaluations_filter &= Q(course__type__in=course_type_ids)
 
         if contributor:
