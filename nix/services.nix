@@ -60,7 +60,8 @@
       text = ''
         set -e
         if [[ -f evap/localsettings.py ]]; then
-            echo "Found evap/localsettings.py, exiting. Use clean-setup in a nix develop shell to trigger rerun."
+            echo "Found evap/localsettings.py, exiting."
+            echo "If you want to install a fresh environment, run clean-setup in a nix develop shell."
             exit 0
         fi
         set -x
