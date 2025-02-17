@@ -266,7 +266,7 @@ class ResultsExporter(ExcelExporter):
 
             self.write_cell(_("Evaluation weight"), "bold")
             self.write_cell("")
-            weight_percentages = tuple(
+            weight_percentages = (
                 f"{e.weight_percentage}%" if gt1 else None
                 for e, gt1 in zip(annotated_evaluations, count_gt_1, strict=True)
             )
