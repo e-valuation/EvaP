@@ -1,5 +1,4 @@
 import datetime
-import logging
 import math
 from collections import OrderedDict
 from dataclasses import dataclass
@@ -259,11 +258,9 @@ def render_vote_page(
         questions_form for questions_form in evaluation_form_group if questions_form.questionnaire.is_above_contributors
     ]
 
+    evaluation_form_dropout = []
     if show_dropout_questionnaire:
-        if dropout_form := next(f for f in evaluation_form_group if f.questionnaire.is_dropout_questionnaire):
-            evaluation_form_group_top.insert(0, dropout_form)
-        else:
-            logging.error("Trying to render dropout form with no dropout questionnaire set")
+        evaluation_form_dropout = [f for f in evaluation_form_group if f.questionnaire.is_dropout_questionnaire]
 
     evaluation_form_group_bottom = [
         questions_form for questions_form in evaluation_form_group if questions_form.questionnaire.is_below_contributors
@@ -283,10 +280,10 @@ def render_vote_page(
         "errors_exist": errors_exist,
         "evaluation_form_group_top": evaluation_form_group_top,
         "evaluation_form_group_bottom": evaluation_form_group_bottom,
+        "evaluation_form_dropout": evaluation_form_dropout,
         "contributor_form_groups": contributor_form_groups,
         "evaluation": evaluation,
         "small_evaluation_size_warning": evaluation.num_participants <= settings.SMALL_COURSE_SIZE,
-        "show_dropout_questionnaire": show_dropout_questionnaire,
         "preview": preview,
         "success_magic_string": SUCCESS_MAGIC_STRING,
         "success_redirect_url": reverse("student:index"),
