@@ -16,17 +16,17 @@
     {
       "groupName": "node dependencies",
       "groupSlug": "node",
-      "matchDatasources": ["npm"],
+      "matchManagers": ["npm"],
     },
     {
       "groupName": "github actions",
       "groupSlug": "actions",
-      "matchDatasources": ["github-actions"]
+      "matchManagers": ["github-actions"],
     },
     {
       "groupName": "nix flakes",
       "groupSlug": "nix",
-      "matchDatasources": ["nix"],
+      "matchManagers": ["nix"],
       "schedule": ["* 19-21 1 * *"]
     }
   ]
