@@ -28,8 +28,7 @@ New portions and modifications are licensed under the conditions in LICENSE.md
  */
 
 interface AutoFormSaverOptions {
-    name?: string;
-    excludeFields: string[];
+    href: string;
     customKeySuffix: string;
     onSave: (arg0: AutoFormSaver) => void;
     onRestore: (arg0: AutoFormSaver) => void;
@@ -37,26 +36,19 @@ interface AutoFormSaverOptions {
 
 export class AutoFormSaver {
     private options: AutoFormSaverOptions;
-    private readonly href: string;
-    private readonly target: HTMLFormElement;
 
-    constructor(target: HTMLFormElement, options: AutoFormSaverOptions) {
-        const defaults = {
-            excludeFields: [],
+    constructor(
+        private readonly target: HTMLFormElement,
+        options: Partial<AutoFormSaverOptions>,
+    ) {
+        const defaults: AutoFormSaverOptions = {
             customKeySuffix: "",
-            timeout: 0,
+            href: location.hostname + location.pathname,
             onSave: function () {},
             onRestore: function () {},
         };
 
         this.options = { ...defaults, ...options };
-
-        this.target = target;
-        if (this.options.name) {
-            this.href = this.options.name;
-        } else {
-            this.href = location.hostname + location.pathname;
-        }
 
         this.restoreAllData();
 
@@ -78,13 +70,9 @@ export class AutoFormSaver {
         });
     }
 
-    getExcludeFields(): Element[] {
-        return this.options.excludeFields.flatMap(selector => Array.from(document.querySelectorAll(selector)));
-    }
-
     getPrefix(field: Element) {
         return (
-            this.href +
+            this.options.href +
             this.target.id +
             this.target.name +
             (field.getAttribute("name") ?? "") +
@@ -94,9 +82,6 @@ export class AutoFormSaver {
 
     bindSaveData() {
         for (const field of this.findFieldsToProtect()) {
-            if (this.getExcludeFields().includes(field)) {
-                continue;
-            }
             const prefix = this.getPrefix(field);
             if ((field instanceof HTMLInputElement && field.type === "text") || field instanceof HTMLTextAreaElement) {
                 this.bindSaveDataImmediately(field, prefix);
@@ -107,7 +92,7 @@ export class AutoFormSaver {
 
     saveAllData() {
         for (const field of this.findFieldsToProtect()) {
-            if (this.getExcludeFields().includes(field) || !field.getAttribute("name")) {
+            if (!field.getAttribute("name")) {
                 continue;
             }
             const prefix = this.getPrefix(field);
@@ -134,9 +119,6 @@ export class AutoFormSaver {
         let restored = false;
 
         for (const field of this.findFieldsToProtect()) {
-            if (this.getExcludeFields().includes(field)) {
-                continue;
-            }
             const storedValue = localStorage.getItem(this.getPrefix(field));
             if (storedValue !== null) {
                 this.restoreFieldsData(field, storedValue);
@@ -150,11 +132,11 @@ export class AutoFormSaver {
     }
 
     restoreFieldsData(field: Element, storedValue: string) {
-        if (field.getAttribute("name") === undefined) {
+        if (!field.hasAttribute("name")) {
             return false;
         }
         if (field instanceof HTMLInputElement && field.type === "checkbox") {
-            field.checked = storedValue !== "false";
+            field.checked = storedValue === "true";
         } else if (field instanceof HTMLInputElement && field.type === "radio") {
             if (field.value === storedValue) {
                 field.checked = true;
@@ -171,9 +153,7 @@ export class AutoFormSaver {
         });
     }
 
-    saveToBrowserStorage(key: string, value: any, fireCallback?: boolean) {
-        // if fireCallback is undefined it should be true
-        fireCallback = fireCallback ?? true;
+    saveToBrowserStorage(key: string, value: any, fireCallback = true) {
         // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
         localStorage.setItem(key, value + "");
         if (fireCallback && value !== "") {
@@ -189,9 +169,6 @@ export class AutoFormSaver {
 
     releaseData() {
         for (const field of this.findFieldsToProtect()) {
-            if (this.getExcludeFields().includes(field)) {
-                continue;
-            }
             localStorage.removeItem(this.getPrefix(field));
         }
     }
