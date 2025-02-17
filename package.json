@@ -11,7 +11,7 @@
         "jest-environment-puppeteer": "^11.0.0",
         "jest-jasmine2": "^29.7.0",
         "jest-ts-webcompat-resolver": "^1.0.0",
-        "prettier": "^3.4.1",
+        "prettier": "^3.5.1",
         "puppeteer": "^24.0.0",
         "sass": "1.77.1",
         "ts-jest": "^29.2.0",
