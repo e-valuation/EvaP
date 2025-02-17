@@ -2,7 +2,8 @@
     {% translate 'Evaluate' %}
 </a>
 {% if evaluation.is_dropout_allowed %}
-    <confirmation-modal>
+    <form method="get" action="{% url 'student:drop' evaluation.id %}">
+    <confirmation-modal type="submit" confirm-button-class="btn-danger">
         <span slot="title">{% translate 'Did you drop this course?' %}</span>
         <span slot="question">
             {% blocktranslate %}
@@ -10,11 +11,12 @@
                 will not be able to submit the questionnaire another time.
             {% endblocktranslate %}
         </span>
-        <a class="btn btn-danger ms-2" slot="submit-group"
-           href="{% url 'student:drop' evaluation.id %}">{% translate 'I dropped this course' %}</a>
-        <button slot="show-button" class="btn btn-sm btn-secondary" title="{% translate 'I dropped this course' %}"
+        <span slot="action-text">{% translate 'I dropped this course' %}</span>
+        <button type="button" slot="show-button" class="btn btn-sm btn-secondary"
+                title="{% translate 'I dropped this course' %}"
                 data-bs-toggle="tooltip" data-bs-placement="top">
             <span class="fas fa-user-xmark"></span>
         </button>
     </confirmation-modal>
+    </form>
 {% endif %}
