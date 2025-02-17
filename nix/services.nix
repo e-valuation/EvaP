@@ -42,7 +42,8 @@
         CUR_HASH=$(nix-hash --flat ./package.json ./package-lock.json | paste -sd " ")
         echo "Hash is $CUR_HASH"
         if [[ -f node_modules/evap-hash && "$CUR_HASH" == "$(cat node_modules/evap-hash)" ]]; then
-            echo "Equal node_modules/evap-hash found, exiting. Quit, run clean-setup in a nix develop shell, and restart this command to trigger a rerun."
+            echo "Equal node_modules/evap-hash found, exiting."
+            echo "If you want to install a fresh environment, run clean-setup in a nix develop shell."
             exit 0
         fi
         npm ci
