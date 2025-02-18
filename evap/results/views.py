@@ -209,26 +209,24 @@ def evaluation_detail(request, semester_id, evaluation_id):
 
     is_responsible_or_contributor_or_delegate = evaluation.is_user_responsible_or_contributor_or_delegate(view_as_user)
 
-    general_textanswers = False
-    contributor_textanswers = False
-    contributor_personal = False
+    contributor_textanswers = view_as_user.is_reviewer or any(
+        evaluation.is_user_contributor(user) for user in represented_users
+    )
+    contributor_personal = evaluation.is_user_contributor(view_as_user)
 
-    if view_as_user.is_reviewer:
-        general_textanswers = True
-        contributor_textanswers = True
+    user_represents_responsible = any(user in represented_users for user in evaluation.course.responsibles.all())
+    user_represents_general_visibilty_contributor = any(
+        evaluation.is_user_contributor(user)
+        and evaluation.contributions.filter(
+            contributor=user,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        ).exists()
+        for user in represented_users
+    )
 
-    if evaluation.is_user_contributor(view_as_user):
-        contributor_personal = True
-    for user in represented_users:
-        if user in evaluation.course.responsibles.all():
-            general_textanswers = True
-        if evaluation.is_user_contributor(user):
-            if evaluation.contributions.filter(
-                contributor=user,
-                textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-            ).exists():
-                general_textanswers = True
-            contributor_textanswers = True
+    general_textanswers = (
+        view_as_user.is_reviewer or user_represents_responsible or user_represents_general_visibilty_contributor
+    )
 
     template_data = {
         "evaluation": evaluation,
@@ -429,24 +427,12 @@ def evaluation_detail_parse_get_parameters(request, evaluation):
         raise PermissionDenied
 
     try:
+        view_general_results = ViewGeneralResults(request.GET.get("view_general_results", ViewGeneralResults.FULL))
         view_contributor_results = ViewContributorResults(
             request.GET.get("view_contributor_results", ViewContributorResults.FULL)
         )
-    except ValueError as e:
-        raise BadRequest from e
 
-    try:
-        view_general_results = ViewGeneralResults(
-            request.GET.get(
-                "view_general_results",
-                ViewGeneralResults.FULL,
-            )
-        )
-    except ValueError as e:
-        raise BadRequest from e
-
-    view_as_user = request.user
-    try:
+        view_as_user = request.user
         contributor = get_object_or_404(UserProfile, pk=request.GET.get("contributor_id", request.user.id))
     except ValueError as e:
         raise BadRequest from e
@@ -455,8 +441,7 @@ def evaluation_detail_parse_get_parameters(request, evaluation):
         view_as_user = contributor
     contributor_id = contributor.pk if contributor != request.user else None
 
-    represented_users = [view_as_user]
-    represented_users += list(view_as_user.represented_users.all())
+    represented_users = [view_as_user, *view_as_user.represented_users.all()]
 
     return view_general_results, view_contributor_results, view_as_user, represented_users, contributor_id
 

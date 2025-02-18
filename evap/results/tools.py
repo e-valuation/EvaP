@@ -507,33 +507,27 @@ def can_textanswer_be_seen_by(  # noqa: PLR0911,PLR0912
     # and in results.tests.test_tools.TestTextAnswerVisibilityInfo
     if textanswer.contribution.is_general:
         if view_general_results == ViewGeneralResults.FULL:
-            if user.is_reviewer:
-                return True
-
-            # user can see general textanswer if represented user can see it
-            if textanswer.contribution.evaluation.contributions.filter(
-                contributor__in=represented_users,
-                textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-            ).exists():
-                return True
-
-            # the people responsible for a course can see all general text answers for all its evaluations
-            if textanswer.contribution.evaluation.course.responsibles.filter(
-                pk__in=(user.pk for user in represented_users)
-            ).exists():
-                return True
+            return (
+                user.is_reviewer
+                or textanswer.contribution.evaluation.contributions.filter(
+                    contributor__in=represented_users,
+                    textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+                ).exists()  #  represented user can see the textanswer
+                or textanswer.contribution.evaluation.course.responsibles.filter(
+                    pk__in=(user.pk for user in represented_users)
+                ).exists()  # responsible people for a course can see all general text answers for all its evaluations
+            )
     else:
-        if view_contributor_results == ViewContributorResults.RATINGS:
-            return False
-        if user.is_reviewer:
-            return True
-        if (
-            view_contributor_results == ViewContributorResults.PERSONAL or textanswer.is_private
-        ):  # private textanswers should only be seen by the contributor and reviewer
-            return contributor == user
-        if view_contributor_results == ViewContributorResults.FULL:
-            # users can see textanswers if the contributor is one of their represented users (which includes the user itself)
-            if contributor in represented_users:
-                return True
+        match view_contributor_results:
+            case ViewContributorResults.RATINGS:
+                return False
+            case ViewContributorResults.PERSONAL:
+                return user.is_reviewer or contributor == user
+            case ViewContributorResults.FULL:
+                if user.is_reviewer:
+                    return True
+                if textanswer.is_private:
+                    return user == contributor
+                return contributor in represented_users
 
     return False
