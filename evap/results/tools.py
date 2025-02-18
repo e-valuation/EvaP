@@ -512,7 +512,7 @@ def can_textanswer_be_seen_by(  # noqa: PLR0911,PLR0912
                 or textanswer.contribution.evaluation.contributions.filter(
                     contributor__in=represented_users,
                     textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-                ).exists()  #  represented user can see the textanswer
+                ).exists()  # represented user can see the textanswer
                 or textanswer.contribution.evaluation.course.responsibles.filter(
                     pk__in=(user.pk for user in represented_users)
                 ).exists()  # responsible people for a course can see all general text answers for all its evaluations
