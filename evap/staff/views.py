@@ -905,6 +905,7 @@ def semester_questionnaire_assign(request, semester_id):
 
     general_fields = [field for field in form if field.name.startswith("general-")]
     contributor_fields = [field for field in form if field.name.startswith("contributor-")]
+    contributor_fields.append(form["all-contributors"])
 
     if form.is_valid():
         for evaluation in evaluations:
@@ -915,6 +916,9 @@ def semester_questionnaire_assign(request, semester_id):
             if form.cleaned_data[f"contributor-{evaluation.course.type.id}"]:
                 for contribution in evaluation.contributions.exclude(contributor=None):
                     contribution.questionnaires.set(form.cleaned_data[f"contributor-{evaluation.course.type.id}"])
+            if form.cleaned_data["all-contributors"]:
+                for contribution in evaluation.contributions.exclude(contributor=None):
+                    contribution.questionnaires.set(form.cleaned_data["all-contributors"])
             evaluation.save()
 
         messages.success(request, _("Successfully assigned questionnaires."))
