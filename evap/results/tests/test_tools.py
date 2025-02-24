@@ -435,6 +435,25 @@ class TestCalculateAverageDistribution(TestCase):
         self.assertEqual(distribution[3], 0)
         self.assertEqual(distribution[4], 0)
 
+    def test_dropout_questionnaires_are_not_included(self):
+        general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        general_question = baker.make(Question, questionnaire=general_questionnaire, type=QuestionType.GRADE)
+
+        dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
+        dropout_question = baker.make(Question, questionnaire=dropout_questionnaire, type=QuestionType.GRADE)
+
+        contribution = baker.make(
+            Contribution, evaluation=self.evaluation, questionnaires=[general_questionnaire, dropout_questionnaire]
+        )
+
+        make_rating_answer_counters(general_question, contribution, [10, 10, 0, 0, 0])
+        make_rating_answer_counters(dropout_question, contribution, [0, 0, 0, 0, 10])
+
+        cache_results(self.evaluation)
+
+        calculated_grade = distribution_to_grade(calculate_average_distribution(self.evaluation))
+        self.assertAlmostEqual(calculated_grade, 1.5)
+
 
 class TestTextAnswerVisibilityInfo(TestCase):
     @classmethod
