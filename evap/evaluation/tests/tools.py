@@ -168,7 +168,13 @@ def create_evaluation_with_responsible_and_editor():
         questionnaires=[baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)],
         role=Contribution.Role.EDITOR,
     )
-    evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire, type=Questionnaire.Type.TOP)])
+    evaluation.general_contribution.questionnaires.set(
+        [
+            baker.make(Questionnaire, type=Questionnaire.Type.TOP),
+            baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT),
+            baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM),
+        ]
+    )
 
     return {
         "evaluation": evaluation,
