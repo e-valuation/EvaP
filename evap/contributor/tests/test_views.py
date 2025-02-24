@@ -272,6 +272,26 @@ class TestContributorEvaluationEditView(WebTest):
         self.assertEqual(page.body.decode().count("Request changes"), 0)
         self.assertEqual(page.body.decode().count("Request creation of new account"), 2)
 
+    def test_questionnaire_input_hidden_if_options_empty(self):
+        for q in Questionnaire.objects.all():
+            q.visibility = Questionnaire.Visibility.MANAGERS
+            q.save()
+
+        self.evaluation.general_contribution.questionnaires.clear()
+        self.evaluation.save()
+
+        page = self.app.get(self.url, user=self.responsible, status=200)
+        self.assertNotContains(page, "General questionnaires")
+        self.assertNotContains(page, "Dropout Questionnaires")
+
+        self.evaluation.general_contribution.questionnaires.add(*Questionnaire.objects.general_questionnaires())
+        self.evaluation.general_contribution.questionnaires.add(*Questionnaire.objects.dropout_questionnaires())
+        self.evaluation.save()
+
+        page = self.app.get(self.url, user=self.responsible, status=200)
+        self.assertContains(page, "General questionnaires")
+        self.assertContains(page, "Dropout Questionnaires")
+
 
 class TestContributorResultsExportView(WebTest):
     @classmethod
