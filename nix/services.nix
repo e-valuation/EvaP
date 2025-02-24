@@ -42,7 +42,8 @@
         CUR_HASH=$(nix-hash --flat ./package.json ./package-lock.json | paste -sd " ")
         echo "Hash is $CUR_HASH"
         if [[ -f node_modules/evap-hash && "$CUR_HASH" == "$(cat node_modules/evap-hash)" ]]; then
-            echo "Equal hash found, exiting"
+            echo "Equal node_modules/evap-hash found, exiting."
+            echo "If you want to install a fresh environment, run clean-setup in a nix develop shell."
             exit 0
         fi
         npm ci
@@ -59,7 +60,8 @@
       text = ''
         set -e
         if [[ -f evap/localsettings.py ]]; then
-            echo "Found evap/localsettings.py, exiting"
+            echo "Found evap/localsettings.py, exiting."
+            echo "If you want to install a fresh environment, run clean-setup in a nix develop shell."
             exit 0
         fi
         set -x

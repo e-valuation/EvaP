@@ -37,6 +37,9 @@ We use [nix](https://nixos.org/) to manage the development environment.
 To stop EvaP or the background services, press `Ctrl-C`.
 To exit the development shell, press `Ctrl-D` or type `exit`.
 
+Inside the development shell, after quitting the background services, you can run the command `clean-setup` to remove persistent state (database, node modules, localsettings).
+Afterwards, `nix run .#services-full` will recreate a default development environment on startup.
+
 ## Contributing
 
 We'd love to see contributions! PRs solving existing issues are most helpful to us. It's best if you ask to be assigned for the issue so we won't have multiple people working on the same issue. Feel free to open issues for bugs, setup problems, or feature requests. If you have other questions, feel free to contact the [organization members](https://github.com/orgs/e-valuation/people). You should probably branch off `main`, the branch `release` is used for stable revisions.

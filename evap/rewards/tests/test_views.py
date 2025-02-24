@@ -139,7 +139,8 @@ class TestEventCreateView(WebTestStaffMode):
         response = self.app.get(self.url, user=self.manager)
 
         form = response.forms["reward-point-redemption-event-form"]
-        form.set("name", "Test3Event")
+        form.set("name_de", "Test3Event_de")
+        form.set("name_en", "Test3Event_en")
         form.set("date", "2014-12-10")
         form.set("redeem_end_date", "2014-11-20")
 
@@ -152,7 +153,7 @@ class TestEventEditView(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.event = baker.make(RewardPointRedemptionEvent, name="old name")
+        cls.event = baker.make(RewardPointRedemptionEvent, name_en="old name", name_de="alter Name")
         cls.url = reverse("rewards:reward_point_redemption_event_edit", args=[cls.event.pk])
 
     def test_edit_redemption_event(self):
@@ -160,11 +161,13 @@ class TestEventEditView(WebTestStaffMode):
         response = self.app.get(self.url, user=self.manager)
 
         form = response.forms["reward-point-redemption-event-form"]
-        form.set("name", "new name")
+        form.set("name_en", "new name")
+        form.set("name_de", "neuer Name")
 
         response = form.submit()
         self.assertRedirects(response, reverse("rewards:reward_point_redemption_events"))
-        self.assertEqual(RewardPointRedemptionEvent.objects.get(pk=self.event.pk).name, "new name")
+        self.assertEqual(RewardPointRedemptionEvent.objects.get(pk=self.event.pk).name_en, "new name")
+        self.assertEqual(RewardPointRedemptionEvent.objects.get(pk=self.event.pk).name_de, "neuer Name")
 
 
 class TestEventExportView(WebTestStaffModeWith200Check):
