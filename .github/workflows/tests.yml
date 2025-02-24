@@ -104,8 +104,8 @@ jobs:
 
       - name: Compile assets
         run: |
-          ./manage.py ts compile
-          ./manage.py scss
+          python manage.py ts compile
+          python manage.py scss
 
       - name: Run tests (shuffled)
         run: coverage run manage.py test --shuffle --tag selenium
@@ -128,9 +128,6 @@ jobs:
 
   typescript:
     runs-on: ubuntu-22.04
-
-    needs: [ compile_scss ]
-
     name: Test Typescript
 
     steps:
@@ -140,10 +137,9 @@ jobs:
       - uses: ./.github/setup_evap
         with:
           npm-ci: true
-      - name: Compile Typescript
-        run: npx tsc --project evap/static/ts/tsconfig.compile.json
+
       - name: Run tests
-        run: npx jest
+        run: python manage.py ts test
 
   linter:
     runs-on: ubuntu-22.04
@@ -217,27 +213,6 @@ jobs:
           EVAP_SKIP_CHECKOUT: true
       - name: Reload backup
         run: echo "yy" | deployment/load_production_backup.sh backup.json
-
-  compile_scss:
-    runs-on: ubuntu-22.04
-
-    name: Compile Scss
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-      - uses: ./.github/setup_evap
-        with:
-          npm-ci: true
-
-      - name: Compile Scss
-        run: npx sass evap/static/scss/evap.scss evap/static/css/evap.css
-      - name: Store Css
-        uses: actions/upload-artifact@v4
-        with:
-          name: css
-          path: evap/static/css/evap.css
 
   macos-nix-build:
     runs-on: macos-14
