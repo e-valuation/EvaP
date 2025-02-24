@@ -5,9 +5,7 @@ from django.db import migrations, models
 
 def _migrate(apps, schema_editor):
     Evaluation = apps.get_model("evaluation", "Evaluation")
-    for evaluation in Evaluation.objects.filter(state__gte=40):
-        evaluation.main_language = "de"
-        evaluation.save()
+    Evaluation.objects.filter(state__gte=40).update(main_language="de")
 
 class Migration(migrations.Migration):
 
