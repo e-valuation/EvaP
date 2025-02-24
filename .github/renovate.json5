@@ -1,7 +1,7 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: ["config:recommended"],
-  schedule: ["* 19-21 * * 1"],
+  schedule: ["* 19-21 1 * *"],
   nix: {
     enabled: true,
   },
@@ -32,7 +32,7 @@
       groupName: "nix flakes",
       groupSlug: "nix",
       matchManagers: ["nix"],
-      schedule: ["* 19-21 1 * *"],
+      schedule: ["* 19-21 1 */3 *"],
     },
   ],
 }
