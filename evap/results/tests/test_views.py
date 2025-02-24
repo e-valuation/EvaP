@@ -602,6 +602,30 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         body = self.app.get(self.url, user=self.manager).body.decode()
         self.assertTrue(body.find("EvaluationA") < body.find("EvaluationB") < body.find("EvaluationC"))
 
+    def test_dropout_results_shown(self):
+        participants = baker.make(UserProfile, _bulk_create=True, _quantity=20)
+        self.evaluation.dropout_count = 42
+        self.evaluation.voters.set(participants)
+        self.evaluation.participants.set(participants)
+        self.evaluation.save()
+
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
+        question = baker.make(
+            Question, text_en="SomeQuestionText", type=QuestionType.POSITIVE_YES_NO, questionnaire=questionnaire
+        )
+        self.evaluation.general_contribution.questionnaires.add(questionnaire)
+        make_rating_answer_counters(question, self.evaluation.general_contribution, answer_counts=[10, 5])
+
+        cache_results(self.evaluation)
+
+        self.evaluation.general_contribution.questionnaires.add(questionnaire)
+        response = self.app.get(self.url, user=self.manager, status=200)
+
+        self.assertContains(response, "Dropout")
+        self.assertContains(response, "42")
+        self.assertContains(response, "15")
+        self.assertContains(response, "SomeQuestionText")
+
 
 class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
     @classmethod
