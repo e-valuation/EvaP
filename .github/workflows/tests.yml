@@ -109,6 +109,25 @@ jobs:
       - name: Run MyPy
         run: mypy
 
+  typescript:
+    runs-on: ubuntu-22.04
+
+    needs: [ compile_scss ]
+
+    name: Test Typescript
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: ./.github/setup_evap
+        with:
+          npm-ci: true
+      - name: Compile Typescript
+        run: npx tsc --project evap/static/ts/tsconfig.compile.json
+      - name: Run tests
+        run: npx jest
+
   linter:
     runs-on: ubuntu-22.04
 
