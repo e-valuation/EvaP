@@ -164,6 +164,9 @@
                         plugins: {},
                         hideSelected: false,
                     };
+                    if (element.hasAttribute("tomselect-no-sort")) {
+                        baseOptions.sortField = [{field:'$order'},{field:'$score'}];
+                    }
                     if(element.hasAttribute("data-tomselect-fullwidth")) {
                         // span needed to the "remove this icon" button is right-aligned
                         baseOptions.render.item = (data, escape) => `<div class="w-100"><span class="w-100">${ escape(data.text) }</span></div>`;
