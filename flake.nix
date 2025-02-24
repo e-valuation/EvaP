@@ -42,6 +42,7 @@
             inherit (self.packages.${system}) python3;
             inherit (inputs) pyproject-nix uv2nix pyproject-build-systems;
             inherit dependency-groups;
+            our-packages = self.packages.${system};
             workspaceRoot = ./.;
           };
           evap-dev = evap.override (prev: { dependency-groups = (prev.dependency-groups or [ ]) ++ [ "dev" ]; });
@@ -107,6 +108,16 @@
                 ${python-dev}/bin/python ./manage.py scss --production
                 ${python-dev}/bin/python ./manage.py ts compile --fresh
                 ${python-build}/bin/python -m build
+              '';
+          };
+
+          clean-setup = pkgs.writeShellApplication {
+            name = "clean-setup";
+            runtimeInputs = with pkgs; [ git ];
+            text = ''
+                read -r -p "Delete node_modules/, data/, generated CSS and JS files in evap/static/, and evap/localsettings.py? [y/N] "
+                [[ "$REPLY" =~ ^[Yy]$ ]] || exit 1
+                git clean -f -X evap/static/ node_modules/ data/ evap/localsettings.py
               '';
           };
         });

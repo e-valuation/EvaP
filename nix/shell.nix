@@ -1,17 +1,10 @@
-{ pkgs, lib ? pkgs.lib, python3, pyproject-nix, uv2nix, pyproject-build-systems, workspaceRoot, extraPackages ? [ ], dependency-groups ? [ ], ... }:
+{ pkgs, lib ? pkgs.lib, python3, pyproject-nix, uv2nix, pyproject-build-systems, workspaceRoot, extraPackages ? [ ], dependency-groups ? [ ], our-packages, ... }:
 
 let
   # When running a nix shell, XDG_DATA_DIRS will be populated so that bash_completion can (lazily) find this completion script
   evap-managepy-completion = pkgs.runCommand "evap-managepy-completion" { } ''
     mkdir -p "$out/share/bash-completion/completions"
     install ${../deployment/manage_autocompletion.sh} "$out/share/bash-completion/completions/manage.py.bash"
-  '';
-
-  clean-setup = pkgs.writeShellScriptBin "clean-setup" ''
-    read -p "Delete node_modules/, data/ and evap/localsettings.py? [y/N] "
-    [[ "$REPLY" =~ ^[Yy]$ ]] || exit 1
-    set -ex
-    rm -rf node_modules/ data/ evap/localsettings.py
   '';
 
   workspace = uv2nix.lib.workspace.loadWorkspace { inherit workspaceRoot; };
@@ -35,7 +28,7 @@ pkgs.mkShell {
     git
 
     venv
-    clean-setup
+    our-packages.clean-setup
     evap-managepy-completion
   ] ++ extraPackages;
 
