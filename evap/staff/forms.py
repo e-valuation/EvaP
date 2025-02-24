@@ -142,6 +142,7 @@ class EvaluationParticipantCopyForm(forms.Form):
                 choices += [(semester.name, evaluation_choices)]
 
         self.fields["evaluation"].choices = choices
+        self.fields["evaluation"].widget.attrs["tomselect-no-sort"] = "true"
 
     def clean(self):
         if self.evaluation_selection_required and self.cleaned_data.get("evaluation") is None:
