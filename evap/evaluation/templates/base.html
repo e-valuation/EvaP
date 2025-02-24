@@ -164,7 +164,7 @@
                         plugins: {},
                         hideSelected: false,
                     };
-                    if (element.hasAttribute("tomselect-no-sort") && element.getAttribute("tomselect-no-sort") == 'true') {
+                    if (element.hasAttribute("tomselect-no-sort")) {
                         baseOptions.sortField = [{field:'$order'},{field:'$score'}];
                     }
                     if(element.hasAttribute("data-tomselect-fullwidth")) {
