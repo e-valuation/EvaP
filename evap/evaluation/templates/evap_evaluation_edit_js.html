@@ -71,6 +71,20 @@
             });
         }
     }
+
+    // Update participant count displayed in form
+    let participant_list = document.getElementById("id_participants").tomselect;
+    participant_list.on("item_add", function() {
+        count_participants();
+    });
+    participant_list.on("item_remove", function() {
+        count_participants();
+    });
+
+    function count_participants(){
+        participant_counter = document.getElementById("participant_counter");
+        participant_counter.innerHTML = participant_list.items.length;
+    }
 </script>
 
 {% block additional_javascript %}
