@@ -77,7 +77,7 @@ from evap.results.exporters import ResultsExporter
 from evap.results.tools import TextResult, calculate_average_distribution, distribution_to_grade
 from evap.results.views import update_template_cache_of_published_evaluations_in_course
 from evap.rewards.models import RewardPointGranting
-from evap.rewards.tools import can_reward_points_be_used_by, is_semester_activated
+from evap.rewards.tools import can_reward_points_be_used_by, is_semester_activated, deactivate_semester
 from evap.staff import staff_mode
 from evap.staff.forms import (
     AtLeastOneFormset,
@@ -679,6 +679,9 @@ def semester_delete(request):
     if not semester.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting semester not allowed")
     with transaction.atomic():
+        # ensure deleting evaluations can not grant redemption points
+        deactivate_semester(semester)
+
         RatingAnswerCounter.objects.filter(contribution__evaluation__course__semester=semester).delete()
         TextAnswer.objects.filter(contribution__evaluation__course__semester=semester).delete()
         Contribution.objects.filter(evaluation__course__semester=semester).delete()

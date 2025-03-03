@@ -10,6 +10,7 @@ import xlrd
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
+from django.db import transaction
 from django.db.models import Model
 from django.http import HttpResponse
 from django.test import override_settings
@@ -50,6 +51,7 @@ from evap.evaluation.tests.tools import (
 from evap.grades.models import GradeDocument
 from evap.results.tools import TextResult, cache_results, get_results
 from evap.rewards.models import RewardPointGranting, SemesterActivation
+from evap.rewards.tools import reward_points_of_user
 from evap.staff.forms import ContributionCopyForm, ContributionCopyFormset, CourseCopyForm, EvaluationCopyForm
 from evap.staff.tests.utils import (
     WebTestStaffMode,
@@ -898,6 +900,28 @@ class TestSemesterDeleteView(DeleteViewTestMixin, WebTestStaffMode):
         self.app.post(self.url, params=self.post_params, user=self.user)
 
         self.assertFalse(Semester.objects.filter(pk=self.instance.pk).exists())
+
+    @override_settings(REWARD_POINTS=[(1, 3)])
+    def test_does_not_grant_redemption_points(self):
+        student = baker.make(UserProfile, email="student@institution.example.com")
+        evaluation = baker.make(Evaluation, participants=[student], state=Evaluation.State.PUBLISHED, course__semester=self.instance)
+        SemesterActivation.objects.update_or_create(semester=self.instance, defaults={"is_active": True})
+
+        # student must be participant in at least one other evaluation
+        evaluation2 = baker.make(Evaluation, participants=[student], voters=[student], state=Evaluation.State.PUBLISHED, course__semester=self.instance)
+
+        self.instance.archive()
+        self.instance.delete_grade_documents()
+        self.instance.archive_results()
+
+        # just deleting the evaluation would grant redemption point -- ensures setup above is sufficient
+        with transaction.atomic():
+            Evaluation.objects.get(pk=evaluation.pk).delete()
+            assert reward_points_of_user(student) == 3
+            transaction.set_rollback(True)
+
+        self.app.post(self.url, params=self.post_params, user=self.user)
+        self.assertEqual(reward_points_of_user(student), 0)
 
 
 class TestSemesterAssignView(WebTestStaffMode):
