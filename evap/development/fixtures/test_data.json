@@ -152737,7 +152737,7 @@
     "is_superuser": false,
     "password": "pbkdf2_sha256$12000$lRV0h1V7qLSK$pKzYyUhT7l65JxoIv7Du3btUHYzfGCZ81JFtbF9ymOY=",
     "last_login": "2014-03-24T10:25:43.302",
-    "email": "dot.carlisle@external.example.com",
+    "email": null,
     "title": "",
     "first_name_given": "Dot",
     "first_name_chosen": "",
