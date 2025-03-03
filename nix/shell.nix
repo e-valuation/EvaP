@@ -4,7 +4,7 @@ let
   # When running a nix shell, XDG_DATA_DIRS will be populated so that bash_completion can (lazily) find this completion script
   evap-managepy-completion = pkgs.runCommand "evap-managepy-completion" { } ''
     mkdir -p "$out/share/bash-completion/completions"
-    install ${../deployment/manage_autocompletion.sh} "$out/share/bash-completion/completions/manage.py.bash"
+    install ${../evap/development/manage_autocompletion.sh} "$out/share/bash-completion/completions/manage.py.bash"
   '';
 
   workspace = uv2nix.lib.workspace.loadWorkspace { inherit workspaceRoot; };

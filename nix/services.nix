@@ -65,7 +65,7 @@
             exit 0
         fi
         set -x
-        cp deployment/localsettings.template.py evap/localsettings.py
+        cp evap/development/localsettings.template.py evap/localsettings.py
         sed -i -e "s/\$SECRET_KEY/$(head /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | head -c 32)/" evap/localsettings.py
         git submodule update --init
         ./manage.py compilemessages --locale de
