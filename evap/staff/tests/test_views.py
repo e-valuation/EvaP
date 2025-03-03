@@ -1,6 +1,5 @@
 import csv
 import datetime
-import os
 from abc import ABC, abstractmethod
 from io import BytesIO
 from typing import Literal
@@ -14,10 +13,8 @@ from django.core import mail
 from django.db.models import Model
 from django.http import HttpResponse
 from django.test import override_settings
-from django.test.testcases import TestCase
 from django.urls import reverse
 from django.utils import translation
-from django_webtest import WebTest
 from model_bakery import baker
 
 import evap.staff.fixtures.excel_files_test_data as excel_data
@@ -41,12 +38,13 @@ from evap.evaluation.models import (
 )
 from evap.evaluation.tests.tools import (
     FuzzyInt,
+    TestCase,
+    WebTest,
     assert_no_database_modifications,
     create_evaluation_with_responsible_and_editor,
     let_user_vote_for_evaluation,
     make_manager,
     make_rating_answer_counters,
-    render_pages,
     submit_with_modal,
 )
 from evap.grades.models import GradeDocument
@@ -420,7 +418,7 @@ class TestUserMergeView(WebTestStaffModeWith200Check):
 
 class TestUserBulkUpdateView(WebTestStaffMode):
     url = "/staff/user/bulk_update"
-    filename = os.path.join(settings.BASE_DIR, "staff/fixtures/test_user_bulk_update_file.txt")
+    filename = str(settings.MODULE / "staff" / "fixtures" / "test_user_bulk_update_file.txt")
 
     @classmethod
     def setUpTestData(cls):
@@ -610,12 +608,6 @@ class TestUserImportView(WebTestStaffMode):
         cls.random_excel_file_content = excel_data.random_file_content
 
         cls.manager = make_manager()
-
-    @render_pages
-    def render_pages(self):
-        return {
-            "normal": self.app.get(self.url, user=self.manager).content,
-        }
 
     def test_success_handling(self):
         """
@@ -1960,6 +1952,76 @@ class TestEvaluationCopyView(WebTestStaffMode):
         self.assertEqual(copied_evaluation.contributions.count(), 4)
 
 
+@override_settings(EXAM_QUESTIONNAIRE_IDS=[111])
+class TestEvaluationExamCreation(WebTestStaffMode):
+    csrf_checks = False
+    url = reverse("staff:create_exam_evaluation")
+
+    @classmethod
+    def setUpTestData(cls):
+        # We need to set the managers language to avoid a database update, when no language is set
+        cls.manager = make_manager(language="en")
+        cls.course = baker.make(Course)
+        vote_start_datetime = datetime.datetime.now() - datetime.timedelta(days=50)
+        cls.evaluation = baker.make(Evaluation, course=cls.course, vote_start_datetime=vote_start_datetime)
+        cls.evaluation.participants.set(baker.make(UserProfile, _quantity=3))
+        cls.contributions = baker.make(
+            Contribution, evaluation=cls.evaluation, _fill_optional=["contributor"], _quantity=3, _bulk_create=True
+        )
+        cls.exam_date = datetime.date.today() + datetime.timedelta(days=10)
+        cls.params = {"evaluation_id": cls.evaluation.pk, "exam_date": cls.exam_date}
+        cls.exam_questionnaire = baker.make(Questionnaire, pk=111)
+
+    def test_create_exam_evaluation(self):
+        self.app.post(self.url, user=self.manager, status=200, params=self.params)
+        self.assertEqual(Evaluation.objects.count(), 2)
+        exam_evaluation = Evaluation.objects.exclude(pk=self.evaluation.pk).get()
+        self.assertEqual(exam_evaluation.contributions.count(), self.evaluation.contributions.count())
+        self.assertEqual(
+            exam_evaluation.vote_start_datetime,
+            datetime.datetime.combine(self.exam_date + datetime.timedelta(days=1), datetime.time(8, 0)),
+        )
+        self.assertEqual(exam_evaluation.vote_end_date, self.exam_date + datetime.timedelta(days=3))
+        self.assertEqual(exam_evaluation.name_de, "Klausur")
+        self.assertEqual(exam_evaluation.name_en, "Exam")
+        self.assertEqual(exam_evaluation.course, self.evaluation.course)
+        self.assertQuerySetEqual(exam_evaluation.participants.all(), self.evaluation.participants.all())
+        self.assertEqual(exam_evaluation.weight, 1)
+
+        evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
+        self.assertEqual(evaluation.weight, 9)
+        self.assertEqual(evaluation.vote_end_date, self.exam_date - datetime.timedelta(days=1))
+
+    def test_exam_evaluation_for_single_result(self):
+        self.evaluation.is_single_result = True
+        self.evaluation.save()
+        with assert_no_database_modifications():
+            self.app.post(self.url, user=self.manager, status=400, params=self.params)
+
+    def test_exam_evaluation_for_already_existing_exam_evaluation(self):
+        baker.make(Evaluation, course=self.course, name_en="Exam", name_de="Klausur")
+        self.assertTrue(self.evaluation.has_exam_evaluation)
+        with assert_no_database_modifications():
+            self.app.post(self.url, user=self.manager, status=400, params=self.params)
+
+    def test_exam_evaluation_with_wrong_date(self):
+        self.evaluation.vote_start_datetime = datetime.datetime.now() + datetime.timedelta(days=100)
+        self.evaluation.vote_end_date = datetime.date.today() + datetime.timedelta(days=150)
+        self.evaluation.save()
+        with assert_no_database_modifications():
+            self.app.post(self.url, user=self.manager, status=400, params=self.params)
+
+    def test_exam_evaluation_with_missing_date(self):
+        self.params.pop("exam_date")
+        with assert_no_database_modifications():
+            self.app.post(self.url, user=self.manager, status=400, params=self.params)
+
+    def test_exam_evaluation_with_wrongly_formatted_date(self):
+        self.params["exam_date"] = ""
+        with assert_no_database_modifications():
+            self.app.post(self.url, user=self.manager, status=400, params=self.params)
+
+
 class TestCourseCopyView(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
@@ -2090,8 +2152,6 @@ class TestCourseDeleteView(DeleteViewTestMixin, WebTestStaffMode):
     ]
 )
 class TestEvaluationEditView(WebTestStaffMode):
-    render_pages_url = "/staff/semester/PK/evaluation/PK/edit"
-
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
@@ -2132,12 +2192,6 @@ class TestEvaluationEditView(WebTestStaffMode):
         )
         cls.contribution1.questionnaires.set([cls.contributor_questionnaire])
         cls.contribution2.questionnaires.set([cls.contributor_questionnaire])
-
-    @render_pages
-    def render_pages(self):
-        return {
-            "normal": self.app.get(self.url, user=self.manager).content,
-        }
 
     def test_edit_evaluation(self):
         page = self.app.get(self.url, user=self.manager)
@@ -2379,6 +2433,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
     def tearDown(self):
         # delete the uploaded file again so other tests can start with no file guaranteed
         helper_delete_all_import_files(self.manager.id)
+        super().tearDown()
 
     def test_import_valid_participants_file(self):
         page = self.app.get(self.url, user=self.manager)
@@ -3836,3 +3891,12 @@ class TestStaffMode(WebTest):
         student_user = baker.make(UserProfile, email="student@institution.example.com")
         self.app.post(self.url_enter, user=student_user, status=403)
         self.app.post(self.url_exit, user=student_user, status=403)
+
+    def test_remove_staff_permission_while_in_staff_mode(self):
+        manager = make_manager()
+        manager_group = Group.objects.get(name="Manager")
+
+        self.app.post(self.url_enter, user=manager).follow().follow()
+        self.app.get(self.some_staff_url, user=manager, status=200)
+        manager.groups.remove(manager_group)
+        self.app.get(self.some_staff_url, user=manager, status=403)

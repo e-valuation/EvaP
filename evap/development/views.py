@@ -1,5 +1,3 @@
-import os
-
 from django.conf import settings
 from django.core.exceptions import BadRequest
 from django.http import HttpResponse
@@ -16,9 +14,9 @@ def development_components(request):
 
 
 def development_rendered(request, filename):
-    fixtures_directory = os.path.join(settings.STATICFILES_DIRS[0], "ts", "rendered")
+    fixtures_directory = settings.STATICFILES_DIRS[0] / "ts" / "rendered"
     try:
-        with open(os.path.join(fixtures_directory, filename), encoding="utf-8") as fixture:
+        with open(fixtures_directory / filename, encoding="utf-8") as fixture:
             return HttpResponse(fixture)
     except (FileNotFoundError, ValueError, OSError) as e:
         raise BadRequest from e

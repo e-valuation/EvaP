@@ -1,17 +1,19 @@
+# noqa: N999
+
 from fractions import Fraction
 from pathlib import Path
 
 from django.utils.safestring import mark_safe
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'evap',
-        'USER': 'evap',
-        'PASSWORD': 'evap',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "evap",
+        "USER": "evap",
+        "PASSWORD": "evap",
         # Absolute path to use unix domain socket
-        'HOST': Path("./data/").resolve(),
-        'CONN_MAX_AGE': 600,
+        "HOST": Path("./data/").resolve(),
+        "CONN_MAX_AGE": 600,
     }
 }
 
@@ -53,3 +55,5 @@ GLOBAL_EVALUATION_PROGRESS_INFO_TEXT = {
     "de": mark_safe("Deine Teilnahme am Evaluationsprojekt wird helfen. Evaluiere also <b>jetzt</b>!"),
     "en": mark_safe("Your participation in the evaluation helps, so evaluate <b>now</b>!"),
 }
+# Questionnaires automatically added to exam evaluations
+EXAM_QUESTIONNAIRE_IDS = [111]

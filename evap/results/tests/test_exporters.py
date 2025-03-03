@@ -1,7 +1,6 @@
 from io import BytesIO
 
 import xlrd
-from django.test import TestCase
 from django.utils import translation
 from model_bakery import baker
 
@@ -19,7 +18,7 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
-from evap.evaluation.tests.tools import make_rating_answer_counters
+from evap.evaluation.tests.tools import TestCase, make_rating_answer_counters
 from evap.results.exporters import ResultsExporter, TextAnswerExporter
 from evap.results.tools import cache_results, get_results
 from evap.results.views import filter_text_answers

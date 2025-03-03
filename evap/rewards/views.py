@@ -1,5 +1,5 @@
 import csv
-from datetime import datetime
+from datetime import date, datetime
 
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
@@ -13,76 +13,58 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, UpdateView
-from typing_extensions import assert_never
 
 from evap.evaluation.auth import manager_required, reward_user_required
 from evap.evaluation.models import Semester, UserProfile
 from evap.evaluation.tools import AttachmentResponse, get_object_from_dict_pk_entry_or_logged_40x
 from evap.rewards.exporters import RewardsExporter
-from evap.rewards.forms import RewardPointRedemptionEventForm
+from evap.rewards.forms import RewardPointRedemptionEventForm, RewardPointRedemptionFormSet
 from evap.rewards.models import (
-    NoPointsSelectedError,
-    NotEnoughPointsError,
-    OutdatedRedemptionDataError,
-    RedemptionEventExpiredError,
     RewardPointGranting,
     RewardPointRedemption,
     RewardPointRedemptionEvent,
     SemesterActivation,
 )
-from evap.rewards.tools import grant_eligible_reward_points_for_semester, reward_points_of_user, save_redemptions
-
-
-def redeem_reward_points(request):
-    redemptions = {}
-    try:
-        for key, value in request.POST.items():
-            if key.startswith("points-"):
-                event_id = int(key.rpartition("-")[2])
-                redemptions[event_id] = int(value)
-        previous_redeemed_points = int(request.POST["previous_redeemed_points"])
-    except (ValueError, KeyError, TypeError) as e:
-        raise BadRequest from e
-
-    try:
-        save_redemptions(request, redemptions, previous_redeemed_points)
-        messages.success(request, _("You successfully redeemed your points."))
-    except (
-        NoPointsSelectedError,
-        NotEnoughPointsError,
-        RedemptionEventExpiredError,
-        OutdatedRedemptionDataError,
-    ) as error:
-        status_code = 400
-        match error:
-            case NoPointsSelectedError():
-                error_string = _("You cannot redeem 0 points.")
-            case NotEnoughPointsError():
-                error_string = _("You don't have enough reward points.")
-            case RedemptionEventExpiredError():
-                error_string = _("Sorry, the deadline for this event expired already.")
-            case OutdatedRedemptionDataError():
-                status_code = 409
-                error_string = _(
-                    "It appears that your browser sent multiple redemption requests. You can see all successful redemptions below."
-                )
-            case _:
-                assert_never(type(error))
-
-        messages.error(request, error_string)
-        return status_code
-    return 200
+from evap.rewards.tools import grant_eligible_reward_points_for_semester, redeemed_points_of_user, reward_points_of_user
 
 
 @reward_user_required
 def index(request):
     status = 200
+
+    events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=date.today()).order_by("date")
+
+    # pylint: disable=unexpected-keyword-arg
+    formset = RewardPointRedemptionFormSet(
+        request.POST or None,
+        initial=[{"event": e, "points": 0} for e in events],
+        user=request.user,
+    )
     if request.method == "POST":
-        status = redeem_reward_points(request)
+        with formset.lock():
+            try:
+                previous_redeemed_points = int(request.POST["previous_redeemed_points"])
+            except ValueError as e:
+                raise BadRequest from e
+
+            if previous_redeemed_points != redeemed_points_of_user(request.user):
+                # Do formset validation here in order to do within the lock
+                formset.is_valid()
+                status = 409
+                messages.error(
+                    request,
+                    _(
+                        "It appears that your browser sent multiple redemption requests. You can see all successful redemptions below."
+                    ),
+                )
+            elif formset.is_valid():
+                formset.save()
+                messages.success(request, _("You successfully redeemed your points."))
+                return redirect("rewards:index")
+
     total_points_available = reward_points_of_user(request.user)
     reward_point_grantings = RewardPointGranting.objects.filter(user_profile=request.user)
     reward_point_redemptions = RewardPointRedemption.objects.filter(user_profile=request.user)
-    events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now()).order_by("date")
 
     granted_point_actions = [
         (granting.granting_time, _("Reward for") + " " + granting.semester.name, granting.value, "")
@@ -102,6 +84,8 @@ def index(request):
         "total_points_available": total_points_available,
         "total_points_spent": sum(redemption.value for redemption in reward_point_redemptions),
         "events": events,
+        "formset": formset,
+        "forms": zip(formset, events, strict=True),
     }
     return render(request, "rewards_index.html", template_data, status=status)
 

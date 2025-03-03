@@ -6,12 +6,12 @@ from unittest.mock import patch
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms.models import model_to_dict
-from django.test import TestCase, override_settings
+from django.test import override_settings
 from model_bakery import baker
 
 import evap.staff.fixtures.excel_files_test_data as excel_data
 from evap.evaluation.models import Contribution, Course, CourseType, Evaluation, Program, Semester, UserProfile
-from evap.evaluation.tests.tools import assert_no_database_modifications
+from evap.evaluation.tests.tools import TestCase, assert_no_database_modifications
 from evap.staff.importers import (
     ImporterLog,
     ImporterLogEntry,

@@ -3,11 +3,10 @@ from datetime import date, datetime, timedelta
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.urls import reverse
-from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, Semester, UserProfile
-from evap.evaluation.tests.tools import WebTestWith200Check
+from evap.evaluation.tests.tools import WebTest, WebTestWith200Check
 from evap.grades.models import GradeDocument
 
 
@@ -56,6 +55,7 @@ class GradeUploadTest(WebTest):
         for course in Course.objects.all():
             for grade_document in course.grade_documents.all():
                 grade_document.file.delete()
+        super().tearDown()
 
     def helper_upload_grades(self, course, final_grades):
         upload_files = [("file", "grades.txt", b"Some content")]

@@ -1,5 +1,3 @@
-@import "../bootstrap";
-
 .btn.fas {
     font-weight: 900;
 }
@@ -163,7 +161,7 @@ a:not([href]):not(.disabled) {
         border-bottom-left-radius: 0;
     }
 }
-    
+
 @media screen and (max-aspect-ratio: $notebook-break) {
     .button-open-notebook {
         margin-top: 1rem;
@@ -285,4 +283,9 @@ a.collapse-toggle {
     &.collapsed {
         box-shadow: none;
     }
+}
+
+td .btn {
+    margin-top: 0.15rem;
+    margin-bottom: 0.15rem;
 }

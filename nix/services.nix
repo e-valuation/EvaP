@@ -1,12 +1,9 @@
-{ pkgs, lib ? pkgs.lib, services-flake, only-databases, poetry-env }: {
+{ pkgs, lib ? pkgs.lib, services-flake, only-databases, venv }: {
   imports = [
     services-flake.processComposeModules.default
   ];
 
-  httpServer = {
-    enable = true;
-    uds = "process-compose.socket";
-  };
+  cli.options.unix-socket = "process-compose.socket";
 
   services = {
     redis."r1" = {
@@ -39,13 +36,14 @@
   settings.processes."npm-ci" = {
     command = pkgs.writeShellApplication {
       name = "npm-ci";
-      runtimeInputs = [ pkgs.nodejs ];
+      runtimeInputs = with pkgs; [ nodejs coreutils ];
       text = ''
         set -e
         CUR_HASH=$(nix-hash --flat ./package.json ./package-lock.json | paste -sd " ")
         echo "Hash is $CUR_HASH"
         if [[ -f node_modules/evap-hash && "$CUR_HASH" == "$(cat node_modules/evap-hash)" ]]; then
-            echo "Equal hash found, exiting"
+            echo "Equal node_modules/evap-hash found, exiting."
+            echo "If you want to install a fresh environment, run clean-setup in a nix develop shell."
             exit 0
         fi
         npm ci
@@ -58,22 +56,20 @@
   settings.processes."init-django" = {
     command = pkgs.writeShellApplication {
       name = "init-django";
-      runtimeInputs = with pkgs; [ poetry-env git gnused gettext ];
+      runtimeInputs = with pkgs; [ venv git gnused gettext coreutils ];
       text = ''
         set -e
         if [[ -f evap/localsettings.py ]]; then
-            echo "Found evap/localsettings.py, exiting"
+            echo "Found evap/localsettings.py, exiting."
+            echo "If you want to install a fresh environment, run clean-setup in a nix develop shell."
             exit 0
         fi
         set -x
-        cp deployment/localsettings.template.py evap/localsettings.py
-        sed -i -e "s/\$SECRET_KEY/$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)/" evap/localsettings.py
+        cp evap/development/localsettings.template.py evap/localsettings.py
+        sed -i -e "s/\$SECRET_KEY/$(head /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | head -c 32)/" evap/localsettings.py
         git submodule update --init
-        ./manage.py migrate --noinput
-        ./manage.py collectstatic --noinput
         ./manage.py compilemessages --locale de
-        ./manage.py loaddata test_data.json
-        ./manage.py refresh_results_cache
+        ./manage.py reload_testdata --noinput
       '';
     };
     depends_on = {

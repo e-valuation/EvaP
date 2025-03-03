@@ -21,5 +21,5 @@ class Command(BaseCommand):
         # subprocess call so our sys.argv check in settings.py works
         subprocess.run(["./manage.py", "test"], check=False)  # nosec
 
-        call_command("lint")
         call_command("format")
+        call_command("lint")

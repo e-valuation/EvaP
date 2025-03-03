@@ -3,27 +3,16 @@ from django.contrib.auth.models import Group
 from django.core import mail
 from django.test import override_settings
 from django.urls import reverse
-from django.utils import translation
-from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import Evaluation, Question, QuestionType, Semester, UserProfile
 from evap.evaluation.tests.tools import (
+    WebTest,
     WebTestWith200Check,
     create_evaluation_with_responsible_and_editor,
     make_manager,
-    store_ts_test_asset,
 )
 from evap.staff.tests.utils import WebTestStaffMode
-
-
-class RenderJsTranslationCatalog(WebTest):
-    url = reverse("javascript-catalog")
-
-    def render_pages(self):
-        # Not using render_pages decorator to manually create a single (special) javascript file
-        content = self.app.get(self.url).content
-        store_ts_test_asset("catalog.js", content)
 
 
 @override_settings(PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"])
@@ -159,8 +148,6 @@ class TestChangeLanguageView(WebTest):
 
         user.refresh_from_db()
         self.assertEqual(user.language, "en")
-
-        translation.activate("en")  # for following tests
 
 
 class TestProfileView(WebTest):

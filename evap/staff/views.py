@@ -299,7 +299,7 @@ class ResetToNewOperation(EvaluationOperation):
     @staticmethod
     def warning_for_inapplicables(amount: int):
         return ngettext(
-            "{} evaluation cannot be reset, because it is already in preparation, published, or a single result. It was removed from the selection",
+            "{} evaluation cannot be reset, because it is already in preparation, published, or a single result. It was removed from the selection.",
             "{} evaluations cannot be reset, because they were already in preparation, published, or a single result. They were removed from the selection.",
             amount,
         ).format(amount)
@@ -1093,6 +1093,34 @@ def course_copy(request, course_id):
     )
 
 
+@require_POST
+@manager_required
+def create_exam_evaluation(request: HttpRequest) -> HttpResponse:
+    evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
+    if evaluation.is_single_result:
+        raise SuspiciousOperation("Creating an exam evaluation for a single result evaluation is not allowed.")
+
+    if evaluation.has_exam_evaluation:
+        raise SuspiciousOperation("An exam evaluation already exists for this course.")
+
+    exam_date_string = request.POST.get("exam_date")
+    if not exam_date_string:
+        return HttpResponseBadRequest("Exam date missing.")
+    try:
+        exam_date = datetime.strptime(exam_date_string, "%Y-%m-%d").date()
+    except ValueError:
+        return HttpResponseBadRequest("Exam date invalid.")
+
+    if exam_date < evaluation.earliest_possible_exam_date:
+        raise SuspiciousOperation(
+            "The end date of the main evaluation would be before its start date. No exam evaluation was created."
+        )
+
+    evaluation.create_exam_evaluation(exam_date)
+    messages.success(request, _("Successfully created exam evaluation."))
+    return HttpResponse()  # 200 OK
+
+
 @manager_required
 class CourseEditView(SuccessMessageMixin, UpdateView):
     model = Course
@@ -1540,7 +1568,7 @@ def evaluation_person_management(request, evaluation_id: int):
                     save_import_file(excel_file, request.user.id, import_type)
         else:
             successfully_processed = import_or_copy_participants(
-                request, "-replace-" in operation, import_action, import_type, evaluation, copy_form  # type: ignore[arg-type]  # fixed at mypy master with https://www.github.com/python/mypy/pull/17427
+                request, "-replace-" in operation, import_action, import_type, evaluation, copy_form
             )
             if successfully_processed:
                 return redirect("staff:semester_view", evaluation.course.semester.pk)
@@ -2540,7 +2568,7 @@ def download_sample_file(_request, filename):
     if filename not in ["sample.xlsx", "sample_user.xlsx"]:
         raise SuspiciousOperation("Invalid file name.")
 
-    book = openpyxl.load_workbook(filename=settings.STATICFILES_DIRS[0] + "/" + filename)
+    book = openpyxl.load_workbook(filename=settings.STATICFILES_DIRS[0] / filename)
     for sheet in book:
         for row in sheet:
             for cell in row:

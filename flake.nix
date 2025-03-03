@@ -3,8 +3,20 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    poetry2nix = {
-      url = "github:nix-community/poetry2nix";
+
+    pyproject-nix = {
+      url = "github:nix-community/pyproject.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    uv2nix = {
+      url = "github:adisbladis/uv2nix";
+      inputs.pyproject-nix.follows = "pyproject-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    pyproject-build-systems = {
+      url = "github:pyproject-nix/build-system-pkgs";
+      inputs.pyproject-nix.follows = "pyproject-nix";
+      inputs.uv2nix.follows = "uv2nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -23,16 +35,30 @@
       devShells = forAllSystems (system:
         let
           pkgs = pkgsFor.${system};
+          dependency-groups = if pkgs.stdenv.isDarwin then [ "psycopg-c" ] else [ "psycopg-binary" ];
         in
         rec {
           evap = pkgs.callPackage ./nix/shell.nix {
-            python3 = pkgs.python310;
-            poetry2nix = inputs.poetry2nix.lib.mkPoetry2Nix { inherit pkgs; };
-            pyproject = ./pyproject.toml;
-            poetrylock = ./poetry.lock;
+            inherit (self.packages.${system}) python3;
+            inherit (inputs) pyproject-nix uv2nix pyproject-build-systems;
+            inherit dependency-groups;
+            our-packages = self.packages.${system};
+            workspaceRoot = ./.;
           };
-          evap-dev = evap.override { poetry-groups = [ "dev" ]; };
+          evap-dev = evap.override (prev: { dependency-groups = (prev.dependency-groups or [ ]) ++ [ "dev" ]; });
+          evap-frontend-dev = evap-dev.overrideAttrs (prev: { nativeBuildInputs = (prev.nativeBuildInputs or [ ]) ++ (with pkgs; [ firefox geckodriver ]); });
           default = evap-dev;
+
+          impure = pkgs.mkShell {
+            packages = with pkgs; [
+              (self.packages.${system}.python3)
+              uv
+              postgresql
+            ];
+            shellHook = ''
+              unset PYTHONPATH
+            '';
+          };
         });
 
       packages = forAllSystems (system:
@@ -46,28 +72,54 @@
                 {
                   inherit pkgs only-databases;
                   inherit (inputs) services-flake;
-                  inherit (self.devShells.${system}.evap.passthru) poetry-env;
+                  inherit (self.devShells.${system}.evap.passthru) venv;
                 })
             ];
           };
         in
-        {
+        rec {
+          python3 = pkgs.python310;
+
           services = make-process-compose true;
           services-full = make-process-compose false;
 
-          wait-for-pc =
-            let
-              pc = lib.getExe self.packages.${system}.services;
-            in
-            pkgs.writeShellApplication {
-              name = "wait-for-pc";
-              runtimeInputs = [ pkgs.jq ];
-              text = ''
-                while [ "$(${pc} process list -o json 2>/dev/null | jq '.[] |= .is_ready == "Ready" or .status == "Completed" or .status == "Disabled" | all')" != "true" ]; do
-                    sleep 1
-                done
+          wait-for-pc = pkgs.writeShellApplication {
+            name = "wait-for-pc";
+            runtimeInputs = [ pkgs.jq ];
+            text = ''
+              while [ "$(${lib.getExe services} process list -o json 2>/dev/null | jq '.[] |= .is_ready == "Ready" or .status == "Completed" or .status == "Disabled" | all')" != "true" ]; do
+                  sleep 1
+              done
+            '';
+          };
+
+          build-dist = pkgs.writeShellApplication {
+            name = "build-dist";
+            runtimeInputs = with pkgs; [ nodejs gettext git ];
+            text =
+              let
+                python-dev = self.devShells.${system}.evap-dev.passthru.venv;
+                python-build = self.packages.${system}.python3.withPackages (ps: [ ps.build ]);
+              in
+              ''
+                set -x
+                npm ci
+                ${python-dev}/bin/python ./manage.py compilemessages
+                ${python-dev}/bin/python ./manage.py scss --production
+                ${python-dev}/bin/python ./manage.py ts compile --fresh
+                ${python-build}/bin/python -m build
               '';
-            };
+          };
+
+          clean-setup = pkgs.writeShellApplication {
+            name = "clean-setup";
+            runtimeInputs = with pkgs; [ git ];
+            text = ''
+                read -r -p "Delete node_modules/, data/, generated CSS and JS files in evap/static/, and evap/localsettings.py? [y/N] "
+                [[ "$REPLY" =~ ^[Yy]$ ]] || exit 1
+                git clean -f -X evap/static/ node_modules/ data/ evap/localsettings.py
+              '';
+          };
         });
     };
 }

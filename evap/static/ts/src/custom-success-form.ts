@@ -15,7 +15,7 @@ const overrideSuccessfulSubmit = (
                 assert(response.ok);
                 onSuccess({ body, response });
             })
-            .catch(error => {
+            .catch((error: unknown) => {
                 console.error(error);
                 window.alert(window.gettext("The server is not responding."));
             });

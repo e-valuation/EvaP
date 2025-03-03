@@ -1,4 +1,3 @@
-import os
 import random
 from collections import defaultdict
 from datetime import date, datetime, timedelta
@@ -11,7 +10,6 @@ from django.contrib.auth.hashers import make_password
 from django.core import mail, management
 from django.core.management import CommandError
 from django.db.models import Sum
-from django.test import TestCase
 from django.test.utils import override_settings
 from model_bakery import baker
 
@@ -29,8 +27,28 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
-from evap.evaluation.tests.tools import make_manager, make_rating_answer_counters
+from evap.evaluation.tests.tools import TestCase, make_manager, make_rating_answer_counters
 from evap.tools import MonthAndDay
+
+
+class TestCreateUserCommand(TestCase):
+    # Regression test for #2204 - createsuperuser failing due to misconfigured REQUIRED_FIELDS
+    def test_create_super_user(self):
+        management.call_command(
+            "createsuperuser",
+            "--no-input",
+            "--first_name_given",
+            "Tony",
+            "--last_name",
+            "Kuchenbuch",
+            "--email",
+            "tonykuchenbuch@example.com",
+            stdout=StringIO(),
+        )
+
+        user = UserProfile.objects.get(email="tonykuchenbuch@example.com")
+        self.assertEqual(user.first_name_given, "Tony")
+        self.assertEqual(user.last_name, "Kuchenbuch")
 
 
 class TestAnonymizeCommand(TestCase):
@@ -185,8 +203,8 @@ class TestRefreshResultsCacheCommand(TestCase):
 
 class TestScssCommand(TestCase):
     def setUp(self):
-        self.scss_path = os.path.join(settings.STATICFILES_DIRS[0], "scss", "evap.scss")
-        self.css_path = os.path.join(settings.STATICFILES_DIRS[0], "css", "evap.css")
+        self.scss_path = settings.STATICFILES_DIRS[0] / "scss" / "evap.scss"
+        self.css_path = settings.STATICFILES_DIRS[0] / "css" / "evap.css"
 
     @patch("subprocess.run")
     def test_scss_called(self, mock_subprocess_run):
@@ -225,16 +243,16 @@ class TestScssCommand(TestCase):
             management.call_command("scss")
 
 
-class TestTsCommend(TestCase):
+class TestTsCommand(TestCase):
     def setUp(self):
-        self.ts_path = os.path.join(settings.STATICFILES_DIRS[0], "ts")
+        self.ts_path = settings.STATICFILES_DIRS[0] / "ts"
 
     @patch("subprocess.run")
     def test_ts_compile(self, mock_subprocess_run):
         management.call_command("ts", "compile")
 
         mock_subprocess_run.assert_called_once_with(
-            ["npx", "tsc", "--project", os.path.join(self.ts_path, "tsconfig.compile.json")],
+            ["npx", "tsc", "--project", self.ts_path / "tsconfig.compile.json"],
             check=True,
         )
 
@@ -245,23 +263,21 @@ class TestTsCommend(TestCase):
         management.call_command("ts", "compile", "--watch")
 
         mock_subprocess_run.assert_called_once_with(
-            ["npx", "tsc", "--project", os.path.join(self.ts_path, "tsconfig.compile.json"), "--watch"],
+            ["npx", "tsc", "--project", self.ts_path / "tsconfig.compile.json", "--watch"],
             check=True,
         )
 
     @patch("subprocess.run")
     @patch("evap.evaluation.management.commands.ts.call_command")
-    @patch("evap.evaluation.management.commands.ts.Command.render_pages")
-    def test_ts_test(self, mock_render_pages, mock_call_command, mock_subprocess_run):
+    def test_ts_test(self, mock_call_command, mock_subprocess_run):
         management.call_command("ts", "test")
 
         # Mock render pages to prevent a second call into the test framework
-        mock_render_pages.assert_called_once()
         mock_call_command.assert_called_once_with("scss")
         mock_subprocess_run.assert_has_calls(
             [
                 call(
-                    ["npx", "tsc", "--project", os.path.join(self.ts_path, "tsconfig.compile.json")],
+                    ["npx", "tsc", "--project", self.ts_path / "tsconfig.compile.json"],
                     check=True,
                 ),
                 call(["npx", "jest"], check=True),
@@ -454,9 +470,10 @@ class TestLintCommand(TestCase):
     @patch("subprocess.run")
     def test_pylint_called(self, mock_subprocess_run: MagicMock):
         management.call_command("lint", stdout=StringIO())
-        self.assertEqual(mock_subprocess_run.call_count, 2)
+        self.assertEqual(mock_subprocess_run.call_count, 3)
         mock_subprocess_run.assert_any_call(["ruff", "check", "."], check=False)
         mock_subprocess_run.assert_any_call(["pylint", "evap", "tools"], check=False)
+        mock_subprocess_run.assert_any_call(["npx", "eslint", "--quiet"], cwd="evap/static/ts", check=False)
 
 
 class TestFormatCommand(TestCase):

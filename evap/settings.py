@@ -9,17 +9,18 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import logging
-import os
 import sys
 from fractions import Fraction
+from pathlib import Path
 from typing import Any
 
 from django.contrib.staticfiles.storage import ManifestStaticFilesStorage
 
 from evap.tools import MonthAndDay
 
-BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-
+MODULE = Path(__file__).parent.resolve()
+CWD = Path(".").resolve()
+DATADIR = CWD / "data"
 
 ### Debugging
 
@@ -107,6 +108,8 @@ EVALUATION_END_OFFSET_HOURS = 3
 # Amount of hours in which participant will be warned
 EVALUATION_END_WARNING_PERIOD = 5
 
+# Questionnaires automatically added to exam evaluations
+EXAM_QUESTIONNAIRE_IDS: list[int] = []
 
 ### Installation specific settings
 
@@ -182,7 +185,7 @@ LOGGING = {
         "file": {
             "level": "DEBUG",
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": BASE_DIR + "/logs/evap.log",
+            "filename": DATADIR / "evap.log",
             "maxBytes": 1024 * 1024 * 10,
             "backupCount": 5,
             "formatter": "default",
@@ -295,7 +298,6 @@ AUTHENTICATION_BACKENDS = [
     "evap.evaluation.auth.RequestAuthUserBackend",
     "evap.evaluation.auth.OpenIDAuthenticationBackend",
     "evap.evaluation.auth.EmailAuthenticationBackend",
-    "django.contrib.auth.backends.ModelBackend",
 ]
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
@@ -333,7 +335,7 @@ USE_I18N = True
 
 USE_TZ = False
 
-LOCALE_PATHS = [os.path.join(BASE_DIR, "locale")]
+LOCALE_PATHS = [MODULE / "locale"]
 
 FORMAT_MODULE_PATH = ["evap.locale"]
 
@@ -350,17 +352,17 @@ STATIC_URL = "/static/"
 
 # Additional locations of static files
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
+    MODULE / "static",
 ]
 
 # Absolute path to the directory static files should be collected to.
-STATIC_ROOT = os.path.join(BASE_DIR, "static_collected")
+STATIC_ROOT = DATADIR / "static_collected"
 
 
 ### User-uploaded files
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
-MEDIA_ROOT = os.path.join(BASE_DIR, "upload")
+MEDIA_ROOT = DATADIR / "upload"
 
 ### Evaluation progress rewards
 GLOBAL_EVALUATION_PROGRESS_REWARDS: list[tuple[Fraction, str]] = (
@@ -437,6 +439,7 @@ try:
 except ImportError:
     pass
 
+TEST_RUNNER = "evap.evaluation.tests.tools.EvapTestRunner"
 TESTING = "test" in sys.argv or "pytest" in sys.modules
 
 # speed up tests and activate typeguard introspection

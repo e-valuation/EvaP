@@ -4,14 +4,16 @@ import uuid
 from collections import defaultdict
 from collections.abc import Collection, Container, Iterable, Sequence
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
 from enum import Enum, auto
+from functools import partial
 from numbers import Real
 from typing import Any
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group, PermissionsMixin
+from django.contrib.auth.hashers import check_password, is_password_usable, make_password
+from django.contrib.auth.models import BaseUserManager, Group, PermissionsMixin
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.postgres.fields import ArrayField
 from django.core.cache import caches
@@ -52,7 +54,7 @@ logger = logging.getLogger(__name__)
 try:
     from typeguard import typeguard_ignore
 except ImportError:
-    typeguard_ignore = lambda f: f  # noqa: E731 - black formats a def with an empty line before.
+    typeguard_ignore = lambda arg: arg  # noqa: E731 - black formats a def with an empty line before.
 
 
 class NotArchivableError(Exception):
@@ -478,13 +480,45 @@ class Evaluation(LoggedModel):
         verbose_name=_("campus management system id"), blank=True, null=True, unique=True, max_length=255
     )
 
+    @property
+    def has_exam_evaluation(self):
+        return self.course.evaluations.filter(name_de="Klausur", name_en="Exam").exists()
+
+    @property
+    def earliest_possible_exam_date(self):
+        return self.vote_start_datetime.date() + timedelta(days=1)
+
+    @transaction.atomic
+    def create_exam_evaluation(self, exam_date: date):
+        self.weight = 9
+        self.vote_end_date = exam_date - timedelta(days=1)
+        self.save()
+        exam_evaluation = Evaluation(
+            course=self.course,
+            name_de="Klausur",
+            name_en="Exam",
+            weight=1,
+            is_rewarded=False,
+            vote_start_datetime=datetime.combine(exam_date + timedelta(days=1), time(8, 0)),
+            vote_end_date=exam_date + timedelta(days=3),
+        )
+        exam_evaluation.save()
+
+        exam_evaluation.participants.set(self.participants.all())
+        for contribution in self.contributions.exclude(contributor=None):
+            exam_evaluation.contributions.create(contributor=contribution.contributor)
+        exam_evaluation.general_contribution.questionnaires.set(settings.EXAM_QUESTIONNAIRE_IDS)
+
     class TextAnswerReviewState(Enum):
-        do_not_call_in_templates = True  # pylint: disable=invalid-name
         NO_TEXTANSWERS = auto()
         NO_REVIEW_NEEDED = auto()
         REVIEW_NEEDED = auto()
         REVIEW_URGENT = auto()
         REVIEWED = auto()
+
+        @property
+        def do_not_call_in_templates(self):
+            return True
 
     class Meta:
         unique_together = [
@@ -1665,18 +1699,18 @@ class Infotext(models.Model):
 
 
 class UserProfileManager(BaseUserManager):
-    def create_user(self, *, email, password=None, first_name=None, last_name=None):
-        user = self.model(email=self.normalize_email(email), first_name_given=first_name, last_name=last_name)
+    def create_user(self, *, email, password=None, first_name_given=None, last_name=None):
+        user = self.model(email=self.normalize_email(email), first_name_given=first_name_given, last_name=last_name)
         validate_password(password, user=user)
         user.set_password(password)
         user.save()
         return user
 
-    def create_superuser(self, *, email, password=None, first_name=None, last_name=None):
+    def create_superuser(self, *, email, password=None, first_name_given=None, last_name=None):
         user = self.create_user(
             password=password,
             email=self.normalize_email(email),
-            first_name=first_name,
+            first_name_given=first_name_given,
             last_name=last_name,
         )
         user.is_superuser = True
@@ -1685,7 +1719,51 @@ class UserProfileManager(BaseUserManager):
         return user
 
 
-class UserProfile(AbstractBaseUser, PermissionsMixin):
+assert settings.AUTH_PASSWORD_VALIDATORS == [], "Password validation configured, but evap will not apply it"
+
+
+class EvapBaseUser(models.Model):
+    """This is strongly related to the django.contrib.auth.base_user.AbstractBaseUser model, but does not define natural_key."""
+
+    USERNAME_FIELD: str
+
+    # set unusable password by default: We don't want password resets.
+    password = models.CharField(_("password"), max_length=128, default=partial(make_password, None))
+    last_login = models.DateTimeField(_("last login"), blank=True, null=True)
+
+    class Meta:
+        abstract = True
+
+    def get_username(self):
+        # required for django-webtest. See https://github.com/django-webtest/django-webtest/issues/134.
+        return getattr(self, self.USERNAME_FIELD)
+
+    @property
+    def is_anonymous(self):
+        # django.contrib.auth.checks requires this to be MethodType
+        return False
+
+    @property
+    def is_authenticated(self):
+        return True
+
+    def set_password(self, raw_password):
+        self.password = make_password(raw_password)
+
+    def check_password(self, raw_password):
+        def setter(raw_password):
+            self.set_password(raw_password)
+            # Password hash upgrades shouldn't be considered password changes.
+            self.save(update_fields=["password"])
+
+        return check_password(raw_password, self.password, setter)
+
+    def has_usable_password(self):
+        return is_password_usable(self.password)
+
+
+class UserProfile(EvapBaseUser, PermissionsMixin):
+
     # null=True because certain external users don't have an address
     email = models.EmailField(max_length=255, unique=True, blank=True, null=True, verbose_name=_("email address"))
 
@@ -1738,6 +1816,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         default=StartPage.DEFAULT,
     )
 
+    objects = UserProfileManager()
+
     class Meta:
         # keep in sync with ordering_key
         ordering = [
@@ -1750,9 +1830,10 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = _("users")
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS: list[str] = ["first_name_given", "last_name"]
 
-    objects = UserProfileManager()
+    def __str__(self):
+        return self.full_name
 
     def save(self, *args, **kwargs):
         # This is not guaranteed to be called on every insert. For example, the importers use bulk insertion.
@@ -1799,9 +1880,6 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         if self.is_external:
             return name + " [ext.]"
         return f"{name} ({self.email})"
-
-    def __str__(self):
-        return self.full_name
 
     @cached_property
     def is_staff(self):

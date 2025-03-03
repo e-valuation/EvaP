@@ -24,9 +24,9 @@ function selectByNumberKey(row: HTMLElement, num: number) {
     nextElement.click();
 }
 
-const studentForm = document.getElementById("student-vote-form") as HTMLElement;
+const studentForm = document.getElementById("student-vote-form")!;
 const selectables: NodeListOf<HTMLElement> = studentForm.querySelectorAll(".tab-selectable");
-const rows = Array.from(studentForm.getElementsByClassName("tab-row")) as Array<HTMLElement>;
+const rows = Array.from(studentForm.getElementsByClassName("tab-row")) as HTMLElement[];
 const letterRegex = new RegExp("^[A-Za-zÄÖÜäöü.*+-]$");
 
 // Sometimes we just want the browser to do its thing.
@@ -141,22 +141,20 @@ studentForm.addEventListener("keydown", (e: KeyboardEvent) => {
 });
 
 function findCorrectInputInRow(row: HTMLElement) {
-    const alreadySelectedElement: HTMLElement = row.querySelector(".tab-selectable:checked")!;
+    const alreadySelectedElement = row.querySelector<HTMLElement>(".tab-selectable:checked");
 
     if (alreadySelectedElement) {
         return alreadySelectedElement;
-    } else {
-        const possibleTargets: NodeListOf<HTMLElement> = row.querySelectorAll(".tab-selectable");
-        if (possibleTargets.length === 3) {
-            // Yes-No / No-Yes question, should focus first element
-            return possibleTargets[0];
-        } else {
-            // Everything else: The middle of all the answers excluding "no answer"
-            // This also handles all the single possibility cases
-            const index = Math.floor((possibleTargets.length - 1) / 2);
-            return possibleTargets[index];
-        }
     }
+    const possibleTargets: NodeListOf<HTMLElement> = row.querySelectorAll(".tab-selectable");
+    if (possibleTargets.length === 3) {
+        // Yes-No / No-Yes question, should focus first element
+        return possibleTargets[0];
+    }
+    // Everything else: The middle of all the answers excluding "no answer"
+    // This also handles all the single possibility cases
+    const index = Math.floor((possibleTargets.length - 1) / 2);
+    return possibleTargets[index];
 }
 
 function fancyFocus(element: HTMLElement) {
@@ -171,7 +169,7 @@ document.querySelector("#btn-jump-unanswered-question")?.addEventListener("click
 
 function scrollToFirstChoiceError() {
     const firstErrorRow = document.querySelector(".row .choice-error");
-    const tabRow = firstErrorRow?.closest(".row")?.querySelector(".tab-row") as HTMLElement;
+    const tabRow = firstErrorRow?.closest(".row")?.querySelector<HTMLElement>(".tab-row");
     if (tabRow) {
         fancyFocus(findCorrectInputInRow(tabRow));
     }

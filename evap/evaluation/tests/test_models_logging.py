@@ -1,11 +1,11 @@
 from datetime import date, datetime, timedelta
 
-from django.test import TestCase
 from django.utils.formats import localize
 from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, UserProfile
 from evap.evaluation.models_logging import FieldAction, InstanceActionType
+from evap.evaluation.tests.tools import TestCase
 
 
 class TestLoggedModel(TestCase):
