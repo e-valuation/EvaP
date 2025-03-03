@@ -119,11 +119,27 @@ class TestEventsView(WebTestStaffModeWith200Check):
     url = reverse("rewards:reward_point_redemption_events")
 
     @classmethod
-    def setUpTestData(cls):
+    def setUpTestData(cls) -> None:
         cls.test_users = [make_manager()]
 
+        cls.redemption_event1 = baker.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
         baker.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
-        baker.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
+
+    def test_redemption_event_list(self) -> None:
+        baker.make(
+            RewardPointRedemption,
+            event=self.redemption_event1,
+            value=1,
+            _quantity=2,
+        )
+        response = self.app.get(self.url, user=self.test_users[0])
+
+        self.assertContains(response, self.redemption_event1.name)
+        self.assertInHTML('<td><span class="fas fa-user"></span>2</td>', response.text)
+        self.assertContains(response, str(self.redemption_event1.redeem_end_date))
+        self.assertContains(response, str(self.redemption_event1.date))
+
+        self.assertInHTML('<td><span class="fas fa-user"></span>0</td>', response.text)
 
 
 class TestEventCreateView(WebTestStaffMode):
