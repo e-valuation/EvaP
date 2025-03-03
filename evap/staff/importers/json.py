@@ -229,7 +229,8 @@ class JSONImporter:
 
     # pylint: disable=too-many-locals
     def _import_evaluation(self, course: Course, data: ImportEvent) -> Evaluation:
-        course_end = datetime.strptime(data["appointments"][0]["end"], self.DATETIME_FORMAT)
+        last_appointment = sorted(data["appointments"], key=lambda x: x["end"])[-1]
+        course_end = datetime.strptime(last_appointment["end"], self.DATETIME_FORMAT)
 
         if data["isexam"]:
             # Set evaluation time frame of three days for exam evaluations:
