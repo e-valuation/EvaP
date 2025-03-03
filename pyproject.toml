@@ -110,7 +110,6 @@ pep8-naming.extend-ignore-names = ["assert*", "*Formset"]  # custom assert metho
 
 [tool.ruff.lint.per-file-ignores]
 "**/migrations/*.py" = ["N806"]  # migrations have model classes as local variables, we use PascalCase for these
-"deployment/*.py" = ["INP001"]  # not intended for direct import
 
 [tool.ruff.format]
 exclude = ["**/urls.py", "**/migrations/*.py"]
