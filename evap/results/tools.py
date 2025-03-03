@@ -1,6 +1,7 @@
 from collections import OrderedDict, defaultdict
 from collections.abc import Iterable
 from copy import copy
+from enum import Enum
 from math import ceil, modf
 from typing import TypeGuard, cast
 
@@ -34,6 +35,25 @@ GRADE_COLORS = {
     4: (242, 158, 88),
     5: (235, 89, 90),
 }
+
+
+class ViewGeneralResults(Enum):
+    @property
+    def do_not_call_in_templates(self):
+        return True
+
+    FULL = "full"
+    RATINGS = "ratings"
+
+
+class ViewContributorResults(Enum):
+    @property
+    def do_not_call_in_templates(self):
+        return True
+
+    FULL = "full"
+    RATINGS = "ratings"
+    PERSONAL = "personal"
 
 
 class TextAnswerVisibility:
@@ -473,49 +493,41 @@ def textanswers_visible_to(contribution):
     return TextAnswerVisibility(visible_by_contribution=sorted_contributors, visible_by_delegation_count=num_delegates)
 
 
-def can_textanswer_be_seen_by(  # noqa: PLR0911
+def can_textanswer_be_seen_by(  # noqa: PLR0911,PLR0912
     user: UserProfile,
     represented_users: list[UserProfile],
     textanswer: TextAnswer,
-    view: str,
+    view_general_results: ViewGeneralResults,
+    view_contributor_results: ViewContributorResults,
 ) -> bool:
     assert textanswer.review_decision in [TextAnswer.ReviewDecision.PRIVATE, TextAnswer.ReviewDecision.PUBLIC]
     contributor = textanswer.contribution.contributor
 
-    if view == "public":
-        return False
-
-    if view == "export":
-        if textanswer.is_private:
-            return False
-        if not textanswer.contribution.is_general and contributor != user:
-            return False
-    elif user.is_reviewer:
-        return True
-
-    if textanswer.is_private:
-        return contributor == user
-
     # NOTE: when changing this behavior, make sure all changes are also reflected in results.tools.textanswers_visible_to
     # and in results.tests.test_tools.TestTextAnswerVisibilityInfo
-    if textanswer.is_public:
-        # users can see textanswers if the contributor is one of their represented users (which includes the user itself)
-        if contributor in represented_users:
-            return True
-        # users can see text answers from general contributions if one of their represented users has text answer
-        # visibility GENERAL_TEXTANSWERS for the evaluation
-        if (
-            textanswer.contribution.is_general
-            and textanswer.contribution.evaluation.contributions.filter(
-                contributor__in=represented_users,
-                textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-            ).exists()
-        ):
-            return True
-        # the people responsible for a course can see all general text answers for all its evaluations
-        if textanswer.contribution.is_general and any(
-            user in represented_users for user in textanswer.contribution.evaluation.course.responsibles.all()
-        ):
-            return True
+    if textanswer.contribution.is_general:
+        if view_general_results == ViewGeneralResults.FULL:
+            return (
+                user.is_reviewer
+                or textanswer.contribution.evaluation.contributions.filter(
+                    contributor__in=represented_users,
+                    textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+                ).exists()  # represented user can see the textanswer
+                or textanswer.contribution.evaluation.course.responsibles.filter(
+                    pk__in=(user.pk for user in represented_users)
+                ).exists()  # responsible people for a course can see all general text answers for all its evaluations
+            )
+    else:
+        match view_contributor_results:
+            case ViewContributorResults.RATINGS:
+                return False
+            case ViewContributorResults.PERSONAL:
+                return user.is_reviewer or contributor == user
+            case ViewContributorResults.FULL:
+                if user.is_reviewer:
+                    return True
+                if textanswer.is_private:
+                    return user == contributor
+                return contributor in represented_users
 
     return False
