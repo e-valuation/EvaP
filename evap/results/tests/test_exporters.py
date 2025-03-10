@@ -646,7 +646,10 @@ class TestExporters(TestCase):
             (float(workbook.sheets()[0].row_values(5)[2]) + float(workbook.sheets()[0].row_values(5)[3])) / 2,
         )
 
-        self.assertEqual(workbook.sheets()[0].row_values(0)[1], "Average for this Question")
+        self.assertEqual(
+            workbook.sheets()[0].row_values(0)[1],
+            "Average for this question over all evaluations in all published semesters",
+        )
 
     def test_not_all_contributions_are_created_equal(self):
         program = baker.make(Program)
@@ -705,4 +708,7 @@ class TestExporters(TestCase):
         self.assertEqual(float(workbook.sheets()[0].row_values(8)[1]), float(workbook.sheets()[0].row_values(8)[3]))
         self.assertEqual("", workbook.sheets()[0].row_values(8)[2])
 
-        self.assertEqual(workbook.sheets()[0].row_values(0)[1], "Average for this Question")
+        self.assertEqual(
+            workbook.sheets()[0].row_values(0)[1],
+            "Average for this question over all evaluations in all published semesters",
+        )
