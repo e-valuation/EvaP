@@ -14,8 +14,31 @@ let
       nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.setuptools pkgs.postgresql ];
     });
   };
+  evap-override = final: prev: {
+    evap = prev.evap.overrideAttrs (old: {
+      src = lib.fileset.toSource {
+        root = old.src;
+        # Small set of required files for the editable package
+        fileset = lib.fileset.unions [
+          (old.src + "/pyproject.toml")
+          (old.src + "/README.md")
+          (old.src + "/evap/__init__.py")
+        ];
+      };
+      nativeBuildInputs = old.nativeBuildInputs ++ final.resolveBuildSystem {
+        # Needed to install evap in editable mode for development
+        editables = [ ];
+      };
+    });
+  };
+
   baseSet = pkgs.callPackage pyproject-nix.build.packages { python = python3; };
-  pythonSet = baseSet.overrideScope (lib.composeManyExtensions [ pyproject-build-systems.overlays.default overlay package-overrides ]);
+  pythonSet = baseSet.overrideScope (lib.composeManyExtensions [
+    pyproject-build-systems.overlays.default
+    overlay
+    package-overrides
+    evap-override
+  ]);
 
   editableOverlay = workspace.mkEditablePyprojectOverlay { root = "$REPO_ROOT"; };
   editablePythonSet = pythonSet.overrideScope editableOverlay;
@@ -34,11 +57,15 @@ pkgs.mkShell {
 
   passthru = { inherit venv; };
 
-  env.PUPPETEER_SKIP_DOWNLOAD = 1;
+  env = {
+    PUPPETEER_SKIP_DOWNLOAD = 1;
+    UV_NO_SYNC = "1";
+    UV_PYTHON = "${venv}/bin/python";
+    UV_PYTHON_DOWNLOADS = "never";
+  };
 
   shellHook = ''
     unset PYTHONPATH
     export REPO_ROOT=$(git rev-parse --show-toplevel)
-    export UV_NO_SYNC=1
   '';
 }
