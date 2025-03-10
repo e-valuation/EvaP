@@ -56,6 +56,11 @@
               uv
               postgresql
             ];
+            env = {
+              UV_NO_SYNC = "1";
+              UV_PYTHON = self.packages.${system}.python3.interpreter;
+              UV_PYTHON_DOWNLOADS = "never";
+            };
             shellHook = ''
               unset PYTHONPATH
             '';
@@ -79,7 +84,7 @@
           };
         in
         rec {
-          python3 = pkgs.python310;
+          python3 = pkgs.python312;
 
           services = make-process-compose true;
           services-full = make-process-compose false;
