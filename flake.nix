@@ -93,9 +93,11 @@
             name = "wait-for-pc";
             runtimeInputs = [ pkgs.jq ];
             text = ''
+              echo "Waiting for process-compose to become ready..."
               while [ "$(${lib.getExe services} process list -o json 2>/dev/null | jq '.[] |= .is_ready == "Ready" or .status == "Completed" or .status == "Disabled" | all')" != "true" ]; do
                   sleep 1
               done
+              echo "... done waiting."
             '';
           };
 
