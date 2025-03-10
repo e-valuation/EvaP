@@ -219,7 +219,6 @@ def evaluation_detail(request, semester_id, evaluation_id):
         pk__in=(user.pk for user in represented_users)
     ).exists()
     
-    #any(user in represented_users for user in evaluation.course.responsibles.all())
     user_represents_general_visibilty_contributor = evaluation.contributions.filter(
         contributor__in=represented_users, 
         textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS).exists()
