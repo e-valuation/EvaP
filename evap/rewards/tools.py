@@ -88,6 +88,8 @@ def grant_eligible_reward_points_for_semester(request: HttpRequest, semester: Se
 
 @receiver(Evaluation.evaluation_evaluated)
 def grant_reward_points_after_evaluate(request: HttpRequest, semester: Semester, **_kwargs) -> None:
+    assert isinstance(request.user, UserProfile)
+
     granting, completed_evaluation = grant_reward_points_if_eligible(request.user, semester)
     if granting:
         message = ngettext(
