@@ -33,7 +33,7 @@
             </div>
             <div class="col-auto">
                 <div class="row">
-                    <div class="col-auto">
+                    <div class="col-auto ms-auto">
                         <div class="btn-switch btn-switch-light my-auto d-print-none">
                             <div class="btn-switch-label">
                                 {% translate 'General results' %}
@@ -65,6 +65,13 @@
                             </div>
                             <div class="btn-switch btn-group">
                                 <a
+                                    href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results={{ view_general_results.value }}&view_contributor_results=personal"
+                                    role="button"
+                                    class="btn btn-sm btn-light{% if not contributor_textanswers or not contributor_personal %} disabled{% elif view_contributor_results == ViewContributorResults.PERSONAL %} active{% endif %}"
+                                >
+                                    {% translate 'Only mine' %}
+                                </a>
+                                <a
                                     href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results={{ view_general_results.value }}&view_contributor_results=full"
                                     role="button"
                                     class="btn btn-sm btn-light {% if not contributor_textanswers %} disabled {% elif view_contributor_results == ViewContributorResults.FULL %} active {% endif %}"
@@ -77,13 +84,6 @@
                                     class="btn btn-sm btn-light{% if not contributor_textanswers %} disabled active{% elif view_contributor_results == ViewContributorResults.RATINGS %} active{% endif %}"
                                 >
                                     {% translate 'Ratings' %}
-                                </a>
-                                <a
-                                    href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results={{ view_general_results.value }}&view_contributor_results=personal"
-                                    role="button"
-                                    class="btn btn-sm btn-light{% if not contributor_textanswers or not contributor_personal %} disabled{% elif view_contributor_results == ViewContributorResults.PERSONAL %} active{% endif %}"
-                                >
-                                    {% translate 'Only mine' %}
                                 </a>
                             </div>
                         </div>
