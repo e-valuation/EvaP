@@ -120,22 +120,25 @@ class TestEventsView(WebTestStaffModeWith200Check):
 
     @classmethod
     def setUpTestData(cls) -> None:
-        cls.test_users = [make_manager()]
+        cls.manager = make_manager()
+        cls.test_users = [cls.manager]
 
         cls.redemption_event1 = baker.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
         baker.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
 
     def test_redemption_event_list(self) -> None:
+        quantity = 2
         baker.make(
             RewardPointRedemption,
             event=self.redemption_event1,
             value=1,
-            _quantity=2,
+            _quantity=quantity,
         )
         response = self.app.get(self.url, user=self.test_users[0])
 
-        self.assertContains(response, self.redemption_event1.name)
-        self.assertInHTML('<td><span class="fas fa-user"></span>2</td>', response.text)
+        self.assertInHTML(
+            f'<td>{self.redemption_event1.name}</td><td><span class="fas fa-user"></span>{quantity}</td>', response.text
+        )
         self.assertContains(response, str(self.redemption_event1.redeem_end_date))
         self.assertContains(response, str(self.redemption_event1.date))
 
