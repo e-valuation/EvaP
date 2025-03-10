@@ -979,6 +979,9 @@ class TestSemesterPreparationReminderView(WebTestStaffModeWith200Check):
         self.assertEqual(kwargs["body_params"], {"user": self.user, "evaluations": [self.evaluation]})
         self.assertEqual(kwargs["use_cc"], True)
 
+    def test_invalid_mode(self) -> None:
+        self.app.get(self.url, params={"mode": "invalid"}, user=self.manager, status=400)
+        self.app.post(self.url + "?mode=text", user=self.manager, status=400)
 
 class TestGradeReminderView(WebTestStaffMode):
     @classmethod
