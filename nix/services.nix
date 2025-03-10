@@ -3,7 +3,10 @@
     services-flake.processComposeModules.default
   ];
 
-  cli.options.unix-socket = "process-compose.socket";
+  cli.options = {
+    no-server = false;
+    unix-socket = "process-compose.socket";
+  };
 
   services = {
     redis."r1" = {
