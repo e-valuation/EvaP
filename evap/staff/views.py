@@ -919,7 +919,11 @@ def semester_questionnaire_assign(request, semester_id):
 
 
 @manager_required
-def semester_preparation_reminder(request, semester_id):
+def semester_preparation_reminder(request: HttpRequest, semester_id: int) -> HttpResponse:
+    mode = request.GET.get("mode", "interactive")
+    if request.method == "POST" and mode == "text" or mode not in ["interactive", "text"]:
+        raise SuspiciousOperation
+
     semester = get_object_or_404(Semester, id=semester_id)
 
     evaluations = semester.evaluations.filter(
@@ -949,7 +953,7 @@ def semester_preparation_reminder(request, semester_id):
         messages.success(request, _("Successfully sent reminders to everyone."))
         return HttpResponse()
 
-    template_data = {"semester": semester, "responsible_list": responsible_list}
+    template_data = {"semester": semester, "responsible_list": responsible_list, "interactive": mode == "interactive"}
     return render(request, "staff_semester_preparation_reminder.html", template_data)
 
 
