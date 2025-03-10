@@ -10,6 +10,7 @@ import xlrd
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
+from django.db import transaction
 from django.db.models import Model
 from django.http import HttpResponse
 from django.test import override_settings
@@ -50,6 +51,7 @@ from evap.evaluation.tests.tools import (
 from evap.grades.models import GradeDocument
 from evap.results.tools import TextResult, cache_results, get_results
 from evap.rewards.models import RewardPointGranting, SemesterActivation
+from evap.rewards.tools import reward_points_of_user
 from evap.staff.forms import ContributionCopyForm, ContributionCopyFormset, CourseCopyForm, EvaluationCopyForm
 from evap.staff.tests.utils import (
     WebTestStaffMode,
@@ -302,7 +304,7 @@ class TestUserEditView(WebTestStaffMode):
         mock_remove.assert_called_with(self.testuser)
         self.assertIn(mock_remove.return_value[0], response)
 
-    def test_reward_points_granting_message(self):
+    def test_reward_point_granting(self):
         evaluation = baker.make(Evaluation, course__semester__is_active=True)
         already_evaluated = baker.make(Evaluation, course=baker.make(Course, semester=evaluation.course.semester))
         SemesterActivation.objects.create(semester=evaluation.course.semester, is_active=True)
@@ -317,6 +319,8 @@ class TestUserEditView(WebTestStaffMode):
         form = page.forms["user-form"]
         form["evaluations_participating_in"] = [already_evaluated.pk]
 
+        self.assertEqual(reward_points_of_user(student), 0)
+
         page = form.submit().follow()
         # fetch the user name, which became lowercased
         student.refresh_from_db()
@@ -327,6 +331,8 @@ class TestUserEditView(WebTestStaffMode):
             "3 reward points for the active semester.",
             page,
         )
+
+        self.assertEqual(reward_points_of_user(student), 3)
 
 
 class TestUserDeleteView(DeleteViewTestMixin, WebTestStaffMode):
@@ -894,6 +900,36 @@ class TestSemesterDeleteView(DeleteViewTestMixin, WebTestStaffMode):
         self.app.post(self.url, params=self.post_params, user=self.user)
 
         self.assertFalse(Semester.objects.filter(pk=self.instance.pk).exists())
+
+    @override_settings(REWARD_POINTS=[(1, 3)])
+    def test_does_not_grant_redemption_points(self):
+        student = baker.make(UserProfile, email="student@institution.example.com")
+        evaluation = baker.make(
+            Evaluation, participants=[student], state=Evaluation.State.PUBLISHED, course__semester=self.instance
+        )
+        SemesterActivation.objects.update_or_create(semester=self.instance, defaults={"is_active": True})
+
+        # student must be participant in at least one other evaluation
+        baker.make(
+            Evaluation,
+            participants=[student],
+            voters=[student],
+            state=Evaluation.State.PUBLISHED,
+            course__semester=self.instance,
+        )
+
+        self.instance.archive()
+        self.instance.delete_grade_documents()
+        self.instance.archive_results()
+
+        # just deleting the evaluation would grant redemption point -- ensures setup above is sufficient
+        with transaction.atomic():
+            Evaluation.objects.get(pk=evaluation.pk).delete()
+            assert reward_points_of_user(student) == 3
+            transaction.set_rollback(True)
+
+        self.app.post(self.url, params=self.post_params, user=self.user)
+        self.assertEqual(reward_points_of_user(student), 0)
 
 
 class TestSemesterAssignView(WebTestStaffMode):
@@ -2369,6 +2405,36 @@ class TestEvaluationDeleteView(WebTestStaffMode):
     def test_invalid_deletion(self):
         self.app.post(self.url, user=self.manager, params=self.post_params, status=400)
         self.assertTrue(Evaluation.objects.filter(pk=self.evaluation.pk).exists())
+
+    @patch.object(Evaluation, "can_be_deleted_by_manager", True)
+    def test_reward_point_granting(self):
+        already_evaluated = baker.make(Evaluation, course__semester=self.evaluation.course.semester)
+        SemesterActivation.objects.create(semester=self.evaluation.course.semester, is_active=True)
+
+        # does not get reward points as it was the only evaluation in this semester
+        student = baker.make(
+            UserProfile, email="student@institution.example.com", evaluations_participating_in=[self.evaluation]
+        )
+
+        # get reward points
+        baker.make(
+            UserProfile,
+            email=iter(f"{name}@institution.example.com" for name in ["a", "b", "c", "d", "e"]),
+            evaluations_participating_in=[self.evaluation, already_evaluated],
+            evaluations_voted_for=[already_evaluated],
+            _quantity=5,
+        )
+
+        self.assertEqual(reward_points_of_user(student), 0)
+
+        with patch("evap.staff.views.logger") as mock:
+            self.app.post(self.url, user=self.manager, params=self.post_params, status=200)
+
+        self.assertEqual(mock.info.call_args_list[0][1]["extra"]["num_grantings"], 5)
+        self.assertEqual(reward_points_of_user(student), 0)
+
+        user_a = UserProfile.objects.get(email="a@institution.example.com")
+        self.assertEqual(reward_points_of_user(user_a), 3)
 
 
 class TestSingleResultEditView(WebTestStaffModeWith200Check):
