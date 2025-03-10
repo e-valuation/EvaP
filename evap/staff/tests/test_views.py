@@ -904,11 +904,19 @@ class TestSemesterDeleteView(DeleteViewTestMixin, WebTestStaffMode):
     @override_settings(REWARD_POINTS=[(1, 3)])
     def test_does_not_grant_redemption_points(self):
         student = baker.make(UserProfile, email="student@institution.example.com")
-        evaluation = baker.make(Evaluation, participants=[student], state=Evaluation.State.PUBLISHED, course__semester=self.instance)
+        evaluation = baker.make(
+            Evaluation, participants=[student], state=Evaluation.State.PUBLISHED, course__semester=self.instance
+        )
         SemesterActivation.objects.update_or_create(semester=self.instance, defaults={"is_active": True})
 
         # student must be participant in at least one other evaluation
-        evaluation2 = baker.make(Evaluation, participants=[student], voters=[student], state=Evaluation.State.PUBLISHED, course__semester=self.instance)
+        baker.make(
+            Evaluation,
+            participants=[student],
+            voters=[student],
+            state=Evaluation.State.PUBLISHED,
+            course__semester=self.instance,
+        )
 
         self.instance.archive()
         self.instance.delete_grade_documents()

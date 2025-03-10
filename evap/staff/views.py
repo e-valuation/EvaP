@@ -77,7 +77,7 @@ from evap.results.exporters import ResultsExporter
 from evap.results.tools import TextResult, calculate_average_distribution, distribution_to_grade
 from evap.results.views import update_template_cache_of_published_evaluations_in_course
 from evap.rewards.models import RewardPointGranting
-from evap.rewards.tools import can_reward_points_be_used_by, is_semester_activated, deactivate_semester
+from evap.rewards.tools import can_reward_points_be_used_by, deactivate_semester, is_semester_activated
 from evap.staff import staff_mode
 from evap.staff.forms import (
     AtLeastOneFormset,
