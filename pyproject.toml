@@ -3,7 +3,7 @@ name = "evap"
 description = "EvaP"
 version = "0.0.0"
 readme = "README.md"
-requires-python = "~=3.10.0"
+requires-python = "~=3.12.0"
 dependencies = [
     "django-extensions~=3.2.3",
     "django-fsm~=2.8.2",
