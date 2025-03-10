@@ -19,7 +19,7 @@
                             data-bs-toggle="collapse" href="#contributor-{{ contribution_result.contributor.id }}"
                             aria-controls="contributor-{{ contribution_result.contributor.id }}">
                         </a>
-                        <span class="badge rounded-pill badge-btn ms-auto" id="participant_counter">{{ evaluation.participants.count }}</span>
+                        <span class="badge rounded-pill badge-btn ms-auto" data-track-tomselect-count="id_participants">{{ evaluation.participants.count }}</span>
                     </div>
                     <div class="collapse{% if not collapse_participants or evaluation.participants.count == 0 %} show{% endif %}" id="contributor-{{ contribution_result.contributor.id }}">
                         <div class="card-body">
