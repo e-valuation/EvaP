@@ -1,7 +1,7 @@
-import subprocess  # nosec
-
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
+
+from evap.evaluation.management.commands.tools import run_exit_if_nonzero_return_code
 
 
 class Command(BaseCommand):
@@ -34,7 +34,7 @@ class Command(BaseCommand):
             command += ["--style", "compressed", "--no-source-map"]
 
         try:
-            subprocess.run(command, check=True)  # nosec
+            run_exit_if_nonzero_return_code(command)
         except FileNotFoundError as e:
             raise CommandError("Could not find sass command") from e
         except KeyboardInterrupt:
