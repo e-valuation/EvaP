@@ -932,40 +932,65 @@ class TestSemesterDeleteView(DeleteViewTestMixin, WebTestStaffMode):
         self.assertEqual(reward_points_of_user(student), 0)
 
 
-class TestSemesterAssignView(WebTestStaffMode):
+class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.semester = baker.make(Semester)
-        cls.url = f"/staff/semester/{cls.semester.pk}/assign"
+        semester = baker.make(Semester)
+        cls.url = f"/staff/semester/{semester.pk}/assign"
 
-        lecture_type = baker.make(CourseType, name_de="Vorlesung", name_en="Lecture")
-        seminar_type = baker.make(CourseType, name_de="Seminar", name_en="Seminar")
-        cls.questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-
-        evaluation1 = baker.make(Evaluation, course__type=seminar_type, course__semester=cls.semester)
-        evaluation2 = baker.make(Evaluation, course__type=lecture_type, course__semester=cls.semester)
+        cls.course_type_1 = baker.make(CourseType)
+        cls.course_type_2 = baker.make(CourseType)
+        cls.responsible = baker.make(UserProfile)
+        cls.questionnaire_1 = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        cls.questionnaire_2 = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        cls.questionnaire_responsible = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
+        cls.evaluation_1 = baker.make(
+            Evaluation,
+            course=baker.make(Course, semester=semester, type=cls.course_type_1, responsibles=[cls.responsible]),
+        )
+        cls.evaluation_2 = baker.make(
+            Evaluation,
+            course=baker.make(Course, semester=semester, type=cls.course_type_2, responsibles=[cls.responsible]),
+        )
         baker.make(
             Contribution,
-            contributor=baker.make(UserProfile),
-            evaluation=iter([evaluation1, evaluation2]),
+            contributor=cls.responsible,
+            evaluation=cls.evaluation_1,
             role=Contribution.Role.EDITOR,
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-            _fill_optional=["contributor"],
-            _quantity=2,
-            _bulk_create=True,
+        )
+        baker.make(
+            Contribution,
+            contributor=cls.responsible,
+            evaluation=cls.evaluation_2,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
 
-    def test_assign_questionnaires(self):
-        page = self.app.get(self.url, user=self.manager)
-        assign_form = page.forms["questionnaire-assign-form"]
-        assign_form["Seminar"] = [self.questionnaire.pk]
-        assign_form["Lecture"] = [self.questionnaire.pk]
-        page = assign_form.submit().follow()
+    def test_questionnaire_assignment(self):
+        page = self.app.get(self.url, user=self.manager, status=200)
+        form = page.forms["questionnaire-assign-form"]
+        form[f"general-{self.course_type_1.id}"] = [self.questionnaire_1.pk, self.questionnaire_2.pk]
+        form[f"general-{self.course_type_2.id}"] = [self.questionnaire_2.pk]
+        form[f"contributor-{self.course_type_1.id}"] = [self.questionnaire_responsible.pk]
 
-        for evaluation in self.semester.evaluations.all():
-            self.assertEqual(evaluation.general_contribution.questionnaires.count(), 1)
-            self.assertEqual(evaluation.general_contribution.questionnaires.get(), self.questionnaire)
+        response = form.submit().follow()
+        self.assertIn("Successfully", str(response))
+
+        self.assertEqual(
+            set(self.evaluation_1.general_contribution.questionnaires.all()),
+            {self.questionnaire_1, self.questionnaire_2},
+        )
+        self.assertEqual(set(self.evaluation_2.general_contribution.questionnaires.all()), {self.questionnaire_2})
+        self.assertEqual(
+            set(self.evaluation_1.contributions.get(contributor=self.responsible).questionnaires.all()),
+            {self.questionnaire_responsible},
+        )
+        self.assertEqual(
+            set(self.evaluation_2.contributions.get(contributor=self.responsible).questionnaires.all()),
+            set(),
+        )
 
 
 class TestSemesterPreparationReminderView(WebTestStaffModeWith200Check):
@@ -3849,67 +3874,6 @@ class TestProgramView(WebTestStaffMode):
         helper_set_dynamic_choices_field_value(form["form-1-import_names"], ["Master of Science", "M"])
         response = form.submit()
         self.assertContains(response, "Import name &quot;M&quot; is duplicated.")
-
-
-class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
-    @classmethod
-    def setUpTestData(cls):
-        cls.manager = make_manager()
-        semester = baker.make(Semester)
-        cls.url = f"/staff/semester/{semester.pk}/assign"
-
-        cls.course_type_1 = baker.make(CourseType)
-        cls.course_type_2 = baker.make(CourseType)
-        cls.responsible = baker.make(UserProfile)
-        cls.questionnaire_1 = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        cls.questionnaire_2 = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        cls.questionnaire_responsible = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
-        cls.evaluation_1 = baker.make(
-            Evaluation,
-            course=baker.make(Course, semester=semester, type=cls.course_type_1, responsibles=[cls.responsible]),
-        )
-        cls.evaluation_2 = baker.make(
-            Evaluation,
-            course=baker.make(Course, semester=semester, type=cls.course_type_2, responsibles=[cls.responsible]),
-        )
-        baker.make(
-            Contribution,
-            contributor=cls.responsible,
-            evaluation=cls.evaluation_1,
-            role=Contribution.Role.EDITOR,
-            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-        )
-        baker.make(
-            Contribution,
-            contributor=cls.responsible,
-            evaluation=cls.evaluation_2,
-            role=Contribution.Role.EDITOR,
-            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-        )
-
-    def test_questionnaire_assignment(self):
-        page = self.app.get(self.url, user=self.manager, status=200)
-        form = page.forms["questionnaire-assign-form"]
-        form[self.course_type_1.name] = [self.questionnaire_1.pk, self.questionnaire_2.pk]
-        form[self.course_type_2.name] = [self.questionnaire_2.pk]
-        form["all-contributors"] = [self.questionnaire_responsible.pk]
-
-        response = form.submit().follow()
-        self.assertIn("Successfully", str(response))
-
-        self.assertEqual(
-            set(self.evaluation_1.general_contribution.questionnaires.all()),
-            {self.questionnaire_1, self.questionnaire_2},
-        )
-        self.assertEqual(set(self.evaluation_2.general_contribution.questionnaires.all()), {self.questionnaire_2})
-        self.assertEqual(
-            set(self.evaluation_1.contributions.get(contributor=self.responsible).questionnaires.all()),
-            {self.questionnaire_responsible},
-        )
-        self.assertEqual(
-            set(self.evaluation_2.contributions.get(contributor=self.responsible).questionnaires.all()),
-            {self.questionnaire_responsible},
-        )
 
 
 class TestSemesterActiveStateBehaviour(WebTestStaffMode):
