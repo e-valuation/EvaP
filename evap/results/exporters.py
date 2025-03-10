@@ -39,6 +39,9 @@ class ResultsExporter(ExcelExporter):
         "evaluation": xlwt.easyxf(
             "alignment: horiz centre, wrap on, rota 90; borders: left medium, top medium, right medium, bottom medium"
         ),
+        "average": xlwt.easyxf(
+            "alignment: horiz centre, wrap on, rota 90; borders: left medium, top medium, right medium, bottom medium; font: italic on"
+        ),
         "total_voters": xlwt.easyxf("alignment: horiz centre; borders: left medium, right medium"),
         "evaluation_rate": xlwt.easyxf("alignment: horiz centre; borders: left medium, bottom medium, right medium"),
         "evaluation_weight": xlwt.easyxf("alignment: horiz centre; borders: left medium, right medium"),
@@ -203,7 +206,7 @@ class ResultsExporter(ExcelExporter):
         else:
             self.write_cell(export_name, "headline")
 
-        self.write_cell(_("Average for this question over all evaluations in all published semesters"), "evaluation")
+        self.write_cell(_("Average for this question over all evaluations in all published semesters"), "average")
 
         for evaluation, __ in evaluations_with_results:
             title = evaluation.full_name

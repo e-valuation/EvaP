@@ -595,7 +595,7 @@ class TestExporters(TestCase):
 
         questionnaire = baker.make(Questionnaire, order=1, type=Questionnaire.Type.TOP)
 
-        question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire)
+        question = baker.make(Question, type=QuestionType.GRADE, questionnaire=questionnaire)
 
         evaluation_1 = baker.make(
             Evaluation,
@@ -609,17 +609,17 @@ class TestExporters(TestCase):
             Evaluation,
             course__programs=[program],
             state=Evaluation.State.PUBLISHED,
-            _participant_count=2,
-            _voter_count=2,
+            _participant_count=3,
+            _voter_count=3,
         )
 
         evaluation_1.general_contribution.questionnaires.set([questionnaire])
 
-        make_rating_answer_counters(question, evaluation_1.general_contribution)
+        make_rating_answer_counters(question, evaluation_1.general_contribution, [1, 1, 0, 0, 0])
 
         evaluation_2.general_contribution.questionnaires.set([questionnaire])
 
-        make_rating_answer_counters(question, evaluation_2.general_contribution)
+        make_rating_answer_counters(question, evaluation_2.general_contribution, [1, 2, 0, 0, 0])
 
         cache_results(evaluation_1)
         cache_results(evaluation_2)
@@ -641,7 +641,7 @@ class TestExporters(TestCase):
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
-        self.assertEqual(
+        self.assertAlmostEqual(
             float(workbook.sheets()[0].row_values(5)[1]),
             (float(workbook.sheets()[0].row_values(5)[2]) + float(workbook.sheets()[0].row_values(5)[3])) / 2,
         )
@@ -706,7 +706,7 @@ class TestExporters(TestCase):
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
         self.assertEqual(float(workbook.sheets()[0].row_values(8)[1]), float(workbook.sheets()[0].row_values(8)[3]))
-        self.assertEqual("", workbook.sheets()[0].row_values(8)[2])
+        self.assertEqual("", workbook.sheets()[0].row_values(8)[2])  # testing empty heading for average
 
         self.assertEqual(
             workbook.sheets()[0].row_values(0)[1],
