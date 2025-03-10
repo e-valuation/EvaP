@@ -752,16 +752,16 @@ class TestResultsSemesterEvaluationDetailViewPrivateEvaluation(WebTest):
 class TestResultsTextanswerVisibility(WebTest):
 
     fixtures = ["minimal_test_data_results"]
-    general_textanswers = [
+    general_textanswers = {
         ".general_orig_published.",
         ".general_orig_deleted.",
         ".general_changed_published.",
         ".general_orig_published_changed.",
         ".general_additional_orig_published.",
         ".general_additional_orig_deleted.",
-    ]
+    }
 
-    contributor_textanswers = [
+    contributor_textanswers = {
         ".contributor_orig_published.",
         ".contributor_orig_private.",
         ".responsible_contributor_orig_published.",
@@ -772,13 +772,27 @@ class TestResultsTextanswerVisibility(WebTest):
         ".responsible_contributor_orig_unreviewed.",
         ".responsible_contributor_additional_orig_published.",
         ".responsible_contributor_additional_orig_deleted.",
-    ]
+    }
 
-    standard_general_textanswers = [  # subset of general_textanswers
+    standard_general_textanswers = {
         ".general_orig_published.",
         ".general_changed_published.",
         ".general_additional_orig_published.",
-    ]
+    }
+
+    # subset of textanswers. These are never shown in results page
+    general_textanswers_never_shown = {
+        ".general_orig_deleted.",
+        ".general_orig_published_changed.",
+        ".general_additional_orig_deleted.",
+    }
+    contributor_textanswers_never_shown = {
+        ".responsible_contributor_orig_deleted.",
+        ".responsible_contributor_orig_published_changed.",
+        ".responsible_contributor_orig_unreviewed.",
+        ".responsible_contributor_additional_orig_deleted.",
+    }
+    all_textanswers = general_textanswers | contributor_textanswers
 
     @classmethod
     def setUpTestData(cls):
@@ -791,9 +805,8 @@ class TestResultsTextanswerVisibility(WebTest):
         expected_visible_textanswers,
         general=ViewGeneralResults,
         contributor=ViewContributorResults,
-        all_textanswers=general_textanswers + contributor_textanswers,
     ):
-        textanswers_not_in = list(set(all_textanswers) - set(expected_visible_textanswers))
+        expected_not_visible_textanswers = self.all_textanswers - set(expected_visible_textanswers)
         for general_view, contributor_view in product(general, contributor):
             page = self.app.get(
                 f"/results/semester/1/evaluation/1?view_general_results={general_view.value}&view_contributor_results={contributor_view.value}",
@@ -802,24 +815,21 @@ class TestResultsTextanswerVisibility(WebTest):
 
             for answer in expected_visible_textanswers:
                 self.assertIn(answer, page)
-            for answer in textanswers_not_in:
+            for answer in (
+                expected_not_visible_textanswers
+                | self.general_textanswers_never_shown
+                | self.contributor_textanswers_never_shown
+            ):
                 self.assertNotIn(answer, page)
 
     def test_manager(self):
         user = self.manager
         self.check_with_view(user, [])
-        with run_in_staff_mode(self):  # in staff mode, the manager can see everything except deleted or changed
-            visible_contributor_textanswers = [
-                ".contributor_orig_published.",
-                ".contributor_orig_private.",
-                ".responsible_contributor_orig_published.",
-                ".responsible_contributor_changed_published.",
-                ".responsible_contributor_orig_private.",
-                ".responsible_contributor_additional_orig_published.",
-            ]
+        with run_in_staff_mode(self):  # in staff mode, the manager can see every possible answer
+            visible_contributor_textanswers = self.contributor_textanswers - self.contributor_textanswers_never_shown
             self.check_with_view(
                 user,
-                self.standard_general_textanswers + visible_contributor_textanswers,
+                self.standard_general_textanswers | visible_contributor_textanswers,
                 [ViewGeneralResults.FULL],
                 [ViewContributorResults.FULL],
             )
@@ -841,16 +851,16 @@ class TestResultsTextanswerVisibility(WebTest):
 
     def test_responsible_contributor(self):
         user = "responsible_contributor@institution.example.com"
-        visible_contributor_textanswers = [
+        visible_contributor_textanswers = {
             ".responsible_contributor_orig_published.",
             ".responsible_contributor_changed_published.",
             ".responsible_contributor_orig_private.",
             ".responsible_contributor_additional_orig_published.",
-        ]
+        }
         self.check_with_view(user, [], [ViewGeneralResults.RATINGS], [ViewContributorResults.RATINGS])
         self.check_with_view(
             user,
-            self.standard_general_textanswers + visible_contributor_textanswers,
+            self.standard_general_textanswers | visible_contributor_textanswers,
             [ViewGeneralResults.FULL],
             [ViewContributorResults.FULL, ViewContributorResults.PERSONAL],
         )
@@ -862,7 +872,7 @@ class TestResultsTextanswerVisibility(WebTest):
 
     def test_contributor(self):
         user = "contributor@institution.example.com"
-        visible_contributor_textanswers = [".contributor_orig_published.", ".contributor_orig_private."]
+        visible_contributor_textanswers = {".contributor_orig_published.", ".contributor_orig_private."}
         self.check_with_view(user, [], contributor=[ViewContributorResults.RATINGS])
         self.check_with_view(
             user,
