@@ -1,5 +1,6 @@
 import argparse
-import subprocess  # nosec
+import subprocess
+import sys
 
 from django.conf import settings
 from django.core.management import call_command
@@ -36,7 +37,7 @@ class Command(BaseCommand):
 
     def run_command(self, command):
         try:
-            subprocess.run(command, check=True)  # nosec
+            sys.exit(subprocess.run(command, check=False).returncode)
         except FileNotFoundError as e:
             raise CommandError(f"Could not find {command[0]} command") from e
         except KeyboardInterrupt:
