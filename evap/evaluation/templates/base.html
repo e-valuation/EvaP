@@ -216,6 +216,18 @@
             import { setupForms } from "{% static 'js/custom-success-form.js' %}";
 
             setupForms();
+            document.querySelectorAll("[data-track-tomselect-count]").forEach(tracker_element => {
+                
+                trackedElement = document.getElementById(tracker_element.dataset.trackTomselectCount)
+
+                tracker_element.on("item_add", function() {
+                    update_count(tracker_element, trackedElement);
+                });
+
+                tomselect_element.on("item_remove", function() {
+                    update_count(tracker_element, trackedElement);
+                });
+            })
         </script>
 
         {% block additional_javascript %}{% endblock %}
