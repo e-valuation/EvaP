@@ -22,7 +22,7 @@
                                 <h4 class="card-title">{% translate 'General' %}</h4>
                                 <fieldset>
                                     {% for field in general_fields %}
-                                        {% include 'bootstrap_form_field.html' with field=field %}
+                                        {% include 'bootstrap_form_field.html' with field=field wide=True%}
                                     {% endfor %}
                                 </fieldset>
                             </div>
@@ -34,7 +34,7 @@
                                 <h4 class="card-title">{% translate 'Contributors' %}</h4>
                                 <fieldset>
                                     {% for field in contributor_fields %}
-                                        {% include 'bootstrap_form_field.html' with field=field %}
+                                        {% include 'bootstrap_form_field.html' with field=field wide=True%}
                                     {% endfor %}
                                 </fieldset>
                             </div>
