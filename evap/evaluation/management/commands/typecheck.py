@@ -1,4 +1,5 @@
-import subprocess  # nosec
+import subprocess
+import sys
 
 from django.core.management.base import BaseCommand
 
@@ -9,4 +10,4 @@ class Command(BaseCommand):
     requires_migrations_checks = False
 
     def handle(self, *args, **options):
-        subprocess.run(["mypy"], check=True)  # nosec
+        sys.exit(subprocess.run(["mypy"], check=False).returncode)

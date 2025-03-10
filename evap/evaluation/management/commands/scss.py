@@ -1,4 +1,5 @@
-import subprocess  # nosec
+import subprocess
+import sys
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
@@ -34,7 +35,7 @@ class Command(BaseCommand):
             command += ["--style", "compressed", "--no-source-map"]
 
         try:
-            subprocess.run(command, check=True)  # nosec
+            sys.exit(subprocess.run(command, check=False).returncode)
         except FileNotFoundError as e:
             raise CommandError("Could not find sass command") from e
         except KeyboardInterrupt:
