@@ -209,20 +209,20 @@ def evaluation_detail(request, semester_id, evaluation_id):
 
     is_responsible_or_contributor_or_delegate = evaluation.is_user_responsible_or_contributor_or_delegate(view_as_user)
 
-    contributor_textanswers = view_as_user.is_reviewer or any(
-        evaluation.is_user_contributor(user) for user in represented_users
-    )
+    contributor_textanswers = view_as_user.is_reviewer or evaluation.contributions.filter(
+        contributor__in=represented_users
+    ).exists()
+    
     contributor_personal = evaluation.is_user_contributor(view_as_user)
 
-    user_represents_responsible = any(user in represented_users for user in evaluation.course.responsibles.all())
-    user_represents_general_visibilty_contributor = any(
-        evaluation.is_user_contributor(user)
-        and evaluation.contributions.filter(
-            contributor=user,
-            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-        ).exists()
-        for user in represented_users
-    )
+    user_represents_responsible = evaluation.course.responsibles.all().filter(
+        pk__in=(user.pk for user in represented_users)
+    ).exists()
+    
+    #any(user in represented_users for user in evaluation.course.responsibles.all())
+    user_represents_general_visibilty_contributor = evaluation.contributions.filter(
+        contributor__in=represented_users, 
+        textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS).exists()
 
     general_textanswers = (
         view_as_user.is_reviewer or user_represents_responsible or user_represents_general_visibilty_contributor
