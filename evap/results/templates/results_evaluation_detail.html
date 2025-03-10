@@ -42,7 +42,7 @@
                                 <a
                                     href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results=full&view_contributor_results={{ view_contributor_results.value }}"
                                     role="button"
-                                    class="btn btn-sm btn-light {% if not general_textanswers %} disabled {% elif view_general_results == ViewGeneralResults.FULL %} active {% endif %}"
+                                    class="btn btn-sm btn-light{% if not general_textanswers %} disabled{% elif view_general_results == ViewGeneralResults.FULL %} active{% endif %}"
                                 >
                                     {% translate 'Ratings and texts' %}
                                 </a>
@@ -74,7 +74,7 @@
                                 <a
                                     href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view_general_results={{ view_general_results.value }}&view_contributor_results=full"
                                     role="button"
-                                    class="btn btn-sm btn-light {% if not contributor_textanswers %} disabled {% elif view_contributor_results == ViewContributorResults.FULL %} active {% endif %}"
+                                    class="btn btn-sm btn-light{% if not contributor_textanswers %} disabled{% elif view_contributor_results == ViewContributorResults.FULL %} active{% endif %}"
                                 >
                                     {% translate 'Ratings and texts' %}
                                 </a>
