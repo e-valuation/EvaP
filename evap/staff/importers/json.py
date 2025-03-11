@@ -219,7 +219,6 @@ class JSONImporter:
 
     def _import_course(self, data: ImportEvent) -> Course:
         course_type = self._get_course_type(data["type"])
-        programs = [self._get_program(c["cprid"]) for c in data["courses"]]
         responsibles = self._get_user_profiles(data["lecturers"])
         responsibles = self._filter_user_profiles(responsibles)
         responsibles = self._choose_responsibles(responsibles)
@@ -229,7 +228,6 @@ class JSONImporter:
             cms_id=data["gguid"],
             defaults={"name_de": data["title"], "name_en": data["title_en"], "type": course_type},
         )
-        course.programs.set(programs)
         course.responsibles.set(responsibles)
 
         if changes:
@@ -240,6 +238,10 @@ class JSONImporter:
         self.course_map[data["gguid"]] = course
 
         return course
+
+    def _import_course_programs(self, course: Course, data: ImportEvent) -> None:
+        programs = [self._get_program(c["cprid"]) for c in data["courses"]]
+        course.programs.set(programs)
 
     # pylint: disable=too-many-locals
     def _import_evaluation(self, course: Course, data: ImportEvent) -> Evaluation:
@@ -332,6 +334,8 @@ class JSONImporter:
 
         for event in exam_events:
             course = self.course_map[event["relatedevents"]["gguid"]]
+
+            self._import_course_programs(course, event)
 
             self._import_evaluation(course, event)
 

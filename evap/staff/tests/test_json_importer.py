@@ -33,10 +33,7 @@ EXAMPLE_DATA: ImportDict = {
             "title_en": "Process-oriented information systems",
             "type": "Vorlesung",
             "isexam": False,
-            "courses": [
-                {"cprid": "BA-Inf", "scale": "GRADE_PARTICIPATION"},
-                {"cprid": "MA-Inf", "scale": "GRADE_PARTICIPATION"},
-            ],
+            "courses": [],
             "relatedevents": {"gguid": "0x6"},
             "appointments": [{"begin": "15.04.2024 10:15", "end": "15.07.2024 11:45"}],
             "lecturers": [{"gguid": "0x3"}],
@@ -50,8 +47,8 @@ EXAMPLE_DATA: ImportDict = {
             "type": "Klausur",
             "isexam": True,
             "courses": [
-                {"cprid": "BA-Inf", "scale": ""},
-                {"cprid": "MA-Inf", "scale": ""},
+                {"cprid": "BA-Inf", "scale": "GRADE_PARTICIPATION"},
+                {"cprid": "MA-Inf", "scale": "GRADE_PARTICIPATION"},
             ],
             "relatedevents": {"gguid": "0x5"},
             "appointments": [{"begin": "29.07.2024 10:15", "end": "29.07.2024 11:45"}],
@@ -182,7 +179,7 @@ class TestImportEvents(TestCase):
         self.assertEqual(course.name_en, EXAMPLE_DATA["events"][0]["title_en"])
         self.assertEqual(course.type.name_de, EXAMPLE_DATA["events"][0]["type"])
         self.assertSetEqual(
-            {d.name_de for d in course.programs.all()}, {d["cprid"] for d in EXAMPLE_DATA["events"][0]["courses"]}
+            {d.name_de for d in course.programs.all()}, {d["cprid"] for d in EXAMPLE_DATA["events"][1]["courses"]}
         )
         self.assertSetEqual(
             set(course.responsibles.values_list("email", flat=True)),
@@ -200,7 +197,6 @@ class TestImportEvents(TestCase):
             set(main_evaluation.participants.values_list("email", flat=True)),
             {"1@example.com", "2@example.com"},
         )
-        self.assertTrue(main_evaluation.wait_for_grade_upload_before_publishing)
 
         self.assertEqual(Contribution.objects.filter(evaluation=main_evaluation).count(), 2)
         self.assertSetEqual(
@@ -223,7 +219,7 @@ class TestImportEvents(TestCase):
             set(exam_evaluation.participants.values_list("email", flat=True)),
             {"1@example.com", "2@example.com"},
         )
-        self.assertFalse(exam_evaluation.wait_for_grade_upload_before_publishing)
+        self.assertTrue(exam_evaluation.wait_for_grade_upload_before_publishing)
 
         self.assertEqual(Contribution.objects.filter(evaluation=exam_evaluation).count(), 4)
         self.assertSetEqual(
