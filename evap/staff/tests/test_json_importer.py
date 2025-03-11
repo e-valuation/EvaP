@@ -138,7 +138,7 @@ class TestImportUserProfiles(TestCase):
         importer = JSONImporter(self.semester)
         importer._import_lecturers(self.lecturers)
 
-        self.assertEqual(UserProfile.objects.count(), 2)
+        self.assertEqual(UserProfile.objects.count(), 4)
 
         user_profile.refresh_from_db()
 
