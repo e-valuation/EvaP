@@ -153,6 +153,9 @@ class JSONImporter:
             return user_profiles_by_len[key]
         return []
 
+    def _filter_user_profiles(self, user_profiles: list[UserProfile]) -> list[UserProfile]:
+        return list(filter(lambda p: p.email not in settings.NON_RESPONSIBLE_USERS, user_profiles))
+
     def _get_course_type(self, name: str) -> CourseType:
         if name in self.course_type_cache:
             return self.course_type_cache[name]
@@ -218,6 +221,7 @@ class JSONImporter:
         course_type = self._get_course_type(data["type"])
         programs = [self._get_program(c["cprid"]) for c in data["courses"]]
         responsibles = self._get_user_profiles(data["lecturers"])
+        responsibles = self._filter_user_profiles(responsibles)
         responsibles = self._choose_responsibles(responsibles)
         course, created, changes = update_or_create_with_changes(
             Course,
@@ -303,8 +307,11 @@ class JSONImporter:
 
     def _import_contribution(
         self, evaluation: Evaluation, data: ImportRelated
-    ) -> tuple[Contribution, bool, dict[str, tuple[any, any]]]:
+    ) -> tuple[Contribution | None, bool, dict[str, tuple[any, any]]]:
         user_profile = self.user_profile_map[data["gguid"]]
+
+        if user_profile.email in settings.NON_RESPONSIBLE_USERS:
+            return None, False, {}
 
         contribution, created, changes = update_or_create_with_changes(
             Contribution,
