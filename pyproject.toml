@@ -39,6 +39,13 @@ dev = [
     "typeguard~=4.4.0",
     "selenium~=4.27.0",
 ]
+lsp = [
+    "python-lsp-server",
+    "pylsp-rope",
+    "python-lsp-black",
+    "python-lsp-ruff",
+    "pylsp-mypy",
+]
 
 [tool.uv]
 no-binary-package = [

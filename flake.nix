@@ -46,6 +46,7 @@
             workspaceRoot = ./.;
           };
           evap-dev = evap.override (prev: { dependency-groups = (prev.dependency-groups or [ ]) ++ [ "dev" ]; });
+          evap-dev-with-lsp = evap-dev.override (prev: { dependency-groups = (prev.dependency-groups or [ ]) ++ [ "lsp" ]; });
           evap-frontend-dev = evap-dev.overrideAttrs (prev: { nativeBuildInputs = (prev.nativeBuildInputs or [ ]) ++ (with pkgs; [ firefox geckodriver ]); });
           default = evap-dev;
 
