@@ -1,9 +1,10 @@
 import argparse
-import subprocess  # nosec
 
 from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
+
+from evap.evaluation.management.commands.tools import run_exit_if_nonzero_return_code
 
 
 class Command(BaseCommand):
@@ -36,13 +37,11 @@ class Command(BaseCommand):
 
     def run_command(self, command):
         try:
-            subprocess.run(command, check=True)  # nosec
+            run_exit_if_nonzero_return_code(command)
         except FileNotFoundError as e:
             raise CommandError(f"Could not find {command[0]} command") from e
         except KeyboardInterrupt:
             pass
-        except subprocess.CalledProcessError as e:
-            raise CommandError("Error during command execution", returncode=e.returncode) from e
 
     def compile(self, watch=False, fresh=False, **_options):
         static_directory = settings.STATICFILES_DIRS[0]

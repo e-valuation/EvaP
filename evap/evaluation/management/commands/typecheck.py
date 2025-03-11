@@ -1,6 +1,6 @@
-import subprocess  # nosec
-
 from django.core.management.base import BaseCommand
+
+from evap.evaluation.management.commands.tools import run_exit_if_nonzero_return_code
 
 
 class Command(BaseCommand):
@@ -9,4 +9,4 @@ class Command(BaseCommand):
     requires_migrations_checks = False
 
     def handle(self, *args, **options):
-        subprocess.run(["mypy"], check=True)  # nosec
+        run_exit_if_nonzero_return_code(["mypy"])

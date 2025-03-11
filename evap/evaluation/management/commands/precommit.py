@@ -1,9 +1,10 @@
 import os.path
-import subprocess  # nosec
 import sys
 
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
+
+from evap.evaluation.management.commands.tools import run_exit_if_nonzero_return_code
 
 
 class Command(BaseCommand):
@@ -19,7 +20,7 @@ class Command(BaseCommand):
         call_command("typecheck")
 
         # subprocess call so our sys.argv check in settings.py works
-        subprocess.run(["./manage.py", "test"], check=False)  # nosec
+        run_exit_if_nonzero_return_code(["./manage.py", "test"])
 
         call_command("format")
         call_command("lint")
