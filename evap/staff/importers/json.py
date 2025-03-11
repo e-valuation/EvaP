@@ -144,6 +144,15 @@ class JSONImporter:
         self.course_map: dict[str, Course] = {}
         self.statistics = ImportStatistics()
 
+    def _choose_responsibles(self, user_profiles: list[UserProfile]) -> list[UserProfile]:
+        user_profiles_by_len = {}
+        for user_profile in user_profiles:
+            user_profile_len = len(user_profile.title)
+            user_profiles_by_len.setdefault(user_profile_len, []).append(user_profile)
+        for key in sorted(user_profiles_by_len.keys(), reverse=True):
+            return user_profiles_by_len[key]
+        return []
+
     def _get_course_type(self, name: str) -> CourseType:
         if name in self.course_type_cache:
             return self.course_type_cache[name]
@@ -209,6 +218,7 @@ class JSONImporter:
         course_type = self._get_course_type(data["type"])
         programs = [self._get_program(c["cprid"]) for c in data["courses"]]
         responsibles = self._get_user_profiles(data["lecturers"])
+        responsibles = self._choose_responsibles(responsibles)
         course, created, changes = update_or_create_with_changes(
             Course,
             semester=self.semester,

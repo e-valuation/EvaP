@@ -22,6 +22,8 @@ EXAMPLE_DATA: ImportDict = {
     "lecturers": [
         {"gguid": "0x3", "email": "3@example.com", "name": "3", "christianname": "3", "titlefront": "Prof. Dr."},
         {"gguid": "0x4", "email": "4@example.com", "name": "4", "christianname": "4", "titlefront": "Dr."},
+        {"gguid": "0x5", "email": "5@example.com", "name": "5", "christianname": "5", "titlefront": ""},
+        {"gguid": "0x6", "email": "6@example.com", "name": "6", "christianname": "6", "titlefront": ""},
     ],
     "events": [
         {
@@ -53,7 +55,7 @@ EXAMPLE_DATA: ImportDict = {
             ],
             "relatedevents": {"gguid": "0x5"},
             "appointments": [{"begin": "29.07.2024 10:15", "end": "29.07.2024 11:45"}],
-            "lecturers": [{"gguid": "0x3"}, {"gguid": "0x4"}],
+            "lecturers": [{"gguid": "0x3"}, {"gguid": "0x4"}, {"gguid": "0x5"}],
             "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
         },
     ],
@@ -223,14 +225,14 @@ class TestImportEvents(TestCase):
         )
         self.assertFalse(exam_evaluation.wait_for_grade_upload_before_publishing)
 
-        self.assertEqual(Contribution.objects.filter(evaluation=exam_evaluation).count(), 3)
+        self.assertEqual(Contribution.objects.filter(evaluation=exam_evaluation).count(), 4)
         self.assertSetEqual(
             set(
                 Contribution.objects.filter(evaluation=exam_evaluation, contributor__isnull=False).values_list(
                     "contributor__email", flat=True
                 )
             ),
-            {"3@example.com", "4@example.com"},
+            {"3@example.com", "4@example.com", "5@example.com"},
         )
 
         self.assertEqual(len(importer.statistics.new_courses), 1)
