@@ -53,7 +53,7 @@ class ImportEvent(TypedDict):
     type: str
     isexam: bool
     courses: list[ImportCourse]
-    relatedevents: ImportRelated
+    relatedevents: list[ImportRelated]
     appointments: list[ImportAppointment]
     lecturers: list[ImportRelated]
     students: list[ImportRelated]
@@ -385,7 +385,7 @@ class JSONImporter:
             self._import_evaluation(course, event)
 
         for event in exam_events:
-            course = self.course_map[event["relatedevents"]["gguid"]]
+            course = self.course_map[event["relatedevents"][0]["gguid"]]
 
             self._import_course_programs(course, event)
 
