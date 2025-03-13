@@ -243,7 +243,9 @@ class JSONImporter:
         return course
 
     def _import_course_programs(self, course: Course, data: ImportEvent) -> None:
-        programs = [self._get_program(c["cprid"]) for c in data["courses"]]
+        programs = [
+            self._get_program(c["cprid"]) for c in data["courses"] if c["cprid"] not in settings.IGNORE_PROGRAMS
+        ]
         course.programs.set(programs)
 
     # pylint: disable=too-many-locals
