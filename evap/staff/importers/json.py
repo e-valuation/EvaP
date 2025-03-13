@@ -263,8 +263,8 @@ class JSONImporter:
             )
             evaluation_end_date = (course_end + timedelta(days=3)).date()
 
-            name_de = "Klausur"
-            name_en = "Exam"
+            name_de = data["title"].split(" - ")[-1] if " - " in data["title"] else "Prüfung"
+            name_en = data["title_en"].split(" - ")[-1] if " - " in data["title_en"] else "Exam"
 
             # If events are graded for any program, wait for grade upload before publishing
             wait_for_grade_upload_before_publishing = any(grade["scale"] for grade in data["courses"])
