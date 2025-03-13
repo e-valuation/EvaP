@@ -223,6 +223,8 @@ class JSONImporter:
         responsibles = self._get_user_profiles(data["lecturers"])
         responsibles = self._filter_user_profiles(responsibles)
         responsibles = self._choose_responsibles(responsibles)
+        if not data["title_en"]:
+            data["title_en"] = data["title"]
         course, created, changes = update_or_create_with_changes(
             Course,
             semester=self.semester,
