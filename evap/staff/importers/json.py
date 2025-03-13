@@ -257,6 +257,13 @@ class JSONImporter:
 
             name_de = "Klausur"
             name_en = "Exam"
+
+            # If events are graded for any program, wait for grade upload before publishing
+            wait_for_grade_upload_before_publishing = any(grade["scale"] for grade in data["courses"])
+            # Update previously created main evaluation
+            course.evaluations.all().update(
+                wait_for_grade_upload_before_publishing=wait_for_grade_upload_before_publishing
+            )
         else:
             # Set evaluation time frame of two weeks for normal evaluations:
             # Start datetime is at 8:00 am on the monday in the week before the event ends
@@ -268,8 +275,8 @@ class JSONImporter:
 
             name_de, name_en = "", ""
 
-        # If events are graded for any program, wait for grade upload before publishing
-        wait_for_grade_upload_before_publishing = any(grade["scale"] for grade in data["courses"])
+            # Might be overwritten when importing related exam evaluation
+            wait_for_grade_upload_before_publishing = True
 
         participants = self._get_user_profiles(data["students"])
 
