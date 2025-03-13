@@ -134,7 +134,7 @@ class ImportStatistics:
 
 
 class JSONImporter:
-    DATETIME_FORMAT = "%d.%m.%Y %H:%M"
+    DATETIME_FORMAT = "%d.%m.%Y %H:%M:%S"
 
     def __init__(self, semester: Semester) -> None:
         self.semester = semester
