@@ -210,7 +210,7 @@ class TestImportEvents(TestCase):
 
         exam_evaluation = Evaluation.objects.get(name_en="Exam")
         self.assertEqual(exam_evaluation.course, course)
-        self.assertEqual(exam_evaluation.name_de, "Klausur")
+        self.assertEqual(exam_evaluation.name_de, "Prüfung")
         self.assertEqual(exam_evaluation.name_en, "Exam")
         # [{"begin": "29.07.2024 10:15", "end": "29.07.2024 11:45"}]
         self.assertEqual(exam_evaluation.vote_start_datetime, datetime(2024, 7, 30, 8, 0))
