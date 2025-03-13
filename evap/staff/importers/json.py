@@ -75,6 +75,12 @@ class NameChange:
 
 
 @dataclass
+class WarningMessage:
+    obj: str
+    message: str
+
+
+@dataclass
 class ImportStatistics:
     name_changes: list[NameChange] = field(default_factory=list)
     new_courses: list[Course] = field(default_factory=list)
@@ -82,6 +88,7 @@ class ImportStatistics:
     updated_courses: list[Course] = field(default_factory=list)
     updated_evaluations: list[Evaluation] = field(default_factory=list)
     attempted_changes: list[Evaluation] = field(default_factory=list)
+    warnings: list[Evaluation] = field(default_factory=list)
 
     @staticmethod
     def _make_heading(heading: str, separator: str = "-") -> str:
@@ -115,6 +122,11 @@ class ImportStatistics:
         log += self._make_stats("Updated Courses", self.updated_courses)
         log += self._make_stats("Updated Evaluations", self.updated_evaluations)
         log += self._make_stats("Attempted Changes", self.attempted_changes)
+
+        log += self._make_heading("Warnings")
+        log += self._make_total(len(self.warnings))
+        for warning in self.warnings:
+            log += f"- {warning.obj}: {warning.message}\n"
 
         return log
 
@@ -174,7 +186,9 @@ class JSONImporter:
         return program
 
     def _get_user_profiles(self, data: list[ImportRelated]) -> list[UserProfile]:
-        return [self.user_profile_map[related["gguid"]] for related in data]
+        return [
+            self.user_profile_map[related["gguid"]] for related in data if related["gguid"] in self.user_profile_map
+        ]
 
     def _create_name_change_from_changes(self, user_profile: UserProfile, changes: dict[str, tuple[Any, Any]]) -> None:
         change = NameChange(
@@ -191,32 +205,44 @@ class JSONImporter:
     def _import_students(self, data: list[ImportStudent]) -> None:
         for entry in data:
             email = clean_email(entry["email"])
-            user_profile, __, changes = update_or_create_with_changes(
-                UserProfile,
-                email=email,
-                defaults={"last_name": entry["name"], "first_name_given": entry["christianname"]},
-            )
-            if changes:
-                self._create_name_change_from_changes(user_profile, changes)
+            if not email:
+                self.statistics.warnings.append(
+                    WarningMessage(obj=f"Student {entry['christianname']} {entry['name']}", message="No email defined")
+                )
+            else:
+                user_profile, __, changes = update_or_create_with_changes(
+                    UserProfile,
+                    email=email,
+                    defaults={"last_name": entry["name"], "first_name_given": entry["christianname"]},
+                )
+                if changes:
+                    self._create_name_change_from_changes(user_profile, changes)
 
-            self.user_profile_map[entry["gguid"]] = user_profile
+                self.user_profile_map[entry["gguid"]] = user_profile
 
     def _import_lecturers(self, data: list[ImportLecturer]) -> None:
         for entry in data:
             email = clean_email(entry["email"])
-            user_profile, __, changes = update_or_create_with_changes(
-                UserProfile,
-                email=email,
-                defaults={
-                    "last_name": entry["name"],
-                    "first_name_given": entry["christianname"],
-                    "title": entry["titlefront"],
-                },
-            )
-            if changes:
-                self._create_name_change_from_changes(user_profile, changes)
+            if not email:
+                self.statistics.warnings.append(
+                    WarningMessage(
+                        obj=f"Contributor {entry['christianname']} {entry['name']}", message="No email defined"
+                    )
+                )
+            else:
+                user_profile, __, changes = update_or_create_with_changes(
+                    UserProfile,
+                    email=email,
+                    defaults={
+                        "last_name": entry["name"],
+                        "first_name_given": entry["christianname"],
+                        "title": entry["titlefront"],
+                    },
+                )
+                if changes:
+                    self._create_name_change_from_changes(user_profile, changes)
 
-            self.user_profile_map[entry["gguid"]] = user_profile
+                self.user_profile_map[entry["gguid"]] = user_profile
 
     def _import_course(self, data: ImportEvent) -> Course:
         course_type = self._get_course_type(data["type"])
@@ -251,6 +277,9 @@ class JSONImporter:
     # pylint: disable=too-many-locals
     def _import_evaluation(self, course: Course, data: ImportEvent) -> Evaluation:
         if "appointments" not in data:
+            self.statistics.warnings.append(
+                WarningMessage(obj=course.name, message="No dates defined, using default end date")
+            )
             course_end = datetime.strptime(self.default_course_end, "%d.%m.%Y")
         else:
             last_appointment = sorted(data["appointments"], key=lambda x: x["end"])[-1]
@@ -307,10 +336,15 @@ class JSONImporter:
             evaluation.participants.set(participants)
 
             any_lecturers_changed = False
-            for lecturer in data["lecturers"]:
-                __, lecturer_created, lecturer_changes = self._import_contribution(evaluation, lecturer)
-                if lecturer_changes or lecturer_created:
-                    any_lecturers_changed = True
+            if "lecturers" not in data:
+                self.statistics.warnings.append(
+                    WarningMessage(obj=evaluation.full_name, message="No contributors defined")
+                )
+            else:
+                for lecturer in data["lecturers"]:
+                    __, lecturer_created, lecturer_changes = self._import_contribution(evaluation, lecturer)
+                    if lecturer_changes or lecturer_created:
+                        any_lecturers_changed = True
 
             if direct_changes or participant_changes or any_lecturers_changed:
                 self.statistics.updated_evaluations.append(evaluation)
@@ -325,6 +359,9 @@ class JSONImporter:
     def _import_contribution(
         self, evaluation: Evaluation, data: ImportRelated
     ) -> tuple[Contribution | None, bool, dict[str, tuple[any, any]]]:
+        if data["gguid"] not in self.user_profile_map:
+            return None, False, {}
+
         user_profile = self.user_profile_map[data["gguid"]]
 
         if user_profile.email in settings.NON_RESPONSIBLE_USERS:
