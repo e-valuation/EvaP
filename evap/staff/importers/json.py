@@ -315,7 +315,7 @@ class JSONImporter:
             # Might be overwritten when importing related exam evaluation
             wait_for_grade_upload_before_publishing = True
 
-        participants = self._get_user_profiles(data["students"])
+        participants = self._get_user_profiles(data["students"]) if "students" in data else []
 
         defaults = {
             "name_de": name_de,
