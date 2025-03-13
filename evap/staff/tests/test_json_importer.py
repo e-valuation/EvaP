@@ -70,7 +70,7 @@ class TestImportUserProfiles(TestCase):
     def test_import_students(self):
         self.assertEqual(UserProfile.objects.count(), 0)
 
-        importer = JSONImporter(self.semester)
+        importer = JSONImporter(self.semester, "01.01.2000")
         importer._import_students(self.students)
 
         user_profiles = UserProfile.objects.all()
@@ -87,7 +87,7 @@ class TestImportUserProfiles(TestCase):
             UserProfile, email=self.students[0]["email"], last_name="Doe", first_name_given="Jane"
         )
 
-        importer = JSONImporter(self.semester)
+        importer = JSONImporter(self.semester, "01.01.2000")
         importer._import_students(self.students)
 
         self.assertEqual(UserProfile.objects.count(), 2)
@@ -114,7 +114,7 @@ class TestImportUserProfiles(TestCase):
     def test_import_lecturers(self):
         self.assertEqual(UserProfile.objects.count(), 0)
 
-        importer = JSONImporter(self.semester)
+        importer = JSONImporter(self.semester, "01.01.2000")
         importer._import_lecturers(self.lecturers)
 
         user_profiles = UserProfile.objects.all()
@@ -132,7 +132,7 @@ class TestImportUserProfiles(TestCase):
             UserProfile, email=self.lecturers[0]["email"], last_name="Doe", first_name_given="Jane"
         )
 
-        importer = JSONImporter(self.semester)
+        importer = JSONImporter(self.semester, "01.01.2000")
         importer._import_lecturers(self.lecturers)
 
         self.assertEqual(UserProfile.objects.count(), 4)
@@ -163,7 +163,7 @@ class TestImportEvents(TestCase):
         self.semester = baker.make(Semester)
 
     def _import(self):
-        importer = JSONImporter(self.semester)
+        importer = JSONImporter(self.semester, "01.01.2000")
         importer.import_json(EXAMPLE_JSON)
         return importer
 
@@ -300,6 +300,6 @@ class TestImportEvents(TestCase):
             test_filename = os.path.join(temp_dir, "test.json")
             with open(test_filename, "w", encoding="utf-8") as f:
                 f.write(EXAMPLE_JSON)
-            call_command("json_import", self.semester.id, test_filename, stdout=output)
+            call_command("json_import", self.semester.id, test_filename, "01.01.2000", stdout=output)
 
             mock_import_json.assert_called_once_with(EXAMPLE_JSON)

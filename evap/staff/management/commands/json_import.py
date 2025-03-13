@@ -17,6 +17,7 @@ class Command(BaseCommand):
         # Positional arguments
         parser.add_argument("semester", type=int)
         parser.add_argument("file", type=str)
+        parser.add_argument("default_course_end", type=str)
 
     def handle(self, *args, **options):
         try:
@@ -26,4 +27,4 @@ class Command(BaseCommand):
             return
 
         with open(options["file"]) as file:
-            JSONImporter(semester).import_json(file.read())
+            JSONImporter(semester, options["default_course_end"]).import_json(file.read())

@@ -136,8 +136,9 @@ class ImportStatistics:
 class JSONImporter:
     DATETIME_FORMAT = "%d.%m.%Y %H:%M:%S"
 
-    def __init__(self, semester: Semester) -> None:
+    def __init__(self, semester: Semester, default_course_end: str) -> None:
         self.semester = semester
+        self.default_course_end = default_course_end
         self.user_profile_map: dict[str, UserProfile] = {}
         self.course_type_cache: dict[str, CourseType] = {}
         self.program_cache: dict[str, Program] = {}
@@ -245,8 +246,11 @@ class JSONImporter:
 
     # pylint: disable=too-many-locals
     def _import_evaluation(self, course: Course, data: ImportEvent) -> Evaluation:
-        last_appointment = sorted(data["appointments"], key=lambda x: x["end"])[-1]
-        course_end = datetime.strptime(last_appointment["end"], self.DATETIME_FORMAT)
+        if "appointments" not in data:
+            course_end = datetime.strptime(self.default_course_end, "%d.%m.%Y")
+        else:
+            last_appointment = sorted(data["appointments"], key=lambda x: x["end"])[-1]
+            course_end = datetime.strptime(last_appointment["end"], self.DATETIME_FORMAT)
 
         if data["isexam"]:
             # Set evaluation time frame of three days for exam evaluations:
