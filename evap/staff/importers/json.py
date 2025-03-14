@@ -305,6 +305,8 @@ class JSONImporter:
             name_de = data["title"].split(" - ")[-1] if " - " in data["title"] else "Prüfung"
             name_en = data["title_en"].split(" - ")[-1] if " - " in data["title_en"] else "Exam"
 
+            weight = 1
+
             # If events are graded for any program, wait for grade upload before publishing
             wait_for_grade_upload_before_publishing = any(grade["scale"] for grade in data["courses"])
             # Update previously created main evaluation
@@ -322,6 +324,8 @@ class JSONImporter:
 
             name_de, name_en = "", ""
 
+            weight = 9
+
             # Might be overwritten when importing related exam evaluation
             wait_for_grade_upload_before_publishing = True
 
@@ -333,6 +337,7 @@ class JSONImporter:
             "vote_start_datetime": evaluation_start_datetime,
             "vote_end_date": evaluation_end_date,
             "wait_for_grade_upload_before_publishing": wait_for_grade_upload_before_publishing,
+            "weight": weight,
         }
         evaluation, created = Evaluation.objects.get_or_create(
             course=course,
