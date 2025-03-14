@@ -241,11 +241,11 @@ class Questionnaire(models.Model):
         return self.type == self.Type.BOTTOM
 
     @property
-    def is_dropout_questionnaire(self):
+    def is_dropout(self) -> bool:
         return self.type == self.Type.DROPOUT
 
     @property
-    def is_general_questionnaire(self):
+    def is_general(self) -> bool:
         return self.type in (self.Type.TOP, self.Type.BOTTOM)
 
     @property

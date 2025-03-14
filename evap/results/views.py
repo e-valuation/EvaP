@@ -346,7 +346,7 @@ def split_evaluation_result_into_questionnaire_types(evaluation_result, view_as_
             for questionnaire_result in contribution_result.questionnaire_results:
                 if questionnaire_result.questionnaire.is_below_contributors:
                     bottom_results.append(questionnaire_result)
-                elif questionnaire_result.questionnaire.is_dropout_questionnaire:
+                elif questionnaire_result.questionnaire.is_dropout:
                     dropout_results.append(questionnaire_result)
                 else:
                     top_results.append(questionnaire_result)

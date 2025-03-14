@@ -260,7 +260,7 @@ def render_vote_page(
 
     evaluation_form_dropout = []
     if show_dropout_questionnaire:
-        evaluation_form_dropout = [f for f in evaluation_form_group if f.questionnaire.is_dropout_questionnaire]
+        evaluation_form_dropout = [f for f in evaluation_form_group if f.questionnaire.is_dropout]
 
     evaluation_form_group_bottom = [
         questions_form for questions_form in evaluation_form_group if questions_form.questionnaire.is_below_contributors
