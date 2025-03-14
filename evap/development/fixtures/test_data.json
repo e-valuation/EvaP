@@ -140637,8 +140637,8 @@
   "pk": 452,
   "fields": {
     "is_superuser": true,
-    "password": "pbkdf2_sha256$870000$FI1vp6JGLvZULamq2a9pIL$TLLlUbFnxARDpJFRmuL+gVR9QtFc9fxww/K7pM1PixM=",
-    "last_login": "2025-02-17T18:41:52.756",
+    "password": "pbkdf2_sha256$600000$8dcuxbY2OgmCEEj3nlUQWG$qk5ic3Er9FrkCd3VUjC1DEfxd76LPVKrzaMEWGSaxyA=",
+    "last_login": "2023-09-18T21:02:20.716",
     "email": "evap@institution.example.com",
     "title": "",
     "first_name_given": "",
