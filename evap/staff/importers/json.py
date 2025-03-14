@@ -152,8 +152,16 @@ class JSONImporter:
         self.semester = semester
         self.default_course_end = default_course_end
         self.user_profile_map: dict[str, UserProfile] = {}
-        self.course_type_cache: dict[str, CourseType] = {}
-        self.program_cache: dict[str, Program] = {}
+        self.course_type_cache: dict[str, CourseType] = {
+            import_name.strip().lower(): course_type
+            for course_type in CourseType.objects.all()
+            for import_name in course_type.import_names
+        }
+        self.program_cache: dict[str, Program] = {
+            import_name.strip().lower(): program
+            for program in Program.objects.all()
+            for import_name in program.import_names
+        }
         self.course_map: dict[str, Course] = {}
         self.statistics = ImportStatistics()
 
@@ -170,16 +178,18 @@ class JSONImporter:
         return list(filter(lambda p: p.email not in settings.NON_RESPONSIBLE_USERS, user_profiles))
 
     def _get_course_type(self, name: str) -> CourseType:
-        if name in self.course_type_cache:
-            return self.course_type_cache[name]
+        lookup = name.strip().lower()
+        if lookup in self.course_type_cache:
+            return self.course_type_cache[lookup]
 
         course_type, __ = CourseType.objects.get_or_create(name_de=name, defaults={"name_en": name})
         self.course_type_cache[name] = course_type
         return course_type
 
     def _get_program(self, name: str) -> Program:
-        if name in self.program_cache:
-            return self.program_cache[name]
+        lookup = name.strip().lower()
+        if lookup in self.program_cache:
+            return self.program_cache[lookup]
 
         program, __ = Program.objects.get_or_create(name_de=name, defaults={"name_en": name})
         self.program_cache[name] = program
