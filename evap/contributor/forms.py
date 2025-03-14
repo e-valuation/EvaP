@@ -70,10 +70,10 @@ class EvaluationForm(forms.ModelForm):
 
         if general_contribution := self.instance.general_contribution:
             self.fields["general_questionnaires"].initial = [
-                q.pk for q in general_contribution.questionnaires.all() if q.is_general_questionnaire
+                q.pk for q in general_contribution.questionnaires.all() if q.is_general
             ]
             self.fields["dropout_questionnaires"].initial = [
-                q.pk for q in general_contribution.questionnaires.all() if q.is_dropout_questionnaire
+                q.pk for q in general_contribution.questionnaires.all() if q.is_dropout
             ]
 
         if not self.instance.allow_editors_to_edit:
