@@ -6,17 +6,26 @@ from fractions import Fraction
 
 from django.conf import settings
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import transaction
 from django.db.models import Exists, F, Max, OuterRef, Q, Sum
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 
 from evap.evaluation.auth import participant_required
-from evap.evaluation.models import NO_ANSWER, Evaluation, RatingAnswerCounter, Semester, TextAnswer, VoteTimestamp
+from evap.evaluation.models import (
+    NO_ANSWER,
+    Contribution,
+    Evaluation,
+    Questionnaire,
+    RatingAnswerCounter,
+    Semester,
+    TextAnswer,
+    VoteTimestamp,
+)
 from evap.results.tools import (
     annotate_distributions_and_grades,
     get_evaluations_with_course_result_attributes,
@@ -185,7 +194,25 @@ def index(request):
     return render(request, "student_index.html", template_data)
 
 
-def get_vote_page_form_groups(request, evaluation, preview):
+def create_voting_form(
+    request, contribution: Contribution, questionnaire: Questionnaire, preselect_no_answer: bool
+) -> QuestionnaireVotingForm:
+    initial = None
+
+    if preselect_no_answer:
+        initial = {
+            answer_field_id(contribution, questionnaire, question): NO_ANSWER
+            for question in questionnaire.rating_questions
+        }
+
+    return QuestionnaireVotingForm(
+        request.POST or None, contribution=contribution, questionnaire=questionnaire, initial=initial
+    )
+
+
+def get_vote_page_form_groups(
+    request, evaluation: Evaluation, preview: bool, dropout=False
+) -> OrderedDict[Contribution, list[QuestionnaireVotingForm]]:
     contributions_to_vote_on = evaluation.contributions.all()
     # prevent a user from voting on themselves
     if not preview:
@@ -197,14 +224,21 @@ def get_vote_page_form_groups(request, evaluation, preview):
         if not questionnaires.exists():
             continue
         form_groups[contribution] = [
-            QuestionnaireVotingForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
+            create_voting_form(request, contribution, questionnaire, preselect_no_answer=dropout)
             for questionnaire in questionnaires
         ]
+
     return form_groups
 
 
-def render_vote_page(request, evaluation, preview, for_rendering_in_modal=False):
-    form_groups = get_vote_page_form_groups(request, evaluation, preview)
+def render_vote_page(
+    request: HttpRequest,
+    evaluation: Evaluation,
+    preview: bool,
+    for_rendering_in_modal: bool = False,
+    show_dropout_questionnaire: bool = False,
+):
+    form_groups = get_vote_page_form_groups(request, evaluation, preview, show_dropout_questionnaire)
 
     assert preview or not all(form.is_valid() for form_group in form_groups.values() for form in form_group)
 
@@ -223,6 +257,11 @@ def render_vote_page(request, evaluation, preview, for_rendering_in_modal=False)
     evaluation_form_group_top = [
         questions_form for questions_form in evaluation_form_group if questions_form.questionnaire.is_above_contributors
     ]
+
+    evaluation_form_dropout = []
+    if show_dropout_questionnaire:
+        evaluation_form_dropout = [f for f in evaluation_form_group if f.questionnaire.is_dropout_questionnaire]
+
     evaluation_form_group_bottom = [
         questions_form for questions_form in evaluation_form_group if questions_form.questionnaire.is_below_contributors
     ]
@@ -241,9 +280,11 @@ def render_vote_page(request, evaluation, preview, for_rendering_in_modal=False)
         "errors_exist": errors_exist,
         "evaluation_form_group_top": evaluation_form_group_top,
         "evaluation_form_group_bottom": evaluation_form_group_bottom,
+        "evaluation_form_dropout": evaluation_form_dropout,
         "contributor_form_groups": contributor_form_groups,
         "evaluation": evaluation,
         "small_evaluation_size_warning": evaluation.num_participants <= settings.SMALL_COURSE_SIZE,
+        "show_dropout_questionnaire": show_dropout_questionnaire,
         "preview": preview,
         "success_magic_string": SUCCESS_MAGIC_STRING,
         "success_redirect_url": reverse("student:index"),
@@ -255,21 +296,29 @@ def render_vote_page(request, evaluation, preview, for_rendering_in_modal=False)
 
 
 @participant_required
-def vote(request, evaluation_id):  # noqa: PLR0912
+def vote(request: HttpRequest, evaluation_id: int, dropout=False):  # noqa: PLR0912
     # pylint: disable=too-many-nested-blocks
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
+
+    if dropout and not evaluation.is_dropout_allowed:
+        raise SuspiciousOperation("Drop out not allowed")
+
     if not evaluation.can_be_voted_for_by(request.user):
         raise PermissionDenied
 
     form_groups = get_vote_page_form_groups(request, evaluation, preview=False)
     if not all(form.is_valid() for form_group in form_groups.values() for form in form_group):
-        return render_vote_page(request, evaluation, preview=False)
+        return render_vote_page(request, evaluation, preview=False, show_dropout_questionnaire=dropout)
 
     # all forms are valid, begin vote operation
     with transaction.atomic():
         # add user to evaluation.voters
         # not using evaluation.voters.add(request.user) since that fails silently when done twice.
         evaluation.voters.through.objects.create(userprofile_id=request.user.pk, evaluation_id=evaluation.pk)
+
+        if dropout:
+            evaluation.dropout_count += 1
+            evaluation.save()
 
         for contribution, form_group in form_groups.items():
             for questionnaire_form in form_group:
@@ -278,8 +327,7 @@ def vote(request, evaluation_id):  # noqa: PLR0912
                     if question.is_heading_question:
                         continue
 
-                    identifier = answer_field_id(contribution, questionnaire, question)
-                    value = questionnaire_form.cleaned_data.get(identifier)
+                    value = questionnaire_form.cleaned_data.get(answer_field_id(contribution, questionnaire, question))
 
                     if question.is_text_question:
                         if value:
