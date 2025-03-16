@@ -1948,6 +1948,38 @@ class TestEvaluationCreateView(WebTestStaffMode):
         form.submit()
         self.assertEqual(Evaluation.objects.get().name_de, "lfo9e7bmxp1xi")
 
+    def _set_valid_form(self, form):
+        form["course"] = self.course.pk
+        form["name_de"] = "lfo9e7bmxp1xi"
+        form["name_en"] = "asdf"
+        form["vote_start_datetime"] = "2014-01-01 00:00:00"
+        form["vote_end_date"] = "2099-01-01"
+        form["general_questionnaires"] = [self.q1.pk]
+        form["wait_for_grade_upload_before_publishing"] = True
+
+        form["contributions-TOTAL_FORMS"] = 1
+        form["contributions-INITIAL_FORMS"] = 0
+        form["contributions-MAX_NUM_FORMS"] = 5
+        form["contributions-0-evaluation"] = ""
+        form["contributions-0-contributor"] = self.manager.pk
+        form["contributions-0-questionnaires"] = [self.q2.pk]
+        form["contributions-0-order"] = 0
+        form["contributions-0-role"] = Contribution.Role.EDITOR
+        form["contributions-0-textanswer_visibility"] = Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
+
+    def test_evaluation_create_main_language(self):
+        response = self.app.get(self.url_for_semester, user=self.manager, status=200)
+        form = response.forms["evaluation-form"]
+        self._set_valid_form(form)
+
+        with self.assertRaises(ValueError):
+            form["main_language"] = "some_wrong_value"
+            form.submit()
+
+        form["main_language"] = "x"
+        form.submit()
+        self.assertEqual(Evaluation.objects.get().main_language, "x")
+
 
 class TestEvaluationCopyView(WebTestStaffMode):
     @classmethod
@@ -2368,6 +2400,19 @@ class TestEvaluationEditView(WebTestStaffMode):
 
         response = self.app.get(self.url, user=self.manager)
         self.assertContains(response, "TRANSLATED-state: TRANSLATED-new &#8594; TRANSLATED-prepared")
+
+    def test_evaluation_confirm_without_main_language(self):
+        response = self.app.get(self.url, user=self.manager, status=200)
+        form = response.forms["evaluation-form"]
+
+        form["main_language"] = "x"
+        response = form.submit("operation", value="approve")
+        self.assertContains(response, "You have to set a main language to approve this evaluation.")
+
+        self.assertNotEqual(Evaluation.objects.first().state, self.evaluation.State.APPROVED)
+
+        form["main_language"] = "en"
+        form.submit("operation", value="approve")
 
 
 class TestEvaluationDeleteView(WebTestStaffMode):
