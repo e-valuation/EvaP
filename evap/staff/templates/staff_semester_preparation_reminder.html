@@ -62,32 +62,32 @@
                 <div class="card-body">
                     <table class="table table-striped">
                         <thead>
-                        <tr>
-                            <th class="width-percent-57">{% translate 'Name' %}</th>
-                            <th class="width-percent-18">{% translate 'Start of evaluation' %}</th>
-                            <th class="width-percent-25">{% translate 'Last modified by' %}</th>
-                        </tr>
+                            <tr>
+                                <th class="width-percent-57">{% translate 'Name' %}</th>
+                                <th class="width-percent-18">{% translate 'Start of evaluation' %}</th>
+                                <th class="width-percent-25">{% translate 'Last modified by' %}</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        {% for evaluation in evaluations %}
-                            <tr{% if evaluation.state != evaluation.State.PREPARED %} class="deactivate"{% endif %}>
-                                <th scope="row">
-                                    {% with approval_state_values=evaluation.state|approval_state_values %}
-                                        <span class="{{ approval_state_values.icon }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ approval_state_values.description }}"></span>
-                                    {% endwith %}
-                                    <a href="{% url 'staff:evaluation_edit' evaluation.id %}">{{ evaluation.full_name }}</a><br />
-                                    {% include 'evaluation_badges.html' with mode='manager' %}
-                                </th>
-                                <td>{% include 'staff_evaluation_evaluation_period.html' with state=evaluation.state start_only=True %}</td>
-                                <td>
-                                    {% if evaluation.related_logentries.0.user %}
-                                        {{ evaluation.related_logentries.0.user }} ({{ evaluation.related_logentries.0.datetime|date:"SHORT_DATETIME_FORMAT" }})
-                                    {% else %}
-                                        &mdash;
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
+                            {% for evaluation in evaluations %}
+                                <tr{% if evaluation.state != evaluation.State.PREPARED %} class="deactivate"{% endif %}>
+                                    <th scope="row">
+                                        {% with approval_state_values=evaluation.state|approval_state_values %}
+                                            <span class="{{ approval_state_values.icon }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ approval_state_values.description }}"></span>
+                                        {% endwith %}
+                                        <a href="{% url 'staff:evaluation_edit' evaluation.id %}">{{ evaluation.full_name }}</a><br />
+                                        {% include 'evaluation_badges.html' with mode='manager' %}
+                                    </th>
+                                    <td>{% include 'staff_evaluation_evaluation_period.html' with state=evaluation.state start_only=True %}</td>
+                                    <td>
+                                        {% if evaluation.related_logentries.0.user %}
+                                            {{ evaluation.related_logentries.0.user }} ({{ evaluation.related_logentries.0.datetime|date:"SHORT_DATETIME_FORMAT" }})
+                                        {% else %}
+                                            &mdash;
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
