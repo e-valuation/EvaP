@@ -552,10 +552,10 @@ class TestUserBulkUpdateView(WebTestStaffMode):
         # contributor1 should still be active, contributor2 should have been set to inactive
         self.assertTrue(UserProfile.objects.get(email="contributor1@institution.example.com").is_active)
         self.assertFalse(UserProfile.objects.get(email="contributor2@institution.example.com").is_active)
-        # all should be active except for contributor2, responsible
-        self.assertEqual(UserProfile.objects.filter(is_active=True).count(), len(expected_users) - 2)
+        self.assertFalse(UserProfile.objects.get(email="responsible@institution.example.com").is_active)
+        self.assertQuerySetEqual(UserProfile.objects.exclude(is_active=True), [contributor2, responsible])
 
-        self.assertEqual(set(UserProfile.objects.all()), expected_users)
+        self.assertQuerySetEqual(UserProfile.objects.all(), expected_users, ordered=False)
 
         self.assertIn(mock_remove.return_value[0], response)
         self.assertEqual(mock_remove.call_count, 3)
