@@ -913,9 +913,11 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
 
         cls.course_type_1 = baker.make(CourseType)
         cls.course_type_2 = baker.make(CourseType)
+        cls.course_type_3 = baker.make(CourseType)
         cls.responsible = baker.make(UserProfile)
         cls.questionnaire_1 = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         cls.questionnaire_2 = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        cls.questionnaire_contributor = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
         cls.questionnaire_responsible = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
         cls.evaluation_1 = baker.make(
             Evaluation,
@@ -924,6 +926,10 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
         cls.evaluation_2 = baker.make(
             Evaluation,
             course=baker.make(Course, semester=semester, type=cls.course_type_2, responsibles=[cls.responsible]),
+        )
+        cls.evaluation_3 = baker.make(
+            Evaluation,
+            course=baker.make(Course, semester=semester, type=cls.course_type_3, responsibles=[cls.responsible]),
         )
         baker.make(
             Contribution,
@@ -939,6 +945,13 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
             role=Contribution.Role.EDITOR,
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
+        baker.make(
+            Contribution,
+            contributor=cls.responsible,
+            evaluation=cls.evaluation_3,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
 
     def test_questionnaire_assignment(self):
         page = self.app.get(self.url, user=self.manager, status=200)
@@ -946,6 +959,7 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
         form[f"general-{self.course_type_1.id}"] = [self.questionnaire_1.pk, self.questionnaire_2.pk]
         form[f"general-{self.course_type_2.id}"] = [self.questionnaire_2.pk]
         form[f"contributor-{self.course_type_1.id}"] = [self.questionnaire_responsible.pk]
+        form["all-contributors"] = [self.questionnaire_contributor.pk]
 
         response = form.submit().follow()
         self.assertIn("Successfully", str(response))
@@ -954,13 +968,17 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
             set(self.evaluation_1.general_contribution.questionnaires.all()),
             {self.questionnaire_1, self.questionnaire_2},
         )
-        self.assertEqual(set(self.evaluation_2.general_contribution.questionnaires.all()), {self.questionnaire_2})
         self.assertEqual(
             set(self.evaluation_1.contributions.get(contributor=self.responsible).questionnaires.all()),
-            {self.questionnaire_responsible},
+            {self.questionnaire_responsible, self.questionnaire_contributor},
         )
+        self.assertEqual(set(self.evaluation_2.general_contribution.questionnaires.all()), {self.questionnaire_2})
         self.assertEqual(
             set(self.evaluation_2.contributions.get(contributor=self.responsible).questionnaires.all()),
+            {self.questionnaire_contributor},
+        )
+        self.assertEqual(
+            set(self.evaluation_3.general_contribution.questionnaires.all()),
             set(),
         )
 
