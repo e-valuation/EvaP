@@ -59,7 +59,9 @@
         {% translate 'Contributor questionnaires' as headline %}
         {% include 'staff_questionnaire_index_list.html' with questionnaires=contributor_questionnaires headline=headline extra_classes='mb-3' type='contributor' %}
         {% translate 'Bottom general questionnaires' as headline %}
-        {% include 'staff_questionnaire_index_list.html' with questionnaires=general_questionnaires_bottom headline=headline extra_classes='' type='bottom' %}
+        {% include 'staff_questionnaire_index_list.html' with questionnaires=general_questionnaires_bottom headline=headline extra_classes='mb-3' type='bottom' %}
+        {% translate 'Dropout questionnaires' as headline %}
+        {% include 'staff_questionnaire_index_list.html' with questionnaires=dropout_questionnaires headline=headline extra_classes='' type='dropout' %}
     {% else %}
         <p>
             {% translate 'There are no questionnaires yet.' %}
