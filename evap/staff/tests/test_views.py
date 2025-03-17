@@ -983,6 +983,7 @@ class TestSemesterPreparationReminderView(WebTestStaffModeWith200Check):
         self.app.get(self.url, params={"mode": "invalid"}, user=self.manager, status=400)
         self.app.post(self.url + "?mode=text", user=self.manager, status=400)
 
+
 class TestGradeReminderView(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
