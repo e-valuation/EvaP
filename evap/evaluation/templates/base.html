@@ -213,18 +213,18 @@
             import { setupForms } from "{% static 'js/custom-success-form.js' %}";
 
             setupForms();
-            document.querySelectorAll("[data-track-tomselect-count]").forEach(tracker_element => {
-                
-                trackedElement = document.getElementById(tracker_element.dataset.trackTomselectCount)
-
-                tracker_element.on("item_add", function() {
-                    update_count(tracker_element, trackedElement);
+            document.querySelectorAll("[data-track-tomselect-count]").forEach(trackerElement => {
+                let trackedElement = document.getElementById(trackerElement.dataset.trackTomselectCount).tomselect;
+                trackedElement.on("item_add", function() {
+                    update_count(trackerElement, trackedElement);
                 });
-
-                tomselect_element.on("item_remove", function() {
-                    update_count(tracker_element, trackedElement);
+                trackedElement.on("item_remove", function() {
+                    update_count(trackerElement, trackedElement);
                 });
-            })
+                function update_count(trackerElement, trackedElement) {
+                    trackerElement.innerText = trackedElement.items.length;
+                }
+            });
         </script>
 
         {% block additional_javascript %}{% endblock %}
