@@ -961,6 +961,7 @@ class TestSemesterPreparationReminderView(WebTestStaffModeWith200Check):
         response = self.app.get(self.url, user=self.manager)
         self.assertContains(response, self.user.full_name)
         self.assertContains(response, self.evaluation.full_name)
+        self.assertContains(response, "Send reminder")
 
         response = self.app.get(self.url, params={"mode": "text"}, user=self.manager)
         self.assertContains(response, self.user.full_name)
@@ -981,7 +982,6 @@ class TestSemesterPreparationReminderView(WebTestStaffModeWith200Check):
 
     def test_invalid_mode(self) -> None:
         self.app.get(self.url, params={"mode": "invalid"}, user=self.manager, status=400)
-        self.app.post(self.url + "?mode=text", user=self.manager, status=400)
 
 
 class TestGradeReminderView(WebTestStaffMode):
