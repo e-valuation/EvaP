@@ -9,10 +9,10 @@
       redis."r1" = {
         enable = true;
         port = 0; # disable listening via TCP
+        unixSocket = "../redis.socket";
+        unixSocketPerm = 777;
         extraConfig = ''
           locale-collate "C"
-          unixsocket ../redis.socket
-          unixsocketperm 777
         '';
       };
       postgres."pg1" = {
@@ -29,9 +29,6 @@
         '';
       };
     };
-
-    # See https://github.com/juspay/services-flake/issues/352
-    settings.processes."r1".readiness_probe.exec.command = lib.mkForce "true";
   };
 
   devenv-setup = {
