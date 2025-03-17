@@ -966,6 +966,7 @@ class TestSemesterPreparationReminderView(WebTestStaffModeWith200Check):
         response = self.app.get(self.url, params={"mode": "text"}, user=self.manager)
         self.assertContains(response, self.user.full_name)
         self.assertContains(response, self.evaluation.full_name)
+        self.assertNotContains(response, "Send reminder")
 
     @patch("evap.staff.views.EmailTemplate")
     def test_remind_all(self, email_template_mock) -> None:
