@@ -33,7 +33,7 @@
         <div class="btn-switch btn-switch-light ms-2 d-print-none h-">
             <div class="btn-switch-label">{% translate 'View' %}</div>
             <div class="btn-switch btn-group">
-                <a href="{% url 'staff:semester_preparation_reminder' semester_id=semester.id %}" role="button" class="btn btn-sm btn-light {% if interactive %} active{% endif %}">
+                <a href="{% url 'staff:semester_preparation_reminder' semester_id=semester.id %}" role="button" class="btn btn-sm btn-light{% if interactive %} active{% endif %}">
                     {% translate 'Interactive' %}
                 </a>
                 <a href="{% url 'staff:semester_preparation_reminder' semester_id=semester.id %}?mode=text" role="button" class="btn btn-sm btn-light{% if not interactive %} active{% endif %}">
