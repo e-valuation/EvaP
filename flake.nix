@@ -70,24 +70,23 @@
       packages = forAllSystems (system:
         let
           pkgs = pkgsFor.${system};
-          make-process-compose = only-databases: (import inputs.process-compose-flake.lib { inherit pkgs; }).makeProcessCompose {
+          pc-modules = import ./nix/services.nix {
+            inherit pkgs;
+            inherit (self.devShells.${system}.evap.passthru) venv;
+          };
+          make-process-compose = with-devenv-setup: (import inputs.process-compose-flake.lib { inherit pkgs; }).makeProcessCompose {
             modules = [
               inputs.services-flake.processComposeModules.default
-              (import
-                ./nix/services.nix
-                {
-                  inherit pkgs only-databases;
-                  inherit (inputs) services-flake;
-                  inherit (self.devShells.${system}.evap.passthru) venv;
-                })
+              pc-modules.databases
+              (lib.mkIf with-devenv-setup pc-modules.devenv-setup)
             ];
           };
         in
         rec {
           python3 = pkgs.python312;
 
-          services = make-process-compose true;
-          services-full = make-process-compose false;
+          services = make-process-compose false;
+          services-full = make-process-compose true;
 
           wait-for-pc = pkgs.writeShellApplication {
             name = "wait-for-pc";
@@ -123,10 +122,10 @@
             name = "clean-setup";
             runtimeInputs = with pkgs; [ git ];
             text = ''
-                read -r -p "Delete node_modules/, data/, generated CSS and JS files in evap/static/, and evap/localsettings.py? [y/N] "
-                [[ "$REPLY" =~ ^[Yy]$ ]] || exit 1
-                git clean -f -X evap/static/ node_modules/ data/ evap/localsettings.py
-              '';
+              read -r -p "Delete node_modules/, data/, generated CSS and JS files in evap/static/, and evap/localsettings.py? [y/N] "
+              [[ "$REPLY" =~ ^[Yy]$ ]] || exit 1
+              git clean -f -X evap/static/ node_modules/ data/ evap/localsettings.py
+            '';
           };
         });
     };
