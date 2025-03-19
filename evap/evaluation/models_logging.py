@@ -344,7 +344,25 @@ class LoggedModel(models.Model):
 @receiver(m2m_changed)
 def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  # pylint: disable=unused-argument
     if reverse:
-        return
+        if pk_set is None:
+            return
+        for related_object in model.objects.filter(pk__in=pk_set):
+            if isinstance(related_object, LoggedModel):
+                field_name = next(
+                    (
+                        field.name
+                        for field in type(related_object)._meta.many_to_many
+                        if getattr(type(related_object), field.name).through == sender
+                    ),
+                    None,
+                )
+                if field_name and field_name not in related_object.unlogged_fields:
+                    if action == "pre_remove":
+                        related_object.log_m2m_change(field_name, FieldActionType.M2M_REMOVE, [instance.pk])
+                    elif action == "pre_add":
+                        related_object.log_m2m_change(field_name, FieldActionType.M2M_ADD, [instance.pk])
+                    elif action == "pre_clear":
+                        related_object.log_m2m_change(field_name, FieldActionType.M2M_CLEAR, [])
     if not isinstance(instance, LoggedModel):
         return
 
