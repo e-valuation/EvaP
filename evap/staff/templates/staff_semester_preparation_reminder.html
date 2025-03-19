@@ -9,11 +9,12 @@
 
 {% block content %}
     {{ block.super }}
-
-    {% if responsible_list %}
-        <div class="d-flex mb-3">
-            <div class="me-auto">
-
+    <h3>
+        {% translate 'Preparation reminder' %} ({{ semester.name }})
+    </h3>
+    <div class="d-flex mb-3">
+        <div class="me-auto">
+            {% if responsible_list and interactive %}
                 <form reload-on-success method="POST" action="{% url 'staff:semester_preparation_reminder' semester_id=semester.id %}">
                     {% csrf_token %}
 
@@ -27,58 +28,84 @@
                         <button slot="show-button" type="button" id="remindAllButton" class="btn btn-sm btn-light">{% translate 'Remind all' %}</button>
                     </confirmation-modal>
                 </form>
+            {% endif %}
+        </div>
+        <div class="btn-switch btn-switch-light ms-2 d-print-none h-">
+            <div class="btn-switch-label">{% translate 'View' %}</div>
+            <div class="btn-switch btn-group">
+                <a href="{% url 'staff:semester_preparation_reminder' semester_id=semester.id %}" role="button" class="btn btn-sm btn-light{% if interactive %} active{% endif %}">
+                    {% translate 'Interactive' %}
+                </a>
+                <a href="{% url 'staff:semester_preparation_reminder' semester_id=semester.id %}?mode=text" role="button" class="btn btn-sm btn-light{% if not interactive %} active{% endif %}">
+                    {% translate 'Text' %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if interactive %}
+        {% for responsible, evaluations, delegates in responsible_list %}
+            <div class="card{% if not forloop.last %} mb-3{% endif %}">
+                <div class="card-header d-flex">
+                    <span class="ps-1 me-auto">
+                        <a href="{% url 'staff:user_edit' responsible.id %}">{{ responsible.full_name }}</a>, {% translate 'Delegates' %}:
+                        {% for delegate in delegates %}
+                            <a href="{% url 'staff:user_edit' delegate.id %}">{{ delegate.full_name }}</a>{% if not forloop.last %},{% endif %}
+                        {% empty %}
+                            &mdash;
+                        {% endfor %}
+                    </span>
+                    <div>
+                        <a href="{% url 'staff:send_reminder' semester.id responsible.id %}" class="btn btn-sm btn-light">{% translate 'Send reminder' %}</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th class="width-percent-57">{% translate 'Name' %}</th>
+                                <th class="width-percent-18">{% translate 'Start of evaluation' %}</th>
+                                <th class="width-percent-25">{% translate 'Last modified by' %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for evaluation in evaluations %}
+                                <tr{% if evaluation.state != evaluation.State.PREPARED %} class="deactivate"{% endif %}>
+                                    <th scope="row">
+                                        {% with approval_state_values=evaluation.state|approval_state_values %}
+                                            <span class="{{ approval_state_values.icon }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ approval_state_values.description }}"></span>
+                                        {% endwith %}
+                                        <a href="{% url 'staff:evaluation_edit' evaluation.id %}">{{ evaluation.full_name }}</a><br />
+                                        {% include 'evaluation_badges.html' with mode='manager' %}
+                                    </th>
+                                    <td>{% include 'staff_evaluation_evaluation_period.html' with state=evaluation.state start_only=True %}</td>
+                                    <td>
+                                        {% if evaluation.related_logentries.0.user %}
+                                            {{ evaluation.related_logentries.0.user }} ({{ evaluation.related_logentries.0.datetime|date:"SHORT_DATETIME_FORMAT" }})
+                                        {% else %}
+                                            &mdash;
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="card">
+            <div class="card-body">
+                {% for responsible, evaluations, _ in responsible_list %}
+                    <b>{{ responsible.full_name }}</b><br />
+                    {% for evaluation in evaluations %}
+                        - {{ evaluation.full_name }} (<span class="fst-italic">{{ evaluation.course.type }}</span>)<br />
+                    {% endfor %}
+                    {% if not forloop.last %}
+                        <br />
+                    {% endif %}
+                {% endfor %}
             </div>
         </div>
     {% endif %}
-
-    {% for responsible, evaluations, delegates in responsible_list %}
-        <div class="card{% if not forloop.last %} mb-3{% endif %}">
-            <div class="card-header d-flex">
-                <span class="ps-1 me-auto">
-                    <a href="{% url 'staff:user_edit' responsible.id %}">{{ responsible.full_name }}</a>, {% translate 'Delegates' %}:
-                    {% for delegate in delegates %}
-                        <a href="{% url 'staff:user_edit' delegate.id %}">{{ delegate.full_name }}</a>{% if not forloop.last %},{% endif %}
-                    {% empty %}
-                        &mdash;
-                    {% endfor %}
-                </span>
-                <div>
-                    <a href="{% url 'staff:send_reminder' semester.id responsible.id %}" class="btn btn-sm btn-light">{% translate 'Send reminder' %}</a>
-                </div>
-            </div>
-            <div class="card-body">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th class="width-percent-57">{% translate 'Name' %}</th>
-                            <th class="width-percent-18">{% translate 'Start of evaluation' %}</th>
-                            <th class="width-percent-25">{% translate 'Last modified by' %}</th>
-                       </tr>
-                    </thead>
-                    <tbody>
-                        {% for evaluation in evaluations %}
-                            <tr{% if evaluation.state != evaluation.State.PREPARED %} class="deactivate"{% endif %}>
-                                <th scope="row">
-                                    {% with approval_state_values=evaluation.state|approval_state_values %}
-                                        <span class="{{ approval_state_values.icon }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ approval_state_values.description }}"></span>
-                                    {% endwith %}
-                                    <a href="{% url 'staff:evaluation_edit' evaluation.id %}">{{ evaluation.full_name }}</a><br />
-                                    {% include 'evaluation_badges.html' with mode='manager' %}
-                                </th>
-                                <td>{% include 'staff_evaluation_evaluation_period.html' with state=evaluation.state start_only=True %}</td>
-                                <td>
-                                    {% if evaluation.related_logentries.0.user %}
-                                        {{ evaluation.related_logentries.0.user }} ({{ evaluation.related_logentries.0.datetime|date:"SHORT_DATETIME_FORMAT" }})
-                                    {% else %}
-                                        &mdash;
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    {% endfor %}
-
 {% endblock %}

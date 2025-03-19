@@ -974,41 +974,38 @@ class TestSemesterPreparationReminderView(WebTestStaffModeWith200Check):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
+        cls.user = baker.make(UserProfile, _fill_optional=["email"])
         cls.semester = baker.make(Semester)
 
         cls.url = f"/staff/semester/{cls.semester.pk}/preparation_reminder"
         cls.test_users = [cls.manager]
 
-    def test_preparation_reminder(self):
-        user = baker.make(UserProfile, email="user_to_find@institution.example.com")
-        evaluation = baker.make(
+        cls.evaluation = baker.make(
             Evaluation,
-            course=baker.make(Course, semester=self.semester, responsibles=[user]),
+            course=baker.make(Course, semester=cls.semester, responsibles=[cls.user]),
             state=Evaluation.State.PREPARED,
-            name_en="name_to_find",
-            name_de="name_to_find",
         )
-        baker.make(
+        cls.contribution = baker.make(
             Contribution,
-            evaluation=evaluation,
-            contributor=user,
+            evaluation=cls.evaluation,
+            contributor=cls.user,
             role=Contribution.Role.EDITOR,
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
 
+    def test_preparation_reminder(self) -> None:
         response = self.app.get(self.url, user=self.manager)
-        self.assertContains(response, "user_to_find")
-        self.assertContains(response, "name_to_find")
+        self.assertContains(response, self.user.full_name)
+        self.assertContains(response, self.evaluation.full_name)
+        self.assertContains(response, "Send reminder")
+
+        response = self.app.get(self.url, params={"mode": "text"}, user=self.manager)
+        self.assertContains(response, self.user.full_name)
+        self.assertContains(response, self.evaluation.full_name)
+        self.assertNotContains(response, "Send reminder")
 
     @patch("evap.staff.views.EmailTemplate")
-    def test_remind_all(self, email_template_mock):
-        user = baker.make(UserProfile)
-        evaluation = baker.make(
-            Evaluation,
-            course=baker.make(Course, semester=self.semester, responsibles=[user]),
-            state=Evaluation.State.PREPARED,
-        )
-
+    def test_remind_all(self, email_template_mock) -> None:
         email_template_mock.objects.get.return_value = email_template_mock
         email_template_mock.EDITOR_REVIEW_REMINDER = EmailTemplate.EDITOR_REVIEW_REMINDER
 
@@ -1017,8 +1014,11 @@ class TestSemesterPreparationReminderView(WebTestStaffModeWith200Check):
         email_template_mock.send_to_user.assert_called_once()
         kwargs = email_template_mock.send_to_user.mock_calls[0][2]
         self.assertEqual(kwargs["subject_params"], {})
-        self.assertEqual(kwargs["body_params"], {"user": user, "evaluations": [evaluation]})
+        self.assertEqual(kwargs["body_params"], {"user": self.user, "evaluations": [self.evaluation]})
         self.assertEqual(kwargs["use_cc"], True)
+
+    def test_invalid_mode(self) -> None:
+        self.app.get(self.url, params={"mode": "invalid"}, user=self.manager, status=400)
 
 
 class TestGradeReminderView(WebTestStaffMode):
