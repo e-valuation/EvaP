@@ -212,7 +212,7 @@ class TestScssCommand(TestCase):
 
     @patch("subprocess.run", return_value=FakeSubprocessRunResult())
     def test_scss_called(self, mock_subprocess_run):
-        management.call_command("scss")
+        management.call_command("scss", stdout=StringIO())
 
         mock_subprocess_run.assert_called_once_with(
             ["npx", "sass", self.scss_path, self.css_path],
@@ -223,7 +223,7 @@ class TestScssCommand(TestCase):
     def test_scss_watch_called(self, mock_subprocess_run):
         mock_subprocess_run.side_effect = KeyboardInterrupt
 
-        management.call_command("scss", "--watch")
+        management.call_command("scss", "--watch", stdout=StringIO())
 
         mock_subprocess_run.assert_called_once_with(
             ["npx", "sass", self.scss_path, self.css_path, "--watch", "--poll"],
@@ -232,7 +232,7 @@ class TestScssCommand(TestCase):
 
     @patch("subprocess.run", return_value=FakeSubprocessRunResult())
     def test_scss_production_called(self, mock_subprocess_run):
-        management.call_command("scss", "--production")
+        management.call_command("scss", "--production", stdout=StringIO())
 
         mock_subprocess_run.assert_called_once_with(
             ["npx", "sass", self.scss_path, self.css_path, "--style", "compressed", "--no-source-map"],
@@ -244,7 +244,7 @@ class TestScssCommand(TestCase):
         mock_subprocess_run.side_effect = FileNotFoundError()
 
         with self.assertRaisesMessage(CommandError, "Could not find sass command"):
-            management.call_command("scss")
+            management.call_command("scss", stdout=StringIO())
 
 
 class TestTsCommand(TestCase):
@@ -253,7 +253,7 @@ class TestTsCommand(TestCase):
 
     @patch("subprocess.run", return_value=FakeSubprocessRunResult())
     def test_ts_compile(self, mock_subprocess_run):
-        management.call_command("ts", "compile")
+        management.call_command("ts", "compile", stdout=StringIO())
 
         mock_subprocess_run.assert_called_once_with(
             ["npx", "tsc", "--project", self.ts_path / "tsconfig.compile.json"],
@@ -264,7 +264,7 @@ class TestTsCommand(TestCase):
     def test_ts_compile_with_watch(self, mock_subprocess_run):
         mock_subprocess_run.side_effect = KeyboardInterrupt
 
-        management.call_command("ts", "compile", "--watch")
+        management.call_command("ts", "compile", "--watch", stdout=StringIO())
 
         mock_subprocess_run.assert_called_once_with(
             ["npx", "tsc", "--project", self.ts_path / "tsconfig.compile.json", "--watch"],
@@ -274,7 +274,7 @@ class TestTsCommand(TestCase):
     @patch("subprocess.run", return_value=FakeSubprocessRunResult())
     @patch("evap.evaluation.management.commands.ts.call_command")
     def test_ts_test(self, mock_call_command, mock_subprocess_run):
-        management.call_command("ts", "test")
+        management.call_command("ts", "test", stdout=StringIO())
 
         # Mock render pages to prevent a second call into the test framework
         mock_call_command.assert_called_once_with("scss")
@@ -293,13 +293,13 @@ class TestTsCommand(TestCase):
         mock_subprocess_run.side_effect = FileNotFoundError()
 
         with self.assertRaisesMessage(CommandError, "Could not find npx command"):
-            management.call_command("ts", "compile")
+            management.call_command("ts", "compile", stdout=StringIO())
 
 
 class TestUpdateEvaluationStatesCommand(TestCase):
     def test_update_evaluations_called(self):
         with patch("evap.evaluation.models.Evaluation.update_evaluations") as mock:
-            management.call_command("update_evaluation_states")
+            management.call_command("update_evaluation_states", stdout=StringIO())
 
         self.assertEqual(mock.call_count, 1)
 
@@ -317,7 +317,7 @@ class TestSendRemindersCommand(TestCase):
         )
 
         with patch("evap.evaluation.models.EmailTemplate.send_reminder_to_user") as mock:
-            management.call_command("send_reminders")
+            management.call_command("send_reminders", stdout=StringIO())
 
         self.assertEqual(mock.call_count, 1)
         mock.assert_called_once_with(user_to_remind, first_due_in_days=2, due_evaluations=[(evaluation, 2)])
@@ -340,7 +340,7 @@ class TestSendRemindersCommand(TestCase):
         )
 
         with patch("evap.evaluation.models.EmailTemplate.send_reminder_to_user") as mock:
-            management.call_command("send_reminders")
+            management.call_command("send_reminders", stdout=StringIO())
 
         self.assertEqual(mock.call_count, 1)
         mock.assert_called_once_with(
@@ -359,7 +359,7 @@ class TestSendRemindersCommand(TestCase):
         )
 
         with patch("evap.evaluation.models.EmailTemplate.send_reminder_to_user") as mock:
-            management.call_command("send_reminders")
+            management.call_command("send_reminders", stdout=StringIO())
 
         self.assertEqual(mock.call_count, 0)
         self.assertEqual(len(mail.outbox), 0)
@@ -379,7 +379,7 @@ class TestSendRemindersCommand(TestCase):
         )
 
         with patch("evap.evaluation.models.EmailTemplate.send_to_user") as mock:
-            management.call_command("send_reminders")
+            management.call_command("send_reminders", stdout=StringIO())
 
         mock.assert_has_calls(
             [
@@ -430,7 +430,7 @@ class TestSendRemindersCommand(TestCase):
         )
 
         with patch("evap.evaluation.models.EmailTemplate.send_to_address") as send_mock:
-            management.call_command("send_reminders")
+            management.call_command("send_reminders", stdout=StringIO())
 
         send_mock.assert_has_calls(
             [
@@ -483,7 +483,7 @@ class TestLintCommand(TestCase):
 class TestFormatCommand(TestCase):
     @patch("subprocess.run", return_value=FakeSubprocessRunResult())
     def test_formatters_called(self, mock_subprocess_run):
-        management.call_command("format")
+        management.call_command("format", stdout=StringIO())
         self.assertEqual(len(mock_subprocess_run.mock_calls), 3)
         mock_subprocess_run.assert_has_calls(
             [
@@ -497,7 +497,7 @@ class TestFormatCommand(TestCase):
 class TestTypecheckCommand(TestCase):
     @patch("subprocess.run", return_value=FakeSubprocessRunResult())
     def test_mypy_called(self, mock_subprocess_run):
-        management.call_command("typecheck")
+        management.call_command("typecheck", stdout=StringIO())
         self.assertEqual(len(mock_subprocess_run.mock_calls), 1)
         mock_subprocess_run.assert_has_calls([call(["mypy"], check=False)])
 
@@ -506,7 +506,7 @@ class TestPrecommitCommand(TestCase):
     @patch("subprocess.run", return_value=FakeSubprocessRunResult())
     @patch("evap.evaluation.management.commands.precommit.call_command")
     def test_subcommands_called(self, mock_call_command, mock_subprocess_run):
-        management.call_command("precommit")
+        management.call_command("precommit", stdout=StringIO())
 
         mock_subprocess_run.assert_called_with(["./manage.py", "test"], check=False)
 
@@ -532,12 +532,12 @@ class TestSendTextanswerRemindersCommand(TestCase):
             review_decision=TextAnswer.ReviewDecision.UNDECIDED,
         )
 
-        management.call_command("send_reminders")
+        management.call_command("send_reminders", stdout=StringIO())
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn(evaluation.name, mail.outbox[0].body)
 
     def test_send_no_reminder_if_not_needed(self):
         make_manager()
-        management.call_command("send_reminders")
+        management.call_command("send_reminders", stdout=StringIO())
         self.assertEqual(len(mail.outbox), 0)

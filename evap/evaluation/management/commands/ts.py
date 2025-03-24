@@ -37,7 +37,7 @@ class Command(BaseCommand):
 
     def run_command(self, command):
         try:
-            subprocess_run_or_exit(command)
+            subprocess_run_or_exit(command, self.stdout)
         except FileNotFoundError as e:
             raise CommandError(f"Could not find {command[0]} command") from e
         except KeyboardInterrupt:

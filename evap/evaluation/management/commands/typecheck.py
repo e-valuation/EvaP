@@ -9,4 +9,4 @@ class Command(BaseCommand):
     requires_migrations_checks = False
 
     def handle(self, *args, **options):
-        subprocess_run_or_exit(["mypy"])
+        subprocess_run_or_exit(["mypy"], self.stdout)

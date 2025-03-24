@@ -50,7 +50,10 @@ def logged_call_command(stdout, *args, **kwargs):
     call_command(*args, **kwargs)
 
 
-def subprocess_run_or_exit(command: list) -> None:
+def subprocess_run_or_exit(command: list, stdout=None) -> None:
+    if stdout is not None:
+        stdout.write(f"Executing {' '.join(str(el) for el in command)}")
+
     exit_code = subprocess.run(command, check=False).returncode
     if exit_code != 0:
         sys.exit(exit_code)

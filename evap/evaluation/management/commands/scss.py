@@ -34,7 +34,7 @@ class Command(BaseCommand):
             command += ["--style", "compressed", "--no-source-map"]
 
         try:
-            subprocess_run_or_exit(command)
+            subprocess_run_or_exit(command, self.stdout)
         except FileNotFoundError as e:
             raise CommandError("Could not find sass command") from e
         except KeyboardInterrupt:
