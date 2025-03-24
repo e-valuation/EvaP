@@ -333,7 +333,7 @@ class ResultsExporter(ExcelExporter):
         for __, results in evaluations_with_results:
             if (
                 results.get(questionnaire_id) is None
-            ):  # we iterate over all distinct questionaires from all evaluations but some evaluations do not include a specific questionaire
+            ):  # we iterate over all distinct questionnaires from all evaluations but some evaluations do not include a specific questionnaire
                 continue
             avg, average_approval_ratio = cls._get_average_grade_and_approval_ratio(questionnaire_id, question, results)
             if avg is not None:
@@ -343,9 +343,9 @@ class ResultsExporter(ExcelExporter):
                 avg_approval_sum += average_approval_ratio
                 count_approval += 1
 
-        return avg_value_sum / count_avg if count_avg else None, (
-            avg_approval_sum / count_approval if count_approval else None
-        )
+        avg_value = avg_value_sum / count_avg if count_avg else None
+        avg_approval = avg_approval_sum / count_approval if count_approval else None
+        return avg_value, avg_approval
 
     def write_questionnaire(
         self,
