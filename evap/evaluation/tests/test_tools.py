@@ -9,6 +9,7 @@ from django.http import Http404
 from django.utils import translation
 from model_bakery import baker
 
+from evap.evaluation.management.commands.tools import subprocess_run_or_exit
 from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer, UserProfile
 from evap.evaluation.tests.tools import SimpleTestCase, TestCase, WebTest
 from evap.evaluation.tools import (
@@ -198,6 +199,12 @@ class TestHelperMethods(TestCase):
 
         answer = baker.make(TextAnswer)
         self.assertEqual(get_object_from_dict_pk_entry_or_logged_40x(TextAnswer, {"pk": str(answer.pk)}, "pk"), answer)
+
+    def test_subprocess_run_or_exit(self) -> None:
+        subprocess_run_or_exit(["true"])
+
+        with self.assertRaises(SystemExit):
+            subprocess_run_or_exit(["false"])
 
 
 class TestHelperMethodsWithoutTransaction(SimpleTestCase):
