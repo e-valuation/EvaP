@@ -72,7 +72,8 @@ export class AutoFormSaver {
             if (["BUTTON", "FIELDSET", "OBJECT", "OUTPUT"].includes(el.tagName)) {
                 return false;
             }
-            assert(Object.hasOwn(el, "value"));
+            assert("value" in el);
+            assert(typeof el.value === "string" || Array.isArray(el.value) || typeof el.value === "boolean");
             return true;
         });
     }
