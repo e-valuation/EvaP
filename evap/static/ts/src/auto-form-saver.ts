@@ -27,11 +27,17 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 New portions and modifications are licensed under the conditions in LICENSE.md
  */
 
+import { assert } from "./utils.js";
+
 interface AutoFormSaverOptions {
     href: string;
     customKeySuffix: string;
     onSave: (arg0: AutoFormSaver) => void;
     onRestore: (arg0: AutoFormSaver) => void;
+}
+
+interface ValueElement extends Element {
+    value: string | string[] | boolean;
 }
 
 export class AutoFormSaver {
@@ -55,8 +61,8 @@ export class AutoFormSaver {
         this.bindSaveData();
     }
 
-    findFieldsToProtect(): Element[] {
-        return Array.of(...this.target.elements).filter((el: Element) => {
+    findFieldsToProtect(): ValueElement[] {
+        return Array.of(...this.target.elements).filter((el: Element): el is ValueElement => {
             if (
                 el instanceof HTMLInputElement &&
                 ["submit", "reset", "button", "file", "password", "hidden"].includes(el.type.toLowerCase())
@@ -66,6 +72,7 @@ export class AutoFormSaver {
             if (["BUTTON", "FIELDSET", "OBJECT", "OUTPUT"].includes(el.tagName)) {
                 return false;
             }
+            assert(Object.hasOwn(el, "value"));
             return true;
         });
     }
@@ -97,8 +104,7 @@ export class AutoFormSaver {
             }
             const prefix = this.getPrefix(field);
             const fieldType = field.getAttribute("type");
-            // @ts-expect-error All field objects are some kind of input field with value.
-            let value: string | string[] | boolean = field.value;
+            let value = field.value;
 
             if (field instanceof HTMLInputElement && fieldType === "checkbox") {
                 value = field.checked;
