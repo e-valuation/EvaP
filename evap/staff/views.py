@@ -5,7 +5,7 @@ from collections.abc import Container
 from dataclasses import dataclass
 from datetime import date, datetime
 from enum import Enum
-from typing import Any, Literal, cast
+from typing import Any, Final, Literal, cast
 
 import openpyxl
 from django.conf import settings
@@ -1551,9 +1551,7 @@ def evaluation_person_management(request, evaluation_id: int):
             raise SuspiciousOperation("Invalid POST operation")
 
         import_action = ImportAction.from_operation(operation)
-        import_type: Literal[ImportType.PARTICIPANT, ImportType.CONTRIBUTOR] = (
-            ImportType.PARTICIPANT if "participants" in operation else ImportType.CONTRIBUTOR
-        )
+        import_type: Final = ImportType.PARTICIPANT if "participants" in operation else ImportType.CONTRIBUTOR
         excel_form = participant_excel_form if "participants" in operation else contributor_excel_form
         copy_form = participant_copy_form if "participants" in operation else contributor_copy_form
 
