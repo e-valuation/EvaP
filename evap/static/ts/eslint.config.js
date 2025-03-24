@@ -43,7 +43,7 @@ export default tseslint.config(
             "@typescript-eslint/no-unnecessary-condition": "warn",
             "@typescript-eslint/no-misused-promises": "warn",
             "@typescript-eslint/no-namespace": "warn",
-            "@typescript-eslint/no-non-null-assertion": "warn",
+            "@typescript-eslint/no-non-null-assertion": "off",
             "@typescript-eslint/no-unsafe-call": "warn",
             "@typescript-eslint/no-unsafe-member-access": "warn",
             "@typescript-eslint/no-unsafe-argument": "warn",
