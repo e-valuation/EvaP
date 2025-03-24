@@ -27,7 +27,6 @@ from django.db.models import (
     Sum,
     When,
 )
-from django.dispatch import receiver
 from django.forms import BaseForm, formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
@@ -70,6 +69,7 @@ from evap.evaluation.tools import (
     get_object_from_dict_pk_entry_or_logged_40x,
     get_parameter_from_url_or_session,
     sort_formset,
+    temporary_receiver,
 )
 from evap.grades.models import GradeDocument
 from evap.results.exporters import ResultsExporter
@@ -1312,23 +1312,6 @@ def evaluation_edit(request, evaluation_id):
 
 @manager_required
 def helper_evaluation_edit(request, evaluation):
-    # Show a message when reward points are granted during the lifetime of the calling view.
-    # The @receiver will only live as long as the request is processed
-    # as the callback is captured by a weak reference in the Django Framework
-    # and no other strong references are being kept.
-    # See https://github.com/e-valuation/EvaP/issues/1361 for more information and discussion.
-    @receiver(RewardPointGranting.granted_by_participation_removal, weak=True)
-    def notify_reward_points(grantings, **_kwargs):
-        for granting in grantings:
-            messages.info(
-                request,
-                ngettext(
-                    'The removal as participant has granted the user "{granting.user_profile.email}" {granting.value} reward point for the semester.',
-                    'The removal as participant has granted the user "{granting.user_profile.email}" {granting.value} reward points for the semester.',
-                    granting.value,
-                ).format(granting=granting),
-            )
-
     editable = evaluation.can_be_edited_by_manager
     InlineContributionFormset = inlineformset_factory(
         Evaluation, Contribution, formset=ContributionFormset, form=ContributionForm, extra=1 if editable else 0
@@ -1356,18 +1339,31 @@ def helper_evaluation_edit(request, evaluation):
 
         form_has_changed = evaluation_form.has_changed() or formset.has_changed()
 
-        evaluation_form.save()
-        formset.save()
+        # Show a message when reward points are granted
+        def notify_reward_points(grantings, **_kwargs):
+            for granting in grantings:
+                messages.info(
+                    request,
+                    ngettext(
+                        'The removal as participant has granted the user "{granting.user_profile.email}" {granting.value} reward point for the semester.',
+                        'The removal as participant has granted the user "{granting.user_profile.email}" {granting.value} reward points for the semester.',
+                        granting.value,
+                    ).format(granting=granting),
+                )
 
-        if operation == "approve":
-            evaluation.manager_approve()
-            evaluation.save()
-            if form_has_changed:
-                messages.success(request, _("Successfully updated and approved evaluation."))
+        with temporary_receiver(RewardPointGranting.granted_by_participation_removal, notify_reward_points):
+            evaluation_form.save()
+            formset.save()
+
+            if operation == "approve":
+                evaluation.manager_approve()
+                evaluation.save()
+                if form_has_changed:
+                    messages.success(request, _("Successfully updated and approved evaluation."))
+                else:
+                    messages.success(request, _("Successfully approved evaluation."))
             else:
-                messages.success(request, _("Successfully approved evaluation."))
-        else:
-            messages.success(request, _("Successfully updated evaluation."))
+                messages.success(request, _("Successfully updated evaluation."))
 
         return redirect("staff:semester_view", evaluation.course.semester.id)
 
@@ -1426,20 +1422,21 @@ def helper_single_result_edit(request, evaluation):
 def evaluation_delete(request):
     evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
 
-    # See comment in helper_evaluation_edit
-    @receiver(RewardPointGranting.granted_by_evaluation_deletion, weak=True)
+    if not evaluation.can_be_deleted_by_manager:
+        raise SuspiciousOperation("Deleting evaluation not allowed")
+
     def notify_reward_points(grantings, **_kwargs):
         logger.info(
             "Deletion of evaluation has created reward point grantings",
             extra={"evaluation": evaluation, "num_grantings": len(grantings)},
         )
 
-    if not evaluation.can_be_deleted_by_manager:
-        raise SuspiciousOperation("Deleting evaluation not allowed")
-    if evaluation.is_single_result:
-        RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation).delete()
-    evaluation.delete()
-    update_template_cache_of_published_evaluations_in_course(evaluation.course)
+    with temporary_receiver(RewardPointGranting.granted_by_evaluation_deletion, notify_reward_points):
+        if evaluation.is_single_result:
+            RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation).delete()
+        evaluation.delete()
+        update_template_cache_of_published_evaluations_in_course(evaluation.course)
+
     return HttpResponse()  # 200 OK
 
 
@@ -2308,20 +2305,6 @@ def user_import(request):
 
 @manager_required
 def user_edit(request, user_id):
-    # See comment in helper_evaluation_edit
-    @receiver(RewardPointGranting.granted_by_participation_removal, weak=True)
-    def notify_reward_points(grantings, **_kwargs):
-        assert len(grantings) == 1
-
-        messages.info(
-            request,
-            ngettext(
-                'The removal of evaluations has granted the user "{granting.user_profile.email}" {granting.value} reward point for the active semester.',
-                'The removal of evaluations has granted the user "{granting.user_profile.email}" {granting.value} reward points for the active semester.',
-                grantings[0].value,
-            ).format(granting=grantings[0]),
-        )
-
     user = get_object_or_404(UserProfile, id=user_id)
     form = UserForm(request.POST or None, request.FILES or None, instance=user)
 
@@ -2332,7 +2315,22 @@ def user_edit(request, user_id):
     )
 
     if form.is_valid():
-        form.save()
+
+        def notify_reward_points(grantings, **_kwargs):
+            assert len(grantings) == 1
+
+            messages.info(
+                request,
+                ngettext(
+                    'The removal of evaluations has granted the user "{granting.user_profile.email}" {granting.value} reward point for the active semester.',
+                    'The removal of evaluations has granted the user "{granting.user_profile.email}" {granting.value} reward points for the active semester.',
+                    grantings[0].value,
+                ).format(granting=grantings[0]),
+            )
+
+        with temporary_receiver(RewardPointGranting.granted_by_participation_removal, notify_reward_points):
+            form.save()
+
         messages.success(request, _("Successfully updated user."))
         for message in form.remove_messages:
             messages.warning(request, message)

@@ -115,7 +115,7 @@ def grant_reward_points_after_evaluate(request: HttpRequest, semester: Semester,
 def grant_reward_points_on_participation_change(instance, action: str, reverse: bool, pk_set, **_kwargs) -> None:
     # if users do not need to evaluate anymore, they may have earned reward points
     if action == "post_remove":
-        grantings = []
+        grantings: list[RewardPointGranting] = []
 
         if reverse:
             # one or more evaluations got removed from a participant
@@ -124,6 +124,7 @@ def grant_reward_points_on_participation_change(instance, action: str, reverse: 
             for semester in Semester.objects.filter(courses__evaluations__pk__in=pk_set):
                 granting, __ = grant_reward_points_if_eligible(user, semester)
                 if granting:
+                    assert not grantings
                     grantings = [granting]
         else:
             # one or more participants got removed from an evaluation

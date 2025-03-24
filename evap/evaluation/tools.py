@@ -2,6 +2,7 @@ import datetime
 import typing
 from abc import ABC, abstractmethod
 from collections.abc import Iterable, Mapping
+from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, TypeVar
 from urllib.parse import quote
 
@@ -31,6 +32,17 @@ M = TypeVar("M", bound=Model)
 T = TypeVar("T")
 CellValue = str | int | float | None
 CV = TypeVar("CV", bound=CellValue)
+
+
+@contextmanager
+def temporary_receiver(signal, func, **kwargs):
+    # semi-copy of https://github.com/django/django/blob/3266f2516c27dd25abebe8e8f7b8778650ab4f18/django/dispatch/dispatcher.py#L472
+    # with sane contextmanager behavior (receivers are unlinked on exit). We don't support lists of signals (for now).
+    signal.connect(receiver=func, **kwargs)
+    try:
+        yield
+    finally:
+        signal.disconnect(receiver=func, **kwargs)
 
 
 def openid_login_is_active() -> bool:
