@@ -37,7 +37,7 @@
         </form>
 
         <script type="module">
-            import { fadeOutThenRemove } from "{% static 'js/utils.js' %}";
+            import { assert, fadeOutThenRemove } from "{% static 'js/utils.js' %}";
 
             const form = document.getElementById("questionnaire-deletion-form");
             form.addEventListener("submit", event => {
@@ -85,6 +85,7 @@
 
     <script type="module">
         import { CSRF_HEADERS } from "{% static 'js/csrf-utils.js' %}";
+        import { assert } from "{% static 'js/utils.js' %}";
 
         function changeVisibility(element) {
             const questionnaire = element.closest(".questionnaire");

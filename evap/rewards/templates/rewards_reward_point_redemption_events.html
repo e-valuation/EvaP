@@ -22,7 +22,7 @@
     </form>
 
     <script type="module">
-        import { fadeOutThenRemove } from "{% static 'js/utils.js' %}";
+        import { assert, fadeOutThenRemove } from "{% static 'js/utils.js' %}";
 
         const form = document.getElementById("event-deletion-form");
         form.addEventListener("submit", event => {
