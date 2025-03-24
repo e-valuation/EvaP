@@ -641,10 +641,7 @@ class TestExporters(TestCase):
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
-        self.assertAlmostEqual(
-            float(workbook.sheets()[0].row_values(5)[1]),
-            (float(workbook.sheets()[0].row_values(5)[2]) + float(workbook.sheets()[0].row_values(5)[3])) / 2,
-        )
+        self.assertAlmostEqual(workbook.sheets()[0].row_values(5)[1], 1.5833333333333335)
 
         self.assertEqual(
             workbook.sheets()[0].row_values(0)[1],
