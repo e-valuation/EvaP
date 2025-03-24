@@ -22,6 +22,8 @@
     </form>
 
     <script type="module">
+        import { fadeOutThenRemove } from "{% static 'js/utils.js' %}";
+
         const form = document.getElementById("event-deletion-form");
         form.addEventListener("submit", event => {
             event.preventDefault();

@@ -52,4 +52,3 @@ export const fadeOutThenRemove = (element: HTMLElement) => {
 };
 
 (globalThis as any).assert = assert;
-(globalThis as any).fadeOutThenRemove = fadeOutThenRemove;
