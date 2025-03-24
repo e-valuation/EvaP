@@ -115,8 +115,12 @@
             const tagTomSelectOptions = {
                 create: true,
                 createOnBlur: true,
-                dropdownParent: document.createElement("div"),  // To make it invisible
                 delimiter: '', // we don't want the default "comma creates entry" behavior
+
+                dropdownParent: document.createElement("div"),  // To make it invisible
+                // On enter, with hidden dropdown, always add current text. Otherwise, adding a
+                // prefix of an existing item doesn't work
+                addPrecedence: true,
             };
 
             class MinimumInputLengthTomSelect extends TomSelect {
