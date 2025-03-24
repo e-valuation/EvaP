@@ -81,7 +81,9 @@
         });
     </script>
 
-    <script type="text/javascript">
+    <script type="module">
+        import { CSRF_HEADERS } from "{% static 'js/csrf-utils.js' %}";
+
         function changeVisibility(element) {
             const questionnaire = element.closest(".questionnaire");
             const visibility = element.dataset.visibility;
