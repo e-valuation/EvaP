@@ -593,9 +593,11 @@ class TestExporters(TestCase):
     def test_total_average(self):
         program = baker.make(Program)
 
-        questionnaire = baker.make(Questionnaire, order=1, type=Questionnaire.Type.TOP)
+        questionnaire_1 = baker.make(Questionnaire, order=1, type=Questionnaire.Type.TOP)
+        questionnaire_2 = baker.make(Questionnaire, order=4, type=Questionnaire.Type.TOP)
 
-        question = baker.make(Question, type=QuestionType.GRADE, questionnaire=questionnaire)
+        question_1 = baker.make(Question, type=QuestionType.GRADE, questionnaire=questionnaire_1)
+        question_2 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire_2)
 
         evaluation_1 = baker.make(
             Evaluation,
@@ -613,13 +615,14 @@ class TestExporters(TestCase):
             _voter_count=3,
         )
 
-        evaluation_1.general_contribution.questionnaires.set([questionnaire])
+        evaluation_1.general_contribution.questionnaires.set([questionnaire_1])
 
-        make_rating_answer_counters(question, evaluation_1.general_contribution, [1, 1, 0, 0, 0])
+        make_rating_answer_counters(question_1, evaluation_1.general_contribution, [1, 1, 0, 0, 0])
 
-        evaluation_2.general_contribution.questionnaires.set([questionnaire])
+        evaluation_2.general_contribution.questionnaires.set([questionnaire_1, questionnaire_2])
 
-        make_rating_answer_counters(question, evaluation_2.general_contribution, [1, 2, 0, 0, 0])
+        make_rating_answer_counters(question_1, evaluation_2.general_contribution, [1, 2, 0, 0, 0])
+        make_rating_answer_counters(question_2, evaluation_2.general_contribution)
 
         cache_results(evaluation_1)
         cache_results(evaluation_2)
@@ -648,64 +651,7 @@ class TestExporters(TestCase):
             "Average for this question over all evaluations in all published semesters",
         )
 
-    def test_not_all_contributions_are_created_equal(self):
-        program = baker.make(Program)
-
-        questionnaire_1 = baker.make(Questionnaire, order=1, type=Questionnaire.Type.TOP)
-        questionnaire_2 = baker.make(Questionnaire, order=4, type=Questionnaire.Type.TOP)
-
-        question_1 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire_1)
-        question_2 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire_2)
-
-        evaluation_1 = baker.make(
-            Evaluation,
-            course__programs=[program],
-            state=Evaluation.State.PUBLISHED,
-            _participant_count=2,
-            _voter_count=2,
-        )
-
-        evaluation_2 = baker.make(
-            Evaluation,
-            course__programs=[program],
-            state=Evaluation.State.PUBLISHED,
-            _participant_count=2,
-            _voter_count=2,
-        )
-
-        evaluation_1.general_contribution.questionnaires.set([questionnaire_1])
-
-        make_rating_answer_counters(question_1, evaluation_1.general_contribution)
-
-        evaluation_2.general_contribution.questionnaires.set([questionnaire_1, questionnaire_2])
-
-        make_rating_answer_counters(question_1, evaluation_2.general_contribution)
-        make_rating_answer_counters(question_2, evaluation_2.general_contribution)
-
-        cache_results(evaluation_1)
-        cache_results(evaluation_2)
-
-        binary_content = BytesIO()
-        ResultsExporter().export(
-            binary_content,
-            [evaluation_1.course.semester, evaluation_2.course.semester],
-            [
-                (
-                    [course_program.id for course_program in evaluation_1.course.programs.all()]
-                    + [course_program.id for course_program in evaluation_2.course.programs.all()],
-                    [evaluation_1.course.type.id, evaluation_2.course.type.id],
-                )
-            ],
-            True,
-            True,
-        )
-        binary_content.seek(0)
-        workbook = xlrd.open_workbook(file_contents=binary_content.read())
-
+        # average for second questionnaire must be the value from evaluation2 (since evaluation1 doesn't have the questionnaire)
         self.assertEqual(float(workbook.sheets()[0].row_values(8)[1]), float(workbook.sheets()[0].row_values(8)[3]))
-        self.assertEqual("", workbook.sheets()[0].row_values(8)[2])  # testing empty heading for average
-
-        self.assertEqual(
-            workbook.sheets()[0].row_values(0)[1],
-            "Average for this question over all evaluations in all published semesters",
-        )
+        # average field next to the questionnaire title must be empty
+        self.assertEqual("", workbook.sheets()[0].row_values(8)[2])
