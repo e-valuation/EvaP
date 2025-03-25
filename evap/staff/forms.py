@@ -31,7 +31,6 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
-from evap.evaluation.models_logging import FieldActionType, LoggedModel
 from evap.evaluation.tools import clean_email
 from evap.results.tools import STATES_WITH_RESULT_TEMPLATE_CACHING, STATES_WITH_RESULTS_CACHING, cache_results
 from evap.results.views import update_template_cache, update_template_cache_of_published_evaluations_in_course
@@ -1009,25 +1008,12 @@ class UserForm(forms.ModelForm):
             raise forms.ValidationError(_("A user with the email '%s' already exists") % email)
         return email
 
-    def save(self, *args, **kw):  # noqa: PLR0912
+    def save(self, *args, **kw):
         super().save(*args, **kw)
-        evaluations_old_semester = self.instance.evaluations_participating_in.exclude(
-            course__semester=Semester.active_semester()
-        )
-        new_evaluations = set(evaluations_old_semester) | set(self.cleaned_data.get("evaluations_participating_in"))
-        old_evaluations = set(self.instance.evaluations_participating_in.all())
-
-        self.instance.evaluations_participating_in.set(list(new_evaluations))
-
-        added_evaluations = new_evaluations - old_evaluations
-        removed_evaluations = old_evaluations - new_evaluations
-        if added_evaluations or removed_evaluations:
-            for evaluation in added_evaluations:
-                if isinstance(evaluation, LoggedModel) and "participants" not in evaluation.unlogged_fields:
-                    evaluation.log_m2m_change("participants", FieldActionType.M2M_ADD, [self.instance.pk])
-            for evaluation in removed_evaluations:
-                if isinstance(evaluation, LoggedModel) and "participants" not in evaluation.unlogged_fields:
-                    evaluation.log_m2m_change("participants", FieldActionType.M2M_REMOVE, [self.instance.pk])
+        new_evaluation_list = list(
+            self.instance.evaluations_participating_in.exclude(course__semester=Semester.active_semester())
+        ) + list(self.cleaned_data.get("evaluations_participating_in"))
+        self.instance.evaluations_participating_in.set(new_evaluation_list)
 
         manager_group = Group.objects.get(name="Manager")
         grade_publisher_group = Group.objects.get(name="Grade publisher")
