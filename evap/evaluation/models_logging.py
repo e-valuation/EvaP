@@ -341,21 +341,48 @@ class LoggedModel(models.Model):
         return ["id", "order"]
 
 
+def _get_m2m_field_name(model_class, sender):
+    return next(
+        (field.name for field in model_class._meta.many_to_many if getattr(model_class, field.name).through == sender),
+        None,
+    )
+
+
 @receiver(m2m_changed)
-def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  # pylint: disable=unused-argument
+def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  # noqa: PLR0912
     if reverse:
-        return
+        field_name = _get_m2m_field_name(model, sender)
+        if not field_name:
+            return
+
+        field = model._meta.get_field(field_name)
+        related_name = field.remote_field.get_accessor_name()
+
+        if pk_set:
+            related_instances = model.objects.filter(pk__in=pk_set)
+        else:
+            # When action is pre_clear, pk_set is None, so we need to get the related instances from the instance itself
+            related_instances = getattr(instance, related_name).all()
+
+        for related_instance in related_instances:
+            if isinstance(related_instance, LoggedModel):
+                if field_name in related_instance.unlogged_fields:
+                    continue
+
+                if action == "pre_remove":
+                    related_instance.log_m2m_change(field_name, FieldActionType.M2M_REMOVE, [instance.pk])
+                elif action == "pre_add":
+                    related_instance.log_m2m_change(field_name, FieldActionType.M2M_ADD, [instance.pk])
+                elif action == "pre_clear":
+                    # Since we are not clearing the LoggedModdel instance, we need to log the removal of the related instances
+                    related_instance.log_m2m_change(field_name, FieldActionType.M2M_REMOVE, [instance.pk])
+
     if not isinstance(instance, LoggedModel):
         return
 
-    field_name = next(
-        (
-            field.name
-            for field in type(instance)._meta.many_to_many
-            if getattr(type(instance), field.name).through == sender
-        ),
-        None,
-    )
+    field_name = _get_m2m_field_name(type(instance), sender)
+    if field_name is None:
+        return
 
     if field_name in instance.unlogged_fields:
         return
