@@ -19,6 +19,17 @@
       matchManagers: ["pep621"],
     },
     {
+      matchManagers: ["npm"],
+      matchUpdateTypes: ["patch"],
+      enabled: false,
+    },
+    {
+      matchManagers: ["npm"],
+      matchUpdateTypes: ["patch", "minor"],
+      matchDepNames: ["sass"],  // causes deprecation warnings in bootstrap
+      enabled: false
+    },
+    {
       groupName: "node dependencies",
       groupSlug: "node",
       matchManagers: ["npm"],
