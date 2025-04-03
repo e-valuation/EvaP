@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "baseUrl": ".",
-        "target": "es2022",
+        "target": "es2019",
         "strict": true,
         "esModuleInterop": true,
         "moduleResolution": "node"
