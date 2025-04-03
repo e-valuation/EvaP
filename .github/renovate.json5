@@ -23,9 +23,9 @@
       matchManagers: ["github-actions"],
     },
     {
-      groupName: "ubuntu",
+      groupName: "ubuntu & python upgrade",
       groupSlug: "ubuntu",
-      matchDepNames: ["ubuntu"],
+      matchDepNames: ["ubuntu", "python"],
       dependencyDashboardApproval: true, // manual update when deployment is updated
     },
     {
