@@ -6,6 +6,7 @@
     enabled: true,
   },
   separateMajorMinor: false,
+  ignoreDeps: ["@types/sortablejs"], // we use a static version
   packageRules: [
     {
       dependencyNames: ["django-fsm"],
