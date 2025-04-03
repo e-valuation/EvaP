@@ -8,6 +8,11 @@
   separateMajorMinor: false,
   packageRules: [
     {
+      dependencyNames: ["django-fsm"],
+      groupSlug: "python",
+      allowedVersions: "!/^3.0.0$/", // 3.0.0 adds deprecation warnings without functional changes
+    },
+    {
       groupName: "python dependencies",
       groupSlug: "python",
       matchManagers: ["pep621"],
