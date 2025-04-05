@@ -497,6 +497,8 @@
                         {% csrf_token %}
                     </form>
                     <script type="module">
+                        import { fadeOutThenRemove } from "{% static 'js/utils.js' %}";
+
                         document.getElementById("course-deletion-form").addEventListener("submit-success", event => {
                             fadeOutThenRemove(document.querySelector(`#course-row-${event.detail.body.get("course_id")}`));
                         });

@@ -37,6 +37,8 @@
         </form>
 
         <script type="module">
+            import { assert, fadeOutThenRemove } from "{% static 'js/utils.js' %}";
+
             const form = document.getElementById("questionnaire-deletion-form");
             form.addEventListener("submit", event => {
                 event.preventDefault();
@@ -81,7 +83,10 @@
         });
     </script>
 
-    <script type="text/javascript">
+    <script type="module">
+        import { CSRF_HEADERS } from "{% static 'js/csrf-utils.js' %}";
+        import { assert } from "{% static 'js/utils.js' %}";
+
         function changeVisibility(element) {
             const questionnaire = element.closest(".questionnaire");
             const visibility = element.dataset.visibility;

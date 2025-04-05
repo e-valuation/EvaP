@@ -1,5 +1,7 @@
 {% extends 'grades_course_base.html' %}
 
+{% load static %}
+
 {% block content %}
     {{ block.super }}
 
@@ -55,6 +57,8 @@
                 </table>
 
                 <script type="module">
+                    import { fadeOutThenRemove } from "{% static 'js/utils.js' %}";
+
                     document.getElementById("grade-document-deletion-form").addEventListener("submit-success", event => {
                         fadeOutThenRemove(document.getElementById(`grade-document-row-${event.detail.body.get("grade_document_id")}`));
                     });

@@ -48,8 +48,9 @@
 
 {% block additional_javascript %}
     {% include 'bootstrap_datetimepicker.html' %}
-    <script type="text/javascript" src="{% static 'js/copy-to-clipboard.js' %}"></script>
-    <script type="text/javascript">
+    <script type="module">
+        import { copyHeaders } from "{% static 'js/copy-to-clipboard.js' %}";
+
         document.getElementById("copy-headers-button").addEventListener("click", async () => await copyHeaders([
             'Program', 'Participant last name', 'Participant first name', 'Participant email address', 'Course kind',
             'Course is graded', 'Course name (de)', 'Course name (en)', 'Responsible title', 'Responsible last name',
