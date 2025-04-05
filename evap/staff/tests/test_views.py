@@ -2248,6 +2248,23 @@ class TestEvaluationEditView(WebTestStaffMode):
         form.submit("operation", value="save")
         self.assertEqual(self.evaluation.contributions.get(contributor=self.editor).role, Contribution.Role.CONTRIBUTOR)
 
+    def test_approve_evaluation_with_edit(self):
+        page = self.app.get(self.url, user=self.manager)
+        form = page.forms["evaluation-form"]
+        form["contributions-1-role"] = Contribution.Role.CONTRIBUTOR
+        page = form.submit("operation", value="approve").follow()
+
+        self.assertEqual(Evaluation.objects.get(pk=self.evaluation.pk).state, Evaluation.State.APPROVED)
+        self.assertContains(page, "Successfully updated and approved evaluation.")
+
+    def test_approve_evaluation_without_edit(self):
+        page = self.app.get(self.url, user=self.manager)
+        form = page.forms["evaluation-form"]
+        page = form.submit("operation", value="approve").follow()
+
+        self.assertEqual(Evaluation.objects.get(pk=self.evaluation.pk).state, Evaluation.State.APPROVED)
+        self.assertContains(page, "Successfully approved evaluation.")
+
     def test_participant_removal_reward_point_granting_message(self):
         already_evaluated = baker.make(Evaluation, course__semester=self.evaluation.course.semester)
         SemesterActivation.objects.create(semester=self.evaluation.course.semester, is_active=True)
