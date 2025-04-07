@@ -185,36 +185,58 @@ jobs:
     runs-on: ubuntu-22.04
 
     name: Backup process
+    needs: build_wheel
 
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: true
-      - uses: ./.github/setup_evap
+          path: main
+
+      - uses: actions/checkout@v4
         with:
-          shell: .#evap # no dev-dependencies
-          npm-ci: true
-          start-db: true
+          repository: e-valuation/evap-deployment
+          path: deployment
 
-      - name: Install additional dependencies
-        run: sudo apt-get update && sudo apt-get install gettext
+      - uses: DeterminateSystems/nix-installer-action@main
+      - name: Start database
+        working-directory: deployment
+        run: nix run ../main#services -- --detached
 
-      - name: GitHub actions has wrong file ownership here, the checkout actions has a problem here (see their 1049)
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheel
+
+      - name: Install wheel
         run: |
-          git config --global --add safe.directory '*'
-          sudo -H -u root git config --global --add safe.directory '*'
+          WHEEL=$(echo *.whl)
+          pip install $WHEEL[psycopg-binary]
 
       - name: Load test data
+        working-directory: deployment
         run: |
-          python manage.py migrate
-          python manage.py loaddata test_data
+          cat <(echo 'from evap.settings import *') ../main/evap/settings_test.py | tee deployment_settings.py
+          python -m evap migrate
+          python -m evap loaddata test_data
+        env:
+          DJANGO_SETTINGS_MODULE: deployment_settings
       - name: Backup database
-        run: deployment/update_production.sh backup.json
+        working-directory: deployment
+        run: ./update_production.sh backup.json
         env:
           EVAP_OVERRIDE_BACKUP_FILENAME: true
-          EVAP_SKIP_CHECKOUT: true
+          EVAP_SKIP_UPDATE: true
+          EVAP_SKIP_APACHE_STEPS: true
+          DJANGO_SETTINGS_MODULE: deployment_settings
       - name: Reload backup
-        run: echo "yy" | deployment/load_production_backup.sh backup.json
+        working-directory: deployment
+        run: echo "yy" | ./load_production_backup.sh backup.json
+        env:
+          EVAP_SKIP_APACHE_STEPS: true
+          DJANGO_SETTINGS_MODULE: deployment_settings
 
   macos-nix-build:
     runs-on: macos-14
