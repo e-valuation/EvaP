@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django import forms
+from django.conf import settings
 from django.db.models import Q
 from django.forms.widgets import CheckboxSelectMultiple
 from django.utils.translation import gettext_lazy as _
@@ -24,6 +25,7 @@ class EvaluationForm(forms.ModelForm):
         fields = (
             "name_de_field",
             "name_en_field",
+            "main_language",
             "vote_start_datetime",
             "vote_end_date",
             "participants",
@@ -39,6 +41,8 @@ class EvaluationForm(forms.ModelForm):
 
         self.fields["name_de_field"].initial = self.instance.full_name_de
         self.fields["name_en_field"].initial = self.instance.full_name_en
+
+        self.fields["main_language"].choices = settings.LANGUAGES
 
         self.fields["general_questionnaires"].queryset = (
             Questionnaire.objects.general_questionnaires()
