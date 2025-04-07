@@ -244,7 +244,7 @@ def render_vote_page(
     preview: bool,
     dropout: bool,
     for_rendering_in_modal: bool = False,
-):
+) -> HttpResponse:
     form_groups = get_vote_page_form_groups(request, evaluation, preview, dropout)
 
     assert preview or not all(form.is_valid() for form_group in form_groups.values() for form in form_group)
@@ -303,7 +303,7 @@ def render_vote_page(
 
 
 @participant_required
-def vote(request: HttpRequest, evaluation_id: int, dropout=False):  # noqa: PLR0912
+def vote(request: HttpRequest, evaluation_id: int, dropout=False) -> HttpResponse:  # noqa: PLR0912
     # pylint: disable=too-many-nested-blocks
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
 
