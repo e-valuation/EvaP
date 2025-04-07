@@ -254,8 +254,8 @@ class JSONImporter:
 
                 self.user_profile_map[entry["gguid"]] = user_profile
 
-    def _import_course(self, data: ImportEvent) -> Course:
-        course_type = self._get_course_type(data["type"])
+    def _import_course(self, data: ImportEvent, course_type: CourseType | None = None) -> Course:
+        course_type = self._get_course_type(data["type"]) if course_type is None else course_type
         responsibles = self._get_user_profiles(data["lecturers"])
         responsibles = self._filter_user_profiles(responsibles)
         responsibles = self._choose_responsibles(responsibles)
@@ -283,6 +283,22 @@ class JSONImporter:
             self._get_program(c["cprid"]) for c in data["courses"] if c["cprid"] not in settings.IGNORE_PROGRAMS
         ]
         course.programs.set(programs)
+
+    def _import_course_from_unused_exam(self, data: ImportEvent) -> Course | None:
+        splitted_title = data["title"].split(":", 1)
+        if len(splitted_title) < 2:
+            return None
+        prefix = splitted_title[0].strip()
+
+        try:
+            course_type = CourseType.objects.get(import_names__contains=[prefix])
+        except CourseType.DoesNotExist:
+            return None
+
+        data["title"] = splitted_title[1].strip()
+        data["title_en"] = data["title_en"].split(":", 1)[1].strip() if ":" in data["title_en"] else data["title_en"]
+
+        return self._import_course(data, course_type)
 
     # pylint: disable=too-many-locals
     def _import_evaluation(self, course: Course, data: ImportEvent) -> Evaluation:
@@ -399,11 +415,25 @@ class JSONImporter:
 
             self._import_evaluation(course, event)
 
+        unused_events = []
         for event in exam_events:
+            if not event["relatedevents"]:
+                unused_events.append(event)
+                continue
+
             course = self.course_map[event["relatedevents"][0]["gguid"]]
 
             self._import_course_programs(course, event)
 
+            self._import_evaluation(course, event)
+        for event in unused_events:
+            course = self._import_course_from_unused_exam(event)
+            if not course:
+                self.statistics.warnings.append(
+                    WarningMessage(obj=event["title"], message="No related event or matching prefix found")
+                )
+                continue
+            event["isexam"] = False
             self._import_evaluation(course, event)
 
     @transaction.atomic
