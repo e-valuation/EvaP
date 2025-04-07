@@ -1,10 +1,11 @@
 from datetime import date, datetime, timedelta
+from unittest.mock import patch
 
 from django.utils.formats import localize
 from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, UserProfile
-from evap.evaluation.models_logging import FieldAction, InstanceActionType
+from evap.evaluation.models_logging import FieldAction, InstanceActionType, _m2m_changed
 from evap.evaluation.tests.tools import TestCase
 
 
@@ -147,3 +148,44 @@ class TestLoggedModel(TestCase):
             self.evaluation.related_logentries().order_by("id").last().data,
             {"participants": {"add": [participant2.id], "remove": [participant1.id]}},
         )
+
+    def test_logging_m2m_reverse_changes(self):
+        participant = baker.make(UserProfile)
+
+        participant.evaluations_participating_in.add(self.evaluation)
+        self.assertEqual(
+            self.evaluation.related_logentries().order_by("id").last().data,
+            {"participants": {"add": [participant.id]}},
+        )
+
+        participant.evaluations_participating_in.remove(self.evaluation)
+        self.assertEqual(
+            self.evaluation.related_logentries().order_by("id").last().data,
+            {"participants": {"remove": [participant.id]}},
+        )
+
+        participant.evaluations_participating_in.add(self.evaluation)
+        participant.evaluations_participating_in.clear()
+        self.assertEqual(
+            self.evaluation.related_logentries().order_by("id").last().data,
+            {"participants": {"remove": [participant.id]}},
+        )
+
+        result_no_field_name = _m2m_changed(None, None, None, True, Evaluation, None)
+        self.assertEqual(result_no_field_name, None)
+
+    def test_logging_respects_unlogged_fields(self):
+        participant = baker.make(UserProfile)
+        original_unlogged_fields = self.evaluation.unlogged_fields
+
+        # Temporarily modify unlogged_fields to include 'participants'
+        with patch.object(
+            self.evaluation.__class__,
+            "unlogged_fields",
+            new=property(lambda self: original_unlogged_fields + ["participants"]),
+        ):
+            self.evaluation.participants.add(participant)
+            self.assertFalse(any("participants" in entry.data for entry in self.evaluation.related_logentries()))
+
+            participant.evaluations_participating_in.add(self.evaluation)
+            self.assertFalse(any("participants" in entry.data for entry in self.evaluation.related_logentries()))
