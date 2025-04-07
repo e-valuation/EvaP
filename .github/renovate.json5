@@ -9,14 +9,13 @@
   ignoreDeps: ["@types/sortablejs"], // we use a static version
   packageRules: [
     {
-      dependencyNames: ["django-fsm"],
-      groupSlug: "python",
-      allowedVersions: "!/^3.0.0$/", // 3.0.0 adds deprecation warnings without functional changes
-    },
-    {
       groupName: "python dependencies",
       groupSlug: "python",
       matchManagers: ["pep621"],
+    },
+    {
+      matchPackageNames: ["django-fsm"],
+      allowedVersions: "!/^3.0.0$/", // 3.0.0 adds deprecation warnings without functional changes
     },
     {
       matchManagers: ["npm"],
