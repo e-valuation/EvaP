@@ -18,4 +18,4 @@ def parse_answer_field_id(formfield_id: str) -> (int, int, int, bool):
     if len(parts) == 5 and parts[4] == "ta":
         tuple(list(map(int, parts[1:4])) + [True])
 
-    return tuple(list( map(int, parts[1:4]) ) + [False])
+    return tuple(list(map(int, parts[1:4])) + [False])
