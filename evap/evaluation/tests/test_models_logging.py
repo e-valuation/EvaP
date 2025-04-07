@@ -147,3 +147,16 @@ class TestLoggedModel(TestCase):
             self.evaluation.related_logentries().order_by("id").last().data,
             {"participants": {"add": [participant2.id], "remove": [participant1.id]}},
         )
+
+    def test_logging_respects_unlogged_fields(self):
+        participant = baker.make(UserProfile)
+
+        # Temporarily modify unlogged_fields to include 'participants'
+        original_unlogged_fields = self.evaluation.unlogged_fields
+        self.evaluation.__class__.unlogged_fields = property(lambda self: original_unlogged_fields + ["participants"])
+
+        self.evaluation.participants.add(participant)
+        self.assertFalse(any("participants" in entry.data for entry in self.evaluation.related_logentries()))
+
+        # Restore original unlogged_fields or other test might have unexpected behavior
+        self.evaluation.__class__.unlogged_fields = property(lambda self: original_unlogged_fields)
