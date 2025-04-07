@@ -86,7 +86,7 @@
           };
         in
         rec {
-          python3 = pkgs.python312;
+          python3 = pkgs.python311;
 
           services = make-process-compose false;
           services-full = make-process-compose true;
