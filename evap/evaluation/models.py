@@ -159,9 +159,7 @@ class Semester(models.Model):
 
 class QuestionnaireManager(Manager["Questionnaire"]):
     def general_questionnaires(self) -> QuerySet["Questionnaire"]:
-        return (
-            super().get_queryset().exclude(type=Questionnaire.Type.CONTRIBUTOR).exclude(type=Questionnaire.Type.DROPOUT)
-        )
+        return super().get_queryset().exclude(type__in=[Questionnaire.Type.CONTRIBUTOR, Questionnaire.Type.DROPOUT])
 
     def contributor_questionnaires(self) -> QuerySet["Questionnaire"]:
         return super().get_queryset().filter(type=Questionnaire.Type.CONTRIBUTOR)
