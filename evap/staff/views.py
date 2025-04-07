@@ -1850,7 +1850,7 @@ def evaluation_preview(request, evaluation_id):
     if evaluation.course.semester.results_are_archived and not request.user.is_manager:
         raise PermissionDenied
 
-    return render_vote_page(request, evaluation, preview=True)
+    return render_vote_page(request, evaluation, preview=True, dropout=False)
 
 
 @manager_required

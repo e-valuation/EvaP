@@ -1,6 +1,7 @@
 import datetime
 import math
 from collections import OrderedDict
+from collections.abc import Iterable
 from dataclasses import dataclass
 from fractions import Fraction
 
@@ -200,18 +201,33 @@ def create_voting_form(
     initial = None
 
     if preselect_no_answer:
-        initial = {
-            answer_field_id(contribution, questionnaire, question): NO_ANSWER
-            for question in questionnaire.rating_questions
-        }
+        initial = dict.fromkeys(
+            [answer_field_id(contribution, questionnaire, question) for question in questionnaire.rating_questions],
+            NO_ANSWER,
+        )
 
     return QuestionnaireVotingForm(
         request.POST or None, contribution=contribution, questionnaire=questionnaire, initial=initial
     )
 
 
+def create_voting_forms(
+    request, contribution: Contribution, questionnaires: Iterable[Questionnaire], preselect_no_answer: bool
+) -> list[QuestionnaireVotingForm]:
+    return [
+        create_voting_form(
+            request,
+            contribution,
+            questionnaire,
+            preselect_no_answer=(preselect_no_answer and not questionnaire.is_dropout),
+            # dropout questionnaires should not be preselected
+        )
+        for questionnaire in questionnaires
+    ]
+
+
 def get_vote_page_form_groups(
-    request, evaluation: Evaluation, preview: bool, dropout=False
+    request, evaluation: Evaluation, *, preview: bool, preselect_no_answer: bool
 ) -> OrderedDict[Contribution, list[QuestionnaireVotingForm]]:
     contributions_to_vote_on = evaluation.contributions.all()
     # prevent a user from voting on themselves
@@ -223,10 +239,7 @@ def get_vote_page_form_groups(
         questionnaires = contribution.questionnaires.all()
         if not questionnaires.exists():
             continue
-        form_groups[contribution] = [
-            create_voting_form(request, contribution, questionnaire, preselect_no_answer=dropout)
-            for questionnaire in questionnaires
-        ]
+        form_groups[contribution] = create_voting_forms(request, contribution, questionnaires, preselect_no_answer)
 
     return form_groups
 
@@ -234,11 +247,12 @@ def get_vote_page_form_groups(
 def render_vote_page(
     request: HttpRequest,
     evaluation: Evaluation,
+    *,
     preview: bool,
+    dropout: bool,
     for_rendering_in_modal: bool = False,
-    show_dropout_questionnaire: bool = False,
-):
-    form_groups = get_vote_page_form_groups(request, evaluation, preview, show_dropout_questionnaire)
+) -> HttpResponse:
+    form_groups = get_vote_page_form_groups(request, evaluation, preview=preview, preselect_no_answer=dropout)
 
     assert preview or not all(form.is_valid() for form_group in form_groups.values() for form in form_group)
 
@@ -259,7 +273,7 @@ def render_vote_page(
     ]
 
     evaluation_form_dropout = []
-    if show_dropout_questionnaire:
+    if dropout:
         evaluation_form_dropout = [f for f in evaluation_form_group if f.questionnaire.is_dropout]
 
     evaluation_form_group_bottom = [
@@ -296,19 +310,19 @@ def render_vote_page(
 
 
 @participant_required
-def vote(request: HttpRequest, evaluation_id: int, dropout=False):  # noqa: PLR0912
+def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> HttpResponse:  # noqa: PLR0912
     # pylint: disable=too-many-nested-blocks
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
 
     if dropout and not evaluation.is_dropout_allowed:
-        raise SuspiciousOperation("Drop out not allowed")
+        raise SuspiciousOperation("Dropping out is not allowed")
 
     if not evaluation.can_be_voted_for_by(request.user):
         raise PermissionDenied
 
-    form_groups = get_vote_page_form_groups(request, evaluation, preview=False)
+    form_groups = get_vote_page_form_groups(request, evaluation, preview=False, preselect_no_answer=False)
     if not all(form.is_valid() for form_group in form_groups.values() for form in form_group):
-        return render_vote_page(request, evaluation, preview=False, show_dropout_questionnaire=dropout)
+        return render_vote_page(request, evaluation, preview=False, dropout=dropout)
 
     # all forms are valid, begin vote operation
     with transaction.atomic():
