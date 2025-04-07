@@ -6,11 +6,28 @@
     enabled: true,
   },
   separateMajorMinor: false,
+  ignoreDeps: ["@types/sortablejs"], // we use a static version
   packageRules: [
+    {
+      dependencyNames: ["django-fsm"],
+      groupSlug: "python",
+      allowedVersions: "!/^3.0.0$/", // 3.0.0 adds deprecation warnings without functional changes
+    },
     {
       groupName: "python dependencies",
       groupSlug: "python",
       matchManagers: ["pep621"],
+    },
+    {
+      matchManagers: ["npm"],
+      matchUpdateTypes: ["patch"],
+      enabled: false,
+    },
+    {
+      matchManagers: ["npm"],
+      matchUpdateTypes: ["patch", "minor"],
+      matchDepNames: ["sass"],  // causes deprecation warnings in bootstrap
+      enabled: false
     },
     {
       groupName: "node dependencies",
@@ -23,9 +40,9 @@
       matchManagers: ["github-actions"],
     },
     {
-      groupName: "ubuntu",
+      groupName: "ubuntu & python upgrade",
       groupSlug: "ubuntu",
-      matchDepNames: ["ubuntu"],
+      matchDepNames: ["ubuntu", "python"],
       dependencyDashboardApproval: true, // manual update when deployment is updated
     },
     {
