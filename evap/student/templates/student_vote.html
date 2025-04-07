@@ -18,7 +18,7 @@
 {% block content %}
     {{ block.super }}
     {% if errors_exist %}
-        <div class="alert alert-danger" role="alert">
+        <div class="callout callout-danger" role="alert">
             <div class="d-flex align-items-center justify-content-between">
                 <div class="p-2">
                     {% if contributor_errors_exist %}
@@ -56,11 +56,11 @@
         {% csrf_token %}
 
         {% if small_evaluation_size_warning and not preview %}
-            <div class="card card-outline-warning mb-3">
-                <div class="card-header">
+            <div class="callout callout-warning mb-3">
+                <div class="callout-header">
                     <span class="fas fa-triangle-exclamation"></span> {% translate 'Small number of participants' %}
                 </div>
-                <div class="card-body tab-row">
+                <div class="callout-content tab-row">
                     {% blocktranslate %}Only a small number of people can take part in this evaluation. You should be aware that contributors might be able to guess who voted for a specific answer and who wrote a text answer. Results will only be published if two or more people participated in the evaluation.{% endblocktranslate %}
                     {% if evaluation.num_voters == 0 %}
                         <br />
@@ -75,6 +75,12 @@
                         </div>
                     {% endif %}
                 </div>
+            </div>
+        {% endif %}
+
+        {% if not preview %}
+            <div class="callout callout-info">
+                {% blocktranslate trimmed %}Thank you for taking part in this evaluation. Please be polite and constructive in your feedback.{% endblocktranslate %}
             </div>
         {% endif %}
 
