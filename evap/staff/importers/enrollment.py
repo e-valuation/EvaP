@@ -3,7 +3,7 @@ from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass, fields
 from datetime import date, datetime
-from typing import NoReturn, TypeGuard
+from typing import NoReturn, TypeAlias, TypeGuard, TypeVar
 
 from django.conf import settings
 from django.db import transaction
@@ -47,7 +47,8 @@ class InvalidValue:
 
 invalid_value = InvalidValue()
 
-type MaybeInvalid[T] = T | InvalidValue
+T = TypeVar("T")
+MaybeInvalid: TypeAlias = T | InvalidValue
 
 
 @dataclass
