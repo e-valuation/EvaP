@@ -6,7 +6,7 @@ from collections.abc import Container
 from dataclasses import dataclass
 from datetime import date, datetime
 from enum import Enum
-from typing import Any, Final, Literal, assert_never, cast
+from typing import Any, Final, Literal, cast
 
 import openpyxl
 from django.conf import settings
@@ -38,6 +38,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy, ngettext
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, FormView, UpdateView
+from typing_extensions import assert_never
 
 from evap.contributor.views import export_contributor_results
 from evap.evaluation.auth import manager_required, reviewer_required, staff_permission_required
