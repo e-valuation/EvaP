@@ -234,11 +234,11 @@ class Questionnaire(models.Model):
         return (self.type, self.order, self.pk) > (other.type, other.order, other.pk)
 
     @property
-    def is_above_contributors(self):
+    def is_above_contributors(self) -> bool:
         return self.type == self.Type.TOP
 
     @property
-    def is_below_contributors(self):
+    def is_below_contributors(self) -> bool:
         return self.type == self.Type.BOTTOM
 
     @property
@@ -640,7 +640,7 @@ class Evaluation(LoggedModel):
         return self.vote_start_datetime <= datetime.now() <= self.vote_end_datetime
 
     @property
-    def is_dropout_allowed(self):
+    def is_dropout_allowed(self) -> bool:
         return self.general_contribution.questionnaires.filter(type=Questionnaire.Type.DROPOUT).exists()
 
     @property
