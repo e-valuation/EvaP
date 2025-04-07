@@ -367,16 +367,17 @@ class TestDropoutQuestionnaire(WebTest):
         form = self.app.get(url=reverse("student:drop", args=[self.evaluation.id]), user=self.user, status=200).forms[
             "student-vote-form"
         ]
+        field_id = answer_field_id(self.evaluation.general_contribution, self.dropout_questionnaire, self.question)
+        form[field_id] = NO_ANSWER  # dropout question must be answered
         form.submit()
-        evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
+        self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
 
-        self.assertEqual(evaluation.dropout_count, 1, "dropout count should increment with dropout")
+        self.assertEqual(self.evaluation.dropout_count, 1, "dropout count should increment with dropout")
 
         form = self.app.get(url=reverse("student:vote", args=[self.evaluation.id]), user=self.user2, status=200).forms[
             "student-vote-form"
         ]
         form.submit()
-        evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
+        self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
 
-        self.assertEqual(evaluation.dropout_count, 1, "dropout count should not change on normal vote")
-        self.assertEqual(self.evaluation.dropout_count, 0, "other evaluation should not have been changed")
+        self.assertEqual(self.evaluation.dropout_count, 1, "dropout count should not change on normal vote")
