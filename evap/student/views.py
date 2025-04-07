@@ -321,11 +321,11 @@ def vote(request: HttpRequest, evaluation_id: int, dropout=False) -> HttpRespons
     with transaction.atomic():
         # add user to evaluation.voters
         # not using evaluation.voters.add(request.user) since that fails silently when done twice.
+        # TODO@Felix: this: evaluation.voters.through.objects.select_for_update() ?
         evaluation.voters.through.objects.create(userprofile_id=request.user.pk, evaluation_id=evaluation.pk)
 
         if dropout:
-            evaluation.dropout_count += 1
-            evaluation.save()
+            Evaluation.objects.filter(pk=evaluation.pk).update(dropout_count=F("dropout_count") + 1)
 
         for contribution, form_group in form_groups.items():
             for questionnaire_form in form_group:
@@ -365,6 +365,7 @@ def vote(request: HttpRequest, evaluation_id: int, dropout=False) -> HttpRespons
         RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation).update(id=F("id"))
         TextAnswer.objects.filter(contribution__evaluation=evaluation).update(id=F("id"))
 
+        # TODO@Felix: do this in on_commit? (or via select for update?)
         if not evaluation.can_publish_text_results:
             # enable text result publishing if first user confirmed that publishing is okay or second user voted
             if (
@@ -372,8 +373,7 @@ def vote(request: HttpRequest, evaluation_id: int, dropout=False) -> HttpRespons
                 or request.POST.get("text_results_publish_confirmation_bottom") == "on"
                 or evaluation.voters.count() >= 2
             ):
-                evaluation.can_publish_text_results = True
-                evaluation.save()
+                Evaluation.objects.filter(pk=evaluation.pk).update(can_publish_text_results=True)
 
         evaluation.evaluation_evaluated.send(sender=Evaluation, request=request, semester=evaluation.course.semester)
 
