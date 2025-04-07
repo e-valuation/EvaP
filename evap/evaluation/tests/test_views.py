@@ -13,7 +13,7 @@ from evap.evaluation.tests.tools import (
     make_manager,
 )
 from evap.staff.tests.utils import WebTestStaffMode
-from evap.student.tools import answer_field_id
+from evap.student.tools import answer_field_id, parse_answer_field_id
 
 
 @override_settings(PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"])
@@ -301,22 +301,29 @@ class TestDropoutQuestionnaire(WebTest):
 
         cls.evaluation.general_contribution.questionnaires.add(cls.dropout_questionnaire, cls.normal_questionnaire)
 
-    def assert_no_answer_set_everywhere(self, form):
+    def assert_no_answer_set(self, form, dropout_questionnaire: Questionnaire):
         for name, fields in form.fields.items():
             if name is not None and name.startswith("question_"):
+                _, questionnaire_id, _, _ = parse_answer_field_id(name)
                 field = fields[0]
+
                 if field.tag == "textarea":
                     self.assertEqual(
-                        fields[0].value,
+                        field.value,
                         "",
                         "Answers to textarea-Questions in the general contribution should be empty",
                     )
-                else:
-                    self.assertEqual(
-                        fields[0].value,
-                        str(NO_ANSWER),
-                        "Answers to Questions in the general contribution should be set to NO_ANSWER",
-                    )
+                    continue
+
+                if questionnaire_id == dropout_questionnaire.id:
+                    self.assertIsNone(field.value, "dropout questionnaires should not be preselected")
+                    continue
+
+                self.assertEqual(
+                    field.value,
+                    str(NO_ANSWER),
+                    "Answers to Questions in the general contribution should be set to NO_ANSWER",
+                )
 
     def test_choosing_dropout_sets_to_no_answer(self):
         response = self.app.get(url=reverse("student:drop", args=[self.evaluation.id]), user=self.user, status=200)
@@ -327,7 +334,8 @@ class TestDropoutQuestionnaire(WebTest):
             form.fields.keys(),
             "The dropout Questionnaire should be shown",
         )
-        self.assert_no_answer_set_everywhere(form)
+
+        self.assert_no_answer_set(form, dropout_questionnaire=self.dropout_questionnaire)
 
     def test_dropout_possible_iff_dropout_questionnaire_attached(self):
         self.assertTrue(self.evaluation.is_dropout_allowed)

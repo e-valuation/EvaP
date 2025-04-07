@@ -6,3 +6,16 @@ def answer_field_id(contribution, questionnaire, question, additional_textanswer
     if additional_textanswer:
         identifier += "_ta"
     return identifier
+
+
+def parse_answer_field_id(formfield_id: str) -> (int, int, int, bool):
+    """Parses the contribution-, questionnaire- and question-id from a formfield string,
+    as well as if it is the field for the corresponding additional text answer"""
+
+    parts = formfield_id.split("_")
+    assert parts[0] == "question"
+
+    if len(parts) == 5 and parts[4] == "ta":
+        tuple(list(map(int, parts[1:4])) + [True])
+
+    return tuple(list( map(int, parts[1:4]) ) + [False])
