@@ -10,7 +10,7 @@ from django.core.management import call_command
 from django.test import TestCase
 from model_bakery import baker
 
-from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, Semester, UserProfile
+from evap.evaluation.models import Contribution, Course, CourseType, Evaluation, Questionnaire, Semester, UserProfile
 from evap.evaluation.tests.tools import make_manager
 from evap.staff.importers.json import ImportDict, JSONImporter, NameChange
 
@@ -55,6 +55,25 @@ EXAMPLE_DATA: ImportDict = {
             "lecturers": [{"gguid": "0x3"}, {"gguid": "0x4"}, {"gguid": "0x5"}],
             "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
         },
+    ],
+}
+EXAMPLE_DATA_WITH_PREFIX = {
+    "students": EXAMPLE_DATA["students"],
+    "lecturers": EXAMPLE_DATA["lecturers"],
+    "events": [
+        {
+            "gguid": "0x10",
+            "lvnr": 10,
+            "title": "BA-Projekt: Allerbestes Projekt",
+            "title_en": "BA Project: Best Project Ever",
+            "type": "Prüfung",
+            "isexam": True,
+            "courses": [{"cprid": "BA-Inf", "scale": "GRADE_TO_A_THIRD"}],
+            "lecturers": [{"gguid": "0x3"}],
+            "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
+            "relatedevents": [],
+            "appointments": [{"begin": "29.07.2024 10:15:00", "end": "29.07.2024 11:45:00"}],
+        }
     ],
 }
 EXAMPLE_JSON = json.dumps(EXAMPLE_DATA)
@@ -162,9 +181,12 @@ class TestImportEvents(TestCase):
     def setUp(self):
         self.semester = baker.make(Semester)
 
-    def _import(self):
+    def _import(self, data=None):
+        if not data:
+            data = EXAMPLE_DATA
+        data = json.dumps(data)
         importer = JSONImporter(self.semester, "01.01.2000")
-        importer.import_json(EXAMPLE_JSON)
+        importer.import_json(data)
         return importer
 
     def test_import_courses(self):
@@ -233,6 +255,36 @@ class TestImportEvents(TestCase):
 
         self.assertEqual(len(importer.statistics.new_courses), 1)
         self.assertEqual(len(importer.statistics.new_evaluations), 2)
+
+    def test_import_courses_exam_with_prefix(self):
+        CourseType.objects.create(name_en="Foo", name_de="Foo", import_names=["nat"])
+        course_type = CourseType.objects.create(name_en="Bar", name_de="Bar", import_names=["BA-Projekt"])
+
+        self._import(EXAMPLE_DATA_WITH_PREFIX)
+
+        self.assertEqual(Course.objects.count(), 1)
+        self.assertEqual(Evaluation.objects.count(), 1)
+
+        evaluation = Evaluation.objects.first()
+        self.assertEqual(evaluation.course.name_de, "Allerbestes Projekt")
+        self.assertEqual(evaluation.course.name_en, "Best Project Ever")
+        self.assertEqual(evaluation.name_de, "")
+        self.assertEqual(evaluation.name_en, "")
+        self.assertEqual(evaluation.course.type, course_type)
+
+        self.assertSetEqual(
+            set(evaluation.participants.values_list("email", flat=True)),
+            {"1@example.com", "2@example.com"},
+        )
+
+        self.assertSetEqual(
+            set(
+                Contribution.objects.filter(evaluation=evaluation, contributor__isnull=False).values_list(
+                    "contributor__email", flat=True
+                )
+            ),
+            {"3@example.com"},
+        )
 
     def test_import_courses_evaluation_approved(self):
         self._import()
