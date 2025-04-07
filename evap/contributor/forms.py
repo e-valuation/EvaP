@@ -19,7 +19,7 @@ class EvaluationForm(forms.ModelForm):
         queryset=None,
         required=False,
         widget=CheckboxSelectMultiple,
-        label=_("Dropout Questionnaires"),
+        label=_("Dropout questionnaires"),
     )
     course = forms.ModelChoiceField(Course.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     name_de_field = forms.CharField(label=_("Name (German)"), disabled=True, required=False)
