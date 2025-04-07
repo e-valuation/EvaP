@@ -157,7 +157,9 @@ def render_preview(request, formset, evaluation_form, evaluation):
             request.POST = None  # this prevents errors rendered in the vote form
 
             preview_response = mark_safe(
-                render_vote_page(request, evaluation, preview=True, for_rendering_in_modal=True).content.decode()
+                render_vote_page(
+                    request, evaluation, preview=True, for_rendering_in_modal=True, dropout=False
+                ).content.decode()
             )
             raise IntegrityError  # rollback transaction to discard the database writes
     except IntegrityError:
@@ -241,7 +243,7 @@ def evaluation_preview(request, evaluation_id):
     ):
         raise PermissionDenied
 
-    return render_vote_page(request, evaluation, preview=True)
+    return render_vote_page(request, evaluation, preview=True, dropout=False)
 
 
 @require_POST
