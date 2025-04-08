@@ -222,16 +222,16 @@ wheels = [
 
 [[package]]
 name = "django"
-version = "5.1.3"
+version = "5.1.8"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "asgiref" },
     { name = "sqlparse" },
     { name = "tzdata", marker = "sys_platform == 'win32'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c6/85/ba2c2b83ba8b95354f99ed8344405d9571109ce0175028876209d6b93fba/Django-5.1.3.tar.gz", hash = "sha256:c0fa0e619c39325a169208caef234f90baa925227032ad3f44842ba14d75234a", size = 10698518 }
+sdist = { url = "https://files.pythonhosted.org/packages/00/40/45adc1b93435d1b418654a734b68351bb6ce0a0e5e37b2f0e9aeb1a2e233/Django-5.1.8.tar.gz", hash = "sha256:42e92a1dd2810072bcc40a39a212b693f94406d0ba0749e68eb642f31dc770b4", size = 10723602 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e5/f6/88ed57e1b3ed54ff18c1da352aecbd6f51784c3e642d97586b61f050f5b1/Django-5.1.3-py3-none-any.whl", hash = "sha256:8b38a9a12da3ae00cb0ba72da985ec4b14de6345046b1e174b1fd7254398f818", size = 8276180 },
+    { url = "https://files.pythonhosted.org/packages/ec/0d/e6dd0ed898b920fec35c6eeeb9acbeb831fff19ad21c5e684744df1d4a36/Django-5.1.8-py3-none-any.whl", hash = "sha256:11b28fa4b00e59d0def004e9ee012fefbb1065a5beb39ee838983fd24493ad4f", size = 8277130 },
 ]
 
 [[package]]
@@ -299,14 +299,14 @@ wheels = [
 
 [[package]]
 name = "django-webtest"
-version = "1.9.12"
+version = "1.9.13"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "webtest" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/47/e3/e087630e62bcf29ed1c3560ae98b12c45e0ac07b4899ab3b8ef6a1967dde/django_webtest-1.9.12.tar.gz", hash = "sha256:5012c30665e7a6e585a1544eda75045d07d5b3f5ccccd4d0fe144c4555884095", size = 28848 }
+sdist = { url = "https://files.pythonhosted.org/packages/93/1f/5bbd6fc47dc82230f03f16eb1ddd6f3aa8865f38b52c4f90964a3001d2c7/django_webtest-1.9.13.tar.gz", hash = "sha256:97b2db843588128332326e4fc0a37bd825cf4d68f1ab0188c8cc00a9710e8279", size = 28901 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/97/0b/c7e6c3a59ea001ca51a966477eafd2746e63b6ff2fce7dcf3c3b3c0ad765/django_webtest-1.9.12-py3-none-any.whl", hash = "sha256:de5c988c20eef7abbb3d0508494d9e576af08087d0fb6109b1d54f15ef4d78fa", size = 16583 },
+    { url = "https://files.pythonhosted.org/packages/45/57/760a41e283f356a6aedb3b71b91a3ca9991b758482f01d31be9a5129ecd1/django_webtest-1.9.13-py3-none-any.whl", hash = "sha256:1903d35f429cbff54bd89d41ddc42376529d56e3c35bfe7cb83827b17fbf962d", size = 16638 },
 ]
 
 [[package]]
@@ -400,7 +400,7 @@ dev = [
     { name = "coverage", extras = ["toml"], specifier = "~=7.6.8" },
     { name = "django-debug-toolbar", specifier = "~=4.4" },
     { name = "django-stubs", specifier = "~=5.1.1" },
-    { name = "django-webtest", specifier = "~=1.9.10" },
+    { name = "django-webtest", specifier = "~=1.9.13" },
     { name = "isort", specifier = "~=5.13.1" },
     { name = "model-bakery", specifier = "~=1.20.0" },
     { name = "mypy", specifier = "~=1.13.0" },
