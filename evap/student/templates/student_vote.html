@@ -56,7 +56,7 @@
         {% csrf_token %}
 
         {% if small_evaluation_size_warning and not preview %}
-            <div class="callout callout-warning mb-3">
+            <div class="callout callout-warning">
                 <div class="callout-header">
                     <span class="fas fa-triangle-exclamation"></span> {% translate 'Small number of participants' %}
                 </div>
