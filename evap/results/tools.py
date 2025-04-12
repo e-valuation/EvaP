@@ -440,7 +440,7 @@ def distribution_to_grade(distribution):
 
 def color_mix(color1, color2, fraction):
     return cast(
-        tuple[int, int, int], tuple(int(round(color1[i] * (1 - fraction) + color2[i] * fraction)) for i in range(3))
+        "tuple[int, int, int]", tuple(int(round(color1[i] * (1 - fraction) + color2[i] * fraction)) for i in range(3))
     )
 
 
