@@ -7,7 +7,7 @@ requires-python = "~=3.11.0"
 dependencies = [
     "django-extensions~=3.2.3",
     "django-fsm~=2.8.2",
-    "Django~=5.1.0",
+    "Django~=5.2.0",
     "mozilla-django-oidc~=4.0.1",
     "openpyxl~=3.1.5",
     "psycopg~=3.2.3",
@@ -26,7 +26,7 @@ dev = [
     "coverage[toml]~=7.6.8",
     "django-debug-toolbar~=4.4",
     "django-stubs~=5.1.1",
-    "django-webtest~=1.9.10",
+    "django-webtest~=1.9.13",
     "isort~=5.13.1",
     "model-bakery~=1.20.0",
     "mypy~=1.13.0",
