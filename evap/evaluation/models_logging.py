@@ -144,6 +144,11 @@ class LoggedModel(models.Model):
     class Meta:
         abstract = True
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._logentry = None
+        self._m2m_changes = defaultdict(lambda: defaultdict(list))
+
     def save(self, *args, **kw):
         # Are we creating a new instance?
         # https://docs.djangoproject.com/en/3.0/ref/models/instances/#customizing-model-loading
@@ -156,11 +161,6 @@ class LoggedModel(models.Model):
             # therefore we save the instance after building the logentry
             self.log_instance_change()
             super().save(*args, **kw)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._logentry = None
-        self._m2m_changes = defaultdict(lambda: defaultdict(list))
 
     def _as_dict(self):
         """

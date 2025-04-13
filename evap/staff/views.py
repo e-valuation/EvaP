@@ -243,7 +243,7 @@ def semester_view(request, semester_id) -> HttpResponse:
                 stats.last_end = max(stats.last_end, evaluation.vote_end_date)
     program_stats = OrderedDict(sorted(program_stats.items(), key=lambda x: x[0].order))
 
-    program_stats_with_total = cast(dict[Program | str, Stats], program_stats)
+    program_stats_with_total = cast("dict[Program | str, Stats]", program_stats)
     program_stats_with_total["total"] = total_stats
 
     template_data = {
