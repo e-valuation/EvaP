@@ -145,11 +145,11 @@
             </div>
         {% endif %}
         {% if small_evaluation_size_warning and not preview and evaluation.num_voters == 0 %}
-            <div class="card card-outline-warning mb-3" id="bottom_text_results_publish_confirmation_card">
-                <div class="card-header">
+            <div class="callout callout-warning mb-3" id="bottom_text_results_publish_confirmation_card">
+                <div class="callout-header">
                     <span class="fas fa-triangle-exclamation"></span> {% translate 'Small number of participants' %}
                 </div>
-                <div class="card-body tab-row">
+                <div class="callout-content tab-row">
                     {% blocktranslate %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktranslate %}
 
                     <div class="form-check mt-3">
