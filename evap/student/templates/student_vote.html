@@ -65,11 +65,7 @@
                         {% blocktranslate trimmed %}
                             Only a small number of people can take part in this evaluation.
                             You should be aware that contributors might be able to guess who voted for a specific answer and who wrote a text answer.
-                        {% endblocktranslate %}
-                        {% blocktranslate trimmed count counter=voter_count_needed_for_publishing_rating_results %}
                             Results will only be published if {{ voter_count_needed_for_publishing_rating_results }} or more people participated in the evaluation.
-                        {% plural %}
-                            Results will only be published if at least one person participated in the evaluation.
                         {% endblocktranslate %}
                     </p>
                     {% if evaluation.num_voters == 0 %}
