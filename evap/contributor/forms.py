@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from django import forms
-from django.conf import settings
 from django.db.models import Q
 from django.forms.widgets import CheckboxSelectMultiple
 from django.utils.translation import gettext_lazy as _
@@ -41,8 +40,6 @@ class EvaluationForm(forms.ModelForm):
 
         self.fields["name_de_field"].initial = self.instance.full_name_de
         self.fields["name_en_field"].initial = self.instance.full_name_en
-
-        self.fields["main_language"].choices = settings.LANGUAGES
 
         self.fields["general_questionnaires"].queryset = (
             Questionnaire.objects.general_questionnaires()
@@ -99,6 +96,12 @@ class EvaluationForm(forms.ModelForm):
             self.add_error("general_questionnaires", _("At least one questionnaire must be selected."))
 
         return not_locked + locked
+
+    def clean_main_language(self):
+        main_language = self.cleaned_data.get("main_language")
+        if main_language == "x":
+            self.add_error("main_language", _("A decision on the main language has to be made."))
+        return main_language
 
     def save(self, *args, **kw):
         evaluation = super().save(*args, **kw)
