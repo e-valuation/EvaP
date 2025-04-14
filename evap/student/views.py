@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import transaction
-from django.db.models import Exists, F, Max, OuterRef, Q, Sum
+from django.db.models import Exists, F, Max, OuterRef, Q, QuerySet, Sum
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -210,6 +210,21 @@ def create_voting_form(
     )
 
 
+def create_voting_forms(
+    request, contribution: Contribution, questionnaires: QuerySet[Questionnaire], preselect_no_answer: bool
+) -> list[QuestionnaireVotingForm]:
+    return [
+        create_voting_form(
+            request,
+            contribution,
+            questionnaire,
+            preselect_no_answer=(preselect_no_answer and not questionnaire.is_dropout),
+            # dropout questionnaires should not be preselected
+        )
+        for questionnaire in questionnaires
+    ]
+
+
 def get_vote_page_form_groups(
     request, evaluation: Evaluation, preview: bool, preselect_no_answer: bool
 ) -> OrderedDict[Contribution, list[QuestionnaireVotingForm]]:
@@ -223,17 +238,7 @@ def get_vote_page_form_groups(
         questionnaires = contribution.questionnaires.all()
         if not questionnaires.exists():
             continue
-        form_groups[contribution] = [
-            create_voting_form(
-                request,
-                contribution,
-                questionnaire,
-                preselect_no_answer=(
-                    preselect_no_answer and not questionnaire.is_dropout
-                ),  # dropout is never preselected
-            )
-            for questionnaire in questionnaires
-        ]
+        form_groups[contribution] = create_voting_forms(request, contribution, questionnaires, preselect_no_answer)
 
     return form_groups
 
