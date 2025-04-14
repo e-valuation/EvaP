@@ -219,12 +219,12 @@ def evaluation_detail(request, semester_id, evaluation_id):
         evaluation.course.responsibles.all().filter(pk__in=(user.pk for user in represented_users)).exists()
     )
 
-    user_represents_general_visibilty_contributor = evaluation.contributions.filter(
+    user_represents_general_visibility_contributor = evaluation.contributions.filter(
         contributor__in=represented_users, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
     ).exists()
 
     general_textanswers = (
-        view_as_user.is_reviewer or user_represents_responsible or user_represents_general_visibilty_contributor
+        view_as_user.is_reviewer or user_represents_responsible or user_represents_general_visibility_contributor
     )
 
     template_data = {
