@@ -533,7 +533,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         self.evaluation.general_contribution.questionnaires.add(questionnaire)
         response = self.app.get(self.url, user=self.manager, status=200)
 
-        self.assertContains(response, "<span class=\"fas fa-user\"></span> 42", msg_prefix="dropout count is shown")
+        self.assertContains(response, '<span class="fas fa-user"></span> 42', msg_prefix="dropout count is shown")
         self.assertContains(response, "15", msg_prefix="answer count is shown")
         self.assertContains(response, "test-dropout-question-text")
         self.assertContains(response, "test-dropout-questionnaire-title")
