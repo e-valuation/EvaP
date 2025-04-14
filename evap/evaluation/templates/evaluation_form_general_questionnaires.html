@@ -16,12 +16,11 @@
                 <div class="col-md-7 card collapsible overflow-visible">
                     <div class="card-header d-flex">
                         <a class="collapse-toggle{% if collapse_participants and evaluation.participants.count > 0 %} collapsed{% endif %}"
-                            data-bs-toggle="collapse" href="#contributor-{{ contribution_result.contributor.id }}"
-                            aria-controls="contributor-{{ contribution_result.contributor.id }}">
+                            data-bs-toggle="collapse" href="#participant-box">
                         </a>
                         <span class="badge rounded-pill badge-btn ms-auto" data-track-tomselect-count="id_participants">{{ evaluation.participants.count }}</span>
                     </div>
-                    <div class="collapse{% if not collapse_participants or evaluation.participants.count == 0 %} show{% endif %}" id="contributor-{{ contribution_result.contributor.id }}">
+                    <div class="collapse{% if not collapse_participants or evaluation.participants.count == 0 %} show{% endif %}" id="participant-box">
                         <div class="card-body">
                             {% include 'bootstrap_form_field_widget.html' with field=field %}
                         </div>
