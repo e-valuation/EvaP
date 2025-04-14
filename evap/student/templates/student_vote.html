@@ -61,11 +61,18 @@
                     <span class="fas fa-triangle-exclamation"></span> {% translate 'Small number of participants' %}
                 </div>
                 <div class="callout-content tab-row">
-                    {% blocktranslate %}Only a small number of people can take part in this evaluation. You should be aware that contributors might be able to guess who voted for a specific answer and who wrote a text answer. Results will only be published if two or more people participated in the evaluation.{% endblocktranslate %}
+                    {% blocktranslate trimmed %}
+                        Only a small number of people can take part in this evaluation.
+                        You should be aware that contributors might be able to guess who voted for a specific answer and who wrote a text answer.
+                    {% endblocktranslate %}
+                    {% blocktranslate trimmed count counter=voter_count_needed_for_publishing_rating_results %}
+                        Results will only be published if {{ voter_count_needed_for_publishing_rating_results }} or more people participated in the evaluation.
+                    {% plural %}
+                        Results will only be published if at least one person participated in the evaluation.
+                    {% endblocktranslate %}
                     {% if evaluation.num_voters == 0 %}
                         <br />
                         {% blocktranslate %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktranslate %}
-
                         <div class="form-check mt-3">
                             <input class="form-check-input tab-selectable" id="text_results_publish_confirmation_top" type="checkbox"
                                 name="text_results_publish_confirmation_top" />
