@@ -903,31 +903,28 @@ def semester_questionnaire_assign(request, semester_id):
     course_types = CourseType.objects.filter(courses__evaluations__in=evaluations)
     form = QuestionnairesAssignForm(request.POST or None, course_types=course_types)
 
-    general_fields = [field for field in form if field.name.startswith("general-")]
-    contributor_fields = [field for field in form if field.name.startswith("contributor-")]
-    contributor_fields.append(form["all-contributors"])
-
     if form.is_valid():
         for evaluation in evaluations:
+            general_questionnaires = list(form.cleaned_data[f"general-{evaluation.course.type.id}"])
+            contributor_questionnaires = list(
+                form.cleaned_data["all-contributors"] | form.cleaned_data[f"contributor-{evaluation.course.type.id}"]
+            )
+
             if form.cleaned_data[f"general-{evaluation.course.type.id}"]:
-                evaluation.general_contribution.questionnaires.set(
-                    form.cleaned_data[f"general-{evaluation.course.type.id}"]
-                )
-            if form.cleaned_data["all-contributors"]:
-                for contribution in evaluation.contributions.exclude(contributor=None):
-                    contribution.questionnaires.set(form.cleaned_data["all-contributors"])
+                evaluation.general_contribution.questionnaires.set(general_questionnaires)
 
-                    # when additional specific questionaires are selected they need to be added (not set) so both are assigned
-                    if form.cleaned_data[f"contributor-{evaluation.course.type.id}"]:
-                        contribution.questionnaires.add(*form.cleaned_data[f"contributor-{evaluation.course.type.id}"])
-
-            elif form.cleaned_data[f"contributor-{evaluation.course.type.id}"]:
+            if form.cleaned_data[f"contributor-{evaluation.course.type.id}"] or form.cleaned_data["all-contributors"]:
                 for contribution in evaluation.contributions.exclude(contributor=None):
-                    contribution.questionnaires.set(form.cleaned_data[f"contributor-{evaluation.course.type.id}"])
+                    contribution.questionnaires.set(contributor_questionnaires)
+
             evaluation.save()
 
         messages.success(request, _("Successfully assigned questionnaires."))
         return redirect("staff:semester_view", semester_id)
+
+    general_fields = [field for field in form if field.name.startswith("general-")]
+    contributor_fields = [field for field in form if field.name.startswith("contributor-")]
+    contributor_fields.append(form["all-contributors"])
 
     return render(
         request,
