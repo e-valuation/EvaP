@@ -911,76 +911,62 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
         semester = baker.make(Semester)
         cls.url = f"/staff/semester/{semester.pk}/assign"
 
-        cls.course_type_1 = baker.make(CourseType)
-        cls.course_type_2 = baker.make(CourseType)
-        cls.course_type_3 = baker.make(CourseType)
         cls.responsible = baker.make(UserProfile)
-        cls.questionnaire_1 = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        cls.questionnaire_2 = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        cls.questionnaire_contributor = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
-        cls.questionnaire_responsible = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
-        cls.evaluation_1 = baker.make(
-            Evaluation,
-            course=baker.make(Course, semester=semester, type=cls.course_type_1, responsibles=[cls.responsible]),
+
+        cls.questionnaires = baker.make(Questionnaire, type=Questionnaire.Type.TOP, _quantity=2)
+        cls.questionnaire_contributor, cls.questionnaire_responsible = baker.make(
+            Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, _quantity=2
         )
-        cls.evaluation_2 = baker.make(
+        cls.course_types = baker.make(CourseType, _quantity=3)
+        cls.evaluations = baker.make(
             Evaluation,
-            course=baker.make(Course, semester=semester, type=cls.course_type_2, responsibles=[cls.responsible]),
-        )
-        cls.evaluation_3 = baker.make(
-            Evaluation,
-            course=baker.make(Course, semester=semester, type=cls.course_type_3, responsibles=[cls.responsible]),
+            course__semester=semester,
+            course__responsibles=[cls.responsible],
+            course__type=iter(cls.course_types),
+            _quantity=3,
         )
         baker.make(
             Contribution,
             contributor=cls.responsible,
-            evaluation=cls.evaluation_1,
+            evaluation=iter(cls.evaluations),
             role=Contribution.Role.EDITOR,
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-        )
-        baker.make(
-            Contribution,
-            contributor=cls.responsible,
-            evaluation=cls.evaluation_2,
-            role=Contribution.Role.EDITOR,
-            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-        )
-        baker.make(
-            Contribution,
-            contributor=cls.responsible,
-            evaluation=cls.evaluation_3,
-            role=Contribution.Role.EDITOR,
-            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            _quantity=3,
         )
 
     def test_questionnaire_assignment(self):
         page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["questionnaire-assign-form"]
-        form[f"general-{self.course_type_1.id}"] = [self.questionnaire_1.pk, self.questionnaire_2.pk]
-        form[f"general-{self.course_type_2.id}"] = [self.questionnaire_2.pk]
-        form[f"contributor-{self.course_type_1.id}"] = [self.questionnaire_responsible.pk]
+        form[f"general-{self.course_types[0].id}"] = [self.questionnaires[0].pk, self.questionnaires[1].pk]
+        form[f"general-{self.course_types[1].id}"] = [self.questionnaires[1].pk]
+        form[f"contributor-{self.course_types[0].id}"] = [self.questionnaire_responsible.pk]
         form["all-contributors"] = [self.questionnaire_contributor.pk]
 
         response = form.submit().follow()
         self.assertIn("Successfully", str(response))
 
-        self.assertEqual(
-            set(self.evaluation_1.general_contribution.questionnaires.all()),
-            {self.questionnaire_1, self.questionnaire_2},
+        self.assertQuerySetEqual(
+            self.evaluations[0].general_contribution.questionnaires.all(),
+            [self.questionnaires[0], self.questionnaires[1]],
+            ordered=False,
         )
-        self.assertEqual(
-            set(self.evaluation_1.contributions.get(contributor=self.responsible).questionnaires.all()),
-            {self.questionnaire_responsible, self.questionnaire_contributor},
+
+        self.assertQuerySetEqual(
+            self.evaluations[0].contributions.get(contributor=self.responsible).questionnaires.all(),
+            [self.questionnaire_responsible, self.questionnaire_contributor],
+            ordered=False,
         )
-        self.assertEqual(set(self.evaluation_2.general_contribution.questionnaires.all()), {self.questionnaire_2})
-        self.assertEqual(
-            set(self.evaluation_2.contributions.get(contributor=self.responsible).questionnaires.all()),
-            {self.questionnaire_contributor},
+
+        self.assertQuerySetEqual(
+            self.evaluations[1].general_contribution.questionnaires.all(), [self.questionnaires[1]]
         )
-        self.assertEqual(
-            set(self.evaluation_3.general_contribution.questionnaires.all()),
-            set(),
+
+        self.assertQuerySetEqual(
+            self.evaluations[1].contributions.get(contributor=self.responsible).questionnaires.all(),
+            [self.questionnaire_contributor],
         )
+
+        self.assertQuerySetEqual(self.evaluations[2].general_contribution.questionnaires.all(), [])
 
 
 class TestSemesterPreparationReminderView(WebTestStaffModeWith200Check):
