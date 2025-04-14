@@ -3756,7 +3756,7 @@ class ParticipationArchivingTests(WebTestStaffMode):
             reverse("staff:semester_import", args=[semester.pk]),
             reverse("staff:semester_questionnaire_assign", args=[semester.pk]),
             reverse("staff:evaluation_create_for_semester", args=[semester.pk]),
-            f"{reverse('staff:evaluation_operation', args=[semester.pk])}?evaluation={evaluation.pk}",
+            reverse("staff:evaluation_operation", args=[semester.pk], query={"evaluation": evaluation.pk}),
         ]
 
         for url in urls:
