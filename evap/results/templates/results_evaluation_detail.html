@@ -228,20 +228,20 @@
     {% endif %}
 
     {% if evaluation.is_dropout_allowed or evaluation.dropout_count > 0 or dropout_questionnaire_results %}
-    <div class="card card-outline-primary mb-3">
-        <div class="card-header d-flex flex-row justify-content-between">
-            <span>{% translate 'Dropout' %}</span>
+        <div class="card card-outline-primary mb-3">
+            <div class="card-header d-flex flex-row justify-content-between">
+                <span>{% translate 'Dropout' %}</span>
 
-            <div class="badge-participants badge-participants-{{ evaluation.dropout_count|participationclass:evaluation.num_voters }} ms-2 ms-lg-3">
-                <span class="fas fa-user"></span> {{ evaluation.dropout_count }}
+                <div class="badge-participants badge-participants-{{ evaluation.dropout_count|participationclass:evaluation.num_voters }} ms-2 ms-lg-3">
+                    <span class="fas fa-user"></span> {{ evaluation.dropout_count }}
+                </div>
+            </div>
+            <div class="card-body">
+                {% for questionnaire_result in dropout_questionnaire_results %}
+                    {% include 'results_evaluation_detail_questionnaires.html' %}
+                {% endfor %}
             </div>
         </div>
-        <div class="card-body">
-            {% for questionnaire_result in dropout_questionnaire_results %}
-                {% include 'results_evaluation_detail_questionnaires.html' %}
-            {% endfor %}
-        </div>
-    </div>
     {% endif %}
 
     {# Leave some space for big tooltips #}
