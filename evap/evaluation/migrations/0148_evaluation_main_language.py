@@ -3,9 +3,10 @@
 from django.db import migrations, models
 
 
-def _migrate(apps, schema_editor):
+def _migrate(apps, _schema_editor):
+    _approved_status = 40
     Evaluation = apps.get_model("evaluation", "Evaluation")
-    Evaluation.objects.filter(state__gte=40).update(main_language="de")
+    Evaluation.objects.filter(state__gte=_approved_status).update(main_language="de")
 
 class Migration(migrations.Migration):
 
