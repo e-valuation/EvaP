@@ -510,15 +510,20 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         self.assertTrue(body.find("EvaluationA") < body.find("EvaluationB") < body.find("EvaluationC"))
 
     def test_dropout_results_shown(self):
-        participants = baker.make(UserProfile, _bulk_create=True, _quantity=20)
+        participants = baker.make(UserProfile, _bulk_create=True, _quantity=200)
         self.evaluation.dropout_count = 42
         self.evaluation.voters.set(participants)
         self.evaluation.participants.set(participants)
         self.evaluation.save()
 
-        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
+        questionnaire = baker.make(
+            Questionnaire, public_name_en="test-dropout-questionnaire-title", type=Questionnaire.Type.DROPOUT
+        )
         question = baker.make(
-            Question, text_en="SomeQuestionText", type=QuestionType.POSITIVE_YES_NO, questionnaire=questionnaire
+            Question,
+            text_en="test-dropout-question-text",
+            type=QuestionType.POSITIVE_YES_NO,
+            questionnaire=questionnaire,
         )
         self.evaluation.general_contribution.questionnaires.add(questionnaire)
         make_rating_answer_counters(question, self.evaluation.general_contribution, answer_counts=[10, 5])
@@ -528,10 +533,10 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         self.evaluation.general_contribution.questionnaires.add(questionnaire)
         response = self.app.get(self.url, user=self.manager, status=200)
 
-        self.assertContains(response, "Dropout")
-        self.assertContains(response, "42")
-        self.assertContains(response, "15")
-        self.assertContains(response, "SomeQuestionText")
+        self.assertContains(response, "<span class=\"fas fa-user\"></span> 42", msg_prefix="dropout count is shown")
+        self.assertContains(response, "15", msg_prefix="answer count is shown")
+        self.assertContains(response, "test-dropout-question-text")
+        self.assertContains(response, "test-dropout-questionnaire-title")
 
 
 class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
