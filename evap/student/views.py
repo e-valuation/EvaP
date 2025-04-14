@@ -327,7 +327,8 @@ def vote(request: HttpRequest, evaluation_id: int, dropout=False) -> HttpRespons
         # add user to evaluation.voters
         # not using evaluation.voters.add(request.user) since that fails silently when done twice.
         # TODO@Felix: this: evaluation.voters.through.objects.select_for_update() ?
-        evaluation.voters.through.objects.create(userprofile_id=request.user.pk, evaluation_id=evaluation.pk)
+        voters = evaluation.voters.through.objects.select_for_update()
+        voters.create(userprofile_id=request.user.pk, evaluation_id=evaluation.pk)
 
         if dropout:
             Evaluation.objects.filter(pk=evaluation.pk).update(dropout_count=F("dropout_count") + 1)
@@ -376,7 +377,7 @@ def vote(request: HttpRequest, evaluation_id: int, dropout=False) -> HttpRespons
             if (
                 request.POST.get("text_results_publish_confirmation_top") == "on"
                 or request.POST.get("text_results_publish_confirmation_bottom") == "on"
-                or evaluation.voters.count() >= 2
+                or voters.filter(pk=evaluation.pk).count() >= 2
             ):
                 Evaluation.objects.filter(pk=evaluation.pk).update(can_publish_text_results=True)
 
