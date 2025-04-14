@@ -720,7 +720,7 @@
   "fields": {
     "name_de": "Vorlesung",
     "name_en": "Lecture",
-    "import_names": "[\"Vorlesung\", \"V\", \"V/\\u00dc\"]",
+    "import_names": "[\"Vorlesung\", \"V\", \"V/Ü\"]",
     "order": 1
   }
 },
@@ -155333,7 +155333,7 @@
   "fields": {
     "warning_text_de": "Es sieht so aus, als ob du auf eine andere Antwort verweist. Alle Antworten werden unabhängig voneinander gespeichert, also werden andere nicht wissen, worauf du dich beziehst.",
     "warning_text_en": "It looks like you are referencing another answer. All answers are saved independently of each other, so others won't know which answer you are referring to.",
-    "trigger_strings": "[\"s.o.\", \"s. o.\", \"siehe oben\", \"wie oben\", \"see above\", \"bereits erw\\u00e4hnt\", \"already stated\"]",
+    "trigger_strings": "[\"s.o.\", \"s. o.\", \"siehe oben\", \"wie oben\", \"see above\", \"bereits erwähnt\", \"already stated\"]",
     "order": 0
   }
 },

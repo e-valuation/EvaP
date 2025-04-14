@@ -3,13 +3,14 @@ import datetime
 from abc import ABC, abstractmethod
 from io import BytesIO
 from typing import Literal
-from unittest.mock import Mock, PropertyMock, patch
+from unittest.mock import MagicMock, Mock, PropertyMock, patch
 
 import openpyxl
 import xlrd
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
+from django.db import transaction
 from django.db.models import Model
 from django.http import HttpResponse
 from django.test import override_settings
@@ -45,12 +46,12 @@ from evap.evaluation.tests.tools import (
     let_user_vote_for_evaluation,
     make_manager,
     make_rating_answer_counters,
-    render_pages,
     submit_with_modal,
 )
 from evap.grades.models import GradeDocument
 from evap.results.tools import TextResult, cache_results, get_results
 from evap.rewards.models import RewardPointGranting, SemesterActivation
+from evap.rewards.tools import reward_points_of_user
 from evap.staff.forms import ContributionCopyForm, ContributionCopyFormset, CourseCopyForm, EvaluationCopyForm
 from evap.staff.tests.utils import (
     WebTestStaffMode,
@@ -303,7 +304,7 @@ class TestUserEditView(WebTestStaffMode):
         mock_remove.assert_called_with(self.testuser)
         self.assertIn(mock_remove.return_value[0], response)
 
-    def test_reward_points_granting_message(self):
+    def test_reward_point_granting(self):
         evaluation = baker.make(Evaluation, course__semester__is_active=True)
         already_evaluated = baker.make(Evaluation, course=baker.make(Course, semester=evaluation.course.semester))
         SemesterActivation.objects.create(semester=evaluation.course.semester, is_active=True)
@@ -318,6 +319,8 @@ class TestUserEditView(WebTestStaffMode):
         form = page.forms["user-form"]
         form["evaluations_participating_in"] = [already_evaluated.pk]
 
+        self.assertEqual(reward_points_of_user(student), 0)
+
         page = form.submit().follow()
         # fetch the user name, which became lowercased
         student.refresh_from_db()
@@ -328,6 +331,8 @@ class TestUserEditView(WebTestStaffMode):
             "3 reward points for the active semester.",
             page,
         )
+
+        self.assertEqual(reward_points_of_user(student), 3)
 
 
 class TestUserDeleteView(DeleteViewTestMixin, WebTestStaffMode):
@@ -422,11 +427,11 @@ class TestUserBulkUpdateView(WebTestStaffMode):
     filename = str(settings.MODULE / "staff" / "fixtures" / "test_user_bulk_update_file.txt")
 
     @classmethod
-    def setUpTestData(cls):
+    def setUpTestData(cls) -> None:
         cls.random_excel_file_content = excel_data.random_file_content
         cls.manager = make_manager()
 
-    def test_testrun_deletes_no_users(self):
+    def test_testrun_deletes_no_users(self) -> None:
         page = self.app.get(self.url, user=self.manager)
         form = page.forms["user-bulk-update-form"]
 
@@ -442,7 +447,7 @@ class TestUserBulkUpdateView(WebTestStaffMode):
         helper_delete_all_import_files(self.manager.id)
 
     @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com", "internal.example.com"])
-    def test_multiple_email_matches_trigger_error(self):
+    def test_multiple_email_matches_trigger_error(self) -> None:
         baker.make(UserProfile, email="testremove@institution.example.com")
         baker.make(
             UserProfile, first_name_given="Elisabeth", last_name="Fröhlich", email="testuser1@institution.example.com"
@@ -481,25 +486,34 @@ class TestUserBulkUpdateView(WebTestStaffMode):
         self.assertEqual(set(UserProfile.objects.all()), expected_users)
 
     @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com", "internal.example.com"])
+    @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_TIME=datetime.timedelta(6 * 30))
     @patch("evap.staff.tools.remove_user_from_represented_and_ccing_users")
-    def test_handles_users(self, mock_remove):
+    def test_handles_users(self, mock_remove: MagicMock) -> None:
         mock_remove.return_value = ["This text is supposed to be visible on the website."]
         testuser1 = baker.make(UserProfile, email="testuser1@institution.example.com")
         testuser2 = baker.make(UserProfile, email="testuser2@institution.example.com")
         testuser1.delegates.set([testuser2])
         baker.make(UserProfile, email="testupdate@institution.example.com")
-        contribution1 = baker.make(Contribution)
         semester = baker.make(Semester, participations_are_archived=True)
+        course = baker.make(Course, semester=semester)
+        responsible = baker.make(
+            UserProfile, email="responsible@institution.example.com", courses_responsible_for=[course]
+        )
         evaluation = baker.make(
             Evaluation,
-            course=baker.make(Course, semester=semester),
-            _participant_count=0,
-            _voter_count=0,
+            course=course,
+            participants=[responsible],
+            voters=[responsible],
+            vote_start_datetime=datetime.date(1900, 12, 1),
+            vote_end_date=datetime.date(1900, 12, 1),
+            _participant_count=1,
+            _voter_count=1,
         )
-        contribution2 = baker.make(Contribution, evaluation=evaluation)
-        baker.make(UserProfile, email="contributor1@institution.example.com", contributions=[contribution1])
+        baker.make(UserProfile, email="contributor1@institution.example.com", contributions=[baker.make(Contribution)])
         contributor2 = baker.make(
-            UserProfile, email="contributor2@institution.example.com", contributions=[contribution2]
+            UserProfile,
+            email="contributor2@institution.example.com",
+            contributions=[baker.make(Contribution, evaluation=evaluation)],
         )
         testuser1.cc_users.set([contributor2])
 
@@ -511,13 +525,15 @@ class TestUserBulkUpdateView(WebTestStaffMode):
         response = form.submit(name="operation", value="test")
 
         self.assertIn(
-            "1 will be updated, 1 will be deleted and 1 will be marked inactive. 1 new users will be created.", response
+            "1 will be updated, 1 will be deleted and 2 will be marked inactive. 1 new users will be created.", response
         )
+        self.assertIn("1 participation of responsible would be removed due to inactivity.", response)
+
         self.assertIn("testupdate@institution.example.com &gt; testupdate@internal.example.com", response)
         self.assertIn(mock_remove.return_value[0], response)
-        self.assertEqual(mock_remove.call_count, 2)
+        self.assertEqual(mock_remove.call_count, 3)
         calls = [[call[0][0].email, call[0][2]] for call in mock_remove.call_args_list]
-        self.assertEqual(calls, [[testuser2.email, True], [contributor2.email, True]])
+        self.assertEqual(calls, [[testuser2.email, True], [contributor2.email, True], [responsible.email, True]])
         mock_remove.reset_mock()
 
         form = response.forms["user-bulk-update-form"]
@@ -541,19 +557,18 @@ class TestUserBulkUpdateView(WebTestStaffMode):
         # contributor1 should still be active, contributor2 should have been set to inactive
         self.assertTrue(UserProfile.objects.get(email="contributor1@institution.example.com").is_active)
         self.assertFalse(UserProfile.objects.get(email="contributor2@institution.example.com").is_active)
-        # all should be active except for contributor2
-        self.assertEqual(UserProfile.objects.filter(is_active=True).count(), len(expected_users) - 1)
+        self.assertFalse(UserProfile.objects.get(email="responsible@institution.example.com").is_active)
+        self.assertQuerySetEqual(UserProfile.objects.exclude(is_active=True), [contributor2, responsible])
 
-        self.assertEqual(set(UserProfile.objects.all()), expected_users)
+        self.assertQuerySetEqual(UserProfile.objects.all(), expected_users, ordered=False)
 
-        # mock gets called for every user to be deleted (once for the test run and once for the real run)
         self.assertIn(mock_remove.return_value[0], response)
-        self.assertEqual(mock_remove.call_count, 2)
+        self.assertEqual(mock_remove.call_count, 3)
         calls = [[call[0][0].email, call[0][2]] for call in mock_remove.call_args_list]
-        self.assertEqual(calls, [[testuser2.email, False], [contributor2.email, False]])
+        self.assertEqual(calls, [[testuser2.email, False], [contributor2.email, False], [responsible.email, False]])
 
     @override_settings(DEBUG=False)
-    def test_wrong_files_dont_crash(self):
+    def test_wrong_files_dont_crash(self) -> None:
         page = self.app.get(self.url, user=self.manager)
         form = page.forms["user-bulk-update-form"]
         form["user_file"] = ("import.xls", self.random_excel_file_content)
@@ -609,12 +624,6 @@ class TestUserImportView(WebTestStaffMode):
         cls.random_excel_file_content = excel_data.random_file_content
 
         cls.manager = make_manager()
-
-    @render_pages
-    def render_pages(self):
-        return {
-            "normal": self.app.get(self.url, user=self.manager).content,
-        }
 
     def test_success_handling(self):
         """
@@ -902,6 +911,36 @@ class TestSemesterDeleteView(DeleteViewTestMixin, WebTestStaffMode):
 
         self.assertFalse(Semester.objects.filter(pk=self.instance.pk).exists())
 
+    @override_settings(REWARD_POINTS=[(1, 3)])
+    def test_does_not_grant_redemption_points(self):
+        student = baker.make(UserProfile, email="student@institution.example.com")
+        evaluation = baker.make(
+            Evaluation, participants=[student], state=Evaluation.State.PUBLISHED, course__semester=self.instance
+        )
+        SemesterActivation.objects.update_or_create(semester=self.instance, defaults={"is_active": True})
+
+        # student must be participant in at least one other evaluation
+        baker.make(
+            Evaluation,
+            participants=[student],
+            voters=[student],
+            state=Evaluation.State.PUBLISHED,
+            course__semester=self.instance,
+        )
+
+        self.instance.archive()
+        self.instance.delete_grade_documents()
+        self.instance.archive_results()
+
+        # just deleting the evaluation would grant redemption point -- ensures setup above is sufficient
+        with transaction.atomic():
+            Evaluation.objects.get(pk=evaluation.pk).delete()
+            assert reward_points_of_user(student) == 3
+            transaction.set_rollback(True)
+
+        self.app.post(self.url, params=self.post_params, user=self.user)
+        self.assertEqual(reward_points_of_user(student), 0)
+
 
 class TestSemesterAssignView(WebTestStaffMode):
     @classmethod
@@ -945,41 +984,38 @@ class TestSemesterPreparationReminderView(WebTestStaffModeWith200Check):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
+        cls.user = baker.make(UserProfile, _fill_optional=["email"])
         cls.semester = baker.make(Semester)
 
         cls.url = f"/staff/semester/{cls.semester.pk}/preparation_reminder"
         cls.test_users = [cls.manager]
 
-    def test_preparation_reminder(self):
-        user = baker.make(UserProfile, email="user_to_find@institution.example.com")
-        evaluation = baker.make(
+        cls.evaluation = baker.make(
             Evaluation,
-            course=baker.make(Course, semester=self.semester, responsibles=[user]),
+            course=baker.make(Course, semester=cls.semester, responsibles=[cls.user]),
             state=Evaluation.State.PREPARED,
-            name_en="name_to_find",
-            name_de="name_to_find",
         )
-        baker.make(
+        cls.contribution = baker.make(
             Contribution,
-            evaluation=evaluation,
-            contributor=user,
+            evaluation=cls.evaluation,
+            contributor=cls.user,
             role=Contribution.Role.EDITOR,
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
 
+    def test_preparation_reminder(self) -> None:
         response = self.app.get(self.url, user=self.manager)
-        self.assertContains(response, "user_to_find")
-        self.assertContains(response, "name_to_find")
+        self.assertContains(response, self.user.full_name)
+        self.assertContains(response, self.evaluation.full_name)
+        self.assertContains(response, "Send reminder")
+
+        response = self.app.get(self.url, params={"mode": "text"}, user=self.manager)
+        self.assertContains(response, self.user.full_name)
+        self.assertContains(response, self.evaluation.full_name)
+        self.assertNotContains(response, "Send reminder")
 
     @patch("evap.staff.views.EmailTemplate")
-    def test_remind_all(self, email_template_mock):
-        user = baker.make(UserProfile)
-        evaluation = baker.make(
-            Evaluation,
-            course=baker.make(Course, semester=self.semester, responsibles=[user]),
-            state=Evaluation.State.PREPARED,
-        )
-
+    def test_remind_all(self, email_template_mock) -> None:
         email_template_mock.objects.get.return_value = email_template_mock
         email_template_mock.EDITOR_REVIEW_REMINDER = EmailTemplate.EDITOR_REVIEW_REMINDER
 
@@ -988,8 +1024,11 @@ class TestSemesterPreparationReminderView(WebTestStaffModeWith200Check):
         email_template_mock.send_to_user.assert_called_once()
         kwargs = email_template_mock.send_to_user.mock_calls[0][2]
         self.assertEqual(kwargs["subject_params"], {})
-        self.assertEqual(kwargs["body_params"], {"user": user, "evaluations": [evaluation]})
+        self.assertEqual(kwargs["body_params"], {"user": self.user, "evaluations": [self.evaluation]})
         self.assertEqual(kwargs["use_cc"], True)
+
+    def test_invalid_mode(self) -> None:
+        self.app.get(self.url, params={"mode": "invalid"}, user=self.manager, status=400)
 
 
 class TestGradeReminderView(WebTestStaffMode):
@@ -2191,8 +2230,6 @@ class TestCourseDeleteView(DeleteViewTestMixin, WebTestStaffMode):
     ]
 )
 class TestEvaluationEditView(WebTestStaffMode):
-    render_pages_url = "/staff/semester/PK/evaluation/PK/edit"
-
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
@@ -2234,12 +2271,6 @@ class TestEvaluationEditView(WebTestStaffMode):
         cls.contribution1.questionnaires.set([cls.contributor_questionnaire])
         cls.contribution2.questionnaires.set([cls.contributor_questionnaire])
 
-    @render_pages
-    def render_pages(self):
-        return {
-            "normal": self.app.get(self.url, user=self.manager).content,
-        }
-
     def test_edit_evaluation(self):
         page = self.app.get(self.url, user=self.manager)
 
@@ -2248,6 +2279,23 @@ class TestEvaluationEditView(WebTestStaffMode):
         form["contributions-1-role"] = Contribution.Role.CONTRIBUTOR
         form.submit("operation", value="save")
         self.assertEqual(self.evaluation.contributions.get(contributor=self.editor).role, Contribution.Role.CONTRIBUTOR)
+
+    def test_approve_evaluation_with_edit(self):
+        page = self.app.get(self.url, user=self.manager)
+        form = page.forms["evaluation-form"]
+        form["contributions-1-role"] = Contribution.Role.CONTRIBUTOR
+        page = form.submit("operation", value="approve").follow()
+
+        self.assertEqual(Evaluation.objects.get(pk=self.evaluation.pk).state, Evaluation.State.APPROVED)
+        self.assertContains(page, "Successfully updated and approved evaluation.")
+
+    def test_approve_evaluation_without_edit(self):
+        page = self.app.get(self.url, user=self.manager)
+        form = page.forms["evaluation-form"]
+        page = form.submit("operation", value="approve").follow()
+
+        self.assertEqual(Evaluation.objects.get(pk=self.evaluation.pk).state, Evaluation.State.APPROVED)
+        self.assertContains(page, "Successfully approved evaluation.")
 
     def test_participant_removal_reward_point_granting_message(self):
         already_evaluated = baker.make(Evaluation, course__semester=self.evaluation.course.semester)
@@ -2429,6 +2477,36 @@ class TestEvaluationDeleteView(WebTestStaffMode):
     def test_invalid_deletion(self):
         self.app.post(self.url, user=self.manager, params=self.post_params, status=400)
         self.assertTrue(Evaluation.objects.filter(pk=self.evaluation.pk).exists())
+
+    @patch.object(Evaluation, "can_be_deleted_by_manager", True)
+    def test_reward_point_granting(self):
+        already_evaluated = baker.make(Evaluation, course__semester=self.evaluation.course.semester)
+        SemesterActivation.objects.create(semester=self.evaluation.course.semester, is_active=True)
+
+        # does not get reward points as it was the only evaluation in this semester
+        student = baker.make(
+            UserProfile, email="student@institution.example.com", evaluations_participating_in=[self.evaluation]
+        )
+
+        # get reward points
+        baker.make(
+            UserProfile,
+            email=iter(f"{name}@institution.example.com" for name in ["a", "b", "c", "d", "e"]),
+            evaluations_participating_in=[self.evaluation, already_evaluated],
+            evaluations_voted_for=[already_evaluated],
+            _quantity=5,
+        )
+
+        self.assertEqual(reward_points_of_user(student), 0)
+
+        with patch("evap.staff.views.logger") as mock:
+            self.app.post(self.url, user=self.manager, params=self.post_params, status=200)
+
+        self.assertEqual(mock.info.call_args_list[0][1]["extra"]["num_grantings"], 5)
+        self.assertEqual(reward_points_of_user(student), 0)
+
+        user_a = UserProfile.objects.get(email="a@institution.example.com")
+        self.assertEqual(reward_points_of_user(user_a), 3)
 
 
 class TestSingleResultEditView(WebTestStaffModeWith200Check):

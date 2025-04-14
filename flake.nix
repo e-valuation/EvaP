@@ -42,9 +42,15 @@
             inherit (self.packages.${system}) python3;
             inherit (inputs) pyproject-nix uv2nix pyproject-build-systems;
             inherit dependency-groups;
+            our-packages = self.packages.${system};
             workspaceRoot = ./.;
           };
           evap-dev = evap.override (prev: { dependency-groups = (prev.dependency-groups or [ ]) ++ [ "dev" ]; });
+          evap-dev-with-lsp = evap-dev.override (prev: {
+            dependency-groups = (prev.dependency-groups or [ ]) ++ [ "lsp" ];
+            extraPackages = (prev.extraPackages or [ ]) ++ [ pkgs.typescript-language-server ];
+          });
+          evap-frontend-dev = evap-dev.overrideAttrs (prev: { nativeBuildInputs = (prev.nativeBuildInputs or [ ]) ++ (with pkgs; [ firefox geckodriver ]); });
           default = evap-dev;
 
           impure = pkgs.mkShell {
@@ -53,6 +59,11 @@
               uv
               postgresql
             ];
+            env = {
+              UV_NO_SYNC = "1";
+              UV_PYTHON = self.packages.${system}.python3.interpreter;
+              UV_PYTHON_DOWNLOADS = "never";
+            };
             shellHook = ''
               unset PYTHONPATH
             '';
@@ -62,32 +73,33 @@
       packages = forAllSystems (system:
         let
           pkgs = pkgsFor.${system};
-          make-process-compose = only-databases: (import inputs.process-compose-flake.lib { inherit pkgs; }).makeProcessCompose {
+          pc-modules = import ./nix/services.nix {
+            inherit pkgs;
+            inherit (self.devShells.${system}.evap.passthru) venv;
+          };
+          make-process-compose = with-devenv-setup: (import inputs.process-compose-flake.lib { inherit pkgs; }).makeProcessCompose {
             modules = [
               inputs.services-flake.processComposeModules.default
-              (import
-                ./nix/services.nix
-                {
-                  inherit pkgs only-databases;
-                  inherit (inputs) services-flake;
-                  inherit (self.devShells.${system}.evap.passthru) venv;
-                })
+              pc-modules.databases
+              (lib.mkIf with-devenv-setup pc-modules.devenv-setup)
             ];
           };
         in
         rec {
-          python3 = pkgs.python310;
+          python3 = pkgs.python311;
 
-          services = make-process-compose true;
-          services-full = make-process-compose false;
+          services = make-process-compose false;
+          services-full = make-process-compose true;
 
           wait-for-pc = pkgs.writeShellApplication {
             name = "wait-for-pc";
             runtimeInputs = [ pkgs.jq ];
             text = ''
+              echo "Waiting for process-compose to become ready..."
               while [ "$(${lib.getExe services} process list -o json 2>/dev/null | jq '.[] |= .is_ready == "Ready" or .status == "Completed" or .status == "Disabled" | all')" != "true" ]; do
                   sleep 1
               done
+              echo "... done waiting."
             '';
           };
 
@@ -107,6 +119,16 @@
                 ${python-dev}/bin/python ./manage.py ts compile --fresh
                 ${python-build}/bin/python -m build
               '';
+          };
+
+          clean-setup = pkgs.writeShellApplication {
+            name = "clean-setup";
+            runtimeInputs = with pkgs; [ git ];
+            text = ''
+              read -r -p "Delete node_modules/, data/, generated CSS and JS files in evap/static/, and evap/localsettings.py? [y/N] "
+              [[ "$REPLY" =~ ^[Yy]$ ]] || exit 1
+              git clean -f -X evap/static/ node_modules/ data/ evap/localsettings.py
+            '';
           };
         });
     };

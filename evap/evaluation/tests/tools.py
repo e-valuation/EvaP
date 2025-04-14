@@ -1,19 +1,26 @@
-import functools
-import os
-from collections.abc import Sequence
+import time
+from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from datetime import timedelta
+from importlib import import_module
+from typing import Any
 
 import django.test
 import django_webtest
 import webtest
 from django.conf import settings
+from django.contrib.auth import login
 from django.contrib.auth.models import Group
+from django.contrib.staticfiles.handlers import StaticFilesHandler
 from django.db import DEFAULT_DB_ALIAS, connections
-from django.http.request import QueryDict
+from django.http.request import HttpRequest, QueryDict
+from django.test.runner import DiscoverRunner
+from django.test.selenium import SeleniumTestCase
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone, translation
 from model_bakery import baker
+from selenium.webdriver.firefox.webdriver import WebDriver
+from selenium.webdriver.support.wait import WebDriverWait
 
 from evap.evaluation.models import (
     CHOICES,
@@ -29,6 +36,15 @@ from evap.evaluation.models import (
 )
 
 
+class EvapTestRunner(DiscoverRunner):
+    """Skips selenium tests by default, if no other tags are specified."""
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        if not self.tags and not self.exclude_tags:
+            self.exclude_tags = {"selenium"}
+
+
 class ResetLanguageOnTearDownMixin:
     def tearDown(self):
         translation.activate("en")  # Django by default does not "reset" this, causing test interdependency
@@ -36,6 +52,10 @@ class ResetLanguageOnTearDownMixin:
 
 
 class TestCase(ResetLanguageOnTearDownMixin, django.test.TestCase):
+    pass
+
+
+class SimpleTestCase(ResetLanguageOnTearDownMixin, django.test.SimpleTestCase):
     pass
 
 
@@ -100,36 +120,6 @@ def let_user_vote_for_evaluation(user, evaluation, create_answers=False):
     TextAnswer.objects.bulk_create(new_textanswers)
     RatingAnswerCounter.objects.bulk_create(new_racs)
     RatingAnswerCounter.objects.bulk_update(rac_by_contribution_question.values(), ["count"])
-
-
-def store_ts_test_asset(relative_path: str, content) -> None:
-    absolute_path = settings.STATICFILES_DIRS[0] / "ts" / "rendered" / relative_path
-
-    absolute_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(absolute_path, "wb") as file:
-        file.write(content)
-
-
-def render_pages(test_item):
-    """Decorator which annotates test methods which render pages.
-    The containing class is expected to include a `url` attribute which matches a valid path.
-    Unlike normal test methods, it should not assert anything and is expected to return a dictionary.
-    The key denotes the variant of the page to reflect multiple states, cases or views.
-    The value is a byte string of the page content."""
-
-    @functools.wraps(test_item)
-    def decorator(self) -> None:
-        pages = test_item(self)
-
-        url = getattr(self, "render_pages_url", self.url)
-
-        for name, content in pages.items():
-            # Remove the leading slash from the url to prevent that an absolute path is created
-            path = os.path.join(url[1:], f"{name}.html")
-            store_ts_test_asset(path, content)
-
-    return decorator
 
 
 class WebTestWith200Check(WebTest):
@@ -273,3 +263,59 @@ def assert_no_database_modifications(*args, **kwargs):
             lower_sql = query["sql"].lower()
             if not any(lower_sql.startswith(prefix) for prefix in allowed_prefixes):
                 raise AssertionError("Unexpected modifying query found: " + query["sql"])
+
+
+class LiveServerTest(SeleniumTestCase):
+    browser = "firefox"
+    selenium: WebDriver
+    headless = True
+    window_size = (1920, 4096)  # large height to workaround scrolling
+    serialized_rollback = True  # SeleniumTestCase is a TransactionTestCase, which drops migration data. This keeps fixture data but may slow down tests, see https://docs.djangoproject.com/en/5.0/topics/testing/overview/#test-case-serialized-rollback
+    static_handler = StaticFilesHandler  # see StaticLiveServerTestCase
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.request = self.make_request()
+        self.manager = make_manager()
+        self.selenium.get(self.live_server_url)
+        self.login(self.manager)
+
+    @classmethod
+    def make_request(cls) -> HttpRequest:
+        request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        request.session = engine.SessionStore()
+        return request
+
+    def update_session(self) -> None:
+        self.request.session.save()
+        self.selenium.add_cookie(
+            {
+                "name": settings.SESSION_COOKIE_NAME,
+                "value": self.request.session.session_key,
+                "path": "/",
+                "secure": settings.SESSION_COOKIE_SECURE or False,
+            }
+        )
+
+    def login(self, user) -> None:
+        """Login a test user by setting the session cookie."""
+        login(self.request, user, "evap.evaluation.auth.RequestAuthUserBackend")
+        self.update_session()
+
+    @contextmanager
+    def enter_staff_mode(self) -> Iterator[None]:
+        self.request.session["staff_mode_start_time"] = time.time()
+        self.update_session()
+        yield
+        del self.request.session["staff_mode_start_time"]
+        self.update_session()
+
+    @property
+    def wait(self) -> WebDriverWait:
+        return WebDriverWait(self.selenium, 10)
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+        cls.selenium.set_window_size(*cls.window_size)

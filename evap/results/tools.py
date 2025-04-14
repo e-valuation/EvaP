@@ -354,7 +354,7 @@ def calculate_average_course_distribution(course, check_for_unpublished_evaluati
 
 
 def get_evaluations_with_course_result_attributes(evaluations):
-    courses_with_unpublished_evaluations = (
+    courses_with_unpublished_evaluations = set(
         Course.objects.filter(evaluations__in=evaluations)
         .filter(Exists(Evaluation.objects.filter(course=OuterRef("pk")).exclude(state=Evaluation.State.PUBLISHED)))
         .values_list("id", flat=True)
@@ -440,7 +440,7 @@ def distribution_to_grade(distribution):
 
 def color_mix(color1, color2, fraction):
     return cast(
-        tuple[int, int, int], tuple(int(round(color1[i] * (1 - fraction) + color2[i] * fraction)) for i in range(3))
+        "tuple[int, int, int]", tuple(int(round(color1[i] * (1 - fraction) + color2[i] * fraction)) for i in range(3))
     )
 
 

@@ -198,7 +198,10 @@
 
         <script type="module">
             import { AutoFormSaver } from "{% static 'js/auto-form-saver.js' %}";
-            import {initTextAnswerWarnings} from "{% static 'js/text-answer-warnings.js' %}";
+            import { CSRF_HEADERS } from "{% static 'js/csrf-utils.js' %}";
+            import { initTextAnswerWarnings } from "{% static 'js/text-answer-warnings.js' %}";
+            import { assert } from "{% static 'js/utils.js' %}";
+
             const lastSavedStorageKey = "student-vote-last-saved-at-{{ evaluation.id }}-{{ request.user.id }}";
             const textResultsPublishConfirmation = {
                 top: document.querySelector("#text_results_publish_confirmation_top"),

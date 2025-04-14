@@ -10,6 +10,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import logging
 import sys
+from datetime import timedelta
 from fractions import Fraction
 from pathlib import Path
 from typing import Any
@@ -37,6 +38,7 @@ LOGIN_KEY_VALIDITY = 210  # days, so roughly 7 months
 VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS = 2
 VOTER_PERCENTAGE_NEEDED_FOR_PUBLISHING_AVERAGE_GRADE = 0.2
 SMALL_COURSE_SIZE = 5  # up to which number of participants the evaluation gets additional warnings about anonymity
+PARTICIPATION_DELETION_AFTER_INACTIVE_TIME = timedelta(days=18 * 30)
 
 # a warning is shown next to results where less than RESULTS_WARNING_COUNT answers were given
 # or the number of answers is less than RESULTS_WARNING_PERCENTAGE times the median number of answers (for this question in this evaluation)
@@ -439,6 +441,7 @@ try:
 except ImportError:
     pass
 
+TEST_RUNNER = "evap.evaluation.tests.tools.EvapTestRunner"
 TESTING = "test" in sys.argv or "pytest" in sys.modules
 
 # speed up tests and activate typeguard introspection

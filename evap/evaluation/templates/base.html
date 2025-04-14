@@ -115,8 +115,12 @@
             const tagTomSelectOptions = {
                 create: true,
                 createOnBlur: true,
-                dropdownParent: document.createElement("div"),  // To make it invisible
                 delimiter: '', // we don't want the default "comma creates entry" behavior
+
+                dropdownParent: document.createElement("div"),  // To make it invisible
+                // On enter, with hidden dropdown, always add current text. Otherwise, adding a
+                // prefix of an existing item doesn't work
+                addPrecedence: true,
             };
 
             class MinimumInputLengthTomSelect extends TomSelect {
@@ -164,6 +168,9 @@
                         plugins: {},
                         hideSelected: false,
                     };
+                    if (element.hasAttribute("tomselect-no-sort")) {
+                        baseOptions.sortField = [{field:'$order'},{field:'$score'}];
+                    }
                     if(element.hasAttribute("data-tomselect-fullwidth")) {
                         // span needed to the "remove this icon" button is right-aligned
                         baseOptions.render.item = (data, escape) => `<div class="w-100"><span class="w-100">${ escape(data.text) }</span></div>`;

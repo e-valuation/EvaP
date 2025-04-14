@@ -3,16 +3,16 @@ name = "evap"
 description = "EvaP"
 version = "0.0.0"
 readme = "README.md"
-requires-python = "~=3.10.0"
+requires-python = "~=3.11.0"
 dependencies = [
-    "django-extensions~=3.2.3",
+    "django-extensions~=4.1.0",
     "django-fsm~=2.8.2",
-    "Django~=5.1.0",
+    "Django~=5.2.0",
     "mozilla-django-oidc~=4.0.1",
     "openpyxl~=3.1.5",
     "psycopg~=3.2.3",
     "redis~=5.2.0",
-    "typing-extensions~=4.12.2",
+    "typing-extensions~=4.13.2",
     "xlwt~=1.3.0",
 ]
 
@@ -22,21 +22,29 @@ psycopg-c = ["psycopg[c]"]
 
 [dependency-groups]
 dev = [
-    "black~=24.10.0",
-    "coverage[toml]~=7.6.8",
-    "django-debug-toolbar~=4.4",
+    "black~=25.1.0",
+    "coverage[toml]~=7.8.0",
+    "django-debug-toolbar~=5.1",
     "django-stubs~=5.1.1",
-    "django-webtest~=1.9.10",
-    "isort~=5.13.1",
+    "django-webtest~=1.9.13",
+    "isort~=6.0.1",
     "model-bakery~=1.20.0",
-    "mypy~=1.13.0",
+    "mypy~=1.15.0",
     "openpyxl-stubs~=0.1.25",
     "pylint-django~=2.6.1",
     "pylint~=3.3.0",
-    "ruff~=0.8.0",
-    "tblib~=3.0.0",
+    "ruff~=0.11.5",
+    "tblib~=3.1.0",
     "xlrd~=2.0.1",
     "typeguard~=4.4.0",
+    "selenium~=4.31.0",
+]
+lsp = [
+    "python-lsp-server",
+    "pylsp-rope",
+    "python-lsp-black",
+    "python-lsp-ruff",
+    "pylsp-mypy",
 ]
 
 [tool.uv]
@@ -88,7 +96,6 @@ extend_skip_glob = ["**/migrations/*"]
 ##############################################
 
 [tool.ruff]
-target-version = "py310"
 line-length = 120
 
 [tool.ruff.lint]
@@ -109,7 +116,6 @@ pep8-naming.extend-ignore-names = ["assert*", "*Formset"]  # custom assert metho
 
 [tool.ruff.lint.per-file-ignores]
 "**/migrations/*.py" = ["N806"]  # migrations have model classes as local variables, we use PascalCase for these
-"deployment/*.py" = ["INP001"]  # not intended for direct import
 
 [tool.ruff.format]
 exclude = ["**/urls.py", "**/migrations/*.py"]
