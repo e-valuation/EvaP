@@ -101,7 +101,7 @@
                                     {% for evaluation in semester_evaluations.list %}
                                         <li>
                                             {% if evaluation|can_results_page_be_seen_by:form.instance %}
-                                                <a href="{% url 'results:evaluation_detail' semester_evaluations.grouper.id evaluation.id %}?view=export&contributor_id={{ form.instance.id }}">
+                                                <a href="{% url 'results:evaluation_detail' semester_evaluations.grouper.id evaluation.id %}?view_contributor_results=personal&contributor_id={{ form.instance.id }}">
                                                     {{ evaluation.full_name }}
                                                 </a>
                                             {% else %}
