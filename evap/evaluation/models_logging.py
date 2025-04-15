@@ -341,16 +341,13 @@ class LoggedModel(models.Model):
         return ["id", "order"]
 
 
-def _get_m2m_field_name(model_class, sender):
-    return next(
+@receiver(m2m_changed)
+def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  # noqa: PLR0912
+    model_class = model if reverse else type(instance)
+    field_name = next(
         (field.name for field in model_class._meta.many_to_many if getattr(model_class, field.name).through == sender),
         None,
     )
-
-
-@receiver(m2m_changed)
-def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  # noqa: PLR0912
-    field_name = _get_m2m_field_name(model if reverse else type(instance), sender)
     if field_name is None:
         return
 
