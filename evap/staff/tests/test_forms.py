@@ -206,6 +206,35 @@ class UserFormTests(TestCase):
             ("Patrick",),
         )
 
+    def test_participant_changes_create_log_entries(self):
+        """
+        Test if adding and removing a participant to evaluations (via UserForm) creates log entries for each evaluation
+        """
+        student = baker.make(UserProfile)
+        semester = baker.make("evaluation.Semester", is_active=True)
+        evaluations = [baker.make(Evaluation, course__semester=semester) for _ in range(2)]
+
+        form_data = get_form_data_from_instance(UserForm, student)
+        form_data["evaluations_participating_in"] = [e.pk for e in evaluations]
+        form = UserForm(form_data, instance=student)
+        self.assertTrue(form.is_valid())
+        form.save()
+
+        for evaluation in evaluations:
+            latest_log = evaluation.related_logentries().order_by("id").last()
+            self.assertIn("participants", latest_log.data)
+            self.assertEqual(latest_log.data["participants"]["add"], [student.pk])
+
+        form_data["evaluations_participating_in"] = []
+        form = UserForm(form_data, instance=student)
+        self.assertTrue(form.is_valid())
+        form.save()
+
+        for evaluation in evaluations:
+            latest_log = evaluation.related_logentries().order_by("id").last()
+            self.assertIn("participants", latest_log.data)
+            self.assertEqual(latest_log.data["participants"]["remove"], [student.pk])
+
 
 class SingleResultFormTests(TestCase):
     def test_single_result_form_saves_participant_and_voter_count(self):
