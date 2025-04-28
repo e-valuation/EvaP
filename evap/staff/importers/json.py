@@ -269,10 +269,10 @@ class JSONImporter:
         )
         course.responsibles.set(responsibles)
 
-        if changes:
-            self.statistics.updated_courses.append(course)
         if created:
             self.statistics.new_courses.append(course)
+        elif changes:
+            self.statistics.updated_courses.append(course)
 
         self.course_map[data["gguid"]] = course
 
@@ -377,7 +377,7 @@ class JSONImporter:
                     if lecturer_changes or lecturer_created:
                         any_lecturers_changed = True
 
-            if direct_changes or participant_changes or any_lecturers_changed:
+            if not created and (direct_changes or participant_changes or any_lecturers_changed):
                 self.statistics.updated_evaluations.append(evaluation)
         else:
             self.statistics.attempted_changes.append(evaluation)
