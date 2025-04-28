@@ -910,10 +910,10 @@ def semester_questionnaire_assign(request, semester_id):
                 form.cleaned_data["all-contributors"] | form.cleaned_data[f"contributor-{evaluation.course.type.id}"]
             )
 
-            if form.cleaned_data[f"general-{evaluation.course.type.id}"]:
+            if general_questionnaires:
                 evaluation.general_contribution.questionnaires.set(general_questionnaires)
 
-            if form.cleaned_data[f"contributor-{evaluation.course.type.id}"] or form.cleaned_data["all-contributors"]:
+            if contributor_questionnaires:
                 for contribution in evaluation.contributions.exclude(contributor=None):
                     contribution.questionnaires.set(contributor_questionnaires)
 
