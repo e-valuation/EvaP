@@ -7,12 +7,21 @@ from unittest.mock import patch
 
 from django.core import mail
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from model_bakery import baker
 
-from evap.evaluation.models import Contribution, Course, CourseType, Evaluation, Questionnaire, Semester, UserProfile
+from evap.evaluation.models import (
+    Contribution,
+    Course,
+    CourseType,
+    Evaluation,
+    Program,
+    Questionnaire,
+    Semester,
+    UserProfile,
+)
 from evap.evaluation.tests.tools import make_manager
-from evap.staff.importers.json import ImportDict, JSONImporter, NameChange
+from evap.staff.importers.json import ImportDict, JSONImporter, NameChange, WarningMessage
 
 EXAMPLE_DATA: ImportDict = {
     "students": [
@@ -55,6 +64,19 @@ EXAMPLE_DATA: ImportDict = {
             "lecturers": [{"gguid": "0x3"}, {"gguid": "0x4"}, {"gguid": "0x5"}],
             "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
         },
+        {
+            "gguid": "0x7",
+            "lvnr": 3,
+            "title": "Bachelorprojekt: Prozessorientierte Informationssysteme",
+            "title_en": "Bachelor's Project: Process-oriented information systems",
+            "type": "Bachelorprojekt",
+            "isexam": True,
+            "courses": [
+                {"cprid": "BA-Inf", "scale": "GRADE_PARTICIPATION"},
+            ],
+            "lecturers": [{"gguid": "0x3"}],
+            "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
+        },
     ],
 }
 EXAMPLE_DATA_WITH_PREFIX = {
@@ -73,6 +95,69 @@ EXAMPLE_DATA_WITH_PREFIX = {
             "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
             "appointments": [{"begin": "29.07.2024 10:15:00", "end": "29.07.2024 11:45:00"}],
         }
+    ],
+}
+EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
+    "students": [
+        {"gguid": "0x1", "email": "", "name": "1", "christianname": "1"},
+        {"gguid": "0x2", "email": "2@example.com", "name": "2", "christianname": "2"},
+    ],
+    "lecturers": [
+        {"gguid": "0x3", "email": "", "name": "3", "christianname": "3", "titlefront": "Prof. Dr."},
+    ],
+    "events": [
+        {
+            "gguid": "0x7",
+            "lvnr": 7,
+            "title": "Terminlose Vorlesung",
+            "title_en": "",
+            "type": "Vorlesung",
+            "isexam": False,
+            "relatedevents": [{"gguid": "0x42"}, {"gguid": "0x43"}],
+            "lecturers": [{"gguid": "0x3"}],
+            "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
+        },
+        {
+            "gguid": "0x42",
+            "lvnr": 42,
+            "title": "Die Antwort auf die endgültige Frage - Nach dem Leben",
+            "title_en": "The Answer to the Ultimate Question - Of Life",
+            "type": "Klausur",
+            "isexam": True,
+            "courses": [
+                {"cprid": "BA-Inf", "scale": "GRADE_PARTICIPATION"},
+                {"cprid": "Ignore", "scale": "GRADE_PARTICIPATION"},
+                {"cprid": "P", "scale": "GRADE_PARTICIPATION"},
+            ],
+            "appointments": [{"begin": "01.01.2025 01:01:01", "end": "31.12.2025 12:31:00"}],
+            "relatedevents": [{"gguid": "0x7"}, {"gguid": "0x44"}],
+            "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
+        },
+        {
+            "gguid": "0x43",
+            "lvnr": 43,
+            "title": "Die Antwort auf die endgültige Frage - Nach dem Universum",
+            "title_en": "The Answer to the Ultimate Question - Of the Universe",
+            "type": "Klausur",
+            "isexam": True,
+            "courses": [
+                {"cprid": "Master Program", "scale": "GRADE_PARTICIPATION"},
+            ],
+            "appointments": [{"begin": "01.01.2025 01:01:01", "end": "31.12.2025 12:31:00"}],
+            "relatedevents": [{"gguid": "0x7"}],
+            "lecturers": [{"gguid": "0x3"}],
+        },
+        {
+            "gguid": "0x44",
+            "lvnr": 44,
+            "title": "Der ganze Rest",
+            "title_en": "Everything",
+            "type": "CT",
+            "isexam": False,
+            "appointments": [{"begin": "01.01.2025 01:01:01", "end": "31.12.2025 12:31:00"}],
+            "lecturers": [{"gguid": "0x3"}],
+            "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
+        },
     ],
 }
 EXAMPLE_JSON = json.dumps(EXAMPLE_DATA)
@@ -284,6 +369,77 @@ class TestImportEvents(TestCase):
             ),
             {"3@example.com"},
         )
+
+    @override_settings(IGNORE_PROGRAMS=["Ignore"])
+    def test_import_courses_special_cases(self):
+        course_type = CourseType.objects.create(name_en="Course Type", name_de="Kurstyp", import_names=["CT"])
+        Program.objects.create(name_en="Program", name_de="Studiengang", import_names=["P"])
+        importer = self._import(EXAMPLE_DATA_SPECIAL_CASES)
+
+        self.assertEqual(Course.objects.count(), 2)
+        self.assertEqual(Evaluation.objects.count(), 4)
+
+        evaluation = Evaluation.objects.first()
+        self.assertEqual(evaluation.course.name_de, "Terminlose Vorlesung")
+
+        # evaluation has no English name, uses German
+        self.assertEqual(evaluation.course.name_en, "Terminlose Vorlesung")
+
+        # evaluation has no "appointments", uses default dates
+        self.assertEqual(evaluation.vote_start_datetime, datetime(1999, 12, 20, 8, 0))
+        self.assertEqual(evaluation.vote_end_date, date(2000, 1, 2))
+
+        # use import names and only import non-ignored programs
+        self.assertSetEqual(
+            {d.name_en for d in evaluation.course.programs.all()}, {"BA-Inf", "Master Program", "Program"}
+        )
+        evaluation_everything = Evaluation.objects.get(cms_id="0x44")
+        self.assertEqual(evaluation_everything.course.type, course_type)
+
+        # use second part of title after dash
+        evaluation_life = Evaluation.objects.get(cms_id="0x42")
+        self.assertEqual(evaluation_life.name_de, "Nach dem Leben")
+        self.assertEqual(evaluation_life.name_en, "Of Life")
+        evaluation_universe = Evaluation.objects.get(cms_id="0x43")
+        self.assertEqual(evaluation_universe.name_de, "Nach dem Universum")
+        self.assertEqual(evaluation_universe.name_en, "Of the Universe")
+
+        # check warnings
+        self.assertCountEqual(
+            importer.statistics.warnings,
+            [
+                WarningMessage(
+                    obj="Contributor 3 3",
+                    message="No email defined",
+                ),
+                WarningMessage(
+                    obj="Student 1 1",
+                    message="No email defined",
+                ),
+                WarningMessage(
+                    obj=evaluation.course.name,
+                    message="No dates defined, using default end date",
+                ),
+                WarningMessage(
+                    obj=evaluation_life.full_name,
+                    message="No contributors defined",
+                ),
+            ],
+        )
+
+        # use first relatedevent, ignore other
+        self.assertCountEqual(
+            evaluation.course.evaluations.all(),
+            [
+                evaluation,
+                evaluation_life,
+                evaluation_universe,
+            ],
+        )
+
+        # use weights
+        self.assertEqual(evaluation_everything.weight, 9)
+        self.assertEqual(evaluation_life.weight, 1)
 
     def test_import_courses_evaluation_approved(self):
         self._import()
