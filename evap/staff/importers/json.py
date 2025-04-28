@@ -284,7 +284,7 @@ class JSONImporter:
         programs = [
             self._get_program(c["cprid"]) for c in data["courses"] if c["cprid"] not in settings.IGNORE_PROGRAMS
         ]
-        course.programs.set(programs)
+        course.programs.add(*programs)
 
     def _import_course_from_unused_exam(self, data: ImportEvent) -> Course | None:
         splitted_title = data["title"].split(":", 1)
