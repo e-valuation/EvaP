@@ -943,7 +943,7 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
         form["all-contributors"] = [self.questionnaire_contributor.pk]
 
         response = form.submit().follow()
-        self.assertIn("Successfully", str(response))
+        self.assertContains(response, "Successfully")
 
         self.assertQuerySetEqual(
             self.evaluations[0].general_contribution.questionnaires.all(),
