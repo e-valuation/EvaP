@@ -434,6 +434,7 @@ class JSONImporter:
                 )
                 continue
             event["isexam"] = False
+            self._import_course_programs(course, event)
             self._import_evaluation(course, event)
 
     @transaction.atomic
