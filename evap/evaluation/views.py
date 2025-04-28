@@ -9,7 +9,7 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.encoding import iri_to_uri
-from django.utils.http import url_has_allowed_host_and_scheme, urlencode
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.http import require_POST
@@ -91,8 +91,7 @@ def index(request):
 
             # redirect to this view again so the staff mode middleware runs for the authenticated user.
             redirect_to = request.GET.get("next", None)
-            query_string = urlencode({"next": redirect_to}) if redirect_to else ""
-            return redirect(reverse("evaluation:index") + "?" + query_string)
+            return redirect(reverse("evaluation:index", query=({"next": redirect_to} if redirect_to else None)))
 
     # if not logged in by now, render form
     if not request.user.is_authenticated:

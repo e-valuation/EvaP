@@ -18,7 +18,7 @@
 {% block content %}
     {{ block.super }}
     {% if errors_exist %}
-        <div class="alert alert-danger" role="alert">
+        <div class="callout callout-danger" role="alert">
             <div class="d-flex align-items-center justify-content-between">
                 <div class="p-2">
                     {% if contributor_errors_exist %}
@@ -75,16 +75,22 @@
         {% csrf_token %}
 
         {% if small_evaluation_size_warning and not preview %}
-            <div class="card card-outline-warning mb-3">
-                <div class="card-header">
+            <div class="callout callout-warning">
+                <div class="callout-header">
                     <span class="fas fa-triangle-exclamation"></span> {% translate 'Small number of participants' %}
                 </div>
-                <div class="card-body tab-row">
-                    {% blocktranslate %}Only a small number of people can take part in this evaluation. You should be aware that contributors might be able to guess who voted for a specific answer and who wrote a text answer. Results will only be published if two or more people participated in the evaluation.{% endblocktranslate %}
+                <div class="callout-content tab-row">
+                    <p>
+                        {% blocktranslate trimmed %}
+                            Only a small number of people can take part in this evaluation.
+                            You should be aware that contributors might be able to guess who voted for a specific answer and who wrote a text answer.
+                            Results will only be published if {{ voter_count_needed_for_publishing_rating_results }} or more people participated in the evaluation.
+                        {% endblocktranslate %}
+                    </p>
                     {% if evaluation.num_voters == 0 %}
-                        <br />
-                        {% blocktranslate %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktranslate %}
-
+                        <p>
+                            {% blocktranslate %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktranslate %}
+                        </p>
                         <div class="form-check mt-3">
                             <input class="form-check-input tab-selectable" id="text_results_publish_confirmation_top" type="checkbox"
                                 name="text_results_publish_confirmation_top" />
@@ -94,6 +100,12 @@
                         </div>
                     {% endif %}
                 </div>
+            </div>
+        {% endif %}
+
+        {% if not preview %}
+            <div class="callout callout-info">
+                {% blocktranslate trimmed %}Thank you for taking part in this evaluation. Please be polite and constructive in your feedback.{% endblocktranslate %}
             </div>
         {% endif %}
 
@@ -152,11 +164,11 @@
                 </div>
             {% endif %}
             {% if small_evaluation_size_warning and not preview and evaluation.num_voters == 0 %}
-                <div class="card card-outline-warning mb-3" id="bottom_text_results_publish_confirmation_card">
-                    <div class="card-header">
+                <div class="callout callout-warning mb-3" id="bottom_text_results_publish_confirmation_card">
+                    <div class="callout-header">
                         <span class="fas fa-triangle-exclamation"></span> {% translate 'Small number of participants' %}
                     </div>
-                    <div class="card-body tab-row">
+                    <div class="callout-content tab-row">
                         {% blocktranslate %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktranslate %}
 
                         <div class="form-check mt-3">

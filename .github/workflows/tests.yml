@@ -5,12 +5,17 @@ on:
     branches:
       - main
   pull_request:
+  workflow_dispatch:
 
 jobs:
   test:
     name: Test + Coverage
 
     runs-on: ubuntu-22.04
+
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - uses: actions/checkout@v4
@@ -91,6 +96,10 @@ jobs:
     name: Test Frontend
 
     runs-on: ubuntu-22.04
+
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - uses: actions/checkout@v4
