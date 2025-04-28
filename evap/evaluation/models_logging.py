@@ -351,7 +351,7 @@ def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  #
     if field_name is None:
         return
 
-    if not (issubclass(model, LoggedModel) if reverse else isinstance(instance, LoggedModel)):
+    if not issubclass(model_class, LoggedModel):
         return
 
     if reverse:
