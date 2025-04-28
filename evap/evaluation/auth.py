@@ -1,5 +1,4 @@
 import inspect
-import logging
 from collections.abc import Callable, Iterable
 from functools import wraps
 
@@ -13,8 +12,6 @@ from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 from evap.evaluation.models import UserProfile
 from evap.evaluation.tools import clean_email, openid_login_is_active, password_login_is_active
 from evap.rewards.tools import can_reward_points_be_used_by
-
-logger = logging.getLogger(__name__)
 
 
 class RequestAuthUserBackend(ModelBackend):
@@ -188,9 +185,5 @@ class OpenIDAuthenticationBackend(OIDCAuthenticationBackend):
             user.email = new_email
             user.save()
 
-            try:
-                notification.send()
-            except Exception:
-                logger.exception("Failed to send notification:\n%s\n", notification.message())
-                raise
+            notification.send()
         return user
