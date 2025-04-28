@@ -38,6 +38,7 @@ class GradeUploadTest(WebTest):
             vote_end_date=date.today() + timedelta(days=10),
             participants=[cls.student, cls.student2, cls.student3],
             voters=[cls.student, cls.student2],
+            main_language="en",
         )
 
         baker.make(
