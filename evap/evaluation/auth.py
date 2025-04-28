@@ -2,8 +2,8 @@ import inspect
 from collections.abc import Callable, Iterable
 from functools import wraps
 
-from django.contrib.auth.backends import ModelBackend
 from django.conf import settings
+from django.contrib.auth.backends import ModelBackend
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage
 from django.utils.decorators import method_decorator
