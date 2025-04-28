@@ -99,6 +99,7 @@ from evap.staff.forms import (
     InfotextForm,
     ModelWithImportNamesFormset,
     ProgramForm,
+    ProgramMergeSelectionForm,
     QuestionForm,
     QuestionnaireForm,
     QuestionnairesAssignForm,
@@ -2118,6 +2119,46 @@ class ProgramIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
     template_name = "staff_program_index.html"
     success_url = reverse_lazy("staff:program_index")
     success_message = gettext_lazy("Successfully updated the programs.")
+
+
+@manager_required
+def program_merge_selection(request):
+    form = ProgramMergeSelectionForm(request.POST or None)
+
+    if form.is_valid():
+        main_instance = form.cleaned_data["main_instance"]
+        other_instance = form.cleaned_data["other_instance"]
+        return redirect("staff:program_merge", main_instance.id, other_instance.id)
+
+    return render(request, "staff_program_merge_selection.html", {"form": form})
+
+
+@manager_required
+def program_merge(request, main_id, other_id):
+    main_instance = get_object_or_404(Program, id=main_id)
+    other_instance = get_object_or_404(Program, id=other_id)
+
+    if request.method == "POST":
+        with transaction.atomic():
+            main_instance.import_names += other_instance.import_names
+            main_instance.save()
+
+            courses_with_old_program = Course.objects.filter(programs=other_instance)
+            for course in courses_with_old_program:
+                course.programs.remove(other_instance)
+                course.programs.add(main_instance)
+
+            other_instance.delete()
+
+        messages.success(request, _("Successfully merged programs."))
+        return redirect("staff:program_index")
+
+    courses_with_other_program = Course.objects.filter(programs=other_instance).order_by("semester__created_at", "name_de")
+    return render(
+        request,
+        "staff_program_merge.html",
+        {"main_instance": main_instance, "other_instance": other_instance, "courses_with_other_program": courses_with_other_program},
+    )
 
 
 @manager_required
