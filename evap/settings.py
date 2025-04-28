@@ -428,6 +428,14 @@ OIDC_OP_TOKEN_ENDPOINT = "https://example.com/token"  # nosec
 OIDC_OP_USER_ENDPOINT = "https://example.com/me"
 OIDC_OP_JWKS_ENDPOINT = "https://example.com/certs"
 
+# Mapping of email domain transition which users may undergo during the lifetime of their account.
+# Given an item (k, v) of the mapping, if an account with domain k would be created through OpenID,
+# but an account with the same name at domain v exists, the existing account is migrated to the
+# domain k instead.
+OIDC_EMAIL_TRANSITIONS: dict[str, str] = {
+    "institution.example.com": "student.institution.example.com",
+}
+
 
 ### Other
 

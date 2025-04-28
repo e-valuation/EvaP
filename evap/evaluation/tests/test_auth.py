@@ -1,5 +1,5 @@
 import urllib
-from unittest.mock import patch
+from unittest.mock import patch, DEFAULT
 
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
@@ -143,6 +143,57 @@ class LoginTests(WebTest):
 
         self.assertIn("Logout", page.body.decode())
         self.assertEqual(page.context["user"], user)
+
+    @override_settings(ACTIVATE_OPEN_ID_LOGIN=True)
+    @patch.multiple(
+        auth.OIDCAuthenticationBackend,
+        get_userinfo=DEFAULT,
+        get_token=DEFAULT,
+        store_tokens=DEFAULT,
+        verify_token=DEFAULT,
+    )
+    def test_oidc_email_transitions(self, get_userinfo, verify_token, **_other_mocks):
+        def login_logout():
+            # See test_oidc_login
+            page = self.app.get(self.url).click("Login")
+            location = page.headers["location"]
+            parse_result = urllib.parse.urlparse(location)
+            parsed_query = urllib.parse.parse_qs(parse_result.query)
+            self.assertIn("email", parsed_query["scope"][0].split(" "))
+            self.assertIn("/oidc/callback/", parsed_query["redirect_uri"][0])
+            state = parsed_query["state"][0]
+            page = self.app.get(f"/oidc/callback/?code=secret-code&state={state}")
+            location = page.headers["location"]
+            parse_result = urllib.parse.urlparse(location)
+            self.assertEqual(parse_result.path, self.url)
+            page = self.app.get(location).follow()
+            page = page.forms["logout-form"].submit().follow()
+            self.assertContains(page, "Login")
+            self.assertNotContains(page, "Logout")
+
+        verify_token.return_value = True
+
+        old_email = "name@student.institution.example.com"
+        new_email = "name@institution.example.com"
+
+        self.assertFalse(UserProfile.objects.filter(email=old_email).exists())
+        self.assertFalse(UserProfile.objects.filter(email=new_email).exists())
+
+        get_userinfo.return_value = {"email": old_email}
+        for _ in range(2):
+            login_logout()
+            self.assertTrue(UserProfile.objects.filter(email=old_email).exists())
+            self.assertFalse(UserProfile.objects.filter(email=new_email).exists())
+
+        user_pk = UserProfile.objects.get(email=old_email).pk
+
+        get_userinfo.return_value = {"email": new_email}
+        for _ in range(2):
+            login_logout()
+            self.assertFalse(UserProfile.objects.filter(email=old_email).exists())
+            self.assertTrue(UserProfile.objects.filter(email=new_email).exists())
+
+        self.assertEqual(UserProfile.objects.get(email=new_email).pk, user_pk)
 
     @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
     def test_passworduser_login(self):
