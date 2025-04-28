@@ -19,6 +19,7 @@ class EvaluationEditLiveTest(LiveServerTest):
             course=baker.make(Course, programs=[baker.make(Program)], responsibles=[responsible]),
             vote_start_datetime=datetime(2099, 1, 1, 0, 0),
             vote_end_date=date(2099, 12, 31),
+            main_language="en",
         )
 
         general_questionnaire = baker.make(Questionnaire, questions=[baker.make(Question)])
