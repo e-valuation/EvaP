@@ -194,6 +194,8 @@ class LoginTests(WebTest):
             self.assertTrue(UserProfile.objects.filter(email=new_email).exists())
 
         self.assertEqual(UserProfile.objects.get(email=new_email).pk, user_pk)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("User email changed automatically", mail.outbox[0].subject)
 
     @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
     def test_passworduser_login(self):

@@ -1,16 +1,20 @@
 import inspect
+import logging
 from collections.abc import Callable, Iterable
 from functools import wraps
 
 from django.contrib.auth.backends import ModelBackend
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.core.mail import EmailMessage
 from django.utils.decorators import method_decorator
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 
 from evap.evaluation.models import UserProfile
 from evap.evaluation.tools import clean_email, openid_login_is_active, password_login_is_active
 from evap.rewards.tools import can_reward_points_be_used_by
+
+logger = logging.getLogger(__name__)
 
 
 class RequestAuthUserBackend(ModelBackend):
@@ -175,6 +179,18 @@ class OpenIDAuthenticationBackend(OIDCAuthenticationBackend):
             user.save()
         new_email = claims.get("email", "")
         if user.email != new_email:
+            notification = EmailMessage(
+                subject="[EvaP] User email changed automatically",
+                body=f"The email address of the user with id {user.pk} was automatically changed from {user.email} to {new_email}.",
+                to=[settings.CONTACT_EMAIL],
+            )
+
             user.email = new_email
             user.save()
+
+            try:
+                notification.send()
+            except Exception:
+                logger.exception("Failed to send notification:\n%s\n", notification.message())
+                raise
         return user
