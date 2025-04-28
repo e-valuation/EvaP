@@ -9,8 +9,7 @@ from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.core.exceptions import SuspiciousOperation
 from django.db import transaction
-from django.db.models import Count, Model
-from django.db.models import Count, Max
+from django.db.models import Count, Max, Model
 from django.urls import reverse
 from django.utils.html import escape, format_html, format_html_join
 from django.utils.safestring import SafeString
