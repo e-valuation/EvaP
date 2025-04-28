@@ -296,6 +296,7 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore[misc]
         "is_midterm_evaluation",
         "allow_editors_to_edit",
         "wait_for_grade_upload_before_publishing",
+        "main_language",
     }
 
     EVALUATION_EXCLUDED_FIELDS = {

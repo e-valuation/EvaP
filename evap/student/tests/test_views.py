@@ -156,6 +156,7 @@ class TestVoteView(WebTest):
             Evaluation,
             participants=[cls.voting_user1, cls.voting_user2, cls.contributor1],
             state=Evaluation.State.IN_EVALUATION,
+            main_language="en",
         )
         cls.url = f"/student/vote/{cls.evaluation.pk}"
 

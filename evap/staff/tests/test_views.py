@@ -2226,6 +2226,7 @@ class TestEvaluationEditView(WebTestStaffMode):
             course=baker.make(Course, programs=[baker.make(Program)], responsibles=[responsible]),
             vote_start_datetime=datetime.datetime(2099, 1, 1, 0, 0),
             vote_end_date=datetime.date(2099, 12, 31),
+            main_language="en",
         )
         cls.url = reverse("staff:evaluation_edit", args=[cls.evaluation.pk])
 
@@ -2425,9 +2426,7 @@ class TestEvaluationEditView(WebTestStaffMode):
         self.assertNotEqual(Evaluation.objects.first().state, self.evaluation.State.APPROVED)
 
         form["main_language"] = "en"
-        form.submit("operation", value="approve")
-
-        self.assertNotContains(response, "You have to set a main language to approve this evaluation.")
+        response = form.submit("operation", value="approve", status=302)
 
 
 class TestEvaluationDeleteView(WebTestStaffMode):
@@ -2521,7 +2520,7 @@ class TestSingleResultEditView(WebTestStaffModeWith200Check):
 class TestEvaluationPreviewView(WebTestStaffModeWith200Check):
     @classmethod
     def setUpTestData(cls):
-        cls.evaluation = baker.make(Evaluation)
+        cls.evaluation = baker.make(Evaluation, main_language="en")
         cls.evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
 
         cls.manager = make_manager()

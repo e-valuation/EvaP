@@ -202,6 +202,7 @@ class TestContributorEvaluationEditView(WebTest):
             Evaluation,
             course=baker.make(Course, responsibles=[responsible]),
             state=Evaluation.State.PREPARED,
+            main_language="en",
         )
         evaluation.general_contribution.questionnaires.set([locked_questionnaire])
 
@@ -280,8 +281,9 @@ class TestContributorEvaluationEditView(WebTest):
         response = self.app.get(self.url, user=self.editor, status=200)
         form = response.forms["evaluation-form"]
 
-        with self.assertRaises(ValueError):
-            form["main_language"] = "x"
+        form["main_language"] = "x"
+        page = form.submit(name="operation", value="save")
+        self.assertContains(page, "A decision on the main language has to be made.")
 
         for lang, __ in settings.LANGUAGES:
             form["main_language"] = lang
