@@ -182,6 +182,7 @@ class JSONImporter:
         if lookup in self.course_type_cache:
             return self.course_type_cache[lookup]
 
+        # It could happen that the importer needs a new course type
         course_type, __ = CourseType.objects.get_or_create(name_de=name, defaults={"name_en": name})
         self.course_type_cache[name] = course_type
         return course_type
@@ -191,6 +192,7 @@ class JSONImporter:
         if lookup in self.program_cache:
             return self.program_cache[lookup]
 
+        # It could happen that the importer needs a new program
         program, __ = Program.objects.get_or_create(name_de=name, defaults={"name_en": name})
         self.program_cache[name] = program
         return program
