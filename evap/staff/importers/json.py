@@ -52,11 +52,11 @@ class ImportEvent(TypedDict):
     title_en: str
     type: str
     isexam: bool
-    courses: list[ImportCourse]
+    courses: NotRequired[list[ImportCourse]]
     relatedevents: NotRequired[list[ImportRelated]]
-    appointments: list[ImportAppointment]
-    lecturers: list[ImportRelated]
-    students: list[ImportRelated]
+    appointments: NotRequired[list[ImportAppointment]]
+    lecturers: NotRequired[list[ImportRelated]]
+    students: NotRequired[list[ImportRelated]]
 
 
 class ImportDict(TypedDict):
