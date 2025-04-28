@@ -2,7 +2,7 @@ import json
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Any, TypedDict
+from typing import Any, NotRequired, TypedDict
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
@@ -53,7 +53,7 @@ class ImportEvent(TypedDict):
     type: str
     isexam: bool
     courses: list[ImportCourse]
-    relatedevents: list[ImportRelated]
+    relatedevents: NotRequired[list[ImportRelated]]
     appointments: list[ImportAppointment]
     lecturers: list[ImportRelated]
     students: list[ImportRelated]
@@ -417,7 +417,7 @@ class JSONImporter:
 
         unused_events = []
         for event in exam_events:
-            if not event["relatedevents"]:
+            if "relatedevents" not in event:
                 unused_events.append(event)
                 continue
 

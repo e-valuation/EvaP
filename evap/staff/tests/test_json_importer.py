@@ -71,7 +71,6 @@ EXAMPLE_DATA_WITH_PREFIX = {
             "courses": [{"cprid": "BA-Inf", "scale": "GRADE_TO_A_THIRD"}],
             "lecturers": [{"gguid": "0x3"}],
             "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
-            "relatedevents": [],
             "appointments": [{"begin": "29.07.2024 10:15:00", "end": "29.07.2024 11:45:00"}],
         }
     ],
