@@ -152,6 +152,8 @@ class TestLoggedModel(TestCase):
     def test_logging_m2m_reverse_changes(self):
         participant = baker.make(UserProfile)
 
+        evaluation2 = baker.make(Evaluation)
+
         participant.evaluations_participating_in.add(self.evaluation)
         self.assertEqual(
             self.evaluation.related_logentries().order_by("id").last().data,
@@ -164,26 +166,53 @@ class TestLoggedModel(TestCase):
             {"participants": {"remove": [participant.id]}},
         )
 
+        participant.evaluations_participating_in.add(self.evaluation, evaluation2)
+        self.assertEqual(
+            self.evaluation.related_logentries().order_by("id").last().data,
+            {"participants": {"add": [participant.id]}},
+        )
+        self.assertEqual(
+            evaluation2.related_logentries().order_by("id").last().data,
+            {"participants": {"add": [participant.id]}},
+        )
+
+        participant.evaluations_participating_in.remove(self.evaluation, evaluation2)
+        self.assertEqual(
+            self.evaluation.related_logentries().order_by("id").last().data,
+            {"participants": {"remove": [participant.id]}},
+        )
+        self.assertEqual(
+            evaluation2.related_logentries().order_by("id").last().data,
+            {"participants": {"remove": [participant.id]}},
+        )
+
         participant.evaluations_participating_in.add(self.evaluation)
+        # Check if evaluation was added again, so the remove is entry (for the clear) is not just read twice.
+        self.assertEqual(
+            self.evaluation.related_logentries().order_by("id").last().data,
+            {"participants": {"add": [participant.id]}},
+        )
         participant.evaluations_participating_in.clear()
         self.assertEqual(
             self.evaluation.related_logentries().order_by("id").last().data,
             {"participants": {"remove": [participant.id]}},
         )
 
+        empty_qs = UserProfile.objects.none()
+        participant.evaluations_participating_in.add(*empty_qs)
+        last_log_before = self.evaluation.related_logentries().order_by("id").last()
+        self.evaluation.participants.add(*empty_qs)
+        last_log_after = self.evaluation.related_logentries().order_by("id").last()
+        self.assertEqual(last_log_before, last_log_after)
+
         result_no_field_name = _m2m_changed(None, None, None, True, Evaluation, None)
         self.assertEqual(result_no_field_name, None)
 
-    def test_logging_respects_unlogged_fields(self):
+    def test_m2m_logging_respects_unlogged_fields(self):
         participant = baker.make(UserProfile)
-        original_unlogged_fields = self.evaluation.unlogged_fields
 
         # Temporarily modify unlogged_fields to include 'participants'
-        with patch.object(
-            self.evaluation.__class__,
-            "unlogged_fields",
-            new=property(lambda self: original_unlogged_fields + ["participants"]),
-        ):
+        with patch.object(Evaluation, "unlogged_fields", new=["participants"]):
             self.evaluation.participants.add(participant)
             self.assertFalse(any("participants" in entry.data for entry in self.evaluation.related_logentries()))
 
