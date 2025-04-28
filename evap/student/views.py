@@ -250,6 +250,7 @@ def render_vote_page(request, evaluation, preview, for_rendering_in_modal=False)
         "for_rendering_in_modal": for_rendering_in_modal,
         "general_contribution_textanswers_visible_to": textanswers_visible_to(evaluation.general_contribution),
         "text_answer_warnings": TextAnswerWarning.objects.all(),
+        "voter_count_needed_for_publishing_rating_results": settings.VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS,
     }
     return render(request, "student_vote.html", template_data)
 

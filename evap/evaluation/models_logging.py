@@ -6,6 +6,7 @@ from contextlib import contextmanager
 from datetime import date, datetime, time
 from enum import Enum
 from json import JSONEncoder
+from typing import assert_never
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -17,7 +18,6 @@ from django.forms.models import model_to_dict
 from django.template.defaultfilters import yesno
 from django.utils.formats import localize
 from django.utils.translation import gettext_lazy as _
-from typing_extensions import assert_never
 
 from evap.evaluation.tools import capitalize_first
 
@@ -144,6 +144,11 @@ class LoggedModel(models.Model):
     class Meta:
         abstract = True
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._logentry = None
+        self._m2m_changes = defaultdict(lambda: defaultdict(list))
+
     def save(self, *args, **kw):
         # Are we creating a new instance?
         # https://docs.djangoproject.com/en/3.0/ref/models/instances/#customizing-model-loading
@@ -156,11 +161,6 @@ class LoggedModel(models.Model):
             # therefore we save the instance after building the logentry
             self.log_instance_change()
             super().save(*args, **kw)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._logentry = None
-        self._m2m_changes = defaultdict(lambda: defaultdict(list))
 
     def _as_dict(self):
         """

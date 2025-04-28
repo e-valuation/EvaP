@@ -216,9 +216,9 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script type="text/javascript" src="{% static 'js/copy-to-clipboard.js' %}"></script>
+    <script type="module">
+        import { copyHeaders } from "{% static 'js/copy-to-clipboard.js' %}";
 
-    <script type="text/javascript">
         for(const button of document.querySelectorAll(".copy-user-headers-button")) {
             button.addEventListener("click", async () => await copyHeaders(['Title', 'First name', 'Last name', 'Email']));
         }
