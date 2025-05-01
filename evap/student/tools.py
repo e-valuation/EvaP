@@ -23,4 +23,4 @@ def parse_answer_field_id(formfield_id: str) -> tuple[int, int, int, bool]:
     if len(parts) == 5 and parts[4] == "ta":
         return *map(int, parts[1:4]), True  # type: ignore[return-value]
     assert len(parts) == 4
-    return tuple(list(map(int, parts[1:4])) + [False])  # type: ignore[return-value]
+    return *map(int, parts[1:4]), False  # type: ignore[return-value]
