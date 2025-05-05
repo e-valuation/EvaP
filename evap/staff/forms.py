@@ -217,9 +217,20 @@ class CourseTypeForm(forms.ModelForm):
         return course_type
 
 
+class ProgramMergeSelectionForm(forms.Form):
+    # twice is just coincidence so not (yet) deduplicating with CourseTypeMergeSelectionForm below
+    main_instance = forms.ModelChoiceField(Program.objects.all(), label=_("Main program"))
+    other_instance = forms.ModelChoiceField(Program.objects.all(), label=_("Other program"))
+
+    def clean(self):
+        super().clean()
+        if self.cleaned_data.get("main_instance") == self.cleaned_data.get("other_instance"):
+            raise ValidationError(_("You must select two different programs."))
+
+
 class CourseTypeMergeSelectionForm(forms.Form):
-    main_type = forms.ModelChoiceField(CourseType.objects.all())
-    other_type = forms.ModelChoiceField(CourseType.objects.all())
+    main_type = forms.ModelChoiceField(CourseType.objects.all(), label=_("Main type"))
+    other_type = forms.ModelChoiceField(CourseType.objects.all(), label=_("Other type"))
 
     def clean(self):
         super().clean()
