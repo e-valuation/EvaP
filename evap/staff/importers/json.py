@@ -88,7 +88,7 @@ class ImportStatistics:
     updated_courses: list[Course] = field(default_factory=list)
     updated_evaluations: list[Evaluation] = field(default_factory=list)
     attempted_changes: list[Evaluation] = field(default_factory=list)
-    warnings: list[Evaluation] = field(default_factory=list)
+    warnings: list[WarningMessage] = field(default_factory=list)
 
     @staticmethod
     def _make_heading(heading: str, separator: str = "-") -> str:
