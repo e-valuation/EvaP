@@ -141,7 +141,7 @@ method-rgx = "(^[a-z0-9_]+$)|(^assert[A-Za-z]+$)"
 # Allow 4 leading digits for migrations
 module-rgx = "^([0-9]{4})?([a-z_][a-z0-9_]+)$"
 
-good-names = [ "i", "j", "k", "ex", "Run", "_", "__", "e", "logger", "setUpTestData", "setUp", "tearDown"]
+good-names = [ "i", "j", "k", "ex", "Run", "_", "__", "e", "logger", "setUpTestData", "setUp", "tearDown", "do_not_call_in_templates" ]
 
 [tool.pylint.format]
 expected-line-ending-format = "LF"
