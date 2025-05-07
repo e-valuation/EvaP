@@ -1,3 +1,4 @@
+import enum
 from collections import OrderedDict, defaultdict
 from collections.abc import Iterable
 from copy import copy
@@ -38,18 +39,14 @@ GRADE_COLORS = {
 
 
 class ViewGeneralResults(Enum):
-    @property
-    def do_not_call_in_templates(self):
-        return True
+    do_not_call_in_templates = enum.nonmember(True)
 
     FULL = "full"
     RATINGS = "ratings"
 
 
 class ViewContributorResults(Enum):
-    @property
-    def do_not_call_in_templates(self):
-        return True
+    do_not_call_in_templates = enum.nonmember(True)
 
     FULL = "full"
     RATINGS = "ratings"
