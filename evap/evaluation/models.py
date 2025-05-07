@@ -1,3 +1,4 @@
+import enum
 import logging
 import secrets
 import uuid
@@ -500,15 +501,13 @@ class Evaluation(LoggedModel):
         exam_evaluation.general_contribution.questionnaires.set(settings.EXAM_QUESTIONNAIRE_IDS)
 
     class TextAnswerReviewState(Enum):
+        do_not_call_in_templates = enum.nonmember(True)
+
         NO_TEXTANSWERS = auto()
         NO_REVIEW_NEEDED = auto()
         REVIEW_NEEDED = auto()
         REVIEW_URGENT = auto()
         REVIEWED = auto()
-
-        @property
-        def do_not_call_in_templates(self):
-            return True
 
     class Meta:
         unique_together = [
