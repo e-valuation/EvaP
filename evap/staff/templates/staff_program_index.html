@@ -79,7 +79,7 @@
         const rowAdded = function(row) {
             applyTomSelect(row.querySelectorAll("select"), tagTomSelectOptions);
         };
-        makeFormSortable("program_table", "form", rowChanged, rowAdded, "", true, true);
+        makeFormSortable("program_table", "form", rowChanged, rowAdded, true, true);
 
         applyTomSelect(document.querySelectorAll("select:not(.form-template select)"), tagTomSelectOptions);
     </script>
