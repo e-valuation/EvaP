@@ -1,0 +1,27 @@
+{% extends 'staff_base.html' %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    <li class="breadcrumb-item"><a href="{% url 'staff:program_index' %}">{% translate 'Programs' %}</a></li>
+    <li class="breadcrumb-item">{% translate 'Merge programs' %}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <h3>{% translate 'Merge programs' %}</h3>
+
+    <form id="program-merge-selection-form" method="POST" class="form-horizontal">
+        {% csrf_token %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <p>{% translate 'Select the programs you want to merge.' %}</p>
+                {% include 'bootstrap_form.html' with form=form %}
+            </div>
+        </div>
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
+                <button type="submit" class="btn btn-primary">{% translate 'Show merge info' %}</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}
