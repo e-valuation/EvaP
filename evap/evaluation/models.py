@@ -426,6 +426,14 @@ class Evaluation(LoggedModel):
     name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), blank=True)
     name = translate(en="name_en", de="name_de")
 
+    # questionaire is shown in this language per default
+    main_language = models.CharField(
+        max_length=2,
+        verbose_name=_("main language"),
+        default="x",
+        choices=settings.LANGUAGES + [("x", _("undecided"))],
+    )
+
     # defines how large the influence of this evaluation's grade is on the total grade of its course
     weight = models.PositiveSmallIntegerField(verbose_name=_("weight"), default=1)
 
@@ -624,6 +632,10 @@ class Evaluation(LoggedModel):
         return self.general_contribution and self.general_contribution.questionnaires.count() > 0
 
     @property
+    def has_valid_main_language(self):
+        return self.main_language != "x"
+
+    @property
     def all_contributions_have_questionnaires(self):
         if is_prefetched(self, "contributions"):
             if not self.contributions:
@@ -758,7 +770,12 @@ class Evaluation(LoggedModel):
     def ready_for_editors(self):
         pass
 
-    @transition(field=state, source=State.PREPARED, target=State.EDITOR_APPROVED)
+    @transition(
+        field=state,
+        source=State.PREPARED,
+        target=State.EDITOR_APPROVED,
+        conditions=[lambda self: self.has_valid_main_language],
+    )
     def editor_approve(self):
         pass
 
@@ -766,7 +783,7 @@ class Evaluation(LoggedModel):
         field=state,
         source=[State.NEW, State.PREPARED, State.EDITOR_APPROVED],
         target=State.APPROVED,
-        conditions=[lambda self: self.general_contribution_has_questionnaires],
+        conditions=[lambda self: self.general_contribution_has_questionnaires and self.has_valid_main_language],
     )
     def manager_approve(self):
         pass
