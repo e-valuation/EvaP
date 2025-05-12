@@ -203,7 +203,7 @@ def create_voting_form(
     if preselect_no_answer:
         initial = dict.fromkeys(
             [answer_field_id(contribution, questionnaire, question) for question in questionnaire.rating_questions],
-            NO_ANSWER,
+            str(NO_ANSWER),
         )
 
     return QuestionnaireVotingForm(
