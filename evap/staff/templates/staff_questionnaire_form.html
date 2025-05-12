@@ -61,6 +61,12 @@
                                                 {% if 'disabled' in form_element.allows_additional_textanswers.field.widget.attrs %} disabled{% endif %} />
                                             <label class="form-check-label" for="{{ form_element.allows_additional_textanswers.id_for_label }}">{{ form_element.allows_additional_textanswers.label }}</label>
                                         </div>
+                                        <div class="form-check mt-1">
+                                            <input class="form-check-input" id="{{ form_element.counts_for_grade.id_for_label }}" name="{{ form_element.counts_for_grade.html_name }}"
+                                                type="checkbox" data-keep="true" {% if form_element.counts_for_grade.value %} checked{% endif %}
+                                                {% if 'disabled' in form_element.counts_for_grade.field.widget.attrs %} disabled{% endif %} />
+                                            <label class="form-check-label" for="{{ form_element.counts_for_grade.id_for_label }}">{{ form_element.counts_for_grade.label }}</label>
+                                        </div>
                                     </td>
                                     <td>{% include 'bootstrap_form_field_widget.html' with field=form_element.DELETE %}</td>
                                 </tr>
@@ -98,12 +104,17 @@
             makeFormSortable("question_table", "questions", rowChanged, rowAdded, true, true);
 
             const selectChangedHandler = function(e) {
-                const checkbox = this.closest("td.question-type").querySelector("input[type=checkbox]");
+                const checkboxes = this.closest("td.question-type").querySelectorAll("input[type=checkbox]");
                 if (e.currentTarget.value == 0 || e.currentTarget.value == 5) {  // 0: Text question; 5: Heading
-                    checkbox.checked = false;
-                    checkbox.disabled = true;
+                    checkboxes.forEach(checkbox => {
+                        checkbox.checked = false;
+                        checkbox.disabled = true;
+                    });
                 } else {
-                    checkbox.disabled = false;
+                    checkboxes.forEach(checkbox => {
+                        checkbox.checked = true;
+                        checkbox.disabled = false;
+                    });
                 }
             };
 
