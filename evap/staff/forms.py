@@ -907,7 +907,7 @@ class ContributionCopyFormset(ContributionFormset):
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
-        fields = ("order", "questionnaire", "text_de", "text_en", "type", "allows_additional_textanswers")
+        fields = ("order", "questionnaire", "text_de", "text_en", "type", "allows_additional_textanswers", "counts_for_grade")
         widgets = {
             "text_de": forms.Textarea(attrs={"rows": 2}),
             "text_en": forms.Textarea(attrs={"rows": 2}),
@@ -918,11 +918,13 @@ class QuestionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.instance.pk and self.instance.type in [QuestionType.TEXT, QuestionType.HEADING]:
             self.fields["allows_additional_textanswers"].widget.attrs["disabled"] = "disabled"
+            self.fields["counts_for_grade"].widget.attrs["disabled"] = "disabled"
 
     def clean(self):
         super().clean()
         if self.cleaned_data.get("type") in [QuestionType.TEXT, QuestionType.HEADING]:
             self.cleaned_data["allows_additional_textanswers"] = False
+            self.cleaned_data["counts_for_grade"] = False
         return self.cleaned_data
 
 
