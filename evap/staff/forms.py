@@ -917,7 +917,7 @@ class QuestionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance.pk and self.instance.type in [QuestionType.TEXT, QuestionType.HEADING]:
-            self.fields["allows_additional_textanswers"].disabled = True
+            self.fields["allows_additional_textanswers"].widget.attrs["disabled"] = "disabled"
 
     def clean(self):
         super().clean()
