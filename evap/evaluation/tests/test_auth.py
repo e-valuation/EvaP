@@ -179,6 +179,7 @@ class LoginTests(WebTest):
         self.assertFalse(UserProfile.objects.filter(email=old_email).exists())
         self.assertFalse(UserProfile.objects.filter(email=new_email).exists())
 
+        # Logging in with old email creates account, and then changes nothing
         get_userinfo.return_value = {"email": old_email}
         for _ in range(2):
             login_logout()
@@ -187,6 +188,7 @@ class LoginTests(WebTest):
 
         user_pk = UserProfile.objects.get(email=old_email).pk
 
+        # Logging in with new email reuses old account, and then changes nothing
         get_userinfo.return_value = {"email": new_email}
         for _ in range(2):
             login_logout()
@@ -196,6 +198,19 @@ class LoginTests(WebTest):
         self.assertEqual(UserProfile.objects.get(email=new_email).pk, user_pk)
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn("User email changed automatically", mail.outbox[0].subject)
+
+        # Login with old email creates new account, and then changes nothing
+        get_userinfo.return_value = {"email": old_email}
+        for _ in range(2):
+            login_logout()
+            self.assertTrue(UserProfile.objects.filter(email=old_email).exists())
+            self.assertTrue(UserProfile.objects.filter(email=new_email).exists())
+
+        # When both accounts exist, nothing changes
+        get_userinfo.return_value = {"email": new_email}
+        login_logout()
+        self.assertTrue(UserProfile.objects.filter(email=old_email).exists())
+        self.assertTrue(UserProfile.objects.filter(email=new_email).exists())
 
     @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
     def test_passworduser_login(self):
