@@ -1268,6 +1268,7 @@ class Question(models.Model):
     text_en = models.CharField(max_length=1024, verbose_name=_("question text (english)"))
     text = translate(en="text_en", de="text_de")
     allows_additional_textanswers = models.BooleanField(default=True, verbose_name=_("allow additional text answers"))
+    counts_for_grade = models.BooleanField(default=True, verbose_name=_("counts toward the evaluations grade"))
 
     type = models.PositiveSmallIntegerField(choices=QUESTION_TYPES, verbose_name=_("question type"))
 
@@ -1289,7 +1290,9 @@ class Question(models.Model):
         if self.type in [QuestionType.TEXT, QuestionType.HEADING]:
             self.allows_additional_textanswers = False
             if "update_fields" in kwargs:
-                kwargs["update_fields"] = {"allows_additional_textanswers"}.union(kwargs["update_fields"])
+                kwargs["update_fields"] = {"allows_additional_textanswers", "counts_for_grade"}.union(
+                    kwargs["update_fields"]
+                )
 
         super().save(*args, **kwargs)
 
