@@ -113,6 +113,12 @@ EVALUATION_END_WARNING_PERIOD = 5
 # Questionnaires automatically added to exam evaluations
 EXAM_QUESTIONNAIRE_IDS: list[int] = []
 
+# List of emails of users that shouldn't be imported as responsibles during JSON import
+NON_RESPONSIBLE_USERS: list[str] = []
+
+# List of study programs that shouldn't be imported during JSON import
+IGNORE_PROGRAMS: list[str] = []
+
 ### Installation specific settings
 
 # People who get emails on errors.
