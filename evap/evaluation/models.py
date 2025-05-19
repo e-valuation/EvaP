@@ -859,7 +859,7 @@ class Evaluation(LoggedModel):
         self._participant_count = self.num_participants
 
         if not self.can_publish_text_results:
-            if self.voters.count() < 2:
+            if self.voters.count() > 1:
                 logger.exception("If there is more than one voter, can_publish_text_results should be true.")
             self.textanswer_set.delete()
         else:
