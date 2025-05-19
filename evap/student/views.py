@@ -23,7 +23,6 @@ from evap.results.tools import (
     get_evaluations_with_course_result_attributes,
     textanswers_visible_to,
 )
-from evap.settings import LANGUAGES
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.models import TextAnswerWarning
 from evap.student.tools import answer_field_id
@@ -255,7 +254,7 @@ def render_vote_page(request, evaluation, preview, for_rendering_in_modal=False)
         "general_contribution_textanswers_visible_to": textanswers_visible_to(evaluation.general_contribution),
         "text_answer_warnings": TextAnswerWarning.objects.all(),
         "voter_count_needed_for_publishing_rating_results": settings.VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS,
-        "languages": LANGUAGES,
+        "languages": settings.LANGUAGES,
         "evaluation_language": language,
     }
     return render(request, "student_vote.html", template_data)

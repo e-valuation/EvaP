@@ -281,7 +281,7 @@ class TestContributorEvaluationEditView(WebTest):
         response = self.app.get(self.url, user=self.editor, status=200)
         form = response.forms["evaluation-form"]
 
-        form["main_language"] = "x"
+        form["main_language"] = Evaluation.UNDECIDED_MAIN_LANGUAGE
         page = form.submit(name="operation", value="save")
         self.assertContains(page, "A decision on the main language has to be made.")
 
