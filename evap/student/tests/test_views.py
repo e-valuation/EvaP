@@ -569,17 +569,20 @@ class TestDropoutView(WebTest):
         cls.user = baker.make(UserProfile, email="student@institution.example.com")
         cls.user2 = baker.make(UserProfile, email="student2@institution.example.com")
 
-        cls.question = baker.make(Question, type=QuestionType.POSITIVE_YES_NO)
+        cls.normal_question = baker.make(Question, type=QuestionType.EASY_DIFFICULT)
+        cls.dropout_question = baker.make(Question, type=QuestionType.POSITIVE_YES_NO)
 
         cls.normal_questionnaire = baker.make(
             Questionnaire,
             type=Questionnaire.Type.TOP,
             questions=[
                 baker.make(Question, type=QuestionType.TEXT),
-                baker.make(Question, type=QuestionType.EASY_DIFFICULT),
+                cls.normal_question,
             ],
         )
-        cls.dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT, questions=[cls.question])
+        cls.dropout_questionnaire = baker.make(
+            Questionnaire, type=Questionnaire.Type.DROPOUT, questions=[cls.dropout_question]
+        )
 
         cls.evaluation = baker.make(
             Evaluation, state=Evaluation.State.IN_EVALUATION, participants=[cls.user, cls.user2]
@@ -616,7 +619,7 @@ class TestDropoutView(WebTest):
         form = response.forms["student-vote-form"]
 
         self.assertIn(
-            answer_field_id(self.evaluation.general_contribution, self.dropout_questionnaire, self.question),
+            answer_field_id(self.evaluation.general_contribution, self.dropout_questionnaire, self.dropout_question),
             form.fields.keys(),
             "The dropout Questionnaire should be shown",
         )
@@ -653,7 +656,9 @@ class TestDropoutView(WebTest):
         form = self.app.get(url=reverse("student:drop", args=[self.evaluation.id]), user=self.user, status=200).forms[
             "student-vote-form"
         ]
-        field_id = answer_field_id(self.evaluation.general_contribution, self.dropout_questionnaire, self.question)
+        field_id = answer_field_id(
+            self.evaluation.general_contribution, self.dropout_questionnaire, self.dropout_question
+        )
         form[field_id] = NO_ANSWER  # dropout question must be answered
         form.submit()
         self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
@@ -667,3 +672,28 @@ class TestDropoutView(WebTest):
         self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
 
         self.assertEqual(self.evaluation.dropout_count, 1, "dropout count should not change on normal vote")
+
+    def test_choice_fields_correctly_populated_by_server(self):
+        form = self.app.get(url=reverse("student:drop", args=[self.evaluation.id]), user=self.user, status=200).forms[
+            "student-vote-form"
+        ]
+
+        normal_question_id = answer_field_id(
+            self.evaluation.general_contribution, self.normal_questionnaire, self.normal_question
+        )
+        dropout_question_id = answer_field_id(
+            self.evaluation.general_contribution, self.dropout_questionnaire, self.dropout_question
+        )
+
+        self.assertEqual(form[normal_question_id].value, str(NO_ANSWER))
+        self.assertIsNone(form[dropout_question_id].value)
+
+        form[normal_question_id] = -1
+
+        # This form expected to be not submitted (not all questions are answered)
+        response = form.submit()
+        self.assertContains(response, "callout-danger")
+        form = response.forms["student-vote-form"]
+
+        self.assertEqual(form[normal_question_id].value, "-1")
+        self.assertIsNone(form[dropout_question_id].value)
