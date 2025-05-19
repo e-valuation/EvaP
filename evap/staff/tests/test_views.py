@@ -3558,6 +3558,55 @@ class TestCourseTypeMergeView(WebTestStaffMode):
             self.assertTrue(course.type == self.main_type)
 
 
+class TestProgramMergeSelectionView(WebTestStaffMode):
+    url = reverse("staff:program_merge_selection")
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.manager = make_manager()
+        cls.main_program = baker.make(Program)
+        cls.other_program = baker.make(Program)
+
+    def test_same_evaluation_fails(self):
+        page = self.app.get(self.url, user=self.manager, status=200)
+
+        form = page.forms["program-merge-selection-form"]
+        form["main_instance"] = self.main_program.pk
+        form["other_instance"] = self.main_program.pk
+        response = form.submit()
+        self.assertIn("You must select two different programs", str(response))
+
+        form["other_instance"] = self.other_program.pk
+        response = form.submit()
+        self.assertRedirects(
+            response, reverse("staff:program_merge", kwargs={"main_id": self.main_program.id, "other_id": self.other_program.id})
+        )
+
+
+class TestProgramMergeView(WebTestStaffMode):
+    @classmethod
+    def setUpTestData(cls):
+        cls.manager = make_manager()
+        cls.main_program = baker.make(Program, name_en="A program", import_names=["M"])
+        cls.other_program = baker.make(Program, name_en="Obsolete program", import_names=["O"])
+        baker.make(Course, programs=[cls.main_program])
+        baker.make(Course, programs=[cls.other_program])
+
+        cls.url = reverse("staff:program_merge", kwargs={"main_id": cls.main_program.pk, "other_id": cls.other_program.pk})
+
+    def test_merge_works(self):
+        page = self.app.get(self.url, user=self.manager, status=200)
+        form = page.forms["program-merge-form"]
+        response = form.submit().follow()
+        self.assertIn("Successfully", str(response))
+
+        self.assertFalse(Program.objects.filter(name_en="Obsolete program").exists())
+        self.main_program.refresh_from_db()
+        self.assertEqual(self.main_program.import_names, ["M", "O"])
+        self.assertEqual(Course.objects.filter(programs=self.main_program).count(), 2)
+        self.assertEqual(Course.objects.count(), 2)
+
+
 class TestEvaluationTextAnswersUpdatePublishView(WebTest):
     url = reverse("staff:evaluation_textanswers_update_publish")
     csrf_checks = False
