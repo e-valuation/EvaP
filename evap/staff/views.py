@@ -2153,11 +2153,17 @@ def program_merge(request, main_id, other_id):
         messages.success(request, _("Successfully merged programs."))
         return redirect("staff:program_index")
 
-    courses_with_other_program = Course.objects.filter(programs=other_instance).order_by("semester__created_at", "name_de")
+    courses_with_other_program = Course.objects.filter(programs=other_instance).order_by(
+        "semester__created_at", "name_de"
+    )
     return render(
         request,
         "staff_program_merge.html",
-        {"main_instance": main_instance, "other_instance": other_instance, "courses_with_other_program": courses_with_other_program},
+        {
+            "main_instance": main_instance,
+            "other_instance": other_instance,
+            "courses_with_other_program": courses_with_other_program,
+        },
     )
 
 

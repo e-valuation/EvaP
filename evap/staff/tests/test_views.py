@@ -3579,7 +3579,8 @@ class TestProgramMergeSelectionView(WebTestStaffMode):
         form["other_instance"] = self.other_program.pk
         response = form.submit()
         self.assertRedirects(
-            response, reverse("staff:program_merge", kwargs={"main_id": self.main_program.id, "other_id": self.other_program.id})
+            response,
+            reverse("staff:program_merge", kwargs={"main_id": self.main_program.id, "other_id": self.other_program.id}),
         )
 
 
@@ -3592,7 +3593,9 @@ class TestProgramMergeView(WebTestStaffMode):
         baker.make(Course, programs=[cls.main_program])
         baker.make(Course, programs=[cls.other_program])
 
-        cls.url = reverse("staff:program_merge", kwargs={"main_id": cls.main_program.pk, "other_id": cls.other_program.pk})
+        cls.url = reverse(
+            "staff:program_merge", kwargs={"main_id": cls.main_program.pk, "other_id": cls.other_program.pk}
+        )
 
     def test_merge_works(self):
         page = self.app.get(self.url, user=self.manager, status=200)
