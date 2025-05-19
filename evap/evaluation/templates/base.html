@@ -189,6 +189,7 @@
             // activate clickable hover tables
             document.querySelectorAll(".table-seamless-links [data-url]").forEach(row => {
                 row.addEventListener("click", event => {
+                    event.preventDefault();
                     // We navigate via the <a> tag to enable browser behavior for Ctrl-Click. We cannot insert an actual
                     // <a> tag, because there cannot be any non-table tags between for example <tbody> and <tr>.
                     const anchor = document.createElement("a");
