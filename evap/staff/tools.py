@@ -415,7 +415,7 @@ def user_edit_link(user_id):
     )
 
 
-T = TypeVar("T")
+T = TypeVar("T", bound=Model)
 
 
 def update_or_create_with_changes(
@@ -428,7 +428,7 @@ def update_or_create_with_changes(
     if not defaults:
         defaults = {}
 
-    obj, created = model.objects.get_or_create(**kwargs, defaults=defaults)
+    obj, created = model._default_manager.get_or_create(**kwargs, defaults=defaults)
 
     if created:
         return obj, True, {}
@@ -438,7 +438,7 @@ def update_or_create_with_changes(
     return obj, False, changes
 
 
-def update_with_changes(obj: Model, defaults: dict[str, any]) -> dict[str, tuple[Any, Any]]:
+def update_with_changes(obj: Model, defaults: dict[str, Any]) -> dict[str, tuple[Any, Any]]:
     """Update a model instance and track changed values."""
 
     changes = {}
