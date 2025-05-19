@@ -9786,10 +9786,10 @@
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
-    "can_publish_text_results": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
-    "dropout_count": 0,
+    "dropout_count": 5,
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2099-05-08",
     "allow_editors_to_edit": true,
@@ -9797,10 +9797,21 @@
     "cms_id": null,
     "participants": [
       452,
+      831,
+      830,
+      833,
       505,
-      555
+      555,
+      834,
+      832
     ],
-    "voters": []
+    "voters": [
+      831,
+      830,
+      833,
+      834,
+      832
+    ]
   }
 },
 {
@@ -10399,7 +10410,7 @@
     "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
-    "dropout_count": 0,
+    "dropout_count": 5,
     "vote_start_datetime": "2024-06-01T00:00:00",
     "vote_end_date": "2099-12-31",
     "allow_editors_to_edit": false,
@@ -10410,16 +10421,25 @@
       412,
       445,
       452,
+      831,
       453,
+      830,
       490,
       545,
+      833,
+      834,
       323,
+      832,
       457
     ],
     "voters": [
       459,
       412,
-      545
+      831,
+      830,
+      833,
+      834,
+      832
     ]
   }
 },
@@ -42002,6 +42022,16 @@
 },
 {
   "model": "evaluation.ratinganswercounter",
+  "pk": "3d3eaa59-795d-49f6-8b28-4b8e478cdbea",
+  "fields": {
+    "question": 480,
+    "contribution": 4072,
+    "answer": 1,
+    "count": 5
+  }
+},
+{
+  "model": "evaluation.ratinganswercounter",
   "pk": "3d48895e-e9d7-47cc-bca7-2561f15fe13c",
   "fields": {
     "question": 347,
@@ -68478,6 +68508,16 @@
     "contribution": 3725,
     "answer": -1,
     "count": 2
+  }
+},
+{
+  "model": "evaluation.ratinganswercounter",
+  "pk": "8e9d0feb-92e5-4226-a1ba-851001b5ba37",
+  "fields": {
+    "question": 480,
+    "contribution": 3994,
+    "answer": 1,
+    "count": 5
   }
 },
 {
@@ -106520,6 +106560,18 @@
 },
 {
   "model": "evaluation.textanswer",
+  "pk": "0148d55e-0716-4cf4-bde5-8899f5a27088",
+  "fields": {
+    "question": 479,
+    "contribution": 3994,
+    "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos",
+    "original_answer": null,
+    "review_decision": "UN",
+    "is_flagged": false
+  }
+},
+{
+  "model": "evaluation.textanswer",
   "pk": "015fce61-3858-4ec3-b30e-1aae8aac756f",
   "fields": {
     "question": 314,
@@ -107648,6 +107700,18 @@
 },
 {
   "model": "evaluation.textanswer",
+  "pk": "0e939c6a-f5ee-4d68-b157-107b4802453e",
+  "fields": {
+    "question": 479,
+    "contribution": 3994,
+    "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos",
+    "original_answer": null,
+    "review_decision": "UN",
+    "is_flagged": false
+  }
+},
+{
+  "model": "evaluation.textanswer",
   "pk": "0ef70dcf-b86d-4bf3-96f5-50214e6305d8",
   "fields": {
     "question": 324,
@@ -108195,6 +108259,18 @@
     "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus",
     "original_answer": null,
     "review_decision": "PU",
+    "is_flagged": false
+  }
+},
+{
+  "model": "evaluation.textanswer",
+  "pk": "15073ca5-047f-41d2-b202-a03a7c32ebb2",
+  "fields": {
+    "question": 479,
+    "contribution": 4072,
+    "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos",
+    "original_answer": null,
+    "review_decision": "UN",
     "is_flagged": false
   }
 },
@@ -111692,6 +111768,18 @@
 },
 {
   "model": "evaluation.textanswer",
+  "pk": "3e767e2d-e11b-40ef-941c-6e968c02e99d",
+  "fields": {
+    "question": 479,
+    "contribution": 3994,
+    "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos",
+    "original_answer": null,
+    "review_decision": "UN",
+    "is_flagged": false
+  }
+},
+{
+  "model": "evaluation.textanswer",
   "pk": "3ea69df6-e55d-4074-af2f-2e0c6600266a",
   "fields": {
     "question": 373,
@@ -113895,6 +113983,18 @@
     "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing",
     "original_answer": null,
     "review_decision": "PU",
+    "is_flagged": false
+  }
+},
+{
+  "model": "evaluation.textanswer",
+  "pk": "56e1008e-6b56-424a-9524-d097ab9c0f51",
+  "fields": {
+    "question": 479,
+    "contribution": 4072,
+    "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos",
+    "original_answer": null,
+    "review_decision": "UN",
     "is_flagged": false
   }
 },
@@ -118676,6 +118776,18 @@
 },
 {
   "model": "evaluation.textanswer",
+  "pk": "8e7bee9f-092f-44e6-863c-b8820652ae0c",
+  "fields": {
+    "question": 479,
+    "contribution": 4072,
+    "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos",
+    "original_answer": null,
+    "review_decision": "UN",
+    "is_flagged": false
+  }
+},
+{
+  "model": "evaluation.textanswer",
   "pk": "8e97eaaf-bc22-4ef8-9c40-02c9f55ec8f7",
   "fields": {
     "question": 318,
@@ -120608,6 +120720,18 @@
 },
 {
   "model": "evaluation.textanswer",
+  "pk": "a59a8758-243a-4c6c-8f42-19f473c26ef8",
+  "fields": {
+    "question": 479,
+    "contribution": 4072,
+    "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam",
+    "original_answer": null,
+    "review_decision": "UN",
+    "is_flagged": false
+  }
+},
+{
+  "model": "evaluation.textanswer",
   "pk": "a5d5697f-0f3b-4a66-991b-f4cc1c8cd090",
   "fields": {
     "question": 318,
@@ -120687,6 +120811,18 @@
     "answer": "Lorem ipsum dolor sit",
     "original_answer": null,
     "review_decision": "PU",
+    "is_flagged": false
+  }
+},
+{
+  "model": "evaluation.textanswer",
+  "pk": "a6c2f6eb-0187-4078-9bdd-fddc3a8f0a6d",
+  "fields": {
+    "question": 479,
+    "contribution": 4072,
+    "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam",
+    "original_answer": null,
+    "review_decision": "UN",
     "is_flagged": false
   }
 },
@@ -121395,6 +121531,18 @@
     "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed",
     "original_answer": null,
     "review_decision": "PU",
+    "is_flagged": false
+  }
+},
+{
+  "model": "evaluation.textanswer",
+  "pk": "ae703b66-72a6-4663-8fb9-29c3077c0f04",
+  "fields": {
+    "question": 479,
+    "contribution": 3994,
+    "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam",
+    "original_answer": null,
+    "review_decision": "UN",
     "is_flagged": false
   }
 },
@@ -128991,6 +129139,18 @@
     "answer": "Lorem ipsum dolor",
     "original_answer": null,
     "review_decision": "PU",
+    "is_flagged": false
+  }
+},
+{
+  "model": "evaluation.textanswer",
+  "pk": "fc6ec9a8-0915-4011-b2cf-ef53f4e54fe8",
+  "fields": {
+    "question": 479,
+    "contribution": 3994,
+    "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy",
+    "original_answer": null,
+    "review_decision": "UN",
     "is_flagged": false
   }
 },
