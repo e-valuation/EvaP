@@ -1753,6 +1753,7 @@ def evaluation_textanswers_update_publish(request):
 
     review_decision_for_action = {
         "publish": TextAnswer.ReviewDecision.PUBLIC,
+        "make_private": TextAnswer.ReviewDecision.PRIVATE,
         "delete": TextAnswer.ReviewDecision.DELETED,
         "unreview": TextAnswer.ReviewDecision.UNDECIDED,
     }

@@ -222,7 +222,7 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
         ((textanswer.contribution_id, textanswer.question_id), textanswer)
         for contribution in evaluation.contributions.all()
         for textanswer in contribution.textanswer_set.all()
-        if textanswer.review_decision == TextAnswer.ReviewDecision.PUBLIC
+        if textanswer.review_decision in [TextAnswer.ReviewDecision.PRIVATE, TextAnswer.ReviewDecision.PUBLIC]
     )
 
     racs_per_contribution_question: dict[tuple[int, int], list[RatingAnswerCounter]] = unordered_groupby(
@@ -479,7 +479,7 @@ def can_textanswer_be_seen_by(  # noqa: PLR0911
     textanswer: TextAnswer,
     view: str,
 ) -> bool:
-    assert textanswer.review_decision == TextAnswer.ReviewDecision.PUBLIC
+    assert textanswer.review_decision in [TextAnswer.ReviewDecision.PRIVATE, TextAnswer.ReviewDecision.PUBLIC]
     contributor = textanswer.contribution.contributor
 
     if view == "public":
