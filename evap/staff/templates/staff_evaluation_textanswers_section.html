@@ -39,6 +39,9 @@
                                         <input type="radio" class="btn-check" name="action" value="publish" id="{{ answer.id }}-radio-publish" autocomplete="off" {% if answer.will_be_public %}checked{% endif %}>
                                         <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-publish">{% translate 'Publish' %}</label>
 
+                                        <input type="radio" class="btn-check" name="action" value="make_private" id="{{ answer.id }}-radio-private" autocomplete="off" {% if answer.will_be_private %}checked{% endif %} {% if not contributor %}disabled{% endif %}>
+                                        <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-private">{% translate 'Private' %}</label>
+
                                         <input type="radio" class="btn-check" name="action" value="unreview" id="{{ answer.id }}-radio-undecided" autocomplete="off" {% if not answer.is_reviewed %}checked{% endif %}>
                                         <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-undecided">{% translate 'Undecided' %}</label>
 

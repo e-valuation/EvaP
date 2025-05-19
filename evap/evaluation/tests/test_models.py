@@ -386,6 +386,7 @@ class TestEvaluations(WebTest):
                 [
                     TextAnswer.ReviewDecision.DELETED,
                     TextAnswer.ReviewDecision.PUBLIC,
+                    TextAnswer.ReviewDecision.PRIVATE,
                 ]
             ),
             _quantity=3,

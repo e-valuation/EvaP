@@ -1628,6 +1628,7 @@ class TextAnswer(Answer):
         """
 
         PUBLIC = "PU", _("public")
+        PRIVATE = "PR", _("private")  # This answer should only be displayed to the contributor the question was about
         DELETED = "DE", _("deleted")
 
         UNDECIDED = "UN", _("undecided")
@@ -1658,6 +1659,10 @@ class TextAnswer(Answer):
         return self.review_decision == self.ReviewDecision.DELETED
 
     @property
+    def will_be_private(self):
+        return self.review_decision == self.ReviewDecision.PRIVATE
+
+    @property
     def will_be_public(self):
         return self.review_decision == self.ReviewDecision.PUBLIC
 
@@ -1666,6 +1671,10 @@ class TextAnswer(Answer):
     @property
     def is_public(self):
         return self.will_be_public
+
+    @property
+    def is_private(self):
+        return self.will_be_private
 
     @property
     def is_reviewed(self):
