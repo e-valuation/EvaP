@@ -639,13 +639,13 @@ class TestDropoutView(WebTest):
             self.evaluation.general_contribution.questionnaires.filter(type=Questionnaire.Type.DROPOUT).exists()
         )
 
-    def test_view_not_shown_if_dropout_not_allowed(self):
+    def test_dropout_forbidden(self):
         normal_questionnaires = self.evaluation.general_contribution.questionnaires.exclude(
             type=Questionnaire.Type.DROPOUT
         ).all()
         self.evaluation.general_contribution.questionnaires.set(normal_questionnaires)
 
-        _ = self.app.get(url=reverse("student:drop", args=[self.evaluation.id]), user=self.user, status=400)
+        self.app.get(url=reverse("student:drop", args=[self.evaluation.id]), user=self.user, status=400)
 
     def test_dropping_out_increments_dropout_counter(self):
         self.assertEqual(self.evaluation.dropout_count, 0, "dropout count should be initially zero")
