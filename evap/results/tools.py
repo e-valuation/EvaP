@@ -231,7 +231,7 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
         ((textanswer.contribution_id, textanswer.assignment_id), textanswer)
         for contribution in evaluation.contributions.all()
         for textanswer in contribution.textanswer_set.all()
-        if textanswer.review_decision in [TextAnswer.ReviewDecision.PRIVATE, TextAnswer.ReviewDecision.PUBLIC]
+        if textanswer.review_decision == TextAnswer.ReviewDecision.PUBLIC
     )
 
     racs_per_contribution_assignment: dict[tuple[int, int], list[RatingAnswerCounter]] = unordered_groupby(
@@ -483,7 +483,7 @@ def can_textanswer_be_seen_by(  # noqa: PLR0911,PLR0912
     view_general_results: ViewGeneralResults,
     view_contributor_results: ViewContributorResults,
 ) -> bool:
-    assert textanswer.review_decision in [TextAnswer.ReviewDecision.PRIVATE, TextAnswer.ReviewDecision.PUBLIC]
+    assert textanswer.review_decision == TextAnswer.ReviewDecision.PUBLIC
     contributor = textanswer.contribution.contributor
 
     # NOTE: when changing this behavior, make sure all changes are also reflected in results.tools.textanswers_visible_to
