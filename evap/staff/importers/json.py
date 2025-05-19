@@ -71,7 +71,7 @@ class NameChange:
     old_first_name_given: str
     new_last_name: str
     new_first_name_given: str
-    email: str
+    email: str | None
 
 
 @dataclass
@@ -166,7 +166,7 @@ class JSONImporter:
         self.statistics = ImportStatistics()
 
     def _choose_responsibles(self, user_profiles: list[UserProfile]) -> list[UserProfile]:
-        user_profiles_by_len = {}
+        user_profiles_by_len: dict[int, list[UserProfile]] = {}
         for user_profile in user_profiles:
             user_profile_len = len(user_profile.title)
             user_profiles_by_len.setdefault(user_profile_len, []).append(user_profile)
@@ -391,7 +391,7 @@ class JSONImporter:
 
     def _import_contribution(
         self, evaluation: Evaluation, data: ImportRelated
-    ) -> tuple[Contribution | None, bool, dict[str, tuple[any, any]]]:
+    ) -> tuple[Contribution | None, bool, dict[str, tuple[Any, Any]]]:
         if data["gguid"] not in self.user_profile_map:
             return None, False, {}
 
@@ -423,21 +423,21 @@ class JSONImporter:
                 unused_events.append(event)
                 continue
 
-            course = self.course_map[event["relatedevents"][0]["gguid"]]
+            exam_course = self.course_map[event["relatedevents"][0]["gguid"]]
 
-            self._import_course_programs(course, event)
+            self._import_course_programs(exam_course, event)
 
-            self._import_evaluation(course, event)
+            self._import_evaluation(exam_course, event)
         for event in unused_events:
-            course = self._import_course_from_unused_exam(event)
-            if not course:
+            course_from_unused_exam = self._import_course_from_unused_exam(event)
+            if not course_from_unused_exam:
                 self.statistics.warnings.append(
                     WarningMessage(obj=event["title"], message="No related event or matching prefix found")
                 )
                 continue
             event["isexam"] = False
-            self._import_course_programs(course, event)
-            self._import_evaluation(course, event)
+            self._import_course_programs(course_from_unused_exam, event)
+            self._import_evaluation(course_from_unused_exam, event)
 
     @transaction.atomic
     def import_dict(self, data: ImportDict) -> None:
