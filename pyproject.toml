@@ -78,7 +78,7 @@ artifacts = [
 
 [tool.black]
 line-length = 120
-include = '(evap|tools).*\.pyi?$'
+include = '(evap|tools|nix).*\.pyi?$'
 extend-exclude = """\
     .*/urls\\.py|\
     .*/migrations/.*\
@@ -88,7 +88,7 @@ extend-exclude = """\
 
 [tool.isort]
 profile = "black"
-src_paths = ["evap", "tools"]
+src_paths = ["evap", "tools", "nix"]
 line_length = 120
 skip_gitignore = true
 extend_skip_glob = ["**/migrations/*"]
@@ -195,7 +195,7 @@ exclude_also = [
 ##############################################
 
 [tool.mypy]
-packages = ["evap", "tools"]
+packages = ["evap", "tools", "nix"]
 plugins = ["mypy_django_plugin.main"]
 exclude = 'evap/.*/migrations/.*\.py$'
 
@@ -225,6 +225,6 @@ ignore_missing_imports = true
 # pytest-xdist worked for parallelizing tests.
 DJANGO_SETTINGS_MODULE = "evap.settings"
 python_files = ["tests.py", "test_*.py", "*_tests.py"]
-testpaths = ["evap", "tools"]
+testpaths = ["evap", "tools", "nix"]
 norecursedirs=["locale", "logs", "static", "static_collected", "upload"]
 addopts = "--reuse-db"
