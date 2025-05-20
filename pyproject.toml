@@ -120,6 +120,9 @@ pep8-naming.extend-ignore-names = ["assert*", "*Formset"]  # custom assert metho
 [tool.ruff.format]
 exclude = ["**/urls.py", "**/migrations/*.py"]
 
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"evap.settings".msg = "Use django.conf.settings instead."
+
 ##############################################
 
 
