@@ -71,7 +71,7 @@ artifacts = [
     "evap/static/bootstrap/dist/js/bootstrap.bundle.min.js.map",
     "evap/static/font-awesome/webfonts/",
 
-    "evap/locale/*.mo",
+    "evap/locale/**/*.mo",
 ]
 
 ##############################################
