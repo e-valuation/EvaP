@@ -235,7 +235,7 @@ class TestScssCommand(TestCase):
         management.call_command("scss", "--production", stdout=StringIO())
 
         mock_subprocess_run.assert_called_once_with(
-            ["npx", "sass", self.scss_path, self.css_path, "--style", "compressed", "--no-source-map"],
+            ["npx", "sass", self.scss_path, self.css_path, "--style", "compressed"],
             check=False,
         )
 
