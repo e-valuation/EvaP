@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
+import argparse
 import sys
 import tomllib
+from pathlib import Path
 from zipfile import ZipFile
 
 from pathspec.patterns.gitwildmatch import GitWildMatchPattern
@@ -20,21 +22,25 @@ def ensure_all_artifacts_included(pyproject, wheel_paths):
         for artifact in artifacts:
             pattern = GitWildMatchPattern(artifact)
             if all(pattern.match_file(name) is None for name in included_files):
-                print(f"{wheel_path}: No file matches artifact: {artifact}")
+                print(f"{wheel_path}: No file matches artifact: {artifact}", file=sys.stderr)
                 status |= 1
     return status
 
 
 def main(argv):
-    if len(argv) < 3:
-        print(f"USAGE: {argv[0]} <pyproject.toml path> <.whl path>...")
+    parser = argparse.ArgumentParser("check_dist", exit_on_error=False)
+    parser.add_argument("pyproject", type=Path)
+    parser.add_argument("wheels", type=Path, nargs="*")
+    try:
+        args = parser.parse_args(argv)
+    except SystemExit:
         return 1
 
-    with open(argv[1], "rb") as f:
+    with args.pyproject.open("rb") as f:
         pyproject = tomllib.load(f)
 
-    return ensure_all_artifacts_included(pyproject, argv[2:])
+    return ensure_all_artifacts_included(pyproject, args.wheels)
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+    sys.exit(main(sys.argv[1:]))

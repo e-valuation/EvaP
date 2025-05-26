@@ -392,7 +392,7 @@ class CheckDistTest(TestCase):
             self.make_zip({"css/evap.css", "translation.mo"}) as wheel,
             patch("builtins.print"),
         ):
-            exit_code = check_dist_main(["check_dist", pyproject.name, wheel.name])
+            exit_code = check_dist_main([pyproject.name, wheel.name])
         self.assertEqual(exit_code, 0)
 
     def test_in_directory(self):
@@ -401,12 +401,12 @@ class CheckDistTest(TestCase):
             self.make_zip({"css/directory/evap.css", "translation.mo"}) as wheel,
             patch("builtins.print"),
         ):
-            exit_code = check_dist_main(["check_dist", pyproject.name, wheel.name])
+            exit_code = check_dist_main([pyproject.name, wheel.name])
         self.assertEqual(exit_code, 1)
 
     def test_missing(self):
         with self.make_pyproject() as pyproject, self.make_zip({"css/evap.css"}) as wheel, patch("builtins.print"):
-            exit_code = check_dist_main(["check_dist", pyproject.name, wheel.name])
+            exit_code = check_dist_main([pyproject.name, wheel.name])
         self.assertEqual(exit_code, 1)
 
     def test_no_artifacts(self):
@@ -415,13 +415,13 @@ class CheckDistTest(TestCase):
             self.make_zip([]) as wheel,
             patch("builtins.print") as print_mock,
         ):
-            exit_code = check_dist_main(["check_dist", pyproject.name, wheel.name])
+            exit_code = check_dist_main([pyproject.name, wheel.name])
         self.assertEqual(exit_code, 0)
         print_mock.assert_called_once_with("No artifacts specified")
 
     def test_usage(self):
-        with patch("builtins.print") as print_mock:
-            exit_code = check_dist_main(["check_dist"])
+        with patch("sys.stderr.write") as print_mock:
+            exit_code = check_dist_main([])
         self.assertEqual(exit_code, 1)
-        print_mock.assert_called_once()
-        self.assertIn("USAGE", print_mock.call_args[0][0])
+        print_mock.assert_called()
+        self.assertIn("usage", print_mock.call_args_list[0][0][0])
