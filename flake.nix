@@ -124,7 +124,7 @@
             let
               py = self.packages.${system}.python3.withPackages (ps: [ ps.pathspec ]);
             in
-            pkgs.writeShellScriptBin "check-dist" "${py}/bin/python ${./tools/check-dist.py} $@";
+            pkgs.writeShellScriptBin "check_dist" "${py}/bin/python ${./tools/check_dist.py} $@";
 
           clean-setup = pkgs.writeShellApplication {
             name = "clean-setup";
