@@ -1,4 +1,3 @@
-import subprocess
 import tempfile
 from datetime import datetime, timedelta
 from io import BytesIO
@@ -12,7 +11,6 @@ from django.utils.html import escape
 from model_bakery import baker
 from openpyxl import load_workbook
 
-import tools.check_dist
 from evap.evaluation.models import Contribution, Course, Evaluation, UserProfile
 from evap.evaluation.tests.tools import TestCase, WebTest, assert_no_database_modifications
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption
