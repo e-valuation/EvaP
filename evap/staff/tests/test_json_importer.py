@@ -296,7 +296,7 @@ class TestImportEvents(TestCase):
         self.assertEqual(main_evaluation.course, course)
         self.assertEqual(main_evaluation.name_de, "")
         self.assertEqual(main_evaluation.name_en, "")
-        # [{"begin": "15.04.2024 10:15", "end": "15.07.2024 11:45"}]
+        # [{"begin": "15.04.2024 10:15", "end": "15.07.2024 11:45"}]x["end"] for x in
         self.assertEqual(main_evaluation.vote_start_datetime, datetime(2024, 7, 8, 8, 0))
         self.assertEqual(main_evaluation.vote_end_date, date(2024, 7, 21))
         self.assertSetEqual(
