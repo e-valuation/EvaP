@@ -336,7 +336,7 @@ def average_grade_questions_distribution(results):
         [
             (unipolarized_distribution(result), result.count_sum)
             for result in results
-            if result.question.is_grade_question
+            if result.question.is_grade_question and result.question.counts_for_grade
         ]
     )
 
@@ -346,7 +346,7 @@ def average_non_grade_rating_questions_distribution(results):
         [
             (unipolarized_distribution(result), result.count_sum)
             for result in results
-            if result.question.is_non_grade_rating_question
+            if result.question.is_non_grade_rating_question and result.question.counts_for_grade
         ]
     )
 
