@@ -198,7 +198,7 @@ class TestLoggedModel(TestCase):
             {"participants": {"remove": [participant.id]}},
         )
 
-        empty_qs = UserProfile.objects.none()
+        empty_qs = Evaluation.objects.none()
         participant.evaluations_participating_in.add(*empty_qs)
         last_log_before = self.evaluation.related_logentries().order_by("id").last()
         self.evaluation.participants.add(*empty_qs)
@@ -211,7 +211,6 @@ class TestLoggedModel(TestCase):
     def test_m2m_logging_respects_unlogged_fields(self):
         participant = baker.make(UserProfile)
 
-        # Temporarily modify unlogged_fields to include 'participants'
         with patch.object(Evaluation, "unlogged_fields", new=["participants"]):
             self.evaluation.participants.add(participant)
             self.assertFalse(any("participants" in entry.data for entry in self.evaluation.related_logentries()))
