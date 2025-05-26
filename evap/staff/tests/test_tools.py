@@ -394,7 +394,7 @@ class CheckDistTest(TestCase):
             self.make_zip({"css/evap.css", "translation.mo"}) as wheel,
             patch("builtins.print"),
         ):
-            exit_code = check_dist_main(["check-dist", pyproject.name, wheel.name])
+            exit_code = check_dist_main(["check_dist", pyproject.name, wheel.name])
         self.assertEqual(exit_code, 0)
 
     def test_in_directory(self):
@@ -403,12 +403,12 @@ class CheckDistTest(TestCase):
             self.make_zip({"css/directory/evap.css", "translation.mo"}) as wheel,
             patch("builtins.print"),
         ):
-            exit_code = check_dist_main(["check-dist", pyproject.name, wheel.name])
+            exit_code = check_dist_main(["check_dist", pyproject.name, wheel.name])
         self.assertEqual(exit_code, 1)
 
     def test_missing(self):
         with self.make_pyproject() as pyproject, self.make_zip({"css/evap.css"}) as wheel, patch("builtins.print"):
-            exit_code = check_dist_main(["check-dist", pyproject.name, wheel.name])
+            exit_code = check_dist_main(["check_dist", pyproject.name, wheel.name])
         self.assertEqual(exit_code, 1)
 
     def test_no_artifacts(self):
@@ -417,11 +417,13 @@ class CheckDistTest(TestCase):
             self.make_zip([]) as wheel,
             patch("builtins.print") as print_mock,
         ):
-            exit_code = check_dist_main(["check-dist", pyproject.name, wheel.name])
+            exit_code = check_dist_main(["check_dist", pyproject.name, wheel.name])
         self.assertEqual(exit_code, 0)
         print_mock.assert_called_once_with("No artifacts specified")
 
     def test_usage(self):
-        process = subprocess.run(["python3", tools.check_dist.__file__], check=False, stdout=subprocess.PIPE)
-        self.assertEqual(process.returncode, 1)
-        self.assertIn(b"USAGE", process.stdout)
+        with patch("builtins.print") as print_mock:
+            exit_code = check_dist_main(["check_dist"])
+        self.assertEqual(exit_code, 1)
+        print_mock.assert_called_once()
+        self.assertIn("USAGE", print_mock.call_args[0][0])
