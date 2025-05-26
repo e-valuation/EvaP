@@ -120,7 +120,7 @@
                 ${python-build}/bin/python -m build
               '';
           };
-          check-dist =
+          check_dist =
             let
               py = self.packages.${system}.python3.withPackages (ps: [ ps.pathspec ]);
             in
