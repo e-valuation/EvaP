@@ -355,13 +355,13 @@ def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  #
         return
 
     if reverse:
-        field = model._meta.get_field(field_name)
-        related_name = field.remote_field.get_accessor_name()
 
         if pk_set:
             related_instances = model.objects.filter(pk__in=pk_set)
         else:
             # When action is pre_clear, pk_set is None, so we need to get the related instances from the instance itself
+            field = model._meta.get_field(field_name)
+            related_name = field.remote_field.get_accessor_name()
             related_instances = getattr(instance, related_name).all()
 
         for related_instance in related_instances:
