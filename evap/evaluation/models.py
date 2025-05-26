@@ -860,7 +860,10 @@ class Evaluation(LoggedModel):
 
         if not self.can_publish_text_results:
             if self.voters.count() > 1:
-                logger.exception("If there is more than one voter, can_publish_text_results should be true.")
+                logger.exception(
+                    f"If there is more than one voter, can_publish_text_results should be true.\n"
+                    f"\tEvaluation.pk={self.pk}, {self}"
+                )
             self.textanswer_set.delete()
         else:
             self.textanswer_set.filter(review_decision=TextAnswer.ReviewDecision.DELETED).delete()
