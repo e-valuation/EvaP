@@ -373,14 +373,14 @@ class EnrollmentPreprocessorTest(WebTest):
 class CheckDistTest(TestCase):
     @staticmethod
     def make_pyproject(artifacts=("css/evap.css", "translation.mo")):
-        f = tempfile.NamedTemporaryFile(suffix="pyproject.toml")
+        f = tempfile.NamedTemporaryFile(suffix="pyproject.toml")  # pylint: disable=consider-using-with
         f.write(f"tool.hatch.build.artifacts = {list(artifacts)!r}".encode())
         f.flush()
         return f
 
     @staticmethod
     def make_zip(files):
-        f = tempfile.NamedTemporaryFile(suffix=".whl")
+        f = tempfile.NamedTemporaryFile(suffix=".whl")  # pylint: disable=consider-using-with
         with ZipFile(f, mode="w") as zf:
             for name in files:
                 zf.writestr(name, f"{name} content")
