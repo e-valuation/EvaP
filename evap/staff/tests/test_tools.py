@@ -1,7 +1,9 @@
+import tempfile
 from datetime import datetime, timedelta
 from io import BytesIO
 from itertools import cycle, repeat
 from unittest.mock import MagicMock, patch
+from zipfile import ZipFile
 
 from django.contrib.auth.models import Group
 from django.test import override_settings
@@ -26,6 +28,7 @@ from evap.staff.tools import (
     user_edit_link,
 )
 from evap.tools import assert_not_none
+from tools.check_dist import main as check_dist_main
 from tools.enrollment_preprocessor import run_preprocessor
 
 
@@ -365,3 +368,43 @@ class EnrollmentPreprocessorTest(WebTest):
         self.assertEqual(workbook["MA Belegungen"]["I3"].value, "in all modified")
         self.assertEqual(workbook["BA Belegungen"]["C2"].value, "Lucilia")
         self.assertEqual(workbook["BA Belegungen"]["C3"].value, "Lucilia")
+
+
+class CheckDistTest(TestCase):
+    @staticmethod
+    def make_pyproject(artifacts=("css/evap.css", "translation.mo")):
+        f = tempfile.NamedTemporaryFile(suffix="pyproject.toml")
+        f.write(f"tool.hatch.build.artifacts = {list(artifacts)!r}".encode())
+        f.flush()
+        return f
+
+    @staticmethod
+    def make_zip(files):
+        f = tempfile.NamedTemporaryFile(suffix=".whl")
+        with ZipFile(f, mode="w") as zf:
+            for name in files:
+                zf.writestr(name, f"{name} content")
+        return f
+
+    def test_correct(self):
+        with (
+            self.make_pyproject() as pyproject,
+            self.make_zip({"css/evap.css", "translation.mo"}) as wheel,
+            patch("builtins.print"),
+        ):
+            exit_code = check_dist_main(["check-dist", pyproject.name, wheel.name])
+        self.assertEqual(exit_code, 0)
+
+    def test_in_directory(self):
+        with (
+            self.make_pyproject() as pyproject,
+            self.make_zip({"css/directory/evap.css", "translation.mo"}) as wheel,
+            patch("builtins.print"),
+        ):
+            exit_code = check_dist_main(["check-dist", pyproject.name, wheel.name])
+        self.assertEqual(exit_code, 1)
+
+    def test_missing(self):
+        with self.make_pyproject() as pyproject, self.make_zip({"css/evap.css"}) as wheel, patch("builtins.print"):
+            exit_code = check_dist_main(["check-dist", pyproject.name, wheel.name])
+        self.assertEqual(exit_code, 1)

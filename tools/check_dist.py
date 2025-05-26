@@ -25,16 +25,16 @@ def ensure_all_artifacts_included(pyproject, wheel_paths):
     return status
 
 
-def main():
-    if len(sys.argv) < 3:
-        print(f"USAGE: {sys.argv[0]} <pyproject.toml path> <.whl path>...")
+def main(argv):
+    if len(argv) < 3:
+        print(f"USAGE: {argv[0]} <pyproject.toml path> <.whl path>...")
         return 1
 
-    with open(sys.argv[1], "rb") as f:
+    with open(argv[1], "rb") as f:
         pyproject = tomllib.load(f)
 
-    return ensure_all_artifacts_included(pyproject, sys.argv[2:])
+    return ensure_all_artifacts_included(pyproject, argv[2:])
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv))
