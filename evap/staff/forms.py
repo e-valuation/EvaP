@@ -907,7 +907,15 @@ class ContributionCopyFormset(ContributionFormset):
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
-        fields = ("order", "questionnaire", "text_de", "text_en", "type", "allows_additional_textanswers", "counts_for_grade")
+        fields = (
+            "order",
+            "questionnaire",
+            "text_de",
+            "text_en",
+            "type",
+            "allows_additional_textanswers",
+            "counts_for_grade",
+        )
         widgets = {
             "text_de": forms.Textarea(attrs={"rows": 2}),
             "text_en": forms.Textarea(attrs={"rows": 2}),
