@@ -12,6 +12,7 @@ from django.utils.timezone import now
 from evap.evaluation.models import Contribution, Course, CourseType, Evaluation, Program, Semester, UserProfile
 from evap.evaluation.tools import clean_email
 from evap.staff.tools import update_or_create_with_changes, update_with_changes
+from evap.tools import unordered_groupby
 
 logger = logging.getLogger("import")
 
@@ -165,16 +166,13 @@ class JSONImporter:
         self.course_map: dict[str, Course] = {}
         self.statistics = ImportStatistics()
 
-    def _choose_responsibles(self, user_profiles: list[UserProfile]) -> list[UserProfile]:
-        user_profiles_by_len: dict[int, list[UserProfile]] = {}
-        for user_profile in user_profiles:
-            user_profile_len = len(user_profile.title)
-            user_profiles_by_len.setdefault(user_profile_len, []).append(user_profile)
+    def _get_users_with_longest_title(self, user_profiles: list[UserProfile]) -> list[UserProfile]:
+        user_profiles_by_len = unordered_groupby((len(user.title), user) for user in user_profiles)
         for key in sorted(user_profiles_by_len.keys(), reverse=True):
             return user_profiles_by_len[key]
-        return []
+        return user_profiles_by_len[max(user_profiles_by_len.keys())] if user_profiles_by_len else []
 
-    def _filter_user_profiles(self, user_profiles: list[UserProfile]) -> list[UserProfile]:
+    def _remove_non_responsible_users(self, user_profiles: list[UserProfile]) -> list[UserProfile]:
         return list(filter(lambda p: p.email not in settings.NON_RESPONSIBLE_USERS, user_profiles))
 
     def _get_course_type(self, name: str) -> CourseType:
@@ -259,8 +257,8 @@ class JSONImporter:
     def _import_course(self, data: ImportEvent, course_type: CourseType | None = None) -> Course:
         course_type = self._get_course_type(data["type"]) if course_type is None else course_type
         responsibles = self._get_user_profiles(data["lecturers"])
-        responsibles = self._filter_user_profiles(responsibles)
-        responsibles = self._choose_responsibles(responsibles)
+        responsibles = self._remove_non_responsible_users(responsibles)
+        responsibles = self._get_users_with_longest_title(responsibles)
         if not data["title_en"]:
             data["title_en"] = data["title"]
         course, created, changes = update_or_create_with_changes(
@@ -287,17 +285,17 @@ class JSONImporter:
         course.programs.add(*programs)
 
     def _import_course_from_unused_exam(self, data: ImportEvent) -> Course | None:
-        splitted_title = data["title"].split(":", 1)
-        if len(splitted_title) < 2:
+        split_title = data["title"].split(":", 1)
+        if len(split_title) < 2:
             return None
-        prefix = splitted_title[0].strip()
+        prefix = split_title[0].strip()
 
         try:
             course_type = CourseType.objects.get(import_names__contains=[prefix])
         except CourseType.DoesNotExist:
             return None
 
-        data["title"] = splitted_title[1].strip()
+        data["title"] = split_title[1].strip()
         data["title_en"] = data["title_en"].split(":", 1)[1].strip() if ":" in data["title_en"] else data["title_en"]
 
         return self._import_course(data, course_type)
@@ -310,7 +308,7 @@ class JSONImporter:
             )
             course_end = datetime.strptime(self.default_course_end, "%d.%m.%Y")
         else:
-            last_appointment = sorted(data["appointments"], key=lambda x: x["end"])[-1]
+            last_appointment = max(data["appointments"], key=lambda x: x["end"])
             course_end = datetime.strptime(last_appointment["end"], self.DATETIME_FORMAT)
 
         if data["isexam"]:
