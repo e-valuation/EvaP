@@ -24,6 +24,7 @@ class EvaluationForm(forms.ModelForm):
         fields = (
             "name_de_field",
             "name_en_field",
+            "main_language",
             "vote_start_datetime",
             "vote_end_date",
             "participants",
@@ -95,6 +96,12 @@ class EvaluationForm(forms.ModelForm):
             self.add_error("general_questionnaires", _("At least one questionnaire must be selected."))
 
         return not_locked + locked
+
+    def clean_main_language(self):
+        main_language = self.cleaned_data.get("main_language")
+        if main_language == Evaluation.UNDECIDED_MAIN_LANGUAGE:
+            self.add_error("main_language", _("A decision on the main language has to be made."))
+        return main_language
 
     def save(self, *args, **kw):
         evaluation = super().save(*args, **kw)
