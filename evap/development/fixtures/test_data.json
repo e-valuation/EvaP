@@ -19843,6 +19843,7 @@
     "text_de": "Einzelergebnis",
     "text_en": "Single result",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 2
   }
 },
@@ -19855,6 +19856,7 @@
     "text_de": "Aus der Vorlesung habe ich etwas mitnehmen können.",
     "text_en": "I learned something in the lecture.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -19867,6 +19869,7 @@
     "text_de": "Die in der Vorlesung vermittelten Techniken schienen aktuell.",
     "text_en": "The techniques taught in the lecture seemed to be up to date.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -19879,6 +19882,7 @@
     "text_de": "Die Inhalte der Vorlesung bauten sinnvoll aufeinander auf.",
     "text_en": "The content of the lecture was well structured.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -19891,6 +19895,7 @@
     "text_de": "Die Übung trug zu meinem Verständnis bei.",
     "text_en": "The exercise contributed to my comprehension of the lecture.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -19903,6 +19908,7 @@
     "text_de": "Vorlesung und Übung waren gut aufeinander abgestimmt",
     "text_en": "Lecture and exercise were well synchronized.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -19915,6 +19921,7 @@
     "text_de": "Das fachliche Niveau der Übung war angemessen.",
     "text_en": "The technical level of the exercise was appropriate.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -19927,6 +19934,7 @@
     "text_de": "Diese Themenblöcke fand ich besonders interessant:",
     "text_en": "These topics were most interesting for me:",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -19939,6 +19947,7 @@
     "text_de": "Diese Themenblöcke fand ich weniger interessant:",
     "text_en": "These topics were less interesting for me:",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -19951,6 +19960,7 @@
     "text_de": "Es gab ausreichend Lehrmittel (Skripte, Folien, Videos, Bücher...)",
     "text_en": "The amount of provided learning material was sufficient.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -19963,6 +19973,7 @@
     "text_de": "Die bereitgestellten Lehrmittel waren hilfreich.",
     "text_en": "The provided learning material was useful.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -19975,6 +19986,7 @@
     "text_de": "Die Lehrmittel standen rechtzeitig zur Verfügung.",
     "text_en": "The learning material was provided in time.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -19987,6 +19999,7 @@
     "text_de": "Was waren die Stärken und die Schwächen der Lehrmittel?",
     "text_en": "Which were the strengths and weaknesses of the learning material?",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -19999,6 +20012,7 @@
     "text_de": "Die Vorlesung hat mir Spaß/ Freude bereitet.",
     "text_en": "I enjoyed the lecture.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20011,6 +20025,7 @@
     "text_de": "Ich bin zufrieden mit dem Lernerfolg.",
     "text_en": "I am satisfied with my learning success.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20023,6 +20038,7 @@
     "text_de": "Die Vorlesung hat mich in die Lage versetzt, das Thema selbständig zu vertiefen.",
     "text_en": "The lecture provided all information and skills that I need to deepen my knowledge in this topic.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20035,6 +20051,7 @@
     "text_de": "Die Vorlesung ist für mein Studium wichtig.",
     "text_en": "The lecture is important for my studies.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20047,6 +20064,7 @@
     "text_de": "Ich empfand den Zeitaufwand für die Veranstaltung insgesamt als angemessen.",
     "text_en": "I think the expenditure of time for the course was appropriate.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20059,6 +20077,7 @@
     "text_de": "Sonstige Kommentare",
     "text_en": "General remarks",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -20071,6 +20090,7 @@
     "text_de": "... verhielt sich gegenüber den Studierenden respektvoll.",
     "text_en": "... showed respect for the students.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20083,6 +20103,7 @@
     "text_de": "... konnte mir Wissen vermitteln.",
     "text_en": "... imparted knowledge.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20095,6 +20116,7 @@
     "text_de": "... ging auf Fragen und Anregungen ein.",
     "text_en": "... adressed questions and proposals.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20107,6 +20129,7 @@
     "text_de": "... gestaltete die Veranstaltung interessant.",
     "text_en": "... gave the course in an interesting way.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20119,6 +20142,7 @@
     "text_de": "... wirkte gut vorbereitet.",
     "text_en": "... seemed to be well prepared.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20131,6 +20155,7 @@
     "text_de": "Wie bewertest du die Übung im Hinblick auf Umfang und Nutzen?",
     "text_en": "How do you evaluate the exercise concerning amount and usefulness?",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -20143,6 +20168,7 @@
     "text_de": "Wie bewertest du die Schwierigkeit der Übung?",
     "text_en": "How do you evaluate the difficulty of the exercises?",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 6
   }
 },
@@ -20155,6 +20181,7 @@
     "text_de": "... verhielt sich gegenüber den Studierenden respektvoll.",
     "text_en": "... showed respect for the students.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20167,6 +20194,7 @@
     "text_de": "... konnte mir Wissen vermitteln.",
     "text_en": "... imparted knowledge.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20179,6 +20207,7 @@
     "text_de": "... stand auch außerhalb der regulären Übungstermine zur Verfügung.",
     "text_en": "... was available even outside the regular exercise meetings.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20191,6 +20220,7 @@
     "text_de": "Das Seminar hat mir Spaß/Freude bereitet.",
     "text_en": "I enjoyed the seminar.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20203,6 +20233,7 @@
     "text_de": "Die Seminarthemen fand ich gut ausgewählt.",
     "text_en": "The seminar's topics were chosen very well.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20215,6 +20246,7 @@
     "text_de": "Die bereitgestellten Materialien waren gute Einstiegspunkte für eigene Recherche.",
     "text_en": "The provided learning material was a good start for own research.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20227,6 +20259,7 @@
     "text_de": "Wie bewertest du den Aufwand des Seminars?",
     "text_en": "How do you evaluate the expenditure of time for the course?",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 8
   }
 },
@@ -20239,6 +20272,7 @@
     "text_de": "Aus dem Seminar habe ich etwas mitnehmen können.",
     "text_en": "I learned something from the seminar.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20251,6 +20285,7 @@
     "text_de": "Ich kann nachvollziehen, wie und nach welchen Kriterien die Bewertung erfolgt.",
     "text_en": "I can understand how the grading is influenced by specific criteria.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20263,6 +20298,7 @@
     "text_de": "Was hat das Seminar besonders ausgezeichnet?",
     "text_en": "What were the strengths of the seminar?",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -20275,6 +20311,7 @@
     "text_de": "... verhielt sich gegenüber den Studierenden respektvoll.",
     "text_en": "... showed respect for the students.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20287,6 +20324,7 @@
     "text_de": "... konnte mir Wissen vermitteln.",
     "text_en": "... imparted knowledge.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20299,6 +20337,7 @@
     "text_de": "... ging auf Fragen und Anregungen ein.",
     "text_en": "... addressed questions and proposals.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20311,6 +20350,7 @@
     "text_de": "... gestaltete das Seminar interessant.",
     "text_en": "... conducted the seminar in an interesting way.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20323,6 +20363,7 @@
     "text_de": "... wirkte gut vorbereitet.",
     "text_en": "... seemed to be well prepared.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20335,6 +20376,7 @@
     "text_de": "... stand auch außerhalb des Seminars zur Verfügung.",
     "text_en": "... was available even outside the seminar.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20347,6 +20389,7 @@
     "text_de": "... hat mich/mein Team aktiv betreut.",
     "text_en": "... made a good job in actively supporting me/my team.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20359,6 +20402,7 @@
     "text_de": "Das Projekt hat mir Spaß/Freude bereitet.",
     "text_en": "I enjoyed the project.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20371,6 +20415,7 @@
     "text_de": "Ich empfand den Zeitaufwand für das Projekt als angemessen.",
     "text_en": "I think the expenditure of time for the project was appropriate.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20383,6 +20428,7 @@
     "text_de": "Aus dem Projekt habe ich etwas mitnehmen können.",
     "text_en": "I learned something from the project.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20395,6 +20441,7 @@
     "text_de": "... verhielt sich gegenüber den Studierenden respektvoll.",
     "text_en": "... showed respect for the students.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20407,6 +20454,7 @@
     "text_de": "... konnte mir Wissen vermitteln.",
     "text_en": "... imparted knowledge.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20419,6 +20467,7 @@
     "text_de": "... ging auf Fragen und Anregungen ein.",
     "text_en": "... addressed questions and proposals.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20431,6 +20480,7 @@
     "text_de": "... hat mich/mein Team aktiv betreut.",
     "text_en": "... made a good job in actively supervising me/my team.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20443,6 +20493,7 @@
     "text_de": "... wirkte gut vorbereitet.",
     "text_en": "... seemed to be well prepared.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20455,6 +20506,7 @@
     "text_de": "Hier kannst du Lob und Kritik an den Verantwortlichen der Lehrveranstaltung loswerden. Bitte sei höflich und konstruktiv!",
     "text_en": "Please give your feedback to the responsible person here. Be polite and constructive!",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -20467,6 +20519,7 @@
     "text_de": "... verhielt sich gegenüber den Studierenden respektvoll.",
     "text_en": "... showed respect for the students.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20479,6 +20532,7 @@
     "text_de": "... konnte mir Wissen vermitteln.",
     "text_en": "... could equip me with knowledge.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20491,6 +20545,7 @@
     "text_de": "... ging auf Fragen und Anregungen ein.",
     "text_en": "... addressed questions and proposals.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20503,6 +20558,7 @@
     "text_de": "... gestaltete die Übung interessant.",
     "text_en": "... conducted the excercise in an interesting way.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20515,6 +20571,7 @@
     "text_de": "... wirkte gut vorbereitet.",
     "text_en": "... seemed to be well-prepared.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20527,6 +20584,7 @@
     "text_de": "Hier kannst du Lob und Kritik zur Person loswerden. Bitte sei höflich und konstruktiv!",
     "text_en": "Please give your feedback to the person here. Be polite and constructive!",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -20539,6 +20597,7 @@
     "text_de": "Hier kannst du Lob und Kritik zu weiteren Mitwirkenden loswerden. Bitte sei höflich und konstruktiv!",
     "text_en": "Please give your feedback to additional contributors here. Be polite and constructive!",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -20551,6 +20610,7 @@
     "text_de": "... ging auf Fragen und Anregungen ein.",
     "text_en": "... addressed questions and proposals.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20563,6 +20623,7 @@
     "text_de": "Ich kann nachvollziehen, wie und nach welchen Kriterien die Bewertung erfolgt.",
     "text_en": "I can understand how the grading is influenced by specific criteria.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20575,6 +20636,7 @@
     "text_de": "... stand auch außerhalb der Veranstaltung zur Verfügung.",
     "text_en": "... was available even outside the course.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20587,6 +20649,7 @@
     "text_de": "... stand auch außerhalb der regulären Termine zur Verfügung.",
     "text_en": "... was avalable even outside the regular meetings.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20599,6 +20662,7 @@
     "text_de": "... stand nur selten zur Verfügung.",
     "text_en": "... was rarely available.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 12
   }
 },
@@ -20611,6 +20675,7 @@
     "text_de": "... wirkte gut vorbereitet.",
     "text_en": "... seemed to be well prepared.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20623,6 +20688,7 @@
     "text_de": "Ich kann nachvollziehen, wie und nach welchen Kriterien die Bewertung erfolgt.",
     "text_en": "I can understand how the grading is influenced by specific criteria.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20635,6 +20701,7 @@
     "text_de": "Durch welche Änderungen könnte man das Seminar noch verbessern?",
     "text_en": "How could the seminar be further improved?",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -20647,6 +20714,7 @@
     "text_de": "Das Projekt hat mir Spaß/Freude bereitet.",
     "text_en": "I enjoyed the project.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20659,6 +20727,7 @@
     "text_de": "Das Projekt passt inhaltlich in das bisherige Studium.",
     "text_en": "The project's topic fits into my studies.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20671,6 +20740,7 @@
     "text_de": "Das Projektthema war interessant.",
     "text_en": "The project's topic was interesting.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20683,6 +20753,7 @@
     "text_de": "Das Projektthema passte zu meinen Interessen und Fähigkeiten.",
     "text_en": "The project matched my interests and skills.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20695,6 +20766,7 @@
     "text_de": "Das Projekt entsprach meiner Vorstellung.",
     "text_en": "The project met my expectations.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20707,6 +20779,7 @@
     "text_de": "Die Aufgabenstellung war klar spezifiziert.",
     "text_en": "The tasks were clearly specified.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20719,6 +20792,7 @@
     "text_de": "Bei einer wiederholten Wahl würde ich das gleiche Projekt wählen.",
     "text_en": "I would choose the same project again.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20731,6 +20805,7 @@
     "text_de": "Was hat dir am Projekt besonders gefallen? Wie hätte man das Projekt besser gestalten können?",
     "text_en": "What was the best part of the project? What could be improved?",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -20743,6 +20818,7 @@
     "text_de": "Wie bewertest du den Zeitaufwand für das Projekt?",
     "text_en": "How do you evaluate the expenditure of time for the project?",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 8
   }
 },
@@ -20755,6 +20831,7 @@
     "text_de": "Es haben sich alle Teilnehmer ausgeglichen beteiligt.",
     "text_en": "All team members participated equally.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20767,6 +20844,7 @@
     "text_de": "Die Zeitvorgaben für die Teil-Aufgaben waren realistisch.",
     "text_en": "The deadlines for sub-task were realistic.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20779,6 +20857,7 @@
     "text_de": "Es stand ausreichend Zeit zur Ausarbeitung von Pressemitteilung, Plakat und Präsentation zur Verfügung.",
     "text_en": "The time for preparation of the press release, poster and presentation was sufficient.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20791,6 +20870,7 @@
     "text_de": "Sonstige Kommentare zu Aufwand und Zeitplanung:",
     "text_en": "Additional remarks on effort and time management:",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -20803,6 +20883,7 @@
     "text_de": "Der Professor zeigte Interesse am Projekt und dessen Ergebnis.",
     "text_en": "The professor was interested in the project and its results.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20815,6 +20896,7 @@
     "text_de": "Der Professor hat sich während des Projektzeitraumes eingebracht.",
     "text_en": "The professor contributed to the project.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20827,6 +20909,7 @@
     "text_de": "Der Projektpartner hat sich während des Projektzeitraumes eingebracht.",
     "text_en": "The business partner contributed to the project.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20839,6 +20922,7 @@
     "text_de": "Die Betreuung durch den Lehrstuhl war zufriedenstellend.",
     "text_en": "The supervision by the chair was satisfying.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20851,6 +20935,7 @@
     "text_de": "Die Betreuung durch den Projektpartner war zufriedenstellend.",
     "text_en": "The supervision by the business project partner was satisfying.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20863,6 +20948,7 @@
     "text_de": "Sonstige Kommentare zur Betreuung und zum Projektpartner:",
     "text_en": "Additional remarks on supervision and the business partner:",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -20875,6 +20961,7 @@
     "text_de": "Mein Bachelorarbeitsthema war interessant.",
     "text_en": "The topic of my bachelor thesis was interesting.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20887,6 +20974,7 @@
     "text_de": "Mein Bachelorarbeitsthema passte zu meinen Vertiefungsgebieten.",
     "text_en": "The topic of my bachelor's thesis matched my areas of specialization.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20899,6 +20987,7 @@
     "text_de": "Es war leicht, aus dem Projektthema Themen für die Bachelorarbeiten abzuleiten.",
     "text_en": "It was easy to derive the topics of the bachelor's theses out of the project's scope.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20911,6 +21000,7 @@
     "text_de": "Das Thema meiner Bachelorarbeit war inhaltlich nahe am Projekt.",
     "text_en": "The topic of my bachelor's thesis was directly derived from the scope of the project.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20923,6 +21013,7 @@
     "text_de": "Es stand ausreichend Zeit zur Ausarbeitung der Bachelorarbeit zur Verfügung.",
     "text_en": "The time for the preparation of my bachelor's thesis was sufficient.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20935,6 +21026,7 @@
     "text_de": "Sonstige Kommentare zur Bachelorarbeit:",
     "text_en": "Additional remarks on the bachelor's thesis:",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -20947,6 +21039,7 @@
     "text_de": "... verhielt sich gegenüber den Studierenden respektvoll.",
     "text_en": "... showed respect for the students.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20959,6 +21052,7 @@
     "text_de": "... konnte mir Wissen vermitteln.",
     "text_en": "... imparted knowledge.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20971,6 +21065,7 @@
     "text_de": "... ging auf Fragen und Anregungen ein.",
     "text_en": "... adressed questions and proposals.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20983,6 +21078,7 @@
     "text_de": "... gestaltete die Veranstaltung interessant.",
     "text_en": "... gave the course in an interesting way.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -20995,6 +21091,7 @@
     "text_de": "Das Projekt hat mir Spaß/Freude bereitet.",
     "text_en": "I enjoyed the project.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21007,6 +21104,7 @@
     "text_de": "Das Projekt passt inhaltlich in das bisherige Studium.",
     "text_en": "The project's topic fits into my studies.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21019,6 +21117,7 @@
     "text_de": "Das Projektthema war interessant.",
     "text_en": "The project's topic was interesting.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21031,6 +21130,7 @@
     "text_de": "Das Projektthema passte zu meinen Interessen und Fähigkeiten.",
     "text_en": "The project matched my interests and skills.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21043,6 +21143,7 @@
     "text_de": "Das Projekt entsprach meiner Vorstellung.",
     "text_en": "The project met my expectations.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21055,6 +21156,7 @@
     "text_de": "Die Aufgabenstellung war klar spezifiziert.",
     "text_en": "The tasks were clearly specified.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21067,6 +21169,7 @@
     "text_de": "Bei einer wiederholten Wahl würde ich das gleiche Projekt wählen.",
     "text_en": "I would choose the same project again.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21079,6 +21182,7 @@
     "text_de": "Was hat dir am Projekt besonders gefallen? Wie hätte man das Projekt besser gestalten können?",
     "text_en": "What was the best part of the project? What could be improved?",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -21091,6 +21195,7 @@
     "text_de": "Wie bewertest du den Zeitaufwand?",
     "text_en": "How do you evaluate the expenditure of time?",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 8
   }
 },
@@ -21103,6 +21208,7 @@
     "text_de": "Es haben sich alle Teilnehmer ausgeglichen beteiligt.",
     "text_en": "All team members participated equally.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21115,6 +21221,7 @@
     "text_de": "Die Zeitvorgaben für die Teil-Aufgaben waren realistisch.",
     "text_en": "The deadlines for sub-tasks were realistic.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21127,6 +21234,7 @@
     "text_de": "Sonstige Kommentare zu Aufwand und Zeitplanung:",
     "text_en": "Additional remarks on effort and time management:",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -21139,6 +21247,7 @@
     "text_de": "Der Professor zeigte Interesse am Projekt und dessen Ergebnis.",
     "text_en": "The professor was interested in the project and its results.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21151,6 +21260,7 @@
     "text_de": "Der Professor hat sich während des Projektzeitraumes eingebracht.",
     "text_en": "The professor contributed to the project.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21163,6 +21273,7 @@
     "text_de": "Die Betreuung durch den Lehrstuhl war zufriedenstellend.",
     "text_en": "The supervision by the chair was satisfying.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21175,6 +21286,7 @@
     "text_de": "Sonstige Kommentare zur Betreuung:",
     "text_en": "Additional remarks on supervision:",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -21187,6 +21299,7 @@
     "text_de": "Mein Masterarbeitsthema war interessant.",
     "text_en": "The topic of my master's thesis was interesting.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21199,6 +21312,7 @@
     "text_de": "Mein Masterarbeitsthema passte zu meinen Vertiefungsgebieten.",
     "text_en": "The topic of my master thesis matched my areas of specialization.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21211,6 +21325,7 @@
     "text_de": "Es stand ausreichend Zeit zur Ausarbeitung der Masterarbeit zur Verfügung.",
     "text_en": "The time for the preparation of my master's thesis was sufficient.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21223,6 +21338,7 @@
     "text_de": "Sonstige Kommentare zur Masterarbeit:",
     "text_en": "Additional remarks on the master's thesis:",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -21235,6 +21351,7 @@
     "text_de": "... konnte Sachverhalte sehr gut erklären.",
     "text_en": "... did explain issues very well.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21247,6 +21364,7 @@
     "text_de": "Was hat das Projekt besonders ausgezeichnet?",
     "text_en": "What were the strengths of the project?",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -21259,6 +21377,7 @@
     "text_de": "Durch welche Änderungen könnte man das Projekt noch verbessern?",
     "text_en": "How could the project be further improved?",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -21271,6 +21390,7 @@
     "text_de": "... wirkte gut vorbereitet.",
     "text_en": "... seemed to be well prepared.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21283,6 +21403,7 @@
     "text_de": "Das Projektseminar hat mir Spaß/Freude bereitet.",
     "text_en": "I enjoyed the project seminar.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21295,6 +21416,7 @@
     "text_de": "Die Seminarthemen fand ich gut ausgewählt.",
     "text_en": "The seminar's topics were chosen very well.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21307,6 +21429,7 @@
     "text_de": "Die bereitgestellten Materialien waren gute Einstiegspunkte für eigene Recherche.",
     "text_en": "The provided learning material was a good start for own research.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21319,6 +21442,7 @@
     "text_de": "Ich empfand den Aufwand für das Projektseminar als angemessen.",
     "text_en": "I think the expenditure of time for the project seminar was appropriate.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21331,6 +21455,7 @@
     "text_de": "Aus dem Projektseminar habe ich etwas mitnehmen können.",
     "text_en": "I learned something from the project seminar.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21343,6 +21468,7 @@
     "text_de": "Ich kann nachvollziehen, wie und nach welchen Kriterien die Bewertung erfolgt.",
     "text_en": "I can understand how the grading is influenced by specific criteria.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21355,6 +21481,7 @@
     "text_de": "Die theoretischen Inhalte des Seminars haben mir bei der Bearbeitung des Projekts geholfen.",
     "text_en": "The theoretical contents of the seminar helped me working on the project.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21367,6 +21494,7 @@
     "text_de": "Was hat das Projektseminar besonders ausgezeichnet?",
     "text_en": "What were the strengths of the project seminar?",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -21379,6 +21507,7 @@
     "text_de": "Durch welche Änderungen könnte man das Projektseminar noch verbessern?",
     "text_en": "How could the project seminar be further improved?",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -21391,6 +21520,7 @@
     "text_de": "Das Seminar hat mir Spaß/Freude bereitet.",
     "text_en": "I enjoyed the seminar.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21403,6 +21533,7 @@
     "text_de": "Das Projektthema fand ich gut ausgewählt.",
     "text_en": "The project topic was chosen very well.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21415,6 +21546,7 @@
     "text_de": "Ich empfand den Aufwand für das Seminar als angemessen.",
     "text_en": "I think the expenditure of time for the seminar was appropriate.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21427,6 +21559,7 @@
     "text_de": "Aus dem Seminar habe ich etwas mitnehmen können.",
     "text_en": "I learned something from the seminar.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21439,6 +21572,7 @@
     "text_de": "Ich kann mir vorstellen, Ansätze und Methoden aus dem Design Thinking auch bei zukünftigen Projekten anzuwenden.",
     "text_en": "I can imagine using design thinking principles and methods in future projects.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21451,6 +21585,7 @@
     "text_de": "Das Seminar ist eine Bereicherung für meinen Studiengang.",
     "text_en": "The seminar is a good additional contribution to my major subject. ",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21463,6 +21598,7 @@
     "text_de": "Was hat das Seminar besonders ausgezeichnet?",
     "text_en": "What were the strengths of the seminar?",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -21475,6 +21611,7 @@
     "text_de": "Durch welche Änderungen könnte man das Seminar noch verbessern?",
     "text_en": "How could the seminar be further improved?",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -21487,6 +21624,7 @@
     "text_de": "Das Studienbegleitende Seminar hat mir Spaß/Freude bereitet.",
     "text_en": "I enjoyed the accompanying seminar.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21499,6 +21637,7 @@
     "text_de": "Die Vorträge fand ich gut ausgewählt.",
     "text_en": "The topics of the talks were chosen very well.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21511,6 +21650,7 @@
     "text_de": "Ich empfand den Aufwand für das Studienbegleitende Seminar als angemessen.",
     "text_en": "I think the expenditure of time for the accompanying seminar was appropriate.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21523,6 +21663,7 @@
     "text_de": "Aus dem Studienbegleitenden Seminar habe ich etwas mitnehmen können.",
     "text_en": "I learned something from the accompanying seminar.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21535,6 +21676,7 @@
     "text_de": "Das Studienbegleitende Seminar hat mir beim Einstieg in das Studium geholfen.",
     "text_en": "The accompanying seminar helped me to get started with my studies.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21547,6 +21689,7 @@
     "text_de": "Was hat das Studienbegleitende Seminar besonders ausgezeichnet?",
     "text_en": "What were the strengths of the accompanying seminar?",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -21559,6 +21702,7 @@
     "text_de": "Durch welche Änderungen könnte man das Studienbegleitende  Seminar noch verbessern?",
     "text_en": "How could the accompanying seminar be further improved?",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -21571,6 +21715,7 @@
     "text_de": "... verhielt sich gegenüber den Studierenden respektvoll.",
     "text_en": "... showed respect for the students.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21583,6 +21728,7 @@
     "text_de": "... konnte mir Wissen vermitteln.",
     "text_en": "... imparted knowledge.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21595,6 +21741,7 @@
     "text_de": "... ging auf Fragen und Anregungen ein.",
     "text_en": "... addressed questions and proposals.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21607,6 +21754,7 @@
     "text_de": "... gestaltete das Seminar interessant.",
     "text_en": "... conducted the seminar in an interesting way.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21619,6 +21767,7 @@
     "text_de": "... wirkte gut vorbereitet.",
     "text_en": "... seemed to be well prepared.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21631,6 +21780,7 @@
     "text_de": "... hat den Seminarablauf gut gestaltet.",
     "text_en": "... created a good structure of the seminar.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21643,6 +21793,7 @@
     "text_de": "... hat mich/mein Team aktiv betreut.",
     "text_en": "... made a good job in actively supporting me/my team.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21655,6 +21806,7 @@
     "text_de": "... stand auch außerhalb des Seminars zur Verfügung.",
     "text_en": "... was available even outside the seminar.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21667,6 +21819,7 @@
     "text_de": "... verhielt sich gegenüber den Studierenden respektvoll.",
     "text_en": "... showed respect for the students.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21679,6 +21832,7 @@
     "text_de": "... konnte mir Wissen vermitteln.",
     "text_en": "... imparted knowledge.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21691,6 +21845,7 @@
     "text_de": "... ging auf Fragen und Anregungen ein.",
     "text_en": "... addressed questions and proposals.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21703,6 +21858,7 @@
     "text_de": "... wirkte gut vorbereitet.",
     "text_en": "... seemed to be well prepared.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21715,6 +21871,7 @@
     "text_de": "... hat mich/mein Team aktiv betreut.",
     "text_en": "... made a good job in actively supporting me/my team.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21727,6 +21884,7 @@
     "text_de": "... stand auch außerhalb des Seminars zur Verfügung.",
     "text_en": "... was available even outside the seminar.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -21739,6 +21897,7 @@
     "text_de": "Wie würdest du die Veranstaltung insgesamt bewerten?",
     "text_en": "How would you grade the course in total?",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 2
   }
 },
@@ -21751,6 +21910,7 @@
     "text_de": "Würden Sie eine Fortsetzung des Kurses besuchen?",
     "text_en": "Would you enroll in a continued version of this course?",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 3
   }
 },
@@ -21763,6 +21923,7 @@
     "text_de": "Fanden Sie den Kurs zu schwer?",
     "text_en": "Was the course too difficult?",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 6
   }
 },
@@ -21775,6 +21936,7 @@
     "text_de": "Wie empfandest du die Größe des Seminars?",
     "text_en": "How do you feel about the size of the seminar?",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 9
   }
 },
@@ -21787,6 +21949,7 @@
     "text_de": "Es gab genügend Übungen.",
     "text_en": "There were sufficient exercises.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 7
   }
 },
@@ -21799,6 +21962,7 @@
     "text_de": "... ist in einem angenehmen Tempo vorangeschritten.",
     "text_en": "... had a comfortable pace.",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 10
   }
 },
@@ -21811,6 +21975,7 @@
     "text_de": "Wie fandest du die Klausur?",
     "text_en": "How did you like the exam?",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 6
   }
 },
