@@ -1,12 +1,10 @@
-import logging
+from datetime import datetime
 
 from django.core.management.base import BaseCommand
 
 from evap.evaluation.management.commands.tools import log_exceptions
 from evap.evaluation.models import Semester
 from evap.staff.importers.json import JSONImporter
-
-logger = logging.getLogger(__name__)
 
 
 @log_exceptions
@@ -27,4 +25,5 @@ class Command(BaseCommand):
             return
 
         with open(options["file"]) as file:
-            JSONImporter(semester, options["default_course_end"]).import_json(file.read())
+            default_course_end = datetime.strptime(options["default_course_end"], "%d.%m.%Y")
+            JSONImporter(semester, default_course_end).import_json(file.read())

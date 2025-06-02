@@ -1,7 +1,7 @@
 import json
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import date, datetime, time, timedelta
 from typing import Any, NotRequired, TypedDict
 
 from django.conf import settings
@@ -12,7 +12,6 @@ from django.utils.timezone import now
 from evap.evaluation.models import Contribution, Course, CourseType, Evaluation, Program, Semester, UserProfile
 from evap.evaluation.tools import clean_email
 from evap.staff.tools import update_or_create_with_changes, update_with_changes
-from evap.tools import unordered_groupby
 
 logger = logging.getLogger("import")
 
@@ -33,8 +32,8 @@ class ImportLecturer(TypedDict):
 
 
 class ImportCourse(TypedDict):
-    cprid: str
-    scale: str
+    cprid: str  # name of the "course program" (name used by the CMS) -> mapped to a Program
+    scale: str  # defines which grading system is used; we interpret any value as graded, ungraded if empty or missing
 
 
 class ImportRelated(TypedDict):
@@ -149,10 +148,10 @@ class ImportStatistics:
 class JSONImporter:
     DATETIME_FORMAT = "%d.%m.%Y %H:%M:%S"
 
-    def __init__(self, semester: Semester, default_course_end: str) -> None:
+    def __init__(self, semester: Semester, default_course_end: date) -> None:
         self.semester = semester
         self.default_course_end = default_course_end
-        self.user_profile_map: dict[str, UserProfile] = {}
+        self.students_by_gguid: dict[str, UserProfile] = {}
         self.course_type_cache: dict[str, CourseType] = {
             import_name.strip().lower(): course_type
             for course_type in CourseType.objects.all()
@@ -163,14 +162,12 @@ class JSONImporter:
             for program in Program.objects.all()
             for import_name in program.import_names
         }
-        self.course_map: dict[str, Course] = {}
+        self.courses_by_gguid: dict[str, Course] = {}
         self.statistics = ImportStatistics()
 
     def _get_users_with_longest_title(self, user_profiles: list[UserProfile]) -> list[UserProfile]:
-        user_profiles_by_len = unordered_groupby((len(user.title), user) for user in user_profiles)
-        for key in sorted(user_profiles_by_len.keys(), reverse=True):
-            return user_profiles_by_len[key]
-        return user_profiles_by_len[max(user_profiles_by_len.keys())] if user_profiles_by_len else []
+        max_title_len = max((len(user.title) for user in user_profiles), default=0)
+        return [user for user in user_profiles if len(user.title) == max_title_len]
 
     def _remove_non_responsible_users(self, user_profiles: list[UserProfile]) -> list[UserProfile]:
         return list(filter(lambda p: p.email not in settings.NON_RESPONSIBLE_USERS, user_profiles))
@@ -197,7 +194,7 @@ class JSONImporter:
 
     def _get_user_profiles(self, data: list[ImportRelated]) -> list[UserProfile]:
         return [
-            self.user_profile_map[related["gguid"]] for related in data if related["gguid"] in self.user_profile_map
+            self.students_by_gguid[related["gguid"]] for related in data if related["gguid"] in self.students_by_gguid
         ]
 
     def _create_name_change_from_changes(self, user_profile: UserProfile, changes: dict[str, tuple[Any, Any]]) -> None:
@@ -228,7 +225,7 @@ class JSONImporter:
                 if changes:
                     self._create_name_change_from_changes(user_profile, changes)
 
-                self.user_profile_map[entry["gguid"]] = user_profile
+                self.students_by_gguid[entry["gguid"]] = user_profile
 
     def _import_lecturers(self, data: list[ImportLecturer]) -> None:
         for entry in data:
@@ -252,7 +249,7 @@ class JSONImporter:
                 if changes:
                     self._create_name_change_from_changes(user_profile, changes)
 
-                self.user_profile_map[entry["gguid"]] = user_profile
+                self.students_by_gguid[entry["gguid"]] = user_profile
 
     def _import_course(self, data: ImportEvent, course_type: CourseType | None = None) -> Course:
         course_type = self._get_course_type(data["type"]) if course_type is None else course_type
@@ -274,7 +271,7 @@ class JSONImporter:
         elif changes:
             self.statistics.updated_courses.append(course)
 
-        self.course_map[data["gguid"]] = course
+        self.courses_by_gguid[data["gguid"]] = course
 
         return course
 
@@ -306,7 +303,7 @@ class JSONImporter:
             self.statistics.warnings.append(
                 WarningMessage(obj=course.name, message="No dates defined, using default end date")
             )
-            course_end = datetime.strptime(self.default_course_end, "%d.%m.%Y")
+            course_end = datetime.combine(self.default_course_end, time())
         else:
             last_appointment = max(data["appointments"], key=lambda x: x["end"])
             course_end = datetime.strptime(last_appointment["end"], self.DATETIME_FORMAT)
@@ -390,10 +387,10 @@ class JSONImporter:
     def _import_contribution(
         self, evaluation: Evaluation, data: ImportRelated
     ) -> tuple[Contribution | None, bool, dict[str, tuple[Any, Any]]]:
-        if data["gguid"] not in self.user_profile_map:
+        if data["gguid"] not in self.students_by_gguid:
             return None, False, {}
 
-        user_profile = self.user_profile_map[data["gguid"]]
+        user_profile = self.students_by_gguid[data["gguid"]]
 
         if user_profile.email in settings.NON_RESPONSIBLE_USERS:
             return None, False, {}
@@ -421,7 +418,7 @@ class JSONImporter:
                 unused_events.append(event)
                 continue
 
-            exam_course = self.course_map[event["relatedevents"][0]["gguid"]]
+            exam_course = self.courses_by_gguid[event["relatedevents"][0]["gguid"]]
 
             self._import_course_programs(exam_course, event)
 
