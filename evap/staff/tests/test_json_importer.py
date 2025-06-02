@@ -164,16 +164,17 @@ EXAMPLE_JSON = json.dumps(EXAMPLE_DATA)
 
 
 class TestImportUserProfiles(TestCase):
-    def setUp(self):
-        self.students = EXAMPLE_DATA["students"]
-        self.lecturers = EXAMPLE_DATA["lecturers"]
+    @classmethod
+    def setUpTestData(cls):
+        cls.students = EXAMPLE_DATA["students"]
+        cls.lecturers = EXAMPLE_DATA["lecturers"]
 
-        self.semester = baker.make(Semester)
+        cls.semester = baker.make(Semester)
 
     def test_import_students(self):
         self.assertEqual(UserProfile.objects.count(), 0)
 
-        importer = JSONImporter(self.semester, "01.01.2000")
+        importer = JSONImporter(self.semester, date(2000, 1, 1))
         importer._import_students(self.students)
 
         user_profiles = UserProfile.objects.all()
@@ -190,7 +191,7 @@ class TestImportUserProfiles(TestCase):
             UserProfile, email=self.students[0]["email"], last_name="Doe", first_name_given="Jane"
         )
 
-        importer = JSONImporter(self.semester, "01.01.2000")
+        importer = JSONImporter(self.semester, date(2000, 1, 1))
         importer._import_students(self.students)
 
         self.assertEqual(UserProfile.objects.count(), 2)
@@ -217,7 +218,7 @@ class TestImportUserProfiles(TestCase):
     def test_import_lecturers(self):
         self.assertEqual(UserProfile.objects.count(), 0)
 
-        importer = JSONImporter(self.semester, "01.01.2000")
+        importer = JSONImporter(self.semester, date(2000, 1, 1))
         importer._import_lecturers(self.lecturers)
 
         user_profiles = UserProfile.objects.all()
@@ -235,7 +236,7 @@ class TestImportUserProfiles(TestCase):
             UserProfile, email=self.lecturers[0]["email"], last_name="Doe", first_name_given="Jane"
         )
 
-        importer = JSONImporter(self.semester, "01.01.2000")
+        importer = JSONImporter(self.semester, date(2000, 1, 1))
         importer._import_lecturers(self.lecturers)
 
         self.assertEqual(UserProfile.objects.count(), 4)
@@ -269,25 +270,24 @@ class TestImportEvents(TestCase):
         if not data:
             data = EXAMPLE_DATA
         data = json.dumps(data)
-        importer = JSONImporter(self.semester, "01.01.2000")
+        importer = JSONImporter(self.semester, date(2000, 1, 1))
         importer.import_json(data)
         return importer
 
     def test_import_courses(self):
         importer = self._import()
 
-        self.assertEqual(Course.objects.count(), 1)
-        course = Course.objects.first()
+        course = Course.objects.get()
 
         self.assertEqual(course.semester, self.semester)
         self.assertEqual(course.cms_id, EXAMPLE_DATA["events"][0]["gguid"])
         self.assertEqual(course.name_de, EXAMPLE_DATA["events"][0]["title"])
         self.assertEqual(course.name_en, EXAMPLE_DATA["events"][0]["title_en"])
         self.assertEqual(course.type.name_de, EXAMPLE_DATA["events"][0]["type"])
-        self.assertSetEqual(
+        self.assertEqual(
             {d.name_de for d in course.programs.all()}, {d["cprid"] for d in EXAMPLE_DATA["events"][1]["courses"]}
         )
-        self.assertSetEqual(
+        self.assertEqual(
             set(course.responsibles.values_list("email", flat=True)),
             {"3@example.com"},
         )
@@ -296,16 +296,16 @@ class TestImportEvents(TestCase):
         self.assertEqual(main_evaluation.course, course)
         self.assertEqual(main_evaluation.name_de, "")
         self.assertEqual(main_evaluation.name_en, "")
-        # [{"begin": "15.04.2024 10:15", "end": "15.07.2024 11:45"}]x["end"] for x in
+        # [{"begin": "15.04.2024 10:15", "end": "15.07.2024 11:45"}]
         self.assertEqual(main_evaluation.vote_start_datetime, datetime(2024, 7, 8, 8, 0))
         self.assertEqual(main_evaluation.vote_end_date, date(2024, 7, 21))
-        self.assertSetEqual(
+        self.assertEqual(
             set(main_evaluation.participants.values_list("email", flat=True)),
             {"1@example.com", "2@example.com"},
         )
 
         self.assertEqual(Contribution.objects.filter(evaluation=main_evaluation).count(), 2)
-        self.assertSetEqual(
+        self.assertEqual(
             set(
                 Contribution.objects.filter(evaluation=main_evaluation, contributor__isnull=False).values_list(
                     "contributor__email", flat=True
@@ -321,14 +321,14 @@ class TestImportEvents(TestCase):
         # [{"begin": "29.07.2024 10:15", "end": "29.07.2024 11:45"}]
         self.assertEqual(exam_evaluation.vote_start_datetime, datetime(2024, 7, 30, 8, 0))
         self.assertEqual(exam_evaluation.vote_end_date, date(2024, 8, 1))
-        self.assertSetEqual(
+        self.assertEqual(
             set(exam_evaluation.participants.values_list("email", flat=True)),
             {"1@example.com", "2@example.com"},
         )
         self.assertTrue(exam_evaluation.wait_for_grade_upload_before_publishing)
 
         self.assertEqual(Contribution.objects.filter(evaluation=exam_evaluation).count(), 4)
-        self.assertSetEqual(
+        self.assertEqual(
             set(
                 Contribution.objects.filter(evaluation=exam_evaluation, contributor__isnull=False).values_list(
                     "contributor__email", flat=True
@@ -356,12 +356,12 @@ class TestImportEvents(TestCase):
         self.assertEqual(evaluation.name_en, "")
         self.assertEqual(evaluation.course.type, course_type)
 
-        self.assertSetEqual(
+        self.assertEqual(
             set(evaluation.participants.values_list("email", flat=True)),
             {"1@example.com", "2@example.com"},
         )
 
-        self.assertSetEqual(
+        self.assertEqual(
             set(
                 Contribution.objects.filter(evaluation=evaluation, contributor__isnull=False).values_list(
                     "contributor__email", flat=True
@@ -390,9 +390,7 @@ class TestImportEvents(TestCase):
         self.assertEqual(evaluation.vote_end_date, date(2000, 1, 2))
 
         # use import names and only import non-ignored programs
-        self.assertSetEqual(
-            {d.name_en for d in evaluation.course.programs.all()}, {"BA-Inf", "Master Program", "Program"}
-        )
+        self.assertEqual({d.name_en for d in evaluation.course.programs.all()}, {"BA-Inf", "Master Program", "Program"})
         evaluation_everything = Evaluation.objects.get(cms_id="0x44")
         self.assertEqual(evaluation_everything.course.type, course_type)
 
