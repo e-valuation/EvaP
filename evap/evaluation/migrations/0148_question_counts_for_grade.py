@@ -3,6 +3,17 @@
 from django.db import migrations, models
 
 
+def set_initial_values(apps, _schema_editor):
+    TEXT = 0
+    HEADING = 5
+
+    Question = apps.get_model('evaluation', 'Question')
+    for question in Question.objects.all():
+        if question.type in [TEXT, HEADING]:
+            question.counts_for_grade = False
+            question.save()
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -14,5 +25,17 @@ class Migration(migrations.Migration):
             model_name="question",
             name="counts_for_grade",
             field=models.BooleanField(default=True, verbose_name="counts toward the evaluations grade"),
+        ),
+        migrations.RunPython(set_initial_values, reverse_code=migrations.RunPython.noop),
+        migrations.AddConstraint(
+            model_name="question",
+            constraint=models.CheckConstraint(
+                condition=models.Q(
+                    models.Q(("type", 0), ("type", 5), _connector="OR", _negated=True),
+                    ("counts_for_grade", False),
+                    _connector="OR",
+                ),
+                name="check_evaluation_textanswer_or_heading_question_does_not_count_for_grade",
+            ),
         ),
     ]

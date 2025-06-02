@@ -1283,12 +1283,17 @@ class Question(models.Model):
                     ~(Q(type=QuestionType.TEXT) | Q(type=QuestionType.HEADING)) | ~Q(allows_additional_textanswers=True)
                 ),
                 name="check_evaluation_textanswer_or_heading_question_has_no_additional_textanswers",
-            )
+            ),
+            CheckConstraint(
+                condition=(~(Q(type=QuestionType.TEXT) | Q(type=QuestionType.HEADING)) | Q(counts_for_grade=False)),
+                name="check_evaluation_textanswer_or_heading_question_does_not_count_for_grade",
+            ),
         ]
 
     def save(self, *args, **kwargs):
         if self.type in [QuestionType.TEXT, QuestionType.HEADING]:
             self.allows_additional_textanswers = False
+            self.counts_for_grade = False
             if "update_fields" in kwargs:
                 kwargs["update_fields"] = {"allows_additional_textanswers", "counts_for_grade"}.union(
                     kwargs["update_fields"]
