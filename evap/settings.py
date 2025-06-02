@@ -166,7 +166,7 @@ STORAGES = {
 
 CONTACT_EMAIL = "webmaster@localhost"
 ALLOW_ANONYMOUS_FEEDBACK_MESSAGES = True
-LEGAL_NOTICE_TEXT = "Objection! (this is a default setting that the administrators should have changed, please contact them 👉👈)"
+LEGAL_NOTICE_TEXT = "Objection! (this is a default setting that the administrators should change, please contact them)"
 
 # Config for mail system
 DEFAULT_FROM_EMAIL = "webmaster@localhost"
