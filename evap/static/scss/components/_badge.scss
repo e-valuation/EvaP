@@ -19,17 +19,14 @@
 %badge {
     border-radius: $badge-border-radius;
     text-align: center;
-    width: 3rem;
+    min-width: 4rem;
+    padding: 0 0.3rem;
 }
 
 .badge-grade {
     @extend %badge;
     color: $black;
     transition: box-shadow 0.15s ease-in-out;
-
-    @include media-breakpoint-up(lg) {
-        width: 42px;
-    }
 }
 
 .badge-participants {
@@ -39,10 +36,6 @@
 
     .fa-user {
         font-size: 80%;
-    }
-
-    @include media-breakpoint-up(lg) {
-        width: 50px;
     }
 
     @include bar-shadow($evap-dark-blue);
