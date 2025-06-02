@@ -20,6 +20,8 @@ from evap.evaluation.tests.tools import TestCase, make_rating_answer_counters
 from evap.results.tools import (
     ViewContributorResults,
     ViewGeneralResults,
+    average_grade_questions_distribution,
+    average_non_grade_rating_questions_distribution,
     cache_results,
     calculate_average_course_distribution,
     calculate_average_distribution,
@@ -435,6 +437,81 @@ class TestCalculateAverageDistribution(TestCase):
 
         calculated_grade = distribution_to_grade(calculate_average_distribution(self.evaluation))
         self.assertAlmostEqual(calculated_grade, 1.5)
+
+    def test_grade_calculation_with_non_counting_questions(self):
+        non_counting_question = baker.make(
+            Question, questionnaire=self.questionnaire, type=QuestionType.GRADE, counts_for_grade=False
+        )
+
+        counters = [
+            *make_rating_answer_counters(self.question_grade, self.contribution1, [1, 0, 0, 0, 0], False),
+            *make_rating_answer_counters(non_counting_question, self.contribution1, [0, 0, 0, 0, 1], False),
+        ]
+        RatingAnswerCounter.objects.bulk_create(counters)
+
+        cache_results(self.evaluation)
+
+        average_grade = distribution_to_grade(calculate_average_distribution(self.evaluation))
+
+        self.assertAlmostEqual(average_grade, 1.0)
+
+    def test_average_questions_distribution(self):
+        grade_question = baker.make(
+            Question, questionnaire=self.questionnaire, type=QuestionType.GRADE, counts_for_grade=True
+        )
+        non_counting_grade_question = baker.make(
+            Question, questionnaire=self.questionnaire, type=QuestionType.GRADE, counts_for_grade=False
+        )
+        likert_question = baker.make(
+            Question, questionnaire=self.questionnaire, type=QuestionType.POSITIVE_LIKERT, counts_for_grade=True
+        )
+        non_counting_likert_question = baker.make(
+            Question, questionnaire=self.questionnaire, type=QuestionType.POSITIVE_LIKERT, counts_for_grade=False
+        )
+
+        counters = [
+            *make_rating_answer_counters(grade_question, self.contribution1, [1, 0, 0, 0, 0], False),
+            *make_rating_answer_counters(non_counting_grade_question, self.contribution1, [0, 0, 0, 0, 1], False),
+            *make_rating_answer_counters(likert_question, self.contribution1, [0, 0, 3, 0, 0], False),
+            *make_rating_answer_counters(non_counting_likert_question, self.contribution1, [0, 0, 0, 0, 3], False),
+        ]
+        RatingAnswerCounter.objects.bulk_create(counters)
+
+        cache_results(self.evaluation)
+        evaluation_results = get_results(self.evaluation)
+
+        question_results = []
+        for contribution_result in evaluation_results.contribution_results:
+            for questionnaire_result in contribution_result.questionnaire_results:
+                question_results.extend(questionnaire_result.question_results)
+
+        grade_distribution = average_grade_questions_distribution(question_results)
+        self.assertIsNotNone(grade_distribution)
+        self.assertEqual(grade_distribution[0], 1.0)  # Only the counting grade question should be included
+        self.assertEqual(sum(grade_distribution[1:]), 0.0)
+
+        non_grade_distribution = average_non_grade_rating_questions_distribution(question_results)
+        self.assertIsNotNone(non_grade_distribution)
+        self.assertEqual(non_grade_distribution[2], 1.0)  # Only the counting likert question should be included
+        self.assertEqual(sum(non_grade_distribution[:2] + non_grade_distribution[3:]), 0.0)
+
+        RatingAnswerCounter.objects.all().delete()
+        counters = [
+            *make_rating_answer_counters(non_counting_grade_question, self.contribution1, [0, 0, 0, 0, 1], False),
+            *make_rating_answer_counters(non_counting_likert_question, self.contribution1, [0, 0, 0, 0, 3], False),
+        ]
+        RatingAnswerCounter.objects.bulk_create(counters)
+
+        cache_results(self.evaluation)
+        evaluation_results = get_results(self.evaluation)
+
+        question_results = []
+        for contribution_result in evaluation_results.contribution_results:
+            for questionnaire_result in contribution_result.questionnaire_results:
+                question_results.extend(questionnaire_result.question_results)
+
+        self.assertIsNone(average_grade_questions_distribution(question_results))
+        self.assertIsNone(average_non_grade_rating_questions_distribution(question_results))
 
 
 class TestTextAnswerVisibilityInfo(TestCase):
