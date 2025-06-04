@@ -28,8 +28,6 @@ evap/static/css/evap.css
 evap/static/css/evap.css.map
 evap/static/ts/rendered
 
-evap/evaluation/templates/legal_notice_text.html
-
 docs/_build
 
 coverage.xml

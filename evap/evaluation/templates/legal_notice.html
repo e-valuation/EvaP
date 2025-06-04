@@ -6,7 +6,7 @@
     <h1>{% translate 'Legal Notice' %}/{% translate 'Data Privacy Notice' %}</h1>
     <div class="card">
         <div class="card-body">
-            {% include 'legal_notice_text.html' %}
+            {{ LEGAL_NOTICE_TEXT }}
         </div>
     </div>
 {% endblock %}

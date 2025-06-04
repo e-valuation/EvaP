@@ -13,6 +13,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.http import require_POST
+from django.views.generic import TemplateView
 from django.views.i18n import set_language
 
 from evap.evaluation.forms import LoginEmailForm, NewKeyForm, NotebookForm, ProfileForm
@@ -160,8 +161,9 @@ def faq(request):
 
 
 @no_login_required
-def legal_notice(request):
-    return render(request, "legal_notice.html")
+class LegalNoticeView(TemplateView):
+    template_name = "legal_notice.html"
+    extra_context = {"LEGAL_NOTICE_TEXT": settings.LEGAL_NOTICE_TEXT}
 
 
 @require_POST
