@@ -334,6 +334,11 @@ class Course(LoggedModel):
     # grade publishers can set this to True, then the course will be handled as if final grades have already been uploaded
     gets_no_grade_documents = models.BooleanField(verbose_name=_("gets no grade documents"), default=False)
 
+    # unique reference for import from campus management system
+    cms_id = models.CharField(
+        verbose_name=_("campus management system id"), blank=True, null=True, unique=True, max_length=255
+    )
+
     class Meta:
         unique_together = [
             ["semester", "name_de"],
@@ -469,6 +474,11 @@ class Evaluation(LoggedModel):
     # whether to wait for grade uploading before publishing results
     wait_for_grade_upload_before_publishing = models.BooleanField(
         verbose_name=_("wait for grade upload before publishing"), default=True
+    )
+
+    # unique reference for import from campus management system
+    cms_id = models.CharField(
+        verbose_name=_("campus management system id"), blank=True, null=True, unique=True, max_length=255
     )
 
     @property
