@@ -427,7 +427,7 @@ class Evaluation(LoggedModel):
     name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), blank=True)
     name = translate(en="name_en", de="name_de")
 
-    # questionaire is shown in this language per default
+    # questionnaires are shown in this language by default
     main_language = models.CharField(
         max_length=2,
         verbose_name=_("main language"),

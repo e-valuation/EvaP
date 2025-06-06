@@ -55,17 +55,16 @@
         {{ evaluation.full_name }} ({{ evaluation.course.semester.name }})
 
         <div class="btn-switch btn-switch-light float-end">
-            <div class="btn-switch-label my-auto">{% trans "Questionnaire language" %}</div>
+            <div class="btn-switch-label my-auto">{% translate "Questionnaire language" %}</div>
             <div class="btn-switch btn-group">
                 {% for language_code, language_name in languages %}
-                    {% csrf_token %}
                     <a data-bs-toggle="tooltip"
                        data-bs-placement="bottom"
                        title="{{ language_name }}"
                        role="button"
                        href="{% url 'student:vote' evaluation.pk %}?language={{ language_code }}"
                        class="btn btn-sm btn-light{% if evaluation_language == language_code %} active{% endif %}">
-                        <span id="span-set-language-{{ language_code }}">{{ language_code|upper }}</span>
+                        <span id="span-set-questionaire-language-{{ language_code }}">{{ language_code|upper }}</span>
                     </a>
                 {% endfor %}
             </div>

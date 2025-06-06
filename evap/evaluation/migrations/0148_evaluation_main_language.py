@@ -25,5 +25,5 @@ class Migration(migrations.Migration):
                 verbose_name="main language",
             ),
         ),
-        migrations.RunPython(_migrate),
+        migrations.RunPython(_migrate, migrations.RunPython.noop),
     ]

@@ -292,7 +292,6 @@ class TestContributorEvaluationEditView(WebTest):
 
         with self.assertRaises(ValueError):
             form["main_language"] = "some_other_wrong_value"
-            form.submit(name="operation", value="save")
 
 
 class TestContributorResultsExportView(WebTest):
