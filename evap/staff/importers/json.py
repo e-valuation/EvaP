@@ -1,7 +1,9 @@
 import json
 import logging
 from dataclasses import dataclass, field
-from datetime import date, datetime, time, timedelta
+from datetime import date, datetime
+from datetime import time as datetime_time
+from datetime import timedelta
 from typing import Any, NotRequired, TypedDict
 
 from django.conf import settings
@@ -147,6 +149,7 @@ class ImportStatistics:
 
 class JSONImporter:
     DATETIME_FORMAT = "%d.%m.%Y %H:%M:%S"
+    MIDNIGHT = datetime_time()
 
     def __init__(self, semester: Semester, default_course_end: date) -> None:
         self.semester = semester
@@ -303,10 +306,9 @@ class JSONImporter:
             self.statistics.warnings.append(
                 WarningMessage(obj=course.name, message="No dates defined, using default end date")
             )
-            course_end = datetime.combine(self.default_course_end, time())
+            course_end = datetime.combine(self.default_course_end, self.MIDNIGHT)
         else:
-            last_appointment = max(data["appointments"], key=lambda x: x["end"])
-            course_end = datetime.strptime(last_appointment["end"], self.DATETIME_FORMAT)
+            course_end = max(datetime.strptime(app["end"], self.DATETIME_FORMAT) for app in data["appointments"])
 
         if data["isexam"]:
             # Set evaluation time frame of three days for exam evaluations:
