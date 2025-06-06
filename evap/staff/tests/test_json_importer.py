@@ -6,7 +6,7 @@ from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from django.core import mail
-from django.core.management import call_command, CommandError
+from django.core.management import CommandError, call_command
 from django.test import TestCase, override_settings
 from model_bakery import baker
 
@@ -43,7 +43,10 @@ EXAMPLE_DATA: ImportDict = {
             "type": "Vorlesung",
             "isexam": False,
             "courses": [],
-            "appointments": [{"begin": "15.04.2024 10:15:00", "end": "15.07.2024 11:45:00"}],
+            "appointments": [
+                {"begin": "30.04.2024 10:15:00", "end": "30.04.2024 11:45:00"},
+                {"begin": "15.07.2024 10:15:00", "end": "15.07.2024 11:45:00"},
+            ],
             "relatedevents": [{"gguid": "0x6"}],
             "lecturers": [{"gguid": "0x3"}],
             "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
