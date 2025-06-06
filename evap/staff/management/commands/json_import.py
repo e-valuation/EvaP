@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.core.management import CommandError
 from django.core.management.base import BaseCommand
 
 from evap.evaluation.management.commands.tools import log_exceptions
@@ -20,9 +21,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
             semester = Semester.objects.get(pk=options["semester"])
-        except Semester.DoesNotExist:
-            self.stdout.write(self.style.ERROR("Semester does not exist."))
-            return
+        except Semester.DoesNotExist as e:
+            raise CommandError("Semester does not exist.") from e
 
         with open(options["file"]) as file:
             default_course_end = datetime.strptime(options["default_course_end"], "%d.%m.%Y")
