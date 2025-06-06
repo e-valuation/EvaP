@@ -13,7 +13,7 @@ from evap.evaluation.models import Contribution, Course, CourseType, Evaluation,
 from evap.evaluation.tools import clean_email
 from evap.staff.tools import update_or_create_with_changes, update_with_changes
 
-logger = logging.getLogger("import")
+logger = logging.getLogger(__name__)
 
 
 class ImportStudent(TypedDict):
@@ -151,7 +151,7 @@ class JSONImporter:
     def __init__(self, semester: Semester, default_course_end: date) -> None:
         self.semester = semester
         self.default_course_end = default_course_end
-        self.students_by_gguid: dict[str, UserProfile] = {}
+        self.users_by_gguid: dict[str, UserProfile] = {}
         self.course_type_cache: dict[str, CourseType] = {
             import_name.strip().lower(): course_type
             for course_type in CourseType.objects.all()
@@ -193,9 +193,8 @@ class JSONImporter:
         return program
 
     def _get_user_profiles(self, data: list[ImportRelated]) -> list[UserProfile]:
-        return [
-            self.students_by_gguid[related["gguid"]] for related in data if related["gguid"] in self.students_by_gguid
-        ]
+        # as we skip probably some user profiles during import, they might not exist
+        return [self.users_by_gguid[related["gguid"]] for related in data if related["gguid"] in self.users_by_gguid]
 
     def _create_name_change_from_changes(self, user_profile: UserProfile, changes: dict[str, tuple[Any, Any]]) -> None:
         change = NameChange(
@@ -225,7 +224,7 @@ class JSONImporter:
                 if changes:
                     self._create_name_change_from_changes(user_profile, changes)
 
-                self.students_by_gguid[entry["gguid"]] = user_profile
+                self.users_by_gguid[entry["gguid"]] = user_profile
 
     def _import_lecturers(self, data: list[ImportLecturer]) -> None:
         for entry in data:
@@ -249,7 +248,7 @@ class JSONImporter:
                 if changes:
                     self._create_name_change_from_changes(user_profile, changes)
 
-                self.students_by_gguid[entry["gguid"]] = user_profile
+                self.users_by_gguid[entry["gguid"]] = user_profile
 
     def _import_course(self, data: ImportEvent, course_type: CourseType | None = None) -> Course:
         course_type = self._get_course_type(data["type"]) if course_type is None else course_type
@@ -282,24 +281,25 @@ class JSONImporter:
         course.programs.add(*programs)
 
     def _import_course_from_unused_exam(self, data: ImportEvent) -> Course | None:
-        split_title = data["title"].split(":", 1)
-        if len(split_title) < 2:
+        prefix, sep, actual_title = data["title"].partition(":")
+        prefix = prefix.strip()
+        actual_title = actual_title.strip()
+        if not sep:
             return None
-        prefix = split_title[0].strip()
 
         try:
             course_type = CourseType.objects.get(import_names__contains=[prefix])
         except CourseType.DoesNotExist:
             return None
 
-        data["title"] = split_title[1].strip()
-        data["title_en"] = data["title_en"].split(":", 1)[1].strip() if ":" in data["title_en"] else data["title_en"]
-
+        data["title"] = actual_title
+        if ":" in data["title_en"]:
+            data["title_en"] = data["title_en"].partition(":")[2].strip()
         return self._import_course(data, course_type)
 
     # pylint: disable=too-many-locals
     def _import_evaluation(self, course: Course, data: ImportEvent) -> Evaluation:
-        if "appointments" not in data:
+        if "appointments" not in data or not data["appointments"]:
             self.statistics.warnings.append(
                 WarningMessage(obj=course.name, message="No dates defined, using default end date")
             )
@@ -387,10 +387,10 @@ class JSONImporter:
     def _import_contribution(
         self, evaluation: Evaluation, data: ImportRelated
     ) -> tuple[Contribution | None, bool, dict[str, tuple[Any, Any]]]:
-        if data["gguid"] not in self.students_by_gguid:
+        if data["gguid"] not in self.users_by_gguid:
             return None, False, {}
 
-        user_profile = self.students_by_gguid[data["gguid"]]
+        user_profile = self.users_by_gguid[data["gguid"]]
 
         if user_profile.email in settings.NON_RESPONSIBLE_USERS:
             return None, False, {}
