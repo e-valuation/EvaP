@@ -278,10 +278,17 @@ class JSONImporter:
         return course
 
     def _import_course_programs(self, course: Course, data: ImportEvent) -> None:
-        programs = [
-            self._get_program(c["cprid"]) for c in data["courses"] if c["cprid"] not in settings.IGNORE_PROGRAMS
-        ]
-        course.programs.add(*programs)
+        if "courses" not in data or not data["courses"]:
+            self.statistics.warnings.append(
+                WarningMessage(
+                    obj=course.name, message="No 'courses' defined in import data, Programs can't be assigned"
+                )
+            )
+        else:
+            programs = [
+                self._get_program(c["cprid"]) for c in data["courses"] if c["cprid"] not in settings.IGNORE_PROGRAMS
+            ]
+            course.programs.add(*programs)
 
     def _import_course_from_unused_exam(self, data: ImportEvent) -> Course | None:
         prefix, sep, actual_title = data["title"].partition(":")
@@ -323,7 +330,10 @@ class JSONImporter:
             weight = 1
 
             # If events are graded for any program, wait for grade upload before publishing
-            wait_for_grade_upload_before_publishing = any(grade["scale"] for grade in data["courses"])
+            if "courses" not in data or not data["courses"]:
+                wait_for_grade_upload_before_publishing = True
+            else:
+                wait_for_grade_upload_before_publishing = any(grade["scale"] for grade in data["courses"])
             # Update previously created main evaluation
             course.evaluations.all().update(
                 wait_for_grade_upload_before_publishing=wait_for_grade_upload_before_publishing
