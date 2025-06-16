@@ -1343,7 +1343,10 @@ def helper_evaluation_edit(request, evaluation):
         raise SuspiciousOperation("Invalid POST operation")
 
     evaluation_form = EvaluationForm(
-        request.POST or None, instance=evaluation, semester=evaluation.course.semester, operation=operation
+        request.POST or None,
+        instance=evaluation,
+        semester=evaluation.course.semester,
+        requires_decided_main_language=operation == "approve",
     )
     formset = InlineContributionFormset(
         request.POST or None, instance=evaluation, form_kwargs={"evaluation": evaluation}

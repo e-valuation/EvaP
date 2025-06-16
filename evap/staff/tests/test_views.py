@@ -1999,7 +1999,6 @@ class TestEvaluationCreateView(WebTestStaffMode):
 
         with self.assertRaises(ValueError):
             form["main_language"] = "some_wrong_value"
-            form.submit()
 
         form["main_language"] = "x"
         form.submit()
@@ -2455,7 +2454,9 @@ class TestEvaluationEditView(WebTestStaffMode):
         self.assertNotEqual(Evaluation.objects.first().state, self.evaluation.State.APPROVED)
 
         form["main_language"] = "en"
-        response = form.submit("operation", value="approve", status=302)
+        form.submit("operation", value="approve").follow()
+
+        self.assertEqual(Evaluation.objects.first().state, self.evaluation.State.APPROVED)
 
 
 class TestEvaluationDeleteView(WebTestStaffMode):

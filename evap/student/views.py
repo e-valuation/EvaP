@@ -12,9 +12,9 @@ from django.db.models import Exists, F, Max, OuterRef, Q, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.utils import translation
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
-from django.utils.translation import override
 
 from evap.evaluation.auth import participant_required
 from evap.evaluation.models import NO_ANSWER, Evaluation, RatingAnswerCounter, Semester, TextAnswer, VoteTimestamp
@@ -206,7 +206,7 @@ def get_vote_page_form_groups(request, evaluation, preview):
 
 def render_vote_page(request, evaluation, preview, for_rendering_in_modal=False):
     language = request.GET.get("language", evaluation.main_language)
-    with override(language):
+    with translation.override(language):
         form_groups = get_vote_page_form_groups(request, evaluation, preview)
 
     assert preview or not all(form.is_valid() for form_group in form_groups.values() for form in form_group)

@@ -385,9 +385,9 @@ class EvaluationForm(forms.ModelForm):
             "participants": UserModelMultipleChoiceField,
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, requires_decided_main_language: bool = False, **kwargs):
         semester = kwargs.pop("semester", None)
-        self.operation = kwargs.pop("operation", "save")
+        self.requires_decided_main_language = requires_decided_main_language
         super().__init__(*args, **kwargs)
         self.fields["course"].queryset = Course.objects.filter(semester=semester)
 
@@ -452,7 +452,7 @@ class EvaluationForm(forms.ModelForm):
 
     def clean_main_language(self):
         main_language = self.cleaned_data.get("main_language")
-        if self.operation == "approve" and main_language == "x":
+        if self.requires_decided_main_language and main_language == "x":
             self.add_error("main_language", _("You have to set a main language to approve this evaluation."))
         return main_language
 
