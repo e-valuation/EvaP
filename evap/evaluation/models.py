@@ -1,3 +1,4 @@
+import enum
 import logging
 import secrets
 import uuid
@@ -510,15 +511,13 @@ class Evaluation(LoggedModel):
         exam_evaluation.general_contribution.questionnaires.set(settings.EXAM_QUESTIONNAIRE_IDS)
 
     class TextAnswerReviewState(Enum):
+        do_not_call_in_templates = enum.nonmember(True)
+
         NO_TEXTANSWERS = auto()
         NO_REVIEW_NEEDED = auto()
         REVIEW_NEEDED = auto()
         REVIEW_URGENT = auto()
         REVIEWED = auto()
-
-        @property
-        def do_not_call_in_templates(self):
-            return True
 
     class Meta:
         unique_together = [
@@ -1847,7 +1846,7 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
     def save(self, *args, **kwargs):
         # This is not guaranteed to be called on every insert. For example, the importers use bulk insertion.
 
-        if self.has_usable_password and not password_login_is_active():
+        if self.has_usable_password() and not password_login_is_active():
             # We don't want this to happen, but if it happens, it shouldn't be a showstopper since password login
             # isn't possible anyway -> if triggered, debug how the situation came to be, and prevent that
             logger.warning("User %s has a usable password set while password login is disabled", self)

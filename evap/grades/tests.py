@@ -6,7 +6,7 @@ from django.urls import reverse
 from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, Semester, UserProfile
-from evap.evaluation.tests.tools import WebTest, WebTestWith200Check
+from evap.evaluation.tests.tools import FuzzyInt, WebTest, WebTestWith200Check
 from evap.grades.models import GradeDocument
 
 
@@ -219,6 +219,17 @@ class GradeSemesterViewTest(WebTest):
         self.semester.grade_documents_are_deleted = True
         self.semester.save()
         self.app.get(self.url, user=self.grade_publisher, status=403)
+
+    def test_num_queries_is_constant(self):
+        baker.make(
+            Evaluation,
+            course__semester=self.semester,
+            state=Evaluation.State.PUBLISHED,
+            _quantity=100,
+            _bulk_create=True,
+        )
+        with self.assertNumQueries(FuzzyInt(0, 80)):
+            self.app.get(self.url, user=self.grade_publisher)
 
 
 class GradeCourseViewTest(WebTestWith200Check):

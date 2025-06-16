@@ -31,7 +31,7 @@ class Command(BaseCommand):
             command += ["--watch", "--poll"]
 
         if options["production"]:
-            command += ["--style", "compressed", "--no-source-map"]
+            command += ["--style", "compressed"]
 
         try:
             subprocess_run_or_exit(command, self.stdout)
