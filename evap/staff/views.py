@@ -2141,7 +2141,7 @@ def program_merge(request, main_id, other_id):
 
     if request.method == "POST":
         with transaction.atomic():
-            main_instance.import_names += other_instance.import_names
+            main_instance.import_names = sorted(set(main_instance.import_names) | set(other_instance.import_names))
             main_instance.save()
 
             courses_with_old_program = Course.objects.filter(programs=other_instance)
@@ -2202,7 +2202,7 @@ def course_type_merge(request, main_type_id, other_type_id):
     assert main_type != other_type
 
     if request.method == "POST":
-        main_type.import_names += other_type.import_names
+        main_type.import_names = sorted(set(main_type.import_names) | set(other_type.import_names))
         main_type.save()
         Course.objects.filter(type=other_type).update(type=main_type)
         other_type.delete()

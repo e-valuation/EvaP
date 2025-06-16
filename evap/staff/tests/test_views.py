@@ -3537,8 +3537,8 @@ class TestCourseTypeMergeView(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.main_type = baker.make(CourseType, name_en="A course type", import_names=["M"])
-        cls.other_type = baker.make(CourseType, name_en="Obsolete course type", import_names=["O"])
+        cls.main_type = baker.make(CourseType, name_en="A course type", import_names=["M", "P"])
+        cls.other_type = baker.make(CourseType, name_en="Obsolete course type", import_names=["O", "P"])
         baker.make(Course, type=cls.main_type)
         baker.make(Course, type=cls.other_type)
 
@@ -3552,7 +3552,7 @@ class TestCourseTypeMergeView(WebTestStaffMode):
 
         self.assertFalse(CourseType.objects.filter(name_en="Obsolete course type").exists())
         self.main_type.refresh_from_db()
-        self.assertEqual(self.main_type.import_names, ["M", "O"])
+        self.assertEqual(self.main_type.import_names, ["M", "O", "P"])
         self.assertEqual(Course.objects.filter(type=self.main_type).count(), 2)
         for course in Course.objects.all():
             self.assertTrue(course.type == self.main_type)
@@ -3588,8 +3588,8 @@ class TestProgramMergeView(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.main_program = baker.make(Program, name_en="A program", import_names=["M"])
-        cls.other_program = baker.make(Program, name_en="Obsolete program", import_names=["O"])
+        cls.main_program = baker.make(Program, name_en="A program", import_names=["M", "O"])
+        cls.other_program = baker.make(Program, name_en="Obsolete program", import_names=["O", "P"])
         baker.make(Course, programs=[cls.main_program])
         baker.make(Course, programs=[cls.other_program])
 
@@ -3605,7 +3605,7 @@ class TestProgramMergeView(WebTestStaffMode):
 
         self.assertFalse(Program.objects.filter(name_en="Obsolete program").exists())
         self.main_program.refresh_from_db()
-        self.assertEqual(self.main_program.import_names, ["M", "O"])
+        self.assertEqual(self.main_program.import_names, ["M", "O", "P"])
         self.assertEqual(Course.objects.filter(programs=self.main_program).count(), 2)
         self.assertEqual(Course.objects.count(), 2)
 
