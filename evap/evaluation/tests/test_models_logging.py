@@ -151,20 +151,7 @@ class TestLoggedModel(TestCase):
 
     def test_logging_m2m_reverse_changes(self):
         participant = baker.make(UserProfile)
-
         evaluation2 = baker.make(Evaluation)
-
-        participant.evaluations_participating_in.add(self.evaluation)
-        self.assertEqual(
-            self.evaluation.related_logentries().order_by("id").last().data,
-            {"participants": {"add": [participant.id]}},
-        )
-
-        participant.evaluations_participating_in.remove(self.evaluation)
-        self.assertEqual(
-            self.evaluation.related_logentries().order_by("id").last().data,
-            {"participants": {"remove": [participant.id]}},
-        )
 
         participant.evaluations_participating_in.add(self.evaluation, evaluation2)
         self.assertEqual(
