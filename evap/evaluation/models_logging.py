@@ -355,7 +355,6 @@ def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  #
         return
 
     if reverse:
-        action_type = None
         match action:
             case "pre_remove":
                 action_type = FieldActionType.M2M_REMOVE
