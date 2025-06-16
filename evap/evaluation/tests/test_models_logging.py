@@ -215,5 +215,6 @@ class TestLoggedModel(TestCase):
             self.evaluation.participants.add(participant)
             self.assertFalse(any("participants" in entry.data for entry in self.evaluation.related_logentries()))
 
+            participant.evaluations_participating_in.clear()
             participant.evaluations_participating_in.add(self.evaluation)
             self.assertFalse(any("participants" in entry.data for entry in self.evaluation.related_logentries()))
