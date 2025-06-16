@@ -103,6 +103,8 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
     ],
     "lecturers": [
         {"gguid": "0x3", "email": "", "name": "3", "christianname": "3", "titlefront": "Prof. Dr."},
+        {"gguid": "0x4", "email": "4@example.com", "name": "4", "christianname": "4", "titlefront": "Prof. Dr."},
+        {"gguid": "0x5", "email": "5@example.com", "name": "5", "christianname": "5", "titlefront": "Prof. Dr."},
     ],
     "events": [
         {
@@ -123,6 +125,15 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
             "isexam": False,
             "lecturers": [{"gguid": "0x3"}],
             "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
+        },
+        {
+            "gguid": "0x9",
+            "title": "Vorlesung mit vielen Verantwortlichen",
+            "title_en": "",
+            "type": "Vorlesung",
+            "isexam": False,
+            "lecturers": [{"gguid": "0x4"}, {"gguid": "0x5"}],
+            "students": [],
         },
         {
             "gguid": "0x42",
@@ -203,7 +214,7 @@ class TestImportUserProfiles(TestCase):
     def test_import_students(self):
         self.assertEqual(UserProfile.objects.count(), 0)
 
-        importer = JSONImporter(self.semester, date(2000, 1, 1))
+        importer = JSONImporter(self.semes0x6ter, date(2000, 1, 1))
         importer._import_students(self.students)
 
         user_profiles = UserProfile.objects.all()
@@ -487,6 +498,35 @@ class TestImportEvents(TestCase):
         # use weights
         self.assertEqual(evaluation_everything.weight, 9)
         self.assertEqual(evaluation_life.weight, 1)
+
+    def test_import_ignore_non_responsible_users(self):
+        with override_settings(NON_RESPONSIBLE_USERS=["4@example.com"]):
+            self._import(EXAMPLE_DATA_SPECIAL_CASES)
+            evaluation = Evaluation.objects.get(cms_id="0x9")
+            self.assertEqual(set(evaluation.course.responsibles.values_list("email", flat=True)), {"5@example.com"})
+            self.assertEqual(
+                set(
+                    Contribution.objects.filter(evaluation=evaluation, contributor__isnull=False).values_list(
+                        "contributor__email", flat=True
+                    )
+                ),
+                {"5@example.com"},
+            )
+
+        with override_settings(NON_RESPONSIBLE_USERS=[]):
+            self._import(EXAMPLE_DATA_SPECIAL_CASES)
+            evaluation = Evaluation.objects.get(cms_id="0x9")
+            self.assertEqual(
+                set(evaluation.course.responsibles.values_list("email", flat=True)), {"4@example.com", "5@example.com"}
+            )
+            self.assertEqual(
+                set(
+                    Contribution.objects.filter(evaluation=evaluation, contributor__isnull=False).values_list(
+                        "contributor__email", flat=True
+                    )
+                ),
+                {"4@example.com", "5@example.com"},
+            )
 
     def test_import_courses_evaluation_approved(self):
         self._import()
