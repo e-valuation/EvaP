@@ -2137,6 +2137,7 @@ def program_merge_selection(request):
 def program_merge(request, main_id, other_id):
     main_instance = get_object_or_404(Program, id=main_id)
     other_instance = get_object_or_404(Program, id=other_id)
+    assert main_instance != other_instance
 
     if request.method == "POST":
         with transaction.atomic():
@@ -2198,6 +2199,7 @@ def course_type_merge_selection(request):
 def course_type_merge(request, main_type_id, other_type_id):
     main_type = get_object_or_404(CourseType, id=main_type_id)
     other_type = get_object_or_404(CourseType, id=other_type_id)
+    assert main_type != other_type
 
     if request.method == "POST":
         main_type.import_names += other_type.import_names
