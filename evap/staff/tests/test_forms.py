@@ -36,6 +36,7 @@ from evap.staff.forms import (
     EvaluationCopyForm,
     EvaluationEmailForm,
     EvaluationForm,
+    QuestionForm,
     QuestionnaireForm,
     UserForm,
 )
@@ -1149,3 +1150,21 @@ class EvaluationCopyFormTests(TestCase):
         copied_evaluation = form.save()
         self.assertNotEqual(copied_evaluation, self.evaluation)
         self.assertEqual(Evaluation.objects.count(), 2)
+
+
+class QuestionFormTests(TestCase):
+    def test_fields_disabled_for_text_and_heading(self):
+        question = baker.make(Question, type=QuestionType.TEXT)
+        form = QuestionForm(instance=question)
+        self.assertTrue(form.fields["allows_additional_textanswers"].widget.attrs.get("disabled"))
+        self.assertTrue(form.fields["counts_for_grade"].widget.attrs.get("disabled"))
+
+        question = baker.make(Question, type=QuestionType.HEADING)
+        form = QuestionForm(instance=question)
+        self.assertTrue(form.fields["allows_additional_textanswers"].widget.attrs.get("disabled"))
+        self.assertTrue(form.fields["counts_for_grade"].widget.attrs.get("disabled"))
+
+        question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
+        form = QuestionForm(instance=question)
+        self.assertFalse(form.fields["allows_additional_textanswers"].widget.attrs.get("disabled"))
+        self.assertFalse(form.fields["counts_for_grade"].widget.attrs.get("disabled"))

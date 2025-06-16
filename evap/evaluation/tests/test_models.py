@@ -5,6 +5,7 @@ from django.contrib.auth.models import Group
 from django.core import mail
 from django.core.cache import caches
 from django.core.exceptions import ValidationError
+from django.db import models
 from django.test import override_settings
 from django_fsm import TransitionNotAllowed
 from model_bakery import baker
@@ -1146,3 +1147,37 @@ class QuestionnaireTests(TestCase):
     def test_locked_contributor_questionnaire(self):
         questionnaire = baker.prepare(Questionnaire, is_locked=True, type=Questionnaire.Type.CONTRIBUTOR)
         self.assertRaises(ValidationError, questionnaire.clean)
+
+
+class QuestionTests(TestCase):
+    def test_save_for_text_and_heading_question_type(self):
+        questionaire = baker.make(Questionnaire)
+        question_text = baker.prepare(
+            Question,
+            questionnaire=questionaire,
+            type=QuestionType.TEXT,
+            allows_additional_textanswers=True,
+            counts_for_grade=True,
+        )
+        question_heading = baker.prepare(
+            Question,
+            questionnaire=questionaire,
+            type=QuestionType.HEADING,
+            allows_additional_textanswers=True,
+            counts_for_grade=True,
+        )
+
+        with patch.object(models.Model, "save") as mock_save:
+            question_text.save(update_fields=["text_de"])
+            mock_save.assert_called_once()
+            args, kwargs = mock_save.call_args
+            self.assertEqual(
+                set(kwargs["update_fields"]), {"allows_additional_textanswers", "counts_for_grade", "text_de"}
+            )
+
+            question_heading.save(update_fields=["text_de"])
+            self.assertEqual(mock_save.call_count, 2)
+            args, kwargs = mock_save.call_args
+            self.assertEqual(
+                set(kwargs["update_fields"]), {"allows_additional_textanswers", "counts_for_grade", "text_de"}
+            )
