@@ -424,23 +424,29 @@ class JSONImporter:
 
             self._import_evaluation(course, event)
 
-        unused_events = []
+        exam_events_without_related_non_exam_event = []
         courses_with_exams: dict[Course, list[Evaluation]] = {}
         for event in exam_events:
             if "relatedevents" not in event:
-                unused_events.append(event)
+                exam_events_without_related_non_exam_event.append(event)
                 continue
 
-            exam_course = self.courses_by_gguid[event["relatedevents"][0]["gguid"]]
+            # Exam events have the non-exam event as a single entry in the relatedevents list
+            # We lookup the Course from this non-exam event (the main evaluation) to add the exam evaluation to the same Course
+            course = self.courses_by_gguid[event["relatedevents"][0]["gguid"]]
 
-            self._import_course_programs(exam_course, event)
+            self._import_course_programs(course, event)
 
-            evaluation = self._import_evaluation(exam_course, event)
-            if exam_course in courses_with_exams:
-                courses_with_exams[exam_course].append(evaluation)
+            evaluation = self._import_evaluation(course, event)
+            if course in courses_with_exams:
+                courses_with_exams[course].append(evaluation)
             else:
-                courses_with_exams[exam_course] = [evaluation]
-        for event in unused_events:
+                courses_with_exams[course] = [evaluation]
+
+        # Handle exam events that exist on their own without a related non-exam event
+        # They can be handled like non-exam events if they have a prefix existing in CourseType import names,
+        # this replaces the necessary CourseType information otherwise defined in non-exam events
+        for event in exam_events_without_related_non_exam_event:
             course_from_unused_exam = self._import_course_from_unused_exam(event)
             if not course_from_unused_exam:
                 self.statistics.warnings.append(
