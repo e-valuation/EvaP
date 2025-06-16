@@ -13,7 +13,7 @@ from django.utils.timezone import now
 
 from evap.evaluation.models import Contribution, Course, CourseType, Evaluation, Program, Semester, UserProfile
 from evap.evaluation.tools import clean_email
-from evap.staff.tools import update_or_create_with_changes, update_with_changes
+from evap.staff.tools import update_m2m_with_changes, update_or_create_with_changes, update_with_changes
 
 logger = logging.getLogger(__name__)
 
@@ -21,16 +21,16 @@ logger = logging.getLogger(__name__)
 class ImportStudent(TypedDict):
     gguid: str
     email: str
-    name: str
-    christianname: str
+    name: str  # last name
+    christianname: str  # first name
 
 
 class ImportLecturer(TypedDict):
     gguid: str
     email: str
-    name: str
-    christianname: str
-    titlefront: str
+    name: str  # last name
+    christianname: str  # first name
+    titlefront: str  # title
 
 
 class ImportCourse(TypedDict):
@@ -39,6 +39,8 @@ class ImportCourse(TypedDict):
 
 
 class ImportRelated(TypedDict):
+    """A related data object represented by its gguid."""
+
     gguid: str
 
 
@@ -48,14 +50,15 @@ class ImportAppointment(TypedDict):
 
 
 class ImportEvent(TypedDict):
+    """An event can be a teaching course or exam course that we import together as a course with two evaluations."""
+
     gguid: str
-    lvnr: int
     title: str
     title_en: str
-    type: str
-    isexam: bool
-    courses: NotRequired[list[ImportCourse]]
-    relatedevents: NotRequired[list[ImportRelated]]
+    type: str  # name of course type
+    isexam: bool  # exam course?
+    courses: NotRequired[list[ImportCourse]]  # programs
+    relatedevents: NotRequired[list[ImportRelated]]  # related events are usually the respective teaching/exam course
     appointments: NotRequired[list[ImportAppointment]]
     lecturers: NotRequired[list[ImportRelated]]
     students: NotRequired[list[ImportRelated]]
@@ -266,7 +269,7 @@ class JSONImporter:
             cms_id=data["gguid"],
             defaults={"name_de": data["title"], "name_en": data["title_en"], "type": course_type},
         )
-        course.responsibles.set(responsibles)
+        changes |= update_m2m_with_changes(course, "responsibles", responsibles)
 
         if created:
             self.statistics.new_courses.append(course)
@@ -317,6 +320,7 @@ class JSONImporter:
         else:
             course_end = max(datetime.strptime(app["end"], self.DATETIME_FORMAT) for app in data["appointments"])
 
+        assert isinstance(data["isexam"], bool)
         if data["isexam"]:
             # Set evaluation time frame of three days for exam evaluations:
             evaluation_start_datetime = course_end.replace(hour=8, minute=0, second=0, microsecond=0) + timedelta(
@@ -382,8 +386,8 @@ class JSONImporter:
                 )
             else:
                 for lecturer in data["lecturers"]:
-                    __, lecturer_created, lecturer_changes = self._import_contribution(evaluation, lecturer)
-                    if lecturer_changes or lecturer_created:
+                    __, lecturer_created = self._import_contribution(evaluation, lecturer)
+                    if lecturer_created:
                         any_lecturers_changed = True
 
             if not created and (direct_changes or participant_changes or any_lecturers_changed):
@@ -396,23 +400,20 @@ class JSONImporter:
 
         return evaluation
 
-    def _import_contribution(
-        self, evaluation: Evaluation, data: ImportRelated
-    ) -> tuple[Contribution | None, bool, dict[str, tuple[Any, Any]]]:
+    def _import_contribution(self, evaluation: Evaluation, data: ImportRelated) -> tuple[Contribution | None, bool]:
         if data["gguid"] not in self.users_by_gguid:
-            return None, False, {}
+            return None, False
 
         user_profile = self.users_by_gguid[data["gguid"]]
 
         if user_profile.email in settings.NON_RESPONSIBLE_USERS:
-            return None, False, {}
+            return None, False
 
-        contribution, created, changes = update_or_create_with_changes(
-            Contribution,
+        contribution, created = Contribution.objects.update_or_create(
             evaluation=evaluation,
             contributor=user_profile,
         )
-        return contribution, created, changes
+        return contribution, created
 
     def _import_events(self, data: list[ImportEvent]) -> None:
         # Divide in two lists so corresponding courses are imported before their exams
@@ -427,12 +428,13 @@ class JSONImporter:
         exam_events_without_related_non_exam_event = []
         courses_with_exams: dict[Course, list[Evaluation]] = {}
         for event in exam_events:
-            if "relatedevents" not in event:
+            if not event.get("relatedevents"):
                 exam_events_without_related_non_exam_event.append(event)
                 continue
 
             # Exam events have the non-exam event as a single entry in the relatedevents list
             # We lookup the Course from this non-exam event (the main evaluation) to add the exam evaluation to the same Course
+            assert len(event["relatedevents"]) == 1
             course = self.courses_by_gguid[event["relatedevents"][0]["gguid"]]
 
             self._import_course_programs(course, event)

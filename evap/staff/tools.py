@@ -1,8 +1,8 @@
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from datetime import date, datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from django.conf import settings
 from django.contrib import messages
@@ -21,6 +21,9 @@ from evap.evaluation.models_logging import LogEntry
 from evap.evaluation.tools import StrOrPromise, clean_email, is_external_email
 from evap.grades.models import GradeDocument
 from evap.results.tools import STATES_WITH_RESULTS_CACHING, cache_results
+
+if TYPE_CHECKING:
+    from django.db.models.fields.related_descriptors import RelatedManager
 
 
 class ImportType(Enum):
@@ -451,3 +454,13 @@ def update_with_changes(obj: Model, defaults: dict[str, Any]) -> dict[str, tuple
         obj.save()
 
     return changes
+
+
+def update_m2m_with_changes(obj: Model, field: str, new_data: Sequence) -> dict[str, tuple[Any, Any]]:
+    """Update a m2m field of a model and track changed values."""
+    manager: RelatedManager = getattr(obj, field)
+    old_data = manager.all()
+    if set(old_data) != set(new_data):
+        manager.set(new_data)
+        return {field: (old_data, new_data)}
+    return {}

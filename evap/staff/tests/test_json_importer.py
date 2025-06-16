@@ -37,7 +37,6 @@ EXAMPLE_DATA: ImportDict = {
     "events": [
         {
             "gguid": "0x5",
-            "lvnr": 1,
             "title": "Prozessorientierte Informationssysteme",
             "title_en": "Process-oriented information systems",
             "type": "Vorlesung",
@@ -53,7 +52,6 @@ EXAMPLE_DATA: ImportDict = {
         },
         {
             "gguid": "0x6",
-            "lvnr": 2,
             "title": "Prozessorientierte Informationssysteme",
             "title_en": "Process-oriented information systems",
             "type": "Klausur",
@@ -69,7 +67,6 @@ EXAMPLE_DATA: ImportDict = {
         },
         {
             "gguid": "0x7",
-            "lvnr": 3,
             "title": "Bachelorprojekt: Prozessorientierte Informationssysteme",
             "title_en": "Bachelor's Project: Process-oriented information systems",
             "type": "Bachelorprojekt",
@@ -88,7 +85,6 @@ EXAMPLE_DATA_WITH_PREFIX = {
     "events": [
         {
             "gguid": "0x10",
-            "lvnr": 10,
             "title": "BA-Projekt: Allerbestes Projekt",
             "title_en": "BA Project: Best Project Ever",
             "type": "Prüfung",
@@ -111,7 +107,6 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
     "events": [
         {
             "gguid": "0x7",
-            "lvnr": 7,
             "title": "Terminlose Vorlesung",
             "title_en": "",
             "type": "Vorlesung",
@@ -122,7 +117,6 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
         },
         {
             "gguid": "0x8",
-            "lvnr": 8,
             "title": "Klausurlose Vorlesung",
             "title_en": "",
             "type": "Vorlesung",
@@ -132,7 +126,6 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
         },
         {
             "gguid": "0x42",
-            "lvnr": 42,
             "title": "Die Antwort auf die endgültige Frage - Nach dem Leben",
             "title_en": "The Answer to the Ultimate Question - Of Life",
             "type": "Klausur",
@@ -143,12 +136,11 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
                 {"cprid": "P", "scale": "GRADE_PARTICIPATION"},
             ],
             "appointments": [{"begin": "01.01.2025 01:01:01", "end": "31.12.2025 12:31:00"}],
-            "relatedevents": [{"gguid": "0x7"}, {"gguid": "0x44"}],
+            "relatedevents": [{"gguid": "0x7"}],
             "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
         },
         {
             "gguid": "0x43",
-            "lvnr": 43,
             "title": "Die Antwort auf die endgültige Frage - Nach dem Universum",
             "title_en": "The Answer to the Ultimate Question - Of the Universe",
             "type": "Klausur",
@@ -162,7 +154,6 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
         },
         {
             "gguid": "0x44",
-            "lvnr": 44,
             "title": "Der ganze Rest",
             "title_en": "Everything",
             "type": "CT",
@@ -173,7 +164,6 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
         },
         {
             "gguid": "0x50",
-            "lvnr": 50,
             "title": "Späte Vorlesung",
             "title_en": "Late Lecture",
             "type": "Vorlesung",
@@ -185,7 +175,6 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
         },
         {
             "gguid": "0x51",
-            "lvnr": 51,
             "title": "Frühe Klausur",
             "title_en": "Early Exam",
             "type": "Klausur",
