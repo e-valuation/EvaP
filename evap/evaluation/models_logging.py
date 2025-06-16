@@ -355,6 +355,17 @@ def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  #
         return
 
     if reverse:
+        action_type = None
+        match action:
+            case "pre_remove":
+                action_type = FieldActionType.M2M_REMOVE
+            case "pre_add":
+                action_type = FieldActionType.M2M_ADD
+            case "pre_clear":
+                # Since we are not clearing the LoggedModdel instance, we need to log the removal of the related instances
+                action_type = FieldActionType.M2M_REMOVE
+            case _:
+                return
 
         if pk_set:
             related_instances = model.objects.filter(pk__in=pk_set)
@@ -368,13 +379,7 @@ def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  #
             if field_name in related_instance.unlogged_fields:
                 continue
 
-            if action == "pre_remove":
-                related_instance.log_m2m_change(field_name, FieldActionType.M2M_REMOVE, [instance.pk])
-            elif action == "pre_add":
-                related_instance.log_m2m_change(field_name, FieldActionType.M2M_ADD, [instance.pk])
-            elif action == "pre_clear":
-                # Since we are not clearing the LoggedModdel instance, we need to log the removal of the related instances
-                related_instance.log_m2m_change(field_name, FieldActionType.M2M_REMOVE, [instance.pk])
+            related_instance.log_m2m_change(field_name, action_type, [instance.pk])
 
     else:
         if field_name in instance.unlogged_fields:
