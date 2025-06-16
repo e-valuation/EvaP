@@ -121,6 +121,16 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
             "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
         },
         {
+            "gguid": "0x8",
+            "lvnr": 8,
+            "title": "Klausurlose Vorlesung",
+            "title_en": "",
+            "type": "Vorlesung",
+            "isexam": False,
+            "lecturers": [{"gguid": "0x3"}],
+            "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
+        },
+        {
             "gguid": "0x42",
             "lvnr": 42,
             "title": "Die Antwort auf die endgültige Frage - Nach dem Leben",
@@ -146,7 +156,7 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
             "courses": [
                 {"cprid": "Master Program", "scale": "GRADE_PARTICIPATION"},
             ],
-            "appointments": [{"begin": "01.01.2025 01:01:01", "end": "31.12.2025 12:31:00"}],
+            "appointments": [{"begin": "01.01.2025 01:01:01", "end": "01.12.2025 12:31:00"}],
             "relatedevents": [{"gguid": "0x7"}],
             "lecturers": [{"gguid": "0x3"}],
         },
@@ -158,6 +168,33 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
             "type": "CT",
             "isexam": False,
             "appointments": [{"begin": "01.01.2025 01:01:01", "end": "31.12.2025 12:31:00"}],
+            "lecturers": [{"gguid": "0x3"}],
+            "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
+        },
+        {
+            "gguid": "0x50",
+            "lvnr": 50,
+            "title": "Späte Vorlesung",
+            "title_en": "Late Lecture",
+            "type": "Vorlesung",
+            "isexam": False,
+            "appointments": [{"begin": "01.03.2025 08:00:00", "end": "20.03.2025 12:00:00"}],
+            "relatedevents": [{"gguid": "0x51"}],
+            "lecturers": [{"gguid": "0x3"}],
+            "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
+        },
+        {
+            "gguid": "0x51",
+            "lvnr": 51,
+            "title": "Frühe Klausur",
+            "title_en": "Early Exam",
+            "type": "Klausur",
+            "isexam": True,
+            "courses": [
+                {"cprid": "Master Program", "scale": "GRADE_PARTICIPATION"},
+            ],
+            "appointments": [{"begin": "01.01.2025 08:00:00", "end": "01.01.2025 12:00:00"}],
+            "relatedevents": [{"gguid": "0x50"}],
             "lecturers": [{"gguid": "0x3"}],
             "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
         },
@@ -300,9 +337,10 @@ class TestImportEvents(TestCase):
         self.assertEqual(main_evaluation.course, course)
         self.assertEqual(main_evaluation.name_de, "")
         self.assertEqual(main_evaluation.name_en, "")
-        # [{"begin": "15.04.2024 10:15", "end": "15.07.2024 11:45"}]
+        # [{"begin": "30.04.2024 10:15", "end": "15.07.2024 11:45"}]
         self.assertEqual(main_evaluation.vote_start_datetime, datetime(2024, 7, 8, 8, 0))
-        self.assertEqual(main_evaluation.vote_end_date, date(2024, 7, 21))
+        # exam is on 29.07.2024, so evaluation period should be until day before
+        self.assertEqual(main_evaluation.vote_end_date, date(2024, 7, 28))
         self.assertEqual(
             set(main_evaluation.participants.values_list("email", flat=True)),
             {"1@example.com", "2@example.com"},
@@ -380,8 +418,8 @@ class TestImportEvents(TestCase):
         Program.objects.create(name_en="Program", name_de="Studiengang", import_names=["P"])
         importer = self._import(EXAMPLE_DATA_SPECIAL_CASES)
 
-        self.assertEqual(Course.objects.count(), 2)
-        self.assertEqual(Evaluation.objects.count(), 4)
+        self.assertEqual(Course.objects.count(), 4)
+        self.assertEqual(Evaluation.objects.count(), 7)
 
         evaluation = Evaluation.objects.first()
         self.assertEqual(evaluation.course.name_de, "Terminlose Vorlesung")
@@ -389,9 +427,14 @@ class TestImportEvents(TestCase):
         # evaluation has no English name, uses German
         self.assertEqual(evaluation.course.name_en, "Terminlose Vorlesung")
 
-        # evaluation has no "appointments", uses default dates
+        # evaluation has multiple exams, use correct date (first exam end: 01.12.2025)
         self.assertEqual(evaluation.vote_start_datetime, datetime(1999, 12, 20, 8, 0))
-        self.assertEqual(evaluation.vote_end_date, date(2000, 1, 2))
+        self.assertEqual(evaluation.vote_end_date, date(2025, 11, 30))
+
+        # evaluation_without_exam has no "appointments", uses default dates
+        evaluation_without_exam = Evaluation.objects.get(cms_id="0x8")
+        self.assertEqual(evaluation_without_exam.vote_start_datetime, datetime(1999, 12, 20, 8, 0))
+        self.assertEqual(evaluation_without_exam.vote_end_date, date(2000, 1, 2))
 
         # use import names and only import non-ignored programs
         self.assertEqual({d.name_en for d in evaluation.course.programs.all()}, {"BA-Inf", "Master Program", "Program"})
@@ -405,6 +448,11 @@ class TestImportEvents(TestCase):
         evaluation_universe = Evaluation.objects.get(cms_id="0x43")
         self.assertEqual(evaluation_universe.name_de, "Nach dem Universum")
         self.assertEqual(evaluation_universe.name_en, "Of the Universe")
+
+        # don't update evaluation period for late course
+        evaluation_late_lecture = Evaluation.objects.get(cms_id="0x50")
+        self.assertEqual(evaluation_late_lecture.vote_start_datetime, datetime(2025, 3, 10, 8, 0))
+        self.assertEqual(evaluation_late_lecture.vote_end_date, date(2025, 3, 23))
 
         # check warnings
         self.assertCountEqual(
@@ -425,6 +473,14 @@ class TestImportEvents(TestCase):
                 WarningMessage(
                     obj=evaluation_life.full_name,
                     message="No contributors defined",
+                ),
+                WarningMessage(
+                    obj=evaluation_without_exam.full_name,
+                    message="No dates defined, using default end date",
+                ),
+                WarningMessage(
+                    obj=evaluation_late_lecture.full_name,
+                    message="Exam date (2025-01-01) is on or before start date of main evaluation",
                 ),
             ],
         )

@@ -329,12 +329,12 @@ class JSONImporter:
 
             weight = 1
 
+            # Update previously created main evaluation
             # If events are graded for any program, wait for grade upload before publishing
             if "courses" not in data or not data["courses"]:
                 wait_for_grade_upload_before_publishing = True
             else:
                 wait_for_grade_upload_before_publishing = any(grade["scale"] for grade in data["courses"])
-            # Update previously created main evaluation
             course.evaluations.all().update(
                 wait_for_grade_upload_before_publishing=wait_for_grade_upload_before_publishing
             )
@@ -425,6 +425,7 @@ class JSONImporter:
             self._import_evaluation(course, event)
 
         unused_events = []
+        courses_with_exams: dict[Course, list[Evaluation]] = {}
         for event in exam_events:
             if "relatedevents" not in event:
                 unused_events.append(event)
@@ -434,7 +435,11 @@ class JSONImporter:
 
             self._import_course_programs(exam_course, event)
 
-            self._import_evaluation(exam_course, event)
+            evaluation = self._import_evaluation(exam_course, event)
+            if exam_course in courses_with_exams:
+                courses_with_exams[exam_course].append(evaluation)
+            else:
+                courses_with_exams[exam_course] = [evaluation]
         for event in unused_events:
             course_from_unused_exam = self._import_course_from_unused_exam(event)
             if not course_from_unused_exam:
@@ -445,6 +450,38 @@ class JSONImporter:
             event["isexam"] = False
             self._import_course_programs(course_from_unused_exam, event)
             self._import_evaluation(course_from_unused_exam, event)
+
+        # Update vote end date of main evaluation to day before the exam date (course_end)
+        for course, exam_evaluations in courses_with_exams.items():
+            if not course.evaluations.filter(name_de="", name_en="").exists():
+                self.statistics.warnings.append(
+                    WarningMessage(
+                        obj=course.name, message="No main evaluation found to update vote end date to day before exam"
+                    )
+                )
+                continue
+            main_evaluation = course.evaluations.get(name_de="", name_en="")
+            vote_start_date = main_evaluation.vote_start_datetime.date()
+            earliest_exam_date = min(
+                evaluation.vote_start_datetime for evaluation in exam_evaluations
+            ).date() - timedelta(days=1)
+            if earliest_exam_date <= vote_start_date:
+                self.statistics.warnings.append(
+                    WarningMessage(
+                        obj=course.name,
+                        message=f"Exam date ({earliest_exam_date}) is on or before start date of main evaluation",
+                    )
+                )
+            elif earliest_exam_date - vote_start_date < timedelta(days=4):
+                self.statistics.warnings.append(
+                    WarningMessage(
+                        obj=course.name,
+                        message="Not automatically updating vote end date of main evaluation to day before exam because evaluation period would be less than 3 days",
+                    )
+                )
+            else:
+                main_evaluation.vote_end_date = earliest_exam_date - timedelta(days=1)
+                main_evaluation.save()
 
     @transaction.atomic
     def import_dict(self, data: ImportDict) -> None:
