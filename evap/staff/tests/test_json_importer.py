@@ -134,6 +134,7 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
             "isexam": False,
             "lecturers": [{"gguid": "0x4"}, {"gguid": "0x5"}],
             "students": [],
+            "appointments": [{"begin": "29.07.2024 10:15:00", "end": "29.07.2024 11:45:00"}],
         },
         {
             "gguid": "0x42",
@@ -214,7 +215,7 @@ class TestImportUserProfiles(TestCase):
     def test_import_students(self):
         self.assertEqual(UserProfile.objects.count(), 0)
 
-        importer = JSONImporter(self.semes0x6ter, date(2000, 1, 1))
+        importer = JSONImporter(self.semester, date(2000, 1, 1))
         importer._import_students(self.students)
 
         user_profiles = UserProfile.objects.all()
@@ -418,8 +419,8 @@ class TestImportEvents(TestCase):
         Program.objects.create(name_en="Program", name_de="Studiengang", import_names=["P"])
         importer = self._import(EXAMPLE_DATA_SPECIAL_CASES)
 
-        self.assertEqual(Course.objects.count(), 4)
-        self.assertEqual(Evaluation.objects.count(), 7)
+        self.assertEqual(Course.objects.count(), 5)
+        self.assertEqual(Evaluation.objects.count(), 8)
 
         evaluation = Evaluation.objects.first()
         self.assertEqual(evaluation.course.name_de, "Terminlose Vorlesung")
