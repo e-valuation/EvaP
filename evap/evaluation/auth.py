@@ -142,13 +142,17 @@ class OpenIDAuthenticationBackend(OIDCAuthenticationBackend):
         if previous_domain := settings.OIDC_EMAIL_TRANSITIONS.get(domain):
             yield f"{name}@{previous_domain}"
 
+    def get_userinfo(self, *args, **kwargs):
+        claims = super().get_userinfo(*args, **kwargs)
+        if "email" in claims:
+            claims["email"] = clean_email(claims["email"])
+        return claims
+
     def filter_users_by_claims(self, claims):
         assert openid_login_is_active()
         email = claims.get("email")
         if not email:
             return []
-
-        email = clean_email(email)
 
         for query_email in self.possible_existing_account_emails(email):
             try:
@@ -174,7 +178,7 @@ class OpenIDAuthenticationBackend(OIDCAuthenticationBackend):
         if not user.last_name:
             user.last_name = claims.get("family_name", "")
             user.save()
-        new_email = claims.get("email", "")
+        new_email = claims.get("email")
         if user.email != new_email:
             notification = EmailMessage(
                 subject="[EvaP] User email changed automatically",
