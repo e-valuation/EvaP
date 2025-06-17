@@ -387,8 +387,7 @@ class JSONImporter:
             else:
                 for lecturer in data["lecturers"]:
                     __, lecturer_created = self._import_contribution(evaluation, lecturer)
-                    if lecturer_created:
-                        any_lecturers_changed = True
+                    any_lecturers_changed |= lecturer_created
 
             if not created and (direct_changes or participant_changes or any_lecturers_changed):
                 self.statistics.updated_evaluations.append(evaluation)
