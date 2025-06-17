@@ -1,14 +1,15 @@
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from datetime import date, datetime, timedelta
 from enum import Enum
 from pathlib import Path
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.core.exceptions import SuspiciousOperation
 from django.db import transaction
-from django.db.models import Count, Max
+from django.db.models import Count, Max, Model
 from django.urls import reverse
 from django.utils.html import escape, format_html, format_html_join
 from django.utils.safestring import SafeString
@@ -20,6 +21,9 @@ from evap.evaluation.models_logging import LogEntry
 from evap.evaluation.tools import StrOrPromise, clean_email, is_external_email
 from evap.grades.models import GradeDocument
 from evap.results.tools import STATES_WITH_RESULTS_CACHING, cache_results
+
+if TYPE_CHECKING:
+    from django.db.models.fields.related_descriptors import RelatedManager
 
 
 class ImportType(Enum):
@@ -412,3 +416,51 @@ def user_edit_link(user_id):
         reverse("staff:user_edit", kwargs={"user_id": user_id}),
         _("edit user"),
     )
+
+
+T = TypeVar("T", bound=Model)
+
+
+def update_or_create_with_changes(
+    model: type[T],
+    defaults=None,
+    **kwargs,
+) -> tuple[T, bool, dict[str, tuple[Any, Any]]]:
+    """Do update_or_create and track changed values."""
+
+    if not defaults:
+        defaults = {}
+
+    obj, created = model._default_manager.get_or_create(**kwargs, defaults=defaults)
+
+    if created:
+        return obj, True, {}
+
+    changes = update_with_changes(obj, defaults)
+
+    return obj, False, changes
+
+
+def update_with_changes(obj: Model, defaults: dict[str, Any]) -> dict[str, tuple[Any, Any]]:
+    """Update a model instance and track changed values."""
+
+    changes = {}
+    for key, value in defaults.items():
+        if getattr(obj, key) != value:
+            changes[key] = (getattr(obj, key), value)
+            setattr(obj, key, value)
+
+    if changes:
+        obj.save()
+
+    return changes
+
+
+def update_m2m_with_changes(obj: Model, field: str, new_data: Sequence) -> dict[str, tuple[Any, Any]]:
+    """Update a m2m field of a model and track changed values."""
+    manager: RelatedManager = getattr(obj, field)
+    old_data = manager.all()
+    if set(old_data) != set(new_data):
+        manager.set(new_data)
+        return {field: (old_data, new_data)}
+    return {}
