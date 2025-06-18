@@ -307,6 +307,7 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore[misc]
         "is_midterm_evaluation",
         "allow_editors_to_edit",
         "wait_for_grade_upload_before_publishing",
+        "main_language",
     }
 
     EVALUATION_EXCLUDED_FIELDS = {
@@ -380,6 +381,7 @@ class EvaluationForm(forms.ModelForm):
             "course",
             "name_de",
             "name_en",
+            "main_language",
             "weight",
             "allow_editors_to_edit",
             "is_rewarded",
@@ -395,8 +397,9 @@ class EvaluationForm(forms.ModelForm):
             "participants": UserModelMultipleChoiceField,
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, requires_decided_main_language: bool = False, **kwargs):
         semester = kwargs.pop("semester", None)
+        self.requires_decided_main_language = requires_decided_main_language
         super().__init__(*args, **kwargs)
         self.fields["course"].queryset = Course.objects.filter(semester=semester)
 
@@ -458,6 +461,12 @@ class EvaluationForm(forms.ModelForm):
         if weight == 0 and not course.evaluations.exclude(pk=self.instance.pk).filter(weight__gt=0).exists():
             self.add_error("weight", _("At least one evaluation of the course must have a weight greater than 0."))
         return weight
+
+    def clean_main_language(self):
+        main_language = self.cleaned_data.get("main_language")
+        if self.requires_decided_main_language and main_language == "x":
+            self.add_error("main_language", _("You have to set a main language to approve this evaluation."))
+        return main_language
 
     def clean(self):
         super().clean()
