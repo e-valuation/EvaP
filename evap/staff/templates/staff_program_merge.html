@@ -1,0 +1,41 @@
+{% extends 'staff_base.html' %}
+
+{% load evaluation_filters %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    <li class="breadcrumb-item"><a href="{% url 'staff:program_index' %}">{% translate 'Programs' %}</a></li>
+    <li class="breadcrumb-item">{% translate 'Merge programs' %}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <h3>{% translate 'Merge programs' %}</h3>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <p>
+                {% blocktranslate trimmed %}
+                    The following courses currently have the program <strong>{{ other_instance }}</strong> and will
+                    get the program <strong>{{ main_instance }}</strong> once you merge the programs. The program <strong>
+                    {{ other_instance }}</strong> will be deleted after that.
+                {% endblocktranslate %}
+            </p>
+
+            <ul>
+                {% for course in courses_with_other_program %}
+                    <li>{{ course }} ({{ course.semester }})</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <form id="program-merge-form" method="POST" class="form-horizontal">
+        {% csrf_token %}
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
+                <button type="submit" class="btn btn-primary">{% translate 'Merge programs' %}</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}

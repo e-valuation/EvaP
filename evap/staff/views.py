@@ -99,6 +99,7 @@ from evap.staff.forms import (
     InfotextForm,
     ModelWithImportNamesFormset,
     ProgramForm,
+    ProgramMergeSelectionForm,
     QuestionForm,
     QuestionnaireForm,
     QuestionnairesAssignForm,
@@ -2146,6 +2147,53 @@ class ProgramIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
 
 
 @manager_required
+def program_merge_selection(request):
+    form = ProgramMergeSelectionForm(request.POST or None)
+
+    if form.is_valid():
+        main_instance = form.cleaned_data["main_instance"]
+        other_instance = form.cleaned_data["other_instance"]
+        return redirect("staff:program_merge", main_instance.id, other_instance.id)
+
+    return render(request, "staff_program_merge_selection.html", {"form": form})
+
+
+@manager_required
+def program_merge(request, main_id, other_id):
+    main_instance = get_object_or_404(Program, id=main_id)
+    other_instance = get_object_or_404(Program, id=other_id)
+    assert main_instance != other_instance
+
+    if request.method == "POST":
+        with transaction.atomic():
+            main_instance.import_names = sorted(set(main_instance.import_names) | set(other_instance.import_names))
+            main_instance.save()
+
+            courses_with_old_program = Course.objects.filter(programs=other_instance)
+            for course in courses_with_old_program:
+                course.programs.remove(other_instance)
+                course.programs.add(main_instance)
+
+            other_instance.delete()
+
+        messages.success(request, _("Successfully merged programs."))
+        return redirect("staff:program_index")
+
+    courses_with_other_program = Course.objects.filter(programs=other_instance).order_by(
+        "semester__created_at", "name_de"
+    )
+    return render(
+        request,
+        "staff_program_merge.html",
+        {
+            "main_instance": main_instance,
+            "other_instance": other_instance,
+            "courses_with_other_program": courses_with_other_program,
+        },
+    )
+
+
+@manager_required
 class CourseTypeIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
     model = CourseType
     formset_class = modelformset_factory(
@@ -2176,9 +2224,10 @@ def course_type_merge_selection(request):
 def course_type_merge(request, main_type_id, other_type_id):
     main_type = get_object_or_404(CourseType, id=main_type_id)
     other_type = get_object_or_404(CourseType, id=other_type_id)
+    assert main_type != other_type
 
     if request.method == "POST":
-        main_type.import_names += other_type.import_names
+        main_type.import_names = sorted(set(main_type.import_names) | set(other_type.import_names))
         main_type.save()
         Course.objects.filter(type=other_type).update(type=main_type)
         other_type.delete()
