@@ -12,6 +12,7 @@ from django.db.models import Exists, F, Max, OuterRef, Q, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.utils import translation
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 
@@ -204,7 +205,9 @@ def get_vote_page_form_groups(request, evaluation, preview):
 
 
 def render_vote_page(request, evaluation, preview, for_rendering_in_modal=False):
-    form_groups = get_vote_page_form_groups(request, evaluation, preview)
+    language = request.GET.get("language", evaluation.main_language)
+    with translation.override(language):
+        form_groups = get_vote_page_form_groups(request, evaluation, preview)
 
     assert preview or not all(form.is_valid() for form_group in form_groups.values() for form in form_group)
 
@@ -251,6 +254,8 @@ def render_vote_page(request, evaluation, preview, for_rendering_in_modal=False)
         "general_contribution_textanswers_visible_to": textanswers_visible_to(evaluation.general_contribution),
         "text_answer_warnings": TextAnswerWarning.objects.all(),
         "voter_count_needed_for_publishing_rating_results": settings.VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS,
+        "languages": settings.LANGUAGES,
+        "evaluation_language": language,
     }
     return render(request, "student_vote.html", template_data)
 
