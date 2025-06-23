@@ -144,7 +144,16 @@ class LoginTests(WebTest):
         self.assertIn("Logout", page.body.decode())
         self.assertEqual(page.context["user"], user)
 
-    @override_settings(ACTIVATE_OPEN_ID_LOGIN=True)
+    @override_settings(
+        ACTIVATE_OPEN_ID_LOGIN=True,
+        INSTITUTION_EMAIL_DOMAINS=[
+            "student.institution.example.com",
+            "mail.institution.example.com",
+            "institution.example.com",
+        ],
+        INSTITUTION_EMAIL_REPLACEMENTS=[("mail.institution.example.com", "institution.example.com")],
+        INSTITUTION_EMAIL_TRANSITIONS={"institution.example.com": "student.institution.example.com"},
+    )
     @patch.multiple(
         auth.OIDCAuthenticationBackend,
         get_userinfo=DEFAULT,
@@ -174,28 +183,33 @@ class LoginTests(WebTest):
         verify_token.return_value = True
 
         old_email = "name@student.institution.example.com"
-        new_email = "name@institution.example.com"
+        reported_email = "name@mail.institution.example.com"
+        cleaned_email = "name@institution.example.com"
 
         self.assertFalse(UserProfile.objects.filter(email=old_email).exists())
-        self.assertFalse(UserProfile.objects.filter(email=new_email).exists())
+        self.assertFalse(UserProfile.objects.filter(email=reported_email).exists())
+        self.assertFalse(UserProfile.objects.filter(email=cleaned_email).exists())
 
         # Logging in with old email creates account, and then changes nothing
         get_userinfo.return_value = {"email": old_email}
         for _ in range(2):
             login_logout()
             self.assertTrue(UserProfile.objects.filter(email=old_email).exists())
-            self.assertFalse(UserProfile.objects.filter(email=new_email).exists())
+            self.assertFalse(UserProfile.objects.filter(email=reported_email).exists())
+            self.assertFalse(UserProfile.objects.filter(email=cleaned_email).exists())
+        self.assertEqual(mail.outbox, [])
 
         user_pk = UserProfile.objects.get(email=old_email).pk
 
         # Logging in with new email reuses old account, and then changes nothing
-        get_userinfo.return_value = {"email": new_email}
+        get_userinfo.return_value = {"email": reported_email}
         for _ in range(2):
             login_logout()
             self.assertFalse(UserProfile.objects.filter(email=old_email).exists())
-            self.assertTrue(UserProfile.objects.filter(email=new_email).exists())
+            self.assertFalse(UserProfile.objects.filter(email=reported_email).exists())
+            self.assertTrue(UserProfile.objects.filter(email=cleaned_email).exists())
 
-        self.assertEqual(UserProfile.objects.get(email=new_email).pk, user_pk)
+        self.assertEqual(UserProfile.objects.get(email=cleaned_email).pk, user_pk)
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn("User email changed automatically", mail.outbox[0].subject)
 
@@ -204,13 +218,25 @@ class LoginTests(WebTest):
         for _ in range(2):
             login_logout()
             self.assertTrue(UserProfile.objects.filter(email=old_email).exists())
-            self.assertTrue(UserProfile.objects.filter(email=new_email).exists())
+            self.assertFalse(UserProfile.objects.filter(email=reported_email).exists())
+            self.assertTrue(UserProfile.objects.filter(email=cleaned_email).exists())
+        self.assertEqual(len(mail.outbox), 1)
 
         # When both accounts exist, nothing changes
-        get_userinfo.return_value = {"email": new_email}
+        get_userinfo.return_value = {"email": reported_email}
         login_logout()
         self.assertTrue(UserProfile.objects.filter(email=old_email).exists())
-        self.assertTrue(UserProfile.objects.filter(email=new_email).exists())
+        self.assertFalse(UserProfile.objects.filter(email=reported_email).exists())
+        self.assertTrue(UserProfile.objects.filter(email=cleaned_email).exists())
+        self.assertEqual(len(mail.outbox), 1)
+
+        # When cleaned email is provided, nothing changes
+        get_userinfo.return_value = {"email": cleaned_email}
+        login_logout()
+        self.assertTrue(UserProfile.objects.filter(email=old_email).exists())
+        self.assertFalse(UserProfile.objects.filter(email=reported_email).exists())
+        self.assertTrue(UserProfile.objects.filter(email=cleaned_email).exists())
+        self.assertEqual(len(mail.outbox), 1)
 
     @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
     def test_passworduser_login(self):
