@@ -397,7 +397,7 @@ class EvaluationForm(forms.ModelForm):
             "participants": UserModelMultipleChoiceField,
         }
 
-    def __init__(self, *args, requires_decided_main_language: bool = False, **kwargs):
+    def __init__(self, *args, requires_decided_main_language=False, **kwargs):
         semester = kwargs.pop("semester", None)
         self.requires_decided_main_language = requires_decided_main_language
         super().__init__(*args, **kwargs)
