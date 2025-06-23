@@ -187,7 +187,7 @@ class LoginTests(WebTest):
         reported_email = "name@mail.institution.example.com"
         cleaned_email = "name@institution.example.com"
 
-        def assertExistance(old_exists, reported_exists, cleaned_exists):
+        def assert_existence(old_exists, reported_exists, cleaned_exists):
             self.assertEqual(UserProfile.objects.filter(email=old_email).exists(), old_exists)
             self.assertEqual(UserProfile.objects.filter(email=reported_email).exists(), reported_exists)
             self.assertEqual(UserProfile.objects.filter(email=cleaned_email).exists(), cleaned_exists)
@@ -195,7 +195,7 @@ class LoginTests(WebTest):
         # Logging in with old email creates account, and then changes nothing
         for _ in range(2):
             login_logout(old_email)
-            assertExistance(True, False, False)
+            assert_existence(True, False, False)
         self.assertEqual(mail.outbox, [])
 
         user_pk = UserProfile.objects.get(email=old_email).pk
@@ -203,7 +203,7 @@ class LoginTests(WebTest):
         # Logging in with new email reuses old account, and then changes nothing
         for _ in range(2):
             login_logout(reported_email)
-            assertExistance(False, False, True)
+            assert_existence(False, False, True)
 
         self.assertEqual(UserProfile.objects.get(email=cleaned_email).pk, user_pk)
         self.assertEqual(len(mail.outbox), 1)
@@ -212,17 +212,17 @@ class LoginTests(WebTest):
         # Login with old email creates new account, and then changes nothing
         for _ in range(2):
             login_logout(old_email)
-            assertExistance(True, False, True)
+            assert_existence(True, False, True)
         self.assertEqual(len(mail.outbox), 1)
 
         # When both accounts exist, nothing changes
         login_logout(reported_email)
-        assertExistance(True, False, True)
+        assert_existence(True, False, True)
         self.assertEqual(len(mail.outbox), 1)
 
         # When cleaned email is provided, nothing changes
         login_logout(cleaned_email)
-        assertExistance(True, False, True)
+        assert_existence(True, False, True)
         self.assertEqual(len(mail.outbox), 1)
 
     @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
