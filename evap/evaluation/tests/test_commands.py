@@ -311,7 +311,7 @@ class TestSendRemindersCommand(TestCase):
         evaluation = baker.make(
             Evaluation,
             state=Evaluation.State.IN_EVALUATION,
-            vote_start_datetime=datetime.now() - timedelta(days=1),
+            vote_start_datetime=datetime.now() - timedelta(days=2),
             vote_end_date=date.today() + timedelta(days=2),
             participants=[user_to_remind],
         )
@@ -327,14 +327,14 @@ class TestSendRemindersCommand(TestCase):
         evaluation1 = baker.make(
             Evaluation,
             state=Evaluation.State.IN_EVALUATION,
-            vote_start_datetime=datetime.now() - timedelta(days=1),
+            vote_start_datetime=datetime.now() - timedelta(days=2),
             vote_end_date=date.today() + timedelta(days=0),
             participants=[user_to_remind],
         )
         evaluation2 = baker.make(
             Evaluation,
             state=Evaluation.State.IN_EVALUATION,
-            vote_start_datetime=datetime.now() - timedelta(days=1),
+            vote_start_datetime=datetime.now() - timedelta(days=2),
             vote_end_date=date.today() + timedelta(days=2),
             participants=[user_to_remind],
         )
@@ -352,7 +352,7 @@ class TestSendRemindersCommand(TestCase):
         baker.make(
             Evaluation,
             state=Evaluation.State.IN_EVALUATION,
-            vote_start_datetime=datetime.now() - timedelta(days=1),
+            vote_start_datetime=datetime.now() - timedelta(days=2),
             vote_end_date=date.today() + timedelta(days=2),
             participants=[user_no_remind],
             voters=[user_no_remind],
@@ -363,6 +363,31 @@ class TestSendRemindersCommand(TestCase):
 
         self.assertEqual(mock.call_count, 0)
         self.assertEqual(len(mail.outbox), 0)
+
+    def test_remind_only_once_evaluation_started_yesterday(self):
+        user1 = baker.make(UserProfile)
+        user2 = baker.make(UserProfile)
+        baker.make(
+            Evaluation,
+            state=Evaluation.State.IN_EVALUATION,
+            vote_start_datetime=datetime.now() - timedelta(days=1),
+            vote_end_date=date.today() + timedelta(days=2),
+            participants=[user1],
+        )
+        evaluation = baker.make(
+            Evaluation,
+            state=Evaluation.State.IN_EVALUATION,
+            vote_start_datetime=datetime.now() - timedelta(days=2),
+            vote_end_date=date.today() + timedelta(days=2),
+            participants=[user2],
+        )
+
+        with patch("evap.evaluation.models.EmailTemplate.send_reminder_to_user") as mock:
+            management.call_command("send_reminders", stdout=StringIO())
+
+        self.assertEqual(mock.call_count, 1)
+        self.assertEqual(len(mail.outbox), 0)
+        mock.assert_called_once_with(user2, first_due_in_days=2, due_evaluations=[(evaluation, 2)])
 
     @override_settings(TEXTANSWER_REVIEW_REMINDER_WEEKDAYS=list(range(7)))
     def test_send_text_answer_review_reminder(self):
