@@ -166,50 +166,86 @@
     }
 }
 
-@each $col in name, semester, responsible, voters, result, answer, edit, review, flag {
+.evaluation-grid-row {
+    @extend %table-grid;
+    grid:". state-approval state-evaluating state-textanswers state-results name period . .";
+    grid-template-areas:
+            "checkbox state-approval state-evaluating state-textanswers state-results name         period responses buttons"
+            "checkbox state-approval state-evaluating state-textanswers state-results responsibles period responses buttons"
+            "checkbox state-approval state-evaluating state-textanswers state-results tags         period responses buttons";
+    grid-template-columns: 2.75em repeat(4, 1.25em) auto 12.25em 12em 8.5em;
+    row-gap: 0;
+    column-gap: 0;
+
+    & > * {
+        padding-inline: .5rem;
+
+        &.icon {
+            padding-inline: 0;
+        }
+    }
+
+    & .form-check {
+        padding: unset;
+        margin: unset;
+        height: fit-content;
+        width: fit-content;
+    }
+
+    & .form-check-input {
+        margin: unset;
+        float: unset;
+        line-height: 0;
+    }
+
+    border: solid 0 $table-border-color;
+    border-bottom-width: 1px;
+
+    &:nth-child(even) {
+        background-color: $table-striped-bg;
+    }
+
+    &.grid-header button {
+        font-weight: bold;
+    }
+}
+
+@each $col in name, semester, responsible, voters, result, answer, edit, review, flag, state-approval, state-evaluating, state-textanswers, state-results, period, responsibles, tags, buttons, checkbox, responses {
     [data-col=#{$col}] {
         grid-area: $col;
     }
 }
 
 .col-order {
-    position: relative;
-    padding-left: 1em;
+    display: block;
     cursor: pointer;
 
+    padding-block: 0;
+    padding-inline: .5rem;
+    &:empty {
+        padding-inline: 0;
+    }
+
+    border: none;
+    background: none;
+
+    column-gap: .5rem;
+
     &::before {
-        position: absolute;
-        bottom: -0.2rem;
-        left: -0.1rem;
-        width: 1.5rem;
-        height: 1.5rem;
-        content: "";
-        background-image: escape-svg($order-button-icon);
-        background-repeat: no-repeat;
-        background-size: 0.75rem;
+        content: escape-svg($order-button-icon);
+        width: .75rem;
+        flex-shrink: 0;
     }
 
     &-asc::before {
-        background-image: escape-svg($order-button-down-icon);
+        content: escape-svg($order-button-icon);
     }
 
     &-desc::before {
-        background-image: escape-svg($order-button-up-icon);
+        background-image: escape-svg($order-button-down-icon);
     }
 }
 
-table th.col-order {
-    padding-left: 1.4em;
-
-    &:empty {
-        padding-right: 0;
-    }
-
-    &::before, &::after {
-        bottom: 0.3rem;
-        left: 0.3rem;
-    }
-}
 
 .grid-header {
     align-items: stretch;
