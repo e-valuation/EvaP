@@ -2000,9 +2000,9 @@ class TestEvaluationCreateView(WebTestStaffMode):
         with self.assertRaises(ValueError):
             form["main_language"] = "some_wrong_value"
 
-        form["main_language"] = "x"
+        form["main_language"] = Evaluation.UNDECIDED_MAIN_LANGUAGE
         form.submit()
-        self.assertEqual(Evaluation.objects.get().main_language, "x")
+        self.assertEqual(Evaluation.objects.get().main_language, Evaluation.UNDECIDED_MAIN_LANGUAGE)
 
 
 class TestEvaluationCopyView(WebTestStaffMode):
@@ -2447,7 +2447,7 @@ class TestEvaluationEditView(WebTestStaffMode):
         response = self.app.get(self.url, user=self.manager, status=200)
         form = response.forms["evaluation-form"]
 
-        form["main_language"] = "x"
+        form["main_language"] = Evaluation.UNDECIDED_MAIN_LANGUAGE
         response = form.submit("operation", value="approve")
         self.assertContains(response, "You have to set a main language to approve this evaluation.")
 
