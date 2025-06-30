@@ -18,7 +18,7 @@
                     <span slot="action-text">{% translate 'Antworten zurücknehmen' %}</span>
                     <span slot="question">
                             {% blocktranslate trimmed %}
-                                    Möchtest du alle zu dieser Person abgegebenen Antworten zu rücknehmen?
+                                Möchtest du alle zu dieser Person abgegebenen Antworten zu rücknehmen?
                             {% endblocktranslate %}
                     </span>
                     <span slot="show-button" class="visually-hidden"></span>
@@ -94,8 +94,7 @@
                                           disabled{% endif %}>{{ field.value|default_if_none:"" }}</textarea>
                             </div>
                             <div>
-                                {% blocktranslate asvar intro_text %}After publishing, this text answer can be seen
-                                    by:{% endblocktranslate %}
+                                {% blocktranslate asvar intro_text %}After publishing, this text answer can be seen by:{% endblocktranslate %}
                                 {% include 'textanswer_visibility_info.html' with intro_text=intro_text visible_by_contribution=textanswers_visible_to.visible_by_contribution visible_by_delegation_count=textanswers_visible_to.visible_by_delegation_count %}
                             </div>
                         </div>
