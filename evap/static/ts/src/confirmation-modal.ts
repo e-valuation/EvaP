@@ -70,7 +70,7 @@ export class ConfirmationModal extends HTMLElement {
 
     show = () => {
         this.dialog.show();
-    }
+    };
 
     closeDialogSlowly = () => {
         this.dialog.addEventListener(
