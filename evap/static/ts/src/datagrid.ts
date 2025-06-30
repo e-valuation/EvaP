@@ -31,7 +31,7 @@ interface DataGridParameters extends BaseParameters {
 abstract class DataGrid {
     private readonly storageKey: string;
     protected sortableHeaders: Map<string, HTMLElement>;
-    protected searchableColumns: string[];
+    protected searchableColumnIndices: number[];
     protected container: HTMLElement;
     private searchInput: HTMLInputElement;
     protected rows: Row[] = [];
@@ -41,16 +41,20 @@ abstract class DataGrid {
     protected constructor({ storageKey, head, container, searchInput }: DataGridParameters) {
         this.storageKey = storageKey;
         this.sortableHeaders = new Map();
-        this.searchableColumns = [];
-        head.querySelectorAll<HTMLElement>("[data-col]").forEach(header => {
+        this.searchableColumnIndices = [];
+
+        head.querySelectorAll<HTMLElement>(".col-order").forEach(header => {
             const column = header.dataset.col!;
-            if (header.classList.contains("col-order")) {
             this.sortableHeaders.set(column, header);
-            }
-            if (header.dataset.searchable !== "false") {
-                this.searchableColumns.push(column);
+        });
+        
+        const headers = [...head.querySelectorAll<HTMLElement>("th")];
+        headers.forEach((header, index) => {            
+            if (!header.hasAttribute("data-not-searchable")) {
+                this.searchableColumnIndices.push(index);
             }
         });
+        
         this.container = container;
         this.searchInput = searchInput;
         this.state = this.restoreStateFromStorage();
@@ -260,7 +264,8 @@ export class TableGrid extends DataGrid {
     }
 
     protected findSearchableCells(row: HTMLElement): HTMLElement[] {
-        return this.searchableColumns.map(column => row.querySelector(`[data-col=${column}]`)!);
+        const children = [...row.children] as HTMLElement[];
+        return this.searchableColumnIndices.map(index => children[index]).filter(cell => cell !== undefined);
     }
 
     protected fetchRowFilterValues(_row: HTMLElement): Map<string, string[]> {
