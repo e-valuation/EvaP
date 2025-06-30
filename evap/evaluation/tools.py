@@ -11,6 +11,7 @@ from django.conf import settings
 from django.core.exceptions import SuspiciousOperation, ValidationError
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.models import Model
+from django.db.models.fields.mixins import FieldCacheMixin
 from django.forms.formsets import BaseFormSet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -87,13 +88,15 @@ def discard_cached_related_objects(instance: M) -> M:
     hierarchy (e.g. for storing instances in a cache)
     """
     # Extracted from django's refresh_from_db, which sadly doesn't offer this part alone (without hitting the DB).
-    for field in instance._meta.concrete_fields:  # type: ignore[attr-defined]
-        if field.is_relation and field.is_cached(instance):
-            field.delete_cached_value(instance)
+    for field in instance._meta.concrete_fields:
+        if field.is_relation:
+            assert isinstance(field, FieldCacheMixin)
+            if field.is_cached(instance):
+                field.delete_cached_value(instance)
 
-    for field in instance._meta.related_objects:  # type: ignore[attr-defined]
-        if field.is_cached(instance):
-            field.delete_cached_value(instance)
+    for related_field in instance._meta.related_objects:
+        if related_field.is_cached(instance):
+            related_field.delete_cached_value(instance)
 
     instance._prefetched_objects_cache = {}  # type: ignore[attr-defined]
 
