@@ -283,16 +283,24 @@ export class TableGrid extends DataGrid {
     }
 }
 
-interface EvaluationGridParameters extends TableGridParameters {
+interface EvaluationGridParameters extends DataGridParameters {
     filterButtons: HTMLButtonElement[];
+    resetFilterButton: HTMLButtonElement;
 }
 
-export class EvaluationGrid extends TableGrid {
+export class EvaluationGrid extends DataGrid {
+    // TODO: rename class
+    // TODO: maybe merge with some others?
+    protected findSearchableCells(row: HTMLElement): HTMLElement[] {
+        return [...row.children] as HTMLElement[]; // TODO: skip buttons?
+    }
     private filterButtons: HTMLButtonElement[];
+    private resetFilterButton: HTMLButtonElement;
 
-    constructor({ filterButtons, ...options }: EvaluationGridParameters) {
+    constructor({ filterButtons, resetFilterButton, ...options }: EvaluationGridParameters) {
         super(options);
         this.filterButtons = filterButtons;
+        this.resetFilterButton = resetFilterButton;
     }
 
     public bindEvents() {
@@ -315,6 +323,16 @@ export class EvaluationGrid extends TableGrid {
                 this.filterRows();
                 this.renderToDOM();
             });
+        });
+
+        this.resetFilterButton.addEventListener("click", () => {
+            this.state.search = "";
+            this.state.equalityFilter.clear();
+            this.filterButtons.forEach(button => button.classList.remove("active"));
+            this.state.rangeFilter.clear();
+            this.filterRows();
+            this.renderToDOM();
+            this.reflectFilterStateOnInputs();
         });
     }
 
