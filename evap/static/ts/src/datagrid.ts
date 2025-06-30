@@ -47,14 +47,14 @@ abstract class DataGrid {
             const column = header.dataset.col!;
             this.sortableHeaders.set(column, header);
         });
-        
+
         const headers = [...head.querySelectorAll<HTMLElement>("th")];
-        headers.forEach((header, index) => {            
+        headers.forEach((header, index) => {
             if (!header.hasAttribute("data-not-searchable")) {
                 this.searchableColumnIndices.push(index);
             }
         });
-        
+
         this.container = container;
         this.searchInput = searchInput;
         this.state = this.restoreStateFromStorage();
