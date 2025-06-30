@@ -173,6 +173,7 @@ disable = [
     "broad-exception-caught", "line-too-long", "unused-wildcard-import", "wildcard-import", "too-many-arguments",
     "too-many-statements", "too-many-return-statements", "too-many-branches", "unnecessary-lambda-assignment",
     "global-statement",
+    "import-outside-toplevel",
 ]
 
 [tool.pylint.design]

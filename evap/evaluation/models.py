@@ -128,8 +128,7 @@ class Semester(models.Model):
     @transaction.atomic
     def delete_grade_documents(self):
         # Resolving this circular dependency makes the code more ugly, so we leave it.
-        # pylint: disable=import-outside-toplevel
-        from evap.grades.models import GradeDocument
+        from evap.grades.models import GradeDocument  # noqa: PLC0415
 
         if not self.grade_documents_can_be_deleted:
             raise NotArchivableError
@@ -352,8 +351,7 @@ class Course(LoggedModel):
 
     @classmethod
     def objects_with_missing_final_grades(cls):
-        # pylint: disable=import-outside-toplevel
-        from evap.grades.models import GradeDocument
+        from evap.grades.models import GradeDocument  # noqa: PLC0415
 
         return (
             Course.objects.filter(
@@ -380,16 +378,14 @@ class Course(LoggedModel):
     @property
     def final_grade_documents(self):
         # We think it's better to use the imported constant here instead of using some workaround
-        # pylint: disable=import-outside-toplevel
-        from evap.grades.models import GradeDocument
+        from evap.grades.models import GradeDocument  # noqa: PLC0415
 
         return self.grade_documents.filter(type=GradeDocument.Type.FINAL_GRADES)
 
     @property
     def midterm_grade_documents(self):
         # We think it's better to use the imported constant here instead of using some workaround
-        # pylint: disable=import-outside-toplevel
-        from evap.grades.models import GradeDocument
+        from evap.grades.models import GradeDocument  # noqa: PLC0415
 
         return self.grade_documents.filter(type=GradeDocument.Type.MIDTERM_GRADES)
 
@@ -558,28 +554,30 @@ class Evaluation(LoggedModel):
 
             # It's clear that results.models will need to reference evaluation.models' classes in ForeignKeys.
             # However, this method only makes sense as a method of Evaluation. Thus, we can't get rid of these imports
-            # pylint: disable=import-outside-toplevel
-            from evap.results.tools import STATES_WITH_RESULT_TEMPLATE_CACHING, STATES_WITH_RESULTS_CACHING
+            from evap.results.tools import (  # noqa: PLC0415
+                STATES_WITH_RESULT_TEMPLATE_CACHING,
+                STATES_WITH_RESULTS_CACHING,
+            )
 
             if (
                 state_changed_to(self, STATES_WITH_RESULTS_CACHING)
                 or self.state_change_source == Evaluation.State.EVALUATED
                 and self.state == Evaluation.State.REVIEWED
             ):  # reviewing changes results -> cache update required
-                from evap.results.tools import cache_results
+                from evap.results.tools import cache_results  # noqa: PLC0415
 
                 cache_results(self)
             elif state_changed_from(self, STATES_WITH_RESULTS_CACHING):
-                from evap.results.tools import get_results_cache_key
+                from evap.results.tools import get_results_cache_key  # noqa: PLC0415
 
                 caches["results"].delete(get_results_cache_key(self))
 
             if state_changed_to(self, STATES_WITH_RESULT_TEMPLATE_CACHING):
-                from evap.results.views import update_template_cache_of_published_evaluations_in_course
+                from evap.results.views import update_template_cache_of_published_evaluations_in_course  # noqa: PLC0415
 
                 update_template_cache_of_published_evaluations_in_course(self.course)
             elif state_changed_from(self, STATES_WITH_RESULT_TEMPLATE_CACHING):
-                from evap.results.views import (
+                from evap.results.views import (  # noqa: PLC0415
                     delete_template_cache,
                     update_template_cache_of_published_evaluations_in_course,
                 )
