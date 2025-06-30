@@ -101,6 +101,8 @@ class StudentVoteLiveTest(LiveServerTest):
         button.click()
         id_ = button.get_attribute("data-mark-no-answers-for")
         vote_area = self.selenium.find_element(By.ID, f"vote-area-{id_}")
+        # confirm_button = self.wait.until(presence_of_element_located((By.CSS_SELECTOR, "#mark-no-answer-modal .btn-danger")))
+        # confirm_button.click()
 
         for checkbox in vote_area.find_elements(By.CSS_SELECTOR, "input[type=radio]:not([value='6'])"):
             self.assertFalse(checkbox.is_selected())
