@@ -8,6 +8,7 @@ def _migrate(apps, _schema_editor):
     Evaluation = apps.get_model("evaluation", "Evaluation")
     Evaluation.objects.filter(state__gte=_approved_status).update(main_language="en")
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
