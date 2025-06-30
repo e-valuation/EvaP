@@ -6,10 +6,10 @@
         {% if forloop.first and contributor %}
             <div class="tab-row">
                 <button
-                        type="button"
-                        class="btn btn-light btn-sm btn-sm-narrow {% if not preview %} tab-selectable{% endif %}"
-                        data-mark-no-answers-for="{{ contributor.id }}"
-                        {% if preview %}disabled{% endif %}
+                    type="button"
+                    class="btn btn-light btn-sm btn-sm-narrow {% if not preview %} tab-selectable{% endif %}"
+                    data-mark-no-answers-for="{{ contributor.id }}"
+                    {% if preview %}disabled{% endif %}
                 >
                     {% blocktranslate %}I can't give feedback about this contributor{% endblocktranslate %}
                 </button>
@@ -26,7 +26,7 @@
             </div>
         {% endif %}
     </div>
-     {% if form.questionnaire.teaser %}
+    {% if form.questionnaire.teaser %}
         <p>{{ form.questionnaire.teaser }}</p>
     {% endif %}
     {{ form.non_field_errors }}

@@ -188,11 +188,10 @@
         {{ text_answer_warnings|text_answer_warning_trigger_strings|json_script:'text-answer-warnings' }}
 
         <script type="module">
-            import {AutoFormSaver} from "{% static 'js/auto-form-saver.js' %}";
-            import {CSRF_HEADERS} from "{% static 'js/csrf-utils.js' %}";
-            import {initTextAnswerWarnings} from "{% static 'js/text-answer-warnings.js' %}";
-            import {assert} from "{% static 'js/utils.js' %}";
-            import {ConfirmationModal} from "../../static/js/confirmation-modal.js";
+            import { AutoFormSaver } from "{% static 'js/auto-form-saver.js' %}";
+            import { CSRF_HEADERS } from "{% static 'js/csrf-utils.js' %}";
+            import { initTextAnswerWarnings } from "{% static 'js/text-answer-warnings.js' %}";
+            import { assert } from "{% static 'js/utils.js' %}";
 
             const lastSavedStorageKey = "student-vote-last-saved-at-{{ evaluation.id }}-{{ request.user.id }}";
             const textResultsPublishConfirmation = {
@@ -245,10 +244,10 @@
                         timeStamp = padWithLeadingZeros(lastSavedDate.getHours()) + ":" + padWithLeadingZeros(lastSavedDate.getMinutes());
                     } else {
                         timeStamp = lastSavedDate.getFullYear() + "-"
-                            + padWithLeadingZeros(lastSavedDate.getMonth() + 1) + "-"
-                            + padWithLeadingZeros(lastSavedDate.getDate()) + " "
-                            + padWithLeadingZeros(lastSavedDate.getHours()) + ":"
-                            + padWithLeadingZeros(lastSavedDate.getMinutes());
+                        + padWithLeadingZeros(lastSavedDate.getMonth() + 1) + "-"
+                        + padWithLeadingZeros(lastSavedDate.getDate()) + " "
+                        + padWithLeadingZeros(lastSavedDate.getHours()) + ":"
+                        + padWithLeadingZeros(lastSavedDate.getMinutes());
                     }
                     lastSavedLabel.innerText = "{% translate 'Last saved locally' %}: " + timeStamp;
                 } else {
@@ -420,7 +419,6 @@
                 textResultsPublishConfirmation.bottom.checked = isChecked;
                 textResultsPublishConfirmation.bottomCard.classList.toggle("d-none", isChecked);
             }
-
             if (textResultsPublishConfirmation.bottomCard) {
                 textResultsPublishConfirmation.top.addEventListener("change", updateTextResultsPublishConfirmation);
                 textResultsPublishConfirmation.bottom.addEventListener("change", () => {
