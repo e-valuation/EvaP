@@ -22,12 +22,15 @@
             <div class="d-flex align-items-center justify-content-between">
                 <div class="p-2">
                     {% if contributor_errors_exist %}
-                        {% blocktranslate %}Please make sure to vote for all rating questions. You can also click on "I can't give feedback" to skip the questions about a single person.{% endblocktranslate %}
+                        {% blocktranslate %}Please make sure to vote for all rating questions. You can also click on "I
+                            can't give feedback" to skip the questions about a single person.{% endblocktranslate %}
                     {% else %}
                         {% blocktranslate %}Please make sure to vote for all rating questions.{% endblocktranslate %}
                     {% endif %}
                 </div>
-                <button id="btn-jump-unanswered-question" type="button" class="btn btn-light float-end" data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Jump to the first unanswered question' %}">
+                <button id="btn-jump-unanswered-question" type="button" class="btn btn-light float-end"
+                        data-bs-toggle="tooltip" data-bs-placement="left"
+                        title="{% translate 'Jump to the first unanswered question' %}">
                     <i class="fas fa-arrow-down"></i>
                 </button>
             </div>
@@ -46,8 +49,9 @@
     {% if preview and not for_rendering_in_modal %}
         <div class="callout callout-info">
             <small>
-                <b>{% translate 'Questionnaire Preview' %}</b><br />
-                {% blocktranslate %}This is a preview of the questionnaire for the evaluation. Participants will see the questions below.{% endblocktranslate %}
+                <b>{% translate 'Questionnaire Preview' %}</b><br/>
+                {% blocktranslate %}This is a preview of the questionnaire for the evaluation. Participants will see the
+                    questions below.{% endblocktranslate %}
             </small>
         </div>
     {% endif %}
@@ -64,17 +68,23 @@
                     <p>
                         {% blocktranslate trimmed %}
                             Only a small number of people can take part in this evaluation.
-                            You should be aware that contributors might be able to guess who voted for a specific answer and who wrote a text answer.
-                            Results will only be published if {{ voter_count_needed_for_publishing_rating_results }} or more people participated in the evaluation.
+                            You should be aware that contributors might be able to guess who voted for a specific answer
+                            and who wrote a text answer.
+                            Results will only be published if {{ voter_count_needed_for_publishing_rating_results }} or
+                            more people participated in the evaluation.
                         {% endblocktranslate %}
                     </p>
                     {% if evaluation.num_voters == 0 %}
                         <p>
-                            {% blocktranslate %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktranslate %}
+                            {% blocktranslate %}You're the first person taking part in this evaluation. If you want your
+                                text answers to be shown to the contributors even if you remain the only person taking
+                                part, please check the box below. Otherwise your text answers will be deleted if no
+                                other person takes part in the evaluation.{% endblocktranslate %}
                         </p>
                         <div class="form-check mt-3">
-                            <input class="form-check-input tab-selectable" id="text_results_publish_confirmation_top" type="checkbox"
-                                name="text_results_publish_confirmation_top" />
+                            <input class="form-check-input tab-selectable" id="text_results_publish_confirmation_top"
+                                   type="checkbox"
+                                   name="text_results_publish_confirmation_top"/>
                             <label class="form-check-label" for="text_results_publish_confirmation_top">
                                 {% translate 'Show my text answers to the contributors even if I remain the only person who takes part in this evaluation.' %}
                             </label>
@@ -86,7 +96,8 @@
 
         {% if not preview %}
             <div class="callout callout-info">
-                {% blocktranslate trimmed %}Thank you for taking part in this evaluation. Please be polite and constructive in your feedback.{% endblocktranslate %}
+                {% blocktranslate trimmed %}Thank you for taking part in this evaluation. Please be polite and
+                    constructive in your feedback.{% endblocktranslate %}
             </div>
         {% endif %}
 
@@ -108,7 +119,8 @@
                 <div class="card-body">
                     {% if not preview %}
                         <div class="callout callout-info">
-                            {% blocktranslate %}Please vote for all contributors you worked with. Click on "I can't give feedback" to skip a person.{% endblocktranslate %}
+                            {% blocktranslate %}Please vote for all contributors you worked with. Click on "I can't give
+                                feedback" to skip a person.{% endblocktranslate %}
                         </div>
                     {% endif %}
 
@@ -116,16 +128,19 @@
                         <div class="card collapsible{% if not forloop.last %} mb-3{% endif %}">
                             <div class="card-header d-flex tab-row">
                                 <div class="me-auto">
-                                    <button class="collapse-toggle{% if errors_exist and not contributor_has_errors %} collapsed tab-selectable{% endif %} bg-transparent" data-bs-toggle="collapse"
-                                        data-bs-target="#vote-area-{{ contributor.id }}" aria-expanded="false" aria-controls="vote-area-{{ contributor.id }}" tabindex="-1" type="button">
+                                    <button class="collapse-toggle{% if errors_exist and not contributor_has_errors %} collapsed tab-selectable{% endif %} bg-transparent"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#vote-area-{{ contributor.id }}" aria-expanded="false"
+                                            aria-controls="vote-area-{{ contributor.id }}" tabindex="-1" type="button">
                                         {{ contributor.full_name }}
                                         {% if label %} &ndash; <span class="fst-italic">{{ label }}</span>{% endif %}
                                     </button>
                                 </div>
                             </div>
-                            <div class="collapse{% if not errors_exist or contributor_has_errors %} show{% endif %}" id="vote-area-{{ contributor.id }}">
+                            <div class="collapse{% if not errors_exist or contributor_has_errors %} show{% endif %}"
+                                 id="vote-area-{{ contributor.id }}">
                                 <div class="card-body">
-                                    {% include 'student_vote_questionnaire_group.html' with questionnaire_group=form_group preview=preview textanswers_visible_to=textanswers_visible_to contributor=contributor%}
+                                    {% include 'student_vote_questionnaire_group.html' with questionnaire_group=form_group preview=preview textanswers_visible_to=textanswers_visible_to contributor=contributor %}
                                 </div>
                             </div>
                         </div>
@@ -149,11 +164,15 @@
                     <span class="fas fa-triangle-exclamation"></span> {% translate 'Small number of participants' %}
                 </div>
                 <div class="callout-content tab-row">
-                    {% blocktranslate %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktranslate %}
+                    {% blocktranslate %}You're the first person taking part in this evaluation. If you want your text
+                        answers to be shown to the contributors even if you remain the only person taking part, please
+                        check the box below. Otherwise your text answers will be deleted if no other person takes part
+                        in the evaluation.{% endblocktranslate %}
 
                     <div class="form-check mt-3">
-                        <input class="form-check-input tab-selectable" id="text_results_publish_confirmation_bottom" type="checkbox"
-                            name="text_results_publish_confirmation_bottom" />
+                        <input class="form-check-input tab-selectable" id="text_results_publish_confirmation_bottom"
+                               type="checkbox"
+                               name="text_results_publish_confirmation_bottom"/>
                         <label class="form-check-label" for="text_results_publish_confirmation_bottom">
                             {% translate 'Show my text answers to the contributors even if I remain the only person who takes part in this evaluation.' %}
                         </label>
@@ -169,12 +188,16 @@
                     {% else %}
                         <div class="pb-3 text-secondary">
                             <span id="last-saved"></span>
-                            <span class="fas fa-circle-info" data-bs-toggle="tooltip" title="{% translate 'The evaluation can be continued later using the same device and the same browser. But you have to submit it to send it to the server and make it count. After submitting, you cannot edit the evaluation anymore.' %}"></span>
+                            <span class="fas fa-circle-info" data-bs-toggle="tooltip"
+                                  title="{% translate 'The evaluation can be continued later using the same device and the same browser. But you have to submit it to send it to the server and make it count. After submitting, you cannot edit the evaluation anymore.' %}"></span>
                         </div>
-                        <button id="vote-submit-btn" type="submit" class="btn btn-success tab-selectable">{% translate 'Submit questionnaire' %}</button>
+                        <button id="vote-submit-btn" type="submit"
+                                class="btn btn-success tab-selectable">{% translate 'Submit questionnaire' %}</button>
                         <p id="submit-error-warning" class="text-danger d-none">
                             <span class="fas fa-triangle-exclamation"></span>
-                            {% blocktranslate %}The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire.{% endblocktranslate %}
+                            {% blocktranslate %}The server can't be reached. Your answers have been stored in your
+                                browser and it's safe to leave the page. Please try again later to submit the
+                                questionnaire.{% endblocktranslate %}
                         </p>
                     {% endif %}
                 </div>
@@ -188,10 +211,11 @@
         {{ text_answer_warnings|text_answer_warning_trigger_strings|json_script:'text-answer-warnings' }}
 
         <script type="module">
-            import { AutoFormSaver } from "{% static 'js/auto-form-saver.js' %}";
-            import { CSRF_HEADERS } from "{% static 'js/csrf-utils.js' %}";
-            import { initTextAnswerWarnings } from "{% static 'js/text-answer-warnings.js' %}";
-            import { assert } from "{% static 'js/utils.js' %}";
+            import {AutoFormSaver} from "{% static 'js/auto-form-saver.js' %}";
+            import {CSRF_HEADERS} from "{% static 'js/csrf-utils.js' %}";
+            import {initTextAnswerWarnings} from "{% static 'js/text-answer-warnings.js' %}";
+            import {assert} from "{% static 'js/utils.js' %}";
+            import {ConfirmationModal} from "../../static/js/confirmation-modal.js";
 
             const lastSavedStorageKey = "student-vote-last-saved-at-{{ evaluation.id }}-{{ request.user.id }}";
             const textResultsPublishConfirmation = {
@@ -244,10 +268,10 @@
                         timeStamp = padWithLeadingZeros(lastSavedDate.getHours()) + ":" + padWithLeadingZeros(lastSavedDate.getMinutes());
                     } else {
                         timeStamp = lastSavedDate.getFullYear() + "-"
-                        + padWithLeadingZeros(lastSavedDate.getMonth() + 1) + "-"
-                        + padWithLeadingZeros(lastSavedDate.getDate()) + " "
-                        + padWithLeadingZeros(lastSavedDate.getHours()) + ":"
-                        + padWithLeadingZeros(lastSavedDate.getMinutes());
+                            + padWithLeadingZeros(lastSavedDate.getMonth() + 1) + "-"
+                            + padWithLeadingZeros(lastSavedDate.getDate()) + " "
+                            + padWithLeadingZeros(lastSavedDate.getHours()) + ":"
+                            + padWithLeadingZeros(lastSavedDate.getMinutes());
                     }
                     lastSavedLabel.innerText = "{% translate 'Last saved locally' %}: " + timeStamp;
                 } else {
@@ -255,7 +279,7 @@
                 }
             }
 
-            function padWithLeadingZeros(number){
+            function padWithLeadingZeros(number) {
                 return number.toString().padStart(2, "0");
             }
 
@@ -286,7 +310,7 @@
                     assert(response.ok);
                     return response.text();
                 }).then(response_text => {
-                    if(response_text === "{{ success_magic_string }}") {
+                    if (response_text === "{{ success_magic_string }}") {
                         formSaver.releaseData();
                         window.location.replace("{{ success_redirect_url }}");
                     } else {
@@ -312,34 +336,74 @@
             document.querySelectorAll("[data-mark-no-answers-for]").forEach(button => {
                 const contributorId = button.dataset.markNoAnswersFor;
                 const voteArea = document.getElementById(`vote-area-${contributorId}`);
+                const markNoAnswerModal = voteArea.querySelector(".mark-no-answer-modal");
+                const textareaAnswerFields = voteArea.querySelectorAll(".vote-inputs textarea");
                 const collapseToggle = voteArea.closest(".collapsible").querySelector(".collapse-toggle");
 
-                button.addEventListener("click", () => {
-                    voteArea.querySelectorAll(".vote-inputs [type=radio][value='6']").forEach(radioInput => {
-                        radioInput.checked = true;
-                        clearChoiceError(radioInput);
-                    });
-
-                    formSaver.saveAllData();
+                const afterButtonClicked = () => {
+                    // Disable this button, until user changes a value
+                    button.classList.remove("tab-selectable");
+                    button.disabled = true;
 
                     // hide questionnaire for contributor
                     const voteAreaCollapse = bootstrap.Collapse.getOrCreateInstance(voteArea);
                     voteAreaCollapse.hide();
                     collapseToggle.classList.add("tab-selectable");
+                }
+                button.addEventListener("click", () => {
+                    const shouldShowModal = () => {
+                        for (const textarea of textareaAnswerFields) {
+                            if (textarea.value.trim() !== "") {
+                                return true;
+                            }
+                        }
 
-                    // Disable this button, until user changes a value
-                    button.classList.remove("tab-selectable");
-                    button.disabled = true;
+                        const radioButtons = voteArea.querySelectorAll(".vote-inputs [type=radio]:not([value='6'])");
+                        for (const radioButton of radioButtons) {
+                            if (radioButton.checked) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+
+                    if (shouldShowModal()) {
+                        markNoAnswerModal.show();
+                    } else {
+                        afterButtonClicked();
+                    }
+                });
+                markNoAnswerModal.addEventListener("confirmed", () => {
+                    voteArea.querySelectorAll(".vote-inputs [type=radio][value='6']").forEach(radioInput => {
+                        radioInput.checked = true;
+                        clearChoiceError(radioInput);
+                    });
+                    textareaAnswerFields.forEach((textarea) => {
+                        textarea.value = "";
+                        textarea.dispatchEvent(new Event("input"));
+                    });
+
+                    formSaver.saveAllData();
+
+                    afterButtonClicked();
                 });
 
+                const enableMarkNoAnswerButton = () => {
+                    collapseToggle.classList.remove("tab-selectable");
+                    button.classList.add("tab-selectable");
+                    button.disabled = false;
+                }
                 voteArea.querySelectorAll(".vote-inputs [type=radio]:not([value='6'])")
                     .forEach(radioInput => {
                         radioInput.addEventListener("click", () => {
-                            collapseToggle.classList.remove("tab-selectable");
-                            button.classList.add("tab-selectable");
-                            button.disabled = false;
+                            enableMarkNoAnswerButton();
                         });
                     });
+                textareaAnswerFields.forEach((textarea) => {
+                    textarea.addEventListener("input", () => {
+                        enableMarkNoAnswerButton();
+                    });
+                });
 
                 collapseToggle.addEventListener("click", () => {
                     if (button.classList.contains("tab-selectable")) {
@@ -380,6 +444,7 @@
                 textResultsPublishConfirmation.bottom.checked = isChecked;
                 textResultsPublishConfirmation.bottomCard.classList.toggle("d-none", isChecked);
             }
+
             if (textResultsPublishConfirmation.bottomCard) {
                 textResultsPublishConfirmation.top.addEventListener("change", updateTextResultsPublishConfirmation);
                 textResultsPublishConfirmation.bottom.addEventListener("change", () => {
