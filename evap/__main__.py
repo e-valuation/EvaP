@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import logging
 import os
 import sys
 
@@ -11,6 +12,13 @@ def main():
     assert not settings.configured
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "evap.settings")
     settings.DATADIR.mkdir(exist_ok=True)
+
+    if settings.TESTING:
+        from typeguard import install_import_hook  # pylint: disable=import-outside-toplevel
+
+        install_import_hook(("evap", "tools"))
+        logging.disable()
+
     execute_from_command_line(sys.argv)
 
 
