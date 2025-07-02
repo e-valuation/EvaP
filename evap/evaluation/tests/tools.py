@@ -71,7 +71,7 @@ def to_querydict(dictionary):
 
 
 # taken from http://lukeplant.me.uk/blog/posts/fuzzy-testing-with-assertnumqueries/
-class FuzzyInt(int):
+class FuzzyInt(int):  # noqa: PLW1641
     def __new__(cls, lowest, highest):
         obj = super().__new__(cls, highest)
         obj.lowest = lowest
