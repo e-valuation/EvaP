@@ -547,6 +547,7 @@ class TestImportEvents(TestCase):
         evaluation.general_contribution.questionnaires.add(
             baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
         )
+        evaluation.main_language = "en"
         evaluation.manager_approve()
         evaluation.name_en = "Test"
         evaluation.save()

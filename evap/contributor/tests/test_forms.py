@@ -22,7 +22,9 @@ class EvaluationFormTests(TestCase):
 
     def test_edit_participants(self):
         student = baker.make(UserProfile)
-        evaluation = baker.make(Evaluation, course__programs=[baker.make(Program)], participants=[student])
+        evaluation = baker.make(
+            Evaluation, course__programs=[baker.make(Program)], participants=[student], main_language="en"
+        )
         evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
 
         form_data = get_form_data_from_instance(EvaluationForm, evaluation)
@@ -93,7 +95,7 @@ class ContributionFormsetTests(TestCase):
             Questionnaire, type=Questionnaire.Type.TOP, is_locked=True, visibility=Questionnaire.Visibility.EDITORS
         )
 
-        evaluation = baker.make(Evaluation)
+        evaluation = baker.make(Evaluation, main_language="en")
         evaluation.general_contribution.questionnaires.add(questionnaire)
 
         form_data = get_form_data_from_instance(EvaluationForm, evaluation)
