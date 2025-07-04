@@ -13,8 +13,18 @@
                 >
                     {% blocktranslate %}I can't give feedback about this contributor{% endblocktranslate %}
                 </button>
+                <confirmation-modal class="mark-no-answer-modal" confirm-button-class="btn-danger" id="mark-no-answer-modal">
+                    <span slot="title">{% translate 'Bewertungen für Person zurücknehmen' %}</span>
+                    <span slot="action-text">{% translate 'Antworten zurücknehmen' %}</span>
+                    <span slot="question">
+                            {% blocktranslate trimmed %}
+                                Möchtest du alle zu dieser Person abgegebenen Antworten zu rücknehmen?
+                            {% endblocktranslate %}
+                    </span>
+                    <span slot="show-button" class="visually-hidden"></span>
+                </confirmation-modal>
             </div>
-        {% endif%}
+        {% endif %}
     </div>
     {% if form.questionnaire.teaser %}
         <p>{{ form.questionnaire.teaser }}</p>

@@ -69,7 +69,7 @@ export class AutoFormSaver {
             ) {
                 return false;
             }
-            if (["BUTTON", "FIELDSET", "OBJECT", "OUTPUT"].includes(el.tagName)) {
+            if (["BUTTON", "FIELDSET", "OBJECT", "OUTPUT", "CONFIRMATION-MODAL"].includes(el.tagName)) {
                 return false;
             }
             assert("value" in el);
