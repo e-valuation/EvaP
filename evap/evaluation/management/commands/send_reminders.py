@@ -52,7 +52,10 @@ class Command(BaseCommand):
         for evaluation in Evaluation.objects.filter(
             state=Evaluation.State.IN_EVALUATION, vote_end_date__in=check_dates
         ):
-            recipients.update(evaluation.due_participants)
+            if (
+                datetime.date.today() - datetime.timedelta(days=1) != evaluation.vote_start_datetime.date()
+            ):  # check if evaluation didnt start yesterday, see Issue#2400
+                recipients.update(evaluation.due_participants)
 
         for recipient in recipients:
             due_evaluations = recipient.get_sorted_due_evaluations()
