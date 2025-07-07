@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("evaluation", "0147_unusable_password_default"),
+        ("evaluation", "0148_evaluation_dropout_count_alter_questionnaire_type"),
     ]
 
     operations = [
