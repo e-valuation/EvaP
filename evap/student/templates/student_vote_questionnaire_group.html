@@ -13,15 +13,15 @@
                 >
                     {% blocktranslate %}I can't give feedback about this contributor{% endblocktranslate %}
                 </button>
-                <confirmation-modal class="mark-no-answer-modal" confirm-button-class="btn-danger" id="mark-no-answer-modal">
-                    <span slot="title">{% translate 'Bewertungen für Person zurücknehmen' %}</span>
-                    <span slot="action-text">{% translate 'Antworten zurücknehmen' %}</span>
+                <confirmation-modal class="mark-no-answer-modal" confirm-button-class="btn-danger">
+                    <span slot="title">{% translate 'Take back answer for this person' %}</span>
+                    <span slot="action-text">{% translate 'Take back answers' %}</span>
                     <span slot="question">
                             {% blocktranslate trimmed %}
-                                Möchtest du alle zu dieser Person abgegebenen Antworten zu rücknehmen?
+                                Do you want to take back all answers for this person?
                             {% endblocktranslate %}
                     </span>
-                    <span slot="show-button" class="visually-hidden"></span>
+                    <span slot="show-button" class="d-none"></span>
                 </confirmation-modal>
             </div>
         {% endif %}
@@ -98,3 +98,4 @@
         {% endfor %}
     </div>
 {% endfor %}
+

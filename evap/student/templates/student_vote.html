@@ -316,7 +316,7 @@
                 const textareaAnswerFields = voteArea.querySelectorAll(".vote-inputs textarea");
                 const collapseToggle = voteArea.closest(".collapsible").querySelector(".collapse-toggle");
 
-                const onButtonClicked = () => {
+                const clearContributorAnswers = () => {
                     voteArea.querySelectorAll(".vote-inputs [type=radio][value='6']").forEach(radioInput => {
                         radioInput.checked = true;
                         clearChoiceError(radioInput);
@@ -356,11 +356,11 @@
                     if (shouldShowModal()) {
                         markNoAnswerModal.show();
                     } else {
-                        onButtonClicked();
+                        clearContributorAnswers();
                     }
                 });
                 markNoAnswerModal.addEventListener("confirmed", () => {
-                    onButtonClicked();
+                    clearContributorAnswers();
                 });
 
                 const enableMarkNoAnswerButton = () => {
