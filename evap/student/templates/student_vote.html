@@ -223,9 +223,9 @@
             // Ensure that selected questionnaire language is saved and loaded
             const languageStorageKey = "student-vote-language-{{ evaluation.id }}-{{ request.user.id }}";
             const params = new URLSearchParams(document.location.search);
-            const currentlySelectedLanguage = params.get("language") || "";
+            const currentlySelectedLanguage = "{{ evaluation_language }}";
             const savedLanguage = localStorage.getItem(languageStorageKey);
-            if (currentlySelectedLanguage) {
+            if (params.get("language")) {
                 localStorage.setItem(languageStorageKey, currentlySelectedLanguage);
             } else if (savedLanguage) {
                 params.set("language", savedLanguage);
