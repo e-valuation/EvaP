@@ -31,6 +31,7 @@ interface DataGridParameters extends BaseParameters {
 abstract class DataGrid {
     private readonly storageKey: string;
     protected sortableHeaders: Map<string, HTMLElement>;
+    protected searchableColumnIndices: number[];
     protected container: HTMLElement;
     private searchInput: HTMLInputElement;
     protected rows: Row[] = [];
@@ -40,10 +41,20 @@ abstract class DataGrid {
     protected constructor({ storageKey, head, container, searchInput }: DataGridParameters) {
         this.storageKey = storageKey;
         this.sortableHeaders = new Map();
+        this.searchableColumnIndices = [];
+
         head.querySelectorAll<HTMLElement>(".col-order").forEach(header => {
             const column = header.dataset.col!;
             this.sortableHeaders.set(column, header);
         });
+
+        const headers = [...head.querySelectorAll<HTMLElement>("th")];
+        headers.forEach((header, index) => {
+            if (!header.hasAttribute("data-not-searchable")) {
+                this.searchableColumnIndices.push(index);
+            }
+        });
+
         this.container = container;
         this.searchInput = searchInput;
         this.state = this.restoreStateFromStorage();
@@ -253,7 +264,8 @@ export class TableGrid extends DataGrid {
     }
 
     protected findSearchableCells(row: HTMLElement): HTMLElement[] {
-        return [...row.children] as HTMLElement[];
+        const children = [...row.children] as HTMLElement[];
+        return this.searchableColumnIndices.map(index => children[index]).filter(cell => cell !== undefined);
     }
 
     protected fetchRowFilterValues(row: HTMLElement): Map<string, string[]> {
