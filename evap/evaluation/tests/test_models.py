@@ -155,8 +155,8 @@ class TestEvaluations(WebTest):
             Evaluation,
             state=Evaluation.State.IN_EVALUATION,
             participants=[participant],
-            vote_start_datetime=datetime.now() - timedelta(days=2),
-            vote_end_date=date.today() - timedelta(days=1),
+            vote_start_datetime=datetime.now() - timedelta(days=3),
+            vote_end_date=date.today() - timedelta(days=2),
             wait_for_grade_upload_before_publishing=True,
         )
 
