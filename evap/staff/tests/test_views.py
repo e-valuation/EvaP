@@ -2449,7 +2449,7 @@ class TestEvaluationEditView(WebTestStaffMode):
 
         form["main_language"] = Evaluation.UNDECIDED_MAIN_LANGUAGE
         response = form.submit("operation", value="approve")
-        self.assertContains(response, "You have to set a main language to approve this evaluation.")
+        self.assertContains(response, "You have to set a main language for this evaluation.")
 
         self.assertNotEqual(Evaluation.objects.first().state, self.evaluation.State.APPROVED)
 

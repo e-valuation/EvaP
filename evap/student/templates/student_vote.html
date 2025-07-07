@@ -64,7 +64,7 @@
                        role="button"
                        href="{% url 'student:vote' evaluation.pk %}?language={{ language_code }}"
                        class="btn btn-sm btn-light{% if evaluation_language == language_code %} active{% endif %}">
-                        <span id="span-set-questionaire-language-{{ language_code }}">{{ language_code|upper }}</span>
+                        <span>{{ language_code|upper }}</span>
                     </a>
                 {% endfor %}
             </div>
