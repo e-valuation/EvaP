@@ -322,6 +322,9 @@
                         clearChoiceError(radioInput);
                     });
                     textareaAnswerFields.forEach((textarea) => {
+                        voteArea.querySelectorAll(".btn-textanswer").forEach(textanswerButton => {
+
+                        })
                         textarea.value = "";
                         textarea.dispatchEvent(new Event("input"));
                     });
