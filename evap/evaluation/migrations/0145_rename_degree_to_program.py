@@ -1,7 +1,7 @@
 from django.db import migrations, models
 
 
-def logentries_degrees_to_programs(apps, schema_editor):
+def logentries_degrees_to_programs(apps, _schema_editor):
     LogEntry = apps.get_model("evaluation", "LogEntry")
     for entry in LogEntry.objects.filter(content_type__app_label="evaluation", content_type__model="course"):
         if "degrees" in entry.data:
@@ -9,7 +9,7 @@ def logentries_degrees_to_programs(apps, schema_editor):
             entry.save()
 
 
-def logentries_programs_to_degrees(apps, schema_editor):
+def logentries_programs_to_degrees(apps, _schema_editor):
     LogEntry = apps.get_model("evaluation", "LogEntry")
     for entry in LogEntry.objects.filter(content_type__app_label="evaluation", content_type__model="course"):
         if "programs" in entry.data:
