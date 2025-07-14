@@ -4,12 +4,14 @@ from dataclasses import dataclass, field
 from datetime import date, datetime
 from datetime import time as datetime_time
 from datetime import timedelta
-from typing import Any, NotRequired, TypedDict
+from typing import Any, NotRequired
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.db import transaction
 from django.utils.timezone import now
+from pydantic import ConfigDict, TypeAdapter, with_config
+from typing_extensions import TypedDict
 
 from evap.evaluation.models import Contribution, Course, CourseType, Evaluation, Program, Semester, UserProfile
 from evap.evaluation.tools import clean_email
@@ -64,10 +66,14 @@ class ImportEvent(TypedDict):
     students: NotRequired[list[ImportRelated]]
 
 
+@with_config(ConfigDict(extra="forbid"))
 class ImportDict(TypedDict):
     students: list[ImportStudent]
     lecturers: list[ImportLecturer]
     events: list[ImportEvent]
+
+
+import_dict_adapter = TypeAdapter(ImportDict)
 
 
 @dataclass
@@ -491,10 +497,12 @@ class JSONImporter:
                 main_evaluation.save()
 
     @transaction.atomic
-    def import_dict(self, data: ImportDict) -> None:
-        self._import_students(data["students"])
-        self._import_lecturers(data["lecturers"])
-        self._import_events(data["events"])
+    def import_dict(self, data: dict) -> None:
+        validated_data = import_dict_adapter.validate_python(data, strict=True)
+
+        self._import_students(validated_data["students"])
+        self._import_lecturers(validated_data["lecturers"])
+        self._import_events(validated_data["events"])
         self.statistics.send_mail()
 
     def import_json(self, data: str) -> None:

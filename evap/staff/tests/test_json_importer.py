@@ -1,5 +1,6 @@
 import json
 import os
+from copy import deepcopy
 from datetime import date, datetime
 from io import StringIO
 from tempfile import TemporaryDirectory
@@ -9,6 +10,7 @@ from django.core import mail
 from django.core.management import CommandError, call_command
 from django.test import TestCase, override_settings
 from model_bakery import baker
+from pydantic import ValidationError
 
 from evap.evaluation.models import (
     Contribution,
@@ -586,6 +588,22 @@ class TestImportEvents(TestCase):
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].subject, "[EvaP] JSON importer log")
         self.assertEqual(mail.outbox[0].recipients(), [manager.email])
+
+    def test_importer_wrong_data(self):
+        with self.assertRaises(ValidationError):
+            wrong_data = deepcopy(EXAMPLE_DATA)
+            wrong_data["unexpected_attribute"] = 0
+            self._import(wrong_data)
+
+        with self.assertRaises(ValidationError):
+            wrong_data = deepcopy(EXAMPLE_DATA)
+            wrong_data["events"][0]["unexpected_attribute"] = 0
+            self._import(wrong_data)
+
+        with self.assertRaises(ValidationError):
+            wrong_data = deepcopy(EXAMPLE_DATA)
+            wrong_data["events"][0]["isexam"] = "false"
+            self._import(wrong_data)
 
     @patch("evap.staff.importers.json.JSONImporter.import_json")
     def test_management_command(self, mock_import_json):
