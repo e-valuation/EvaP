@@ -1,3 +1,5 @@
+# ruff: noqa: E731, N803
+
 import inspect
 import logging
 import sys
@@ -14,6 +16,8 @@ from evap.tools import MonthAndDay
 
 
 class LazySettings:
+    REQUIRED = object()
+
     @classmethod
     def resolve(cls):
         sorter = TopologicalSorter()
@@ -41,14 +45,14 @@ class ManifestStaticFilesStorageWithJsReplacement(ManifestStaticFilesStorage):
     support_js_module_import_aggregation = True
 
 
-class DefaultSettings:
+class DefaultSettings(LazySettings):
     MODULE = Path(evap.__file__).parent
     CWD = Path.cwd().resolve()
     DATADIR = lambda CWD: CWD / "data"
 
     ### Debugging
 
-    DEBUG = True
+    DEBUG = LazySettings.REQUIRED
 
     # Very helpful but eats a lot of performance on sql-heavy pages.
     # Works only with DEBUG = True and Django's development server (so no apache).
@@ -388,9 +392,9 @@ class DefaultSettings:
     MEDIA_ROOT = lambda DATADIR: DATADIR / "upload"
 
     ### Evaluation progress rewards
-    GLOBAL_EVALUATION_PROGRESS_REWARDS: list[tuple[Fraction, str]] = (
-        []
-    )  # (required_voter_ratio between 0 and 1, reward_text)
+    GLOBAL_EVALUATION_PROGRESS_REWARDS: list[
+        tuple[Fraction, str]
+    ] = []  # (required_voter_ratio between 0 and 1, reward_text)
     GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS: list[int] = []
     GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS: list[int] = []
     GLOBAL_EVALUATION_PROGRESS_INFO_TEXT: dict[str, str] = {"de": "", "en": ""}
