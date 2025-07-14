@@ -12,7 +12,7 @@
             </span>
         </span>
     {% endspaceless %}
-    <div class="progress-label-wrapper">
-        <span class="progress-label">{{ done|percentage:total|default:'0%' }}</span>
+    <div class="progress-badge-wrapper ms-2">
+        <span class="badge-percentage">{{ done|percentage:total|default:'0%' }}</span>
     </div>
 </span>
