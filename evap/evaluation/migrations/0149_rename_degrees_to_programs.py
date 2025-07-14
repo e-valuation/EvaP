@@ -6,7 +6,7 @@ original_migration_module = importlib.import_module("evap.evaluation.migrations.
 
 class Migration(migrations.Migration):
     """
-    We forgot to migrate log entries in 0145, so this migrations fixes this.
+    We forgot to migrate log entries in 0145, so this migration fixes this.
     0145 is now modified to migrate the log entries in the first place.
     """
 
