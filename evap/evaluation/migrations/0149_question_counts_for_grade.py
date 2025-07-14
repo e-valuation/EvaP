@@ -17,7 +17,7 @@ def set_initial_values(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("evaluation", "0147_unusable_password_default"),
+        ("evaluation", "0148_course_cms_id_evaluation_cms_id"),
     ]
 
     operations = [
