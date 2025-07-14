@@ -983,11 +983,17 @@ class Evaluation(LoggedModel):
         return RatingAnswerCounter.objects.filter(contribution__evaluation=self)
 
     @property
+    def all_participants_are_external(self):
+        return all(participant.is_external for participant in self.participants.all())
+
+    @property
     def grading_process_is_finished(self):
         return (
             not self.wait_for_grade_upload_before_publishing
             or self.course.gets_no_grade_documents
             or self.course.final_grade_documents.exists()
+            # See https://github.com/e-valuation/EvaP/issues/2332
+            or self.all_participants_are_external
         )
 
     @classmethod
