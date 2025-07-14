@@ -3,6 +3,7 @@ from django.db import migrations
 
 original_migration_module = importlib.import_module("evap.evaluation.migrations.0145_rename_degree_to_program")
 
+
 class Migration(migrations.Migration):
     """
     We forgot to migrate log entries in 0145, so this migrations fixes this.
