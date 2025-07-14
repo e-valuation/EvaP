@@ -160,9 +160,6 @@
                                                                 </span>
                                                                 <div slot="extra-inputs">
                                                                     <div class="my-4">
-                                                                    {% comment %}
-                                                                        This bootstrap_form magically puts the delegated people into the html form - if and only if the bootstrap_form is contained in the html form. I do not know why.
-                                                                    {% endcomment %}
                                                                         {% include 'bootstrap_form.html' with form=delegate_selection_form plain=True %}
                                                                     </div>
                                                                 </div>
