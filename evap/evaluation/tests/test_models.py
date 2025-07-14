@@ -1175,8 +1175,9 @@ class QuestionTests(TestCase):
                 set(kwargs["update_fields"]), {"allows_additional_textanswers", "counts_for_grade", "text_de"}
             )
 
+            mock_save.reset_mock()
             question_heading.save(update_fields=["text_de"])
-            self.assertEqual(mock_save.call_count, 2)
+            mock_save.assert_called_once()
             args, kwargs = mock_save.call_args
             self.assertEqual(
                 set(kwargs["update_fields"]), {"allows_additional_textanswers", "counts_for_grade", "text_de"}
