@@ -66,9 +66,7 @@
                                         <div class="form-check mt-1">
                                             <input class="form-check-input" id="{{ form_element.counts_for_grade.id_for_label }}" name="{{ form_element.counts_for_grade.html_name }}"
                                                 type="checkbox" data-keep="true" {% if form_element.counts_for_grade.value %} checked{% endif %}
-                                                {% for attr_name, attr_value in form_element.allows_additional_textanswers.field.widget.attrs.items %}
-                                                    {{ attr_name }}="{{ attr_value }}"
-                                                {% endfor %} />
+                                                {% if 'disabled' in form_element.counts_for_grade.field.widget.attrs %} disabled{% endif %} />
                                             <label class="form-check-label" for="{{ form_element.counts_for_grade.id_for_label }}">{{ form_element.counts_for_grade.label }}</label>
                                         </div>
                                     </td>
