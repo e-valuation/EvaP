@@ -54,7 +54,7 @@
     <h3 class="mb-3">
         {{ evaluation.full_name }} ({{ evaluation.course.semester.name }})
 
-        <div class="btn-switch btn-switch-light float-end">
+        <div class="btn-switch btn-switch-light btn-switch-evaluation-language float-end">
             <div class="btn-switch-label my-auto">{% translate "Questionnaire language" %}</div>
             <div class="btn-switch btn-group">
                 {% for language_code, language_name in languages %}
@@ -226,9 +226,10 @@
             const params = new URLSearchParams(document.location.search);
             const currentlySelectedLanguage = "{{ evaluation_language }}";
             const savedLanguage = localStorage.getItem(languageStorageKey);
+
             if (params.get("language")) {
                 localStorage.setItem(languageStorageKey, currentlySelectedLanguage);
-            } else if (savedLanguage) {
+            } else if (savedLanguage && savedLanguage !== currentlySelectedLanguage) {
                 params.set("language", savedLanguage);
                 document.location.search = params.toString();
             }
