@@ -269,11 +269,14 @@ export class TableGrid extends DataGrid {
     }
 }
 
-interface EvaluationGridParameters extends TableGridParameters {
+interface EvaluationGridParameters extends DataGridParameters {
     filterButtons: HTMLButtonElement[];
 }
 
-export class EvaluationGrid extends TableGrid {
+export class EvaluationGrid extends DataGrid {
+    protected findSearchableCells(row: HTMLElement): HTMLElement[] {
+        return [...row.children] as HTMLElement[]; // TODO: skip buttons?
+    }
     private filterButtons: HTMLButtonElement[];
 
     constructor({ filterButtons, ...options }: EvaluationGridParameters) {

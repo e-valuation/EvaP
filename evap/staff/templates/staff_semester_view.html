@@ -391,23 +391,25 @@
 
                 <form id="evaluation_operation_form" class="table-responsive" method="GET" action="{% url 'staff:evaluation_operation' semester.pk %}">
                     {% if num_evaluations > 0 %}
-                        <div class="evaluation-grid">
+                        <div id="evaluation-grid">
                             <div class="grid-header evaluation-grid-row">
                                     <span></span>
                                     <button type="button" class="col-order" data-col="state-approval"></button>
-                                    <button class="col-order" data-col="state-evaluating"></button>
-                                    <button class="col-order" data-col="state-textanswers"></button>
-                                    <button class="col-order" data-col="state-results"></button>
-                                    <button class="col-order" data-col="name">{% translate 'Name' %}</button>
-                                    <button class="col-order" data-col="period">{% translate 'Evaluation period' %}</button>
+                                    <button type="button" class="col-order" data-col="state-evaluating"></button>
+                                    <button type="button" class="col-order" data-col="state-textanswers"></button>
+                                    <button type="button" class="col-order" data-col="state-results"></button>
+                                    <button type="button" class="col-order" data-col="name">{% translate 'Name' %}</button>
+                                    <button type="button" class="col-order" data-col="period">{% translate 'Evaluation period' %}</button>
                                     <span></span>
                                     <span></span>
                             </div>
 
 
-                            {% for evaluation in evaluations %}
-                                {% include 'staff_semester_view_evaluation_new.html' with semester=semester evaluation=evaluation info_only=False %}
-                            {% endfor %}
+                            <div class="grid-body">
+                                {% for evaluation in evaluations %}
+                                    {% include 'staff_semester_view_evaluation_new.html' with semester=semester evaluation=evaluation info_only=False %}
+                                {% endfor %}
+                            </div>
                         </div>
 {#                        <table id="evaluation-table" class="table table-striped table-narrow table-vertically-aligned">#}
 {#                            <colgroup>#}
@@ -637,25 +639,27 @@
             document.querySelectorAll('#evaluation_operation_form input[type=checkbox][name=evaluation]').forEach(c => {c.checked = false;}));
     </script>
     <script type="module">
-//       import {EvaluationGrid, TableGrid} from "{% static 'js/datagrid.js' %}";
-//       const evaluationTable = document.querySelector("#evaluation-table");
-//       if (evaluationTable) {
-//           new EvaluationGrid({
-//               storageKey: "evaluation-semester-{{ semester.id }}-data-grid",
-//               table: evaluationTable,
-//               searchInput: document.querySelector("input[name=search-evaluation]"),
-//               filterButtons: [...document.querySelectorAll("#evaluation-filter-buttons [data-filter]")],
-//               resetSearch: document.querySelector("[data-reset=search-evaluation]"),
-//           }).init();
-//       }
-//       const courseTable = document.querySelector("#course-table");
-//       if (courseTable) {
-//           new TableGrid({
-//               storageKey: "course-semester-{{ semester.id }}-data-grid",
-//               table: courseTable,
-//               searchInput: document.querySelector("input[name=search-course]"),
-//               resetSearch: document.querySelector("[data-reset=search-course]"),
-//           }).init();
-//       }
+       import {EvaluationGrid, TableGrid} from "{% static 'js/datagrid.js' %}";
+       const evaluationGrid = document.querySelector("#evaluation-grid");
+       if (evaluationGrid) {
+           new EvaluationGrid({
+               storageKey: "evaluation-semester-{{ semester.id }}-data-grid",
+               table: evaluationGrid,
+               searchInput: document.querySelector("input[name=search-evaluation]"),
+               filterButtons: [...document.querySelectorAll("#evaluation-filter-buttons [data-filter]")],
+               resetSearch: document.querySelector("[data-reset=search-evaluation]"),
+               head: document.querySelector("#evaluation-grid .grid-header"),
+               container: document.querySelector("#evaluation-grid .grid-body")
+           }).init();
+       }
+       const courseTable = document.querySelector("#course-table");
+       if (courseTable) {
+           new TableGrid({
+               storageKey: "course-semester-{{ semester.id }}-data-grid",
+               table: courseTable,
+               searchInput: document.querySelector("input[name=search-course]"),
+               resetSearch: document.querySelector("[data-reset=search-course]"),
+           }).init();
+       }
     </script>
 {% endblock %}
