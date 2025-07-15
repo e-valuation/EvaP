@@ -11,7 +11,7 @@ let
   overlay = workspace.mkPyprojectOverlay { sourcePreference = "wheel"; };
   package-overrides = final: prev: {
     psycopg-c = prev.psycopg-c.overrideAttrs (old: {
-      nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.setuptools pkgs.postgresql ];
+      nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.setuptools pkgs.postgresql.pg_config ];
     });
   };
   evap-override = final: prev: {
