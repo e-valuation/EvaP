@@ -60,7 +60,7 @@ pkgs.mkShell {
   env = {
     PUPPETEER_SKIP_DOWNLOAD = 1;
     UV_NO_SYNC = "1";
-    UV_PYTHON = "${venv}/bin/python";
+    UV_PYTHON = python3.interpreter;
     UV_PYTHON_DOWNLOADS = "never";
   };
 
