@@ -272,7 +272,7 @@
                 }
             }
 
-            function padWithLeadingZeros(number){
+            function padWithLeadingZeros(number) {
                 return number.toString().padStart(2, "0");
             }
 
@@ -303,7 +303,7 @@
                     assert(response.ok);
                     return response.text();
                 }).then(response_text => {
-                    if(response_text === "{{ success_magic_string }}") {
+                    if (response_text === "{{ success_magic_string }}") {
                         formSaver.releaseData();
                         window.location.replace("{{ success_redirect_url }}");
                     } else {
@@ -329,34 +329,73 @@
             document.querySelectorAll("[data-mark-no-answers-for]").forEach(button => {
                 const contributorId = button.dataset.markNoAnswersFor;
                 const voteArea = document.getElementById(`vote-area-${contributorId}`);
+                const markNoAnswerModal = voteArea.querySelector(".mark-no-answer-modal");
+                const textareaAnswerFields = voteArea.querySelectorAll(".vote-inputs textarea");
                 const collapseToggle = voteArea.closest(".collapsible").querySelector(".collapse-toggle");
 
-                button.addEventListener("click", () => {
+                const clearContributorAnswers = () => {
                     voteArea.querySelectorAll(".vote-inputs [type=radio][value='6']").forEach(radioInput => {
                         radioInput.checked = true;
                         clearChoiceError(radioInput);
                     });
+                    textareaAnswerFields.forEach((textarea) => {
+                        textarea.value = "";
+                        textarea.dispatchEvent(new Event("input"));
+                    });
 
                     formSaver.saveAllData();
+                    // Disable this button, until user changes a value
+                    button.classList.remove("tab-selectable");
+                    button.disabled = true;
 
                     // hide questionnaire for contributor
                     const voteAreaCollapse = bootstrap.Collapse.getOrCreateInstance(voteArea);
                     voteAreaCollapse.hide();
                     collapseToggle.classList.add("tab-selectable");
+                }
+                button.addEventListener("click", () => {
+                    const shouldShowModal = () => {
+                        for (const textarea of textareaAnswerFields) {
+                            if (textarea.value.trim() !== "") {
+                                return true;
+                            }
+                        }
 
-                    // Disable this button, until user changes a value
-                    button.classList.remove("tab-selectable");
-                    button.disabled = true;
+                        const radioButtons = voteArea.querySelectorAll(".vote-inputs [type=radio]:not([value='6'])");
+                        for (const radioButton of radioButtons) {
+                            if (radioButton.checked) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+
+                    if (shouldShowModal()) {
+                        markNoAnswerModal.show();
+                    } else {
+                        clearContributorAnswers();
+                    }
+                });
+                markNoAnswerModal.addEventListener("confirmed", () => {
+                    clearContributorAnswers();
                 });
 
+                const enableMarkNoAnswerButton = () => {
+                    collapseToggle.classList.remove("tab-selectable");
+                    button.classList.add("tab-selectable");
+                    button.disabled = false;
+                }
                 voteArea.querySelectorAll(".vote-inputs [type=radio]:not([value='6'])")
                     .forEach(radioInput => {
                         radioInput.addEventListener("click", () => {
-                            collapseToggle.classList.remove("tab-selectable");
-                            button.classList.add("tab-selectable");
-                            button.disabled = false;
+                            enableMarkNoAnswerButton();
                         });
                     });
+                textareaAnswerFields.forEach((textarea) => {
+                    textarea.addEventListener("input", () => {
+                        enableMarkNoAnswerButton();
+                    });
+                });
 
                 collapseToggle.addEventListener("click", () => {
                     if (button.classList.contains("tab-selectable")) {

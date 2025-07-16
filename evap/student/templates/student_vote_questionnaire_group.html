@@ -13,8 +13,18 @@
                 >
                     {% blocktranslate %}I can't give feedback about this contributor{% endblocktranslate %}
                 </button>
+                <confirmation-modal class="mark-no-answer-modal" confirm-button-class="btn-danger">
+                    <span slot="title">{% translate 'Take back answer for this person' %}</span>
+                    <span slot="action-text">{% translate 'Take back answers' %}</span>
+                    <span slot="question">
+                            {% blocktranslate trimmed %}
+                                Do you want to take back all answers for this person?
+                            {% endblocktranslate %}
+                    </span>
+                    <span slot="show-button" class="d-none"></span>
+                </confirmation-modal>
             </div>
-        {% endif%}
+        {% endif %}
     </div>
     {% if form.questionnaire.teaser %}
         <p>{{ form.questionnaire.teaser }}</p>
@@ -88,3 +98,4 @@
         {% endfor %}
     </div>
 {% endfor %}
+
