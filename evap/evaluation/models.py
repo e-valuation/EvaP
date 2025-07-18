@@ -1268,7 +1268,7 @@ class Question(models.Model):
     text_en = models.CharField(max_length=1024, verbose_name=_("question text (english)"))
     text = translate(en="text_en", de="text_de")
     allows_additional_textanswers = models.BooleanField(default=True, verbose_name=_("allow additional text answers"))
-    counts_for_grade = models.BooleanField(default=True, verbose_name=_("counts toward the evaluations grade"))
+    counts_for_grade = models.BooleanField(default=True, verbose_name=_("counts toward the evaluation's grade"))
 
     type = models.PositiveSmallIntegerField(choices=QUESTION_TYPES, verbose_name=_("question type"))
 
