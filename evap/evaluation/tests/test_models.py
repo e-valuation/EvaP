@@ -102,11 +102,14 @@ class TestEvaluations(WebTest):
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
         self.assertEqual(evaluation.state, Evaluation.State.EVALUATED)
 
+    @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com"])
     def test_in_evaluation_to_reviewed(self):
+        participant = baker.make(UserProfile, email="foo@institution.example.com")
         # Evaluation is "fully reviewed" as no open text answers are present by default.
         evaluation = baker.make(
             Evaluation,
             state=Evaluation.State.IN_EVALUATION,
+            participants=[participant],
             vote_start_datetime=datetime.now() - timedelta(days=2),
             vote_end_date=date.today() - timedelta(days=1),
         )
@@ -116,16 +119,45 @@ class TestEvaluations(WebTest):
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
         self.assertEqual(evaluation.state, Evaluation.State.REVIEWED)
 
+    @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com"])
     def test_in_evaluation_to_published(self):
+        participant = baker.make(UserProfile, email="foo@institution.example.com")
+
         # Evaluation is "fully reviewed" and not graded, thus gets published immediately.
         course = baker.make(Course)
         evaluation = baker.make(
             Evaluation,
             course=course,
             state=Evaluation.State.IN_EVALUATION,
+            participants=[participant],
             vote_start_datetime=datetime.now() - timedelta(days=2),
             vote_end_date=date.today() - timedelta(days=1),
             wait_for_grade_upload_before_publishing=False,
+        )
+
+        with (
+            patch("evap.evaluation.models.EmailTemplate.send_participant_publish_notifications") as participant_mock,
+            patch("evap.evaluation.models.EmailTemplate.send_contributor_publish_notifications") as contributor_mock,
+        ):
+            Evaluation.update_evaluations()
+
+        participant_mock.assert_called_once_with([evaluation])
+        contributor_mock.assert_called_once_with([evaluation])
+
+        evaluation = Evaluation.objects.get(pk=evaluation.pk)
+        self.assertEqual(evaluation.state, Evaluation.State.PUBLISHED)
+
+    @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com"])
+    def test_in_evaluation_to_published_with_external_participants(self):
+        # participant is external, since no institution email domain is set
+        participant = baker.make(UserProfile, email="foo@example.com")
+        evaluation = baker.make(
+            Evaluation,
+            state=Evaluation.State.IN_EVALUATION,
+            participants=[participant],
+            vote_start_datetime=datetime.now() - timedelta(days=3),
+            vote_end_date=date.today() - timedelta(days=2),
+            wait_for_grade_upload_before_publishing=True,
         )
 
         with (
@@ -486,10 +518,13 @@ class TestEvaluations(WebTest):
 
         evaluation.wait_for_grade_upload_before_publishing = False
 
+    @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com"])
     def test_textanswer_review_state(self):
+        participant = baker.make(UserProfile, email="foo@institution.example.com")
         evaluation = baker.make(
             Evaluation,
             state=Evaluation.State.IN_EVALUATION,
+            participants=[participant],
             can_publish_text_results=True,
             wait_for_grade_upload_before_publishing=False,
         )

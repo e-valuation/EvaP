@@ -21,7 +21,7 @@ from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
-from django.db.models import CheckConstraint, Count, Exists, F, Manager, OuterRef, Q, Subquery, Value
+from django.db.models import CheckConstraint, Count, Exists, F, Manager, OuterRef, Q, QuerySet, Subquery, Value
 from django.db.models.functions import Coalesce, Lower, NullIf, TruncDate
 from django.dispatch import Signal, receiver
 from django.http import HttpRequest
@@ -128,8 +128,7 @@ class Semester(models.Model):
     @transaction.atomic
     def delete_grade_documents(self):
         # Resolving this circular dependency makes the code more ugly, so we leave it.
-        # pylint: disable=import-outside-toplevel
-        from evap.grades.models import GradeDocument
+        from evap.grades.models import GradeDocument  # noqa: PLC0415
 
         if not self.grade_documents_can_be_deleted:
             raise NotArchivableError
@@ -158,18 +157,25 @@ class Semester(models.Model):
         return Evaluation.objects.filter(course__semester=self)
 
 
-class QuestionnaireManager(Manager):
-    def general_questionnaires(self):
-        return super().get_queryset().exclude(type=Questionnaire.Type.CONTRIBUTOR)
+class QuestionnaireManager(Manager["Questionnaire"]):
+    def general_questionnaires(self) -> QuerySet["Questionnaire"]:
+        return super().get_queryset().filter(type__in=[Questionnaire.Type.TOP, Questionnaire.Type.BOTTOM])
 
-    def contributor_questionnaires(self):
+    def contributor_questionnaires(self) -> QuerySet["Questionnaire"]:
         return super().get_queryset().filter(type=Questionnaire.Type.CONTRIBUTOR)
+
+    def dropout_questionnaires(self) -> QuerySet["Questionnaire"]:
+        return super().get_queryset().filter(type=Questionnaire.Type.DROPOUT)
+
+    def non_contributor_questionnaires(self) -> QuerySet["Questionnaire"]:
+        return super().get_queryset().exclude(type=Questionnaire.Type.CONTRIBUTOR)
 
 
 class Questionnaire(models.Model):
     """A named collection of questions."""
 
     class Type(models.IntegerChoices):
+        DROPOUT = 5, _("Dropout questionnaire")
         TOP = 10, _("Top questionnaire")
         CONTRIBUTOR = 20, _("Contributor questionnaire")
         BOTTOM = 30, _("Bottom questionnaire")
@@ -226,12 +232,20 @@ class Questionnaire(models.Model):
             raise ValidationError({"is_locked": _("Contributor questionnaires cannot be locked.")})
 
     @property
-    def is_above_contributors(self):
+    def is_above_contributors(self) -> bool:
         return self.type == self.Type.TOP
 
     @property
-    def is_below_contributors(self):
+    def is_below_contributors(self) -> bool:
         return self.type == self.Type.BOTTOM
+
+    @property
+    def is_dropout(self) -> bool:
+        return self.type == self.Type.DROPOUT
+
+    @property
+    def is_general(self) -> bool:
+        return self.type in (self.Type.TOP, self.Type.BOTTOM)
 
     @property
     def can_be_edited_by_manager(self):
@@ -352,8 +366,7 @@ class Course(LoggedModel):
 
     @classmethod
     def objects_with_missing_final_grades(cls):
-        # pylint: disable=import-outside-toplevel
-        from evap.grades.models import GradeDocument
+        from evap.grades.models import GradeDocument  # noqa: PLC0415
 
         return (
             Course.objects.filter(
@@ -380,16 +393,14 @@ class Course(LoggedModel):
     @property
     def final_grade_documents(self):
         # We think it's better to use the imported constant here instead of using some workaround
-        # pylint: disable=import-outside-toplevel
-        from evap.grades.models import GradeDocument
+        from evap.grades.models import GradeDocument  # noqa: PLC0415
 
         return self.grade_documents.filter(type=GradeDocument.Type.FINAL_GRADES)
 
     @property
     def midterm_grade_documents(self):
         # We think it's better to use the imported constant here instead of using some workaround
-        # pylint: disable=import-outside-toplevel
-        from evap.grades.models import GradeDocument
+        from evap.grades.models import GradeDocument  # noqa: PLC0415
 
         return self.grade_documents.filter(type=GradeDocument.Type.MIDTERM_GRADES)
 
@@ -460,6 +471,8 @@ class Evaluation(LoggedModel):
         settings.AUTH_USER_MODEL, verbose_name=_("voters"), blank=True, related_name="evaluations_voted_for"
     )
     _voter_count = models.IntegerField(verbose_name=_("voter count"), blank=True, null=True, default=None)
+
+    dropout_count = models.IntegerField(verbose_name=_("dropout count"), default=0)
 
     # when the evaluation takes place
     vote_start_datetime = models.DateTimeField(verbose_name=_("start of evaluation"))
@@ -558,28 +571,30 @@ class Evaluation(LoggedModel):
 
             # It's clear that results.models will need to reference evaluation.models' classes in ForeignKeys.
             # However, this method only makes sense as a method of Evaluation. Thus, we can't get rid of these imports
-            # pylint: disable=import-outside-toplevel
-            from evap.results.tools import STATES_WITH_RESULT_TEMPLATE_CACHING, STATES_WITH_RESULTS_CACHING
+            from evap.results.tools import (  # noqa: PLC0415
+                STATES_WITH_RESULT_TEMPLATE_CACHING,
+                STATES_WITH_RESULTS_CACHING,
+            )
 
             if (
                 state_changed_to(self, STATES_WITH_RESULTS_CACHING)
                 or self.state_change_source == Evaluation.State.EVALUATED
                 and self.state == Evaluation.State.REVIEWED
             ):  # reviewing changes results -> cache update required
-                from evap.results.tools import cache_results
+                from evap.results.tools import cache_results  # noqa: PLC0415
 
                 cache_results(self)
             elif state_changed_from(self, STATES_WITH_RESULTS_CACHING):
-                from evap.results.tools import get_results_cache_key
+                from evap.results.tools import get_results_cache_key  # noqa: PLC0415
 
                 caches["results"].delete(get_results_cache_key(self))
 
             if state_changed_to(self, STATES_WITH_RESULT_TEMPLATE_CACHING):
-                from evap.results.views import update_template_cache_of_published_evaluations_in_course
+                from evap.results.views import update_template_cache_of_published_evaluations_in_course  # noqa: PLC0415
 
                 update_template_cache_of_published_evaluations_in_course(self.course)
             elif state_changed_from(self, STATES_WITH_RESULT_TEMPLATE_CACHING):
-                from evap.results.views import (
+                from evap.results.views import (  # noqa: PLC0415
                     delete_template_cache,
                     update_template_cache_of_published_evaluations_in_course,
                 )
@@ -628,6 +643,10 @@ class Evaluation(LoggedModel):
     @property
     def is_in_evaluation_period(self):
         return self.vote_start_datetime <= datetime.now() <= self.vote_end_datetime
+
+    @property
+    def is_dropout_allowed(self) -> bool:
+        return self.general_contribution.questionnaires.filter(type=Questionnaire.Type.DROPOUT).exists()
 
     @property
     def general_contribution_has_questionnaires(self):
@@ -838,6 +857,12 @@ class Evaluation(LoggedModel):
         self._participant_count = self.num_participants
 
         if not self.can_publish_text_results:
+            if self.voters.count() > 1:
+                logger.error(
+                    "If there is more than one voter, can_publish_text_results should be true.\n\tEvaluation.pk=%d, %s",
+                    self.pk,
+                    self,
+                )
             self.textanswer_set.delete()
         else:
             self.textanswer_set.filter(review_decision=TextAnswer.ReviewDecision.DELETED).delete()
@@ -985,11 +1010,17 @@ class Evaluation(LoggedModel):
         return RatingAnswerCounter.objects.filter(contribution__evaluation=self)
 
     @property
+    def all_participants_are_external(self):
+        return all(participant.is_external for participant in self.participants.all())
+
+    @property
     def grading_process_is_finished(self):
         return (
             not self.wait_for_grade_upload_before_publishing
             or self.course.gets_no_grade_documents
             or self.course.final_grade_documents.exists()
+            # See https://github.com/e-valuation/EvaP/issues/2332
+            or self.all_participants_are_external
         )
 
     @classmethod
@@ -1058,6 +1089,7 @@ class Evaluation(LoggedModel):
             "can_publish_text_results",
             "_voter_count",
             "_participant_count",
+            "dropout_count",
         ]
 
 
