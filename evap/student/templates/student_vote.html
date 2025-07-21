@@ -27,8 +27,7 @@
                         {% blocktranslate %}Please make sure to vote for all rating questions.{% endblocktranslate %}
                     {% endif %}
                 </div>
-                <button id="btn-jump-unanswered-question" type="button" class="btn btn-light float-end" data-bs-toggle="tooltip" data-bs-placement="left"
-                        title="{% translate 'Jump to the first unanswered question' %}">
+                <button id="btn-jump-unanswered-question" type="button" class="btn btn-light float-end" data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Jump to the first unanswered question' %}">
                     <i class="fas fa-arrow-down"></i>
                 </button>
             </div>
@@ -71,7 +70,7 @@
                     </p>
                     {% if evaluation.num_voters == 0 %}
                         <p>
-                            {% blocktranslate %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktranslate %}c
+                            {% blocktranslate %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktranslate %}
                         </p>
                         <div class="form-check mt-3">
                             <input class="form-check-input tab-selectable" id="text_results_publish_confirmation_top" type="checkbox"
@@ -188,10 +187,10 @@
         {{ text_answer_warnings|text_answer_warning_trigger_strings|json_script:'text-answer-warnings' }}
 
         <script type="module">
-            import {AutoFormSaver} from "{% static 'js/auto-form-saver.js' %}";
-            import {CSRF_HEADERS} from "{% static 'js/csrf-utils.js' %}";
-            import {initTextAnswerWarnings} from "{% static 'js/text-answer-warnings.js' %}";
-            import {assert} from "{% static 'js/utils.js' %}";
+            import { AutoFormSaver } from "{% static 'js/auto-form-saver.js' %}";
+            import { CSRF_HEADERS } from "{% static 'js/csrf-utils.js' %}";
+            import { initTextAnswerWarnings} from "{% static 'js/text-answer-warnings.js' %}";
+            import { assert } from "{% static 'js/utils.js' %}";
 
             const lastSavedStorageKey = "student-vote-last-saved-at-{{ evaluation.id }}-{{ request.user.id }}";
             const textResultsPublishConfirmation = {
