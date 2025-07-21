@@ -10,8 +10,9 @@ import xlwt
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation, ValidationError
 from django.db import DEFAULT_DB_ALIAS, connections
-from django.db.models import Model
+from django.db.models import Model, Field, Q
 from django.db.models.fields.mixins import FieldCacheMixin
+from django.db.models.constraints import CheckConstraint
 from django.forms.formsets import BaseFormSet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -33,6 +34,30 @@ M = TypeVar("M", bound=Model)
 T = TypeVar("T")
 CellValue = str | int | float | None
 CV = TypeVar("CV", bound=CellValue)
+
+
+def inject_choices_constraint(model_name, model_locals):
+    def decorator(meta_cls):
+        """
+        This decorator is meant to decorate Meta classes within Django Model classes
+        It injects a constraints for each model field that has choices, enforcing that only
+        valid choice values are stored in the database.
+        See https://github.com/e-valuation/EvaP/pull/1776 for details
+        """
+        meta_cls.constraints = (
+            *(
+                CheckConstraint(
+                    condition=Q(**{f"{field_name}__in": tuple(choice[0] for choice in field._choices)}),
+                    name=f'{model_name}_{field_name}_choices',
+                )
+                for (field_name, field) in model_locals.items()
+                if isinstance(field, Field) and field._choices is not None
+            ),
+            *getattr(meta_cls, "constraints", [])
+        )
+        return meta_cls
+
+    return decorator
 
 
 @contextmanager
