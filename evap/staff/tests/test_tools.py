@@ -1,8 +1,12 @@
+import tempfile
+from datetime import datetime, timedelta
 from io import BytesIO
 from itertools import cycle, repeat
 from unittest.mock import MagicMock, patch
+from zipfile import ZipFile
 
 from django.contrib.auth.models import Group
+from django.test import override_settings
 from django.utils.html import escape
 from model_bakery import baker
 from openpyxl import load_workbook
@@ -19,10 +23,12 @@ from evap.staff.fixtures.excel_files_test_data import (
 from evap.staff.tools import (
     conditional_escape,
     merge_users,
+    remove_participations_if_inactive,
     remove_user_from_represented_and_ccing_users,
     user_edit_link,
 )
 from evap.tools import assert_not_none
+from tools.check_dist import main as check_dist_main
 from tools.enrollment_preprocessor import run_preprocessor
 
 
@@ -217,6 +223,66 @@ class RemoveUserFromRepresentedAndCCingUsersTest(TestCase):
         self.assertEqual(len(messages), 4)
 
 
+class RemoveParticipationDueToInactivityTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = baker.make(UserProfile)
+        cls.evaluation = baker.make(
+            Evaluation,
+            state=Evaluation.State.PUBLISHED,
+            vote_start_datetime=datetime.today() - timedelta(days=200),
+            vote_end_date=(datetime.today() - timedelta(days=180)).date(),
+            participants=[cls.user],
+        )
+        cls.evaluation.course.semester.archive()
+
+    @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_TIME=timedelta(6 * 30))
+    def test_remove_user_due_to_inactivity(self):
+        self.assertQuerySetEqual(self.user.evaluations_participating_in.all(), [self.evaluation])
+
+        messages = remove_participations_if_inactive(self.user)
+
+        self.assertFalse(self.user.evaluations_participating_in.exists())
+        self.assertTrue(self.user.can_be_marked_inactive_by_manager)
+        self.assertEqual(messages, [f"1 participation of {self.user.full_name} was removed due to inactivity."])
+
+        messages = remove_participations_if_inactive(self.user)
+
+        self.assertEqual(messages, [])
+
+    @patch("evap.evaluation.models.UserProfile.can_be_marked_inactive_by_manager", True)
+    @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_TIME=timedelta(360))
+    def test_do_not_remove_user_due_to_inactivity_with_recently_archived_evaluation(self):
+        self.assertTrue(self.user.is_active)
+        self.assertQuerySetEqual(self.user.evaluations_participating_in.all(), [self.evaluation])
+
+        messages = remove_participations_if_inactive(self.user)
+
+        self.assertQuerySetEqual(self.user.evaluations_participating_in.all(), [self.evaluation])
+        self.assertEqual(messages, [])
+
+    @patch("evap.evaluation.models.UserProfile.can_be_marked_inactive_by_manager", False)
+    @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_TIME=timedelta(360))
+    def test_do_not_remove_user_due_to_inactivity_with_active_evaluation(self):
+        self.assertTrue(self.user.is_active)
+        self.assertQuerySetEqual(self.user.evaluations_participating_in.all(), [self.evaluation])
+
+        messages = remove_participations_if_inactive(self.user)
+
+        self.assertQuerySetEqual(self.user.evaluations_participating_in.all(), [self.evaluation])
+        self.assertEqual(messages, [])
+
+    @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_TIME=timedelta(6 * 30))
+    def test_do_nothing_if_test_run(self):
+        self.assertQuerySetEqual(self.user.evaluations_participating_in.all(), [self.evaluation])
+        self.assertTrue(self.user.can_be_marked_inactive_by_manager)
+
+        messages = remove_participations_if_inactive(self.user, test_run=True)
+
+        self.assertQuerySetEqual(self.user.evaluations_participating_in.all(), [self.evaluation])
+        self.assertEqual(messages, [f"1 participation of {self.user.full_name} would be removed due to inactivity."])
+
+
 class UserEditLinkTest(TestCase):
     def test_user_edit_link(self):
         user = baker.make(UserProfile)
@@ -302,3 +368,60 @@ class EnrollmentPreprocessorTest(WebTest):
         self.assertEqual(workbook["MA Belegungen"]["I3"].value, "in all modified")
         self.assertEqual(workbook["BA Belegungen"]["C2"].value, "Lucilia")
         self.assertEqual(workbook["BA Belegungen"]["C3"].value, "Lucilia")
+
+
+class CheckDistTest(TestCase):
+    @staticmethod
+    def make_pyproject(artifacts=("css/evap.css", "translation.mo")):
+        f = tempfile.NamedTemporaryFile(suffix="pyproject.toml")  # pylint: disable=consider-using-with
+        f.write(f"tool.hatch.build.artifacts = {list(artifacts)!r}".encode())
+        f.flush()
+        return f
+
+    @staticmethod
+    def make_zip(files):
+        f = tempfile.NamedTemporaryFile(suffix=".whl")  # pylint: disable=consider-using-with
+        with ZipFile(f, mode="w") as zf:
+            for name in files:
+                zf.writestr(name, f"{name} content")
+        return f
+
+    def test_correct(self):
+        with (
+            self.make_pyproject() as pyproject,
+            self.make_zip({"css/evap.css", "translation.mo"}) as wheel,
+            patch("builtins.print"),
+        ):
+            exit_code = check_dist_main([pyproject.name, wheel.name])
+        self.assertEqual(exit_code, 0)
+
+    def test_in_directory(self):
+        with (
+            self.make_pyproject() as pyproject,
+            self.make_zip({"css/directory/evap.css", "translation.mo"}) as wheel,
+            patch("builtins.print"),
+        ):
+            exit_code = check_dist_main([pyproject.name, wheel.name])
+        self.assertEqual(exit_code, 1)
+
+    def test_missing(self):
+        with self.make_pyproject() as pyproject, self.make_zip({"css/evap.css"}) as wheel, patch("builtins.print"):
+            exit_code = check_dist_main([pyproject.name, wheel.name])
+        self.assertEqual(exit_code, 1)
+
+    def test_no_artifacts(self):
+        with (
+            tempfile.NamedTemporaryFile() as pyproject,
+            self.make_zip([]) as wheel,
+            patch("builtins.print") as print_mock,
+        ):
+            exit_code = check_dist_main([pyproject.name, wheel.name])
+        self.assertEqual(exit_code, 0)
+        print_mock.assert_called_once_with("No artifacts specified")
+
+    def test_usage(self):
+        with patch("sys.stderr.write") as print_mock:
+            exit_code = check_dist_main([])
+        self.assertEqual(exit_code, 1)
+        print_mock.assert_called()
+        self.assertIn("usage", print_mock.call_args_list[0][0][0])

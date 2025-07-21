@@ -1,20 +1,26 @@
+import logging
+
 from django.conf import settings
 from django.contrib import messages
 from django.db import models
 from django.db.models import Sum
 from django.dispatch import receiver
+from django.http import HttpRequest
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
 from evap.evaluation.models import Evaluation, Semester, UserProfile
+from evap.evaluation.tools import inside_transaction
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption, SemesterActivation
 
+logger = logging.getLogger(__name__)
 
-def can_reward_points_be_used_by(user):
+
+def can_reward_points_be_used_by(user: UserProfile) -> bool:
     return not user.is_external and user.is_participant
 
 
-def reward_points_of_user(user):
+def reward_points_of_user(user: UserProfile) -> int:
     count = 0
     for granting in user.reward_point_grantings.all():
         count += granting.value
@@ -24,15 +30,19 @@ def reward_points_of_user(user):
     return count
 
 
-def redeemed_points_of_user(user):
+def redeemed_points_of_user(user: UserProfile) -> int:
     return RewardPointRedemption.objects.filter(user_profile=user).aggregate(Sum("value"))["value__sum"] or 0
 
 
-def is_semester_activated(semester):
+def is_semester_activated(semester: Semester) -> bool:
     return SemesterActivation.objects.filter(semester=semester, is_active=True).exists()
 
 
-def grant_reward_points_if_eligible(user, semester):
+def deactivate_semester(semester: Semester) -> None:
+    SemesterActivation.objects.filter(semester=semester).update(is_active=False)
+
+
+def grant_reward_points_if_eligible(user: UserProfile, semester: Semester) -> tuple[RewardPointGranting | None, bool]:
     if not can_reward_points_be_used_by(user):
         return None, False
     if not is_semester_activated(semester):
@@ -57,7 +67,7 @@ def grant_reward_points_if_eligible(user, semester):
     return None, False
 
 
-def grant_eligible_reward_points_for_semester(request, semester):
+def grant_eligible_reward_points_for_semester(request: HttpRequest, semester: Semester) -> None:
     users = UserProfile.objects.filter(evaluations_voted_for__course__semester=semester)
     reward_point_sum = 0
     for user in users:
@@ -77,7 +87,9 @@ def grant_eligible_reward_points_for_semester(request, semester):
 
 
 @receiver(Evaluation.evaluation_evaluated)
-def grant_reward_points_after_evaluate(request, semester, **_kwargs):
+def grant_reward_points_after_evaluate(request: HttpRequest, semester: Semester, **_kwargs) -> None:
+    assert isinstance(request.user, UserProfile)
+
     granting, completed_evaluation = grant_reward_points_if_eligible(request.user, semester)
     if granting:
         message = ngettext(
@@ -100,21 +112,22 @@ def grant_reward_points_after_evaluate(request, semester, **_kwargs):
 
 
 @receiver(models.signals.m2m_changed, sender=Evaluation.participants.through)
-def grant_reward_points_after_delete(instance, action, reverse, pk_set, **_kwargs):
+def grant_reward_points_on_participation_change(instance, action: str, reverse: bool, pk_set, **_kwargs) -> None:
     # if users do not need to evaluate anymore, they may have earned reward points
     if action == "post_remove":
-        grantings = []
+        grantings: list[RewardPointGranting] = []
 
         if reverse:
-            # an evaluation got removed from a participant
+            # one or more evaluations got removed from a participant
             user = instance
 
             for semester in Semester.objects.filter(courses__evaluations__pk__in=pk_set):
                 granting, __ = grant_reward_points_if_eligible(user, semester)
                 if granting:
+                    assert not grantings
                     grantings = [granting]
         else:
-            # a participant got removed from an evaluation
+            # one or more participants got removed from an evaluation
             evaluation = instance
 
             for user in UserProfile.objects.filter(pk__in=pk_set):
@@ -123,4 +136,27 @@ def grant_reward_points_after_delete(instance, action, reverse, pk_set, **_kwarg
                     grantings.append(granting)
 
         if grantings:
-            RewardPointGranting.granted_by_removal.send(sender=RewardPointGranting, grantings=grantings)
+            RewardPointGranting.granted_by_participation_removal.send(sender=RewardPointGranting, grantings=grantings)
+
+
+@receiver(models.signals.pre_delete, sender=Evaluation)
+def grant_reward_points_on_evaluation_delete(instance: Evaluation, **_kwargs) -> None:
+    if not inside_transaction():
+        # This will always be true in a django TestCase, so our tests can't meaningfully catch calls that are not
+        # wrapped in a transaction. Requiring a transaction is a precaution so that an (unlikely) failing .delete()
+        # execution afterwards doesn't leave us in half-deleted state. Chances are, if deletion fails, staff users
+        # will still want to delete the instance.
+        # Currently, only staff:evaluation_delete and staff:semester_delete call .delete()
+        logger.error("Called while not inside transaction")
+
+    grantings = []
+
+    participants = list(instance.participants.all())
+    instance.participants.clear()
+    for user in participants:
+        granting, __ = grant_reward_points_if_eligible(user, instance.course.semester)
+        if granting:
+            grantings.append(granting)
+
+    if grantings:
+        RewardPointGranting.granted_by_evaluation_deletion.send(sender=RewardPointGranting, grantings=grantings)

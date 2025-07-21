@@ -8,6 +8,11 @@
         {% elif email_form %}
             {% include 'bootstrap_form_field_label.html' with field=field class='col-md-2 pe-4' %}
             {% include 'bootstrap_form_field_widget.html' with field=field class='col-md-10' %}
+        {% elif plain %}
+            <div class="d-flex align-items-start mb-3 w-100">
+                {% include 'bootstrap_form_field_label.html' with field=field class='me-3 flex-shrink-0' %}
+                {% include 'bootstrap_form_field_widget.html' with field=field class='flex-grow-1' %}
+            </div>
         {% else %}
             {% include 'bootstrap_form_field_label.html' with field=field class='col-md-3 pe-4' %}
             {% include 'bootstrap_form_field_widget.html' with field=field class='col-md-7' %}

@@ -8,7 +8,6 @@ from evap.evaluation.tests.tools import (
     WebTest,
     WebTestWith200Check,
     create_evaluation_with_responsible_and_editor,
-    render_pages,
     submit_with_modal,
 )
 
@@ -136,8 +135,6 @@ class TestContributorEvaluationPreviewView(WebTestWith200Check):
 
 
 class TestContributorEvaluationEditView(WebTest):
-    render_pages_url = "/contributor/evaluation/PK/edit"
-
     @classmethod
     def setUpTestData(cls):
         result = create_evaluation_with_responsible_and_editor()
@@ -145,23 +142,6 @@ class TestContributorEvaluationEditView(WebTest):
         cls.editor = result["editor"]
         cls.evaluation = result["evaluation"]
         cls.url = f"/contributor/evaluation/{cls.evaluation.pk}/edit"
-
-    @render_pages
-    def render_pages(self):
-        self.evaluation.allow_editors_to_edit = False
-        self.evaluation.save()
-
-        content_without_allow_editors_to_edit = self.app.get(self.url, user=self.editor).content
-
-        self.evaluation.allow_editors_to_edit = True
-        self.evaluation.save()
-
-        content_with_allow_editors_to_edit = self.app.get(self.url, user=self.editor).content
-
-        return {
-            "normal": content_without_allow_editors_to_edit,
-            "allow_editors_to_edit": content_with_allow_editors_to_edit,
-        }
 
     def test_not_authenticated(self):
         """
@@ -291,6 +271,22 @@ class TestContributorEvaluationEditView(WebTest):
         page = self.app.get(self.url, user=self.responsible)
         self.assertEqual(page.body.decode().count("Request changes"), 0)
         self.assertEqual(page.body.decode().count("Request creation of new account"), 2)
+
+    def test_questionnaire_input_hidden_if_options_empty(self):
+        Questionnaire.objects.update(visibility=Questionnaire.Visibility.MANAGERS)
+
+        self.evaluation.general_contribution.questionnaires.clear()
+        self.evaluation.save()
+
+        page = self.app.get(self.url, user=self.responsible, status=200)
+        self.assertNotContains(page, "General questionnaires")
+        self.assertNotContains(page, "Dropout questionnaires")
+
+        Questionnaire.objects.update(visibility=Questionnaire.Visibility.EDITORS)
+
+        page = self.app.get(self.url, user=self.responsible, status=200)
+        self.assertContains(page, "General questionnaires")
+        self.assertContains(page, "Dropout questionnaires")
 
 
 class TestContributorResultsExportView(WebTest):

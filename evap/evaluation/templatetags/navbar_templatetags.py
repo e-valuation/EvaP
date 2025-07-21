@@ -1,8 +1,8 @@
+from django.conf import settings
 from django.db.models import Q
 from django.template import Library
 
 from evap.evaluation.models import Semester
-from evap.settings import DEBUG, LANGUAGES
 
 register = Library()
 
@@ -27,8 +27,8 @@ def include_navbar(user, language):
     return {
         "user": user,
         "current_language": language,
-        "languages": LANGUAGES,
+        "languages": settings.LANGUAGES,
         "result_semesters": semesters_with_unarchived_results,
         "grade_document_semesters": semesters_with_grade_documents,
-        "debug": DEBUG,
+        "debug": settings.DEBUG,
     }

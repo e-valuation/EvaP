@@ -37,6 +37,8 @@
         </form>
 
         <script type="module">
+            import { assert, fadeOutThenRemove } from "{% static 'js/utils.js' %}";
+
             const form = document.getElementById("questionnaire-deletion-form");
             form.addEventListener("submit", event => {
                 event.preventDefault();
@@ -59,7 +61,9 @@
         {% translate 'Contributor questionnaires' as headline %}
         {% include 'staff_questionnaire_index_list.html' with questionnaires=contributor_questionnaires headline=headline extra_classes='mb-3' type='contributor' %}
         {% translate 'Bottom general questionnaires' as headline %}
-        {% include 'staff_questionnaire_index_list.html' with questionnaires=general_questionnaires_bottom headline=headline extra_classes='' type='bottom' %}
+        {% include 'staff_questionnaire_index_list.html' with questionnaires=general_questionnaires_bottom headline=headline extra_classes='mb-3' type='bottom' %}
+        {% translate 'Dropout questionnaires' as headline %}
+        {% include 'staff_questionnaire_index_list.html' with questionnaires=dropout_questionnaires headline=headline extra_classes='' type='dropout' %}
     {% else %}
         <p>
             {% translate 'There are no questionnaires yet.' %}
@@ -81,7 +85,10 @@
         });
     </script>
 
-    <script type="text/javascript">
+    <script type="module">
+        import { CSRF_HEADERS } from "{% static 'js/csrf-utils.js' %}";
+        import { assert } from "{% static 'js/utils.js' %}";
+
         function changeVisibility(element) {
             const questionnaire = element.closest(".questionnaire");
             const visibility = element.dataset.visibility;

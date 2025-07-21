@@ -1,9 +1,11 @@
 import inspect
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from functools import wraps
 
+from django.conf import settings
 from django.contrib.auth.backends import ModelBackend
 from django.core.exceptions import PermissionDenied
+from django.core.mail import EmailMessage
 from django.utils.decorators import method_decorator
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 
@@ -133,16 +135,32 @@ def reward_user_required(user):
 
 # see https://mozilla-django-oidc.readthedocs.io/en/stable/
 class OpenIDAuthenticationBackend(OIDCAuthenticationBackend):
+    @staticmethod
+    def possible_existing_account_emails(email: str) -> Iterable[str]:
+        yield email
+        name, domain = email.split("@", maxsplit=1)
+        if previous_domain := settings.OIDC_EMAIL_TRANSITIONS.get(domain):
+            yield f"{name}@{previous_domain}"
+
+    def get_userinfo(self, *args, **kwargs):
+        claims = super().get_userinfo(*args, **kwargs)
+        if "email" in claims:
+            claims["email"] = clean_email(claims["email"])
+        return claims
+
     def filter_users_by_claims(self, claims):
         assert openid_login_is_active()
         email = claims.get("email")
         if not email:
             return []
 
-        try:
-            return [self.UserModel.objects.get(email=clean_email(email))]
-        except UserProfile.DoesNotExist:
-            return []
+        for query_email in self.possible_existing_account_emails(email):
+            try:
+                return [self.UserModel.objects.get(email=query_email)]
+            except UserProfile.DoesNotExist:
+                pass
+
+        return []
 
     def create_user(self, claims):
         assert openid_login_is_active()
@@ -160,4 +178,16 @@ class OpenIDAuthenticationBackend(OIDCAuthenticationBackend):
         if not user.last_name:
             user.last_name = claims.get("family_name", "")
             user.save()
+        new_email = claims.get("email")
+        if user.email != new_email:
+            notification = EmailMessage(
+                subject="[EvaP] User email changed automatically",
+                body=f"The email address of the user with id {user.pk} was automatically changed from {user.email} to {new_email}.",
+                to=[settings.CONTACT_EMAIL],
+            )
+
+            user.email = new_email
+            user.save()
+
+            notification.send()
         return user

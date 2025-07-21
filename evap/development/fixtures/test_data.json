@@ -675,6 +675,24 @@
   }
 },
 {
+  "model": "evaluation.questionnaire",
+  "pk": 112,
+  "fields": {
+    "type": 5,
+    "name_de": "Dropout1",
+    "name_en": "Dropout1",
+    "description_de": "",
+    "description_en": "",
+    "public_name_de": "Dropout 1",
+    "public_name_en": "Dropout 1",
+    "teaser_de": "",
+    "teaser_en": "",
+    "order": 0,
+    "visibility": 1,
+    "is_locked": false
+  }
+},
+{
   "model": "evaluation.program",
   "pk": 1,
   "fields": {
@@ -720,7 +738,7 @@
   "fields": {
     "name_de": "Vorlesung",
     "name_en": "Lecture",
-    "import_names": "[\"Vorlesung\", \"V\", \"V/\\u00dc\"]",
+    "import_names": "[\"Vorlesung\", \"V\", \"V/Ü\"]",
     "order": 1
   }
 },
@@ -764,6 +782,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -782,6 +801,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -800,6 +820,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -818,6 +839,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -836,6 +858,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -854,6 +877,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -872,6 +896,7 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -890,6 +915,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -908,6 +934,7 @@
     "type": 2,
     "is_private": true,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -926,6 +953,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -944,6 +972,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -962,6 +991,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -980,6 +1010,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -998,6 +1029,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -1016,6 +1048,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -1034,6 +1067,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -1052,6 +1086,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1070,6 +1105,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1088,6 +1124,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1106,6 +1143,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1124,6 +1162,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1142,6 +1181,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1160,6 +1200,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1178,6 +1219,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1196,6 +1238,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -1214,6 +1257,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -1232,6 +1276,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1250,6 +1295,7 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       3
     ],
@@ -1268,6 +1314,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -1286,6 +1333,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -1304,6 +1352,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1322,6 +1371,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1340,6 +1390,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -1358,6 +1409,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -1376,6 +1428,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -1394,6 +1447,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -1412,6 +1466,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -1430,6 +1485,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -1448,6 +1504,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1466,6 +1523,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -1484,6 +1542,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1502,6 +1561,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -1520,6 +1580,7 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -1538,6 +1599,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1556,6 +1618,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1574,6 +1637,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1592,6 +1656,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1610,6 +1675,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1628,6 +1694,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1646,6 +1713,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -1664,6 +1732,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -1682,6 +1751,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1700,6 +1770,7 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -1718,6 +1789,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -1736,6 +1808,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1754,6 +1827,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1772,6 +1846,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1790,6 +1865,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1808,6 +1884,7 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1826,6 +1903,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -1844,6 +1922,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -1862,6 +1941,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1880,6 +1960,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1898,6 +1979,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1916,6 +1998,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -1934,6 +2017,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -1952,6 +2036,7 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -1970,6 +2055,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -1988,6 +2074,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2006,6 +2093,7 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2024,6 +2112,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2042,6 +2131,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2060,6 +2150,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2078,6 +2169,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2096,6 +2188,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2114,6 +2207,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2132,6 +2226,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2150,6 +2245,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2168,6 +2264,7 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2186,6 +2283,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2204,6 +2302,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2222,6 +2321,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2240,6 +2340,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2258,6 +2359,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": true,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2276,6 +2378,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2294,6 +2397,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2312,6 +2416,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2330,6 +2435,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2348,6 +2454,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2366,6 +2473,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2384,6 +2492,7 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2402,6 +2511,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2420,6 +2530,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2438,6 +2549,7 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2456,6 +2568,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2474,6 +2587,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2492,6 +2606,7 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2510,6 +2625,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2528,6 +2644,7 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2546,6 +2663,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2564,6 +2682,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2582,6 +2701,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2600,6 +2720,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2618,6 +2739,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2636,6 +2758,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2654,6 +2777,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2672,6 +2796,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2690,6 +2815,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2708,6 +2834,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2726,6 +2853,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2744,6 +2872,7 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2762,6 +2891,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2780,6 +2910,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2798,6 +2929,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2816,6 +2948,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2834,6 +2967,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2852,6 +2986,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2870,6 +3005,7 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2888,6 +3024,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2906,6 +3043,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2924,6 +3062,7 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2942,6 +3081,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2960,6 +3100,7 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -2978,6 +3119,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -2996,6 +3138,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -3014,6 +3157,7 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -3032,6 +3176,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -3050,6 +3195,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -3068,6 +3214,7 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -3086,6 +3233,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       3
     ],
@@ -3104,6 +3252,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -3122,6 +3271,7 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -3140,6 +3290,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -3158,6 +3309,7 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -3176,6 +3328,7 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       1
     ],
@@ -3194,6 +3347,7 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
+    "cms_id": null,
     "programs": [
       2
     ],
@@ -3217,10 +3371,12 @@
     "can_publish_text_results": true,
     "_participant_count": 7,
     "_voter_count": 5,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-06-02",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       143,
       137,
@@ -3254,10 +3410,12 @@
     "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-02-12",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       270,
       234,
@@ -3293,10 +3451,12 @@
     "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-02-08",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       270,
       234,
@@ -3326,10 +3486,12 @@
     "can_publish_text_results": true,
     "_participant_count": 12,
     "_voter_count": 7,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-03-01",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       310,
       324,
@@ -3370,10 +3532,12 @@
     "can_publish_text_results": true,
     "_participant_count": 19,
     "_voter_count": 9,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-02-12",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       310,
       240,
@@ -3423,10 +3587,12 @@
     "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-03-01T00:00:00",
     "vote_end_date": "2022-03-18",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       235,
       31,
@@ -3464,10 +3630,12 @@
     "can_publish_text_results": true,
     "_participant_count": 11,
     "_voter_count": 4,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-02-28T00:00:00",
     "vote_end_date": "2022-03-07",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       250,
       223,
@@ -3504,10 +3672,12 @@
     "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-03-12T00:00:00",
     "vote_end_date": "2022-03-31",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       254,
       239,
@@ -3533,10 +3703,12 @@
     "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-02-12",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       250,
       247,
@@ -3629,10 +3801,12 @@
     "can_publish_text_results": true,
     "_participant_count": 10,
     "_voter_count": 5,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-02-12",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       235,
       924,
@@ -3669,10 +3843,12 @@
     "can_publish_text_results": true,
     "_participant_count": 20,
     "_voter_count": 8,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-02-12",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       293,
       254,
@@ -3722,10 +3898,12 @@
     "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-05-01T00:00:00",
     "vote_end_date": "2024-05-31",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       21,
       74,
@@ -3768,10 +3946,12 @@
     "can_publish_text_results": true,
     "_participant_count": 9,
     "_voter_count": 8,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-05-01T00:00:00",
     "vote_end_date": "2024-05-31",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       447,
       472,
@@ -3810,10 +3990,12 @@
     "can_publish_text_results": true,
     "_participant_count": 9,
     "_voter_count": 5,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-02-12",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       247,
       924,
@@ -3849,10 +4031,12 @@
     "can_publish_text_results": true,
     "_participant_count": 62,
     "_voter_count": 35,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-02-12",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       378,
       393,
@@ -3970,10 +4154,12 @@
     "can_publish_text_results": true,
     "_participant_count": 78,
     "_voter_count": 36,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-02-09",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       337,
       516,
@@ -4109,10 +4295,12 @@
     "can_publish_text_results": true,
     "_participant_count": 36,
     "_voter_count": 14,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-04-12T00:00:00",
     "vote_end_date": "2022-04-26",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       355,
       438,
@@ -4184,10 +4372,12 @@
     "can_publish_text_results": true,
     "_participant_count": 10,
     "_voter_count": 2,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-03-27T00:00:00",
     "vote_end_date": "2022-04-04",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       416,
       517,
@@ -4221,10 +4411,12 @@
     "can_publish_text_results": true,
     "_participant_count": 79,
     "_voter_count": 41,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-01-30T00:00:00",
     "vote_end_date": "2022-02-08",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       339,
       355,
@@ -4366,10 +4558,12 @@
     "can_publish_text_results": true,
     "_participant_count": 84,
     "_voter_count": 44,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-02-12",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       339,
       355,
@@ -4519,10 +4713,12 @@
     "can_publish_text_results": true,
     "_participant_count": 15,
     "_voter_count": 11,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-02-12",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       488,
       543,
@@ -4570,10 +4766,12 @@
     "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-01-22T00:00:00",
     "vote_end_date": "2022-01-23",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       55,
       582,
@@ -4605,10 +4803,12 @@
     "can_publish_text_results": true,
     "_participant_count": 74,
     "_voter_count": 44,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-02-02T00:00:00",
     "vote_end_date": "2022-02-12",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       337,
       516,
@@ -4748,10 +4948,12 @@
     "can_publish_text_results": true,
     "_participant_count": 74,
     "_voter_count": 27,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-07-09T00:00:00",
     "vote_end_date": "2022-07-29",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       337,
       339,
@@ -4874,10 +5076,12 @@
     "can_publish_text_results": true,
     "_participant_count": 82,
     "_voter_count": 32,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       337,
       516,
@@ -5013,10 +5217,12 @@
     "can_publish_text_results": true,
     "_participant_count": 108,
     "_voter_count": 32,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       378,
       423,
@@ -5178,10 +5384,12 @@
     "can_publish_text_results": true,
     "_participant_count": 76,
     "_voter_count": 34,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-11",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       339,
       355,
@@ -5313,10 +5521,12 @@
     "can_publish_text_results": true,
     "_participant_count": 26,
     "_voter_count": 10,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       438,
       368,
@@ -5374,10 +5584,12 @@
     "can_publish_text_results": true,
     "_participant_count": 16,
     "_voter_count": 4,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       378,
       426,
@@ -5419,10 +5631,12 @@
     "can_publish_text_results": true,
     "_participant_count": 9,
     "_voter_count": 5,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       372,
       344,
@@ -5458,10 +5672,12 @@
     "can_publish_text_results": true,
     "_participant_count": 20,
     "_voter_count": 11,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       293,
       558,
@@ -5514,10 +5730,12 @@
     "can_publish_text_results": true,
     "_participant_count": 27,
     "_voter_count": 14,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-07-05T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       355,
       519,
@@ -5580,10 +5798,12 @@
     "can_publish_text_results": true,
     "_participant_count": 17,
     "_voter_count": 5,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       246,
       322,
@@ -5627,10 +5847,12 @@
     "can_publish_text_results": true,
     "_participant_count": 19,
     "_voter_count": 9,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-12",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       222,
       282,
@@ -5680,10 +5902,12 @@
     "can_publish_text_results": true,
     "_participant_count": 28,
     "_voter_count": 10,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-07-05T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       250,
       310,
@@ -5743,10 +5967,12 @@
     "can_publish_text_results": true,
     "_participant_count": 7,
     "_voter_count": 5,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       640,
       232,
@@ -5778,10 +6004,12 @@
     "can_publish_text_results": true,
     "_participant_count": 11,
     "_voter_count": 7,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       240,
       638,
@@ -5821,10 +6049,12 @@
     "can_publish_text_results": true,
     "_participant_count": 23,
     "_voter_count": 8,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       270,
       234,
@@ -5876,10 +6106,12 @@
     "can_publish_text_results": true,
     "_participant_count": 10,
     "_voter_count": 4,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       461,
       548,
@@ -5915,10 +6147,12 @@
     "can_publish_text_results": false,
     "_participant_count": 3,
     "_voter_count": 0,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       74,
       632,
@@ -5942,10 +6176,12 @@
     "can_publish_text_results": true,
     "_participant_count": 7,
     "_voter_count": 5,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-07-06T00:00:00",
     "vote_end_date": "2022-07-19",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       245,
       260,
@@ -5979,10 +6215,12 @@
     "can_publish_text_results": true,
     "_participant_count": 4,
     "_voter_count": 2,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-07-06T00:00:00",
     "vote_end_date": "2022-07-19",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       512,
       382,
@@ -6010,10 +6248,12 @@
     "can_publish_text_results": true,
     "_participant_count": 7,
     "_voter_count": 4,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       237,
       332,
@@ -6046,10 +6286,12 @@
     "can_publish_text_results": true,
     "_participant_count": 6,
     "_voter_count": 3,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-07-01T00:00:00",
     "vote_end_date": "2022-07-15",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       472,
       811,
@@ -6080,10 +6322,12 @@
     "can_publish_text_results": true,
     "_participant_count": 17,
     "_voter_count": 2,
+    "dropout_count": 0,
     "vote_start_datetime": "2022-08-17T00:00:00",
     "vote_end_date": "2022-08-24",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       293,
       237,
@@ -6124,10 +6368,12 @@
     "can_publish_text_results": true,
     "_participant_count": 72,
     "_voter_count": 23,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       337,
       516,
@@ -6244,10 +6490,12 @@
     "can_publish_text_results": false,
     "_participant_count": 2,
     "_voter_count": 1,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       500,
       425
@@ -6272,10 +6520,12 @@
     "can_publish_text_results": true,
     "_participant_count": 13,
     "_voter_count": 8,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       461,
       528,
@@ -6318,10 +6568,12 @@
     "can_publish_text_results": false,
     "_participant_count": 6,
     "_voter_count": 1,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       519,
       548,
@@ -6350,10 +6602,12 @@
     "can_publish_text_results": true,
     "_participant_count": 58,
     "_voter_count": 27,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       459,
       365,
@@ -6460,10 +6714,12 @@
     "can_publish_text_results": true,
     "_participant_count": 6,
     "_voter_count": 3,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       477,
       368,
@@ -6494,10 +6750,12 @@
     "can_publish_text_results": true,
     "_participant_count": 30,
     "_voter_count": 7,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-04-01T00:00:00",
     "vote_end_date": "2023-04-14",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       337,
       365,
@@ -6556,10 +6814,12 @@
     "can_publish_text_results": true,
     "_participant_count": 19,
     "_voter_count": 9,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-17",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       560,
       470,
@@ -6609,10 +6869,12 @@
     "can_publish_text_results": true,
     "_participant_count": 14,
     "_voter_count": 5,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       541,
       381,
@@ -6653,10 +6915,12 @@
     "can_publish_text_results": true,
     "_participant_count": 80,
     "_voter_count": 27,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-14",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       667,
       337,
@@ -6785,10 +7049,12 @@
     "can_publish_text_results": true,
     "_participant_count": 84,
     "_voter_count": 37,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       667,
       732,
@@ -6930,10 +7196,12 @@
     "can_publish_text_results": true,
     "_participant_count": 17,
     "_voter_count": 9,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       393,
       755,
@@ -6981,10 +7249,12 @@
     "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-10-28T19:16:36.113",
     "vote_end_date": "2099-09-18",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       293,
       263,
@@ -7013,10 +7283,12 @@
     "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-08-01T00:00:00",
     "vote_end_date": "2024-08-31",
     "allow_editors_to_edit": false,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       31,
       477,
@@ -7045,10 +7317,12 @@
     "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       225,
       754,
@@ -7080,10 +7354,12 @@
     "can_publish_text_results": true,
     "_participant_count": 14,
     "_voter_count": 3,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       233,
       270,
@@ -7122,10 +7398,12 @@
     "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-05-01T00:00:00",
     "vote_end_date": "2024-05-31",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       270,
       324,
@@ -7153,10 +7431,12 @@
     "can_publish_text_results": true,
     "_participant_count": 11,
     "_voter_count": 6,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-02-04T00:00:00",
     "vote_end_date": "2023-02-17",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       223,
       625,
@@ -7194,10 +7474,12 @@
     "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       627,
       295,
@@ -7222,10 +7504,12 @@
     "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       316,
       336,
@@ -7252,10 +7536,12 @@
     "can_publish_text_results": true,
     "_participant_count": 27,
     "_voter_count": 9,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       233,
       293,
@@ -7312,10 +7598,12 @@
     "can_publish_text_results": true,
     "_participant_count": 9,
     "_voter_count": 5,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-28",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       310,
       275,
@@ -7351,10 +7639,12 @@
     "can_publish_text_results": true,
     "_participant_count": 25,
     "_voter_count": 10,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       293,
       517,
@@ -7411,10 +7701,12 @@
     "can_publish_text_results": true,
     "_participant_count": 63,
     "_voter_count": 20,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-01-26T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       443,
       293,
@@ -7516,10 +7808,12 @@
     "can_publish_text_results": true,
     "_participant_count": 17,
     "_voter_count": 4,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-03-20",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       517,
       324,
@@ -7562,10 +7856,12 @@
     "can_publish_text_results": true,
     "_participant_count": 40,
     "_voter_count": 15,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       443,
       270,
@@ -7642,10 +7938,12 @@
     "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2099-12-01T00:00:00",
     "vote_end_date": "2099-12-31",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       639,
       323,
@@ -7671,10 +7969,12 @@
     "can_publish_text_results": true,
     "_participant_count": 28,
     "_voter_count": 10,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-02-02T00:00:00",
     "vote_end_date": "2023-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       270,
       446,
@@ -7734,10 +8034,12 @@
     "can_publish_text_results": true,
     "_participant_count": 40,
     "_voter_count": 9,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-02-25T00:00:00",
     "vote_end_date": "2023-03-03",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       293,
       263,
@@ -7805,10 +8107,12 @@
     "can_publish_text_results": true,
     "_participant_count": 18,
     "_voter_count": 11,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-06-28T00:00:00",
     "vote_end_date": "2023-07-04",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       455,
       459,
@@ -7859,10 +8163,12 @@
     "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-09-22",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       337,
       365,
@@ -7895,10 +8201,12 @@
     "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2099-08-01T00:00:00",
     "vote_end_date": "2099-08-31",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       494,
       253,
@@ -7931,10 +8239,12 @@
     "can_publish_text_results": true,
     "_participant_count": 95,
     "_voter_count": 25,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-21",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       732,
       739,
@@ -8076,10 +8386,12 @@
     "can_publish_text_results": true,
     "_participant_count": 5,
     "_voter_count": 2,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-09-30",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       426,
       372,
@@ -8108,10 +8420,12 @@
     "can_publish_text_results": true,
     "_participant_count": 16,
     "_voter_count": 8,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-21",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       426,
       322,
@@ -8157,10 +8471,12 @@
     "can_publish_text_results": true,
     "_participant_count": 12,
     "_voter_count": 6,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       337,
       455,
@@ -8200,10 +8516,12 @@
     "can_publish_text_results": true,
     "_participant_count": 3,
     "_voter_count": 2,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-09-01T00:00:00",
     "vote_end_date": "2023-09-15",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       536,
       305
@@ -8229,10 +8547,12 @@
     "can_publish_text_results": true,
     "_participant_count": 32,
     "_voter_count": 5,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-08-12T00:00:00",
     "vote_end_date": "2023-08-23",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       443,
       233,
@@ -8291,10 +8611,12 @@
     "can_publish_text_results": true,
     "_participant_count": 5,
     "_voter_count": 4,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-06-24T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       355,
       564,
@@ -8325,10 +8647,12 @@
     "can_publish_text_results": false,
     "_participant_count": 4,
     "_voter_count": 0,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-05-01T00:00:00",
     "vote_end_date": "2024-05-31",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       637,
       625,
@@ -8353,10 +8677,12 @@
     "can_publish_text_results": true,
     "_participant_count": 107,
     "_voter_count": 26,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-18",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       667,
       337,
@@ -8511,10 +8837,12 @@
     "can_publish_text_results": true,
     "_participant_count": 15,
     "_voter_count": 6,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       443,
       755,
@@ -8557,10 +8885,12 @@
     "can_publish_text_results": true,
     "_participant_count": 82,
     "_voter_count": 29,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       667,
       732,
@@ -8693,10 +9023,12 @@
     "can_publish_text_results": true,
     "_participant_count": 26,
     "_voter_count": 12,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       694,
       748,
@@ -8756,10 +9088,12 @@
     "can_publish_text_results": true,
     "_participant_count": 9,
     "_voter_count": 4,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       459,
       424,
@@ -8794,10 +9128,12 @@
     "can_publish_text_results": true,
     "_participant_count": 26,
     "_voter_count": 9,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-05-01T00:00:00",
     "vote_end_date": "2024-05-31",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       293,
       393,
@@ -8854,10 +9190,12 @@
     "can_publish_text_results": true,
     "_participant_count": 10,
     "_voter_count": 5,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       365,
       429,
@@ -8894,10 +9232,12 @@
     "can_publish_text_results": true,
     "_participant_count": 9,
     "_voter_count": 2,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       743,
       666,
@@ -8930,10 +9270,12 @@
     "can_publish_text_results": false,
     "_participant_count": 4,
     "_voter_count": 1,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-06-24T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       344,
       484,
@@ -8960,10 +9302,12 @@
     "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       338,
       324,
@@ -8988,10 +9332,12 @@
     "can_publish_text_results": false,
     "_participant_count": 10,
     "_voter_count": 1,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-07-12T00:00:00",
     "vote_end_date": "2023-07-29",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       625,
       311,
@@ -9024,10 +9370,12 @@
     "can_publish_text_results": true,
     "_participant_count": 6,
     "_voter_count": 6,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-06-24T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       496,
       381,
@@ -9061,10 +9409,12 @@
     "can_publish_text_results": true,
     "_participant_count": 5,
     "_voter_count": 3,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-06-24T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       467,
       547,
@@ -9094,10 +9444,12 @@
     "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-05-01T00:00:00",
     "vote_end_date": "2024-05-31",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       446,
       427,
@@ -9132,10 +9484,12 @@
     "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       658
     ],
@@ -9157,10 +9511,12 @@
     "can_publish_text_results": true,
     "_participant_count": 6,
     "_voter_count": 3,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       459,
       505,
@@ -9191,10 +9547,12 @@
     "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       755,
       637,
@@ -9238,10 +9596,12 @@
     "can_publish_text_results": false,
     "_participant_count": 2,
     "_voter_count": 0,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       473,
       819
@@ -9264,10 +9624,12 @@
     "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2099-12-01T00:00:00",
     "vote_end_date": "2099-12-31",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       354,
       452
@@ -9290,10 +9652,12 @@
     "can_publish_text_results": true,
     "_participant_count": 9,
     "_voter_count": 4,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-07-01T00:00:00",
     "vote_end_date": "2023-07-14",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       293,
       223,
@@ -9328,10 +9692,12 @@
     "can_publish_text_results": true,
     "_participant_count": 3,
     "_voter_count": 2,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-03-31T00:00:00",
     "vote_end_date": "2024-04-06",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       446,
       754,
@@ -9358,10 +9724,12 @@
     "can_publish_text_results": false,
     "_participant_count": 4,
     "_voter_count": 1,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       863,
       461,
@@ -9388,10 +9756,12 @@
     "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-03-31T00:00:00",
     "vote_end_date": "2024-04-06",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       338,
       494,
@@ -9416,19 +9786,32 @@
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
-    "can_publish_text_results": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 5,
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2099-05-08",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       452,
+      831,
+      830,
+      833,
       505,
-      555
+      555,
+      834,
+      832
     ],
-    "voters": []
+    "voters": [
+      831,
+      830,
+      833,
+      834,
+      832
+    ]
   }
 },
 {
@@ -9446,10 +9829,12 @@
     "can_publish_text_results": true,
     "_participant_count": 11,
     "_voter_count": 6,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       459,
       684,
@@ -9488,10 +9873,12 @@
     "can_publish_text_results": true,
     "_participant_count": 6,
     "_voter_count": 3,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       443,
       560,
@@ -9522,10 +9909,12 @@
     "can_publish_text_results": false,
     "_participant_count": 4,
     "_voter_count": 0,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       354,
       449,
@@ -9550,10 +9939,12 @@
     "can_publish_text_results": true,
     "_participant_count": 6,
     "_voter_count": 3,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       378,
       368,
@@ -9584,10 +9975,12 @@
     "can_publish_text_results": true,
     "_participant_count": 7,
     "_voter_count": 4,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-16",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       378,
       368,
@@ -9620,10 +10013,12 @@
     "can_publish_text_results": false,
     "_participant_count": 3,
     "_voter_count": 1,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-03-31T00:00:00",
     "vote_end_date": "2024-04-06",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       640,
       536,
@@ -9649,10 +10044,12 @@
     "can_publish_text_results": true,
     "_participant_count": 38,
     "_voter_count": 17,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       732,
       739,
@@ -9729,10 +10126,12 @@
     "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       455,
       523,
@@ -9757,10 +10156,12 @@
     "can_publish_text_results": false,
     "_participant_count": 4,
     "_voter_count": 1,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       372,
       328,
@@ -9787,10 +10188,12 @@
     "can_publish_text_results": true,
     "_participant_count": 6,
     "_voter_count": 3,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-03-31T00:00:00",
     "vote_end_date": "2024-04-06",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       426,
       372,
@@ -9821,10 +10224,12 @@
     "can_publish_text_results": false,
     "_participant_count": 10,
     "_voter_count": 1,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-02-11T00:00:00",
     "vote_end_date": "2024-02-16",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       381,
       536,
@@ -9857,10 +10262,12 @@
     "can_publish_text_results": true,
     "_participant_count": 20,
     "_voter_count": 11,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-01-28T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       678,
       734,
@@ -9913,10 +10320,12 @@
     "can_publish_text_results": true,
     "_participant_count": 24,
     "_voter_count": 8,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       378,
       434,
@@ -9969,10 +10378,12 @@
     "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       414,
       421,
@@ -9999,25 +10410,36 @@
     "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 5,
     "vote_start_datetime": "2024-06-01T00:00:00",
     "vote_end_date": "2099-12-31",
     "allow_editors_to_edit": false,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       459,
       412,
       445,
       452,
+      831,
       453,
+      830,
       490,
       545,
+      833,
+      834,
       323,
+      832,
       457
     ],
     "voters": [
       459,
       412,
-      545
+      831,
+      830,
+      833,
+      834,
+      832
     ]
   }
 },
@@ -10036,10 +10458,12 @@
     "can_publish_text_results": true,
     "_participant_count": 84,
     "_voter_count": 51,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-05",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       846,
       851,
@@ -10196,10 +10620,12 @@
     "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-01-01T00:00:00",
     "vote_end_date": "2099-12-31",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       528,
       386,
@@ -10228,10 +10654,12 @@
     "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       503,
       456,
@@ -10257,10 +10685,12 @@
     "can_publish_text_results": true,
     "_participant_count": 19,
     "_voter_count": 10,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-03-07T00:00:00",
     "vote_end_date": "2024-03-16",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       378,
       379,
@@ -10311,10 +10741,12 @@
     "can_publish_text_results": true,
     "_participant_count": 81,
     "_voter_count": 28,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-07",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       667,
       732,
@@ -10445,10 +10877,12 @@
     "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-08-01T00:00:00",
     "vote_end_date": "2024-08-31",
     "allow_editors_to_edit": false,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       406,
       773,
@@ -10476,10 +10910,12 @@
     "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-06-01T00:00:00",
     "vote_end_date": "2099-12-31",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       640,
       354,
@@ -10506,10 +10942,12 @@
     "can_publish_text_results": true,
     "_participant_count": 48,
     "_voter_count": 17,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-02-04T00:00:00",
     "vote_end_date": "2024-02-16",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       443,
       434,
@@ -10596,10 +11034,12 @@
     "can_publish_text_results": true,
     "_participant_count": 18,
     "_voter_count": 8,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-02-05T00:00:00",
     "vote_end_date": "2024-02-12",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       519,
       560,
@@ -10647,10 +11087,12 @@
     "can_publish_text_results": true,
     "_participant_count": 76,
     "_voter_count": 32,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       732,
       337,
@@ -10780,10 +11222,12 @@
     "can_publish_text_results": true,
     "_participant_count": 12,
     "_voter_count": 5,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       739,
       707,
@@ -10822,10 +11266,12 @@
     "can_publish_text_results": true,
     "_participant_count": 28,
     "_voter_count": 16,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": false,
+    "cms_id": null,
     "participants": [
       519,
       560,
@@ -10891,10 +11337,12 @@
     "can_publish_text_results": true,
     "_participant_count": 81,
     "_voter_count": 39,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-10",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       846,
       851,
@@ -11036,10 +11484,12 @@
     "can_publish_text_results": true,
     "_participant_count": 48,
     "_voter_count": 9,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-04-06T00:00:00",
     "vote_end_date": "2024-04-13",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       732,
       716,
@@ -11118,10 +11568,12 @@
     "can_publish_text_results": true,
     "_participant_count": 80,
     "_voter_count": 42,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-02-01T00:00:00",
     "vote_end_date": "2024-02-14",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       846,
       851,
@@ -11265,10 +11717,12 @@
     "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-08-01T00:00:00",
     "vote_end_date": "2024-08-31",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [
       729,
       452,
@@ -11296,10 +11750,12 @@
     "can_publish_text_results": true,
     "_participant_count": 31,
     "_voter_count": 31,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-11-01T00:00:00",
     "vote_end_date": "2023-11-01",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": false,
+    "cms_id": null,
     "participants": [],
     "voters": []
   }
@@ -11319,10 +11775,12 @@
     "can_publish_text_results": true,
     "_participant_count": 50,
     "_voter_count": 50,
+    "dropout_count": 0,
     "vote_start_datetime": "2023-10-01T00:00:00",
     "vote_end_date": "2023-10-01",
     "allow_editors_to_edit": false,
     "wait_for_grade_upload_before_publishing": false,
+    "cms_id": null,
     "participants": [],
     "voters": []
   }
@@ -11342,10 +11800,12 @@
     "can_publish_text_results": false,
     "_participant_count": 23,
     "_voter_count": 23,
+    "dropout_count": 0,
     "vote_start_datetime": "2024-06-20T00:00:00",
     "vote_end_date": "2024-06-20",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
     "participants": [],
     "voters": []
   }
@@ -17990,6 +18450,7 @@
     "label": "",
     "order": 0,
     "questionnaires": [
+      112,
       94,
       95,
       96,
@@ -18480,6 +18941,7 @@
     "label": "",
     "order": 0,
     "questionnaires": [
+      112,
       86,
       110,
       83
@@ -21812,6 +22274,30 @@
     "text_en": "How did you like the exam?",
     "allows_additional_textanswers": true,
     "type": 6
+  }
+},
+{
+  "model": "evaluation.question",
+  "pk": 479,
+  "fields": {
+    "order": 0,
+    "questionnaire": 112,
+    "text_de": "Wieso hast du den Kurs abgewählt?",
+    "text_en": "Why did you drop this course?",
+    "allows_additional_textanswers": false,
+    "type": 0
+  }
+},
+{
+  "model": "evaluation.question",
+  "pk": 480,
+  "fields": {
+    "order": 1,
+    "questionnaire": 112,
+    "text_de": "Wirst du den Kurs nochmal belegen?",
+    "text_en": "Will you take this course again?",
+    "allows_additional_textanswers": true,
+    "type": 3
   }
 },
 {
@@ -41532,6 +42018,16 @@
     "contribution": 3462,
     "answer": 1,
     "count": 3
+  }
+},
+{
+  "model": "evaluation.ratinganswercounter",
+  "pk": "3d3eaa59-795d-49f6-8b28-4b8e478cdbea",
+  "fields": {
+    "question": 480,
+    "contribution": 4072,
+    "answer": 1,
+    "count": 5
   }
 },
 {
@@ -68012,6 +68508,16 @@
     "contribution": 3725,
     "answer": -1,
     "count": 2
+  }
+},
+{
+  "model": "evaluation.ratinganswercounter",
+  "pk": "8e9d0feb-92e5-4226-a1ba-851001b5ba37",
+  "fields": {
+    "question": 480,
+    "contribution": 3994,
+    "answer": 1,
+    "count": 5
   }
 },
 {
@@ -106054,6 +106560,18 @@
 },
 {
   "model": "evaluation.textanswer",
+  "pk": "0148d55e-0716-4cf4-bde5-8899f5a27088",
+  "fields": {
+    "question": 479,
+    "contribution": 3994,
+    "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos",
+    "original_answer": null,
+    "review_decision": "UN",
+    "is_flagged": false
+  }
+},
+{
+  "model": "evaluation.textanswer",
   "pk": "015fce61-3858-4ec3-b30e-1aae8aac756f",
   "fields": {
     "question": 314,
@@ -107182,6 +107700,18 @@
 },
 {
   "model": "evaluation.textanswer",
+  "pk": "0e939c6a-f5ee-4d68-b157-107b4802453e",
+  "fields": {
+    "question": 479,
+    "contribution": 3994,
+    "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos",
+    "original_answer": null,
+    "review_decision": "UN",
+    "is_flagged": false
+  }
+},
+{
+  "model": "evaluation.textanswer",
   "pk": "0ef70dcf-b86d-4bf3-96f5-50214e6305d8",
   "fields": {
     "question": 324,
@@ -107729,6 +108259,18 @@
     "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus",
     "original_answer": null,
     "review_decision": "PU",
+    "is_flagged": false
+  }
+},
+{
+  "model": "evaluation.textanswer",
+  "pk": "15073ca5-047f-41d2-b202-a03a7c32ebb2",
+  "fields": {
+    "question": 479,
+    "contribution": 4072,
+    "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos",
+    "original_answer": null,
+    "review_decision": "UN",
     "is_flagged": false
   }
 },
@@ -111226,6 +111768,18 @@
 },
 {
   "model": "evaluation.textanswer",
+  "pk": "3e767e2d-e11b-40ef-941c-6e968c02e99d",
+  "fields": {
+    "question": 479,
+    "contribution": 3994,
+    "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos",
+    "original_answer": null,
+    "review_decision": "UN",
+    "is_flagged": false
+  }
+},
+{
+  "model": "evaluation.textanswer",
   "pk": "3ea69df6-e55d-4074-af2f-2e0c6600266a",
   "fields": {
     "question": 373,
@@ -113429,6 +113983,18 @@
     "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing",
     "original_answer": null,
     "review_decision": "PU",
+    "is_flagged": false
+  }
+},
+{
+  "model": "evaluation.textanswer",
+  "pk": "56e1008e-6b56-424a-9524-d097ab9c0f51",
+  "fields": {
+    "question": 479,
+    "contribution": 4072,
+    "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos",
+    "original_answer": null,
+    "review_decision": "UN",
     "is_flagged": false
   }
 },
@@ -118210,6 +118776,18 @@
 },
 {
   "model": "evaluation.textanswer",
+  "pk": "8e7bee9f-092f-44e6-863c-b8820652ae0c",
+  "fields": {
+    "question": 479,
+    "contribution": 4072,
+    "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos",
+    "original_answer": null,
+    "review_decision": "UN",
+    "is_flagged": false
+  }
+},
+{
+  "model": "evaluation.textanswer",
   "pk": "8e97eaaf-bc22-4ef8-9c40-02c9f55ec8f7",
   "fields": {
     "question": 318,
@@ -120142,6 +120720,18 @@
 },
 {
   "model": "evaluation.textanswer",
+  "pk": "a59a8758-243a-4c6c-8f42-19f473c26ef8",
+  "fields": {
+    "question": 479,
+    "contribution": 4072,
+    "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam",
+    "original_answer": null,
+    "review_decision": "UN",
+    "is_flagged": false
+  }
+},
+{
+  "model": "evaluation.textanswer",
   "pk": "a5d5697f-0f3b-4a66-991b-f4cc1c8cd090",
   "fields": {
     "question": 318,
@@ -120221,6 +120811,18 @@
     "answer": "Lorem ipsum dolor sit",
     "original_answer": null,
     "review_decision": "PU",
+    "is_flagged": false
+  }
+},
+{
+  "model": "evaluation.textanswer",
+  "pk": "a6c2f6eb-0187-4078-9bdd-fddc3a8f0a6d",
+  "fields": {
+    "question": 479,
+    "contribution": 4072,
+    "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam",
+    "original_answer": null,
+    "review_decision": "UN",
     "is_flagged": false
   }
 },
@@ -120929,6 +121531,18 @@
     "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed",
     "original_answer": null,
     "review_decision": "PU",
+    "is_flagged": false
+  }
+},
+{
+  "model": "evaluation.textanswer",
+  "pk": "ae703b66-72a6-4663-8fb9-29c3077c0f04",
+  "fields": {
+    "question": 479,
+    "contribution": 3994,
+    "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam",
+    "original_answer": null,
+    "review_decision": "UN",
     "is_flagged": false
   }
 },
@@ -128525,6 +129139,18 @@
     "answer": "Lorem ipsum dolor",
     "original_answer": null,
     "review_decision": "PU",
+    "is_flagged": false
+  }
+},
+{
+  "model": "evaluation.textanswer",
+  "pk": "fc6ec9a8-0915-4011-b2cf-ef53f4e54fe8",
+  "fields": {
+    "question": 479,
+    "contribution": 3994,
+    "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy",
+    "original_answer": null,
+    "review_decision": "UN",
     "is_flagged": false
   }
 },
@@ -153474,7 +154100,8 @@
   "model": "rewards.rewardpointredemptionevent",
   "pk": 1,
   "fields": {
-    "name": "Big party",
+    "name_de": "Große Feier",
+    "name_en": "Big party",
     "date": "2099-12-31",
     "redeem_end_date": "2099-12-30",
     "step": 3
@@ -155332,7 +155959,7 @@
   "fields": {
     "warning_text_de": "Es sieht so aus, als ob du auf eine andere Antwort verweist. Alle Antworten werden unabhängig voneinander gespeichert, also werden andere nicht wissen, worauf du dich beziehst.",
     "warning_text_en": "It looks like you are referencing another answer. All answers are saved independently of each other, so others won't know which answer you are referring to.",
-    "trigger_strings": "[\"s.o.\", \"s. o.\", \"siehe oben\", \"wie oben\", \"see above\", \"bereits erw\\u00e4hnt\", \"already stated\"]",
+    "trigger_strings": "[\"s.o.\", \"s. o.\", \"siehe oben\", \"wie oben\", \"see above\", \"bereits erwähnt\", \"already stated\"]",
     "order": 0
   }
 },

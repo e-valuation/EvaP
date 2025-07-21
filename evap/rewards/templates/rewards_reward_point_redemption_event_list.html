@@ -19,7 +19,7 @@
                         <td>{{ event.date }}</td>
                         <td>{{ event.redeem_end_date }}</td>
                         <td>{{ event.name }}</td>
-                        <td><span class="fas fa-user"></span> {{ event.redemptions_by_user|length }}</td>
+                        <td><span class="fas fa-user"></span> {{ event.users_with_redeemed_points|length }}</td>
                         <td class="d-flex justify-content-end gap-1">
                             <a href="{% url 'rewards:reward_point_redemption_event_export' event.id %}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Export Redemptions' %}"><span class="fas fa-download"></span></a>
                             <a href="{% url 'rewards:reward_point_redemption_event_edit' event.id %}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Edit' %}"><span class="fas fa-pencil"></span></a>

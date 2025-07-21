@@ -2,13 +2,16 @@ import datetime
 import typing
 from abc import ABC, abstractmethod
 from collections.abc import Iterable, Mapping
+from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, TypeVar
 from urllib.parse import quote
 
 import xlwt
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation, ValidationError
+from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.models import Model
+from django.db.models.fields.mixins import FieldCacheMixin
 from django.forms.formsets import BaseFormSet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -30,6 +33,17 @@ M = TypeVar("M", bound=Model)
 T = TypeVar("T")
 CellValue = str | int | float | None
 CV = TypeVar("CV", bound=CellValue)
+
+
+@contextmanager
+def temporary_receiver(signal, func, **kwargs):
+    # semi-copy of https://github.com/django/django/blob/3266f2516c27dd25abebe8e8f7b8778650ab4f18/django/dispatch/dispatcher.py#L472
+    # with sane contextmanager behavior (receivers are unlinked on exit). We don't support lists of signals (for now).
+    signal.connect(receiver=func, **kwargs)
+    try:
+        yield
+    finally:
+        signal.disconnect(receiver=func, **kwargs)
 
 
 def openid_login_is_active() -> bool:
@@ -74,17 +88,24 @@ def discard_cached_related_objects(instance: M) -> M:
     hierarchy (e.g. for storing instances in a cache)
     """
     # Extracted from django's refresh_from_db, which sadly doesn't offer this part alone (without hitting the DB).
-    for field in instance._meta.concrete_fields:  # type: ignore[attr-defined]
-        if field.is_relation and field.is_cached(instance):
-            field.delete_cached_value(instance)
+    for field in instance._meta.concrete_fields:
+        if field.is_relation:
+            assert isinstance(field, FieldCacheMixin)
+            if field.is_cached(instance):
+                field.delete_cached_value(instance)
 
-    for field in instance._meta.related_objects:  # type: ignore[attr-defined]
-        if field.is_cached(instance):
-            field.delete_cached_value(instance)
+    for related_field in instance._meta.related_objects:
+        if related_field.is_cached(instance):
+            related_field.delete_cached_value(instance)
 
     instance._prefetched_objects_cache = {}  # type: ignore[attr-defined]
 
     return instance
+
+
+def inside_transaction() -> bool:
+    # https://github.com/django/django/blob/402ae37873974afa5093e6d6149175a118979cd9/django/db/transaction.py#L208
+    return connections[DEFAULT_DB_ALIAS].in_atomic_block
 
 
 def is_external_email(email: str) -> bool:

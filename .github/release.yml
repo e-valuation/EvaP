@@ -4,3 +4,4 @@ changelog:
   exclude:
     authors:
       - dependabot
+      - renovate-bot

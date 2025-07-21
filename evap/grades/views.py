@@ -65,6 +65,7 @@ class SemesterView(DetailView):
             self.object.courses.filter(evaluations__wait_for_grade_upload_before_publishing=True)
             .exclude(evaluations__state=Evaluation.State.NEW)
             .distinct()
+            .prefetch_related("type")
         )
         courses = course_grade_document_count_tuples(query)
 

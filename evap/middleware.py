@@ -1,3 +1,5 @@
+import inspect
+
 from django.conf import settings
 from django.contrib.auth.views import redirect_to_login
 from django.utils import translation
@@ -28,9 +30,13 @@ class RequireLoginMiddleware:
         return redirect_to_login(request.get_full_path())
 
 
-def no_login_required(func):
-    func.no_login_required = True
-    return func
+def no_login_required(class_or_function):
+    if inspect.isclass(class_or_function):
+        class_or_function.dispatch.no_login_required = True
+    else:
+        assert inspect.isfunction(class_or_function)
+        class_or_function.no_login_required = True
+    return class_or_function
 
 
 def user_language_middleware(get_response):

@@ -3,16 +3,19 @@ from uuid import UUID
 
 from django.core import management
 from django.core.exceptions import SuspiciousOperation
+from django.db import transaction
 from django.db.models import Model, prefetch_related_objects
 from django.http import Http404
 from django.utils import translation
 from model_bakery import baker
 
+from evap.evaluation.management.commands.tools import subprocess_run_or_exit
 from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer, UserProfile
-from evap.evaluation.tests.tools import TestCase, WebTest
+from evap.evaluation.tests.tools import SimpleTestCase, TestCase, WebTest
 from evap.evaluation.tools import (
     discard_cached_related_objects,
     get_object_from_dict_pk_entry_or_logged_40x,
+    inside_transaction,
     is_prefetched,
 )
 
@@ -58,7 +61,7 @@ class TestLogExceptionsDecorator(TestCase):
         self.assertIn("failed. Traceback follows:", mock_logger.call_args[0][0])
 
 
-class TestHelperMethods(WebTest):
+class TestHelperMethods(TestCase):
     def test_is_prefetched(self):
         evaluation = baker.make(Evaluation, voters=[baker.make(UserProfile)])
         baker.make(Contribution, evaluation=evaluation)
@@ -134,29 +137,55 @@ class TestHelperMethods(WebTest):
 
     def test_discard_cached_related_objects_discards_cached_m2m_instances(self):
         evaluation = baker.make(Evaluation)
-        baker.make(Contribution, evaluation=evaluation)
+        baker.make(UserProfile, evaluations_participating_in=[evaluation], _quantity=2)
 
         # M2M fields are not implicitly cached
         with self.assertNumQueries(1):
-            self.assertEqual(len(list(evaluation.contributions.all())), 2)
+            self.assertEqual(len(list(evaluation.participants.all())), 2)
         with self.assertNumQueries(1):
-            self.assertEqual(len(list(evaluation.contributions.all())), 2)
+            self.assertEqual(len(list(evaluation.participants.all())), 2)
 
         # Explicitly cached M2M fields (through prefetch_related_objects) are discarded
-        prefetch_related_objects([evaluation], "contributions")
+        prefetch_related_objects([evaluation], "participants")
         with self.assertNumQueries(0):
-            self.assertEqual(len(list(evaluation.contributions.all())), 2)
+            self.assertEqual(len(list(evaluation.participants.all())), 2)
         discard_cached_related_objects(evaluation)
         with self.assertNumQueries(1):
-            self.assertEqual(len(list(evaluation.contributions.all())), 2)
+            self.assertEqual(len(list(evaluation.participants.all())), 2)
 
         # Explicitly cached M2M fields (through prefetch_related) are discarded
-        evaluation = Evaluation.objects.filter(pk=evaluation.pk).prefetch_related("contributions").first()
+        evaluation = Evaluation.objects.filter(pk=evaluation.pk).prefetch_related("participants").first()
         with self.assertNumQueries(0):
-            self.assertEqual(len(list(evaluation.contributions.all())), 2)
+            self.assertEqual(len(list(evaluation.participants.all())), 2)
         discard_cached_related_objects(evaluation)
         with self.assertNumQueries(1):
-            self.assertEqual(len(list(evaluation.contributions.all())), 2)
+            self.assertEqual(len(list(evaluation.participants.all())), 2)
+
+    def test_discard_cached_related_objects_discards_cached_m2m_reverse_instances(self):
+        user = baker.make(UserProfile)
+        baker.make(Evaluation, participants=[user], _quantity=2)
+
+        # Reverse M2M fields are not implicitly cached
+        with self.assertNumQueries(1):
+            self.assertEqual(len(list(user.evaluations_participating_in.all())), 2)
+        with self.assertNumQueries(1):
+            self.assertEqual(len(list(user.evaluations_participating_in.all())), 2)
+
+        # Explicitly cached reverse M2M fields (through prefetch_related_objects) are discarded
+        prefetch_related_objects([user], "evaluations_participating_in")
+        with self.assertNumQueries(0):
+            self.assertEqual(len(list(user.evaluations_participating_in.all())), 2)
+        discard_cached_related_objects(user)
+        with self.assertNumQueries(1):
+            self.assertEqual(len(list(user.evaluations_participating_in.all())), 2)
+
+        # Explicitly cached reverse M2M fields (through prefetch_related) are discarded
+        user = UserProfile.objects.filter(pk=user.pk).prefetch_related("evaluations_participating_in").first()
+        with self.assertNumQueries(0):
+            self.assertEqual(len(list(user.evaluations_participating_in.all())), 2)
+        discard_cached_related_objects(user)
+        with self.assertNumQueries(1):
+            self.assertEqual(len(list(user.evaluations_participating_in.all())), 2)
 
     def test_get_object_from_dict_pk_entry_or_logged_40x_for_ints(self):
         # Invalid PKs
@@ -196,3 +225,20 @@ class TestHelperMethods(WebTest):
 
         answer = baker.make(TextAnswer)
         self.assertEqual(get_object_from_dict_pk_entry_or_logged_40x(TextAnswer, {"pk": str(answer.pk)}, "pk"), answer)
+
+    def test_subprocess_run_or_exit(self) -> None:
+        subprocess_run_or_exit(["true"])
+
+        with self.assertRaises(SystemExit):
+            subprocess_run_or_exit(["false"])
+
+
+class TestHelperMethodsWithoutTransaction(SimpleTestCase):
+    # WARNING: Do not execute any queries modifying the database. Changes will not be rolled back
+    databases = {"default"}
+
+    def test_inside_transaction(self):
+        self.assertFalse(inside_transaction())
+
+        with transaction.atomic():
+            self.assertTrue(inside_transaction())

@@ -1,0 +1,33 @@
+{% load evaluation_filters %}
+
+<fieldset>
+    {% for field in evaluation_form %}
+        {% if field == evaluation_form.general_questionnaires or field == evaluation_form.dropout_questionnaires %}
+            {% if field.field.queryset.exists %}
+                <div class="mb-3 d-flex">
+                    {% include 'bootstrap_form_field_label.html' with field=field class='col-md-3 pe-4' %}
+                    <div class="col-md-7{% if field.errors %} is-invalid{% endif %}">
+                        {% include 'bootstrap_form_errors.html' with errors=field.errors %}
+                        {% include 'questionnaires_widget.html' with field=field questionnaires_with_answers=questionnaires_with_answers_per_contributor|get:None %}
+                    </div>
+                </div>
+            {% endif %}
+        {% elif field == evaluation_form.participants %}
+        <div class="mb-3 d-md-flex">
+            {% include 'bootstrap_form_field_label.html' with field=field class='col-md-3 pe-4' %}
+            <div class="col-md-7 card collapsible overflow-visible">
+                <a class="card-header d-flex collapse-toggle{% if collapse_participants and evaluation.participants.count > 0 %} collapsed{% endif %}" data-bs-toggle="collapse" href="#participant-box">
+                    <span class="badge rounded-pill badge-btn ms-auto" data-track-tomselect-count="id_participants">{{ evaluation.participants.count }}</span>
+                </a>
+                <div class="collapse{% if not collapse_participants or evaluation.participants.count == 0 %} show{% endif %}" id="participant-box">
+                    <div class="card-body">
+                        {% include 'bootstrap_form_field_widget.html' with field=field %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+            {% include 'bootstrap_form_field.html' with field=field %}
+        {% endif %}
+    {% endfor %}
+</fieldset>

@@ -18,7 +18,7 @@
 {% block content %}
     {{ block.super }}
     {% if errors_exist %}
-        <div class="alert alert-danger" role="alert">
+        <div class="callout callout-danger" role="alert">
             <div class="d-flex align-items-center justify-content-between">
                 <div class="p-2">
                     {% if contributor_errors_exist %}
@@ -56,16 +56,22 @@
         {% csrf_token %}
 
         {% if small_evaluation_size_warning and not preview %}
-            <div class="card card-outline-warning mb-3">
-                <div class="card-header">
+            <div class="callout callout-warning">
+                <div class="callout-header">
                     <span class="fas fa-triangle-exclamation"></span> {% translate 'Small number of participants' %}
                 </div>
-                <div class="card-body tab-row">
-                    {% blocktranslate %}Only a small number of people can take part in this evaluation. You should be aware that contributors might be able to guess who voted for a specific answer and who wrote a text answer. Results will only be published if two or more people participated in the evaluation.{% endblocktranslate %}
+                <div class="callout-content tab-row">
+                    <p>
+                        {% blocktranslate trimmed %}
+                            Only a small number of people can take part in this evaluation.
+                            You should be aware that contributors might be able to guess who voted for a specific answer and who wrote a text answer.
+                            Results will only be published if {{ voter_count_needed_for_publishing_rating_results }} or more people participated in the evaluation.
+                        {% endblocktranslate %}
+                    </p>
                     {% if evaluation.num_voters == 0 %}
-                        <br />
-                        {% blocktranslate %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktranslate %}
-
+                        <p>
+                            {% blocktranslate %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktranslate %}
+                        </p>
                         <div class="form-check mt-3">
                             <input class="form-check-input tab-selectable" id="text_results_publish_confirmation_top" type="checkbox"
                                 name="text_results_publish_confirmation_top" />
@@ -75,6 +81,29 @@
                         </div>
                     {% endif %}
                 </div>
+            </div>
+        {% endif %}
+
+        {% if evaluation_form_group_dropout %}
+            <div class="card card-outline-warning mb-3">
+                <div class="card-header">
+                    <span class="fas fa-triangle-exclamation"></span> {% translate 'Dropout Questionnaire' %}
+                </div>
+                <div class="card-body">
+                    <p>
+                        {% blocktranslate trimmed %}
+                            You are marking this course as dropped. Your feedback on questions you can answer is still
+                            very welcome.
+                        {% endblocktranslate %}
+                    </p>
+                    {% include 'student_vote_questionnaire_group.html' with questionnaire_group=evaluation_form_group_dropout textanswers_visible_to=general_contribution_textanswers_visible_to preview=preview %}
+                </div>
+            </div>
+        {% endif %}
+
+        {% if not preview %}
+            <div class="callout callout-info">
+                {% blocktranslate trimmed %}Thank you for taking part in this evaluation. Please be polite and constructive in your feedback.{% endblocktranslate %}
             </div>
         {% endif %}
 
@@ -132,11 +161,11 @@
             </div>
         {% endif %}
         {% if small_evaluation_size_warning and not preview and evaluation.num_voters == 0 %}
-            <div class="card card-outline-warning mb-3" id="bottom_text_results_publish_confirmation_card">
-                <div class="card-header">
+            <div class="callout callout-warning mb-3" id="bottom_text_results_publish_confirmation_card">
+                <div class="callout-header">
                     <span class="fas fa-triangle-exclamation"></span> {% translate 'Small number of participants' %}
                 </div>
-                <div class="card-body tab-row">
+                <div class="callout-content tab-row">
                     {% blocktranslate %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktranslate %}
 
                     <div class="form-check mt-3">
@@ -173,12 +202,14 @@
 
 {% block additional_javascript %}
     {% if not preview %}
-        <script type="text/javascript" src="{% static 'js/sisyphus.min.js' %}"></script>
-
         {{ text_answer_warnings|text_answer_warning_trigger_strings|json_script:'text-answer-warnings' }}
 
         <script type="module">
-            import {initTextAnswerWarnings} from "{% static 'js/text-answer-warnings.js' %}";
+            import { AutoFormSaver } from "{% static 'js/auto-form-saver.js' %}";
+            import { CSRF_HEADERS } from "{% static 'js/csrf-utils.js' %}";
+            import { initTextAnswerWarnings } from "{% static 'js/text-answer-warnings.js' %}";
+            import { assert } from "{% static 'js/utils.js' %}";
+
             const lastSavedStorageKey = "student-vote-last-saved-at-{{ evaluation.id }}-{{ request.user.id }}";
             const textResultsPublishConfirmation = {
                 top: document.querySelector("#text_results_publish_confirmation_top"),
@@ -186,10 +217,7 @@
                 bottomCard: document.querySelector("#bottom_text_results_publish_confirmation_card"),
             };
 
-            var sisyphus = $("#student-vote-form").sisyphus({
-                locationBased: true,
-                excludeFields: $("input[type=hidden]"), // exclude the csrf token
-                autoRelease: false, // don't automatically release the data on submit, because the server might not receive the data
+            const formSaver = new AutoFormSaver(document.getElementById("student-vote-form"), {
                 customKeySuffix: "[user={{ request.user.id }}]", // don't load data for other users
                 onRestore: function () {
                     // restore publish confirmation state
@@ -250,7 +278,7 @@
 
             // save all data after loading the page
             // (the data gets deleted every time the form is submitted, i.e. also when the form had errors and is displayed again)
-            sisyphus.saveAllData();
+            formSaver.saveAllData();
 
             // Initialize lastSavedLabel and update it every second
             updateLastSavedLabel();
@@ -276,7 +304,7 @@
                     return response.text();
                 }).then(response_text => {
                     if(response_text === "{{ success_magic_string }}") {
-                        sisyphus.manuallyReleaseData();
+                        formSaver.releaseData();
                         window.location.replace("{{ success_redirect_url }}");
                     } else {
                         // resubmit without this handler to show the site with the form errors
@@ -309,7 +337,7 @@
                         clearChoiceError(radioInput);
                     });
 
-                    sisyphus.saveAllData();
+                    formSaver.saveAllData();
 
                     // hide questionnaire for contributor
                     const voteAreaCollapse = bootstrap.Collapse.getOrCreateInstance(voteArea);
@@ -376,7 +404,7 @@
                     // which would hide the bottom card.
                     // To keep the top checkbox checked (after a reload or submit), save the form manually.
                     textResultsPublishConfirmation.top.checked = textResultsPublishConfirmation.bottom.checked;
-                    sisyphus.saveAllData();
+                    formSaver.saveAllData();
                 });
             }
         </script>
