@@ -1,5 +1,6 @@
 import { CSRF_HEADERS } from "./csrf-utils.js";
 import { RangeSlider, Range } from "./slider.js";
+import { assert } from "./utils.js";
 
 declare const Sortable: typeof import("sortablejs");
 
@@ -31,7 +32,6 @@ interface DataGridParameters extends BaseParameters {
 abstract class DataGrid {
     private readonly storageKey: string;
     protected sortableHeaders: Map<string, HTMLElement>;
-    protected searchableColumnIndices: number[];
     protected container: HTMLElement;
     private searchInput: HTMLInputElement;
     protected rows: Row[] = [];
@@ -41,19 +41,12 @@ abstract class DataGrid {
     protected constructor({ storageKey, head, container, searchInput }: DataGridParameters) {
         this.storageKey = storageKey;
         this.sortableHeaders = new Map();
-        this.searchableColumnIndices = [];
 
         head.querySelectorAll<HTMLElement>(".col-order").forEach(header => {
             const column = header.dataset.col!;
             this.sortableHeaders.set(column, header);
         });
 
-        const headers = [...head.querySelectorAll<HTMLElement>("th")];
-        headers.forEach((header, index) => {
-            if (!header.hasAttribute("data-not-searchable")) {
-                this.searchableColumnIndices.push(index);
-            }
-        });
 
         this.container = container;
         this.searchInput = searchInput;
@@ -243,6 +236,7 @@ interface TableGridParameters extends BaseParameters {
 // Table based data grid which uses its head and body
 export class TableGrid extends DataGrid {
     private resetSearch: HTMLButtonElement;
+    private searchableColumnIndices: number[];
 
     constructor({ table, resetSearch, ...options }: TableGridParameters) {
         super({
@@ -251,6 +245,15 @@ export class TableGrid extends DataGrid {
             ...options,
         });
         this.resetSearch = resetSearch;
+        this.searchableColumnIndices = [];
+
+        const thead = table.querySelector("thead")!;
+        const headers = [...thead.querySelectorAll<HTMLElement>("th")];
+        headers.forEach((header, index) => {
+            if (!header.hasAttribute("data-not-searchable")) {
+                this.searchableColumnIndices.push(index);
+            }
+        });
     }
 
     public bindEvents() {
@@ -264,8 +267,11 @@ export class TableGrid extends DataGrid {
     }
 
     protected findSearchableCells(row: HTMLElement): HTMLElement[] {
-        const children = [...row.children] as HTMLElement[];
-        return this.searchableColumnIndices.map(index => children[index]).filter(cell => cell !== undefined);
+        return this.searchableColumnIndices.map(index => {
+            const child = row.children[index];
+            assert(child instanceof HTMLElement);
+            return child;
+        });
     }
 
     protected fetchRowFilterValues(_row: HTMLElement): Map<string, string[]> {
