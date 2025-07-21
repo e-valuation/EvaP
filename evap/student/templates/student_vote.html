@@ -309,8 +309,8 @@
                 });
             }
 
-            document.querySelectorAll("[data-mark-no-answers-for]").forEach(button => {
-                const contributorId = button.dataset.markNoAnswersFor;
+            document.querySelectorAll("[data-mark-no-answers-for]").forEach(markNoAnswerButton => {
+                const contributorId = markNoAnswerButton.dataset.markNoAnswersFor;
                 const voteArea = document.getElementById(`vote-area-${contributorId}`);
                 const markNoAnswerModal = voteArea.querySelector(".mark-no-answer-modal");
                 const textareaAnswerFields = voteArea.querySelectorAll(".vote-inputs textarea");
@@ -321,25 +321,32 @@
                         radioInput.checked = true;
                         clearChoiceError(radioInput);
                     });
-                    textareaAnswerFields.forEach((textarea) => {
-                        voteArea.querySelectorAll(".btn-textanswer").forEach(textanswerButton => {
-
-                        })
-                        textarea.value = "";
-                        textarea.dispatchEvent(new Event("input"));
-                    });
 
                     formSaver.saveAllData();
                     // Disable this button, until user changes a value
-                    button.classList.remove("tab-selectable");
-                    button.disabled = true;
+                    markNoAnswerButton.classList.remove("tab-selectable");
+                    markNoAnswerButton.disabled = true;
 
                     // hide questionnaire for contributor
                     const voteAreaCollapse = bootstrap.Collapse.getOrCreateInstance(voteArea);
                     voteAreaCollapse.hide();
                     collapseToggle.classList.add("tab-selectable");
+
+                    collapseEmptyTextanswerFields();
                 }
-                button.addEventListener("click", () => {
+                const collapseEmptyTextanswerFields = () => {
+                    textareaAnswerFields.forEach(textareaAnswerField => {
+                        if (textareaAnswerField.innerHTML.trim().length > 0) return;
+                        const parent = textareaAnswerField.closest('.row-question');
+                        console.log(parent);
+                        const button = parent.querySelector(".btn-textanswer");
+                        if (button === null) return;
+                        if (!button.classList.contains("collapsed")) {
+                            button.click();
+                        }
+                    });
+                };
+                markNoAnswerButton.addEventListener("click", () => {
                     const shouldShowModal = () => {
                         for (const textarea of textareaAnswerFields) {
                             if (textarea.value.trim() !== "") {
@@ -368,8 +375,8 @@
 
                 const enableMarkNoAnswerButton = () => {
                     collapseToggle.classList.remove("tab-selectable");
-                    button.classList.add("tab-selectable");
-                    button.disabled = false;
+                    markNoAnswerButton.classList.add("tab-selectable");
+                    markNoAnswerButton.disabled = false;
                 }
                 voteArea.querySelectorAll(".vote-inputs [type=radio]:not([value='6'])")
                     .forEach(radioInput => {
@@ -384,9 +391,11 @@
                 });
 
                 collapseToggle.addEventListener("click", () => {
-                    if (button.classList.contains("tab-selectable")) {
+                    if (markNoAnswerButton.classList.contains("tab-selectable")) {
                         collapseToggle.classList.remove("tab-selectable");
                     }
+                    console.log('here');
+                    collapseEmptyTextanswerFields();
                 });
             });
 
