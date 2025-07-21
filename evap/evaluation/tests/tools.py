@@ -158,6 +158,7 @@ def create_evaluation_with_responsible_and_editor():
         "course": baker.make(Course, programs=[baker.make(Program)], responsibles=[responsible]),
         "vote_start_datetime": in_one_hour,
         "vote_end_date": tomorrow,
+        "main_language": "en",
     }
 
     evaluation = baker.make(Evaluation, **evaluation_params)
