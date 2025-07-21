@@ -104,16 +104,3 @@ class EvaluationEditLiveTest(LiveServerTest):
         evaluation_table = self.selenium.find_element(By.ID, "evaluation-table")
         tds = evaluation_table.find_elements(By.TAG_NAME, "td")
         self.assertFalse(any("course name" in td.text for td in tds))
-
-    #     question1 = baker.make(Question, type=Question.Type.TEXT)
-    #     question2 = baker.make(Question, type=Question.Type.HEADING)
-    #     question3 = baker.make(Question, type=Question.Type.RATING)
-
-    #     questionnaire = baker.make(Questionnaire, questions=[question1, question2, question3])
-    #     course = baker.make(Course, questionnaires=[questionnaire])
-    #     evaluation = baker.make(Evaluation, course=course)
-
-    #     with self.enter_staff_mode():
-    #         self.selenium.get(self.live_server_url + reverse("staff:evaluation_edit", args=[evaluation.pk]))
-
-    # self.selenium.find_element(By.CSS_SELECTOR, "#id_questionnaires-0-questions-0-text_de").send_keys("test")
