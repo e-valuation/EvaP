@@ -47,7 +47,6 @@ abstract class DataGrid {
             this.sortableHeaders.set(column, header);
         });
 
-
         this.container = container;
         this.searchInput = searchInput;
         this.state = this.restoreStateFromStorage();
