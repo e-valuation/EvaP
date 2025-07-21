@@ -1,7 +1,8 @@
 import datetime
+import re
 import typing
 from abc import ABC, abstractmethod
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Callable
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, TypeVar
 from urllib.parse import quote
@@ -10,7 +11,8 @@ import xlwt
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation, ValidationError
 from django.db import DEFAULT_DB_ALIAS, connections
-from django.db.models import Model
+from django.db.models import Field, Model, Q
+from django.db.models.constraints import CheckConstraint
 from django.db.models.fields.mixins import FieldCacheMixin
 from django.forms.formsets import BaseFormSet
 from django.http import HttpRequest, HttpResponse
@@ -33,6 +35,53 @@ M = TypeVar("M", bound=Model)
 T = TypeVar("T")
 CellValue = str | int | float | None
 CV = TypeVar("CV", bound=CellValue)
+
+
+def choice_database_values_from_django_choices_spec(django_choices_spec: list[tuple]) -> list:
+    assert all(isinstance(element, tuple) for element in django_choices_spec)
+
+    result = []
+    for key, value in django_choices_spec:
+        # https://docs.djangoproject.com/en/5.2/ref/models/fields/
+        # > If a mapping is given, the key element is the actual value to be set on the model, and the second element is
+        # > the human readable name.
+        # > You can also collect your available choices into named groups that can be used for organizational purposes.
+        if isinstance(value, list | tuple):
+            result.extend(choice_database_values_from_django_choices_spec(value))
+        else:
+            # value should be str or Enum or django lazy translated string (last one hard to assert against)
+            result.append(key)
+
+    return result
+
+
+def inject_choices_constraint(model_locals: Mapping[str, Any]) -> Callable[[type], type]:
+    model_name = model_locals["__qualname__"]
+    assert re.match("[a-zA-Z]+", model_name), "deduced model name doesn't look like a pure class name"
+
+    def decorator(meta_cls):
+        """
+        This decorator is meant to decorate Meta classes within Django Model classes
+        It injects a constraint for each model field that has choices, enforcing that only
+        valid choice values are stored in the database.
+        See https://github.com/e-valuation/EvaP/pull/1776 for details
+        """
+        meta_cls.constraints = (
+            *(
+                CheckConstraint(
+                    condition=Q(
+                        **{f"{field_name}__in": choice_database_values_from_django_choices_spec(field._choices)}
+                    ),
+                    name=f"{model_name}_{field_name}_choices",
+                )
+                for (field_name, field) in model_locals.items()
+                if isinstance(field, Field) and field._choices is not None
+            ),
+            *getattr(meta_cls, "constraints", []),
+        )
+        return meta_cls
+
+    return decorator
 
 
 @contextmanager
