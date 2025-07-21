@@ -57,7 +57,7 @@
             packages = with pkgs; [
               (self.packages.${system}.python3)
               uv
-              postgresql
+              postgresql.pg_config
             ];
             env = {
               UV_NO_SYNC = "1";

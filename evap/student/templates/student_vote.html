@@ -103,6 +103,23 @@
             </div>
         {% endif %}
 
+        {% if evaluation_form_group_dropout %}
+            <div class="card card-outline-warning mb-3">
+                <div class="card-header">
+                    <span class="fas fa-triangle-exclamation"></span> {% translate 'Dropout Questionnaire' %}
+                </div>
+                <div class="card-body">
+                    <p>
+                        {% blocktranslate trimmed %}
+                            You are marking this course as dropped. Your feedback on questions you can answer is still
+                            very welcome.
+                        {% endblocktranslate %}
+                    </p>
+                    {% include 'student_vote_questionnaire_group.html' with questionnaire_group=evaluation_form_group_dropout textanswers_visible_to=general_contribution_textanswers_visible_to preview=preview %}
+                </div>
+            </div>
+        {% endif %}
+
         {% if not preview %}
             <div class="callout callout-info">
                 {% blocktranslate trimmed %}Thank you for taking part in this evaluation. Please be polite and constructive in your feedback.{% endblocktranslate %}

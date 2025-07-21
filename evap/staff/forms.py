@@ -324,6 +324,7 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore[misc]
         "voters",
         "votetimestamp",
         "cms_id",
+        "dropout_count",
     }
 
     CONTRIBUTION_COPIED_FIELDS = {
@@ -370,9 +371,15 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore[misc]
 
 class EvaluationForm(forms.ModelForm):
     general_questionnaires: "forms.ModelMultipleChoiceField[Questionnaire]" = forms.ModelMultipleChoiceField(
-        Questionnaire.objects.general_questionnaires().exclude(visibility=Questionnaire.Visibility.HIDDEN),
+        queryset=None,
         widget=CheckboxSelectMultiple,
         label=_("General questions"),
+    )
+    dropout_questionnaires: "forms.ModelMultipleChoiceField[Questionnaire]" = forms.ModelMultipleChoiceField(
+        queryset=None,
+        required=False,
+        widget=CheckboxSelectMultiple,
+        label=_("Dropout Questionnaires"),
     )
 
     class Meta:
@@ -391,6 +398,7 @@ class EvaluationForm(forms.ModelForm):
             "vote_end_date",
             "participants",
             "general_questionnaires",
+            "dropout_questionnaires",
         )
         localized_fields = ("vote_start_datetime", "vote_end_date")
         field_classes = {
@@ -403,11 +411,16 @@ class EvaluationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["course"].queryset = Course.objects.filter(semester=semester)
 
-        visible_questionnaires = Q(visibility__in=(Questionnaire.Visibility.MANAGERS, Questionnaire.Visibility.EDITORS))
+        visible_questionnaires = ~Q(visibility=Questionnaire.Visibility.HIDDEN)
         if self.instance.pk is not None:
             visible_questionnaires |= Q(contributions__evaluation=self.instance)
+
         self.fields["general_questionnaires"].queryset = (
             Questionnaire.objects.general_questionnaires().filter(visible_questionnaires).distinct()
+        )
+
+        self.fields["dropout_questionnaires"].queryset = (
+            Questionnaire.objects.dropout_questionnaires().filter(visible_questionnaires).distinct()
         )
 
         queryset = UserProfile.objects.exclude(is_active=False)
@@ -415,9 +428,12 @@ class EvaluationForm(forms.ModelForm):
             queryset = (queryset | self.instance.participants.all()).distinct()
         self.fields["participants"].queryset = queryset
 
-        if self.instance.general_contribution:
+        if general_contribution := self.instance.general_contribution:
             self.fields["general_questionnaires"].initial = [
-                q.pk for q in self.instance.general_contribution.questionnaires.all()
+                q.pk for q in general_contribution.questionnaires.all() if q.is_general
+            ]
+            self.fields["dropout_questionnaires"].initial = [
+                q.pk for q in general_contribution.questionnaires.all() if q.is_dropout
             ]
 
         if Evaluation.State.IN_EVALUATION <= self.instance.state <= Evaluation.State.REVIEWED:
@@ -479,7 +495,9 @@ class EvaluationForm(forms.ModelForm):
 
     def save(self, *args, **kw):
         evaluation = super().save(*args, **kw)
-        selected_questionnaires = self.cleaned_data.get("general_questionnaires")
+        selected_questionnaires = self.cleaned_data.get("general_questionnaires") | self.cleaned_data.get(
+            "dropout_questionnaires"
+        )
         removed_questionnaires = set(self.instance.general_contribution.questionnaires.all()) - set(
             selected_questionnaires
         )
@@ -942,7 +960,7 @@ class QuestionnairesAssignForm(forms.Form):
         contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().exclude(
             visibility=Questionnaire.Visibility.HIDDEN
         )
-        general_questionnaires = Questionnaire.objects.general_questionnaires().exclude(
+        non_contributor_questionnaires = Questionnaire.objects.non_contributor_questionnaires().exclude(
             visibility=Questionnaire.Visibility.HIDDEN
         )
 
@@ -950,7 +968,7 @@ class QuestionnairesAssignForm(forms.Form):
             self.fields[f"general-{course_type.id}"] = forms.ModelMultipleChoiceField(
                 label=course_type.name,
                 required=False,
-                queryset=general_questionnaires,
+                queryset=non_contributor_questionnaires,
             )
             self.fields[f"contributor-{course_type.id}"] = forms.ModelMultipleChoiceField(
                 label=course_type.name,

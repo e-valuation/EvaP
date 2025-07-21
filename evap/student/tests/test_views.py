@@ -3,9 +3,11 @@ from fractions import Fraction
 from functools import partial
 
 from django.test.utils import override_settings
+from django.urls import reverse
 from model_bakery import baker
 
 from evap.evaluation.models import (
+    NO_ANSWER,
     Answer,
     Contribution,
     Evaluation,
@@ -19,7 +21,7 @@ from evap.evaluation.models import (
     VoteTimestamp,
 )
 from evap.evaluation.tests.tools import FuzzyInt, WebTest, WebTestWith200Check
-from evap.student.tools import answer_field_id
+from evap.student.tools import answer_field_id, parse_answer_field_id
 from evap.student.views import SUCCESS_MAGIC_STRING
 
 
@@ -560,3 +562,139 @@ class TestVoteView(WebTest):
         query = TextAnswer.objects.raw("SELECT id, xmin FROM evaluation_textanswer")
         text_answer_xmins = [row.xmin for row in query]
         self.assertTrue(all(xmin == text_answer_xmins[0] for xmin in text_answer_xmins))
+
+
+class TestDropoutView(WebTest):
+    @classmethod
+    def setUpTestData(cls) -> None:
+        cls.user = baker.make(UserProfile, email="student@institution.example.com")
+        cls.user2 = baker.make(UserProfile, email="student2@institution.example.com")
+
+        cls.normal_question = baker.make(Question, type=QuestionType.EASY_DIFFICULT)
+        cls.dropout_question = baker.make(Question, type=QuestionType.POSITIVE_YES_NO)
+
+        cls.normal_questionnaire = baker.make(
+            Questionnaire,
+            type=Questionnaire.Type.TOP,
+            questions=[
+                baker.make(Question, type=QuestionType.TEXT),
+                cls.normal_question,
+            ],
+        )
+        cls.dropout_questionnaire = baker.make(
+            Questionnaire, type=Questionnaire.Type.DROPOUT, questions=[cls.dropout_question]
+        )
+
+        cls.evaluation = baker.make(
+            Evaluation, state=Evaluation.State.IN_EVALUATION, participants=[cls.user, cls.user2]
+        )
+
+        cls.evaluation.general_contribution.questionnaires.add(cls.dropout_questionnaire, cls.normal_questionnaire)
+
+    def assert_no_answer_set(self, form, dropout_questionnaire: Questionnaire):
+        for name, fields in form.fields.items():
+            if name is not None and name.startswith("question_"):
+                _, questionnaire_id, _, _ = parse_answer_field_id(name)
+                field = fields[0]
+
+                if field.tag == "textarea":
+                    self.assertEqual(
+                        field.value,
+                        "",
+                        "Answers to textarea-Questions in the general contribution should be empty",
+                    )
+                    continue
+
+                if questionnaire_id == dropout_questionnaire.id:
+                    self.assertIsNone(field.value, "dropout questionnaires should not be preselected")
+                    continue
+
+                self.assertEqual(
+                    field.value,
+                    str(NO_ANSWER),
+                    "Answers to Questions in the general contribution should be set to NO_ANSWER",
+                )
+
+    def test_choosing_dropout_sets_to_no_answer(self):
+        response = self.app.get(url=reverse("student:drop", args=[self.evaluation.id]), user=self.user, status=200)
+        form = response.forms["student-vote-form"]
+
+        self.assertIn(
+            answer_field_id(self.evaluation.general_contribution, self.dropout_questionnaire, self.dropout_question),
+            form.fields.keys(),
+            "The dropout Questionnaire should be shown",
+        )
+
+        self.assert_no_answer_set(form, dropout_questionnaire=self.dropout_questionnaire)
+
+    def test_dropout_possible_iff_dropout_questionnaire_attached(self):
+        self.assertTrue(self.evaluation.is_dropout_allowed)
+        self.assertTrue(
+            self.evaluation.general_contribution.questionnaires.filter(type=Questionnaire.Type.DROPOUT).exists()
+        )
+
+        normal_questionnaires = self.evaluation.general_contribution.questionnaires.exclude(
+            type=Questionnaire.Type.DROPOUT
+        ).all()
+        self.evaluation.general_contribution.questionnaires.set(normal_questionnaires)
+
+        self.assertFalse(self.evaluation.is_dropout_allowed)
+        self.assertFalse(
+            self.evaluation.general_contribution.questionnaires.filter(type=Questionnaire.Type.DROPOUT).exists()
+        )
+
+    def test_dropout_forbidden(self):
+        normal_questionnaires = self.evaluation.general_contribution.questionnaires.exclude(
+            type=Questionnaire.Type.DROPOUT
+        ).all()
+        self.evaluation.general_contribution.questionnaires.set(normal_questionnaires)
+
+        self.app.get(url=reverse("student:drop", args=[self.evaluation.id]), user=self.user, status=400)
+
+    def test_dropping_out_increments_dropout_counter(self):
+        self.assertEqual(self.evaluation.dropout_count, 0, "dropout count should be initially zero")
+
+        form = self.app.get(url=reverse("student:drop", args=[self.evaluation.id]), user=self.user, status=200).forms[
+            "student-vote-form"
+        ]
+        field_id = answer_field_id(
+            self.evaluation.general_contribution, self.dropout_questionnaire, self.dropout_question
+        )
+        form[field_id] = NO_ANSWER  # dropout question must be answered
+        form.submit()
+        self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
+
+        self.assertEqual(self.evaluation.dropout_count, 1, "dropout count should increment with dropout")
+
+        form = self.app.get(url=reverse("student:vote", args=[self.evaluation.id]), user=self.user2, status=200).forms[
+            "student-vote-form"
+        ]
+        form.submit()
+        self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
+
+        self.assertEqual(self.evaluation.dropout_count, 1, "dropout count should not change on normal vote")
+
+    def test_choice_fields_correctly_populated_by_server(self):
+        form = self.app.get(url=reverse("student:drop", args=[self.evaluation.id]), user=self.user, status=200).forms[
+            "student-vote-form"
+        ]
+
+        normal_question_id = answer_field_id(
+            self.evaluation.general_contribution, self.normal_questionnaire, self.normal_question
+        )
+        dropout_question_id = answer_field_id(
+            self.evaluation.general_contribution, self.dropout_questionnaire, self.dropout_question
+        )
+
+        self.assertEqual(form[normal_question_id].value, str(NO_ANSWER))
+        self.assertIsNone(form[dropout_question_id].value)
+
+        form[normal_question_id] = -1
+
+        # This form expected to be not submitted (not all questions are answered)
+        response = form.submit()
+        self.assertContains(response, "callout-danger")
+        form = response.forms["student-vote-form"]
+
+        self.assertEqual(form[normal_question_id].value, "-1")
+        self.assertIsNone(form[dropout_question_id].value)

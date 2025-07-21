@@ -1,0 +1,24 @@
+<div class="d-inline-flex">
+    {% if evaluation.is_dropout_allowed %}
+        <form method="get" action="{% url 'student:drop' evaluation.id %}" class="me-2">
+            <confirmation-modal type="submit" confirm-button-class="btn-danger">
+                <span slot="title">{% translate 'Did you drop this course?' %}</span>
+                <span slot="question">
+                    {% blocktranslate trimmed %}
+                        If you mark this course as dropped, you will still be able to provide feedback right now.
+                        Once you submitted the questionnaire, you can't submit it another time.
+                    {% endblocktranslate %}
+                </span>
+                <span slot="action-text">{% translate 'I dropped this course' %}</span>
+                <button type="button" slot="show-button" class="btn btn-sm btn-secondary"
+                        title="{% translate 'I dropped this course' %}"
+                        data-bs-toggle="tooltip" data-bs-placement="top">
+                    <span class="fas fa-user-xmark"></span>
+                </button>
+            </confirmation-modal>
+        </form>
+    {% endif %}
+    <a class="btn btn-sm btn-primary btn-row-hover" href="{% url 'student:vote' evaluation.id %}">
+        {% translate 'Evaluate' %}
+    </a>
+</div>

@@ -1855,7 +1855,7 @@ def evaluation_preview(request, evaluation_id):
     if evaluation.course.semester.results_are_archived and not request.user.is_manager:
         raise PermissionDenied
 
-    return render_vote_page(request, evaluation, preview=True)
+    return render_vote_page(request, evaluation, preview=True, dropout=False)
 
 
 @manager_required
@@ -1865,6 +1865,7 @@ def questionnaire_index(request):
     prefetch_list = ("questions", "contributions__evaluation")
     general_questionnaires = Questionnaire.objects.general_questionnaires().prefetch_related(*prefetch_list)
     contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().prefetch_related(*prefetch_list)
+    dropout_questionnaires = Questionnaire.objects.dropout_questionnaires().prefetch_related(*prefetch_list)
 
     if filter_questionnaires:
         general_questionnaires = general_questionnaires.exclude(visibility=Questionnaire.Visibility.HIDDEN)
@@ -1881,6 +1882,7 @@ def questionnaire_index(request):
         "general_questionnaires_top": general_questionnaires_top,
         "general_questionnaires_bottom": general_questionnaires_bottom,
         "contributor_questionnaires": contributor_questionnaires,
+        "dropout_questionnaires": dropout_questionnaires,
         "filter_questionnaires": filter_questionnaires,
     }
     return render(request, "staff_questionnaire_index.html", template_data)
@@ -1955,12 +1957,12 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
         for question_form in formset.forms:
             disable_all_except_named(question_form.fields, ["id"])
 
-        # disallow type changed from and to contributor
-        form.fields["type"].choices = [
-            choice
-            for choice in Questionnaire.Type.choices
-            if (choice[0] == Questionnaire.Type.CONTRIBUTOR) == (questionnaire.type == Questionnaire.Type.CONTRIBUTOR)
-        ]
+        # disallow type changed from and to contributor or dropout
+        single_types = [Questionnaire.Type.CONTRIBUTOR, Questionnaire.Type.DROPOUT]
+        if questionnaire.type in single_types:
+            form.fields["type"].choices = filter(lambda c: c[0] == questionnaire.type, form.fields["type"].choices)
+        else:
+            form.fields["type"].choices = filter(lambda c: c[0] not in single_types, form.fields["type"].choices)
 
     return form, formset
 
