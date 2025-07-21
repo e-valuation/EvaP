@@ -22884,6 +22884,7 @@
     "text_de": "Wieso hast du den Kurs abgewählt?",
     "text_en": "Why did you drop this course?",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -22896,6 +22897,7 @@
     "text_de": "Wirst du den Kurs nochmal belegen?",
     "text_en": "Will you take this course again?",
     "allows_additional_textanswers": true,
+    "counts_for_grade": false,
     "type": 3
   }
 },

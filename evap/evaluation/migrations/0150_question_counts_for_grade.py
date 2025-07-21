@@ -14,14 +14,14 @@ def set_initial_values(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("evaluation", "0148_course_cms_id_evaluation_cms_id"),
+        ("evaluation", "0149_evaluation_dropout_count_alter_questionnaire_type"),
     ]
 
     operations = [
         migrations.AddField(
             model_name="question",
             name="counts_for_grade",
-            field=models.BooleanField(default=True, verbose_name="counts toward the evaluations grade"),
+            field=models.BooleanField(default=True, verbose_name="counts toward the evaluation's grade"),
         ),
         migrations.RunPython(set_initial_values, reverse_code=migrations.RunPython.noop),
         migrations.AddConstraint(
