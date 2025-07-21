@@ -12,7 +12,7 @@ def _migrate(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("evaluation", "0148_course_cms_id_evaluation_cms_id"),
+        ("evaluation", "0149_evaluation_dropout_count_alter_questionnaire_type"),
     ]
 
     operations = [

@@ -586,7 +586,7 @@ class TestDropoutView(WebTest):
         )
 
         cls.evaluation = baker.make(
-            Evaluation, state=Evaluation.State.IN_EVALUATION, participants=[cls.user, cls.user2]
+            Evaluation, state=Evaluation.State.IN_EVALUATION, participants=[cls.user, cls.user2], main_language="en"
         )
 
         cls.evaluation.general_contribution.questionnaires.add(cls.dropout_questionnaire, cls.normal_questionnaire)
