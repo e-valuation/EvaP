@@ -136,6 +136,9 @@ a:not([href]):not(.disabled) {
 }
 
 .btn-switch-evaluation-language {
+    @include media-breakpoint-down(sm) {
+        width: 100%;
+    }
     .btn-group {
         .btn {
                 min-width: 38px;
