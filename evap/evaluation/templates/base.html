@@ -211,20 +211,10 @@
 
         <script type="module">
             import { setupForms } from "{% static 'js/custom-success-form.js' %}";
+            import { setupTomSelectCount } from "{% static 'js/tomselect-count.js' %}"
 
             setupForms();
-            document.querySelectorAll("[data-track-tomselect-count]").forEach(trackerElement => {
-                let trackedElement = document.getElementById(trackerElement.dataset.trackTomselectCount).tomselect;
-                trackedElement.on("item_add", function() {
-                    update_count(trackerElement, trackedElement);
-                });
-                trackedElement.on("item_remove", function() {
-                    update_count(trackerElement, trackedElement);
-                });
-                function update_count(trackerElement, trackedElement) {
-                    trackerElement.innerText = trackedElement.items.length;
-                }
-            });
+            setupTomSelectCount();
         </script>
 
         {% block additional_javascript %}{% endblock %}
