@@ -2,7 +2,11 @@ from datetime import date, datetime
 
 from model_bakery import baker
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.expected_conditions import element_to_be_clickable, visibility_of_element_located
+from selenium.webdriver.support.expected_conditions import (
+    element_to_be_clickable,
+    invisibility_of_element_located,
+    visibility_of_element_located,
+)
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Program, Question, Questionnaire, UserProfile
 from evap.evaluation.tests.tools import LiveServerTest
@@ -71,3 +75,45 @@ class EvaluationEditLiveTest(LiveServerTest):
         self.assertEqual(contribution1.order, 0)
         self.assertEqual(contribution1.role, Contribution.Role.EDITOR)
         self.assertEqual(contribution1.textanswer_visibility, Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+
+    def test_staff_semester_view_columns_not_searchable(self):
+        """Regression test for #2461"""
+
+        semester = baker.make("Semester")
+        course = baker.make(Course, semester=semester, name_en="course name")
+        baker.make(Evaluation, course=course, name_en="evaluation name")
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.live_server_url + reverse("staff:semester_view", args=[semester.pk]))
+
+        search_input = self.wait.until(
+            visibility_of_element_located((By.CSS_SELECTOR, "input[type='search'][name='search-evaluation']"))
+        )
+        search_input.clear()
+        search_input.send_keys("course name")
+
+        evaluation_table = self.wait.until(visibility_of_element_located((By.ID, "evaluation-table")))
+        tds = evaluation_table.find_elements(By.TAG_NAME, "td")
+        self.assertTrue(any("course name" in td.text for td in tds))
+
+        search_input.clear()
+        search_input.send_keys("exam")
+
+        self.wait.until(invisibility_of_element_located((By.XPATH, "//td[contains(text(),'course name')]")))
+
+        evaluation_table = self.selenium.find_element(By.ID, "evaluation-table")
+        tds = evaluation_table.find_elements(By.TAG_NAME, "td")
+        self.assertFalse(any("course name" in td.text for td in tds))
+
+    #     question1 = baker.make(Question, type=Question.Type.TEXT)
+    #     question2 = baker.make(Question, type=Question.Type.HEADING)
+    #     question3 = baker.make(Question, type=Question.Type.RATING)
+
+    #     questionnaire = baker.make(Questionnaire, questions=[question1, question2, question3])
+    #     course = baker.make(Course, questionnaires=[questionnaire])
+    #     evaluation = baker.make(Evaluation, course=course)
+
+    #     with self.enter_staff_mode():
+    #         self.selenium.get(self.live_server_url + reverse("staff:evaluation_edit", args=[evaluation.pk]))
+
+    # self.selenium.find_element(By.CSS_SELECTOR, "#id_questionnaires-0-questions-0-text_de").send_keys("test")
