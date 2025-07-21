@@ -141,22 +141,18 @@
                                         {% if evaluation.state != evaluation.State.PUBLISHED %}
                                             {% if evaluation|is_user_editor_or_delegate:user %}
                                                 {% if evaluation.state == evaluation.State.PREPARED %}
-                                                    <a href="{% url 'contributor:evaluation_edit' evaluation.id %}" class="btn btn-primary btn-row-hover"
-                                                        data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Edit or approve' %}">
+                                                    <a href="{% url 'contributor:evaluation_edit' evaluation.id %}" class="btn btn-primary btn-row-hover" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Edit or approve' %}">
                                                         <span class="fas fa-pencil"></span>
                                                     </a>
                                                     {% if not evaluation|has_nonresponsible_editor %}
-                                                        <form class="d-inline" method="POST"
-                                                              action="{% url 'contributor:evaluation_direct_delegation' evaluation.id %}">
+                                                        <form class="d-inline" method="POST" action="{% url 'contributor:evaluation_direct_delegation' evaluation.id %}">
                                                             {% csrf_token %}
 
                                                             <confirmation-modal type="submit">
                                                                 <span slot="title">{% translate 'Delegate preparation' %}</span>
                                                                 <span slot="action-text">{% translate 'Delegate preparation' %}</span>
                                                                 <span slot="question">
-                                                                    {% blocktranslate trimmed %}
-                                                                        Do you really want to delegate the preparation of the evaluation <strong data-label=""></strong>?
-                                                                    {% endblocktranslate %}
+                                                                    {% blocktranslate trimmed %}Do you really want to delegate the preparation of the evaluation <strong data-label=""></strong>?{% endblocktranslate %}
                                                                 </span>
                                                                 <div slot="extra-inputs">
                                                                     <div class="my-4">
@@ -164,11 +160,7 @@
                                                                     </div>
                                                                 </div>
 
-                                                                <button slot="show-button" class="btn btn-sm btn-dark"
-                                                                    title="{% translate 'Delegate preparation' %}"
-                                                                    data-bs-toggle="tooltip"
-                                                                    data-bs-placement="top"
-                                                                >
+                                                                <button slot="show-button" class="btn btn-sm btn-dark" title="{% translate 'Delegate preparation' %}" data-bs-toggle="tooltip" data-bs-placement="top">
                                                                     <span class="fas fa-hand-point-left"></span>
                                                                 </button>
                                                             </confirmation-modal>
