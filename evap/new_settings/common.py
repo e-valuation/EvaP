@@ -3,8 +3,12 @@
 import inspect
 import logging
 import sys
+from collections import defaultdict
+from collections.abc import Callable, Iterable
+from dataclasses import dataclass, field
 from datetime import timedelta
 from fractions import Fraction
+from functools import partial
 from graphlib import TopologicalSorter
 from pathlib import Path
 from typing import Any
@@ -15,30 +19,68 @@ import evap
 from evap.tools import MonthAndDay
 
 
-class LazySettings:
-    REQUIRED = object()
+@dataclass
+class Derived:
+    fn: Callable
+    prev: set[str]
+    final: set[str]
 
-    @classmethod
-    def resolve(cls):
-        sorter = TopologicalSorter()
-        resolved = {}
-        for name in dir(cls):
-            if name != name.upper():
-                continue
-            value = getattr(cls, name)
-            if callable(value):
-                sig = inspect.signature(value)
-                sorter.add(name, *sig.parameters)
+
+def derived(*, prev: set[str] | None = None, final: set[str] | None = None) -> Callable[[Callable], Derived]:
+    return partial(Derived, prev=prev or set(), final=final or set())
+
+
+@dataclass
+class UnresolvedSetting:
+    fn: Callable
+    dependencies: set[(str, int)] = field(default_factory=set)
+
+
+def iter_settings(namespace: Any) -> Iterable[str]:
+    return []
+
+
+def resolve(layers: list[Any]) -> dict[str, Any]:
+    sorter = TopologicalSorter[Any]()
+
+    unresolved = [{} for _ in range(len(layers))]
+    FINAL = object()
+
+    for index, layer in enumerate(layers):
+        for name in iter_settings(layer):
+            item = getattr(layer, name)
+            unresolved[index][name] = item
+
+            if isinstance(item, Derived):
+                deps = set()
+                for dep_name in item.prev:
+                    deps.add((max(i for i in range(index) if dep_name in unresolved[i]), dep_name))
+                for dep_name in item.final:
+                    deps.add((FINAL, dep_name))
+                sorter.add((index, name), *deps)
             else:
-                sorter.add(name)
-        for name in sorter.static_order():
-            fn = getattr(cls, name)
-            if callable(fn):
-                sig = inspect.signature(fn)
-                resolved[name] = fn(**{parameter_name: resolved[parameter_name] for parameter_name in sig.parameters})
+                sorter.add((index, name))
+
+    for name, unresolved_settings in unresolved.items():
+        for i, setting in enumerate(unresolved_settings):
+            if isinstance(setting, UnresolvedSetting):
+                sorter.add(
+                    (name, i),
+                    *(
+                        (name, index) if index != -1 else (name, len(unresolved[name]) - 1)
+                        for dep_name, index in setting.dependencies
+                    ),
+                )
             else:
-                resolved[name] = fn
-        return resolved
+                sorter.add((name, i))
+
+    resolved: dict[str, Any] = {}
+    for name, index in sorter.static_order():
+        pass
+    return resolved
+
+
+# globals().update(evap.settings.resolve([CommonSettings, DevSettings]))
 
 
 class ManifestStaticFilesStorageWithJsReplacement(ManifestStaticFilesStorage):
@@ -48,15 +90,15 @@ class ManifestStaticFilesStorageWithJsReplacement(ManifestStaticFilesStorage):
 class DefaultSettings(LazySettings):
     MODULE = Path(evap.__file__).parent
     CWD = Path.cwd().resolve()
-    DATADIR = lambda CWD: CWD / "data"
+
+    @derived(final={"CWD"})
+    @staticmethod
+    def DATADIR(prev, final):
+        return final.CWD / "data"
 
     ### Debugging
 
     DEBUG = LazySettings.REQUIRED
-
-    # Very helpful but eats a lot of performance on sql-heavy pages.
-    # Works only with DEBUG = True and Django's development server (so no apache).
-    ENABLE_DEBUG_TOOLBAR = False
 
     ### EvaP logic
 
@@ -202,53 +244,61 @@ class DefaultSettings(LazySettings):
     DEFAULT_FROM_EMAIL = "webmaster@localhost"
     REPLY_TO_EMAIL = DEFAULT_FROM_EMAIL
     SEND_ALL_EMAILS_TO_ADMINS_IN_BCC = False
-    if DEBUG:
-        EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-    LOGGING = lambda DATADIR: {
-        "version": 1,
-        "disable_existing_loggers": False,
-        "formatters": {
-            "default": {
-                "format": "[%(asctime)s] %(levelname)s: %(message)s",
+    @derived(prev={"EMAIL_BACKEND"}, final={"DEBUG"})
+    @staticmethod
+    def EMAIL_BACKEND(prev, final):
+        if final.DEBUG:
+            return "django.core.mail.backends.console.EmailBackend"
+        return prev.EMAIL_BACKEND
+
+    @derived(final={"DATADIR"})
+    @staticmethod
+    def LOGGING(prev, final):
+        return {
+            "version": 1,
+            "disable_existing_loggers": False,
+            "formatters": {
+                "default": {
+                    "format": "[%(asctime)s] %(levelname)s: %(message)s",
+                },
             },
-        },
-        "handlers": {
-            "file": {
-                "level": "DEBUG",
-                "class": "logging.handlers.RotatingFileHandler",
-                "filename": DATADIR / "evap.log",
-                "maxBytes": 1024 * 1024 * 10,
-                "backupCount": 5,
-                "formatter": "default",
+            "handlers": {
+                "file": {
+                    "level": "DEBUG",
+                    "class": "logging.handlers.RotatingFileHandler",
+                    "filename": final.DATADIR / "evap.log",
+                    "maxBytes": 1024 * 1024 * 10,
+                    "backupCount": 5,
+                    "formatter": "default",
+                },
+                "mail_admins": {
+                    "level": "ERROR",
+                    "class": "django.utils.log.AdminEmailHandler",
+                },
+                "console": {
+                    "class": "logging.StreamHandler",
+                    "formatter": "default",
+                },
             },
-            "mail_admins": {
-                "level": "ERROR",
-                "class": "django.utils.log.AdminEmailHandler",
+            "loggers": {
+                "django": {
+                    "handlers": ["console", "file", "mail_admins"],
+                    "level": "INFO",
+                    "propagate": True,
+                },
+                "evap": {
+                    "handlers": ["console", "file", "mail_admins"],
+                    "level": "DEBUG",
+                    "propagate": True,
+                },
+                "mozilla_django_oidc": {
+                    "handlers": ["console", "file", "mail_admins"],
+                    "level": "DEBUG",
+                    "propagate": True,
+                },
             },
-            "console": {
-                "class": "logging.StreamHandler",
-                "formatter": "default",
-            },
-        },
-        "loggers": {
-            "django": {
-                "handlers": ["console", "file", "mail_admins"],
-                "level": "INFO",
-                "propagate": True,
-            },
-            "evap": {
-                "handlers": ["console", "file", "mail_admins"],
-                "level": "DEBUG",
-                "propagate": True,
-            },
-            "mozilla_django_oidc": {
-                "handlers": ["console", "file", "mail_admins"],
-                "level": "DEBUG",
-                "propagate": True,
-            },
-        },
-    }
+        }
 
     ### Application definition
 
@@ -364,7 +414,10 @@ class DefaultSettings(LazySettings):
 
     USE_TZ = False
 
-    LOCALE_PATHS = [MODULE / "locale"]
+    @derived(final={"MODULE"})
+    @staticmethod
+    def LOCALE_PATHS(prev, final):
+        return [final.MODULE / "locale"]
 
     FORMAT_MODULE_PATH = ["evap.locale"]
 
@@ -426,6 +479,7 @@ class DefaultSettings(LazySettings):
     ]
 
     ### Allowed chosen first names / display names
+    @staticmethod
     def CHARACTER_ALLOWED_IN_NAME(character):  # pylint: disable=invalid-name
         return any(
             (
@@ -459,31 +513,13 @@ class DefaultSettings(LazySettings):
         "institution.example.com": "student.institution.example.com",
     }
 
-    ### Other
-
-    # Create a localsettings.py if you want to locally override settings
-    # and don't want the changes to appear in 'git status'.
-    try:
-        # localsettings file may or may not exist (for example in CI)
-
-        # the import can overwrite locals with a slightly different type (e.g. DATABASES), which is fine.
-        from evap.localsettings import *  # type: ignore  # noqa: F403,PGH003
-    except ImportError:
-        pass
-
     TEST_RUNNER = "evap.evaluation.tests.tools.EvapTestRunner"
     TESTING = "test" in sys.argv or "pytest" in sys.modules
 
     # speed up tests and activate typeguard introspection
     if TESTING:
-        from typeguard import install_import_hook
-
-        install_import_hook(("evap", "tools"))
-
         # do not use ManifestStaticFilesStorage as it requires running collectstatic beforehand
         STORAGES["staticfiles"]["BACKEND"] = "django.contrib.staticfiles.storage.StaticFilesStorage"
-
-        logging.disable(logging.CRITICAL)  # disable logging, primarily to prevent console spam
 
         # use the database for caching. it's properly reset between tests in constrast to redis,
         # and does not change behaviour in contrast to disabling the cache entirely.
@@ -505,6 +541,10 @@ class DefaultSettings(LazySettings):
 
         # give random char field values a reasonable length
         BAKER_CUSTOM_FIELDS_GEN = {"django.db.models.CharField": lambda: random_gen.gen_string(20)}
+
+    # Very helpful but eats a lot of performance on sql-heavy pages.
+    # Works only with DEBUG = True and Django's development server (so no apache).
+    ENABLE_DEBUG_TOOLBAR = False
 
     # Development helpers
     if DEBUG:
