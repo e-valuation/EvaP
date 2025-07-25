@@ -26,13 +26,12 @@
             {% else %}
                 {{ evaluation.full_name }}
             {% endif %}
-            {% if evaluation.is_single_result %} ({{ evaluation.vote_start_datetime|date }}){% endif %}
             {% if evaluation.state == evaluation.State.IN_EVALUATION %}
                 <span data-bs-toggle="tooltip" data-bs-placement="top" class="fas fa-play icon-gray" title="{% translate 'This evaluation is still running' %}"></span>
             {% elif evaluation.state == evaluation.State.EVALUATED %}
                 <span data-bs-toggle="tooltip" data-bs-placement="top" class="fas fa-chart-simple icon-blue" title="{% translate 'Results not yet published' %}"></span>
             {% elif evaluation.state == evaluation.State.REVIEWED %}
-                {% if evaluation.is_single_result or evaluation.grading_process_is_finished %}
+                {% if evaluation.grading_process_is_finished %}
                     <span data-bs-toggle="tooltip" data-bs-placement="top" class="fas fa-chart-simple icon-red" title="{% translate 'Results not yet published although grading process is finished' %}"></span>
                 {% else %}
                     <span data-bs-toggle="tooltip" data-bs-placement="top" class="fas fa-chart-simple icon-blue" title="{% translate 'Results not yet published' %}"></span>
@@ -51,13 +50,9 @@
         </div>
     {% endif %}
     <div data-col="voters" class="text-center" data-order="{{ evaluation|voters_order }}" data-filter-value="{{ evaluation.num_participants }}">
-        {% if evaluation.is_single_result %}
-            <span class="fas fa-user"></span>&nbsp;{{ evaluation.single_result_rating_result.count_sum }}
-        {% else %}
-            {% include 'progress_bar.html' with done=evaluation.num_voters total=evaluation.num_participants %}
-        {% endif %}
+        {% include 'progress_bar.html' with done=evaluation.num_voters total=evaluation.num_participants %}
     </div>
-    <div data-col="result"{% if not is_subentry %} data-order="{% if evaluation.is_single_result %}{{ evaluation.single_result_rating_result.average }}{% else %}{{ evaluation.avg_grade|default:7 }}{% endif %}"{% endif %}>
+    <div data-col="result"{% if not is_subentry %} data-order="{{ evaluation.avg_grade|default:7 }}"{% endif %}>
         {% if not evaluation.can_staff_see_average_grade %}
             <div class="d-flex" data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Evaluation result is not yet available.' %}">
                 {% include "distribution_with_grade_disabled.html" with icon="fas fa-hourglass" %}

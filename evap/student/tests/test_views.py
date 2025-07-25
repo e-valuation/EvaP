@@ -77,7 +77,6 @@ class TestStudentIndexView(WebTestWith200Check):
 
         # excluded
         make_evaluation(is_rewarded=False)
-        make_evaluation(is_single_result=True)
         make_evaluation(course__is_private=True)
         make_evaluation(id=1043)
         make_evaluation(course__type__id=1042)
