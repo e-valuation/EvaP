@@ -178,6 +178,7 @@ class TestResultsView(WebTest):
     def test_evaluation_weight_sums(self):
         """Regression test for #1691"""
         student = baker.make(UserProfile, email="student@institution.example.com")
+        participants = baker.make(UserProfile, _bulk_create=True, _quantity=2)
         course = baker.make(Course)
 
         published = baker.make(
@@ -186,13 +187,29 @@ class TestResultsView(WebTest):
             name_en=iter(["evaluation_1", "evaluation_2", "evaluation_3"]),
             state=iter([Evaluation.State.NEW, Evaluation.State.PUBLISHED, Evaluation.State.PUBLISHED]),
             weight=iter([8, 3, 4]),
-            is_single_result=True,
+            participants=participants,
+            voters=participants,
             _quantity=3,
             _fill_optional=["name_de"],
         )[1:]
 
+        questionnaire = baker.make(Questionnaire)
+        question_grade = baker.make(Question, questionnaire=questionnaire, type=QuestionType.GRADE)
+
         contributions = [e.general_contribution for e in published]
-        baker.make(RatingAnswerCounter, contribution=iter(contributions), answer=2, count=2, _quantity=len(published))
+        for contribution in contributions:
+            contribution.questionnaires.add(questionnaire)
+        baker.make(
+            RatingAnswerCounter,
+            contribution=iter(contributions),
+            question=question_grade,
+            answer=2,
+            count=2,
+            _quantity=len(published),
+        )
+
+        for evaluation in published:
+            cache_results(evaluation)
         update_template_cache(published)
 
         page = self.app.get(self.url, user=student)
@@ -459,48 +476,6 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
 
         url = f"/results/semester/{self.semester.id}/evaluation/{evaluation.id}"
         self.app.get(url, user=self.manager)
-
-    def test_unpublished_single_results_show_results(self) -> None:
-        """Regression test for #1621"""
-        # make regular evaluation with some answers
-        participants = baker.make(UserProfile, _bulk_create=True, _quantity=20)
-        evaluation = baker.make(
-            Evaluation,
-            state=Evaluation.State.REVIEWED,
-            course=baker.make(Course, semester=self.semester),
-            participants=participants,
-            voters=participants,
-        )
-        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        likert_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire, order=1)
-        evaluation.general_contribution.questionnaires.set([questionnaire])
-        make_rating_answer_counters(likert_question, evaluation.general_contribution)
-
-        # make single result
-        evaluation2: Evaluation = baker.make(
-            Evaluation,
-            state=Evaluation.State.REVIEWED,
-            course=evaluation.course,
-            is_single_result=True,
-            name_de="foo",
-            name_en="foo",
-            participants=participants,
-            voters=participants,
-        )
-        evaluation2.general_contribution.questionnaires.set([questionnaire])
-        make_rating_answer_counters(likert_question, evaluation2.general_contribution)
-
-        cache_results(evaluation)
-
-        url = f"/results/semester/{self.semester.id}/evaluation/{evaluation.id}"
-        response = self.app.get(url, user=self.manager)
-
-        # this one is the course result. The two evaluations shouldn't use this
-        self.assertTemplateUsed(response, "distribution_with_grade_disabled.html", count=1)
-        # Both evaluations should use this
-        self.assertTemplateUsed(response, "evaluation_result_widget.html", count=2)
-        # Both evaluations should use this, plus one for the questionnaire
-        self.assertTemplateUsed(response, "distribution_with_grade.html", count=3)
 
     def test_invalid_contributor_id(self):
         cache_results(self.evaluation)

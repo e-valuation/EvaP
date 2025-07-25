@@ -760,25 +760,6 @@ class TestEnrollmentImport(ImporterTestCase):
             ["Import aborted after exception: ''. No data was imported."],
         )
 
-    def test_existing_course_with_single_result(self):
-        __, existing_evaluation = self.create_existing_course()
-        existing_evaluation.is_single_result = True
-        existing_evaluation.save()
-
-        with assert_no_database_modifications():
-            importer_log = import_enrollments(
-                self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-            )
-
-        self.assertEqual({}, importer_log.warnings_by_category())
-        self.assertErrorIs(
-            importer_log,
-            ImporterLogEntry.Category.COURSE,
-            "Sheet &quot;BA Belegungen&quot;, row 2 and 1 other place: "
-            "Course &quot;Shake&quot; already exists in this semester, but the courses cannot be merged for the following reasons:<br /> "
-            "- the evaluation of the existing course is a single result",
-        )
-
     def test_existing_course_equal_except_evaluations(self):
         existing_course, __ = self.create_existing_course()
         baker.make(Evaluation, course=existing_course, name_de="Zweite Evaluation", name_en="Second Evaluation")
