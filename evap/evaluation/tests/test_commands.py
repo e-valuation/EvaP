@@ -364,30 +364,35 @@ class TestSendRemindersCommand(TestCase):
         self.assertEqual(mock.call_count, 0)
         self.assertEqual(len(mail.outbox), 0)
 
-    def test_remind_only_once_evaluation_started_yesterday(self):
-        user1 = baker.make(UserProfile)
-        user2 = baker.make(UserProfile)
-        baker.make(
+    def test_dont_remind_evaluation_started_yesterday(self):
+        user = baker.make(UserProfile)
+        recent_evaluation = baker.make(
             Evaluation,
             state=Evaluation.State.IN_EVALUATION,
             vote_start_datetime=datetime.now() - timedelta(days=1),
             vote_end_date=date.today() + timedelta(days=2),
-            participants=[user1],
-        )
-        evaluation = baker.make(
-            Evaluation,
-            state=Evaluation.State.IN_EVALUATION,
-            vote_start_datetime=datetime.now() - timedelta(days=2),
-            vote_end_date=date.today() + timedelta(days=2),
-            participants=[user2],
+            participants=[user],
         )
 
         with patch("evap.evaluation.models.EmailTemplate.send_reminder_to_user") as mock:
             management.call_command("send_reminders", stdout=StringIO())
 
-        self.assertEqual(mock.call_count, 1)
-        self.assertEqual(len(mail.outbox), 0)
-        mock.assert_called_once_with(user2, first_due_in_days=2, due_evaluations=[(evaluation, 2)])
+        mock.assert_not_called()
+
+        old_evaluation = baker.make(
+            Evaluation,
+            state=Evaluation.State.IN_EVALUATION,
+            vote_start_datetime=datetime.now() - timedelta(days=2),
+            vote_end_date=date.today() + timedelta(days=2),
+            participants=[user],
+        )
+
+        with patch("evap.evaluation.models.EmailTemplate.send_reminder_to_user") as mock2:
+            management.call_command("send_reminders", stdout=StringIO())
+
+        mock2.assert_called_once_with(
+            user, first_due_in_days=2, due_evaluations=[(recent_evaluation, 2), (old_evaluation, 2)]
+        )
 
     @override_settings(TEXTANSWER_REVIEW_REMINDER_WEEKDAYS=list(range(7)))
     def test_send_text_answer_review_reminder(self):
