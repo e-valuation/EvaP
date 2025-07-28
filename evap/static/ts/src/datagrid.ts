@@ -1,6 +1,6 @@
 import { CSRF_HEADERS } from "./csrf-utils.js";
 import { RangeSlider, Range } from "./slider.js";
-import { assert } from "./utils.js";
+import { assert, selectOrError } from "./utils.js";
 
 declare const Sortable: typeof import("sortablejs");
 
@@ -41,7 +41,6 @@ abstract class DataGrid {
     protected constructor({ storageKey, head, container, searchInput }: DataGridParameters) {
         this.storageKey = storageKey;
         this.sortableHeaders = new Map();
-
         head.querySelectorAll<HTMLElement>(".col-order").forEach(header => {
             const column = header.dataset.col!;
             this.sortableHeaders.set(column, header);
@@ -246,9 +245,8 @@ export class TableGrid extends DataGrid {
         this.resetSearch = resetSearch;
         this.searchableColumnIndices = [];
 
-        const thead = table.querySelector("thead")!;
-        const headers = [...thead.querySelectorAll<HTMLElement>("th")];
-        headers.forEach((header, index) => {
+        const thead = selectOrError("thead", table);
+        thead.querySelectorAll("th").forEach((header, index) => {
             if (!header.hasAttribute("data-not-searchable")) {
                 this.searchableColumnIndices.push(index);
             }
