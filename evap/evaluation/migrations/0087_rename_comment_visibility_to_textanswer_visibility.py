@@ -6,18 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0086_downgrade_comment_visibility'),
+        ("evaluation", "0086_downgrade_comment_visibility"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='contribution',
-            old_name='comment_visibility',
-            new_name='textanswer_visibility',
+            model_name="contribution",
+            old_name="comment_visibility",
+            new_name="textanswer_visibility",
         ),
         migrations.AlterField(
-            model_name='contribution',
-            name='textanswer_visibility',
-            field=models.CharField(choices=[('OWN', 'Own'), ('GENERAL', 'Own and general')], default='OWN', max_length=10, verbose_name='text answer visibility'),
+            model_name="contribution",
+            name="textanswer_visibility",
+            field=models.CharField(
+                choices=[("OWN", "Own"), ("GENERAL", "Own and general")],
+                default="OWN",
+                max_length=10,
+                verbose_name="text answer visibility",
+            ),
         ),
     ]

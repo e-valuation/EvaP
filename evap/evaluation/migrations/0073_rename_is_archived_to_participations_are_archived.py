@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0072_delete_original_answers'),
+        ("evaluation", "0072_delete_original_answers"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='semester',
-            old_name='is_archived',
-            new_name='participations_are_archived',
+            model_name="semester",
+            old_name="is_archived",
+            new_name="participations_are_archived",
         ),
         migrations.AlterField(
-            model_name='semester',
-            name='participations_are_archived',
-            field=models.BooleanField(default=False, verbose_name='participations are archived'),
+            model_name="semester",
+            name="participations_are_archived",
+            field=models.BooleanField(default=False, verbose_name="participations are archived"),
         ),
     ]

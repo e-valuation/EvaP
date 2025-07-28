@@ -4,14 +4,14 @@ from django.db import migrations, models
 
 
 def fill_role_from_can_edit(apps, _schema_editor):
-    Contribution = apps.get_model('evaluation', 'Contribution')
+    Contribution = apps.get_model("evaluation", "Contribution")
     for contribution in Contribution.objects.all():
         contribution.role = int(contribution.can_edit)
         contribution.save()
 
 
 def fill_can_edit_from_role(apps, _schema_editor):
-    Contribution = apps.get_model('evaluation', 'Contribution')
+    Contribution = apps.get_model("evaluation", "Contribution")
     for contribution in Contribution.objects.all():
         contribution.can_edit = contribution.role == 1
         contribution.save()
@@ -20,14 +20,14 @@ def fill_can_edit_from_role(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0114_remove_username'),
+        ("evaluation", "0114_remove_username"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='contribution',
-            name='role',
-            field=models.IntegerField(choices=[(0, 'Contributor'), (1, 'Editor')], default=0, verbose_name='role'),
+            model_name="contribution",
+            name="role",
+            field=models.IntegerField(choices=[(0, "Contributor"), (1, "Editor")], default=0, verbose_name="role"),
         ),
         migrations.RunPython(fill_role_from_can_edit, fill_can_edit_from_role),
     ]

@@ -1,8 +1,10 @@
 from django.db import migrations
 
-
 emailtemplates = [
-    ("Editor Review Reminder", "[EvaP] Reminder: Neue Lehrveranstaltungen stehen zur Überprüfung bereit / New Course ready for approval"),
+    (
+        "Editor Review Reminder",
+        "[EvaP] Reminder: Neue Lehrveranstaltungen stehen zur Überprüfung bereit / New Course ready for approval",
+    ),
 ]
 
 
@@ -23,7 +25,7 @@ def remove_emailtemplates(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0060_change_text_fields_to_char_fields'),
+        ("evaluation", "0060_change_text_fields_to_char_fields"),
     ]
 
     operations = [

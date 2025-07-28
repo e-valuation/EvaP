@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0051_change_question_order_verbose'),
+        ("evaluation", "0051_change_question_order_verbose"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='course',
-            name='is_private',
-            field=models.BooleanField(default=False, verbose_name='is private'),
+            model_name="course",
+            name="is_private",
+            field=models.BooleanField(default=False, verbose_name="is private"),
         ),
     ]

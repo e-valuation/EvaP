@@ -1,4 +1,5 @@
 import importlib
+
 from django.db import migrations
 
 original_migration_module = importlib.import_module("evap.evaluation.migrations.0145_rename_degree_to_program")

@@ -27,13 +27,13 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RenameModel(
-            old_name='Degree',
-            new_name='Program',
+            old_name="Degree",
+            new_name="Program",
         ),
         migrations.RenameField(
-            model_name='course',
-            old_name='degrees',
-            new_name='programs',
+            model_name="course",
+            old_name="degrees",
+            new_name="programs",
         ),
         migrations.AlterField(
             model_name="course",
@@ -45,5 +45,5 @@ class Migration(migrations.Migration):
             name="order",
             field=models.IntegerField(default=-1, verbose_name="program order"),
         ),
-        migrations.RunPython(logentries_degrees_to_programs, logentries_programs_to_degrees)
+        migrations.RunPython(logentries_degrees_to_programs, logentries_programs_to_degrees),
     ]

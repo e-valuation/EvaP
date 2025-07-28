@@ -6,28 +6,28 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('grades', '0007_semestergradedownloadactivation'),
+        ("grades", "0007_semestergradedownloadactivation"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='gradedocument',
-            old_name='description',
-            new_name='description_de',
+            model_name="gradedocument",
+            old_name="description",
+            new_name="description_de",
         ),
         migrations.AlterUniqueTogether(
-            name='gradedocument',
-            unique_together={('course', 'description_de')},
+            name="gradedocument",
+            unique_together={("course", "description_de")},
         ),
         migrations.AlterField(
-            model_name='gradedocument',
-            name='description_de',
-            field=models.CharField(max_length=255, verbose_name='description (german)'),
+            model_name="gradedocument",
+            name="description_de",
+            field=models.CharField(max_length=255, verbose_name="description (german)"),
         ),
         migrations.AddField(
-            model_name='gradedocument',
-            name='description_en',
-            field=models.CharField(default='some desx', max_length=255, verbose_name='description (english)'),
+            model_name="gradedocument",
+            name="description_en",
+            field=models.CharField(default="some desx", max_length=255, verbose_name="description (english)"),
             preserve_default=False,
         ),
     ]
