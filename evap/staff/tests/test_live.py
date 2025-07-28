@@ -71,3 +71,50 @@ class EvaluationEditLiveTest(LiveServerTest):
         self.assertEqual(contribution1.order, 0)
         self.assertEqual(contribution1.role, Contribution.Role.EDITOR)
         self.assertEqual(contribution1.textanswer_visibility, Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+
+
+# ruff: noqa: PGH003
+class ParticipantCollapseTests(LiveServerTest):
+    def test_collapse_with_participants(self) -> None:
+
+        participants = baker.make(UserProfile, _quantity=20)
+
+        responsible = baker.make(UserProfile)
+        evaluation = baker.make(
+            Evaluation,
+            course=baker.make(Course, programs=[baker.make(Program)], responsibles=[responsible]),
+            participants=participants,
+            vote_start_datetime=datetime(2099, 1, 1, 0, 0),
+            vote_end_date=date(2099, 12, 31),
+        )
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.live_server_url + reverse("staff:evaluation_edit", args=[evaluation.id]))
+
+        card_header = self.selenium.find_element(By.CSS_SELECTOR, ".card .card-header")
+        assert "collapsed" in card_header.get_attribute("class")  # type: ignore
+        card_header.click()
+        assert "collapsed" not in card_header.get_attribute("class")  # type: ignore
+
+        counter = card_header.find_element(By.CSS_SELECTOR, ".rounded-pill")
+        assert counter.get_attribute("innerText") == "20"
+
+    def test_collapse_without_participants(self) -> None:
+        responsible = baker.make(UserProfile)
+        evaluation = baker.make(
+            Evaluation,
+            course=baker.make(Course, programs=[baker.make(Program)], responsibles=[responsible]),
+            vote_start_datetime=datetime(2099, 1, 1, 0, 0),
+            vote_end_date=date(2099, 12, 31),
+        )
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.live_server_url + reverse("staff:evaluation_edit", args=[evaluation.id]))
+
+        card_header = self.selenium.find_element(By.CSS_SELECTOR, ".card .card-header")
+        assert "collapsed" not in card_header.get_attribute("class")  # type: ignore
+        card_header.click()
+        assert "collapsed" in card_header.get_attribute("class")  # type: ignore
+
+        counter = card_header.find_element(By.CSS_SELECTOR, ".rounded-pill")
+        assert counter.get_attribute("innerText") == "0"
