@@ -116,7 +116,8 @@
                         <div class="card collapsible{% if not forloop.last %} mb-3{% endif %}">
                             <div class="card-header d-flex tab-row">
                                 <div class="me-auto">
-                                    <button class="collapse-toggle{% if errors_exist and not contributor_has_errors %} collapsed tab-selectable{% endif %} bg-transparent" data-bs-toggle="collapse" data-bs-target="#vote-area-{{ contributor.id }}" aria-expanded="false" aria-controls="vote-area-{{ contributor.id }}" tabindex="-1" type="button">
+                                    <button class="collapse-toggle{% if errors_exist and not contributor_has_errors %} collapsed tab-selectable{% endif %} bg-transparent"
+                                        data-bs-toggle="collapse" data-bs-target="#vote-area-{{ contributor.id }}" aria-expanded="false" aria-controls="vote-area-{{ contributor.id }}" tabindex="-1" type="button">
                                         {{ contributor.full_name }}
                                         {% if label %} &ndash; <span class="fst-italic">{{ label }}</span>{% endif %}
                                     </button>
@@ -124,7 +125,7 @@
                             </div>
                             <div class="collapse{% if not errors_exist or contributor_has_errors %} show{% endif %}" id="vote-area-{{ contributor.id }}">
                                 <div class="card-body">
-                                    {% include 'student_vote_questionnaire_group.html' with questionnaire_group=form_group preview=preview textanswers_visible_to=textanswers_visible_to contributor=contributor %}
+                                    {% include 'student_vote_questionnaire_group.html' with questionnaire_group=form_group preview=preview textanswers_visible_to=textanswers_visible_to contributor=contributor%}
                                 </div>
                             </div>
                         </div>
@@ -243,10 +244,10 @@
                         timeStamp = padWithLeadingZeros(lastSavedDate.getHours()) + ":" + padWithLeadingZeros(lastSavedDate.getMinutes());
                     } else {
                         timeStamp = lastSavedDate.getFullYear() + "-"
-                            + padWithLeadingZeros(lastSavedDate.getMonth() + 1) + "-"
-                            + padWithLeadingZeros(lastSavedDate.getDate()) + " "
-                            + padWithLeadingZeros(lastSavedDate.getHours()) + ":"
-                            + padWithLeadingZeros(lastSavedDate.getMinutes());
+                        + padWithLeadingZeros(lastSavedDate.getMonth() + 1) + "-"
+                        + padWithLeadingZeros(lastSavedDate.getDate()) + " "
+                        + padWithLeadingZeros(lastSavedDate.getHours()) + ":"
+                        + padWithLeadingZeros(lastSavedDate.getMinutes());
                     }
                     lastSavedLabel.innerText = "{% translate 'Last saved locally' %}: " + timeStamp;
                 } else {
@@ -254,7 +255,7 @@
                 }
             }
 
-            function padWithLeadingZeros(number) {
+            function padWithLeadingZeros(number){
                 return number.toString().padStart(2, "0");
             }
 
@@ -285,7 +286,7 @@
                     assert(response.ok);
                     return response.text();
                 }).then(response_text => {
-                    if (response_text === "{{ success_magic_string }}") {
+                    if(response_text === "{{ success_magic_string }}") {
                         formSaver.releaseData();
                         window.location.replace("{{ success_redirect_url }}");
                     } else {
