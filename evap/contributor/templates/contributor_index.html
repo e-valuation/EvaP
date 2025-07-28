@@ -141,7 +141,8 @@
                                         {% if evaluation.state != evaluation.State.PUBLISHED %}
                                             {% if evaluation|is_user_editor_or_delegate:user %}
                                                 {% if evaluation.state == evaluation.State.PREPARED %}
-                                                    <a href="{% url 'contributor:evaluation_edit' evaluation.id %}" class="btn btn-primary btn-row-hover" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Edit or approve' %}">
+                                                    <a href="{% url 'contributor:evaluation_edit' evaluation.id %}" class="btn btn-primary btn-row-hover"
+                                                        data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Edit or approve' %}">
                                                         <span class="fas fa-pencil"></span>
                                                     </a>
                                                     {% if not evaluation|has_nonresponsible_editor %}
