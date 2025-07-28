@@ -8,7 +8,16 @@ from selenium.webdriver.support.expected_conditions import (
     visibility_of_element_located,
 )
 
-from evap.evaluation.models import Contribution, Course, Evaluation, Program, Question, Questionnaire, UserProfile
+from evap.evaluation.models import (
+    Contribution,
+    Course,
+    Evaluation,
+    Program,
+    Question,
+    Questionnaire,
+    Semester,
+    UserProfile,
+)
 from evap.evaluation.tests.tools import LiveServerTest
 
 
@@ -79,7 +88,7 @@ class EvaluationEditLiveTest(LiveServerTest):
     def test_staff_semester_view_columns_not_searchable(self):
         """Regression test for #2461"""
 
-        semester = baker.make("Semester")
+        semester = baker.make(Semester)
         course = baker.make(Course, semester=semester, name_en="course name")
         baker.make(Evaluation, course=course, name_en="evaluation name")
 
@@ -92,15 +101,11 @@ class EvaluationEditLiveTest(LiveServerTest):
         search_input.clear()
         search_input.send_keys("course name")
 
-        evaluation_table = self.wait.until(visibility_of_element_located((By.ID, "evaluation-table")))
-        tds = evaluation_table.find_elements(By.TAG_NAME, "td")
-        self.assertTrue(any("course name" in td.text for td in tds))
+        self.wait.until(visibility_of_element_located((By.ID, "evaluation-table")))
+        self.wait.until(visibility_of_element_located((By.XPATH, "//td//a[contains(text(),'course name')]")))
 
         search_input.clear()
         search_input.send_keys("exam")
 
-        self.wait.until(invisibility_of_element_located((By.XPATH, "//td[contains(text(),'course name')]")))
-
-        evaluation_table = self.selenium.find_element(By.ID, "evaluation-table")
-        tds = evaluation_table.find_elements(By.TAG_NAME, "td")
-        self.assertFalse(any("course name" in td.text for td in tds))
+        self.wait.until(visibility_of_element_located((By.ID, "evaluation-table")))
+        self.wait.until(invisibility_of_element_located((By.XPATH, "//td//a[contains(text(),'course name')]")))
