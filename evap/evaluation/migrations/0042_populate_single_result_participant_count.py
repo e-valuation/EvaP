@@ -2,17 +2,20 @@
 
 from django.db import migrations
 
-
 SINGLE_RESULT_QUESTIONNAIRE_NAME = "Single result"
 
 
 def is_single_result(course):
-    return course.contributions.get(responsible=True).questionnaires.filter(name_en=SINGLE_RESULT_QUESTIONNAIRE_NAME).exists()
+    return (
+        course.contributions.get(responsible=True)
+        .questionnaires.filter(name_en=SINGLE_RESULT_QUESTIONNAIRE_NAME)
+        .exists()
+    )
 
 
 def set_participant_count_on_single_results(apps, _schema_editor):
-    Course = apps.get_model('evaluation', 'Course')
-    RatingAnswerCounter = apps.get_model('evaluation', 'RatingAnswerCounter')
+    Course = apps.get_model("evaluation", "Course")
+    RatingAnswerCounter = apps.get_model("evaluation", "RatingAnswerCounter")
 
     for course in Course.objects.all():
         if not is_single_result(course):
@@ -21,7 +24,10 @@ def set_participant_count_on_single_results(apps, _schema_editor):
         ratinganswercounters = RatingAnswerCounter.objects.filter(contribution__course=course)
 
         assert len(ratinganswercounters) == 5
-        assert all(counter.question.questionnaire.name_en == SINGLE_RESULT_QUESTIONNAIRE_NAME for counter in ratinganswercounters)
+        assert all(
+            counter.question.questionnaire.name_en == SINGLE_RESULT_QUESTIONNAIRE_NAME
+            for counter in ratinganswercounters
+        )
 
         num_participants = sum(counter.count for counter in ratinganswercounters)
         course._participant_count = num_participants
@@ -32,7 +38,7 @@ def set_participant_count_on_single_results(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0041_populate_semester_is_archived'),
+        ("evaluation", "0041_populate_semester_is_archived"),
     ]
 
     operations = [

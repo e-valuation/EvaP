@@ -82,7 +82,6 @@ line-length = 120
 include = '(evap|tools).*\.pyi?$'
 extend-exclude = """\
     .*/urls\\.py|\
-    .*/migrations/.*\
 """
 
 ##############################################
@@ -92,7 +91,6 @@ profile = "black"
 src_paths = ["evap", "tools"]
 line_length = 120
 skip_gitignore = true
-extend_skip_glob = ["**/migrations/*"]
 
 ##############################################
 
@@ -119,7 +117,7 @@ pep8-naming.extend-ignore-names = ["assert*", "*Formset"]  # custom assert metho
 "**/migrations/*.py" = ["N806"]  # migrations have model classes as local variables, we use PascalCase for these
 
 [tool.ruff.format]
-exclude = ["**/urls.py", "**/migrations/*.py"]
+exclude = ["**/urls.py"]
 
 [tool.ruff.lint.flake8-tidy-imports.banned-api]
 "evap.settings".msg = "Use django.conf.settings instead."

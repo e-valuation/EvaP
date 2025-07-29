@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0100_clear_evaluation_names'),
+        ("evaluation", "0100_clear_evaluation_names"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='evaluation',
-            name='weight',
-            field=models.PositiveSmallIntegerField(default=1, verbose_name='weight'),
+            model_name="evaluation",
+            name="weight",
+            field=models.PositiveSmallIntegerField(default=1, verbose_name="weight"),
         ),
     ]

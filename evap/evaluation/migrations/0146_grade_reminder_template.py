@@ -1,8 +1,10 @@
 from django.db import migrations
 
-
 emailtemplates = [
-    ("Grade Reminder", "[EvaP] Notenveröffentlichung für {{semester.name_de}} / Grade publishing for {{semester.name_en}}"),
+    (
+        "Grade Reminder",
+        "[EvaP] Notenveröffentlichung für {{semester.name_de}} / Grade publishing for {{semester.name_en}}",
+    ),
 ]
 
 
@@ -23,7 +25,7 @@ def remove_emailtemplates(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0145_rename_degree_to_program'),
+        ("evaluation", "0145_rename_degree_to_program"),
     ]
 
     operations = [

@@ -4,7 +4,7 @@ from django.db import migrations, models
 
 
 def fill_answer_field(apps, _schema_editor):
-    TextAnswer = apps.get_model('evaluation', 'TextAnswer')
+    TextAnswer = apps.get_model("evaluation", "TextAnswer")
     for text_answer in TextAnswer.objects.all():
         if text_answer.reviewed_answer:
             text_answer.answer = text_answer.reviewed_answer
@@ -15,7 +15,7 @@ def fill_answer_field(apps, _schema_editor):
 
 
 def refill_reviewed_answer_field(apps, _schema_editor):
-    TextAnswer = apps.get_model('evaluation', 'TextAnswer')
+    TextAnswer = apps.get_model("evaluation", "TextAnswer")
     for text_answer in TextAnswer.objects.all():
         if text_answer.original_answer:
             text_answer.reviewed_answer = text_answer.answer
@@ -28,19 +28,19 @@ def refill_reviewed_answer_field(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0069_delete_hidden_text_answers'),
+        ("evaluation", "0069_delete_hidden_text_answers"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='textanswer',
-            name='answer',
-            field=models.TextField(blank=True, default="", verbose_name='answer'),
+            model_name="textanswer",
+            name="answer",
+            field=models.TextField(blank=True, default="", verbose_name="answer"),
         ),
         migrations.AlterField(
-            model_name='textanswer',
-            name='original_answer',
-            field=models.TextField(blank=True, null=True, verbose_name='original answer'),
+            model_name="textanswer",
+            name="original_answer",
+            field=models.TextField(blank=True, null=True, verbose_name="original answer"),
         ),
         migrations.RunPython(fill_answer_field, refill_reviewed_answer_field),
     ]

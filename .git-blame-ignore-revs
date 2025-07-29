@@ -6,3 +6,5 @@
 02ea57d2c33eb2801414982662acd8582e361d10
 # enforce pylint's `use-dict-literal`
 0d3fed856961fd453555637ada50080901160e9a
+# run formatters on migration files
+2cf3e4308ff4165e6c4c5983cb76d1bfcc685651

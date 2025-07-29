@@ -6,16 +6,20 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0113_import_names'),
+        ("evaluation", "0113_import_names"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='userprofile',
-            options={'ordering': ('last_name', 'first_name', 'email'), 'verbose_name': 'user', 'verbose_name_plural': 'users'},
+            name="userprofile",
+            options={
+                "ordering": ("last_name", "first_name", "email"),
+                "verbose_name": "user",
+                "verbose_name_plural": "users",
+            },
         ),
         migrations.RemoveField(
-            model_name='userprofile',
-            name='username',
+            model_name="userprofile",
+            name="username",
         ),
     ]
