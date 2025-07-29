@@ -1,5 +1,6 @@
 import { CSRF_HEADERS } from "./csrf-utils.js";
 import { RangeSlider, Range } from "./slider.js";
+import { assert, selectOrError } from "./utils.js";
 
 declare const Sortable: typeof import("sortablejs");
 
@@ -44,6 +45,7 @@ abstract class DataGrid {
             const column = header.dataset.col!;
             this.sortableHeaders.set(column, header);
         });
+
         this.container = container;
         this.searchInput = searchInput;
         this.state = this.restoreStateFromStorage();
@@ -232,6 +234,7 @@ interface TableGridParameters extends BaseParameters {
 // Table based data grid which uses its head and body
 export class TableGrid extends DataGrid {
     private resetSearch: HTMLButtonElement;
+    private searchableColumnIndices: number[];
 
     constructor({ table, resetSearch, ...options }: TableGridParameters) {
         super({
@@ -240,6 +243,14 @@ export class TableGrid extends DataGrid {
             ...options,
         });
         this.resetSearch = resetSearch;
+        this.searchableColumnIndices = [];
+
+        const thead = selectOrError("thead", table);
+        thead.querySelectorAll("th").forEach((header, index) => {
+            if (!header.hasAttribute("data-not-searchable")) {
+                this.searchableColumnIndices.push(index);
+            }
+        });
     }
 
     public bindEvents() {
@@ -253,7 +264,11 @@ export class TableGrid extends DataGrid {
     }
 
     protected findSearchableCells(row: HTMLElement): HTMLElement[] {
-        return [...row.children] as HTMLElement[];
+        return this.searchableColumnIndices.map(index => {
+            const child = row.children[index];
+            assert(child instanceof HTMLElement);
+            return child;
+        });
     }
 
     protected fetchRowFilterValues(row: HTMLElement): Map<string, string[]> {
