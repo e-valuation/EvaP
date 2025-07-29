@@ -158,6 +158,7 @@ class TestVoteView(WebTest):
             Evaluation,
             participants=[cls.voting_user1, cls.voting_user2, cls.contributor1],
             state=Evaluation.State.IN_EVALUATION,
+            main_language="en",
         )
         cls.url = f"/student/vote/{cls.evaluation.pk}"
 
@@ -585,7 +586,7 @@ class TestDropoutView(WebTest):
         )
 
         cls.evaluation = baker.make(
-            Evaluation, state=Evaluation.State.IN_EVALUATION, participants=[cls.user, cls.user2]
+            Evaluation, state=Evaluation.State.IN_EVALUATION, participants=[cls.user, cls.user2], main_language="en"
         )
 
         cls.evaluation.general_contribution.questionnaires.add(cls.dropout_questionnaire, cls.normal_questionnaire)
