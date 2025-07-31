@@ -3,14 +3,17 @@ from django.urls import reverse
 from model_bakery import baker
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
-from selenium.webdriver.support.expected_conditions import presence_of_element_located, visibility_of_element_located
+from selenium.webdriver.support.expected_conditions import (
+    presence_of_element_located,
+    staleness_of,
+    visibility_of_element_located,
+)
 
 from evap.evaluation.models import Contribution, Evaluation, Question, Questionnaire, QuestionType, UserProfile
 from evap.evaluation.tests.tools import LiveServerTest
 
 
 class StudentVoteLiveTest(LiveServerTest):
-
     def setUp(self) -> None:
         super().setUp()
         voting_user1 = baker.make(UserProfile, email="voting_user1@institution.example.com")
@@ -86,7 +89,9 @@ class StudentVoteLiveTest(LiveServerTest):
 
     def test_resolving_submit_errors_clears_warning(self) -> None:
         self.selenium.get(self.url)
-        self.wait.until(presence_of_element_located((By.ID, "vote-submit-btn"))).click()
+        submit_button = self.wait.until(presence_of_element_located((By.ID, "vote-submit-btn")))
+        submit_button.click()
+        self.wait.until(staleness_of(submit_button))  # ensure page has reloaded before continuing
 
         row = self.selenium.find_element(By.CSS_SELECTOR, "#student-vote-form .row:has(.btn-check)")
         checkbox = row.find_element(By.CSS_SELECTOR, "input[type=radio][value='2'] + label.choice-error")
