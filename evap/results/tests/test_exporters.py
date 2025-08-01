@@ -341,17 +341,6 @@ class TestExporters(TestCase):
         with self.assertRaises(AssertionError):
             ResultsExporter().export(BytesIO(), [evaluation.course.semester], [])
 
-    def test_exclude_single_result(self):
-        program = baker.make(Program)
-        evaluation = baker.make(
-            Evaluation, is_single_result=True, state=Evaluation.State.PUBLISHED, course__programs=[program]
-        )
-        cache_results(evaluation)
-        sheet = self.get_export_sheet(evaluation.course.semester, program, [evaluation.course.type.id])
-        self.assertEqual(
-            len(sheet.row_values(0)), 1, "There should be no column for the evaluation, only the row description"
-        )
-
     def test_exclude_used_but_unanswered_questionnaires(self):
         program = baker.make(Program)
         evaluation = baker.make(

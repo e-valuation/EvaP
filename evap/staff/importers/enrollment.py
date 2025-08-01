@@ -354,10 +354,6 @@ class CourseMergeLogic:
         if merge_candidate_evaluation.wait_for_grade_upload_before_publishing != course_data.is_graded:
             hindrances.append(_("the evaluation of the existing course has a mismatching grading specification"))
 
-        if merge_candidate_evaluation.is_single_result:
-            hindrances.append(_("the evaluation of the existing course is a single result"))
-            return hindrances
-
         if merge_candidate_evaluation.state >= Evaluation.State.IN_EVALUATION:
             hindrances.append(
                 _("the import would add participants to the existing evaluation but the evaluation is already running")
