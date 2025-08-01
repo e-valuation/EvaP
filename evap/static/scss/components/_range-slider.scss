@@ -2,6 +2,10 @@ section.range-slider {
     position: relative;
     height: 45px;
     text-align: center;
+
+    .label {
+        min-width: 20%;
+    }
 }
 
 section.range-slider input {
