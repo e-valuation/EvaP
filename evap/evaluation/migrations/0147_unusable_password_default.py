@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
         ("evaluation", "0146_grade_reminder_template"),
     ]
 
-    operations = {
+    operations = [
         migrations.AlterField(
             model_name="userprofile",
             name="password",
@@ -22,4 +22,4 @@ class Migration(migrations.Migration):
                 verbose_name="password",
             ),
         ),
-    }
+    ]
