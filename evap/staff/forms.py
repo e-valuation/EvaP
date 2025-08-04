@@ -925,6 +925,8 @@ class QuestionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance.pk and self.instance.type in [QuestionType.TEXT, QuestionType.HEADING]:
+            # The disabled attribute on a field would prevent this field from being saved,
+            # so we use the widget attrs instead
             self.fields["allows_additional_textanswers"].widget.attrs["disabled"] = "disabled"
             self.fields["counts_for_grade"].widget.attrs["disabled"] = "disabled"
 
