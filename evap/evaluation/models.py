@@ -23,6 +23,7 @@ from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
 from django.db.models import CheckConstraint, Count, Exists, F, Manager, OuterRef, Q, QuerySet, Subquery, Value
 from django.db.models.functions import Coalesce, Lower, NullIf, TruncDate
+from django.db.models.signals import m2m_changed
 from django.dispatch import Signal, receiver
 from django.http import HttpRequest
 from django.template import Context, Template
@@ -1100,6 +1101,65 @@ def log_state_transition(instance, name, source: int, target: int, **_kwargs):
         Evaluation.State(target).label,
         name,
     )
+
+
+class ParticipantImportOverrideStatusChoices(models.TextChoices):
+    MANUALLY_ADDED = "manually_added", _("manually added")
+    MANUALLY_REMOVED = "manually_removed", _("manually removed")
+
+
+class ParticipantImportOverride(models.Model):
+    evaluation = models.ForeignKey(
+        Evaluation, on_delete=models.CASCADE, related_name="participant_overrides", verbose_name=_("evaluation")
+    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name=_("user"))
+    status = models.CharField(choices=ParticipantImportOverrideStatusChoices.choices, verbose_name=_("status"))
+
+    class Meta:
+        verbose_name = _("participant import override")
+        verbose_name_plural = _("participant import overrides")
+
+
+@receiver(m2m_changed, sender=Evaluation.participants.through)
+def update_participant_import_override(
+    # pylint: disable=unused-argument, redefined-outer-name
+    sender,
+    instance: Evaluation,
+    action,
+    reverse,
+    model,
+    pk_set: set[int],
+    using,
+    **_kwargs,
+):
+    if not instance.cms_id:
+        return
+
+    overrides = []
+    if action == "post_add":
+        user_profiles = UserProfile.objects.filter(pk__in=pk_set)
+        overrides.extend(
+            ParticipantImportOverride(
+                evaluation=instance, user=user, status=ParticipantImportOverrideStatusChoices.MANUALLY_ADDED
+            )
+            for user in user_profiles
+        )
+    elif action == "post_remove":
+        manually_added_and_now_removed = ParticipantImportOverride.objects.filter(
+            user__in=pk_set, status=ParticipantImportOverrideStatusChoices.MANUALLY_ADDED
+        )
+        pks_manually_added_and_now_removed = set(manually_added_and_now_removed.values_list("user__pk", flat=True))
+        manually_added_and_now_removed.delete()
+
+        user_profiles = UserProfile.objects.filter(pk__in=pk_set - pks_manually_added_and_now_removed)
+        overrides.extend(
+            ParticipantImportOverride(
+                evaluation=instance, user=user, status=ParticipantImportOverrideStatusChoices.MANUALLY_REMOVED
+            )
+            for user in user_profiles
+        )
+
+    ParticipantImportOverride.objects.bulk_create(overrides, ignore_conflicts=True)
 
 
 class Contribution(LoggedModel):
