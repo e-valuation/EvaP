@@ -21176,7 +21176,7 @@
     "text_de": "Das Projekt hat mir Spaß/Freude bereitet.",
     "text_en": "I enjoyed the project.",
     "allows_additional_textanswers": true,
-    "counts_for_grade": true,
+    "counts_for_grade": false,
     "type": 1
   }
 },
