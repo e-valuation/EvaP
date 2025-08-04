@@ -6,17 +6,21 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0063_add_heading_question_type'),
+        ("evaluation", "0063_add_heading_question_type"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='questionnaire',
-            options={'ordering': ('is_for_contributors', 'order', 'name_de'), 'verbose_name': 'questionnaire', 'verbose_name_plural': 'questionnaires'},
+            name="questionnaire",
+            options={
+                "ordering": ("is_for_contributors", "order", "name_de"),
+                "verbose_name": "questionnaire",
+                "verbose_name_plural": "questionnaires",
+            },
         ),
         migrations.RenameField(
-            model_name='questionnaire',
-            old_name='index',
-            new_name='order',
+            model_name="questionnaire",
+            old_name="index",
+            new_name="order",
         ),
     ]

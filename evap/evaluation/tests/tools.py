@@ -19,7 +19,9 @@ from django.test.selenium import SeleniumTestCase
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone, translation
 from model_bakery import baker
+from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.webdriver import WebDriver
+from selenium.webdriver.support.expected_conditions import staleness_of
 from selenium.webdriver.support.wait import WebDriverWait
 
 from evap.evaluation.models import (
@@ -321,6 +323,12 @@ class LiveServerTest(SeleniumTestCase):
     @property
     def wait(self) -> WebDriverWait:
         return WebDriverWait(self.selenium, 10)
+
+    @contextmanager
+    def wait_until_page_reloads(self):
+        html_element = self.selenium.find_element(By.TAG_NAME, "html")
+        yield
+        self.wait.until(staleness_of(html_element))
 
     @classmethod
     def setUpClass(cls) -> None:

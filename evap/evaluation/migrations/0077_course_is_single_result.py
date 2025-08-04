@@ -6,9 +6,11 @@ from evap.evaluation import models as evap_models
 
 
 def populate_is_single_result(apps, _schema_editor):
-    Course = apps.get_model('evaluation', 'Course')
+    Course = apps.get_model("evaluation", "Course")
     for course in Course.objects.all():
-        if course.contributions.filter(responsible=True, questionnaires__name_en=evap_models.Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME).exists():
+        if course.contributions.filter(
+            responsible=True, questionnaires__name_en=evap_models.Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME
+        ).exists():
             course.is_single_result = True
             course.save()
 
@@ -16,17 +18,14 @@ def populate_is_single_result(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0076_add_semester_short_names'),
+        ("evaluation", "0076_add_semester_short_names"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='course',
-            name='is_single_result',
-            field=models.BooleanField(default=False, verbose_name='is single result'),
+            model_name="course",
+            name="is_single_result",
+            field=models.BooleanField(default=False, verbose_name="is single result"),
         ),
-        migrations.RunPython(
-            populate_is_single_result,
-            reverse_code=migrations.RunPython.noop
-        ),
+        migrations.RunPython(populate_is_single_result, reverse_code=migrations.RunPython.noop),
     ]

@@ -2096,6 +2096,18 @@ class TestEvaluationExamCreation(WebTestStaffMode):
         with assert_no_database_modifications():
             self.app.post(self.url, user=self.manager, status=400, params=self.params)
 
+    def test_exam_evaluation_for_already_existing_exam_evaluation_without_default_en_name(self):
+        baker.make(Evaluation, course=self.course, name_en="Test", name_de="Klausur")
+        self.assertTrue(self.evaluation.has_exam_evaluation)
+        with assert_no_database_modifications():
+            self.app.post(self.url, user=self.manager, status=400, params=self.params)
+
+    def test_exam_evaluation_for_already_existing_exam_evaluation_without_default_de_name(self):
+        baker.make(Evaluation, course=self.course, name_en="Exam", name_de="Prüfung")
+        self.assertTrue(self.evaluation.has_exam_evaluation)
+        with assert_no_database_modifications():
+            self.app.post(self.url, user=self.manager, status=400, params=self.params)
+
     def test_exam_evaluation_with_wrong_date(self):
         self.evaluation.vote_start_datetime = datetime.datetime.now() + datetime.timedelta(days=100)
         self.evaluation.vote_end_date = datetime.date.today() + datetime.timedelta(days=150)

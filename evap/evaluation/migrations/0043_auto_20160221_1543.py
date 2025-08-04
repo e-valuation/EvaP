@@ -7,18 +7,25 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0042_populate_single_result_participant_count'),
+        ("evaluation", "0042_populate_single_result_participant_count"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='course',
-            name='participants',
-            field=models.ManyToManyField(blank=True, related_name='courses_participating_in', to=settings.AUTH_USER_MODEL, verbose_name='participants'),
+            model_name="course",
+            name="participants",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="courses_participating_in",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="participants",
+            ),
         ),
         migrations.AlterField(
-            model_name='course',
-            name='voters',
-            field=models.ManyToManyField(blank=True, related_name='courses_voted_for', to=settings.AUTH_USER_MODEL, verbose_name='voters'),
+            model_name="course",
+            name="voters",
+            field=models.ManyToManyField(
+                blank=True, related_name="courses_voted_for", to=settings.AUTH_USER_MODEL, verbose_name="voters"
+            ),
         ),
     ]

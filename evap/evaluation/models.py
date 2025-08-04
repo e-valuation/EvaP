@@ -506,7 +506,7 @@ class Evaluation(LoggedModel):
 
     @property
     def has_exam_evaluation(self):
-        return self.course.evaluations.filter(name_de="Klausur", name_en="Exam").exists()
+        return self.course.evaluations.filter(Q(name_de="Klausur") | Q(name_en="Exam")).exists()
 
     @property
     def earliest_possible_exam_date(self):

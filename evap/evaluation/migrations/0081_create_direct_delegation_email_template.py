@@ -19,7 +19,7 @@ def remove_emailtemplate(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0080_add_order_to_coursetype'),
+        ("evaluation", "0080_add_order_to_coursetype"),
     ]
 
     operations = [

@@ -6,12 +6,16 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0038_questionnaire_staff_only'),
+        ("evaluation", "0038_questionnaire_staff_only"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='questionnaire',
-            options={'ordering': ('is_for_contributors', 'index', 'name_de'), 'verbose_name': 'questionnaire', 'verbose_name_plural': 'questionnaires'},
+            name="questionnaire",
+            options={
+                "ordering": ("is_for_contributors", "index", "name_de"),
+                "verbose_name": "questionnaire",
+                "verbose_name_plural": "questionnaires",
+            },
         ),
     ]
