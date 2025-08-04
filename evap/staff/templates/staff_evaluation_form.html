@@ -4,63 +4,67 @@
 
 {% block content %}
     {{ block.super }}
-    <h3>
-        {% if evaluation_form.instance.id %}
-            {{ evaluation.full_name }} ({{ evaluation.course.semester.name }})
-        {% else %}
-            {% translate 'Create evaluation' %}
-        {% endif %}
-    </h3>
-    {% if evaluation_form.instance.id %}
-        <div class="mb-2">
-            {% with approval_state_values=evaluation.state|approval_state_values %}
-                <span class="badge bg-light"><span class="{{ approval_state_values.icon }}"></span> {{ approval_state_values.description }}</span>
-            {% endwith %}
-            {% include 'course_badges.html' with course=evaluation.course %}
-        </div>
-        {% if editable %}
-            {% if questionnaires_with_answers_per_contributor %}
-                <div class="alert alert-danger">{% translate 'You are editing an evaluation, for which answers have already been received. If you remove any of the questionnaires highlighted in red below, all related answers will be permanently deleted.' %}</div>
-            {% endif %}
-            {% if state == evaluation.State.IN_EVALUATION %}
-                <div class="alert alert-warning">{% translate 'You are editing an evaluation, which is already running. Please note that only the participants who did not evaluate yet will see your changes.' %}</div>
-            {% endif %}
-            {% if state == evaluation.State.EVALUATED or state == evaluation.State.REVIEWED %}
-                <div class="alert alert-warning">{% translate 'You are editing an evaluation, for which the evaluation already finished. Please be careful to not destroy any results.' %}</div>
-            {% endif %}
-            {% if state == evaluation.State.NEW or state == evaluation.State.PREPARED %}
-                <div class="alert alert-warning">{% translate 'You are editing an evaluation which has not been approved by the editor yet.' %}</div>
-            {% endif %}
-        {% endif %}
-    {% endif %}
-    <form id="evaluation-form" method="POST" class="form-horizontal multiselect-form tomselectform">
-        {% csrf_token %}
-
-        <div class="card mb-3">
-            <div class="card-body">
-                {% include 'evaluation_form_fields.html' with evaluation=evaluation evaluation_form=evaluation_form %}
-            </div>
-        </div>
-        <div class="card mb-3">
-            <div class="card-body table-responsive">
-                {% include 'contribution_formset.html' with formset=formset manager=True editable=editable %}
-            </div>
-        </div>
-
-        {% if editable %}
-        <div class="card card-submit-area card-submit-area-small{% if state <= evaluation.State.EDITOR_APPROVED %} card-submit-area-2{% endif %} text-center mb-3 sticky-lg-bottom">
-            <div class="card-body">
-                <button name="operation" value="save" type="submit" class="btn btn-sm btn-primary">{% translate 'Save' %}</button>
-                {% if state == evaluation.State.NEW or state == evaluation.State.PREPARED or state == evaluation.State.EDITOR_APPROVED %}
-                    <button name="operation" value="approve" type="submit" class="btn btn-sm btn-success">{% translate 'Save and approve' %}</button>
+    <div class="row flex-grow-1 overflow-hidden">
+        <div class="col-12 col-xl-8 mh-100 overflow-auto">
+            <h3 class="pt-2">
+                {% if evaluation_form.instance.id %}
+                    {{ evaluation.full_name }} ({{ evaluation.course.semester.name }})
+                {% else %}
+                    {% translate 'Create evaluation' %}
                 {% endif %}
-            </div>
+            </h3>
+            {% if evaluation_form.instance.id %}
+                <div class="mb-2">
+                    {% with approval_state_values=evaluation.state|approval_state_values %}
+                        <span class="badge bg-light"><span class="{{ approval_state_values.icon }}"></span> {{ approval_state_values.description }}</span>
+                    {% endwith %}
+                    {% include 'course_badges.html' with course=evaluation.course %}
+                </div>
+                {% if editable %}
+                    {% if questionnaires_with_answers_per_contributor %}
+                        <div class="alert alert-danger">{% translate 'You are editing an evaluation, for which answers have already been received. If you remove any of the questionnaires highlighted in red below, all related answers will be permanently deleted.' %}</div>
+                    {% endif %}
+                    {% if state == evaluation.State.IN_EVALUATION %}
+                        <div class="alert alert-warning">{% translate 'You are editing an evaluation, which is already running. Please note that only the participants who did not evaluate yet will see your changes.' %}</div>
+                    {% endif %}
+                    {% if state == evaluation.State.EVALUATED or state == evaluation.State.REVIEWED %}
+                        <div class="alert alert-warning">{% translate 'You are editing an evaluation, for which the evaluation already finished. Please be careful to not destroy any results.' %}</div>
+                    {% endif %}
+                    {% if state == evaluation.State.NEW or state == evaluation.State.PREPARED %}
+                        <div class="alert alert-warning">{% translate 'You are editing an evaluation which has not been approved by the editor yet.' %}</div>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+            <form id="evaluation-form" method="POST" class="form-horizontal multiselect-form tomselectform">
+                {% csrf_token %}
+
+                <div class="card mb-3">
+                    <div class="card-body">
+                        {% include 'evaluation_form_fields.html' with evaluation=evaluation evaluation_form=evaluation_form %}
+                    </div>
+                </div>
+                <div class="card mb-3">
+                    <div class="card-body table-responsive">
+                        {% include 'contribution_formset.html' with formset=formset manager=True editable=editable %}
+                    </div>
+                </div>
+
+                {% if editable %}
+                <div class="card card-submit-area card-submit-area-small{% if state <= evaluation.State.EDITOR_APPROVED %} card-submit-area-2{% endif %} text-center mb-3 sticky-lg-bottom">
+                    <div class="card-body">
+                        <button name="operation" value="save" type="submit" class="btn btn-sm btn-primary">{% translate 'Save' %}</button>
+                        {% if state == evaluation.State.NEW or state == evaluation.State.PREPARED or state == evaluation.State.EDITOR_APPROVED %}
+                            <button name="operation" value="approve" type="submit" class="btn btn-sm btn-success">{% translate 'Save and approve' %}</button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </form>
         </div>
-        {% endif %}
-
-        {% include 'log/logentries.html' with logged_object=evaluation %}
-
-    </form>
+        <div class="col-12 col-xl-4 mh-100 overflow-auto">
+            {% include 'log/logentries.html' with logged_object=evaluation %}
+        </div>
+    </div>
 {% endblock %}
 
 {% block additional_javascript %}
