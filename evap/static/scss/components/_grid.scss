@@ -231,6 +231,11 @@
     }
 }
 
+.grid-no-items-text {
+    background-color: $table-striped-bg;
+    padding: .5rem;
+}
+
 @each $col in name, semester, responsible, voters, result, answer, edit, review, flag, state-approval, state-evaluating, state-textanswers, state-results, period, responsibles, tags, buttons, checkbox, responses {
     [data-col=#{$col}] {
         grid-area: $col;
