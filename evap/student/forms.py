@@ -29,7 +29,7 @@ class TextAnswerField(forms.CharField):
 
 
 class RatingAnswerField(forms.TypedChoiceField):
-    def __init__(self, widget_choices, *args, allows_textanswer=False, counts_for_grade=True, **kwargs):
+    def __init__(self, widget_choices, *args, allows_textanswer, counts_for_grade, **kwargs):
         self.allows_textanswer = allows_textanswer
         self.counts_for_grade = counts_for_grade
         kwargs["coerce"] = int
