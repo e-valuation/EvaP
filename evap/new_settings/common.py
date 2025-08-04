@@ -1,14 +1,8 @@
 # ruff: noqa: E731, N803
 
-import inspect
 import sys
-from collections import defaultdict
-from collections.abc import Callable, Iterable
-from dataclasses import dataclass, field
 from datetime import timedelta
 from fractions import Fraction
-from functools import partial
-from graphlib import TopologicalSorter
 from pathlib import Path
 from typing import Any
 
@@ -16,77 +10,14 @@ from django.contrib.staticfiles.storage import ManifestStaticFilesStorage
 
 import evap
 from evap.tools import MonthAndDay
-
-
-@dataclass
-class Derived:
-    fn: Callable
-    prev: set[str]
-    final: set[str]
-
-
-def derived(*, prev: set[str] | None = None, final: set[str] | None = None) -> Callable[[Callable], Derived]:
-    return partial(Derived, prev=prev or set(), final=final or set())
-
-
-@dataclass
-class UnresolvedSetting:
-    fn: Callable
-    dependencies: set[(str, int)] = field(default_factory=set)
-
-
-def iter_settings(namespace: Any) -> Iterable[str]:
-    return []
-
-
-def resolve(layers: list[Any]) -> dict[str, Any]:
-    sorter = TopologicalSorter[Any]()
-
-    unresolved = [{} for _ in range(len(layers))]
-    FINAL = object()
-
-    for index, layer in enumerate(layers):
-        for name in iter_settings(layer):
-            item = getattr(layer, name)
-            unresolved[index][name] = item
-
-            if isinstance(item, Derived):
-                deps = set()
-                for dep_name in item.prev:
-                    deps.add((max(i for i in range(index) if dep_name in unresolved[i]), dep_name))
-                for dep_name in item.final:
-                    deps.add((FINAL, dep_name))
-                sorter.add((index, name), *deps)
-            else:
-                sorter.add((index, name))
-
-    for name, unresolved_settings in unresolved.items():
-        for i, setting in enumerate(unresolved_settings):
-            if isinstance(setting, UnresolvedSetting):
-                sorter.add(
-                    (name, i),
-                    *(
-                        (name, index) if index != -1 else (name, len(unresolved[name]) - 1)
-                        for dep_name, index in setting.dependencies
-                    ),
-                )
-            else:
-                sorter.add((name, i))
-
-    resolved: dict[str, Any] = {}
-    for name, index in sorter.static_order():
-        pass
-    return resolved
-
-
-# globals().update(evap.settings.resolve([CommonSettings, DevSettings]))
+from evap.new_settings.lazy import derived, required, dependent
 
 
 class ManifestStaticFilesStorageWithJsReplacement(ManifestStaticFilesStorage):
     support_js_module_import_aggregation = True
 
 
-class DefaultSettings(LazySettings):
+class DefaultSettings:
     MODULE = Path(evap.__file__).parent
     CWD = Path.cwd().resolve()
 
@@ -97,7 +28,7 @@ class DefaultSettings(LazySettings):
 
     ### Debugging
 
-    DEBUG = LazySettings.REQUIRED
+    DEBUG = required()
 
     ### EvaP logic
 
@@ -195,7 +126,7 @@ class DefaultSettings(LazySettings):
     ]
 
     # The page URL that is used in email templates.
-    PAGE_URL = "localhost:8000"
+    PAGE_URL = required()
 
     DATABASES = {
         "default": {
@@ -233,16 +164,19 @@ class DefaultSettings(LazySettings):
         },
     }
 
-    CONTACT_EMAIL = "webmaster@localhost"
+    CONTACT_EMAIL = required()
     ALLOW_ANONYMOUS_FEEDBACK_MESSAGES = True
-    LEGAL_NOTICE_TEXT = (
-        "Objection! (this is a default setting that the administrators should change, please contact them)"
-    )
+    LEGAL_NOTICE_TEXT = required()
 
     # Config for mail system
-    DEFAULT_FROM_EMAIL = "webmaster@localhost"
-    REPLY_TO_EMAIL = DEFAULT_FROM_EMAIL
-    SEND_ALL_EMAILS_TO_ADMINS_IN_BCC = False
+    DEFAULT_FROM_EMAIL = required()
+
+    @derived(final={"DEFAULT_FROM_EMAIL"})
+    @staticmethod
+    def REPLY_TO_EMAIL(prev, final):
+        return final.DEFAULT_FROM_EMAIL
+
+    SEND_ALL_EMAILS_TO_ADMINS_IN_BCC = required()
 
     @derived(prev={"EMAIL_BACKEND"}, final={"DEBUG"})
     @staticmethod
@@ -431,17 +365,24 @@ class DefaultSettings(LazySettings):
     STATIC_URL = "/static/"
 
     # Additional locations of static files
-    STATICFILES_DIRS = lambda MODULE: [
-        MODULE / "static",
-    ]
+    @derived(final={"MODULE"})
+    @staticmethod
+    def STATICFILES_DIRS(prev, final):
+        return [final.MODULE / "static"]
 
     # Absolute path to the directory static files should be collected to.
-    STATIC_ROOT = lambda DATADIR: DATADIR / "static_collected"
+    @derived(final={"DATADIR"})
+    @staticmethod
+    def STATIC_ROOT(prev, final):
+        return final.DATADIR / "static_collected"
 
     ### User-uploaded files
 
     # Absolute filesystem path to the directory that will hold user-uploaded files.
-    MEDIA_ROOT = lambda DATADIR: DATADIR / "upload"
+    @derived(final={"DATADIR"})
+    @staticmethod
+    def MEDIA_ROOT(prev, final):
+        return final.DATADIR / "upload"
 
     ### Evaluation progress rewards
     GLOBAL_EVALUATION_PROGRESS_REWARDS: list[
@@ -488,9 +429,12 @@ class DefaultSettings(LazySettings):
             )
         )
 
-    ### OpenID Login
-    # replace 'example.com', OIDC_RP_CLIENT_ID and OIDC_RP_CLIENT_SECRET with real values in localsettings when activating
     ACTIVATE_OPEN_ID_LOGIN = False
+
+class OpenIdSettings:
+    ACTIVATE_OPEN_ID_LOGIN = required()
+
+    # replace 'example.com', OIDC_RP_CLIENT_ID and OIDC_RP_CLIENT_SECRET with real values in localsettings when activating
     OIDC_RENEW_ID_TOKEN_EXPIRY_SECONDS = 60 * 60 * 24 * 7  # one week
     OIDC_RP_SIGN_ALGO = "RS256"
     OIDC_USERNAME_ALGO = ""
@@ -511,53 +455,3 @@ class DefaultSettings(LazySettings):
     OIDC_EMAIL_TRANSITIONS: dict[str, str] = {
         "institution.example.com": "student.institution.example.com",
     }
-
-    TEST_RUNNER = "evap.evaluation.tests.tools.EvapTestRunner"
-    TESTING = "test" in sys.argv or "pytest" in sys.modules
-
-    # speed up tests and activate typeguard introspection
-    if TESTING:
-        # do not use ManifestStaticFilesStorage as it requires running collectstatic beforehand
-        STORAGES["staticfiles"]["BACKEND"] = "django.contrib.staticfiles.storage.StaticFilesStorage"
-
-        # use the database for caching. it's properly reset between tests in constrast to redis,
-        # and does not change behaviour in contrast to disabling the cache entirely.
-        CACHES = {
-            "default": {
-                "BACKEND": "django.core.cache.backends.db.DatabaseCache",
-                "LOCATION": "testing_cache_default",
-            },
-            "results": {
-                "BACKEND": "django.core.cache.backends.db.DatabaseCache",
-                "LOCATION": "testing_cache_results",
-            },
-            "sessions": {
-                "BACKEND": "django.core.cache.backends.db.DatabaseCache",
-                "LOCATION": "testing_cache_sessions",
-            },
-        }
-        from model_bakery import random_gen
-
-        # give random char field values a reasonable length
-        BAKER_CUSTOM_FIELDS_GEN = {"django.db.models.CharField": lambda: random_gen.gen_string(20)}
-
-    # Very helpful but eats a lot of performance on sql-heavy pages.
-    # Works only with DEBUG = True and Django's development server (so no apache).
-    ENABLE_DEBUG_TOOLBAR = False
-
-    # Development helpers
-    if DEBUG:
-        INSTALLED_APPS += ["evap.development"]
-
-        # Django debug toolbar settings
-        if not TESTING and ENABLE_DEBUG_TOOLBAR:
-            INSTALLED_APPS += ["debug_toolbar"]
-            MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
-
-            def show_toolbar(request):
-                return True
-
-            DEBUG_TOOLBAR_CONFIG = {
-                "SHOW_TOOLBAR_CALLBACK": "evap.settings.show_toolbar",
-                "JQUERY_URL": "",
-            }
