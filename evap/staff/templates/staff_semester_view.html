@@ -489,7 +489,7 @@
                         });
                     </script>
 
-                    <div id="my-thing">
+                    <div id="course-grid">
                         <div class="grid-header course-grid-row">
                             <button class="col-order" data-col="name">{% translate 'Course' %}</button>
                             <button class="col-order" data-col="responsible">{% translate 'Responsible' %}</button>
@@ -497,60 +497,61 @@
                             <span></span>
                         </div>
 
-                        {% for course in courses %}
-                        	<div class="course-grid-row" id="course-row-{{ course.id }}">
-                                <div data-order="{{ course.name|lower }}">
-                                    <a data-col="name" href="{% url 'staff:course_edit' course.id %}">{{ course.name }}</a>
+                        <div class="grid-body">
+                            {% for course in courses %}
+                                <div class="course-grid-row" id="course-row-{{ course.id }}">
+                                    <div data-order="{{ course.name|lower }}">
+                                        <a data-col="name" href="{% url 'staff:course_edit' course.id %}">{{ course.name }}</a>
 
-                                    <div data-col="badges">
-                                        {% include 'course_badges.html' %}
+                                        <div data-col="badges">
+                                            {% include 'course_badges.html' %}
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div data-col="responsible" data-order="{{ course.responsibles.first.last_name|lower }}" class="fst-italic">
-                                    {{ course.responsibles_names }}
-                                </div>
+                                    <div data-col="responsible" data-order="{{ course.responsibles.first.last_name|lower }}" class="fst-italic">
+                                        {{ course.responsibles_names }}
+                                    </div>
 
-                                <div data-col="evaluation-count" data-order="{{ course.evaluations.count }}">
-                                    {% if course.evaluations.count == 0 %}
-                                        <span class="badge bg-warning">{% translate 'No evaluations' %}</span>
-                                    {% else %}
-                                        {{ course.evaluations.count }}
-                                    {% endif %}
-                                </div>
+                                    <div data-col="evaluation-count" data-order="{{ course.evaluations.count }}">
+                                        {% if course.evaluations.count == 0 %}
+                                            <span class="badge bg-warning">{% translate 'No evaluations' %}</span>
+                                        {% else %}
+                                            {{ course.evaluations.count }}
+                                        {% endif %}
+                                    </div>
 
-                                <div class="icon-buttons">
-                                    {% if request.user.is_manager %}
-                                        <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
-                                            href="{% url 'staff:evaluation_create_for_course' course.id %}"
-                                            title="{% translate 'Create evaluation for this course' %}">
-                                            <span class="fas fa-clipboard-check"></span>
+                                    <div class="icon-buttons">
+                                        {% if request.user.is_manager %}
+                                            <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
+                                                href="{% url 'staff:evaluation_create_for_course' course.id %}"
+                                                title="{% translate 'Create evaluation for this course' %}">
+                                                <span class="fas fa-clipboard-check"></span>
                                         </a>
                                         <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
                                             href="{% url 'staff:course_copy' course.id %}"
                                             title="{% translate 'Copy course' %}">
                                             <span class="fas fa-copy"></span>
                                         </a>
-                                    {% endif %}
-                                    {% if course.can_be_deleted_by_manager %}
-                                        <confirmation-modal type="submit" form="course-deletion-form" name="course_id" value="{{ course.id }}" confirm-button-class="btn-danger">
-                                            <span slot="title">{% translate 'Delete course' %}</span>
-                                            <span slot="action-text">{% translate 'Delete course' %}</span>
-                                            <span slot="question">
-                                                {% blocktranslate trimmed with course_name=course.name %}
-                                                    Do you really want to delete the course <strong>{{ course_name }}</strong>?
-                                                {% endblocktranslate %}
-                                            </span>
+                                        {% endif %}
+                                        {% if course.can_be_deleted_by_manager %}
+                                            <confirmation-modal type="submit" form="course-deletion-form" name="course_id" value="{{ course.id }}" confirm-button-class="btn-danger">
+                                                <span slot="title">{% translate 'Delete course' %}</span>
+                                                <span slot="action-text">{% translate 'Delete course' %}</span>
+                                                <span slot="question">
+                                                    {% blocktranslate trimmed with course_name=course.name %}
+                                                        Do you really want to delete the course <strong>{{ course_name }}</strong>?
+                                                    {% endblocktranslate %}
+                                                </span>
 
-                                            <button slot="show-button" type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Delete' %}">
-                                                <span class="fas fa-trash" aria-hidden="true"></span>
-                                            </button>
-                                        </confirmation-modal>
-                                    {% endif %}
+                                                <button slot="show-button" type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Delete' %}">
+                                                    <span class="fas fa-trash" aria-hidden="true"></span>
+                                                </button>
+                                            </confirmation-modal>
+                                        {% endif %}
+                                    </div>
                                 </div>
-                            </div>
-                        {% endfor %}
-
+                            {% endfor %}
+                        </div>
                     </div>
 
                 {% else %}
@@ -566,28 +567,28 @@
 
 {% block additional_javascript %}
     <script type="text/javascript">
-        var overviewCard = document.getElementById('overviewCard');
-        var overviewCardCollapse = new bootstrap.Collapse(overviewCard, {
+        const overviewCard = document.getElementById('overviewCard');
+        const overviewCardCollapse = new bootstrap.Collapse(overviewCard, {
             toggle: localStorage['show_overview'] === 'true'
         });
 
         function saveCollapseState() {
-            var state = localStorage['show_overview'] === 'true';
+            const state = localStorage['show_overview'] === 'true';
             localStorage['show_overview'] = (!state).toString();
         }
         document.getElementById("collapseOverviewCardButton").addEventListener("click", saveCollapseState);
 
-        if(localStorage['selected_tab'] === 'courses') {
-            var coursesTab = document.getElementById('coursesTab');
-            var coursesTabTrigger = new bootstrap.Tab(coursesTab);
+        if(localStorage['selected_tab'] === 'course') {
+            const coursesTab = document.getElementById('coursesTab');
+            const coursesTabTrigger = new bootstrap.Tab(coursesTab);
             coursesTabTrigger.show();
         }
 
         function saveSelectedTab(tab) {
             localStorage['selected_tab'] = tab;
         }
-        document.getElementById("evaluationsTab").addEventListener("click", () => saveSelectedTab("evaluations"));
-        document.getElementById("coursesTab").addEventListener("click", () => saveSelectedTab("courses"));
+        document.getElementById("evaluationsTab").addEventListener("click", () => saveSelectedTab("evaluation"));
+        document.getElementById("coursesTab").addEventListener("click", () => saveSelectedTab("course"));
 
         window.addEventListener("pageshow", () => {
             document.querySelectorAll('#evaluation_operation_form input[type=checkbox]').forEach(checkbox => {checkbox.checked = false;}); // prevent wrong autofills
@@ -600,27 +601,21 @@
             document.querySelectorAll('#evaluation_operation_form input[type=checkbox][name=evaluation]').forEach(c => {c.checked = false;}));
     </script>
     <script type="module">
-       import {EvaluationGrid, TableGrid} from "{% static 'js/datagrid.js' %}";
-       const evaluationGrid = document.querySelector("#evaluation-grid");
-       if (evaluationGrid) {
-           new EvaluationGrid({
-               storageKey: "evaluation-semester-{{ semester.id }}-data-grid",
-               table: evaluationGrid,
-               searchInput: document.querySelector("input[name=search-evaluation]"),
-               filterButtons: [...document.querySelectorAll("#evaluation-filter-buttons [data-filter]")],
-               resetSearch: document.querySelector("[data-reset=search-evaluation]"),
-               head: document.querySelector("#evaluation-grid .grid-header"),
-               container: document.querySelector("#evaluation-grid .grid-body")
-           }).init();
-       }
-       const courseTable = document.querySelector("#course-table");
-       if (courseTable) {
-           new TableGrid({
-               storageKey: "course-semester-{{ semester.id }}-data-grid",
-               table: courseTable,
-               searchInput: document.querySelector("input[name=search-course]"),
-               resetSearch: document.querySelector("[data-reset=search-course]"),
-           }).init();
-       }
+        import {EvaluationGrid} from "{% static 'js/datagrid.js' %}";
+
+        const tab = localStorage.getItem('selected_tab');
+        const dataGrid = document.querySelector(`#${tab}-grid`)
+
+        if (dataGrid) {
+            new EvaluationGrid({
+                storageKey: `${tab}-semester-{{ semester.id }}-data-grid`,
+                table: dataGrid,
+                searchInput: document.querySelector(`input[name=search-${tab}]`),
+                filterButtons: [...document.querySelectorAll(`#${tab}-filter-buttons [data-filter]`)],
+                resetFilterButton: document.querySelector(`[data-reset=search-${tab}]`),
+                head: document.querySelector(`#${tab}-grid .grid-header`),
+                container: document.querySelector(`#${tab}-grid .grid-body`)
+            }).init();
+        }
     </script>
 {% endblock %}
