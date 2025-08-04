@@ -394,15 +394,13 @@
                     {% if num_evaluations > 0 %}
                         <div id="evaluation-grid">
                             <div class="grid-header evaluation-grid-row">
-                                    <span></span>
-                                    <button type="button" class="col-order" data-col="state-approval"></button>
-                                    <button type="button" class="col-order" data-col="state-evaluating"></button>
-                                    <button type="button" class="col-order" data-col="state-textanswers"></button>
-                                    <button type="button" class="col-order" data-col="state-results"></button>
-                                    <button type="button" class="col-order" data-col="name">{% translate 'Name' %}</button>
-                                    <button type="button" class="col-order" data-col="period">{% translate 'Evaluation period' %}</button>
-                                    <span></span>
-                                    <span></span>
+                                {# TODO: fix sortable arrows display #}
+                                <button type="button" class="col-order" data-col="state-approval"></button>
+                                <button type="button" class="col-order" data-col="state-evaluating"></button>
+                                <button type="button" class="col-order" data-col="state-textanswers"></button>
+                                <button type="button" class="col-order" data-col="state-results"></button>
+                                <button type="button" class="col-order" data-col="name">{% translate 'Name' %}</button>
+                                <button type="button" class="col-order" data-col="period">{% translate 'Evaluation period' %}</button>
                             </div>
 
 
@@ -491,10 +489,10 @@
 
                     <div id="course-grid">
                         <div class="grid-header course-grid-row">
+                            {# TODO: fix sortable arrows display #}
                             <button class="col-order" data-col="name">{% translate 'Course' %}</button>
                             <button class="col-order" data-col="responsible">{% translate 'Responsible' %}</button>
                             <button class="col-order" data-col="evaluation-count">{% translate '#Evaluations' %}</button>
-                            <span></span>
                         </div>
 
                         <div class="grid-body">
