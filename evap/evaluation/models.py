@@ -42,6 +42,7 @@ from evap.evaluation.models_logging import LoggedModel
 from evap.evaluation.tools import (
     StrOrPromise,
     clean_email,
+    inject_choices_constraint,
     is_external_email,
     is_prefetched,
     password_login_is_active,
@@ -213,6 +214,7 @@ class Questionnaire(models.Model):
 
     objects = QuestionnaireManager()
 
+    @inject_choices_constraint(locals())
     class Meta:
         ordering = ["type", "order", "pk"]
         verbose_name = _("questionnaire")
@@ -532,6 +534,7 @@ class Evaluation(LoggedModel):
         REVIEW_URGENT = auto()
         REVIEWED = auto()
 
+    @inject_choices_constraint(locals())
     class Meta:
         unique_together = [
             ["course", "name_de"],
@@ -1149,6 +1152,7 @@ class Contribution(LoggedModel):
 
     order = models.IntegerField(verbose_name=_("contribution order"), default=-1)
 
+    @inject_choices_constraint(locals())
     class Meta:
         unique_together = [["evaluation", "contributor"]]
         ordering = ["order"]
@@ -1237,6 +1241,7 @@ class Question(models.Model):
 
     type = models.PositiveSmallIntegerField(choices=QUESTION_TYPES, verbose_name=_("question type"))
 
+    @inject_choices_constraint(locals())
     class Meta:
         ordering = ["order"]
         verbose_name = _("question")
@@ -1584,6 +1589,7 @@ class TextAnswer(Answer):
     # Staff users marked this answer for internal purposes; the meaning of the flag is determined by users
     is_flagged = models.BooleanField(verbose_name=_("is flagged"), default=False)
 
+    @inject_choices_constraint(locals())
     class Meta:
         # Prevent ordering by date for privacy reasons. Otherwise, entries
         # may be returned in insertion order.
@@ -1715,6 +1721,7 @@ class Infotext(models.Model):
         blank=False,
     )
 
+    @inject_choices_constraint(locals())
     class Meta:
         verbose_name = _("infotext")
         verbose_name_plural = _("infotexts")
@@ -1849,6 +1856,7 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
 
     objects = UserProfileManager()
 
+    @inject_choices_constraint(locals())
     class Meta:
         # keep in sync with ordering_key
         ordering = [

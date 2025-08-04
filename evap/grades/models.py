@@ -7,7 +7,7 @@ from django.dispatch.dispatcher import receiver
 from django.utils.translation import gettext_lazy as _
 
 from evap.evaluation.models import Course
-from evap.evaluation.tools import translate
+from evap.evaluation.tools import inject_choices_constraint, translate
 
 
 def helper_upload_path(instance, filename):
@@ -35,6 +35,7 @@ class GradeDocument(models.Model):
         settings.AUTH_USER_MODEL, models.SET_NULL, related_name="grades_last_modified_user+", null=True, blank=True
     )
 
+    @inject_choices_constraint(locals())
     class Meta:
         verbose_name = _("Grade Document")
         verbose_name_plural = _("Grade Documents")
