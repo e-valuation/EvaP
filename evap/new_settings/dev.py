@@ -1,11 +1,14 @@
-from copy import deepcopy
 import sys
-from evap.new_settings.lazy import derived
+from copy import deepcopy
+
 from model_bakery import random_gen
+
+from evap.new_settings.lazy import derived
 
 
 class DevSettings:
     PAGE_URL = "localhost:8000"
+    ACTIVATE_OPEN_ID_LOGIN = False
 
     @derived(prev={"INSTALLED_APPS"}, final={"DEBUG"})
     @staticmethod

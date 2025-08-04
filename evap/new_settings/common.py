@@ -1,6 +1,5 @@
 # ruff: noqa: E731, N803
 
-import sys
 from datetime import timedelta
 from fractions import Fraction
 from pathlib import Path
@@ -9,8 +8,8 @@ from typing import Any
 from django.contrib.staticfiles.storage import ManifestStaticFilesStorage
 
 import evap
+from evap.new_settings.lazy import derived, required
 from evap.tools import MonthAndDay
-from evap.new_settings.lazy import derived, required, dependent
 
 
 class ManifestStaticFilesStorageWithJsReplacement(ManifestStaticFilesStorage):
@@ -385,9 +384,9 @@ class DefaultSettings:
         return final.DATADIR / "upload"
 
     ### Evaluation progress rewards
-    GLOBAL_EVALUATION_PROGRESS_REWARDS: list[
-        tuple[Fraction, str]
-    ] = []  # (required_voter_ratio between 0 and 1, reward_text)
+    GLOBAL_EVALUATION_PROGRESS_REWARDS: list[tuple[Fraction, str]] = (
+        []
+    )  # (required_voter_ratio between 0 and 1, reward_text)
     GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS: list[int] = []
     GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS: list[int] = []
     GLOBAL_EVALUATION_PROGRESS_INFO_TEXT: dict[str, str] = {"de": "", "en": ""}
@@ -429,7 +428,6 @@ class DefaultSettings:
             )
         )
 
-    ACTIVATE_OPEN_ID_LOGIN = False
 
 class OpenIdSettings:
     ACTIVATE_OPEN_ID_LOGIN = required()

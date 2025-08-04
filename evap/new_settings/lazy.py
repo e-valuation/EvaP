@@ -1,8 +1,13 @@
-from typing import Any
+from argparse import Namespace
+from collections import defaultdict
 from collections.abc import Callable, Iterable
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from enum import Enum, auto
 from functools import partial
 from graphlib import TopologicalSorter
+from typing import Any, Generic, TypeVar
+
+T = TypeVar("T")
 
 
 @dataclass
@@ -16,59 +21,86 @@ def derived(*, prev: set[str] | None = None, final: set[str] | None = None) -> C
     return partial(Derived, prev=prev or set(), final=final or set())
 
 
-@dataclass
-class UnresolvedSetting:
-    fn: Callable
-    dependencies: set[tuple[str, int]] = field(default_factory=set)
+class Required(Enum):
+    REQUIRED = auto()
 
 
-def required():
-    pass
+def required() -> Required:
+    return Required.REQUIRED
 
 
-def dependent(fn):
-    pass
+class NotSet(Enum):
+    NOT_SET = auto()
 
 
-def iter_settings(namespace: Any) -> Iterable[str]:
-    return []
+def not_set() -> NotSet:
+    return NotSet.NOT_SET
 
 
-def resolve(layers: list[Any]) -> dict[str, Any]:
-    sorter = TopologicalSorter[Any]()
+class SettingResolver(Generic[T]):
+    @staticmethod
+    def iter_settings(namespace: Any) -> Iterable[str]:
+        for name in dir(namespace):
+            if name == name.upper() and not name.startswith("_"):
+                yield name
 
-    unresolved = [{} for _ in range(len(layers))]
-    FINAL = object()
+    def __init__(self) -> None:
+        self.layers: list[dict[str, T | Derived | Required | NotSet]] = []
+        self.layers.append(defaultdict(not_set))  # base level: nothing is set
 
-    for index, layer in enumerate(layers):
-        for name in iter_settings(layer):
-            item = getattr(layer, name)
-            unresolved[index][name] = item
+    def add_layer(self, namespace: Any) -> None:
+        self.layers.append({name: getattr(namespace, name) for name in self.iter_settings(namespace)})
 
-            if isinstance(item, Derived):
-                deps = set()
-                for dep_name in item.prev:
-                    deps.add((max(i for i in range(index) if dep_name in unresolved[i]), dep_name))
-                for dep_name in item.final:
-                    deps.add((FINAL, dep_name))
-                sorter.add((index, name), *deps)
-            else:
-                sorter.add((index, name))
+    def get_setting_at_layer(self, name, layer_index) -> T | Required | NotSet:
+        for i in range(layer_index, 0, -1):
+            if name in self.layers[i]:
+                value = self.layers[i][name]
+                assert not isinstance(value, Derived)
+                return value
+        return NotSet.NOT_SET
 
-    for name, unresolved_settings in unresolved.items():
-        for i, setting in enumerate(unresolved_settings):
-            if isinstance(setting, UnresolvedSetting):
-                sorter.add(
-                    (name, i),
-                    *(
-                        (name, index) if index != -1 else (name, len(unresolved[name]) - 1)
-                        for dep_name, index in setting.dependencies
-                    ),
-                )
-            else:
-                sorter.add((name, i))
+    def resolve(self) -> dict[str, T]:
+        sorter = TopologicalSorter[tuple[int, str]]()
+        final_layer_index = len(self.layers) - 1
+        all_setting_names = set()
 
-    resolved: dict[str, Any] = {}
-    for name, index in sorter.static_order():
-        pass
-    return resolved
+        for i, layer in enumerate(self.layers):
+            for name, value in layer.items():
+                all_setting_names.add(name)
+
+                deps: list[tuple[int, str]] = []
+                if isinstance(value, Derived):
+                    deps.extend((i - 1, dep_name) for dep_name in value.prev)
+                    deps.extend((final_layer_index, dep_name) for dep_name in value.final)
+                sorter.add((i, name), *deps)
+
+        for index, name in sorter.static_order():
+            match self.layers[index].get(name):
+                case Derived(fn, prev, final):
+                    prev_ns = Namespace(**{name: self.get_setting_at_layer(name, index - 1) for name in prev})
+                    final_ns = Namespace(**{name: self.get_setting_at_layer(name, final_layer_index) for name in final})
+                    self.layers[index][name] = fn(prev_ns, final_ns)
+
+        resolved = {}
+        missing_settings = set()
+        for name in all_setting_names:
+            value = self.get_setting_at_layer(name, final_layer_index)
+            match value:
+                case Derived():
+                    raise AssertionError("derived values should have been resolved by now")
+                case Required.REQUIRED:
+                    missing_settings.add(name)
+                case NotSet.NOT_SET:
+                    pass
+                case _:
+                    resolved[name] = value
+        if missing_settings:
+            raise ValueError(f"The following settings must be set: {', '.join(missing_settings)}")
+        return resolved
+
+
+def resolve(namespaces: list[Any]) -> dict[str, Any]:
+    resolver = SettingResolver[Any]()
+    for ns in namespaces:
+        resolver.add_layer(ns)
+    return resolver.resolve()
