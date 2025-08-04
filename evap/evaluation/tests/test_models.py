@@ -1166,6 +1166,26 @@ class QuestionTests(TestCase):
             allows_additional_textanswers=True,
             counts_for_grade=True,
         )
+        question_rating = baker.prepare(
+            Question,
+            questionnaire=questionaire,
+            type=QuestionType.NEGATIVE_LIKERT,
+            allows_additional_textanswers=True,
+            counts_for_grade=True,
+        )
+
+        question_text.save()
+        question_rating.save()
+        question_rating.refresh_from_db()
+        self.assertEqual(question_rating.allows_additional_textanswers, True)
+        self.assertEqual(question_rating.counts_for_grade, True)
+
+        # Check if setting allows_additional_textanswers and counts_for_grade to False in the save method works
+        question_rating.type = QuestionType.TEXT
+        question_rating.save(update_fields=["type"])
+        question_rating.refresh_from_db()
+        self.assertEqual(question_rating.allows_additional_textanswers, False)
+        self.assertEqual(question_rating.counts_for_grade, False)
 
         with patch.object(models.Model, "save") as mock_save:
             question_text.save(update_fields=["text_de"])
