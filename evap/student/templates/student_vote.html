@@ -54,8 +54,8 @@
     <h3 class="mb-3">
         {{ evaluation.full_name }} ({{ evaluation.course.semester.name }})
 
-        <div class="float-lg-end d-flex mt-3 mt-lg-0">
-            <div class="btn-switch btn-switch-light btn-switch-evaluation-language justify-content-between">
+        <div class="float-lg-end mt-3 mt-lg-0 d-flex justify-content-end">
+            <div class="btn-switch btn-switch-light btn-switch-evaluation-language">
                 <div class="btn-switch-label my-auto">{% translate "Questionnaire language" %}</div>
                 <div class="btn-switch btn-group">
                     {% for language_code, language_name in languages %}
