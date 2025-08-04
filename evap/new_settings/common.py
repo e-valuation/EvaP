@@ -1,7 +1,6 @@
 # ruff: noqa: E731, N803
 
 import inspect
-import logging
 import sys
 from collections import defaultdict
 from collections.abc import Callable, Iterable
