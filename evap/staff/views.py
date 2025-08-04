@@ -1832,7 +1832,9 @@ def evaluation_textanswer_edit(request, textanswer_id):
     if form.is_valid():
         form.save()
         # jump to edited answer
-        url = reverse("staff:evaluation_textanswers", args=[evaluation.pk], fragment=str(textanswer.id))
+        url = reverse(
+            "staff:evaluation_textanswers", args=[evaluation.pk], fragment=("textanswer-" + str(textanswer.id))
+        )
         return HttpResponseRedirect(url)
 
     template_data = {
