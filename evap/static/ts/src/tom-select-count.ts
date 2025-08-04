@@ -1,7 +1,11 @@
+import {assert, selectOrError} from "./utils.js"
+
 export const setupTomSelectCount = () => {
     document.querySelectorAll("[data-track-tomselect-count]").forEach(trackerElement => {
-        const trackedElement = (document.getElementById((trackerElement as any).dataset.trackTomselectCount) as any)
-            .tomselect;
+        assert(trackerElement instanceof HTMLElement);
+        const trackedElement = (selectOrError(trackerElement.dataset.trackTomselectCount!) as any).tomselect;
+            
+        update_count(trackerElement, trackedElement);
         trackedElement.on("item_add", function () {
             update_count(trackerElement, trackedElement);
         });

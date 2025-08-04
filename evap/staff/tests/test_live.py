@@ -6,7 +6,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.expected_conditions import element_to_be_clickable, visibility_of_element_located
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Program, Question, Questionnaire, UserProfile
-from evap.evaluation.tests.tools import LiveServerTest
+from evap.evaluation.tests.tools import LiveServerTest, classes_of_element
+from selenium.webdriver.support.select import Select
 
 
 class EvaluationEditLiveTest(LiveServerTest):
@@ -72,8 +73,6 @@ class EvaluationEditLiveTest(LiveServerTest):
         self.assertEqual(contribution1.role, Contribution.Role.EDITOR)
         self.assertEqual(contribution1.textanswer_visibility, Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
 
-
-# ruff: noqa: PGH003
 class ParticipantCollapseTests(LiveServerTest):
     def test_collapse_with_participants(self) -> None:
 
@@ -91,16 +90,18 @@ class ParticipantCollapseTests(LiveServerTest):
         with self.enter_staff_mode():
             self.selenium.get(self.live_server_url + reverse("staff:evaluation_edit", args=[evaluation.id]))
 
-        card_header = self.selenium.find_element(By.CSS_SELECTOR, ".card .card-header")
-        assert "collapsed" in card_header.get_attribute("class")  # type: ignore
+        card_header = self.selenium.find_element(By.CSS_SELECTOR, ".card:has(#id_participants) .card-header")
+        self.assertTrue("collapsed" in classes_of_element(card_header))
+        
         card_header.click()
-        assert "collapsed" not in card_header.get_attribute("class")  # type: ignore
+        self.assertFalse("collapsed" in classes_of_element(card_header))
 
         counter = card_header.find_element(By.CSS_SELECTOR, ".rounded-pill")
-        assert counter.get_attribute("innerText") == "20"
+        assert counter.text == "20"
 
     def test_collapse_without_participants(self) -> None:
-        responsible = baker.make(UserProfile)
+        responsible = baker.make(UserProfile, last_name="responsible")
+        new_participant = baker.make(UserProfile, last_name="participant")
         evaluation = baker.make(
             Evaluation,
             course=baker.make(Course, programs=[baker.make(Program)], responsibles=[responsible]),
@@ -111,10 +112,15 @@ class ParticipantCollapseTests(LiveServerTest):
         with self.enter_staff_mode():
             self.selenium.get(self.live_server_url + reverse("staff:evaluation_edit", args=[evaluation.id]))
 
-        card_header = self.selenium.find_element(By.CSS_SELECTOR, ".card .card-header")
-        assert "collapsed" not in card_header.get_attribute("class")  # type: ignore
+        card_header = self.selenium.find_element(By.CSS_SELECTOR, ".card:has(#id_participants) .card-header")
+        self.assertFalse("collapsed" in classes_of_element(card_header))
         card_header.click()
-        assert "collapsed" in card_header.get_attribute("class")  # type: ignore
+        self.assertTrue("collapsed" in classes_of_element(card_header))
 
         counter = card_header.find_element(By.CSS_SELECTOR, ".rounded-pill")
-        assert counter.get_attribute("innerText") == "0"
+        assert counter.text == "0"
+        print(self.selenium.page_source)
+        tomselect = Select(self.selenium.find_element(By.CSS_SELECTOR, "#id_participants"))
+        for option in tomselect.options:
+            print(option.text)
+        tomselect.select_by_visible_text("participant [ext.] ")
