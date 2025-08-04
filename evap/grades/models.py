@@ -7,7 +7,7 @@ from django.dispatch.dispatcher import receiver
 from django.utils.translation import gettext_lazy as _
 
 from evap.evaluation.models import Course
-from evap.evaluation.tools import translate, inject_choices_constraint
+from evap.evaluation.tools import inject_choices_constraint, translate
 
 
 def helper_upload_path(instance, filename):

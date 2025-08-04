@@ -11,9 +11,9 @@ import xlwt
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation, ValidationError
 from django.db import DEFAULT_DB_ALIAS, connections
-from django.db.models import Model, Field, Q
-from django.db.models.fields.mixins import FieldCacheMixin
+from django.db.models import Field, Model, Q
 from django.db.models.constraints import CheckConstraint
+from django.db.models.fields.mixins import FieldCacheMixin
 from django.forms.formsets import BaseFormSet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -47,7 +47,7 @@ def choice_database_values_from_django_choices_spec(django_choices_spec) -> list
         # > If a mapping is given, the key element is the actual value to be set on the model, and the second element is
         # > the human readable name.
         # > You can also collect your available choices into named groups that can be used for organizational purposes.
-        if isinstance(value, list) or isinstance(value, tuple):
+        if isinstance(value, list | tuple):
             result.extend(choice_database_values_from_django_choices_spec(value))
         else:
             # value should be str or Enum or django lazy translated string (last one hard to assert against)
@@ -70,13 +70,15 @@ def inject_choices_constraint(model_locals):
         meta_cls.constraints = (
             *(
                 CheckConstraint(
-                    condition=Q(**{f"{field_name}__in": choice_database_values_from_django_choices_spec(field._choices)}),
-                    name=f'{model_name}_{field_name}_choices',
+                    condition=Q(
+                        **{f"{field_name}__in": choice_database_values_from_django_choices_spec(field._choices)}
+                    ),
+                    name=f"{model_name}_{field_name}_choices",
                 )
                 for (field_name, field) in model_locals.items()
                 if isinstance(field, Field) and field._choices is not None
             ),
-            *getattr(meta_cls, "constraints", [])
+            *getattr(meta_cls, "constraints", []),
         )
         return meta_cls
 

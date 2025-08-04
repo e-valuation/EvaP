@@ -7,7 +7,6 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("evaluation", "0151_contribution_contribution_role_choices_and_more"),
         ("grades", "0017_remove_grade_documents_from_evaluations"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]

@@ -42,12 +42,12 @@ from evap.evaluation.models_logging import LoggedModel
 from evap.evaluation.tools import (
     StrOrPromise,
     clean_email,
+    inject_choices_constraint,
     is_external_email,
     is_prefetched,
     password_login_is_active,
     translate,
     vote_end_datetime,
-    inject_choices_constraint,
 )
 from evap.tools import date_to_datetime
 
