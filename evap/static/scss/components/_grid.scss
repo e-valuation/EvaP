@@ -166,16 +166,33 @@
     }
 }
 
-.evaluation-grid-row {
+%striped-grid-row {
     @extend %table-grid;
+
+    row-gap: 0;
+    column-gap: 0;
+
+    border: solid 0 $table-border-color;
+    border-bottom-width: 1px;
+
+    &:nth-child(even) {
+        background-color: $table-striped-bg;
+    }
+
+    &.grid-header button {
+        font-weight: bold;
+    }
+}
+
+.evaluation-grid-row {
+    @extend %striped-grid-row;
+
     grid:". state-approval state-evaluating state-textanswers state-results name period . .";
     grid-template-areas:
             "checkbox state-approval state-evaluating state-textanswers state-results name         period responses buttons"
             "checkbox state-approval state-evaluating state-textanswers state-results responsibles period responses buttons"
             "checkbox state-approval state-evaluating state-textanswers state-results tags         period responses buttons";
     grid-template-columns: 2.75em repeat(4, 1.25em) auto 12.25em 12em 8.5em;
-    row-gap: 0;
-    column-gap: 0;
 
     & > * {
         padding-inline: .5rem;
@@ -198,15 +215,19 @@
         line-height: 0;
     }
 
-    border: solid 0 $table-border-color;
-    border-bottom-width: 1px;
+}
 
-    &:nth-child(even) {
-        background-color: $table-striped-bg;
-    }
+.course-grid-row {
+    @extend %striped-grid-row;
+    // TODO: why would I inherit table-grid
+    display: grid;
+    grid: "name responsible evaluation-count .";
+    grid-template-areas: "name   responsible evaluation-count ."
+                         "badges responsible evaluation-count .";
+    grid-template-columns: 1fr 14em 12em 9em;
 
-    &.grid-header button {
-        font-weight: bold;
+    & > * {
+        padding-inline: .5rem;
     }
 }
 
