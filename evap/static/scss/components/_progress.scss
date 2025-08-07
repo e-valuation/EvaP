@@ -1,7 +1,6 @@
 .progress-container .progress {
     min-width: 55px;
     height: unset;
-    margin-right: 4px;
     flex: 1;
     position: relative;
     font-size: unset;
@@ -45,10 +44,9 @@
     @include bar-shadow($evap-dark-blue);
 }
 
-.progress-label {
-    color: $black;
+.progress-badge-wrapper {
     text-align: right;
-    min-width: 31px;
+    min-width: 45px;
 }
 
 .multi-progress-bar .progress-container {
