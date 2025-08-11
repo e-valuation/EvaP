@@ -156,11 +156,22 @@ def reward_points_export(request):
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
     writer.writerow([_("Email address"), _("Number of points")])
-    sub_reward_point_grantings = RewardPointGranting.objects.filter(user_profile=OuterRef("pk")).values("user_profile").annotate(total=Sum("value", default=0)).values("total")[:1]
-    sub_reward_point_redemptions = RewardPointRedemption.objects.filter(user_profile=OuterRef("pk")).values("user_profile").annotate(total=Sum("value", default=0)).values("total")[:1]
+    sub_reward_point_grantings = (
+        RewardPointGranting.objects.filter(user_profile=OuterRef("pk"))
+        .values("user_profile")
+        .annotate(total=Sum("value", default=0))
+        .values("total")[:1]
+    )
+    sub_reward_point_redemptions = (
+        RewardPointRedemption.objects.filter(user_profile=OuterRef("pk"))
+        .values("user_profile")
+        .annotate(total=Sum("value", default=0))
+        .values("total")[:1]
+    )
     profiles_with_points = (
         UserProfile.objects.annotate(
-            points=Coalesce(Subquery(sub_reward_point_grantings), 0) - Coalesce(Subquery(sub_reward_point_redemptions), 0)
+            points=Coalesce(Subquery(sub_reward_point_grantings), 0)
+            - Coalesce(Subquery(sub_reward_point_redemptions), 0)
         )
         .filter(points__gt=0)
         .order_by("-points")
