@@ -417,6 +417,8 @@ class Course(LoggedModel):
 class Evaluation(LoggedModel):
     """Models a single evaluation, e.g. the exam evaluation of the Math 101 course of 2002."""
 
+    UNDECIDED_MAIN_LANGUAGE = "x"
+
     class State(models.IntegerChoices):
         NEW = 10, _("new")
         PREPARED = 20, _("prepared")
@@ -435,6 +437,14 @@ class Evaluation(LoggedModel):
     name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"), blank=True)
     name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), blank=True)
     name = translate(en="name_en", de="name_de")
+
+    # questionnaires are shown in this language by default
+    main_language = models.CharField(
+        max_length=2,
+        verbose_name=_("main language"),
+        default=UNDECIDED_MAIN_LANGUAGE,
+        choices=settings.LANGUAGES + [(UNDECIDED_MAIN_LANGUAGE, _("undecided"))],
+    )
 
     # defines how large the influence of this evaluation's grade is on the total grade of its course
     weight = models.PositiveSmallIntegerField(verbose_name=_("weight"), default=1)
@@ -645,6 +655,10 @@ class Evaluation(LoggedModel):
         return self.general_contribution and self.general_contribution.questionnaires.count() > 0
 
     @property
+    def has_decided_main_language(self):
+        return self.main_language != self.UNDECIDED_MAIN_LANGUAGE
+
+    @property
     def all_contributions_have_questionnaires(self):
         if is_prefetched(self, "contributions"):
             if not self.contributions:
@@ -767,7 +781,12 @@ class Evaluation(LoggedModel):
     def ready_for_editors(self):
         pass
 
-    @transition(field=state, source=State.PREPARED, target=State.EDITOR_APPROVED)
+    @transition(
+        field=state,
+        source=State.PREPARED,
+        target=State.EDITOR_APPROVED,
+        conditions=[lambda self: self.has_decided_main_language],
+    )
     def editor_approve(self):
         pass
 
@@ -775,7 +794,7 @@ class Evaluation(LoggedModel):
         field=state,
         source=[State.NEW, State.PREPARED, State.EDITOR_APPROVED],
         target=State.APPROVED,
-        conditions=[lambda self: self.general_contribution_has_questionnaires],
+        conditions=[lambda self: self.general_contribution_has_questionnaires and self.has_decided_main_language],
     )
     def manager_approve(self):
         pass

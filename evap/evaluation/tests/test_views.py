@@ -199,9 +199,7 @@ class TestNegativeLikertQuestions(WebTest):
         cls.voting_user = baker.make(UserProfile, email="voting_user1@institution.example.com")
 
         cls.evaluation = baker.make(
-            Evaluation,
-            participants=[cls.voting_user],
-            state=Evaluation.State.IN_EVALUATION,
+            Evaluation, participants=[cls.voting_user], state=Evaluation.State.IN_EVALUATION, main_language="en"
         )
 
         cls.question = baker.make(
