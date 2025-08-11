@@ -1888,17 +1888,12 @@ class TestEvaluationCreateView(WebTestStaffMode):
         form = response.context["evaluation_form"]
         self.assertEqual(form["course"].initial, self.course.pk)
 
-    def test_evaluation_create(self):
-        """
-        Tests the evaluation creation view with one valid and one invalid input dataset.
-        """
-        response = self.app.get(self.url_for_semester, user=self.manager, status=200)
-        form = response.forms["evaluation-form"]
+    def _set_valid_form(self, form):
         form["course"] = self.course.pk
         form["name_de"] = "lfo9e7bmxp1xi"
         form["name_en"] = "asdf"
-        form["vote_start_datetime"] = "2099-01-01 00:00:00"
-        form["vote_end_date"] = "2014-01-01"  # wrong order to get the validation error
+        form["vote_start_datetime"] = "2014-01-01 00:00:00"
+        form["vote_end_date"] = "2099-01-01"
         form["general_questionnaires"] = [self.q1.pk]
         form["wait_for_grade_upload_before_publishing"] = True
 
@@ -1912,6 +1907,16 @@ class TestEvaluationCreateView(WebTestStaffMode):
         form["contributions-0-role"] = Contribution.Role.EDITOR
         form["contributions-0-textanswer_visibility"] = Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
 
+    def test_evaluation_create(self):
+        """
+        Tests the evaluation creation view with one valid and one invalid input dataset.
+        """
+        response = self.app.get(self.url_for_semester, user=self.manager, status=200)
+        form = response.forms["evaluation-form"]
+        self._set_valid_form(form)
+        form["vote_start_datetime"] = "2099-01-01 00:00:00"
+        form["vote_end_date"] = "2014-01-01"  # wrong order to get the validation error
+
         form.submit()
         self.assertFalse(Evaluation.objects.exists())
 
@@ -1920,6 +1925,18 @@ class TestEvaluationCreateView(WebTestStaffMode):
 
         form.submit()
         self.assertEqual(Evaluation.objects.get().name_de, "lfo9e7bmxp1xi")
+
+    def test_evaluation_create_main_language(self):
+        response = self.app.get(self.url_for_semester, user=self.manager, status=200)
+        form = response.forms["evaluation-form"]
+        self._set_valid_form(form)
+
+        with self.assertRaises(ValueError):
+            form["main_language"] = "some_wrong_value"
+
+        form["main_language"] = Evaluation.UNDECIDED_MAIN_LANGUAGE
+        form.submit()
+        self.assertEqual(Evaluation.objects.get().main_language, Evaluation.UNDECIDED_MAIN_LANGUAGE)
 
 
 class TestEvaluationCopyView(WebTestStaffMode):
@@ -2173,6 +2190,7 @@ class TestEvaluationEditView(WebTestStaffMode):
             course=baker.make(Course, programs=[baker.make(Program)], responsibles=[responsible]),
             vote_start_datetime=datetime.datetime(2099, 1, 1, 0, 0),
             vote_end_date=datetime.date(2099, 12, 31),
+            main_language="en",
         )
         cls.url = reverse("staff:evaluation_edit", args=[cls.evaluation.pk])
 
@@ -2361,6 +2379,21 @@ class TestEvaluationEditView(WebTestStaffMode):
         response = self.app.get(self.url, user=self.manager)
         self.assertContains(response, "TRANSLATED-state: TRANSLATED-new &#8594; TRANSLATED-prepared")
 
+    def test_evaluation_confirm_without_main_language(self):
+        response = self.app.get(self.url, user=self.manager, status=200)
+        form = response.forms["evaluation-form"]
+
+        form["main_language"] = Evaluation.UNDECIDED_MAIN_LANGUAGE
+        response = form.submit("operation", value="approve")
+        self.assertContains(response, "You have to set a main language for this evaluation.")
+
+        self.assertNotEqual(Evaluation.objects.first().state, self.evaluation.State.APPROVED)
+
+        form["main_language"] = "en"
+        form.submit("operation", value="approve").follow()
+
+        self.assertEqual(Evaluation.objects.first().state, self.evaluation.State.APPROVED)
+
 
 class TestEvaluationDeleteView(WebTestStaffMode):
     csrf_checks = False
@@ -2419,7 +2452,7 @@ class TestEvaluationDeleteView(WebTestStaffMode):
 class TestEvaluationPreviewView(WebTestStaffModeWith200Check):
     @classmethod
     def setUpTestData(cls):
-        cls.evaluation = baker.make(Evaluation)
+        cls.evaluation = baker.make(Evaluation, main_language="en")
         cls.evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
 
         cls.manager = make_manager()

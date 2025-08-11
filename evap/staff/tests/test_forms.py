@@ -898,7 +898,7 @@ class EvaluationFormTests(TestCase):
         Tests validity of various start/end date combinations in
         the two evaluation edit forms.
         """
-        evaluation = baker.make(Evaluation)
+        evaluation = baker.make(Evaluation, main_language="en")
         evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
 
         # contributors: start date does not have to be in the future
