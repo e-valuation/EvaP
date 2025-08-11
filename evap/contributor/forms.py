@@ -30,6 +30,7 @@ class EvaluationForm(forms.ModelForm):
         fields = (
             "name_de_field",
             "name_en_field",
+            "main_language",
             "vote_start_datetime",
             "vote_end_date",
             "participants",
@@ -111,6 +112,12 @@ class EvaluationForm(forms.ModelForm):
             raise forms.ValidationError(_("The last day of evaluation must be in the future."))
 
         return vote_end_date
+
+    def clean_main_language(self):
+        main_language = self.cleaned_data.get("main_language")
+        if main_language == Evaluation.UNDECIDED_MAIN_LANGUAGE:
+            self.add_error("main_language", _("You have to set a main language for this evaluation."))
+        return main_language
 
     def save(self, *args, **kw):
         evaluation = super().save(*args, **kw)

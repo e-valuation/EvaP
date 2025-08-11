@@ -6,6 +6,7 @@ from django.core import mail
 from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.test import override_settings
+from django_fsm import TransitionNotAllowed
 from model_bakery import baker
 
 from evap.evaluation.models import (
@@ -525,6 +526,22 @@ class TestEvaluations(WebTest):
             evaluation.TextAnswerReviewState.REVIEWED,
             evaluation.TextAnswerReviewState.REVIEWED,
         )
+
+    def test_approve_without_main_language(self):
+        evaluation = baker.make(
+            Evaluation,
+        )
+        evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
+
+        with self.assertRaises(TransitionNotAllowed):
+            evaluation.editor_approve()
+
+        with self.assertRaises(TransitionNotAllowed):
+            evaluation.manager_approve()
+
+        evaluation.main_language = "en"
+        evaluation.save()
+        evaluation.manager_approve()
 
 
 class TestCourse(TestCase):

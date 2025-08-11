@@ -24,6 +24,7 @@ class StudentVoteLiveTest(LiveServerTest):
             Evaluation,
             participants=[voting_user1, voting_user2, contributor1],
             state=Evaluation.State.IN_EVALUATION,
+            main_language="en",
         )
 
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
