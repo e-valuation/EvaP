@@ -116,7 +116,7 @@ class EvaluationForm(forms.ModelForm):
     def clean_main_language(self):
         main_language = self.cleaned_data.get("main_language")
         if main_language == Evaluation.UNDECIDED_MAIN_LANGUAGE:
-            self.add_error("main_language", _("A decision on the main language has to be made."))
+            self.add_error("main_language", _("You have to set a main language for this evaluation."))
         return main_language
 
     def save(self, *args, **kw):

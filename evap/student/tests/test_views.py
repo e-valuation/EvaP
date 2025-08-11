@@ -1,7 +1,9 @@
 import datetime
 from fractions import Fraction
 from functools import partial
+from unittest.mock import patch
 
+from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.urls import reverse
 from model_bakery import baker
@@ -22,7 +24,7 @@ from evap.evaluation.models import (
 )
 from evap.evaluation.tests.tools import FuzzyInt, WebTest, WebTestWith200Check
 from evap.student.tools import answer_field_id, parse_answer_field_id
-from evap.student.views import SUCCESS_MAGIC_STRING
+from evap.student.views import SUCCESS_MAGIC_STRING, get_vote_page_form_groups
 
 
 class TestStudentIndexView(WebTestWith200Check):
@@ -562,6 +564,13 @@ class TestVoteView(WebTest):
         query = TextAnswer.objects.raw("SELECT id, xmin FROM evaluation_textanswer")
         text_answer_xmins = [row.xmin for row in query]
         self.assertTrue(all(xmin == text_answer_xmins[0] for xmin in text_answer_xmins))
+
+    def test_main_language_does_not_use_gettext_lazy(self):
+        request = RequestFactory().get(reverse("student:vote", args=[self.evaluation.id]))
+        request.user = self.voting_user1
+        with patch("django.utils.translation.gettext_lazy") as mock:
+            get_vote_page_form_groups(request, self.evaluation, preview=False, preselect_no_answer=False)
+            self.assertEqual(mock.call_count, 0)
 
 
 class TestDropoutView(WebTest):
