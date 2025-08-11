@@ -165,6 +165,7 @@ $textanswer-review-grid-areas: answer, edit, review, flag;
             padding-left: 0.75rem;
         }
     }
+
     .grid-row:not(:first-child) > div:not(:first-child) {
         justify-content: center;
     }
@@ -179,7 +180,7 @@ $textanswer-review-grid-areas: answer, edit, review, flag;
     border: solid 0 $table-border-color;
     border-bottom-width: 1px;
 
-    &:nth-child(even) {
+    &:nth-child(odd):not(.grid-header) {
         background-color: $table-striped-bg;
     }
 
