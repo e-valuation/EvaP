@@ -25,6 +25,7 @@ class ImportStudent(TypedDict):
     email: str
     name: str  # last name
     christianname: str  # first name
+    callingname: str  # given name
 
 
 class ImportLecturer(TypedDict):
@@ -32,6 +33,7 @@ class ImportLecturer(TypedDict):
     email: str
     name: str  # last name
     christianname: str  # first name
+    callingname: str  # given name
     titlefront: str  # title
 
 
@@ -176,6 +178,11 @@ class JSONImporter:
         self.courses_by_gguid: dict[str, Course] = {}
         self.statistics = ImportStatistics()
 
+    def _get_first_name_given(self, entry: ImportStudent | ImportLecturer) -> str:
+        if entry["callingname"]:
+            return entry["callingname"]
+        return entry["christianname"]
+
     def _get_users_with_longest_title(self, user_profiles: list[UserProfile]) -> list[UserProfile]:
         max_title_len = max((len(user.title) for user in user_profiles), default=0)
         return [user for user in user_profiles if len(user.title) == max_title_len]
@@ -224,13 +231,15 @@ class JSONImporter:
             email = clean_email(entry["email"])
             if not email:
                 self.statistics.warnings.append(
-                    WarningMessage(obj=f"Student {entry['christianname']} {entry['name']}", message="No email defined")
+                    WarningMessage(
+                        obj=f"Student {self._get_first_name_given(entry)} {entry['name']}", message="No email defined"
+                    )
                 )
             else:
                 user_profile, __, changes = update_or_create_with_changes(
                     UserProfile,
                     email=email,
-                    defaults={"last_name": entry["name"], "first_name_given": entry["christianname"]},
+                    defaults={"last_name": entry["name"], "first_name_given": self._get_first_name_given(entry)},
                 )
                 if changes:
                     self._create_name_change_from_changes(user_profile, changes)
@@ -243,7 +252,8 @@ class JSONImporter:
             if not email:
                 self.statistics.warnings.append(
                     WarningMessage(
-                        obj=f"Contributor {entry['christianname']} {entry['name']}", message="No email defined"
+                        obj=f"Contributor {self._get_first_name_given(entry)} {entry['name']}",
+                        message="No email defined",
                     )
                 )
             else:
@@ -252,7 +262,7 @@ class JSONImporter:
                     email=email,
                     defaults={
                         "last_name": entry["name"],
-                        "first_name_given": entry["christianname"],
+                        "first_name_given": self._get_first_name_given(entry),
                         "title": entry["titlefront"],
                     },
                 )
