@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0066_rename_course_is_required_for_reward'),
+        ("evaluation", "0066_rename_course_is_required_for_reward"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='course',
-            name='is_midterm_evaluation',
-            field=models.BooleanField(default=False, verbose_name='is midterm evaluation'),
+            model_name="course",
+            name="is_midterm_evaluation",
+            field=models.BooleanField(default=False, verbose_name="is midterm evaluation"),
         ),
     ]

@@ -17,7 +17,7 @@ def remove_emailtemplate(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0125_use_lists_for_ordering'),
+        ("evaluation", "0125_use_lists_for_ordering"),
     ]
 
     operations = [

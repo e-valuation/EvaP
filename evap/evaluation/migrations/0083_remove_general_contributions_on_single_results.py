@@ -23,7 +23,7 @@ def remove_general_contribution(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0082_add_related_names_fix_verbose_name'),
+        ("evaluation", "0082_add_related_names_fix_verbose_name"),
     ]
 
     operations = [

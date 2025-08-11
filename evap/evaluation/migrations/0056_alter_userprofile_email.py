@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0055_reviewer_group'),
+        ("evaluation", "0055_reviewer_group"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='userprofile',
-            name='email',
-            field=models.EmailField(blank=True, max_length=255, null=True, unique=True, verbose_name='email address'),
+            model_name="userprofile",
+            name="email",
+            field=models.EmailField(blank=True, max_length=255, null=True, unique=True, verbose_name="email address"),
         ),
     ]

@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0118_remove_last_modified_fields'),
+        ("evaluation", "0118_remove_last_modified_fields"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='contribution',
-            options={'ordering': ['order'], 'verbose_name': 'contribution', 'verbose_name_plural': 'contributions'},
+            name="contribution",
+            options={"ordering": ["order"], "verbose_name": "contribution", "verbose_name_plural": "contributions"},
         ),
     ]

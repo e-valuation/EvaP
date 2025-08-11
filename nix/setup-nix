@@ -16,6 +16,7 @@ elif pacman --version &> /dev/null; then
     sudo pacman -S nix
 else
     echo "Failed to detect package manager. Please install nix manually."
+    echo "We recommend using the Determinate Nix Installer: https://install.determinate.systems"
     exit 1
 fi
 

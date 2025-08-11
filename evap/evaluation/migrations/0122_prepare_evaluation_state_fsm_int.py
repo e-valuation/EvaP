@@ -1,11 +1,11 @@
-from django.db import migrations
 import django_fsm
+from django.db import migrations
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0121_add_allows_textanswers_to_question'),
+        ("evaluation", "0121_add_allows_textanswers_to_question"),
     ]
 
     operations = [

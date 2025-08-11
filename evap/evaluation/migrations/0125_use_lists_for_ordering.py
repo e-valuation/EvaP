@@ -6,24 +6,32 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0124_add_html_content'),
+        ("evaluation", "0124_add_html_content"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='logentry',
-            options={'ordering': ['-datetime', '-id']},
+            name="logentry",
+            options={"ordering": ["-datetime", "-id"]},
         ),
         migrations.AlterModelOptions(
-            name='questionnaire',
-            options={'ordering': ['type', 'order', 'pk'], 'verbose_name': 'questionnaire', 'verbose_name_plural': 'questionnaires'},
+            name="questionnaire",
+            options={
+                "ordering": ["type", "order", "pk"],
+                "verbose_name": "questionnaire",
+                "verbose_name_plural": "questionnaires",
+            },
         ),
         migrations.AlterModelOptions(
-            name='semester',
-            options={'ordering': ['-created_at', 'pk'], 'verbose_name': 'semester', 'verbose_name_plural': 'semesters'},
+            name="semester",
+            options={"ordering": ["-created_at", "pk"], "verbose_name": "semester", "verbose_name_plural": "semesters"},
         ),
         migrations.AlterModelOptions(
-            name='userprofile',
-            options={'ordering': ['last_name', 'first_name', 'email'], 'verbose_name': 'user', 'verbose_name_plural': 'users'},
+            name="userprofile",
+            options={
+                "ordering": ["last_name", "first_name", "email"],
+                "verbose_name": "user",
+                "verbose_name_plural": "users",
+            },
         ),
     ]

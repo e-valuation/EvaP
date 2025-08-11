@@ -4,7 +4,7 @@ from django.db import migrations, models
 
 
 def fill_can_publish_text_results(apps, _schema_editor):
-    Course = apps.get_model('evaluation', 'Course')
+    Course = apps.get_model("evaluation", "Course")
     for course in Course.objects.all():
         num_voters = course.voters.count()
         if course._voter_count is not None:
@@ -17,14 +17,14 @@ def fill_can_publish_text_results(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0067_course_is_midterm_evaluation'),
+        ("evaluation", "0067_course_is_midterm_evaluation"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='course',
-            name='can_publish_text_results',
-            field=models.BooleanField(default=False, verbose_name='can publish text results'),
+            model_name="course",
+            name="can_publish_text_results",
+            field=models.BooleanField(default=False, verbose_name="can publish text results"),
         ),
         migrations.RunPython(fill_can_publish_text_results, migrations.RunPython.noop),
     ]

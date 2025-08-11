@@ -6,20 +6,24 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0107_remove_default_evaluation_ordering'),
+        ("evaluation", "0107_remove_default_evaluation_ordering"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='course',
-            options={'verbose_name': 'course', 'verbose_name_plural': 'courses'},
+            name="course",
+            options={"verbose_name": "course", "verbose_name_plural": "courses"},
         ),
         migrations.AlterModelOptions(
-            name='questionnaire',
-            options={'ordering': ('type', 'order', 'pk'), 'verbose_name': 'questionnaire', 'verbose_name_plural': 'questionnaires'},
+            name="questionnaire",
+            options={
+                "ordering": ("type", "order", "pk"),
+                "verbose_name": "questionnaire",
+                "verbose_name_plural": "questionnaires",
+            },
         ),
         migrations.AlterModelOptions(
-            name='semester',
-            options={'ordering': ('-created_at', 'pk'), 'verbose_name': 'semester', 'verbose_name_plural': 'semesters'},
+            name="semester",
+            options={"ordering": ("-created_at", "pk"), "verbose_name": "semester", "verbose_name_plural": "semesters"},
         ),
     ]

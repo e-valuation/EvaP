@@ -44,17 +44,6 @@
   }
 },
 {
-  "pk":3,
-  "model":"evaluation.questionnaire",
-  "fields":{
-    "name_de":"Einzelergebnis",
-    "name_en":"Single result",
-    "order": 0,
-    "type": 20,
-    "visibility": 0
-  }
-},
-{
   "pk": 1,
   "model": "evaluation.question",
   "fields": {

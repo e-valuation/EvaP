@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0056_alter_userprofile_email'),
+        ("evaluation", "0056_alter_userprofile_email"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='course',
-            name='vote_start_date',
-            field=models.DateTimeField(verbose_name='start of evaluation'),
+            model_name="course",
+            name="vote_start_date",
+            field=models.DateTimeField(verbose_name="start of evaluation"),
         ),
         migrations.RenameField(
-            model_name='course',
-            old_name='vote_start_date',
-            new_name='vote_start_datetime',
-        )
+            model_name="course",
+            old_name="vote_start_date",
+            new_name="vote_start_datetime",
+        ),
     ]

@@ -5,24 +5,24 @@ def update_states(apps, _schema_editor):
     TextAnswer = apps.get_model("evaluation", "TextAnswer")
     for answer in TextAnswer.objects.all():
         if answer.hidden:
-            answer.state = 'HI'
+            answer.state = "HI"
         elif answer.checked:
-            answer.state = 'PU'
+            answer.state = "PU"
         else:
-            answer.state = 'NR'
+            answer.state = "NR"
         answer.save()
 
 
 def backward_update_states(apps, _schema_editor):
     TextAnswer = apps.get_model("evaluation", "TextAnswer")
     for answer in TextAnswer.objects.all():
-        if answer.state == 'HI':
+        if answer.state == "HI":
             answer.hidden = True
             answer.checked = True
-        elif answer.state == 'PU':
+        elif answer.state == "PU":
             answer.hidden = False
             answer.checked = True
-        elif answer.state == 'PR':
+        elif answer.state == "PR":
             answer.hidden = False
             answer.checked = True
         else:
@@ -34,7 +34,7 @@ def backward_update_states(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0009_add_textanswer_state'),
+        ("evaluation", "0009_add_textanswer_state"),
     ]
 
     operations = [

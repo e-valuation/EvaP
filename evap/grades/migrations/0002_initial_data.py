@@ -9,7 +9,7 @@ def add_group(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('grades', '0001_initial'),
+        ("grades", "0001_initial"),
     ]
 
     operations = [

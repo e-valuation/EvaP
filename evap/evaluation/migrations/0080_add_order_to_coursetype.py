@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0079_rename_staff_to_manager'),
+        ("evaluation", "0079_rename_staff_to_manager"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='coursetype',
-            options={'ordering': ['order']},
+            name="coursetype",
+            options={"ordering": ["order"]},
         ),
         migrations.AddField(
-            model_name='coursetype',
-            name='order',
-            field=models.IntegerField(default=-1, verbose_name='course type order'),
+            model_name="coursetype",
+            name="order",
+            field=models.IntegerField(default=-1, verbose_name="course type order"),
         ),
     ]

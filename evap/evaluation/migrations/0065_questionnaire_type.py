@@ -4,38 +4,43 @@ from django.db import migrations, models
 
 
 def migrate_is_for_contributors_to_type(apps, _schema_editor):
-    Questionnaire = apps.get_model('evaluation', 'Questionnaire')
+    Questionnaire = apps.get_model("evaluation", "Questionnaire")
     Questionnaire.objects.filter(is_for_contributors=True).update(type=20)
 
 
 def migrate_type_to_is_for_contributors(apps, _schema_editor):
-    Questionnaire = apps.get_model('evaluation', 'Questionnaire')
+    Questionnaire = apps.get_model("evaluation", "Questionnaire")
     Questionnaire.objects.filter(type=20).update(is_for_contributors=True)
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0064_questionnaire_index_rename'),
+        ("evaluation", "0064_questionnaire_index_rename"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='questionnaire',
-            options={'ordering': ('type', 'order', 'name_de'), 'verbose_name': 'questionnaire', 'verbose_name_plural': 'questionnaires'},
+            name="questionnaire",
+            options={
+                "ordering": ("type", "order", "name_de"),
+                "verbose_name": "questionnaire",
+                "verbose_name_plural": "questionnaires",
+            },
         ),
         migrations.AddField(
-            model_name='questionnaire',
-            name='type',
-            field=models.IntegerField(choices=[(10, 'Top questionnaire'), (20, 'Contributor questionnaire'), (30, 'Bottom questionnaire')], default=10, verbose_name='type'),
+            model_name="questionnaire",
+            name="type",
+            field=models.IntegerField(
+                choices=[(10, "Top questionnaire"), (20, "Contributor questionnaire"), (30, "Bottom questionnaire")],
+                default=10,
+                verbose_name="type",
+            ),
             preserve_default=True,
         ),
-        migrations.RunPython(
-            migrate_is_for_contributors_to_type,
-            reverse_code=migrate_type_to_is_for_contributors
-        ),
+        migrations.RunPython(migrate_is_for_contributors_to_type, reverse_code=migrate_type_to_is_for_contributors),
         migrations.RemoveField(
-            model_name='questionnaire',
-            name='is_for_contributors',
+            model_name="questionnaire",
+            name="is_for_contributors",
         ),
     ]

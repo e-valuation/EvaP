@@ -4,7 +4,7 @@ from django.db import migrations, models
 
 
 def remove_dropout_questionnaires(apps, _schema_editor):
-    questionnaire_model = apps.get_model('evaluation', 'Questionnaire')
+    questionnaire_model = apps.get_model("evaluation", "Questionnaire")
 
     for questionnaire in questionnaire_model.objects.filter(type=5):
         for question in questionnaire.questions.all():
@@ -26,8 +26,7 @@ class Migration(migrations.Migration):
             name="dropout_count",
             field=models.IntegerField(default=0, verbose_name="dropout count"),
         ),
-        migrations.RunPython(migrations.RunPython.noop,
-                             reverse_code=remove_dropout_questionnaires),
+        migrations.RunPython(migrations.RunPython.noop, reverse_code=remove_dropout_questionnaires),
         migrations.AlterField(
             model_name="questionnaire",
             name="type",

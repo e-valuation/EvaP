@@ -6,15 +6,15 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('grades', '0011_auto_20160301_1438'),
+        ("grades", "0011_auto_20160301_1438"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='semestergradedownloadactivation',
-            name='semester',
+            model_name="semestergradedownloadactivation",
+            name="semester",
         ),
         migrations.DeleteModel(
-            name='SemesterGradeDownloadActivation',
+            name="SemesterGradeDownloadActivation",
         ),
     ]

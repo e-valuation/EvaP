@@ -121,35 +121,24 @@
                                             {% include 'evaluation_badges.html' with mode='contributor' %}
                                         {% else %}
                                             {% if evaluation.is_midterm_evaluation %}<span class="badge bg-dark">{% translate 'Midterm evaluation' %}</span>{% endif %}
-                                            {% if evaluation.is_single_result %}
-                                                <span class="badge bg-success">{% translate 'Single result' %}</span>
-                                            {% endif %}
                                         {% endif %}
                                     </td>
                                     <td>
                                         <span data-bs-toggle="tooltip" data-bs-placement="left" title="{{ evaluation.state|statedescription }}">{{ evaluation.state|statename }}</span>
                                     </td>
                                     <td>
-                                        {% if evaluation.is_single_result %}
-                                            {{ evaluation.vote_start_datetime|date }}
-                                        {% else %}
-                                            {{ evaluation.vote_start_datetime }} &ndash;<br />
-                                            {{ evaluation.vote_end_date }}<br />
-                                        {% endif %}
+                                        {{ evaluation.vote_start_datetime }} &ndash;<br />
+                                        {{ evaluation.vote_end_date }}<br />
                                     </td>
                                     {% if evaluation.state >= evaluation.State.IN_EVALUATION %}
-                                        {% if evaluation.is_single_result %}
-                                            <td class="text-center"><span class="fas fa-user"></span>&nbsp;{{ evaluation.single_result_rating_result.count_sum }}</td>
-                                        {% else %}
-                                            <td>{% include 'progress_bar.html' with done=evaluation.num_voters total=evaluation.num_participants %}</td>
-                                        {% endif %}
+                                        <td>{% include 'progress_bar.html' with done=evaluation.num_voters total=evaluation.num_participants %}</td>
                                     {% else %}
                                         <td class="text-center">
                                             <span class="fas fa-user"></span> {{ evaluation.num_participants }}
                                         </td>
                                     {% endif %}
                                     <td class="text-end">
-                                        {% if evaluation.state != evaluation.State.PUBLISHED and not evaluation.is_single_result %}
+                                        {% if evaluation.state != evaluation.State.PUBLISHED %}
                                             {% if evaluation|is_user_editor_or_delegate:user %}
                                                 {% if evaluation.state == evaluation.State.PREPARED %}
                                                     <a href="{% url 'contributor:evaluation_edit' evaluation.id %}" class="btn btn-primary btn-row-hover"
@@ -179,10 +168,6 @@
                                                     <span class="fas fa-eye"></span>
                                                 </a>
                                             {% endif %}
-                                        {% elif evaluation.state != evaluation.State.PUBLISHED and evaluation.is_single_result %}
-                                            <div class="d-flex" data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'You will receive an email when the results are published.' %}">
-                                                {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass" weight_info=evaluation|weight_info %}
-                                            </div>
                                         {% elif evaluation.state == evaluation.State.PUBLISHED %}
                                             {% include 'evaluation_result_widget.html' with course_or_evaluation=evaluation %}
                                         {% endif %}

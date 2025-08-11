@@ -14,7 +14,7 @@ def delete_group(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0054_userprofile_language'),
+        ("evaluation", "0054_userprofile_language"),
     ]
 
     operations = [

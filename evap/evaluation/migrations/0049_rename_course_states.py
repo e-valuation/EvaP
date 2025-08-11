@@ -4,23 +4,23 @@ from django.db import migrations
 
 
 def rename(apps, _schema_editor):
-    Course = apps.get_model('evaluation', 'Course')
+    Course = apps.get_model("evaluation", "Course")
 
-    Course.objects.filter(state='inEvaluation').update(state="in_evaluation")
-    Course.objects.filter(state='editorApproved').update(state="editor_approved")
+    Course.objects.filter(state="inEvaluation").update(state="in_evaluation")
+    Course.objects.filter(state="editorApproved").update(state="editor_approved")
 
 
 def revert_rename(apps, _schema_editor):
-    Course = apps.get_model('evaluation', 'Course')
+    Course = apps.get_model("evaluation", "Course")
 
-    Course.objects.filter(state='in_evaluation').update(state="inEvaluation")
-    Course.objects.filter(state='editor_approved').update(state="editorApproved")
+    Course.objects.filter(state="in_evaluation").update(state="inEvaluation")
+    Course.objects.filter(state="editor_approved").update(state="editorApproved")
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0048_auto_20160301_1438'),
+        ("evaluation", "0048_auto_20160301_1438"),
     ]
 
     operations = [

@@ -17,7 +17,7 @@ def is_semester_archived(semester):
 
 
 def set_is_archived(apps, _schema_editor):
-    Semester = apps.get_model('evaluation', 'Semester')
+    Semester = apps.get_model("evaluation", "Semester")
     for semester in Semester.objects.all():
         semester.is_archived = is_semester_archived(semester)
         semester.save()
@@ -26,7 +26,7 @@ def set_is_archived(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0040_add_semester_is_archived'),
+        ("evaluation", "0040_add_semester_is_archived"),
     ]
 
     operations = [

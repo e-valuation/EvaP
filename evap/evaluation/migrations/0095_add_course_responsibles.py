@@ -7,13 +7,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0094_remove_unused_evaluation_fields'),
+        ("evaluation", "0094_remove_unused_evaluation_fields"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='course',
-            name='responsibles',
-            field=models.ManyToManyField(related_name='courses_responsible_for', to=settings.AUTH_USER_MODEL, verbose_name='responsibles'),
+            model_name="course",
+            name="responsibles",
+            field=models.ManyToManyField(
+                related_name="courses_responsible_for", to=settings.AUTH_USER_MODEL, verbose_name="responsibles"
+            ),
         ),
     ]

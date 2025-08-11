@@ -4,29 +4,33 @@ from django.db import migrations, models
 
 
 def rename_course_comments_to_general_comments(apps, _schema_editor):
-    Contribution = apps.get_model('evaluation', 'Contribution')
+    Contribution = apps.get_model("evaluation", "Contribution")
     Contribution.objects.filter(comment_visibility="COURSE").update(comment_visibility="GENERAL")
 
 
 def rename_general_comments_to_course_comments(apps, _schema_editor):
-    Contribution = apps.get_model('evaluation', 'Contribution')
+    Contribution = apps.get_model("evaluation", "Contribution")
     Contribution.objects.filter(comment_visibility="GENERAL").update(comment_visibility="COURSE")
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0083_remove_general_contributions_on_single_results'),
+        ("evaluation", "0083_remove_general_contributions_on_single_results"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='contribution',
-            name='comment_visibility',
-            field=models.CharField(choices=[('OWN', 'Own'), ('GENERAL', 'General'), ('ALL', 'All')], default='OWN', max_length=10, verbose_name='comment visibility'),
+            model_name="contribution",
+            name="comment_visibility",
+            field=models.CharField(
+                choices=[("OWN", "Own"), ("GENERAL", "General"), ("ALL", "All")],
+                default="OWN",
+                max_length=10,
+                verbose_name="comment visibility",
+            ),
         ),
         migrations.RunPython(
-            rename_course_comments_to_general_comments,
-            reverse_code=rename_general_comments_to_course_comments
+            rename_course_comments_to_general_comments, reverse_code=rename_general_comments_to_course_comments
         ),
     ]

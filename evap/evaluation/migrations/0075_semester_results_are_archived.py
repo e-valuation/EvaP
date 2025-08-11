@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0074_semester_grade_documents_are_deleted'),
+        ("evaluation", "0074_semester_grade_documents_are_deleted"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='semester',
-            name='results_are_archived',
-            field=models.BooleanField(default=False, verbose_name='results are archived'),
+            model_name="semester",
+            name="results_are_archived",
+            field=models.BooleanField(default=False, verbose_name="results are archived"),
         ),
     ]

@@ -6,21 +6,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0049_rename_course_states'),
+        ("evaluation", "0049_rename_course_states"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='question',
-            options={'ordering': ['order'], 'verbose_name': 'question', 'verbose_name_plural': 'questions'},
+            name="question",
+            options={"ordering": ["order"], "verbose_name": "question", "verbose_name_plural": "questions"},
         ),
         migrations.AddField(
-            model_name='question',
-            name='order',
-            field=models.IntegerField(default=-1, verbose_name='questionn order'),
+            model_name="question",
+            name="order",
+            field=models.IntegerField(default=-1, verbose_name="questionn order"),
         ),
         migrations.AlterOrderWithRespectTo(
-            name='question',
+            name="question",
             order_with_respect_to=None,
         ),
     ]

@@ -4,14 +4,14 @@ from django.db import migrations
 
 
 def delete_hidden_textanswers(apps, _schema_editor):
-    TextAnswer = apps.get_model('evaluation', 'TextAnswer')
-    TextAnswer.objects.filter(contribution__course__state='published', state='HI').delete()
+    TextAnswer = apps.get_model("evaluation", "TextAnswer")
+    TextAnswer.objects.filter(contribution__course__state="published", state="HI").delete()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0068_course_can_publish_text_results'),
+        ("evaluation", "0068_course_can_publish_text_results"),
     ]
 
     operations = [

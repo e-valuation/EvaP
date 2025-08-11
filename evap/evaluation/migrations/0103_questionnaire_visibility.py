@@ -30,25 +30,26 @@ def remove_questionnaire_visibility(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0102_individual_publishing_notice_email_template'),
+        ("evaluation", "0102_individual_publishing_notice_email_template"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='questionnaire',
-            name='visibility',
-            field=models.IntegerField(choices=[(0, "Don't show"), (1, 'Managers only'), (2, 'Managers and editors')], default=1, verbose_name='visibility'),
+            model_name="questionnaire",
+            name="visibility",
+            field=models.IntegerField(
+                choices=[(0, "Don't show"), (1, "Managers only"), (2, "Managers and editors")],
+                default=1,
+                verbose_name="visibility",
+            ),
         ),
-        migrations.RunPython(
-            fill_questionnaire_visibility,
-            reverse_code=remove_questionnaire_visibility
+        migrations.RunPython(fill_questionnaire_visibility, reverse_code=remove_questionnaire_visibility),
+        migrations.RemoveField(
+            model_name="questionnaire",
+            name="manager_only",
         ),
         migrations.RemoveField(
-            model_name='questionnaire',
-            name='manager_only',
-        ),
-        migrations.RemoveField(
-            model_name='questionnaire',
-            name='obsolete',
+            model_name="questionnaire",
+            name="obsolete",
         ),
     ]

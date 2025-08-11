@@ -1,27 +1,21 @@
-{% if evaluation.is_single_result %}
-    <span class="small">
-        {{ evaluation.vote_start_datetime|date:"Y-m-d" }}
-    </span>
-{% else %}
-    <span class="small">
-        {{ evaluation.vote_start_datetime }}{% if not start_only %} &ndash;<br />
-        {{ evaluation.vote_end_date }} ({% blocktranslate count runtime=evaluation.runtime %}{{ runtime }} day{% plural %}{{ runtime }} days{% endblocktranslate %}){% endif %}
-    </span><br />
-    {% if not start_only %}
-        {% if state < evaluation.State.IN_EVALUATION  %}
-            {% if evaluation.days_until_evaluation < 0 %}
-                <div class="badge bg-danger">
-                    {% translate 'Overdue' %}
-                </div>
-            {% else %}
-                <div class="badge {% if evaluation.days_until_evaluation <= 7 %}bg-warning{% else %}bg-light{% endif %}">
-                    {% translate 'Begins in' %} {{ evaluation.vote_start_datetime|timeuntil }}
-                </div>
-            {% endif %}
-        {% elif state == evaluation.State.IN_EVALUATION %}
-            <div class="badge {% if evaluation.days_left_for_evaluation <= 3 %}bg-dark{% else %}bg-light{% endif %}">
-                {% translate 'Ends in' %} {{ evaluation.vote_end_datetime|timeuntil }}
+<span class="small">
+    {{ evaluation.vote_start_datetime }}{% if not start_only %} &ndash;<br />
+    {{ evaluation.vote_end_date }} ({% blocktranslate count runtime=evaluation.runtime %}{{ runtime }} day{% plural %}{{ runtime }} days{% endblocktranslate %}){% endif %}
+</span><br />
+{% if not start_only %}
+    {% if state < evaluation.State.IN_EVALUATION  %}
+        {% if evaluation.days_until_evaluation < 0 %}
+            <div class="badge bg-danger">
+                {% translate 'Overdue' %}
+            </div>
+        {% else %}
+            <div class="badge {% if evaluation.days_until_evaluation <= 7 %}bg-warning{% else %}bg-light{% endif %}">
+                {% translate 'Begins in' %} {{ evaluation.vote_start_datetime|timeuntil }}
             </div>
         {% endif %}
+    {% elif state == evaluation.State.IN_EVALUATION %}
+        <div class="badge {% if evaluation.days_left_for_evaluation <= 3 %}bg-dark{% else %}bg-light{% endif %}">
+            {% translate 'Ends in' %} {{ evaluation.vote_end_datetime|timeuntil }}
+        </div>
     {% endif %}
 {% endif %}

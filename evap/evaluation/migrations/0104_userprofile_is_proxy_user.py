@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0103_questionnaire_visibility'),
+        ("evaluation", "0103_questionnaire_visibility"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='userprofile',
-            name='is_proxy_user',
-            field=models.BooleanField(default=False, verbose_name='Proxy user'),
+            model_name="userprofile",
+            name="is_proxy_user",
+            field=models.BooleanField(default=False, verbose_name="Proxy user"),
         ),
     ]

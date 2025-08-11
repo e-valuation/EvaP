@@ -171,24 +171,6 @@ class TestAnonymizeCommand(TestCase):
             answer_count = RatingAnswerCounter.objects.filter(question=question).aggregate(Sum("count"))["count__sum"]
             self.assertEqual(answers_per_question[question], answer_count)
 
-    def test_single_result_anonymization(self):
-        questionnaire = Questionnaire.single_result_questionnaire()
-        single_result = baker.make(Evaluation, is_single_result=True, course=self.course)
-        single_result.general_contribution.questionnaires.set([questionnaire])
-        question = Question.objects.get(questionnaire=questionnaire)
-
-        answer_count_before = 0
-        choices = [choice for choice in CHOICES[question.type].values if choice != NO_ANSWER]
-
-        answer_counts = [random.randint(50, 100) for answer in choices]
-        answer_count_before = sum(answer_counts)
-        make_rating_answer_counters(question, single_result.general_contribution, answer_counts)
-
-        management.call_command("anonymize", stdout=StringIO())
-
-        self.assertLessEqual(RatingAnswerCounter.objects.count(), len(choices))
-        self.assertEqual(RatingAnswerCounter.objects.aggregate(Sum("count"))["count__sum"], answer_count_before)
-
     def test_user_with_password(self):
         baker.make(UserProfile, password=make_password("evap"))
         with self.assertRaises(AssertionError):

@@ -282,9 +282,6 @@
                             <a class="btn btn-sm btn-dark" href="{% url 'staff:evaluation_create_for_semester' semester.id %}">
                                 {% translate 'Create evaluation' %}
                             </a>
-                            <a class="btn btn-sm btn-dark ms-2" href="{% url 'staff:single_result_create_for_semester' semester.id %}">
-                                {% translate 'Create single result' %}
-                            </a>
                         {% endif %}
                     </div>
                     <div class="col-3">
@@ -549,15 +546,10 @@
                                                 <span class="fas fa-clipboard-check"></span>
                                             </a>
                                             <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
-                                                href="{% url 'staff:single_result_create_for_course' course.id %}"
-                                                title="{% translate 'Create single result for this course' %}">
-                                                <span class="fas fa-square-poll-vertical"></span>
-                                        </a>
-                                        <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
-                                            href="{% url 'staff:course_copy' course.id %}"
-                                            title="{% translate 'Copy course' %}">
-                                            <span class="fas fa-copy"></span>
-                                        </a>
+                                                href="{% url 'staff:course_copy' course.id %}"
+                                                title="{% translate 'Copy course' %}">
+                                                <span class="fas fa-copy"></span>
+                                            </a>
                                         {% endif %}
                                         {% if course.can_be_deleted_by_manager %}
                                             <confirmation-modal type="submit" form="course-deletion-form" name="course_id" value="{{ course.id }}" confirm-button-class="btn-danger">

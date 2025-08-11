@@ -12,14 +12,16 @@ def mark_last_semester_as_active(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0109_questionnaire_is_locked'),
+        ("evaluation", "0109_questionnaire_is_locked"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='semester',
-            name='is_active',
-            field=models.BooleanField(default=None, unique=True, blank=True, null=True, verbose_name='semester is active'),
+            model_name="semester",
+            name="is_active",
+            field=models.BooleanField(
+                default=None, unique=True, blank=True, null=True, verbose_name="semester is active"
+            ),
         ),
         migrations.RunPython(
             mark_last_semester_as_active,

@@ -4,13 +4,13 @@ from django.db import migrations
 
 
 def create_cronjob_user(apps, _schema_editor):
-    UserProfile = apps.get_model('evaluation', 'UserProfile')
+    UserProfile = apps.get_model("evaluation", "UserProfile")
 
     UserProfile.objects.create(username="cronjob")
 
 
 def delete_cronjob_user(apps, _schema_editor):
-    UserProfile = apps.get_model('evaluation', 'UserProfile')
+    UserProfile = apps.get_model("evaluation", "UserProfile")
 
     UserProfile.objects.get(username="cronjob").delete()
 
@@ -18,7 +18,7 @@ def delete_cronjob_user(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0052_add_course_is_private'),
+        ("evaluation", "0052_add_course_is_private"),
     ]
 
     operations = [
