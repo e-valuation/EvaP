@@ -66,8 +66,7 @@ class GlobalRewards:
 
         evaluations = (
             Semester.active_semester()
-            .evaluations.filter(is_single_result=False)
-            .exclude(state__lt=Evaluation.State.APPROVED)
+            .evaluations.exclude(state__lt=Evaluation.State.APPROVED)
             .exclude(is_rewarded=False)
             .exclude(id__in=settings.GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS)
             .exclude(course__type__id__in=settings.GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS)

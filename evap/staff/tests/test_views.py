@@ -42,10 +42,8 @@ from evap.evaluation.tests.tools import (
     TestCase,
     WebTest,
     assert_no_database_modifications,
-    create_evaluation_with_responsible_and_editor,
     let_user_vote_for_evaluation,
     make_manager,
-    make_rating_answer_counters,
     submit_with_modal,
 )
 from evap.grades.models import GradeDocument
@@ -828,7 +826,7 @@ class TestSemesterView(WebTestStaffMode):
 class TestGetEvaluationsWithPrefetchedData(TestCase):
     @staticmethod
     def test_get_evaluations_with_prefetched_data():
-        evaluation = baker.make(Evaluation, is_single_result=True)
+        evaluation = baker.make(Evaluation)
         get_evaluations_with_prefetched_data(evaluation.course.semester)
 
 
@@ -1231,7 +1229,6 @@ class TestSemesterImportView(WebTestStaffMode):
         check_evaluation = check_course.evaluations.first()
         self.assertEqual(check_evaluation.name_en, "")
         self.assertEqual(check_evaluation.weight, 1)
-        self.assertFalse(check_evaluation.is_single_result)
         self.assertTrue(check_evaluation.is_rewarded)
         self.assertFalse(check_evaluation.is_midterm_evaluation)
         self.assertEqual(check_evaluation.participants.count(), 2)
@@ -1411,27 +1408,9 @@ class TestSemesterRawDataExportView(WebTestStaffModeWith200Check):
 
         response = self.app.get(self.url, user=self.manager)
         expected_content = (
-            "Name;Programs;Type;Single result;State;#Voters;#Participants;#Text answers;Average grade\n"
-            "Course 1 – E1;;Type;False;new;1;1;0;\n"
-            "Course 2;;Type;False;new;0;1;0;\n"
-        )
-        self.assertEqual(response.content, expected_content.encode("utf-8"))
-
-    def test_single_result(self):
-        baker.make(
-            Evaluation,
-            course=baker.make(
-                Course, type=self.course_type, semester=self.semester, name_de="3", name_en="Single Result"
-            ),
-            _participant_count=5,
-            _voter_count=5,
-            is_single_result=True,
-        )
-
-        response = self.app.get(self.url, user=self.manager)
-        expected_content = (
-            "Name;Programs;Type;Single result;State;#Voters;#Participants;#Text answers;Average grade\n"
-            "Single Result;;Type;True;new;5;5;0;\n"
+            "Name;Programs;Type;State;#Voters;#Participants;#Text answers;Average grade\n"
+            "Course 1 – E1;;Type;new;1;1;0;\n"
+            "Course 2;;Type;new;0;1;0;\n"
         )
         self.assertEqual(response.content, expected_content.encode("utf-8"))
 
@@ -1884,52 +1863,7 @@ class TestCourseCreateView(WebTestStaffMode):
         self.prepare_form("c", "d").submit("operation", value="save_create_evaluation")
         self.assertEqual(mock_redirect.call_args.args[0], "staff:evaluation_create_for_course")
 
-        self.prepare_form("e", "f").submit("operation", value="save_create_single_result")
-        self.assertEqual(mock_redirect.call_args.args[0], "staff:single_result_create_for_course")
-
-        self.assertEqual(mock_redirect.call_count, 3)
-
-
-class TestSingleResultCreateView(WebTestStaffMode):
-    @classmethod
-    def setUpTestData(cls):
-        cls.manager = make_manager()
-        cls.course = baker.make(Course)
-        cls.url_for_semester = reverse("staff:single_result_create_for_semester", args=[cls.course.semester.pk])
-        cls.url_for_course = reverse("staff:single_result_create_for_course", args=[cls.course.pk])
-
-    def test_urls_use_common_impl(self):
-        for url in [self.url_for_course, self.url_for_semester]:
-            with patch("evap.staff.views.single_result_create_impl") as mock:
-                mock.return_value = HttpResponse()
-                self.app.get(url, user=self.manager)
-                mock.assert_called_once()
-
-    def test_course_is_prefilled(self):
-        response = self.app.get(self.url_for_course, user=self.manager, status=200)
-        form = response.context["form"]
-        self.assertEqual(form["course"].initial, self.course.pk)
-
-    def test_single_result_create(self):
-        """
-        Tests the single result creation view with one valid and one invalid input dataset.
-        """
-        response = self.app.get(self.url_for_semester, user=self.manager, status=200)
-        form = response.forms["single-result-form"]
-        form["course"] = self.course.pk
-        form["name_de"] = "qwertz"
-        form["name_en"] = "qwertz"
-        form["answer_1"] = 6
-        form["answer_3"] = 2
-        # missing event_date to get a validation error
-
-        form.submit()
-        self.assertFalse(Evaluation.objects.exists())
-
-        form["event_date"] = "2014-01-01"  # now do it right
-
-        form.submit()
-        self.assertEqual(Evaluation.objects.get().name_de, "qwertz")
+        self.assertEqual(mock_redirect.call_count, 2)
 
 
 class TestEvaluationCreateView(WebTestStaffMode):
@@ -2084,12 +2018,6 @@ class TestEvaluationExamCreation(WebTestStaffMode):
         self.assertEqual(evaluation.weight, 9)
         self.assertEqual(evaluation.vote_end_date, self.exam_date - datetime.timedelta(days=1))
 
-    def test_exam_evaluation_for_single_result(self):
-        self.evaluation.is_single_result = True
-        self.evaluation.save()
-        with assert_no_database_modifications():
-            self.app.post(self.url, user=self.manager, status=400, params=self.params)
-
     def test_exam_evaluation_for_already_existing_exam_evaluation(self):
         baker.make(Evaluation, course=self.course, name_en="Exam", name_de="Klausur")
         self.assertTrue(self.evaluation.has_exam_evaluation)
@@ -2227,11 +2155,7 @@ class TestCourseEditView(WebTestStaffMode):
         self.assertEqual(mock_reverse.call_args.args[0], "staff:evaluation_create_for_course")
         self.assertRedirects(response, "/very_legit_url", fetch_redirect_response=False)
 
-        response = self.prepare_form("c").submit("operation", value="save_create_single_result")
-        self.assertEqual(mock_reverse.call_args.args[0], "staff:single_result_create_for_course")
-        self.assertRedirects(response, "/very_legit_url", fetch_redirect_response=False)
-
-        self.assertEqual(mock_reverse.call_count, 3)
+        self.assertEqual(mock_reverse.call_count, 2)
 
     @patch("evap.evaluation.models.Course.can_be_edited_by_manager", False)
     def test_uneditable_course(self):
@@ -2489,19 +2413,6 @@ class TestEvaluationDeleteView(WebTestStaffMode):
         update_template_cache_mock.assert_called_once_with(self.evaluation.course)
         self.assertFalse(Evaluation.objects.filter(pk=self.evaluation.pk).exists())
 
-    @patch.object(Evaluation, "can_be_deleted_by_manager", True)
-    def test_single_result_deletion(self):
-        self.evaluation.is_single_result = True
-        self.evaluation.save()
-        counters = baker.make(
-            RatingAnswerCounter, contribution__evaluation=self.evaluation, _quantity=5, _bulk_create=True
-        )
-
-        self.app.post(self.url, user=self.manager, params=self.post_params, status=200)
-
-        self.assertFalse(Evaluation.objects.filter(pk=self.evaluation.pk).exists())
-        self.assertFalse(RatingAnswerCounter.objects.filter(pk__in=[c.pk for c in counters]).exists())
-
     @patch.object(Evaluation, "can_be_deleted_by_manager", False)
     def test_invalid_deletion(self):
         self.app.post(self.url, user=self.manager, params=self.post_params, status=400)
@@ -2536,27 +2447,6 @@ class TestEvaluationDeleteView(WebTestStaffMode):
 
         user_a = UserProfile.objects.get(email="a@institution.example.com")
         self.assertEqual(reward_points_of_user(user_a), 3)
-
-
-class TestSingleResultEditView(WebTestStaffModeWith200Check):
-    @classmethod
-    def setUpTestData(cls):
-        result = create_evaluation_with_responsible_and_editor()
-        evaluation = result["evaluation"]
-        contribution = result["contribution"]
-
-        cls.test_users = [make_manager()]
-        cls.url = reverse("staff:evaluation_edit", args=[evaluation.pk])
-
-        evaluation.is_single_result = True
-        evaluation.save()
-
-        contribution.textanswer_visibility = Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
-        contribution.questionnaires.set([Questionnaire.single_result_questionnaire()])
-        contribution.save()
-
-        question = Questionnaire.single_result_questionnaire().questions.get()
-        make_rating_answer_counters(question, contribution, [5, 15, 40, 60, 30])
 
 
 class TestEvaluationPreviewView(WebTestStaffModeWith200Check):
