@@ -20732,19 +20732,6 @@
 },
 {
   "model": "evaluation.question",
-  "pk": 1,
-  "fields": {
-    "order": 1,
-    "questionnaire": 1,
-    "text_de": "Einzelergebnis",
-    "text_en": "Single result",
-    "allows_additional_textanswers": true,
-    "counts_for_grade": true,
-    "type": 2
-  }
-},
-{
-  "model": "evaluation.question",
   "pk": 255,
   "fields": {
     "order": 255,
