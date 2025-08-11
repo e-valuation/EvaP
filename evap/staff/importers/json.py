@@ -424,8 +424,7 @@ class JSONImporter:
             return None, False
 
         contribution, created = Contribution.objects.update_or_create(
-            evaluation=evaluation,
-            contributor=user_profile,
+            evaluation=evaluation, contributor=user_profile, role=Contribution.Role.EDITOR
         )
         return contribution, created
 
