@@ -374,6 +374,7 @@ class TestImportEvents(TestCase):
             set(main_evaluation.participants.values_list("email", flat=True)),
             {"1@example.com", "2@example.com"},
         )
+        self.assertTrue(main_evaluation.is_rewarded)
 
         self.assertEqual(Contribution.objects.filter(evaluation=main_evaluation).count(), 2)
         self.assertEqual(
@@ -397,6 +398,7 @@ class TestImportEvents(TestCase):
             {"1@example.com", "2@example.com"},
         )
         self.assertTrue(exam_evaluation.wait_for_grade_upload_before_publishing)
+        self.assertFalse(exam_evaluation.is_rewarded)
 
         self.assertEqual(Contribution.objects.filter(evaluation=exam_evaluation).count(), 4)
         self.assertEqual(
