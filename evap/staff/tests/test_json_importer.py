@@ -18,6 +18,7 @@ from evap.evaluation.models import (
     Course,
     CourseType,
     Evaluation,
+    ParticipantImportOverride,
     Program,
     Questionnaire,
     Semester,
@@ -758,6 +759,62 @@ class TestImportEvents(TestCase):
         )
         self.assertFalse(Evaluation.objects.filter(cms_id="0x5").exists())
         self.assertFalse(Evaluation.objects.filter(cms_id="0x6").exists())
+
+    def test_importer_manually_added_participants(self):
+        self._import()
+
+        evaluation = Evaluation.objects.get(cms_id="0x5")
+        user_profile_manually_added = baker.make(UserProfile)
+        original_profiles = list(evaluation.participants.all())
+
+        # Add participant without override, importer resets participants
+        evaluation.participants.add(user_profile_manually_added)
+        ParticipantImportOverride.objects.all().delete()
+
+        self._import()
+
+        self.assertQuerySetEqual(evaluation.participants.all(), original_profiles)
+
+        # Add participant with override, importer keeps manually added participant
+        evaluation.participants.add(user_profile_manually_added)
+        self._import()
+        self.assertQuerySetEqual(evaluation.participants.all(), original_profiles + [user_profile_manually_added])
+
+    def test_importer_manually_removed_participants(self):
+        self._import()
+
+        evaluation = Evaluation.objects.get(cms_id="0x5")
+        original_profiles = list(evaluation.participants.all())
+        user_profile_manually_removed = original_profiles[0]
+
+        # Remove participant without override, importer resets participants
+        evaluation.participants.remove(user_profile_manually_removed)
+        ParticipantImportOverride.objects.all().delete()
+
+        self._import()
+
+        self.assertQuerySetEqual(evaluation.participants.all(), original_profiles)
+
+        # Add participant with override, importer keeps manually added participant
+        evaluation.participants.remove(user_profile_manually_removed)
+        self._import()
+        self.assertQuerySetEqual(evaluation.participants.all(), original_profiles[1:])
+
+    def test_importer_manually_added_and_removed_participants(self):
+        self._import()
+
+        evaluation = Evaluation.objects.get(cms_id="0x5")
+        original_profiles = list(evaluation.participants.all())
+
+        user_profile_manually_removed = original_profiles[0]
+        user_profile_manually_added = baker.make(UserProfile)
+
+        evaluation.participants.add(user_profile_manually_added)
+        evaluation.participants.remove(user_profile_manually_removed)
+
+        self._import()
+
+        self.assertQuerySetEqual(evaluation.participants.all(), original_profiles[1:] + [user_profile_manually_added])
 
     @patch("evap.staff.importers.json.JSONImporter.import_json")
     def test_management_command(self, mock_import_json):

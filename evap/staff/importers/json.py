@@ -14,7 +14,17 @@ from django.utils.timezone import now
 from pydantic import TypeAdapter
 from typing_extensions import TypedDict
 
-from evap.evaluation.models import Contribution, Course, CourseType, Evaluation, Program, Semester, UserProfile
+from evap.evaluation.models import (
+    Contribution,
+    Course,
+    CourseType,
+    Evaluation,
+    ParticipantImportOverride,
+    ParticipantImportOverrideStatusChoices,
+    Program,
+    Semester,
+    UserProfile,
+)
 from evap.evaluation.tools import clean_email
 from evap.staff.tools import update_m2m_with_changes, update_or_create_with_changes, update_with_changes
 
@@ -434,8 +444,28 @@ class JSONImporter:
         if evaluation.state < Evaluation.State.APPROVED:
             direct_changes = update_with_changes(evaluation, defaults)
 
-            participant_changes = set(evaluation.participants.all()) != set(participants)
-            evaluation.participants.set(participants)
+            # Respect manual changes by checking for any ParticipantImportOverride
+            print(ParticipantImportOverride.objects.filter(evaluation=evaluation))
+            actual_participants = (
+                UserProfile.objects.filter(pk__in=[p.id for p in participants])
+                .exclude(
+                    pk__in=ParticipantImportOverride.objects.filter(
+                        evaluation=evaluation, status=ParticipantImportOverrideStatusChoices.MANUALLY_REMOVED
+                    ).values_list("user", flat=True)
+                )
+                .union(
+                    UserProfile.objects.filter(
+                        pk__in=ParticipantImportOverride.objects.filter(
+                            evaluation=evaluation, status=ParticipantImportOverrideStatusChoices.MANUALLY_ADDED
+                        ).values_list("user", flat=True)
+                    )
+                )
+            )
+
+            participant_changes = set(evaluation.participants.all()) != set(actual_participants)
+
+            with ParticipantImportOverride.deactivate_overrides(evaluation):
+                evaluation.participants.set(actual_participants)
 
             any_lecturers_changed = False
             if "lecturers" not in data:

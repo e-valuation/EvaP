@@ -44,4 +44,8 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "participant import overrides",
             },
         ),
+        migrations.AddConstraint(
+            model_name="participantimportoverride",
+            constraint=models.UniqueConstraint(fields=("evaluation", "user"), name="unique_evaluation_user"),
+        ),
     ]

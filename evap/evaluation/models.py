@@ -4,6 +4,7 @@ import secrets
 import uuid
 from collections import defaultdict
 from collections.abc import Collection, Container, Iterable, Sequence
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta
 from enum import Enum, auto
@@ -1115,9 +1116,20 @@ class ParticipantImportOverride(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name=_("user"))
     status = models.CharField(choices=ParticipantImportOverrideStatusChoices.choices, verbose_name=_("status"))
 
+    def __str__(self):
+        return f"{self.status}: {self.user} to {self.evaluation}"
+
+    @contextmanager
+    @staticmethod
+    def deactivate_overrides(evaluation):
+        evaluation._deactivate_participant_import_overrides = True
+        yield
+        del evaluation._deactivate_participant_import_overrides
+
     class Meta:
         verbose_name = _("participant import override")
         verbose_name_plural = _("participant import overrides")
+        constraints = [models.UniqueConstraint(fields=["evaluation", "user"], name="unique_evaluation_user")]
 
 
 @receiver(m2m_changed, sender=Evaluation.participants.through)
@@ -1128,11 +1140,11 @@ def update_participant_import_override(
     action,
     reverse,
     model,
-    pk_set: set[int],
+    pk_set: set[int] | None,
     using,
     **_kwargs,
 ):
-    if not instance.cms_id:
+    if getattr(instance, "_deactivate_participant_import_overrides", False) or not instance.cms_id:
         return
 
     overrides = []
