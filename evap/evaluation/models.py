@@ -1771,24 +1771,33 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
         blank=True,
         default="",
         verbose_name=_("display name"),
-        help_text=_("This will replace your first name."),
+        help_text=_("Replaces the first name."),
     )
     last_name = models.CharField(max_length=255, blank=True, verbose_name=_("last name"))
 
     language = models.CharField(max_length=8, blank=True, default="", verbose_name=_("language"))
 
-    # delegates of the user, which can also manage their evaluations
     delegates = models.ManyToManyField(
-        "evaluation.UserProfile", verbose_name=_("Delegates"), related_name="represented_users", blank=True
+        "evaluation.UserProfile",
+        verbose_name=_("Delegates"),
+        related_name="represented_users",
+        blank=True,
+        help_text=_("Users who can edit evaluations and see results on behalf of this user."),
     )
 
-    # users to which all emails should be sent in cc without giving them delegate rights
     cc_users = models.ManyToManyField(
-        "evaluation.UserProfile", verbose_name=_("CC Users"), related_name="ccing_users", blank=True
+        "evaluation.UserProfile",
+        verbose_name=_("CC Users"),
+        related_name="ccing_users",
+        blank=True,
+        help_text=_("Users who receive a copy of all emails sent to this user."),
     )
 
-    # flag for proxy users which represent a group of users
-    is_proxy_user = models.BooleanField(default=False, verbose_name=_("Proxy user"))
+    is_proxy_user = models.BooleanField(
+        default=False,
+        verbose_name=_("Proxy user"),
+        help_text=_("Technical user that represents a group of users."),
+    )
 
     # key for url based login of this user
     MAX_LOGIN_KEY = 2**31 - 1

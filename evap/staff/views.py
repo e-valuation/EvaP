@@ -1369,6 +1369,7 @@ def helper_evaluation_edit(request, evaluation):
         "state": evaluation.state,
         "editable": editable,
         "questionnaires_with_answers_per_contributor": questionnaires_with_answers_per_contributor,
+        "plain_page": True,
     }
     return render(request, "staff_evaluation_form.html", template_data)
 
