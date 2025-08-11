@@ -27,14 +27,38 @@ from evap.staff.importers.json import ImportDict, JSONImporter, NameChange, Warn
 
 EXAMPLE_DATA: ImportDict = {
     "students": [
-        {"gguid": "0x1", "email": "1@example.com", "name": "1", "christianname": "1"},
-        {"gguid": "0x2", "email": "2@example.com", "name": "2", "christianname": "2"},
+        {"gguid": "0x1", "email": "1@example.com", "name": "1", "christianname": "w_1", "callingname": "1"},
+        {"gguid": "0x2", "email": "2@example.com", "name": "2", "christianname": "w_2", "callingname": "2"},
     ],
     "lecturers": [
-        {"gguid": "0x3", "email": "3@example.com", "name": "3", "christianname": "3", "titlefront": "Prof. Dr."},
-        {"gguid": "0x4", "email": "4@example.com", "name": "4", "christianname": "4", "titlefront": "Dr."},
-        {"gguid": "0x5", "email": "5@example.com", "name": "5", "christianname": "5", "titlefront": ""},
-        {"gguid": "0x6", "email": "6@example.com", "name": "6", "christianname": "6", "titlefront": ""},
+        {
+            "gguid": "0x3",
+            "email": "3@example.com",
+            "name": "3",
+            "christianname": "3",
+            "titlefront": "Prof. Dr.",
+        },
+        {
+            "gguid": "0x4",
+            "email": "4@example.com",
+            "name": "4",
+            "christianname": "4",
+            "titlefront": "Dr.",
+        },
+        {
+            "gguid": "0x5",
+            "email": "5@example.com",
+            "name": "5",
+            "christianname": "5",
+            "titlefront": "",
+        },
+        {
+            "gguid": "0x6",
+            "email": "6@example.com",
+            "name": "6",
+            "christianname": "6",
+            "titlefront": "",
+        },
     ],
     "events": [
         {
@@ -100,15 +124,33 @@ EXAMPLE_DATA_WITH_PREFIX = {
 }
 EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
     "students": [
-        {"gguid": "0x1", "email": "", "name": "1", "christianname": "1"},
-        {"gguid": "0x2", "email": "2@example.com", "name": "2", "christianname": "2"},
-        {"gguid": "0x7", "email": "ignored.student@example.com", "name": "7", "christianname": "7"},
-        {"gguid": "0x11", "email": "IGNORED.StUdEnT2@example.CoM", "name": "11", "christianname": "11"},
+        {"gguid": "0x1", "email": "", "name": "1", "christianname": "w_1", "callingname": "1"},
+        {"gguid": "0x2", "email": "2@example.com", "name": "2", "christianname": "w_2", "callingname": "2"},
+        {"gguid": "0x7", "email": "ignored.student@example.com", "name": "7", "christianname": "7", "callingname": "7"},
+        {
+            "gguid": "0x11",
+            "email": "IGNORED.StUdEnT2@example.CoM",
+            "name": "11",
+            "christianname": "11",
+            "callingname": "11",
+        },
     ],
     "lecturers": [
         {"gguid": "0x3", "email": "", "name": "3", "christianname": "3", "titlefront": "Prof. Dr."},
-        {"gguid": "0x4", "email": "4@example.com", "name": "4", "christianname": "4", "titlefront": "Prof. Dr."},
-        {"gguid": "0x5", "email": "5@example.com", "name": "5", "christianname": "5", "titlefront": "Prof. Dr."},
+        {
+            "gguid": "0x4",
+            "email": "4@example.com",
+            "name": "4",
+            "christianname": "4",
+            "titlefront": "Prof. Dr.",
+        },
+        {
+            "gguid": "0x5",
+            "email": "5@example.com",
+            "name": "5",
+            "christianname": "5",
+            "titlefront": "Prof. Dr.",
+        },
         {
             "gguid": "0x6",
             "email": "ignored.lecturer@example.com",
@@ -251,7 +293,7 @@ class TestImportUserProfiles(TestCase):
         for i, user_profile in enumerate(user_profiles.order_by("email")):
             self.assertEqual(user_profile.email, self.students[i]["email"])
             self.assertEqual(user_profile.last_name, self.students[i]["name"])
-            self.assertEqual(user_profile.first_name_given, self.students[i]["christianname"])
+            self.assertEqual(user_profile.first_name_given, self.students[i]["callingname"])
 
         self.assertEqual(importer.statistics.name_changes, [])
 
@@ -269,7 +311,7 @@ class TestImportUserProfiles(TestCase):
 
         self.assertEqual(user_profile.email, self.students[0]["email"])
         self.assertEqual(user_profile.last_name, self.students[0]["name"])
-        self.assertEqual(user_profile.first_name_given, self.students[0]["christianname"])
+        self.assertEqual(user_profile.first_name_given, self.students[0]["callingname"])
 
         self.assertEqual(
             importer.statistics.name_changes,
@@ -278,7 +320,7 @@ class TestImportUserProfiles(TestCase):
                     old_last_name="Doe",
                     old_first_name_given="Jane",
                     new_last_name=self.students[0]["name"],
-                    new_first_name_given=self.students[0]["christianname"],
+                    new_first_name_given=self.students[0]["callingname"],
                     email=self.students[0]["email"],
                 )
             ],
@@ -665,6 +707,14 @@ class TestImportEvents(TestCase):
         data_with_additional_attribute["extra_attribute"] = True
         # don't fail
         self._import(data_with_additional_attribute)
+
+    def test_first_name_given_fallback(self):
+        example_data = deepcopy(EXAMPLE_DATA)
+        example_data["students"][1]["callingname"] = ""
+        self._import(example_data)
+
+        self.assertEqual(UserProfile.objects.get(email="1@example.com").first_name_given, "1")
+        self.assertEqual(UserProfile.objects.get(email="2@example.com").first_name_given, "w_2")
 
     @patch("evap.staff.importers.json.JSONImporter.import_json")
     def test_management_command(self, mock_import_json):
