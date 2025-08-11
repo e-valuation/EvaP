@@ -14,7 +14,7 @@ def set_initial_values(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("evaluation", "0153_alter_userprofile_cc_users_and_more"),
+        ("evaluation", "0154_evaluation_main_language"),
     ]
 
     operations = [
