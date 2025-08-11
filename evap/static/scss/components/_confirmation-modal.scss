@@ -11,6 +11,7 @@ dialog.evap-modal-dialog {
   border: 1px solid $dark-gray;
   border-radius: 0.5rem;
   padding: 0;
+  overflow: visible;
 
   // These attributes are inherited from parent elements, although it usually does not make any sense, because the
   // dialog is not displayed inside of the parent element. This list might grow over time.

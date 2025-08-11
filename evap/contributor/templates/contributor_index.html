@@ -146,13 +146,26 @@
                                                         <span class="fas fa-pencil"></span>
                                                     </a>
                                                     {% if not evaluation|has_nonresponsible_editor %}
-                                                        <button class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
-                                                            data-bs-placement="top" title="{% translate 'Delegate preparation' %}"
-                                                            data-evaluation-name="{{ evaluation.full_name }}"
-                                                            data-delegation-url="{% url 'contributor:evaluation_direct_delegation' evaluation.id %}"
-                                                        >
-                                                            <span class="fas fa-hand-point-left"></span>
-                                                        </button>
+                                                        <form class="d-inline" method="POST" action="{% url 'contributor:evaluation_direct_delegation' evaluation.id %}">
+                                                            {% csrf_token %}
+
+                                                            <confirmation-modal type="submit">
+                                                                <span slot="title">{% translate 'Delegate preparation' %}</span>
+                                                                <span slot="action-text">{% translate 'Delegate preparation' %}</span>
+                                                                <span slot="question">
+                                                                    {% blocktranslate trimmed %}Do you really want to delegate the preparation of the evaluation <strong>{{ evaluation }}</strong>?{% endblocktranslate %}
+                                                                </span>
+                                                                <div slot="extra-inputs">
+                                                                    <div class="my-4">
+                                                                        {% include 'bootstrap_form.html' with form=delegate_selection_form plain=True %}
+                                                                    </div>
+                                                                </div>
+
+                                                                <button slot="show-button" type="button" class="btn btn-sm btn-dark" title="{% translate 'Delegate preparation' %}" data-bs-toggle="tooltip" data-bs-placement="top">
+                                                                    <span class="fas fa-hand-point-left"></span>
+                                                                </button>
+                                                            </confirmation-modal>
+                                                        </form>
                                                     {% endif %}
                                                 {% elif evaluation.state == evaluation.State.EDITOR_APPROVED or evaluation.state == evaluation.State.APPROVED %}
                                                     <a href="{% url 'contributor:evaluation_view' evaluation.id %}" class="btn btn-sm btn-light"
@@ -181,57 +194,4 @@
         </div>
         {% endif %}
     {% endfor %}
-{% endblock %}
-
-{% block modals %}
-    {{ block.super }}
-
-    {% with modal_id='delegateSelectionModal' %}
-        <div class="modal fade" id="{{ modal_id }}" role="dialog" aria-labelledby="{{ modal_id }}Label" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                    <form method="POST">
-                        {% csrf_token %}
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="{{ modal_id }}Label">{% translate 'Delegate preparation' %}</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            {% translate 'Do you really want to delegate the preparation of the evaluation <strong data-label=""></strong>?' %}
-                            <div class="my-4">
-                                {% include 'bootstrap_form.html' with form=delegate_selection_form plain=True %}
-                            </div>
-                            <div class="modal-submit-group">
-                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% translate 'Cancel' %}</button>
-                                <button type="submit" id="btn-action" class="btn btn-primary ms-2">{% translate 'Delegate preparation' %}</button>
-                            </div>
-                        </div>
-
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <script type="module">
-            document.querySelectorAll("[data-evaluation-name][data-delegation-url]").forEach(showButton => {
-                showButton.addEventListener("click", event => {
-                    event.stopPropagation();
-
-                    const modal = document.getElementById("{{ modal_id }}");
-                    // set form's action location
-                    modal.querySelectorAll("form").forEach(form => form.action = showButton.dataset.delegationUrl);
-
-                    // put the correct evaluation name in the modal
-                    modal.querySelectorAll('[data-label=""]').forEach(el => el.innerText = showButton.dataset.evaluationName);
-
-                    // unselect any previously selected options in the modal
-                    modal.querySelectorAll("select").forEach(select => select.tomselect.clear());
-
-                    // show modal
-                    var {{ modal_id }} = new bootstrap.Modal(document.getElementById('{{ modal_id }}'));
-                    {{ modal_id }}.show();
-                });
-            });
-        </script>
-    {% endwith %}
 {% endblock %}
