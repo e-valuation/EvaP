@@ -7,7 +7,7 @@ def set_initial_values(apps, _schema_editor):
     TEXT = 0
     HEADING = 5
 
-    Question = apps.get_model('evaluation', 'Question')
+    Question = apps.get_model("evaluation", "Question")
     Question.objects.filter(type__in=[TEXT, HEADING]).update(counts_for_grade=False)
 
 
