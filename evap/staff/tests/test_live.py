@@ -125,7 +125,7 @@ class ParticipantCollapseTests(LiveServerTest):
         self.assertTrue("collapsed" in classes_of_element(card_header))
 
         counter = card_header.find_element(By.CSS_SELECTOR, ".rounded-pill")
-        assert counter.text == "0"
+        self.assertTrue(counter.text == "0")
 
         # participant_box = self.selenium.find_element(By.CSS_SELECTOR, "div#participant-box.collapse.show")
         # card_header.click()
