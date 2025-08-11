@@ -7,7 +7,6 @@ from selenium.webdriver.support.expected_conditions import element_to_be_clickab
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Program, Question, Questionnaire, UserProfile
 from evap.evaluation.tests.tools import LiveServerTest, classes_of_element
-from selenium.webdriver.support.select import Select
 
 
 class EvaluationEditLiveTest(LiveServerTest):
@@ -73,11 +72,12 @@ class EvaluationEditLiveTest(LiveServerTest):
         self.assertEqual(contribution1.role, Contribution.Role.EDITOR)
         self.assertEqual(contribution1.textanswer_visibility, Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
 
+
 class ParticipantCollapseTests(LiveServerTest):
     def test_collapse_with_participants(self) -> None:
 
         participants = baker.make(UserProfile, _quantity=20)
-        new_participant = baker.make(UserProfile, last_name="participant")
+        baker.make(UserProfile, last_name="participant")
 
         responsible = baker.make(UserProfile)
         evaluation = baker.make(
@@ -93,20 +93,19 @@ class ParticipantCollapseTests(LiveServerTest):
 
         card_header = self.selenium.find_element(By.CSS_SELECTOR, ".card:has(#id_participants) .card-header")
         self.assertTrue("collapsed" in classes_of_element(card_header))
-        
+
         card_header.click()
         self.assertFalse("collapsed" in classes_of_element(card_header))
 
         counter = card_header.find_element(By.CSS_SELECTOR, ".rounded-pill")
-        assert counter.text == "20"
-        
+        self.assertTrue(counter.text == "20")
+
         tomselect_input = self.selenium.find_element(By.CSS_SELECTOR, "input#id_participants-ts-control")
         tomselect_input.click()
         tomselect_input.send_keys("participant")
 
         self.selenium.find_element(By.CSS_SELECTOR, ".option.active").click()
-        self.assertTrue("21")
-
+        self.assertTrue(counter.text == "21")
 
     def test_collapse_without_participants(self) -> None:
         responsible = baker.make(UserProfile, last_name="responsible")

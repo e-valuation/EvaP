@@ -20,8 +20,8 @@ from django.test.utils import CaptureQueriesContext
 from django.utils import timezone, translation
 from model_bakery import baker
 from selenium.webdriver.firefox.webdriver import WebDriver
-from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.support.wait import WebDriverWait
 
 from evap.evaluation.models import (
     CHOICES,
@@ -327,8 +327,9 @@ class LiveServerTest(SeleniumTestCase):
         super().setUpClass()
         cls.selenium.set_window_size(*cls.window_size)
 
+
 def classes_of_element(element: WebElement) -> list[str]:
-    if element.get_attribute("class") is None:
+    classes = element.get_attribute("class")
+    if classes is None:
         return []
-    else:
-        return element.get_attribute("class").split(" ")
+    return classes.split(" ")
