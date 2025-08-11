@@ -62,7 +62,7 @@
                                             <label class="form-check-label" for="{{ form_element.allows_additional_textanswers.id_for_label }}">{{ form_element.allows_additional_textanswers.label }}</label>
                                         </div>
                                         <div class="form-check mt-1">
-                                            <input class="form-check-input" id="{{ form_element.counts_for_grade.id_for_label }}" name="{{ form_element.counts_for_grade.html_name }}"
+                                            <input class="form-check-input counts-for-grade-checkbox" id="{{ form_element.counts_for_grade.id_for_label }}" name="{{ form_element.counts_for_grade.html_name }}"
                                                 type="checkbox" data-keep="true" {% if form_element.counts_for_grade.value %} checked{% endif %}
                                                 {% if form_element.counts_for_grade.field.disabled %} disabled{% endif %} />
                                             <label class="form-check-label" for="{{ form_element.counts_for_grade.id_for_label }}">{{ form_element.counts_for_grade.label }}</label>
@@ -105,16 +105,70 @@
 
             const selectChangedHandler = function(e) {
                 const checkboxes = this.closest("td.question-type").querySelectorAll("input[type=checkbox]");
+                const countsForGradeCheckbox = this.closest("td.question-type").querySelector(".counts-for-grade-checkbox");
+                
                 if (e.currentTarget.value == 0 || e.currentTarget.value == 5) {  // 0: Text question; 5: Heading
                     checkboxes.forEach(checkbox => {
                         checkbox.checked = false;
                         checkbox.disabled = true;
                     });
                 } else {
-                    checkboxes.forEach(checkbox => {
-                        checkbox.checked = true;
-                        checkbox.disabled = false;
-                    });
+                    // Check if this is a dropout questionnaire before enabling checkboxes
+                    const questionnaireTypeSelect = document.querySelector('select[name="type"]');
+                    if (questionnaireTypeSelect) {
+                        const questionnaireType = parseInt(questionnaireTypeSelect.value);
+                        
+                        if (questionnaireType == 5) { // Dropout questionnaire
+                            checkboxes.forEach(checkbox => {
+                                if (checkbox.classList.contains('counts-for-grade-checkbox')) {
+                                    checkbox.checked = false;
+                                    checkbox.disabled = true;
+                                } else {
+                                    checkbox.checked = true;
+                                    checkbox.disabled = false;
+                                }
+                            });
+                        } else {
+                            checkboxes.forEach(checkbox => {
+                                checkbox.checked = true;
+                                checkbox.disabled = false;
+                            });
+                        }
+                    } else {
+                        // Fallback: enable all checkboxes if questionnaire type not found
+                        checkboxes.forEach(checkbox => {
+                            checkbox.checked = true;
+                            checkbox.disabled = false;
+                        });
+                    }
+                }
+            };
+
+            const handleQuestionnaireTypeChange = function() {
+                const typeSelect = document.querySelector('select[name="type"]');
+                if (typeSelect) {
+                    const selectedType = parseInt(typeSelect.value);
+                    const countsForGradeCheckboxes = document.querySelectorAll('.counts-for-grade-checkbox');
+                    
+                    if (selectedType == 5) { // Dropout questionnaire
+                        countsForGradeCheckboxes.forEach(checkbox => {
+                            checkbox.checked = false;
+                            checkbox.disabled = true;
+                        });
+                    } else {
+                        countsForGradeCheckboxes.forEach(checkbox => {
+                            const questionTypeSelect = checkbox.closest("td.question-type").querySelector("select");
+                            if (questionTypeSelect) {
+                                const questionType = parseInt(questionTypeSelect.value);
+                                if (questionType == 0 || questionType == 5 || isNaN(questionType)) { // 0: Text question; 5: Heading; NaN: Not set
+                                    checkbox.checked = false;
+                                    checkbox.disabled = true;
+                                } else {
+                                    checkbox.disabled = false;
+                                }
+                            }
+                        });
+                    }
                 }
             };
 
@@ -123,6 +177,13 @@
                     selectElement.addEventListener('change', selectChangedHandler);
                     selectElement.dispatchEvent(new Event("change"));
                 });
+                
+                const questionnaireTypeSelect = document.querySelector('select[name="type"]');
+                if (questionnaireTypeSelect) {
+                    questionnaireTypeSelect.addEventListener('change', handleQuestionnaireTypeChange);
+                    // Trigger initial check
+                    handleQuestionnaireTypeChange();
+                }
             };
             registerSelectChangedHandlers();
         </script>
