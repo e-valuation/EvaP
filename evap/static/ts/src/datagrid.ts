@@ -314,6 +314,7 @@ export class EvaluationGrid extends DataGrid {
         this.resetFilterButton.addEventListener("click", () => {
             this.state.search = "";
             this.state.equalityFilter.clear();
+            this.filterButtons.forEach(button => button.classList.remove("active"));
             this.state.rangeFilter.clear();
             this.filterRows();
             this.renderToDOM();
