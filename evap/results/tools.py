@@ -188,16 +188,6 @@ class EvaluationResult:
         ]
 
 
-def get_single_result_rating_result(evaluation):
-    assert evaluation.is_single_result
-
-    answer_counters = RatingAnswerCounter.objects.filter(contribution__evaluation__pk=evaluation.pk)
-    assert 1 <= len(answer_counters) <= 5
-
-    question = Question.objects.get(questionnaire__name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME)
-    return create_rating_result(question, answer_counters)
-
-
 def get_results_cache_key(evaluation: Evaluation) -> str:
     return f"evap.staff.results.tools.get_results-{evaluation.id:d}"
 
@@ -282,11 +272,7 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
 
 def annotate_distributions_and_grades(evaluations):
     for evaluation in evaluations:
-        if not evaluation.is_single_result:
-            evaluation.distribution = calculate_average_distribution(evaluation)
-        else:
-            evaluation.single_result_rating_result = get_single_result_rating_result(evaluation)
-            evaluation.distribution = normalized_distribution(evaluation.single_result_rating_result.counts)
+        evaluation.distribution = calculate_average_distribution(evaluation)
         evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
 
 
@@ -358,11 +344,7 @@ def calculate_average_course_distribution(course, check_for_unpublished_evaluati
     return avg_distribution(
         [
             (
-                (
-                    calculate_average_distribution(evaluation)
-                    if not evaluation.is_single_result
-                    else normalized_distribution(get_single_result_rating_result(evaluation).counts)
-                ),
+                calculate_average_distribution(evaluation),
                 evaluation.weight,
             )
             for evaluation in course.evaluations.all()

@@ -269,12 +269,6 @@ class Questionnaire(models.Model):
     def rating_questions(self):
         return [question for question in self.questions.all() if question.is_rating_question]
 
-    SINGLE_RESULT_QUESTIONNAIRE_NAME = "Single result"
-
-    @classmethod
-    def single_result_questionnaire(cls):
-        return cls.objects.get(name_en=cls.SINGLE_RESULT_QUESTIONNAIRE_NAME)
-
 
 class Program(models.Model):
     name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"), unique=True)
@@ -444,8 +438,6 @@ class Evaluation(LoggedModel):
 
     # defines how large the influence of this evaluation's grade is on the total grade of its course
     weight = models.PositiveSmallIntegerField(verbose_name=_("weight"), default=1)
-
-    is_single_result = models.BooleanField(verbose_name=_("is single result"), default=False)
 
     # whether participants must vote to qualify for reward points
     is_rewarded = models.BooleanField(verbose_name=_("is rewarded"), default=True)
@@ -690,8 +682,6 @@ class Evaluation(LoggedModel):
         return True
 
     def can_results_page_be_seen_by(self, user):
-        if self.is_single_result:
-            return False
         if user.is_manager:
             return True
         if user.is_reviewer and not self.course.semester.results_are_archived:
@@ -704,7 +694,7 @@ class Evaluation(LoggedModel):
 
     @property
     def can_reset_to_new(self):
-        return Evaluation.State.PREPARED <= self.state <= Evaluation.State.REVIEWED and not self.is_single_result
+        return Evaluation.State.PREPARED <= self.state <= Evaluation.State.REVIEWED
 
     @property
     def can_be_edited_by_manager(self):
@@ -712,7 +702,7 @@ class Evaluation(LoggedModel):
 
     @property
     def can_be_deleted_by_manager(self):
-        return self.can_be_edited_by_manager and (self.num_voters == 0 or self.is_single_result)
+        return self.can_be_edited_by_manager and self.num_voters == 0
 
     @cached_property
     def num_participants(self):
@@ -730,11 +720,7 @@ class Evaluation(LoggedModel):
             raise NotArchivableError
         if self._participant_count is not None:
             assert self._voter_count is not None
-            assert (
-                self.is_single_result
-                or self._voter_count == self.voters.count()
-                and self._participant_count == self.participants.count()
-            )
+            assert self._voter_count == self.voters.count() and self._participant_count == self.participants.count()
             return
         assert self._participant_count is None and self._voter_count is None
         self._participant_count = self.num_participants
@@ -766,9 +752,6 @@ class Evaluation(LoggedModel):
 
     @property
     def can_publish_average_grade(self):
-        if self.is_single_result:
-            return True
-
         # the average grade is only published if at least the configured percentage of participants voted during the evaluation for significance reasons
         return (
             self.can_publish_rating_results
@@ -777,9 +760,6 @@ class Evaluation(LoggedModel):
 
     @property
     def can_publish_rating_results(self):
-        if self.is_single_result:
-            return True
-
         # the rating results are only published if at least the configured number of participants voted during the evaluation for anonymity reasons
         return self.num_voters >= settings.VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS
 
@@ -836,15 +816,6 @@ class Evaluation(LoggedModel):
         pass
 
     @transition(
-        field=state,
-        source=[State.NEW, State.REVIEWED],
-        target=State.REVIEWED,
-        conditions=[lambda self: self.is_single_result],
-    )
-    def skip_review_single_result(self):
-        pass
-
-    @transition(
         field=state, source=State.REVIEWED, target=State.EVALUATED, conditions=[lambda self: not self.is_fully_reviewed]
     )
     def reopen_review(self):
@@ -852,7 +823,7 @@ class Evaluation(LoggedModel):
 
     @transition(field=state, source=State.REVIEWED, target=State.PUBLISHED)
     def publish(self):
-        assert self.is_single_result or self._voter_count is None and self._participant_count is None
+        assert self._voter_count is None and self._participant_count is None
         self._voter_count = self.num_voters
         self._participant_count = self.num_participants
 
@@ -870,11 +841,7 @@ class Evaluation(LoggedModel):
 
     @transition(field=state, source=State.PUBLISHED, target=State.REVIEWED)
     def unpublish(self):
-        assert (
-            self.is_single_result
-            or self._voter_count == self.voters.count()
-            and self._participant_count == self.participants.count()
-        )
+        assert self._voter_count == self.voters.count() and self._participant_count == self.participants.count()
         self._voter_count = None
         self._participant_count = None
 
@@ -900,7 +867,7 @@ class Evaluation(LoggedModel):
 
     @property
     def voter_ratio(self):
-        if self.is_single_result or self.num_participants == 0:
+        if self.num_participants == 0:
             return 0
         return self.num_voters / self.num_participants
 
@@ -1085,7 +1052,6 @@ class Evaluation(LoggedModel):
     def unlogged_fields(self):
         return super().unlogged_fields + [
             "voters",
-            "is_single_result",
             "can_publish_text_results",
             "_voter_count",
             "_participant_count",
