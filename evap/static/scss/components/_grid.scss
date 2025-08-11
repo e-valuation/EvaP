@@ -264,11 +264,11 @@
     }
 
     &-asc::before {
-        content: escape-svg($order-button-icon);
+        content: escape-svg($order-button-up-icon);
     }
 
     &-desc::before {
-        background-image: escape-svg($order-button-down-icon);
+        content: escape-svg($order-button-down-icon);
     }
 }
 
