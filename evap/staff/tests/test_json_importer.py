@@ -359,6 +359,12 @@ class TestImportEvents(TestCase):
             ),
             {"3@example.com"},
         )
+        self.assertTrue(
+            all(
+                contribution.role == Contribution.Role.EDITOR
+                for contribution in Contribution.objects.filter(evaluation=main_evaluation, contributor__isnull=False)
+            )
+        )
 
         exam_evaluation = Evaluation.objects.get(name_en="Exam")
         self.assertEqual(exam_evaluation.course, course)
@@ -382,6 +388,12 @@ class TestImportEvents(TestCase):
                 )
             ),
             {"3@example.com", "4@example.com", "5@example.com"},
+        )
+        self.assertTrue(
+            all(
+                contribution.role == Contribution.Role.EDITOR
+                for contribution in Contribution.objects.filter(evaluation=exam_evaluation, contributor__isnull=False)
+            )
         )
 
         self.assertEqual(len(importer.statistics.new_courses), 1)
