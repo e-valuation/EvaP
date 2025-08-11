@@ -12,7 +12,7 @@ def _migrate(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("evaluation", "0150_rename_degrees_to_programs"),
+        ("evaluation", "0153_alter_userprofile_cc_users_and_more"),
     ]
 
     operations = [

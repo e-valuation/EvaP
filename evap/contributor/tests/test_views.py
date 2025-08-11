@@ -299,7 +299,7 @@ class TestContributorEvaluationEditView(WebTest):
 
         form["main_language"] = Evaluation.UNDECIDED_MAIN_LANGUAGE
         page = form.submit(name="operation", value="save")
-        self.assertContains(page, "A decision on the main language has to be made.")
+        self.assertContains(page, "You have to set a main language for this evaluation.")
 
         for lang, __ in settings.LANGUAGES:
             form["main_language"] = lang
