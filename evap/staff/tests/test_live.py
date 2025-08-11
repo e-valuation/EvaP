@@ -77,6 +77,7 @@ class ParticipantCollapseTests(LiveServerTest):
     def test_collapse_with_participants(self) -> None:
 
         participants = baker.make(UserProfile, _quantity=20)
+        new_participant = baker.make(UserProfile, last_name="participant")
 
         responsible = baker.make(UserProfile)
         evaluation = baker.make(
@@ -98,10 +99,17 @@ class ParticipantCollapseTests(LiveServerTest):
 
         counter = card_header.find_element(By.CSS_SELECTOR, ".rounded-pill")
         assert counter.text == "20"
+        
+        tomselect_input = self.selenium.find_element(By.CSS_SELECTOR, "input#id_participants-ts-control")
+        tomselect_input.click()
+        tomselect_input.send_keys("participant")
+
+        self.selenium.find_element(By.CSS_SELECTOR, ".option.active").click()
+        self.assertTrue("21")
+
 
     def test_collapse_without_participants(self) -> None:
         responsible = baker.make(UserProfile, last_name="responsible")
-        new_participant = baker.make(UserProfile, last_name="participant")
         evaluation = baker.make(
             Evaluation,
             course=baker.make(Course, programs=[baker.make(Program)], responsibles=[responsible]),
@@ -119,8 +127,7 @@ class ParticipantCollapseTests(LiveServerTest):
 
         counter = card_header.find_element(By.CSS_SELECTOR, ".rounded-pill")
         assert counter.text == "0"
-        print(self.selenium.page_source)
-        tomselect = Select(self.selenium.find_element(By.CSS_SELECTOR, "#id_participants"))
-        for option in tomselect.options:
-            print(option.text)
-        tomselect.select_by_visible_text("participant [ext.] ")
+
+        # participant_box = self.selenium.find_element(By.CSS_SELECTOR, "div#participant-box.collapse.show")
+        # card_header.click()
+        # self.wait.until(visibility_of_element_located((By.XPATH, "//div[@id='participant-box' and contains(@class, 'show')]")))
