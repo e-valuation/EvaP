@@ -331,7 +331,6 @@ class JSONImporter:
         else:
             course_end = max(datetime.strptime(app["end"], self.DATETIME_FORMAT) for app in data["appointments"])
 
-        assert isinstance(data["isexam"], bool)
         if data["isexam"]:
             # Set evaluation time frame of three days for exam evaluations:
             evaluation_start_datetime = course_end.replace(hour=8, minute=0, second=0, microsecond=0) + timedelta(
@@ -353,6 +352,8 @@ class JSONImporter:
             course.evaluations.all().update(
                 wait_for_grade_upload_before_publishing=wait_for_grade_upload_before_publishing
             )
+
+            is_rewarded = False
         else:
             # Set evaluation time frame of two weeks for normal evaluations:
             # Start datetime is at 8:00 am on the monday in the week before the event ends
@@ -369,6 +370,8 @@ class JSONImporter:
             # Might be overwritten when importing related exam evaluation
             wait_for_grade_upload_before_publishing = True
 
+            is_rewarded = True
+
         participants = self._get_user_profiles(data["students"]) if "students" in data else []
 
         defaults = {
@@ -378,6 +381,7 @@ class JSONImporter:
             "vote_end_date": evaluation_end_date,
             "wait_for_grade_upload_before_publishing": wait_for_grade_upload_before_publishing,
             "weight": weight,
+            "is_rewarded": is_rewarded,
         }
         evaluation, created = Evaluation.objects.get_or_create(
             course=course,
