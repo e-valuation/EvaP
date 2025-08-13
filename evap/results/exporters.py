@@ -287,7 +287,7 @@ class ResultsExporter(ExcelExporter):
         # first cell of row is printed above
         self.write_empty_row_with_styles(["border_left_right"] * len(evaluations_with_results))
 
-        for question in self.filter_text_and_heading_questions(questionnaire.questions.all()):
+        for question in self.filter_text_and_heading_questions(questionnaire.question_set.all()):
             self.write_cell(question.text, "italic" if question.is_heading_question else "default")
 
             for __, results in evaluations_with_results:

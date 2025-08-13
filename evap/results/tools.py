@@ -78,7 +78,7 @@ class RatingResult:
 
     def __init__(self, question: Question, additional_text_result=None) -> None:
         assert question.is_rating_question
-        self.question = discard_cached_related_objects(copy(question))
+        self.question: Question = discard_cached_related_objects(copy(question))
         self.additional_text_result = additional_text_result
         self.colors = tuple(
             color for _, color, value in self.choices.as_name_color_value_tuples() if value != NO_ANSWER
@@ -245,19 +245,20 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
         questionnaire_results = []
         for questionnaire in contribution.questionnaires.all():
             results: list[HeadingResult | TextResult | RatingResult] = []
-            for question in questionnaire.questions.all():
+            for assignment in questionnaire.questions.all().prefetch_related("question"):
+                question = assignment.question
                 if question.is_heading_question:
                     results.append(HeadingResult(question=question))
                     continue
                 text_result = None
                 if question.can_have_textanswers and evaluation.can_publish_text_results:
-                    answers = tas_per_contribution_question.get((contribution.id, question.id), [])
+                    answers = tas_per_contribution_question.get((contribution.id, assignment.id), [])
                     text_result = TextResult(
                         question=question, answers=answers, answers_visible_to=textanswers_visible_to(contribution)
                     )
                 if question.is_rating_question:
                     if evaluation.can_publish_rating_results:
-                        answer_counters = racs_per_contribution_question.get((contribution.id, question.id), [])
+                        answer_counters = racs_per_contribution_question.get((contribution.id, assignment.id), [])
                     else:
                         answer_counters = None
                     results.append(create_rating_result(question, answer_counters, additional_text_result=text_result))

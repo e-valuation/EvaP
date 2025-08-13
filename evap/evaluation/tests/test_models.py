@@ -17,6 +17,7 @@ from evap.evaluation.models import (
     Evaluation,
     NotArchivableError,
     Question,
+    QuestionAssignment,
     Questionnaire,
     QuestionType,
     Semester,
@@ -284,7 +285,7 @@ class TestEvaluations(WebTest):
         )
         evaluation.save()
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionType.POSITIVE_LIKERT)
+        baker.make(Question, questionnaires=[top_general_questionnaire], type=QuestionType.POSITIVE_LIKERT)
         evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
 
         self.assertFalse(evaluation.can_publish_text_results)
@@ -304,7 +305,7 @@ class TestEvaluations(WebTest):
             can_publish_text_results=False,
         )
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        question = baker.make(Question, type=QuestionType.TEXT, questionnaire=questionnaire)
+        question = baker.make(QuestionAssignment, question__type=QuestionType.TEXT, questionnaire=questionnaire)
         evaluation.general_contribution.questionnaires.set([questionnaire])
         baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution)
 
@@ -323,9 +324,13 @@ class TestEvaluations(WebTest):
             can_publish_text_results=True,
         )
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        question = baker.make(Question, type=QuestionType.TEXT, questionnaire=questionnaire)
+        question = baker.make(QuestionAssignment, question__type=QuestionType.TEXT, questionnaire=questionnaire)
         evaluation.general_contribution.questionnaires.set([questionnaire])
-        baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution)
+        baker.make(
+            TextAnswer,
+            question=question,
+            contribution=evaluation.general_contribution,
+        )
 
         self.assertEqual(evaluation.textanswer_set.count(), 1)
         evaluation.publish()
@@ -342,7 +347,7 @@ class TestEvaluations(WebTest):
             can_publish_text_results=True,
         )
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        question = baker.make(Question, type=QuestionType.TEXT, questionnaire=questionnaire)
+        question = baker.make(QuestionAssignment, question__type=QuestionType.TEXT, questionnaire=questionnaire)
         evaluation.general_contribution.questionnaires.set([questionnaire])
         baker.make(
             TextAnswer,
@@ -376,7 +381,7 @@ class TestEvaluations(WebTest):
             can_publish_text_results=True,
         )
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        question = baker.make(Question, type=QuestionType.TEXT, questionnaire=questionnaire)
+        question = baker.make(QuestionAssignment, question__type=QuestionType.TEXT, questionnaire=questionnaire)
         evaluation.general_contribution.questionnaires.set([questionnaire])
         baker.make(
             TextAnswer,
