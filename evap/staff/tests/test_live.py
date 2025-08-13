@@ -4,7 +4,15 @@ from model_bakery import baker
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.expected_conditions import element_to_be_clickable, visibility_of_element_located
 
-from evap.evaluation.models import Contribution, Course, Evaluation, Program, Question, Questionnaire, UserProfile
+from evap.evaluation.models import (
+    Contribution,
+    Course,
+    Evaluation,
+    Program,
+    QuestionAssignment,
+    Questionnaire,
+    UserProfile,
+)
 from evap.evaluation.tests.tools import LiveServerTest
 
 
@@ -21,7 +29,7 @@ class EvaluationEditLiveTest(LiveServerTest):
             main_language="en",
         )
 
-        general_questionnaire = baker.make(Questionnaire, questions=[baker.make(Question)])
+        general_questionnaire = baker.make(Questionnaire, questions=[baker.make(QuestionAssignment)])
         evaluation.general_contribution.questionnaires.set([general_questionnaire])
 
         contribution1 = baker.make(

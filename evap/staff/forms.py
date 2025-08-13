@@ -24,6 +24,7 @@ from evap.evaluation.models import (
     Infotext,
     Program,
     Question,
+    QuestionAssignment,
     Questionnaire,
     QuestionType,
     Semester,
@@ -837,19 +838,29 @@ class ContributionCopyFormset(ContributionFormset):
         super().save(commit)
 
 
-class QuestionForm(forms.ModelForm):
+class QuestionDetailsForm(forms.ModelForm):
+
     class Meta:
         model = Question
-        fields = ("order", "questionnaire", "text_de", "text_en", "type", "allows_additional_textanswers")
-        widgets = {
-            "text_de": forms.Textarea(attrs={"rows": 2}),
-            "text_en": forms.Textarea(attrs={"rows": 2}),
-            "order": forms.HiddenInput(),
-        }
+        fields = ("text_de", "text_en", "type", "allows_additional_textanswers")
+        widgets = {"text_de": forms.Select, "text_en": forms.Select}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.instance.pk and self.instance.type in [QuestionType.TEXT, QuestionType.HEADING]:
+
+        self.fields["text_de"].widget.choices = (
+            ("", ""),
+            *((m, m) for m in Question.objects.all().values_list("text_de", flat=True)),
+        )
+        self.fields["text_en"].widget.choices = (
+            ("", ""),
+            *((m, m) for m in Question.objects.all().values_list("text_en", flat=True)),
+        )
+
+        if self.instance.pk and self.instance.questionnaires.count() > 1:
+            for field in ["type", "allows_additional_textanswers"]:
+                self.fields[field].disabled = True
+        elif self.instance.pk and self.instance.type in [QuestionType.TEXT, QuestionType.HEADING]:
             self.fields["allows_additional_textanswers"].disabled = True
 
     def clean(self):
@@ -857,6 +868,43 @@ class QuestionForm(forms.ModelForm):
         if self.cleaned_data.get("type") in [QuestionType.TEXT, QuestionType.HEADING]:
             self.cleaned_data["allows_additional_textanswers"] = False
         return self.cleaned_data
+
+
+class QuestionForm(forms.ModelForm):
+    question = forms.ModelChoiceField(Question.objects.all(), widget=forms.HiddenInput(), required=False)
+
+    class Meta:
+        model = QuestionAssignment
+        fields = ("order", "questionnaire", "question")
+        widgets = {
+            "order": forms.HiddenInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if hasattr(self.instance, "question"):
+            kwargs.pop("instance")
+            self.question_form = QuestionDetailsForm(instance=self.instance.question, *args, **kwargs)
+        else:
+            self.question_form = QuestionDetailsForm(*args, **kwargs)
+
+    def clean(self) -> None:
+        super().clean()
+        if (
+            self.cleaned_data.get("question") is not None
+            and self.cleaned_data["question"] != getattr(self.instance, "question", None)
+            or self.cleaned_data["DELETE"] == "on"
+        ):
+            # update the linked question or remove the entire link
+            return
+
+        if not self.question_form.is_valid() and self.cleaned_data["DELETE"] != "on":
+            raise forms.ValidationError([])
+
+    def save(self, commit: bool = True):
+        if self.question_form.is_valid():
+            self.instance.question = self.question_form.save(commit)
+        return super().save(commit)
 
 
 class QuestionnairesAssignForm(forms.Form):
