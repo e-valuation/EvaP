@@ -13,6 +13,7 @@ from django.contrib.auth import login
 from django.contrib.auth.models import Group
 from django.contrib.staticfiles.handlers import StaticFilesHandler
 from django.db import DEFAULT_DB_ALIAS, connections
+from django.db.models import QuerySet
 from django.http.request import HttpRequest, QueryDict
 from django.test.runner import DiscoverRunner
 from django.test.selenium import SeleniumTestCase
@@ -32,7 +33,7 @@ from evap.evaluation.models import (
     Course,
     Evaluation,
     Program,
-    Question,
+    QuestionAssignment,
     Questionnaire,
     RatingAnswerCounter,
     TextAnswer,
@@ -107,19 +108,22 @@ def let_user_vote_for_evaluation(user, evaluation, create_answers=False):
     ):
         for rac in contribution.ratinganswercounter_set.all():
             if rac.answer == 1:
-                rac_by_contribution_question[(contribution, rac.question)] = rac
+                rac_by_contribution_question[(contribution, rac.assignment)] = rac
 
-        for questionnaire in contribution.questionnaires.all():
-            for question in questionnaire.questions.all():
+        for questionnaire in contribution.questionnaires.all().prefetch_related("question_assignments__question"):
+            for assignment in questionnaire.question_assignments.all():
+                question = assignment.question
                 if question.is_text_question:
-                    new_textanswers.append(baker.prepare(TextAnswer, contribution=contribution, question=question))
+                    new_textanswers.append(baker.prepare(TextAnswer, contribution=contribution, assignment=assignment))
                 elif question.is_rating_question:
-                    if (contribution, question) not in rac_by_contribution_question:
-                        rac = baker.prepare(RatingAnswerCounter, contribution=contribution, question=question, answer=1)
+                    if (contribution, assignment) not in rac_by_contribution_question:
+                        rac = baker.prepare(
+                            RatingAnswerCounter, contribution=contribution, assignment=assignment, answer=1
+                        )
                         new_racs.append(rac)
-                        rac_by_contribution_question[(contribution, question)] = rac
+                        rac_by_contribution_question[(contribution, assignment)] = rac
 
-                    rac_by_contribution_question[(contribution, question)].count += 1
+                    rac_by_contribution_question[(contribution, assignment)].count += 1
 
     TextAnswer.objects.bulk_create(new_textanswers)
     RatingAnswerCounter.objects.bulk_create(new_racs)
@@ -214,7 +218,7 @@ def make_editor(user, evaluation):
 
 
 def make_rating_answer_counters(
-    question: Question,
+    assignment: QuestionAssignment,
     contribution: Contribution,
     answer_counts: Sequence[int] | None = None,
     store_in_db: bool = True,
@@ -226,7 +230,8 @@ def make_rating_answer_counters(
     make_rating_answer_counters(yesno_question, contribution, [15, 2])
     make_rating_answer_counters(bipolar_question, contribution, [5, 5, 15, 30, 25, 15, 10])
     """
-    expected_counts = len(CHOICES[question.type].grades)
+    choices = CHOICES[assignment.question.type]
+    expected_counts = len(choices.grades)
 
     if answer_counts is None:
         answer_counts = [0] * expected_counts
@@ -236,10 +241,10 @@ def make_rating_answer_counters(
 
     counters = baker.prepare(
         RatingAnswerCounter,
-        question=question,
+        assignment=assignment,
         contribution=contribution,
         _quantity=len(answer_counts),
-        answer=iter(CHOICES[question.type].values),
+        answer=iter(choices.values),
         count=iter(answer_counts),
     )
 
