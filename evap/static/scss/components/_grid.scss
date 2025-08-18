@@ -237,7 +237,6 @@ $grades-grid-areas: name, badges, responsible, complete, midterm-grades, final-g
 $course-grid-areas: name, badges, responsible, evaluation-count;
 .course-grid-row {
     @extend %striped-grid-row;
-    // TODO: why would I inherit table-grid
     display: grid;
     grid: "name responsible evaluation-count .";
     grid-template-areas: "name   responsible evaluation-count ."
@@ -262,7 +261,6 @@ $course-grid-areas: name, badges, responsible, evaluation-count;
     @return $result;
 }
 
-// TODO: maybe (?) split presentation from data (do not use data-col for layout)
 @each $col in join-multiple($results-grid-areas, $textanswer-review-grid-areas, $evaluation-grid-areas, $grades-grid-areas, $course-grid-areas) {
     [data-col=#{$col}] {
         grid-area: $col;
