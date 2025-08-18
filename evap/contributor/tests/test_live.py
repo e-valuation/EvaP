@@ -4,7 +4,7 @@ from django.urls import reverse
 from model_bakery import baker
 from selenium.webdriver.common.by import By
 
-from evap.evaluation.models import Course, Evaluation, Program, UserProfile
+from evap.evaluation.models import Course, Evaluation, Program, UserProfile, Contribution
 from evap.evaluation.tests.tools import LiveServerTest
 
 
@@ -20,6 +20,7 @@ class ContributorDelegationLiveTest(LiveServerTest):
             vote_start_datetime=datetime(2099, 1, 1, 0, 0),
             vote_end_date=date(2099, 12, 31),
         )
+        self.assertEqual(evaluation.contributions.count(), 1)
         self.selenium.get(self.live_server_url + reverse("contributor:index"))
 
         delegate_button = self.selenium.find_element(
@@ -36,4 +37,5 @@ class ContributorDelegationLiveTest(LiveServerTest):
         submit_button = self.selenium.find_element(By.CSS_SELECTOR, "span[slot='action-text']")
         submit_button.click()
 
-        self.assertEqual(evaluation.num_contributors, 1)
+        self.assertEqual(evaluation.contributions.count(), 2)
+        Contribution.objects.filter(evaluation=evaluation, contributor__email="manager@institution.example.com").exists()
