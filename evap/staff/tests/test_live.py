@@ -31,7 +31,6 @@ class EvaluationEditLiveTest(LiveServerTest):
             course=baker.make(Course, programs=[baker.make(Program)], responsibles=[responsible]),
             vote_start_datetime=datetime(2099, 1, 1, 0, 0),
             vote_end_date=date(2099, 12, 31),
-            main_language="en",
         )
 
         general_questionnaire = baker.make(Questionnaire, questions=[baker.make(Question)])
@@ -103,6 +102,11 @@ class EvaluationEditLiveTest(LiveServerTest):
 
         self.wait.until(visibility_of_element_located((By.ID, "evaluation-table")))
         self.wait.until(visibility_of_element_located((By.XPATH, "//td//a[contains(text(),'course name')]")))
+        self.wait.until(
+            visibility_of_element_located(
+                (By.XPATH, "//button[@slot='show-button' and @aria-label='Create exam evaluation']")
+            )
+        )
 
         search_input.clear()
         search_input.send_keys("exam")
