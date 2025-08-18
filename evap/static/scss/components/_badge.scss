@@ -50,8 +50,8 @@
 
 .badge-percentage {
     @extend %badge;
-    background-color: $evap-dark-blue;
-    color: white;
+    background-color: $evap-light-blue;
+    color: black;
     display: inline-block;
     width: 100%;
 }
