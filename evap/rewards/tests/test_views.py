@@ -207,16 +207,23 @@ class TestPointsExportView(WebTestStaffModeWith200Check):
         cls.student = baker.make(UserProfile, email="student@institution.example.com")
         cls.event = baker.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
 
+    # This need to be multiple grantings and redemptions, to test for
+    # the following problem: https://github.com/e-valuation/EvaP/issues/2478
     def test_positive_points(self):
         baker.make(RewardPointGranting, user_profile=self.student, value=5)
+        baker.make(RewardPointGranting, user_profile=self.student, value=7)
         baker.make(RewardPointRedemption, user_profile=self.student, event=self.event, value=3)
+        baker.make(RewardPointRedemption, user_profile=self.student, event=self.event, value=4)
 
         response = self.app.get(self.url, user=self.test_users[0], status=200)
-        self.assertIn("student@institution.example.com;2", response)
+        self.assertIn("student@institution.example.com;5", response)
 
     def test_zero_points(self):
         baker.make(RewardPointGranting, user_profile=self.student, value=5)
+        baker.make(RewardPointGranting, user_profile=self.student, value=10)
         baker.make(RewardPointRedemption, user_profile=self.student, event=self.event, value=5)
+        baker.make(RewardPointRedemption, user_profile=self.student, event=self.event, value=2)
+        baker.make(RewardPointRedemption, user_profile=self.student, event=self.event, value=8)
 
         response = self.app.get(self.url, user=self.test_users[0], status=200)
         self.assertNotIn("student@institution.example.com", response)
