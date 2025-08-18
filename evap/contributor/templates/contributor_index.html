@@ -8,32 +8,45 @@
 
 {% block content %}
     {{ block.super }}
-
     {% show_infotext 'contributor_index' %}
 
-    <div class="d-flex mb-3">
-        <div class="ms-auto d-print-none">
-            <a href="{% url 'contributor:export' %}" class="btn btn-sm btn-light">{% translate 'Export results' %}</a>
-        </div>
-        {% if user.is_delegate %}
-            <div class="btn-switch btn-switch-light ms-2 d-print-none">
-                <div class="btn-switch-label text-break break-spaces"><span class="fas fa-people-arrows-left-right"></span> {% translate 'Delegated evaluations' %}</div>
-                <div class="btn-switch btn-group">
-                    <a href="{% url 'contributor:index' %}?show_delegated=true" role="button" class="btn btn-sm btn-light{% if show_delegated %} active{% endif %}">
-                        {% translate 'Show' %}
-                    </a>
-                    <a href="{% url 'contributor:index' %}?show_delegated=false" role="button" class="btn btn-sm btn-light{% if not show_delegated %} active{% endif %}">
-                        {% translate 'Hide' %}
-                    </a>
-                </div>
-            </div>
-        {% endif %}
-        {% if user.show_startpage_button %}
-            <div class="ms-2 d-print-none">
-                {% include 'startpage_button.html' with page='CO' btnClass='btn-sm' %}
-            </div>
-        {% endif %}
 
+    <div class="row mb-3 align-items-end">
+        <h3 class="col-4 mb-0">
+            Your Contributions
+        </h3>
+        <div class="col-8 d-flex">
+            <div class="me-2 text-nowrap">
+                <a href="{% url 'contributor:export' %}" class="btn btn-light">{% translate 'Export results' %}</a>
+            </div>
+            {% if user.is_delegate %}
+                <div class="btn-switch btn-switch-light me-2">
+                    <div class="btn-switch-label">
+                        <span class="fas fa-people-arrows-left-right"></span>
+                        {% translate 'Delegated evaluations' %}
+                    </div>
+                    <div class="btn-switch btn-group">
+                        <a href="{% url 'contributor:index' %}?show_delegated=true" role="button" class="btn btn-light{% if show_delegated %} active{% endif %}">
+                            {% translate 'Show' %}
+                        </a>
+                        <a href="{% url 'contributor:index' %}?show_delegated=false" role="button" class="btn btn-light{% if not show_delegated %} active{% endif %}">
+                            {% translate 'Hide' %}
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+            {% if user.show_startpage_button %}
+                <div class="me-2">
+                    {% include 'startpage_button.html' with page='CO' btnClass='btn' %}
+                </div>
+            {% endif %}
+            <div class="input-group">
+                <input type="search" name="search" class="form-control" placeholder="{% translate 'Search...' %}" />
+                <button class="btn btn-light text-secondary" type="button" data-reset="search" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Clear search filter' %}">
+                    <span class="fas fa-delete-left"></span>
+                </button>
+            </div>
+        </div>
     </div>
 
     {% for semester in semester_list %}
