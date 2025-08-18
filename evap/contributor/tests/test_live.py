@@ -27,10 +27,10 @@ class ContributorDelegationLiveTest(LiveServerTest):
         )
         delegate_button.click()
 
-        open_dropdown_field = self.selenium.find_element(By.CLASS_NAME, "ts-control")
+        open_dropdown_field = self.selenium.find_element(By.CSS_SELECTOR, "input[placeholder='Please select...']")
         open_dropdown_field.click()
 
-        first_option = self.selenium.find_element(By.CSS_SELECTOR, r"div[data-value='2']")
+        first_option = self.selenium.find_element(By.XPATH, "//div[contains(@class, 'option') and contains(text(), 'manager')]")
         first_option.click()
 
         submit_button = self.selenium.find_element(By.CSS_SELECTOR, "span[slot='action-text']")
