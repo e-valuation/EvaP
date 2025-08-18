@@ -924,7 +924,7 @@ class QuestionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.instance.pk and hasattr(self.instance, 'questionnaire') and self.instance.questionnaire and self.instance.questionnaire.is_dropout:
+        if self.instance.pk and self.instance.questionnaire and self.instance.questionnaire.is_dropout:
             self.fields["counts_for_grade"].widget.attrs["disabled"] = "disabled"
 
         if self.instance.pk and self.instance.type in [QuestionType.TEXT, QuestionType.HEADING]:
