@@ -2,7 +2,7 @@ import datetime
 import re
 import typing
 from abc import ABC, abstractmethod
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Callable
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, TypeVar
 from urllib.parse import quote
@@ -37,8 +37,7 @@ CellValue = str | int | float | None
 CV = TypeVar("CV", bound=CellValue)
 
 
-def choice_database_values_from_django_choices_spec(django_choices_spec) -> list:
-    assert isinstance(django_choices_spec, list)
+def choice_database_values_from_django_choices_spec(django_choices_spec: list[tuple]) -> list:
     assert all(isinstance(element, tuple) for element in django_choices_spec)
 
     result = []
@@ -56,14 +55,14 @@ def choice_database_values_from_django_choices_spec(django_choices_spec) -> list
     return result
 
 
-def inject_choices_constraint(model_locals):
+def inject_choices_constraint(model_locals: Mapping[str, Any]) -> Callable[[type], type]:
     model_name = model_locals["__qualname__"]
     assert re.match("[a-zA-Z]+", model_name), "deduced model name doesn't look like a pure class name"
 
     def decorator(meta_cls):
         """
         This decorator is meant to decorate Meta classes within Django Model classes
-        It injects a constraints for each model field that has choices, enforcing that only
+        It injects a constraint for each model field that has choices, enforcing that only
         valid choice values are stored in the database.
         See https://github.com/e-valuation/EvaP/pull/1776 for details
         """
