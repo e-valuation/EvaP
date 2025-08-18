@@ -105,7 +105,11 @@
 
             const selectChangedHandler = function(e) {
                 const checkboxes = this.closest("td.question-type").querySelectorAll("input[type=checkbox]");
-                const countsForGradeCheckbox = this.closest("td.question-type").querySelector(".counts-for-grade-checkbox");
+                
+                // Do not do anything if the value is not set to enable saving
+                if(e.currentTarget.value == undefined || e.currentTarget.value == ""){
+                    return;
+                }
                 
                 if (e.currentTarget.value == 0 || e.currentTarget.value == 5) {  // 0: Text question; 5: Heading
                     checkboxes.forEach(checkbox => {
@@ -152,15 +156,28 @@
                     
                     if (selectedType == 5) { // Dropout questionnaire
                         countsForGradeCheckboxes.forEach(checkbox => {
-                            checkbox.checked = false;
-                            checkbox.disabled = true;
+                            const questionTypeSelect = checkbox.closest("td.question-type").querySelector("select");
+                            if (questionTypeSelect) {
+                                // Do not do anything if the value is not set to enable saving
+                                if(questionTypeSelect.value === undefined || questionTypeSelect.value === ""){
+                                    return;
+                                }
+                                
+                                checkbox.checked = false;
+                                checkbox.disabled = true;
+                            }
                         });
                     } else {
                         countsForGradeCheckboxes.forEach(checkbox => {
                             const questionTypeSelect = checkbox.closest("td.question-type").querySelector("select");
                             if (questionTypeSelect) {
+                                // Do not do anything if the value is not set to enable saving
+                                if(questionTypeSelect.value === undefined || questionTypeSelect.value === ""){
+                                    return;
+                                }
+                                
                                 const questionType = parseInt(questionTypeSelect.value);
-                                if (questionType == 0 || questionType == 5 || isNaN(questionType)) { // 0: Text question; 5: Heading; NaN: Not set
+                                if (questionType == 0 || questionType == 5) { // 0: Text question; 5: Heading
                                     checkbox.checked = false;
                                     checkbox.disabled = true;
                                 } else {
@@ -181,8 +198,6 @@
                 const questionnaireTypeSelect = document.querySelector('select[name="type"]');
                 if (questionnaireTypeSelect) {
                     questionnaireTypeSelect.addEventListener('change', handleQuestionnaireTypeChange);
-                    // Trigger initial check
-                    handleQuestionnaireTypeChange();
                 }
             };
             registerSelectChangedHandlers();
