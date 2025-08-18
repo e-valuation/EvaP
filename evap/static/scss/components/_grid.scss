@@ -189,7 +189,7 @@ $textanswer-review-grid-areas: answer, edit, review, flag;
     }
 }
 
-$evaluation-grid-areas: state-approval, state-evaluating, state-textanswers, state-results, name, period, responsibles, tags, buttons, responses;
+$evaluation-grid-areas: checkbox, state-approval, state-evaluating, state-textanswers, state-results, name, period, responsibles, tags, buttons, responses;
 .evaluation-grid-row {
     @extend %striped-grid-row;
 
@@ -208,10 +208,11 @@ $evaluation-grid-areas: state-approval, state-evaluating, state-textanswers, sta
     }
 
     & .form-check {
-        padding: unset;
-        margin: unset;
-        height: fit-content;
-        width: fit-content;
+        display: flex;
+        align-items: center;
+        justify-content: start;
+        margin: 0;
+        padding: 0;
     }
 
     & .form-check-input {
