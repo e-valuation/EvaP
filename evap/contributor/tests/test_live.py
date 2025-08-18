@@ -4,7 +4,7 @@ from django.urls import reverse
 from model_bakery import baker
 from selenium.webdriver.common.by import By
 
-from evap.evaluation.models import Course, Evaluation, Program, UserProfile, Contribution
+from evap.evaluation.models import Contribution, Course, Evaluation, Program, UserProfile
 from evap.evaluation.tests.tools import LiveServerTest
 
 
@@ -31,11 +31,15 @@ class ContributorDelegationLiveTest(LiveServerTest):
         open_dropdown_field = self.selenium.find_element(By.CSS_SELECTOR, "input[placeholder='Please select...']")
         open_dropdown_field.click()
 
-        first_option = self.selenium.find_element(By.XPATH, "//div[contains(@class, 'option') and contains(text(), 'manager')]")
+        first_option = self.selenium.find_element(
+            By.XPATH, "//div[contains(@class, 'option') and contains(text(), 'manager')]"
+        )
         first_option.click()
 
         submit_button = self.selenium.find_element(By.CSS_SELECTOR, "span[slot='action-text']")
         submit_button.click()
 
         self.assertEqual(evaluation.contributions.count(), 2)
-        Contribution.objects.filter(evaluation=evaluation, contributor__email="manager@institution.example.com").exists()
+        Contribution.objects.filter(
+            evaluation=evaluation, contributor__email="manager@institution.example.com"
+        ).exists()
