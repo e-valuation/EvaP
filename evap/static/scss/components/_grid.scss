@@ -93,13 +93,13 @@
 
     grid:
         "name semester responsible voters result"
-        / auto    6rem       12rem   7rem  11rem;
+        / auto    6rem       12rem   10rem  11rem;
 
     @include media-breakpoint-down(lg) {
         grid:
             "name semester  responsible responsible"
             "name semester       voters      result"
-            / auto    3rem         7rem       10rem;
+            / auto    3rem         8rem       10rem;
     }
 
     @include media-breakpoint-down(md) {
@@ -115,7 +115,7 @@
     }
 
     [data-col=voters] {
-        max-width: 8rem;
+        max-width: 10rem;
     }
 
     [data-col=result] {
