@@ -5,7 +5,6 @@ from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import BadRequest, SuspiciousOperation
 from django.db.models import OuterRef, Subquery, Sum
-from django.db.models.functions import Coalesce
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
@@ -156,22 +155,17 @@ def reward_points_export(request):
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
     writer.writerow([_("Email address"), _("Number of points")])
-    sub_reward_point_grantings = (
-        RewardPointGranting.objects.filter(user_profile=OuterRef("pk"))
-        .values("user_profile")
-        .annotate(total=Sum("value", default=0))
-        .values("total")
-    )
-    sub_reward_point_redemptions = (
-        RewardPointRedemption.objects.filter(user_profile=OuterRef("pk"))
-        .values("user_profile")
-        .annotate(total=Sum("value", default=0))
-        .values("total")
-    )
+
+    def aggregated_sum(relation: str) -> Subquery:
+        return Subquery(
+            UserProfile.objects.filter(pk=OuterRef("pk"))
+            .annotate(aggregated=Sum(f"{relation}__value", default=0))
+            .values("aggregated")
+        )
+
     profiles_with_points = (
         UserProfile.objects.annotate(
-            points=Coalesce(Subquery(sub_reward_point_grantings), 0)
-            - Coalesce(Subquery(sub_reward_point_redemptions), 0)
+            points=(aggregated_sum("reward_point_grantings") - aggregated_sum("reward_point_redemptions"))
         )
         .filter(points__gt=0)
         .order_by("-points")
