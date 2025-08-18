@@ -8,7 +8,14 @@ def set_initial_values(apps, _schema_editor):
     HEADING = 5
 
     Question = apps.get_model("evaluation", "Question")
+    Questionnaire = apps.get_model("evaluation", "Questionnaire")
+
     Question.objects.filter(type__in=[TEXT, HEADING]).update(counts_for_grade=False)
+
+    dropout_questionnaires = Questionnaire.objects.filter(type=5)  # 5: dropout questionnaire
+    print(dropout_questionnaires)
+    print(Question.objects.filter(questionnaire__in=dropout_questionnaires))
+    Question.objects.filter(questionnaire__in=dropout_questionnaires).update(counts_for_grade=False)
 
 
 class Migration(migrations.Migration):

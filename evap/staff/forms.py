@@ -924,6 +924,9 @@ class QuestionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if self.instance.pk and hasattr(self.instance, 'questionnaire') and self.instance.questionnaire and self.instance.questionnaire.is_dropout:
+            self.fields["counts_for_grade"].widget.attrs["disabled"] = "disabled"
+
         if self.instance.pk and self.instance.type in [QuestionType.TEXT, QuestionType.HEADING]:
             # The disabled attribute on a field would prevent this field from being saved,
             # so we use the widget attrs instead
@@ -932,6 +935,9 @@ class QuestionForm(forms.ModelForm):
 
     def clean(self):
         super().clean()
+        questionnaire = self.cleaned_data.get("questionnaire")
+        if questionnaire and questionnaire.is_dropout:
+            self.cleaned_data["counts_for_grade"] = False
         if self.cleaned_data.get("type") in [QuestionType.TEXT, QuestionType.HEADING]:
             self.cleaned_data["allows_additional_textanswers"] = False
             self.cleaned_data["counts_for_grade"] = False

@@ -393,8 +393,8 @@ def calculate_average_distribution(evaluation):
     grouped_results = defaultdict(list)
     for contribution_result in get_results(evaluation).contribution_results:
         for questionnaire_result in contribution_result.questionnaire_results:
-            # if questionnaire_result.questionnaire.is_dropout: # dropout questionnaires are not counted
-            #     assert not any(result.question.counts_for_grade for result in questionnaire_result.question_results)
+            if questionnaire_result.questionnaire.is_dropout: # dropout questionnaires are not counted
+                assert not any(result.question.counts_for_grade for result in questionnaire_result.question_results)
             if not questionnaire_result.questionnaire.is_dropout:
                 grouped_results[contribution_result.contributor].extend(questionnaire_result.question_results)
 
