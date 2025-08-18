@@ -234,7 +234,7 @@ $grades-grid-areas: name, badges, responsible, complete, midterm-grades, final-g
     padding: 0.5rem;
 }
 
-$course-grid-areas: name, responsible, evaluation-count;
+$course-grid-areas: name, badges, responsible, evaluation-count;
 .course-grid-row {
     @extend %striped-grid-row;
     // TODO: why would I inherit table-grid
