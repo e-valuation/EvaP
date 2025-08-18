@@ -193,11 +193,11 @@ $evaluation-grid-areas: checkbox, state-approval, state-evaluating, state-textan
 .evaluation-grid-row {
     @extend %striped-grid-row;
 
-    grid-template-areas:
-            "checkbox state-approval state-evaluating state-textanswers state-results name         period responses buttons"
-            "checkbox state-approval state-evaluating state-textanswers state-results responsibles period responses buttons"
-            "checkbox state-approval state-evaluating state-textanswers state-results tags         period responses buttons";
-    grid-template-columns: 2.75em repeat(4, 1.25em) auto 12.25em 12em 8.5em;
+    grid:
+            "checkbox state-approval state-evaluating state-textanswers state-results name          period  responses buttons"
+            "checkbox state-approval state-evaluating state-textanswers state-results responsibles  period  responses buttons"
+            "checkbox state-approval state-evaluating state-textanswers state-results tags          period  responses buttons"
+            /  2.75em                                               repeat(4, 1.25em)         auto 12.25em       12em   8.5em;
 
     & > * {
         padding-inline: .5rem;
@@ -227,9 +227,9 @@ $grades-grid-areas: name, badges, responsible, complete, midterm-grades, final-g
 .grades-grid-row {
     @extend %striped-grid-row;
 
-    grid-template-areas: "name   responsible complete midterm-grades final-grades actions"
-                         "badges responsible complete midterm-grades final-grades actions";
-    grid-template-columns: 35fr 20fr 10fr 10fr 10fr 15fr;
+    grid: "name   responsible complete midterm-grades final-grades actions"
+          "badges responsible complete midterm-grades final-grades actions"
+          /  35fr        20fr     10fr           10fr         10fr    15fr;
 
     padding: 0.5rem;
 }
@@ -237,11 +237,9 @@ $grades-grid-areas: name, badges, responsible, complete, midterm-grades, final-g
 $course-grid-areas: name, badges, responsible, evaluation-count;
 .course-grid-row {
     @extend %striped-grid-row;
-    display: grid;
-    grid: "name responsible evaluation-count .";
-    grid-template-areas: "name   responsible evaluation-count ."
-                         "badges responsible evaluation-count .";
-    grid-template-columns: 1fr 14em 12em 9em;
+    grid: "name   responsible evaluation-count   ."
+          "badges responsible evaluation-count   ."
+          /   1fr        14em             12em 9em;
 
     & > * {
         padding-inline: .5rem;
