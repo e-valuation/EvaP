@@ -95,22 +95,22 @@ $results-grid-areas: name, semester, responsible, voters, result;
     @extend %table-grid;
 
     grid:
-        "name semester responsible voters result"
-        / auto    6rem       12rem   7rem  11rem;
+        " name semester responsible voters result"
+        / auto 6rem     12rem       7rem   11rem;
 
     @include media-breakpoint-down(lg) {
         grid:
-            "name semester  responsible responsible"
-            "name semester       voters      result"
-            / auto    3rem         7rem       10rem;
+            " name semester  responsible responsible"
+            " name semester  voters      result"
+            / auto 3rem      7rem        10rem;
     }
 
     @include media-breakpoint-down(md) {
         grid:
-            "        name        name    semester"
+            " name        name        semester"
             " responsible responsible responsible"
-            "      voters      result      result"
-            /         1fr         1fr        6rem;
+            " voters      result      result"
+            / 1fr         1fr         6rem;
     }
 
     &:not(.grid-header) [data-col=responsible] {
@@ -149,8 +149,8 @@ $textanswer-review-grid-areas: answer, edit, review, flag;
 
     gap: 0;
     grid:
-        "answer edit review flag"
-        / auto  min-content min-content min-content;
+        " answer edit        review      flag"
+        / auto   min-content min-content min-content;
 
     min-height: 0;
     padding: 0.5rem;
@@ -194,10 +194,10 @@ $evaluation-grid-areas: checkbox, state-approval, state-evaluating, state-textan
     @extend %striped-grid-row;
 
     grid:
-            "checkbox state-approval state-evaluating state-textanswers state-results name          period  responses buttons"
-            "checkbox state-approval state-evaluating state-textanswers state-results responsibles  period  responses buttons"
-            "checkbox state-approval state-evaluating state-textanswers state-results tags          period  responses buttons"
-            /  2.75em                                               repeat(4, 1.25em)         auto 12.25em       12em   8.5em;
+        " checkbox state-approval state-evaluating state-textanswers state-results name         period  responses buttons"
+        " checkbox state-approval state-evaluating state-textanswers state-results responsibles period  responses buttons"
+        " checkbox state-approval state-evaluating state-textanswers state-results tags         period  responses buttons"
+        / 2.75em   1.25em         1.25em           1.25em            1.25em        auto         12.25em 12em      8.5em;
 
     & > * {
         padding-inline: .5rem;
@@ -227,9 +227,10 @@ $grades-grid-areas: name, badges, responsible, complete, midterm-grades, final-g
 .grades-grid-row {
     @extend %striped-grid-row;
 
-    grid: "name   responsible complete midterm-grades final-grades actions"
-          "badges responsible complete midterm-grades final-grades actions"
-          /  35fr        20fr     10fr           10fr         10fr    15fr;
+    grid:
+        " name   responsible complete midterm-grades final-grades actions"
+        " badges responsible complete midterm-grades final-grades actions"
+        / 35fr   20fr        10fr     10fr           10fr         15fr;
 
     padding: 0.5rem;
 }
@@ -237,9 +238,10 @@ $grades-grid-areas: name, badges, responsible, complete, midterm-grades, final-g
 $course-grid-areas: name, badges, responsible, evaluation-count;
 .course-grid-row {
     @extend %striped-grid-row;
-    grid: "name   responsible evaluation-count   ."
-          "badges responsible evaluation-count   ."
-          /   1fr        14em             12em 9em;
+    grid:
+        " name   responsible evaluation-count ."
+        " badges responsible evaluation-count ."
+        / 1fr    14em        12em             9em;
 
     & > * {
         padding-inline: .5rem;
