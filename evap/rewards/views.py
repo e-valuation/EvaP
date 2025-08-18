@@ -158,11 +158,13 @@ def reward_points_export(request):
     writer.writerow([_("Email address"), _("Number of points")])
     sub_reward_point_grantings = (
         RewardPointGranting.objects.filter(user_profile=OuterRef("pk"))
+        .values("user_profile")
         .annotate(total=Sum("value", default=0))
         .values("total")
     )
     sub_reward_point_redemptions = (
         RewardPointRedemption.objects.filter(user_profile=OuterRef("pk"))
+        .values("user_profile")
         .annotate(total=Sum("value", default=0))
         .values("total")
     )
