@@ -342,7 +342,6 @@
                     textareaAnswerFields.forEach(textareaAnswerField => {
                         if (textareaAnswerField.value.trim().length > 0) return;
                         const parent = textareaAnswerField.closest('.row-question');
-                        console.log(parent);
                         const button = parent.querySelector(".btn-textanswer");
                         if (button === null) return;
                         if (!button.classList.contains("collapsed")) {
@@ -358,13 +357,8 @@
                             }
                         }
 
-                        const radioButtons = voteArea.querySelectorAll(".vote-inputs [type=radio]:not([value='6'])");
-                        for (const radioButton of radioButtons) {
-                            if (radioButton.checked) {
-                                return true;
-                            }
-                        }
-                        return false;
+                        const radioButtons = voteArea.querySelectorAll(".vote-inputs [type=radio]:not([value='6']):checked");
+                        return radioButtons !== null;
                     }
 
                     if (shouldShowModal()) {
