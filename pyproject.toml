@@ -197,7 +197,6 @@ exclude_also = [
 [tool.mypy]
 packages = ["evap", "tools"]
 plugins = ["mypy_django_plugin.main"]
-exclude = 'evap/.*/migrations/.*\.py$'
 
 [tool.django-stubs]
 django_settings_module = "evap.settings"
