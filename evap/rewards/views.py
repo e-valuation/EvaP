@@ -4,7 +4,7 @@ from datetime import date, datetime
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import BadRequest, SuspiciousOperation
-from django.db.models import Sum
+from django.db.models import OuterRef, Subquery, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
@@ -155,9 +155,17 @@ def reward_points_export(request):
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
     writer.writerow([_("Email address"), _("Number of points")])
+
+    def aggregated_sum(relation: str) -> Subquery:
+        return Subquery(
+            UserProfile.objects.filter(pk=OuterRef("pk"))
+            .annotate(aggregated=Sum(f"{relation}__value", default=0))
+            .values("aggregated")
+        )
+
     profiles_with_points = (
         UserProfile.objects.annotate(
-            points=Sum("reward_point_grantings__value", default=0) - Sum("reward_point_redemptions__value", default=0)
+            points=(aggregated_sum("reward_point_grantings") - aggregated_sum("reward_point_redemptions"))
         )
         .filter(points__gt=0)
         .order_by("-points")
