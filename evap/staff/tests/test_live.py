@@ -3,9 +3,22 @@ from datetime import date, datetime
 from django.urls import reverse
 from model_bakery import baker
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.expected_conditions import element_to_be_clickable, visibility_of_element_located
+from selenium.webdriver.support.expected_conditions import (
+    element_to_be_clickable,
+    invisibility_of_element_located,
+    visibility_of_element_located,
+)
 
-from evap.evaluation.models import Contribution, Course, Evaluation, Program, Question, Questionnaire, UserProfile
+from evap.evaluation.models import (
+    Contribution,
+    Course,
+    Evaluation,
+    Program,
+    Question,
+    Questionnaire,
+    Semester,
+    UserProfile,
+)
 from evap.evaluation.tests.tools import LiveServerTest
 
 
@@ -19,7 +32,6 @@ class EvaluationEditLiveTest(LiveServerTest):
             course=baker.make(Course, programs=[baker.make(Program)], responsibles=[responsible]),
             vote_start_datetime=datetime(2099, 1, 1, 0, 0),
             vote_end_date=date(2099, 12, 31),
-            main_language="en",
         )
 
         general_questionnaire = baker.make(Questionnaire, questions=[baker.make(Question)])
@@ -72,3 +84,33 @@ class EvaluationEditLiveTest(LiveServerTest):
         self.assertEqual(contribution1.order, 0)
         self.assertEqual(contribution1.role, Contribution.Role.EDITOR)
         self.assertEqual(contribution1.textanswer_visibility, Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+
+    def test_staff_semester_view_columns_not_searchable(self):
+        """Regression test for #2461"""
+
+        semester = baker.make(Semester)
+        course = baker.make(Course, semester=semester, name_en="course name")
+        baker.make(Evaluation, course=course, name_en="evaluation name")
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.live_server_url + reverse("staff:semester_view", args=[semester.pk]))
+
+        search_input = self.wait.until(
+            visibility_of_element_located((By.CSS_SELECTOR, "input[type='search'][name='search-evaluation']"))
+        )
+        search_input.clear()
+        search_input.send_keys("course name")
+
+        self.wait.until(visibility_of_element_located((By.ID, "evaluation-table")))
+        self.wait.until(visibility_of_element_located((By.XPATH, "//td//a[contains(text(),'course name')]")))
+        self.wait.until(
+            visibility_of_element_located(
+                (By.XPATH, "//button[@slot='show-button' and @aria-label='Create exam evaluation']")
+            )
+        )
+
+        search_input.clear()
+        search_input.send_keys("exam")
+
+        self.wait.until(visibility_of_element_located((By.ID, "evaluation-table")))
+        self.wait.until(invisibility_of_element_located((By.XPATH, "//td//a[contains(text(),'course name')]")))
