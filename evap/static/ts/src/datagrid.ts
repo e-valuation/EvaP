@@ -91,7 +91,7 @@ abstract class DataGrid {
             .map(row => row as HTMLElement)
             .map(row => {
                 const searchWords = this.findSearchableCells(row).flatMap(element =>
-                    DataGrid.searchWordsOf(element.textContent!),
+                    DataGrid.searchWordsOf(element.textContent),
                 );
                 return {
                     element: row,
@@ -256,7 +256,7 @@ export class TableGrid extends DataGrid {
         return [...row.children] as HTMLElement[];
     }
 
-    protected fetchRowFilterValues(row: HTMLElement): Map<string, string[]> {
+    protected fetchRowFilterValues(_row: HTMLElement): Map<string, string[]> {
         return new Map();
     }
 
@@ -480,7 +480,7 @@ export class ResultGrid extends DataGrid {
         for (const [name, { selector, checkboxes }] of this.filterCheckboxes.entries()) {
             // To store filter values independent of the language, use the corresponding id from the checkbox
             const values = [...row.querySelectorAll(selector)]
-                .map(element => element.textContent?.trim())
+                .map(element => element.textContent.trim())
                 .map(filterName => checkboxes.find(checkbox => checkbox.dataset.filter === filterName)?.value)
                 .filter(v => v !== undefined);
             filterValues.set(name, values);
