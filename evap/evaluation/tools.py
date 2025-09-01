@@ -60,23 +60,23 @@ def inject_choices_constraint(model_locals: Mapping[str, Any]) -> Callable[[type
     model_name = model_locals["__qualname__"]
     assert re.match("[a-zA-Z]+", model_name), "deduced model name doesn't look like a pure class name"
 
-    def decorator(meta_cls):
+    def decorator(meta_cls: type) -> type:
         """
         This decorator is meant to decorate Meta classes within Django Model classes
         It injects a constraint for each model field that has choices, enforcing that only
         valid choice values are stored in the database.
         See https://github.com/e-valuation/EvaP/pull/1776 for details
         """
-        meta_cls.constraints = (
+        meta_cls.constraints = (  # type: ignore[attr-defined]
             *(
                 CheckConstraint(
                     condition=Q(
-                        **{f"{field_name}__in": choice_database_values_from_django_choices_spec(field._choices)}
+                        **{f"{field_name}__in": choice_database_values_from_django_choices_spec(field.choices)}
                     ),
                     name=f"{model_name}_{field_name}_choices",
                 )
                 for (field_name, field) in model_locals.items()
-                if isinstance(field, Field) and field._choices is not None
+                if isinstance(field, Field) and field.choices is not None
             ),
             *getattr(meta_cls, "constraints", []),
         )
