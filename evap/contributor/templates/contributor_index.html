@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% load infotext_templatetags %}
 {% load results_templatetags %}
 {% load evaluation_filters %}
@@ -56,7 +58,7 @@
                 {{ semester.semester_name }}
             </div>
             <div class="card-body table-responsive">
-                <table class="table table-seamless-links table-vertically-aligned">
+                <table class="table table-seamless-links table-vertically-aligned contributions-table">
                     <thead>
                     <tr>
                         <th class="width-percent-35">{% translate 'Name' %}</th>
@@ -210,6 +212,21 @@
         {% endif %}
     {% endfor %}
 {% endblock %}
+
+{% block additional_javascript %}
+    <script type="module">
+        import {TableGrid} from "{% static 'js/datagrid.js' %}";
+        document.querySelectorAll(".contributions-table").forEach(table => {
+            new TableGrid({
+                storageKey: "contributions-data-grid",
+                table: table,
+                searchInput: document.querySelector("input[name=search]"),
+                resetSearch: document.querySelector("[data-reset=search]"),
+            }).init();
+        });
+    </script>
+{% endblock %}
+
 
 {% block modals %}
     {{ block.super }}
