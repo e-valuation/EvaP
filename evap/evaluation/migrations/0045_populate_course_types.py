@@ -4,8 +4,8 @@ from django.db import migrations
 
 
 def populate_course_types(apps, _schema_editor):
-    Course = apps.get_model('evaluation', 'Course')
-    CourseType = apps.get_model('evaluation', 'CourseType')
+    Course = apps.get_model("evaluation", "Course")
+    CourseType = apps.get_model("evaluation", "CourseType")
 
     for course in Course.objects.all():
         course.type = CourseType.objects.get(name_de=course.type_old)
@@ -13,7 +13,7 @@ def populate_course_types(apps, _schema_editor):
 
 
 def revert_course_types(apps, _schema_editor):
-    Course = apps.get_model('evaluation', 'Course')
+    Course = apps.get_model("evaluation", "Course")
 
     for course in Course.objects.all():
         course.type_old = course.type.name_de
@@ -23,7 +23,7 @@ def revert_course_types(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0044_add_course_type_model'),
+        ("evaluation", "0044_add_course_type_model"),
     ]
 
     operations = [

@@ -15,10 +15,17 @@ html {
 
 body {
     overflow-y: scroll !important;
-    margin-bottom: 60px; // keep space for footer
     background-image: url("../images/triangles_gray.svg");
     background-size: cover;
     background-attachment: fixed;
+
+    &.mb-footer {
+        margin-bottom: 60px; // keep space for footer
+    }
+}
+
+.max-content-height {
+    height: calc(100vh - 75px);
 }
 
 .footer {

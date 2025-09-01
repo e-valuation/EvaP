@@ -90,6 +90,7 @@ class ResultsIndexLiveTests(LiveServerTest):
                 course=courses[course_name],
                 _participant_count=participant_count,
                 _voter_count=voter_count,
+                main_language="en",
                 **attrs,
             )
 

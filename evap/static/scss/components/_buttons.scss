@@ -135,6 +135,14 @@ a:not([href]):not(.disabled) {
     }
 }
 
+.btn-switch-evaluation-language {
+    .btn-group {
+        .btn {
+                min-width: 38px;
+        }
+    }
+}
+
 .feedback-button {
     @include media-breakpoint-up(md) {
         position: fixed;

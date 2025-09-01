@@ -1,4 +1,5 @@
 import xlrd
+from django.conf import settings
 from django.core import mail
 from django.urls import reverse
 from model_bakery import baker
@@ -201,6 +202,7 @@ class TestContributorEvaluationEditView(WebTest):
             Evaluation,
             course=baker.make(Course, responsibles=[responsible]),
             state=Evaluation.State.PREPARED,
+            main_language="en",
         )
         evaluation.general_contribution.questionnaires.set([locked_questionnaire])
 
@@ -287,6 +289,25 @@ class TestContributorEvaluationEditView(WebTest):
         page = self.app.get(self.url, user=self.responsible, status=200)
         self.assertContains(page, "General questionnaires")
         self.assertContains(page, "Dropout questionnaires")
+
+    def test_contributor_evaluation_edit_main_language(self):
+        self.evaluation.main_language = "en"
+        self.evaluation.save()
+
+        response = self.app.get(self.url, user=self.editor, status=200)
+        form = response.forms["evaluation-form"]
+
+        form["main_language"] = Evaluation.UNDECIDED_MAIN_LANGUAGE
+        page = form.submit(name="operation", value="save")
+        self.assertContains(page, "You have to set a main language for this evaluation.")
+
+        for lang, __ in settings.LANGUAGES:
+            form["main_language"] = lang
+            form.submit(name="operation", value="save")
+            self.assertEqual(Evaluation.objects.get().main_language, lang)
+
+        with self.assertRaises(ValueError):
+            form["main_language"] = "some_other_wrong_value"
 
 
 class TestContributorResultsExportView(WebTest):

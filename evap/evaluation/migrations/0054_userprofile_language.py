@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0053_create_cronjob_user'),
+        ("evaluation", "0053_create_cronjob_user"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='userprofile',
-            name='language',
-            field=models.CharField(blank=True, max_length=8, null=True, verbose_name='language'),
+            model_name="userprofile",
+            name="language",
+            field=models.CharField(blank=True, max_length=8, null=True, verbose_name="language"),
         ),
     ]
