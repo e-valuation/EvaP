@@ -2,7 +2,7 @@ import datetime
 import re
 import typing
 from abc import ABC, abstractmethod
-from collections.abc import Iterable, Mapping, Callable
+from collections.abc import Callable, Iterable, Mapping
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, TypeVar
 from urllib.parse import quote
@@ -25,6 +25,7 @@ from evap.tools import date_to_datetime
 
 if TYPE_CHECKING:
     from django_stubs_ext import StrOrPromise  # use proper definition with mypy
+    from django.db.models.fields import _ChoicesList
 else:
     try:
         from django_stubs_ext import StrOrPromise  # if installed, use proper definition for typeguard
@@ -37,7 +38,7 @@ CellValue = str | int | float | None
 CV = TypeVar("CV", bound=CellValue)
 
 
-def choice_database_values_from_django_choices_spec(django_choices_spec: list[tuple]) -> list:
+def choice_database_values_from_django_choices_spec(django_choices_spec: "_ChoicesList") -> list:
     assert all(isinstance(element, tuple) for element in django_choices_spec)
 
     result = []
