@@ -20,6 +20,11 @@ class ContributorDelegationLiveTest(LiveServerTest):
             vote_start_datetime=datetime(2099, 1, 1, 0, 0),
             vote_end_date=date(2099, 12, 31),
         )
+        self.assertFalse(
+            Contribution.objects.filter(
+                evaluation=evaluation, contributor__email="manager@institution.example.com"
+            ).exists()
+        )
         self.assertEqual(evaluation.contributions.count(), 1)
         self.selenium.get(self.live_server_url + reverse("contributor:index"))
 
@@ -40,6 +45,8 @@ class ContributorDelegationLiveTest(LiveServerTest):
         submit_button.click()
 
         self.assertEqual(evaluation.contributions.count(), 2)
-        Contribution.objects.filter(
-            evaluation=evaluation, contributor__email="manager@institution.example.com"
-        ).exists()
+        self.assertTrue(
+            Contribution.objects.filter(
+                evaluation=evaluation, contributor__email="manager@institution.example.com"
+            ).exists()
+        )
