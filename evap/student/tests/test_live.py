@@ -118,3 +118,17 @@ class StudentVoteLiveTest(LiveServerTest):
 
         id_ = button.get_attribute("data-mark-no-answers-for")
         self.assertEqual(len(self.selenium.find_elements(By.CSS_SELECTOR, f"#vote-area-{id_} .choice-error")), 0)
+
+    def test_skip_contributor_modal_appears(self) -> None:
+        self.selenium.get(self.url)
+
+        button = self.wait.until(presence_of_element_located((By.CSS_SELECTOR, "[data-mark-no-answers-for]")))
+        id_ = button.get_attribute("data-mark-no-answers-for")
+        vote_area = self.selenium.find_element(By.ID, f"vote-area-{id_}")
+        radio_button = vote_area.find_element(By.CSS_SELECTOR, "input[type=radio][value='1']")
+        radio_button.location_once_scrolled_into_view
+        breakpoint()
+        radio_button.click()
+        button.click()
+        modal = self.selenium.find_elements(By.CSS_SELECTOR, "confirmation-modal")
+        self.assertEqual(len(modal), 1)

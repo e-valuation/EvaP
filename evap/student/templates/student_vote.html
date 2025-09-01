@@ -358,7 +358,8 @@
                         }
 
                         const radioButtons = voteArea.querySelectorAll(".vote-inputs [type=radio]:not([value='6']):checked");
-                        return radioButtons !== null;
+                        console.log(radioButtons);
+                        return radioButtons.length > 0;
                     }
 
                     if (shouldShowModal()) {
