@@ -24,8 +24,8 @@ from django.views.generic import FormView
 from evap.tools import date_to_datetime
 
 if TYPE_CHECKING:
-    from django_stubs_ext import StrOrPromise  # use proper definition with mypy
     from django.db.models.fields import _ChoicesList
+    from django_stubs_ext import StrOrPromise  # use proper definition with mypy
 else:
     try:
         from django_stubs_ext import StrOrPromise  # if installed, use proper definition for typeguard
