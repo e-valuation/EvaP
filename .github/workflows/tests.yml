@@ -225,14 +225,13 @@ jobs:
           WHEEL=$(echo *.whl)
           pip install $WHEEL[psycopg-binary]
 
+      - run: echo "DJANGO_SETTINGS_MODULE=evap.development.cisettings" >> "$GITHUB_ENV"
       - name: Load test data
         working-directory: deployment
         run: |
           cat <(echo 'from evap.settings import *') ../main/evap/settings_test.py | tee deployment_settings.py
           python -m evap migrate
           python -m evap loaddata test_data
-        env:
-          DJANGO_SETTINGS_MODULE: deployment_settings
       - name: Backup database
         working-directory: deployment
         run: ./update_production.sh backup.json
@@ -240,13 +239,11 @@ jobs:
           EVAP_OVERRIDE_BACKUP_FILENAME: true
           EVAP_SKIP_UPDATE: true
           EVAP_SKIP_APACHE_STEPS: true
-          DJANGO_SETTINGS_MODULE: deployment_settings
       - name: Reload backup
         working-directory: deployment
         run: echo "yy" | ./load_production_backup.sh backup.json
         env:
           EVAP_SKIP_APACHE_STEPS: true
-          DJANGO_SETTINGS_MODULE: deployment_settings
 
   macos-nix-build:
     runs-on: macos-14

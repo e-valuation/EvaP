@@ -23,9 +23,7 @@ runs:
       with:
         arguments: "${{ inputs.shell }}"
 
-    - name: Add localsettings
-      run: cp evap/settings_test.py evap/localsettings.py
-      shell: bash
+    - run: echo "DJANGO_SETTINGS_MODULE=evap.development.cisettings" >> "$GITHUB_ENV"
 
     - name: Create data/ directory
       run: mkdir -p data/
