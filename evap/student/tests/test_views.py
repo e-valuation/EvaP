@@ -630,7 +630,7 @@ class TestDropoutView(WebTest):
         self.assertIn(
             answer_field_id(self.evaluation.general_contribution, self.dropout_questionnaire, self.dropout_question),
             form.fields.keys(),
-            "The dropout Questionnaire should be shown",
+            "The dropout questionnaire should be shown",
         )
 
         self.assert_no_answer_set(form, dropout_questionnaire=self.dropout_questionnaire)

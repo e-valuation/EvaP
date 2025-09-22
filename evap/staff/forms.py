@@ -376,7 +376,7 @@ class EvaluationForm(forms.ModelForm):
         queryset=None,
         required=False,
         widget=CheckboxSelectMultiple,
-        label=_("Dropout Questionnaires"),
+        label=_("Dropout questionnaires"),
     )
 
     class Meta:
