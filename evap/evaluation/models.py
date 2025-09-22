@@ -1854,9 +1854,9 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
     class Meta:
         # keep in sync with ordering_key
         ordering = [
-            Lower(NullIf("last_name", Value(""))),
-            Lower(Coalesce(NullIf("first_name_chosen", Value("")), NullIf("first_name_given", Value("")))),
-            Lower("email"),
+            Lower(NullIf("last_name", Value(""))).asc(),
+            Lower(Coalesce(NullIf("first_name_chosen", Value("")), NullIf("first_name_given", Value("")))).asc(),
+            Lower("email").asc(),
         ]
 
         verbose_name = _("user")

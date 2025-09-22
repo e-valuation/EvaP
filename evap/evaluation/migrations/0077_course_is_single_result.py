@@ -2,14 +2,14 @@
 
 from django.db import migrations, models
 
-from evap.evaluation import models as evap_models
+SINGLE_RESULT_QUESTIONNAIRE_NAME = "Single result"
 
 
 def populate_is_single_result(apps, _schema_editor):
     Course = apps.get_model("evaluation", "Course")
     for course in Course.objects.all():
         if course.contributions.filter(
-            responsible=True, questionnaires__name_en=evap_models.Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME
+            responsible=True, questionnaires__name_en=SINGLE_RESULT_QUESTIONNAIRE_NAME
         ).exists():
             course.is_single_result = True
             course.save()
