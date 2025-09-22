@@ -28,6 +28,7 @@ def DATADIR(prev, final):
 ### Debugging
 
 DEBUG = required()
+ENABLE_DEBUG_TOOLBAR = False
 
 ### EvaP logic
 

@@ -58,6 +58,8 @@ pkgs.mkShell {
   passthru = { inherit venv; };
 
   env = {
+    DJANGO_SETTINGS_MODULE = "localsettings"; # this file is set up by services-full
+    PUPPETEER_SKIP_DOWNLOAD = 1;
     UV_NO_SYNC = "1";
     UV_PYTHON = python3.interpreter;
     UV_PYTHON_DOWNLOADS = "never";

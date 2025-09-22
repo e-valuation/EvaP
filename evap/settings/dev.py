@@ -1,6 +1,8 @@
 from fractions import Fraction
-from evap.settings_resolver import derived
+
 from django.utils.safestring import mark_safe
+
+from evap.settings_resolver import derived
 
 PAGE_URL = "localhost:8000"
 ACTIVATE_OPEN_ID_LOGIN = False
