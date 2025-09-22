@@ -3,7 +3,7 @@ from copy import deepcopy
 
 from model_bakery import random_gen
 
-from evap.new_settings.lazy import derived
+from evap.settings_resolver import derived
 
 TEST_RUNNER = "evap.evaluation.tests.tools.EvapTestRunner"
 TESTING = "test" in sys.argv or "pytest" in sys.modules

@@ -1,4 +1,4 @@
-from evap.new_settings.lazy import derived
+from evap.settings_resolver import derived
 
 # Very helpful but eats a lot of performance on sql-heavy pages.
 # Works only with DEBUG = True and Django's development server (so no apache).
@@ -32,7 +32,7 @@ def show_toolbar(request):
 def DEBUG_TOOLBAR_CONFIG(prev, final):
     if final.REALLY_ENABLE_DEBUG_TOOLBAR:
         return {
-            "SHOW_TOOLBAR_CALLBACK": "evap.new_settings.debug_toolbar.show_toolbar",
+            "SHOW_TOOLBAR_CALLBACK": "evap.settings.debug_toolbar.show_toolbar",
             "JQUERY_URL": "",
         }
     return prev.DEBUG_TOOLBAR_CONFIG

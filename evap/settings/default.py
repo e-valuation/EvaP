@@ -8,7 +8,7 @@ from typing import Any
 from django.contrib.staticfiles.storage import ManifestStaticFilesStorage
 
 import evap
-from evap.new_settings.lazy import derived, required
+from evap.settings_resolver import derived, required
 from evap.tools import MonthAndDay
 
 
@@ -159,7 +159,7 @@ STORAGES = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "evap.new_settings.common.ManifestStaticFilesStorageWithJsReplacement",
+        "BACKEND": "evap.settingsettings.common.ManifestStaticFilesStorageWithJsReplacement",
     },
 }
 

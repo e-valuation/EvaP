@@ -1,4 +1,4 @@
-from evap.new_settings.lazy import derived
+from evap.settings_resolver import derived
 
 PAGE_URL = "localhost:8000"
 ACTIVATE_OPEN_ID_LOGIN = False

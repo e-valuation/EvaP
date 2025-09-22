@@ -107,7 +107,7 @@ class SettingResolver(Generic[T]):
         return self.get_final_values(self.all_setting_names())
 
 
-def resolve(namespaces: list[Any]) -> dict[str, Any]:
+def resolve_settings(namespaces: list[Any]) -> dict[str, Any]:
     resolver = SettingResolver[Any]()
     for ns in namespaces:
         resolver.add_layer(ns)

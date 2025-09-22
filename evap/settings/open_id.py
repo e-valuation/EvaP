@@ -1,4 +1,4 @@
-from evap.new_settings.lazy import required
+from evap.settings_resolver import required
 
 ACTIVATE_OPEN_ID_LOGIN = required()
 
