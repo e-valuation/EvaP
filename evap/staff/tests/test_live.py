@@ -1,6 +1,5 @@
 from datetime import date, datetime
 
-from django.urls import reverse
 from model_bakery import baker
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.expected_conditions import element_to_be_clickable, visibility_of_element_located
@@ -42,7 +41,7 @@ class EvaluationEditLiveTest(LiveServerTest):
         )
 
         with self.enter_staff_mode():
-            self.selenium.get(self.live_server_url + reverse("staff:evaluation_edit", args=[evaluation.pk]))
+            self.selenium.get(self.reverse("staff:evaluation_edit", args=[evaluation.pk]))
 
         row = self.wait.until(visibility_of_element_located((By.CSS_SELECTOR, "#id_contributions-0-contributor")))
         tomselect_options = row.get_property("tomselect")["options"]

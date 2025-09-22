@@ -17,6 +17,7 @@ from django.http.request import HttpRequest, QueryDict
 from django.test.runner import DiscoverRunner
 from django.test.selenium import SeleniumTestCase
 from django.test.utils import CaptureQueriesContext
+from django.urls import reverse
 from django.utils import timezone, translation
 from model_bakery import baker
 from selenium.webdriver.common.by import By
@@ -288,6 +289,9 @@ class LiveServerTest(SeleniumTestCase):
         self.manager = make_manager()
         self.selenium.get(self.live_server_url)
         self.login(self.manager)
+
+    def reverse(self, *args, **kwargs):
+        return self.live_server_url + reverse(*args, **kwargs)
 
     @classmethod
     def make_request(cls) -> HttpRequest:

@@ -1,6 +1,5 @@
 from datetime import date, datetime
 
-from django.urls import reverse
 from model_bakery import baker
 from selenium.webdriver.common.by import By
 
@@ -26,7 +25,7 @@ class ContributorDelegationLiveTest(LiveServerTest):
             ).exists()
         )
         self.assertEqual(evaluation.contributions.count(), 1)
-        self.selenium.get(self.live_server_url + reverse("contributor:index"))
+        self.selenium.get(self.reverse("contributor:index"))
 
         delegate_button = self.selenium.find_element(
             By.CSS_SELECTOR, r"confirmation-modal button[data-bs-original-title='Delegate preparation']"
