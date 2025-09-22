@@ -12,13 +12,13 @@
                         <tr class="table-header">
                             <th class="width-percent-3 movable"></th>
                             <th class="width-percent-52">{% translate 'Questionnaire' %}</th>
-                            <th class="width-percent-10">
+                            <th data-not-searchable class="width-percent-10">
                                 {% if type != 'contributor' %}
                                     {% translate 'Locked' %}
                                 {% endif %}
                             </th>
-                            <th class="width-percent-15">{% translate 'Visibility' %}</th>
-                            <th class="width-percent-20 text-end">{% translate 'Actions' %}</th>
+                            <th data-not-searchable class="width-percent-15">{% translate 'Visibility' %}</th>
+                            <th data-not-searchable class="width-percent-20 text-end">{% translate 'Actions' %}</th>
                         </tr>
                     </thead>
                     <tbody>
