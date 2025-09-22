@@ -93,6 +93,8 @@ jobs:
       - run: pip install *.whl
       - name: Check that "evaluation" section appears in help string
         run: python -m evap --help | grep --fixed-strings "[evaluation]"
+        env:
+          DJANGO_SETTINGS_MODULE: evap.development.cisettings
 
   test_frontend:
     name: Test Frontend
