@@ -1,5 +1,4 @@
 from django.test import override_settings
-from django.urls import reverse
 from model_bakery import baker
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
@@ -59,7 +58,7 @@ class StudentVoteLiveTest(LiveServerTest):
         )
 
         evaluation.general_contribution.questionnaires.set([top_general_questionnaire, bottom_general_questionnaire])
-        self.url = self.live_server_url + reverse("student:vote", args=[evaluation.pk])
+        self.url = self.reverse("student:vote", args=[evaluation.pk])
         self.login(voting_user1)
 
     def _get_publish_confirmation(self) -> dict[str, WebElement]:
