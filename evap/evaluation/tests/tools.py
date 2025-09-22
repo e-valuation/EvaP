@@ -13,7 +13,6 @@ from django.contrib.auth import login
 from django.contrib.auth.models import Group
 from django.contrib.staticfiles.handlers import StaticFilesHandler
 from django.db import DEFAULT_DB_ALIAS, connections
-from django.db.models import QuerySet
 from django.http.request import HttpRequest, QueryDict
 from django.test.runner import DiscoverRunner
 from django.test.selenium import SeleniumTestCase

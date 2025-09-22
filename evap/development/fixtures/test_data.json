@@ -20532,30 +20532,10 @@
 },
 {
   "model": "evaluation.question",
-  "pk": 26,
-  "fields": {
-    "text_de": "... ging auf Fragen und Anregungen ein.",
-    "text_en": "... adressed questions and proposals.",
-    "allows_additional_textanswers": true,
-    "type": 1
-  }
-},
-{
-  "model": "evaluation.question",
   "pk": 27,
   "fields": {
     "text_de": "... gestaltete die Veranstaltung interessant.",
     "text_en": "... gave the course in an interesting way.",
-    "allows_additional_textanswers": true,
-    "type": 1
-  }
-},
-{
-  "model": "evaluation.question",
-  "pk": 28,
-  "fields": {
-    "text_de": "... wirkte gut vorbereitet.",
-    "text_en": "... seemed to be well prepared.",
     "allows_additional_textanswers": true,
     "type": 1
   }
@@ -20712,16 +20692,6 @@
 },
 {
   "model": "evaluation.question",
-  "pk": 44,
-  "fields": {
-    "text_de": "... hat mich/mein Team aktiv betreut.",
-    "text_en": "... made a good job in actively supporting me/my team.",
-    "allows_additional_textanswers": true,
-    "type": 1
-  }
-},
-{
-  "model": "evaluation.question",
   "pk": 45,
   "fields": {
     "text_de": "Das Projekt hat mir Spaß/Freude bereitet.",
@@ -20768,16 +20738,6 @@
     "text_en": "Please give your feedback to the responsible person here. Be polite and constructive!",
     "allows_additional_textanswers": false,
     "type": 0
-  }
-},
-{
-  "model": "evaluation.question",
-  "pk": 50,
-  "fields": {
-    "text_de": "... konnte mir Wissen vermitteln.",
-    "text_en": "... could equip me with knowledge.",
-    "allows_additional_textanswers": true,
-    "type": 1
   }
 },
 {
@@ -20946,16 +20906,6 @@
   "fields": {
     "text_de": "Es haben sich alle Teilnehmer ausgeglichen beteiligt.",
     "text_en": "All team members participated equally.",
-    "allows_additional_textanswers": true,
-    "type": 1
-  }
-},
-{
-  "model": "evaluation.question",
-  "pk": 68,
-  "fields": {
-    "text_de": "Die Zeitvorgaben für die Teil-Aufgaben waren realistisch.",
-    "text_en": "The deadlines for sub-task were realistic.",
     "allows_additional_textanswers": true,
     "type": 1
   }
@@ -21629,7 +21579,7 @@
   "model": "evaluation.questionassignment",
   "pk": 26,
   "fields": {
-    "question": 26,
+    "question": 41,
     "questionnaire": 84,
     "order": 327
   }
@@ -21647,7 +21597,7 @@
   "model": "evaluation.questionassignment",
   "pk": 28,
   "fields": {
-    "question": 28,
+    "question": 52,
     "questionnaire": 84,
     "order": 329
   }
@@ -21818,7 +21768,7 @@
   "model": "evaluation.questionassignment",
   "pk": 47,
   "fields": {
-    "question": 28,
+    "question": 52,
     "questionnaire": 87,
     "order": 347
   }
@@ -21836,7 +21786,7 @@
   "model": "evaluation.questionassignment",
   "pk": 49,
   "fields": {
-    "question": 44,
+    "question": 48,
     "questionnaire": 87,
     "order": 349
   }
@@ -21908,7 +21858,7 @@
   "model": "evaluation.questionassignment",
   "pk": 57,
   "fields": {
-    "question": 28,
+    "question": 52,
     "questionnaire": 89,
     "order": 357
   }
@@ -21935,7 +21885,7 @@
   "model": "evaluation.questionassignment",
   "pk": 60,
   "fields": {
-    "question": 50,
+    "question": 25,
     "questionnaire": 91,
     "order": 360
   }
@@ -22034,7 +21984,7 @@
   "model": "evaluation.questionassignment",
   "pk": 71,
   "fields": {
-    "question": 28,
+    "question": 52,
     "questionnaire": 85,
     "order": 371
   }
@@ -22151,7 +22101,7 @@
   "model": "evaluation.questionassignment",
   "pk": 84,
   "fields": {
-    "question": 68,
+    "question": 84,
     "questionnaire": 95,
     "order": 384
   }
@@ -22304,7 +22254,7 @@
   "model": "evaluation.questionassignment",
   "pk": 101,
   "fields": {
-    "question": 26,
+    "question": 41,
     "questionnaire": 98,
     "order": 402
   }
@@ -22529,7 +22479,7 @@
   "model": "evaluation.questionassignment",
   "pk": 126,
   "fields": {
-    "question": 28,
+    "question": 52,
     "questionnaire": 98,
     "order": 431
   }
@@ -22790,7 +22740,7 @@
   "model": "evaluation.questionassignment",
   "pk": 155,
   "fields": {
-    "question": 28,
+    "question": 52,
     "questionnaire": 107,
     "order": 461
   }
@@ -22808,7 +22758,7 @@
   "model": "evaluation.questionassignment",
   "pk": 157,
   "fields": {
-    "question": 44,
+    "question": 48,
     "questionnaire": 107,
     "order": 463
   }
@@ -22853,7 +22803,7 @@
   "model": "evaluation.questionassignment",
   "pk": 162,
   "fields": {
-    "question": 28,
+    "question": 52,
     "questionnaire": 108,
     "order": 468
   }
@@ -22862,7 +22812,7 @@
   "model": "evaluation.questionassignment",
   "pk": 163,
   "fields": {
-    "question": 44,
+    "question": 48,
     "questionnaire": 108,
     "order": 469
   }
