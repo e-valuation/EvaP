@@ -888,7 +888,7 @@ class QuestionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if hasattr(self.instance, "question"):
             kwargs.pop("instance")
-            self.question_form = QuestionDetailsForm(instance=self.instance.question, *args, **kwargs)
+            self.question_form = QuestionDetailsForm(*args, instance=self.instance.question, **kwargs)
         else:
             self.question_form = QuestionDetailsForm(*args, **kwargs)
 

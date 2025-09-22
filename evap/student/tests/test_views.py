@@ -13,7 +13,6 @@ from evap.evaluation.models import (
     Answer,
     Contribution,
     Evaluation,
-    Question,
     QuestionAssignment,
     Questionnaire,
     QuestionType,
