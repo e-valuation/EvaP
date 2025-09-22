@@ -69,6 +69,7 @@ jobs:
         with:
           submodules: true
       - uses: DeterminateSystems/nix-installer-action@main
+      - run: echo "DJANGO_SETTINGS_MODULE=evap.development.cisettings" >> "$GITHUB_ENV"
       - run: nix run .#build-dist
       - run: tar tvf dist/*.tar.gz
       - run: unzip -l dist/*.whl
