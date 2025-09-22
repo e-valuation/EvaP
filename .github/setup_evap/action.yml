@@ -24,6 +24,7 @@ runs:
         arguments: "${{ inputs.shell }}"
 
     - run: echo "DJANGO_SETTINGS_MODULE=evap.development.cisettings" >> "$GITHUB_ENV"
+      shell: bash
 
     - name: Create data/ directory
       run: mkdir -p data/
