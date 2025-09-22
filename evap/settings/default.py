@@ -127,6 +127,9 @@ ADMINS: list[tuple[str, str]] = [
 # The page URL that is used in email templates.
 PAGE_URL = required()
 
+# Key used for Django's signing module
+SECRET_KEY = required()
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
