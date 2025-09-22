@@ -144,10 +144,10 @@ class TestExporters(TestCase):
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
-        # self.assertEqual(workbook.sheets()[0].row_values(4)[0], questionnaire.public_name)
-        # self.assertEqual(workbook.sheets()[0].row_values(5)[0], heading_question.text)
-        # self.assertEqual(workbook.sheets()[0].row_values(6)[0], likert_question.text)
-        # self.assertEqual(workbook.sheets()[0].row_values(7)[0], "")
+        self.assertEqual(workbook.sheets()[0].row_values(4)[0], questionnaire.public_name)
+        self.assertEqual(workbook.sheets()[0].row_values(5)[0], heading_question.question.text)
+        self.assertEqual(workbook.sheets()[0].row_values(6)[0], likert_question.question.text)
+        self.assertEqual(workbook.sheets()[0].row_values(7)[0], "")
 
     def test_view_excel_file_sorted(self):
         semester = baker.make(Semester)
@@ -378,7 +378,6 @@ class TestExporters(TestCase):
         cache_results(evaluation)
 
         sheet = self.get_export_sheet(evaluation.course.semester, program, [evaluation.course.type.id])
-        return
         self.assertEqual(sheet.row_values(4)[0], used_questionnaire.public_name)
         self.assertEqual(sheet.row_values(5)[0], used_assignment.question.text)
         self.assertNotIn(unused_questionnaire.name, sheet.col_values(0))
@@ -495,8 +494,8 @@ class TestExporters(TestCase):
         cache_results(evaluation)
 
         sheet = self.get_export_sheet(evaluation.course.semester, program, [evaluation.course.type.id])
-        # self.assertEqual(sheet.row_values(5)[0], question.text)
-        # self.assertEqual(sheet.row_values(5)[1], "67%")
+        self.assertEqual(sheet.row_values(5)[0], assignment.question.text)
+        self.assertEqual(sheet.row_values(5)[1], "67%")
 
     def test_contributor_result_export(self):
         program = baker.make(Program)
