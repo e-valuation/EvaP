@@ -199,7 +199,6 @@ packages = ["evap", "tools"]
 plugins = ["mypy_django_plugin.main"]
 
 [tool.django-stubs]
-django_settings_module = "evap.settings"
 
 [[tool.mypy.overrides]]
 module = [

@@ -130,9 +130,9 @@
             name = "clean-setup";
             runtimeInputs = with pkgs; [ git ];
             text = ''
-              read -r -p "Delete node_modules/, data/, generated CSS and JS files in evap/static/, and localsettings.py? [y/N] "
+              read -r -p "Delete node_modules/, data/, generated CSS and JS files in evap/static/, and localsettings? [y/N] "
               [[ "$REPLY" =~ ^[Yy]$ ]] || exit 1
-              git clean -f -X evap/static/ node_modules/ data/ localsettings.py
+              git clean -f -X evap/static/ node_modules/ data/ localsettings.py localsettings.pyi
             '';
           };
         });
