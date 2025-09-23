@@ -4,7 +4,7 @@ from evap.settings_resolver import resolve_settings
 
 class CiSettings:
     DEBUG = True
-    SECRET_KEY = "github-actions-evap"  # nosec
+    SECRET_KEY = "evap-github-actions-secret-key"  # nosec
 
 
 globals().update(resolve_settings([default, open_id, dev, local_services, test, CiSettings]))
