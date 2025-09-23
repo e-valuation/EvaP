@@ -1,3 +1,5 @@
+# pylint: disable=unused-argument,invalid-name
+
 from evap.settings_resolver import derived
 
 

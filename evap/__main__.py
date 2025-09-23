@@ -11,7 +11,7 @@ def main():
     settings.DATADIR.mkdir(exist_ok=True)
 
     if settings.TESTING:
-        from typeguard import install_import_hook  # pylint: disable=import-outside-toplevel
+        from typeguard import install_import_hook  # noqa: PLC0415
 
         install_import_hook(("evap", "tools"))
         logging.disable()

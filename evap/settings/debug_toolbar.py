@@ -1,3 +1,5 @@
+# pylint: disable=unused-argument,invalid-name
+
 from evap.settings_resolver import derived
 
 # Very helpful but eats a lot of performance on sql-heavy pages.

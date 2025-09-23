@@ -1,3 +1,5 @@
+# pylint: disable=invalid-name
+
 from fractions import Fraction
 
 from django.utils.safestring import mark_safe

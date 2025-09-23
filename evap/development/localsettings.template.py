@@ -1,4 +1,6 @@
-from evap.settings import default, dev, local_services, open_id, test
+# noqa: N999
+
+from evap.settings import default, dev, local_services, open_id, test  # noqa: TID251
 from evap.settings_resolver import resolve_settings
 
 

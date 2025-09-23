@@ -1,4 +1,5 @@
 # ruff: noqa: E731, N803
+# pylint: disable=unused-argument,invalid-name
 
 from datetime import timedelta
 from fractions import Fraction
