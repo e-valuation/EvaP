@@ -163,7 +163,7 @@ STORAGES = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "evap.settings.common.ManifestStaticFilesStorageWithJsReplacement",
+        "BACKEND": "evap.settings.default.ManifestStaticFilesStorageWithJsReplacement",
     },
 }
 
