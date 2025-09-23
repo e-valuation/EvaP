@@ -1,3 +1,5 @@
+import graphlib
+from argparse import Namespace
 from unittest.mock import patch
 from uuid import UUID
 
@@ -18,6 +20,7 @@ from evap.evaluation.tools import (
     inside_transaction,
     is_prefetched,
 )
+from evap.settings_resolver import derived, not_set, required, resolve_settings
 
 
 class TestLanguageMiddleware(WebTest):
@@ -242,3 +245,64 @@ class TestHelperMethodsWithoutTransaction(SimpleTestCase):
 
         with transaction.atomic():
             self.assertTrue(inside_transaction())
+
+
+class TestResolveSettings(TestCase):
+    def test_not_set(self):
+        self.assertEqual(resolve_settings([Namespace(FOO=42), Namespace(FOO=not_set())]), {})
+        self.assertEqual(resolve_settings([Namespace(FOO=not_set()), Namespace(FOO=42)]), {"FOO": 42})
+
+    def test_key_names(self):
+        self.assertEqual(resolve_settings([Namespace(foo=1, _FOO=2, FoO=3)]), {})
+
+    def test_derived(self):
+        self.assertEqual(
+            resolve_settings(
+                [
+                    Namespace(
+                        FOO=1,
+                        BAR=derived(final={"FOO"})(lambda prev, final: final.FOO + 10),
+                    ),
+                    Namespace(
+                        FOO=derived(prev={"FOO"})(lambda prev, final: prev.FOO + 100),
+                        BAR=derived(prev={"BAR"})(lambda prev, final: prev.BAR + 1000),
+                    ),
+                ]
+            ),
+            {
+                "FOO": 101,
+                "BAR": 1111,
+            },
+        )
+
+    def test_cycle(self):
+        with self.assertRaises(graphlib.CycleError):
+            resolve_settings(
+                [
+                    Namespace(
+                        FOO=derived(final={"BAR"})(lambda prev, final: final.BAR),
+                        BAR=derived(final={"FOO"})(lambda prev, final: final.FOO),
+                    ),
+                    Namespace(
+                        FOO=derived(prev={"FOO"})(lambda prev, final: prev.FOO),
+                        BAR=derived(prev={"BAR"})(lambda prev, final: prev.BAR),
+                    ),
+                ]
+            )
+
+    def test_required(self):
+        with self.assertRaises(ValueError):
+            resolve_settings([Namespace(FOO=required())])
+        with self.assertRaises(ValueError):
+            resolve_settings(
+                [Namespace(FOO=required()), Namespace(FOO=42, BAR=derived(prev={"FOO"})(lambda prev, final: prev.FOO))]
+            )
+        self.assertEqual(
+            resolve_settings(
+                [
+                    Namespace(FOO=required()),
+                    Namespace(FOO=42, BAR=derived(final={"FOO"})(lambda prev, final: final.FOO)),
+                ]
+            ),
+            {"FOO": 42, "BAR": 42},
+        )
