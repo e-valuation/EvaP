@@ -1,8 +1,6 @@
 import sys
 from copy import deepcopy
 
-from model_bakery import random_gen
-
 from evap.settings_resolver import derived
 
 TEST_RUNNER = "evap.evaluation.tests.tools.EvapTestRunner"
@@ -44,6 +42,8 @@ def CACHES(prev, final):
 @derived(prev={"BAKER_CUSTOM_FIELDS_GEN"}, final={"TESTING"})
 def BAKER_CUSTOM_FIELDS_GEN(prev, final):
     if final.TESTING:
+        from model_bakery import random_gen
+
         # give random char field values a reasonable length
         return {"django.db.models.CharField": lambda: random_gen.gen_string(20)}
     return prev.BAKER_CUSTOM_FIELDS_GEN
