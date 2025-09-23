@@ -306,3 +306,20 @@ class TestResolveSettings(TestCase):
             ),
             {"FOO": 42, "BAR": 42},
         )
+
+    def test_derived_final_dependencies(self):
+        # Ensure that derived final dependencies are ordered before in the topological order
+        self.assertEqual(
+            resolve_settings(
+                [
+                    Namespace(FOO=required()),
+                    Namespace(
+                        FOO=42,
+                        BAR=derived(final={"BAZ"})(lambda prev, final: final.BAZ),
+                        BAZ=derived(final={"FOO"})(lambda prev, final: final.FOO),
+                    ),
+                    Namespace(),
+                ]
+            ),
+            {"FOO": 42, "BAR": 42, "BAZ": 42},
+        )

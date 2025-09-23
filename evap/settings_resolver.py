@@ -58,13 +58,11 @@ class SettingResolver(Generic[T]):
     def all_setting_names(self) -> Iterable[str]:
         return {name for layer in self.layers for name in layer}
 
-    def get_setting_at_layer(self, name, layer_index) -> T | Required | NotSet:
+    def get_setting_at_layer(self, name, layer_index) -> tuple[int, T | Derived | Required | NotSet]:
         for i in range(layer_index, 0, -1):
             if name in self.layers[i]:
-                value = self.layers[i][name]
-                assert not isinstance(value, Derived)
-                return value
-        return NotSet.NOT_SET
+                return i, self.layers[i][name]
+        return 0, NotSet.NOT_SET
 
     def compute_derived_values(self) -> None:
         sorter = TopologicalSorter[tuple[int, str]]()
@@ -78,17 +76,21 @@ class SettingResolver(Generic[T]):
                 sorter.add((i, name), *deps)
 
         for index, name in sorter.static_order():
-            match self.layers[index].get(name):
-                case Derived(fn, prev, final):
-                    prev_ns = Namespace(**{name: self.get_setting_at_layer(name, index - 1) for name in prev})
-                    final_ns = Namespace(**{name: self.get_setting_at_layer(name, self.final_layer) for name in final})
-                    self.layers[index][name] = fn(prev_ns, final_ns)
+            match self.get_setting_at_layer(name, index):
+                case actual_index, Derived(fn, prev, final):
+                    prev_ns = Namespace(**{name: self.get_setting_at_layer(name, actual_index - 1)[1] for name in prev})
+                    final_ns = Namespace(
+                        **{name: self.get_setting_at_layer(name, self.final_layer)[1] for name in final}
+                    )
+                    assert all(not isinstance(val, Derived) for val in vars(prev_ns).values())
+                    assert all(not isinstance(val, Derived) for val in vars(final_ns).values())
+                    self.layers[actual_index][name] = fn(prev=prev_ns, final=final_ns)
 
     def get_final_values(self, keys: Iterable[str]) -> dict[str, T]:
         resolved = {}
         missing_settings = set()
         for name in keys:
-            value = self.get_setting_at_layer(name, self.final_layer)
+            _, value = self.get_setting_at_layer(name, self.final_layer)
             match value:
                 case Derived():
                     raise AssertionError("derived values should have been resolved by now")
