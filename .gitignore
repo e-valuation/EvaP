@@ -23,6 +23,8 @@ dist/
 .DS_Store
 thumbs.db
 
+localsettings.py
+localsettings.pyi
 evap/localsettings.py
 evap/static/css/evap.css
 evap/static/css/evap.css.map
