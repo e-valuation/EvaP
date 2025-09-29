@@ -92,7 +92,7 @@
                         const data = new FormData(submitEvent.target);
                         if (data.get("delete-previous-answers") === "on" && !submitEvent.submitter?.hasAttribute("data-confirm-answer-deletion")) {
                             submitEvent.preventDefault()
-                            submitEvent.target.querySelector("confirmation-modal:has([data-confirm-answer-deletion])").dialog.showModal();
+                            submitEvent.target.querySelector("confirmation-modal:has([data-confirm-answer-deletion])").show();
                         }
                     })
                 </script>
