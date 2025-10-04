@@ -83,7 +83,7 @@ jobs:
     needs: build_wheel
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
       - uses: actions/download-artifact@v5
@@ -212,7 +212,7 @@ jobs:
         working-directory: deployment
         run: nix run ../main#services -- --detached
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
@@ -249,7 +249,7 @@ jobs:
           DJANGO_SETTINGS_MODULE: deployment_settings
 
   macos-nix-build:
-    runs-on: macos-14
+    runs-on: macos-15
     name: Build nix environment on MacOS
     steps:
       - uses: actions/checkout@v5
