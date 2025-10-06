@@ -50,7 +50,10 @@ class Command(BaseCommand):
 
         recipients = set()
         for evaluation in Evaluation.objects.filter(
-            state=Evaluation.State.IN_EVALUATION, vote_end_date__in=check_dates
+            state=Evaluation.State.IN_EVALUATION,
+            vote_end_date__in=check_dates,
+            vote_start_datetime__date__lt=datetime.date.today()
+            - datetime.timedelta(days=1),  # only want evaluation which started before yesterday, see Issue#2400
         ):
             recipients.update(evaluation.due_participants)
 
