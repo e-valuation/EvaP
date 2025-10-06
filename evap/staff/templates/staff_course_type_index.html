@@ -27,6 +27,7 @@
                             <th class="width-percent-30">{% translate 'Name (German)' %}</th>
                             <th class="width-percent-30">{% translate 'Name (English)' %}</th>
                             <th class="width-percent-30">{% translate 'Import names' %}</th>
+                            <th class="width-percent-30">{% translate 'Skip on automated import' %}</th>
                             <th class="width-percent-10 text-end">{% translate 'Actions' %}</th>
                         </tr>
                     </thead>
@@ -47,6 +48,9 @@
                                 </td>
                                 <td>
                                     {% include 'bootstrap_form_field_widget.html' with field=form.import_names %}
+                                </td>
+                                <td>
+                                    {% include 'bootstrap_form_field_widget.html' with field=form.skip_on_automated_import %}
                                 </td>
                                 <td class="text-end">
                                     {% if form.instance.can_be_deleted_by_manager %}
