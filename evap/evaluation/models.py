@@ -303,6 +303,7 @@ class CourseType(models.Model):
     import_names = ArrayField(
         models.CharField(max_length=1024), default=list, verbose_name=_("import names"), blank=True
     )
+    skip_on_automated_import = models.BooleanField(verbose_name=_("skip on automated import"), default=False)
 
     order = models.IntegerField(verbose_name=_("course type order"), default=-1)
 

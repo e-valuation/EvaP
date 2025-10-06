@@ -716,6 +716,21 @@ class TestImportEvents(TestCase):
         self.assertEqual(UserProfile.objects.get(email="1@example.com").first_name_given, "1")
         self.assertEqual(UserProfile.objects.get(email="2@example.com").first_name_given, "w_2")
 
+    def test_import_skipped_because_of_course_type_skipped(self):
+        CourseType.objects.create(name_en="Lecture", name_de="Vorlesung", skip_on_automated_import=True)
+
+        importer = self._import()
+
+        self.assertTrue(
+            WarningMessage(
+                obj=EXAMPLE_DATA["events"][0]["title"],
+                message="Course skipped because skipping of courses with type Lecture is activated",
+            )
+            in importer.statistics.warnings,
+        )
+        self.assertFalse(Evaluation.objects.filter(cms_id="0x5").exists())
+        self.assertFalse(Evaluation.objects.filter(cms_id="0x6").exists())
+
     @patch("evap.staff.importers.json.JSONImporter.import_json")
     def test_management_command(self, mock_import_json):
         output = StringIO()
