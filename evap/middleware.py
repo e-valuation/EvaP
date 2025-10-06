@@ -1,8 +1,18 @@
-import inspect
+from collections.abc import Callable
+from typing import TypeAlias
+from weakref import WeakSet
 
 from django.conf import settings
 from django.contrib.auth.views import redirect_to_login
 from django.utils import translation
+from django.views import View
+from mozilla_django_oidc.views import OIDCAuthenticationCallbackView, OIDCAuthenticationRequestView
+
+ViewFuncOrClass: TypeAlias = Callable | View
+
+VIEWS_WITHOUT_LOGIN_REQUIRED: WeakSet[ViewFuncOrClass] = WeakSet()
+VIEWS_WITHOUT_LOGIN_REQUIRED.add(OIDCAuthenticationCallbackView)
+VIEWS_WITHOUT_LOGIN_REQUIRED.add(OIDCAuthenticationRequestView)
 
 
 class RequireLoginMiddleware:
@@ -13,29 +23,30 @@ class RequireLoginMiddleware:
         return self.get_response(request)
 
     @staticmethod
-    def process_view(request, view_func, _view_args, _view_kwargs):
+    def _is_or_wraps_view_not_requiring_login(view: ViewFuncOrClass) -> bool:
+        if view in VIEWS_WITHOUT_LOGIN_REQUIRED:
+            return True
+
+        if hasattr(view, "__wrapped__"):
+            return RequireLoginMiddleware._is_or_wraps_view_not_requiring_login(view.__wrapped__)
+
+        return False
+
+    @classmethod
+    def process_view(cls, request, view_func, _view_args, _view_kwargs):
         # Returning None tells django to pass the request on
         if request.user.is_authenticated:
             return None
 
-        if "no_login_required" in view_func.__dict__ and view_func.no_login_required:
-            return None
-
-        if hasattr(view_func, "view_class") and view_func.view_class.__name__ in [
-            "OIDCAuthenticationRequestView",
-            "OIDCAuthenticationCallbackView",
-        ]:
+        view = getattr(view_func, "view_class", view_func)
+        if cls._is_or_wraps_view_not_requiring_login(view):
             return None
 
         return redirect_to_login(request.get_full_path())
 
 
-def no_login_required(class_or_function):
-    if inspect.isclass(class_or_function):
-        class_or_function.dispatch.no_login_required = True
-    else:
-        assert inspect.isfunction(class_or_function)
-        class_or_function.no_login_required = True
+def no_login_required(class_or_function: ViewFuncOrClass):
+    VIEWS_WITHOUT_LOGIN_REQUIRED.add(class_or_function)
     return class_or_function
 
 
