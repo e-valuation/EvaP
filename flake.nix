@@ -75,7 +75,7 @@
           pkgs = pkgsFor.${system};
           pc-modules = import ./nix/services.nix {
             inherit pkgs;
-            inherit (self.devShells.${system}.evap.passthru) venv;
+            inherit (self.devShells.${system}.evap-dev.passthru) venv;
           };
           make-process-compose = with-devenv-setup: (import inputs.process-compose-flake.lib { inherit pkgs; }).makeProcessCompose {
             modules = [
@@ -130,9 +130,9 @@
             name = "clean-setup";
             runtimeInputs = with pkgs; [ git ];
             text = ''
-              read -r -p "Delete node_modules/, data/, generated CSS and JS files in evap/static/, and evap/localsettings.py? [y/N] "
+              read -r -p "Delete node_modules/, data/, generated CSS and JS files in evap/static/, and localsettings? [y/N] "
               [[ "$REPLY" =~ ^[Yy]$ ]] || exit 1
-              git clean -f -X evap/static/ node_modules/ data/ evap/localsettings.py
+              git clean -f -X evap/static/ node_modules/ data/ localsettings.py localsettings.pyi
             '';
           };
         });

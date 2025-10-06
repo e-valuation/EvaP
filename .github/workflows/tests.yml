@@ -69,6 +69,7 @@ jobs:
         with:
           submodules: true
       - uses: DeterminateSystems/nix-installer-action@main
+      - run: echo "DJANGO_SETTINGS_MODULE=evap.development.cisettings" >> "$GITHUB_ENV"
       - run: nix run .#build-dist
       - run: tar tvf dist/*.tar.gz
       - run: unzip -l dist/*.whl
@@ -92,6 +93,8 @@ jobs:
       - run: pip install *.whl
       - name: Check that "evaluation" section appears in help string
         run: python -m evap --help | grep --fixed-strings "[evaluation]"
+        env:
+          DJANGO_SETTINGS_MODULE: evap.development.cisettings
 
   test_frontend:
     name: Test Frontend
@@ -225,14 +228,13 @@ jobs:
           WHEEL=$(echo *.whl)
           pip install $WHEEL[psycopg-binary]
 
+      - run: echo "DJANGO_SETTINGS_MODULE=evap.development.cisettings" >> "$GITHUB_ENV"
       - name: Load test data
         working-directory: deployment
         run: |
           cat <(echo 'from evap.settings import *') ../main/evap/settings_test.py | tee deployment_settings.py
           python -m evap migrate
           python -m evap loaddata test_data
-        env:
-          DJANGO_SETTINGS_MODULE: deployment_settings
       - name: Backup database
         working-directory: deployment
         run: ./update_production.sh backup.json
@@ -240,13 +242,11 @@ jobs:
           EVAP_OVERRIDE_BACKUP_FILENAME: true
           EVAP_SKIP_UPDATE: true
           EVAP_SKIP_APACHE_STEPS: true
-          DJANGO_SETTINGS_MODULE: deployment_settings
       - name: Reload backup
         working-directory: deployment
         run: echo "yy" | ./load_production_backup.sh backup.json
         env:
           EVAP_SKIP_APACHE_STEPS: true
-          DJANGO_SETTINGS_MODULE: deployment_settings
 
   macos-nix-build:
     runs-on: macos-15
