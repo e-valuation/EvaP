@@ -48,6 +48,7 @@ from evap.evaluation.models import (
     CourseType,
     EmailTemplate,
     Evaluation,
+    ExamType,
     FaqQuestion,
     FaqSection,
     Infotext,
@@ -92,6 +93,7 @@ from evap.staff.forms import (
     EvaluationEmailForm,
     EvaluationForm,
     EvaluationParticipantCopyForm,
+    ExamTypeForm,
     ExportSheetForm,
     FaqQuestionForm,
     FaqSectionForm,
@@ -2179,6 +2181,21 @@ def course_type_merge(request, main_type_id, other_type_id):
         "staff_course_type_merge.html",
         {"main_type": main_type, "other_type": other_type, "courses_with_other_type": courses_with_other_type},
     )
+
+
+@manager_required
+class ExamTypeIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
+    model = ExamType
+    formset_class = modelformset_factory(
+        ExamType,
+        form=ExamTypeForm,
+        formset=ModelWithImportNamesFormset,
+        can_delete=True,
+        extra=1,
+    )
+    template_name = "staff_exam_type_index.html"
+    success_url = reverse_lazy("staff:exam_type_index")
+    success_message = gettext_lazy("Successfully updated the exam types.")
 
 
 @manager_required
