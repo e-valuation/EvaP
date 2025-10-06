@@ -75,7 +75,7 @@ class EvaluationEditLiveTest(LiveServerTest):
 
 
 class ParticipantCollapseTests(LiveServerTest):
-    def test_collapse_with_participants(self) -> None:
+    def test_collapse_with_editor_approved(self) -> None:
 
         participants = baker.make(UserProfile, _quantity=20)
         baker.make(UserProfile, last_name="participant")
@@ -87,6 +87,7 @@ class ParticipantCollapseTests(LiveServerTest):
             participants=participants,
             vote_start_datetime=datetime(2099, 1, 1, 0, 0),
             vote_end_date=date(2099, 12, 31),
+            state=Evaluation.State.EDITOR_APPROVED
         )
 
         with self.enter_staff_mode():
@@ -108,13 +109,18 @@ class ParticipantCollapseTests(LiveServerTest):
         self.selenium.find_element(By.CSS_SELECTOR, ".option.active").click()
         self.assertTrue(counter.text == "21")
 
-    def test_collapse_without_participants(self) -> None:
+        random_participant_remove_button = self.selenium.find_element(By.CSS_SELECTOR, ".card:has(#id_participants) a.remove")
+        random_participant_remove_button.click()
+        self.assertTrue(counter.text == "20")
+
+    def test_collapse_without_editor_approved(self) -> None:
         responsible = baker.make(UserProfile, last_name="responsible")
         evaluation = baker.make(
             Evaluation,
             course=baker.make(Course, programs=[baker.make(Program)], responsibles=[responsible]),
             vote_start_datetime=datetime(2099, 1, 1, 0, 0),
             vote_end_date=date(2099, 12, 31),
+            state=Evaluation.State.NEW
         )
 
         with self.enter_staff_mode():
@@ -128,6 +134,3 @@ class ParticipantCollapseTests(LiveServerTest):
         counter = card_header.find_element(By.CSS_SELECTOR, ".rounded-pill")
         self.assertTrue(counter.text == "0")
 
-        # participant_box = self.selenium.find_element(By.CSS_SELECTOR, "div#participant-box.collapse.show")
-        # card_header.click()
-        # self.wait.until(visibility_of_element_located((By.XPATH, "//div[@id='participant-box' and contains(@class, 'show')]")))
