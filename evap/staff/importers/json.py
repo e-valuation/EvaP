@@ -10,7 +10,7 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.db import transaction
 from django.utils.timezone import now
-from pydantic import ConfigDict, TypeAdapter, with_config
+from pydantic import TypeAdapter
 from typing_extensions import TypedDict
 
 from evap.evaluation.models import Contribution, Course, CourseType, Evaluation, Program, Semester, UserProfile
@@ -66,7 +66,6 @@ class ImportEvent(TypedDict):
     students: NotRequired[list[ImportRelated]]
 
 
-@with_config(ConfigDict(extra="forbid"))
 class ImportDict(TypedDict):
     students: list[ImportStudent]
     lecturers: list[ImportLecturer]
