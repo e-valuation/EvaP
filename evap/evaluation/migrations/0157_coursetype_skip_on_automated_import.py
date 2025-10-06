@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("evaluation", "0153_alter_userprofile_cc_users_and_more"),
+        ("evaluation", "0156_alter_userprofile_options"),
     ]
 
     operations = [
