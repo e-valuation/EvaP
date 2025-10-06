@@ -711,6 +711,7 @@
     "name_de": "Projektseminar",
     "name_en": "Project seminar",
     "import_names": "[\"Projektseminar\", \"P/S\"]",
+    "skip_on_automated_import": false,
     "order": 3
   }
 },
@@ -721,6 +722,7 @@
     "name_de": "Vorlesung",
     "name_en": "Lecture",
     "import_names": "[\"Vorlesung\", \"V\", \"V/Ü\"]",
+    "skip_on_automated_import": false,
     "order": 1
   }
 },
@@ -731,6 +733,7 @@
     "name_de": "Seminar",
     "name_en": "Seminar",
     "import_names": "[\"Seminar\", \"S\"]",
+    "skip_on_automated_import": false,
     "order": 2
   }
 },
@@ -741,6 +744,7 @@
     "name_de": "Bachelorprojekt",
     "name_en": "Bachelor's project",
     "import_names": "[\"Bachelorprojekt\"]",
+    "skip_on_automated_import": false,
     "order": 4
   }
 },
@@ -751,6 +755,7 @@
     "name_de": "Masterprojekt",
     "name_en": "Master's project",
     "import_names": "[\"Masterprojekt\"]",
+    "skip_on_automated_import": false,
     "order": 5
   }
 },
