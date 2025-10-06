@@ -319,6 +319,31 @@ class CourseType(models.Model):
         return not self.courses.all().exists()
 
 
+class ExamType(models.Model):
+    """Model for the exam type of evaluation, e.g. a written exam"""
+
+    name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"), unique=True)
+    name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), unique=True)
+    name = translate(en="name_en", de="name_de")
+    import_names = ArrayField(
+        models.CharField(max_length=1024), default=list, verbose_name=_("import names"), blank=True
+    )
+    skip_on_automated_import = models.BooleanField(verbose_name=_("skip on automated import"), default=False)
+
+    order = models.IntegerField(verbose_name=_("exam type order"), default=-1)
+
+    class Meta:
+        ordering = ["order"]
+
+    def __str__(self):
+        return self.name
+
+    def can_be_deleted_by_manager(self) -> bool:
+        if self.pk is None:
+            return True
+        return not self.courses.all().exists()
+
+
 class Course(LoggedModel):
     """Models a single course, e.g. the Math 101 course of 2002."""
 
@@ -436,6 +461,8 @@ class Evaluation(LoggedModel):
 
     course = models.ForeignKey(Course, models.PROTECT, verbose_name=_("course"), related_name="evaluations")
 
+    exam_type = models.ForeignKey(ExamType, models.PROTECT, verbose_name=_("exam type"), related_name="evaluations", blank=True, null=True)
+
     # names can be empty, e.g., when there is just one evaluation in a course
     name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"), blank=True)
     name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), blank=True)
@@ -501,7 +528,7 @@ class Evaluation(LoggedModel):
 
     @property
     def has_exam_evaluation(self):
-        return self.course.evaluations.filter(Q(name_de="Klausur") | Q(name_en="Exam")).exists()
+        return self.course.evaluations.filter(exam_type__isnull=False).exists()
 
     @property
     def earliest_possible_exam_date(self):
