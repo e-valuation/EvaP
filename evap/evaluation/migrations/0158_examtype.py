@@ -4,11 +4,13 @@ import django.contrib.postgres.fields
 import django.db.models.deletion
 from django.db import migrations, models
 
+
 def _migrate(apps, _schema_editor):
     Evaluation = apps.get_model("evaluation", "Evaluation")
     ExamType = apps.get_model("evaluation", "ExamType")
     exam_type = ExamType.objects.create(name_de="Klausur", name_en="Exam")
     Evaluation.objects.filter(models.Q(name_de="Klausur") | models.Q(name_en="Exam")).update(exam_type=exam_type)
+
 
 class Migration(migrations.Migration):
 

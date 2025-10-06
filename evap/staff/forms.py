@@ -19,6 +19,7 @@ from evap.evaluation.models import (
     CourseType,
     EmailTemplate,
     Evaluation,
+    ExamType,
     FaqQuestion,
     FaqSection,
     Infotext,
@@ -213,6 +214,31 @@ class CourseTypeForm(forms.ModelForm):
                 Evaluation.objects.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING, course__type=course_type)
             )
         return course_type
+
+
+class ExamTypeForm(forms.ModelForm):
+    class Meta:
+        model = ExamType
+        fields = ("name_de", "name_en", "import_names", "skip_on_automated_import", "order")
+        field_classes = {
+            "import_names": CharArrayField,
+        }
+        widgets = {
+            "order": forms.HiddenInput(),
+        }
+
+    def clean(self):
+        super().clean()
+        if self.cleaned_data.get("DELETE") and not self.instance.can_be_deleted_by_manager:
+            raise SuspiciousOperation("Deleting exam type not allowed")
+
+    def save(self, *args, **kwargs):
+        exam_type = super().save(*args, **kwargs)
+        if "name_en" in self.changed_data or "name_de" in self.changed_data:
+            update_template_cache(
+                Evaluation.objects.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING, exam_type=exam_type)
+            )
+        return exam_type
 
 
 class ProgramMergeSelectionForm(forms.Form):

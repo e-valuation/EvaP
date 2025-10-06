@@ -341,7 +341,7 @@ class ExamType(models.Model):
     def can_be_deleted_by_manager(self) -> bool:
         if self.pk is None:
             return True
-        return not self.courses.all().exists()
+        return not self.evaluations.all().exists()
 
 
 class Course(LoggedModel):
@@ -461,7 +461,9 @@ class Evaluation(LoggedModel):
 
     course = models.ForeignKey(Course, models.PROTECT, verbose_name=_("course"), related_name="evaluations")
 
-    exam_type = models.ForeignKey(ExamType, models.PROTECT, verbose_name=_("exam type"), related_name="evaluations", blank=True, null=True)
+    exam_type = models.ForeignKey(
+        ExamType, models.PROTECT, verbose_name=_("exam type"), related_name="evaluations", blank=True, null=True
+    )
 
     # names can be empty, e.g., when there is just one evaluation in a course
     name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"), blank=True)
