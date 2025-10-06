@@ -178,7 +178,7 @@ class JSONImporter:
         self.courses_by_gguid: dict[str, Course] = {}
         self.statistics = ImportStatistics()
 
-    def _get_first_name_given(self, entry: ImportStudent | ImportLecturer) -> str:
+    def _get_first_name_given(self, entry: ImportStudent) -> str:
         if entry["callingname"]:
             return entry["callingname"]
         return entry["christianname"]
@@ -277,8 +277,18 @@ class JSONImporter:
 
                 self.users_by_gguid[entry["gguid"]] = user_profile
 
-    def _import_course(self, data: ImportEvent, course_type: CourseType | None = None) -> Course:
+    def _import_course(self, data: ImportEvent, course_type: CourseType | None = None) -> Course | None:
         course_type = self._get_course_type(data["type"]) if course_type is None else course_type
+
+        if course_type.skip_on_automated_import:
+            self.statistics.warnings.append(
+                WarningMessage(
+                    obj=data["title"],
+                    message=f"Course skipped because skipping of courses with type {course_type.name_en} is activated",
+                )
+            )
+            return None
+
         responsibles = self._get_user_profiles(data["lecturers"])
         responsibles = self._remove_non_responsible_users(responsibles)
         responsibles = self._get_users_with_longest_title(responsibles)
@@ -438,15 +448,15 @@ class JSONImporter:
         )
         return contribution, created
 
-    def _import_events(self, data: list[ImportEvent]) -> None:
+    def _import_events(self, data: list[ImportEvent]) -> None:  # noqa:PLR0912
         # Divide in two lists so corresponding courses are imported before their exams
         non_exam_events = (event for event in data if not event["isexam"])
         exam_events = (event for event in data if event["isexam"])
 
         for event in non_exam_events:
             course = self._import_course(event)
-
-            self._import_evaluation(course, event)
+            if course is not None:
+                self._import_evaluation(course, event)
 
         exam_events_without_related_non_exam_event = []
         courses_with_exams: dict[Course, list[Evaluation]] = {}
@@ -458,7 +468,11 @@ class JSONImporter:
             # Exam events have the non-exam event as a single entry in the relatedevents list
             # We lookup the Course from this non-exam event (the main evaluation) to add the exam evaluation to the same Course
             assert len(event["relatedevents"]) == 1
-            course = self.courses_by_gguid[event["relatedevents"][0]["gguid"]]
+
+            # Don't import if course was skipped
+            course = self.courses_by_gguid.get(event["relatedevents"][0]["gguid"])
+            if course is None:
+                continue
 
             self._import_course_programs(course, event)
 
