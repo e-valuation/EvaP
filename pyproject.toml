@@ -173,6 +173,7 @@ disable = [
     "too-many-statements", "too-many-return-statements", "too-many-branches", "unnecessary-lambda-assignment",
     "global-statement",
     "import-outside-toplevel",
+    "wrong-import-position",
 ]
 
 [tool.pylint.design]

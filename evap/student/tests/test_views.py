@@ -13,7 +13,7 @@ from evap.evaluation.models import (
     Answer,
     Contribution,
     Evaluation,
-    Question,
+    QuestionAssignment,
     Questionnaire,
     QuestionType,
     RatingAnswerCounter,
@@ -168,39 +168,63 @@ class TestVoteView(WebTest):
         cls.contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
 
         cls.contributor_heading_question = baker.make(
-            Question, questionnaire=cls.contributor_questionnaire, order=0, type=QuestionType.HEADING
+            QuestionAssignment,
+            questionnaire=cls.contributor_questionnaire,
+            order=0,
+            question__type=QuestionType.HEADING,
         )
         cls.contributor_text_question = baker.make(
-            Question, questionnaire=cls.contributor_questionnaire, order=1, type=QuestionType.TEXT
+            QuestionAssignment, questionnaire=cls.contributor_questionnaire, order=1, question__type=QuestionType.TEXT
         )
         cls.contributor_likert_question = baker.make(
-            Question, questionnaire=cls.contributor_questionnaire, order=2, type=QuestionType.POSITIVE_LIKERT
+            QuestionAssignment,
+            questionnaire=cls.contributor_questionnaire,
+            order=2,
+            question__type=QuestionType.POSITIVE_LIKERT,
         )
 
         cls.top_heading_question = baker.make(
-            Question, questionnaire=cls.top_general_questionnaire, order=0, type=QuestionType.HEADING
+            QuestionAssignment,
+            questionnaire=cls.top_general_questionnaire,
+            order=0,
+            question__type=QuestionType.HEADING,
         )
         cls.top_text_question = baker.make(
-            Question, questionnaire=cls.top_general_questionnaire, order=1, type=QuestionType.TEXT
+            QuestionAssignment, questionnaire=cls.top_general_questionnaire, order=1, question__type=QuestionType.TEXT
         )
         cls.top_likert_question = baker.make(
-            Question, questionnaire=cls.top_general_questionnaire, order=2, type=QuestionType.POSITIVE_LIKERT
+            QuestionAssignment,
+            questionnaire=cls.top_general_questionnaire,
+            order=2,
+            question__type=QuestionType.POSITIVE_LIKERT,
         )
         cls.top_grade_question = baker.make(
-            Question, questionnaire=cls.top_general_questionnaire, order=3, type=QuestionType.GRADE
+            QuestionAssignment, questionnaire=cls.top_general_questionnaire, order=3, question__type=QuestionType.GRADE
         )
 
         cls.bottom_heading_question = baker.make(
-            Question, questionnaire=cls.bottom_general_questionnaire, order=0, type=QuestionType.HEADING
+            QuestionAssignment,
+            questionnaire=cls.bottom_general_questionnaire,
+            order=0,
+            question__type=QuestionType.HEADING,
         )
         cls.bottom_text_question = baker.make(
-            Question, questionnaire=cls.bottom_general_questionnaire, order=1, type=QuestionType.TEXT
+            QuestionAssignment,
+            questionnaire=cls.bottom_general_questionnaire,
+            order=1,
+            question__type=QuestionType.TEXT,
         )
         cls.bottom_likert_question = baker.make(
-            Question, questionnaire=cls.bottom_general_questionnaire, order=2, type=QuestionType.POSITIVE_LIKERT
+            QuestionAssignment,
+            questionnaire=cls.bottom_general_questionnaire,
+            order=2,
+            question__type=QuestionType.POSITIVE_LIKERT,
         )
         cls.bottom_grade_question = baker.make(
-            Question, questionnaire=cls.bottom_general_questionnaire, order=3, type=QuestionType.GRADE
+            QuestionAssignment,
+            questionnaire=cls.bottom_general_questionnaire,
+            order=3,
+            question__type=QuestionType.GRADE,
         )
 
         cls.contribution1 = baker.make(
@@ -223,14 +247,14 @@ class TestVoteView(WebTest):
     def test_question_ordering(self):
         page = self.app.get(self.url, user=self.voting_user1, status=200)
 
-        top_heading_index = page.body.decode().index(self.top_heading_question.text)
-        top_text_index = page.body.decode().index(self.top_text_question.text)
+        top_heading_index = page.body.decode().index(self.top_heading_question.question.text)
+        top_text_index = page.body.decode().index(self.top_text_question.question.text)
 
-        contributor_heading_index = page.body.decode().index(self.contributor_heading_question.text)
-        contributor_likert_index = page.body.decode().index(self.contributor_likert_question.text)
+        contributor_heading_index = page.body.decode().index(self.contributor_heading_question.question.text)
+        contributor_likert_index = page.body.decode().index(self.contributor_likert_question.question.text)
 
-        bottom_heading_index = page.body.decode().index(self.bottom_heading_question.text)
-        bottom_grade_index = page.body.decode().index(self.bottom_grade_question.text)
+        bottom_heading_index = page.body.decode().index(self.bottom_heading_question.question.text)
+        bottom_grade_index = page.body.decode().index(self.bottom_grade_question.question.text)
 
         self.assertTrue(
             top_heading_index
@@ -244,31 +268,33 @@ class TestVoteView(WebTest):
     def fill_form(self, form, fill_general_complete=True, fill_contributors_complete=True):
         contribution = self.evaluation.general_contribution
         questionnaire = self.top_general_questionnaire
-        form[answer_field_id(contribution, questionnaire, self.top_text_question)] = "some text"
-        form[answer_field_id(contribution, questionnaire, self.top_grade_question)] = 3
-        form[answer_field_id(contribution, questionnaire, self.top_likert_question)] = 1
-        form[answer_field_id(contribution, questionnaire, self.top_likert_question, additional_textanswer=True)] = (
-            "some additional text"
-        )
+        form[answer_field_id(contribution, questionnaire, self.top_text_question.question)] = "some text"
+        form[answer_field_id(contribution, questionnaire, self.top_grade_question.question)] = 3
+        form[answer_field_id(contribution, questionnaire, self.top_likert_question.question)] = 1
+        form[
+            answer_field_id(contribution, questionnaire, self.top_likert_question.question, additional_textanswer=True)
+        ] = "some additional text"
 
         questionnaire = self.bottom_general_questionnaire
-        form[answer_field_id(contribution, questionnaire, self.bottom_text_question)] = "some bottom text"
-        form[answer_field_id(contribution, questionnaire, self.bottom_grade_question)] = 4
+        form[answer_field_id(contribution, questionnaire, self.bottom_text_question.question)] = "some bottom text"
+        form[answer_field_id(contribution, questionnaire, self.bottom_grade_question.question)] = 4
         if fill_general_complete:
-            form[answer_field_id(contribution, questionnaire, self.bottom_likert_question)] = 2
+            form[answer_field_id(contribution, questionnaire, self.bottom_likert_question.question)] = 2
 
         contribution = self.contribution1
         questionnaire = self.contributor_questionnaire
-        form[answer_field_id(contribution, questionnaire, self.contributor_text_question)] = "some other text"
-        form[answer_field_id(contribution, questionnaire, self.contributor_likert_question)] = 4
+        form[answer_field_id(contribution, questionnaire, self.contributor_text_question.question)] = "some other text"
+        form[answer_field_id(contribution, questionnaire, self.contributor_likert_question.question)] = 4
         form[
-            answer_field_id(contribution, questionnaire, self.contributor_likert_question, additional_textanswer=True)
+            answer_field_id(
+                contribution, questionnaire, self.contributor_likert_question.question, additional_textanswer=True
+            )
         ] = "some other additional text"
 
         contribution = self.contribution2
-        form[answer_field_id(contribution, questionnaire, self.contributor_text_question)] = "some more text"
+        form[answer_field_id(contribution, questionnaire, self.contributor_text_question.question)] = "some more text"
         if fill_contributors_complete:
-            form[answer_field_id(contribution, questionnaire, self.contributor_likert_question)] = 2
+            form[answer_field_id(contribution, questionnaire, self.contributor_likert_question.question)] = 2
 
     def test_incomplete_general_vote_form(self):
         """
@@ -285,28 +311,28 @@ class TestVoteView(WebTest):
         form = page.forms["student-vote-form"]
 
         field_id = partial(answer_field_id, self.evaluation.general_contribution, self.top_general_questionnaire)
-        self.assertEqual(form[field_id(self.top_text_question)].value, "some text")
-        self.assertEqual(form[field_id(self.top_likert_question)].value, "1")
+        self.assertEqual(form[field_id(self.top_text_question.question)].value, "some text")
+        self.assertEqual(form[field_id(self.top_likert_question.question)].value, "1")
         self.assertEqual(
-            form[field_id(self.top_likert_question, additional_textanswer=True)].value, "some additional text"
+            form[field_id(self.top_likert_question.question, additional_textanswer=True)].value, "some additional text"
         )
-        self.assertEqual(form[field_id(self.top_grade_question)].value, "3")
+        self.assertEqual(form[field_id(self.top_grade_question.question)].value, "3")
 
         field_id = partial(answer_field_id, self.evaluation.general_contribution, self.bottom_general_questionnaire)
-        self.assertEqual(form[field_id(self.bottom_text_question)].value, "some bottom text")
-        self.assertEqual(form[field_id(self.bottom_grade_question)].value, "4")
+        self.assertEqual(form[field_id(self.bottom_text_question.question)].value, "some bottom text")
+        self.assertEqual(form[field_id(self.bottom_grade_question.question)].value, "4")
 
         field_id = partial(answer_field_id, self.contribution1, self.contributor_questionnaire)
-        self.assertEqual(form[field_id(self.contributor_text_question)].value, "some other text")
-        self.assertEqual(form[field_id(self.contributor_likert_question)].value, "4")
+        self.assertEqual(form[field_id(self.contributor_text_question.question)].value, "some other text")
+        self.assertEqual(form[field_id(self.contributor_likert_question.question)].value, "4")
         self.assertEqual(
-            form[field_id(self.contributor_likert_question, additional_textanswer=True)].value,
+            form[field_id(self.contributor_likert_question.question, additional_textanswer=True)].value,
             "some other additional text",
         )
 
         field_id = partial(answer_field_id, self.contribution2, self.contributor_questionnaire)
-        self.assertEqual(form[field_id(self.contributor_text_question)].value, "some more text")
-        self.assertEqual(form[field_id(self.contributor_likert_question)].value, "2")
+        self.assertEqual(form[field_id(self.contributor_text_question.question)].value, "some more text")
+        self.assertEqual(form[field_id(self.contributor_likert_question.question)].value, "2")
 
     def test_incomplete_contributors_vote_form(self):
         """
@@ -323,28 +349,28 @@ class TestVoteView(WebTest):
         form = page.forms["student-vote-form"]
 
         field_id = partial(answer_field_id, self.evaluation.general_contribution, self.top_general_questionnaire)
-        self.assertEqual(form[field_id(self.top_text_question)].value, "some text")
-        self.assertEqual(form[field_id(self.top_likert_question)].value, "1")
+        self.assertEqual(form[field_id(self.top_text_question.question)].value, "some text")
+        self.assertEqual(form[field_id(self.top_likert_question.question)].value, "1")
         self.assertEqual(
-            form[field_id(self.top_likert_question, additional_textanswer=True)].value, "some additional text"
+            form[field_id(self.top_likert_question.question, additional_textanswer=True)].value, "some additional text"
         )
-        self.assertEqual(form[field_id(self.top_grade_question)].value, "3")
+        self.assertEqual(form[field_id(self.top_grade_question.question)].value, "3")
 
         field_id = partial(answer_field_id, self.evaluation.general_contribution, self.bottom_general_questionnaire)
-        self.assertEqual(form[field_id(self.bottom_text_question)].value, "some bottom text")
-        self.assertEqual(form[field_id(self.bottom_likert_question)].value, "2")
-        self.assertEqual(form[field_id(self.bottom_grade_question)].value, "4")
+        self.assertEqual(form[field_id(self.bottom_text_question.question)].value, "some bottom text")
+        self.assertEqual(form[field_id(self.bottom_likert_question.question)].value, "2")
+        self.assertEqual(form[field_id(self.bottom_grade_question.question)].value, "4")
 
         field_id = partial(answer_field_id, self.contribution1, self.contributor_questionnaire)
-        self.assertEqual(form[field_id(self.contributor_text_question)].value, "some other text")
-        self.assertEqual(form[field_id(self.contributor_likert_question)].value, "4")
+        self.assertEqual(form[field_id(self.contributor_text_question.question)].value, "some other text")
+        self.assertEqual(form[field_id(self.contributor_likert_question.question)].value, "4")
         self.assertEqual(
-            form[field_id(self.contributor_likert_question, additional_textanswer=True)].value,
+            form[field_id(self.contributor_likert_question.question, additional_textanswer=True)].value,
             "some other additional text",
         )
 
         field_id = partial(answer_field_id, self.contribution2, self.contributor_questionnaire)
-        self.assertEqual(form[field_id(self.contributor_text_question)].value, "some more text")
+        self.assertEqual(form[field_id(self.contributor_text_question.question)].value, "some more text")
 
     def test_answer(self):
         page = self.app.get(self.url, user=self.voting_user1, status=200)
@@ -543,7 +569,7 @@ class TestVoteView(WebTest):
         self.fill_form(form)
         form[
             answer_field_id(
-                self.evaluation.general_contribution, self.top_general_questionnaire, self.top_grade_question
+                self.evaluation.general_contribution, self.top_general_questionnaire, self.top_grade_question.question
             )
         ] = 2
         form.submit()
@@ -578,20 +604,22 @@ class TestDropoutView(WebTest):
         cls.user = baker.make(UserProfile, email="student@institution.example.com")
         cls.user2 = baker.make(UserProfile, email="student2@institution.example.com")
 
-        cls.normal_question = baker.make(Question, type=QuestionType.EASY_DIFFICULT)
-        cls.dropout_question = baker.make(Question, type=QuestionType.POSITIVE_YES_NO)
+        cls.normal_question = baker.make(QuestionAssignment, question__type=QuestionType.EASY_DIFFICULT)
+        cls.dropout_question = baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_YES_NO)
 
         cls.normal_questionnaire = baker.make(
             Questionnaire,
             type=Questionnaire.Type.TOP,
             questions=[
-                baker.make(Question, type=QuestionType.TEXT),
+                baker.make(QuestionAssignment, question__type=QuestionType.TEXT),
                 cls.normal_question,
             ],
         )
+        cls.normal_question = cls.normal_question.question
         cls.dropout_questionnaire = baker.make(
             Questionnaire, type=Questionnaire.Type.DROPOUT, questions=[cls.dropout_question]
         )
+        cls.dropout_question = cls.dropout_question.question
 
         cls.evaluation = baker.make(
             Evaluation, state=Evaluation.State.IN_EVALUATION, participants=[cls.user, cls.user2], main_language="en"

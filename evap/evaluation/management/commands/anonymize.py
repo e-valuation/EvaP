@@ -243,14 +243,18 @@ class Command(BaseCommand):
                     (counter.question, counter) for counter in contribution.ratinganswercounter_set.all()
                 )
 
-                for question, counters in counters_per_question.items():
+                for assigned_question, counters in counters_per_question.items():
                     original_sum = sum(counter.count for counter in counters)
 
-                    missing_values = set(CHOICES[question.type].values).difference({c.answer for c in counters})
+                    missing_values = set(CHOICES[assigned_question.question.type].values).difference(
+                        {c.answer for c in counters}
+                    )
                     missing_values.discard(NO_ANSWER)  # don't add NO_ANSWER counter if it didn't exist before
                     for value in missing_values:
                         counters.append(
-                            RatingAnswerCounter(question=question, contribution=contribution, answer=value, count=0)
+                            RatingAnswerCounter(
+                                question=assigned_question, contribution=contribution, answer=value, count=0
+                            )
                         )
 
                     generated_counts = [random.random() for c in counters]  # nosec
