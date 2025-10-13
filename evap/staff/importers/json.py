@@ -182,7 +182,7 @@ class JSONImporter:
         return [user for user in user_profiles if len(user.title) == max_title_len]
 
     def _remove_non_responsible_users(self, user_profiles: list[UserProfile]) -> list[UserProfile]:
-        return list(filter(lambda p: p.email not in settings.NON_RESPONSIBLE_USERS, user_profiles))
+        return [user for user in user_profiles if user.email not in settings.NON_RESPONSIBLE_USERS]
 
     def _get_course_type(self, name: str) -> CourseType:
         lookup = name.strip().lower()
@@ -222,6 +222,9 @@ class JSONImporter:
 
     def _import_students(self, data: list[ImportStudent]) -> None:
         for entry in data:
+            if entry["email"] in settings.IGNORE_USERS:
+                continue
+
             email = clean_email(entry["email"])
             if not email:
                 self.statistics.warnings.append(
@@ -240,6 +243,9 @@ class JSONImporter:
 
     def _import_lecturers(self, data: list[ImportLecturer]) -> None:
         for entry in data:
+            if entry["email"] in settings.IGNORE_USERS:
+                continue
+
             email = clean_email(entry["email"])
             if not email:
                 self.statistics.warnings.append(
