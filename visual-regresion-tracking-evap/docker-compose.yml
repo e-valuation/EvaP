@@ -1,0 +1,92 @@
+version: "3.8" # Docker Engine minimum version 19.03.0
+
+services:
+  ui:
+    image: visualregressiontracker/ui:${VRT_UI_VERSION}
+    ports:
+      - "${PORT}:8080"
+    # https config
+    #   - "8080:8080"
+    #   - "${PORT}:5000"
+    volumes:
+      - ./imageUploads:/usr/share/nginx/html/static/imageUploads:z
+    #   - ./ssl/ssl.cert:/etc/nginx/secrets/ssl.cert
+    #   - ./ssl/ssl.key:/etc/nginx/secrets/ssl.key
+    #   - ./ssl/default.conf:/etc/nginx/conf.d/default.conf
+    #   - ./ssl/nginx.conf:/etc/nginx/nginx.conf
+    environment:
+      REACT_APP_API_URL: ${REACT_APP_API_URL}
+      VRT_VERSION: ${VRT_UI_VERSION}
+      PORT: ${PORT}
+    restart: always
+  api:
+    image: visualregressiontracker/api:${VRT_API_VERSION}
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      STATIC_SERVICE: ${STATIC_SERVICE}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION}
+      AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_LIFE_TIME: ${JWT_LIFE_TIME}
+      APP_FRONTEND_URL: ${APP_FRONTEND_URL}
+      BODY_PARSER_JSON_LIMIT: ${BODY_PARSER_JSON_LIMIT}
+      ELASTIC_URL: ${ELASTIC_URL}
+      LDAP_ENABLED: ${LDAP_ENABLED}
+      LDAP_TLS_NO_VERIFY: ${LDAP_TLS_NO_VERIFY}
+      LDAP_URL: ${LDAP_URL}
+      LDAP_BIND_USER: ${LDAP_BIND_USER}
+      LDAP_BIND_PASSWORD: ${LDAP_BIND_PASSWORD}
+      LDAP_SEARCH_DN: ${LDAP_SEARCH_DN}
+      LDAP_USERS_SEARCH_FILTER: ${LDAP_USERS_SEARCH_FILTER}
+      LDAP_ATTRIBUTE_LAST_NAME: ${LDAP_ATTRIBUTE_LAST_NAME}
+      LDAP_ATTRIBUTE_FIRST_NAME: ${LDAP_ATTRIBUTE_FIRST_NAME}
+      LDAP_ATTRIBUTE_MAIL: ${LDAP_ATTRIBUTE_MAIL}
+    ports:
+      - "${APP_PORT}:3000"
+    volumes:
+      - ./imageUploads:/imageUploads:z
+      # https config
+      # - ./ssl/ssl.cert:/secrets/ssl.cert
+      # - ./ssl/ssl.key:/secrets/ssl.key
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: always
+  migration:
+    image: visualregressiontracker/migration:${VRT_MIGRATION_VERSION}
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: on-failure
+  postgres:
+    image: postgres:12
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    expose:
+      - "${POSTGRES_PORT}"
+    volumes:
+      - ./db:/var/lib/postgresql/data:z
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $$POSTGRES_DB -U $$POSTGRES_USER"]
+      interval: 10s
+      timeout: 120s
+      retries: 10
+  # pgadmin:
+  #   image: dpage/pgadmin4:7.4
+  #   restart: always
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: admin@admin.com
+  #     PGADMIN_DEFAULT_PASSWORD: root
+  #   ports:
+  #     - "5050:80"
+  #   depends_on:
+  #     - postgres

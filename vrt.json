@@ -1,0 +1,6 @@
+{
+    "apiUrl": "http://localhost:4200",
+    "apiKey": "DEFAULTUSERAPIKEYTOBECHANGED",
+    "project": "a3a920c1-6a87-4251-b1f5-53a5d8ac0fc6",
+    "enableSoftAssert": false
+}
