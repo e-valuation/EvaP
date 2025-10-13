@@ -279,7 +279,7 @@ class JSONImporter:
             self.statistics.warnings.append(
                 WarningMessage(
                     obj=data["title"],
-                    message=f"Course skipped because skipping of courses with type {course_type.name_de} is activated",
+                    message=f"Course skipped because skipping of courses with type {course_type.name_en} is activated",
                 )
             )
             return None
