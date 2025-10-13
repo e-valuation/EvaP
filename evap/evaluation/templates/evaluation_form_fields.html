@@ -12,6 +12,20 @@
                     </div>
                 </div>
             {% endif %}
+        {% elif field == evaluation_form.participants %}
+            <div class="mb-3 d-md-flex">
+                {% include 'bootstrap_form_field_label.html' with field=field class='col-md-3 pe-4' %}
+                <div class="col-md-7 card collapsible overflow-visible">
+                    <a class="card-header d-flex collapse-toggle{% if state >= evaluation.State.EDITOR_APPROVED and evaluation.participants.count > 0 %} collapsed{% endif %}" data-bs-toggle="collapse" href="#participant-box">
+                        <span class="badge rounded-pill badge-btn ms-auto" data-track-tomselect-count="#id_participants"></span>
+                    </a>
+                    <div class="collapse{% if not state >= evaluation.State.EDITOR_APPROVED or evaluation.participants.count == 0 %} show{% endif %}" id="participant-box">
+                        <div class="card-body">
+                            {% include 'bootstrap_form_field_widget.html' with field=field %}
+                        </div>
+                    </div>
+                </div>
+            </div>
         {% else %}
             {% include 'bootstrap_form_field.html' with field=field %}
         {% endif %}
