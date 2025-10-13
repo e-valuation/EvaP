@@ -22,6 +22,7 @@ from django.utils import timezone, translation
 from model_bakery import baker
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.webdriver import WebDriver
+from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.expected_conditions import staleness_of
 from selenium.webdriver.support.wait import WebDriverWait
 
@@ -338,3 +339,10 @@ class LiveServerTest(SeleniumTestCase):
     def setUpClass(cls) -> None:
         super().setUpClass()
         cls.selenium.set_window_size(*cls.window_size)
+
+
+def classes_of_element(element: WebElement) -> list[str]:
+    classes = element.get_attribute("class")
+    if classes is None:
+        return []
+    return classes.split(" ")

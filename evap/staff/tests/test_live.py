@@ -1,11 +1,12 @@
 from datetime import date, datetime
 
+from django.urls import reverse
 from model_bakery import baker
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.expected_conditions import element_to_be_clickable, visibility_of_element_located
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Program, Question, Questionnaire, UserProfile
-from evap.evaluation.tests.tools import LiveServerTest
+from evap.evaluation.tests.tools import LiveServerTest, classes_of_element
 
 
 class EvaluationEditLiveTest(LiveServerTest):
@@ -71,3 +72,66 @@ class EvaluationEditLiveTest(LiveServerTest):
         self.assertEqual(contribution1.order, 0)
         self.assertEqual(contribution1.role, Contribution.Role.EDITOR)
         self.assertEqual(contribution1.textanswer_visibility, Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+
+
+class ParticipantCollapseTests(LiveServerTest):
+    def test_collapse_with_editor_approved(self) -> None:
+
+        participants = baker.make(UserProfile, _quantity=20)
+        baker.make(UserProfile, last_name="participant")
+
+        responsible = baker.make(UserProfile)
+        evaluation = baker.make(
+            Evaluation,
+            course=baker.make(Course, programs=[baker.make(Program)], responsibles=[responsible]),
+            participants=participants,
+            vote_start_datetime=datetime(2099, 1, 1, 0, 0),
+            vote_end_date=date(2099, 12, 31),
+            state=Evaluation.State.EDITOR_APPROVED,
+        )
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.live_server_url + reverse("staff:evaluation_edit", args=[evaluation.id]))
+
+        card_header = self.selenium.find_element(By.CSS_SELECTOR, ".card:has(#id_participants) .card-header")
+        self.assertIn("collapsed", classes_of_element(card_header))
+
+        card_header.click()
+        self.assertNotIn("collapsed", classes_of_element(card_header))
+
+        counter = card_header.find_element(By.CSS_SELECTOR, ".rounded-pill")
+        self.assertEqual(counter.text, "20")
+
+        tomselect_input = self.selenium.find_element(By.CSS_SELECTOR, "input#id_participants-ts-control")
+        tomselect_input.click()
+        tomselect_input.send_keys("participant")
+
+        self.selenium.find_element(By.CSS_SELECTOR, ".option.active").click()
+        self.assertEqual(counter.text, "21")
+
+        random_participant_remove_button = self.selenium.find_element(
+            By.CSS_SELECTOR, ".card:has(#id_participants) a.remove"
+        )
+        random_participant_remove_button.click()
+        self.assertEqual(counter.text, "20")
+
+    def test_collapse_without_editor_approved(self) -> None:
+        responsible = baker.make(UserProfile, last_name="responsible")
+        evaluation = baker.make(
+            Evaluation,
+            course=baker.make(Course, programs=[baker.make(Program)], responsibles=[responsible]),
+            vote_start_datetime=datetime(2099, 1, 1, 0, 0),
+            vote_end_date=date(2099, 12, 31),
+            state=Evaluation.State.NEW,
+        )
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.live_server_url + reverse("staff:evaluation_edit", args=[evaluation.id]))
+
+        card_header = self.selenium.find_element(By.CSS_SELECTOR, ".card:has(#id_participants) .card-header")
+        self.assertNotIn("collapsed", classes_of_element(card_header))
+        card_header.click()
+        self.assertIn("collapsed", classes_of_element(card_header))
+
+        counter = card_header.find_element(By.CSS_SELECTOR, ".rounded-pill")
+        self.assertEqual(counter.text, "0")

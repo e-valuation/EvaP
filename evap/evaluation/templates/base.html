@@ -221,8 +221,10 @@
 
         <script type="module">
             import { setupForms } from "{% static 'js/custom-success-form.js' %}";
+            import { setupTomSelectCount } from "{% static 'js/tom-select-count.js'%}"
 
             setupForms();
+            setupTomSelectCount();
         </script>
 
         {% block additional_javascript %}{% endblock %}
