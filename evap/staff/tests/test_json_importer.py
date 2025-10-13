@@ -108,7 +108,13 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
         {"gguid": "0x3", "email": "", "name": "3", "christianname": "3", "titlefront": "Prof. Dr."},
         {"gguid": "0x4", "email": "4@example.com", "name": "4", "christianname": "4", "titlefront": "Prof. Dr."},
         {"gguid": "0x5", "email": "5@example.com", "name": "5", "christianname": "5", "titlefront": "Prof. Dr."},
-        {"gguid": "0x6", "email": "ignored.lecturer@example.com", "name": "6", "christianname": "6", "titlefront": "Prof. Dr."},
+        {
+            "gguid": "0x6",
+            "email": "ignored.lecturer@example.com",
+            "name": "6",
+            "christianname": "6",
+            "titlefront": "Prof. Dr.",
+        },
     ],
     "events": [
         {
