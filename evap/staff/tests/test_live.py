@@ -31,6 +31,7 @@ class EvaluationEditLiveTest(LiveServerTest):
             course=baker.make(Course, programs=[baker.make(Program)], responsibles=[responsible]),
             vote_start_datetime=datetime(2099, 1, 1, 0, 0),
             vote_end_date=date(2099, 12, 31),
+            main_language="en",
         )
 
         general_questionnaire = baker.make(Questionnaire, questions=[baker.make(Question)])
@@ -92,7 +93,7 @@ class EvaluationEditLiveTest(LiveServerTest):
         baker.make(Evaluation, course=course, name_en="evaluation name")
 
         with self.enter_staff_mode():
-            self.selenium.get(self.live_server_url + reverse("staff:semester_view", args=[semester.pk]))
+            self.selenium.get(self.reverse("staff:semester_view", args=[semester.pk]))
 
         search_input = self.wait.until(
             visibility_of_element_located((By.CSS_SELECTOR, "input[type='search'][name='search-evaluation']"))
@@ -100,8 +101,6 @@ class EvaluationEditLiveTest(LiveServerTest):
         search_input.clear()
         search_input.send_keys("course name")
 
-        self.wait.until(visibility_of_element_located((By.ID, "evaluation-table")))
-        self.wait.until(visibility_of_element_located((By.XPATH, "//td//a[contains(text(),'course name')]")))
         self.wait.until(
             visibility_of_element_located(
                 (By.XPATH, "//button[@slot='show-button' and @aria-label='Create exam evaluation']")
@@ -111,5 +110,4 @@ class EvaluationEditLiveTest(LiveServerTest):
         search_input.clear()
         search_input.send_keys("exam")
 
-        self.wait.until(visibility_of_element_located((By.ID, "evaluation-table")))
         self.wait.until(invisibility_of_element_located((By.XPATH, "//td//a[contains(text(),'course name')]")))

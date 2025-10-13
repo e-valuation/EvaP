@@ -45,7 +45,6 @@ abstract class DataGrid {
             const column = header.dataset.col!;
             this.sortableHeaders.set(column, header);
         });
-
         this.container = container;
         this.searchInput = searchInput;
         this.state = this.restoreStateFromStorage();
@@ -237,15 +236,15 @@ export class TableGrid extends DataGrid {
     private searchableColumnIndices: number[];
 
     constructor({ table, resetSearch, ...options }: TableGridParameters) {
+        const thead: HTMLElement = selectOrError("thead", table);
         super({
-            head: table.querySelector("thead")!,
+            head: thead,
             container: table.querySelector("tbody")!,
             ...options,
         });
         this.resetSearch = resetSearch;
         this.searchableColumnIndices = [];
 
-        const thead = selectOrError("thead", table);
         thead.querySelectorAll("th").forEach((header, index) => {
             if (!header.hasAttribute("data-not-searchable")) {
                 this.searchableColumnIndices.push(index);
