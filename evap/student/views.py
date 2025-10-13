@@ -16,6 +16,7 @@ from django.urls import reverse
 from django.utils import translation
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
+from django.views.decorators.http import require_POST
 
 from evap.evaluation.auth import participant_required
 from evap.evaluation.models import (
@@ -388,3 +389,12 @@ def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> Htt
 
     messages.success(request, _("Your vote was recorded."))
     return HttpResponse(SUCCESS_MAGIC_STRING)
+
+@require_POST
+def get_end_date(request):
+    evaluation = get_object_or_404(Evaluation, id=request.POST["evaluation_id"])
+
+    if not evaluation.can_be_voted_for_by(request.user):
+        raise PermissionDenied
+
+    return HttpResponse(evaluation.vote_end_date.isoformat())

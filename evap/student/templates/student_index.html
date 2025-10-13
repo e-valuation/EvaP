@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+{% load static %}
 {% load infotext_templatetags %}
 {% load evaluation_filters %}
 
@@ -30,4 +31,67 @@
         </div>
     {% endif %}
     {% include 'student_index_semester_evaluations_list.html' %}
+{% endblock %}
+
+{% block additional_javascript %}
+    {% if not preview %}
+        <script type="module">
+            import { assert } from "{% static 'js/utils.js' %}";
+            import { CSRF_HEADERS } from "{% static 'js/csrf-utils.js' %}";
+            import { localStorageConstants } from "{% static 'js/auto-form-saver.js' %}";
+
+            var evaluationIdDictionary = {};
+            for (var i = 0; i < localStorage.length; i++){
+                var key = localStorage.key(i);
+                var evaluationId = null;
+                if (key.startsWith(localStorageConstants["local-storage-key-last-saved-at"])) {
+                    var shortenedKey = key.replace(localStorageConstants["local-storage-key-last-saved-at"], "");
+                    evaluationId = shortenedKey.split("-")[1];
+                } else if (key.startsWith(localStorageConstants["local-storage-key-language"])) {
+                    var shortenedKey = key.replace(localStorageConstants["local-storage-key-language"], "");
+                    evaluationId = shortenedKey.split("-")[1];
+                } else if (key.startsWith(localStorageConstants["local-storage-key-form-data"])) {
+                    var shortenedKey = key.replace(localStorageConstants["local-storage-key-form-data"], "");
+                    evaluationId = shortenedKey.split("-")[1];
+                }
+
+                if (evaluationId === null) {
+                    continue;
+                }
+
+                if (evaluationIdDictionary[evaluationId] === undefined) {
+                    evaluationIdDictionary[evaluationId] = [];
+                }
+                evaluationIdDictionary[evaluationId].push(key);
+            }
+
+            async function fetchEndDate(evaluationId) {
+                try {
+                    const response = await fetch("{% url 'student:get_end_date' %}", {
+                        body: new URLSearchParams({ evaluation_id: evaluationId }),
+                        headers: CSRF_HEADERS,
+                        method: "POST",
+                    });
+                    assert(response.ok);
+                    return response.text();
+                } catch (err) {
+                    console.error(err);
+                    window.alert("The server is not responding, or invalid response.");
+                }
+
+                return Date.now();
+            }
+
+            for (var evaluationId in evaluationIdDictionary) {
+                const endDate = new Date(Date.parse(await fetchEndDate(evaluationId)));
+                const distance = Date.now() - endDate;
+                if (distance >= 365 * 24 * 60 * 60 * 1000) {
+                    console.log("The evaluation period for " + evaluationId + " has ended more than a year ago, removing data from local storage. ");
+                    for (var key of evaluationIdDictionary[evaluationId]) {
+                        localStorage.removeItem(key);
+                    }
+                }
+            }
+        </script>
+    {% endif %}
 {% endblock %}

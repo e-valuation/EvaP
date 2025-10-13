@@ -228,12 +228,12 @@
         {{ text_answer_warnings|text_answer_warning_trigger_strings|json_script:'text-answer-warnings' }}
 
         <script type="module">
-            import { AutoFormSaver } from "{% static 'js/auto-form-saver.js' %}";
+            import { AutoFormSaver, localStorageConstants } from "{% static 'js/auto-form-saver.js' %}";
             import { CSRF_HEADERS } from "{% static 'js/csrf-utils.js' %}";
             import { initTextAnswerWarnings } from "{% static 'js/text-answer-warnings.js' %}";
             import { assert } from "{% static 'js/utils.js' %}";
 
-            const lastSavedStorageKey = "student-vote-last-saved-at-{{ evaluation.id }}-{{ request.user.id }}";
+            const lastSavedStorageKey = localStorageConstants["local-storage-key-last-saved-at"] + "-{{ evaluation.id }}-{{ request.user.id }}";
             const textResultsPublishConfirmation = {
                 top: document.querySelector("#text_results_publish_confirmation_top"),
                 bottom: document.querySelector("#text_results_publish_confirmation_bottom"),
@@ -241,7 +241,7 @@
             };
 
             // Ensure that selected questionnaire language is saved and loaded
-            const languageStorageKey = "student-vote-language-{{ evaluation.id }}-{{ request.user.id }}";
+            const languageStorageKey = localStorageConstants["local-storage-key-language"] + "-{{ evaluation.id }}-{{ request.user.id }}";
             const params = new URLSearchParams(document.location.search);
             const currentlySelectedLanguage = "{{ evaluation_language|escapejs }}";
             const savedLanguage = localStorage.getItem(languageStorageKey);
@@ -340,6 +340,12 @@
                     return response.text();
                 }).then(response_text => {
                     if(response_text === "{{ success_magic_string }}") {
+                        if (localStorage.getItem(languageStorageKey) !== null) {
+                            localStorage.removeItem(languageStorageKey);
+                        }
+                        if (localStorage.getItem(lastSavedStorageKey) !== null) {
+                            localStorage.removeItem(lastSavedStorageKey);
+                        }
                         formSaver.releaseData();
                         window.location.replace("{{ success_redirect_url }}");
                     } else {
