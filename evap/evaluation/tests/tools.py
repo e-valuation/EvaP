@@ -280,6 +280,7 @@ class LiveServerTest(SeleniumTestCase):
     browser = "firefox"
     selenium: WebDriver
     headless = True
+    viewport = "1920x4096"
     window_size = (1920, 4096)  # large height to workaround scrolling
     serialized_rollback = True  # SeleniumTestCase is a TransactionTestCase, which drops migration data. This keeps fixture data but may slow down tests, see https://docs.djangoproject.com/en/5.0/topics/testing/overview/#test-case-serialized-rollback
     static_handler = StaticFilesHandler  # see StaticLiveServerTestCase
