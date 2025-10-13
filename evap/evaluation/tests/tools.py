@@ -1,3 +1,5 @@
+import json
+import os
 import time
 from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
@@ -7,12 +9,13 @@ from typing import Any
 
 import django.test
 import django_webtest
+import requests
 import webtest
 from django.conf import settings
 from django.contrib.auth import login
 from django.contrib.auth.models import Group
 from django.contrib.staticfiles.handlers import StaticFilesHandler
-from django.db import DEFAULT_DB_ALIAS, connections
+from django.db import DEFAULT_DB_ALIAS, connection, connections
 from django.http.request import HttpRequest, QueryDict
 from django.test.runner import DiscoverRunner
 from django.test.selenium import SeleniumTestCase
@@ -298,12 +301,18 @@ class LiveServerTest(SeleniumTestCase):
     browser = "firefox"
     selenium: WebDriver
     headless = True
+    viewport = "1920x4096"
     window_size = (1920, 4096)  # large height to workaround scrolling
     serialized_rollback = True  # SeleniumTestCase is a TransactionTestCase, which drops migration data. This keeps fixture data but may slow down tests, see https://docs.djangoproject.com/en/5.0/topics/testing/overview/#test-case-serialized-rollback
     static_handler = StaticFilesHandler  # see StaticLiveServerTestCase
 
     def setUp(self) -> None:
         super().setUp()
+
+        with connection.cursor() as cursor:
+            # reset userprofile id sequence to keep test reproducible
+            cursor.execute("ALTER SEQUENCE evaluation_userprofile_id_seq restart")
+
         self.request = self.make_request()
         self.manager = make_manager()
         self.selenium.get(self.live_server_url)
@@ -334,6 +343,71 @@ class LiveServerTest(SeleniumTestCase):
         """Login a test user by setting the session cookie."""
         login(self.request, user, "evap.evaluation.auth.RequestAuthUserBackend")
         self.update_session()
+
+    def trigger_screenshot(self, name: str):
+        timeout = 10
+        full_name = self.__class__.__name__ + "_" + name
+
+        config = {
+            "apiUrl": os.environ.get("VRT_APIURL"),
+            "ciBuildId": os.environ.get("VRT_CIBUILDID"),
+            "branchName": os.environ.get("VRT_BRANCHNAME"),
+            "apiKey": os.environ.get("VRT_APIKEY"),
+            "projectId": os.environ.get("VRT_PROJECT"),
+        }
+
+        headers = {
+            "apiKey": config.get("apiKey"),
+            "Content-Type": "application/json",
+        }
+
+        data = {
+            "project": config.get("projectId"),
+            "branchName": config.get("branchName"),
+            "ciBuildId": config.get("ciBuildId"),
+        }
+
+        registration_response = requests.post(
+            f'{config.get("apiUrl")}/builds',
+            data=json.dumps(data),
+            headers=headers,
+        )
+
+        registration_response.raise_for_status()
+
+        test_data = {
+            "project": config.get("projectId"),
+            "projectId": config.get("projectId"),
+            "branchName": config.get("branchName"),
+            "ciBuildId": config.get("ciBuildId"),
+            "name": full_name,
+            "imageBase64": self.selenium.get_screenshot_as_base64(),
+            "viewport": f"{self.window_size[0]}x{self.window_size[1]}",
+            "buildId": registration_response.json().get("id"),
+        }
+
+        test_response = requests.post(
+            f'{config.get("apiUrl")}/test-runs',
+            data=json.dumps(test_data),
+            headers=headers,
+        )
+
+        test_response.raise_for_status()
+
+        switcher = {
+            "new": "No Baseline!",
+            "unresolved": f"Difference found: {test_response.json().get('url', '<url-not-found>')}",
+        }
+
+        error_message = switcher.get(test_response.json().get("status"))
+
+        _ = requests.patch(
+            f'{config.get("apiUrl")}/builds/{test_data.get("buildId")}',
+            data={},
+            headers=headers,
+        ).raise_for_status()
+
+        self.assertFalse(error_message)
 
     @contextmanager
     def enter_staff_mode(self) -> Iterator[None]:
