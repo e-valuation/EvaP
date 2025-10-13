@@ -32,8 +32,9 @@ class ImportLecturer(TypedDict):
     gguid: str
     email: str
     name: str  # last name
-    christianname: str  # first name
-    callingname: str  # given name
+    christianname: str  # official, full first name
+    # official calling name (part of official first name) → not necessarily the chosen name of the person
+    callingname: str
     titlefront: str  # title
 
 
