@@ -449,7 +449,7 @@ class JSONImporter:
 
         for event in non_exam_events:
             course = self._import_course(event)
-            if course:
+            if course is not None:
                 self._import_evaluation(course, event)
 
         exam_events_without_related_non_exam_event = []
