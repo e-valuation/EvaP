@@ -591,20 +591,15 @@ class TestImportEvents(TestCase):
         self.assertEqual(mail.outbox[0].recipients(), [manager.email])
 
     def test_importer_wrong_data(self):
+        wrong_data = deepcopy(EXAMPLE_DATA)
+        wrong_data["events"][0]["isexam"] = "false"
         with self.assertRaises(ValidationError):
-            wrong_data = deepcopy(EXAMPLE_DATA)
-            wrong_data["unexpected_attribute"] = 0
             self._import(wrong_data)
 
-        with self.assertRaises(ValidationError):
-            wrong_data = deepcopy(EXAMPLE_DATA)
-            wrong_data["events"][0]["unexpected_attribute"] = 0
-            self._import(wrong_data)
-
-        with self.assertRaises(ValidationError):
-            wrong_data = deepcopy(EXAMPLE_DATA)
-            wrong_data["events"][0]["isexam"] = "false"
-            self._import(wrong_data)
+        data_with_additional_attribute = deepcopy(EXAMPLE_DATA)
+        data_with_additional_attribute["extra_attribute"] = True
+        # don't fail
+        self._import(data_with_additional_attribute)
 
     @patch("evap.staff.importers.json.JSONImporter.import_json")
     def test_management_command(self, mock_import_json):
