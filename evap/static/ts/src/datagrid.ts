@@ -1,5 +1,6 @@
 import { CSRF_HEADERS } from "./csrf-utils.js";
 import { RangeSlider, Range } from "./slider.js";
+import { assert, selectOrError } from "./utils.js";
 
 declare const Sortable: typeof import("sortablejs");
 
@@ -232,14 +233,23 @@ interface TableGridParameters extends BaseParameters {
 // Table based data grid which uses its head and body
 export class TableGrid extends DataGrid {
     private resetSearch: HTMLButtonElement;
+    private searchableColumnIndices: number[];
 
     constructor({ table, resetSearch, ...options }: TableGridParameters) {
+        const thead: HTMLElement = selectOrError("thead", table);
         super({
-            head: table.querySelector("thead")!,
+            head: thead,
             container: table.querySelector("tbody")!,
             ...options,
         });
         this.resetSearch = resetSearch;
+        this.searchableColumnIndices = [];
+
+        thead.querySelectorAll("th").forEach((header, index) => {
+            if (!header.hasAttribute("data-not-searchable")) {
+                this.searchableColumnIndices.push(index);
+            }
+        });
     }
 
     public bindEvents() {
@@ -253,7 +263,11 @@ export class TableGrid extends DataGrid {
     }
 
     protected findSearchableCells(row: HTMLElement): HTMLElement[] {
-        return [...row.children] as HTMLElement[];
+        return this.searchableColumnIndices.map(index => {
+            const child = row.children[index];
+            assert(child instanceof HTMLElement);
+            return child;
+        });
     }
 
     protected fetchRowFilterValues(_row: HTMLElement): Map<string, string[]> {
