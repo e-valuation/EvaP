@@ -193,7 +193,7 @@ class ProgramForm(forms.ModelForm):
 class CourseTypeForm(forms.ModelForm):
     class Meta:
         model = CourseType
-        fields = ("name_de", "name_en", "import_names", "order")
+        fields = ("name_de", "name_en", "import_names", "skip_on_automated_import", "order")
         field_classes = {
             "import_names": CharArrayField,
         }

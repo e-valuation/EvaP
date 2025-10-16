@@ -27,14 +27,42 @@ from evap.staff.importers.json import ImportDict, JSONImporter, NameChange, Warn
 
 EXAMPLE_DATA: ImportDict = {
     "students": [
-        {"gguid": "0x1", "email": "1@example.com", "name": "1", "christianname": "1"},
-        {"gguid": "0x2", "email": "2@example.com", "name": "2", "christianname": "2"},
+        {"gguid": "0x1", "email": "1@example.com", "name": "1", "christianname": "w_1", "callingname": "1"},
+        {"gguid": "0x2", "email": "2@example.com", "name": "2", "christianname": "w_2", "callingname": "2"},
     ],
     "lecturers": [
-        {"gguid": "0x3", "email": "3@example.com", "name": "3", "christianname": "3", "titlefront": "Prof. Dr."},
-        {"gguid": "0x4", "email": "4@example.com", "name": "4", "christianname": "4", "titlefront": "Dr."},
-        {"gguid": "0x5", "email": "5@example.com", "name": "5", "christianname": "5", "titlefront": ""},
-        {"gguid": "0x6", "email": "6@example.com", "name": "6", "christianname": "6", "titlefront": ""},
+        {
+            "gguid": "0x3",
+            "email": "3@example.com",
+            "name": "3",
+            "christianname": "w_3",
+            "callingname": "3",
+            "titlefront": "Prof. Dr.",
+        },
+        {
+            "gguid": "0x4",
+            "email": "4@example.com",
+            "name": "4",
+            "christianname": "w_4",
+            "callingname": "4",
+            "titlefront": "Dr.",
+        },
+        {
+            "gguid": "0x5",
+            "email": "5@example.com",
+            "name": "5",
+            "christianname": "w_5",
+            "callingname": "5",
+            "titlefront": "",
+        },
+        {
+            "gguid": "0x6",
+            "email": "6@example.com",
+            "name": "6",
+            "christianname": "w_6",
+            "callingname": "6",
+            "titlefront": "",
+        },
     ],
     "events": [
         {
@@ -100,13 +128,27 @@ EXAMPLE_DATA_WITH_PREFIX = {
 }
 EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
     "students": [
-        {"gguid": "0x1", "email": "", "name": "1", "christianname": "1"},
-        {"gguid": "0x2", "email": "2@example.com", "name": "2", "christianname": "2"},
+        {"gguid": "0x1", "email": "", "name": "1", "christianname": "w_1", "callingname": "1"},
+        {"gguid": "0x2", "email": "2@example.com", "name": "2", "christianname": "w_2", "callingname": "2"},
     ],
     "lecturers": [
-        {"gguid": "0x3", "email": "", "name": "3", "christianname": "3", "titlefront": "Prof. Dr."},
-        {"gguid": "0x4", "email": "4@example.com", "name": "4", "christianname": "4", "titlefront": "Prof. Dr."},
-        {"gguid": "0x5", "email": "5@example.com", "name": "5", "christianname": "5", "titlefront": "Prof. Dr."},
+        {"gguid": "0x3", "email": "", "name": "3", "christianname": "3", "callingname": "3", "titlefront": "Prof. Dr."},
+        {
+            "gguid": "0x4",
+            "email": "4@example.com",
+            "name": "4",
+            "christianname": "4",
+            "callingname": "4",
+            "titlefront": "Prof. Dr.",
+        },
+        {
+            "gguid": "0x5",
+            "email": "5@example.com",
+            "name": "5",
+            "christianname": "5",
+            "callingname": "5",
+            "titlefront": "Prof. Dr.",
+        },
     ],
     "events": [
         {
@@ -225,7 +267,7 @@ class TestImportUserProfiles(TestCase):
         for i, user_profile in enumerate(user_profiles.order_by("email")):
             self.assertEqual(user_profile.email, self.students[i]["email"])
             self.assertEqual(user_profile.last_name, self.students[i]["name"])
-            self.assertEqual(user_profile.first_name_given, self.students[i]["christianname"])
+            self.assertEqual(user_profile.first_name_given, self.students[i]["callingname"])
 
         self.assertEqual(importer.statistics.name_changes, [])
 
@@ -243,7 +285,7 @@ class TestImportUserProfiles(TestCase):
 
         self.assertEqual(user_profile.email, self.students[0]["email"])
         self.assertEqual(user_profile.last_name, self.students[0]["name"])
-        self.assertEqual(user_profile.first_name_given, self.students[0]["christianname"])
+        self.assertEqual(user_profile.first_name_given, self.students[0]["callingname"])
 
         self.assertEqual(
             importer.statistics.name_changes,
@@ -252,7 +294,7 @@ class TestImportUserProfiles(TestCase):
                     old_last_name="Doe",
                     old_first_name_given="Jane",
                     new_last_name=self.students[0]["name"],
-                    new_first_name_given=self.students[0]["christianname"],
+                    new_first_name_given=self.students[0]["callingname"],
                     email=self.students[0]["email"],
                 )
             ],
@@ -269,7 +311,7 @@ class TestImportUserProfiles(TestCase):
         for i, user_profile in enumerate(user_profiles.order_by("email")):
             self.assertEqual(user_profile.email, self.lecturers[i]["email"])
             self.assertEqual(user_profile.last_name, self.lecturers[i]["name"])
-            self.assertEqual(user_profile.first_name_given, self.lecturers[i]["christianname"])
+            self.assertEqual(user_profile.first_name_given, self.lecturers[i]["callingname"])
             self.assertEqual(user_profile.title, self.lecturers[i]["titlefront"])
 
         self.assertEqual(importer.statistics.name_changes, [])
@@ -288,7 +330,7 @@ class TestImportUserProfiles(TestCase):
 
         self.assertEqual(user_profile.email, self.lecturers[0]["email"])
         self.assertEqual(user_profile.last_name, self.lecturers[0]["name"])
-        self.assertEqual(user_profile.first_name_given, self.lecturers[0]["christianname"])
+        self.assertEqual(user_profile.first_name_given, self.lecturers[0]["callingname"])
         self.assertEqual(user_profile.title, self.lecturers[0]["titlefront"])
 
         self.assertEqual(
@@ -298,7 +340,7 @@ class TestImportUserProfiles(TestCase):
                     old_last_name="Doe",
                     old_first_name_given="Jane",
                     new_last_name=self.lecturers[0]["name"],
-                    new_first_name_given=self.lecturers[0]["christianname"],
+                    new_first_name_given=self.lecturers[0]["callingname"],
                     email=self.lecturers[0]["email"],
                 )
             ],
@@ -348,6 +390,7 @@ class TestImportEvents(TestCase):
             set(main_evaluation.participants.values_list("email", flat=True)),
             {"1@example.com", "2@example.com"},
         )
+        self.assertTrue(main_evaluation.is_rewarded)
 
         self.assertEqual(Contribution.objects.filter(evaluation=main_evaluation).count(), 2)
         self.assertEqual(
@@ -357,6 +400,12 @@ class TestImportEvents(TestCase):
                 )
             ),
             {"3@example.com"},
+        )
+        self.assertTrue(
+            all(
+                contribution.role == Contribution.Role.EDITOR
+                for contribution in Contribution.objects.filter(evaluation=main_evaluation, contributor__isnull=False)
+            )
         )
 
         exam_evaluation = Evaluation.objects.get(name_en="Exam")
@@ -371,6 +420,7 @@ class TestImportEvents(TestCase):
             {"1@example.com", "2@example.com"},
         )
         self.assertTrue(exam_evaluation.wait_for_grade_upload_before_publishing)
+        self.assertFalse(exam_evaluation.is_rewarded)
 
         self.assertEqual(Contribution.objects.filter(evaluation=exam_evaluation).count(), 4)
         self.assertEqual(
@@ -380,6 +430,12 @@ class TestImportEvents(TestCase):
                 )
             ),
             {"3@example.com", "4@example.com", "5@example.com"},
+        )
+        self.assertTrue(
+            all(
+                contribution.role == Contribution.Role.EDITOR
+                for contribution in Contribution.objects.filter(evaluation=exam_evaluation, contributor__isnull=False)
+            )
         )
 
         self.assertEqual(len(importer.statistics.new_courses), 1)
@@ -600,6 +656,29 @@ class TestImportEvents(TestCase):
         data_with_additional_attribute["extra_attribute"] = True
         # don't fail
         self._import(data_with_additional_attribute)
+
+    def test_first_name_given_fallback(self):
+        example_data = deepcopy(EXAMPLE_DATA)
+        example_data["students"][1]["callingname"] = ""
+        self._import(example_data)
+
+        self.assertEqual(UserProfile.objects.get(email="1@example.com").first_name_given, "1")
+        self.assertEqual(UserProfile.objects.get(email="2@example.com").first_name_given, "w_2")
+
+    def test_import_skipped_because_of_course_type_skipped(self):
+        CourseType.objects.create(name_en="Lecture", name_de="Vorlesung", skip_on_automated_import=True)
+
+        importer = self._import()
+
+        self.assertTrue(
+            WarningMessage(
+                obj=EXAMPLE_DATA["events"][0]["title"],
+                message="Course skipped because skipping of courses with type Vorlesung is activated",
+            )
+            in importer.statistics.warnings,
+        )
+        self.assertFalse(Evaluation.objects.filter(cms_id="0x5").exists())
+        self.assertFalse(Evaluation.objects.filter(cms_id="0x6").exists())
 
     @patch("evap.staff.importers.json.JSONImporter.import_json")
     def test_management_command(self, mock_import_json):

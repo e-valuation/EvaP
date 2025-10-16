@@ -25,13 +25,16 @@ class ImportStudent(TypedDict):
     email: str
     name: str  # last name
     christianname: str  # first name
+    callingname: str  # given name
 
 
 class ImportLecturer(TypedDict):
     gguid: str
     email: str
     name: str  # last name
-    christianname: str  # first name
+    christianname: str  # official, full first name
+    # official calling name (part of official first name) → not necessarily the chosen name of the person
+    callingname: str
     titlefront: str  # title
 
 
@@ -176,6 +179,11 @@ class JSONImporter:
         self.courses_by_gguid: dict[str, Course] = {}
         self.statistics = ImportStatistics()
 
+    def _get_first_name_given(self, entry: ImportStudent | ImportLecturer) -> str:
+        if entry["callingname"]:
+            return entry["callingname"]
+        return entry["christianname"]
+
     def _get_users_with_longest_title(self, user_profiles: list[UserProfile]) -> list[UserProfile]:
         max_title_len = max((len(user.title) for user in user_profiles), default=0)
         return [user for user in user_profiles if len(user.title) == max_title_len]
@@ -224,13 +232,15 @@ class JSONImporter:
             email = clean_email(entry["email"])
             if not email:
                 self.statistics.warnings.append(
-                    WarningMessage(obj=f"Student {entry['christianname']} {entry['name']}", message="No email defined")
+                    WarningMessage(
+                        obj=f"Student {self._get_first_name_given(entry)} {entry['name']}", message="No email defined"
+                    )
                 )
             else:
                 user_profile, __, changes = update_or_create_with_changes(
                     UserProfile,
                     email=email,
-                    defaults={"last_name": entry["name"], "first_name_given": entry["christianname"]},
+                    defaults={"last_name": entry["name"], "first_name_given": self._get_first_name_given(entry)},
                 )
                 if changes:
                     self._create_name_change_from_changes(user_profile, changes)
@@ -243,7 +253,8 @@ class JSONImporter:
             if not email:
                 self.statistics.warnings.append(
                     WarningMessage(
-                        obj=f"Contributor {entry['christianname']} {entry['name']}", message="No email defined"
+                        obj=f"Contributor {self._get_first_name_given(entry)} {entry['name']}",
+                        message="No email defined",
                     )
                 )
             else:
@@ -252,7 +263,7 @@ class JSONImporter:
                     email=email,
                     defaults={
                         "last_name": entry["name"],
-                        "first_name_given": entry["christianname"],
+                        "first_name_given": self._get_first_name_given(entry),
                         "title": entry["titlefront"],
                     },
                 )
@@ -261,8 +272,18 @@ class JSONImporter:
 
                 self.users_by_gguid[entry["gguid"]] = user_profile
 
-    def _import_course(self, data: ImportEvent, course_type: CourseType | None = None) -> Course:
+    def _import_course(self, data: ImportEvent, course_type: CourseType | None = None) -> Course | None:
         course_type = self._get_course_type(data["type"]) if course_type is None else course_type
+
+        if course_type.skip_on_automated_import:
+            self.statistics.warnings.append(
+                WarningMessage(
+                    obj=data["title"],
+                    message=f"Course skipped because skipping of courses with type {course_type.name_en} is activated",
+                )
+            )
+            return None
+
         responsibles = self._get_user_profiles(data["lecturers"])
         responsibles = self._remove_non_responsible_users(responsibles)
         responsibles = self._get_users_with_longest_title(responsibles)
@@ -325,7 +346,6 @@ class JSONImporter:
         else:
             course_end = max(datetime.strptime(app["end"], self.DATETIME_FORMAT) for app in data["appointments"])
 
-        assert isinstance(data["isexam"], bool)
         if data["isexam"]:
             # Set evaluation time frame of three days for exam evaluations:
             evaluation_start_datetime = course_end.replace(hour=8, minute=0, second=0, microsecond=0) + timedelta(
@@ -347,6 +367,8 @@ class JSONImporter:
             course.evaluations.all().update(
                 wait_for_grade_upload_before_publishing=wait_for_grade_upload_before_publishing
             )
+
+            is_rewarded = False
         else:
             # Set evaluation time frame of two weeks for normal evaluations:
             # Start datetime is at 8:00 am on the monday in the week before the event ends
@@ -363,6 +385,8 @@ class JSONImporter:
             # Might be overwritten when importing related exam evaluation
             wait_for_grade_upload_before_publishing = True
 
+            is_rewarded = True
+
         participants = self._get_user_profiles(data["students"]) if "students" in data else []
 
         defaults = {
@@ -372,6 +396,7 @@ class JSONImporter:
             "vote_end_date": evaluation_end_date,
             "wait_for_grade_upload_before_publishing": wait_for_grade_upload_before_publishing,
             "weight": weight,
+            "is_rewarded": is_rewarded,
         }
         evaluation, created = Evaluation.objects.get_or_create(
             course=course,
@@ -414,20 +439,19 @@ class JSONImporter:
             return None, False
 
         contribution, created = Contribution.objects.update_or_create(
-            evaluation=evaluation,
-            contributor=user_profile,
+            evaluation=evaluation, contributor=user_profile, role=Contribution.Role.EDITOR
         )
         return contribution, created
 
-    def _import_events(self, data: list[ImportEvent]) -> None:
+    def _import_events(self, data: list[ImportEvent]) -> None:  # noqa:PLR0912
         # Divide in two lists so corresponding courses are imported before their exams
         non_exam_events = (event for event in data if not event["isexam"])
         exam_events = (event for event in data if event["isexam"])
 
         for event in non_exam_events:
             course = self._import_course(event)
-
-            self._import_evaluation(course, event)
+            if course is not None:
+                self._import_evaluation(course, event)
 
         exam_events_without_related_non_exam_event = []
         courses_with_exams: dict[Course, list[Evaluation]] = {}
@@ -439,7 +463,11 @@ class JSONImporter:
             # Exam events have the non-exam event as a single entry in the relatedevents list
             # We lookup the Course from this non-exam event (the main evaluation) to add the exam evaluation to the same Course
             assert len(event["relatedevents"]) == 1
-            course = self.courses_by_gguid[event["relatedevents"][0]["gguid"]]
+
+            # Course could be skipped from import
+            course = self.courses_by_gguid.get(event["relatedevents"][0]["gguid"])
+            if not course:
+                continue
 
             self._import_course_programs(course, event)
 
