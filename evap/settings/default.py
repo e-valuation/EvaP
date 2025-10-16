@@ -1,15 +1,6 @@
-"""
-Django settings for EvaP project.
+# ruff: noqa: E731, N803
+# pylint: disable=unused-argument,invalid-name
 
-For more information on this file, see
-https://docs.djangoproject.com/en/2.0/topics/settings/
-
-For the full list of settings and their values, see
-https://docs.djangoproject.com/en/2.0/ref/settings/
-"""
-
-import logging
-import sys
 from datetime import timedelta
 from fractions import Fraction
 from pathlib import Path
@@ -17,18 +8,27 @@ from typing import Any
 
 from django.contrib.staticfiles.storage import ManifestStaticFilesStorage
 
+import evap
+from evap.settings_resolver import derived, required
 from evap.tools import MonthAndDay
 
-MODULE = Path(__file__).parent.resolve()
-CWD = Path(".").resolve()
-DATADIR = CWD / "data"
+
+class ManifestStaticFilesStorageWithJsReplacement(ManifestStaticFilesStorage):
+    support_js_module_import_aggregation = True
+
+
+MODULE = Path(evap.__file__).parent
+CWD = Path.cwd().resolve()
+
+
+@derived(final={"CWD"})
+def DATADIR(prev, final):
+    return final.CWD / "data"
+
 
 ### Debugging
 
-DEBUG = True
-
-# Very helpful but eats a lot of performance on sql-heavy pages.
-# Works only with DEBUG = True and Django's development server (so no apache).
+DEBUG = required()
 ENABLE_DEBUG_TOOLBAR = False
 
 ### EvaP logic
@@ -127,7 +127,10 @@ ADMINS: list[tuple[str, str]] = [
 ]
 
 # The page URL that is used in email templates.
-PAGE_URL = "localhost:8000"
+PAGE_URL = required()
+
+# Key used for Django's signing module
+SECRET_KEY = required()
 
 DATABASES = {
     "default": {
@@ -156,76 +159,84 @@ CACHES = {
     },
 }
 
-
-class ManifestStaticFilesStorageWithJsReplacement(ManifestStaticFilesStorage):
-    support_js_module_import_aggregation = True
-
-
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "evap.settings.ManifestStaticFilesStorageWithJsReplacement",
+        "BACKEND": "evap.settings.default.ManifestStaticFilesStorageWithJsReplacement",
     },
 }
 
-CONTACT_EMAIL = "webmaster@localhost"
+CONTACT_EMAIL = required()
 ALLOW_ANONYMOUS_FEEDBACK_MESSAGES = True
-LEGAL_NOTICE_TEXT = "Objection! (this is a default setting that the administrators should change, please contact them)"
+LEGAL_NOTICE_TEXT = required()
 
 # Config for mail system
-DEFAULT_FROM_EMAIL = "webmaster@localhost"
-REPLY_TO_EMAIL = DEFAULT_FROM_EMAIL
-SEND_ALL_EMAILS_TO_ADMINS_IN_BCC = False
-if DEBUG:
-    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = required()
 
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "default": {
-            "format": "[%(asctime)s] %(levelname)s: %(message)s",
+@derived(final={"DEFAULT_FROM_EMAIL"})
+def REPLY_TO_EMAIL(prev, final):
+    return final.DEFAULT_FROM_EMAIL
+
+
+SEND_ALL_EMAILS_TO_ADMINS_IN_BCC = required()
+
+
+@derived(prev={"EMAIL_BACKEND"}, final={"DEBUG"})
+def EMAIL_BACKEND(prev, final):
+    if final.DEBUG:
+        return "django.core.mail.backends.console.EmailBackend"
+    return prev.EMAIL_BACKEND
+
+
+@derived(final={"DATADIR"})
+def LOGGING(prev, final):
+    return {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "default": {
+                "format": "[%(asctime)s] %(levelname)s: %(message)s",
+            },
         },
-    },
-    "handlers": {
-        "file": {
-            "level": "DEBUG",
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": DATADIR / "evap.log",
-            "maxBytes": 1024 * 1024 * 10,
-            "backupCount": 5,
-            "formatter": "default",
+        "handlers": {
+            "file": {
+                "level": "DEBUG",
+                "class": "logging.handlers.RotatingFileHandler",
+                "filename": final.DATADIR / "evap.log",
+                "maxBytes": 1024 * 1024 * 10,
+                "backupCount": 5,
+                "formatter": "default",
+            },
+            "mail_admins": {
+                "level": "ERROR",
+                "class": "django.utils.log.AdminEmailHandler",
+            },
+            "console": {
+                "class": "logging.StreamHandler",
+                "formatter": "default",
+            },
         },
-        "mail_admins": {
-            "level": "ERROR",
-            "class": "django.utils.log.AdminEmailHandler",
+        "loggers": {
+            "django": {
+                "handlers": ["console", "file", "mail_admins"],
+                "level": "INFO",
+                "propagate": True,
+            },
+            "evap": {
+                "handlers": ["console", "file", "mail_admins"],
+                "level": "DEBUG",
+                "propagate": True,
+            },
+            "mozilla_django_oidc": {
+                "handlers": ["console", "file", "mail_admins"],
+                "level": "DEBUG",
+                "propagate": True,
+            },
         },
-        "console": {
-            "class": "logging.StreamHandler",
-            "formatter": "default",
-        },
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["console", "file", "mail_admins"],
-            "level": "INFO",
-            "propagate": True,
-        },
-        "evap": {
-            "handlers": ["console", "file", "mail_admins"],
-            "level": "DEBUG",
-            "propagate": True,
-        },
-        "mozilla_django_oidc": {
-            "handlers": ["console", "file", "mail_admins"],
-            "level": "DEBUG",
-            "propagate": True,
-        },
-    },
-}
+    }
 
 
 ### Application definition
@@ -283,7 +294,6 @@ _TEMPLATE_OPTIONS = {
     "builtins": ["django.templatetags.i18n"],
 }
 
-
 TEMPLATES: Any = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -333,7 +343,6 @@ STAFF_MODE_INFO_TIMEOUT = 3 * 60 * 60  # three hours
 # see https://docs.djangoproject.com/en/5.0/ref/settings/#data-upload-max-number-fields
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None
 
-
 ### Internationalization
 
 LANGUAGE_CODE = "en"
@@ -344,7 +353,11 @@ USE_I18N = True
 
 USE_TZ = False
 
-LOCALE_PATHS = [MODULE / "locale"]
+
+@derived(final={"MODULE"})
+def LOCALE_PATHS(prev, final):
+    return [final.MODULE / "locale"]
+
 
 FORMAT_MODULE_PATH = ["evap.locale"]
 
@@ -353,30 +366,37 @@ LANGUAGES = [
     ("de", "Deutsch"),
 ]
 
-
 ### Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = "/static/"
 
+
 # Additional locations of static files
-STATICFILES_DIRS = [
-    MODULE / "static",
-]
+@derived(final={"MODULE"})
+def STATICFILES_DIRS(prev, final):
+    return [final.MODULE / "static"]
+
 
 # Absolute path to the directory static files should be collected to.
-STATIC_ROOT = DATADIR / "static_collected"
+@derived(final={"DATADIR"})
+def STATIC_ROOT(prev, final):
+    return final.DATADIR / "static_collected"
 
 
 ### User-uploaded files
 
+
 # Absolute filesystem path to the directory that will hold user-uploaded files.
-MEDIA_ROOT = DATADIR / "upload"
+@derived(final={"DATADIR"})
+def MEDIA_ROOT(prev, final):
+    return final.DATADIR / "upload"
+
 
 ### Evaluation progress rewards
-GLOBAL_EVALUATION_PROGRESS_REWARDS: list[tuple[Fraction, str]] = (
-    []
-)  # (required_voter_ratio between 0 and 1, reward_text)
+
+# (required_voter_ratio between 0 and 1, reward_text)
+GLOBAL_EVALUATION_PROGRESS_REWARDS: list[tuple[Fraction, str]] = []
 GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS: list[int] = []
 GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS: list[int] = []
 GLOBAL_EVALUATION_PROGRESS_INFO_TEXT: dict[str, str] = {"de": "", "en": ""}
@@ -417,94 +437,3 @@ def CHARACTER_ALLOWED_IN_NAME(character):  # pylint: disable=invalid-name
             ord(character) in range(256, 384),  # Latin Extended-A
         )
     )
-
-
-### OpenID Login
-# replace 'example.com', OIDC_RP_CLIENT_ID and OIDC_RP_CLIENT_SECRET with real values in localsettings when activating
-ACTIVATE_OPEN_ID_LOGIN = False
-OIDC_RENEW_ID_TOKEN_EXPIRY_SECONDS = 60 * 60 * 24 * 7  # one week
-OIDC_RP_SIGN_ALGO = "RS256"
-OIDC_USERNAME_ALGO = ""
-OIDC_RP_SCOPES = "openid email profile"
-
-OIDC_RP_CLIENT_ID = "evap"
-OIDC_RP_CLIENT_SECRET = "evap-secret"  # nosec
-
-OIDC_OP_AUTHORIZATION_ENDPOINT = "https://example.com/auth"
-OIDC_OP_TOKEN_ENDPOINT = "https://example.com/token"  # nosec
-OIDC_OP_USER_ENDPOINT = "https://example.com/me"
-OIDC_OP_JWKS_ENDPOINT = "https://example.com/certs"
-
-# Mapping of email domain transition which users may undergo during the lifetime of their account.
-# Given an item (k, v) of the mapping, if an account with domain k would be created through OpenID,
-# but an account with the same name at domain v exists, the existing account is migrated to the
-# domain k instead.
-OIDC_EMAIL_TRANSITIONS: dict[str, str] = {
-    "institution.example.com": "student.institution.example.com",
-}
-
-
-### Other
-
-# Create a localsettings.py if you want to locally override settings
-# and don't want the changes to appear in 'git status'.
-try:
-    # localsettings file may or may not exist (for example in CI)
-
-    # the import can overwrite locals with a slightly different type (e.g. DATABASES), which is fine.
-    from evap.localsettings import *  # type: ignore  # noqa: F403,PGH003
-except ImportError:
-    pass
-
-TEST_RUNNER = "evap.evaluation.tests.tools.EvapTestRunner"
-TESTING = "test" in sys.argv or "pytest" in sys.modules
-
-# speed up tests and activate typeguard introspection
-if TESTING:
-    from typeguard import install_import_hook
-
-    install_import_hook(("evap", "tools"))
-
-    # do not use ManifestStaticFilesStorage as it requires running collectstatic beforehand
-    STORAGES["staticfiles"]["BACKEND"] = "django.contrib.staticfiles.storage.StaticFilesStorage"
-
-    logging.disable(logging.CRITICAL)  # disable logging, primarily to prevent console spam
-
-    # use the database for caching. it's properly reset between tests in constrast to redis,
-    # and does not change behaviour in contrast to disabling the cache entirely.
-    CACHES = {
-        "default": {
-            "BACKEND": "django.core.cache.backends.db.DatabaseCache",
-            "LOCATION": "testing_cache_default",
-        },
-        "results": {
-            "BACKEND": "django.core.cache.backends.db.DatabaseCache",
-            "LOCATION": "testing_cache_results",
-        },
-        "sessions": {
-            "BACKEND": "django.core.cache.backends.db.DatabaseCache",
-            "LOCATION": "testing_cache_sessions",
-        },
-    }
-    from model_bakery import random_gen
-
-    # give random char field values a reasonable length
-    BAKER_CUSTOM_FIELDS_GEN = {"django.db.models.CharField": lambda: random_gen.gen_string(20)}
-
-
-# Development helpers
-if DEBUG:
-    INSTALLED_APPS += ["evap.development"]
-
-    # Django debug toolbar settings
-    if not TESTING and ENABLE_DEBUG_TOOLBAR:
-        INSTALLED_APPS += ["debug_toolbar"]
-        MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
-
-        def show_toolbar(request):
-            return True
-
-        DEBUG_TOOLBAR_CONFIG = {
-            "SHOW_TOOLBAR_CALLBACK": "evap.settings.show_toolbar",
-            "JQUERY_URL": "",
-        }
