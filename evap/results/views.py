@@ -415,6 +415,7 @@ def add_warnings(evaluation, evaluation_result):
         max_answers = max((rating_result.count_sum for rating_result in rating_results), default=0)
         questionnaire_result.warning = (
             0 < max_answers < questionnaire_warning_thresholds[questionnaire_result.questionnaire]
+            and not questionnaire_result.questionnaire.is_dropout
         )
 
         for rating_result in rating_results:
@@ -422,6 +423,7 @@ def add_warnings(evaluation, evaluation_result):
                 questionnaire_result.warning
                 or RatingResult.has_answers(rating_result)
                 and rating_result.count_sum < questionnaire_warning_thresholds[questionnaire_result.questionnaire]
+                and not questionnaire_result.questionnaire.is_dropout
             )
 
 
