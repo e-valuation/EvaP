@@ -3,14 +3,17 @@
 from django.db import migrations, models
 from django.db.models import Q
 
+TEXT = 0
+HEADING = 5
+DROPOUT_QUESTIONNAIRE = 5
+
 
 def set_initial_values(apps, _schema_editor):
-    TEXT = 0
-    HEADING = 5
-
     Question = apps.get_model("evaluation", "Question")
 
-    Question.objects.filter(Q(type__in=[TEXT, HEADING]) or Q(questionnaire__type=5)).update(counts_for_grade=False)
+    Question.objects.filter(Q(type__in=[TEXT, HEADING]) or Q(questionnaire__type=DROPOUT_QUESTIONNAIRE)).update(
+        counts_for_grade=False
+    )
 
 
 class Migration(migrations.Migration):
@@ -30,7 +33,7 @@ class Migration(migrations.Migration):
             model_name="question",
             constraint=models.CheckConstraint(
                 condition=models.Q(
-                    models.Q(("type", 0), ("type", 5), _connector="OR", _negated=True),
+                    models.Q(("type", TEXT), ("type", HEADING), _connector="OR", _negated=True),
                     ("counts_for_grade", False),
                     _connector="OR",
                 ),
