@@ -304,7 +304,7 @@ class ResultsExporter(ExcelExporter):
 
             value_sum += grade_result.average * grade_result.count_sum
             count_sum += grade_result.count_sum
-            if grade_result.question.is_yes_no_question:
+            if question.is_yes_no_question:
                 approval_count += grade_result.approval_count
 
         if not value_sum:
