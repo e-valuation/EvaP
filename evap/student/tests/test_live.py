@@ -1,8 +1,12 @@
+import time
+
 from django.test import override_settings
 from django.urls import reverse
 from model_bakery import baker
+from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.expected_conditions import presence_of_element_located, visibility_of_element_located
 
 from evap.evaluation.models import Contribution, Evaluation, Question, Questionnaire, QuestionType, UserProfile
@@ -120,15 +124,52 @@ class StudentVoteLiveTest(LiveServerTest):
         self.assertEqual(len(self.selenium.find_elements(By.CSS_SELECTOR, f"#vote-area-{id_} .choice-error")), 0)
 
     def test_skip_contributor_modal_appears(self) -> None:
+        def assert_modal_visible_and_close():
+            modal = self.selenium.find_elements(By.CSS_SELECTOR,"button[data-mark-no-answers-for='5'] + confirmation-modal.mark-no-answer-modal")
+            self.assertEqual(len(modal), 1)
+            cancel_button = modal[0].shadow_root.find_elements(By.CSS_SELECTOR, "section.button-area > button")
+            self.assertEqual(len(cancel_button), 1)
+            cancel_button[0].click()
+            time.sleep(1)
         self.selenium.get(self.url)
 
         button = self.wait.until(presence_of_element_located((By.CSS_SELECTOR, "[data-mark-no-answers-for]")))
         id_ = button.get_attribute("data-mark-no-answers-for")
         vote_area = self.selenium.find_element(By.ID, f"vote-area-{id_}")
-        radio_button = vote_area.find_element(By.CSS_SELECTOR, "input[type=radio][value='1']")
-        radio_button.location_once_scrolled_into_view
-        breakpoint()
-        radio_button.click()
+        radio_buttons = vote_area.find_elements(By.CSS_SELECTOR, "input[value='1'] + label.vote-btn")
+        self.assertEqual(len(radio_buttons), 1)
+
+        radio_buttons[0].click()
         button.click()
-        modal = self.selenium.find_elements(By.CSS_SELECTOR, "confirmation-modal")
-        self.assertEqual(len(modal), 1)
+        assert_modal_visible_and_close()
+
+        # Waiting for element_to_be_clickable does not work unfortunately
+        time.sleep(1)
+        radio_buttons = vote_area.find_elements(By.CSS_SELECTOR, "label.vote-btn")
+        assert len(radio_buttons) == 6
+        # radio_button = self.wait.until(
+        #     expected_conditions.element_to_be_clickable((By.CSS_SELECTOR, f"label.vote-btn[for={for_id}]"))
+        # )
+        radio_buttons[5].click()
+
+        open_textanswer = vote_area.find_element(By.CSS_SELECTOR, "button.btn-textanswer")
+        open_textanswer.click()
+
+        textareas = vote_area.find_elements(By.CSS_SELECTOR, "textarea")
+        textarea = self.wait.until(
+            expected_conditions.element_to_be_clickable((By.CSS_SELECTOR, f"textarea[name='{textareas[0].get_attribute('name')}']"))
+        )
+        textarea.click()
+        textarea.send_keys("a")
+        button.click()
+        assert_modal_visible_and_close()
+
+        textarea.click()
+        textarea.send_keys(Keys.BACKSPACE)
+        textarea = self.wait.until(
+            expected_conditions.element_to_be_clickable((By.CSS_SELECTOR, f"textarea[name='{textareas[1].get_attribute('name')}']"))
+        )
+        textarea.click()
+        textarea.send_keys("b")
+        button.click()
+        assert_modal_visible_and_close()
