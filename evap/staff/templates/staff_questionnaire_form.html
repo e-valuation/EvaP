@@ -60,7 +60,7 @@
                                         {% include 'bootstrap_form_field_widget.html' with field=form_element.question_form.type %}
                                         <div class="form-check mt-1">
                                             <input class="form-check-input allow-textanswer-checkbox" id="{{ form_element.question_form.allows_additional_textanswers.id_for_label }}"
-                                                   type="checkbox" data-keep="true "
+                                                   name="{{ form_element.question_form.allows_additional_textanswers.html_name }}" type="checkbox" data-keep="true "
                                                 {% if form_element.question_form.allows_additional_textanswers.value %} checked{% endif %}
                                                 {% if form_element.question_form.allows_additional_textanswers.field.disabled %}  disabled{% endif %} />
                                             <label class="form-check-label" for="{{ form_element.question_form.allows_additional_textanswers.id_for_label }}">{{ form_element.question_form.allows_additional_textanswers.label }}</label>
