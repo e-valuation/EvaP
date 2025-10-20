@@ -206,7 +206,7 @@ class ResultsExporter(ExcelExporter):
         else:
             self.write_cell(export_name, "headline")
 
-        self.write_cell(_("Average for this question over all evaluations in all published semesters"), "average")
+        self.write_cell(_("Average result for this question over all published evaluations in all semesters"), "average")
 
         for evaluation, __ in evaluations_with_results:
             title = evaluation.full_name
