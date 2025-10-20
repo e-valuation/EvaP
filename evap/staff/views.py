@@ -1956,7 +1956,7 @@ def get_identical_form_and_formset(questionnaire):
     )
 
     form = QuestionnaireForm(instance=questionnaire)
-    return form, inline_question_formset(instance=questionnaire, queryset=questionnaire.questions.all())
+    return form, inline_question_formset(instance=questionnaire, queryset=questionnaire.question_assignments.all())
 
 
 @manager_required

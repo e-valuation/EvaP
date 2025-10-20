@@ -867,6 +867,8 @@ class QuestionDetailsForm(forms.ModelForm):
         super().clean()
         if self.cleaned_data.get("type") in [QuestionType.TEXT, QuestionType.HEADING]:
             self.cleaned_data["allows_additional_textanswers"] = False
+        if self.instance.pk and self.instance.questionnaires.count() > 1:
+            raise ValidationError(_("You cannot change a question that is used in multiple questionnaires."))
         return self.cleaned_data
 
 
@@ -893,13 +895,19 @@ class QuestionForm(forms.ModelForm):
         if (
             self.cleaned_data.get("question") is not None
             and self.cleaned_data["question"] != getattr(self.instance, "question", None)
-            or self.cleaned_data["DELETE"] == "on"
+            or self.cleaned_data.get("DELETE") == "on"
         ):
             # update the linked question or remove the entire link
             return
 
         if not self.question_form.is_valid() and self.cleaned_data["DELETE"] != "on":
             raise forms.ValidationError([])
+
+    def has_changed(self) -> bool:
+        has_changed = super().has_changed()
+        if self.question_form.is_valid():
+            return has_changed or self.question_form.has_changed()
+        return has_changed
 
     def save(self, commit: bool = True):
         if self.question_form.is_valid():

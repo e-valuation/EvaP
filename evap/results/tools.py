@@ -241,9 +241,9 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
     contributor_contribution_results = []
     for contribution in evaluation.contributions.all():
         questionnaire_results = []
-        for questionnaire in contribution.questionnaires.all():
+        for questionnaire in contribution.questionnaires.all().prefetch_related("question_assignments__question"):
             results: list[HeadingResult | TextResult | RatingResult] = []
-            for assignment in questionnaire.questions.all().prefetch_related("question"):
+            for assignment in questionnaire.question_assignments.all():
                 question = assignment.question
                 if question.is_heading_question:
                     results.append(HeadingResult(question=question))

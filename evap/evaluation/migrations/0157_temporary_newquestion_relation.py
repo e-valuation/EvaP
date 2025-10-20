@@ -95,7 +95,11 @@ class Migration(migrations.Migration):
                 ("order", models.IntegerField(default=-1, verbose_name="question order")),
                 (
                     "question",
-                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="evaluation.newquestion"),
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="assignments",
+                        to="evaluation.newquestion",
+                    ),
                 ),
                 (
                     "questionnaire",
@@ -111,7 +115,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="newquestion",
             name="questionnaires",
-            field=models.ManyToManyField(through="evaluation.QuestionAssignment", to="evaluation.questionnaire"),
+            field=models.ManyToManyField(
+                related_name="questions", through="evaluation.QuestionAssignment", to="evaluation.questionnaire"
+            ),
         ),
         migrations.AlterField(
             model_name="ratinganswercounter",

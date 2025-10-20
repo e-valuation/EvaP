@@ -108,8 +108,8 @@ def let_user_vote_for_evaluation(user, evaluation, create_answers=False):
             if rac.answer == 1:
                 rac_by_contribution_question[(contribution, rac.question)] = rac
 
-        for questionnaire in contribution.questionnaires.all().prefetch_related("questions__question"):
-            for assignment in questionnaire.questions.all().prefetch_related("question"):
+        for questionnaire in contribution.questionnaires.all().prefetch_related("question_assignments__question"):
+            for assignment in questionnaire.question_assignments.all():
                 question = assignment.question
                 if question.is_text_question:
                     new_textanswers.append(baker.prepare(TextAnswer, contribution=contribution, question=assignment))

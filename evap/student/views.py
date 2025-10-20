@@ -340,7 +340,7 @@ def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> Htt
         for contribution, form_group in form_groups.items():
             for questionnaire_form in form_group:
                 questionnaire = questionnaire_form.questionnaire
-                for assignment in questionnaire.questions.all().prefetch_related("question"):
+                for assignment in questionnaire.question_assignments.all().prefetch_related("question"):
                     question = assignment.question
                     if question.is_heading_question:
                         continue

@@ -73,7 +73,9 @@ class Migration(migrations.Migration):
             model_name="questionassignment",
             name="questionnaire",
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, related_name="questions", to="evaluation.questionnaire"
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="question_assignments",
+                to="evaluation.questionnaire",
             ),
         ),
         migrations.AlterField(

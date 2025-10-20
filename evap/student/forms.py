@@ -59,7 +59,7 @@ class QuestionnaireVotingForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.questionnaire = questionnaire
 
-        for question in self.questionnaire.question_set.all():
+        for question in self.questionnaire.questions.all():
             if question.is_text_question:
                 field = TextAnswerField.from_question(question)
             elif question.is_rating_question:

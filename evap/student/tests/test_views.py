@@ -610,14 +610,14 @@ class TestDropoutView(WebTest):
         cls.normal_questionnaire = baker.make(
             Questionnaire,
             type=Questionnaire.Type.TOP,
-            questions=[
+            question_assignments=[
                 baker.make(QuestionAssignment, question__type=QuestionType.TEXT),
                 cls.normal_question,
             ],
         )
         cls.normal_question = cls.normal_question.question
         cls.dropout_questionnaire = baker.make(
-            Questionnaire, type=Questionnaire.Type.DROPOUT, questions=[cls.dropout_question]
+            Questionnaire, type=Questionnaire.Type.DROPOUT, question_assignments=[cls.dropout_question]
         )
         cls.dropout_question = cls.dropout_question.question
 

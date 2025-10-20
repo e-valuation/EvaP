@@ -2195,15 +2195,15 @@ class TestEvaluationEditView(WebTestStaffMode):
         )
         cls.url = reverse("staff:evaluation_edit", args=[cls.evaluation.pk])
 
-        baker.make(Questionnaire, questions=[baker.make(QuestionAssignment)])
+        baker.make(Questionnaire, question_assignments=[baker.make(QuestionAssignment)])
         cls.general_question = baker.make(QuestionAssignment)
-        cls.general_questionnaire = baker.make(Questionnaire, questions=[cls.general_question])
+        cls.general_questionnaire = baker.make(Questionnaire, question_assignments=[cls.general_question])
         cls.evaluation.general_contribution.questionnaires.set([cls.general_questionnaire])
         cls.contributor_question = baker.make(QuestionAssignment)
         cls.contributor_questionnaire = baker.make(
             Questionnaire,
             type=Questionnaire.Type.CONTRIBUTOR,
-            questions=[cls.contributor_question],
+            question_assignments=[cls.contributor_question],
         )
         cls.contribution1 = baker.make(
             Contribution,
@@ -3053,7 +3053,7 @@ class TestEvaluationTextAnswerEditView(WebTestStaffMode):
         cls.textanswer = baker.make(
             TextAnswer,
             contribution=contribution,
-            question=question.questionassignment_set.first(),
+            question=question.assignments.first(),
             answer="test answer text",
         )
 
@@ -3192,11 +3192,11 @@ class TestQuestionnaireCreateView(WebTestStaffMode):
         questionnaire_form["name_en"] = "test questionnaire"
         questionnaire_form["public_name_de"] = "Oeffentlicher Test Fragebogen"
         questionnaire_form["public_name_en"] = "Public Test Questionnaire"
-        questionnaire_form["questions-0-text_de"].force_value("Frage 1")
-        questionnaire_form["questions-0-text_en"].force_value("Question 1")
-        questionnaire_form["questions-0-type"] = QuestionType.TEXT
-        questionnaire_form["questions-0-order"] = 0
-        questionnaire_form["questions-0-type"] = Questionnaire.Type.TOP
+        questionnaire_form["question_assignments-0-text_de"].force_value("Frage 1")
+        questionnaire_form["question_assignments-0-text_en"].force_value("Question 1")
+        questionnaire_form["question_assignments-0-type"] = QuestionType.TEXT
+        questionnaire_form["question_assignments-0-order"] = 0
+        questionnaire_form["question_assignments-0-type"] = Questionnaire.Type.TOP
         page = questionnaire_form.submit()
         page.follow()
 
@@ -3245,18 +3245,13 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
         cls.manager = make_manager()
         cls.test_users = [cls.manager]
 
-        evaluation = baker.make(Evaluation, state=Evaluation.State.IN_EVALUATION)
-        cls.questionnaire = baker.make(Questionnaire)
+        cls.questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         cls.url = f"/staff/questionnaire/{cls.questionnaire.pk}/edit"
-
-        baker.make(Contribution, questionnaires=[cls.questionnaire], evaluation=evaluation)
 
         baker.make(QuestionAssignment, questionnaire=cls.questionnaire)
 
     def test_allowed_type_changes_on_used_questionnaire(self):
-        # top to bottom
-        self.questionnaire.type = Questionnaire.Type.TOP
-        self.questionnaire.save()
+        baker.make(Contribution, questionnaires=[self.questionnaire], evaluation__state=Evaluation.State.IN_EVALUATION)
 
         page = self.app.get(self.url, user=self.manager)
         form = page.forms["questionnaire-form"]
