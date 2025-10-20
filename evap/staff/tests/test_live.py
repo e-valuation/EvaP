@@ -19,8 +19,6 @@ from evap.evaluation.models import (
     Semester,
     UserProfile,
 )
-from evap.evaluation.tests.tools import LiveServerTest
-from evap.evaluation.models import Contribution, Course, Evaluation, Program, Question, Questionnaire, UserProfile
 from evap.evaluation.tests.tools import LiveServerTest, classes_of_element
 
 
@@ -114,6 +112,7 @@ class EvaluationEditLiveTest(LiveServerTest):
         search_input.send_keys("exam")
 
         self.wait.until(invisibility_of_element_located((By.XPATH, "//td//a[contains(text(),'course name')]")))
+
 
 class ParticipantCollapseTests(LiveServerTest):
     def test_collapse_with_editor_approved(self) -> None:
