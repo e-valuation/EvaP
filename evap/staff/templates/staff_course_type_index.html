@@ -27,7 +27,11 @@
                             <th class="width-percent-30">{% translate 'Name (German)' %}</th>
                             <th class="width-percent-30">{% translate 'Name (English)' %}</th>
                             <th class="width-percent-30">{% translate 'Import names' %}</th>
-                            <th class="width-percent-30">{% translate 'Skip on automated import' %}</th>
+                            <th class="width-percent-30">{% translate 'Skip on CMS import' %}
+                                <span data-bs-toggle="tooltip" data-bs-placement="right" class="fas fa-circle-info"
+                                    title="{% blocktranslate %}When selected, the importer will skip all courses from the CMS data with this type.{% endblocktranslate %}">
+                                </span>
+                            </th>
                             <th class="width-percent-10 text-end">{% translate 'Actions' %}</th>
                         </tr>
                     </thead>
