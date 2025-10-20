@@ -51,6 +51,8 @@ urlpatterns = [
     path("textanswers/update_flag", views.evaluation_textanswers_update_flag, name="evaluation_textanswers_update_flag"),
     path("textanswers/skip", views.evaluation_textanswers_skip, name="evaluation_textanswers_skip"),
 
+    path("question/lookup/<str:field_name>/", views.question_lookup, name="question_lookup"),
+
     path("questionnaire/", views.questionnaire_index, name="questionnaire_index"),
     path("questionnaire/create", views.questionnaire_create, name="questionnaire_create"),
     path("questionnaire/<int:questionnaire_id>", views.questionnaire_view, name="questionnaire_view"),

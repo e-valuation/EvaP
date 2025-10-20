@@ -13,6 +13,7 @@ from evap.evaluation.models import (
     Evaluation,
     Program,
     Question,
+    QuestionAssignment,
     Questionnaire,
     QuestionType,
     RatingAnswerCounter,
@@ -605,16 +606,16 @@ class ContributionFormsetTests(TestCase):
     def test_answers_for_removed_questionnaires_deleted(self):
         # pylint: disable=too-many-locals
         evaluation = baker.make(Evaluation)
-        general_question_1 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
-        general_question_2 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
-        general_questionnaire_1 = baker.make(Questionnaire, questions=[general_question_1])
-        general_questionnaire_2 = baker.make(Questionnaire, questions=[general_question_2])
+        general_question_1 = baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT)
+        general_question_2 = baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT)
+        general_questionnaire_1 = baker.make(Questionnaire, question_assignments=[general_question_1])
+        general_questionnaire_2 = baker.make(Questionnaire, question_assignments=[general_question_2])
         evaluation.general_contribution.questionnaires.set([general_questionnaire_1, general_questionnaire_2])
-        contributor_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
+        contributor_question = baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT)
         contributor_questionnaire = baker.make(
             Questionnaire,
             type=Questionnaire.Type.CONTRIBUTOR,
-            questions=[contributor_question],
+            question_assignments=[contributor_question],
         )
         contribution_1 = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile))
         contribution_2 = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile))
@@ -1040,16 +1041,14 @@ class EvaluationFormTests(TestCase):
     def test_answers_for_removed_questionnaires_deleted(self):
         # pylint: disable=too-many-locals
         evaluation = baker.make(Evaluation)
-        general_question_1 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
-        general_question_2 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
-        general_questionnaire_1 = baker.make(Questionnaire, questions=[general_question_1])
-        general_questionnaire_2 = baker.make(Questionnaire, questions=[general_question_2])
+        general_question_1 = baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT)
+        general_question_2 = baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT)
+        general_questionnaire_1 = baker.make(Questionnaire, question_assignments=[general_question_1])
+        general_questionnaire_2 = baker.make(Questionnaire, question_assignments=[general_question_2])
         evaluation.general_contribution.questionnaires.set([general_questionnaire_1, general_questionnaire_2])
-        contributor_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
+        contributor_question = baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT)
         contributor_questionnaire = baker.make(
-            Questionnaire,
-            type=Questionnaire.Type.CONTRIBUTOR,
-            questions=[contributor_question],
+            Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, question_assignments=[contributor_question]
         )
         contribution_1 = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile))
         contribution_2 = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile))

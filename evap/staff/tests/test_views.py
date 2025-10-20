@@ -16,6 +16,7 @@ from django.http import HttpResponse
 from django.test import override_settings
 from django.urls import reverse
 from django.utils import translation
+from django_webtest import DjangoWebtestResponse
 from model_bakery import baker
 
 import evap.staff.fixtures.excel_files_test_data as excel_data
@@ -29,6 +30,7 @@ from evap.evaluation.models import (
     Infotext,
     Program,
     Question,
+    QuestionAssignment,
     Questionnaire,
     QuestionType,
     RatingAnswerCounter,
@@ -2194,15 +2196,15 @@ class TestEvaluationEditView(WebTestStaffMode):
         )
         cls.url = reverse("staff:evaluation_edit", args=[cls.evaluation.pk])
 
-        baker.make(Questionnaire, questions=[baker.make(Question)])
-        cls.general_question = baker.make(Question)
-        cls.general_questionnaire = baker.make(Questionnaire, questions=[cls.general_question])
+        baker.make(Questionnaire, question_assignments=[baker.make(QuestionAssignment)])
+        cls.general_question = baker.make(QuestionAssignment)
+        cls.general_questionnaire = baker.make(Questionnaire, question_assignments=[cls.general_question])
         cls.evaluation.general_contribution.questionnaires.set([cls.general_questionnaire])
-        cls.contributor_question = baker.make(Question)
+        cls.contributor_question = baker.make(QuestionAssignment)
         cls.contributor_questionnaire = baker.make(
             Questionnaire,
             type=Questionnaire.Type.CONTRIBUTOR,
-            questions=[cls.contributor_question],
+            question_assignments=[cls.contributor_question],
         )
         cls.contribution1 = baker.make(
             Contribution,
@@ -2822,11 +2824,11 @@ class TestEvaluationTextAnswerView(WebTest):
         )
         cls.url = reverse("staff:evaluation_textanswers", args=[cls.evaluation.pk])
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionType.POSITIVE_LIKERT)
+        baker.make(Question, questionnaires=[top_general_questionnaire], type=QuestionType.POSITIVE_LIKERT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
 
         questionnaire = baker.make(Questionnaire)
-        question = baker.make(Question, questionnaire=questionnaire, type=QuestionType.TEXT)
+        question = baker.make(QuestionAssignment, questionnaire=questionnaire, question__type=QuestionType.TEXT)
         contribution = baker.make(
             Contribution,
             evaluation=cls.evaluation,
@@ -2953,7 +2955,12 @@ class TestEvaluationTextAnswerView(WebTest):
 
         for evaluation, answer_count in zip(evaluations, [1, 2], strict=True):
             contribution = baker.make(Contribution, evaluation=evaluation, _fill_optional=["contributor"])
-            baker.make(TextAnswer, contribution=contribution, question__type=QuestionType.TEXT, _quantity=answer_count)
+            baker.make(
+                TextAnswer,
+                contribution=contribution,
+                question__question__type=QuestionType.TEXT,
+                _quantity=answer_count,
+            )
 
         url = reverse("staff:evaluation_textanswers", args=[self.evaluation2.pk])
 
@@ -2991,10 +2998,10 @@ class TestEvaluationTextAnswerView(WebTest):
         contributions = baker.make(Contribution, evaluation=self.evaluation, contributor=iter(contributors), **kwargs)
         questionnaires = baker.make(Questionnaire, **kwargs)
         questions = baker.make(
-            Question,
+            QuestionAssignment,
             questionnaire=iter(questionnaires),
-            type=QuestionType.TEXT,
-            allows_additional_textanswers=False,
+            question__type=QuestionType.TEXT,
+            question__allows_additional_textanswers=False,
             **kwargs,
         )
         baker.make(TextAnswer, question=iter(questions), contribution=iter(contributions), **kwargs)
@@ -3034,20 +3041,20 @@ class TestEvaluationTextAnswerEditView(WebTestStaffMode):
             state=Evaluation.State.IN_EVALUATION,
         )
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionType.POSITIVE_LIKERT)
+        baker.make(Question, questionnaires=[top_general_questionnaire], type=QuestionType.POSITIVE_LIKERT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
-        question = baker.make(Question, type=QuestionType.TEXT)
+        question = baker.make(Question, type=QuestionType.TEXT, make_m2m=True)
 
         contribution = baker.make(
             Contribution,
             evaluation=cls.evaluation,
-            questionnaires=[question.questionnaire],
+            questionnaires=question.questionnaires.all(),
             _fill_optional=["contributor"],
         )
         cls.textanswer = baker.make(
             TextAnswer,
             contribution=contribution,
-            question=question,
+            question=question.assignments.first(),
             answer="test answer text",
         )
 
@@ -3140,7 +3147,7 @@ class TestQuestionnaireNewVersionView(WebTestStaffMode):
         questionnaire = baker.make(Questionnaire, name_de=cls.name_de_orig, name_en=cls.name_en_orig)
         cls.url = f"/staff/questionnaire/{questionnaire.pk}/new_version"
 
-        baker.make(Question, questionnaire=questionnaire)
+        baker.make(QuestionAssignment, questionnaire=questionnaire)
 
     def test_changes_old_title(self):
         page = self.app.get(url=self.url, user=self.manager)
@@ -3186,12 +3193,13 @@ class TestQuestionnaireCreateView(WebTestStaffMode):
         questionnaire_form["name_en"] = "test questionnaire"
         questionnaire_form["public_name_de"] = "Oeffentlicher Test Fragebogen"
         questionnaire_form["public_name_en"] = "Public Test Questionnaire"
-        questionnaire_form["questions-0-text_de"] = "Frage 1"
-        questionnaire_form["questions-0-text_en"] = "Question 1"
-        questionnaire_form["questions-0-type"] = QuestionType.TEXT
-        questionnaire_form["order"] = 0
-        questionnaire_form["type"] = Questionnaire.Type.TOP
-        questionnaire_form.submit().follow()
+        questionnaire_form["question_assignments-0-text_de"].force_value("Frage 1")
+        questionnaire_form["question_assignments-0-text_en"].force_value("Question 1")
+        questionnaire_form["question_assignments-0-type"] = QuestionType.TEXT
+        questionnaire_form["question_assignments-0-order"] = 0
+        questionnaire_form["question_assignments-0-type"] = Questionnaire.Type.TOP
+        page = questionnaire_form.submit()
+        page.follow()
 
         # retrieve new questionnaire
         questionnaire = Questionnaire.objects.get(name_de="Test Fragebogen", name_en="test questionnaire")
@@ -3233,23 +3241,18 @@ class TestQuestionnaireIndexView(WebTestStaffMode):
 
 
 class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
-    @classmethod
-    def setUpTestData(cls):
-        cls.manager = make_manager()
-        cls.test_users = [cls.manager]
+    def setUp(self):
+        super().setUp()
+        self.manager = make_manager()
+        self.test_users = [self.manager]
 
-        evaluation = baker.make(Evaluation, state=Evaluation.State.IN_EVALUATION)
-        cls.questionnaire = baker.make(Questionnaire)
-        cls.url = f"/staff/questionnaire/{cls.questionnaire.pk}/edit"
+        self.questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        self.url = f"/staff/questionnaire/{self.questionnaire.pk}/edit"
 
-        baker.make(Contribution, questionnaires=[cls.questionnaire], evaluation=evaluation)
-
-        baker.make(Question, questionnaire=cls.questionnaire)
+        baker.make(QuestionAssignment, questionnaire=self.questionnaire)
 
     def test_allowed_type_changes_on_used_questionnaire(self):
-        # top to bottom
-        self.questionnaire.type = Questionnaire.Type.TOP
-        self.questionnaire.save()
+        baker.make(Contribution, questionnaires=[self.questionnaire], evaluation__state=Evaluation.State.IN_EVALUATION)
 
         page = self.app.get(self.url, user=self.manager)
         form = page.forms["questionnaire-form"]
@@ -3291,6 +3294,34 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
             "Dropout questionnaires should not be changeable to different types",
         )
 
+    def change_question(self) -> DjangoWebtestResponse:
+        baker.make(Contribution, questionnaires=[self.questionnaire], evaluation__state=Evaluation.State.NEW)
+
+        page = self.app.get(self.url, user=self.manager)
+        form = page.forms["questionnaire-form"]
+        form["question_assignments-0-text_de"].force_value("successfully")
+        form["question_assignments-0-text_en"].force_value("changed")
+        form["question_assignments-0-type"] = QuestionType.NEGATIVE_LIKERT
+        form["question_assignments-0-allows_additional_textanswers"] = True
+        return form.submit()
+
+    def test_can_change_question(self) -> None:
+        question = self.questionnaire.questions.get()
+
+        self.change_question().follow()
+        question.refresh_from_db()
+        self.assertEqual(question.text_de, "successfully")
+        self.assertEqual(question.text_en, "changed")
+        self.assertEqual(question.type, QuestionType.NEGATIVE_LIKERT)
+        self.assertEqual(question.allows_additional_textanswers, True)
+
+    def test_cannot_change_used_questions(self) -> None:
+        question = self.questionnaire.questions.get()
+        baker.make(QuestionAssignment, question=question)
+
+        page = self.change_question()
+        self.assertIn("cannot change a question that is used in multiple questionnaires.", page)
+
 
 class TestQuestionnaireViewView(WebTestStaffModeWith200Check):
     @classmethod
@@ -3301,12 +3332,12 @@ class TestQuestionnaireViewView(WebTestStaffModeWith200Check):
         cls.url = f"/staff/questionnaire/{questionnaire.pk}"
 
         baker.make(
-            Question,
+            QuestionAssignment,
             questionnaire=questionnaire,
-            type=iter([QuestionType.TEXT, QuestionType.GRADE, QuestionType.POSITIVE_LIKERT]),
+            question__type=iter([QuestionType.TEXT, QuestionType.GRADE, QuestionType.POSITIVE_LIKERT]),
             _quantity=3,
             _bulk_create=True,
-            allows_additional_textanswers=False,
+            question__allows_additional_textanswers=False,
         )
 
 
@@ -3317,7 +3348,7 @@ class TestQuestionnaireCopyView(WebTestStaffMode):
         questionnaire = baker.make(Questionnaire)
         cls.url = f"/staff/questionnaire/{questionnaire.pk}/copy"
 
-        baker.make(Question, questionnaire=questionnaire)
+        baker.make(QuestionAssignment, questionnaire=questionnaire)
 
     def test_not_changing_name_fails(self):
         response = self.app.get(self.url, user=self.manager, status=200)
@@ -3607,8 +3638,8 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
             state=Evaluation.State.IN_EVALUATION,
         )
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionType.POSITIVE_LIKERT)
-        cls.text_question = baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionType.TEXT)
+        baker.make(Question, questionnaires=[top_general_questionnaire], type=QuestionType.POSITIVE_LIKERT)
+        cls.text_question = baker.make(Question, questionnaires=[top_general_questionnaire], type=QuestionType.TEXT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
 
     def assert_transition(

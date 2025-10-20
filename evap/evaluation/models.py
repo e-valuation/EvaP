@@ -264,11 +264,11 @@ class Questionnaire(models.Model):
         return not self.contributions.exists()
 
     @property
-    def text_questions(self):
+    def text_questions(self) -> list["Question"]:
         return [question for question in self.questions.all() if question.is_text_question]
 
     @property
-    def rating_questions(self):
+    def rating_questions(self) -> list["Question"]:
         return [question for question in self.questions.all() if question.is_rating_question]
 
 
@@ -1217,10 +1217,11 @@ class Question(models.Model):
         (_("Layout"), ((QuestionType.HEADING, _("Heading")),)),
     )
 
-    order = models.IntegerField(verbose_name=_("question order"), default=-1)
-    questionnaire = models.ForeignKey(Questionnaire, models.CASCADE, related_name="questions")
-    text_de = models.CharField(max_length=1024, verbose_name=_("question text (german)"))
-    text_en = models.CharField(max_length=1024, verbose_name=_("question text (english)"))
+    questionnaires = models.ManyToManyField(
+        Questionnaire, through="evaluation.QuestionAssignment", related_name="questions"
+    )
+    text_de = models.CharField(max_length=1024, verbose_name=_("question text (german)"), unique=True)
+    text_en = models.CharField(max_length=1024, verbose_name=_("question text (english)"), unique=True)
     text = translate(en="text_en", de="text_de")
     allows_additional_textanswers = models.BooleanField(default=True, verbose_name=_("allow additional text answers"))
 
@@ -1228,7 +1229,6 @@ class Question(models.Model):
 
     @inject_choices_constraint(locals())
     class Meta:
-        ordering = ["order"]
         verbose_name = _("question")
         verbose_name_plural = _("questions")
         constraints = [
@@ -1317,6 +1317,15 @@ class Question(models.Model):
     @property
     def can_have_textanswers(self):
         return self.is_text_question or self.is_rating_question and self.allows_additional_textanswers
+
+
+class QuestionAssignment(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="assignments")
+    questionnaire = models.ForeignKey(Questionnaire, on_delete=models.CASCADE, related_name="question_assignments")
+    order = models.IntegerField(verbose_name=_("question order"), default=-1)
+
+    class Meta:
+        ordering = ["order"]
 
 
 @dataclass
@@ -1512,14 +1521,14 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
 class Answer(models.Model):
     """
     An abstract answer to a question. For anonymity purposes, the answering
-    user ist not stored in the object. Concrete subclasses are
+    user is not stored in the object. Concrete subclasses are
     `RatingAnswerCounter`, and `TextAnswer`.
     """
 
     # we use UUIDs to hide insertion order. See https://github.com/e-valuation/EvaP/wiki/Data-Economy
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    question = models.ForeignKey(Question, models.PROTECT)
+    question = models.ForeignKey(QuestionAssignment, models.PROTECT)
     contribution = models.ForeignKey(Contribution, models.PROTECT, related_name="%(class)s_set")
 
     class Meta:

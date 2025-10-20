@@ -7,7 +7,14 @@ from selenium.webdriver.support.expected_conditions import (
     visibility_of_element_located,
 )
 
-from evap.evaluation.models import Contribution, Evaluation, Question, Questionnaire, QuestionType, UserProfile
+from evap.evaluation.models import (
+    Contribution,
+    Evaluation,
+    QuestionAssignment,
+    Questionnaire,
+    QuestionType,
+    UserProfile,
+)
 from evap.evaluation.tests.tools import LiveServerTest
 
 
@@ -30,19 +37,50 @@ class StudentVoteLiveTest(LiveServerTest):
         bottom_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM)
         contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
 
-        baker.make(Question, questionnaire=contributor_questionnaire, order=0, type=QuestionType.HEADING)
-        baker.make(Question, questionnaire=contributor_questionnaire, order=1, type=QuestionType.TEXT)
-        baker.make(Question, questionnaire=contributor_questionnaire, order=2, type=QuestionType.POSITIVE_LIKERT)
+        baker.make(
+            QuestionAssignment, questionnaire=contributor_questionnaire, order=0, question__type=QuestionType.HEADING
+        )
+        baker.make(
+            QuestionAssignment, questionnaire=contributor_questionnaire, order=1, question__type=QuestionType.TEXT
+        )
+        baker.make(
+            QuestionAssignment,
+            questionnaire=contributor_questionnaire,
+            order=2,
+            question__type=QuestionType.POSITIVE_LIKERT,
+        )
 
-        baker.make(Question, questionnaire=top_general_questionnaire, order=0, type=QuestionType.HEADING)
-        baker.make(Question, questionnaire=top_general_questionnaire, order=1, type=QuestionType.TEXT)
-        baker.make(Question, questionnaire=top_general_questionnaire, order=2, type=QuestionType.POSITIVE_LIKERT)
-        baker.make(Question, questionnaire=top_general_questionnaire, order=3, type=QuestionType.GRADE)
+        baker.make(
+            QuestionAssignment, questionnaire=top_general_questionnaire, order=0, question__type=QuestionType.HEADING
+        )
+        baker.make(
+            QuestionAssignment, questionnaire=top_general_questionnaire, order=1, question__type=QuestionType.TEXT
+        )
+        baker.make(
+            QuestionAssignment,
+            questionnaire=top_general_questionnaire,
+            order=2,
+            question__type=QuestionType.POSITIVE_LIKERT,
+        )
+        baker.make(
+            QuestionAssignment, questionnaire=top_general_questionnaire, order=3, question__type=QuestionType.GRADE
+        )
 
-        baker.make(Question, questionnaire=bottom_general_questionnaire, order=0, type=QuestionType.HEADING)
-        baker.make(Question, questionnaire=bottom_general_questionnaire, order=1, type=QuestionType.TEXT)
-        baker.make(Question, questionnaire=bottom_general_questionnaire, order=2, type=QuestionType.POSITIVE_LIKERT)
-        baker.make(Question, questionnaire=bottom_general_questionnaire, order=3, type=QuestionType.GRADE)
+        baker.make(
+            QuestionAssignment, questionnaire=bottom_general_questionnaire, order=0, question__type=QuestionType.HEADING
+        )
+        baker.make(
+            QuestionAssignment, questionnaire=bottom_general_questionnaire, order=1, question__type=QuestionType.TEXT
+        )
+        baker.make(
+            QuestionAssignment,
+            questionnaire=bottom_general_questionnaire,
+            order=2,
+            question__type=QuestionType.POSITIVE_LIKERT,
+        )
+        baker.make(
+            QuestionAssignment, questionnaire=bottom_general_questionnaire, order=3, question__type=QuestionType.GRADE
+        )
 
         baker.make(
             Contribution,
