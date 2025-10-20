@@ -394,10 +394,10 @@
                     {% if num_evaluations > 0 %}
                         <div id="evaluation-grid">
                             <div class="grid-header evaluation-grid-row">
-                                <button type="button" class="col-order" data-col="state-approval"></button>
-                                <button type="button" class="col-order" data-col="state-evaluating"></button>
-                                <button type="button" class="col-order" data-col="state-textanswers"></button>
-                                <button type="button" class="col-order" data-col="state-results"></button>
+                                <button type="button" class="col-order icon" data-col="state-approval"></button>
+                                <button type="button" class="col-order icon" data-col="state-evaluating"></button>
+                                <button type="button" class="col-order icon" data-col="state-textanswers"></button>
+                                <button type="button" class="col-order icon" data-col="state-results"></button>
                                 <button type="button" class="col-order" data-col="name">{% translate 'Name' %}</button>
                                 <button type="button" class="col-order" data-col="period">{% translate 'Evaluation period' %}</button>
                             </div>
@@ -563,6 +563,16 @@
 
 {% block additional_javascript %}
     <script type="text/javascript">
+        function saveSelectedTab(tab) {
+            localStorage.setItem('selected_tab', tab);
+        }
+
+        function getSelectedTab() {
+            const tab = localStorage.getItem('selected_tab');
+            if(tab) return tab;
+            return "evaluation";
+        }
+
         const overviewCard = document.getElementById('overviewCard');
         const overviewCardCollapse = new bootstrap.Collapse(overviewCard, {
             toggle: localStorage['show_overview'] === 'true'
@@ -574,15 +584,12 @@
         }
         document.getElementById("collapseOverviewCardButton").addEventListener("click", saveCollapseState);
 
-        if(localStorage['selected_tab'] === 'course') {
+        if(getSelectedTab() === 'course') {
             const coursesTab = document.getElementById('coursesTab');
             const coursesTabTrigger = new bootstrap.Tab(coursesTab);
             coursesTabTrigger.show();
         }
 
-        function saveSelectedTab(tab) {
-            localStorage['selected_tab'] = tab;
-        }
         document.getElementById("evaluationsTab").addEventListener("click", () => saveSelectedTab("evaluation"));
         document.getElementById("coursesTab").addEventListener("click", () => saveSelectedTab("course"));
 
@@ -599,7 +606,7 @@
     <script type="module">
         import {EvaluationGrid} from "{% static 'js/datagrid.js' %}";
 
-        const tab = localStorage.getItem('selected_tab');
+        const tab = getSelectedTab();
         const dataGrid = document.querySelector(`#${tab}-grid`)
 
         if (dataGrid) {
@@ -612,6 +619,9 @@
                 head: document.querySelector(`#${tab}-grid .grid-header`),
                 container: document.querySelector(`#${tab}-grid .grid-body`)
             }).init();
+        }
+        else {
+            console.error("No dataGrid found.")
         }
     </script>
 {% endblock %}

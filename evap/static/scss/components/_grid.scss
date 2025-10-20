@@ -77,10 +77,6 @@
             text-decoration: none;
         }
     }
-
-    @include media-breakpoint-up(lg) {
-        column-gap: 2rem;
-    }
 }
 
 #results-grid > :not(:first-child) {
@@ -115,6 +111,10 @@ $results-grid-areas: name, semester, responsible, voters, result;
     }
 
     gap: 0.5rem 1rem;
+
+    @include media-breakpoint-up(lg) {
+        column-gap: 2rem;
+    }
 
     &:not(.grid-header) [data-col=responsible] {
         font-style: italic;
@@ -196,13 +196,23 @@ $evaluation-grid-areas: checkbox, state-approval, state-evaluating, state-textan
         " checkbox state-approval state-evaluating state-textanswers state-results name         period  responses buttons"
         " checkbox state-approval state-evaluating state-textanswers state-results responsibles period  responses buttons"
         " checkbox state-approval state-evaluating state-textanswers state-results tags         period  responses buttons"
-        / 2.75em   1.25em         1.25em           1.25em            1.25em        auto         12.25em 12em      8.5em;
+        / 2em      1.4em          1.4em            1.4em             1.4em         auto         12.25em 12em      8.5em;
+
+    padding: .10em .25em .45em .25em;
+
+    &.grid-header {
+        grid:
+        " .        state-approval state-evaluating state-textanswers state-results name         period  .         ."
+        / 2em      1.4em          1.4em            1.4em             1.4em         auto         12.25em 12em      8.5em;
+    }
 
     & > * {
         padding-inline: .5rem;
 
         &.icon {
             padding-inline: 0;
+            display: flex;
+            justify-content: center;
         }
     }
 
@@ -220,6 +230,11 @@ $evaluation-grid-areas: checkbox, state-approval, state-evaluating, state-textan
         line-height: 0;
     }
 
+    & > .icon-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .3em;
+    }
 }
 
 $grades-grid-areas: name, badges, responsible, complete, midterm-grades, final-grades, actions;
