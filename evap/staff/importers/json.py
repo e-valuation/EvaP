@@ -24,8 +24,9 @@ class ImportStudent(TypedDict):
     gguid: str
     email: str
     name: str  # last name
-    christianname: str  # first name
-    callingname: str  # given name
+    christianname: str  # official, full first name
+    # name officially registered to address the person (not necessarily the chosen name)
+    callingname: str
 
 
 class ImportLecturer(TypedDict):
@@ -33,8 +34,6 @@ class ImportLecturer(TypedDict):
     email: str
     name: str  # last name
     christianname: str  # official, full first name
-    # official calling name (part of official first name) → not necessarily the chosen name of the person
-    callingname: str
     titlefront: str  # title
 
 
@@ -253,7 +252,7 @@ class JSONImporter:
             if not email:
                 self.statistics.warnings.append(
                     WarningMessage(
-                        obj=f"Contributor {self._get_first_name_given(entry)} {entry['name']}",
+                        obj=f"Contributor {entry['christianname']} {entry['name']}",
                         message="No email defined",
                     )
                 )
@@ -263,7 +262,7 @@ class JSONImporter:
                     email=email,
                     defaults={
                         "last_name": entry["name"],
-                        "first_name_given": self._get_first_name_given(entry),
+                        "first_name_given": entry["christianname"],
                         "title": entry["titlefront"],
                     },
                 )

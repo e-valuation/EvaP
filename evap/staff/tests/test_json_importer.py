@@ -35,32 +35,28 @@ EXAMPLE_DATA: ImportDict = {
             "gguid": "0x3",
             "email": "3@example.com",
             "name": "3",
-            "christianname": "w_3",
-            "callingname": "3",
+            "christianname": "3",
             "titlefront": "Prof. Dr.",
         },
         {
             "gguid": "0x4",
             "email": "4@example.com",
             "name": "4",
-            "christianname": "w_4",
-            "callingname": "4",
+            "christianname": "4",
             "titlefront": "Dr.",
         },
         {
             "gguid": "0x5",
             "email": "5@example.com",
             "name": "5",
-            "christianname": "w_5",
-            "callingname": "5",
+            "christianname": "5",
             "titlefront": "",
         },
         {
             "gguid": "0x6",
             "email": "6@example.com",
             "name": "6",
-            "christianname": "w_6",
-            "callingname": "6",
+            "christianname": "6",
             "titlefront": "",
         },
     ],
@@ -132,13 +128,12 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
         {"gguid": "0x2", "email": "2@example.com", "name": "2", "christianname": "w_2", "callingname": "2"},
     ],
     "lecturers": [
-        {"gguid": "0x3", "email": "", "name": "3", "christianname": "3", "callingname": "3", "titlefront": "Prof. Dr."},
+        {"gguid": "0x3", "email": "", "name": "3", "christianname": "3", "titlefront": "Prof. Dr."},
         {
             "gguid": "0x4",
             "email": "4@example.com",
             "name": "4",
             "christianname": "4",
-            "callingname": "4",
             "titlefront": "Prof. Dr.",
         },
         {
@@ -146,7 +141,6 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
             "email": "5@example.com",
             "name": "5",
             "christianname": "5",
-            "callingname": "5",
             "titlefront": "Prof. Dr.",
         },
     ],
@@ -311,7 +305,7 @@ class TestImportUserProfiles(TestCase):
         for i, user_profile in enumerate(user_profiles.order_by("email")):
             self.assertEqual(user_profile.email, self.lecturers[i]["email"])
             self.assertEqual(user_profile.last_name, self.lecturers[i]["name"])
-            self.assertEqual(user_profile.first_name_given, self.lecturers[i]["callingname"])
+            self.assertEqual(user_profile.first_name_given, self.lecturers[i]["christianname"])
             self.assertEqual(user_profile.title, self.lecturers[i]["titlefront"])
 
         self.assertEqual(importer.statistics.name_changes, [])
@@ -330,7 +324,7 @@ class TestImportUserProfiles(TestCase):
 
         self.assertEqual(user_profile.email, self.lecturers[0]["email"])
         self.assertEqual(user_profile.last_name, self.lecturers[0]["name"])
-        self.assertEqual(user_profile.first_name_given, self.lecturers[0]["callingname"])
+        self.assertEqual(user_profile.first_name_given, self.lecturers[0]["christianname"])
         self.assertEqual(user_profile.title, self.lecturers[0]["titlefront"])
 
         self.assertEqual(
@@ -340,7 +334,7 @@ class TestImportUserProfiles(TestCase):
                     old_last_name="Doe",
                     old_first_name_given="Jane",
                     new_last_name=self.lecturers[0]["name"],
-                    new_first_name_given=self.lecturers[0]["callingname"],
+                    new_first_name_given=self.lecturers[0]["christianname"],
                     email=self.lecturers[0]["email"],
                 )
             ],
