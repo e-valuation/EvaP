@@ -60,12 +60,16 @@
                 <div class="btn-switch btn-group">
                     {% for language_code, language_name in languages %}
                         <a data-bs-toggle="tooltip"
-                           data-bs-placement="bottom"
-                           data-set-spinner-icon="span-set-evaluation-language-{{ language_code }}"
-                           title="{{ language_name }}"
-                           role="button"
-                           href="{% url 'student:vote' evaluation.pk %}?language={{ language_code }}"
-                           class="btn btn-sm btn-light{% if evaluation_language == language_code %} active{% endif %}">
+                            data-bs-placement="bottom"
+                            data-set-spinner-icon="span-set-evaluation-language-{{ language_code }}"
+                            title="{{ language_name }}"
+                            role="button"
+                            {% if evaluation_form_group_dropout %}
+                                href="{% url 'student:drop' evaluation.pk %}?language={{ language_code }}"
+                            {% else %}
+                                href="{% url 'student:vote' evaluation.pk %}?language={{ language_code }}"
+                            {% endif %}
+                            class="btn btn-sm btn-light{% if evaluation_language == language_code %} active{% endif %}">
                             <span id="span-set-evaluation-language-{{ language_code }}">{{ language_code|upper }}</span>
                         </a>
                     {% endfor %}
