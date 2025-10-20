@@ -224,7 +224,7 @@ class ResultsExporter(ExcelExporter):
 
         self.next_row()
         self.write_cell(_("Course Type"), "bold")
-        self.write_cell("", "program")
+        self.write_cell("", "border_left_right")  # empty cell in grade-average column
         for evaluation, __ in evaluations_with_results:
             self.write_cell(evaluation.course.type.name, "border_left_right")
 
