@@ -46,6 +46,9 @@ class RequireLoginMiddleware:
 
 
 def no_login_required(class_or_function: ViewFuncOrClass):
+    # view funcs of class based views are shared, so we cannot track them here. Use the decorator on the class instead.
+    assert not hasattr(class_or_function, "view_class"), "unexpected called with a view function of a class based view"
+
     VIEWS_WITHOUT_LOGIN_REQUIRED.add(class_or_function)
     return class_or_function
 
