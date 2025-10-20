@@ -1,3 +1,5 @@
+import { selectOrError } from "./utils.js";
+
 function isInvisible(el: Element): boolean {
     if (getComputedStyle(el).display === "none") {
         return true;
@@ -24,7 +26,7 @@ function selectByNumberKey(row: HTMLElement, num: number) {
     nextElement.click();
 }
 
-const studentForm = document.getElementById("student-vote-form")!;
+const studentForm = selectOrError<HTMLFormElement>("#student-vote-form");
 const selectables: NodeListOf<HTMLElement> = studentForm.querySelectorAll(".tab-selectable");
 const rows = Array.from(studentForm.getElementsByClassName("tab-row")) as HTMLElement[];
 const letterRegex = new RegExp("^[A-Za-zÄÖÜäöü.*+-]$");

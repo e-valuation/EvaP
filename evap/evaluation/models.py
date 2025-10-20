@@ -1,3 +1,4 @@
+import enum
 import logging
 import secrets
 import uuid
@@ -20,7 +21,7 @@ from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
-from django.db.models import CheckConstraint, Count, Exists, F, Manager, OuterRef, Q, Subquery, Value
+from django.db.models import CheckConstraint, Count, Exists, F, Manager, OuterRef, Q, QuerySet, Subquery, Value
 from django.db.models.functions import Coalesce, Lower, NullIf, TruncDate
 from django.dispatch import Signal, receiver
 from django.http import HttpRequest
@@ -41,6 +42,7 @@ from evap.evaluation.models_logging import LoggedModel
 from evap.evaluation.tools import (
     StrOrPromise,
     clean_email,
+    inject_choices_constraint,
     is_external_email,
     is_prefetched,
     password_login_is_active,
@@ -127,8 +129,7 @@ class Semester(models.Model):
     @transaction.atomic
     def delete_grade_documents(self):
         # Resolving this circular dependency makes the code more ugly, so we leave it.
-        # pylint: disable=import-outside-toplevel
-        from evap.grades.models import GradeDocument
+        from evap.grades.models import GradeDocument  # noqa: PLC0415
 
         if not self.grade_documents_can_be_deleted:
             raise NotArchivableError
@@ -157,18 +158,25 @@ class Semester(models.Model):
         return Evaluation.objects.filter(course__semester=self)
 
 
-class QuestionnaireManager(Manager):
-    def general_questionnaires(self):
-        return super().get_queryset().exclude(type=Questionnaire.Type.CONTRIBUTOR)
+class QuestionnaireManager(Manager["Questionnaire"]):
+    def general_questionnaires(self) -> QuerySet["Questionnaire"]:
+        return super().get_queryset().filter(type__in=[Questionnaire.Type.TOP, Questionnaire.Type.BOTTOM])
 
-    def contributor_questionnaires(self):
+    def contributor_questionnaires(self) -> QuerySet["Questionnaire"]:
         return super().get_queryset().filter(type=Questionnaire.Type.CONTRIBUTOR)
+
+    def dropout_questionnaires(self) -> QuerySet["Questionnaire"]:
+        return super().get_queryset().filter(type=Questionnaire.Type.DROPOUT)
+
+    def non_contributor_questionnaires(self) -> QuerySet["Questionnaire"]:
+        return super().get_queryset().exclude(type=Questionnaire.Type.CONTRIBUTOR)
 
 
 class Questionnaire(models.Model):
     """A named collection of questions."""
 
     class Type(models.IntegerChoices):
+        DROPOUT = 5, _("Dropout questionnaire")
         TOP = 10, _("Top questionnaire")
         CONTRIBUTOR = 20, _("Contributor questionnaire")
         BOTTOM = 30, _("Bottom questionnaire")
@@ -206,6 +214,7 @@ class Questionnaire(models.Model):
 
     objects = QuestionnaireManager()
 
+    @inject_choices_constraint(locals())
     class Meta:
         ordering = ["type", "order", "pk"]
         verbose_name = _("questionnaire")
@@ -214,23 +223,31 @@ class Questionnaire(models.Model):
     def __str__(self):
         return self.name
 
-    def clean(self):
-        if self.type == self.Type.CONTRIBUTOR and self.is_locked:
-            raise ValidationError({"is_locked": _("Contributor questionnaires cannot be locked.")})
-
     def __lt__(self, other):
         return (self.type, self.order, self.pk) < (other.type, other.order, other.pk)
 
     def __gt__(self, other):
         return (self.type, self.order, self.pk) > (other.type, other.order, other.pk)
 
+    def clean(self):
+        if self.type == self.Type.CONTRIBUTOR and self.is_locked:
+            raise ValidationError({"is_locked": _("Contributor questionnaires cannot be locked.")})
+
     @property
-    def is_above_contributors(self):
+    def is_above_contributors(self) -> bool:
         return self.type == self.Type.TOP
 
     @property
-    def is_below_contributors(self):
+    def is_below_contributors(self) -> bool:
         return self.type == self.Type.BOTTOM
+
+    @property
+    def is_dropout(self) -> bool:
+        return self.type == self.Type.DROPOUT
+
+    @property
+    def is_general(self) -> bool:
+        return self.type in (self.Type.TOP, self.Type.BOTTOM)
 
     @property
     def can_be_edited_by_manager(self):
@@ -253,12 +270,6 @@ class Questionnaire(models.Model):
     @property
     def rating_questions(self):
         return [question for question in self.questions.all() if question.is_rating_question]
-
-    SINGLE_RESULT_QUESTIONNAIRE_NAME = "Single result"
-
-    @classmethod
-    def single_result_questionnaire(cls):
-        return cls.objects.get(name_en=cls.SINGLE_RESULT_QUESTIONNAIRE_NAME)
 
 
 class Program(models.Model):
@@ -333,6 +344,11 @@ class Course(LoggedModel):
     # grade publishers can set this to True, then the course will be handled as if final grades have already been uploaded
     gets_no_grade_documents = models.BooleanField(verbose_name=_("gets no grade documents"), default=False)
 
+    # unique reference for import from campus management system
+    cms_id = models.CharField(
+        verbose_name=_("campus management system id"), blank=True, null=True, unique=True, max_length=255
+    )
+
     class Meta:
         unique_together = [
             ["semester", "name_de"],
@@ -346,8 +362,7 @@ class Course(LoggedModel):
 
     @classmethod
     def objects_with_missing_final_grades(cls):
-        # pylint: disable=import-outside-toplevel
-        from evap.grades.models import GradeDocument
+        from evap.grades.models import GradeDocument  # noqa: PLC0415
 
         return (
             Course.objects.filter(
@@ -374,16 +389,14 @@ class Course(LoggedModel):
     @property
     def final_grade_documents(self):
         # We think it's better to use the imported constant here instead of using some workaround
-        # pylint: disable=import-outside-toplevel
-        from evap.grades.models import GradeDocument
+        from evap.grades.models import GradeDocument  # noqa: PLC0415
 
         return self.grade_documents.filter(type=GradeDocument.Type.FINAL_GRADES)
 
     @property
     def midterm_grade_documents(self):
         # We think it's better to use the imported constant here instead of using some workaround
-        # pylint: disable=import-outside-toplevel
-        from evap.grades.models import GradeDocument
+        from evap.grades.models import GradeDocument  # noqa: PLC0415
 
         return self.grade_documents.filter(type=GradeDocument.Type.MIDTERM_GRADES)
 
@@ -406,6 +419,8 @@ class Course(LoggedModel):
 class Evaluation(LoggedModel):
     """Models a single evaluation, e.g. the exam evaluation of the Math 101 course of 2002."""
 
+    UNDECIDED_MAIN_LANGUAGE = "x"
+
     class State(models.IntegerChoices):
         NEW = 10, _("new")
         PREPARED = 20, _("prepared")
@@ -425,10 +440,16 @@ class Evaluation(LoggedModel):
     name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), blank=True)
     name = translate(en="name_en", de="name_de")
 
+    # questionnaires are shown in this language by default
+    main_language = models.CharField(
+        max_length=2,
+        verbose_name=_("main language"),
+        default=UNDECIDED_MAIN_LANGUAGE,
+        choices=settings.LANGUAGES + [(UNDECIDED_MAIN_LANGUAGE, _("undecided"))],
+    )
+
     # defines how large the influence of this evaluation's grade is on the total grade of its course
     weight = models.PositiveSmallIntegerField(verbose_name=_("weight"), default=1)
-
-    is_single_result = models.BooleanField(verbose_name=_("is single result"), default=False)
 
     # whether participants must vote to qualify for reward points
     is_rewarded = models.BooleanField(verbose_name=_("is rewarded"), default=True)
@@ -455,6 +476,8 @@ class Evaluation(LoggedModel):
     )
     _voter_count = models.IntegerField(verbose_name=_("voter count"), blank=True, null=True, default=None)
 
+    dropout_count = models.IntegerField(verbose_name=_("dropout count"), default=0)
+
     # when the evaluation takes place
     vote_start_datetime = models.DateTimeField(verbose_name=_("start of evaluation"))
     # Usually the property vote_end_datetime should be used instead of this field
@@ -470,9 +493,14 @@ class Evaluation(LoggedModel):
         verbose_name=_("wait for grade upload before publishing"), default=True
     )
 
+    # unique reference for import from campus management system
+    cms_id = models.CharField(
+        verbose_name=_("campus management system id"), blank=True, null=True, unique=True, max_length=255
+    )
+
     @property
     def has_exam_evaluation(self):
-        return self.course.evaluations.filter(name_de="Klausur", name_en="Exam").exists()
+        return self.course.evaluations.filter(Q(name_de="Klausur") | Q(name_en="Exam")).exists()
 
     @property
     def earliest_possible_exam_date(self):
@@ -500,16 +528,15 @@ class Evaluation(LoggedModel):
         exam_evaluation.general_contribution.questionnaires.set(settings.EXAM_QUESTIONNAIRE_IDS)
 
     class TextAnswerReviewState(Enum):
+        do_not_call_in_templates = enum.nonmember(True)
+
         NO_TEXTANSWERS = auto()
         NO_REVIEW_NEEDED = auto()
         REVIEW_NEEDED = auto()
         REVIEW_URGENT = auto()
         REVIEWED = auto()
 
-        @property
-        def do_not_call_in_templates(self):
-            return True
-
+    @inject_choices_constraint(locals())
     class Meta:
         unique_together = [
             ["course", "name_de"],
@@ -549,28 +576,30 @@ class Evaluation(LoggedModel):
 
             # It's clear that results.models will need to reference evaluation.models' classes in ForeignKeys.
             # However, this method only makes sense as a method of Evaluation. Thus, we can't get rid of these imports
-            # pylint: disable=import-outside-toplevel
-            from evap.results.tools import STATES_WITH_RESULT_TEMPLATE_CACHING, STATES_WITH_RESULTS_CACHING
+            from evap.results.tools import (  # noqa: PLC0415
+                STATES_WITH_RESULT_TEMPLATE_CACHING,
+                STATES_WITH_RESULTS_CACHING,
+            )
 
             if (
                 state_changed_to(self, STATES_WITH_RESULTS_CACHING)
                 or self.state_change_source == Evaluation.State.EVALUATED
                 and self.state == Evaluation.State.REVIEWED
             ):  # reviewing changes results -> cache update required
-                from evap.results.tools import cache_results
+                from evap.results.tools import cache_results  # noqa: PLC0415
 
                 cache_results(self)
             elif state_changed_from(self, STATES_WITH_RESULTS_CACHING):
-                from evap.results.tools import get_results_cache_key
+                from evap.results.tools import get_results_cache_key  # noqa: PLC0415
 
                 caches["results"].delete(get_results_cache_key(self))
 
             if state_changed_to(self, STATES_WITH_RESULT_TEMPLATE_CACHING):
-                from evap.results.views import update_template_cache_of_published_evaluations_in_course
+                from evap.results.views import update_template_cache_of_published_evaluations_in_course  # noqa: PLC0415
 
                 update_template_cache_of_published_evaluations_in_course(self.course)
             elif state_changed_from(self, STATES_WITH_RESULT_TEMPLATE_CACHING):
-                from evap.results.views import (
+                from evap.results.views import (  # noqa: PLC0415
                     delete_template_cache,
                     update_template_cache_of_published_evaluations_in_course,
                 )
@@ -621,8 +650,16 @@ class Evaluation(LoggedModel):
         return self.vote_start_datetime <= datetime.now() <= self.vote_end_datetime
 
     @property
+    def is_dropout_allowed(self) -> bool:
+        return self.general_contribution.questionnaires.filter(type=Questionnaire.Type.DROPOUT).exists()
+
+    @property
     def general_contribution_has_questionnaires(self):
         return self.general_contribution and self.general_contribution.questionnaires.count() > 0
+
+    @property
+    def has_decided_main_language(self):
+        return self.main_language != self.UNDECIDED_MAIN_LANGUAGE
 
     @property
     def all_contributions_have_questionnaires(self):
@@ -662,8 +699,6 @@ class Evaluation(LoggedModel):
         return True
 
     def can_results_page_be_seen_by(self, user):
-        if self.is_single_result:
-            return False
         if user.is_manager:
             return True
         if user.is_reviewer and not self.course.semester.results_are_archived:
@@ -676,7 +711,7 @@ class Evaluation(LoggedModel):
 
     @property
     def can_reset_to_new(self):
-        return Evaluation.State.PREPARED <= self.state <= Evaluation.State.REVIEWED and not self.is_single_result
+        return Evaluation.State.PREPARED <= self.state <= Evaluation.State.REVIEWED
 
     @property
     def can_be_edited_by_manager(self):
@@ -684,7 +719,7 @@ class Evaluation(LoggedModel):
 
     @property
     def can_be_deleted_by_manager(self):
-        return self.can_be_edited_by_manager and (self.num_voters == 0 or self.is_single_result)
+        return self.can_be_edited_by_manager and self.num_voters == 0
 
     @cached_property
     def num_participants(self):
@@ -702,11 +737,7 @@ class Evaluation(LoggedModel):
             raise NotArchivableError
         if self._participant_count is not None:
             assert self._voter_count is not None
-            assert (
-                self.is_single_result
-                or self._voter_count == self.voters.count()
-                and self._participant_count == self.participants.count()
-            )
+            assert self._voter_count == self.voters.count() and self._participant_count == self.participants.count()
             return
         assert self._participant_count is None and self._voter_count is None
         self._participant_count = self.num_participants
@@ -738,9 +769,6 @@ class Evaluation(LoggedModel):
 
     @property
     def can_publish_average_grade(self):
-        if self.is_single_result:
-            return True
-
         # the average grade is only published if at least the configured percentage of participants voted during the evaluation for significance reasons
         return (
             self.can_publish_rating_results
@@ -749,9 +777,6 @@ class Evaluation(LoggedModel):
 
     @property
     def can_publish_rating_results(self):
-        if self.is_single_result:
-            return True
-
         # the rating results are only published if at least the configured number of participants voted during the evaluation for anonymity reasons
         return self.num_voters >= settings.VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS
 
@@ -759,7 +784,12 @@ class Evaluation(LoggedModel):
     def ready_for_editors(self):
         pass
 
-    @transition(field=state, source=State.PREPARED, target=State.EDITOR_APPROVED)
+    @transition(
+        field=state,
+        source=State.PREPARED,
+        target=State.EDITOR_APPROVED,
+        conditions=[lambda self: self.has_decided_main_language],
+    )
     def editor_approve(self):
         pass
 
@@ -767,7 +797,7 @@ class Evaluation(LoggedModel):
         field=state,
         source=[State.NEW, State.PREPARED, State.EDITOR_APPROVED],
         target=State.APPROVED,
-        conditions=[lambda self: self.general_contribution_has_questionnaires],
+        conditions=[lambda self: self.general_contribution_has_questionnaires and self.has_decided_main_language],
     )
     def manager_approve(self):
         pass
@@ -808,15 +838,6 @@ class Evaluation(LoggedModel):
         pass
 
     @transition(
-        field=state,
-        source=[State.NEW, State.REVIEWED],
-        target=State.REVIEWED,
-        conditions=[lambda self: self.is_single_result],
-    )
-    def skip_review_single_result(self):
-        pass
-
-    @transition(
         field=state, source=State.REVIEWED, target=State.EVALUATED, conditions=[lambda self: not self.is_fully_reviewed]
     )
     def reopen_review(self):
@@ -824,11 +845,17 @@ class Evaluation(LoggedModel):
 
     @transition(field=state, source=State.REVIEWED, target=State.PUBLISHED)
     def publish(self):
-        assert self.is_single_result or self._voter_count is None and self._participant_count is None
+        assert self._voter_count is None and self._participant_count is None
         self._voter_count = self.num_voters
         self._participant_count = self.num_participants
 
         if not self.can_publish_text_results:
+            if self.voters.count() > 1:
+                logger.error(
+                    "If there is more than one voter, can_publish_text_results should be true.\n\tEvaluation.pk=%d, %s",
+                    self.pk,
+                    self,
+                )
             self.textanswer_set.delete()
         else:
             self.textanswer_set.filter(review_decision=TextAnswer.ReviewDecision.DELETED).delete()
@@ -836,11 +863,7 @@ class Evaluation(LoggedModel):
 
     @transition(field=state, source=State.PUBLISHED, target=State.REVIEWED)
     def unpublish(self):
-        assert (
-            self.is_single_result
-            or self._voter_count == self.voters.count()
-            and self._participant_count == self.participants.count()
-        )
+        assert self._voter_count == self.voters.count() and self._participant_count == self.participants.count()
         self._voter_count = None
         self._participant_count = None
 
@@ -866,7 +889,7 @@ class Evaluation(LoggedModel):
 
     @property
     def voter_ratio(self):
-        if self.is_single_result or self.num_participants == 0:
+        if self.num_participants == 0:
             return 0
         return self.num_voters / self.num_participants
 
@@ -976,11 +999,17 @@ class Evaluation(LoggedModel):
         return RatingAnswerCounter.objects.filter(contribution__evaluation=self)
 
     @property
+    def all_participants_are_external(self):
+        return all(participant.is_external for participant in self.participants.all())
+
+    @property
     def grading_process_is_finished(self):
         return (
             not self.wait_for_grade_upload_before_publishing
             or self.course.gets_no_grade_documents
             or self.course.final_grade_documents.exists()
+            # See https://github.com/e-valuation/EvaP/issues/2332
+            or self.all_participants_are_external
         )
 
     @classmethod
@@ -1045,10 +1074,10 @@ class Evaluation(LoggedModel):
     def unlogged_fields(self):
         return super().unlogged_fields + [
             "voters",
-            "is_single_result",
             "can_publish_text_results",
             "_voter_count",
             "_participant_count",
+            "dropout_count",
         ]
 
 
@@ -1108,6 +1137,7 @@ class Contribution(LoggedModel):
 
     order = models.IntegerField(verbose_name=_("contribution order"), default=-1)
 
+    @inject_choices_constraint(locals())
     class Meta:
         unique_together = [["evaluation", "contributor"]]
         ordering = ["order"]
@@ -1196,6 +1226,7 @@ class Question(models.Model):
 
     type = models.PositiveSmallIntegerField(choices=QUESTION_TYPES, verbose_name=_("question type"))
 
+    @inject_choices_constraint(locals())
     class Meta:
         ordering = ["order"]
         verbose_name = _("question")
@@ -1543,6 +1574,7 @@ class TextAnswer(Answer):
     # Staff users marked this answer for internal purposes; the meaning of the flag is determined by users
     is_flagged = models.BooleanField(verbose_name=_("is flagged"), default=False)
 
+    @inject_choices_constraint(locals())
     class Meta:
         # Prevent ordering by date for privacy reasons. Otherwise, entries
         # may be returned in insertion order.
@@ -1626,7 +1658,7 @@ class NotHalfEmptyConstraint(CheckConstraint):
         assert "condition" not in kwargs
 
         super().__init__(
-            condition=Q(**{field: "" for field in fields}) | ~Q(**{field: "" for field in fields}, _connector=Q.OR),
+            condition=Q(**dict.fromkeys(fields, "")) | ~Q(**dict.fromkeys(fields, ""), _connector=Q.OR),
             name=name,
             **kwargs,
         )
@@ -1674,6 +1706,7 @@ class Infotext(models.Model):
         blank=False,
     )
 
+    @inject_choices_constraint(locals())
     class Meta:
         verbose_name = _("infotext")
         verbose_name_plural = _("infotexts")
@@ -1764,24 +1797,33 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
         blank=True,
         default="",
         verbose_name=_("display name"),
-        help_text=_("This will replace your first name."),
+        help_text=_("Replaces the first name."),
     )
     last_name = models.CharField(max_length=255, blank=True, verbose_name=_("last name"))
 
     language = models.CharField(max_length=8, blank=True, default="", verbose_name=_("language"))
 
-    # delegates of the user, which can also manage their evaluations
     delegates = models.ManyToManyField(
-        "evaluation.UserProfile", verbose_name=_("Delegates"), related_name="represented_users", blank=True
+        "evaluation.UserProfile",
+        verbose_name=_("Delegates"),
+        related_name="represented_users",
+        blank=True,
+        help_text=_("Users who can edit evaluations and see results on behalf of this user."),
     )
 
-    # users to which all emails should be sent in cc without giving them delegate rights
     cc_users = models.ManyToManyField(
-        "evaluation.UserProfile", verbose_name=_("CC Users"), related_name="ccing_users", blank=True
+        "evaluation.UserProfile",
+        verbose_name=_("CC Users"),
+        related_name="ccing_users",
+        blank=True,
+        help_text=_("Users who receive a copy of all emails sent to this user."),
     )
 
-    # flag for proxy users which represent a group of users
-    is_proxy_user = models.BooleanField(default=False, verbose_name=_("Proxy user"))
+    is_proxy_user = models.BooleanField(
+        default=False,
+        verbose_name=_("Proxy user"),
+        help_text=_("Technical user that represents a group of users."),
+    )
 
     # key for url based login of this user
     MAX_LOGIN_KEY = 2**31 - 1
@@ -1808,12 +1850,13 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
 
     objects = UserProfileManager()
 
+    @inject_choices_constraint(locals())
     class Meta:
         # keep in sync with ordering_key
         ordering = [
-            Lower(NullIf("last_name", Value(""))),
-            Lower(Coalesce(NullIf("first_name_chosen", Value("")), NullIf("first_name_given", Value("")))),
-            Lower("email"),
+            Lower(NullIf("last_name", Value(""))).asc(),
+            Lower(Coalesce(NullIf("first_name_chosen", Value("")), NullIf("first_name_given", Value("")))).asc(),
+            Lower("email").asc(),
         ]
 
         verbose_name = _("user")
@@ -1828,7 +1871,7 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
     def save(self, *args, **kwargs):
         # This is not guaranteed to be called on every insert. For example, the importers use bulk insertion.
 
-        if self.has_usable_password and not password_login_is_active():
+        if self.has_usable_password() and not password_login_is_active():
             # We don't want this to happen, but if it happens, it shouldn't be a showstopper since password login
             # isn't possible anyway -> if triggered, debug how the situation came to be, and prevent that
             logger.warning("User %s has a usable password set while password login is disabled", self)

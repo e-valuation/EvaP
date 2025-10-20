@@ -73,22 +73,20 @@
                                         class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %}"
                                     {% endif %}>
                                     <td class="ps-2 fs-5">
-                                        {% if not evaluation.is_single_result %}
-                                            {% if evaluation.voted_for %}
-                                                <span class="text text-success" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'You gave us your feedback in this evaluation. Thank you!' %}"><span class="fas fa-fw fa-check" aria-hidden="true"></span></span>
-                                            {% elif evaluation.participates_in %}
-                                                {% if evaluation.state > evaluation.State.IN_EVALUATION %}
-                                                    <span class="text text-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'You did not take part in this evaluation.' %}"><span class="fas fa-fw fa-xmark" aria-hidden="true"></span></span>
-                                                {% elif evaluation.state == evaluation.State.IN_EVALUATION %}
-                                                    <span class="text text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'You can take part in this evaluation.' %}"><span class="fas fa-fw fa-arrow-right" aria-hidden="true"></span></span>
-                                                {% else %}
-                                                    <span class="text text-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'This evaluation will start in the future.' %}"><span class="far fa-fw fa-hourglass" aria-hidden="true"></span></span>
-                                                {% endif %}
+                                        {% if evaluation.voted_for %}
+                                            <span class="text text-success" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'You gave us your feedback in this evaluation. Thank you!' %}"><span class="fas fa-fw fa-check" aria-hidden="true"></span></span>
+                                        {% elif evaluation.participates_in %}
+                                            {% if evaluation.state > evaluation.State.IN_EVALUATION %}
+                                                <span class="text text-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'You did not take part in this evaluation.' %}"><span class="fas fa-fw fa-xmark" aria-hidden="true"></span></span>
+                                            {% elif evaluation.state == evaluation.State.IN_EVALUATION %}
+                                                <span class="text text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'You can take part in this evaluation.' %}"><span class="fas fa-fw fa-arrow-right" aria-hidden="true"></span></span>
                                             {% else %}
-                                                <span class="text text-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'You are not listed as a participant for this evaluation.' %}">
-                                                    <span class="fas fa-fw fa-minus"></span>
-                                                </span>
+                                                <span class="text text-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'This evaluation will start in the future.' %}"><span class="far fa-fw fa-hourglass" aria-hidden="true"></span></span>
                                             {% endif %}
+                                        {% else %}
+                                            <span class="text text-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'You are not listed as a participant for this evaluation.' %}">
+                                                <span class="fas fa-fw fa-minus"></span>
+                                            </span>
                                         {% endif %}
                                     </td>
                                     <td {% if course.evaluation_count > 1 %}class="ps-4" {% endif %}>
@@ -102,9 +100,6 @@
                                                     {% endif %}
                                                 {% else %}
                                                     {{ evaluation.full_name }}
-                                                {% endif %}
-                                                {% if evaluation.is_single_result %}
-                                                    ({{ evaluation.vote_start_datetime|date }})
                                                 {% endif %}
                                             </span>
                                             {% if can_download_grades and not semester.grade_documents_are_deleted %}
@@ -130,34 +125,23 @@
                                         {% if evaluation.is_midterm_evaluation %}
                                             <span class="badge bg-dark">{% translate 'Midterm evaluation' %}</span>
                                         {% endif %}
-                                        {% if evaluation.is_single_result %}
-                                            <span class="badge bg-success">{% translate 'Single result' %}</span>
-                                        {% endif %}
                                         {% if course.evaluation_count == 1 %}
                                             <i class="small">{{ course.responsibles_names }}</i>
                                         {% endif %}
                                     </td>
                                     <td>
                                         {% if not semester.results_are_archived %}
-                                            {% if evaluation.is_single_result %}
-                                                {% if evaluation.state == evaluation.State.PUBLISHED %}
-                                                    <span data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Individual participants are not stored for single results. The number shown here is the number of votes received.' %}">
-                                                        {% include 'progress_bar_fill.html' with icon='user' total=evaluation.single_result_rating_result.count_sum fill=100 %}
-                                                    </span>
-                                                {% endif %}
+                                            {% if evaluation.state > evaluation.State.IN_EVALUATION %}
+                                                {% include 'progress_bar.html' with icon='user' done=evaluation.num_voters total=evaluation.num_participants %}
                                             {% else %}
-                                                {% if evaluation.state > evaluation.State.IN_EVALUATION %}
-                                                    {% include 'progress_bar.html' with icon='user' done=evaluation.num_voters total=evaluation.num_participants %}
-                                                {% else %}
-                                                    {% include 'progress_bar_fill.html' with icon='user' total=evaluation.num_participants fill=0 %}
-                                                {% endif %}
+                                                {% include 'progress_bar_fill.html' with icon='user' total=evaluation.num_participants fill=0 %}
                                             {% endif %}
                                         {% endif %}
                                     </td>
                                     <td class="text-end">
                                         {% if not semester.results_are_archived %}
                                             {% if evaluation.state == evaluation.State.IN_EVALUATION and evaluation.participates_in and not evaluation.voted_for and evaluation.is_in_evaluation_period  %}
-                                                <a class="btn btn-sm btn-primary btn-row-hover" href="{% url 'student:vote' evaluation.id %}">{% translate 'Evaluate' %}</a>
+                                                {% include 'student_index_evaluate_or_drop.html' %}
                                             {% elif evaluation.state == evaluation.State.PUBLISHED %}
                                                 {% include 'evaluation_result_widget.html' with course_or_evaluation=evaluation %}
                                             {% elif not evaluation.participates_in or evaluation.voted_for and evaluation.State.IN_EVALUATION <= evaluation.state and evaluation.state <= evaluation.State.REVIEWED %}

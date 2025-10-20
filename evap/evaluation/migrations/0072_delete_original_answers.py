@@ -4,14 +4,14 @@ from django.db import migrations
 
 
 def delete_original_answers(apps, _schema_editor):
-    TextAnswer = apps.get_model('evaluation', 'TextAnswer')
-    TextAnswer.objects.filter(contribution__course__state='published').update(original_answer=None)
+    TextAnswer = apps.get_model("evaluation", "TextAnswer")
+    TextAnswer.objects.filter(contribution__course__state="published").update(original_answer=None)
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0071_remove_reviewed_answer_field_for_textanswers'),
+        ("evaluation", "0071_remove_reviewed_answer_field_for_textanswers"),
     ]
 
     operations = [

@@ -6,7 +6,7 @@ from django.urls import reverse
 from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, Semester, UserProfile
-from evap.evaluation.tests.tools import WebTest, WebTestWith200Check
+from evap.evaluation.tests.tools import FuzzyInt, WebTest, WebTestWith200Check
 from evap.grades.models import GradeDocument
 
 
@@ -38,6 +38,7 @@ class GradeUploadTest(WebTest):
             vote_end_date=date.today() + timedelta(days=10),
             participants=[cls.student, cls.student2, cls.student3],
             voters=[cls.student, cls.student2],
+            main_language="en",
         )
 
         baker.make(
@@ -60,9 +61,8 @@ class GradeUploadTest(WebTest):
     def helper_upload_grades(self, course, final_grades):
         upload_files = [("file", "grades.txt", b"Some content")]
 
-        final = "?final=true" if final_grades else ""
         return self.app.post(
-            f"{reverse('grades:upload_grades', args=[course.id])}{final}",
+            reverse("grades:upload_grades", args=[course.id], query=({"final": "true"} if final_grades else None)),
             params={"description_en": "Grades", "description_de": "Grades"},
             user=self.grade_publisher,
             content_type="multipart/form-data",
@@ -219,6 +219,17 @@ class GradeSemesterViewTest(WebTest):
         self.semester.grade_documents_are_deleted = True
         self.semester.save()
         self.app.get(self.url, user=self.grade_publisher, status=403)
+
+    def test_num_queries_is_constant(self):
+        baker.make(
+            Evaluation,
+            course__semester=self.semester,
+            state=Evaluation.State.PUBLISHED,
+            _quantity=100,
+            _bulk_create=True,
+        )
+        with self.assertNumQueries(FuzzyInt(0, 80)):
+            self.app.get(self.url, user=self.grade_publisher)
 
 
 class GradeCourseViewTest(WebTestWith200Check):

@@ -1,5 +1,3 @@
-@import "../bootstrap";
-
 .btn.fas {
     font-weight: 900;
 }
@@ -133,6 +131,14 @@ a:not([href]):not(.disabled) {
                 box-shadow: inset 0 0 10px shade-color($darker-gray, 40%);
                 opacity: 1;
             }
+        }
+    }
+}
+
+.btn-switch-evaluation-language {
+    .btn-group {
+        .btn {
+                min-width: 38px;
         }
     }
 }

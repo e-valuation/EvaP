@@ -18,6 +18,8 @@ from evap.evaluation.models import (
 )
 from evap.evaluation.tests.tools import TestCase, make_rating_answer_counters
 from evap.results.tools import (
+    ViewContributorResults,
+    ViewGeneralResults,
     cache_results,
     calculate_average_course_distribution,
     calculate_average_distribution,
@@ -26,7 +28,6 @@ from evap.results.tools import (
     distribution_to_grade,
     get_results,
     get_results_cache_key,
-    get_single_result_rating_result,
     normalized_distribution,
     textanswers_visible_to,
     unipolarized_distribution,
@@ -325,25 +326,6 @@ class TestCalculateAverageDistribution(TestCase):
         self.assertAlmostEqual(distribution[3], 0.0375)
         self.assertAlmostEqual(distribution[4], 0.38)
 
-    def test_get_single_result_rating_result(self):
-        single_result_evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED, is_single_result=True)
-        questionnaire = Questionnaire.single_result_questionnaire()
-        contribution = baker.make(
-            Contribution,
-            contributor=baker.make(UserProfile),
-            evaluation=single_result_evaluation,
-            questionnaires=[questionnaire],
-            role=Contribution.Role.EDITOR,
-            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-        )
-        make_rating_answer_counters(questionnaire.questions.first(), contribution, [1, 0, 0, 1, 0])
-
-        cache_results(single_result_evaluation)
-        distribution = calculate_average_distribution(single_result_evaluation)
-        self.assertEqual(distribution, (0.5, 0, 0, 0.5, 0))
-        rating_result = get_single_result_rating_result(single_result_evaluation)
-        self.assertEqual(rating_result.counts, (1, 0, 0, 1, 0))
-
     def test_result_calculation_with_no_contributor_rating_question(self):
         evaluation = baker.make(
             Evaluation,
@@ -405,27 +387,27 @@ class TestCalculateAverageDistribution(TestCase):
 
     def test_calculate_average_course_distribution(self):
         make_rating_answer_counters(self.question_grade, self.contribution1, [2, 0, 0, 0, 0])
+        students = baker.make(UserProfile, _quantity=3)
 
         course = self.evaluation.course
-        single_result = baker.make(
+        second_evaluation = baker.make(
             Evaluation,
-            name_de="Single Result",
-            name_en="Single Result",
             course=course,
             weight=3,
-            is_single_result=True,
+            name_en="Second evaluation",
+            name_de="Zweite Evaluierung",
             vote_start_datetime=datetime.now(),
             vote_end_date=datetime.now().date(),
             state=Evaluation.State.PUBLISHED,
+            participants=students,
+            voters=students,
         )
-        single_result_questionnaire = Questionnaire.single_result_questionnaire()
-        single_result_question = single_result_questionnaire.questions.first()
 
         contribution = baker.make(
-            Contribution, evaluation=single_result, contributor=None, questionnaires=[single_result_questionnaire]
+            Contribution, evaluation=second_evaluation, contributor=None, questionnaires=[self.questionnaire]
         )
-        make_rating_answer_counters(single_result_question, contribution, [0, 1, 1, 0, 0])
-        cache_results(single_result)
+        make_rating_answer_counters(self.question_grade, contribution, [0, 1, 1, 0, 0])
+        cache_results(second_evaluation)
         cache_results(self.evaluation)
 
         distribution = calculate_average_course_distribution(course)
@@ -434,6 +416,25 @@ class TestCalculateAverageDistribution(TestCase):
         self.assertEqual(distribution[2], 0.375)
         self.assertEqual(distribution[3], 0)
         self.assertEqual(distribution[4], 0)
+
+    def test_dropout_questionnaires_are_not_included(self):
+        general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        general_question = baker.make(Question, questionnaire=general_questionnaire, type=QuestionType.GRADE)
+
+        dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
+        dropout_question = baker.make(Question, questionnaire=dropout_questionnaire, type=QuestionType.GRADE)
+
+        contribution = baker.make(
+            Contribution, evaluation=self.evaluation, questionnaires=[general_questionnaire, dropout_questionnaire]
+        )
+
+        make_rating_answer_counters(general_question, contribution, [10, 10, 0, 0, 0])
+        make_rating_answer_counters(dropout_question, contribution, [0, 0, 0, 0, 10])
+
+        cache_results(self.evaluation)
+
+        calculated_grade = distribution_to_grade(calculate_average_distribution(self.evaluation))
+        self.assertAlmostEqual(calculated_grade, 1.5)
 
 
 class TestTextAnswerVisibilityInfo(TestCase):
@@ -562,8 +563,12 @@ class TestTextAnswerVisibilityInfo(TestCase):
         for user in UserProfile.objects.all():
             represented_users = [user] + list(user.represented_users.all())
             for i, textanswer in enumerate(textanswers):
-                if can_textanswer_be_seen_by(user, represented_users, textanswer, "full"):
-                    if can_textanswer_be_seen_by(user, [user], textanswer, "full"):
+                if can_textanswer_be_seen_by(
+                    user, represented_users, textanswer, ViewGeneralResults.FULL, ViewContributorResults.FULL
+                ):
+                    if can_textanswer_be_seen_by(
+                        user, [user], textanswer, ViewGeneralResults.FULL, ViewContributorResults.FULL
+                    ):
                         users_seeing_contribution[i][0].add(user)
                     else:
                         users_seeing_contribution[i][1].add(user)

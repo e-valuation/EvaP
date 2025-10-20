@@ -25,7 +25,7 @@
             {% endif %}
         {% endblock %}
     </head>
-    <body>
+    <body{% if not plain_page %} class="mb-footer"{% endif %}>
         <script type="text/javascript" src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
 
         {% include "custom_elements.html" %}
@@ -47,12 +47,12 @@
 
         <img class="print-brand-image d-none d-print-block" src="{% static 'images/evap.png' %}" alt="{% translate 'Evaluation Platform' %}" />
 
-        {% if user.is_authenticated %}
+        {% if user.is_authenticated and not plain_page %}
             {% include 'notebook.html' %}
         {% endif %}
 
-        <div class="p-3 mb-4" id="evapContent">
-            <div class="container">
+        <div{% if not plain_page %} class="p-3 mb-4"{% endif %} id="evapContent">
+            <div class="{% if plain_page %}container-fluid d-flex max-content-height{% else %}container{% endif %}">
                 {% for message in messages %}
                     <div class="alert alert-{{ message.tags|message_class }} alert-dismissible">
                         {{ message }}
@@ -65,7 +65,9 @@
             </div>
         </div>
 
-        {% include 'footer.html' %}
+        {% if not plain_page %}
+            {% include 'footer.html' %}
+        {% endif %}
 
         <script src="{% url 'javascript-catalog' %}"></script>
 
@@ -115,8 +117,12 @@
             const tagTomSelectOptions = {
                 create: true,
                 createOnBlur: true,
-                dropdownParent: document.createElement("div"),  // To make it invisible
                 delimiter: '', // we don't want the default "comma creates entry" behavior
+
+                dropdownParent: document.createElement("div"),  // To make it invisible
+                // On enter, with hidden dropdown, always add current text. Otherwise, adding a
+                // prefix of an existing item doesn't work
+                addPrecedence: true,
             };
 
             class MinimumInputLengthTomSelect extends TomSelect {
@@ -164,6 +170,9 @@
                         plugins: {},
                         hideSelected: false,
                     };
+                    if (element.hasAttribute("tomselect-no-sort")) {
+                        baseOptions.sortField = [{field:'$order'},{field:'$score'}];
+                    }
                     if(element.hasAttribute("data-tomselect-fullwidth")) {
                         // span needed to the "remove this icon" button is right-aligned
                         baseOptions.render.item = (data, escape) => `<div class="w-100"><span class="w-100">${ escape(data.text) }</span></div>`;
@@ -182,6 +191,7 @@
             // activate clickable hover tables
             document.querySelectorAll(".table-seamless-links [data-url]").forEach(row => {
                 row.addEventListener("click", event => {
+                    event.preventDefault();
                     // We navigate via the <a> tag to enable browser behavior for Ctrl-Click. We cannot insert an actual
                     // <a> tag, because there cannot be any non-table tags between for example <tbody> and <tr>.
                     const anchor = document.createElement("a");

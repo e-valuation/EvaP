@@ -9,17 +9,19 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import logging
-import os
 import sys
+from datetime import timedelta
 from fractions import Fraction
+from pathlib import Path
 from typing import Any
 
 from django.contrib.staticfiles.storage import ManifestStaticFilesStorage
 
 from evap.tools import MonthAndDay
 
-BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-
+MODULE = Path(__file__).parent.resolve()
+CWD = Path(".").resolve()
+DATADIR = CWD / "data"
 
 ### Debugging
 
@@ -36,6 +38,7 @@ LOGIN_KEY_VALIDITY = 210  # days, so roughly 7 months
 VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS = 2
 VOTER_PERCENTAGE_NEEDED_FOR_PUBLISHING_AVERAGE_GRADE = 0.2
 SMALL_COURSE_SIZE = 5  # up to which number of participants the evaluation gets additional warnings about anonymity
+PARTICIPATION_DELETION_AFTER_INACTIVE_TIME = timedelta(days=18 * 30)
 
 # a warning is shown next to results where less than RESULTS_WARNING_COUNT answers were given
 # or the number of answers is less than RESULTS_WARNING_PERCENTAGE times the median number of answers (for this question in this evaluation)
@@ -110,6 +113,12 @@ EVALUATION_END_WARNING_PERIOD = 5
 # Questionnaires automatically added to exam evaluations
 EXAM_QUESTIONNAIRE_IDS: list[int] = []
 
+# Emails of users that shouldn't be imported as responsibles during JSON import
+NON_RESPONSIBLE_USERS: set[str] = set()
+
+# Study programs that shouldn't be imported during JSON import
+IGNORE_PROGRAMS: set[str] = set()
+
 ### Installation specific settings
 
 # People who get emails on errors.
@@ -163,6 +172,7 @@ STORAGES = {
 
 CONTACT_EMAIL = "webmaster@localhost"
 ALLOW_ANONYMOUS_FEEDBACK_MESSAGES = True
+LEGAL_NOTICE_TEXT = "Objection! (this is a default setting that the administrators should change, please contact them)"
 
 # Config for mail system
 DEFAULT_FROM_EMAIL = "webmaster@localhost"
@@ -184,7 +194,7 @@ LOGGING = {
         "file": {
             "level": "DEBUG",
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": BASE_DIR + "/logs/evap.log",
+            "filename": DATADIR / "evap.log",
             "maxBytes": 1024 * 1024 * 10,
             "backupCount": 5,
             "formatter": "default",
@@ -334,7 +344,7 @@ USE_I18N = True
 
 USE_TZ = False
 
-LOCALE_PATHS = [os.path.join(BASE_DIR, "locale")]
+LOCALE_PATHS = [MODULE / "locale"]
 
 FORMAT_MODULE_PATH = ["evap.locale"]
 
@@ -351,17 +361,17 @@ STATIC_URL = "/static/"
 
 # Additional locations of static files
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
+    MODULE / "static",
 ]
 
 # Absolute path to the directory static files should be collected to.
-STATIC_ROOT = os.path.join(BASE_DIR, "static_collected")
+STATIC_ROOT = DATADIR / "static_collected"
 
 
 ### User-uploaded files
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
-MEDIA_ROOT = os.path.join(BASE_DIR, "upload")
+MEDIA_ROOT = DATADIR / "upload"
 
 ### Evaluation progress rewards
 GLOBAL_EVALUATION_PROGRESS_REWARDS: list[tuple[Fraction, str]] = (
@@ -425,6 +435,14 @@ OIDC_OP_TOKEN_ENDPOINT = "https://example.com/token"  # nosec
 OIDC_OP_USER_ENDPOINT = "https://example.com/me"
 OIDC_OP_JWKS_ENDPOINT = "https://example.com/certs"
 
+# Mapping of email domain transition which users may undergo during the lifetime of their account.
+# Given an item (k, v) of the mapping, if an account with domain k would be created through OpenID,
+# but an account with the same name at domain v exists, the existing account is migrated to the
+# domain k instead.
+OIDC_EMAIL_TRANSITIONS: dict[str, str] = {
+    "institution.example.com": "student.institution.example.com",
+}
+
 
 ### Other
 
@@ -438,6 +456,7 @@ try:
 except ImportError:
     pass
 
+TEST_RUNNER = "evap.evaluation.tests.tools.EvapTestRunner"
 TESTING = "test" in sys.argv or "pytest" in sys.modules
 
 # speed up tests and activate typeguard introspection

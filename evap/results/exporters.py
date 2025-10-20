@@ -144,8 +144,6 @@ class ResultsExporter(ExcelExporter):
             )
         evaluations = Evaluation.objects.filter(evaluations_filter).distinct()
         for evaluation in evaluations:
-            if evaluation.is_single_result:
-                continue
             if not evaluation.can_publish_rating_results and not include_not_enough_voters:
                 continue
             results: OrderedDict[int, list[QuestionResult]] = OrderedDict()

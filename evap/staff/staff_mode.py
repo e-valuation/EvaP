@@ -1,9 +1,8 @@
 import time
 
+from django.conf import settings
 from django.contrib import messages
 from django.utils.translation import gettext as _
-
-from evap.settings import STAFF_MODE_INFO_TIMEOUT, STAFF_MODE_TIMEOUT
 
 
 def staff_mode_middleware(get_response):
@@ -17,7 +16,7 @@ def staff_mode_middleware(get_response):
     def middleware(request):
         if is_in_staff_mode(request):
             current_time = time.time()
-            if current_time <= request.session.get("staff_mode_start_time", 0) + STAFF_MODE_TIMEOUT:
+            if current_time <= request.session.get("staff_mode_start_time", 0) + settings.STAFF_MODE_TIMEOUT:
                 # just refresh time
                 update_staff_mode(request)
             else:
@@ -25,11 +24,14 @@ def staff_mode_middleware(get_response):
                 # only show info message if not too much time has passed
                 if (
                     current_time
-                    <= request.session.get("staff_mode_start_time", 0) + STAFF_MODE_TIMEOUT + STAFF_MODE_INFO_TIMEOUT
+                    <= request.session.get("staff_mode_start_time", 0)
+                    + settings.STAFF_MODE_TIMEOUT
+                    + settings.STAFF_MODE_INFO_TIMEOUT
                 ):
                     messages.info(request, _("Your staff mode timed out."))
 
         if is_in_staff_mode(request):
+            assert request.user.has_staff_permission
             request.user.is_participant = False
             request.user.is_student = False
             request.user.is_editor = False
@@ -52,7 +54,9 @@ def is_in_staff_mode(request):
 
 
 def update_staff_mode(request):
-    assert request.user.has_staff_permission
+    if not request.user.has_staff_permission:
+        exit_staff_mode(request)
+        return
 
     request.session["staff_mode_start_time"] = time.time()
     request.session.modified = True

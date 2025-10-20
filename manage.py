@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
-import os
-import sys
+
+import runpy
 
 if __name__ == "__main__":
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "evap.settings")
-
-    from django.core.management import execute_from_command_line
-
-    execute_from_command_line(sys.argv)
+    runpy.run_module("evap", run_name="__main__")

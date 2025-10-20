@@ -323,7 +323,8 @@ export class QuickReviewSlider {
         this.slider.querySelector<HTMLElement>(".btn:focus")?.blur();
     };
     private updateNextEvaluation = () => {
-        let foundNext = false;
+        // https://typescript-eslint.io/rules/no-unnecessary-condition/#values-modified-within-function-calls
+        let foundNext = false as boolean;
         document.querySelectorAll<HTMLElement>("[data-next-evaluation-index]").forEach(element => {
             const isNext = saneParseInt(element.dataset.nextEvaluationIndex!) === this.nextEvaluationIndex;
             element.classList.toggle("d-none", !isNext);

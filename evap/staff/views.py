@@ -1,11 +1,12 @@
 import csv
 import itertools
+import logging
 from collections import OrderedDict, defaultdict, namedtuple
 from collections.abc import Container
 from dataclasses import dataclass
 from datetime import date, datetime
 from enum import Enum
-from typing import Any, Final, Literal, cast
+from typing import Any, Final, Literal, assert_never, cast
 
 import openpyxl
 from django.conf import settings
@@ -26,7 +27,6 @@ from django.db.models import (
     Sum,
     When,
 )
-from django.dispatch import receiver
 from django.forms import BaseForm, formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
@@ -38,7 +38,6 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy, ngettext
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, FormView, UpdateView
-from typing_extensions import assert_never
 
 from evap.contributor.views import export_contributor_results
 from evap.evaluation.auth import manager_required, reviewer_required, staff_permission_required
@@ -70,13 +69,14 @@ from evap.evaluation.tools import (
     get_object_from_dict_pk_entry_or_logged_40x,
     get_parameter_from_url_or_session,
     sort_formset,
+    temporary_receiver,
 )
 from evap.grades.models import GradeDocument
 from evap.results.exporters import ResultsExporter
 from evap.results.tools import TextResult, calculate_average_distribution, distribution_to_grade
 from evap.results.views import update_template_cache_of_published_evaluations_in_course
 from evap.rewards.models import RewardPointGranting
-from evap.rewards.tools import can_reward_points_be_used_by, is_semester_activated
+from evap.rewards.tools import can_reward_points_be_used_by, deactivate_semester, is_semester_activated
 from evap.staff import staff_mode
 from evap.staff.forms import (
     AtLeastOneFormset,
@@ -99,12 +99,12 @@ from evap.staff.forms import (
     InfotextForm,
     ModelWithImportNamesFormset,
     ProgramForm,
+    ProgramMergeSelectionForm,
     QuestionForm,
     QuestionnaireForm,
     QuestionnairesAssignForm,
     RemindResponsibleForm,
     SemesterForm,
-    SingleResultForm,
     TextAnswerForm,
     TextAnswerWarningForm,
     UserBulkUpdateForm,
@@ -134,6 +134,8 @@ from evap.student.forms import QuestionnaireVotingForm
 from evap.student.models import TextAnswerWarning
 from evap.student.views import render_vote_page
 from evap.tools import unordered_groupby
+
+logger = logging.getLogger(__name__)
 
 
 @manager_required
@@ -222,8 +224,6 @@ def semester_view(request, semester_id) -> HttpResponse:
     program_stats: dict[Program, Stats] = defaultdict(Stats)
     total_stats = Stats()
     for evaluation in evaluations:
-        if evaluation.is_single_result:
-            continue
         programs = evaluation.course.programs.all()
         stats_objects = [program_stats[program] for program in programs]
         stats_objects += [total_stats]
@@ -241,7 +241,7 @@ def semester_view(request, semester_id) -> HttpResponse:
                 stats.last_end = max(stats.last_end, evaluation.vote_end_date)
     program_stats = OrderedDict(sorted(program_stats.items(), key=lambda x: x[0].order))
 
-    program_stats_with_total = cast(dict[Program | str, Stats], program_stats)
+    program_stats_with_total = cast("dict[Program | str, Stats]", program_stats)
     program_stats_with_total["total"] = total_stats
 
     template_data = {
@@ -299,8 +299,8 @@ class ResetToNewOperation(EvaluationOperation):
     @staticmethod
     def warning_for_inapplicables(amount: int):
         return ngettext(
-            "{} evaluation cannot be reset, because it is already in preparation, published, or a single result. It was removed from the selection.",
-            "{} evaluations cannot be reset, because they were already in preparation, published, or a single result. They were removed from the selection.",
+            "{} evaluation cannot be reset, because it is already in preparation or published. It was removed from the selection.",
+            "{} evaluations cannot be reset, because they were already in preparation or published. They were removed from the selection.",
             amount,
         ).format(amount)
 
@@ -676,6 +676,9 @@ def semester_delete(request):
     if not semester.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting semester not allowed")
     with transaction.atomic():
+        # ensure deleting evaluations can not grant redemption points
+        deactivate_semester(semester)
+
         RatingAnswerCounter.objects.filter(contribution__evaluation__course__semester=semester).delete()
         TextAnswer.objects.filter(contribution__evaluation__course__semester=semester).delete()
         Contribution.objects.filter(evaluation__course__semester=semester).delete()
@@ -777,7 +780,6 @@ def semester_raw_export(_request, semester_id):
             _("Name"),
             _("Programs"),
             _("Type"),
-            _("Single result"),
             _("State"),
             _("#Voters"),
             _("#Participants"),
@@ -797,7 +799,6 @@ def semester_raw_export(_request, semester_id):
                 evaluation.full_name,
                 programs,
                 evaluation.course.type.name,
-                evaluation.is_single_result,
                 evaluation.state_str,
                 evaluation.num_voters,
                 evaluation.num_participants,
@@ -905,21 +906,41 @@ def semester_questionnaire_assign(request, semester_id):
 
     if form.is_valid():
         for evaluation in evaluations:
-            if form.cleaned_data[evaluation.course.type.name]:
-                evaluation.general_contribution.questionnaires.set(form.cleaned_data[evaluation.course.type.name])
-            if form.cleaned_data["all-contributors"]:
+            general_questionnaires = list(form.cleaned_data[f"general-{evaluation.course.type.id}"])
+            contributor_questionnaires = list(
+                form.cleaned_data["all-contributors"] | form.cleaned_data[f"contributor-{evaluation.course.type.id}"]
+            )
+
+            if general_questionnaires:
+                evaluation.general_contribution.questionnaires.set(general_questionnaires)
+
+            if contributor_questionnaires:
                 for contribution in evaluation.contributions.exclude(contributor=None):
-                    contribution.questionnaires.set(form.cleaned_data["all-contributors"])
+                    contribution.questionnaires.set(contributor_questionnaires)
+
             evaluation.save()
 
         messages.success(request, _("Successfully assigned questionnaires."))
         return redirect("staff:semester_view", semester_id)
 
-    return render(request, "staff_semester_questionnaire_assign_form.html", {"semester": semester, "form": form})
+    general_fields = [field for field in form if field.name.startswith("general-")]
+    contributor_fields = [field for field in form if field.name.startswith("contributor-")]
+    contributor_fields.append(form["all-contributors"])
+
+    return render(
+        request,
+        "staff_semester_questionnaire_assign_form.html",
+        {
+            "semester": semester,
+            "form": form,
+            "general_fields": general_fields,
+            "contributor_fields": contributor_fields,
+        },
+    )
 
 
 @manager_required
-def semester_preparation_reminder(request, semester_id):
+def semester_preparation_reminder(request: HttpRequest, semester_id: int) -> HttpResponse:
     semester = get_object_or_404(Semester, id=semester_id)
 
     evaluations = semester.evaluations.filter(
@@ -940,16 +961,15 @@ def semester_preparation_reminder(request, semester_id):
 
     if request.method == "POST":
         template = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_REMINDER)
-        subject_params = {}
         for responsible, evaluations, __ in responsible_list:
             body_params = {"user": responsible, "evaluations": evaluations}
-            template.send_to_user(
-                responsible, subject_params=subject_params, body_params=body_params, use_cc=True, request=request
-            )
+            template.send_to_user(responsible, subject_params={}, body_params=body_params, use_cc=True, request=request)
         messages.success(request, _("Successfully sent reminders to everyone."))
         return HttpResponse()
-
-    template_data = {"semester": semester, "responsible_list": responsible_list}
+    mode = request.GET.get("mode", "interactive")
+    if mode not in ["interactive", "text"]:
+        raise SuspiciousOperation
+    template_data = {"semester": semester, "responsible_list": responsible_list, "interactive": mode == "interactive"}
     return render(request, "staff_semester_preparation_reminder.html", template_data)
 
 
@@ -1038,7 +1058,7 @@ def course_create(request, semester_id):
     operation = request.POST.get("operation")
 
     if course_form.is_valid():
-        if operation not in ("save", "save_create_evaluation", "save_create_single_result"):
+        if operation not in ("save", "save_create_evaluation"):
             raise SuspiciousOperation("Invalid POST operation")
 
         course = course_form.save()
@@ -1046,8 +1066,6 @@ def course_create(request, semester_id):
         messages.success(request, _("Successfully created course."))
         if operation == "save_create_evaluation":
             return redirect("staff:evaluation_create_for_course", course.id)
-        if operation == "save_create_single_result":
-            return redirect("staff:single_result_create_for_course", course.id)
         return redirect("staff:semester_view", semester_id)
 
     return render(
@@ -1078,7 +1096,7 @@ def course_copy(request, course_id):
 
         return redirect("staff:semester_view", copied_course.semester_id)
 
-    evaluations = sorted(course.evaluations.exclude(is_single_result=True), key=lambda cr: cr.full_name)
+    evaluations = sorted(course.evaluations.all(), key=lambda cr: cr.full_name)
     return render(
         request,
         "staff_course_copyform.html",
@@ -1097,8 +1115,6 @@ def course_copy(request, course_id):
 @manager_required
 def create_exam_evaluation(request: HttpRequest) -> HttpResponse:
     evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
-    if evaluation.is_single_result:
-        raise SuspiciousOperation("Creating an exam evaluation for a single result evaluation is not allowed.")
 
     if evaluation.has_exam_evaluation:
         raise SuspiciousOperation("An exam evaluation already exists for this course.")
@@ -1149,7 +1165,7 @@ class CourseEditView(SuccessMessageMixin, UpdateView):
     def form_valid(self, form: BaseForm) -> HttpResponse:
         assert isinstance(form, CourseForm)  # https://www.github.com/typeddjango/django-stubs/issues/1809
 
-        if self.request.POST.get("operation") not in ("save", "save_create_evaluation", "save_create_single_result"):
+        if self.request.POST.get("operation") not in ("save", "save_create_evaluation"):
             raise SuspiciousOperation("Invalid POST operation")
 
         response = super().form_valid(form)
@@ -1163,8 +1179,6 @@ class CourseEditView(SuccessMessageMixin, UpdateView):
                 return reverse("staff:semester_view", args=[self.object.semester.id])
             case "save_create_evaluation":
                 return reverse("staff:evaluation_create_for_course", args=[self.object.id])
-            case "save_create_single_result":
-                return reverse("staff:single_result_create_for_course", args=[self.object.id])
         raise SuspiciousOperation("Unexpected operation")
 
 
@@ -1263,37 +1277,6 @@ def evaluation_copy(request, evaluation_id):
     )
 
 
-def single_result_create_impl(request, semester: Semester, course: Course | None):
-    if course is not None:
-        assert course.semester == semester
-    if semester.participations_are_archived:
-        raise PermissionDenied
-    evaluation = Evaluation(course=course)
-
-    form = SingleResultForm(request.POST or None, instance=evaluation, semester=semester)
-
-    if form.is_valid():
-        evaluation = form.save()
-        update_template_cache_of_published_evaluations_in_course(evaluation.course)
-
-        messages.success(request, _("Successfully created single result."))
-        return redirect("staff:semester_view", semester.pk)
-
-    return render(request, "staff_single_result_form.html", {"semester": semester, "form": form, "editable": True})
-
-
-@manager_required
-def single_result_create_for_semester(request, semester_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-    return single_result_create_impl(request, semester, None)
-
-
-@manager_required
-def single_result_create_for_course(request, course_id):
-    course = get_object_or_404(Course, id=course_id)
-    return single_result_create_impl(request, course.semester, course)
-
-
 @manager_required
 def evaluation_edit(request, evaluation_id):
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
@@ -1301,46 +1284,32 @@ def evaluation_edit(request, evaluation_id):
     if request.method == "POST" and not evaluation.can_be_edited_by_manager:
         raise SuspiciousOperation("Modifying this evaluation is not allowed.")
 
-    if evaluation.is_single_result:
-        return helper_single_result_edit(request, evaluation)
     return helper_evaluation_edit(request, evaluation)
 
 
 @manager_required
 def helper_evaluation_edit(request, evaluation):
-    # Show a message when reward points are granted during the lifetime of the calling view.
-    # The @receiver will only live as long as the request is processed
-    # as the callback is captured by a weak reference in the Django Framework
-    # and no other strong references are being kept.
-    # See https://github.com/e-valuation/EvaP/issues/1361 for more information and discussion.
-    @receiver(RewardPointGranting.granted_by_removal, weak=True)
-    def notify_reward_points(grantings, **_kwargs):
-        for granting in grantings:
-            messages.info(
-                request,
-                ngettext(
-                    'The removal as participant has granted the user "{granting.user_profile.email}" {granting.value} reward point for the semester.',
-                    'The removal as participant has granted the user "{granting.user_profile.email}" {granting.value} reward points for the semester.',
-                    granting.value,
-                ).format(granting=granting),
-            )
-
     editable = evaluation.can_be_edited_by_manager
     InlineContributionFormset = inlineformset_factory(
         Evaluation, Contribution, formset=ContributionFormset, form=ContributionForm, extra=1 if editable else 0
     )
 
-    evaluation_form = EvaluationForm(request.POST or None, instance=evaluation, semester=evaluation.course.semester)
+    operation = request.POST.get("operation")
+
+    if request.method == "POST" and operation not in ("save", "approve"):
+        raise SuspiciousOperation("Invalid POST operation")
+
+    evaluation_form = EvaluationForm(
+        request.POST or None,
+        instance=evaluation,
+        semester=evaluation.course.semester,
+        requires_decided_main_language=operation == "approve",
+    )
     formset = InlineContributionFormset(
         request.POST or None, instance=evaluation, form_kwargs={"evaluation": evaluation}
     )
 
-    operation = request.POST.get("operation")
-
     if evaluation_form.is_valid() and formset.is_valid():
-        if operation not in ("save", "approve"):
-            raise SuspiciousOperation("Invalid POST operation")
-
         if not evaluation.can_be_edited_by_manager or evaluation.participations_are_archived:
             raise SuspiciousOperation("Modifying this evaluation is not allowed.")
 
@@ -1352,18 +1321,31 @@ def helper_evaluation_edit(request, evaluation):
 
         form_has_changed = evaluation_form.has_changed() or formset.has_changed()
 
-        evaluation_form.save()
-        formset.save()
+        # Show a message when reward points are granted
+        def notify_reward_points(grantings, **_kwargs):
+            for granting in grantings:
+                messages.info(
+                    request,
+                    ngettext(
+                        'The removal as participant has granted the user "{granting.user_profile.email}" {granting.value} reward point for the semester.',
+                        'The removal as participant has granted the user "{granting.user_profile.email}" {granting.value} reward points for the semester.',
+                        granting.value,
+                    ).format(granting=granting),
+                )
 
-        if operation == "approve":
-            evaluation.manager_approve()
-            evaluation.save()
-            if form_has_changed:
-                messages.success(request, _("Successfully updated and approved evaluation."))
+        with temporary_receiver(RewardPointGranting.granted_by_participation_removal, notify_reward_points):
+            evaluation_form.save()
+            formset.save()
+
+            if operation == "approve":
+                evaluation.manager_approve()
+                evaluation.save()
+                if form_has_changed:
+                    messages.success(request, _("Successfully updated and approved evaluation."))
+                else:
+                    messages.success(request, _("Successfully approved evaluation."))
             else:
-                messages.success(request, _("Successfully approved evaluation."))
-        else:
-            messages.success(request, _("Successfully updated evaluation."))
+                messages.success(request, _("Successfully updated evaluation."))
 
         return redirect("staff:semester_view", evaluation.course.semester.id)
 
@@ -1392,41 +1374,30 @@ def helper_evaluation_edit(request, evaluation):
         "state": evaluation.state,
         "editable": editable,
         "questionnaires_with_answers_per_contributor": questionnaires_with_answers_per_contributor,
+        "plain_page": True,
     }
     return render(request, "staff_evaluation_form.html", template_data)
 
 
-@manager_required
-def helper_single_result_edit(request, evaluation):
-    semester = evaluation.course.semester
-    form = SingleResultForm(request.POST or None, instance=evaluation, semester=semester)
-
-    if form.is_valid():
-        if not evaluation.can_be_edited_by_manager or evaluation.participations_are_archived:
-            raise SuspiciousOperation("Modifying this evaluation is not allowed.")
-
-        form.save()
-        messages.success(request, _("Successfully updated single result."))
-        return redirect("staff:semester_view", semester.id)
-
-    return render(
-        request,
-        "staff_single_result_form.html",
-        {"evaluation": evaluation, "semester": semester, "form": form, "editable": evaluation.can_be_edited_by_manager},
-    )
-
-
 @require_POST
 @manager_required
+@transaction.atomic
 def evaluation_delete(request):
     evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
 
     if not evaluation.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting evaluation not allowed")
-    if evaluation.is_single_result:
-        RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation).delete()
-    evaluation.delete()
-    update_template_cache_of_published_evaluations_in_course(evaluation.course)
+
+    def notify_reward_points(grantings, **_kwargs):
+        logger.info(
+            "Deletion of evaluation has created reward point grantings",
+            extra={"evaluation": evaluation, "num_grantings": len(grantings)},
+        )
+
+    with temporary_receiver(RewardPointGranting.granted_by_evaluation_deletion, notify_reward_points):
+        evaluation.delete()
+        update_template_cache_of_published_evaluations_in_course(evaluation.course)
+
     return HttpResponse()  # 200 OK
 
 
@@ -1801,7 +1772,7 @@ def evaluation_textanswer_edit(request, textanswer_id):
     if form.is_valid():
         form.save()
         # jump to edited answer
-        url = reverse("staff:evaluation_textanswers", args=[evaluation.pk]) + "#" + str(textanswer.id)
+        url = reverse("staff:evaluation_textanswers", args=[evaluation.pk], fragment=str(textanswer.id))
         return HttpResponseRedirect(url)
 
     template_data = {
@@ -1819,7 +1790,7 @@ def evaluation_preview(request, evaluation_id):
     if evaluation.course.semester.results_are_archived and not request.user.is_manager:
         raise PermissionDenied
 
-    return render_vote_page(request, evaluation, preview=True)
+    return render_vote_page(request, evaluation, preview=True, dropout=False)
 
 
 @manager_required
@@ -1829,6 +1800,7 @@ def questionnaire_index(request):
     prefetch_list = ("questions", "contributions__evaluation")
     general_questionnaires = Questionnaire.objects.general_questionnaires().prefetch_related(*prefetch_list)
     contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().prefetch_related(*prefetch_list)
+    dropout_questionnaires = Questionnaire.objects.dropout_questionnaires().prefetch_related(*prefetch_list)
 
     if filter_questionnaires:
         general_questionnaires = general_questionnaires.exclude(visibility=Questionnaire.Visibility.HIDDEN)
@@ -1845,6 +1817,7 @@ def questionnaire_index(request):
         "general_questionnaires_top": general_questionnaires_top,
         "general_questionnaires_bottom": general_questionnaires_bottom,
         "contributor_questionnaires": contributor_questionnaires,
+        "dropout_questionnaires": dropout_questionnaires,
         "filter_questionnaires": filter_questionnaires,
     }
     return render(request, "staff_questionnaire_index.html", template_data)
@@ -1919,12 +1892,12 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
         for question_form in formset.forms:
             disable_all_except_named(question_form.fields, ["id"])
 
-        # disallow type changed from and to contributor
-        form.fields["type"].choices = [
-            choice
-            for choice in Questionnaire.Type.choices
-            if (choice[0] == Questionnaire.Type.CONTRIBUTOR) == (questionnaire.type == Questionnaire.Type.CONTRIBUTOR)
-        ]
+        # disallow type changed from and to contributor or dropout
+        single_types = [Questionnaire.Type.CONTRIBUTOR, Questionnaire.Type.DROPOUT]
+        if questionnaire.type in single_types:
+            form.fields["type"].choices = filter(lambda c: c[0] == questionnaire.type, form.fields["type"].choices)
+        else:
+            form.fields["type"].choices = filter(lambda c: c[0] not in single_types, form.fields["type"].choices)
 
     return form, formset
 
@@ -2111,6 +2084,53 @@ class ProgramIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
 
 
 @manager_required
+def program_merge_selection(request):
+    form = ProgramMergeSelectionForm(request.POST or None)
+
+    if form.is_valid():
+        main_instance = form.cleaned_data["main_instance"]
+        other_instance = form.cleaned_data["other_instance"]
+        return redirect("staff:program_merge", main_instance.id, other_instance.id)
+
+    return render(request, "staff_program_merge_selection.html", {"form": form})
+
+
+@manager_required
+def program_merge(request, main_id, other_id):
+    main_instance = get_object_or_404(Program, id=main_id)
+    other_instance = get_object_or_404(Program, id=other_id)
+    assert main_instance != other_instance
+
+    if request.method == "POST":
+        with transaction.atomic():
+            main_instance.import_names = sorted(set(main_instance.import_names) | set(other_instance.import_names))
+            main_instance.save()
+
+            courses_with_old_program = Course.objects.filter(programs=other_instance)
+            for course in courses_with_old_program:
+                course.programs.remove(other_instance)
+                course.programs.add(main_instance)
+
+            other_instance.delete()
+
+        messages.success(request, _("Successfully merged programs."))
+        return redirect("staff:program_index")
+
+    courses_with_other_program = Course.objects.filter(programs=other_instance).order_by(
+        "semester__created_at", "name_de"
+    )
+    return render(
+        request,
+        "staff_program_merge.html",
+        {
+            "main_instance": main_instance,
+            "other_instance": other_instance,
+            "courses_with_other_program": courses_with_other_program,
+        },
+    )
+
+
+@manager_required
 class CourseTypeIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
     model = CourseType
     formset_class = modelformset_factory(
@@ -2141,9 +2161,10 @@ def course_type_merge_selection(request):
 def course_type_merge(request, main_type_id, other_type_id):
     main_type = get_object_or_404(CourseType, id=main_type_id)
     other_type = get_object_or_404(CourseType, id=other_type_id)
+    assert main_type != other_type
 
     if request.method == "POST":
-        main_type.import_names += other_type.import_names
+        main_type.import_names = sorted(set(main_type.import_names) | set(other_type.import_names))
         main_type.save()
         Course.objects.filter(type=other_type).update(type=main_type)
         other_type.delete()
@@ -2295,20 +2316,6 @@ def user_import(request):
 
 @manager_required
 def user_edit(request, user_id):
-    # See comment in helper_evaluation_edit
-    @receiver(RewardPointGranting.granted_by_removal, weak=True)
-    def notify_reward_points(grantings, **_kwargs):
-        assert len(grantings) == 1
-
-        messages.info(
-            request,
-            ngettext(
-                'The removal of evaluations has granted the user "{granting.user_profile.email}" {granting.value} reward point for the active semester.',
-                'The removal of evaluations has granted the user "{granting.user_profile.email}" {granting.value} reward points for the active semester.',
-                grantings[0].value,
-            ).format(granting=grantings[0]),
-        )
-
     user = get_object_or_404(UserProfile, id=user_id)
     form = UserForm(request.POST or None, request.FILES or None, instance=user)
 
@@ -2319,7 +2326,22 @@ def user_edit(request, user_id):
     )
 
     if form.is_valid():
-        form.save()
+
+        def notify_reward_points(grantings, **_kwargs):
+            assert len(grantings) == 1
+
+            messages.info(
+                request,
+                ngettext(
+                    'The removal of evaluations has granted the user "{granting.user_profile.email}" {granting.value} reward point for the active semester.',
+                    'The removal of evaluations has granted the user "{granting.user_profile.email}" {granting.value} reward points for the active semester.',
+                    grantings[0].value,
+                ).format(granting=grantings[0]),
+            )
+
+        with temporary_receiver(RewardPointGranting.granted_by_participation_removal, notify_reward_points):
+            form.save()
+
         messages.success(request, _("Successfully updated user."))
         for message in form.remove_messages:
             messages.warning(request, message)
@@ -2568,7 +2590,7 @@ def download_sample_file(_request, filename):
     if filename not in ["sample.xlsx", "sample_user.xlsx"]:
         raise SuspiciousOperation("Invalid file name.")
 
-    book = openpyxl.load_workbook(filename=settings.STATICFILES_DIRS[0] + "/" + filename)
+    book = openpyxl.load_workbook(filename=settings.STATICFILES_DIRS[0] / filename)
     for sheet in book:
         for row in sheet:
             for cell in row:

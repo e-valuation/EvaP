@@ -15,6 +15,12 @@ class EvaluationForm(forms.ModelForm):
     general_questionnaires: "forms.ModelMultipleChoiceField[Questionnaire]" = forms.ModelMultipleChoiceField(
         queryset=None, required=False, widget=CheckboxSelectMultiple, label=_("General questionnaires")
     )
+    dropout_questionnaires: "forms.ModelMultipleChoiceField[Questionnaire]" = forms.ModelMultipleChoiceField(
+        queryset=None,
+        required=False,
+        widget=CheckboxSelectMultiple,
+        label=_("Dropout questionnaires"),
+    )
     course = forms.ModelChoiceField(Course.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     name_de_field = forms.CharField(label=_("Name (German)"), disabled=True, required=False)
     name_en_field = forms.CharField(label=_("Name (English)"), disabled=True, required=False)
@@ -24,10 +30,12 @@ class EvaluationForm(forms.ModelForm):
         fields = (
             "name_de_field",
             "name_en_field",
+            "main_language",
             "vote_start_datetime",
             "vote_end_date",
             "participants",
             "general_questionnaires",
+            "dropout_questionnaires",
             "course",
         )
         field_classes = {
@@ -46,6 +54,12 @@ class EvaluationForm(forms.ModelForm):
             .distinct()
             .prefetch_related("questions")
         )
+        self.fields["dropout_questionnaires"].queryset = (
+            Questionnaire.objects.dropout_questionnaires()
+            .filter(Q(visibility=Questionnaire.Visibility.EDITORS) | Q(contributions__evaluation=self.instance))
+            .distinct()
+            .prefetch_related("questions")
+        )
 
         self.fields["vote_start_datetime"].localize = True
         self.fields["vote_end_date"].localize = True
@@ -55,9 +69,12 @@ class EvaluationForm(forms.ModelForm):
             queryset = (queryset | self.instance.participants.all()).distinct()
         self.fields["participants"].queryset = queryset
 
-        if self.instance.general_contribution:
+        if general_contribution := self.instance.general_contribution:
             self.fields["general_questionnaires"].initial = [
-                q.pk for q in self.instance.general_contribution.questionnaires.all()
+                q.pk for q in general_contribution.questionnaires.all() if q.is_general
+            ]
+            self.fields["dropout_questionnaires"].initial = [
+                q.pk for q in general_contribution.questionnaires.all() if q.is_dropout
             ]
 
         if not self.instance.allow_editors_to_edit:
@@ -73,6 +90,19 @@ class EvaluationForm(forms.ModelForm):
             self.add_error("vote_start_datetime", "")
             self.add_error("vote_end_date", _("The first day of evaluation must be before the last one."))
 
+        # Ensure locked questionnaires cannot be deselected and only unlocked ones can be added
+        selected_questionnaires = self.instance.general_contribution.questionnaires.filter(is_locked=True).distinct()
+        selected_questionnaires |= self.cleaned_data.get("general_questionnaires").filter(is_locked=False)
+        selected_questionnaires |= self.cleaned_data.get("dropout_questionnaires").filter(is_locked=False)
+
+        self.cleaned_data.update(
+            general_questionnaires=selected_questionnaires.exclude(type=Questionnaire.Type.DROPOUT),
+            dropout_questionnaires=selected_questionnaires.filter(type=Questionnaire.Type.DROPOUT),
+        )
+
+        if not self.cleaned_data.get("general_questionnaires"):
+            self.add_error("general_questionnaires", _("At least one questionnaire must be selected."))
+
     def clean_vote_end_date(self):
         vote_end_date = self.cleaned_data.get("vote_end_date")
 
@@ -83,22 +113,18 @@ class EvaluationForm(forms.ModelForm):
 
         return vote_end_date
 
-    def clean_general_questionnaires(self):
-        # Ensure all locked questionnaires still have the same status (included or not)
-        not_locked = []
-        if self.cleaned_data.get("general_questionnaires"):
-            not_locked = list(self.cleaned_data.get("general_questionnaires").filter(is_locked=False))
-
-        locked = list(self.instance.general_contribution.questionnaires.filter(is_locked=True))
-
-        if not not_locked + locked:
-            self.add_error("general_questionnaires", _("At least one questionnaire must be selected."))
-
-        return not_locked + locked
+    def clean_main_language(self):
+        main_language = self.cleaned_data.get("main_language")
+        if main_language == Evaluation.UNDECIDED_MAIN_LANGUAGE:
+            self.add_error("main_language", _("You have to set a main language for this evaluation."))
+        return main_language
 
     def save(self, *args, **kw):
         evaluation = super().save(*args, **kw)
-        evaluation.general_contribution.questionnaires.set(self.cleaned_data.get("general_questionnaires"))
+        selected_questionnaires = self.cleaned_data.get("general_questionnaires") | self.cleaned_data.get(
+            "dropout_questionnaires"
+        )
+        evaluation.general_contribution.questionnaires.set(selected_questionnaires)
         return evaluation
 
 

@@ -40,11 +40,9 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script type="text/javascript" src="{% static 'js/copy-to-clipboard.js' %}"></script>
-
     <script type="text/javascript">
         for(const button of document.querySelectorAll(".copy-variable-to-clipboard-btn")) {
-            button.addEventListener("click", event => copyToClipboard(button.dataset.variable));
+            button.addEventListener("click", async event => await navigator.clipboard.writeText(button.dataset.variable));
         }
     </script>
 {% endblock %}

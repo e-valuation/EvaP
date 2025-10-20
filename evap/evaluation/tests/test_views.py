@@ -11,18 +11,8 @@ from evap.evaluation.tests.tools import (
     WebTestWith200Check,
     create_evaluation_with_responsible_and_editor,
     make_manager,
-    store_ts_test_asset,
 )
 from evap.staff.tests.utils import WebTestStaffMode
-
-
-class RenderJsTranslationCatalog(WebTest):
-    url = reverse("javascript-catalog")
-
-    def render_pages(self):
-        # Not using render_pages decorator to manually create a single (special) javascript file
-        content = self.app.get(self.url).content
-        store_ts_test_asset("catalog.js", content)
 
 
 @override_settings(PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"])
@@ -209,9 +199,7 @@ class TestNegativeLikertQuestions(WebTest):
         cls.voting_user = baker.make(UserProfile, email="voting_user1@institution.example.com")
 
         cls.evaluation = baker.make(
-            Evaluation,
-            participants=[cls.voting_user],
-            state=Evaluation.State.IN_EVALUATION,
+            Evaluation, participants=[cls.voting_user], state=Evaluation.State.IN_EVALUATION, main_language="en"
         )
 
         cls.question = baker.make(

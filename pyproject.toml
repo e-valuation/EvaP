@@ -1,18 +1,19 @@
 [project]
 name = "evap"
 description = "EvaP"
-version = "0.0.0"
+version = "2025.6.1"
 readme = "README.md"
-requires-python = "~=3.10.0"
+requires-python = "~=3.11.0"
 dependencies = [
-    "django-extensions~=3.2.3",
+    "django-extensions~=4.1.0",
     "django-fsm~=2.8.2",
-    "Django~=5.1.0",
+    "Django~=5.2.0",
     "mozilla-django-oidc~=4.0.1",
     "openpyxl~=3.1.5",
     "psycopg~=3.2.3",
-    "redis~=5.2.0",
-    "typing-extensions~=4.12.2",
+    "pydantic~=2.11.7",
+    "redis~=6.4.0",
+    "typing-extensions~=4.15.0",
     "xlwt~=1.3.0",
 ]
 
@@ -22,30 +23,56 @@ psycopg-c = ["psycopg[c]"]
 
 [dependency-groups]
 dev = [
-    "black~=24.10.0",
-    "coverage[toml]~=7.6.8",
-    "django-debug-toolbar~=4.4",
-    "django-stubs~=5.1.1",
-    "django-webtest~=1.9.10",
-    "isort~=5.13.1",
+    "black~=25.9.0",
+    "coverage[toml]~=7.10.2",
+    "django-debug-toolbar~=6.0",
+    "django-stubs~=5.2.5",
+    "django-webtest~=1.9.13",
+    "isort~=6.1.0",
     "model-bakery~=1.20.0",
-    "mypy~=1.13.0",
+    "mypy~=1.18.2",
     "openpyxl-stubs~=0.1.25",
     "pylint-django~=2.6.1",
     "pylint~=3.3.0",
-    "ruff~=0.8.0",
-    "tblib~=3.0.0",
+    "ruff~=0.13.3",
+    "tblib~=3.1.0",
     "xlrd~=2.0.1",
     "typeguard~=4.4.0",
+    "selenium~=4.36.0",
+]
+lsp = [
+    "python-lsp-server",
+    "pylsp-rope",
+    "python-lsp-black",
+    "python-lsp-ruff",
+    "pylsp-mypy",
+]
+
+[tool.uv]
+no-binary-package = [
+    "psycopg-c",
 ]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.uv]
-no-binary-package = [
-    "psycopg-c",
+[tool.hatch.build]
+skip-excluded-dirs = false  # otherwise, the artifacts below will be skipped
+exclude = [
+    "evap/static/bootstrap",
+    "evap/static/font-awesome",
+]
+artifacts = [
+    "evap/static/css/evap.css",
+    "evap/static/css/evap.css.map",
+    "evap/static/js/*.js",
+    "evap/static/js/*.map",
+    "evap/static/bootstrap/dist/js/bootstrap.bundle.min.js",
+    "evap/static/bootstrap/dist/js/bootstrap.bundle.min.js.map",
+    "evap/static/font-awesome/webfonts/",
+
+    "evap/locale/**/*.mo",
 ]
 
 ##############################################
@@ -55,7 +82,6 @@ line-length = 120
 include = '(evap|tools).*\.pyi?$'
 extend-exclude = """\
     .*/urls\\.py|\
-    .*/migrations/.*\
 """
 
 ##############################################
@@ -65,12 +91,10 @@ profile = "black"
 src_paths = ["evap", "tools"]
 line_length = 120
 skip_gitignore = true
-extend_skip_glob = ["**/migrations/*"]
 
 ##############################################
 
 [tool.ruff]
-target-version = "py310"
 line-length = 120
 
 [tool.ruff.lint]
@@ -91,10 +115,12 @@ pep8-naming.extend-ignore-names = ["assert*", "*Formset"]  # custom assert metho
 
 [tool.ruff.lint.per-file-ignores]
 "**/migrations/*.py" = ["N806"]  # migrations have model classes as local variables, we use PascalCase for these
-"deployment/*.py" = ["INP001"]  # not intended for direct import
 
 [tool.ruff.format]
-exclude = ["**/urls.py", "**/migrations/*.py"]
+exclude = ["**/urls.py"]
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"evap.settings".msg = "Use django.conf.settings instead."
 
 ##############################################
 
@@ -117,7 +143,7 @@ method-rgx = "(^[a-z0-9_]+$)|(^assert[A-Za-z]+$)"
 # Allow 4 leading digits for migrations
 module-rgx = "^([0-9]{4})?([a-z_][a-z0-9_]+)$"
 
-good-names = [ "i", "j", "k", "ex", "Run", "_", "__", "e", "logger", "setUpTestData", "setUp", "tearDown"]
+good-names = [ "i", "j", "k", "ex", "Run", "_", "__", "e", "logger", "setUpTestData", "setUp", "tearDown", "do_not_call_in_templates" ]
 
 [tool.pylint.format]
 expected-line-ending-format = "LF"
@@ -146,6 +172,7 @@ disable = [
     "broad-exception-caught", "line-too-long", "unused-wildcard-import", "wildcard-import", "too-many-arguments",
     "too-many-statements", "too-many-return-statements", "too-many-branches", "unnecessary-lambda-assignment",
     "global-statement",
+    "import-outside-toplevel",
 ]
 
 [tool.pylint.design]
@@ -170,7 +197,6 @@ exclude_also = [
 [tool.mypy]
 packages = ["evap", "tools"]
 plugins = ["mypy_django_plugin.main"]
-exclude = 'evap/.*/migrations/.*\.py$'
 
 [tool.django-stubs]
 django_settings_module = "evap.settings"

@@ -10,6 +10,10 @@
 {% block content %}
     {{ block.super }}
 
+    <div class="mb-3">
+        <a href="{% url 'staff:program_merge_selection' %}" class="btn btn-sm btn-secondary">{% translate 'Merge programs' %}</a>
+    </div>
+
     <form id="program-form" method="POST" class="form-horizontal tomselectform">
         {% csrf_token %}
         {{ formset.management_form }}
@@ -79,7 +83,7 @@
         const rowAdded = function(row) {
             applyTomSelect(row.querySelectorAll("select"), tagTomSelectOptions);
         };
-        makeFormSortable("program_table", "form", rowChanged, rowAdded, "", true, true);
+        makeFormSortable("program_table", "form", rowChanged, rowAdded, true, true);
 
         applyTomSelect(document.querySelectorAll("select:not(.form-template select)"), tagTomSelectOptions);
     </script>

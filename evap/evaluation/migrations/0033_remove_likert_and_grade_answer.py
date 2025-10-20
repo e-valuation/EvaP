@@ -4,38 +4,38 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0032_populate_rating_answer_counters'),
+        ("evaluation", "0032_populate_rating_answer_counters"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='gradeanswercounter',
+            name="gradeanswercounter",
             unique_together=set(),
         ),
         migrations.RemoveField(
-            model_name='gradeanswercounter',
-            name='contribution',
+            model_name="gradeanswercounter",
+            name="contribution",
         ),
         migrations.RemoveField(
-            model_name='gradeanswercounter',
-            name='question',
+            model_name="gradeanswercounter",
+            name="question",
         ),
         migrations.AlterUniqueTogether(
-            name='likertanswercounter',
+            name="likertanswercounter",
             unique_together=set(),
         ),
         migrations.RemoveField(
-            model_name='likertanswercounter',
-            name='contribution',
+            model_name="likertanswercounter",
+            name="contribution",
         ),
         migrations.RemoveField(
-            model_name='likertanswercounter',
-            name='question',
+            model_name="likertanswercounter",
+            name="question",
         ),
         migrations.DeleteModel(
-            name='GradeAnswerCounter',
+            name="GradeAnswerCounter",
         ),
         migrations.DeleteModel(
-            name='LikertAnswerCounter',
+            name="LikertAnswerCounter",
         ),
     ]

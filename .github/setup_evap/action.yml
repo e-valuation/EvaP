@@ -19,7 +19,6 @@ runs:
   using: "composite"
   steps:
     - uses: DeterminateSystems/nix-installer-action@main
-    - uses: DeterminateSystems/magic-nix-cache-action@main
     - uses: nicknovitski/nix-develop@v1
       with:
         arguments: "${{ inputs.shell }}"
@@ -28,12 +27,16 @@ runs:
       run: cp evap/settings_test.py evap/localsettings.py
       shell: bash
 
+    - name: Create data/ directory
+      run: mkdir -p data/
+      shell: bash
+
     - name: Install Node dependencies
       run: npm ci
       shell: bash
-      if: ${{ inputs.npm-ci }}
+      if: ${{ inputs.npm-ci == 'true' }}
 
     - name: Start database
       run: nix run .#services -- --detached && nix run .#wait-for-pc
       shell: bash
-      if: ${{ inputs.start-db }}
+      if: ${{ inputs.start-db == 'true' }}

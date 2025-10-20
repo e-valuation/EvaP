@@ -19,7 +19,9 @@ class TestGrantRewardPoints(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.student = baker.make(UserProfile, email="student@institution.example.com")
-        cls.evaluation = baker.make(Evaluation, state=Evaluation.State.IN_EVALUATION, participants=[cls.student])
+        cls.evaluation = baker.make(
+            Evaluation, state=Evaluation.State.IN_EVALUATION, participants=[cls.student], main_language="en"
+        )
 
         questionnaire = baker.make(Questionnaire)
         baker.make(Question, questionnaire=questionnaire, type=QuestionType.GRADE)
@@ -97,10 +99,12 @@ class TestGrantRewardPointsParticipationChange(TestCase):
 
     def test_participant_removed_from_evaluation(self):
         self.evaluation.participants.remove(self.student)
-
         self.assertEqual(reward_points_of_user(self.student), 3)
 
     def test_evaluation_removed_from_participant(self):
         self.student.evaluations_participating_in.remove(self.evaluation)
+        self.assertEqual(reward_points_of_user(self.student), 3)
 
+    def test_evaluation_deleted(self):
+        self.evaluation.delete()
         self.assertEqual(reward_points_of_user(self.student), 3)

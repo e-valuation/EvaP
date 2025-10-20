@@ -1,5 +1,6 @@
 import { CSRF_HEADERS } from "./csrf-utils.js";
 import { RangeSlider, Range } from "./slider.js";
+import { assert, selectOrError } from "./utils.js";
 
 declare const Sortable: typeof import("sortablejs");
 
@@ -91,7 +92,7 @@ abstract class DataGrid {
             .map(row => row as HTMLElement)
             .map(row => {
                 const searchWords = this.findSearchableCells(row).flatMap(element =>
-                    DataGrid.searchWordsOf(element.textContent!),
+                    DataGrid.searchWordsOf(element.textContent),
                 );
                 return {
                     element: row,
@@ -198,12 +199,12 @@ abstract class DataGrid {
     }
 
     private restoreStateFromStorage(): State {
-        const stored = JSON.parse(localStorage.getItem(this.storageKey)!) || {};
+        const stored = JSON.parse(localStorage.getItem(this.storageKey)!) ?? {};
         return {
             equalityFilter: new Map(stored.equalityFilter),
             rangeFilter: new Map(stored.rangeFilter),
-            search: stored.search || "",
-            order: stored.order || this.defaultOrder,
+            search: stored.search ?? "",
+            order: stored.order ?? this.defaultOrder,
         };
     }
 
@@ -232,14 +233,23 @@ interface TableGridParameters extends BaseParameters {
 // Table based data grid which uses its head and body
 export class TableGrid extends DataGrid {
     private resetSearch: HTMLButtonElement;
+    private searchableColumnIndices: number[];
 
     constructor({ table, resetSearch, ...options }: TableGridParameters) {
+        const thead: HTMLElement = selectOrError("thead", table);
         super({
-            head: table.querySelector("thead")!,
+            head: thead,
             container: table.querySelector("tbody")!,
             ...options,
         });
         this.resetSearch = resetSearch;
+        this.searchableColumnIndices = [];
+
+        thead.querySelectorAll("th").forEach((header, index) => {
+            if (!header.hasAttribute("data-not-searchable")) {
+                this.searchableColumnIndices.push(index);
+            }
+        });
     }
 
     public bindEvents() {
@@ -253,10 +263,14 @@ export class TableGrid extends DataGrid {
     }
 
     protected findSearchableCells(row: HTMLElement): HTMLElement[] {
-        return [...row.children] as HTMLElement[];
+        return this.searchableColumnIndices.map(index => {
+            const child = row.children[index];
+            assert(child instanceof HTMLElement);
+            return child;
+        });
     }
 
-    protected fetchRowFilterValues(row: HTMLElement): Map<string, string[]> {
+    protected fetchRowFilterValues(_row: HTMLElement): Map<string, string[]> {
         return new Map();
     }
 
@@ -480,7 +494,7 @@ export class ResultGrid extends DataGrid {
         for (const [name, { selector, checkboxes }] of this.filterCheckboxes.entries()) {
             // To store filter values independent of the language, use the corresponding id from the checkbox
             const values = [...row.querySelectorAll(selector)]
-                .map(element => element.textContent?.trim())
+                .map(element => element.textContent.trim())
                 .map(filterName => checkboxes.find(checkbox => checkbox.dataset.filter === filterName)?.value)
                 .filter(v => v !== undefined);
             filterValues.set(name, values);

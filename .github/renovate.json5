@@ -1,0 +1,54 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: ["config:recommended"],
+  schedule: ["* * 1 * *"],
+  nix: {
+    enabled: true,
+  },
+  separateMajorMinor: false,
+  ignoreDeps: ["@types/sortablejs"], // we use a static version
+  packageRules: [
+    {
+      groupName: "python dependencies",
+      groupSlug: "python",
+      matchManagers: ["pep621"],
+    },
+    {
+      matchPackageNames: ["django-fsm"],
+      allowedVersions: "!/^3.0.0$/", // 3.0.0 adds deprecation warnings without functional changes
+    },
+    {
+      matchManagers: ["npm"],
+      matchUpdateTypes: ["patch"],
+      enabled: false,
+    },
+    {
+      matchManagers: ["npm"],
+      matchUpdateTypes: ["patch", "minor"],
+      matchDepNames: ["sass"],  // causes deprecation warnings in bootstrap
+      enabled: false
+    },
+    {
+      groupName: "node dependencies",
+      groupSlug: "node",
+      matchManagers: ["npm"],
+    },
+    {
+      groupName: "github actions",
+      groupSlug: "actions",
+      matchManagers: ["github-actions"],
+    },
+    {
+      groupName: "ubuntu & python upgrade",
+      groupSlug: "ubuntu",
+      matchDepNames: ["ubuntu", "python"],
+      dependencyDashboardApproval: true, // manual update when deployment is updated
+    },
+    {
+      groupName: "nix flakes",
+      groupSlug: "nix",
+      matchManagers: ["nix"],
+      schedule: ["* * 1 */3 *"],
+    },
+  ],
+}

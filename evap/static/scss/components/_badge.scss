@@ -19,17 +19,19 @@
 %badge {
     border-radius: $badge-border-radius;
     text-align: center;
-    width: 3rem;
+    min-width: 3.5rem;
+    padding-inline: 0.3rem;
+    font-weight: normal;
 }
 
 .badge-grade {
     @extend %badge;
     color: $black;
     transition: box-shadow 0.15s ease-in-out;
+}
 
-    @include media-breakpoint-up(lg) {
-        width: 42px;
-    }
+#results-grid .badge-grade {
+    min-width: 2.5rem;
 }
 
 .badge-participants {
@@ -41,11 +43,15 @@
         font-size: 80%;
     }
 
-    @include media-breakpoint-up(lg) {
-        width: 50px;
-    }
-
     @include bar-shadow($evap-dark-blue);
+}
+
+.badge-percentage {
+    @extend %badge;
+    background-color: $evap-light-blue;
+    color: black;
+    display: inline-block;
+    width: 100%;
 }
 
 @for $i from 0 through 10 {

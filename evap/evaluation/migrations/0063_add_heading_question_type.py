@@ -6,13 +6,24 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0062_replace_textanswer_id_with_uuid'),
+        ("evaluation", "0062_replace_textanswer_id_with_uuid"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='question',
-            name='type',
-            field=models.CharField(choices=[('T', 'Text Question'), ('L', 'Likert Question'), ('G', 'Grade Question'), ('P', 'Positive Yes-No Question'), ('N', 'Negative Yes-No Question'), ('H', 'Heading')], max_length=1, verbose_name='question type'),
+            model_name="question",
+            name="type",
+            field=models.CharField(
+                choices=[
+                    ("T", "Text Question"),
+                    ("L", "Likert Question"),
+                    ("G", "Grade Question"),
+                    ("P", "Positive Yes-No Question"),
+                    ("N", "Negative Yes-No Question"),
+                    ("H", "Heading"),
+                ],
+                max_length=1,
+                verbose_name="question type",
+            ),
         ),
     ]

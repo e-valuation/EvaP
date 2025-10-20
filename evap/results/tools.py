@@ -1,6 +1,8 @@
+import enum
 from collections import OrderedDict, defaultdict
 from collections.abc import Iterable
 from copy import copy
+from enum import Enum
 from math import ceil, modf
 from typing import TypeGuard, cast
 
@@ -34,6 +36,21 @@ GRADE_COLORS = {
     4: (242, 158, 88),
     5: (235, 89, 90),
 }
+
+
+class ViewGeneralResults(Enum):
+    do_not_call_in_templates = enum.nonmember(True)
+
+    FULL = "full"
+    RATINGS = "ratings"
+
+
+class ViewContributorResults(Enum):
+    do_not_call_in_templates = enum.nonmember(True)
+
+    FULL = "full"
+    RATINGS = "ratings"
+    PERSONAL = "personal"
 
 
 class TextAnswerVisibility:
@@ -171,16 +188,6 @@ class EvaluationResult:
         ]
 
 
-def get_single_result_rating_result(evaluation):
-    assert evaluation.is_single_result
-
-    answer_counters = RatingAnswerCounter.objects.filter(contribution__evaluation__pk=evaluation.pk)
-    assert 1 <= len(answer_counters) <= 5
-
-    question = Question.objects.get(questionnaire__name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME)
-    return create_rating_result(question, answer_counters)
-
-
 def get_results_cache_key(evaluation: Evaluation) -> str:
     return f"evap.staff.results.tools.get_results-{evaluation.id:d}"
 
@@ -265,11 +272,7 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
 
 def annotate_distributions_and_grades(evaluations):
     for evaluation in evaluations:
-        if not evaluation.is_single_result:
-            evaluation.distribution = calculate_average_distribution(evaluation)
-        else:
-            evaluation.single_result_rating_result = get_single_result_rating_result(evaluation)
-            evaluation.distribution = normalized_distribution(evaluation.single_result_rating_result.counts)
+        evaluation.distribution = calculate_average_distribution(evaluation)
         evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
 
 
@@ -341,11 +344,7 @@ def calculate_average_course_distribution(course, check_for_unpublished_evaluati
     return avg_distribution(
         [
             (
-                (
-                    calculate_average_distribution(evaluation)
-                    if not evaluation.is_single_result
-                    else normalized_distribution(get_single_result_rating_result(evaluation).counts)
-                ),
+                calculate_average_distribution(evaluation),
                 evaluation.weight,
             )
             for evaluation in course.evaluations.all()
@@ -354,7 +353,7 @@ def calculate_average_course_distribution(course, check_for_unpublished_evaluati
 
 
 def get_evaluations_with_course_result_attributes(evaluations):
-    courses_with_unpublished_evaluations = (
+    courses_with_unpublished_evaluations = set(
         Course.objects.filter(evaluations__in=evaluations)
         .filter(Exists(Evaluation.objects.filter(course=OuterRef("pk")).exclude(state=Evaluation.State.PUBLISHED)))
         .values_list("id", flat=True)
@@ -392,7 +391,8 @@ def calculate_average_distribution(evaluation):
     grouped_results = defaultdict(list)
     for contribution_result in get_results(evaluation).contribution_results:
         for questionnaire_result in contribution_result.questionnaire_results:
-            grouped_results[contribution_result.contributor].extend(questionnaire_result.question_results)
+            if not questionnaire_result.questionnaire.is_dropout:  # dropout questionnaires are not counted
+                grouped_results[contribution_result.contributor].extend(questionnaire_result.question_results)
 
     evaluation_results = grouped_results.pop(None, [])
 
@@ -440,7 +440,7 @@ def distribution_to_grade(distribution):
 
 def color_mix(color1, color2, fraction):
     return cast(
-        tuple[int, int, int], tuple(int(round(color1[i] * (1 - fraction) + color2[i] * fraction)) for i in range(3))
+        "tuple[int, int, int]", tuple(int(round(color1[i] * (1 - fraction) + color2[i] * fraction)) for i in range(3))
     )
 
 
@@ -473,49 +473,41 @@ def textanswers_visible_to(contribution):
     return TextAnswerVisibility(visible_by_contribution=sorted_contributors, visible_by_delegation_count=num_delegates)
 
 
-def can_textanswer_be_seen_by(  # noqa: PLR0911
+def can_textanswer_be_seen_by(  # noqa: PLR0911,PLR0912
     user: UserProfile,
     represented_users: list[UserProfile],
     textanswer: TextAnswer,
-    view: str,
+    view_general_results: ViewGeneralResults,
+    view_contributor_results: ViewContributorResults,
 ) -> bool:
     assert textanswer.review_decision in [TextAnswer.ReviewDecision.PRIVATE, TextAnswer.ReviewDecision.PUBLIC]
     contributor = textanswer.contribution.contributor
 
-    if view == "public":
-        return False
-
-    if view == "export":
-        if textanswer.is_private:
-            return False
-        if not textanswer.contribution.is_general and contributor != user:
-            return False
-    elif user.is_reviewer:
-        return True
-
-    if textanswer.is_private:
-        return contributor == user
-
     # NOTE: when changing this behavior, make sure all changes are also reflected in results.tools.textanswers_visible_to
     # and in results.tests.test_tools.TestTextAnswerVisibilityInfo
-    if textanswer.is_public:
-        # users can see textanswers if the contributor is one of their represented users (which includes the user itself)
-        if contributor in represented_users:
-            return True
-        # users can see text answers from general contributions if one of their represented users has text answer
-        # visibility GENERAL_TEXTANSWERS for the evaluation
-        if (
-            textanswer.contribution.is_general
-            and textanswer.contribution.evaluation.contributions.filter(
-                contributor__in=represented_users,
-                textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-            ).exists()
-        ):
-            return True
-        # the people responsible for a course can see all general text answers for all its evaluations
-        if textanswer.contribution.is_general and any(
-            user in represented_users for user in textanswer.contribution.evaluation.course.responsibles.all()
-        ):
-            return True
+    if textanswer.contribution.is_general:
+        if view_general_results == ViewGeneralResults.FULL:
+            return (
+                user.is_reviewer
+                or textanswer.contribution.evaluation.contributions.filter(
+                    contributor__in=represented_users,
+                    textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+                ).exists()  # represented user can see the textanswer
+                or textanswer.contribution.evaluation.course.responsibles.filter(
+                    pk__in=(user.pk for user in represented_users)
+                ).exists()  # responsible people for a course can see all general text answers for all its evaluations
+            )
+    else:
+        match view_contributor_results:
+            case ViewContributorResults.RATINGS:
+                return False
+            case ViewContributorResults.PERSONAL:
+                return user.is_reviewer or contributor == user
+            case ViewContributorResults.FULL:
+                if user.is_reviewer:
+                    return True
+                if textanswer.is_private:
+                    return user == contributor
+                return contributor in represented_users
 
     return False

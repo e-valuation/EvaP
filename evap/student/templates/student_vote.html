@@ -18,7 +18,7 @@
 {% block content %}
     {{ block.super }}
     {% if errors_exist %}
-        <div class="alert alert-danger" role="alert">
+        <div class="callout callout-danger" role="alert">
             <div class="d-flex align-items-center justify-content-between">
                 <div class="p-2">
                     {% if contributor_errors_exist %}
@@ -51,21 +51,48 @@
             </small>
         </div>
     {% endif %}
-    <h3 class="mb-3">{{ evaluation.full_name }} ({{ evaluation.course.semester.name }})</h3>
+    <h3 class="mb-3">
+        {{ evaluation.full_name }} ({{ evaluation.course.semester.name }})
+
+        <div class="float-lg-end mt-3 mt-lg-0 d-flex justify-content-end">
+            <div class="btn-switch btn-switch-light btn-switch-evaluation-language">
+                <div class="btn-switch-label my-auto">{% translate "Questionnaire language" %}</div>
+                <div class="btn-switch btn-group">
+                    {% for language_code, language_name in languages %}
+                        <a data-bs-toggle="tooltip"
+                           data-bs-placement="bottom"
+                           data-set-spinner-icon="span-set-evaluation-language-{{ language_code }}"
+                           title="{{ language_name }}"
+                           role="button"
+                           href="{% url 'student:vote' evaluation.pk %}?language={{ language_code }}"
+                           class="btn btn-sm btn-light{% if evaluation_language == language_code %} active{% endif %}">
+                            <span id="span-set-evaluation-language-{{ language_code }}">{{ language_code|upper }}</span>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </h3>
     <form id="student-vote-form" method="POST" class="form-horizontal">
         {% csrf_token %}
 
         {% if small_evaluation_size_warning and not preview %}
-            <div class="card card-outline-warning mb-3">
-                <div class="card-header">
+            <div class="callout callout-warning">
+                <div class="callout-header">
                     <span class="fas fa-triangle-exclamation"></span> {% translate 'Small number of participants' %}
                 </div>
-                <div class="card-body tab-row">
-                    {% blocktranslate %}Only a small number of people can take part in this evaluation. You should be aware that contributors might be able to guess who voted for a specific answer and who wrote a text answer. Results will only be published if two or more people participated in the evaluation.{% endblocktranslate %}
+                <div class="callout-content tab-row">
+                    <p>
+                        {% blocktranslate trimmed %}
+                            Only a small number of people can take part in this evaluation.
+                            You should be aware that contributors might be able to guess who voted for a specific answer and who wrote a text answer.
+                            Results will only be published if {{ voter_count_needed_for_publishing_rating_results }} or more people participated in the evaluation.
+                        {% endblocktranslate %}
+                    </p>
                     {% if evaluation.num_voters == 0 %}
-                        <br />
-                        {% blocktranslate %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktranslate %}
-
+                        <p>
+                            {% blocktranslate %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktranslate %}
+                        </p>
                         <div class="form-check mt-3">
                             <input class="form-check-input tab-selectable" id="text_results_publish_confirmation_top" type="checkbox"
                                 name="text_results_publish_confirmation_top" />
@@ -78,65 +105,90 @@
             </div>
         {% endif %}
 
-        {% if evaluation_form_group_top %}
-            <div class="card card-outline-primary mb-3">
+        {% if evaluation_form_group_dropout %}
+            <div class="card card-outline-warning mb-3">
                 <div class="card-header">
-                    {% translate 'General questions' %}
+                    <span class="fas fa-triangle-exclamation"></span> {% translate 'Dropout questionnaire' %}
                 </div>
                 <div class="card-body">
-                    {% include 'student_vote_questionnaire_group.html' with questionnaire_group=evaluation_form_group_top textanswers_visible_to=general_contribution_textanswers_visible_to preview=preview %}
+                    <p>
+                        {% blocktranslate trimmed %}
+                            You are marking this course as dropped. Your feedback on questions you can answer is still
+                            very welcome.
+                        {% endblocktranslate %}
+                    </p>
+                    {% include 'student_vote_questionnaire_group.html' with questionnaire_group=evaluation_form_group_dropout textanswers_visible_to=general_contribution_textanswers_visible_to preview=preview %}
                 </div>
             </div>
         {% endif %}
-        {% if contributor_form_groups %}
-            <div class="card card-outline-primary mb-3">
-                <div class="card-header">
-                    {% translate 'Questions about the contributors' %}
-                </div>
-                <div class="card-body">
-                    {% if not preview %}
-                        <div class="callout callout-info">
-                            {% blocktranslate %}Please vote for all contributors you worked with. Click on "I can't give feedback" to skip a person.{% endblocktranslate %}
-                        </div>
-                    {% endif %}
 
-                    {% for contributor, label, form_group, contributor_has_errors, textanswers_visible_to in contributor_form_groups %}
-                        <div class="card collapsible{% if not forloop.last %} mb-3{% endif %}">
-                            <div class="card-header d-flex tab-row">
-                                <div class="me-auto">
-                                    <button class="collapse-toggle{% if errors_exist and not contributor_has_errors %} collapsed tab-selectable{% endif %} bg-transparent" data-bs-toggle="collapse"
-                                        data-bs-target="#vote-area-{{ contributor.id }}" aria-expanded="false" aria-controls="vote-area-{{ contributor.id }}" tabindex="-1" type="button">
-                                        {{ contributor.full_name }}
-                                        {% if label %} &ndash; <span class="fst-italic">{{ label }}</span>{% endif %}
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="collapse{% if not errors_exist or contributor_has_errors %} show{% endif %}" id="vote-area-{{ contributor.id }}">
-                                <div class="card-body">
-                                    {% include 'student_vote_questionnaire_group.html' with questionnaire_group=form_group preview=preview textanswers_visible_to=textanswers_visible_to contributor=contributor%}
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
+        {% if not preview %}
+            <div class="callout callout-info">
+                {% blocktranslate trimmed %}Thank you for taking part in this evaluation. Please be polite and constructive in your feedback.{% endblocktranslate %}
             </div>
         {% endif %}
-        {% if evaluation_form_group_bottom %}
-            <div class="card card-outline-primary mb-3">
-                <div class="card-header">
-                    {% translate "General questions" %}
+
+        {% language evaluation_language %}
+            {% if evaluation_form_group_top %}
+                <div class="card card-outline-primary mb-3">
+                    <div class="card-header">
+                        {% translate 'General questions' %}
+                    </div>
+                    <div class="card-body">
+                        {% include 'student_vote_questionnaire_group.html' with questionnaire_group=evaluation_form_group_top textanswers_visible_to=general_contribution_textanswers_visible_to preview=preview %}
+                    </div>
                 </div>
-                <div class="card-body">
-                    {% include "student_vote_questionnaire_group.html" with questionnaire_group=evaluation_form_group_bottom textanswers_visible_to=general_contribution_textanswers_visible_to preview=preview %}
+            {% endif %}
+            {% if contributor_form_groups %}
+                <div class="card card-outline-primary mb-3">
+                    <div class="card-header">
+                        {% translate 'Questions about the contributors' %}
+                    </div>
+                    <div class="card-body">
+                        {% if not preview %}
+                            <div class="callout callout-info">
+                                {% blocktranslate %}Please vote for all contributors you worked with. Click on "I can't give feedback" to skip a person.{% endblocktranslate %}
+                            </div>
+                        {% endif %}
+
+                        {% for contributor, label, form_group, contributor_has_errors, textanswers_visible_to in contributor_form_groups %}
+                            <div class="card collapsible{% if not forloop.last %} mb-3{% endif %}">
+                                <div class="card-header d-flex tab-row">
+                                    <div class="me-auto">
+                                        <button class="collapse-toggle{% if errors_exist and not contributor_has_errors %} collapsed tab-selectable{% endif %} bg-transparent" data-bs-toggle="collapse"
+                                            data-bs-target="#vote-area-{{ contributor.id }}" aria-expanded="false" aria-controls="vote-area-{{ contributor.id }}" tabindex="-1" type="button">
+                                            {{ contributor.full_name }}
+                                            {% if label %} &ndash; <span class="fst-italic">{{ label }}</span>{% endif %}
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="collapse{% if not errors_exist or contributor_has_errors %} show{% endif %}" id="vote-area-{{ contributor.id }}">
+                                    <div class="card-body">
+                                        {% include 'student_vote_questionnaire_group.html' with questionnaire_group=form_group preview=preview textanswers_visible_to=textanswers_visible_to contributor=contributor%}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
-            </div>
-        {% endif %}
+            {% endif %}
+            {% if evaluation_form_group_bottom %}
+                <div class="card card-outline-primary mb-3">
+                    <div class="card-header">
+                        {% translate "General questions" %}
+                    </div>
+                    <div class="card-body">
+                        {% include "student_vote_questionnaire_group.html" with questionnaire_group=evaluation_form_group_bottom textanswers_visible_to=general_contribution_textanswers_visible_to preview=preview %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endlanguage %}
         {% if small_evaluation_size_warning and not preview and evaluation.num_voters == 0 %}
-            <div class="card card-outline-warning mb-3" id="bottom_text_results_publish_confirmation_card">
-                <div class="card-header">
+            <div class="callout callout-warning mb-3" id="bottom_text_results_publish_confirmation_card">
+                <div class="callout-header">
                     <span class="fas fa-triangle-exclamation"></span> {% translate 'Small number of participants' %}
                 </div>
-                <div class="card-body tab-row">
+                <div class="callout-content tab-row">
                     {% blocktranslate %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktranslate %}
 
                     <div class="form-check mt-3">
@@ -173,12 +225,14 @@
 
 {% block additional_javascript %}
     {% if not preview %}
-        <script type="text/javascript" src="{% static 'js/sisyphus.min.js' %}"></script>
-
         {{ text_answer_warnings|text_answer_warning_trigger_strings|json_script:'text-answer-warnings' }}
 
         <script type="module">
-            import {initTextAnswerWarnings} from "{% static 'js/text-answer-warnings.js' %}";
+            import { AutoFormSaver } from "{% static 'js/auto-form-saver.js' %}";
+            import { CSRF_HEADERS } from "{% static 'js/csrf-utils.js' %}";
+            import { initTextAnswerWarnings } from "{% static 'js/text-answer-warnings.js' %}";
+            import { assert } from "{% static 'js/utils.js' %}";
+
             const lastSavedStorageKey = "student-vote-last-saved-at-{{ evaluation.id }}-{{ request.user.id }}";
             const textResultsPublishConfirmation = {
                 top: document.querySelector("#text_results_publish_confirmation_top"),
@@ -186,10 +240,20 @@
                 bottomCard: document.querySelector("#bottom_text_results_publish_confirmation_card"),
             };
 
-            var sisyphus = $("#student-vote-form").sisyphus({
-                locationBased: true,
-                excludeFields: $("input[type=hidden]"), // exclude the csrf token
-                autoRelease: false, // don't automatically release the data on submit, because the server might not receive the data
+            // Ensure that selected questionnaire language is saved and loaded
+            const languageStorageKey = "student-vote-language-{{ evaluation.id }}-{{ request.user.id }}";
+            const params = new URLSearchParams(document.location.search);
+            const currentlySelectedLanguage = "{{ evaluation_language|escapejs }}";
+            const savedLanguage = localStorage.getItem(languageStorageKey);
+
+            if (params.get("language")) {
+                localStorage.setItem(languageStorageKey, currentlySelectedLanguage);
+            } else if (savedLanguage && savedLanguage !== currentlySelectedLanguage) {
+                params.set("language", savedLanguage);
+                document.location.search = params.toString();
+            }
+
+            const formSaver = new AutoFormSaver(document.getElementById("student-vote-form"), {
                 customKeySuffix: "[user={{ request.user.id }}]", // don't load data for other users
                 onRestore: function () {
                     // restore publish confirmation state
@@ -250,7 +314,7 @@
 
             // save all data after loading the page
             // (the data gets deleted every time the form is submitted, i.e. also when the form had errors and is displayed again)
-            sisyphus.saveAllData();
+            formSaver.saveAllData();
 
             // Initialize lastSavedLabel and update it every second
             updateLastSavedLabel();
@@ -276,7 +340,7 @@
                     return response.text();
                 }).then(response_text => {
                     if(response_text === "{{ success_magic_string }}") {
-                        sisyphus.manuallyReleaseData();
+                        formSaver.releaseData();
                         window.location.replace("{{ success_redirect_url }}");
                     } else {
                         // resubmit without this handler to show the site with the form errors
@@ -309,7 +373,7 @@
                         clearChoiceError(radioInput);
                     });
 
-                    sisyphus.saveAllData();
+                    formSaver.saveAllData();
 
                     // hide questionnaire for contributor
                     const voteAreaCollapse = bootstrap.Collapse.getOrCreateInstance(voteArea);
@@ -376,7 +440,7 @@
                     // which would hide the bottom card.
                     // To keep the top checkbox checked (after a reload or submit), save the form manually.
                     textResultsPublishConfirmation.top.checked = textResultsPublishConfirmation.bottom.checked;
-                    sisyphus.saveAllData();
+                    formSaver.saveAllData();
                 });
             }
         </script>

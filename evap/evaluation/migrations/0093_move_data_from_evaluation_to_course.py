@@ -2,8 +2,8 @@ from django.db import migrations
 
 
 def move_data_to_course(apps, _schema_editor):
-    Course = apps.get_model('evaluation', 'Course')
-    Evaluation = apps.get_model('evaluation', 'Evaluation')
+    Course = apps.get_model("evaluation", "Course")
+    Evaluation = apps.get_model("evaluation", "Evaluation")
     for evaluation in Evaluation.objects.all():
         course = Course.objects.create(
             name_de=evaluation.name_de,
@@ -20,8 +20,8 @@ def move_data_to_course(apps, _schema_editor):
 
 
 def move_data_to_evaluation(apps, _schema_editor):
-    Course = apps.get_model('evaluation', 'Course')
-    Evaluation = apps.get_model('evaluation', 'Evaluation')
+    Course = apps.get_model("evaluation", "Course")
+    Evaluation = apps.get_model("evaluation", "Evaluation")
     for course in Course.objects.all():
         evaluation = Evaluation.objects.get(course=course)
         evaluation.name_de = course.name_de
@@ -39,12 +39,9 @@ def move_data_to_evaluation(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0092_add_course'),
+        ("evaluation", "0092_add_course"),
     ]
 
     operations = [
-        migrations.RunPython(
-            move_data_to_course,
-            reverse_code=move_data_to_evaluation
-        ),
+        migrations.RunPython(move_data_to_course, reverse_code=move_data_to_evaluation),
     ]

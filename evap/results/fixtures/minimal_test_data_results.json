@@ -44,17 +44,6 @@
   }
 },
 {
-  "pk":3,
-  "model":"evaluation.questionnaire",
-  "fields":{
-    "name_de":"Einzelergebnis",
-    "name_en":"Single result",
-    "order": 0,
-    "type": 20,
-    "visibility": 0
-  }
-},
-{
   "pk": 1,
   "model": "evaluation.question",
   "fields": {
@@ -110,17 +99,6 @@
   }
 },
 {
-  "pk": 6,
-  "model": "evaluation.question",
-  "fields": {
-    "questionnaire": 2,
-    "text_en": "can you see me?",
-    "text_de": "can you see me?",
-    "allows_additional_textanswers": false,
-    "type": 0
-  }
-},
-{
   "pk": "00000000-0000-0000-0000-000000000001",
   "model": "evaluation.textanswer",
   "fields": {
@@ -135,7 +113,7 @@
   "pk": "00000000-0000-0000-0000-000000000002",
   "model": "evaluation.textanswer",
   "fields": {
-    "answer": ".general_orig_hidden.",
+    "answer": ".general_orig_deleted.",
     "question": 3,
     "original_answer": null,
     "contribution": 1,
@@ -190,7 +168,7 @@
   "pk": "00000000-0000-0000-0000-000000000012",
   "model": "evaluation.textanswer",
   "fields": {
-    "answer": ".responsible_contributor_orig_hidden.",
+    "answer": ".responsible_contributor_orig_deleted.",
     "question": 1,
     "original_answer": null,
     "contribution": 6,
@@ -223,22 +201,11 @@
   "pk": "00000000-0000-0000-0000-000000000015",
   "model": "evaluation.textanswer",
   "fields": {
-    "answer": ".responsible_contributor_orig_notreviewed.",
+    "answer": ".responsible_contributor_orig_unreviewed.",
     "question": 1,
     "original_answer": null,
     "contribution": 6,
     "review_decision": "UN"
-  }
-},
-{
-  "pk": "00000000-0000-0000-0000-000000000016",
-  "model": "evaluation.textanswer",
-  "fields": {
-    "answer": ".proxy_user_visibility_info.",
-    "question": 6,
-    "original_answer": null,
-    "contribution": 1,
-    "review_decision": "PU"
   }
 },
 {
@@ -256,7 +223,7 @@
   "pk": "00000000-0000-0000-0000-000000000018",
   "model": "evaluation.textanswer",
   "fields": {
-    "answer": ".responsible_contributor_additional_orig_hidden.",
+    "answer": ".responsible_contributor_additional_orig_deleted.",
     "question": 2,
     "original_answer": null,
     "contribution": 6,
@@ -278,7 +245,7 @@
   "pk": "00000000-0000-0000-0000-000000000020",
   "model": "evaluation.textanswer",
   "fields": {
-    "answer": ".general_additional_orig_hidden.",
+    "answer": ".general_additional_orig_deleted.",
     "question": 4,
     "original_answer": null,
     "contribution": 1,

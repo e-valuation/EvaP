@@ -6,6 +6,7 @@ from django.core import mail
 from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.test import override_settings
+from django_fsm import TransitionNotAllowed
 from model_bakery import baker
 
 from evap.evaluation.models import (
@@ -18,7 +19,6 @@ from evap.evaluation.models import (
     Question,
     Questionnaire,
     QuestionType,
-    RatingAnswerCounter,
     Semester,
     TextAnswer,
     UserProfile,
@@ -29,7 +29,6 @@ from evap.evaluation.tests.tools import (
     let_user_vote_for_evaluation,
     make_contributor,
     make_editor,
-    make_rating_answer_counters,
 )
 from evap.grades.models import GradeDocument
 from evap.results.tools import cache_results, calculate_average_distribution
@@ -102,11 +101,14 @@ class TestEvaluations(WebTest):
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
         self.assertEqual(evaluation.state, Evaluation.State.EVALUATED)
 
+    @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com"])
     def test_in_evaluation_to_reviewed(self):
+        participant = baker.make(UserProfile, email="foo@institution.example.com")
         # Evaluation is "fully reviewed" as no open text answers are present by default.
         evaluation = baker.make(
             Evaluation,
             state=Evaluation.State.IN_EVALUATION,
+            participants=[participant],
             vote_start_datetime=datetime.now() - timedelta(days=2),
             vote_end_date=date.today() - timedelta(days=1),
         )
@@ -116,16 +118,45 @@ class TestEvaluations(WebTest):
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
         self.assertEqual(evaluation.state, Evaluation.State.REVIEWED)
 
+    @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com"])
     def test_in_evaluation_to_published(self):
+        participant = baker.make(UserProfile, email="foo@institution.example.com")
+
         # Evaluation is "fully reviewed" and not graded, thus gets published immediately.
         course = baker.make(Course)
         evaluation = baker.make(
             Evaluation,
             course=course,
             state=Evaluation.State.IN_EVALUATION,
+            participants=[participant],
             vote_start_datetime=datetime.now() - timedelta(days=2),
             vote_end_date=date.today() - timedelta(days=1),
             wait_for_grade_upload_before_publishing=False,
+        )
+
+        with (
+            patch("evap.evaluation.models.EmailTemplate.send_participant_publish_notifications") as participant_mock,
+            patch("evap.evaluation.models.EmailTemplate.send_contributor_publish_notifications") as contributor_mock,
+        ):
+            Evaluation.update_evaluations()
+
+        participant_mock.assert_called_once_with([evaluation])
+        contributor_mock.assert_called_once_with([evaluation])
+
+        evaluation = Evaluation.objects.get(pk=evaluation.pk)
+        self.assertEqual(evaluation.state, Evaluation.State.PUBLISHED)
+
+    @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com"])
+    def test_in_evaluation_to_published_with_external_participants(self):
+        # participant is external, since no institution email domain is set
+        participant = baker.make(UserProfile, email="foo@example.com")
+        evaluation = baker.make(
+            Evaluation,
+            state=Evaluation.State.IN_EVALUATION,
+            participants=[participant],
+            vote_start_datetime=datetime.now() - timedelta(days=3),
+            vote_end_date=date.today() - timedelta(days=2),
+            wait_for_grade_upload_before_publishing=True,
         )
 
         with (
@@ -244,50 +275,6 @@ class TestEvaluations(WebTest):
         editor_contribution.questionnaires.add(questionnaire)
         self.assertTrue(evaluation.general_contribution_has_questionnaires)
         self.assertTrue(evaluation.all_contributions_have_questionnaires)
-
-    def test_single_result_can_be_deleted_only_in_reviewed(self):
-        responsible = baker.make(UserProfile)
-        evaluation = baker.make(Evaluation, is_single_result=True)
-        contribution = baker.make(
-            Contribution,
-            evaluation=evaluation,
-            contributor=responsible,
-            questionnaires=[Questionnaire.single_result_questionnaire()],
-            role=Contribution.Role.EDITOR,
-            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-        )
-        make_rating_answer_counters(Questionnaire.single_result_questionnaire().questions.first(), contribution)
-        evaluation.skip_review_single_result()
-        evaluation.publish()
-        evaluation.save()
-
-        self.assertTrue(Evaluation.objects.filter(pk=evaluation.pk).exists())
-        self.assertFalse(evaluation.can_be_deleted_by_manager)
-
-        evaluation.unpublish()
-        self.assertTrue(evaluation.can_be_deleted_by_manager)
-
-        RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation).delete()
-        evaluation.delete()
-        self.assertFalse(Evaluation.objects.filter(pk=evaluation.pk).exists())
-
-    @staticmethod
-    def test_single_result_can_be_published():
-        """Regression test for #1238"""
-        responsible = baker.make(UserProfile)
-        single_result = baker.make(Evaluation, is_single_result=True, _participant_count=5, _voter_count=5)
-        contribution = baker.make(
-            Contribution,
-            evaluation=single_result,
-            contributor=responsible,
-            questionnaires=[Questionnaire.single_result_questionnaire()],
-            role=Contribution.Role.EDITOR,
-            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-        )
-        make_rating_answer_counters(Questionnaire.single_result_questionnaire().questions.first(), contribution)
-
-        single_result.skip_review_single_result()
-        single_result.publish()  # used to crash
 
     def test_second_vote_sets_can_publish_text_results_to_true(self):
         student1 = baker.make(UserProfile, email="student1@institution.example.com")
@@ -486,10 +473,13 @@ class TestEvaluations(WebTest):
 
         evaluation.wait_for_grade_upload_before_publishing = False
 
+    @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com"])
     def test_textanswer_review_state(self):
+        participant = baker.make(UserProfile, email="foo@institution.example.com")
         evaluation = baker.make(
             Evaluation,
             state=Evaluation.State.IN_EVALUATION,
+            participants=[participant],
             can_publish_text_results=True,
             wait_for_grade_upload_before_publishing=False,
         )
@@ -536,6 +526,22 @@ class TestEvaluations(WebTest):
             evaluation.TextAnswerReviewState.REVIEWED,
             evaluation.TextAnswerReviewState.REVIEWED,
         )
+
+    def test_approve_without_main_language(self):
+        evaluation = baker.make(
+            Evaluation,
+        )
+        evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
+
+        with self.assertRaises(TransitionNotAllowed):
+            evaluation.editor_approve()
+
+        with self.assertRaises(TransitionNotAllowed):
+            evaluation.manager_approve()
+
+        evaluation.main_language = "en"
+        evaluation.save()
+        evaluation.manager_approve()
 
 
 class TestCourse(TestCase):
@@ -758,25 +764,6 @@ class ParticipationArchivingTests(TestCase):
         self.assertFalse(evaluation.participations_are_archived)
         self.assertTrue(evaluation.participations_can_be_archived)
 
-    def test_archiving_participations_doesnt_change_single_results_participant_count(self):
-        responsible = baker.make(UserProfile)
-        evaluation = baker.make(
-            Evaluation, state=Evaluation.State.PUBLISHED, is_single_result=True, _participant_count=5, _voter_count=5
-        )
-        contribution = baker.make(
-            Contribution,
-            evaluation=evaluation,
-            contributor=responsible,
-            role=Contribution.Role.EDITOR,
-            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-        )
-        contribution.questionnaires.add(Questionnaire.single_result_questionnaire())
-
-        evaluation.course.semester.archive()
-        evaluation = Evaluation.objects.get(pk=evaluation.pk)
-        self.assertEqual(evaluation._participant_count, 5)
-        self.assertEqual(evaluation._voter_count, 5)
-
 
 class TestLoginUrlEmail(TestCase):
     @classmethod
@@ -979,8 +966,11 @@ class TestEmailTemplate(TestCase):
     def test_send_contributor_publish_notifications():
         responsible1 = baker.make(UserProfile)
         responsible2 = baker.make(UserProfile)
-        # use is_single_result to get can_publish_average_grade to become true
-        evaluation1 = baker.make(Evaluation, course__responsibles=[responsible1], is_single_result=True)
+
+        students = baker.make(UserProfile, _quantity=3)
+        evaluation1 = baker.make(
+            Evaluation, course__responsibles=[responsible1], participants=students, voters=students
+        )
         evaluation2 = baker.make(Evaluation, course__responsibles=[responsible2])
 
         editor1 = baker.make(UserProfile)

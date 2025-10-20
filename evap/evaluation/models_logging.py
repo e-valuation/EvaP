@@ -6,6 +6,7 @@ from contextlib import contextmanager
 from datetime import date, datetime, time
 from enum import Enum
 from json import JSONEncoder
+from typing import assert_never
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -17,9 +18,8 @@ from django.forms.models import model_to_dict
 from django.template.defaultfilters import yesno
 from django.utils.formats import localize
 from django.utils.translation import gettext_lazy as _
-from typing_extensions import assert_never
 
-from evap.evaluation.tools import capitalize_first
+from evap.evaluation.tools import capitalize_first, inject_choices_constraint
 
 CREATE_LOGENTRIES = True
 
@@ -103,6 +103,7 @@ class LogEntry(models.Model):
     request_id = models.CharField(max_length=36, blank=True)
     data = models.JSONField(default=dict, encoder=LogJSONEncoder)
 
+    @inject_choices_constraint(locals())
     class Meta:
         ordering = ["-datetime", "-id"]
 
@@ -144,6 +145,11 @@ class LoggedModel(models.Model):
     class Meta:
         abstract = True
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._logentry = None
+        self._m2m_changes = defaultdict(lambda: defaultdict(list))
+
     def save(self, *args, **kw):
         # Are we creating a new instance?
         # https://docs.djangoproject.com/en/3.0/ref/models/instances/#customizing-model-loading
@@ -156,11 +162,6 @@ class LoggedModel(models.Model):
             # therefore we save the instance after building the logentry
             self.log_instance_change()
             super().save(*args, **kw)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._logentry = None
-        self._m2m_changes = defaultdict(lambda: defaultdict(list))
 
     def _as_dict(self):
         """
@@ -342,27 +343,51 @@ class LoggedModel(models.Model):
 
 
 @receiver(m2m_changed)
-def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  # pylint: disable=unused-argument
-    if reverse:
-        return
-    if not isinstance(instance, LoggedModel):
-        return
-
+def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  # noqa: PLR0912
+    model_class = model if reverse else type(instance)
     field_name = next(
-        (
-            field.name
-            for field in type(instance)._meta.many_to_many
-            if getattr(type(instance), field.name).through == sender
-        ),
+        (field.name for field in model_class._meta.many_to_many if getattr(model_class, field.name).through == sender),
         None,
     )
-
-    if field_name in instance.unlogged_fields:
+    if field_name is None:
         return
 
-    if action == "pre_remove":
-        instance.log_m2m_change(field_name, FieldActionType.M2M_REMOVE, list(pk_set))
-    elif action == "pre_add":
-        instance.log_m2m_change(field_name, FieldActionType.M2M_ADD, list(pk_set))
-    elif action == "pre_clear":
-        instance.log_m2m_change(field_name, FieldActionType.M2M_CLEAR, [])
+    if not issubclass(model_class, LoggedModel):
+        return
+
+    if reverse:
+        match action:
+            case "pre_remove":
+                action_type = FieldActionType.M2M_REMOVE
+            case "pre_add":
+                action_type = FieldActionType.M2M_ADD
+            case "pre_clear":
+                # Since we are not clearing the LoggedModdel instance, we need to log the removal of the related instances
+                action_type = FieldActionType.M2M_REMOVE
+            case _:
+                return
+
+        if pk_set:
+            related_instances = model.objects.filter(pk__in=pk_set)
+        else:
+            # When action is pre_clear, pk_set is None, so we need to get the related instances from the instance itself
+            field = model._meta.get_field(field_name)
+            related_name = field.remote_field.get_accessor_name()
+            related_instances = getattr(instance, related_name).all()
+
+        for related_instance in related_instances:
+            if field_name in related_instance.unlogged_fields:
+                continue
+
+            related_instance.log_m2m_change(field_name, action_type, [instance.pk])
+
+    else:
+        if field_name in instance.unlogged_fields:
+            return
+
+        if action == "pre_remove":
+            instance.log_m2m_change(field_name, FieldActionType.M2M_REMOVE, list(pk_set))
+        elif action == "pre_add":
+            instance.log_m2m_change(field_name, FieldActionType.M2M_ADD, list(pk_set))
+        elif action == "pre_clear":
+            instance.log_m2m_change(field_name, FieldActionType.M2M_CLEAR, [])

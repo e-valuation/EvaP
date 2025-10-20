@@ -1,4 +1,5 @@
 import logging
+import subprocess
 import sys
 
 from django.conf import settings
@@ -35,7 +36,7 @@ def log_exceptions(cls):
     class NewClass(cls):
         def handle(self, *args, **options):
             try:
-                super().handle(args, options)
+                super().handle(*args, **options)
             except Exception:
                 logger.exception("Management command '%s' failed. Traceback follows: ", sys.argv[1])
                 raise
@@ -47,3 +48,13 @@ def logged_call_command(stdout, *args, **kwargs):
     """Log execution of management command with all args."""
     stdout.write("Executing python manage.py " + " ".join(list(args) + [f"{a}={b}" for a, b in kwargs.items()]))
     call_command(*args, **kwargs)
+
+
+def subprocess_run_or_exit(command: list, stdout=None) -> None:
+    if stdout is not None:
+        stdout.write(f"Executing {' '.join(str(el) for el in command)}")
+
+    exit_code = subprocess.run(command, check=False).returncode
+    if exit_code != 0:
+        sys.exit(exit_code)
+    # don't sys.exit() on return code 0 so that precommit.py can chain commands

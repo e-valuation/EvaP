@@ -1,24 +1,29 @@
-import os
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from datetime import date, datetime, timedelta
 from enum import Enum
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.core.exceptions import SuspiciousOperation
 from django.db import transaction
-from django.db.models import Count
+from django.db.models import Count, Max, Model
 from django.urls import reverse
 from django.utils.html import escape, format_html, format_html_join
 from django.utils.safestring import SafeString
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
 from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer, UserProfile
 from evap.evaluation.models_logging import LogEntry
-from evap.evaluation.tools import clean_email, is_external_email
+from evap.evaluation.tools import StrOrPromise, clean_email, is_external_email
 from evap.grades.models import GradeDocument
 from evap.results.tools import STATES_WITH_RESULTS_CACHING, cache_results
+
+if TYPE_CHECKING:
+    from django.db.models.fields.related_descriptors import RelatedManager
 
 
 class ImportType(Enum):
@@ -29,37 +34,34 @@ class ImportType(Enum):
     USER_BULK_UPDATE = "user_bulk_update"
 
 
-def generate_import_filename(user_id, import_type):
-    return os.path.join(settings.MEDIA_ROOT, "temp_import_files", f"{user_id}.{import_type.value}.xls")
+def generate_import_path(user_id, import_type) -> Path:
+    return settings.MEDIA_ROOT / "temp_import_files" / f"{user_id}.{import_type.value}.xls"
 
 
 def save_import_file(excel_file, user_id, import_type):
-    filename = generate_import_filename(user_id, import_type)
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
-    with open(filename, "wb") as file:
+    path = generate_import_path(user_id, import_type)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "wb") as file:
         for chunk in excel_file.chunks():
             file.write(chunk)
     excel_file.seek(0)
 
 
 def delete_import_file(user_id, import_type):
-    filename = generate_import_filename(user_id, import_type)
-    try:
-        os.remove(filename)
-    except OSError:
-        pass
+    path = generate_import_path(user_id, import_type)
+    path.unlink(missing_ok=True)
 
 
 def import_file_exists(user_id, import_type):
-    filename = generate_import_filename(user_id, import_type)
-    return os.path.isfile(filename)
+    path = generate_import_path(user_id, import_type)
+    return path.is_file()
 
 
 def get_import_file_content_or_raise(user_id, import_type):
-    filename = generate_import_filename(user_id, import_type)
-    if not os.path.isfile(filename):
+    path = generate_import_path(user_id, import_type)
+    if not path.is_file():
         raise SuspiciousOperation("No test run performed previously.")
-    with open(filename, "rb") as file:
+    with open(path, "rb") as file:
         return file.read()
 
 
@@ -195,6 +197,9 @@ def bulk_update_users(request, user_file_content, test_run):  # noqa: PLR0912
                 user, deletable_users + users_to_mark_inactive, test_run
             ):
                 messages.warning(request, message)
+        for user in users_to_mark_inactive:
+            for message in remove_participations_if_inactive(user, test_run):
+                messages.warning(request, message)
         if test_run:
             messages.info(request, _("No data was changed in this test run."))
         else:
@@ -203,6 +208,7 @@ def bulk_update_users(request, user_file_content, test_run):  # noqa: PLR0912
             for user in users_to_mark_inactive:
                 user.is_active = False
                 user.save()
+
             for user, email in users_to_be_updated:
                 user.email = email
                 user.save()
@@ -375,9 +381,86 @@ def remove_user_from_represented_and_ccing_users(user, ignored_users=None, test_
     return remove_messages
 
 
+def remove_participations_if_inactive(user: UserProfile, test_run=False) -> list[StrOrPromise]:
+    if user.is_active and not user.can_be_marked_inactive_by_manager:
+        return []
+    last_participation = user.evaluations_participating_in.aggregate(Max("vote_end_date"))["vote_end_date__max"]
+    if (
+        last_participation is None
+        or (date.today() - last_participation) < settings.PARTICIPATION_DELETION_AFTER_INACTIVE_TIME
+    ):
+        return []
+
+    evaluation_count = user.evaluations_participating_in.count()
+    if test_run:
+        return [
+            ngettext(
+                "{} participation of {} would be removed due to inactivity.",
+                "{} participations of {} would be removed due to inactivity.",
+                evaluation_count,
+            ).format(evaluation_count, user.full_name)
+        ]
+    user.evaluations_participating_in.clear()
+    return [
+        ngettext(
+            "{} participation of {} was removed due to inactivity.",
+            "{} participations of {} were removed due to inactivity.",
+            evaluation_count,
+        ).format(evaluation_count, user.full_name)
+    ]
+
+
 def user_edit_link(user_id):
     return format_html(
         '<a href="{}" target=_blank><span class="fas fa-user-pen"></span> {}</a>',
         reverse("staff:user_edit", kwargs={"user_id": user_id}),
         _("edit user"),
     )
+
+
+T = TypeVar("T", bound=Model)
+
+
+def update_or_create_with_changes(
+    model: type[T],
+    defaults=None,
+    **kwargs,
+) -> tuple[T, bool, dict[str, tuple[Any, Any]]]:
+    """Do update_or_create and track changed values."""
+
+    if not defaults:
+        defaults = {}
+
+    obj, created = model._default_manager.get_or_create(**kwargs, defaults=defaults)
+
+    if created:
+        return obj, True, {}
+
+    changes = update_with_changes(obj, defaults)
+
+    return obj, False, changes
+
+
+def update_with_changes(obj: Model, defaults: dict[str, Any]) -> dict[str, tuple[Any, Any]]:
+    """Update a model instance and track changed values."""
+
+    changes = {}
+    for key, value in defaults.items():
+        if getattr(obj, key) != value:
+            changes[key] = (getattr(obj, key), value)
+            setattr(obj, key, value)
+
+    if changes:
+        obj.save()
+
+    return changes
+
+
+def update_m2m_with_changes(obj: Model, field: str, new_data: Sequence) -> dict[str, tuple[Any, Any]]:
+    """Update a m2m field of a model and track changed values."""
+    manager: RelatedManager = getattr(obj, field)
+    old_data = manager.all()
+    if set(old_data) != set(new_data):
+        manager.set(new_data)
+        return {field: (old_data, new_data)}
+    return {}

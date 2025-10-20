@@ -23,14 +23,6 @@ class TextAnswerField(forms.CharField):
         kwargs["widget"] = forms.Textarea(attrs={"related_answer_field_id": self.related_answer_field_id})
         super().__init__(*args, **kwargs)
 
-    def deconstruct(self):
-        name, path, args, kwargs = super().deconstruct()
-        del kwargs["required"]
-        del kwargs["widget"]
-        if self.related_answer_field_id is not None:
-            kwargs["related_answer_field_id"] = self.related_answer_field_id
-        return name, path, args, kwargs
-
     @classmethod
     def from_question(cls, question: Question):
         return cls(label=question.text)
@@ -47,14 +39,6 @@ class RatingAnswerField(forms.TypedChoiceField):
             }
         )
         super().__init__(*args, **kwargs)
-
-    def deconstruct(self):
-        name, path, args, kwargs = super().deconstruct()
-        del kwargs["coerce"]
-        del kwargs["widget"]
-        if self.allows_textanswer:
-            kwargs["allows_textanswer"] = self.allows_textanswer
-        return name, path, args, kwargs
 
     @classmethod
     def from_question(cls, question: Question):
