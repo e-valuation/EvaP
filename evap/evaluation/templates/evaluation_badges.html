@@ -4,7 +4,11 @@
     {% endfor %}
 {% endif %}
 {% if not mode == 'subentry' %}
-    <span class="badge bg-secondary badge-course-type">{{ evaluation.course.type }}</span>
+    {% if evaluation.exam_type %}
+        <span class="badge bg-light badge-course-type">{{ evaluation.exam_type }}</span>
+    {% else %}
+        <span class="badge bg-secondary badge-course-type">{{ evaluation.course.type }}</span>
+    {% endif %}
 {% endif %}
 {% if evaluation.is_midterm_evaluation %}<span class="badge bg-dark">{% translate 'Midterm evaluation' %}</span>{% endif %}
 {% if mode == 'manager' %}
