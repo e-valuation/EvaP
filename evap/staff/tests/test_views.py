@@ -16,6 +16,7 @@ from django.http import HttpResponse
 from django.test import override_settings
 from django.urls import reverse
 from django.utils import translation
+from django_webtest import DjangoWebtestResponse
 from model_bakery import baker
 
 import evap.staff.fixtures.excel_files_test_data as excel_data
@@ -3298,6 +3299,34 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
             [("5", True, "Dropout questionnaire")],
             "Dropout questionnaires should not be changeable to different types",
         )
+
+    def change_question(self) -> DjangoWebtestResponse:
+        baker.make(Contribution, questionnaires=[self.questionnaire], evaluation__state=Evaluation.State.NEW)
+
+        page = self.app.get(self.url, user=self.manager)
+        form = page.forms["questionnaire-form"]
+        form["question_assignments-0-text_de"].force_value("successfully")
+        form["question_assignments-0-text_en"].force_value("changed")
+        form["question_assignments-0-type"] = QuestionType.NEGATIVE_LIKERT
+        form["question_assignments-0-allows_additional_textanswers"] = True
+        return form.submit()
+
+    def test_can_change_question(self) -> None:
+        question = self.questionnaire.questions.get()
+
+        self.change_question().follow()
+        question.refresh_from_db()
+        self.assertEqual(question.text_de, "successfully")
+        self.assertEqual(question.text_en, "changed")
+        self.assertEqual(question.type, QuestionType.NEGATIVE_LIKERT)
+        self.assertEqual(question.allows_additional_textanswers, True)
+
+    def test_cannot_change_used_questions(self) -> None:
+        question = self.questionnaire.questions.get()
+        baker.make(QuestionAssignment, question=question)
+
+        page = self.change_question()
+        self.assertIn("cannot change a question that is used in multiple questionnaires.", page)
 
 
 class TestQuestionnaireViewView(WebTestStaffModeWith200Check):

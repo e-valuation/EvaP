@@ -26,16 +26,17 @@ from evap.evaluation.models import (
 from evap.evaluation.tests.tools import LiveServerTest
 
 
-class TomselectLiveTest(LiveServerTest):
+class TomselectMixin:
 
     def select_tomselect_option(self, select: WebElement, option: str) -> None:
+        assert isinstance(self, LiveServerTest)
         tomselect_options: Any = select.get_property("tomselect")["options"]  # type: ignore[index]
         target_options = [key for key, value in tomselect_options.items() if value["text"] == option]
         self.assertEqual(len(target_options), 1)
         self.selenium.execute_script("arguments[0].tomselect.setValue(arguments[1])", select, target_options[0])
 
 
-class EvaluationEditLiveTest(TomselectLiveTest):
+class EvaluationEditLiveTest(LiveServerTest, TomselectMixin):
     def test_submit_changes_form_data(self):
         """Regression test for #1769"""
 
@@ -48,7 +49,7 @@ class EvaluationEditLiveTest(TomselectLiveTest):
             main_language="en",
         )
 
-        general_questionnaire = baker.make(Questionnaire, questions=[baker.make(QuestionAssignment)])
+        general_questionnaire = baker.make(Questionnaire, question_assignments=[baker.make(QuestionAssignment)])
         evaluation.general_contribution.questionnaires.set([general_questionnaire])
 
         contribution1 = baker.make(
@@ -120,7 +121,7 @@ class EvaluationEditLiveTest(TomselectLiveTest):
         self.wait.until(invisibility_of_element_located((By.XPATH, "//td//a[contains(text(),'course name')]")))
 
 
-class QuestionnaireEditLiveTest(TomselectLiveTest):
+class QuestionnaireEditLiveTest(LiveServerTest, TomselectMixin):
 
     def setUp(self) -> None:
         super().setUp()
@@ -130,7 +131,7 @@ class QuestionnaireEditLiveTest(TomselectLiveTest):
         self.url = self.reverse("staff:questionnaire_edit", args=[self.questionnaire.pk])
 
     def first_question_row(self) -> dict[str, WebElement]:
-        elements: Any = self.selenium.find_elements(By.CSS_SELECTOR, "[id^='id_questions-0-']")
+        elements: Any = self.selenium.find_elements(By.CSS_SELECTOR, "[id^='id_question_assignments-0-']")
         return {element.get_attribute("id").split("-")[-1]: element for element in elements}
 
     def test_edit_question(self) -> None:
@@ -146,7 +147,7 @@ class QuestionnaireEditLiveTest(TomselectLiveTest):
         with self.enter_staff_mode():
             self.select_tomselect_option(row["text_de"], new_question.text_de)
             self.wait.until(
-                text_to_be_present_in_element_value((By.ID, "id_questions-0-question"), str(new_question.pk))
+                text_to_be_present_in_element_value((By.ID, "id_question_assignments-0-question"), str(new_question.pk))
             )
         self.assertEqual(row["text_en"].get_property("value"), new_question.text_en)
         self.assertEqual(
@@ -161,8 +162,8 @@ class QuestionnaireEditLiveTest(TomselectLiveTest):
 
         self.questionnaire.refresh_from_db()
         self.assertEqual(self.questionnaire.questions.count(), 1)
-        self.assertEqual(self.questionnaire.questions.get().order, 0)
-        self.assertEqual(self.questionnaire.question_set.get(), new_question)
+        self.assertEqual(self.questionnaire.question_assignments.get().order, 0)
+        self.assertEqual(self.questionnaire.questions.get(), new_question)
 
     def test_question_override(self) -> None:
         new_question_text_de = "Neue Frage"
@@ -179,10 +180,14 @@ class QuestionnaireEditLiveTest(TomselectLiveTest):
             self.select_tomselect_option(row["text_de"], new_question_text_de)
             self.select_tomselect_option(row["text_en"], new_question_text_en)
             self.wait.until(
-                text_to_be_present_in_element_value((By.ID, "id_questions-0-text_de"), str(new_question_text_de))
+                text_to_be_present_in_element_value(
+                    (By.ID, "id_question_assignments-0-text_de"), str(new_question_text_de)
+                )
             )
             self.wait.until(
-                text_to_be_present_in_element_value((By.ID, "id_questions-0-text_en"), str(new_question_text_en))
+                text_to_be_present_in_element_value(
+                    (By.ID, "id_question_assignments-0-text_en"), str(new_question_text_en)
+                )
             )
 
         self.assertEqual(row["question"].get_property("value"), "")
@@ -194,7 +199,7 @@ class QuestionnaireEditLiveTest(TomselectLiveTest):
 
         self.questionnaire.refresh_from_db()
         self.assertEqual(self.questionnaire.questions.count(), 1)
-        self.assertEqual(self.questionnaire.questions.get().order, 0)
-        new_question = self.questionnaire.question_set.get()
+        self.assertEqual(self.questionnaire.question_assignments.get().order, 0)
+        new_question = self.questionnaire.questions.get()
         self.assertEqual(new_question.text_de, new_question_text_de)
         self.assertEqual(new_question.text_en, new_question_text_en)
