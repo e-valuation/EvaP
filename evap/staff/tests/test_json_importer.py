@@ -673,7 +673,7 @@ class TestImportEvents(TestCase):
         self.assertTrue(
             WarningMessage(
                 obj=EXAMPLE_DATA["events"][0]["title"],
-                message="Course skipped because skipping of courses with type Vorlesung is activated",
+                message="Course skipped because skipping of courses with type Lecture is activated",
             )
             in importer.statistics.warnings,
         )
