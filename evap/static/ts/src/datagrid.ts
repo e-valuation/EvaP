@@ -22,6 +22,7 @@ interface State {
 interface BaseParameters {
     storageKey: string;
     searchInput: HTMLInputElement;
+    resetSearch?: HTMLButtonElement;
 }
 
 interface DataGridParameters extends BaseParameters {
@@ -34,11 +35,12 @@ abstract class DataGrid {
     protected sortableHeaders: Map<string, HTMLElement>;
     protected container: HTMLElement;
     private searchInput: HTMLInputElement;
+    protected readonly resetSearch?: HTMLButtonElement;
     protected rows: Row[] = [];
     private delayTimer: number | undefined;
     protected state: State;
 
-    protected constructor({ storageKey, head, container, searchInput }: DataGridParameters) {
+    protected constructor({ storageKey, head, container, searchInput, resetSearch }: DataGridParameters) {
         this.storageKey = storageKey;
         this.sortableHeaders = new Map();
         head.querySelectorAll<HTMLElement>(".col-order").forEach(header => {
@@ -47,6 +49,7 @@ abstract class DataGrid {
         });
         this.container = container;
         this.searchInput = searchInput;
+        this.resetSearch = resetSearch;
         this.state = this.restoreStateFromStorage();
     }
 
@@ -74,6 +77,12 @@ abstract class DataGrid {
             if (event.key === "enter") {
                 this.searchInput.blur();
             }
+        });
+        this.resetSearch?.addEventListener("click", () => {
+            this.state.search = "";
+            this.filterRows();
+            this.renderToDOM();
+            this.reflectFilterStateOnInputs();
         });
 
         for (const [column, header] of this.sortableHeaders) {
@@ -227,38 +236,25 @@ abstract class DataGrid {
 
 interface TableGridParameters extends BaseParameters {
     table: HTMLTableElement;
-    resetSearch: HTMLButtonElement;
 }
 
 // Table based data grid which uses its head and body
 export class TableGrid extends DataGrid {
-    private resetSearch: HTMLButtonElement;
     private searchableColumnIndices: number[];
 
-    constructor({ table, resetSearch, ...options }: TableGridParameters) {
+    constructor({ table, ...options }: TableGridParameters) {
         const thead: HTMLElement = selectOrError("thead", table);
         super({
             head: thead,
             container: table.querySelector("tbody")!,
             ...options,
         });
-        this.resetSearch = resetSearch;
         this.searchableColumnIndices = [];
 
         thead.querySelectorAll("th").forEach((header, index) => {
             if (!header.hasAttribute("data-not-searchable")) {
                 this.searchableColumnIndices.push(index);
             }
-        });
-    }
-
-    public bindEvents() {
-        super.bindEvents();
-        this.resetSearch.addEventListener("click", () => {
-            this.state.search = "";
-            this.filterRows();
-            this.renderToDOM();
-            this.reflectFilterStateOnInputs();
         });
     }
 
@@ -396,6 +392,7 @@ interface ResultGridParameters extends DataGridParameters {
     sortColumnSelect: HTMLSelectElement;
     sortOrderCheckboxes: HTMLInputElement[];
     resetFilter: HTMLButtonElement;
+    resetSearch: HTMLButtonElement;
     resetOrder: HTMLButtonElement;
 }
 
