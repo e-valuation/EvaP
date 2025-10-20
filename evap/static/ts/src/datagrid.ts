@@ -382,6 +382,7 @@ interface ResultGridParameters extends DataGridParameters {
     sortColumnSelect: HTMLSelectElement;
     sortOrderCheckboxes: HTMLInputElement[];
     resetFilter: HTMLButtonElement;
+    resetSearch: HTMLButtonElement;
     resetOrder: HTMLButtonElement;
 }
 
@@ -392,6 +393,7 @@ export class ResultGrid extends DataGrid {
     private readonly sortColumnSelect: HTMLSelectElement;
     private readonly sortOrderCheckboxes: HTMLInputElement[];
     private readonly resetFilter: HTMLButtonElement;
+    private readonly resetSearch: HTMLButtonElement;
     private readonly resetOrder: HTMLButtonElement;
 
     constructor({
@@ -400,6 +402,7 @@ export class ResultGrid extends DataGrid {
         sortColumnSelect,
         sortOrderCheckboxes,
         resetFilter,
+        resetSearch,
         resetOrder,
         ...options
     }: ResultGridParameters) {
@@ -409,6 +412,7 @@ export class ResultGrid extends DataGrid {
         this.sortColumnSelect = sortColumnSelect;
         this.sortOrderCheckboxes = sortOrderCheckboxes;
         this.resetFilter = resetFilter;
+        this.resetSearch = resetSearch;
         this.resetOrder = resetOrder;
     }
 
@@ -451,9 +455,17 @@ export class ResultGrid extends DataGrid {
             this.reflectFilterStateOnInputs();
         });
 
+        this.resetSearch.addEventListener("click", () => {
+            this.state.search = "";
+            this.filterRows();
+            this.renderToDOM();
+            this.reflectFilterStateOnInputs();
+        });
+
         this.resetOrder.addEventListener("click", () => {
             this.sort(this.defaultOrder);
         });
+
     }
 
     sortByInputs() {
