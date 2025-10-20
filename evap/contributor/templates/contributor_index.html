@@ -53,11 +53,11 @@
 
     {% for semester in semester_list %}
         {% if semester.evaluations %}
-        <div class="card{% if not forloop.last %} mb-3{% endif %}{% if semester.is_active %} card-outline-primary{% endif %}">
-            <div class="card-header">
+        <div class="contributor-table card{% if not forloop.last %} mb-3{% endif %}{% if semester.is_active %} card-outline-primary{% endif %}">
+            <div class="card-header contributor-head">
                 {{ semester.semester_name }}
             </div>
-            <div class="card-body">
+            <div class="card-body contributor-body">
                 <!-- TODO-RK: Disable sorting in columns -->
                 <div class="grid-header contributor-grid-row d-none d-lg-grid">
                     <div data-col="name" class="col-order">{% translate 'Name' %}</div>
@@ -66,7 +66,7 @@
                     <div data-col="voters" class="col-order">{% translate 'Voters' %}</div>
                     <div data-col="result" class="col-order">{% translate 'Results and actions' %}</div>
                 </div>
-                <div id="contributor-grid">
+                <div>
                     {% regroup semester.evaluations by course as course_evaluations %}
                     {% for course, evaluations in course_evaluations|dictsort:"grouper.name" %}
                         {% if course.evaluation_count > 1 %}
@@ -89,13 +89,16 @@
     {% endfor %}
 {% endblock %}
 
-<!-- TODO-RK: Enable searching through search bar -->
 {% block additional_javascript %}
     <script type="module">
-        import {TableGrid} from "{% static 'js/datagrid.js' %}";
+        // TODO-RK: Only show course row, not all rows from that semester
+        // TODO-RK: Hide empty cards with no search results (and show 'No results' if all cards are empty)
+        import {DataGrid} from "{% static 'js/datagrid.js' %}";
         document.querySelectorAll(".contributor-table").forEach(table => {
-            new TableGrid({
-                storageKey: "contributor-grid",
+            new DataGrid({
+                storageKey: "contributor-table",
+                head: table.querySelector(".contributor-head"),
+                container: table.querySelector(".contributor-body"),
                 searchInput: document.querySelector("input[name=search]"),
                 resetSearch: document.querySelector("[data-reset=search]"),
             }).init();
