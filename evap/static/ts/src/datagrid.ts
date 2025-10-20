@@ -465,7 +465,6 @@ export class ResultGrid extends DataGrid {
         this.resetOrder.addEventListener("click", () => {
             this.sort(this.defaultOrder);
         });
-
     }
 
     sortByInputs() {
