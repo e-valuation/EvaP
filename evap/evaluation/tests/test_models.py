@@ -1152,6 +1152,7 @@ class QuestionnaireTests(TestCase):
 class QuestionTests(TestCase):
     def test_save_for_text_and_heading_question_type(self):
         questionaire = baker.make(Questionnaire)
+        # Use prepare() instead of make() to test Question.save() method behavior
         question_text = baker.prepare(
             Question,
             questionnaire=questionaire,
@@ -1174,7 +1175,6 @@ class QuestionTests(TestCase):
             counts_for_grade=True,
         )
 
-        question_text.save()
         question_rating.save()
         question_rating.refresh_from_db()
         self.assertEqual(question_rating.allows_additional_textanswers, True)
