@@ -3247,15 +3247,15 @@ class TestQuestionnaireIndexView(WebTestStaffMode):
 
 
 class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
-    @classmethod
-    def setUpTestData(cls):
-        cls.manager = make_manager()
-        cls.test_users = [cls.manager]
+    def setUp(self):
+        super().setUp()
+        self.manager = make_manager()
+        self.test_users = [self.manager]
 
-        cls.questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        cls.url = f"/staff/questionnaire/{cls.questionnaire.pk}/edit"
+        self.questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        self.url = f"/staff/questionnaire/{self.questionnaire.pk}/edit"
 
-        baker.make(QuestionAssignment, questionnaire=cls.questionnaire)
+        baker.make(QuestionAssignment, questionnaire=self.questionnaire)
 
     def test_allowed_type_changes_on_used_questionnaire(self):
         baker.make(Contribution, questionnaires=[self.questionnaire], evaluation__state=Evaluation.State.IN_EVALUATION)
