@@ -470,7 +470,9 @@ class TestCalculateAverageDistribution(TestCase):
         self.assertEqual(grade_distribution, (1, 0, 0, 0, 0))  # Only the counting grade question should be included
 
         non_grade_distribution = average_non_grade_rating_questions_distribution(question_results)
-        self.assertEqual(non_grade_distribution, (0, 0, 1, 0, 0))  # Only the counting likert question should be included
+        self.assertEqual(
+            non_grade_distribution, (0, 0, 1, 0, 0)
+        )  # Only the counting likert question should be included
 
         RatingAnswerCounter.objects.all().delete()
         counters = [
