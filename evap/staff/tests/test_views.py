@@ -2397,7 +2397,10 @@ class TestEvaluationEditView(WebTestStaffMode):
     def test_general_contribution_log_entry(self):
         evaluation = baker.make(Evaluation)
         page = self.app.get(reverse("staff:evaluation_edit", args=[evaluation.pk]), user=self.manager)
-        self.assertContains(page, '<p class="mt-3">The Contribution "General Contribution" was created.</p><ul></ul>', html=True)
+        self.assertContains(
+            page, '<p class="mt-3">The Contribution "General Contribution" was created.</p><ul></ul>', html=True
+        )
+
 
 class TestEvaluationDeleteView(WebTestStaffMode):
     csrf_checks = False
