@@ -218,7 +218,7 @@ class ResultsExporter(ExcelExporter):
 
         self.next_row()
         self.write_cell(_("Programs"), "bold")
-        self.write_cell("", "program")
+        self.write_cell("", "program")  # empty cell in grade-average column
         for evaluation, __ in evaluations_with_results:
             self.write_cell("\n".join([d.name for d in evaluation.course.programs.all()]), "program")
 
