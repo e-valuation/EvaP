@@ -58,13 +58,13 @@
                                         <div class="form-check mt-1">
                                             <input class="form-check-input allow-textanswer-checkbox" id="{{ form_element.allows_additional_textanswers.id_for_label }}" name="{{ form_element.allows_additional_textanswers.html_name }}"
                                                 type="checkbox" data-keep="true" {% if form_element.allows_additional_textanswers.value %} checked{% endif %}
-                                                {% if form_element.allows_additional_textanswers.field.disabled %} disabled{% endif %} />
+                                                {{form_element.allows_additional_textanswers.field.widget.attrs.disabled}} />
                                             <label class="form-check-label" for="{{ form_element.allows_additional_textanswers.id_for_label }}">{{ form_element.allows_additional_textanswers.label }}</label>
                                         </div>
                                         <div class="form-check mt-1">
                                             <input class="form-check-input counts-for-grade-checkbox" id="{{ form_element.counts_for_grade.id_for_label }}" name="{{ form_element.counts_for_grade.html_name }}"
-                                                type="checkbox" data-keep="true" {% if form_element.counts_for_grade.value %} checked{% endif %}
-                                                {% if form_element.counts_for_grade.field.disabled %} disabled{% endif %} />
+                                                type="checkbox" data-keep="true" {% if form_element.counts_for_grade.value %} checked{% endif %} 
+                                                {{form_element.counts_for_grade.field.widget.attrs.disabled}}/>
                                             <label class="form-check-label" for="{{ form_element.counts_for_grade.id_for_label }}">{{ form_element.counts_for_grade.label }}</label>
                                         </div>
                                     </td>
@@ -128,11 +128,13 @@
                                     checkbox.checked = false;
                                     checkbox.disabled = true;
                                 } else {
+                                    checkbox.checked = true;
                                     checkbox.disabled = false;
                                 }
                             });
                         } else {
                             checkboxes.forEach(checkbox => {
+                                checkbox.checked = true;
                                 checkbox.disabled = false;
                             });
                         }
@@ -190,7 +192,6 @@
             const registerSelectChangedHandlers = function() {
                 document.querySelectorAll(".question-type select").forEach(selectElement => {
                     selectElement.addEventListener('change', selectChangedHandler);
-                    selectElement.dispatchEvent(new Event("change"));
                 });
                 
                 const questionnaireTypeSelect = document.querySelector('select[name="type"]');
