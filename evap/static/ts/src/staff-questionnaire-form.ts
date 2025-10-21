@@ -1,4 +1,8 @@
-import { assertDefined, selectOrError } from "./utils.js";
+import { assertDefined, saneParseInt, selectOrError } from "./utils.js";
+
+const QUESTION_TYPE_TEXT = 0;
+const QUESTION_TYPE_HEADING = 5;
+const QUESTIONNAIRE_TYPE_DROPOUT = 5;
 
 export class StaffQuestionnaireForm {
     private readonly questionTable: HTMLTableElement;
@@ -11,17 +15,13 @@ export class StaffQuestionnaireForm {
 
     private selectChangedHandler = (e: Event): void => {
         const target = e.currentTarget as HTMLSelectElement;
+        const questionType = saneParseInt(target.value);
         const questionTypeCell = target.closest("td.question-type");
         if (!questionTypeCell) return;
-        
+
         const checkboxes = questionTypeCell.querySelectorAll("input[type=checkbox]");
-        
-        // Do not do anything if the value is not set to enable saving
-        // if (target.value === undefined || target.value === "") {
-        //     return;
-        // }
-        
-        if (target.value === "0" || target.value === "5") {  // 0: Text question; 5: Heading
+
+        if (questionType === QUESTION_TYPE_TEXT || questionType === QUESTION_TYPE_HEADING) {
             checkboxes.forEach(checkbox => {
                 const checkboxElement = checkbox as HTMLInputElement;
                 checkboxElement.checked = false;
@@ -30,12 +30,12 @@ export class StaffQuestionnaireForm {
         } else {
             // Check if this is a dropout questionnaire before enabling checkboxes
             if (this.questionnaireTypeSelect) {
-                const questionnaireType = parseInt(this.questionnaireTypeSelect.value);
-                
-                if (questionnaireType === 5) { // Dropout questionnaire
+                const questionnaireType = saneParseInt(this.questionnaireTypeSelect.value);
+
+                if (questionnaireType === QUESTIONNAIRE_TYPE_DROPOUT) {
                     checkboxes.forEach(checkbox => {
                         const checkboxElement = checkbox as HTMLInputElement;
-                        if (checkboxElement.classList.contains('counts-for-grade-checkbox')) {
+                        if (checkboxElement.classList.contains("counts-for-grade-checkbox")) {
                             checkboxElement.checked = false;
                             checkboxElement.disabled = true;
                         } else {
@@ -63,23 +63,22 @@ export class StaffQuestionnaireForm {
 
     private handleQuestionnaireTypeChange = (): void => {
         if (!this.questionnaireTypeSelect) return;
-        
-        const selectedType = parseInt(this.questionnaireTypeSelect.value);
-        const countsForGradeCheckboxes = document.querySelectorAll('.counts-for-grade-checkbox');
-        
-        if (selectedType === 5) { // Dropout questionnaire
+
+        const selectedType = saneParseInt(this.questionnaireTypeSelect.value);
+        const countsForGradeCheckboxes = document.querySelectorAll(".counts-for-grade-checkbox");
+
+        if (selectedType === QUESTIONNAIRE_TYPE_DROPOUT) {
             countsForGradeCheckboxes.forEach(checkbox => {
                 const checkboxElement = checkbox as HTMLInputElement;
                 const questionTypeCell = checkboxElement.closest("td.question-type");
                 assertDefined(questionTypeCell);
-                
+
                 const questionTypeSelect = selectOrError<HTMLSelectElement>("select", questionTypeCell);
-                
-                // Skip empty template forms to prevent Django validation issues
+
                 if (questionTypeSelect.value === "") {
                     return;
                 }
-                
+
                 checkboxElement.checked = false;
                 checkboxElement.disabled = true;
             });
@@ -88,19 +87,19 @@ export class StaffQuestionnaireForm {
                 const checkboxElement = checkbox as HTMLInputElement;
                 const questionTypeCell = checkboxElement.closest("td.question-type");
                 assertDefined(questionTypeCell);
-                
+
                 const questionTypeSelect = selectOrError<HTMLSelectElement>("select", questionTypeCell);
-                
-                // Skip empty template forms to prevent Django validation issues
+
                 if (questionTypeSelect.value === "") {
                     return;
                 }
-                
-                const questionType = parseInt(questionTypeSelect.value);
-                if (questionType === 0 || questionType === 5) { // 0: Text question; 5: Heading
+
+                const questionType = saneParseInt(questionTypeSelect.value);
+                if (questionType === QUESTION_TYPE_TEXT || questionType === QUESTION_TYPE_HEADING) {
                     checkboxElement.checked = false;
                     checkboxElement.disabled = true;
                 } else {
+                    checkboxElement.checked = true;
                     checkboxElement.disabled = false;
                 }
             });
@@ -109,12 +108,12 @@ export class StaffQuestionnaireForm {
 
     public registerSelectChangedHandlers = (): void => {
         document.querySelectorAll(".question-type select").forEach(selectElement => {
-            selectElement.addEventListener('change', this.selectChangedHandler);
+            selectElement.addEventListener("change", this.selectChangedHandler);
             // selectElement.dispatchEvent(new Event('change'));
         });
-        
+
         if (this.questionnaireTypeSelect) {
-            this.questionnaireTypeSelect.addEventListener('change', this.handleQuestionnaireTypeChange);
+            this.questionnaireTypeSelect.addEventListener("change", this.handleQuestionnaireTypeChange);
         }
     };
 }
