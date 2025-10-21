@@ -1,4 +1,4 @@
-import { selectOrError, assert } from "./utils.js";
+import { assertDefined, selectOrError } from "./utils.js";
 
 export class StaffQuestionnaireForm {
     private readonly questionTable: HTMLTableElement;
@@ -11,9 +11,10 @@ export class StaffQuestionnaireForm {
 
     private selectChangedHandler = (e: Event): void => {
         const target = e.currentTarget as HTMLSelectElement;
-        const checkboxes = target.closest("td.question-type")?.querySelectorAll("input[type=checkbox]");
+        const questionTypeCell = target.closest("td.question-type");
+        if (!questionTypeCell) return;
         
-        if (!checkboxes) return;
+        const checkboxes = questionTypeCell.querySelectorAll("input[type=checkbox]");
         
         // Do not do anything if the value is not set to enable saving
         // if (target.value === undefined || target.value === "") {
@@ -69,34 +70,38 @@ export class StaffQuestionnaireForm {
         if (selectedType === 5) { // Dropout questionnaire
             countsForGradeCheckboxes.forEach(checkbox => {
                 const checkboxElement = checkbox as HTMLInputElement;
-                const questionTypeSelect = checkboxElement.closest("td.question-type")?.querySelector("select") as HTMLSelectElement;
-                if (questionTypeSelect) {
-                    // Do not do anything if the value is not set to enable saving
-                    if (questionTypeSelect.value === undefined || questionTypeSelect.value === "") {
-                        return;
-                    }
-                    
-                    checkboxElement.checked = false;
-                    checkboxElement.disabled = true;
+                const questionTypeCell = checkboxElement.closest("td.question-type");
+                assertDefined(questionTypeCell);
+                
+                const questionTypeSelect = selectOrError<HTMLSelectElement>("select", questionTypeCell);
+                
+                // Skip empty template forms to prevent Django validation issues
+                if (questionTypeSelect.value === "") {
+                    return;
                 }
+                
+                checkboxElement.checked = false;
+                checkboxElement.disabled = true;
             });
         } else {
             countsForGradeCheckboxes.forEach(checkbox => {
                 const checkboxElement = checkbox as HTMLInputElement;
-                const questionTypeSelect = checkboxElement.closest("td.question-type").querySelector("select") as HTMLSelectElement;
-                if (questionTypeSelect) {
-                    // Do not do anything if the value is not set to enable saving
-                    if (questionTypeSelect.value === undefined || questionTypeSelect.value === "") {
-                        return;
-                    }
-                    
-                    const questionType = parseInt(questionTypeSelect.value);
-                    if (questionType === 0 || questionType === 5) { // 0: Text question; 5: Heading
-                        checkboxElement.checked = false;
-                        checkboxElement.disabled = true;
-                    } else {
-                        checkboxElement.disabled = false;
-                    }
+                const questionTypeCell = checkboxElement.closest("td.question-type");
+                assertDefined(questionTypeCell);
+                
+                const questionTypeSelect = selectOrError<HTMLSelectElement>("select", questionTypeCell);
+                
+                // Skip empty template forms to prevent Django validation issues
+                if (questionTypeSelect.value === "") {
+                    return;
+                }
+                
+                const questionType = parseInt(questionTypeSelect.value);
+                if (questionType === 0 || questionType === 5) { // 0: Text question; 5: Heading
+                    checkboxElement.checked = false;
+                    checkboxElement.disabled = true;
+                } else {
+                    checkboxElement.disabled = false;
                 }
             });
         }
