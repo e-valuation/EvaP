@@ -89,6 +89,10 @@
     {% if editable %}
         <script type="module">
             import { makeFormSortable } from "{% static 'js/sortable-form.js' %}";
+            import { StaffQuestionnaireForm } from "{% static 'js/staff-questionnaire-form.js' %}";
+            
+            const staffQuestionnaireForm = new StaffQuestionnaireForm("question_table");
+            
             const rowChanged = function(row) {
                 const nameDe = row.querySelector('textarea[id$=-text_de]')?.value;
                 const nameEn = row.querySelector('textarea[id$=-text_en]')?.value;
@@ -99,107 +103,11 @@
                     el.remove();
                 });
                 applyTomSelect(row.querySelectorAll("select"));
-                registerSelectChangedHandlers();
+                staffQuestionnaireForm.registerSelectChangedHandlers();
             };
             makeFormSortable("question_table", "questions", rowChanged, rowAdded, true, true);
 
-            const selectChangedHandler = function(e) {
-                const checkboxes = this.closest("td.question-type").querySelectorAll("input[type=checkbox]");
-                
-                // Do not do anything if the value is not set to enable saving
-                if(e.currentTarget.value == undefined || e.currentTarget.value == ""){
-                    return;
-                }
-                
-                if (e.currentTarget.value == 0 || e.currentTarget.value == 5) {  // 0: Text question; 5: Heading
-                    checkboxes.forEach(checkbox => {
-                        checkbox.checked = false;
-                        checkbox.disabled = true;
-                    });
-                } else {
-                    // Check if this is a dropout questionnaire before enabling checkboxes
-                    const questionnaireTypeSelect = document.querySelector('select[name="type"]');
-                    if (questionnaireTypeSelect) {
-                        const questionnaireType = parseInt(questionnaireTypeSelect.value);
-                        
-                        if (questionnaireType == 5) { // Dropout questionnaire
-                            checkboxes.forEach(checkbox => {
-                                if (checkbox.classList.contains('counts-for-grade-checkbox')) {
-                                    checkbox.checked = false;
-                                    checkbox.disabled = true;
-                                } else {
-                                    checkbox.checked = true;
-                                    checkbox.disabled = false;
-                                }
-                            });
-                        } else {
-                            checkboxes.forEach(checkbox => {
-                                checkbox.checked = true;
-                                checkbox.disabled = false;
-                            });
-                        }
-                    } else {
-                        // Fallback: enable all checkboxes if questionnaire type not found
-                        checkboxes.forEach(checkbox => {
-                            checkbox.checked = true;
-                            checkbox.disabled = false;
-                        });
-                    }
-                }
-            };
-
-            const handleQuestionnaireTypeChange = function() {
-                const typeSelect = document.querySelector('select[name="type"]');
-                if (typeSelect) {
-                    const selectedType = parseInt(typeSelect.value);
-                    const countsForGradeCheckboxes = document.querySelectorAll('.counts-for-grade-checkbox');
-                    
-                    if (selectedType == 5) { // Dropout questionnaire
-                        countsForGradeCheckboxes.forEach(checkbox => {
-                            const questionTypeSelect = checkbox.closest("td.question-type").querySelector("select");
-                            if (questionTypeSelect) {
-                                // Do not do anything if the value is not set to enable saving
-                                if(questionTypeSelect.value === undefined || questionTypeSelect.value === ""){
-                                    return;
-                                }
-                                
-                                checkbox.checked = false;
-                                checkbox.disabled = true;
-                            }
-                        });
-                    } else {
-                        countsForGradeCheckboxes.forEach(checkbox => {
-                            const questionTypeSelect = checkbox.closest("td.question-type").querySelector("select");
-                            if (questionTypeSelect) {
-                                // Do not do anything if the value is not set to enable saving
-                                if(questionTypeSelect.value === undefined || questionTypeSelect.value === ""){
-                                    return;
-                                }
-                                
-                                const questionType = parseInt(questionTypeSelect.value);
-                                if (questionType == 0 || questionType == 5) { // 0: Text question; 5: Heading
-                                    checkbox.checked = false;
-                                    checkbox.disabled = true;
-                                } else {
-                                    checkbox.disabled = false;
-                                }
-                            }
-                        });
-                    }
-                }
-            };
-
-            const registerSelectChangedHandlers = function() {
-                document.querySelectorAll(".question-type select").forEach(selectElement => {
-                    selectElement.addEventListener('change', selectChangedHandler);
-                });
-                
-                const questionnaireTypeSelect = document.querySelector('select[name="type"]');
-                if (questionnaireTypeSelect) {
-                    questionnaireTypeSelect.addEventListener('change', handleQuestionnaireTypeChange);
-                }
-            };
-            registerSelectChangedHandlers();
+            staffQuestionnaireForm.registerSelectChangedHandlers();
         </script>
     {% endif %}
 {% endblock %}
