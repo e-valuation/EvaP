@@ -6,12 +6,33 @@ const QUESTIONNAIRE_TYPE_DROPOUT = 5;
 
 export class StaffQuestionnaireForm {
     private readonly questionTable: HTMLTableElement;
-    private readonly questionnaireTypeSelect: HTMLSelectElement | null;
+    private readonly questionnaireTypeSelect: HTMLSelectElement;
 
     constructor(questionTableId: string) {
         this.questionTable = selectOrError<HTMLTableElement>(`#${questionTableId}`);
-        this.questionnaireTypeSelect = document.querySelector<HTMLSelectElement>('select[name="type"]');
+        this.questionnaireTypeSelect = selectOrError<HTMLSelectElement>('select[name="type"]');
     }
+    private disableAndUncheckCheckbox = (checkbox: HTMLInputElement): void => {
+        checkbox.checked = false;
+        checkbox.disabled = true;
+    };
+
+    private enableAndCheckCheckbox = (checkbox: HTMLInputElement): void => {
+        checkbox.checked = true;
+        checkbox.disabled = false;
+    };
+
+    private disableAllCheckboxes = (checkboxes: NodeListOf<Element>): void => {
+        checkboxes.forEach(checkbox => {
+            this.disableAndUncheckCheckbox(checkbox as HTMLInputElement);
+        });
+    };
+
+    private enableAllCheckboxes = (checkboxes: NodeListOf<Element>): void => {
+        checkboxes.forEach(checkbox => {
+            this.enableAndCheckCheckbox(checkbox as HTMLInputElement);
+        });
+    };
 
     private selectChangedHandler = (e: Event): void => {
         const target = e.currentTarget as HTMLSelectElement;
@@ -22,48 +43,27 @@ export class StaffQuestionnaireForm {
         const checkboxes = questionTypeCell.querySelectorAll("input[type=checkbox]");
 
         if (questionType === QUESTION_TYPE_TEXT || questionType === QUESTION_TYPE_HEADING) {
+            this.disableAllCheckboxes(checkboxes);
+            return;
+        }
+        // Check if this is a dropout questionnaire before enabling checkboxes
+        const questionnaireType = saneParseInt(this.questionnaireTypeSelect.value);
+
+        if (questionnaireType === QUESTIONNAIRE_TYPE_DROPOUT) {
             checkboxes.forEach(checkbox => {
                 const checkboxElement = checkbox as HTMLInputElement;
-                checkboxElement.checked = false;
-                checkboxElement.disabled = true;
+                if (checkboxElement.classList.contains("counts-for-grade-checkbox")) {
+                    this.disableAndUncheckCheckbox(checkboxElement);
+                } else {
+                    this.enableAndCheckCheckbox(checkboxElement);
+                }
             });
         } else {
-            // Check if this is a dropout questionnaire before enabling checkboxes
-            if (this.questionnaireTypeSelect) {
-                const questionnaireType = saneParseInt(this.questionnaireTypeSelect.value);
-
-                if (questionnaireType === QUESTIONNAIRE_TYPE_DROPOUT) {
-                    checkboxes.forEach(checkbox => {
-                        const checkboxElement = checkbox as HTMLInputElement;
-                        if (checkboxElement.classList.contains("counts-for-grade-checkbox")) {
-                            checkboxElement.checked = false;
-                            checkboxElement.disabled = true;
-                        } else {
-                            checkboxElement.checked = true;
-                            checkboxElement.disabled = false;
-                        }
-                    });
-                } else {
-                    checkboxes.forEach(checkbox => {
-                        const checkboxElement = checkbox as HTMLInputElement;
-                        checkboxElement.checked = true;
-                        checkboxElement.disabled = false;
-                    });
-                }
-            } else {
-                // Fallback: enable all checkboxes if questionnaire type not found
-                checkboxes.forEach(checkbox => {
-                    const checkboxElement = checkbox as HTMLInputElement;
-                    checkboxElement.checked = true;
-                    checkboxElement.disabled = false;
-                });
-            }
+            this.enableAllCheckboxes(checkboxes);
         }
     };
 
     private handleQuestionnaireTypeChange = (): void => {
-        if (!this.questionnaireTypeSelect) return;
-
         const selectedType = saneParseInt(this.questionnaireTypeSelect.value);
         const countsForGradeCheckboxes = document.querySelectorAll(".counts-for-grade-checkbox");
 
@@ -79,8 +79,7 @@ export class StaffQuestionnaireForm {
                     return;
                 }
 
-                checkboxElement.checked = false;
-                checkboxElement.disabled = true;
+                this.disableAndUncheckCheckbox(checkboxElement);
             });
         } else {
             countsForGradeCheckboxes.forEach(checkbox => {
@@ -96,11 +95,9 @@ export class StaffQuestionnaireForm {
 
                 const questionType = saneParseInt(questionTypeSelect.value);
                 if (questionType === QUESTION_TYPE_TEXT || questionType === QUESTION_TYPE_HEADING) {
-                    checkboxElement.checked = false;
-                    checkboxElement.disabled = true;
+                    this.disableAndUncheckCheckbox(checkboxElement);
                 } else {
-                    checkboxElement.checked = true;
-                    checkboxElement.disabled = false;
+                    this.enableAndCheckCheckbox(checkboxElement);
                 }
             });
         }
@@ -109,11 +106,8 @@ export class StaffQuestionnaireForm {
     public registerSelectChangedHandlers = (): void => {
         document.querySelectorAll(".question-type select").forEach(selectElement => {
             selectElement.addEventListener("change", this.selectChangedHandler);
-            // selectElement.dispatchEvent(new Event('change'));
         });
 
-        if (this.questionnaireTypeSelect) {
-            this.questionnaireTypeSelect.addEventListener("change", this.handleQuestionnaireTypeChange);
-        }
+        this.questionnaireTypeSelect.addEventListener("change", this.handleQuestionnaireTypeChange);
     };
 }
