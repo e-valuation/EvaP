@@ -1512,7 +1512,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
 class Answer(models.Model):
     """
     An abstract answer to a question. For anonymity purposes, the answering
-    user ist not stored in the object. Concrete subclasses are
+    user is not stored in the object. Concrete subclasses are
     `RatingAnswerCounter`, and `TextAnswer`.
     """
 
