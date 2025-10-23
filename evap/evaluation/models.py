@@ -1149,11 +1149,7 @@ class Contribution(LoggedModel):
         return (
             super().unlogged_fields
             + ["evaluation"]
-            + (["contributor"] if self.is_general else [])
-            + (["role"] if self.is_general else [])
-            + (["role"] if self.is_general else [])
-            + (["label"] if self.is_general else [])
-            + (["textanswer_visibility"] if self.is_general else [])
+            + (["contributor", "role", "label", "textanswer_visibility"] if self.is_general else [])
         )
 
     @property
