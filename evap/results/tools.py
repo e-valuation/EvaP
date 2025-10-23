@@ -83,6 +83,7 @@ class RatingResult:
         self.colors = tuple(
             color for _, color, value in self.choices.as_name_color_value_tuples() if value != NO_ANSWER
         )
+        self.warning = False
 
     @property
     def choices(self):
@@ -151,6 +152,7 @@ class QuestionnaireResult:
     def __init__(self, questionnaire: Questionnaire, question_results: list[QuestionResult]):
         self.questionnaire = discard_cached_related_objects(copy(questionnaire))
         self.question_results = question_results
+        self.warning = False
 
 
 class ContributionResult:
