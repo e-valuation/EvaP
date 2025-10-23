@@ -2395,8 +2395,7 @@ class TestEvaluationEditView(WebTestStaffMode):
         self.assertEqual(Evaluation.objects.first().state, self.evaluation.State.APPROVED)
 
     def test_general_contribution_log_entry(self):
-        evaluation = baker.make(Evaluation)
-        page = self.app.get(reverse("staff:evaluation_edit", args=[evaluation.pk]), user=self.manager)
+        page = self.app.get(self.url, user=self.manager)
         self.assertContains(
             page, '<p class="mt-3">The Contribution "General Contribution" was created.</p><ul></ul>', html=True
         )
