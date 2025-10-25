@@ -13,8 +13,10 @@ from evap.evaluation.models import CourseType, Evaluation, Program, Question, Qu
 from evap.evaluation.tools import ExcelExporter
 from evap.results.tools import (
     AnsweredRatingResult,
+    ContributionResult,
     QuestionResult,
     RatingResult,
+    TextResult,
     calculate_average_course_distribution,
     calculate_average_distribution,
     distribution_to_grade,
@@ -367,7 +369,7 @@ ResultsExporter.init_grade_styles()
 
 class TextAnswerExporter(ExcelExporter):
     class InputData:
-        def __init__(self, contribution_results):
+        def __init__(self, contribution_results: list[ContributionResult]) -> None:
             self.questionnaires = defaultdict(list)
 
             for contribution_result in contribution_results:
@@ -375,8 +377,9 @@ class TextAnswerExporter(ExcelExporter):
                     contribution_result.contributor.full_name if contribution_result.contributor is not None else ""
                 )
                 for questionnaire_result in contribution_result.questionnaire_results:
+                    q_type = questionnaire_result.questionnaire.type
                     for result in questionnaire_result.question_results:
-                        q_type = result.question.questionnaire.type
+                        assert isinstance(result, TextResult)
                         answers = [answer.answer for answer in result.answers]
                         self.questionnaires[q_type].append((contributor_name, result.question, answers))
 

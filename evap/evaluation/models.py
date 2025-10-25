@@ -264,11 +264,11 @@ class Questionnaire(models.Model):
         return not self.contributions.exists()
 
     @property
-    def text_questions(self):
+    def text_questions(self) -> list["Question"]:
         return [question for question in self.questions.all() if question.is_text_question]
 
     @property
-    def rating_questions(self):
+    def rating_questions(self) -> list["Question"]:
         return [question for question in self.questions.all() if question.is_rating_question]
 
 
@@ -1512,7 +1512,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
 class Answer(models.Model):
     """
     An abstract answer to a question. For anonymity purposes, the answering
-    user ist not stored in the object. Concrete subclasses are
+    user is not stored in the object. Concrete subclasses are
     `RatingAnswerCounter`, and `TextAnswer`.
     """
 

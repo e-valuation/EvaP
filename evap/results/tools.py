@@ -59,7 +59,7 @@ class TextAnswerVisibility:
         self.visible_by_delegation_count = visible_by_delegation_count
 
 
-def create_rating_result(question, answer_counters, additional_text_result=None):
+def create_rating_result(question: Question, answer_counters, additional_text_result=None):
     if answer_counters is None:
         return RatingResult(question, additional_text_result)
     if any(counter.count != 0 for counter in answer_counters):
@@ -76,7 +76,7 @@ class RatingResult:
     def has_answers(cls, rating_result) -> TypeGuard["AnsweredRatingResult"]:
         return isinstance(rating_result, AnsweredRatingResult)
 
-    def __init__(self, question, additional_text_result=None) -> None:
+    def __init__(self, question: Question, additional_text_result=None) -> None:
         assert question.is_rating_question
         self.question = discard_cached_related_objects(copy(question))
         self.additional_text_result = additional_text_result
@@ -90,7 +90,7 @@ class RatingResult:
 
 
 class PublishedRatingResult(RatingResult):
-    def __init__(self, question, answer_counters, additional_text_result=None) -> None:
+    def __init__(self, question: Question, answer_counters, additional_text_result=None) -> None:
         super().__init__(question, additional_text_result)
         counts = OrderedDict(
             (value, [0, name, color, value]) for (name, color, value) in self.choices.as_name_color_value_tuples()
