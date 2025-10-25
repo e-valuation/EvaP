@@ -424,6 +424,7 @@ class EvaluationForm(forms.ModelForm):
         if self.instance.pk is not None:
             queryset = (queryset | self.instance.participants.all()).distinct()
         self.fields["participants"].queryset = queryset
+        self.fields["participants"].widget.attrs["autocomplete"] = "off"
 
         if general_contribution := self.instance.general_contribution:
             self.fields["general_questionnaires"].initial = [
