@@ -1227,6 +1227,7 @@ def evaluation_create_impl(request, semester: Semester, course: Course | None):
             "editable": True,
             "state": "",
             "questionnaires_with_answers_per_contributor": {},
+            "plain_page": True,
         },
     )
 
@@ -1273,6 +1274,7 @@ def evaluation_copy(request, evaluation_id):
             "editable": True,
             "state": "",
             "questionnaires_with_answers_per_contributor": {},
+            "plain_page": True,
         },
     )
 
