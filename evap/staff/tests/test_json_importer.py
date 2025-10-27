@@ -550,11 +550,19 @@ class TestImportEvents(TestCase):
             )
 
     def test_import_ignore_users(self):
-        with override_settings(IGNORE_USERS=["ignored.student@example.com", "ignored.lecturer@example.com"]):
+        with override_settings(
+            IGNORE_USERS=[
+                "ignored.student@example.com",
+                "ignored.lecturer@example.com",
+                # to test that this filters cleaned emails
+                "2@EXAMPLE.com",
+            ]
+        ):
             self._import(EXAMPLE_DATA_SPECIAL_CASES)
 
             self.assertFalse(UserProfile.objects.filter(email="ignored.student@example.com").exists())
             self.assertFalse(UserProfile.objects.filter(email="ignored.lecturer@example.com").exists())
+            self.assertTrue(UserProfile.objects.filter(email="2@example.com").exists())
 
         with override_settings(IGNORE_USERS=[]):
             self._import(EXAMPLE_DATA_SPECIAL_CASES)

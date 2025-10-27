@@ -221,15 +221,15 @@ class JSONImporter:
 
     def _import_students(self, data: list[ImportStudent]) -> None:
         for entry in data:
-            if entry["email"] in settings.IGNORE_USERS:
-                continue
-
             email = clean_email(entry["email"])
             if not email:
                 self.statistics.warnings.append(
                     WarningMessage(obj=f"Student {entry['christianname']} {entry['name']}", message="No email defined")
                 )
             else:
+                if email in settings.IGNORE_USERS:
+                    continue
+
                 user_profile, __, changes = update_or_create_with_changes(
                     UserProfile,
                     email=email,
@@ -242,9 +242,6 @@ class JSONImporter:
 
     def _import_lecturers(self, data: list[ImportLecturer]) -> None:
         for entry in data:
-            if entry["email"] in settings.IGNORE_USERS:
-                continue
-
             email = clean_email(entry["email"])
             if not email:
                 self.statistics.warnings.append(
@@ -253,6 +250,9 @@ class JSONImporter:
                     )
                 )
             else:
+                if email in settings.IGNORE_USERS:
+                    continue
+
                 user_profile, __, changes = update_or_create_with_changes(
                     UserProfile,
                     email=email,
