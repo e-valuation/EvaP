@@ -860,7 +860,7 @@ class QuestionDetailsForm(forms.ModelForm):
         if self.instance.pk and self.instance.questionnaires.count() > 1:
             for field in ["type", "allows_additional_textanswers"]:
                 self.fields[field].disabled = True
-        elif self.instance.pk and self.instance.type in [QuestionType.TEXT, QuestionType.HEADING]:
+        elif self.instance.pk and self.instance.type in [QuestionType.TEXT, QuestionType.HEADING] and not self.data:
             self.fields["allows_additional_textanswers"].disabled = True
 
     def clean(self):
