@@ -114,7 +114,10 @@ abstract class DataGrid {
         return rows;
     }
 
-    protected abstract findSearchableCells(row: HTMLElement): HTMLElement[];
+    protected findSearchableCells(row: HTMLElement): HTMLElement[] {
+        const elements = [...row.children] as HTMLElement[];
+        return elements.filter(element => !element.hasAttribute("data-not-searchable"));
+    }
 
     protected abstract fetchRowFilterValues(row: HTMLElement): Map<string, string[]>;
 
@@ -233,7 +236,6 @@ interface TableGridParameters extends BaseParameters {
 // Table based data grid which uses its head and body
 export class TableGrid extends DataGrid {
     private resetSearch: HTMLButtonElement;
-    private searchableColumnIndices: number[];
 
     constructor({ table, resetSearch, ...options }: TableGridParameters) {
         const thead: HTMLElement = selectOrError("thead", table);
@@ -243,13 +245,6 @@ export class TableGrid extends DataGrid {
             ...options,
         });
         this.resetSearch = resetSearch;
-        this.searchableColumnIndices = [];
-
-        thead.querySelectorAll("th").forEach((header, index) => {
-            if (!header.hasAttribute("data-not-searchable")) {
-                this.searchableColumnIndices.push(index);
-            }
-        });
     }
 
     public bindEvents() {
@@ -259,14 +254,6 @@ export class TableGrid extends DataGrid {
             this.filterRows();
             this.renderToDOM();
             this.reflectFilterStateOnInputs();
-        });
-    }
-
-    protected findSearchableCells(row: HTMLElement): HTMLElement[] {
-        return this.searchableColumnIndices.map(index => {
-            const child = row.children[index];
-            assert(child instanceof HTMLElement);
-            return child;
         });
     }
 
@@ -291,9 +278,6 @@ interface EvaluationGridParameters extends DataGridParameters {
 export class EvaluationGrid extends DataGrid {
     // TODO: rename class
     // TODO: maybe merge with some others?
-    protected findSearchableCells(row: HTMLElement): HTMLElement[] {
-        return [...row.children] as HTMLElement[]; // TODO: skip buttons?
-    }
     private filterButtons: HTMLButtonElement[];
     private resetFilterButton: HTMLButtonElement;
 

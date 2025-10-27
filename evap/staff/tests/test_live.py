@@ -3,13 +3,14 @@ from datetime import date, datetime
 
 from model_bakery import baker
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.expected_conditions import (
     element_to_be_clickable,
     invisibility_of_element_located,
     visibility_of_element_located,
 )
+from selenium.webdriver.support.ui import WebDriverWait
+from visual_regression_tracker import Config, IgnoreArea, TestRun, VisualRegressionTracker
 
 from evap.evaluation.models import (
     Contribution,
@@ -23,7 +24,6 @@ from evap.evaluation.models import (
 )
 from evap.evaluation.tests.tools import LiveServerTest
 
-from visual_regression_tracker import VisualRegressionTracker, Config, TestRun, IgnoreArea
 
 class EvaluationEditLiveTest(LiveServerTest):
     def test_submit_changes_form_data(self):
@@ -94,7 +94,9 @@ class EvaluationEditLiveTest(LiveServerTest):
 
         semester = baker.make(Semester)
         course = baker.make(Course, semester=semester, name_en="course name")
-        baker.make(Evaluation, course=course, name_en="evaluation name")
+        baker.make(Evaluation, course=course, name_en="evaluation name searchable-needle")
+
+        evaluation_element = (By.XPATH, "//a[contains(text(),'searchable-needle')]")
 
         with self.enter_staff_mode():
             self.selenium.get(self.reverse("staff:semester_view", args=[semester.pk]))
@@ -105,6 +107,8 @@ class EvaluationEditLiveTest(LiveServerTest):
         search_input.clear()
         search_input.send_keys("course name")
 
+        self.wait.until(visibility_of_element_located(evaluation_element), "Evaluation should be searchable.")
+
         self.wait.until(
             visibility_of_element_located(
                 (By.XPATH, "//button[@slot='show-button' and @aria-label='Create exam evaluation']")
@@ -114,7 +118,10 @@ class EvaluationEditLiveTest(LiveServerTest):
         search_input.clear()
         search_input.send_keys("exam")
 
-        self.wait.until(invisibility_of_element_located((By.XPATH, "//td//a[contains(text(),'course name')]")))
+        self.wait.until(
+            invisibility_of_element_located(evaluation_element), "Searching for 'exam' should not yield results."
+        )
+
 
 class StaffSemesterViewRegressionTest(LiveServerTest):
 
@@ -133,14 +140,18 @@ class StaffSemesterViewRegressionTest(LiveServerTest):
         )
         evaluation2 = baker.make(
             Evaluation,
-            course=baker.make(Course, semester=evaluation.course.semester, programs=[baker.make(Program)], responsibles=[responsible]),
+            course=baker.make(
+                Course, semester=evaluation.course.semester, programs=[baker.make(Program)], responsibles=[responsible]
+            ),
             vote_start_datetime=datetime(2099, 1, 1, 0, 0),
             vote_end_date=date(2099, 12, 31),
             main_language="en",
         )
         evaluation3 = baker.make(
             Evaluation,
-            course=baker.make(Course, semester=evaluation.course.semester, programs=[baker.make(Program)], responsibles=[responsible]),
+            course=baker.make(
+                Course, semester=evaluation.course.semester, programs=[baker.make(Program)], responsibles=[responsible]
+            ),
             vote_start_datetime=datetime(2099, 1, 1, 0, 0),
             vote_end_date=date(2099, 12, 31),
             main_language="de",
@@ -167,23 +178,23 @@ class StaffSemesterViewRegressionTest(LiveServerTest):
 
         with vrt:
             with self.enter_staff_mode():
-                self.selenium.get(self.live_server_url + reverse("staff:semester_view", args=[evaluation.course.semester_id]))
-
+                self.selenium.get(self.reverse("staff:semester_view", args=[evaluation.course.semester_id]))
 
                 _ = self.wait.until(
-                    expected_conditions.presence_of_element_located((By.CSS_SELECTOR, '#evaluation-filter-buttons .badge'))
+                    expected_conditions.presence_of_element_located(
+                        (By.CSS_SELECTOR, "#evaluation-filter-buttons .badge")
+                    )
                 )
 
-                vrt.track(TestRun(
-                    name='staff:index',
-                    imageBase64=self.selenium.get_screenshot_as_base64(),
-                    diffTollerancePercent=0,
-                    os='Linux',
-                    browser='Firefox',
-                    viewport=self.viewport,
-                    device='PC',
-                    ignoreAreas=[IgnoreArea(y=3968, height=42, x=0, width=1920)]
-                ))
-
-
-
+                vrt.track(
+                    TestRun(
+                        name="staff:index",
+                        imageBase64=self.selenium.get_screenshot_as_base64(),
+                        diffTollerancePercent=0,
+                        os="Linux",
+                        browser="Firefox",
+                        viewport=self.viewport,
+                        device="PC",
+                        ignoreAreas=[IgnoreArea(y=3968, height=42, x=0, width=1920)],
+                    )
+                )
