@@ -272,3 +272,8 @@ class TestResetEvaluation(WebTestStaffMode):
             self.reset_from_x_to_new(s, success_expected=True)
         for s in invalid_start_states:
             self.reset_from_x_to_new(s, success_expected=False)
+
+
+class TestCatalogJsView(WebTestWith200Check):
+    url = "/catalog.js"
+    test_users = [""]

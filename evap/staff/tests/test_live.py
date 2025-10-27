@@ -2,9 +2,22 @@ from datetime import date, datetime
 
 from model_bakery import baker
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.expected_conditions import element_to_be_clickable, visibility_of_element_located
+from selenium.webdriver.support.expected_conditions import (
+    element_to_be_clickable,
+    invisibility_of_element_located,
+    visibility_of_element_located,
+)
 
-from evap.evaluation.models import Contribution, Course, Evaluation, Program, Question, Questionnaire, UserProfile
+from evap.evaluation.models import (
+    Contribution,
+    Course,
+    Evaluation,
+    Program,
+    Question,
+    Questionnaire,
+    Semester,
+    UserProfile,
+)
 from evap.evaluation.tests.tools import LiveServerTest
 
 
@@ -71,3 +84,30 @@ class EvaluationEditLiveTest(LiveServerTest):
         self.assertEqual(contribution1.order, 0)
         self.assertEqual(contribution1.role, Contribution.Role.EDITOR)
         self.assertEqual(contribution1.textanswer_visibility, Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+
+    def test_staff_semester_view_columns_not_searchable(self):
+        """Regression test for #2461"""
+
+        semester = baker.make(Semester)
+        course = baker.make(Course, semester=semester, name_en="course name")
+        baker.make(Evaluation, course=course, name_en="evaluation name")
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.reverse("staff:semester_view", args=[semester.pk]))
+
+        search_input = self.wait.until(
+            visibility_of_element_located((By.CSS_SELECTOR, "input[type='search'][name='search-evaluation']"))
+        )
+        search_input.clear()
+        search_input.send_keys("course name")
+
+        self.wait.until(
+            visibility_of_element_located(
+                (By.XPATH, "//button[@slot='show-button' and @aria-label='Create exam evaluation']")
+            )
+        )
+
+        search_input.clear()
+        search_input.send_keys("exam")
+
+        self.wait.until(invisibility_of_element_located((By.XPATH, "//td//a[contains(text(),'course name')]")))

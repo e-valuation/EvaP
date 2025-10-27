@@ -258,7 +258,10 @@ class LoggedModel(models.Model):
             self._logentry = self._create_log_entry(*args, **kwargs)
 
     def _update_log(self, changes, action_type: InstanceActionType, store_in_db=True):
-        if not changes or not CREATE_LOGENTRIES:
+        if not CREATE_LOGENTRIES:
+            return
+        if action_type == InstanceActionType.CHANGE and not changes:
+            # All changes are on unlogged fields
             return
 
         self._attach_log_entry_if_not_exists(action_type)

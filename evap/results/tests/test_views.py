@@ -311,6 +311,14 @@ class TestResultsViewContributionWarning(WebTest):
         page = self.app.get(self.url, user=self.manager, status=200)
         self.assertIn("Only a few participants answered these questions.", page)
 
+    def test_few_answers_evaluation_dropout_no_warning(self):
+        self.questionnaire.type = Questionnaire.Type.DROPOUT
+        self.questionnaire.save()
+        make_rating_answer_counters(self.likert_question, self.contribution, [0, 0, 3, 0, 0])
+        cache_results(self.evaluation)
+        page = self.app.get(self.url, user=self.manager, status=200)
+        self.assertNotIn("Only a few participants answered these questions.", page)
+
 
 class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
     @classmethod
