@@ -150,7 +150,7 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
             "title_en": "",
             "type": "Vorlesung",
             "isexam": False,
-            "lecturers": [{"gguid": "0x4"}, {"gguid": "0x5"}],
+            "lecturers": [{"gguid": "0x4"}, {"gguid": "0x5"}, {"gguid": "0x12"}],
             "students": [],
             "appointments": [{"begin": "29.07.2024 10:15:00", "end": "29.07.2024 11:45:00"}],
         },
@@ -529,7 +529,7 @@ class TestImportEvents(TestCase):
         self.assertEqual(evaluation_life.weight, 1)
 
     def test_import_ignore_non_responsible_users(self):
-        with override_settings(NON_RESPONSIBLE_USERS=["4@example.com"]):
+        with override_settings(NON_RESPONSIBLE_USERS=["4@example.com", "ignored.lecturer2@example.com"]):
             self._import(EXAMPLE_DATA_SPECIAL_CASES)
             evaluation = Evaluation.objects.get(cms_id="0x9")
             self.assertEqual(set(evaluation.course.responsibles.values_list("email", flat=True)), {"5@example.com"})
@@ -546,7 +546,8 @@ class TestImportEvents(TestCase):
             self._import(EXAMPLE_DATA_SPECIAL_CASES)
             evaluation = Evaluation.objects.get(cms_id="0x9")
             self.assertEqual(
-                set(evaluation.course.responsibles.values_list("email", flat=True)), {"4@example.com", "5@example.com"}
+                set(evaluation.course.responsibles.values_list("email", flat=True)),
+                {"4@example.com", "5@example.com", "ignored.lecturer2@example.com"},
             )
             self.assertEqual(
                 set(
@@ -554,7 +555,7 @@ class TestImportEvents(TestCase):
                         "contributor__email", flat=True
                     )
                 ),
-                {"4@example.com", "5@example.com"},
+                {"4@example.com", "5@example.com", "ignored.lecturer2@example.com"},
             )
 
     def test_import_ignore_users(self):
