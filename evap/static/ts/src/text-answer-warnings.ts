@@ -6,7 +6,7 @@ function isTextMeaningless(text: string): boolean {
     return text.length > 0 && ["", "ka", "na", "none", "keine", "keines", "keiner"].includes(text.replace(/\W/g, ""));
 }
 
-function containsSubArray(arr: string[], sub: string[]): boolean {
+function containsSubArray<Type>(arr: Type[], sub: Type[]): boolean {
     for (let i = 0; i <= arr.length - sub.length; i++) {
         let j;
         for (j = 0; j < sub.length; j++) {
