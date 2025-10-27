@@ -43,4 +43,3 @@ test.each([
     const result = testable.matchesTriggerString(a, b);
     expect(result).toBe(expected);
 });
-
