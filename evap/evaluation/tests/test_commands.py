@@ -170,7 +170,9 @@ class TestAnonymizeCommand(TestCase):
         management.call_command("anonymize", stdout=StringIO())
 
         for assignment in chain(self.contributor_questions, self.general_questions):
-            answer_count = RatingAnswerCounter.objects.filter(question=assignment).aggregate(Sum("count"))["count__sum"]
+            answer_count = RatingAnswerCounter.objects.filter(assignment=assignment).aggregate(Sum("count"))[
+                "count__sum"
+            ]
             self.assertEqual(answers_per_question[assignment], answer_count)
 
     def test_user_with_password(self):

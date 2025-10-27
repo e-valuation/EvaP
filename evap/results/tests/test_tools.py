@@ -494,8 +494,10 @@ class TestTextAnswerVisibilityInfo(TestCase):
             can_publish_text_results=True,
         )
         cls.questionnaire = baker.make(Questionnaire)
-        cls.question = baker.make(QuestionAssignment, questionnaire=cls.questionnaire, question__type=QuestionType.TEXT)
-        cls.question_likert = baker.make(
+        cls.assignment = baker.make(
+            QuestionAssignment, questionnaire=cls.questionnaire, question__type=QuestionType.TEXT
+        )
+        cls.assignment_likert = baker.make(
             QuestionAssignment, questionnaire=cls.questionnaire, question__type=QuestionType.POSITIVE_LIKERT
         )
         cls.general_contribution = cls.evaluation.general_contribution
@@ -532,37 +534,37 @@ class TestTextAnswerVisibilityInfo(TestCase):
         )
         cls.general_contribution_textanswer = baker.make(
             TextAnswer,
-            question=cls.question,
+            assignment=cls.assignment,
             contribution=cls.general_contribution,
             review_decision=TextAnswer.ReviewDecision.PUBLIC,
         )
         cls.responsible1_textanswer = baker.make(
             TextAnswer,
-            question=cls.question,
+            assignment=cls.assignment,
             contribution=cls.responsible1_contribution,
             review_decision=TextAnswer.ReviewDecision.PUBLIC,
         )
         cls.responsible1_additional_textanswer = baker.make(
             TextAnswer,
-            question=cls.question_likert,
+            assignment=cls.assignment_likert,
             contribution=cls.responsible1_contribution,
             review_decision=TextAnswer.ReviewDecision.PUBLIC,
         )
         cls.responsible2_textanswer = baker.make(
             TextAnswer,
-            question=cls.question,
+            assignment=cls.assignment,
             contribution=cls.responsible2_contribution,
             review_decision=TextAnswer.ReviewDecision.PUBLIC,
         )
         cls.contributor_own_textanswer = baker.make(
             TextAnswer,
-            question=cls.question,
+            assignment=cls.assignment,
             contribution=cls.contributor_own_contribution,
             review_decision=TextAnswer.ReviewDecision.PUBLIC,
         )
         cls.contributor_general_textanswer = baker.make(
             TextAnswer,
-            question=cls.question,
+            assignment=cls.assignment,
             contribution=cls.contributor_general_contribution,
             review_decision=TextAnswer.ReviewDecision.PUBLIC,
         )

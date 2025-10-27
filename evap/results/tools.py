@@ -228,14 +228,14 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
     prefetch_related_objects([evaluation], *GET_RESULTS_PREFETCH_LOOKUPS)
 
     tas_per_contribution_question: dict[tuple[int, int], list[TextAnswer]] = unordered_groupby(
-        ((textanswer.contribution_id, textanswer.question_id), textanswer)
+        ((textanswer.contribution_id, textanswer.assignment_id), textanswer)
         for contribution in evaluation.contributions.all()
         for textanswer in contribution.textanswer_set.all()
         if textanswer.review_decision in [TextAnswer.ReviewDecision.PRIVATE, TextAnswer.ReviewDecision.PUBLIC]
     )
 
     racs_per_contribution_question: dict[tuple[int, int], list[RatingAnswerCounter]] = unordered_groupby(
-        ((counter.contribution_id, counter.question_id), counter)
+        ((counter.contribution_id, counter.assignment_id), counter)
         for contribution in evaluation.contributions.all()
         for counter in contribution.ratinganswercounter_set.all()
     )

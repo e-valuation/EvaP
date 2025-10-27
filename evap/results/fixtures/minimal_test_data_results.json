@@ -254,7 +254,7 @@
     "model": "evaluation.textanswer",
     "pk": "00000000-0000-0000-0000-000000000001",
     "fields": {
-      "question": 3,
+      "assignment": 3,
       "contribution": 1,
       "answer": ".general_orig_published.",
       "original_answer": null,
@@ -266,7 +266,7 @@
     "model": "evaluation.textanswer",
     "pk": "00000000-0000-0000-0000-000000000002",
     "fields": {
-      "question": 3,
+      "assignment": 3,
       "contribution": 1,
       "answer": ".general_orig_deleted.",
       "original_answer": null,
@@ -278,7 +278,7 @@
     "model": "evaluation.textanswer",
     "pk": "00000000-0000-0000-0000-000000000003",
     "fields": {
-      "question": 3,
+      "assignment": 3,
       "contribution": 1,
       "answer": ".general_changed_published.",
       "original_answer": ".general_orig_published_changed.",
@@ -290,7 +290,7 @@
     "model": "evaluation.textanswer",
     "pk": "00000000-0000-0000-0000-000000000009",
     "fields": {
-      "question": 1,
+      "assignment": 1,
       "contribution": 3,
       "answer": ".contributor_orig_published.",
       "original_answer": null,
@@ -302,7 +302,7 @@
     "model": "evaluation.textanswer",
     "pk": "00000000-0000-0000-0000-000000000010",
     "fields": {
-      "question": 1,
+      "assignment": 1,
       "contribution": 3,
       "answer": ".contributor_orig_private.",
       "original_answer": null,
@@ -314,7 +314,7 @@
     "model": "evaluation.textanswer",
     "pk": "00000000-0000-0000-0000-000000000011",
     "fields": {
-      "question": 1,
+      "assignment": 1,
       "contribution": 6,
       "answer": ".responsible_contributor_orig_published.",
       "original_answer": null,
@@ -326,7 +326,7 @@
     "model": "evaluation.textanswer",
     "pk": "00000000-0000-0000-0000-000000000012",
     "fields": {
-      "question": 1,
+      "assignment": 1,
       "contribution": 6,
       "answer": ".responsible_contributor_orig_deleted.",
       "original_answer": null,
@@ -338,7 +338,7 @@
     "model": "evaluation.textanswer",
     "pk": "00000000-0000-0000-0000-000000000013",
     "fields": {
-      "question": 1,
+      "assignment": 1,
       "contribution": 6,
       "answer": ".responsible_contributor_changed_published.",
       "original_answer": ".responsible_contributor_orig_published_changed.",
@@ -350,7 +350,7 @@
     "model": "evaluation.textanswer",
     "pk": "00000000-0000-0000-0000-000000000014",
     "fields": {
-      "question": 1,
+      "assignment": 1,
       "contribution": 6,
       "answer": ".responsible_contributor_orig_private.",
       "original_answer": null,
@@ -362,7 +362,7 @@
     "model": "evaluation.textanswer",
     "pk": "00000000-0000-0000-0000-000000000015",
     "fields": {
-      "question": 1,
+      "assignment": 1,
       "contribution": 6,
       "answer": ".responsible_contributor_orig_unreviewed.",
       "original_answer": null,
@@ -374,7 +374,7 @@
     "model": "evaluation.textanswer",
     "pk": "00000000-0000-0000-0000-000000000017",
     "fields": {
-      "question": 2,
+      "assignment": 2,
       "contribution": 6,
       "answer": ".responsible_contributor_additional_orig_published.",
       "original_answer": null,
@@ -386,7 +386,7 @@
     "model": "evaluation.textanswer",
     "pk": "00000000-0000-0000-0000-000000000018",
     "fields": {
-      "question": 2,
+      "assignment": 2,
       "contribution": 6,
       "answer": ".responsible_contributor_additional_orig_deleted.",
       "original_answer": null,
@@ -398,7 +398,7 @@
     "model": "evaluation.textanswer",
     "pk": "00000000-0000-0000-0000-000000000019",
     "fields": {
-      "question": 4,
+      "assignment": 4,
       "contribution": 1,
       "answer": ".general_additional_orig_published.",
       "original_answer": null,
@@ -410,7 +410,7 @@
     "model": "evaluation.textanswer",
     "pk": "00000000-0000-0000-0000-000000000020",
     "fields": {
-      "question": 4,
+      "assignment": 4,
       "contribution": 1,
       "answer": ".general_additional_orig_deleted.",
       "original_answer": null,

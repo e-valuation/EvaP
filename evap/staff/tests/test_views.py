@@ -2197,14 +2197,14 @@ class TestEvaluationEditView(WebTestStaffMode):
         cls.url = reverse("staff:evaluation_edit", args=[cls.evaluation.pk])
 
         baker.make(Questionnaire, question_assignments=[baker.make(QuestionAssignment)])
-        cls.general_question = baker.make(QuestionAssignment)
-        cls.general_questionnaire = baker.make(Questionnaire, question_assignments=[cls.general_question])
+        cls.general_assignment = baker.make(QuestionAssignment)
+        cls.general_questionnaire = baker.make(Questionnaire, question_assignments=[cls.general_assignment])
         cls.evaluation.general_contribution.questionnaires.set([cls.general_questionnaire])
-        cls.contributor_question = baker.make(QuestionAssignment)
+        cls.contributor_assignment = baker.make(QuestionAssignment)
         cls.contributor_questionnaire = baker.make(
             Questionnaire,
             type=Questionnaire.Type.CONTRIBUTOR,
-            question_assignments=[cls.contributor_question],
+            question_assignments=[cls.contributor_assignment],
         )
         cls.contribution1 = baker.make(
             Contribution,
@@ -2348,8 +2348,8 @@ class TestEvaluationEditView(WebTestStaffMode):
         self.assertIn('<label class="form-check-label" for="id_contributions-0-questionnaires_0">', page)
         self.assertIn('<label class="form-check-label" for="id_contributions-1-questionnaires_0">', page)
 
-        baker.make(TextAnswer, contribution=self.evaluation.general_contribution, question=self.general_question)
-        baker.make(RatingAnswerCounter, contribution=self.contribution1, question=self.contributor_question)
+        baker.make(TextAnswer, contribution=self.evaluation.general_contribution, assignment=self.general_assignment)
+        baker.make(RatingAnswerCounter, contribution=self.contribution1, assignment=self.contributor_assignment)
 
         page = self.app.get(self.url, user=self.manager)
         self.assertIn('<label class="form-check-label badge bg-danger" for="id_general_questionnaires_3">', page)
@@ -2360,7 +2360,7 @@ class TestEvaluationEditView(WebTestStaffMode):
             '<label class="form-check-label badge bg-danger" for="id_contributions-1-questionnaires_0">', page
         )
 
-        baker.make(RatingAnswerCounter, contribution=self.contribution2, question=self.contributor_question)
+        baker.make(RatingAnswerCounter, contribution=self.contribution2, assignment=self.contributor_assignment)
 
         page = self.app.get(self.url, user=self.manager)
         self.assertIn(
@@ -2834,7 +2834,7 @@ class TestEvaluationTextAnswerView(WebTest):
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
 
         questionnaire = baker.make(Questionnaire)
-        question = baker.make(QuestionAssignment, questionnaire=questionnaire, question__type=QuestionType.TEXT)
+        assignment = baker.make(QuestionAssignment, questionnaire=questionnaire, question__type=QuestionType.TEXT)
         contribution = baker.make(
             Contribution,
             evaluation=cls.evaluation,
@@ -2842,12 +2842,12 @@ class TestEvaluationTextAnswerView(WebTest):
             questionnaires=[questionnaire],
         )
         cls.answer = "should show up"
-        baker.make(TextAnswer, contribution=contribution, question=question, answer=cls.answer)
+        baker.make(TextAnswer, contribution=contribution, assignment=assignment, answer=cls.answer)
         cls.reviewed_answer = "someone reviewed me already"
         baker.make(
             TextAnswer,
             contribution=contribution,
-            question=question,
+            assignment=assignment,
             answer=cls.reviewed_answer,
             review_decision=TextAnswer.ReviewDecision.PUBLIC,
         )
@@ -2871,7 +2871,7 @@ class TestEvaluationTextAnswerView(WebTest):
         cls.text_answer = baker.make(
             TextAnswer,
             contribution=contribution2,
-            question=question,
+            assignment=assignment,
             answer="test answer text",
         )
 
@@ -3003,14 +3003,14 @@ class TestEvaluationTextAnswerView(WebTest):
         contributors = baker.make(UserProfile, **kwargs)
         contributions = baker.make(Contribution, evaluation=self.evaluation, contributor=iter(contributors), **kwargs)
         questionnaires = baker.make(Questionnaire, **kwargs)
-        questions = baker.make(
+        assignments = baker.make(
             QuestionAssignment,
             questionnaire=iter(questionnaires),
             question__type=QuestionType.TEXT,
             question__allows_additional_textanswers=False,
             **kwargs,
         )
-        baker.make(TextAnswer, question=iter(questions), contribution=iter(contributions), **kwargs)
+        baker.make(TextAnswer, assignment=iter(assignments), contribution=iter(contributions), **kwargs)
 
         with run_in_staff_mode(self):
             with self.assertNumQueries(FuzzyInt(0, 100)):
@@ -3049,18 +3049,19 @@ class TestEvaluationTextAnswerEditView(WebTestStaffMode):
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         baker.make(Question, questionnaires=[top_general_questionnaire], type=QuestionType.POSITIVE_LIKERT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
-        question = baker.make(Question, type=QuestionType.TEXT, make_m2m=True)
+        bottom_questionnaire = baker.prepare(Questionnaire)
 
         contribution = baker.make(
             Contribution,
             evaluation=cls.evaluation,
-            questionnaires=question.questionnaires.all(),
+            questionnaires=[bottom_questionnaire],
             _fill_optional=["contributor"],
         )
         cls.textanswer = baker.make(
             TextAnswer,
             contribution=contribution,
-            question=question.assignments.first(),
+            assignment__questionnaire=bottom_questionnaire,
+            assignment__question__type=QuestionType.TEXT,
             answer="test answer text",
         )
 

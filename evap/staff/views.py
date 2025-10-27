@@ -1353,10 +1353,10 @@ def helper_evaluation_edit(request, evaluation):
 
     assert set(Answer.__subclasses__()) == {TextAnswer, RatingAnswerCounter}
     contributor_questionnaire_pairs = [
-        (answer.contribution.contributor, answer.question.questionnaire)
+        (answer.contribution.contributor, answer.assignment.questionnaire)
         for answer_cls in [TextAnswer, RatingAnswerCounter]
         for answer in answer_cls.objects.filter(contribution__evaluation=evaluation).select_related(
-            "question__questionnaire", "contribution__contributor"
+            "assignment__questionnaire", "contribution__contributor"
         )
     ]
 
@@ -1598,18 +1598,18 @@ def get_evaluation_and_contributor_textanswer_sections(
 
     raw_answers = (
         TextAnswer.objects.filter(contribution__evaluation=evaluation)
-        .select_related("question__questionnaire", "contribution__contributor", "question__question")
-        .order_by("contribution", "question__questionnaire", "question")
+        .select_related("assignment__questionnaire", "contribution__contributor", "assignment__question")
+        .order_by("contribution", "assignment__questionnaire", "assignment")
         .filter(textanswer_filter)
     )
 
     questionnaire_answer_groups = itertools.groupby(
-        raw_answers, lambda answer: (answer.contribution, answer.question.questionnaire)
+        raw_answers, lambda answer: (answer.contribution, answer.assignment.questionnaire)
     )
 
     for (contribution, questionnaire), questionnaire_answers in questionnaire_answer_groups:
         text_results = []
-        for question, answers_iter in itertools.groupby(questionnaire_answers, lambda answer: answer.question.question):
+        for question, answers_iter in itertools.groupby(questionnaire_answers, lambda answer: answer.question):
             answers = list(answers_iter)
             if not answers:
                 continue

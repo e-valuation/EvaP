@@ -194,7 +194,6 @@ class TestResultsView(WebTest):
         )[1:]
 
         questionnaire = baker.make(Questionnaire)
-        question_grade = baker.make(QuestionAssignment, questionnaire=questionnaire, question__type=QuestionType.GRADE)
 
         contributions = [e.general_contribution for e in published]
         for contribution in contributions:
@@ -202,7 +201,8 @@ class TestResultsView(WebTest):
         baker.make(
             RatingAnswerCounter,
             contribution=iter(contributions),
-            question=question_grade,
+            assignment__question__type=QuestionType.GRADE,
+            assignment__questionnaire=questionnaire,
             answer=2,
             count=2,
             _quantity=len(published),

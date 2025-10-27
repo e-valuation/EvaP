@@ -350,12 +350,12 @@ def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> Htt
                     if question.is_text_question:
                         if value:
                             question.answer_class.objects.create(
-                                contribution=contribution, question=assignment, answer=value
+                                contribution=contribution, assignment=assignment, answer=value
                             )
                     else:
                         if value != NO_ANSWER:
                             answer_counter, __ = question.answer_class.objects.get_or_create(
-                                contribution=contribution, question=assignment, answer=value
+                                contribution=contribution, assignment=assignment, answer=value
                             )
                             answer_counter.count += 1
                             answer_counter.save()
@@ -366,7 +366,7 @@ def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> Htt
                             textanswer_value = questionnaire_form.cleaned_data.get(textanswer_identifier)
                             if textanswer_value:
                                 TextAnswer.objects.create(
-                                    contribution=contribution, question=assignment, answer=textanswer_value
+                                    contribution=contribution, assignment=assignment, answer=textanswer_value
                                 )
 
         VoteTimestamp.objects.create(evaluation=evaluation)

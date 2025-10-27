@@ -565,7 +565,7 @@ class TestExporters(TestCase):
 
     def test_text_answer_export(self):
         evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED, can_publish_text_results=True)
-        questions = baker.make(
+        assignments = baker.make(
             QuestionAssignment,
             questionnaire__type=iter(Questionnaire.Type.values),
             question__type=QuestionType.TEXT,
@@ -576,9 +576,9 @@ class TestExporters(TestCase):
 
         baker.make(
             TextAnswer,
-            question=iter(questions[idx] for idx in [0, 1, 2, 2, 0]),
+            assignment=iter(assignments[idx] for idx in [0, 1, 2, 2, 0]),
             contribution__evaluation=evaluation,
-            contribution__questionnaires=iter(questions[idx].questionnaire for idx in [0, 1, 2, 2, 0]),
+            contribution__questionnaires=iter(assignments[idx].questionnaire for idx in [0, 1, 2, 2, 0]),
             review_decision=TextAnswer.ReviewDecision.PUBLIC,
             _quantity=5,
         )
@@ -603,6 +603,6 @@ class TestExporters(TestCase):
         self.assertEqual(sheet.row_values(2)[0], evaluation.course.responsibles_names)
 
         # Questions are ordered by questionnaire type, answers keep their order respectively
-        self.assertEqual(sheet.row_values(3)[0], questions[0].question.text)
-        self.assertEqual(sheet.row_values(5)[0], questions[1].question.text)
-        self.assertEqual(sheet.row_values(6)[0], questions[2].question.text)
+        self.assertEqual(sheet.row_values(3)[0], assignments[0].question.text)
+        self.assertEqual(sheet.row_values(5)[0], assignments[1].question.text)
+        self.assertEqual(sheet.row_values(6)[0], assignments[2].question.text)

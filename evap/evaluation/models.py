@@ -1167,8 +1167,8 @@ class Contribution(LoggedModel):
 
     def remove_answers_to_questionnaires(self, questionnaires):
         assert set(Answer.__subclasses__()) == {TextAnswer, RatingAnswerCounter}
-        TextAnswer.objects.filter(contribution=self, question__questionnaire__in=questionnaires).delete()
-        RatingAnswerCounter.objects.filter(contribution=self, question__questionnaire__in=questionnaires).delete()
+        TextAnswer.objects.filter(contribution=self, assignment__questionnaire__in=questionnaires).delete()
+        RatingAnswerCounter.objects.filter(contribution=self, assignment__questionnaire__in=questionnaires).delete()
 
 
 class QuestionType:
@@ -1532,13 +1532,18 @@ class Answer(models.Model):
     # we use UUIDs to hide insertion order. See https://github.com/e-valuation/EvaP/wiki/Data-Economy
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    question = models.ForeignKey(QuestionAssignment, models.PROTECT)
+    assignment = models.ForeignKey(QuestionAssignment, models.PROTECT)
     contribution = models.ForeignKey(Contribution, models.PROTECT, related_name="%(class)s_set")
 
     class Meta:
         abstract = True
         verbose_name = _("answer")
         verbose_name_plural = _("answers")
+
+    @property
+    def question(self) -> Question:
+        return self.assignment.question
+
 
 
 class RatingAnswerCounter(Answer):
@@ -1554,7 +1559,7 @@ class RatingAnswerCounter(Answer):
     count = models.IntegerField(verbose_name=_("count"), default=0)
 
     class Meta:
-        unique_together = [["question", "contribution", "answer"]]
+        unique_together = [["assignment", "contribution", "answer"]]
         verbose_name = _("rating answer")
         verbose_name_plural = _("rating answers")
 

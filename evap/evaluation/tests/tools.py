@@ -106,17 +106,17 @@ def let_user_vote_for_evaluation(user, evaluation, create_answers=False):
     ):
         for rac in contribution.ratinganswercounter_set.all():
             if rac.answer == 1:
-                rac_by_contribution_question[(contribution, rac.question)] = rac
+                rac_by_contribution_question[(contribution, rac.assignment)] = rac
 
         for questionnaire in contribution.questionnaires.all().prefetch_related("question_assignments__question"):
             for assignment in questionnaire.question_assignments.all():
                 question = assignment.question
                 if question.is_text_question:
-                    new_textanswers.append(baker.prepare(TextAnswer, contribution=contribution, question=assignment))
+                    new_textanswers.append(baker.prepare(TextAnswer, contribution=contribution, assignment=assignment))
                 elif question.is_rating_question:
                     if (contribution, assignment) not in rac_by_contribution_question:
                         rac = baker.prepare(
-                            RatingAnswerCounter, contribution=contribution, question=assignment, answer=1
+                            RatingAnswerCounter, contribution=contribution, assignment=assignment, answer=1
                         )
                         new_racs.append(rac)
                         rac_by_contribution_question[(contribution, assignment)] = rac
@@ -239,7 +239,7 @@ def make_rating_answer_counters(
 
     counters = baker.prepare(
         RatingAnswerCounter,
-        question=assignment,
+        assignment=assignment,
         contribution=contribution,
         _quantity=len(answer_counts),
         answer=iter(choices.values),
