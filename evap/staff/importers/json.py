@@ -178,7 +178,7 @@ class JSONImporter:
         self.courses_by_gguid: dict[str, Course] = {}
         self.statistics = ImportStatistics()
 
-    def _get_first_name_given(self, entry: ImportStudent | ImportLecturer) -> str:
+    def _get_first_name_given(self, entry: ImportStudent) -> str:
         if entry["callingname"]:
             return entry["callingname"]
         return entry["christianname"]
