@@ -17,16 +17,18 @@ export class RangeSlider {
     private readonly rangeLabel: HTMLSpanElement;
     private allowed: Range = { low: 0, high: 0 };
     private _value: Range = { low: 0, high: 0 };
+    private configurableMaxValue?: number;
 
     private debounceTimeout?: number;
 
-    public constructor(sliderId: string) {
+    public constructor(sliderId: string, maxValue?: number) {
         this.rangeSlider = selectOrError<HTMLDivElement>("#" + sliderId);
         this.lowSlider = selectOrError<HTMLInputElement>("[name=low]", this.rangeSlider);
         this.highSlider = selectOrError<HTMLInputElement>("[name=high]", this.rangeSlider);
         this.minLabel = selectOrError<HTMLSpanElement>(".text-start", this.rangeSlider);
         this.maxLabel = selectOrError<HTMLSpanElement>(".text-end", this.rangeSlider);
         this.rangeLabel = selectOrError<HTMLSpanElement>(".range-values", this.rangeSlider);
+        this.configurableMaxValue = maxValue;
 
         const setValueFromNestedElements = (): void => {
             this.value = { low: parseFloat(this.lowSlider.value), high: parseFloat(this.highSlider.value) };
@@ -48,7 +50,11 @@ export class RangeSlider {
         if (this.value.low > this.value.high) {
             [this.value.low, this.value.high] = [this.value.high, this.value.low];
         }
-        this.rangeLabel.innerText = `${this.value.low} – ${this.value.high}`;
+
+        // Display "+" if high value equals the configurable max value
+        const highDisplay =
+            this.value.high === this.configurableMaxValue ? `${this.value.high}+` : this.value.high.toString();
+        this.rangeLabel.innerText = `${this.value.low} – ${highDisplay}`;
 
         // debounce on range change callback
         if (this.debounceTimeout !== undefined) {
@@ -61,11 +67,19 @@ export class RangeSlider {
 
     public onRangeChange(): void {}
 
+    public isOpenEnd(): boolean {
+        return this.configurableMaxValue !== undefined && this.value.high === this.configurableMaxValue;
+    }
+
     public includeValues(values: number[]): void {
         assert(Math.min(...values) >= this.allowed.low);
         const max = Math.max(...values);
-        if (max > this.allowed.high) {
-            this.allowed.high = max;
+
+        // Use configurable max value if set, otherwise use the actual max from data
+        const effectiveMax = this.configurableMaxValue ?? max;
+
+        if (max > this.allowed.high || (this.configurableMaxValue && this.allowed.high !== this.configurableMaxValue)) {
+            this.allowed.high = effectiveMax;
             this.updateNestedElements();
             this.reset();
         }
@@ -81,6 +95,12 @@ export class RangeSlider {
         this.highSlider.min = this.allowed.low.toString();
         this.highSlider.max = this.allowed.high.toString();
         this.minLabel.innerText = this.allowed.low.toString();
-        this.maxLabel.innerText = this.allowed.high.toString();
+
+        // Display "+" in max label if configurable max value is set
+        const maxLabelDisplay =
+            this.configurableMaxValue && this.allowed.high === this.configurableMaxValue
+                ? `${this.allowed.high}+`
+                : this.allowed.high.toString();
+        this.maxLabel.innerText = maxLabelDisplay;
     }
 }
