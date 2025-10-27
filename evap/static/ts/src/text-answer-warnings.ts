@@ -6,19 +6,19 @@ function isTextMeaningless(text: string): boolean {
     return text.length > 0 && ["", "ka", "na", "none", "keine", "keines", "keiner"].includes(text.replace(/\W/g, ""));
 }
 
-function containsSubArray(arr: string[], sub: string[]): boolean{
-    for(let i = 0; i < arr.length; i++){
-        if(i+sub.length>arr.length) return false;
+function containsSubArray(arr: string[], sub: string[]): boolean {
+    for (let i = 0; i < arr.length; i++) {
+        if (i + sub.length > arr.length) return false;
         let j;
-        for(j = 0; j < sub.length; j++){
-            if(arr[i+j]!==sub[j]) return false;
+        for (j = 0; j < sub.length; j++) {
+            if (arr[i + j] !== sub[j]) return false;
         }
-        return (j==sub.length);
+        return j == sub.length;
     }
     return false;
 }
 
-function matchesTriggerString(text: string, triggerString: string): boolean{
+function matchesTriggerString(text: string, triggerString: string): boolean {
     console.log("Works");
     const words = text.split(" ");
     const triggerWords = triggerString.split(" ");
@@ -26,7 +26,7 @@ function matchesTriggerString(text: string, triggerString: string): boolean{
 }
 
 function doesTextContainTriggerString(text: string, triggerStrings: string[]): boolean {
-    return triggerStrings.some(triggerString => matchesTriggerString(text,triggerString));
+    return triggerStrings.some(triggerString => matchesTriggerString(text, triggerString));
 }
 
 function updateTextareaWarning(textarea: HTMLTextAreaElement, textAnswerWarnings: string[][]) {
@@ -72,5 +72,5 @@ export const testable = {
     normalize,
     isTextMeaningless,
     doesTextContainTriggerString,
-    matchesTriggerString
+    matchesTriggerString,
 };
