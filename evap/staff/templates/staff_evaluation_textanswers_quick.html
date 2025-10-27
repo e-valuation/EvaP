@@ -201,6 +201,12 @@
             document.querySelector("#shared-full-textanswer-flag-form"),
             "{% url 'staff:evaluation_textanswers_skip' %}",
         );
-        slider.attach();
+        const params = new URLSearchParams(document.location.search);
+        const textAnswerId = params.get("textanswer-id")
+        if (!textAnswerId) {
+            slider.attach()
+        } else {
+            slider.attach(textAnswerId)
+        }
     </script>
 {% endblock %}

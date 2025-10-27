@@ -1828,15 +1828,14 @@ def evaluation_textanswer_edit(request, textanswer_id):
     assert_textanswer_review_permissions(evaluation)
 
     form = TextAnswerForm(request.POST or None, instance=textanswer)
-    view = request.GET.get("view", "quick")
+    view = request.GET.get("view")
     if form.is_valid():
         form.save()
         # jump to edited answer
         url = reverse(
             "staff:evaluation_textanswers",
             args=[evaluation.pk],
-            fragment=("textanswer-" + str(textanswer.id)),
-            query={"view": view},
+            query={"view": view, "textanswer-id": textanswer.id} if view else {"textanswer-id": textanswer.id},
         )
         return HttpResponseRedirect(url)
 
