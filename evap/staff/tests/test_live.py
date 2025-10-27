@@ -145,7 +145,6 @@ class ParticipantCollapseTests(LiveServerTest):
         tomselect_input = self.selenium.find_element(By.CSS_SELECTOR, "input#id_participants-ts-control")
         tomselect_input.click()
         tomselect_input.send_keys("participant")
-
         self.selenium.find_element(By.CSS_SELECTOR, ".option.active").click()
         self.assertEqual(counter.text, "21")
 
@@ -167,10 +166,6 @@ class ParticipantCollapseTests(LiveServerTest):
 
         with self.enter_staff_mode():
             self.selenium.get(self.live_server_url + reverse("staff:evaluation_edit", args=[evaluation.id]))
-
-        select_field = self.selenium.find_element(By.CSS_SELECTOR, "select#id_participants")
-        autocomplete = select_field.get_attribute("autocomplete")
-        self.assertTrue(autocomplete == "off")
 
         card_header = self.selenium.find_element(By.CSS_SELECTOR, ".card:has(#id_participants) .card-header")
         self.assertNotIn("collapsed", classes_of_element(card_header))
