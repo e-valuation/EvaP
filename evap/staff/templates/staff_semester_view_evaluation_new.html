@@ -194,7 +194,7 @@
             {% endif %}
         </div>
 
-        <div class="icon-buttons" data-col="buttons">
+        <div data-not-searchable class="icon-buttons" data-col="buttons">
             {% if not info_only %}
                 {% if evaluation.num_textanswers > 0 and state < evaluation.State.PUBLISHED %}
                     <a href="{% url 'staff:evaluation_textanswers' evaluation.id %}"

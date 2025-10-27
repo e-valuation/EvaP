@@ -392,7 +392,6 @@
 
                 <form id="evaluation_operation_form" class="table-responsive" method="GET" action="{% url 'staff:evaluation_operation' semester.pk %}">
                     {% if num_evaluations > 0 %}
-                        <!-- TODO: data-not-searchable -->
                         <div id="evaluation-grid">
                             <div class="grid-header evaluation-grid-row">
                                 <button type="button" class="col-order icon" data-col="state-approval"></button>
@@ -488,7 +487,6 @@
                     </script>
 
                     <div id="course-grid">
-                        <!-- TODO: data-not-searchable -->
                         <div class="grid-header course-grid-row">
                             <button class="col-order" data-col="name">{% translate 'Course' %}</button>
                             <button class="col-order" data-col="responsible">{% translate 'Responsible' %}</button>
@@ -518,7 +516,7 @@
                                         {% endif %}
                                     </div>
 
-                                    <div class="icon-buttons">
+                                    <div data-not-searchable class="icon-buttons">
                                         {% if request.user.is_manager %}
                                             <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
                                                 href="{% url 'staff:evaluation_create_for_course' course.id %}"

@@ -12,7 +12,7 @@ from django.conf import settings
 from django.contrib.auth import login
 from django.contrib.auth.models import Group
 from django.contrib.staticfiles.handlers import StaticFilesHandler
-from django.db import DEFAULT_DB_ALIAS, connections
+from django.db import DEFAULT_DB_ALIAS, connection, connections
 from django.http.request import HttpRequest, QueryDict
 from django.test.runner import DiscoverRunner
 from django.test.selenium import SeleniumTestCase
@@ -287,6 +287,11 @@ class LiveServerTest(SeleniumTestCase):
 
     def setUp(self) -> None:
         super().setUp()
+
+        with connection.cursor() as cursor:
+            # reset userprofile id sequence to keep test reproducible
+            cursor.execute("ALTER SEQUENCE evaluation_userprofile_id_seq restart")
+
         self.request = self.make_request()
         self.manager = make_manager()
         self.selenium.get(self.live_server_url)
