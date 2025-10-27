@@ -7,13 +7,12 @@ function isTextMeaningless(text: string): boolean {
 }
 
 function containsSubArray(arr: string[], sub: string[]): boolean {
-    for (let i = 0; i < arr.length; i++) {
-        if (i + sub.length > arr.length) return false;
+    for (let i = 0; i <= arr.length - sub.length; i++) {
         let j;
         for (j = 0; j < sub.length; j++) {
-            if (arr[i + j] !== sub[j]) return false;
+            if (arr[i + j] !== sub[j]) break;
         }
-        return j == sub.length;
+        if (j == sub.length) return true;
     }
     return false;
 }
