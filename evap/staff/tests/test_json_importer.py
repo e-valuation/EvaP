@@ -103,6 +103,7 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
         {"gguid": "0x1", "email": "", "name": "1", "christianname": "1"},
         {"gguid": "0x2", "email": "2@example.com", "name": "2", "christianname": "2"},
         {"gguid": "0x7", "email": "ignored.student@example.com", "name": "7", "christianname": "7"},
+        {"gguid": "0x11", "email": "IGNORED.StUdEnT2@example.CoM", "name": "11", "christianname": "11"},
     ],
     "lecturers": [
         {"gguid": "0x3", "email": "", "name": "3", "christianname": "3", "titlefront": "Prof. Dr."},
@@ -113,6 +114,13 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
             "email": "ignored.lecturer@example.com",
             "name": "6",
             "christianname": "6",
+            "titlefront": "Prof. Dr.",
+        },
+        {
+            "gguid": "0x12",
+            "email": "IGNORED.lectURer2@ExAmPlE.CoM",
+            "name": "12",
+            "christianname": "12",
             "titlefront": "Prof. Dr.",
         },
     ],
@@ -553,22 +561,25 @@ class TestImportEvents(TestCase):
         with override_settings(
             IGNORE_USERS=[
                 "ignored.student@example.com",
+                "ignored.student2@example.com",
                 "ignored.lecturer@example.com",
-                # to test that this filters cleaned emails
-                "2@EXAMPLE.com",
+                "ignored.lecturer2@example.com",
             ]
         ):
             self._import(EXAMPLE_DATA_SPECIAL_CASES)
 
             self.assertFalse(UserProfile.objects.filter(email="ignored.student@example.com").exists())
+            self.assertFalse(UserProfile.objects.filter(email="ignored.student2@example.com").exists())
             self.assertFalse(UserProfile.objects.filter(email="ignored.lecturer@example.com").exists())
-            self.assertTrue(UserProfile.objects.filter(email="2@example.com").exists())
+            self.assertFalse(UserProfile.objects.filter(email="ignored.lecturer2@example.com").exists())
 
         with override_settings(IGNORE_USERS=[]):
             self._import(EXAMPLE_DATA_SPECIAL_CASES)
 
             self.assertTrue(UserProfile.objects.filter(email="ignored.student@example.com").exists())
+            self.assertTrue(UserProfile.objects.filter(email="ignored.student2@example.com").exists())
             self.assertTrue(UserProfile.objects.filter(email="ignored.lecturer@example.com").exists())
+            self.assertTrue(UserProfile.objects.filter(email="ignored.lecturer2@example.com").exists())
 
     def test_import_courses_evaluation_approved(self):
         self._import()
