@@ -12,32 +12,70 @@ T = TypeVar("T")
 
 @dataclass
 class Derived:
+    """A setting that is derived from other settings."""
+
     fn: Callable
     prev: set[str]
     final: set[str]
 
 
 def derived(*, prev: set[str] | None = None, final: set[str] | None = None) -> Callable[[Callable], Derived]:
+    """Decorator to create derived settings."""
     return partial(Derived, prev=prev or set(), final=final or set())
 
 
 class Required(Enum):
+    """Type for marking settings as required.
+
+    The resolver throws an error if a setting is required in the final mapping of settings. Thus, a setting declared as
+    required must be overwritten in a later layer."""
     REQUIRED = auto()
 
 
 def required() -> Required:
+    """Shorthand function to create a required setting."""
     return Required.REQUIRED
 
 
 class NotSet(Enum):
+    """Type for marking settings as not set, that is, for keeping Django's default value."""
     NOT_SET = auto()
 
 
 def not_set() -> NotSet:
+    """Shorthand function to create a not-set setting."""
     return NotSet.NOT_SET
 
 
 class SettingResolver(Generic[T]):
+    """Main class for setting resolution.
+
+    By default, Django settings are configured in a module like
+    ```python
+    DEBUG = True
+    DATADIR = Path("./data")
+    STATIC_ROOT = DATADIR / "static_collected"
+    ```
+
+    This interface works for simple setups, but lacks some features that we desire. Most importantly, we want to declare
+    a set of default settings that do not necessarily need to be changed when deploying EvaP. Some of these settings
+    depend on other settings though, for example the STATIC_ROOT setting above depends on the DATADIR setting. If users
+    would change the value of DATADIR, they would also have to reassign STATIC_ROOT accordingly.
+
+    To resolve this issue, we provide the SettingResolver which takes setting modules and aggregates them into a final
+    mapping of settings to pass to Django. Notably, the input modules to the resolver can explicitly declare
+    dependencies between settings using the `@derived` decorator. Concretely, the settings are organized into different
+    layers. Later layers overwrite previous settings. A derived setting can then declare a dependency on another setting
+    value from either the previous layer (for example to append an entry to a list) or the final layer (for example to
+    use a path overwritten by the user).
+
+    To compute the final set of setting values, we form a dependency graph on the settings and layers and compute the
+    according values in topological order.
+
+    Note that the SettingResolver class is generic over the type of the setting values T, however we only use it below
+    with T = Any. The type T is only used to track at what times values can still be derived.
+    """
+
     @staticmethod
     def iter_settings(namespace: Any) -> Iterable[str]:
         for name in dir(namespace):
