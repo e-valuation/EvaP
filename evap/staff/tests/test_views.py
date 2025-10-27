@@ -3255,7 +3255,7 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
         self.questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         self.url = f"/staff/questionnaire/{self.questionnaire.pk}/edit"
 
-        baker.make(QuestionAssignment, questionnaire=self.questionnaire)
+        baker.make(QuestionAssignment, questionnaire=self.questionnaire, question__type=QuestionType.TEXT)
 
     def test_allowed_type_changes_on_used_questionnaire(self):
         baker.make(Contribution, questionnaires=[self.questionnaire], evaluation__state=Evaluation.State.IN_EVALUATION)
