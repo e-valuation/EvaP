@@ -19,7 +19,6 @@ function containsSubArray(arr: string[], sub: string[]): boolean {
 }
 
 function matchesTriggerString(text: string, triggerString: string): boolean {
-    console.log("Works");
     const words = text.split(" ");
     const triggerWords = triggerString.split(" ");
     return containsSubArray(words, triggerWords);
@@ -74,3 +73,4 @@ export const testable = {
     doesTextContainTriggerString,
     matchesTriggerString,
 };
+
