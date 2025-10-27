@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from datetime import time as datetime_time
@@ -13,7 +14,16 @@ from django.utils.timezone import now
 from pydantic import ConfigDict, TypeAdapter, with_config
 from typing_extensions import TypedDict
 
-from evap.evaluation.models import Contribution, Course, CourseType, Evaluation, Program, Semester, UserProfile
+from evap.evaluation.models import (
+    Contribution,
+    Course,
+    CourseType,
+    Evaluation,
+    ExamType,
+    Program,
+    Semester,
+    UserProfile,
+)
 from evap.evaluation.tools import clean_email
 from evap.staff.tools import update_m2m_with_changes, update_or_create_with_changes, update_with_changes
 
@@ -158,6 +168,7 @@ class ImportStatistics:
         mail.send()
 
 
+# pylint: disable=too-many-instance-attributes
 class JSONImporter:
     DATETIME_FORMAT = "%d.%m.%Y %H:%M:%S"
     MIDNIGHT = datetime_time()
@@ -171,6 +182,11 @@ class JSONImporter:
             for course_type in CourseType.objects.all()
             for import_name in course_type.import_names
         }
+        self.exam_type_cache: dict[str, ExamType] = {
+            import_name.strip().lower(): exam_type
+            for exam_type in ExamType.objects.all()
+            for import_name in exam_type.import_names
+        }
         self.program_cache: dict[str, Program] = {
             import_name.strip().lower(): program
             for program in Program.objects.all()
@@ -178,6 +194,16 @@ class JSONImporter:
         }
         self.courses_by_gguid: dict[str, Course] = {}
         self.statistics = ImportStatistics()
+
+    def _disambiguate_name(self, wanted_name: str, current_names: list[str]):
+        if not current_names:
+            return wanted_name
+        matches = [re.match(rf"^{wanted_name}(?:\s+\((\d+)\))?$", name) for name in current_names]
+        real_matches = [int(match.groups(default="1")[0]) for match in matches if match]
+        if not real_matches:
+            return wanted_name
+        number = max(real_matches)
+        return f"{wanted_name} ({number+1})"
 
     def _get_first_name_given(self, entry: ImportStudent | ImportLecturer) -> str:
         if entry["callingname"]:
@@ -200,6 +226,16 @@ class JSONImporter:
         course_type, __ = CourseType.objects.get_or_create(name_de=name, defaults={"name_en": name})
         self.course_type_cache[name] = course_type
         return course_type
+
+    def _get_exam_type(self, name: str) -> ExamType:
+        lookup = name.strip().lower()
+        if lookup in self.exam_type_cache:
+            return self.exam_type_cache[lookup]
+
+        # It could happen that the importer needs a new exam type
+        exam_type, __ = ExamType.objects.get_or_create(name_de=name, defaults={"name_en": name})
+        self.exam_type_cache[name] = exam_type
+        return exam_type
 
     def _get_program(self, name: str) -> Program:
         lookup = name.strip().lower()
@@ -337,7 +373,7 @@ class JSONImporter:
         return self._import_course(data, course_type)
 
     # pylint: disable=too-many-locals
-    def _import_evaluation(self, course: Course, data: ImportEvent) -> Evaluation:  # noqa: PLR0912
+    def _import_evaluation(self, course: Course, data: ImportEvent) -> Evaluation:  # noqa: PLR0912, PLR0915
         if "appointments" not in data or not data["appointments"]:
             self.statistics.warnings.append(
                 WarningMessage(obj=course.name, message="No dates defined, using default end date")
@@ -346,6 +382,12 @@ class JSONImporter:
         else:
             course_end = max(datetime.strptime(app["end"], self.DATETIME_FORMAT) for app in data["appointments"])
 
+        name_de, name_en = "", ""
+        try:
+            evaluation = Evaluation.objects.get(course=course, cms_id=data["gguid"])
+        except Evaluation.DoesNotExist:
+            evaluation = None
+
         if data["isexam"]:
             # Set evaluation time frame of three days for exam evaluations:
             evaluation_start_datetime = course_end.replace(hour=8, minute=0, second=0, microsecond=0) + timedelta(
@@ -353,8 +395,14 @@ class JSONImporter:
             )
             evaluation_end_date = (course_end + timedelta(days=3)).date()
 
-            name_de = data["title"].split(" - ")[-1] if " - " in data["title"] else "Prüfung"
-            name_en = data["title_en"].split(" - ")[-1] if " - " in data["title_en"] else "Exam"
+            exam_type = self._get_exam_type(data["type"])
+            if not evaluation:
+                name_de = self._disambiguate_name(
+                    exam_type.name_de, list(course.evaluations.values_list("name_de", flat=True))
+                )
+                name_en = self._disambiguate_name(
+                    exam_type.name_en, list(course.evaluations.values_list("name_en", flat=True))
+                )
 
             weight = 1
 
@@ -378,7 +426,7 @@ class JSONImporter:
             # End date is on the sunday in the week the event ends
             evaluation_end_date = (course_end + timedelta(days=6 - course_end.weekday())).date()
 
-            name_de, name_en = "", ""
+            exam_type = None
 
             weight = 9
 
@@ -390,19 +438,24 @@ class JSONImporter:
         participants = self._get_user_profiles(data["students"]) if "students" in data else []
 
         defaults = {
-            "name_de": name_de,
-            "name_en": name_en,
+            "exam_type": exam_type,
             "vote_start_datetime": evaluation_start_datetime,
             "vote_end_date": evaluation_end_date,
             "wait_for_grade_upload_before_publishing": wait_for_grade_upload_before_publishing,
             "weight": weight,
             "is_rewarded": is_rewarded,
         }
-        evaluation, created = Evaluation.objects.get_or_create(
-            course=course,
-            cms_id=data["gguid"],
-            defaults=defaults,
-        )
+
+        created = not evaluation
+        if not evaluation:
+            evaluation = Evaluation.objects.create(
+                course=course,
+                cms_id=data["gguid"],
+                name_de=name_de,
+                name_en=name_en,
+                **defaults,
+            )
+
         if evaluation.state < Evaluation.State.APPROVED:
             direct_changes = update_with_changes(evaluation, defaults)
 
