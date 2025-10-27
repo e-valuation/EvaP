@@ -274,8 +274,9 @@
                 {% endif %}
             </div>
         </div>
-        <div class="card-body tab-content">
-            <div class="tab-pane show active" id="evaluations" role="tabpanel">
+
+        <span class="card-body tab-content">
+            <span class="tab-pane show active" id="evaluations" role="tabpanel">
                 <div class="row align-items-center mb-3">
                     <div class="col-9">
                         {% if request.user.is_manager %}
@@ -391,45 +392,27 @@
 
                 <form id="evaluation_operation_form" class="table-responsive" method="GET" action="{% url 'staff:evaluation_operation' semester.pk %}">
                     {% if num_evaluations > 0 %}
-                        <table id="evaluation-table" class="table table-striped table-narrow table-vertically-aligned">
-                            <colgroup>
-                                <col style="width: 2.75em" />
-                                <col style="width: 1.25em" />
-                                <col style="width: 1.25em" />
-                                <col style="width: 1.25em" />
-                                <col style="width: 1.25em" />
-                                <col />
-                                <col style="width: 12.25em" />
-                                <col style="width: 12em" />
-                                <col style="width: 8.5em" />
-                            </colgroup>
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th class="col-order" data-col="state-approval"></th>
-                                    <th class="col-order" data-col="state-evaluating"></th>
-                                    <th class="col-order" data-col="state-textanswers"></th>
-                                    <th class="col-order" data-col="state-results"></th>
-                                    <th class="col-order" data-col="name">{% translate 'Name' %}</th>
-                                    <th class="col-order" data-col="period">{% translate 'Evaluation period' %}</th>
-                                    <th data-not-searchable></th>
-                                    <th data-not-searchable></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            {% for evaluation in evaluations %}
-                                <tr id="evaluation-row-{{ evaluation.id }}">
-                                    {% include 'staff_semester_view_evaluation.html' with semester=semester evaluation=evaluation info_only=False %}
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
+                        <div id="evaluation-grid">
+                            <div class="grid-header evaluation-grid-row">
+                                <button type="button" class="col-order icon" data-col="state-approval"></button>
+                                <button type="button" class="col-order icon" data-col="state-evaluating"></button>
+                                <button type="button" class="col-order icon" data-col="state-textanswers"></button>
+                                <button type="button" class="col-order icon" data-col="state-results"></button>
+                                <button type="button" class="col-order" data-col="name">{% translate 'Name' %}</button>
+                                <button type="button" class="col-order" data-col="period">{% translate 'Evaluation period' %}</button>
+                            </div>
+
+
+                            <div class="grid-body">
+                                {% for evaluation in evaluations %}
+                                    {% include 'staff_semester_view_evaluation_new.html' with semester=semester evaluation=evaluation info_only=False %}
+                                {% endfor %}
+                            </div>
+                        </div>
                     {% else %}
-                        <table class="table table-striped table-narrow table-vertically-aligned">
-                            <tbody>
-                                <tr><td><i>{% translate 'There are no evaluations in this semester.' %}</i></td></tr>
-                            </tbody>
-                        </table>
+                        <div class="grid-no-items-text">
+                            <i>{% translate 'There are no evaluations in this semester.' %}</i>
+                        </div>
                     {% endif %}
 
                     {% if request.user.is_manager and not semester.participations_are_archived %}
@@ -470,9 +453,9 @@
                         </div>
                     {% endif %}
                 </form>
-            </div>
+            </span>
 
-            <div class="tab-pane" id="courses" role="tabpanel">
+            <span class="tab-pane" id="courses" role="tabpanel">
                 <div class="row align-items-center mb-3">
                     <div class="col-9">
                         {% if request.user.is_manager %}
@@ -490,6 +473,7 @@
                         </div>
                     </div>
                 </div>
+
                 {% if courses %}
                     <form id="course-deletion-form" custom-success method="POST" action="{% url 'staff:course_delete' %}">
                         {% csrf_token %}
@@ -502,54 +486,48 @@
                         });
                     </script>
 
-                    <table id="course-table" class="table table-striped table-narrow table-vertically-aligned">
-                        <colgroup>
-                            <col />
-                            <col style="width: 14em" />
-                            <col style="width: 12em" />
-                            <col style="width: 9em" />
-                        </colgroup>
-                        <thead>
-                            <tr>
-                                <th class="col-order" data-col="name">{% translate 'Course' %}</th>
-                                <th class="col-order" data-col="responsible">{% translate 'Responsible' %}</th>
-                                <th class="col-order" data-col="evaluation-count">{% translate '#Evaluations' %}</th>
-                                <th data-not-searchable></th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                    <div id="course-grid">
+                        <div class="grid-header course-grid-row">
+                            <button class="col-order" data-col="name">{% translate 'Course' %}</button>
+                            <button class="col-order" data-col="responsible">{% translate 'Responsible' %}</button>
+                            <button class="col-order" data-col="evaluation-count">{% translate '#Evaluations' %}</button>
+                        </div>
+
+                        <div class="grid-body">
                             {% for course in courses %}
-                                <tr id="course-row-{{ course.id }}">
-                                    <td data-col="name" data-order="{{ course.name|lower }}">
-                                        <div>
-                                            <a href="{% url 'staff:course_edit' course.id %}">{{ course.name }}</a>
+                                <div class="course-grid-row" id="course-row-{{ course.id }}">
+                                    <div data-order="{{ course.name|lower }}">
+                                        <a data-col="name" href="{% url 'staff:course_edit' course.id %}">{{ course.name }}</a>
+
+                                        <div data-col="badges">
+                                            {% include 'course_badges.html' %}
                                         </div>
-                                        {% include 'course_badges.html' %}
-                                    </td>
-                                    <td data-col="responsible" data-order="{{ course.responsibles.first.last_name|lower }}">
-                                        <div class="fst-italic">
-                                            {{ course.responsibles_names }}
-                                        </div>
-                                    </td>
-                                    <td data-col="evaluation-count" data-order="{{ course.evaluations.count }}">
+                                    </div>
+
+                                    <div data-col="responsible" data-order="{{ course.responsibles.first.last_name|lower }}" class="fst-italic">
+                                        {{ course.responsibles_names }}
+                                    </div>
+
+                                    <div data-col="evaluation-count" data-order="{{ course.evaluations.count }}">
                                         {% if course.evaluations.count == 0 %}
                                             <span class="badge bg-warning">{% translate 'No evaluations' %}</span>
                                         {% else %}
                                             {{ course.evaluations.count }}
                                         {% endif %}
-                                    </td>
-                                    <td class="icon-buttons">
+                                    </div>
+
+                                    <div data-not-searchable class="icon-buttons">
                                         {% if request.user.is_manager %}
                                             <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
                                                 href="{% url 'staff:evaluation_create_for_course' course.id %}"
                                                 title="{% translate 'Create evaluation for this course' %}">
                                                 <span class="fas fa-clipboard-check"></span>
-                                            </a>
-                                            <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
-                                                href="{% url 'staff:course_copy' course.id %}"
-                                                title="{% translate 'Copy course' %}">
-                                                <span class="fas fa-copy"></span>
-                                            </a>
+                                        </a>
+                                        <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
+                                            href="{% url 'staff:course_copy' course.id %}"
+                                            title="{% translate 'Copy course' %}">
+                                            <span class="fas fa-copy"></span>
+                                        </a>
                                         {% endif %}
                                         {% if course.can_be_deleted_by_manager %}
                                             <confirmation-modal type="submit" form="course-deletion-form" name="course_id" value="{{ course.id }}" confirm-button-class="btn-danger">
@@ -566,47 +544,54 @@
                                                 </button>
                                             </confirmation-modal>
                                         {% endif %}
-                                    </td>
-                                </tr>
+                                    </div>
+                                </div>
                             {% endfor %}
-                        </tbody>
-                    </table>
+                        </div>
+                    </div>
+
                 {% else %}
-                    <table class="table table-striped table-narrow table-vertically-aligned">
-                        <tbody>
-                            <tr><td><i>{% translate 'There are no courses in this semester.' %}</i></td></tr>
-                        </tbody>
-                    </table>
+                    <div class="grid-no-items-text">
+                        <i>{% translate 'There are no courses in this semester.' %}</i>
+                    </div>
                 {% endif %}
-            </div>
-        </div>
+            </span>
+
+        </span>
     </div>
 {% endblock %}
 
 {% block additional_javascript %}
     <script type="text/javascript">
-        var overviewCard = document.getElementById('overviewCard');
-        var overviewCardCollapse = new bootstrap.Collapse(overviewCard, {
+        function saveSelectedTab(tab) {
+            localStorage.setItem('selected_tab', tab);
+        }
+
+        function getSelectedTab() {
+            const tab = localStorage.getItem('selected_tab');
+            if(tab) return tab;
+            return "evaluation";
+        }
+
+        const overviewCard = document.getElementById('overviewCard');
+        const overviewCardCollapse = new bootstrap.Collapse(overviewCard, {
             toggle: localStorage['show_overview'] === 'true'
         });
 
         function saveCollapseState() {
-            var state = localStorage['show_overview'] === 'true';
+            const state = localStorage['show_overview'] === 'true';
             localStorage['show_overview'] = (!state).toString();
         }
         document.getElementById("collapseOverviewCardButton").addEventListener("click", saveCollapseState);
 
-        if(localStorage['selected_tab'] === 'courses') {
-            var coursesTab = document.getElementById('coursesTab');
-            var coursesTabTrigger = new bootstrap.Tab(coursesTab);
+        if(getSelectedTab() === 'course') {
+            const coursesTab = document.getElementById('coursesTab');
+            const coursesTabTrigger = new bootstrap.Tab(coursesTab);
             coursesTabTrigger.show();
         }
 
-        function saveSelectedTab(tab) {
-            localStorage['selected_tab'] = tab;
-        }
-        document.getElementById("evaluationsTab").addEventListener("click", () => saveSelectedTab("evaluations"));
-        document.getElementById("coursesTab").addEventListener("click", () => saveSelectedTab("courses"));
+        document.getElementById("evaluationsTab").addEventListener("click", () => saveSelectedTab("evaluation"));
+        document.getElementById("coursesTab").addEventListener("click", () => saveSelectedTab("course"));
 
         window.addEventListener("pageshow", () => {
             document.querySelectorAll('#evaluation_operation_form input[type=checkbox]').forEach(checkbox => {checkbox.checked = false;}); // prevent wrong autofills
@@ -619,25 +604,24 @@
             document.querySelectorAll('#evaluation_operation_form input[type=checkbox][name=evaluation]').forEach(c => {c.checked = false;}));
     </script>
     <script type="module">
-        import {EvaluationGrid, TableGrid} from "{% static 'js/datagrid.js' %}";
-        const evaluationTable = document.querySelector("#evaluation-table");
-        if (evaluationTable) {
+        import {EvaluationGrid} from "{% static 'js/datagrid.js' %}";
+
+        const tab = getSelectedTab();
+        const dataGrid = document.querySelector(`#${tab}-grid`)
+
+        if (dataGrid) {
             new EvaluationGrid({
-                storageKey: "evaluation-semester-{{ semester.id }}-data-grid",
-                table: evaluationTable,
-                searchInput: document.querySelector("input[name=search-evaluation]"),
-                filterButtons: [...document.querySelectorAll("#evaluation-filter-buttons [data-filter]")],
-                resetSearch: document.querySelector("[data-reset=search-evaluation]"),
+                storageKey: `${tab}-semester-{{ semester.id }}-data-grid`,
+                table: dataGrid,
+                searchInput: document.querySelector(`input[name=search-${tab}]`),
+                filterButtons: [...document.querySelectorAll(`#${tab}-filter-buttons [data-filter]`)],
+                resetFilterButton: document.querySelector(`[data-reset=search-${tab}]`),
+                head: document.querySelector(`#${tab}-grid .grid-header`),
+                container: document.querySelector(`#${tab}-grid .grid-body`)
             }).init();
         }
-        const courseTable = document.querySelector("#course-table");
-        if (courseTable) {
-            new TableGrid({
-                storageKey: "course-semester-{{ semester.id }}-data-grid",
-                table: courseTable,
-                searchInput: document.querySelector("input[name=search-course]"),
-                resetSearch: document.querySelector("[data-reset=search-course]"),
-            }).init();
+        else {
+            console.error("No dataGrid found.")
         }
     </script>
 {% endblock %}

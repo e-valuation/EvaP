@@ -12,7 +12,7 @@ from django.conf import settings
 from django.contrib.auth import login
 from django.contrib.auth.models import Group
 from django.contrib.staticfiles.handlers import StaticFilesHandler
-from django.db import DEFAULT_DB_ALIAS, connections
+from django.db import DEFAULT_DB_ALIAS, connection, connections
 from django.http.request import HttpRequest, QueryDict
 from django.test.runner import DiscoverRunner
 from django.test.selenium import SeleniumTestCase
@@ -279,12 +279,18 @@ class LiveServerTest(SeleniumTestCase):
     browser = "firefox"
     selenium: WebDriver
     headless = True
+    viewport = "1920x4096"
     window_size = (1920, 4096)  # large height to workaround scrolling
     serialized_rollback = True  # SeleniumTestCase is a TransactionTestCase, which drops migration data. This keeps fixture data but may slow down tests, see https://docs.djangoproject.com/en/5.0/topics/testing/overview/#test-case-serialized-rollback
     static_handler = StaticFilesHandler  # see StaticLiveServerTestCase
 
     def setUp(self) -> None:
         super().setUp()
+
+        with connection.cursor() as cursor:
+            # reset userprofile id sequence to keep test reproducible
+            cursor.execute("ALTER SEQUENCE evaluation_userprofile_id_seq restart")
+
         self.request = self.make_request()
         self.manager = make_manager()
         self.selenium.get(self.live_server_url)
