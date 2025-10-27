@@ -39,7 +39,7 @@ test.each([
     ["", "s.o.", false],
     ["s.o.", "s.o.", true],
     ["s.o.s", "s.o.", false],
-    ["Antwort: s.o.", true],
+    ["Antwort: s.o.", "s.o.", true],
 ])("matchesTriggerString(%p, %p) should return %p", (a, b, expected) => {
     const result = testable.matchesTriggerString(a, b);
     expect(result).toBe(expected);
