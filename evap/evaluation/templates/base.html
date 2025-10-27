@@ -181,6 +181,9 @@
                         baseOptions.plugins.clear_button = {"title": "{% translate 'Remove all items' %}"};
                         baseOptions.plugins.remove_button = {"title": "{% translate 'Remove this item' %}"};
                     }
+                    document.querySelectorAll('.ts-border-0 .ts-control').forEach((tomselectElement) => {
+                        tomselectElement.classList.add("border-0")
+                    })
                     new MinimumInputLengthTomSelect(element, Object.assign({}, baseOptions, additionalOptions));
                 });
             };

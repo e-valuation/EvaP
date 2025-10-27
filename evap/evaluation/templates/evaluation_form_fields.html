@@ -20,7 +20,7 @@
                         <span class="badge rounded-pill badge-btn ms-auto" data-track-tomselect-count="#id_participants"></span>
                     </a>
                     <div class="collapse{% if not state >= evaluation.State.EDITOR_APPROVED or evaluation.participants.count == 0 %} show{% endif %}" id="participant-box">
-                        <div class="card-body">
+                        <div class="card-body ts-border-0 p-0">
                             {% include 'bootstrap_form_field_widget.html' with field=field %}
                         </div>
                     </div>
