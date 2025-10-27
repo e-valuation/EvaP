@@ -57,14 +57,12 @@
                                         {% include 'bootstrap_form_field_widget.html' with field=form_element.type %}
                                         <div class="form-check mt-1">
                                             <input class="form-check-input allow-textanswer-checkbox" id="{{ form_element.allows_additional_textanswers.id_for_label }}" name="{{ form_element.allows_additional_textanswers.html_name }}"
-                                                type="checkbox" data-keep="true" {% if form_element.allows_additional_textanswers.value %} checked{% endif %}
-                                                {{form_element.allows_additional_textanswers.field.widget.attrs.disabled}} />
+                                                type="checkbox" data-keep="true" {% if form_element.allows_additional_textanswers.value %} checked{% endif %}/>
                                             <label class="form-check-label" for="{{ form_element.allows_additional_textanswers.id_for_label }}">{{ form_element.allows_additional_textanswers.label }}</label>
                                         </div>
                                         <div class="form-check mt-1">
                                             <input class="form-check-input counts-for-grade-checkbox" id="{{ form_element.counts_for_grade.id_for_label }}" name="{{ form_element.counts_for_grade.html_name }}"
-                                                type="checkbox" data-keep="true" {% if form_element.counts_for_grade.value %} checked{% endif %} 
-                                                {{form_element.counts_for_grade.field.widget.attrs.disabled}}/>
+                                                type="checkbox" data-keep="true" {% if form_element.counts_for_grade.value %} checked{% endif %}/>
                                             <label class="form-check-label" for="{{ form_element.counts_for_grade.id_for_label }}">{{ form_element.counts_for_grade.label }}</label>
                                         </div>
                                     </td>
@@ -92,6 +90,7 @@
             import { StaffQuestionnaireForm } from "{% static 'js/staff-questionnaire-form.js' %}";
             
             const staffQuestionnaireForm = new StaffQuestionnaireForm("question_table");
+            staffQuestionnaireForm.initialize();
             
             const rowChanged = function(row) {
                 const nameDe = row.querySelector('textarea[id$=-text_de]')?.value;

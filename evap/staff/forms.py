@@ -922,19 +922,6 @@ class QuestionForm(forms.ModelForm):
             "order": forms.HiddenInput(),
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        if self.instance.pk and self.instance.type in [QuestionType.TEXT, QuestionType.HEADING]:
-            # The disabled attribute on a field would prevent this field from being saved,
-            # so we use the widget attrs instead
-            self.fields["allows_additional_textanswers"].widget.attrs["disabled"] = "disabled"
-            self.fields["counts_for_grade"].widget.attrs["disabled"] = "disabled"
-
-        # When the questionnaire is a dropout questionnaire, disable the counts_for_grade field on all questions
-        if self.instance.pk and self.instance.questionnaire and self.instance.questionnaire.is_dropout:
-            self.fields["counts_for_grade"].widget.attrs["disabled"] = "disabled"
-
     def clean(self):
         super().clean()
         questionnaire = self.cleaned_data.get("questionnaire")
