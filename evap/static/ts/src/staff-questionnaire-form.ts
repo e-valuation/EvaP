@@ -103,6 +103,40 @@ export class StaffQuestionnaireForm {
         }
     };
 
+    public initialize = (): void => {
+        // Initialize the state of all checkboxes based on current question types and questionnaire type
+        const questionnaireType = saneParseInt(this.questionnaireTypeSelect.value);
+
+        // Iterate through all question rows
+        document.querySelectorAll(".question-type").forEach(questionTypeCell => {
+            const questionTypeSelect = selectOrError<HTMLSelectElement>("select", questionTypeCell);
+            const questionType = saneParseInt(questionTypeSelect.value);
+
+            // Skip if no question type selected
+            if (questionTypeSelect.value === "") {
+                return;
+            }
+
+            const checkboxes = questionTypeCell.querySelectorAll("input[type=checkbox]");
+
+            if (questionType === QUESTION_TYPE_TEXT || questionType === QUESTION_TYPE_HEADING) {
+                checkboxes.forEach(checkbox => {
+                    const checkboxElement = checkbox as HTMLInputElement;
+                    checkboxElement.disabled = true;
+                });
+            }
+
+            if (questionnaireType === QUESTIONNAIRE_TYPE_DROPOUT) {
+                checkboxes.forEach(checkbox => {
+                    const checkboxElement = checkbox as HTMLInputElement;
+                    if (checkboxElement.classList.contains("counts-for-grade-checkbox")) {
+                        checkboxElement.disabled = true;
+                    }
+                });
+            }
+        });
+    };
+
     public registerSelectChangedHandlers = (): void => {
         document.querySelectorAll(".question-type select").forEach(selectElement => {
             selectElement.addEventListener("change", this.selectChangedHandler);
