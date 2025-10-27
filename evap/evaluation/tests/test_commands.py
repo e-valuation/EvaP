@@ -20,7 +20,7 @@ from evap.evaluation.models import (
     Course,
     EmailTemplate,
     Evaluation,
-    Question,
+    QuestionAssignment,
     Questionnaire,
     RatingAnswerCounter,
     Semester,
@@ -101,18 +101,18 @@ class TestAnonymizeCommand(TestCase):
         cls.general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
 
         cls.contributor_questions = baker.make(
-            Question,
+            QuestionAssignment,
             _bulk_create=True,
             _quantity=10,
             questionnaire=cls.contributor_questionnaire,
-            type=cycle(iter(CHOICES.keys())),
+            question__type=cycle(iter(CHOICES.keys())),
         )
         cls.general_questions = baker.make(
-            Question,
+            QuestionAssignment,
             _bulk_create=True,
             _quantity=10,
             questionnaire=cls.contributor_questionnaire,
-            type=cycle(iter(CHOICES.keys())),
+            question__type=cycle(iter(CHOICES.keys())),
         )
 
         cls.contributor = baker.make(UserProfile, password=make_password(None))
@@ -136,9 +136,9 @@ class TestAnonymizeCommand(TestCase):
 
     def test_no_empty_rating_answer_counters_left(self):
         counters = []
-        for question in chain(self.contributor_questions, self.general_questions):
-            counts = [1 for choice in CHOICES[question.type].values if choice != NO_ANSWER]
-            counters.extend(make_rating_answer_counters(question, self.contribution, counts, False))
+        for assignment in chain(self.contributor_questions, self.general_questions):
+            counts = [1 for choice in CHOICES[assignment.question.type].values if choice != NO_ANSWER]
+            counters.extend(make_rating_answer_counters(assignment, self.contribution, counts, False))
         RatingAnswerCounter.objects.bulk_create(counters)
 
         old_count = RatingAnswerCounter.objects.count()
@@ -159,17 +159,21 @@ class TestAnonymizeCommand(TestCase):
         answers_per_question = defaultdict(int)
 
         counters = []
-        for question in chain(self.contributor_questions, self.general_questions):
-            counts = [random.randint(10, 100) for choice in CHOICES[question.type].values if choice != NO_ANSWER]
-            counters.extend(make_rating_answer_counters(question, self.contribution, counts, False))
-            answers_per_question[question] += sum(counts)
+        for assignment in chain(self.contributor_questions, self.general_questions):
+            counts = [
+                random.randint(10, 100) for choice in CHOICES[assignment.question.type].values if choice != NO_ANSWER
+            ]
+            counters.extend(make_rating_answer_counters(assignment, self.contribution, counts, False))
+            answers_per_question[assignment] += sum(counts)
         RatingAnswerCounter.objects.bulk_create(counters)
 
         management.call_command("anonymize", stdout=StringIO())
 
-        for question in chain(self.contributor_questions, self.general_questions):
-            answer_count = RatingAnswerCounter.objects.filter(question=question).aggregate(Sum("count"))["count__sum"]
-            self.assertEqual(answers_per_question[question], answer_count)
+        for assignment in chain(self.contributor_questions, self.general_questions):
+            answer_count = RatingAnswerCounter.objects.filter(assignment=assignment).aggregate(Sum("count"))[
+                "count__sum"
+            ]
+            self.assertEqual(answers_per_question[assignment], answer_count)
 
     def test_user_with_password(self):
         baker.make(UserProfile, password=make_password("evap"))
