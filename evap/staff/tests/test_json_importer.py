@@ -521,7 +521,13 @@ class TestImportEvents(TestCase):
         self.assertEqual(evaluation_life.weight, 1)
 
     def test_import_ignore_non_responsible_users(self):
-        with override_settings(NON_RESPONSIBLE_USERS=["4@example.com"]):
+        with override_settings(
+            NON_RESPONSIBLE_USERS=[
+                "4@example.com",
+                # to test that this filters cleaned emails
+                "5@EXAMPLE.com",
+            ]
+        ):
             self._import(EXAMPLE_DATA_SPECIAL_CASES)
             evaluation = Evaluation.objects.get(cms_id="0x9")
             self.assertEqual(set(evaluation.course.responsibles.values_list("email", flat=True)), {"5@example.com"})
