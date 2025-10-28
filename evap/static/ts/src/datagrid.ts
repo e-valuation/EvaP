@@ -392,7 +392,6 @@ interface ResultGridParameters extends DataGridParameters {
     sortColumnSelect: HTMLSelectElement;
     sortOrderCheckboxes: HTMLInputElement[];
     resetFilter: HTMLButtonElement;
-    resetSearch: HTMLButtonElement;
     resetOrder: HTMLButtonElement;
 }
 
