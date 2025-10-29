@@ -1,7 +1,7 @@
 [project]
 name = "evap"
 description = "EvaP"
-version = "2025.6.1"
+version = "2025.10.0"
 readme = "README.md"
 requires-python = "~=3.11.0"
 dependencies = [
