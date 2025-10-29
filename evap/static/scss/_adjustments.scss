@@ -134,6 +134,10 @@ $alert-colors: (
     box-shadow: $input-focus-box-shadow;
 }
 
+.ts-border-0 .ts-control {
+    border: 0;
+}
+
 // Change .btn-group outlined border style to fix double borders with outlined button style
 // see https://github.com/twbs/bootstrap/issues/25888
 .btn-group.outline-fix {
