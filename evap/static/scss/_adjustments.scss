@@ -158,3 +158,8 @@ $alert-colors: (
         margin-left: unset;
     }
 }
+
+// Hide the x in input fields on chrome
+input[type="search"]::-webkit-search-cancel-button {
+	-webkit-appearance: none;
+}
