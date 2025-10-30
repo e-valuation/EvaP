@@ -120,7 +120,7 @@ export class QuickReviewSlider {
     //
     // DOM
     //
-    public attach = () => {
+    public attach = (initalTextAnswerId?: string) => {
         this.reviewDecisionForm.addEventListener("submit", this.reviewDecisionFormSubmitHandler);
         this.flagForm.addEventListener("submit", this.flagFormSubmitHandler);
         this.slider.querySelectorAll<HTMLInputElement>("input[name=is_flagged]").forEach(isFlaggedInput => {
@@ -137,7 +137,7 @@ export class QuickReviewSlider {
             trigger.addEventListener("click", this.startOverHandler(trigger)),
         );
 
-        this.startOver(StartOverWhere.Undecided);
+        this.startOver(initalTextAnswerId ?? StartOverWhere.Undecided);
         this.updateNextEvaluation();
     };
 
@@ -377,15 +377,18 @@ export class QuickReviewSlider {
     //
     // Sliding
     //
-    public startOver = (where: StartOverWhere) => {
+    public startOver = (where: StartOverWhere | string) => {
         const decided = this.slider.querySelectorAll<HTMLElement>(`[data-layer="${Layer.Answer}"][data-review]`);
         const undecided = this.slider.querySelectorAll<HTMLElement>(
             `[data-layer="${Layer.Answer}"]:not([data-review])`,
         );
         this.answerSlides = Array.from(decided).concat(Array.from(undecided));
 
-        const startOverOnUndecided = where === StartOverWhere.Undecided && undecided.length > 0;
-        const startIndex = startOverOnUndecided ? decided.length : 0;
+        let startIndex;
+        if (where === StartOverWhere.All || where === StartOverWhere.Undecided) {
+            const startOverOnUndecided = where === StartOverWhere.Undecided && undecided.length > 0;
+            startIndex = startOverOnUndecided ? decided.length : 0;
+        } else startIndex = this.answerSlides.findIndex(element => element.id === `textanswer-${where}`);
         this.slideTo(startIndex);
         this.updateButtons();
     };
