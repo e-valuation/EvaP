@@ -181,7 +181,7 @@ class JSONImporter:
         return [user for user in user_profiles if len(user.title) == max_title_len]
 
     def _remove_non_responsible_users(self, user_profiles: list[UserProfile]) -> list[UserProfile]:
-        return list(filter(lambda p: p.email not in settings.NON_RESPONSIBLE_USERS, user_profiles))
+        return [user for user in user_profiles if user.email not in settings.NON_RESPONSIBLE_USERS]
 
     def _get_course_type(self, name: str) -> CourseType:
         lookup = name.strip().lower()
@@ -227,6 +227,9 @@ class JSONImporter:
                     WarningMessage(obj=f"Student {entry['christianname']} {entry['name']}", message="No email defined")
                 )
             else:
+                if email in settings.IGNORE_USERS:
+                    continue
+
                 user_profile, __, changes = update_or_create_with_changes(
                     UserProfile,
                     email=email,
@@ -247,6 +250,9 @@ class JSONImporter:
                     )
                 )
             else:
+                if email in settings.IGNORE_USERS:
+                    continue
+
                 user_profile, __, changes = update_or_create_with_changes(
                     UserProfile,
                     email=email,
