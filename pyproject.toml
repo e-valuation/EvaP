@@ -129,7 +129,6 @@ exclude = ["**/urls.py"]
 jobs = 0
 
 load-plugins = ["pylint_django"]
-django-settings-module = "evap.settings"
 
 [tool.pylint.basic]
 # For most code: snake_case, or PascalCaseFormset, because django does it that way.
@@ -200,7 +199,6 @@ packages = ["evap", "tools"]
 plugins = ["mypy_django_plugin.main"]
 
 [tool.django-stubs]
-django_settings_module = "evap.settings"
 
 [[tool.mypy.overrides]]
 module = [
@@ -223,7 +221,6 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 # We don't officially use pytest, but last time we wanted to, this worked for us with pytest-django
 # pytest-xdist worked for parallelizing tests.
-DJANGO_SETTINGS_MODULE = "evap.settings"
 python_files = ["tests.py", "test_*.py", "*_tests.py"]
 testpaths = ["evap", "tools"]
 norecursedirs=["locale", "logs", "static", "static_collected", "upload"]

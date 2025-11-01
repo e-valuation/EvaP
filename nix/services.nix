@@ -58,14 +58,15 @@
           runtimeInputs = with pkgs; [ venv git gnused gettext coreutils ];
           text = ''
             set -e
-            if [[ -f evap/localsettings.py ]]; then
-                echo "Found evap/localsettings.py, exiting."
+            if [[ -f localsettings.py ]]; then
+                echo "Found localsettings.py, exiting."
                 echo "If you want to install a fresh environment, run clean-setup in a nix develop shell."
                 exit 0
             fi
             set -x
-            cp evap/development/localsettings.template.py evap/localsettings.py
-            sed -i -e "s/\$SECRET_KEY/$(head /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | head -c 32)/" evap/localsettings.py
+            cp evap/development/localsettings.template.py localsettings.py
+            ln -s evap/settings/schema.pyi localsettings.pyi
+            sed -i -e "s/\$SECRET_KEY/$(head /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | head -c 32)/" localsettings.py
             git submodule update --init
             ./manage.py compilemessages --locale de
             ./manage.py reload_testdata --noinput
