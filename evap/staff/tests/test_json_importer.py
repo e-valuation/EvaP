@@ -102,11 +102,27 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
     "students": [
         {"gguid": "0x1", "email": "", "name": "1", "christianname": "1"},
         {"gguid": "0x2", "email": "2@example.com", "name": "2", "christianname": "2"},
+        {"gguid": "0x7", "email": "ignored.student@example.com", "name": "7", "christianname": "7"},
+        {"gguid": "0x11", "email": "IGNORED.StUdEnT2@example.CoM", "name": "11", "christianname": "11"},
     ],
     "lecturers": [
         {"gguid": "0x3", "email": "", "name": "3", "christianname": "3", "titlefront": "Prof. Dr."},
         {"gguid": "0x4", "email": "4@example.com", "name": "4", "christianname": "4", "titlefront": "Prof. Dr."},
         {"gguid": "0x5", "email": "5@example.com", "name": "5", "christianname": "5", "titlefront": "Prof. Dr."},
+        {
+            "gguid": "0x6",
+            "email": "ignored.lecturer@example.com",
+            "name": "6",
+            "christianname": "6",
+            "titlefront": "Prof. Dr.",
+        },
+        {
+            "gguid": "0x12",
+            "email": "IGNORED.lectURer2@ExAmPlE.CoM",
+            "name": "12",
+            "christianname": "12",
+            "titlefront": "Prof. Dr.",
+        },
     ],
     "events": [
         {
@@ -134,7 +150,7 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
             "title_en": "",
             "type": "Vorlesung",
             "isexam": False,
-            "lecturers": [{"gguid": "0x4"}, {"gguid": "0x5"}],
+            "lecturers": [{"gguid": "0x4"}, {"gguid": "0x5"}, {"gguid": "0x12"}],
             "students": [],
             "appointments": [{"begin": "29.07.2024 10:15:00", "end": "29.07.2024 11:45:00"}],
         },
@@ -200,6 +216,16 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
             "relatedevents": [{"gguid": "0x50"}],
             "lecturers": [{"gguid": "0x3"}],
             "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
+        },
+        {
+            "gguid": "0x10",
+            "title": "Vorlesung mit ignorierten Verantwortlichen",
+            "title_en": "",
+            "type": "Vorlesung",
+            "isexam": False,
+            "lecturers": [{"gguid": "0x3"}, {"gguid": "0x6"}],
+            "students": [{"gguid": "0x1"}, {"gguid": "0x7"}],
+            "appointments": [{"begin": "29.07.2024 10:15:00", "end": "29.07.2024 11:45:00"}],
         },
     ],
 }
@@ -421,8 +447,8 @@ class TestImportEvents(TestCase):
         Program.objects.create(name_en="Program", name_de="Studiengang", import_names=["P"])
         importer = self._import(EXAMPLE_DATA_SPECIAL_CASES)
 
-        self.assertEqual(Course.objects.count(), 5)
-        self.assertEqual(Evaluation.objects.count(), 8)
+        self.assertEqual(Course.objects.count(), 6)
+        self.assertEqual(Evaluation.objects.count(), len(EXAMPLE_DATA_SPECIAL_CASES["events"]))
 
         evaluation = Evaluation.objects.first()
         self.assertEqual(evaluation.course.name_de, "Terminlose Vorlesung")
@@ -503,7 +529,7 @@ class TestImportEvents(TestCase):
         self.assertEqual(evaluation_life.weight, 1)
 
     def test_import_ignore_non_responsible_users(self):
-        with override_settings(NON_RESPONSIBLE_USERS=["4@example.com"]):
+        with override_settings(NON_RESPONSIBLE_USERS=["4@example.com", "ignored.lecturer2@example.com"]):
             self._import(EXAMPLE_DATA_SPECIAL_CASES)
             evaluation = Evaluation.objects.get(cms_id="0x9")
             self.assertEqual(set(evaluation.course.responsibles.values_list("email", flat=True)), {"5@example.com"})
@@ -520,7 +546,8 @@ class TestImportEvents(TestCase):
             self._import(EXAMPLE_DATA_SPECIAL_CASES)
             evaluation = Evaluation.objects.get(cms_id="0x9")
             self.assertEqual(
-                set(evaluation.course.responsibles.values_list("email", flat=True)), {"4@example.com", "5@example.com"}
+                set(evaluation.course.responsibles.values_list("email", flat=True)),
+                {"4@example.com", "5@example.com", "ignored.lecturer2@example.com"},
             )
             self.assertEqual(
                 set(
@@ -528,8 +555,32 @@ class TestImportEvents(TestCase):
                         "contributor__email", flat=True
                     )
                 ),
-                {"4@example.com", "5@example.com"},
+                {"4@example.com", "5@example.com", "ignored.lecturer2@example.com"},
             )
+
+    def test_import_ignore_users(self):
+        with override_settings(
+            IGNORE_USERS=[
+                "ignored.student@example.com",
+                "ignored.student2@example.com",
+                "ignored.lecturer@example.com",
+                "ignored.lecturer2@example.com",
+            ]
+        ):
+            self._import(EXAMPLE_DATA_SPECIAL_CASES)
+
+            self.assertFalse(UserProfile.objects.filter(email="ignored.student@example.com").exists())
+            self.assertFalse(UserProfile.objects.filter(email="ignored.student2@example.com").exists())
+            self.assertFalse(UserProfile.objects.filter(email="ignored.lecturer@example.com").exists())
+            self.assertFalse(UserProfile.objects.filter(email="ignored.lecturer2@example.com").exists())
+
+        with override_settings(IGNORE_USERS=[]):
+            self._import(EXAMPLE_DATA_SPECIAL_CASES)
+
+            self.assertTrue(UserProfile.objects.filter(email="ignored.student@example.com").exists())
+            self.assertTrue(UserProfile.objects.filter(email="ignored.student2@example.com").exists())
+            self.assertTrue(UserProfile.objects.filter(email="ignored.lecturer@example.com").exists())
+            self.assertTrue(UserProfile.objects.filter(email="ignored.lecturer2@example.com").exists())
 
     def test_import_courses_evaluation_approved(self):
         self._import()
