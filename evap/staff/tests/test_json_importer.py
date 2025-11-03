@@ -108,15 +108,15 @@ EXAMPLE_DATA: ImportDict = {
         },
     ],
 }
-EXAMPLE_DATA_WITH_PREFIX = {
+EXAMPLE_DATA_WITHOUT_RELATED_EVALUATION = {
     "students": EXAMPLE_DATA["students"],
     "lecturers": EXAMPLE_DATA["lecturers"],
     "events": [
         {
             "gguid": "0x10",
-            "title": "BA-Projekt: Allerbestes Projekt",
-            "title_en": "BA Project: Best Project Ever",
-            "type": "Prüfung",
+            "title": "Allerbestes Projekt",
+            "title_en": "Best Project Ever",
+            "type": "Bachelorprojekt",
             "isexam": True,
             "courses": [{"cprid": "BA-Inf", "scale": "GRADE_TO_A_THIRD"}],
             "lecturers": [{"gguid": "0x3"}],
@@ -480,11 +480,11 @@ class TestImportEvents(TestCase):
         self.assertEqual(len(importer.statistics.new_courses), 1)
         self.assertEqual(len(importer.statistics.new_evaluations), 2)
 
-    def test_import_courses_exam_with_prefix(self):
+    def test_import_courses_exam_without_related_evaluation(self):
         CourseType.objects.create(name_en="Foo", name_de="Foo", import_names=["nat"])
-        course_type = CourseType.objects.create(name_en="Bar", name_de="Bar", import_names=["BA-Projekt"])
+        course_type = CourseType.objects.create(name_en="Bar", name_de="Bar", import_names=["Bachelorprojekt"])
 
-        self._import(EXAMPLE_DATA_WITH_PREFIX)
+        self._import(EXAMPLE_DATA_WITHOUT_RELATED_EVALUATION)
 
         self.assertEqual(Course.objects.count(), 1)
         self.assertEqual(Evaluation.objects.count(), 1)
