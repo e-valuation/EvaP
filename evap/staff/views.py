@@ -93,6 +93,7 @@ from evap.staff.forms import (
     EvaluationEmailForm,
     EvaluationForm,
     EvaluationParticipantCopyForm,
+    ExamEvaluationForm,
     ExamTypeForm,
     ExportSheetForm,
     FaqQuestionForm,
@@ -1116,27 +1117,16 @@ def course_copy(request, course_id):
 @require_POST
 @manager_required
 def create_exam_evaluation(request: HttpRequest) -> HttpResponse:
-    evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
+    form = ExamEvaluationForm(request.POST)
 
-    if evaluation.has_exam_evaluation:
-        raise SuspiciousOperation("An exam evaluation already exists for this course.")
-
-    exam_date_string = request.POST.get("exam_date")
-    if not exam_date_string:
-        return HttpResponseBadRequest("Exam date missing.")
-    try:
-        exam_date = datetime.strptime(exam_date_string, "%Y-%m-%d").date()
-    except ValueError:
-        return HttpResponseBadRequest("Exam date invalid.")
-
-    if exam_date < evaluation.earliest_possible_exam_date:
-        raise SuspiciousOperation(
-            "The end date of the main evaluation would be before its start date. No exam evaluation was created."
+    if form.is_valid():
+        form.cleaned_data["evaluation"].create_exam_evaluation(
+            form.cleaned_data["exam_date"], form.cleaned_data["exam_type"]
         )
+        messages.success(request, _("Successfully created exam evaluation."))
+        return HttpResponse()  # 200 OK
 
-    evaluation.create_exam_evaluation(exam_date)
-    messages.success(request, _("Successfully created exam evaluation."))
-    return HttpResponse()  # 200 OK
+    raise SuspiciousOperation(form.errors)
 
 
 @manager_required

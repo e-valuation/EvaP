@@ -544,6 +544,34 @@ class EvaluationCopyForm(EvaluationForm):
         super().__init__(data=data, initial=initial, semester=instance.course.semester)
 
 
+class ExamEvaluationForm(forms.Form):
+    evaluation = forms.ModelChoiceField(Evaluation.objects.all(), required=True, widget=forms.HiddenInput())
+    exam_date = forms.DateField(
+        label=_("Exam Date"),
+        required=True,
+        localize=True,
+    )
+    exam_type = forms.ModelChoiceField(ExamType.objects.all(), required=True, label=_("Exam Type"))
+
+    def __init__(self, *args, evaluation=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if evaluation:
+            for field in ["evaluation", "exam_date", "exam_type"]:
+                self.fields[field].widget.attrs["form"] = f"exam_creation_form_{evaluation.id}"
+            self.fields["exam_date"].widget.attrs["min"] = evaluation.earliest_possible_exam_date
+            self.fields["exam_type"].initial = ExamType.objects.order_by("order").first()
+            self.fields["evaluation"].initial = evaluation
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data["evaluation"].has_exam_evaluation:
+            raise ValidationError(_("An exam evaluation already exists for this course."))
+        if cleaned_data["exam_date"] < cleaned_data["evaluation"].earliest_possible_exam_date:
+            raise ValidationError(
+                _("The end date of the main evaluation would be before its start date. No exam evaluation was created.")
+            )
+
+
 class ContributionForm(forms.ModelForm):
     contributor = UserModelChoiceField(queryset=UserProfile.objects.exclude(is_active=False))
     evaluation = forms.ModelChoiceField(
