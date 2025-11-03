@@ -905,11 +905,16 @@ def semester_questionnaire_assign(request, semester_id):
         raise PermissionDenied
     evaluations = semester.evaluations.filter(state=Evaluation.State.NEW)
     course_types = CourseType.objects.filter(courses__evaluations__in=evaluations)
-    form = QuestionnairesAssignForm(request.POST or None, course_types=course_types)
+    exam_types = ExamType.objects.filter(evaluations__in=evaluations)
+    form = QuestionnairesAssignForm(request.POST or None, course_types=course_types, exam_types=exam_types)
 
     if form.is_valid():
         for evaluation in evaluations:
-            general_questionnaires = list(form.cleaned_data[f"general-{evaluation.course.type.id}"])
+            general_questionnaires = (
+                list(form.cleaned_data[f"general-{evaluation.course.type.id}"])
+                if evaluation.exam_type is None
+                else list(form.cleaned_data[f"exam-{evaluation.exam_type.id}"])
+            )
             contributor_questionnaires = list(
                 form.cleaned_data["all-contributors"] | form.cleaned_data[f"contributor-{evaluation.course.type.id}"]
             )
@@ -929,6 +934,7 @@ def semester_questionnaire_assign(request, semester_id):
     general_fields = [field for field in form if field.name.startswith("general-")]
     contributor_fields = [field for field in form if field.name.startswith("contributor-")]
     contributor_fields.append(form["all-contributors"])
+    exam_fields = [field for field in form if field.name.startswith("exam-")]
 
     return render(
         request,
@@ -938,6 +944,7 @@ def semester_questionnaire_assign(request, semester_id):
             "form": form,
             "general_fields": general_fields,
             "contributor_fields": contributor_fields,
+            "exam_fields": exam_fields,
         },
     )
 

@@ -918,7 +918,7 @@ class QuestionForm(forms.ModelForm):
 
 
 class QuestionnairesAssignForm(forms.Form):
-    def __init__(self, *args, course_types, **kwargs):
+    def __init__(self, *args, course_types, exam_types, **kwargs):
         super().__init__(*args, **kwargs)
 
         contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().exclude(
@@ -942,6 +942,13 @@ class QuestionnairesAssignForm(forms.Form):
         self.fields["all-contributors"] = forms.ModelMultipleChoiceField(
             label=_("All contributors"), required=False, queryset=contributor_questionnaires
         )
+
+        for exam_type in exam_types:
+            self.fields[f"exam-{exam_type.id}"] = forms.ModelMultipleChoiceField(
+                label=exam_type.name,
+                required=False,
+                queryset=non_contributor_questionnaires,
+            )
 
 
 class UserForm(forms.ModelForm):

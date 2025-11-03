@@ -950,11 +950,12 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
 
         cls.responsible = baker.make(UserProfile)
 
-        cls.questionnaires = baker.make(Questionnaire, type=Questionnaire.Type.TOP, _quantity=2)
+        cls.questionnaires = baker.make(Questionnaire, type=Questionnaire.Type.TOP, _quantity=4)
         cls.questionnaire_contributor, cls.questionnaire_responsible = baker.make(
             Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, _quantity=2
         )
         cls.course_types = baker.make(CourseType, _quantity=3)
+        cls.exam_types = baker.make(ExamType, _quantity=3)
         cls.evaluations = baker.make(
             Evaluation,
             course__semester=semester,
@@ -962,6 +963,16 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
             course__type=iter(cls.course_types),
             _quantity=3,
         )
+        cls.exam_evaluations = [
+            baker.make(
+                Evaluation,
+                course=main_evaluation.course,
+                exam_type=exam_type,
+                name_de=exam_type.name_de,
+                name_en=exam_type.name_en,
+            )
+            for main_evaluation, exam_type in zip(cls.evaluations, cls.exam_types, strict=True)
+        ]
         baker.make(
             Contribution,
             contributor=cls.responsible,
@@ -978,6 +989,8 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
         form[f"general-{self.course_types[1].id}"] = [self.questionnaires[1].pk]
         form[f"contributor-{self.course_types[0].id}"] = [self.questionnaire_responsible.pk]
         form["all-contributors"] = [self.questionnaire_contributor.pk]
+        form[f"exam-{self.exam_types[0].id}"] = [self.questionnaires[2].pk, self.questionnaires[3].pk]
+        form[f"exam-{self.exam_types[1].id}"] = [self.questionnaires[3].pk]
 
         response = form.submit().follow()
         self.assertContains(response, "Successfully")
@@ -1004,6 +1017,18 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
         )
 
         self.assertQuerySetEqual(self.evaluations[2].general_contribution.questionnaires.all(), [])
+
+        self.assertQuerySetEqual(
+            self.exam_evaluations[0].general_contribution.questionnaires.all(),
+            [self.questionnaires[2], self.questionnaires[3]],
+            ordered=False,
+        )
+
+        self.assertQuerySetEqual(
+            self.exam_evaluations[1].general_contribution.questionnaires.all(), [self.questionnaires[3]]
+        )
+
+        self.assertQuerySetEqual(self.exam_evaluations[2].general_contribution.questionnaires.all(), [])
 
 
 class TestSemesterPreparationReminderView(WebTestStaffModeWith200Check):
