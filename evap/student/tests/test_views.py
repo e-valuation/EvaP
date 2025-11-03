@@ -714,9 +714,7 @@ class TestDropoutView(WebTest):
         html_site = page.body.decode()
 
         # do not redirect to vote page
-        self.assertNotIn(f"{url_vote}?language=en", html_site)
-        self.assertNotIn(f"{url_vote}?language=de", html_site)
+        self.assertNotIn(url_vote, html_site)
 
         # redirect to vote page
-        self.assertIn(f"{url_dropout}?language=en", html_site)
-        self.assertIn(f"{url_dropout}?language=de", html_site)
+        self.assertIn(url_dropout, html_site)
