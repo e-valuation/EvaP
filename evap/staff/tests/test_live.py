@@ -1,7 +1,8 @@
-import time
 from datetime import date, datetime
 
+from django.test import override_settings
 from django.urls import reverse
+from freezegun import freeze_time
 from model_bakery import baker
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
@@ -10,8 +11,6 @@ from selenium.webdriver.support.expected_conditions import (
     invisibility_of_element_located,
     visibility_of_element_located,
 )
-from selenium.webdriver.support.ui import WebDriverWait
-from visual_regression_tracker import Config, IgnoreArea, TestRun, VisualRegressionTracker
 
 from evap.evaluation.models import (
     Contribution,
@@ -124,7 +123,6 @@ class EvaluationEditLiveTest(LiveServerTest):
         )
 
 
-
 class ParticipantCollapseTests(LiveServerTest):
     def test_collapse_with_editor_approved(self) -> None:
 
@@ -186,11 +184,12 @@ class ParticipantCollapseTests(LiveServerTest):
         counter = card_header.find_element(By.CSS_SELECTOR, ".rounded-pill")
         self.assertEqual(counter.text, "0")
 
+
 class StaffSemesterViewRegressionTest(LiveServerTest):
 
+    @freeze_time("2025-10-27")
+    @override_settings(SLOGANS_EN=["Einigermaßen verlässlich aussehende Pixeltestung"])
     def test_regression(self):
-        vrt = VisualRegressionTracker()
-
         baker.seed(31902)
 
         responsible = baker.make(UserProfile)
@@ -201,7 +200,7 @@ class StaffSemesterViewRegressionTest(LiveServerTest):
             vote_end_date=date(2099, 12, 31),
             main_language="en",
         )
-        evaluation2 = baker.make(
+        _ = baker.make(
             Evaluation,
             course=baker.make(
                 Course, semester=evaluation.course.semester, programs=[baker.make(Program)], responsibles=[responsible]
@@ -210,7 +209,7 @@ class StaffSemesterViewRegressionTest(LiveServerTest):
             vote_end_date=date(2099, 12, 31),
             main_language="en",
         )
-        evaluation3 = baker.make(
+        _ = baker.make(
             Evaluation,
             course=baker.make(
                 Course, semester=evaluation.course.semester, programs=[baker.make(Program)], responsibles=[responsible]
@@ -223,7 +222,7 @@ class StaffSemesterViewRegressionTest(LiveServerTest):
         general_questionnaire = baker.make(Questionnaire, questions=[baker.make(Question)])
         evaluation.general_contribution.questionnaires.set([general_questionnaire])
 
-        contribution1 = baker.make(
+        _ = baker.make(
             Contribution,
             evaluation=evaluation,
             contributor=responsible,
@@ -239,25 +238,11 @@ class StaffSemesterViewRegressionTest(LiveServerTest):
             role=Contribution.Role.EDITOR,
         )
 
-        with vrt:
-            with self.enter_staff_mode():
-                self.selenium.get(self.reverse("staff:semester_view", args=[evaluation.course.semester_id]))
+        with self.enter_staff_mode():
+            self.selenium.get(self.reverse("staff:semester_view", args=[evaluation.course.semester_id]))
 
-                _ = self.wait.until(
-                    expected_conditions.presence_of_element_located(
-                        (By.CSS_SELECTOR, "#evaluation-filter-buttons .badge")
-                    )
-                )
+            _ = self.wait.until(
+                expected_conditions.presence_of_element_located((By.CSS_SELECTOR, "#evaluation-filter-buttons .badge"))
+            )
 
-                vrt.track(
-                    TestRun(
-                        name="staff:index",
-                        imageBase64=self.selenium.get_screenshot_as_base64(),
-                        diffTollerancePercent=0,
-                        os="Linux",
-                        browser="Firefox",
-                        viewport=self.viewport,
-                        device="PC",
-                        ignoreAreas=[IgnoreArea(y=3968, height=42, x=0, width=1920)],
-                    )
-                )
+            self.trigger_screenshot("staff:index")

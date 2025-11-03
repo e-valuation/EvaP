@@ -1,3 +1,5 @@
+import json
+import os
 import time
 from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
@@ -7,6 +9,7 @@ from typing import Any
 
 import django.test
 import django_webtest
+import requests
 import webtest
 from django.conf import settings
 from django.contrib.auth import login
@@ -322,6 +325,71 @@ class LiveServerTest(SeleniumTestCase):
         """Login a test user by setting the session cookie."""
         login(self.request, user, "evap.evaluation.auth.RequestAuthUserBackend")
         self.update_session()
+
+    def trigger_screenshot(self, name: str):
+        timeout = 10
+        full_name = self.__class__.__name__ + "_" + name
+
+        config = {
+            "apiUrl": os.environ.get("VRT_APIURL"),
+            "ciBuildId": os.environ.get("VRT_CIBUILDID"),
+            "branchName": os.environ.get("VRT_BRANCHNAME"),
+            "apiKey": os.environ.get("VRT_APIKEY"),
+            "projectId": os.environ.get("VRT_PROJECT"),
+        }
+
+        headers = {
+            "apiKey": config.get("apiKey"),
+            "Content-Type": "application/json",
+        }
+
+        data = {
+            "project": config.get("projectId"),
+            "branchName": config.get("branchName"),
+            "ciBuildId": config.get("ciBuildId"),
+        }
+
+        registration_response = requests.post(
+            f'{config.get("apiUrl")}/builds',
+            data=json.dumps(data),
+            headers=headers,
+        )
+
+        registration_response.raise_for_status()
+
+        test_data = {
+            "project": config.get("projectId"),
+            "projectId": config.get("projectId"),
+            "branchName": config.get("branchName"),
+            "ciBuildId": config.get("ciBuildId"),
+            "name": full_name,
+            "imageBase64": self.selenium.get_screenshot_as_base64(),
+            "viewport": f"{self.window_size[0]}x{self.window_size[1]}",
+            "buildId": registration_response.json().get("id"),
+        }
+
+        test_response = requests.post(
+            f'{config.get("apiUrl")}/test-runs',
+            data=json.dumps(test_data),
+            headers=headers,
+        )
+
+        test_response.raise_for_status()
+
+        switcher = {
+            "new": "No Baseline!",
+            "unresolved": f"Difference found: {test_response.json().get('url', '<url-not-found>')}",
+        }
+
+        error_message = switcher.get(test_response.json().get("status"))
+
+        _ = requests.patch(
+            f'{config.get("apiUrl")}/builds/{test_data.get("buildId")}',
+            data={},
+            headers=headers,
+        ).raise_for_status()
+
+        self.assertFalse(error_message)
 
     @contextmanager
     def enter_staff_mode(self) -> Iterator[None]:
