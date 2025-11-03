@@ -536,15 +536,22 @@ class Evaluation(LoggedModel):
     def earliest_possible_exam_date(self):
         return self.vote_start_datetime.date() + timedelta(days=1)
 
+    @property
+    def create_exam_evaluation_form(self):
+        from evap.staff.forms import ExamEvaluationForm  # noqa: PLC0415
+
+        return ExamEvaluationForm(None, evaluation=self)
+
     @transaction.atomic
-    def create_exam_evaluation(self, exam_date: date):
+    def create_exam_evaluation(self, exam_date: date, exam_type: ExamType):
         self.weight = settings.MAIN_EVALUATION_DEFAULT_WEIGHT
         self.vote_end_date = exam_date - timedelta(days=1)
         self.save()
         exam_evaluation = Evaluation(
             course=self.course,
-            name_de="Klausur",
-            name_en="Exam",
+            name_de=exam_type.name_de,
+            name_en=exam_type.name_en,
+            exam_type=exam_type,
             weight=settings.EXAM_EVALUATION_DEFAULT_WEIGHT,
             is_rewarded=False,
             vote_start_datetime=datetime.combine(exam_date + timedelta(days=1), time(8, 0)),
