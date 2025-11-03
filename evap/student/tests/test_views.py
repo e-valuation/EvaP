@@ -706,3 +706,12 @@ class TestDropoutView(WebTest):
 
         self.assertEqual(form[normal_question_id].value, "-1")
         self.assertIsNone(form[dropout_question_id].value)
+
+    def test_change_language_in_dropout(self):
+        url_dropout = reverse("student:drop", args=[self.evaluation.id])
+        url_vote = reverse("student:vote", args=[self.evaluation.id])
+        page = self.app.get(url=url_dropout, user=self.user, status=200)
+        html_site = page.body.decode()
+
+        self.assertNotIn(url_vote, html_site)
+        self.assertIn(url_dropout, html_site)
