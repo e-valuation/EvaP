@@ -75,6 +75,7 @@ EXAMPLE_DATA: ImportDict = {
             "relatedevents": [{"gguid": "0x6"}],
             "lecturers": [{"gguid": "0x3"}],
             "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
+            "language": "Deutsch",
         },
         {
             "gguid": "0x6",
@@ -90,6 +91,7 @@ EXAMPLE_DATA: ImportDict = {
             "relatedevents": [{"gguid": "0x5"}],
             "lecturers": [{"gguid": "0x3"}, {"gguid": "0x4"}, {"gguid": "0x5"}],
             "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
+            "language": "Deutsch",
         },
         {
             "gguid": "0x7",
@@ -102,6 +104,7 @@ EXAMPLE_DATA: ImportDict = {
             ],
             "lecturers": [{"gguid": "0x3"}],
             "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
+            "language": "Englisch",
         },
     ],
 }
@@ -119,6 +122,7 @@ EXAMPLE_DATA_WITH_PREFIX = {
             "lecturers": [{"gguid": "0x3"}],
             "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
             "appointments": [{"begin": "29.07.2024 10:15:00", "end": "29.07.2024 11:45:00"}],
+            "language": "Deutsch",
         }
     ],
 }
@@ -176,6 +180,7 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
             "relatedevents": [{"gguid": "0x42"}, {"gguid": "0x43"}],
             "lecturers": [{"gguid": "0x3"}],
             "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
+            "language": "Deutsch",
         },
         {
             "gguid": "0x8",
@@ -185,6 +190,7 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
             "isexam": False,
             "lecturers": [{"gguid": "0x3"}],
             "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
+            "language": "Englisch",
         },
         {
             "gguid": "0x9",
@@ -195,6 +201,7 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
             "lecturers": [{"gguid": "0x4"}, {"gguid": "0x5"}, {"gguid": "0x12"}],
             "students": [],
             "appointments": [{"begin": "29.07.2024 10:15:00", "end": "29.07.2024 11:45:00"}],
+            "language": "Deutsch",
         },
         {
             "gguid": "0x42",
@@ -210,6 +217,7 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
             "appointments": [{"begin": "01.01.2025 01:01:01", "end": "31.12.2025 12:31:00"}],
             "relatedevents": [{"gguid": "0x7"}],
             "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
+            "language": "Deutsch",
         },
         {
             "gguid": "0x43",
@@ -223,6 +231,7 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
             "appointments": [{"begin": "01.01.2025 01:01:01", "end": "01.12.2025 12:31:00"}],
             "relatedevents": [{"gguid": "0x7"}],
             "lecturers": [{"gguid": "0x3"}],
+            "language": "Deutsch",
         },
         {
             "gguid": "0x44",
@@ -233,6 +242,7 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
             "appointments": [{"begin": "01.01.2025 01:01:01", "end": "31.12.2025 12:31:00"}],
             "lecturers": [{"gguid": "0x3"}],
             "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
+            "language": "random_value",
         },
         {
             "gguid": "0x50",
@@ -244,6 +254,7 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
             "relatedevents": [{"gguid": "0x51"}],
             "lecturers": [{"gguid": "0x3"}],
             "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
+            "language": "Deutsch",
         },
         {
             "gguid": "0x51",
@@ -258,6 +269,7 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
             "relatedevents": [{"gguid": "0x50"}],
             "lecturers": [{"gguid": "0x3"}],
             "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
+            "language": "Deutsch",
         },
         {
             "gguid": "0x10",
@@ -268,6 +280,7 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
             "lecturers": [{"gguid": "0x3"}, {"gguid": "0x6"}],
             "students": [{"gguid": "0x1"}, {"gguid": "0x7"}],
             "appointments": [{"begin": "29.07.2024 10:15:00", "end": "29.07.2024 11:45:00"}],
+            "language": "Deutsch",
         },
     ],
 }
@@ -512,6 +525,9 @@ class TestImportEvents(TestCase):
         # evaluation has no English name, uses German
         self.assertEqual(evaluation.course.name_en, "Terminlose Vorlesung")
 
+        # evaluation has German language
+        self.assertEqual(evaluation.main_language, "de")
+
         # evaluation has multiple exams, use correct date (first exam end: 01.12.2025)
         self.assertEqual(evaluation.vote_start_datetime, datetime(1999, 12, 20, 8, 0))
         self.assertEqual(evaluation.vote_end_date, date(2025, 11, 30))
@@ -521,10 +537,16 @@ class TestImportEvents(TestCase):
         self.assertEqual(evaluation_without_exam.vote_start_datetime, datetime(1999, 12, 20, 8, 0))
         self.assertEqual(evaluation_without_exam.vote_end_date, date(2000, 1, 2))
 
+        # evaluation has English language
+        self.assertEqual(evaluation_without_exam.main_language, "en")
+
         # use import names and only import non-ignored programs
         self.assertEqual({d.name_en for d in evaluation.course.programs.all()}, {"BA-Inf", "Master Program", "Program"})
         evaluation_everything = Evaluation.objects.get(cms_id="0x44")
         self.assertEqual(evaluation_everything.course.type, course_type)
+
+        # evaluation has undecided language
+        self.assertEqual(evaluation_everything.main_language, Evaluation.UNDECIDED_MAIN_LANGUAGE)
 
         # use second part of title after dash
         evaluation_life = Evaluation.objects.get(cms_id="0x42")
@@ -566,6 +588,10 @@ class TestImportEvents(TestCase):
                 WarningMessage(
                     obj=evaluation_late_lecture.full_name,
                     message="Exam date (2025-01-01) is on or before start date of main evaluation",
+                ),
+                WarningMessage(
+                    obj="Der ganze Rest",
+                    message="Event has an unknown language: random_value, main language has been set to undecided",
                 ),
             ],
         )
