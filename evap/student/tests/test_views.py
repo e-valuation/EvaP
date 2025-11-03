@@ -713,8 +713,5 @@ class TestDropoutView(WebTest):
         page = self.app.get(url=url_dropout, user=self.user, status=200)
         html_site = page.body.decode()
 
-        # do not redirect to vote page
         self.assertNotIn(url_vote, html_site)
-
-        # redirect to vote page
         self.assertIn(url_dropout, html_site)
