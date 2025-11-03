@@ -182,7 +182,7 @@
                         {% endblocktranslate %}
                     </span>
                     <div slot="extra-inputs">
-                        {% include 'bootstrap_form_field.html' with field=evaluation.create_exam_evaluation_form.evaluation %}
+                        {% include 'bootstrap_form_field.html' with field=evaluation.create_exam_evaluation_form.base_evaluation %}
 
                         {# Exam date rendered manually due to bug with Bootstrap datepicker not showing the actual picker in a modal #}
                         <div class="mb-3 d-md-flex">
