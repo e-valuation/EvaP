@@ -56,9 +56,9 @@ CONTRIBUTIONS_WEIGHT = 1
 GENERAL_GRADE_QUESTIONS_WEIGHT = 1
 # the average grade of all general non-grade questions is weighted this much for the evaluation's average grade
 GENERAL_NON_GRADE_QUESTIONS_WEIGHT = 1
-# standard weight for exam evaluations
+# default weight for exam evaluations
 EXAM_EVALUATION_WEIGHT = 1
-# standard weight for evaluations with exam
+# default weight for evaluations with exam
 NORMAL_EVALUATION_WEIGHT = 9
 
 # number of reward points a student should have for a semester after evaluating the given fraction of evaluations.
@@ -113,6 +113,12 @@ EVALUATION_END_OFFSET_HOURS = 3
 
 # Amount of hours in which participant will be warned
 EVALUATION_END_WARNING_PERIOD = 5
+
+# default timedelta for evaluation vote_end_date befor exam date
+NORMAL_EVALUATION_TIMEDELTA = timedelta(days=1)
+
+# default timedelta for exam evaluation vote_end_date after exam date
+EXAM_EVALUATION_TIMEDELTA = timedelta(days=3)
 
 # Questionnaires automatically added to exam evaluations
 EXAM_QUESTIONNAIRE_IDS: list[int] = []

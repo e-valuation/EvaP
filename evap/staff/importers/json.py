@@ -331,7 +331,7 @@ class JSONImporter:
             evaluation_start_datetime = course_end.replace(hour=8, minute=0, second=0, microsecond=0) + timedelta(
                 days=1
             )
-            evaluation_end_date = (course_end + timedelta(days=3)).date()
+            evaluation_end_date = (course_end + settings.EXAM_EVALUATION_TIMEDELTA).date()
 
             name_de = data["title"].split(" - ")[-1] if " - " in data["title"] else "Prüfung"
             name_en = data["title_en"].split(" - ")[-1] if " - " in data["title_en"] else "Exam"
@@ -355,6 +355,7 @@ class JSONImporter:
             )
             # End date is on the sunday in the week the event ends
             evaluation_end_date = (course_end + timedelta(days=6 - course_end.weekday())).date()
+            # Ende unterschiedlich zu Evaluation class: hier auch nicht abhängig von exam TODO
 
             name_de, name_en = "", ""
 
