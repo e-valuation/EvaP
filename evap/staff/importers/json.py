@@ -54,6 +54,9 @@ class ImportAppointment(TypedDict):
     end: str
 
 
+LANGUAGE_MAP = {"Deutsch": "de", "Englisch": "en"}
+
+
 class ImportEvent(TypedDict):
     """An event can be a teaching course or exam course that we import together as a course with two evaluations."""
 
@@ -67,6 +70,7 @@ class ImportEvent(TypedDict):
     appointments: NotRequired[list[ImportAppointment]]
     lecturers: NotRequired[list[ImportRelated]]
     students: NotRequired[list[ImportRelated]]
+    language: str  # Deutsch/Englisch
 
 
 class ImportDict(TypedDict):
@@ -402,6 +406,15 @@ class JSONImporter:
 
             is_rewarded = True
 
+        main_language = LANGUAGE_MAP.get(data["language"], Evaluation.UNDECIDED_MAIN_LANGUAGE)
+        if main_language == Evaluation.UNDECIDED_MAIN_LANGUAGE:
+            self.statistics.warnings.append(
+                WarningMessage(
+                    obj=data["title"],
+                    message=f"Event has an unknown language: {data['language']}, main language has been set to undecided",
+                )
+            )
+
         participants = self._get_user_profiles(data["students"]) if "students" in data else []
 
         defaults = {
@@ -412,6 +425,7 @@ class JSONImporter:
             "wait_for_grade_upload_before_publishing": wait_for_grade_upload_before_publishing,
             "weight": weight,
             "is_rewarded": is_rewarded,
+            "main_language": main_language,
         }
         evaluation, created = Evaluation.objects.get_or_create(
             course=course,
