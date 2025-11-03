@@ -51,11 +51,11 @@ CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT = 4
 # non-grade questions are weighted this much for each contributor's average grade
 CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT = 6
 # the average contribution grade is weighted this much for the evaluation's average grade
-CONTRIBUTIONS_WEIGHT = 1
+CONTRIBUTIONS_WEIGHT = 400
 # the average grade of all general grade questions is weighted this much for the evaluation's average grade
-GENERAL_GRADE_QUESTIONS_WEIGHT = 1
+GENERAL_GRADE_QUESTIONS_WEIGHT = 500
 # the average grade of all general non-grade questions is weighted this much for the evaluation's average grade
-GENERAL_NON_GRADE_QUESTIONS_WEIGHT = 1
+GENERAL_NON_GRADE_QUESTIONS_WEIGHT = 600
 
 # number of reward points a student should have for a semester after evaluating the given fraction of evaluations.
 REWARD_POINTS = [

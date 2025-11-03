@@ -449,7 +449,7 @@ class Evaluation(LoggedModel):
     )
 
     # defines how large the influence of this evaluation's grade is on the total grade of its course
-    weight = models.PositiveSmallIntegerField(verbose_name=_("weight"), default=1)
+    weight = models.PositiveSmallIntegerField(verbose_name=_("weight"), default=200)
 
     # whether participants must vote to qualify for reward points
     is_rewarded = models.BooleanField(verbose_name=_("is rewarded"), default=True)
@@ -515,7 +515,7 @@ class Evaluation(LoggedModel):
             course=self.course,
             name_de="Klausur",
             name_en="Exam",
-            weight=1,
+            weight=300,
             is_rewarded=False,
             vote_start_datetime=datetime.combine(exam_date + timedelta(days=1), time(8, 0)),
             vote_end_date=exam_date + timedelta(days=3),

@@ -336,7 +336,7 @@ class JSONImporter:
             name_de = data["title"].split(" - ")[-1] if " - " in data["title"] else "Prüfung"
             name_en = data["title_en"].split(" - ")[-1] if " - " in data["title_en"] else "Exam"
 
-            weight = 1
+            weight = 100
 
             # Update previously created main evaluation
             # If events are graded for any program, wait for grade upload before publishing
