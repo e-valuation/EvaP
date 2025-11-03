@@ -745,3 +745,12 @@ class TestImportEvents(TestCase):
 
             with self.assertRaises(CommandError):
                 call_command("json_import", self.semester.id + 42, test_filename, "01.01.2000", stdout=output)
+
+    def test_clean_whitespaces(self):
+        importer = JSONImporter(self.semester, date(2000, 1, 1))
+        self.assertEqual(importer._clean_whitespaces(" front"), "front")
+        self.assertEqual(importer._clean_whitespaces("back "), "back")
+        self.assertEqual(importer._clean_whitespaces("inbetween  inbetween"), "inbetween inbetween")
+        self.assertEqual(importer._clean_whitespaces("inbetween \n inbetween"), "inbetween inbetween")
+        # non-breaking whitespace
+        self.assertEqual(importer._clean_whitespaces("inbetween  inbetween"), "inbetween inbetween")
