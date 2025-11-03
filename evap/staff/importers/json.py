@@ -242,7 +242,8 @@ class JSONImporter:
     def _import_students(self, data: list[ImportStudent]) -> None:
         for entry in data:
             email = clean_email(entry["email"])
-            first_name_given, last_name = self._clean_whitespaces(self._get_first_name_given(entry)), self._clean_whitespaces(entry["name"])
+            first_name_given = self._clean_whitespaces(self._get_first_name_given(entry))
+            last_name = self._clean_whitespaces(entry["name"])
             if not email:
                 self.statistics.warnings.append(
                     WarningMessage(obj=f"Student {first_name_given} {last_name}", message="No email defined")
@@ -312,7 +313,11 @@ class JSONImporter:
             Course,
             semester=self.semester,
             cms_id=data["gguid"],
-            defaults={"name_de": self._clean_whitespaces(data["title"]), "name_en": self._clean_whitespaces(data["title_en"]), "type": course_type},
+            defaults={
+                "name_de": self._clean_whitespaces(data["title"]),
+                "name_en": self._clean_whitespaces(data["title_en"]),
+                "type": course_type,
+            },
         )
         changes |= update_m2m_with_changes(course, "responsibles", responsibles)
 
@@ -339,20 +344,11 @@ class JSONImporter:
             course.programs.add(*programs)
 
     def _import_course_from_unused_exam(self, data: ImportEvent) -> Course | None:
-        prefix, sep, actual_title = data["title"].partition(":")
-        prefix = prefix.strip()
-        actual_title = actual_title.strip()
-        if not sep:
-            return None
-
         try:
-            course_type = CourseType.objects.get(import_names__contains=[prefix])
+            course_type = CourseType.objects.get(import_names__contains=[data["type"]])
         except CourseType.DoesNotExist:
             return None
 
-        data["title"] = actual_title
-        if ":" in data["title_en"]:
-            data["title_en"] = data["title_en"].partition(":")[2].strip()
         return self._import_course(data, course_type)
 
     # pylint: disable=too-many-locals
