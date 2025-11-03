@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from datetime import time as datetime_time
@@ -128,6 +129,7 @@ class ImportStatistics:
         log += self._make_total(len(self.name_changes))
         for name_change in self.name_changes:
             log += f"- {name_change.old_first_name_given} {name_change.old_last_name} → {name_change.new_first_name_given} {name_change.new_last_name} (email: {name_change.email})\n"
+        log += "\n"
 
         log += self._make_stats("New Courses", self.new_courses)
         log += self._make_stats("New Evaluations", self.new_evaluations)
@@ -178,6 +180,11 @@ class JSONImporter:
         self.courses_by_gguid: dict[str, Course] = {}
         self.statistics = ImportStatistics()
 
+    @staticmethod
+    def _clean_whitespaces(text: str) -> str:
+        # Use regex for cleaning to also include non-ASCII whitespaces like non-breaking whitespaces
+        return re.sub(r"\s+", " ", text.strip())
+
     def _get_first_name_given(self, entry: ImportStudent) -> str:
         if entry["callingname"]:
             return entry["callingname"]
@@ -191,23 +198,25 @@ class JSONImporter:
         return [user for user in user_profiles if user.email not in settings.NON_RESPONSIBLE_USERS]
 
     def _get_course_type(self, name: str) -> CourseType:
-        lookup = name.strip().lower()
+        name = self._clean_whitespaces(name)
+        lookup = name.lower()
         if lookup in self.course_type_cache:
             return self.course_type_cache[lookup]
 
         # It could happen that the importer needs a new course type
         course_type, __ = CourseType.objects.get_or_create(name_de=name, defaults={"name_en": name})
-        self.course_type_cache[name] = course_type
+        self.course_type_cache[lookup] = course_type
         return course_type
 
     def _get_program(self, name: str) -> Program:
+        name = self._clean_whitespaces(name)
         lookup = name.strip().lower()
         if lookup in self.program_cache:
             return self.program_cache[lookup]
 
         # It could happen that the importer needs a new program
         program, __ = Program.objects.get_or_create(name_de=name, defaults={"name_en": name})
-        self.program_cache[name] = program
+        self.program_cache[lookup] = program
         return program
 
     def _get_user_profiles(self, data: list[ImportRelated]) -> list[UserProfile]:
@@ -229,11 +238,10 @@ class JSONImporter:
     def _import_students(self, data: list[ImportStudent]) -> None:
         for entry in data:
             email = clean_email(entry["email"])
+            first_name_given, last_name = self._clean_whitespaces(self._get_first_name_given(entry)), self._clean_whitespaces(entry["name"])
             if not email:
                 self.statistics.warnings.append(
-                    WarningMessage(
-                        obj=f"Student {self._get_first_name_given(entry)} {entry['name']}", message="No email defined"
-                    )
+                    WarningMessage(obj=f"Student {first_name_given} {last_name}", message="No email defined")
                 )
             else:
                 if email in settings.IGNORE_USERS:
@@ -242,7 +250,7 @@ class JSONImporter:
                 user_profile, __, changes = update_or_create_with_changes(
                     UserProfile,
                     email=email,
-                    defaults={"last_name": entry["name"], "first_name_given": self._get_first_name_given(entry)},
+                    defaults={"last_name": last_name, "first_name_given": first_name_given},
                 )
                 if changes:
                     self._create_name_change_from_changes(user_profile, changes)
@@ -252,10 +260,12 @@ class JSONImporter:
     def _import_lecturers(self, data: list[ImportLecturer]) -> None:
         for entry in data:
             email = clean_email(entry["email"])
+            first_name_given = self._clean_whitespaces(entry["christianname"])
+            last_name = self._clean_whitespaces(entry["name"])
             if not email:
                 self.statistics.warnings.append(
                     WarningMessage(
-                        obj=f"Contributor {entry['christianname']} {entry['name']}",
+                        obj=f"Contributor {first_name_given} {last_name}",
                         message="No email defined",
                     )
                 )
@@ -267,9 +277,9 @@ class JSONImporter:
                     UserProfile,
                     email=email,
                     defaults={
-                        "last_name": entry["name"],
-                        "first_name_given": entry["christianname"],
-                        "title": entry["titlefront"],
+                        "last_name": last_name,
+                        "first_name_given": first_name_given,
+                        "title": self._clean_whitespaces(entry["titlefront"]),
                     },
                 )
                 if changes:
@@ -298,7 +308,7 @@ class JSONImporter:
             Course,
             semester=self.semester,
             cms_id=data["gguid"],
-            defaults={"name_de": data["title"], "name_en": data["title_en"], "type": course_type},
+            defaults={"name_de": self._clean_whitespaces(data["title"]), "name_en": self._clean_whitespaces(data["title_en"]), "type": course_type},
         )
         changes |= update_m2m_with_changes(course, "responsibles", responsibles)
 
@@ -395,8 +405,8 @@ class JSONImporter:
         participants = self._get_user_profiles(data["students"]) if "students" in data else []
 
         defaults = {
-            "name_de": name_de,
-            "name_en": name_en,
+            "name_de": self._clean_whitespaces(name_de),
+            "name_en": self._clean_whitespaces(name_en),
             "vote_start_datetime": evaluation_start_datetime,
             "vote_end_date": evaluation_end_date,
             "wait_for_grade_upload_before_publishing": wait_for_grade_upload_before_publishing,
