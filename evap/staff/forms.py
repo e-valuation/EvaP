@@ -331,6 +331,7 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore[misc]
         "allow_editors_to_edit",
         "wait_for_grade_upload_before_publishing",
         "main_language",
+        "exam_type",
     }
 
     EVALUATION_EXCLUDED_FIELDS = {
@@ -545,7 +546,7 @@ class EvaluationCopyForm(EvaluationForm):
 
 
 class ExamEvaluationForm(forms.Form):
-    evaluation = forms.ModelChoiceField(Evaluation.objects.all(), required=True, widget=forms.HiddenInput())
+    base_evaluation = forms.ModelChoiceField(Evaluation.objects.all(), required=True, widget=forms.HiddenInput())
     exam_date = forms.DateField(
         label=_("Exam Date"),
         required=True,
@@ -556,17 +557,17 @@ class ExamEvaluationForm(forms.Form):
     def __init__(self, *args, evaluation=None, **kwargs):
         super().__init__(*args, **kwargs)
         if evaluation:
-            for field in ["evaluation", "exam_date", "exam_type"]:
+            for field in ["base_evaluation", "exam_date", "exam_type"]:
                 self.fields[field].widget.attrs["form"] = f"exam_creation_form_{evaluation.id}"
             self.fields["exam_date"].widget.attrs["min"] = evaluation.earliest_possible_exam_date
             self.fields["exam_type"].initial = ExamType.objects.order_by("order").first()
-            self.fields["evaluation"].initial = evaluation
+            self.fields["base_evaluation"].initial = evaluation
 
     def clean(self):
         cleaned_data = super().clean()
-        if cleaned_data["evaluation"].has_exam_evaluation:
+        if cleaned_data["base_evaluation"].has_exam_evaluation:
             raise ValidationError(_("An exam evaluation already exists for this course."))
-        if cleaned_data["exam_date"] < cleaned_data["evaluation"].earliest_possible_exam_date:
+        if cleaned_data["exam_date"] < cleaned_data["base_evaluation"].earliest_possible_exam_date:
             raise ValidationError(
                 _("The end date of the main evaluation would be before its start date. No exam evaluation was created.")
             )

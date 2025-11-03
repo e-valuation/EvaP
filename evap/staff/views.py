@@ -1120,7 +1120,7 @@ def create_exam_evaluation(request: HttpRequest) -> HttpResponse:
     form = ExamEvaluationForm(request.POST)
 
     if form.is_valid():
-        form.cleaned_data["evaluation"].create_exam_evaluation(
+        form.cleaned_data["base_evaluation"].create_exam_evaluation(
             form.cleaned_data["exam_date"], form.cleaned_data["exam_type"]
         )
         messages.success(request, _("Successfully created exam evaluation."))

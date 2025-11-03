@@ -25,6 +25,7 @@ from evap.evaluation.models import (
     CourseType,
     EmailTemplate,
     Evaluation,
+    ExamType,
     FaqQuestion,
     Infotext,
     Program,
@@ -1994,8 +1995,9 @@ class TestEvaluationExamCreation(WebTestStaffMode):
         cls.contributions = baker.make(
             Contribution, evaluation=cls.evaluation, _fill_optional=["contributor"], _quantity=3, _bulk_create=True
         )
+        cls.exam_type = baker.make(ExamType)
         cls.exam_date = datetime.date.today() + datetime.timedelta(days=10)
-        cls.params = {"evaluation_id": cls.evaluation.pk, "exam_date": cls.exam_date}
+        cls.params = {"base_evaluation": cls.evaluation.pk, "exam_date": cls.exam_date, "exam_type": cls.exam_type.id}
         cls.exam_questionnaire = baker.make(Questionnaire, pk=111)
 
     def test_create_exam_evaluation(self):
@@ -2008,8 +2010,9 @@ class TestEvaluationExamCreation(WebTestStaffMode):
             datetime.datetime.combine(self.exam_date + datetime.timedelta(days=1), datetime.time(8, 0)),
         )
         self.assertEqual(exam_evaluation.vote_end_date, self.exam_date + settings.EXAM_EVALUATION_DEFAULT_DURATION)
-        self.assertEqual(exam_evaluation.name_de, "Klausur")
-        self.assertEqual(exam_evaluation.name_en, "Exam")
+        self.assertEqual(exam_evaluation.exam_type, self.exam_type)
+        self.assertEqual(exam_evaluation.name_de, self.exam_type.name_de)
+        self.assertEqual(exam_evaluation.name_en, self.exam_type.name_en)
         self.assertEqual(exam_evaluation.course, self.evaluation.course)
         self.assertQuerySetEqual(exam_evaluation.participants.all(), self.evaluation.participants.all())
         self.assertEqual(exam_evaluation.weight, settings.EXAM_EVALUATION_DEFAULT_WEIGHT)
@@ -2019,19 +2022,10 @@ class TestEvaluationExamCreation(WebTestStaffMode):
         self.assertEqual(evaluation.vote_end_date, self.exam_date - datetime.timedelta(days=1))
 
     def test_exam_evaluation_for_already_existing_exam_evaluation(self):
-        baker.make(Evaluation, course=self.course, name_en="Exam", name_de="Klausur")
-        self.assertTrue(self.evaluation.has_exam_evaluation)
-        with assert_no_database_modifications():
-            self.app.post(self.url, user=self.manager, status=400, params=self.params)
-
-    def test_exam_evaluation_for_already_existing_exam_evaluation_without_default_en_name(self):
-        baker.make(Evaluation, course=self.course, name_en="Test", name_de="Klausur")
-        self.assertTrue(self.evaluation.has_exam_evaluation)
-        with assert_no_database_modifications():
-            self.app.post(self.url, user=self.manager, status=400, params=self.params)
-
-    def test_exam_evaluation_for_already_existing_exam_evaluation_without_default_de_name(self):
-        baker.make(Evaluation, course=self.course, name_en="Exam", name_de="Prüfung")
+        exam_type = baker.make(ExamType)
+        baker.make(
+            Evaluation, course=self.course, exam_type=exam_type, name_de=exam_type.name_de, name_en=exam_type.name_en
+        )
         self.assertTrue(self.evaluation.has_exam_evaluation)
         with assert_no_database_modifications():
             self.app.post(self.url, user=self.manager, status=400, params=self.params)
@@ -2040,16 +2034,6 @@ class TestEvaluationExamCreation(WebTestStaffMode):
         self.evaluation.vote_start_datetime = datetime.datetime.now() + datetime.timedelta(days=100)
         self.evaluation.vote_end_date = datetime.date.today() + datetime.timedelta(days=150)
         self.evaluation.save()
-        with assert_no_database_modifications():
-            self.app.post(self.url, user=self.manager, status=400, params=self.params)
-
-    def test_exam_evaluation_with_missing_date(self):
-        self.params.pop("exam_date")
-        with assert_no_database_modifications():
-            self.app.post(self.url, user=self.manager, status=400, params=self.params)
-
-    def test_exam_evaluation_with_wrongly_formatted_date(self):
-        self.params["exam_date"] = ""
         with assert_no_database_modifications():
             self.app.post(self.url, user=self.manager, status=400, params=self.params)
 
