@@ -449,7 +449,7 @@ class Evaluation(LoggedModel):
     )
 
     # defines how large the influence of this evaluation's grade is on the total grade of its course
-    weight = models.PositiveSmallIntegerField(verbose_name=_("weight"), default=200)
+    weight = models.PositiveSmallIntegerField(verbose_name=_("weight"), default=1)
 
     # whether participants must vote to qualify for reward points
     is_rewarded = models.BooleanField(verbose_name=_("is rewarded"), default=True)
@@ -508,14 +508,14 @@ class Evaluation(LoggedModel):
 
     @transaction.atomic
     def create_exam_evaluation(self, exam_date: date):
-        self.weight = 9
+        self.weight = settings.NORMAL_EVALUATION_WEIGHT
         self.vote_end_date = exam_date - timedelta(days=1)
         self.save()
         exam_evaluation = Evaluation(
             course=self.course,
             name_de="Klausur",
             name_en="Exam",
-            weight=300,
+            weight=settings.EXAM_EVALUATION_WEIGHT,
             is_rewarded=False,
             vote_start_datetime=datetime.combine(exam_date + timedelta(days=1), time(8, 0)),
             vote_end_date=exam_date + timedelta(days=3),

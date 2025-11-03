@@ -336,7 +336,7 @@ class JSONImporter:
             name_de = data["title"].split(" - ")[-1] if " - " in data["title"] else "Prüfung"
             name_en = data["title_en"].split(" - ")[-1] if " - " in data["title_en"] else "Exam"
 
-            weight = 100
+            weight = settings.EXAM_EVALUATION_WEIGHT
 
             # Update previously created main evaluation
             # If events are graded for any program, wait for grade upload before publishing
@@ -358,7 +358,7 @@ class JSONImporter:
 
             name_de, name_en = "", ""
 
-            weight = 9
+            weight = settings.NORMAL_EVALUATION_WEIGHT
 
             # Might be overwritten when importing related exam evaluation
             wait_for_grade_upload_before_publishing = True
