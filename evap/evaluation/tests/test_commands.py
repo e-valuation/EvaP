@@ -100,14 +100,14 @@ class TestAnonymizeCommand(TestCase):
         cls.contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
         cls.general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
 
-        cls.contributor_questions = baker.make(
+        cls.contributor_assignments = baker.make(
             QuestionAssignment,
             _bulk_create=True,
             _quantity=10,
             questionnaire=cls.contributor_questionnaire,
             question__type=cycle(iter(CHOICES.keys())),
         )
-        cls.general_questions = baker.make(
+        cls.general_assignments = baker.make(
             QuestionAssignment,
             _bulk_create=True,
             _quantity=10,
@@ -136,7 +136,7 @@ class TestAnonymizeCommand(TestCase):
 
     def test_no_empty_rating_answer_counters_left(self):
         counters = []
-        for assignment in chain(self.contributor_questions, self.general_questions):
+        for assignment in chain(self.contributor_assignments, self.general_assignments):
             counts = [1 for choice in CHOICES[assignment.question.type].values if choice != NO_ANSWER]
             counters.extend(make_rating_answer_counters(assignment, self.contribution, counts, False))
         RatingAnswerCounter.objects.bulk_create(counters)
@@ -159,7 +159,7 @@ class TestAnonymizeCommand(TestCase):
         answers_per_question = defaultdict(int)
 
         counters = []
-        for assignment in chain(self.contributor_questions, self.general_questions):
+        for assignment in chain(self.contributor_assignments, self.general_assignments):
             counts = [
                 random.randint(10, 100) for choice in CHOICES[assignment.question.type].values if choice != NO_ANSWER
             ]
@@ -169,7 +169,7 @@ class TestAnonymizeCommand(TestCase):
 
         management.call_command("anonymize", stdout=StringIO())
 
-        for assignment in chain(self.contributor_questions, self.general_questions):
+        for assignment in chain(self.contributor_assignments, self.general_assignments):
             answer_count = RatingAnswerCounter.objects.filter(assignment=assignment).aggregate(Sum("count"))[
                 "count__sum"
             ]

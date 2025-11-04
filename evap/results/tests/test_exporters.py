@@ -118,10 +118,10 @@ class TestExporters(TestCase):
         questionnaire = baker.make(Questionnaire)
 
         baker.make(QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=questionnaire, order=0)
-        heading_question = baker.make(
+        heading_assignment = baker.make(
             QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=questionnaire, order=1
         )
-        likert_question = baker.make(
+        likert_assignment = baker.make(
             QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire, order=2
         )
         baker.make(QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=questionnaire, order=3)
@@ -129,7 +129,7 @@ class TestExporters(TestCase):
         contribution = baker.make(
             Contribution, evaluation=evaluation, questionnaires=[questionnaire], contributor=contributor
         )
-        make_rating_answer_counters(likert_question, contribution)
+        make_rating_answer_counters(likert_assignment, contribution)
 
         cache_results(evaluation)
 
@@ -145,8 +145,8 @@ class TestExporters(TestCase):
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
         self.assertEqual(workbook.sheets()[0].row_values(4)[0], questionnaire.public_name)
-        self.assertEqual(workbook.sheets()[0].row_values(5)[0], heading_question.question.text)
-        self.assertEqual(workbook.sheets()[0].row_values(6)[0], likert_question.question.text)
+        self.assertEqual(workbook.sheets()[0].row_values(5)[0], heading_assignment.question.text)
+        self.assertEqual(workbook.sheets()[0].row_values(6)[0], likert_assignment.question.text)
         self.assertEqual(workbook.sheets()[0].row_values(7)[0], "")
 
     def test_view_excel_file_sorted(self):
@@ -219,15 +219,15 @@ class TestExporters(TestCase):
         cache_results(evaluation_2)
 
         questionnaire = baker.make(Questionnaire)
-        question = baker.make(
+        assignment = baker.make(
             QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire
         )
 
         evaluation_1.general_contribution.questionnaires.set([questionnaire])
-        make_rating_answer_counters(question, evaluation_1.general_contribution)
+        make_rating_answer_counters(assignment, evaluation_1.general_contribution)
 
         evaluation_2.general_contribution.questionnaires.set([questionnaire])
-        make_rating_answer_counters(question, evaluation_2.general_contribution)
+        make_rating_answer_counters(assignment, evaluation_2.general_contribution)
 
         binary_content = BytesIO()
         ResultsExporter().export(
@@ -421,15 +421,15 @@ class TestExporters(TestCase):
         )
         questionnaire1 = baker.make(Questionnaire, order=1)
         questionnaire2 = baker.make(Questionnaire, order=2)
-        question1 = baker.make(
+        assignment1 = baker.make(
             QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire1
         )
-        question2 = baker.make(
+        assignment2 = baker.make(
             QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire2
         )
 
-        make_rating_answer_counters(question1, evaluation.general_contribution, [1, 0, 1, 0, 0])
-        make_rating_answer_counters(question2, evaluation.general_contribution, [0, 1, 0, 1, 0])
+        make_rating_answer_counters(assignment1, evaluation.general_contribution, [1, 0, 1, 0, 0])
+        make_rating_answer_counters(assignment2, evaluation.general_contribution, [0, 1, 0, 1, 0])
 
         evaluation.general_contribution.questionnaires.set([questionnaire1, questionnaire2])
         cache_results(evaluation)
@@ -460,11 +460,11 @@ class TestExporters(TestCase):
         expected_average = 2.0
 
         questionnaire = baker.make(Questionnaire)
-        question = baker.make(
+        assignment = baker.make(
             QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire
         )
         for grades, e in zip(grades_per_eval, evaluations, strict=True):
-            make_rating_answer_counters(question, e.general_contribution, grades)
+            make_rating_answer_counters(assignment, e.general_contribution, grades)
             e.general_contribution.questionnaires.set([questionnaire])
         for evaluation in evaluations:
             cache_results(evaluation)

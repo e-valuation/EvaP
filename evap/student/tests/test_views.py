@@ -167,7 +167,7 @@ class TestVoteView(WebTest):
         cls.bottom_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM)
         cls.contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
 
-        cls.contributor_heading_question = baker.make(
+        cls.contributor_heading_assignmnet = baker.make(
             QuestionAssignment,
             questionnaire=cls.contributor_questionnaire,
             order=0,
@@ -183,7 +183,7 @@ class TestVoteView(WebTest):
             question__type=QuestionType.POSITIVE_LIKERT,
         )
 
-        cls.top_heading_question = baker.make(
+        cls.top_heading_assignment = baker.make(
             QuestionAssignment,
             questionnaire=cls.top_general_questionnaire,
             order=0,
@@ -202,7 +202,7 @@ class TestVoteView(WebTest):
             QuestionAssignment, questionnaire=cls.top_general_questionnaire, order=3, question__type=QuestionType.GRADE
         )
 
-        cls.bottom_heading_question = baker.make(
+        cls.bottom_heading_assignment = baker.make(
             QuestionAssignment,
             questionnaire=cls.bottom_general_questionnaire,
             order=0,
@@ -247,13 +247,13 @@ class TestVoteView(WebTest):
     def test_question_ordering(self):
         page = self.app.get(self.url, user=self.voting_user1, status=200)
 
-        top_heading_index = page.body.decode().index(self.top_heading_question.question.text)
+        top_heading_index = page.body.decode().index(self.top_heading_assignment.question.text)
         top_text_index = page.body.decode().index(self.top_text_assignment.question.text)
 
-        contributor_heading_index = page.body.decode().index(self.contributor_heading_question.question.text)
+        contributor_heading_index = page.body.decode().index(self.contributor_heading_assignmnet.question.text)
         contributor_likert_index = page.body.decode().index(self.contributor_likert_assignment.question.text)
 
-        bottom_heading_index = page.body.decode().index(self.bottom_heading_question.question.text)
+        bottom_heading_index = page.body.decode().index(self.bottom_heading_assignment.question.text)
         bottom_grade_index = page.body.decode().index(self.bottom_grade_assignment.question.text)
 
         self.assertTrue(
@@ -610,22 +610,22 @@ class TestDropoutView(WebTest):
         cls.user = baker.make(UserProfile, email="student@institution.example.com")
         cls.user2 = baker.make(UserProfile, email="student2@institution.example.com")
 
-        cls.normal_question = baker.make(QuestionAssignment, question__type=QuestionType.EASY_DIFFICULT)
-        cls.dropout_question = baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_YES_NO)
+        cls.normal_assignment = baker.make(QuestionAssignment, question__type=QuestionType.EASY_DIFFICULT)
+        cls.dropout_assignment = baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_YES_NO)
 
         cls.normal_questionnaire = baker.make(
             Questionnaire,
             type=Questionnaire.Type.TOP,
             question_assignments=[
                 baker.make(QuestionAssignment, question__type=QuestionType.TEXT),
-                cls.normal_question,
+                cls.normal_assignment,
             ],
         )
-        cls.normal_question = cls.normal_question.question
+        cls.normal_assignment = cls.normal_assignment.question
         cls.dropout_questionnaire = baker.make(
-            Questionnaire, type=Questionnaire.Type.DROPOUT, question_assignments=[cls.dropout_question]
+            Questionnaire, type=Questionnaire.Type.DROPOUT, question_assignments=[cls.dropout_assignment]
         )
-        cls.dropout_question = cls.dropout_question.question
+        cls.dropout_assignment = cls.dropout_assignment.question
 
         cls.evaluation = baker.make(
             Evaluation, state=Evaluation.State.IN_EVALUATION, participants=[cls.user, cls.user2], main_language="en"
@@ -662,7 +662,7 @@ class TestDropoutView(WebTest):
         form = response.forms["student-vote-form"]
 
         self.assertIn(
-            answer_field_id(self.evaluation.general_contribution, self.dropout_questionnaire, self.dropout_question),
+            answer_field_id(self.evaluation.general_contribution, self.dropout_questionnaire, self.dropout_assignment),
             form.fields.keys(),
             "The dropout questionnaire should be shown",
         )
@@ -700,7 +700,7 @@ class TestDropoutView(WebTest):
             "student-vote-form"
         ]
         field_id = answer_field_id(
-            self.evaluation.general_contribution, self.dropout_questionnaire, self.dropout_question
+            self.evaluation.general_contribution, self.dropout_questionnaire, self.dropout_assignment
         )
         form[field_id] = NO_ANSWER  # dropout question must be answered
         form.submit()
@@ -722,10 +722,10 @@ class TestDropoutView(WebTest):
         ]
 
         normal_question_id = answer_field_id(
-            self.evaluation.general_contribution, self.normal_questionnaire, self.normal_question
+            self.evaluation.general_contribution, self.normal_questionnaire, self.normal_assignment
         )
         dropout_question_id = answer_field_id(
-            self.evaluation.general_contribution, self.dropout_questionnaire, self.dropout_question
+            self.evaluation.general_contribution, self.dropout_questionnaire, self.dropout_assignment
         )
 
         self.assertEqual(form[normal_question_id].value, str(NO_ANSWER))

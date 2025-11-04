@@ -84,12 +84,12 @@ class TestCalculateResults(TestCase):
             voters=[student, contributor1],
         )
         questionnaire = baker.make(Questionnaire)
-        question = baker.make(QuestionAssignment, questionnaire=questionnaire, question__type=QuestionType.GRADE)
+        assignment = baker.make(QuestionAssignment, questionnaire=questionnaire, question__type=QuestionType.GRADE)
         contribution1 = baker.make(
             Contribution, contributor=contributor1, evaluation=evaluation, questionnaires=[questionnaire]
         )
 
-        make_rating_answer_counters(question, contribution1, [5, 15, 40, 60, 30])
+        make_rating_answer_counters(assignment, contribution1, [5, 15, 40, 60, 30])
 
         cache_results(evaluation)
         evaluation_results = get_results(evaluation)
@@ -114,14 +114,14 @@ class TestCalculateResults(TestCase):
             voters=[student, contributor1],
         )
         questionnaire = baker.make(Questionnaire)
-        question = baker.make(
+        assignment = baker.make(
             QuestionAssignment, questionnaire=questionnaire, question__type=QuestionType.EASY_DIFFICULT
         )
         contribution1 = baker.make(
             Contribution, contributor=contributor1, evaluation=evaluation, questionnaires=[questionnaire]
         )
 
-        make_rating_answer_counters(question, contribution1, [5, 5, 15, 30, 25, 15, 10])
+        make_rating_answer_counters(assignment, contribution1, [5, 5, 15, 30, 25, 15, 10])
 
         cache_results(evaluation)
         evaluation_results = get_results(evaluation)
@@ -438,12 +438,12 @@ class TestCalculateAverageDistribution(TestCase):
 
     def test_dropout_questionnaires_are_not_included(self):
         general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        general_question = baker.make(
+        general_assignment = baker.make(
             QuestionAssignment, questionnaire=general_questionnaire, question__type=QuestionType.GRADE
         )
 
         dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
-        dropout_question = baker.make(
+        dropout_assignment = baker.make(
             QuestionAssignment, questionnaire=dropout_questionnaire, question__type=QuestionType.GRADE
         )
 
@@ -451,8 +451,8 @@ class TestCalculateAverageDistribution(TestCase):
             Contribution, evaluation=self.evaluation, questionnaires=[general_questionnaire, dropout_questionnaire]
         )
 
-        make_rating_answer_counters(general_question, contribution, [10, 10, 0, 0, 0])
-        make_rating_answer_counters(dropout_question, contribution, [0, 0, 0, 0, 10])
+        make_rating_answer_counters(general_assignment, contribution, [10, 10, 0, 0, 0])
+        make_rating_answer_counters(dropout_assignment, contribution, [0, 0, 0, 0, 10])
 
         cache_results(self.evaluation)
 

@@ -272,7 +272,7 @@ class TestResultsViewContributionWarning(WebTest):
             questionnaires=[cls.questionnaire],
             contributor=contributor,
         )
-        cls.likert_question = baker.make(
+        cls.likert_assignment = baker.make(
             QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=cls.questionnaire, order=2
         )
         cls.url = f"/results/semester/{cls.semester.id}/evaluation/{cls.evaluation.id}"
@@ -280,7 +280,7 @@ class TestResultsViewContributionWarning(WebTest):
     def test_contributor_no_results_warning(self):
         # The contributor card should be collapsed iff all questions have no results
         # Regression test from https://github.com/e-valuation/EvaP/pull/2245
-        question2 = baker.make(
+        assignment2 = baker.make(
             QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=self.questionnaire, order=2
         )
 
@@ -289,7 +289,7 @@ class TestResultsViewContributionWarning(WebTest):
         self.assertIn("There are no results for this person", page)
         self.assertIn('class="collapse"', page)
 
-        make_rating_answer_counters(question2, self.contribution, [0, 0, 10, 0, 0])
+        make_rating_answer_counters(assignment2, self.contribution, [0, 0, 10, 0, 0])
 
         cache_results(self.evaluation)
         page = self.app.get(self.url, user=self.manager, status=200)
@@ -297,7 +297,7 @@ class TestResultsViewContributionWarning(WebTest):
         self.assertNotIn('class="collapse"', page)
 
     def test_many_answers_evaluation_no_warning(self):
-        make_rating_answer_counters(self.likert_question, self.contribution, [0, 0, 10, 0, 0])
+        make_rating_answer_counters(self.likert_assignment, self.contribution, [0, 0, 10, 0, 0])
         cache_results(self.evaluation)
         page = self.app.get(self.url, user=self.manager, status=200)
         self.assertNotIn("Only a few participants answered these questions.", page)
@@ -308,7 +308,7 @@ class TestResultsViewContributionWarning(WebTest):
         self.assertNotIn("Only a few participants answered these questions.", page)
 
     def test_few_answers_evaluation_show_warning(self):
-        make_rating_answer_counters(self.likert_question, self.contribution, [0, 0, 3, 0, 0])
+        make_rating_answer_counters(self.likert_assignment, self.contribution, [0, 0, 3, 0, 0])
         cache_results(self.evaluation)
         page = self.app.get(self.url, user=self.manager, status=200)
         self.assertIn("Only a few participants answered these questions.", page)
@@ -316,7 +316,7 @@ class TestResultsViewContributionWarning(WebTest):
     def test_few_answers_evaluation_dropout_no_warning(self):
         self.questionnaire.type = Questionnaire.Type.DROPOUT
         self.questionnaire.save()
-        make_rating_answer_counters(self.likert_question, self.contribution, [0, 0, 3, 0, 0])
+        make_rating_answer_counters(self.likert_assignment, self.contribution, [0, 0, 3, 0, 0])
         cache_results(self.evaluation)
         page = self.app.get(self.url, user=self.manager, status=200)
         self.assertNotIn("Only a few participants answered these questions.", page)
@@ -486,7 +486,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
             Evaluation, state=Evaluation.State.EVALUATED, course=baker.make(Course, semester=self.semester)
         )
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        likert_question = baker.make(
+        likert_assignment = baker.make(
             QuestionAssignment,
             question__type=QuestionType.POSITIVE_LIKERT,
             questionnaire=questionnaire,
@@ -496,7 +496,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         participants = baker.make(UserProfile, _bulk_create=True, _quantity=20)
         evaluation.participants.set(participants)
         evaluation.voters.set(participants)
-        make_rating_answer_counters(likert_question, evaluation.general_contribution, [20, 0, 0, 0, 0])
+        make_rating_answer_counters(likert_assignment, evaluation.general_contribution, [20, 0, 0, 0, 0])
         cache_results(evaluation)
 
         url = f"/results/semester/{self.semester.id}/evaluation/{evaluation.id}"
@@ -536,14 +536,14 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         questionnaire = baker.make(
             Questionnaire, public_name_en="test-dropout-questionnaire-title", type=Questionnaire.Type.DROPOUT
         )
-        question = baker.make(
+        assignment = baker.make(
             QuestionAssignment,
             question__text_en="test-dropout-question-text",
             question__type=QuestionType.POSITIVE_YES_NO,
             questionnaire=questionnaire,
         )
         self.evaluation.general_contribution.questionnaires.add(questionnaire)
-        make_rating_answer_counters(question, self.evaluation.general_contribution, answer_counts=[10, 5])
+        make_rating_answer_counters(assignment, self.evaluation.general_contribution, answer_counts=[10, 5])
 
         cache_results(self.evaluation)
 

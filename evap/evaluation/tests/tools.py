@@ -99,7 +99,7 @@ def let_user_vote_for_evaluation(user, evaluation, create_answers=False):
         return
 
     new_textanswers = []
-    rac_by_contribution_question = {}
+    rac_by_contribution_assignment = {}
     new_racs = []
 
     for contribution in evaluation.contributions.all().prefetch_related(
@@ -107,7 +107,7 @@ def let_user_vote_for_evaluation(user, evaluation, create_answers=False):
     ):
         for rac in contribution.ratinganswercounter_set.all():
             if rac.answer == 1:
-                rac_by_contribution_question[(contribution, rac.assignment)] = rac
+                rac_by_contribution_assignment[(contribution, rac.assignment)] = rac
 
         for questionnaire in contribution.questionnaires.all().prefetch_related("question_assignments__question"):
             for assignment in questionnaire.question_assignments.all():
@@ -115,18 +115,18 @@ def let_user_vote_for_evaluation(user, evaluation, create_answers=False):
                 if question.is_text_question:
                     new_textanswers.append(baker.prepare(TextAnswer, contribution=contribution, assignment=assignment))
                 elif question.is_rating_question:
-                    if (contribution, assignment) not in rac_by_contribution_question:
+                    if (contribution, assignment) not in rac_by_contribution_assignment:
                         rac = baker.prepare(
                             RatingAnswerCounter, contribution=contribution, assignment=assignment, answer=1
                         )
                         new_racs.append(rac)
-                        rac_by_contribution_question[(contribution, assignment)] = rac
+                        rac_by_contribution_assignment[(contribution, assignment)] = rac
 
-                    rac_by_contribution_question[(contribution, assignment)].count += 1
+                    rac_by_contribution_assignment[(contribution, assignment)].count += 1
 
     TextAnswer.objects.bulk_create(new_textanswers)
     RatingAnswerCounter.objects.bulk_create(new_racs)
-    RatingAnswerCounter.objects.bulk_update(rac_by_contribution_question.values(), ["count"])
+    RatingAnswerCounter.objects.bulk_update(rac_by_contribution_assignment.values(), ["count"])
 
 
 class WebTestWith200Check(WebTest):
@@ -223,11 +223,11 @@ def make_rating_answer_counters(
     store_in_db: bool = True,
 ):
     """
-    Create RatingAnswerCounters for a question for a contribution.
+    Create RatingAnswerCounters for a question assignment for a contribution.
     Examples:
-    make_rating_answer_counters(rating_question, contribution, [5, 15, 40, 60, 30])
-    make_rating_answer_counters(yesno_question, contribution, [15, 2])
-    make_rating_answer_counters(bipolar_question, contribution, [5, 5, 15, 30, 25, 15, 10])
+    make_rating_answer_counters(rating_assignment, contribution, [5, 15, 40, 60, 30])
+    make_rating_answer_counters(yesno_assignment, contribution, [15, 2])
+    make_rating_answer_counters(bipolar_assignment, contribution, [5, 5, 15, 30, 25, 15, 10])
     """
     choices = CHOICES[assignment.question.type]
     expected_counts = len(choices.grades)

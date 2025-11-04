@@ -227,7 +227,7 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
 
     prefetch_related_objects([evaluation], *GET_RESULTS_PREFETCH_LOOKUPS)
 
-    tas_per_contribution_question: dict[tuple[int, int], list[TextAnswer]] = unordered_groupby(
+    tas_per_contribution_assignment: dict[tuple[int, int], list[TextAnswer]] = unordered_groupby(
         ((textanswer.contribution_id, textanswer.assignment_id), textanswer)
         for contribution in evaluation.contributions.all()
         for textanswer in contribution.textanswer_set.all()
@@ -252,7 +252,7 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
                     continue
                 text_result = None
                 if question.can_have_textanswers and evaluation.can_publish_text_results:
-                    answers = tas_per_contribution_question.get((contribution.id, assignment.id), [])
+                    answers = tas_per_contribution_assignment.get((contribution.id, assignment.id), [])
                     text_result = TextResult(
                         question=question, answers=answers, answers_visible_to=textanswers_visible_to(contribution)
                     )
