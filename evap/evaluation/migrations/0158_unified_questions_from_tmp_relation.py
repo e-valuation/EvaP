@@ -43,6 +43,10 @@ class Migration(migrations.Migration):
             code=migrations.RunPython.noop,
             reverse_code=question_assignments_to_questions,
         ),
+        migrations.AlterUniqueTogether(
+            name="ratinganswercounter",
+            unique_together=set(),
+        ),
         migrations.RemoveField(
             model_name="ratinganswercounter",
             name="question",
