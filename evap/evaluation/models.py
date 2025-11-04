@@ -1545,7 +1545,6 @@ class Answer(models.Model):
         return self.assignment.question
 
 
-
 class RatingAnswerCounter(Answer):
     """
     A rating answer counter to a question.
