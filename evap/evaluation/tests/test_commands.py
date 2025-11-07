@@ -156,7 +156,7 @@ class TestAnonymizeCommand(TestCase):
         self.assertEqual(RatingAnswerCounter.objects.count(), 0)
 
     def test_answer_count_unchanged(self):
-        answers_per_question = defaultdict(int)
+        answers_per_assignment = defaultdict(int)
 
         counters = []
         for assignment in chain(self.contributor_assignments, self.general_assignments):
@@ -164,7 +164,7 @@ class TestAnonymizeCommand(TestCase):
                 random.randint(10, 100) for choice in CHOICES[assignment.question.type].values if choice != NO_ANSWER
             ]
             counters.extend(make_rating_answer_counters(assignment, self.contribution, counts, False))
-            answers_per_question[assignment] += sum(counts)
+            answers_per_assignment[assignment] += sum(counts)
         RatingAnswerCounter.objects.bulk_create(counters)
 
         management.call_command("anonymize", stdout=StringIO())
@@ -173,7 +173,7 @@ class TestAnonymizeCommand(TestCase):
             answer_count = RatingAnswerCounter.objects.filter(assignment=assignment).aggregate(Sum("count"))[
                 "count__sum"
             ]
-            self.assertEqual(answers_per_question[assignment], answer_count)
+            self.assertEqual(answers_per_assignment[assignment], answer_count)
 
     def test_user_with_password(self):
         baker.make(UserProfile, password=make_password("evap"))

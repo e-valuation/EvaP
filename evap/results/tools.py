@@ -234,7 +234,7 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
         if textanswer.review_decision in [TextAnswer.ReviewDecision.PRIVATE, TextAnswer.ReviewDecision.PUBLIC]
     )
 
-    racs_per_contribution_question: dict[tuple[int, int], list[RatingAnswerCounter]] = unordered_groupby(
+    racs_per_contribution_assignment: dict[tuple[int, int], list[RatingAnswerCounter]] = unordered_groupby(
         ((counter.contribution_id, counter.assignment_id), counter)
         for contribution in evaluation.contributions.all()
         for counter in contribution.ratinganswercounter_set.all()
@@ -258,7 +258,7 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
                     )
                 if question.is_rating_question:
                     if evaluation.can_publish_rating_results:
-                        answer_counters = racs_per_contribution_question.get((contribution.id, assignment.id), [])
+                        answer_counters = racs_per_contribution_assignment.get((contribution.id, assignment.id), [])
                     else:
                         answer_counters = None
                     results.append(create_rating_result(question, answer_counters, additional_text_result=text_result))
