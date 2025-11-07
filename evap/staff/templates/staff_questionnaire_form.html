@@ -89,30 +89,36 @@
         <script type="module">
             import { makeFormSortable } from "{% static 'js/sortable-form.js' %}";
 
-            const lookupQuestion = async function(e) {
-                const value = e.target.value;
-                const row = e.target.closest("tr");
+            let createdElements = 0;
+            const createdTextEntry = function(input) {
+                // value needs to be in json format
+                createdElements += 1;
+                const res = { value: JSON.stringify({'value': createdElements}), text: input };
+                console.log(res);
+                return res;
+            };
 
-                const target = "{% url 'staff:question_lookup' field_name='text_de' %}?" + new URLSearchParams({ value }).toString();
-                const res = await fetch(target, { method: "GET" });
-                const data = await res.json();
+            const lookupQuestion = async function(e) {
+                const row = e.target.closest("tr");
 
                 const type = row.querySelector("select[id$=-type]");
                 const allowTextanswer = row.querySelector("input[type=checkbox].allow-textanswer-checkbox");
-                const tooltip = bootstrap.Tooltip.getOrCreateInstance(type.closest("td.question-type"), {title: "{% translate 'Cannot edit question because it is in use in another questionnaire.' %}"});
+                const tooltip = bootstrap.Tooltip.getOrCreateInstance(type.closest("td.question-type"), { title: "{% translate 'Cannot edit question because it is in use in another questionnaire.' %}" });
                 const question_id = row.querySelector("input[id$=-question]");
-
-                if (Object.keys(data).length === 0) {
+                console.log(e.target.value)
+                const value = e.target.value || "{}";
+                const data = JSON.parse(value);
+                if (Object.keys(data).length <= 1) {
                     type.tomselect.enable();
                     allowTextanswer.disabled = false;
                     question_id.value = "";
-                    tooltip.disable()
+                    tooltip.disable();
                     return;
                 }
 
                 for (let key of ["text_de", "text_en"]) {
                     const select = row.querySelector(`select[id$=-${key}]`);
-                    select.tomselect.setValue(data[key], true);
+                    select.tomselect.setValue(value, true);
                 }
 
                 question_id.value = data["id"];
@@ -135,11 +141,11 @@
                     el.remove();
                 });
                 applyTomSelect(row.querySelectorAll("select"));
-                applyTomSelect(row.querySelectorAll("select[id*=-text_]"), { create: true });
+                applyTomSelect(row.querySelectorAll("select[id*=-text_]"), { create: createdTextEntry });
                 registerSelectChangedHandlers();
             };
             makeFormSortable("question_table", "questions", rowChanged, rowAdded, true, true);
-            applyTomSelect(document.querySelectorAll("select[id*=-text_]"), { create: true });
+            applyTomSelect(document.querySelectorAll("select[id*=-text_]"), { create: createdTextEntry });
 
             const selectChangedHandler = function(e) {
                 const checkbox = this.closest("td.question-type").querySelector("input[type=checkbox]");

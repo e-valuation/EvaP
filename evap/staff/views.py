@@ -29,7 +29,7 @@ from django.db.models import (
 )
 from django.forms import BaseForm, formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
-from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.html import format_html
@@ -52,7 +52,6 @@ from evap.evaluation.models import (
     FaqSection,
     Infotext,
     Program,
-    Question,
     QuestionAssignment,
     Questionnaire,
     RatingAnswerCounter,
@@ -101,7 +100,6 @@ from evap.staff.forms import (
     ModelWithImportNamesFormset,
     ProgramForm,
     ProgramMergeSelectionForm,
-    QuestionDetailsForm,
     QuestionForm,
     QuestionnaireForm,
     QuestionnairesAssignForm,
@@ -1795,18 +1793,6 @@ def evaluation_preview(request, evaluation_id):
         raise PermissionDenied
 
     return render_vote_page(request, evaluation, preview=True, dropout=False)
-
-
-@manager_required
-def question_lookup(request: HttpRequest, field_name: str) -> JsonResponse:
-    value = request.GET.get("value", "")
-    try:
-        question = (
-            Question.objects.filter(**{field_name: value}).values(*["id", *QuestionDetailsForm.Meta.fields]).get()
-        )
-    except Question.DoesNotExist:
-        question = {}
-    return JsonResponse(data=question)
 
 
 @manager_required

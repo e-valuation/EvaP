@@ -11,6 +11,7 @@ from selenium.webdriver.support.expected_conditions import (
     text_to_be_present_in_element_value,
     visibility_of_element_located,
 )
+from selenium.webdriver.support.relative_locator import locate_with
 
 from evap.evaluation.models import (
     Contribution,
@@ -35,6 +36,10 @@ class TomselectMixin:
         target_options = [key for key, value in tomselect_options.items() if value["text"] == option]
         self.assertEqual(len(target_options), 1)
         self.selenium.execute_script("arguments[0].tomselect.setValue(arguments[1])", select, target_options[0])
+
+    def input_from_tomselect(self, select: WebElement) -> WebElement:
+        assert isinstance(self, LiveServerTest)
+        return self.selenium.find_element(locate_with(By.CSS_SELECTOR, "div[data-value]").to_right_of(select))
 
 
 class EvaluationEditLiveTest(LiveServerTest, TomselectMixin):
@@ -212,7 +217,7 @@ class QuestionnaireEditLiveTest(LiveServerTest, TomselectMixin):
             self.wait.until(
                 text_to_be_present_in_element_value((By.ID, "id_question_assignments-0-question"), str(new_question.pk))
             )
-        self.assertEqual(row["text_en"].get_property("value"), new_question.text_en)
+        self.assertEqual(self.input_from_tomselect(row["text_de"]).text, new_question.text_de)
         self.assertEqual(
             row["allows_additional_textanswers"].get_property("checked"), new_question.allows_additional_textanswers
         )
@@ -236,22 +241,16 @@ class QuestionnaireEditLiveTest(LiveServerTest, TomselectMixin):
 
         row = self.first_question_row()
 
-        add_option_script = "arguments[0].tomselect.addOption({'value':arguments[1],'text':arguments[1]})"
+        add_option_script = (
+            "arguments[0].tomselect.addOption({'value': JSON.stringify({'value':arguments[1]}),'text':arguments[1]})"
+        )
         self.selenium.execute_script(add_option_script, row["text_de"], new_question_text_de)
         self.selenium.execute_script(add_option_script, row["text_en"], new_question_text_en)
-        with self.enter_staff_mode():
-            self.select_tomselect_option(row["text_de"], new_question_text_de)
-            self.select_tomselect_option(row["text_en"], new_question_text_en)
-            self.wait.until(
-                text_to_be_present_in_element_value(
-                    (By.ID, "id_question_assignments-0-text_de"), str(new_question_text_de)
-                )
-            )
-            self.wait.until(
-                text_to_be_present_in_element_value(
-                    (By.ID, "id_question_assignments-0-text_en"), str(new_question_text_en)
-                )
-            )
+        self.select_tomselect_option(row["text_de"], new_question_text_de)
+        self.select_tomselect_option(row["text_en"], new_question_text_en)
+
+        self.wait.until(lambda _: self.input_from_tomselect(row["text_de"]).text == new_question_text_de)
+        self.wait.until(lambda _: self.input_from_tomselect(row["text_en"]).text == new_question_text_en)
 
         self.assertEqual(row["question"].get_property("value"), "")
 

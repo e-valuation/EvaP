@@ -1,3 +1,4 @@
+import json
 import logging
 from collections.abc import Iterable
 
@@ -850,20 +851,42 @@ class QuestionDetailsForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["text_de"].widget.choices = (
-            ("", ""),
-            *((m, m) for m in Question.objects.all().values_list("text_de", flat=True)),
-        )
-        self.fields["text_en"].widget.choices = (
-            ("", ""),
-            *((m, m) for m in Question.objects.all().values_list("text_en", flat=True)),
-        )
+        exported_fields = ["id", *self.Meta.fields]
+        values = Question.objects.all().values(*exported_fields)
+        self.fields["text_de"].widget.choices = (("", ""), *((json.dumps(v), v["text_de"]) for v in values))
+        self.fields["text_en"].widget.choices = (("", ""), *((json.dumps(v), v["text_en"]) for v in values))
 
-        if self.instance.pk and self.instance.questionnaires.count() > 1:
-            for field in ["type", "allows_additional_textanswers"]:
-                self.fields[field].disabled = True
-        elif self.instance.pk and self.instance.type in [QuestionType.TEXT, QuestionType.HEADING] and not self.data:
-            self.fields["allows_additional_textanswers"].disabled = True
+        if self.instance.pk:
+            instance_values = json.dumps({k: getattr(self.instance, k) for k in exported_fields})
+            for field in ["text_de", "text_en"]:
+                self.initial[field] = instance_values
+
+            if self.instance.questionnaires.count() > 1:
+                for field in ["type", "allows_additional_textanswers"]:
+                    self.fields[field].disabled = True
+            elif self.instance.type in [QuestionType.TEXT, QuestionType.HEADING] and not self.data:
+                self.fields["allows_additional_textanswers"].disabled = True
+
+    def text_clean_helper(self, text_field: str) -> str:
+        data = self.cleaned_data[text_field]
+        if not data:
+            return data
+        try:
+            parsed = json.loads(data)
+        except json.JSONDecodeError as err:
+            raise ValidationError(_("Invalid JSON data.")) from err
+        if not isinstance(parsed, dict):
+            raise ValidationError(_("Invalid JSON data."))
+        value = parsed.get("value") or parsed.get(text_field) or ""
+        if not isinstance(value, str):
+            raise ValidationError(_("Invalid JSON data."))
+        return value
+
+    def clean_text_de(self) -> str:
+        return self.text_clean_helper("text_de")
+
+    def clean_text_en(self) -> str:
+        return self.text_clean_helper("text_en")
 
     def clean(self):
         super().clean()

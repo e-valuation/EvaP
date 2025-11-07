@@ -3200,8 +3200,8 @@ class TestQuestionnaireCreateView(WebTestStaffMode):
         questionnaire_form["name_en"] = "test questionnaire"
         questionnaire_form["public_name_de"] = "Oeffentlicher Test Fragebogen"
         questionnaire_form["public_name_en"] = "Public Test Questionnaire"
-        questionnaire_form["question_assignments-0-text_de"].force_value("Frage 1")
-        questionnaire_form["question_assignments-0-text_en"].force_value("Question 1")
+        questionnaire_form["question_assignments-0-text_de"].force_value('{"value":"Frage 1"}')
+        questionnaire_form["question_assignments-0-text_en"].force_value('{"value":"Question 1"}')
         questionnaire_form["question_assignments-0-type"] = QuestionType.TEXT
         questionnaire_form["question_assignments-0-order"] = 0
         questionnaire_form["question_assignments-0-type"] = Questionnaire.Type.TOP
@@ -3306,8 +3306,8 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
 
         page = self.app.get(self.url, user=self.manager)
         form = page.forms["questionnaire-form"]
-        form["question_assignments-0-text_de"].force_value("successfully")
-        form["question_assignments-0-text_en"].force_value("changed")
+        form["question_assignments-0-text_de"].force_value('{"value":"successfully"}')
+        form["question_assignments-0-text_en"].force_value('{"value":"changed"}')
         form["question_assignments-0-type"] = QuestionType.NEGATIVE_LIKERT
         form["question_assignments-0-allows_additional_textanswers"] = True
         return form.submit()
