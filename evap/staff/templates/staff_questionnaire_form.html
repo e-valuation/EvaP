@@ -89,8 +89,7 @@
             import { makeFormSortable } from "{% static 'js/sortable-form.js' %}";
             import { StaffQuestionnaireForm } from "{% static 'js/staff-questionnaire-form.js' %}";
             
-            const staffQuestionnaireForm = new StaffQuestionnaireForm("question_table");
-            staffQuestionnaireForm.initialize();
+            const staffQuestionnaireForm = new StaffQuestionnaireForm(document.getElementById("question_table"));
             
             const rowChanged = function(row) {
                 const nameDe = row.querySelector('textarea[id$=-text_de]')?.value;

@@ -8,33 +8,34 @@ export class StaffQuestionnaireForm {
     private readonly questionTable: HTMLTableElement;
     private readonly questionnaireTypeSelect: HTMLSelectElement;
 
-    constructor(questionTableId: string) {
-        this.questionTable = selectOrError<HTMLTableElement>(`#${questionTableId}`);
-        this.questionnaireTypeSelect = selectOrError<HTMLSelectElement>('select[name="type"]');
+    constructor(questionTable: HTMLTableElement) {
+        this.questionTable = questionTable;
+        this.questionnaireTypeSelect = selectOrError<HTMLSelectElement>("#id_type");
+        this.initialize();
     }
-    private disableAndUncheckCheckbox = (checkbox: HTMLInputElement): void => {
+    private disableAndUncheckCheckbox = (checkbox: HTMLInputElement) => {
         checkbox.checked = false;
         checkbox.disabled = true;
     };
 
-    private enableAndCheckCheckbox = (checkbox: HTMLInputElement): void => {
+    private enableAndCheckCheckbox = (checkbox: HTMLInputElement) => {
         checkbox.checked = true;
         checkbox.disabled = false;
     };
 
-    private disableAllCheckboxes = (checkboxes: NodeListOf<Element>): void => {
+    private disableAllCheckboxes = (checkboxes: NodeListOf<Element>) => {
         checkboxes.forEach(checkbox => {
             this.disableAndUncheckCheckbox(checkbox as HTMLInputElement);
         });
     };
 
-    private enableAllCheckboxes = (checkboxes: NodeListOf<Element>): void => {
+    private enableAllCheckboxes = (checkboxes: NodeListOf<Element>) => {
         checkboxes.forEach(checkbox => {
             this.enableAndCheckCheckbox(checkbox as HTMLInputElement);
         });
     };
 
-    private selectChangedHandler = (e: Event): void => {
+    private handleQuestionTypeChange = (e: Event) => {
         const target = e.currentTarget as HTMLSelectElement;
         const questionType = saneParseInt(target.value);
         const questionTypeCell = target.closest("td.question-type");
@@ -46,9 +47,8 @@ export class StaffQuestionnaireForm {
             this.disableAllCheckboxes(checkboxes);
             return;
         }
-        // Check if this is a dropout questionnaire before enabling checkboxes
-        const questionnaireType = saneParseInt(this.questionnaireTypeSelect.value);
 
+        const questionnaireType = saneParseInt(this.questionnaireTypeSelect.value);
         if (questionnaireType === QUESTIONNAIRE_TYPE_DROPOUT) {
             checkboxes.forEach(checkbox => {
                 const checkboxElement = checkbox as HTMLInputElement;
@@ -63,7 +63,7 @@ export class StaffQuestionnaireForm {
         }
     };
 
-    private handleQuestionnaireTypeChange = (): void => {
+    private handleQuestionnaireTypeChange = () => {
         const selectedType = saneParseInt(this.questionnaireTypeSelect.value);
         const countsForGradeCheckboxes = document.querySelectorAll(".counts-for-grade-checkbox");
 
@@ -103,7 +103,7 @@ export class StaffQuestionnaireForm {
         }
     };
 
-    public initialize = (): void => {
+    private initialize = () => {
         // Initialize the state of all checkboxes based on current question types and questionnaire type
         const questionnaireType = saneParseInt(this.questionnaireTypeSelect.value);
 
@@ -137,9 +137,9 @@ export class StaffQuestionnaireForm {
         });
     };
 
-    public registerSelectChangedHandlers = (): void => {
+    public registerSelectChangedHandlers = () => {
         document.querySelectorAll(".question-type select").forEach(selectElement => {
-            selectElement.addEventListener("change", this.selectChangedHandler);
+            selectElement.addEventListener("change", this.handleQuestionTypeChange);
         });
 
         this.questionnaireTypeSelect.addEventListener("change", this.handleQuestionnaireTypeChange);
