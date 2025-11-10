@@ -461,10 +461,12 @@ class TestCalculateAverageDistribution(TestCase):
         cache_results(self.evaluation)
         evaluation_results = get_results(self.evaluation)
 
-        question_results = []
-        for contribution_result in evaluation_results.contribution_results:
-            for questionnaire_result in contribution_result.questionnaire_results:
-                question_results.extend(questionnaire_result.question_results)
+        question_results = [
+            question_result
+            for contribution_result in evaluation_results.contribution_results
+            for questionnaire_result in contribution_result.questionnaire_results
+            for question_result in questionnaire_result.question_results
+        ]
 
         grade_distribution = average_grade_questions_distribution(question_results)
         self.assertEqual(grade_distribution, (1, 0, 0, 0, 0))  # Only the counting grade question should be included
