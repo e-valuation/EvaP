@@ -364,9 +364,8 @@ class TestSendRemindersCommand(TestCase):
         self.assertEqual(mock.call_count, 0)
         self.assertEqual(len(mail.outbox), 0)
 
-    def test_dont_remind_evaluation_started_yesterday(
-        self,
-    ):  # May fail if run across a day boundary, candidate for freezegun
+    def test_dont_remind_evaluation_started_yesterday(self):
+    # May fail if run across a day boundary, candidate for freezegun
         user = baker.make(UserProfile)
         course = baker.make(Course)
         recent_evaluation = baker.make(
