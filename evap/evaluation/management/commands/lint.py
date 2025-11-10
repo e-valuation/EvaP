@@ -8,7 +8,9 @@ class Command(BaseCommand):
     requires_migrations_checks = False
 
     def add_arguments(self, parser):
-        parser.add_argument("linter", nargs="?", choices=["ruff", "pylint", "eslint"], help="Specify a linter to run.")
+        parser.add_argument(
+            "linter", nargs="?", choices=["ruff", "pylint", "eslint", "python"], help="Specify a linter to run."
+        )
 
     def run_ruff(self):
         self.stdout.write("Executing ruff check .")
@@ -23,9 +25,9 @@ class Command(BaseCommand):
         subprocess.run(["npx", "eslint", "--quiet"], cwd="evap/static/ts", check=False)  # nosec
 
     def handle(self, *args, **options):
-        if options["linter"] in ("ruff", None):
+        if options["linter"] in ("ruff", "python", None):
             self.run_ruff()
-        if options["linter"] in ("pylint", None):
+        if options["linter"] in ("pylint", "python", None):
             self.run_pylint()
         if options["linter"] in ("eslint", None):
             self.run_eslint()
