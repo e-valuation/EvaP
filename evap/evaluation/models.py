@@ -2200,6 +2200,22 @@ class EmailTemplate(models.Model):
             }
             self.send_to_user(user, subject_params={}, body_params=body_params, use_cc=use_cc, request=request)
 
+    def _check_separate_login_url(
+        self,
+        body_params: dict[str, Any],
+        user: UserProfile,
+        cc_addresses=list[str | Any],
+    ) -> bool:
+        send_separate_login_url = False
+        body_params["login_url"] = ""
+        if user.needs_login_key:
+            user.ensure_valid_login_key()
+            if not cc_addresses:
+                body_params["login_url"] = user.login_url
+            else:
+                send_separate_login_url = True
+        return send_separate_login_url
+
     def send_to_user(
         self,
         user: UserProfile,
@@ -2209,6 +2225,7 @@ class EmailTemplate(models.Model):
         use_cc: bool,
         additional_cc_users: Iterable[UserProfile] = (),
         request: HttpRequest | None = None,
+        evaluation: Evaluation | None = None,
     ) -> None:
         if not user.email:
             message = gettext_noop("{} has no email address defined. Could not send email.")
@@ -2231,14 +2248,9 @@ class EmailTemplate(models.Model):
 
         cc_addresses = [p.email for p in cc_users if p.email]
 
-        send_separate_login_url = False
-        body_params["login_url"] = ""
-        if user.needs_login_key:
-            user.ensure_valid_login_key()
-            if not cc_addresses:
-                body_params["login_url"] = user.login_url
-            else:
-                send_separate_login_url = True
+        send_separate_login_url = self._check_separate_login_url(
+            body_params=body_params, user=user, cc_addresses=cc_addresses
+        )
 
         mail = self.construct_mail(user.email, cc_addresses, subject_params, body_params)
 
@@ -2254,6 +2266,8 @@ class EmailTemplate(models.Model):
                 )
             else:
                 logger.info('Sent email "%s" to %s (%s).', mail.subject, user.full_name, user.email)
+            if evaluation:
+                evaluation.log_instance_send_email(template_name=self.name, recipients=user)
             if send_separate_login_url:
                 self.send_login_url_to_user(user)
         except Exception:
