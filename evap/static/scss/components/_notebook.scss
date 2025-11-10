@@ -43,7 +43,8 @@
         flex-grow: 1;
     }
 
-
+    display: flex;
+    justify-content: center;
     .notebook-container {
         width: 80vw; //approximation to be similar to evap-Content width
         z-index: $zindex-fixed;
@@ -56,18 +57,16 @@
         }
 
 
-    @media screen and (min-aspect-ratio: $notebook-break), (min-width: 1400px) {//1400px chosen by expert judgement
+    @media screen and (min-aspect-ratio: $notebook-break), (min-width: $notebook-break-width) {
+    display: unset;
     .notebook-container {
         width: 25vw;
-        padding-left: $spacer;
-        padding-bottom: $spacer;
-        padding-top: $spacer;
         padding-right: 0;
-        z-index: none;
+        z-index: 0;
     }
 
         .notebook-card {
-            height: calc((100vh - #{$navbar-brand-height}) - (#{$footer-height} + ((#{$spacer} * 1.5) * 5))); // subtract 3 spacer with padding
+            height: calc((100vh - #{$navbar-brand-height}) - (#{$footer-height} + ((#{$spacer} * 1.5) * 5))); //approximation for similar gap to the footer as evap-Content
         }
     }
 }
@@ -77,7 +76,7 @@
         margin-top: 50vh;
     }
 
-@media screen and (min-aspect-ratio: $notebook-break), (min-width: 1400px) {
+@media screen and (min-aspect-ratio: $notebook-break), (min-width: $notebook-break-width) {
     .notebook-margin {
         max-width: 75vw;
         margin-left: 25vw;
