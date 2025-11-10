@@ -574,7 +574,7 @@ class TestImportEvents(TestCase):
                     message="No email defined",
                 ),
                 WarningMessage(
-                    obj=evaluation.course.name,
+                    obj=f"{evaluation.course.name} ({evaluation.course.type})",
                     message="No dates defined, using default end date",
                 ),
                 WarningMessage(
@@ -582,7 +582,7 @@ class TestImportEvents(TestCase):
                     message="No contributors defined",
                 ),
                 WarningMessage(
-                    obj=evaluation_without_exam.full_name,
+                    obj=f"{evaluation_without_exam.full_name} ({evaluation_without_exam.course.type})",
                     message="No dates defined, using default end date",
                 ),
                 WarningMessage(
