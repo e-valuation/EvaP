@@ -509,7 +509,7 @@ class Evaluation(LoggedModel):
     @transaction.atomic
     def create_exam_evaluation(self, exam_date: date):
         self.weight = settings.NORMAL_EVALUATION_WEIGHT
-        self.vote_end_date = exam_date - settings.NORMAL_EVALUATION_TIMEDELTA
+        self.vote_end_date = exam_date - timedelta(days=1)
         self.save()
         exam_evaluation = Evaluation(
             course=self.course,

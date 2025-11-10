@@ -114,9 +114,6 @@ EVALUATION_END_OFFSET_HOURS = 3
 # Amount of hours in which participant will be warned
 EVALUATION_END_WARNING_PERIOD = 5
 
-# default timedelta for evaluation vote_end_date befor exam date
-NORMAL_EVALUATION_TIMEDELTA = timedelta(days=1)
-
 # default timedelta for exam evaluation vote_end_date after exam date
 EXAM_EVALUATION_TIMEDELTA = timedelta(days=3)
 
