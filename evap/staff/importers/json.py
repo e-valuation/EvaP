@@ -354,8 +354,11 @@ class JSONImporter:
     # pylint: disable=too-many-locals
     def _import_evaluation(self, course: Course, data: ImportEvent) -> Evaluation:  # noqa: PLR0912
         if "appointments" not in data or not data["appointments"]:
+            course_info = f"{course.name} ({course.type})"
+            if data["isexam"]:
+                course_info += " [Exam]"
             self.statistics.warnings.append(
-                WarningMessage(obj=course.name, message="No dates defined, using default end date")
+                WarningMessage(obj=course_info, message="No dates defined, using default end date")
             )
             course_end = datetime.combine(self.default_course_end, self.MIDNIGHT)
         else:
