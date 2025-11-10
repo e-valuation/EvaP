@@ -234,7 +234,7 @@ class JSONImporter:
 
         # It could happen that the importer needs a new exam type
         exam_type, __ = ExamType.objects.get_or_create(name_de=name, defaults={"name_en": name})
-        self.exam_type_cache[name] = exam_type
+        self.exam_type_cache[lookup] = exam_type
         return exam_type
 
     def _get_program(self, name: str) -> Program:
