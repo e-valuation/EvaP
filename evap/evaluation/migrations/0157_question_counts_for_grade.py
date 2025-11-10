@@ -11,7 +11,7 @@ DROPOUT_QUESTIONNAIRE = 5
 def set_initial_values(apps, _schema_editor):
     Question = apps.get_model("evaluation", "Question")
 
-    Question.objects.filter(Q(type__in=[TEXT, HEADING]) or Q(questionnaire__type=DROPOUT_QUESTIONNAIRE)).update(
+    Question.objects.filter(Q(type__in=[TEXT, HEADING]) | Q(questionnaire__type=DROPOUT_QUESTIONNAIRE)).update(
         counts_for_grade=False
     )
 
