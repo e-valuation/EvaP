@@ -5,8 +5,8 @@ from datetime import date, datetime
 from io import StringIO
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
-import evap.settings as settings #settings  # evap/settings.py
 
+from django.conf import settings
 from django.core import mail
 from django.core.management import CommandError, call_command
 from django.test import TestCase, override_settings
