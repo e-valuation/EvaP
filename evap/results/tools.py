@@ -415,7 +415,8 @@ def calculate_average_distribution(evaluation):
                         ),
                     ]
                 ),
-                # questions that do not count torward the grade are still counted for the average grade, see #2450
+                # The weight of this contributors grade is supposed to represent the number of students the
+                # contributor interacted with, which we derive from the max answer count, independently of counts_for_grades.
                 max(
                     (result.count_sum for result in contributor_results if result.question.is_rating_question),
                     default=0,

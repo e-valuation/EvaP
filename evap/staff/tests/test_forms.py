@@ -1177,11 +1177,8 @@ class QuestionFormTests(TestCase):
         form_data["counts_for_grade"] = True
 
         form = QuestionForm(form_data, instance=question)
-
         self.assertTrue(form.is_valid())
-
         self.assertFalse(form.cleaned_data["counts_for_grade"])
-
         self.assertTrue(form.fields["counts_for_grade"].widget.attrs.get("disabled"))
 
         saved_question = form.save()
