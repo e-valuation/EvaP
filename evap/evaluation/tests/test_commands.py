@@ -364,11 +364,17 @@ class TestSendRemindersCommand(TestCase):
         self.assertEqual(mock.call_count, 0)
         self.assertEqual(len(mail.outbox), 0)
 
-    def test_dont_remind_evaluation_started_yesterday(self):
+    def test_dont_remind_evaluation_started_yesterday(
+        self,
+    ):  # May fail if run across a day boundary, candidate for freezegun
         user = baker.make(UserProfile)
+        course = baker.make(Course)
         recent_evaluation = baker.make(
             Evaluation,
+            course=course,
             state=Evaluation.State.IN_EVALUATION,
+            name_en="recent",
+            name_de="recent",
             vote_start_datetime=datetime.now() - timedelta(days=1),
             vote_end_date=date.today() + timedelta(days=2),
             participants=[user],
@@ -381,7 +387,10 @@ class TestSendRemindersCommand(TestCase):
 
         old_evaluation = baker.make(
             Evaluation,
+            course=course,
             state=Evaluation.State.IN_EVALUATION,
+            name_en="old",
+            name_de="old",
             vote_start_datetime=datetime.now() - timedelta(days=2),
             vote_end_date=date.today() + timedelta(days=2),
             participants=[user],
@@ -391,7 +400,7 @@ class TestSendRemindersCommand(TestCase):
             management.call_command("send_reminders", stdout=StringIO())
 
         mock2.assert_called_once_with(
-            user, first_due_in_days=2, due_evaluations=[(recent_evaluation, 2), (old_evaluation, 2)]
+            user, first_due_in_days=2, due_evaluations=[(old_evaluation, 2), (recent_evaluation, 2)]
         )
 
     @override_settings(TEXTANSWER_REVIEW_REMINDER_WEEKDAYS=list(range(7)))
