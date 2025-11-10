@@ -51,6 +51,7 @@
     "text_en": "how?",
     "text_de": "how?",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -62,6 +63,7 @@
     "text_en": "how much?",
     "text_de": "how much?",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -73,6 +75,7 @@
     "text_en": "how?",
     "text_de": "how?",
     "allows_additional_textanswers": false,
+    "counts_for_grade": false,
     "type": 0
   }
 },
@@ -84,6 +87,7 @@
     "text_en": "how much?",
     "text_de": "how much?",
     "allows_additional_textanswers": true,
+    "counts_for_grade": true,
     "type": 1
   }
 },
@@ -95,6 +99,7 @@
     "text_en": "your grade",
     "text_de": "your grade",
     "allows_additional_textanswers": false,
+    "counts_for_grade": true,
     "type": 2
   }
 },
