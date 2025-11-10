@@ -1833,7 +1833,11 @@ def questionnaire_view(request, questionnaire_id):
     contribution = Contribution(contributor=request.user)
     form = QuestionnaireVotingForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
 
-    return render(request, "staff_questionnaire_view.html", {"forms": [form], "questionnaire": questionnaire})
+    return render(request, "staff_questionnaire_view.html", {
+        "forms": [form],
+        "questionnaire": questionnaire,
+        "languages": settings.LANGUAGES,
+    })
 
 
 @manager_required
