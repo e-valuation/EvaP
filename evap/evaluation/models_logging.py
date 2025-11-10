@@ -135,7 +135,7 @@ class LogEntry(models.Model):
                 message = _("A {cls} was deleted.")
             case InstanceActionType.SEND_EMAIL:
                 if self.content_object:
-                    message = "An email of the template '{templ}' for the {cls} {obj} was sent to {usr}."
+                    message = "An email of the template {templ} for the {cls} {obj} was sent to {usr}."
                 else:
                     message = "An email for a {cls} was sent."
             case _:
@@ -144,7 +144,7 @@ class LogEntry(models.Model):
         return message.format(
             cls=capitalize_first(self.content_type.model_class()._meta.verbose_name),
             obj=f'"{str(self.content_object)}"' if self.content_object else "",
-            templ=self.data.get("template_name"),
+            templ=f'"{self.data.get("template_name")}"',
             usr=self.data.get("recipients"),
         )
 
