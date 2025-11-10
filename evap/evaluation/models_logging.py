@@ -135,9 +135,9 @@ class LogEntry(models.Model):
                 message = _("A {cls} was deleted.")
             case InstanceActionType.SEND_EMAIL:
                 if self.content_object:
-                    message = "An email of the template {templ} for the {cls} {obj} was sent to {usr}."
+                    message = _("An email of the template {templ} for the {cls} {obj} was sent to {usr}.")
                 else:
-                    message = "An email for a {cls} was sent."
+                    message = _("An email for a {cls} was sent.")
             case _:
                 assert_never(self.action_type)
 
