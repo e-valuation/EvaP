@@ -274,6 +274,7 @@ def evaluation_direct_delegation(request, evaluation_id):
         use_cc=True,
         additional_cc_users=[request.user],
     )
+    evaluation.log_instance_send_email(template_name=template.name, recipients=delegate_user)
 
     messages.add_message(
         request,
