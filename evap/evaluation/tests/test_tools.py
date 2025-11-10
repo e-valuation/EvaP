@@ -249,10 +249,12 @@ class TestHelperMethodsWithoutTransaction(SimpleTestCase):
 
 class TestResolveSettings(TestCase):
     def test_not_set(self):
+        # We don't use the "remove a previous setting" functionality anywhere, but this behavior is the natural composition of layers and not_set
         self.assertEqual(resolve_settings([Namespace(FOO=42), Namespace(FOO=not_set())]), {})
         self.assertEqual(resolve_settings([Namespace(FOO=not_set()), Namespace(FOO=42)]), {"FOO": 42})
 
     def test_key_names(self):
+        # See SettingResolver.iter_settings
         self.assertEqual(resolve_settings([Namespace(foo=1, _FOO=2, FoO=3)]), {})
 
     def test_derived(self):

@@ -78,6 +78,7 @@ class SettingResolver(Generic[T]):
 
     @staticmethod
     def iter_settings(namespace: Any) -> Iterable[str]:
+        """Filter for attributes with SCREAMING_SNAKE_CASE names."""
         for name in dir(namespace):
             if name == name.upper() and not name.startswith("_"):
                 yield name
