@@ -2007,15 +2007,15 @@ class TestEvaluationExamCreation(WebTestStaffMode):
             exam_evaluation.vote_start_datetime,
             datetime.datetime.combine(self.exam_date + datetime.timedelta(days=1), datetime.time(8, 0)),
         )
-        self.assertEqual(exam_evaluation.vote_end_date, self.exam_date + settings.EXAM_EVALUATION_TIMEDELTA)
+        self.assertEqual(exam_evaluation.vote_end_date, self.exam_date + settings.EXAM_EVALUATION_DEFAULT_DURATION)
         self.assertEqual(exam_evaluation.name_de, "Klausur")
         self.assertEqual(exam_evaluation.name_en, "Exam")
         self.assertEqual(exam_evaluation.course, self.evaluation.course)
         self.assertQuerySetEqual(exam_evaluation.participants.all(), self.evaluation.participants.all())
-        self.assertEqual(exam_evaluation.weight, settings.EXAM_EVALUATION_WEIGHT)
+        self.assertEqual(exam_evaluation.weight, settings.EXAM_EVALUATION_DEFAULT_WEIGHT)
 
         evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
-        self.assertEqual(evaluation.weight, settings.NORMAL_EVALUATION_WEIGHT)
+        self.assertEqual(evaluation.weight, settings.MAIN_EVALUATION_DEFAULT_WEIGHT)
         self.assertEqual(evaluation.vote_end_date, self.exam_date - datetime.timedelta(days=1))
 
     def test_exam_evaluation_for_already_existing_exam_evaluation(self):

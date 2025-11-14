@@ -1,7 +1,7 @@
 import json
 import os
 from copy import deepcopy
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from io import StringIO
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
@@ -366,7 +366,7 @@ class TestImportEvents(TestCase):
         self.assertEqual(exam_evaluation.name_en, "Exam")
         # [{"begin": "29.07.2024 10:15", "end": "29.07.2024 11:45"}]
         self.assertEqual(exam_evaluation.vote_start_datetime, datetime(2024, 7, 30, 8, 0))
-        self.assertEqual(exam_evaluation.vote_end_date, date(2024, 7, 29) + settings.EXAM_EVALUATION_TIMEDELTA)
+        self.assertEqual(exam_evaluation.vote_end_date, date(2024, 7, 29) + settings.EXAM_EVALUATION_DEFAULT_DURATION)
         self.assertEqual(
             set(exam_evaluation.participants.values_list("email", flat=True)),
             {"1@example.com", "2@example.com"},
@@ -500,8 +500,8 @@ class TestImportEvents(TestCase):
         )
 
         # use weights
-        self.assertEqual(evaluation_everything.weight, settings.NORMAL_EVALUATION_WEIGHT)
-        self.assertEqual(evaluation_life.weight, settings.EXAM_EVALUATION_WEIGHT)
+        self.assertEqual(evaluation_everything.weight, settings.MAIN_EVALUATION_DEFAULT_WEIGHT)
+        self.assertEqual(evaluation_life.weight, settings.EXAM_EVALUATION_DEFAULT_WEIGHT)
 
     def test_import_ignore_non_responsible_users(self):
         with override_settings(NON_RESPONSIBLE_USERS=["4@example.com"]):
