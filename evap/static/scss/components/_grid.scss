@@ -1,3 +1,5 @@
+@use "sass:list";
+
 .container-striped .row:nth-child(odd) {
     background-color: $table-striped-bg;
 }
@@ -65,7 +67,8 @@
     display: grid;
     min-height: 2.5rem;
     padding: 0.75rem;
-    gap: 0.5rem 1rem;
+    row-gap: 0;
+    column-gap: 0;
     align-items: center;
 
     @at-root a#{&} {
@@ -73,10 +76,6 @@
         &:hover {
             text-decoration: none;
         }
-    }
-
-    @include media-breakpoint-up(lg) {
-        column-gap: 2rem;
     }
 }
 
@@ -88,26 +87,33 @@
     }
 }
 
+$results-grid-areas: name, semester, responsible, voters, result;
 .results-grid-row {
     @extend %table-grid;
 
     grid:
-        "name semester responsible voters result"
-        / auto    6rem       12rem   10rem  11rem;
+        " name semester responsible voters result"
+        / auto 6rem     12rem       10rem  11rem;
 
     @include media-breakpoint-down(lg) {
         grid:
-            "name semester  responsible responsible"
-            "name semester       voters      result"
-            / auto    3rem         8rem       10rem;
+            " name semester  responsible responsible"
+            " name semester  voters      result"
+            / auto 3rem      8rem        10rem;
     }
 
     @include media-breakpoint-down(md) {
         grid:
-            "        name        name    semester"
+            " name        name        semester"
             " responsible responsible responsible"
-            "      voters      result      result"
-            /         1fr         1fr        6rem;
+            " voters      result      result"
+            / 1fr         1fr         6rem;
+    }
+
+    gap: 0.5rem 1rem;
+
+    @include media-breakpoint-up(lg) {
+        column-gap: 2rem;
     }
 
     &:not(.grid-header) [data-col=responsible] {
@@ -140,13 +146,13 @@
     }
 }
 
+$textanswer-review-grid-areas: answer, edit, review, flag;
 .textanswer-review-grid {
     @extend %table-grid;
 
-    gap: 0;
     grid:
-        "answer edit review flag"
-        / auto  min-content min-content min-content;
+        " answer edit        review      flag"
+        / auto   min-content min-content min-content;
 
     min-height: 0;
     padding: 0.5rem;
@@ -161,55 +167,150 @@
             padding-left: 0.75rem;
         }
     }
+
     .grid-row:not(:first-child) > div:not(:first-child) {
         justify-content: center;
     }
 }
 
-@each $col in name, semester, responsible, voters, result, answer, edit, review, flag {
+%striped-grid-row {
+    @extend %table-grid;
+
+    border: solid 0 $table-border-color;
+    border-bottom-width: 1px;
+
+    &:nth-child(odd):not(.grid-header) {
+        background-color: $table-striped-bg;
+    }
+
+    &.grid-header button {
+        font-weight: bold;
+    }
+}
+
+$evaluation-grid-areas: checkbox, state-approval, state-evaluating, state-textanswers, state-results, name, period, responsibles, tags, buttons, responses;
+.evaluation-grid-row {
+    @extend %striped-grid-row;
+
+    grid:
+        " checkbox state-approval state-evaluating state-textanswers state-results name         period  responses buttons"
+        " checkbox state-approval state-evaluating state-textanswers state-results responsibles period  responses buttons"
+        " checkbox state-approval state-evaluating state-textanswers state-results tags         period  responses buttons"
+        / 2em      1.4em          1.4em            1.4em             1.4em         auto         12.25em 12em      8.5em;
+
+    padding: .10em .25em .45em .25em;
+
+    &.grid-header {
+        grid:
+        " .        state-approval state-evaluating state-textanswers state-results name         period  .         ."
+        / 2em      1.4em          1.4em            1.4em             1.4em         auto         12.25em 12em      8.5em;
+    }
+
+    & > * {
+        padding-inline: .5rem;
+
+        &.icon {
+            padding-inline: 0;
+            display: flex;
+            justify-content: center;
+        }
+    }
+
+    & .form-check {
+        display: flex;
+        align-items: center;
+        justify-content: start;
+        margin: 0;
+        padding: 0;
+    }
+
+    & .form-check-input {
+        margin: unset;
+        float: unset;
+        line-height: 0;
+    }
+
+    & > .icon-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .3em;
+    }
+}
+
+$grades-grid-areas: name, badges, responsible, complete, midterm-grades, final-grades, actions;
+.grades-grid-row {
+    @extend %striped-grid-row;
+
+    grid:
+        " name   responsible complete midterm-grades final-grades actions"
+        " badges responsible complete midterm-grades final-grades actions"
+        / 35fr   20fr        10fr     10fr           10fr         15fr;
+
+    padding: 0.5rem;
+}
+
+$course-grid-areas: name, badges, responsible, evaluation-count;
+.course-grid-row {
+    @extend %striped-grid-row;
+    grid:
+        " name   responsible evaluation-count ."
+        " badges responsible evaluation-count ."
+        / 1fr    14em        12em             9em;
+
+    & > * {
+        padding-inline: .5rem;
+    }
+}
+
+.grid-no-items-text {
+    background-color: $table-striped-bg;
+    padding: .5rem;
+}
+
+@function join-multiple($lists...) {
+    $result: ();
+    @each $list in $lists {
+        $result: list.join($result, $list, space);
+    }
+    @return $result;
+}
+
+@each $col in join-multiple($results-grid-areas, $textanswer-review-grid-areas, $evaluation-grid-areas, $grades-grid-areas, $course-grid-areas) {
     [data-col=#{$col}] {
         grid-area: $col;
     }
 }
 
 .col-order {
-    position: relative;
-    padding-left: 1em;
+    display: block;
     cursor: pointer;
 
+    padding-block: 0;
+    padding-inline: .5rem;
+    &:empty {
+        padding-inline: 0;
+    }
+
+    border: none;
+    background: none;
+
+    column-gap: .5rem;
+
     &::before {
-        position: absolute;
-        bottom: -0.2rem;
-        left: -0.1rem;
-        width: 1.5rem;
-        height: 1.5rem;
-        content: "";
-        background-image: escape-svg($order-button-icon);
-        background-repeat: no-repeat;
-        background-size: 0.75rem;
+        content: escape-svg($order-button-icon);
+        width: .75rem;
+        flex-shrink: 0;
     }
 
     &-asc::before {
-        background-image: escape-svg($order-button-down-icon);
+        content: escape-svg($order-button-up-icon);
     }
 
     &-desc::before {
-        background-image: escape-svg($order-button-up-icon);
+        content: escape-svg($order-button-down-icon);
     }
 }
 
-table th.col-order {
-    padding-left: 1.4em;
-
-    &:empty {
-        padding-right: 0;
-    }
-
-    &::before, &::after {
-        bottom: 0.3rem;
-        left: 0.3rem;
-    }
-}
 
 .grid-header {
     align-items: stretch;
