@@ -1,8 +1,11 @@
 from datetime import date, datetime
 
+from django.test import override_settings
 from django.urls import reverse
+from freezegun import freeze_time
 from model_bakery import baker
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.expected_conditions import (
     element_to_be_clickable,
     invisibility_of_element_located,
@@ -91,7 +94,9 @@ class EvaluationEditLiveTest(LiveServerTest):
 
         semester = baker.make(Semester)
         course = baker.make(Course, semester=semester, name_en="course name")
-        baker.make(Evaluation, course=course, name_en="evaluation name")
+        baker.make(Evaluation, course=course, name_en="evaluation name searchable-needle")
+
+        evaluation_element = (By.XPATH, "//a[contains(text(),'searchable-needle')]")
 
         with self.enter_staff_mode():
             self.selenium.get(self.reverse("staff:semester_view", args=[semester.pk]))
@@ -102,6 +107,8 @@ class EvaluationEditLiveTest(LiveServerTest):
         search_input.clear()
         search_input.send_keys("course name")
 
+        self.wait.until(visibility_of_element_located(evaluation_element), "Evaluation should be searchable.")
+
         self.wait.until(
             visibility_of_element_located(
                 (By.XPATH, "//button[@slot='show-button' and @aria-label='Create exam evaluation']")
@@ -111,7 +118,9 @@ class EvaluationEditLiveTest(LiveServerTest):
         search_input.clear()
         search_input.send_keys("exam")
 
-        self.wait.until(invisibility_of_element_located((By.XPATH, "//td//a[contains(text(),'course name')]")))
+        self.wait.until(
+            invisibility_of_element_located(evaluation_element), "Searching for 'exam' should not yield results."
+        )
 
 
 class ParticipantCollapseTests(LiveServerTest):
@@ -174,3 +183,66 @@ class ParticipantCollapseTests(LiveServerTest):
 
         counter = card_header.find_element(By.CSS_SELECTOR, ".rounded-pill")
         self.assertEqual(counter.text, "0")
+
+
+class StaffSemesterViewRegressionTest(LiveServerTest):
+
+    @freeze_time("2025-10-27")
+    @override_settings(SLOGANS_EN=["Einigermaßen verlässlich aussehende Pixeltestung"])
+    def test_regression(self):
+        baker.seed(31902)
+
+        responsible = baker.make(UserProfile)
+        evaluation = baker.make(
+            Evaluation,
+            course=baker.make(Course, programs=[baker.make(Program)], responsibles=[responsible]),
+            vote_start_datetime=datetime(2099, 1, 1, 0, 0),
+            vote_end_date=date(2099, 12, 31),
+            main_language="en",
+        )
+        _ = baker.make(
+            Evaluation,
+            course=baker.make(
+                Course, semester=evaluation.course.semester, programs=[baker.make(Program)], responsibles=[responsible]
+            ),
+            vote_start_datetime=datetime(2099, 1, 1, 0, 0),
+            vote_end_date=date(2099, 12, 31),
+            main_language="en",
+        )
+        _ = baker.make(
+            Evaluation,
+            course=baker.make(
+                Course, semester=evaluation.course.semester, programs=[baker.make(Program)], responsibles=[responsible]
+            ),
+            vote_start_datetime=datetime(2099, 1, 1, 0, 0),
+            vote_end_date=date(2099, 12, 31),
+            main_language="de",
+        )
+
+        general_questionnaire = baker.make(Questionnaire, questions=[baker.make(Question)])
+        evaluation.general_contribution.questionnaires.set([general_questionnaire])
+
+        _ = baker.make(
+            Contribution,
+            evaluation=evaluation,
+            contributor=responsible,
+            order=0,
+            role=Contribution.Role.CONTRIBUTOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.OWN_TEXTANSWERS,
+        )
+        baker.make(
+            Contribution,
+            evaluation=evaluation,
+            contributor=baker.make(UserProfile),
+            order=1,
+            role=Contribution.Role.EDITOR,
+        )
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.reverse("staff:semester_view", args=[evaluation.course.semester_id]))
+
+            _ = self.wait.until(
+                expected_conditions.presence_of_element_located((By.CSS_SELECTOR, "#evaluation-filter-buttons .badge"))
+            )
+
+            self.trigger_screenshot("staff:index")

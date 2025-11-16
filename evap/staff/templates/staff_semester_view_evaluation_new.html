@@ -1,0 +1,290 @@
+{% load evaluation_filters %}
+
+{% with state=evaluation.state %}
+    <div class="evaluation-grid-row">
+
+        {% if request.user.is_manager and not info_only and not semester.participations_are_archived %}
+
+            <div class="form-check" data-col="checkbox" data-bs-toggle="tooltip" data-bs-placement="top">
+                <input title="{% translate 'Select for evaluation operation' %}" class="form-check-input" type="checkbox" name="evaluation" id="evaluation{{ evaluation.id }}"
+                       value="{{ evaluation.id }}"/>
+            </div>
+        {% else %}
+            <span>...</span>
+        {% endif %}
+
+        {% with approval_state_values=state|approval_state_values %}
+            <div class="icon" data-col="state-approval" data-order="{{ approval_state_values.order }}"
+                 data-filter="{{ approval_state_values.filter }}">
+                <span class="{{ approval_state_values.icon }}" data-bs-toggle="tooltip" data-bs-placement="top"
+                      title="{{ approval_state_values.description }}"></span>
+            </div>
+        {% endwith %}
+
+        {% if state < evaluation.State.APPROVED %}
+            <div class="icon" data-col="state-evaluating" data-order="1" data-filter="evaluation_not_yet_started">
+                <span class="fas fa-pause icon-gray" data-bs-toggle="tooltip" data-bs-placement="top"
+                      title="{% translate 'Evaluation did not start yet' %}"></span>
+            </div>
+        {% elif state == evaluation.State.APPROVED %}
+            <div class="icon" data-col="state-evaluating" data-order="1" data-filter="evaluation_not_yet_started">
+                <span class="fas fa-pause icon-gray" data-bs-toggle="tooltip" data-bs-placement="top"
+                      title="{% translate 'Waiting for evaluation period to start' %}"></span>
+            </div>
+        {% elif state == evaluation.State.IN_EVALUATION %}
+            <div class="icon" data-col="state-evaluating" data-order="2" data-filter="in_evaluation">
+                <span class="fas fa-play icon-gray" data-bs-toggle="tooltip" data-bs-placement="top"
+                      title="{% translate 'In evaluation' %}"></span>
+            </div>
+        {% elif state >= evaluation.State.EVALUATED %}
+            <div class="icon" data-col="state-evaluating" data-order="3" data-filter="evaluated">
+                <span class="fas fa-stop icon-green" data-bs-toggle="tooltip" data-bs-placement="top"
+                      title="{% translate 'Evaluated' %}"></span>
+            </div>
+        {% endif %}
+
+        {% if evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.NO_TEXTANSWERS or evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.NO_REVIEW_NEEDED %}
+            <div class="icon" data-col="state-textanswers" data-order="3" data-filter="no_review">
+                <span class="fas fa-comment icon-gray" data-bs-toggle="tooltip" data-bs-placement="top"
+                      title="{% translate 'No text answers available or evaluation not yet finished' %}"></span>
+            </div>
+        {% elif evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.REVIEW_URGENT %}
+            <div class="icon" data-col="state-textanswers" data-order="1" data-filter="unreviewed_textanswers_urgent">
+                <span class="fas fa-comment icon-red" data-bs-toggle="tooltip" data-bs-placement="top"
+                      title="{% translate 'Text answers awaiting urgent review because grading process is finished' %}"></span>
+            </div>
+        {% elif evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.REVIEW_NEEDED %}
+            <div class="icon" data-col="state-textanswers" data-order="2" data-filter="unreviewed_textanswers">
+                <span class="fas fa-comment icon-blue" data-bs-toggle="tooltip" data-bs-placement="top"
+                      title="{% translate 'Text answers awaiting review' %}"></span>
+            </div>
+        {% else %}
+            <div class="icon" data-col="state-textanswers" data-order="4" data-filter="textanswers_reviewed">
+                <span class="fas fa-comment icon-green" data-bs-toggle="tooltip" data-bs-placement="top"
+                      title="{% translate 'Text answers reviewed' %}"></span>
+            </div>
+        {% endif %}
+
+        {% if state < evaluation.State.REVIEWED %}
+            <div class="icon" data-col="state-results" data-order="2" data-filter="evaluation_not_finished">
+                <span class="fas fa-chart-simple icon-gray" data-bs-toggle="tooltip" data-bs-placement="top"
+                      title="{% translate 'Evaluation not finished' %}"></span>
+            </div>
+        {% elif state == evaluation.State.REVIEWED %}
+            {% if evaluation.is_single_result or evaluation.grading_process_is_finished %}
+                <div class="icon text-center" data-col="state-results" data-order="0"
+                     data-filter="results_not_published">
+                    <span class="fas fa-chart-simple icon-red" data-bs-toggle="tooltip" data-bs-placement="top"
+                          title="{% translate 'Results not yet published although grading process is finished' %}"></span>
+                </div>
+            {% else %}
+                <div class="icon text-center" data-col="state-results" data-order="1"
+                     data-filter="results_not_yet_published">
+                    <span class="fas fa-chart-simple icon-blue" data-bs-toggle="tooltip" data-bs-placement="top"
+                          title="{% translate 'Results not yet published' %}"></span>
+                </div>
+            {% endif %}
+        {% elif state == evaluation.State.PUBLISHED %}
+            <div class="icon" data-col="state-results" data-order="3" data-filter="results_published">
+                <span class="fas fa-chart-simple icon-green" data-bs-toggle="tooltip" data-bs-placement="top"
+                      title="{% translate 'Results published' %}"></span>
+            </div>
+        {% endif %}
+
+        <div data-col="name" data-order="{{ evaluation.full_name }}">
+            {% if not info_only and request.user.is_manager %}
+                <a href="{% url 'staff:evaluation_edit' evaluation.id %}">{{ evaluation.full_name }}</a>
+                <a class="small no-underline" href="{% url 'staff:course_edit' evaluation.course.id %}"
+                   data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Edit course' %}">
+                    <span class="fas fa-chalkboard-user"></span>
+                </a>
+            {% else %}
+                {{ evaluation.full_name }}
+            {% endif %}
+        </div>
+        <div class="fst-italic" data-col="responsibles">
+            {{ evaluation.course.responsibles_names }}
+            <span class="small" data-bs-toggle="tooltip" data-bs-placement="right"
+                  title="{% translate 'Number of contributors' %}">
+                ({{ evaluation.num_contributors }} <span class="fas fa-person-chalkboard"></span>)
+            </span>
+        </div>
+        <div data-col="tags">
+            {% include 'evaluation_badges.html' with mode='manager' %}
+            {% if evaluation.num_course_evaluations > 1 %}
+                <span class="badge rounded-pill bg-dark" data-bs-toggle="tooltip" data-bs-placement="right"
+                      title="{% translate 'Weight' %}">{{ evaluation.weight }}</span>
+            {% endif %}
+        </div>
+
+        {% if state < evaluation.State.APPROVED %}
+            {% if not evaluation.all_contributions_have_questionnaires %}
+                {% if not evaluation.general_contribution_has_questionnaires %}
+                    <span class="badge bg-danger">{% translate 'Evaluation has no questionnaires' %}</span>
+                {% else %}
+                    <span class="badge bg-warning">{% translate 'Not all contributors have questionnaires' %}</span>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+
+        <div data-col="period" data-order="{{ evaluation|ordering_index }}">
+            {% include 'staff_evaluation_evaluation_period.html' %}
+        </div>
+
+        <div data-col="responses" class="multi-progress-bar">
+            {% if state >= evaluation.State.IN_EVALUATION %}
+                {% if not evaluation.is_single_result %}
+                    {% if evaluation.can_publish_average_grade %}
+                        <span data-bs-toggle="tooltip" data-bs-placement="left"
+                              title="{% translate 'Number of voters' %}">
+                    {% include 'progress_bar.html' with done=evaluation.num_voters total=evaluation.num_participants icon='user' %}
+                </span>
+                    {% else %}
+                        <span data-bs-toggle="tooltip" data-bs-placement="left"
+                              title="{% translate 'Not enough voters to publish average grade' %}">
+                    {% include 'progress_bar.html' with done=evaluation.num_voters total=evaluation.num_participants icon='user' warning=True %}
+                </span>
+                    {% endif %}
+                    {% if evaluation.num_textanswers > 0 and state < evaluation.State.PUBLISHED %}
+                        <span data-bs-toggle="tooltip" data-bs-placement="left"
+                              title="{% translate 'Number of text answers' %}">
+                    {% include 'progress_bar.html' with done=evaluation.num_reviewed_textanswers total=evaluation.num_textanswers icon='comment' %}
+                </span>
+                    {% else %}
+                        <span data-bs-toggle="tooltip" data-bs-placement="left"
+                              title="{% translate 'Number of text answers' %}">
+                    <span class="fas fa-comment"></span> {{ evaluation.num_textanswers }}
+                </span>
+                    {% endif %}
+                    {% if evaluation.wait_for_grade_upload_before_publishing %}
+                        {% if info_only or not request.user.is_manager %}
+                            <span data-bs-toggle="tooltip" data-bs-placement="left"
+                                  title="{% translate 'Grade documents (Midterm, Final)' %}">
+                        <span class="fas fa-file"></span>
+                                {% blocktranslate with midterm=evaluation.midterm_grade_documents_count final=evaluation.final_grade_documents_count %}
+                                    M: {{ midterm }}, F: {{ final }}{% endblocktranslate %}
+                    </span>
+                        {% else %}
+                            <a href="{% url 'grades:course_view' evaluation.course.id %}" data-bs-toggle="tooltip"
+                               data-bs-placement="left" title="{% translate 'Grade documents (Midterm, Final)' %}">
+                                <span class="fas fa-file"></span>
+                                {% blocktranslate with midterm=evaluation.midterm_grade_documents_count final=evaluation.final_grade_documents_count %}
+                                    M: {{ midterm }}, F: {{ final }}{% endblocktranslate %}
+                            </a>
+                        {% endif %}
+                        {% if evaluation.final_grade_documents_count %}
+                            <span class="fas fa-check" data-bs-toggle="tooltip" data-bs-placement="top"
+                                  title="{% translate 'Final grades have been uploaded' %}"></span>
+                        {% elif evaluation.course.gets_no_grade_documents %}
+                            <span class="fas fa-check" data-bs-toggle="tooltip" data-bs-placement="top"
+                                  title="{% translate 'It was confirmed that final grades have been submitted' %}"></span>
+                        {% endif %}
+                    {% endif %}
+                {% else %}
+                    <span data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Number of voters' %}">
+                        <span class="fas fa-user"></span> {{ evaluation.num_voters }}
+                    </span>
+                {% endif %}
+            {% else %}
+                <span
+                        {% if evaluation.num_participants == 0 %}class="text-danger" {% endif %}data-bs-toggle="tooltip"
+                        data-bs-placement="left" title="{% translate 'Number of participants' %}">
+                    <span class="fas fa-user"></span> {{ evaluation.num_participants }}
+                </span>
+            {% endif %}
+        </div>
+
+        <div data-not-searchable class="icon-buttons" data-col="buttons">
+            {% if not info_only %}
+                {% if evaluation.num_textanswers > 0 and state < evaluation.State.PUBLISHED %}
+                    <a href="{% url 'staff:evaluation_textanswers' evaluation.id %}"
+                       class="btn btn-sm {% if state == evaluation.State.REVIEWED %}btn-light{% else %}btn-primary{% endif %}"
+                       data-bs-toggle="tooltip" title="{% translate 'Review text answers' %}">
+                        <span class="fas fa-fw fa-magnifying-glass"></span>
+                    </a>
+                {% endif %}
+                {% if not evaluation.is_single_result and request.user.is_manager %}
+                    {% if state < evaluation.State.IN_EVALUATION %}
+                        <a href="{% url 'staff:evaluation_person_management' evaluation.id %}"
+                           class="btn btn-sm btn-light" data-bs-toggle="tooltip"
+                           title="{% translate 'Manage participants/contributors' %}">
+                            <span class="fas fa-fw fa-user"></span>
+                        </a>
+                    {% endif %}
+                    <a href="{% url 'staff:evaluation_copy' evaluation.id %}" class="btn btn-sm btn-light"
+                       data-bs-toggle="tooltip" title="{% translate 'Copy' %}">
+                        <span class="fas fa-fw fa-copy"></span>
+                    </a>
+                    {% if not evaluation.has_exam_evaluation %}
+                        <confirmation-modal type="submit" name="evaluation_id" value="{{ evaluation.id }}"
+                                            confirm-button-class="btn-primary"
+                                            form="exam_creation_form_{{ evaluation.id }}">
+                            <span slot="title">{% translate 'Create exam evaluation' %}</span>
+                            <span slot="action-text">{% translate 'Create exam evaluation' %}</span>
+                            <span slot="question">
+                        {% blocktranslate trimmed %}
+                            Create an exam evaluation based on this evaluation. This will copy all the participants and
+                            contributors from the original evaluation. It will set the weight of the original evaluation
+                            to 9 and its end date will be set to the day before the exam.
+                        {% endblocktranslate %}
+                    </span>
+                            <div slot="extra-inputs">
+                                <label>
+                                    {% translate 'Exam Date:' %}
+                                    <input type="date" name="exam_date"
+                                           min="{{ evaluation.earliest_possible_exam_date }}" class="form-control"
+                                           required form="exam_creation_form_{{ evaluation.id }}"/>
+                                </label>
+                            </div>
+
+                            <button slot="show-button" type="button" class="btn btn-sm btn-light"
+                                    title="{% translate 'Create exam evaluation' %}" data-bs-placement="top"
+                                    data-bs-toggle="tooltip"><span class="fas fa-file-pen fa-fw"></span></button>
+                        </confirmation-modal>
+                    {% endif %}
+                {% endif %}
+                {% if request.user.is_manager %}
+                    <a href="{% url 'staff:evaluation_email' evaluation.id %}" class="btn btn-sm btn-light"
+                       data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Send email' %}">
+                        <span class="fas fa-fw fa-envelope" aria-hidden="true"></span>
+                    </a>
+                {% endif %}
+                {% if state < evaluation.State.IN_EVALUATION %}
+                    <a href="{% url 'staff:evaluation_preview' evaluation.id %}" class="btn btn-sm btn-light"
+                       data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Preview' %}">
+                        <span class="fas fa-fw fa-eye" aria-hidden="true"></span>
+                    </a>
+                {% elif state < evaluation.State.PUBLISHED and evaluation|can_results_page_be_seen_by:request.user %}
+                    <a href="{% url 'results:evaluation_detail' semester.id evaluation.id %}"
+                       class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top"
+                       title="{% translate 'Preview results' %}">
+                        <span class="fas fa-fw fa-chart-simple" aria-hidden="true"></span>
+                    </a>
+                {% elif state == evaluation.State.PUBLISHED and evaluation|can_results_page_be_seen_by:request.user %}
+                    <a href="{% url 'results:evaluation_detail' semester.id evaluation.id %}"
+                       class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top"
+                       title="{% translate 'Results' %}">
+                        <span class="fas fa-fw fa-chart-simple" aria-hidden="true"></span>
+                    </a>
+                {% endif %}
+                {% if request.user.is_manager and evaluation.can_be_deleted_by_manager %}
+                    <confirmation-modal type="submit" form="evaluation-deletion-form" name="evaluation_id"
+                                        value="{{ evaluation.id }}" confirm-button-class="btn-danger">
+                        <span slot="title">{% translate 'Delete evaluation' %}</span>
+                        <span slot="action-text">{% translate 'Delete evaluation' %}</span>
+                        <span slot="question">
+                    {% blocktranslate trimmed with evaluation_name=evaluation.full_name %}
+                        Do you really want to delete the evaluation <strong>{{ evaluation_name }}</strong>?
+                    {% endblocktranslate %}
+                </span>
+
+                        <button slot="show-button" type="button" class="btn btn-sm btn-outline-danger"
+                                data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Delete' %}">
+                            <span class="fas fa-fw fa-trash" aria-hidden="true"></span>
+                        </button>
+                    </confirmation-modal>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+{% endwith %}
