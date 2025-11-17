@@ -53,12 +53,9 @@
 
         <div{% if not plain_page %} class="p-3 mb-4"{% endif %} id="evapContent">
             <div class="{% if plain_page %}container-fluid d-flex max-content-height{% else %}container{% endif %}">
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags|message_class }} alert-dismissible">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
+                {% if not plain_page %}
+                    {% include 'messages.html' %}
+                {% endif %}
 
                 {% block content %}
                 {% endblock %}

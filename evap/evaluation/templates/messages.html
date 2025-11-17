@@ -1,0 +1,12 @@
+{% load evaluation_filters %}
+
+{% if messages %}
+	<div{% if plain_page %} class="pt-3"{% endif %}>
+		{% for message in messages %}
+			<div class="alert alert-{{ message.tags|message_class }} alert-dismissible">
+				{{ message }}
+				<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+			</div>
+		{% endfor %}
+	</div>
+{% endif %}
