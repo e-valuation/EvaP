@@ -214,7 +214,7 @@ class JSONImporter:
         number = max(real_matches)
         return f"{wanted_name} ({number+1})"
 
-    def _get_first_name_given(self, entry: ImportStudent | ImportLecturer) -> str:
+    def _get_first_name_given(self, entry: ImportStudent) -> str:
         if entry["callingname"]:
             return entry["callingname"]
         return entry["christianname"]
@@ -414,11 +414,15 @@ class JSONImporter:
 
             exam_type = self._get_exam_type(data["type"])
             if not evaluation:
-                name_de = self._disambiguate_name(
-                    exam_type.name_de, list(course.evaluations.values_list("name_de", flat=True))
+                name_de = self._clean_whitespaces(
+                    self._disambiguate_name(
+                        exam_type.name_de, list(course.evaluations.values_list("name_de", flat=True))
+                    )
                 )
-                name_en = self._disambiguate_name(
-                    exam_type.name_en, list(course.evaluations.values_list("name_en", flat=True))
+                name_en = self._clean_whitespaces(
+                    self._disambiguate_name(
+                        exam_type.name_en, list(course.evaluations.values_list("name_en", flat=True))
+                    )
                 )
 
             weight = settings.EXAM_EVALUATION_DEFAULT_WEIGHT
@@ -464,8 +468,6 @@ class JSONImporter:
         participants = self._get_user_profiles(data["students"]) if "students" in data else []
 
         defaults = {
-            "name_de": self._clean_whitespaces(name_de),
-            "name_en": self._clean_whitespaces(name_en),
             "exam_type": exam_type,
             "vote_start_datetime": evaluation_start_datetime,
             "vote_end_date": evaluation_end_date,
