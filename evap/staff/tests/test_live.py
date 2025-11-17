@@ -22,7 +22,7 @@ from evap.evaluation.models import (
     Semester,
     UserProfile,
 )
-from evap.evaluation.tests.tools import LiveServerTest, classes_of_element
+from evap.evaluation.tests.tools import LiveServerTest, VisualRegressionTestCase, classes_of_element
 
 
 class EvaluationEditLiveTest(LiveServerTest):
@@ -184,7 +184,7 @@ class ParticipantCollapseTests(LiveServerTest):
         self.assertEqual(counter.text, "0")
 
 
-class StaffSemesterViewRegressionTest(LiveServerTest):
+class StaffSemesterViewRegressionTest(VisualRegressionTestCase):
 
     @freeze_time("2025-10-27")
     @override_settings(SLOGANS_EN=["Einigermaßen verlässlich aussehende Pixeltestung"])

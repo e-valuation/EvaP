@@ -17,6 +17,7 @@ from django.contrib.auth.models import Group
 from django.contrib.staticfiles.handlers import StaticFilesHandler
 from django.db import DEFAULT_DB_ALIAS, connection, connections
 from django.http.request import HttpRequest, QueryDict
+from django.test import tag
 from django.test.runner import DiscoverRunner
 from django.test.selenium import SeleniumTestCase
 from django.test.utils import CaptureQueriesContext
@@ -301,7 +302,6 @@ class LiveServerTest(SeleniumTestCase):
     browser = "firefox"
     selenium: WebDriver
     headless = True
-    viewport = "1920x4096"
     window_size = (1920, 4096)  # large height to workaround scrolling
     serialized_rollback = True  # SeleniumTestCase is a TransactionTestCase, which drops migration data. This keeps fixture data but may slow down tests, see https://docs.djangoproject.com/en/5.0/topics/testing/overview/#test-case-serialized-rollback
     static_handler = StaticFilesHandler  # see StaticLiveServerTestCase
@@ -309,14 +309,8 @@ class LiveServerTest(SeleniumTestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        with connection.cursor() as cursor:
-            # reset userprofile id sequence to keep test reproducible
-            cursor.execute("ALTER SEQUENCE evaluation_userprofile_id_seq restart")
-
         self.request = self.make_request()
         self.manager = make_manager()
-        # TODO: better "make_manager"?
-        self.manager.groups.add(Group.objects.get(name="Grade publisher"))
         self.selenium.get(self.live_server_url)
         self.login(self.manager)
 
@@ -346,8 +340,47 @@ class LiveServerTest(SeleniumTestCase):
         login(self.request, user, "evap.evaluation.auth.RequestAuthUserBackend")
         self.update_session()
 
+    @contextmanager
+    def enter_staff_mode(self) -> Iterator[None]:
+        self.request.session["staff_mode_start_time"] = time.time()
+        self.update_session()
+        yield
+        del self.request.session["staff_mode_start_time"]
+        self.update_session()
+
+    @property
+    def wait(self) -> WebDriverWait:
+        return WebDriverWait(self.selenium, 10)
+
+    @contextmanager
+    def wait_until_page_reloads(self):
+        html_element = self.selenium.find_element(By.TAG_NAME, "html")
+        yield
+        self.wait.until(staleness_of(html_element))
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+        cls.selenium.set_window_size(*cls.window_size)
+
+
+@tag("vrt")
+class VisualRegressionTestCase(LiveServerTest):
+    window_size = (1920, 1080)
+    _http_timeout_seconds = 3
+
+    def setUp(self) -> None:
+        with connection.cursor() as cursor:
+            # reset userprofile id sequence to keep test reproducible
+            cursor.execute("ALTER SEQUENCE evaluation_userprofile_id_seq restart")
+
+        super().setUp()
+
+    @property
+    def viewport(self):
+        return f"{self.window_size[0]}x{self.window_size[1]}"
+
     def trigger_screenshot(self, name: str):
-        timeout = 10
         full_name = self.__class__.__name__ + "_" + name
 
         config = {
@@ -373,6 +406,7 @@ class LiveServerTest(SeleniumTestCase):
             f'{config.get("apiUrl")}/builds',
             data=json.dumps(data),
             headers=headers,
+            timeout=self._http_timeout_seconds,
         )
 
         registration_response.raise_for_status()
@@ -384,7 +418,7 @@ class LiveServerTest(SeleniumTestCase):
             "ciBuildId": config.get("ciBuildId"),
             "name": full_name,
             "imageBase64": self.selenium.get_screenshot_as_base64(),
-            "viewport": f"{self.window_size[0]}x{self.window_size[1]}",
+            "viewport": self.viewport,
             "buildId": registration_response.json().get("id"),
         }
 
@@ -392,13 +426,15 @@ class LiveServerTest(SeleniumTestCase):
             f'{config.get("apiUrl")}/test-runs',
             data=json.dumps(test_data),
             headers=headers,
+            timeout=self._http_timeout_seconds,
         )
 
         test_response.raise_for_status()
 
+        review_url = test_response.json().get("url", "<url-not-found>")
         switcher = {
-            "new": "No Baseline!",
-            "unresolved": f"Difference found: {test_response.json().get('url', '<url-not-found>')}",
+            "new": f"No Baseline! Review manually: {review_url}",
+            "unresolved": f"Difference found: {review_url}",
         }
 
         error_message = switcher.get(test_response.json().get("status"))
@@ -407,32 +443,10 @@ class LiveServerTest(SeleniumTestCase):
             f'{config.get("apiUrl")}/builds/{test_data.get("buildId")}',
             data={},
             headers=headers,
+            timeout=self._http_timeout_seconds,
         ).raise_for_status()
 
         self.assertFalse(error_message)
-
-    @contextmanager
-    def enter_staff_mode(self) -> Iterator[None]:
-        self.request.session["staff_mode_start_time"] = time.time()
-        self.update_session()
-        yield
-        del self.request.session["staff_mode_start_time"]
-        self.update_session()
-
-    @property
-    def wait(self) -> WebDriverWait:
-        return WebDriverWait(self.selenium, 10)
-
-    @contextmanager
-    def wait_until_page_reloads(self):
-        html_element = self.selenium.find_element(By.TAG_NAME, "html")
-        yield
-        self.wait.until(staleness_of(html_element))
-
-    @classmethod
-    def setUpClass(cls) -> None:
-        super().setUpClass()
-        cls.selenium.set_window_size(*cls.window_size)
 
 
 def classes_of_element(element: WebElement) -> list[str]:
