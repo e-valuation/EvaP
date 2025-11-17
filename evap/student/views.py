@@ -252,7 +252,7 @@ def render_vote_page(
     dropout: bool,
     for_rendering_in_modal: bool = False,
 ) -> HttpResponse:
-    if(evaluation.main_language == evaluation.UNDECIDED_MAIN_LANGUAGE):
+    if evaluation.main_language == evaluation.UNDECIDED_MAIN_LANGUAGE:
         evaluation.main_language = "en"
     language = request.GET.get("language", evaluation.main_language)
     with translation.override(language):
