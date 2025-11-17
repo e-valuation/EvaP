@@ -112,11 +112,11 @@ class LogEntry(models.Model):
     def field_context_data(self):
         model = self.content_type.model_class()
         model_field_names = {f.name for f in model._meta.get_fields()}
-        context_data = {}
-        for field_name, actions in self.data.items():
-            if field_name in model_field_names:
-                context_data[field_name] = list(_field_actions_for_field(model._meta.get_field(field_name), actions))
-        return context_data
+        return {
+            field_name: list(_field_actions_for_field(model._meta.get_field(field_name), actions))
+            for field_name, actions in self.data.items()
+            if field_name in model_field_names
+        }
 
     @property
     def message(self):
