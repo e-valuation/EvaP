@@ -163,7 +163,7 @@ $alert-colors: (
     height: fit-content;
 }
 
-@media (max-width: 575.98px) {
+@include media-breakpoint-down(sm) {
     .flex-column-mobile {
         flex-direction: column;
     }
