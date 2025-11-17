@@ -280,7 +280,10 @@
                                         type="button"
                                         class="btn btn-sm btn-light{% if rewards_active %} active{% endif %}"
                                     >
-                                        <span class="fas fa-check" aria-hidden="true"></span>
+                                        <span
+                                            class="fas fa-check"
+                                            aria-hidden="true"
+                                        ></span>
                                     </button>
                                 </confirmation-modal>
 
@@ -291,7 +294,10 @@
                                     form="form_activation_status"
                                     class="btn btn-sm btn-light{% if not rewards_active %} active{% endif %}"
                                 >
-                                    <span class="fas fa-xmark" aria-hidden="true"></span>
+                                    <span
+                                        class="fas fa-xmark"
+                                        aria-hidden="true"
+                                    ></span>
                                 </button>
                             </div>
                         </div>
@@ -450,7 +456,8 @@
                                     <button
                                         type="button"
                                         class="btn btn-sm btn-light"
-                                        data-filter="{{ approval_state }}"
+                                        data-filter-category="evaluation_state"
+                                        data-filter-value="{{ approval_state }}"
                                         data-bs-toggle="tooltip"
                                         data-bs-placement="top"
                                         data-container=".btn-switch"
@@ -465,7 +472,8 @@
                             <button
                                 type="button"
                                 class="btn btn-sm btn-light"
-                                data-filter="evaluation_not_yet_started"
+                                data-filter-category="evaluation_state"
+                                data-filter-value="evaluation_not_yet_started"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top"
                                 data-container=".btn-switch"
@@ -476,7 +484,8 @@
                             <button
                                 type="button"
                                 class="btn btn-sm btn-light"
-                                data-filter="in_evaluation"
+                                data-filter-category="evaluation_state"
+                                data-filter-value="in_evaluation"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top"
                                 data-container=".btn-switch"
@@ -487,7 +496,8 @@
                             <button
                                 type="button"
                                 class="btn btn-sm btn-light"
-                                data-filter="evaluated"
+                                data-filter-category="evaluation_state"
+                                data-filter-value="evaluated"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top"
                                 data-container=".btn-switch"
@@ -500,7 +510,8 @@
                             <button
                                 type="button"
                                 class="btn btn-sm btn-light"
-                                data-filter="no_review"
+                                data-filter-category="evaluation_state"
+                                data-filter-value="no_review"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top"
                                 data-container=".btn-switch"
@@ -511,7 +522,8 @@
                             <button
                                 type="button"
                                 class="btn btn-sm btn-light"
-                                data-filter="unreviewed_textanswers"
+                                data-filter-category="evaluation_state"
+                                data-filter-value="unreviewed_textanswers"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top"
                                 data-container=".btn-switch"
@@ -522,7 +534,8 @@
                             <button
                                 type="button"
                                 class="btn btn-sm btn-light"
-                                data-filter="unreviewed_textanswers_urgent"
+                                data-filter-category="evaluation_state"
+                                data-filter-value="unreviewed_textanswers_urgent"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top"
                                 data-container=".btn-switch"
@@ -533,7 +546,8 @@
                             <button
                                 type="button"
                                 class="btn btn-sm btn-light"
-                                data-filter="textanswers_reviewed"
+                                data-filter-category="evaluation_state"
+                                data-filter-value="textanswers_reviewed"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top"
                                 data-container=".btn-switch"
@@ -546,7 +560,8 @@
                             <button
                                 type="button"
                                 class="btn btn-sm btn-light"
-                                data-filter="evaluation_not_finished"
+                                data-filter-category="evaluation_state"
+                                data-filter-value="evaluation_not_finished"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top"
                                 data-container=".btn-switch"
@@ -557,7 +572,8 @@
                             <button
                                 type="button"
                                 class="btn btn-sm btn-light"
-                                data-filter="results_not_yet_published"
+                                data-filter-category="evaluation_state"
+                                data-filter-value="results_not_yet_published"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top"
                                 data-container=".btn-switch"
@@ -568,7 +584,8 @@
                             <button
                                 type="button"
                                 class="btn btn-sm btn-light"
-                                data-filter="results_not_published"
+                                data-filter-category="evaluation_state"
+                                data-filter-value="results_not_published"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top"
                                 data-container=".btn-switch"
@@ -579,7 +596,8 @@
                             <button
                                 type="button"
                                 class="btn btn-sm btn-light"
-                                data-filter="results_published"
+                                data-filter-category="evaluation_state"
+                                data-filter-value="results_published"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top"
                                 data-container=".btn-switch"
@@ -613,7 +631,8 @@
                 </form>
 
                 <script type="module">
-                    import { fadeOutThenRemove } from "{% static 'js/utils.js' %}";
+                    import {fadeOutThenRemove} from "{% static 'js/utils.js' %}";
+
                     document.getElementById("evaluation-deletion-form").addEventListener("submit-success", event => {
                         fadeOutThenRemove(document.getElementById(`evaluation-row-${event.detail.body.get("evaluation_id")}`))
                     });
@@ -625,44 +644,34 @@
                     method="GET"
                     action="{% url 'staff:evaluation_operation' semester.pk %}"
                 >
-                    <table id="evaluation-table" class="table table-striped table-narrow table-vertically-aligned">
-                        <colgroup>
-                            <col style="width: 2.75em" />
-                            <col style="width: 1.25em" />
-                            <col style="width: 1.25em" />
-                            <col style="width: 1.25em" />
-                            <col style="width: 1.25em" />
-                            <col />
-                            <col style="width: 12.25em" />
-                            <col style="width: 12em" />
-                            <col style="width: 8.5em" />
-                        </colgroup>
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th class="col-order" data-col="state-approval"></th>
-                                <th class="col-order" data-col="state-evaluating"></th>
-                                <th class="col-order" data-col="state-textanswers"></th>
-                                <th class="col-order" data-col="state-results"></th>
-                                <th class="col-order" data-col="name">{% translate 'Name' %}</th>
-                                <th class="col-order" data-col="period">{% translate 'Evaluation period' %}</th>
-                                <th data-not-searchable></th>
-                                <th data-not-searchable></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for evaluation in evaluations %}
-                                <tr id="evaluation-row-{{ evaluation.id }}">
-                                    {% include 'staff_semester_view_evaluation.html' with semester=semester evaluation=evaluation info_only=False %}
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                        <tfoot>
-                            <tr class="empty-disclaimer">
-                                <td colspan="999">{% translate 'No matching evaluations found.' %}</td>
-                            </tr>
-                        </tfoot>
-                    </table>
+                    <div
+                        id="evaluation-grid"
+                        class="gridTable"
+                        style="grid-template-columns: 2.75em repeat(4, 1.25em) auto 12.25em 12em 8.5em"
+                    >
+                        <div class="gridHeader gridRow">
+                            <span class="gridCell" data-not-searchable></span>
+                            <span class="gridCell col-order" data-col="state-approval"></span>
+                            <span class="gridCell col-order" data-col="state-evaluating"></span>
+                            <span class="gridCell col-order" data-col="state-textanswers"></span>
+                            <span class="gridCell col-order" data-col="state-results"></span>
+                            <span class="gridCell col-order" data-col="name">{% translate 'Name' %}</span>
+                            <span
+                                class="gridCell col-order"
+                                data-col="period"
+                            >{% translate 'Evaluation period' %}</span>
+                            <span class="gridCell" data-not-searchable></span>
+                            <span class="gridCell" data-not-searchable></span>
+                        </div>
+                        {% for evaluation in evaluations %}
+                            <div id="evaluation-row-{{ evaluation.id }}" class="gridRow">
+                                {% include 'staff_semester_view_evaluation.html' with semester=semester evaluation=evaluation info_only=False %}
+                            </div>
+                        {% endfor %}
+                        <span class="empty-disclaimer" style="grid-column: span 9">
+                            {% translate 'No matching evaluations found.' %}
+                        </span>
+                    </div>
 
                     {% if request.user.is_manager and not semester.participations_are_archived %}
                         <div class="my-2">
@@ -777,118 +786,124 @@
                     {% csrf_token %}
                 </form>
                 <script type="module">
-                    import { fadeOutThenRemove } from "{% static 'js/utils.js' %}";
+                    import {fadeOutThenRemove} from "{% static 'js/utils.js' %}";
 
                     document.getElementById("course-deletion-form").addEventListener("submit-success", event => {
                         fadeOutThenRemove(document.querySelector(`#course-row-${event.detail.body.get("course_id")}`));
                     });
                 </script>
 
-                <table id="course-table" class="table table-striped table-narrow table-vertically-aligned">
-                    <colgroup>
-                        <col />
-                        <col style="width: 14em" />
-                        <col style="width: 10em" />
-                        <col style="width: 10em" />
-                        <col style="width: 9em" />
-                    </colgroup>
-                    <thead>
-                        <tr>
-                            <th class="col-order" data-col="name">{% translate 'Course' %}</th>
-                            <th class="col-order" data-col="responsible">{% translate 'Responsible' %}</th>
-                            <th class="col-order" data-col="evaluation-count">{% translate '#Evaluations' %}</th>
-                            <th class="col-order" data-col="ignored-evaluation-count">
-                                {% translate '#Ignored evaluations' %}
-                            </th>
-                            <th data-not-searchable></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for course in courses %}
-                            <tr id="course-row-{{ course.id }}">
-                                <td data-col="name" data-order="{{ course.name|lower }}">
-                                    <div>
-                                        <a href="{% url 'staff:course_edit' course.id %}">{{ course.name }}</a>
-                                        {% include 'cms_course_link_icons.html' %}
-                                    </div>
+                <div id="course-grid" class="gridTable" style="grid-template-columns: auto 14em 10em 10em 9em">
+                    <div class="gridHeader gridRow">
+                        <span class="gridCell col-order" data-col="name">{% translate 'Course' %}</span>
+                        <span class="gridCell col-order" data-col="responsible">{% translate 'Responsible' %}</span>
+                        <span
+                            class="gridCell col-order"
+                            data-col="evaluation-count"
+                        >{% translate '#Evaluations' %}</span>
+                        <span
+                            class="gridCell col-order"
+                            data-col="ignored-evaluation-count"
+                        >{% translate '#Ignored evaluations' %}</span>
+                        <span class="gridCell" data-not-searchable></span>
+                    </div>
+                    {% for course in courses %}
+                        <div id="course-row-{{ course.id }}" class="gridRow">
+                            <div
+                                class="gridCell d-flex flex-column align-items-start gap-1"
+                                data-col="name"
+                                data-order="{{ course.name|lower }}"
+                            >
+                                <div>
+                                    <a href="{% url 'staff:course_edit' course.id %}">{{ course.name }}</a>
+                                    {% include 'cms_course_link_icons.html' %}
+                                </div>
+                                <div class="d-flex flex-row gap-1">
                                     {% include 'course_badges.html' %}
-                                </td>
-                                <td data-col="responsible" data-order="{{ course.responsibles.first.last_name|lower }}">
-                                    <div class="fst-italic">
-                                        {{ course.responsibles_names }}
-                                    </div>
-                                </td>
-                                <td data-col="evaluation-count" data-order="{{ course.evaluations.count }}">
-                                    {% if course.evaluations.count == 0 %}
-                                        <span class="badge bg-warning">{% translate 'No evaluations' %}</span>
-                                    {% else %}
-                                        {{ course.evaluations.count }}
-                                    {% endif %}
-                                </td>
-                                <td
-                                    data-col="ignored-evaluation-count"
-                                    data-order="{{ course.ignored_evaluations.count }}"
-                                >
-                                    {{ course.ignored_evaluations.count }}
-                                </td>
-                                <td class="icon-buttons">
-                                    {% if request.user.is_manager %}
-                                        <a
-                                            class="btn btn-sm btn-dark"
-                                            data-bs-toggle="tooltip"
-                                            href="{% url 'staff:evaluation_create_for_course' course.id %}"
-                                            title="{% translate 'Create evaluation for this course' %}"
-                                        >
-                                            <span class="fas fa-clipboard-check"></span>
-                                        </a>
-                                        <a
-                                            class="btn btn-sm btn-dark"
-                                            data-bs-toggle="tooltip"
-                                            href="{% url 'staff:course_copy' course.id %}"
-                                            title="{% translate 'Copy course' %}"
-                                        >
-                                            <span class="fas fa-copy"></span>
-                                        </a>
-                                    {% endif %}
-                                    {% if course.can_be_deleted_by_manager %}
-                                        <confirmation-modal
-                                            type="submit"
-                                            form="course-deletion-form"
-                                            name="course_id"
-                                            value="{{ course.id }}"
-                                            confirm-button-class="btn-danger"
-                                        >
-                                            <span slot="title">{% translate 'Delete course' %}</span>
-                                            <span slot="action-text">{% translate 'Delete course' %}</span>
-                                            <span slot="question">
-                                                {% blocktranslate trimmed with course_name=course.name %}
-                                                    Do you really want to delete the course
-                                                    <strong>{{ course_name }}</strong>?
-                                                {% endblocktranslate %}
-                                            </span>
+                                </div>
+                            </div>
+                            <div
+                                class="gridCell justify-content-start"
+                                data-col="responsible"
+                                data-order="{{ course.responsibles.first.last_name|lower }}"
+                            >
+                                <div class="fst-italic">
+                                    {{ course.responsibles_names }}
+                                </div>
+                            </div>
+                            <div
+                                class="gridCell"
+                                data-col="evaluation-count"
+                                data-order="{{ course.evaluations.count }}"
+                            >
+                                {% if course.evaluations.count == 0 %}
+                                    <span class="badge bg-warning">{% translate 'No evaluations' %}</span>
+                                {% else %}
+                                    {{ course.evaluations.count }}
+                                {% endif %}
+                            </div>
+                            <div
+                                class="gridCell"
+                                data-col="ignored-evaluation-count"
+                                data-order="{{ course.ignored_evaluations.count }}"
+                            >
+                                {{ course.ignored_evaluations.count }}
+                            </div>
+                            <div class="gridCell icon-buttons gap-1">
+                                {% if request.user.is_manager %}
+                                    <a
+                                        class="btn btn-sm btn-dark"
+                                        data-bs-toggle="tooltip"
+                                        href="{% url 'staff:evaluation_create_for_course' course.id %}"
+                                        title="{% translate 'Create evaluation for this course' %}"
+                                    >
+                                        <span class="fas fa-clipboard-check"></span>
+                                    </a>
+                                    <a
+                                        class="btn btn-sm btn-dark"
+                                        data-bs-toggle="tooltip"
+                                        href="{% url 'staff:course_copy' course.id %}"
+                                        title="{% translate 'Copy course' %}"
+                                    >
+                                        <span class="fas fa-copy"></span>
+                                    </a>
+                                {% endif %}
+                                {% if course.can_be_deleted_by_manager %}
+                                    <confirmation-modal
+                                        type="submit"
+                                        form="course-deletion-form"
+                                        name="course_id"
+                                        value="{{ course.id }}"
+                                        confirm-button-class="btn-danger"
+                                    >
+                                        <span slot="title">{% translate 'Delete course' %}</span>
+                                        <span slot="action-text">{% translate 'Delete course' %}</span>
+                                        <span slot="question">
+                                            {% blocktranslate trimmed with course_name=course.name %}
+                                                Do you really want to delete the course
+                                                <strong>{{ course_name }}</strong>?
+                                            {% endblocktranslate %}
+                                        </span>
 
-                                            <button
-                                                slot="show-button"
-                                                type="button"
-                                                class="btn btn-sm btn-outline-danger"
-                                                data-bs-toggle="tooltip"
-                                                data-bs-placement="top"
-                                                title="{% translate 'Delete' %}"
-                                            >
-                                                <span class="fas fa-trash" aria-hidden="true"></span>
-                                            </button>
-                                        </confirmation-modal>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                    <tfoot>
-                        <tr class="empty-disclaimer">
-                            <td colspan="999">{% translate 'No matching courses found.' %}</td>
-                        </tr>
-                    </tfoot>
-                </table>
+                                        <button
+                                            slot="show-button"
+                                            type="button"
+                                            class="btn btn-sm btn-outline-danger"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="{% translate 'Delete' %}"
+                                        >
+                                            <span class="fas fa-trash" aria-hidden="true"></span>
+                                        </button>
+                                    </confirmation-modal>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <span class="empty-disclaimer" style="grid-column: span 5">
+                        {% translate 'No matching courses found.' %}
+                    </span>
+                </div>
             </div>
         </div>
     </div>
@@ -905,9 +920,10 @@
             var state = localStorage['show_overview'] === 'true';
             localStorage['show_overview'] = (!state).toString();
         }
+
         document.getElementById("collapseOverviewCardButton").addEventListener("click", saveCollapseState);
 
-        if(localStorage['selected_tab'] === 'courses') {
+        if (localStorage['selected_tab'] === 'courses') {
             var coursesTab = document.getElementById('coursesTab');
             var coursesTabTrigger = new bootstrap.Tab(coursesTab);
             coursesTabTrigger.show();
@@ -916,39 +932,50 @@
         function saveSelectedTab(tab) {
             localStorage['selected_tab'] = tab;
         }
+
         document.getElementById("evaluationsTab").addEventListener("click", () => saveSelectedTab("evaluations"));
         document.getElementById("coursesTab").addEventListener("click", () => saveSelectedTab("courses"));
 
         window.addEventListener("pageshow", () => {
-            document.querySelectorAll('#evaluation_operation_form input[type=checkbox]').forEach(checkbox => {checkbox.checked = false;}); // prevent wrong autofills
+            document.querySelectorAll('#evaluation_operation_form input[type=checkbox]').forEach(checkbox => {
+                checkbox.checked = false;
+            }); // prevent wrong autofills
         });
 
         document.getElementById("selectAllButton").addEventListener("click", () =>
-            document.querySelectorAll('#evaluation_operation_form input[type=checkbox][name=evaluation]').forEach(c => {c.checked = true;}));
+            document.querySelectorAll('#evaluation_operation_form input[type=checkbox][name=evaluation]').forEach(c => {
+                c.checked = true;
+            }));
 
         document.getElementById("selectNoneButton").addEventListener("click", () =>
-            document.querySelectorAll('#evaluation_operation_form input[type=checkbox][name=evaluation]').forEach(c => {c.checked = false;}));
+            document.querySelectorAll('#evaluation_operation_form input[type=checkbox][name=evaluation]').forEach(c => {
+                c.checked = false;
+            }));
     </script>
     <script type="module">
-        import {EvaluationGrid, TableGrid} from "{% static 'js/datagrid.js' %}";
-        const evaluationTable = document.querySelector("#evaluation-table");
-        if (evaluationTable) {
-            new EvaluationGrid({
-                storageKey: "evaluation-semester-{{ semester.id }}-data-grid",
-                table: evaluationTable,
-                searchInput: document.querySelector("input[name=search-evaluation]"),
-                filterButtons: [...document.querySelectorAll("#evaluation-filter-buttons [data-filter]")],
-                resetSearch: document.querySelector("[data-reset=search-evaluation]"),
-            }).init();
+        import {DataGrid} from "{% static 'js/datagrid.js' %}";
+
+        const evaluationGrid = document.querySelector("#evaluation-grid");
+        if (evaluationGrid) {
+            DataGrid.fromCSSGridTable(
+                {
+                    storageKey: "evaluation-semester-{{ semester.id }}-data-grid",
+                    gridContainer: evaluationGrid,
+                    searchInput: document.querySelector("input[name=search-evaluation]"),
+                    resetSearch: document.querySelector("[data-reset=search-evaluation]"),
+                    filterButtons: [...document.querySelectorAll('#evaluation-filter-buttons [data-filter-value]')],
+                    defaultOrder: [["name", "asc"]]
+                });
         }
-        const courseTable = document.querySelector("#course-table");
-        if (courseTable) {
-            new TableGrid({
+        const courseGrid = document.querySelector("#course-grid");
+        if (courseGrid) {
+            DataGrid.fromCSSGridTable({
                 storageKey: "course-semester-{{ semester.id }}-data-grid",
-                table: courseTable,
+                gridContainer: courseGrid,
                 searchInput: document.querySelector("input[name=search-course]"),
                 resetSearch: document.querySelector("[data-reset=search-course]"),
-            }).init();
+                filterButtons: []
+            })
         }
     </script>
 {% endblock %}
