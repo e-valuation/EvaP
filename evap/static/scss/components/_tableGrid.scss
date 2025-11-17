@@ -1,0 +1,55 @@
+@import "../../bootstrap/scss/functions";
+
+.gridTable {
+    display: grid;
+    //grid-template-columns: 35fr 20fr 10fr 10fr 10fr 15fr;
+    grid-template-columns: max-content auto 1fr 1fr 1fr 2fr;
+
+
+
+    & > .gridRow {
+        display: contents;
+
+        & > .gridCell {
+            padding: 0.5rem 0.3rem 0.5rem 0.3rem;
+            border: 0 solid $table-border-color;
+            border-bottom-width: 1px;
+
+            // margin or gap on gridcells breaks the striped row-background
+            margin: 0 !important;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        &:nth-child(even) > .gridCell {
+            background-color: $table-striped-bg;
+        }
+
+        &.clickable {
+            cursor: pointer;
+
+            &:hover > .gridCell {
+                background-color: shade-color($table-striped-bg, 10%) ;
+            }
+        }
+    }
+
+    & > .gridHeader {
+        display: contents;
+
+        & > .gridCell {
+            font-weight: bold;
+            align-content: end;
+
+            &.col-order {
+                display: flex ;
+                align-items: flex-end;
+                justify-content: start;
+            }
+        }
+
+    }
+
+}
