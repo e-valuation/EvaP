@@ -319,6 +319,7 @@ class TestImportEvents(TestCase):
         importer.import_json(data)
         return importer
 
+    @override_settings(EXAM_EVALUATION_DEFAULT_DURATION=timedelta(days=3))
     def test_import_courses(self):
         importer = self._import()
 
@@ -366,7 +367,7 @@ class TestImportEvents(TestCase):
         self.assertEqual(exam_evaluation.name_en, "Exam")
         # [{"begin": "29.07.2024 10:15", "end": "29.07.2024 11:45"}]
         self.assertEqual(exam_evaluation.vote_start_datetime, datetime(2024, 7, 30, 8, 0))
-        self.assertEqual(exam_evaluation.vote_end_date, date(2024, 7, 29) + settings.EXAM_EVALUATION_DEFAULT_DURATION)
+        self.assertEqual(exam_evaluation.vote_end_date, date(2024, 8, 1))
         self.assertEqual(
             set(exam_evaluation.participants.values_list("email", flat=True)),
             {"1@example.com", "2@example.com"},
