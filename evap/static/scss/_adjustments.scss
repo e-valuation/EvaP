@@ -168,3 +168,8 @@ $alert-colors: (
         flex-direction: column;
     }
 }
+
+// Hide the x in input fields on chrome
+input[type="search"]::-webkit-search-cancel-button {
+	-webkit-appearance: none;
+}
