@@ -158,3 +158,13 @@ $alert-colors: (
         margin-left: unset;
     }
 }
+
+.height-fit-content {
+    height: fit-content;
+}
+
+@media (max-width: 575.98px) {
+    .flex-column-mobile {
+        flex-direction: column;
+    }
+}
