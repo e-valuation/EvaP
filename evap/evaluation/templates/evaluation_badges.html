@@ -1,13 +1,21 @@
 {% if not mode == 'student' and not mode == 'subentry' %}
     {% for program in evaluation.course.programs.all %}
-        <span class="badge bg-primary badge-program">{{ program }}</span>
+        <span
+            data-filter-category="program"
+            data-filter-value="{{ program }}"
+            class="badge bg-primary badge-program"
+        >{{ program }}</span>
     {% endfor %}
 {% endif %}
 {% if not mode == 'subentry' %}
     {% if evaluation.exam_type %}
         <span class="badge bg-light badge-exam-type">{{ evaluation.exam_type }}</span>
     {% else %}
-        <span class="badge bg-secondary badge-course-type">{{ evaluation.course.type }}</span>
+        <span
+            data-filter-category="courseType"
+            data-filter-value="{{ evaluation.course.type }}"
+            class="badge bg-secondary badge-course-type"
+        >{{ evaluation.course.type }}</span>
     {% endif %}
 {% endif %}
 {% if evaluation.is_midterm_evaluation %}

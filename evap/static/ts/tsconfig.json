@@ -1,12 +1,13 @@
 {
     "compilerOptions": {
         "target": "es2019",
+        "lib": ["ESNext", "DOM"],
         "strict": true,
         "esModuleInterop": true,
         "moduleResolution": "bundler",
         "paths": {
           "src/*": ["./src/*"]
-        },
+        }
     },
     "include": ["**/*.ts", "eslint.config.js"]
 }

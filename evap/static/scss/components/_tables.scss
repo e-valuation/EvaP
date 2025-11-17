@@ -137,6 +137,7 @@ td p {
 }
 
 table:has(tbody *) .empty-disclaimer,
+.gridTable:has(.gridRow:not(.gridHeader)) .empty-disclaimer,
 #results-grid:has(*) + .empty-disclaimer {
     display: none;
 }
