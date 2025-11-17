@@ -1,11 +1,12 @@
 import json
 import os
 from copy import deepcopy
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from io import StringIO
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
+from django.conf import settings
 from django.core import mail
 from django.core.management import CommandError, call_command
 from django.test import TestCase, override_settings
@@ -399,6 +400,7 @@ class TestImportEvents(TestCase):
         importer.import_json(data)
         return importer
 
+    @override_settings(EXAM_EVALUATION_DEFAULT_DURATION=timedelta(days=3))
     def test_import_courses(self):
         importer = self._import()
 
@@ -607,8 +609,8 @@ class TestImportEvents(TestCase):
         )
 
         # use weights
-        self.assertEqual(evaluation_everything.weight, 9)
-        self.assertEqual(evaluation_life.weight, 1)
+        self.assertEqual(evaluation_everything.weight, settings.MAIN_EVALUATION_DEFAULT_WEIGHT)
+        self.assertEqual(evaluation_life.weight, settings.EXAM_EVALUATION_DEFAULT_WEIGHT)
 
     def test_import_ignore_non_responsible_users(self):
         with override_settings(NON_RESPONSIBLE_USERS=["4@example.com", "ignored.lecturer2@example.com"]):
