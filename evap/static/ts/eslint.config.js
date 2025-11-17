@@ -25,6 +25,7 @@ export default tseslint.config(
             "@typescript-eslint/no-confusing-void-expression": ["error", { ignoreArrowShorthand: true }],
             "no-else-return": "error",
             "arrow-body-style": ["error", "as-needed"],
+            "curly": ["error"],
             "@typescript-eslint/no-unused-vars": [
                 "warn",
                 {
