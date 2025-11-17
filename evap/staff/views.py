@@ -1827,6 +1827,7 @@ def questionnaire_index(request):
 
 @manager_required
 def questionnaire_view(request, questionnaire_id):
+    language = request.GET.get("language", request.user.language)
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
 
     # build forms
@@ -1837,6 +1838,7 @@ def questionnaire_view(request, questionnaire_id):
         "forms": [form],
         "questionnaire": questionnaire,
         "languages": settings.LANGUAGES,
+        "evaluation_language": language,
     })
 
 
