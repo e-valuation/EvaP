@@ -315,6 +315,8 @@ class LiveServerTest(SeleniumTestCase):
 
         self.request = self.make_request()
         self.manager = make_manager()
+        # TODO: better "make_manager"?
+        self.manager.groups.add(Group.objects.get(name="Grade publisher"))
         self.selenium.get(self.live_server_url)
         self.login(self.manager)
 
