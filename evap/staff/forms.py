@@ -841,7 +841,7 @@ class ContributionCopyFormset(ContributionFormset):
         super().save(commit)
 
 
-class QuestionDetailsForm(forms.ModelForm):
+class QuestionForm(forms.ModelForm):
 
     class Meta:
         model = Question
@@ -897,7 +897,7 @@ class QuestionDetailsForm(forms.ModelForm):
         return self.cleaned_data
 
 
-class QuestionForm(forms.ModelForm):
+class QuestionAssignmentForm(forms.ModelForm):
     question = forms.ModelChoiceField(Question.objects.all(), widget=forms.HiddenInput(), required=False)
 
     class Meta:
@@ -911,9 +911,9 @@ class QuestionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if hasattr(self.instance, "question"):
             kwargs.pop("instance")
-            self.question_form = QuestionDetailsForm(*args, instance=self.instance.question, **kwargs)
+            self.question_form = QuestionForm(*args, instance=self.instance.question, **kwargs)
         else:
-            self.question_form = QuestionDetailsForm(*args, **kwargs)
+            self.question_form = QuestionForm(*args, **kwargs)
 
     def clean(self) -> None:
         super().clean()

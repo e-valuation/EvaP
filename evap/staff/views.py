@@ -100,7 +100,7 @@ from evap.staff.forms import (
     ModelWithImportNamesFormset,
     ProgramForm,
     ProgramMergeSelectionForm,
-    QuestionForm,
+    QuestionAssignmentForm,
     QuestionnaireForm,
     QuestionnairesAssignForm,
     RemindResponsibleForm,
@@ -1839,17 +1839,17 @@ def questionnaire_view(request, questionnaire_id):
 @manager_required
 def questionnaire_create(request):
     questionnaire = Questionnaire()
-    InlineQuestionFormset = inlineformset_factory(
+    InlineQuestionAssignmentFormset = inlineformset_factory(
         Questionnaire,
         QuestionAssignment,
         formset=AtLeastOneFormset,
-        form=QuestionForm,
+        form=QuestionAssignmentForm,
         extra=1,
         exclude=("questionnaire",),
     )
 
     form = QuestionnaireForm(request.POST or None, instance=questionnaire)
-    formset = InlineQuestionFormset(request.POST or None, instance=questionnaire)
+    formset = InlineQuestionAssignmentFormset(request.POST or None, instance=questionnaire)
 
     if form.is_valid() and formset.is_valid():
         form.save(force_highest_order=True)
@@ -1881,17 +1881,17 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
             "min_num": question_count,
             "max_num": question_count,
         }
-    InlineQuestionFormset = inlineformset_factory(
+    InlineQuestionAssignmentFormset = inlineformset_factory(
         Questionnaire,
         QuestionAssignment,
         formset=AtLeastOneFormset,
-        form=QuestionForm,
+        form=QuestionAssignmentForm,
         exclude=("questionnaire",),
         **formset_kwargs,
     )
 
     form = QuestionnaireForm(request.POST or None, instance=questionnaire)
-    formset = InlineQuestionFormset(request.POST or None, instance=questionnaire)
+    formset = InlineQuestionAssignmentFormset(request.POST or None, instance=questionnaire)
 
     if not editable:
         disable_all_except_named(
@@ -1934,17 +1934,19 @@ def get_identical_form_and_formset(questionnaire):
     Generates a Questionnaire creation form and formset filled out like the already exisiting Questionnaire
     specified in questionnaire_id. Used for copying and creating of new versions.
     """
-    inline_question_formset = inlineformset_factory(
+    InlineQuestionAssignmentFormset = inlineformset_factory(
         Questionnaire,
         QuestionAssignment,
         formset=AtLeastOneFormset,
-        form=QuestionForm,
+        form=QuestionAssignmentForm,
         extra=1,
         exclude=("questionnaire",),
     )
 
     form = QuestionnaireForm(instance=questionnaire)
-    return form, inline_question_formset(instance=questionnaire, queryset=questionnaire.question_assignments.all())
+    return form, InlineQuestionAssignmentFormset(
+        instance=questionnaire, queryset=questionnaire.question_assignments.all()
+    )
 
 
 @manager_required
@@ -1953,17 +1955,17 @@ def questionnaire_copy(request, questionnaire_id):
 
     if request.method == "POST":
         questionnaire = Questionnaire()
-        InlineQuestionFormset = inlineformset_factory(
+        InlineQuestionAssignmentFormset = inlineformset_factory(
             Questionnaire,
             QuestionAssignment,
             formset=AtLeastOneFormset,
-            form=QuestionForm,
+            form=QuestionAssignmentForm,
             extra=1,
             exclude=("questionnaire",),
         )
 
         form = QuestionnaireForm(request.POST, instance=questionnaire)
-        formset = InlineQuestionFormset(request.POST.copy(), instance=questionnaire, save_as_new=True)
+        formset = InlineQuestionAssignmentFormset(request.POST.copy(), instance=questionnaire, save_as_new=True)
 
         if form.is_valid() and formset.is_valid():
             form.save()
@@ -1993,17 +1995,17 @@ def questionnaire_new_version(request, questionnaire_id):
 
     if request.method == "POST":
         questionnaire = Questionnaire()
-        InlineQuestionFormset = inlineformset_factory(
+        InlineQuestionAssignmentFormset = inlineformset_factory(
             Questionnaire,
             QuestionAssignment,
             formset=AtLeastOneFormset,
-            form=QuestionForm,
+            form=QuestionAssignmentForm,
             extra=1,
             exclude=("questionnaire",),
         )
 
         form = QuestionnaireForm(request.POST, instance=questionnaire)
-        formset = InlineQuestionFormset(request.POST.copy(), instance=questionnaire, save_as_new=True)
+        formset = InlineQuestionAssignmentFormset(request.POST.copy(), instance=questionnaire, save_as_new=True)
 
         try:
             with transaction.atomic():
