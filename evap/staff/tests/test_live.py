@@ -212,11 +212,10 @@ class QuestionnaireEditLiveTest(LiveServerTest, TomselectMixin):
 
         self.assertNotEqual(row["question"].get_property("value"), str(new_question.pk))
 
-        with self.enter_staff_mode():
-            self.select_tomselect_option(row["text_de"], new_question.text_de)
-            self.wait.until(
-                text_to_be_present_in_element_value((By.ID, "id_question_assignments-0-question"), str(new_question.pk))
-            )
+        self.select_tomselect_option(row["text_de"], new_question.text_de)
+        self.wait.until(
+            text_to_be_present_in_element_value((By.ID, "id_question_assignments-0-question"), str(new_question.pk))
+        )
         self.assertEqual(self.input_from_tomselect(row["text_de"]).text, new_question.text_de)
         self.assertEqual(
             row["allows_additional_textanswers"].get_property("checked"), new_question.allows_additional_textanswers
