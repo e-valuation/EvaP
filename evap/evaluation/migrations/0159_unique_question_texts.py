@@ -34,7 +34,6 @@ def check_consistent_question_texts(apps, _schema_editor) -> None:
 
 
 class Migration(migrations.Migration):
-    """May require manual intervention. Use `check_consistent_question_texts` tool to find inconsistencies."""
 
     dependencies = [
         ("evaluation", "0158_unified_questions_from_tmp_relation"),
