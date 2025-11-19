@@ -32,6 +32,7 @@ from django.forms.models import inlineformset_factory, modelformset_factory
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
+from django.utils import translation
 from django.utils.html import format_html
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
@@ -1827,13 +1828,24 @@ def questionnaire_index(request):
 
 @manager_required
 def questionnaire_view(request, questionnaire_id):
+    language = request.GET.get("language", request.user.language)
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
 
     # build forms
     contribution = Contribution(contributor=request.user)
-    form = QuestionnaireVotingForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
+    with translation.override(language):
+        form = QuestionnaireVotingForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
 
-    return render(request, "staff_questionnaire_view.html", {"forms": [form], "questionnaire": questionnaire})
+    return render(
+        request,
+        "staff_questionnaire_view.html",
+        {
+            "forms": [form],
+            "questionnaire": questionnaire,
+            "languages": settings.LANGUAGES,
+            "evaluation_language": language,
+        },
+    )
 
 
 @manager_required
