@@ -51,6 +51,7 @@ class InstanceActionType(str, Enum):
     CREATE = "create"
     CHANGE = "change"
     DELETE = "delete"
+    SEND_EMAIL = "send_email"
 
 
 class LogJSONEncoder(JSONEncoder):
@@ -110,9 +111,11 @@ class LogEntry(models.Model):
     @property
     def field_context_data(self):
         model = self.content_type.model_class()
+        model_field_names = {f.name for f in model._meta.get_fields()}
         return {
             field_name: list(_field_actions_for_field(model._meta.get_field(field_name), actions))
             for field_name, actions in self.data.items()
+            if field_name in model_field_names
         }
 
     @property
@@ -130,12 +133,19 @@ class LogEntry(models.Model):
                     message = _("A {cls} was created.")
             case InstanceActionType.DELETE:
                 message = _("A {cls} was deleted.")
+            case InstanceActionType.SEND_EMAIL:
+                if self.content_object:
+                    message = _("An email of the template {templ} for the {cls} {obj} was sent to {usr}.")
+                else:
+                    message = _("An email for a {cls} was sent.")
             case _:
                 assert_never(self.action_type)
 
         return message.format(
             cls=capitalize_first(self.content_type.model_class()._meta.verbose_name),
             obj=f'"{str(self.content_object)}"' if self.content_object else "",
+            templ=f'"{self.data.get("template_name")}"',
+            usr=self.data.get("recipients"),
         )
 
 
@@ -233,6 +243,13 @@ class LoggedModel(models.Model):
     def log_instance_delete(self):
         changes = self._get_change_data(InstanceActionType.DELETE)
         self._update_log(changes, InstanceActionType.DELETE)
+
+    def log_instance_send_email(self, template_name, recipients):
+        changes = {
+            "template_name": template_name,
+            "recipients": recipients.full_name,
+        }
+        self._update_log(changes, InstanceActionType.SEND_EMAIL)
 
     def _create_log_entry(self, action_type=InstanceActionType.CREATE):
         try:
