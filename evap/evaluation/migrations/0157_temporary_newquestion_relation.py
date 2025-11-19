@@ -29,13 +29,13 @@ def questions_to_question_assignments(apps, _schema_editor):
     QuestionAssignment.objects.bulk_create(assignments.values())
 
     def set_question_assignment(answer):
-        answer.question_assignment = assignments[answer.question_id]
+        answer.assignment = assignments[answer.question_id]
         return answer
 
     for model in (RatingAnswerCounter, TextAnswer):
         model.objects.bulk_update(
             map(set_question_assignment, model.objects.all()),
-            fields=["question_assignment"],
+            fields=["assignment"],
         )
 
 
@@ -131,14 +131,14 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name="ratinganswercounter",
-            name="question_assignment",
+            name="assignment",
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.PROTECT, to="evaluation.questionassignment", null=True
             ),
         ),
         migrations.AddField(
             model_name="textanswer",
-            name="question_assignment",
+            name="assignment",
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.PROTECT, to="evaluation.questionassignment", null=True
             ),

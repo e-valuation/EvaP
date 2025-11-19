@@ -23,7 +23,7 @@ def question_assignments_to_questions(apps, _schema_editor):
     Question.objects.bulk_create(questions.values())
 
     def set_question(answer):
-        answer.question_id = questions[answer.question_assignment_id].pk
+        answer.question_id = questions[answer.assignment_id].pk
         return answer
 
     for model in (RatingAnswerCounter, TextAnswer):
@@ -58,16 +58,6 @@ class Migration(migrations.Migration):
         migrations.DeleteModel(
             name="Question",
         ),
-        migrations.RenameField(
-            model_name="textanswer",
-            old_name="question_assignment",
-            new_name="question",
-        ),
-        migrations.RenameField(
-            model_name="ratinganswercounter",
-            old_name="question_assignment",
-            new_name="question",
-        ),
         migrations.RenameModel(old_name="NewQuestion", new_name="Question"),
         migrations.RemoveConstraint(
             model_name="question",
@@ -84,12 +74,12 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterField(
             model_name="ratinganswercounter",
-            name="question",
+            name="assignment",
             field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to="evaluation.questionassignment"),
         ),
         migrations.AlterField(
             model_name="textanswer",
-            name="question",
+            name="assignment",
             field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to="evaluation.questionassignment"),
         ),
         migrations.AddConstraint(
@@ -109,16 +99,6 @@ class Migration(migrations.Migration):
                 condition=models.Q(("type__in", [0, 1, 12, 2, 6, 7, 8, 9, 10, 11, 3, 4, 5])),
                 name="Question_type_choices",
             ),
-        ),
-        migrations.RenameField(
-            model_name="ratinganswercounter",
-            old_name="question",
-            new_name="assignment",
-        ),
-        migrations.RenameField(
-            model_name="textanswer",
-            old_name="question",
-            new_name="assignment",
         ),
         migrations.AlterUniqueTogether(
             name="ratinganswercounter",
