@@ -8,9 +8,21 @@ from django.db import IntegrityError, migrations, models
 
 def check_consistent_question_texts(apps, _schema_editor) -> None:
     Question = apps.get_model("evaluation", "Question")
-    texts_de, texts_en = zip(*Question.objects.values_list("text_de", "text_en").distinct(), strict=True)
-
     context = StringIO()
+    collided = False
+    all_text_pairs = Question.objects.values_list("text_de", "text_en")
+    distinct_text_pairs = all_text_pairs.distinct()
+    duplicated_pairs = all_text_pairs.annotate(models.Count("id")).filter(id__count__gt=1).values("text_de", "text_en")
+    print("question objects with identical texts:", file=context)
+    for collision in duplicated_pairs:
+        collided = True
+        print(str(collision)[1:-1], file=context)
+        conflicts = Question.objects.filter(**collision).values("id", "type", "allows_additional_textanswers")
+        print("\n".join(map(str, conflicts)), file=context)
+        print(file=context)
+    print(file=context)
+
+    texts_de, texts_en = zip(*distinct_text_pairs, strict=True)
 
     def print_collision(texts, key: Literal["text_de", "text_en"]) -> bool:
         collisions = {text for (text, count) in Counter(texts).items() if count > 1}
@@ -24,7 +36,7 @@ def check_consistent_question_texts(apps, _schema_editor) -> None:
         return bool(collisions)
 
     print("text_en collisions with same text_de:", file=context)
-    collided = print_collision(texts_en, "text_en")
+    collided |= print_collision(texts_en, "text_en")
 
     print("text_de collisions with same text_en:", file=context)
     collided |= print_collision(texts_de, "text_de")
