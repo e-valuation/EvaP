@@ -966,12 +966,12 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
         cls.exam_evaluations = [
             baker.make(
                 Evaluation,
-                course=reg_evaluation.course,
+                course=main_evaluation.course,
                 exam_type=exam_type,
                 name_de=exam_type.name_de,
                 name_en=exam_type.name_en,
             )
-            for reg_evaluation, exam_type in zip(cls.evaluations, cls.exam_types, strict=True)
+            for main_evaluation, exam_type in zip(cls.evaluations, cls.exam_types, strict=True)
         ]
         baker.make(
             Contribution,

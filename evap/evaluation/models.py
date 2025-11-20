@@ -9,7 +9,7 @@ from datetime import date, datetime, time, timedelta
 from enum import Enum, auto
 from functools import partial
 from numbers import Real
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from django.conf import settings
 from django.contrib import messages
@@ -50,6 +50,9 @@ from evap.evaluation.tools import (
     vote_end_datetime,
 )
 from evap.tools import date_to_datetime
+
+if TYPE_CHECKING:
+    from evap.staff.forms import ExamEvaluationForm
 
 logger = logging.getLogger(__name__)
 
@@ -338,8 +341,8 @@ class ExamType(models.Model):
     def __str__(self):
         return self.name
 
-    def can_be_deleted_by_manager(self):
-        if not self.pk:
+    def can_be_deleted_by_manager(self) -> bool:
+        if self.pk is None:
             return True
         return not self.evaluations.all().exists()
 
@@ -537,7 +540,7 @@ class Evaluation(LoggedModel):
         return self.vote_start_datetime.date() + timedelta(days=1)
 
     @property
-    def create_exam_evaluation_form(self):
+    def create_exam_evaluation_form(self) -> "ExamEvaluationForm":
         from evap.staff.forms import ExamEvaluationForm  # noqa: PLC0415
 
         return ExamEvaluationForm(None, evaluation=self)
