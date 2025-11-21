@@ -202,11 +202,6 @@
             "{% url 'staff:evaluation_textanswers_skip' %}",
         );
         const params = new URLSearchParams(document.location.search);
-        const textAnswerId = params.get("textanswer-id")
-        if (!textAnswerId) {
-            slider.attach()
-        } else {
-            slider.attach(textAnswerId)
-        }
+        slider.attach(params.get("textanswer-id"))
     </script>
 {% endblock %}

@@ -388,7 +388,10 @@ export class QuickReviewSlider {
         if (where === StartOverWhere.All || where === StartOverWhere.Undecided) {
             const startOverOnUndecided = where === StartOverWhere.Undecided && undecided.length > 0;
             startIndex = startOverOnUndecided ? decided.length : 0;
-        } else startIndex = this.answerSlides.findIndex(element => element.id === `textanswer-${where}`);
+        } else {
+            startIndex = this.answerSlides.findIndex(element => element.id === `textanswer-${where}`);
+            assert(startIndex != -1);
+        }
         this.slideTo(startIndex);
         this.updateButtons();
     };
