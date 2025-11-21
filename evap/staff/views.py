@@ -1645,7 +1645,7 @@ def evaluation_textanswers(request: HttpRequest, evaluation_id: int) -> HttpResp
     if not evaluation.can_publish_text_results:
         raise PermissionDenied
 
-    view = request.GET.get("view", "quick")
+    view = request.GET.get("next-view", "quick")
     assert view in ["quick", "full", "undecided", "flagged"]
     filter_for_view = {
         "undecided": Q(review_decision=TextAnswer.ReviewDecision.UNDECIDED),
@@ -1770,11 +1770,15 @@ def evaluation_textanswer_edit(request, textanswer_id):
     assert_textanswer_review_permissions(evaluation)
 
     form = TextAnswerForm(request.POST or None, instance=textanswer)
-
+    view = request.GET.get("next-view")
     if form.is_valid():
         form.save()
         # jump to edited answer
-        url = reverse("staff:evaluation_textanswers", args=[evaluation.pk], fragment=str(textanswer.id))
+        url = reverse(
+            "staff:evaluation_textanswers",
+            args=[evaluation.pk],
+            query={"next-view": view, "textanswer-id": textanswer.id} if view else {"textanswer-id": textanswer.id},
+        )
         return HttpResponseRedirect(url)
 
     template_data = {
