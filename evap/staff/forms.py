@@ -1,3 +1,4 @@
+import json
 import logging
 from collections.abc import Iterable
 
@@ -24,6 +25,7 @@ from evap.evaluation.models import (
     Infotext,
     Program,
     Question,
+    QuestionAssignment,
     Questionnaire,
     QuestionType,
     Semester,
@@ -840,25 +842,98 @@ class ContributionCopyFormset(ContributionFormset):
 
 
 class QuestionForm(forms.ModelForm):
+
     class Meta:
         model = Question
-        fields = ("order", "questionnaire", "text_de", "text_en", "type", "allows_additional_textanswers")
-        widgets = {
-            "text_de": forms.Textarea(attrs={"rows": 2}),
-            "text_en": forms.Textarea(attrs={"rows": 2}),
-            "order": forms.HiddenInput(),
-        }
+        fields = ("text_de", "text_en", "type", "allows_additional_textanswers")
+        widgets = {"text_de": forms.Select, "text_en": forms.Select}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.instance.pk and self.instance.type in [QuestionType.TEXT, QuestionType.HEADING]:
-            self.fields["allows_additional_textanswers"].disabled = True
+
+        if self.instance.pk:
+            instance_values = json.dumps({k: getattr(self.instance, k) for k in ["id", *self.Meta.fields]})
+            for field in ["text_de", "text_en"]:
+                self.initial[field] = instance_values
+                self.fields[field].widget.choices = [(instance_values, getattr(self.instance, field))]
+
+            if self.instance.questionnaires.count() > 1:
+                for field in ["type", "allows_additional_textanswers"]:
+                    self.fields[field].disabled = True
+            elif self.instance.type in [QuestionType.TEXT, QuestionType.HEADING] and not self.data:
+                self.fields["allows_additional_textanswers"].disabled = True
+
+    def text_clean_helper(self, text_field: str) -> str:
+        data = self.cleaned_data[text_field]
+        if not data:
+            return data
+        try:
+            parsed = json.loads(data)
+        except json.JSONDecodeError as err:
+            raise ValidationError(_("Invalid JSON data.")) from err
+        if not isinstance(parsed, dict):
+            raise ValidationError(_("Invalid JSON data."))
+        value = parsed.get("value") or parsed.get(text_field) or ""
+        if not isinstance(value, str):
+            raise ValidationError(_("Invalid JSON data."))
+        return value
+
+    def clean_text_de(self) -> str:
+        return self.text_clean_helper("text_de")
+
+    def clean_text_en(self) -> str:
+        return self.text_clean_helper("text_en")
 
     def clean(self):
         super().clean()
         if self.cleaned_data.get("type") in [QuestionType.TEXT, QuestionType.HEADING]:
             self.cleaned_data["allows_additional_textanswers"] = False
+        if self.instance.pk and self.instance.questionnaires.count() > 1:
+            raise ValidationError(_("You cannot change a question that is used in multiple questionnaires."))
         return self.cleaned_data
+
+
+class QuestionAssignmentForm(forms.ModelForm):
+    question = forms.ModelChoiceField(Question.objects.all(), widget=forms.HiddenInput(), required=False)
+
+    class Meta:
+        model = QuestionAssignment
+        fields = ("order", "questionnaire", "question")
+        widgets = {
+            "order": forms.HiddenInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if hasattr(self.instance, "question"):
+            kwargs.pop("instance")
+            self.question_form = QuestionForm(*args, instance=self.instance.question, **kwargs)
+        else:
+            self.question_form = QuestionForm(*args, **kwargs)
+
+    def clean(self) -> None:
+        super().clean()
+        if (
+            self.cleaned_data.get("question") is not None
+            and self.cleaned_data["question"] != getattr(self.instance, "question", None)
+            or self.cleaned_data.get("DELETE") == "on"
+        ):
+            # update the linked question or remove the entire link
+            return
+
+        if not self.question_form.is_valid() and self.cleaned_data["DELETE"] != "on":
+            raise forms.ValidationError([])
+
+    def has_changed(self) -> bool:
+        has_changed = super().has_changed()
+        if self.question_form.is_valid():
+            return has_changed or self.question_form.has_changed()
+        return has_changed
+
+    def save(self, commit: bool = True):
+        if self.question_form.is_valid():
+            self.instance.question = self.question_form.save(commit)
+        return super().save(commit)
 
 
 class QuestionnairesAssignForm(forms.Form):
