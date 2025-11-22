@@ -851,15 +851,11 @@ class QuestionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        exported_fields = ["id", *self.Meta.fields]
-        values = Question.objects.all().values(*exported_fields)
-        self.fields["text_de"].widget.choices = (("", ""), *((json.dumps(v), v["text_de"]) for v in values))
-        self.fields["text_en"].widget.choices = (("", ""), *((json.dumps(v), v["text_en"]) for v in values))
-
         if self.instance.pk:
-            instance_values = json.dumps({k: getattr(self.instance, k) for k in exported_fields})
+            instance_values = json.dumps({k: getattr(self.instance, k) for k in ["id", *self.Meta.fields]})
             for field in ["text_de", "text_en"]:
                 self.initial[field] = instance_values
+                self.fields[field].widget.choices = [(instance_values, getattr(self.instance, field))]
 
             if self.instance.questionnaires.count() > 1:
                 for field in ["type", "allows_additional_textanswers"]:

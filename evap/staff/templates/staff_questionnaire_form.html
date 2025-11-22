@@ -1,6 +1,7 @@
 {% extends 'staff_questionnaire_base.html' %}
 
 {% load static %}
+{% load questionnaire_templatetags %}
 
 {% block content %}
     {{ block.super }}
@@ -89,13 +90,8 @@
         <script type="module">
             import { makeFormSortable } from "{% static 'js/sortable-form.js' %}";
 
-            let createdElements = 0;
             const createdTextEntry = function(input) {
-                // value needs to be in json format
-                createdElements += 1;
-                const res = { value: JSON.stringify({'value': createdElements}), text: input };
-                console.log(res);
-                return res;
+                return { value: JSON.stringify({'value': input}), text: input };
             };
 
             const lookupQuestion = async function(e) {
@@ -140,12 +136,12 @@
                 row.querySelectorAll("a.btn-secondary").forEach(el => {
                     el.remove();
                 });
-                applyTomSelect(row.querySelectorAll("select"));
-                applyTomSelect(row.querySelectorAll("select[id*=-text_]"), { create: createdTextEntry });
+                applyTomSelect(row.querySelectorAll("select[id$=-type]"));
+                applyTextTomSelect(row);
                 registerSelectChangedHandlers();
             };
-            makeFormSortable("question_table", "questions", rowChanged, rowAdded, true, true);
-            applyTomSelect(document.querySelectorAll("select[id*=-text_]"), { create: createdTextEntry });
+            makeFormSortable("question_table", "question_assignments", rowChanged, rowAdded, true, true);
+            applyTomSelect(document.querySelectorAll("form select[id*=-text_]"), { create: createdTextEntry });
 
             const selectChangedHandler = function(e) {
                 const checkbox = this.closest("td.question-type").querySelector("input[type=checkbox]");
@@ -166,6 +162,12 @@
                 });
             };
             registerSelectChangedHandlers();
+
+            const applyTextTomSelect = function(row) {
+                applyTomSelect(row.querySelectorAll("form select[id*=-text_de]"), { create: createdTextEntry, maxOptions: 20, options: {% load_question_text_options "de" %} });
+                applyTomSelect(row.querySelectorAll("form select[id*=-text_en]"), { create: createdTextEntry, maxOptions: 20, options: {% load_question_text_options "en" %} });
+            }
+            applyTextTomSelect(document);
         </script>
     {% endif %}
 {% endblock %}
