@@ -56,14 +56,54 @@
             });
         </script>
 
-        {% translate 'Top general questionnaires' as headline %}
-        {% include 'staff_questionnaire_index_list.html' with questionnaires=general_questionnaires_top headline=headline extra_classes='mb-3' type='top' %}
-        {% translate 'Contributor questionnaires' as headline %}
-        {% include 'staff_questionnaire_index_list.html' with questionnaires=contributor_questionnaires headline=headline extra_classes='mb-3' type='contributor' %}
-        {% translate 'Bottom general questionnaires' as headline %}
-        {% include 'staff_questionnaire_index_list.html' with questionnaires=general_questionnaires_bottom headline=headline extra_classes='mb-3' type='bottom' %}
-        {% translate 'Dropout questionnaires' as headline %}
-        {% include 'staff_questionnaire_index_list.html' with questionnaires=dropout_questionnaires headline=headline extra_classes='' type='dropout' %}
+        
+
+<div class="card card-outline-primary">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="topTab" data-bs-toggle="pill" href="#top" role="tab">
+                            <span class="fas"></span> {% translate 'Top general questionnaires' %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="contributorTab" data-bs-toggle="pill" href="#contributor" role="tab">
+                            <span class="fas"></span> {% translate 'Contributor questionnaires' %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="bottomTab" data-bs-toggle="pill" href="#bottom" role="tab">
+                            <span class="fas"></span> {% translate 'Bottom general questionnaires' %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="dropoutTab" data-bs-toggle="pill" href="#dropout" role="tab">
+                            <span class="fas"></span> {% translate 'Dropout questionnaires' %}
+                        </a>
+                    </li>
+                </ul>
+            
+            <div class="card-body tab-content">
+                <div class="tab-pane show active" id="top" role="tabpanel">
+                    <div class="row align-items-center mb-3">
+                        <!-- {% translate 'Top general questionnaires' as headline %} -->
+                        {% include 'staff_questionnaire_index_list.html' with questionnaires=general_questionnaires_top headline=headline extra_classes='mb-3' type='top' %}
+                    </div>
+                </div>
+                <div class="tab-pane" id="contributor" role="tabpanel">
+                    <!-- {% translate 'Contributor questionnaires' as headline %} -->
+                    {% include 'staff_questionnaire_index_list.html' with questionnaires=contributor_questionnaires headline=headline extra_classes='mb-3' type='contributor' %}
+                </div>
+                <div class="tab-pane" id="bottom" role="tabpanel">
+                    <!-- {% translate 'Bottom general questionnaires' as headline %} -->
+                    {% include 'staff_questionnaire_index_list.html' with questionnaires=general_questionnaires_bottom headline=headline extra_classes='mb-3' type='bottom' %}
+                </div>
+                <div class="tab-pane" id="dropout" role="tabpanel">
+                    <!-- {% translate 'Dropout questionnaires' as headline %} -->
+                    {% include 'staff_questionnaire_index_list.html' with questionnaires=dropout_questionnaires headline=headline extra_classes='' type='dropout' %}
+                </div>
+            </div>
+        </div>
+
     {% else %}
         <p>
             {% translate 'There are no questionnaires yet.' %}
@@ -124,5 +164,23 @@
         for (const button of document.querySelectorAll(".change-is-locked-button")) {
             button.addEventListener("click", () => changeLocked(button));
         }
+    </script>
+
+    <script type="module">
+        var tabName = localStorage['selected_q_tab'];
+        if (["topTab", "contributorTab", "bottomTab", "dropoutTab"].includes(tabName)) {
+            var tab = document.getElementById(tabName);
+            var tabTrigger = new bootstrap.Tab(tab);
+            tabTrigger.show();
+        }
+
+        function saveSelectedTab(tab) {
+            console.log("change tab to", tab)
+            localStorage['selected_q_tab'] = tab;
+        }
+        document.getElementById("topTab").addEventListener("click", () => saveSelectedTab("topTab"));
+        document.getElementById("contributorTab").addEventListener("click", () => saveSelectedTab("contributorTab"));
+        document.getElementById("bottomTab").addEventListener("click", () => saveSelectedTab("bottomTab"));
+        document.getElementById("dropoutTab").addEventListener("click", () => saveSelectedTab("dropoutTab"));
     </script>
 {% endblock %}

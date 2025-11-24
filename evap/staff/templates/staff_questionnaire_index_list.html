@@ -1,10 +1,10 @@
 {% if questionnaires %}
-    <div class="card collapsible {{ extra_classes }}">
-        <div class="card-header">
+    <!-- <div class="card collapsible {{ extra_classes }}"> -->
+        <!-- <div class="card-header">
             <a class="collapse-toggle" data-bs-toggle="collapse" href="#questionnaires-{{ type }}" aria-expanded="false" aria-controls="questionnaires-{{ type }}">
                 {% translate headline %}
             </a>
-        </div>
+        </div> -->
         <div class="collapse show" id="questionnaires-{{ type }}">
             <div class="card-body table-responsive">
                 <table class="table table-vertically-aligned table-striped questionnaire-table">
@@ -78,5 +78,5 @@
                 </table>
             </div>
         </div>
-    </div>
+    <!-- </div> -->
 {% endif %}
