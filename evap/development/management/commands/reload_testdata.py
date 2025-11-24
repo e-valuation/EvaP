@@ -11,7 +11,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--noinput", action="store_true")
-        parser.add_argument("--minimalresults", action="store_const", const="minimal")
+        parser.add_argument("--mode", default="full", choices=["full", "minimal"])
 
     def handle(self, *args, **options):
         self.stdout.write("")
@@ -20,9 +20,9 @@ class Command(BaseCommand):
             return
 
         data = {
-            None: "test_data",
+            "full": "test_data",
             "minimal": "minimal_test_data_results"
-        }[minimalresults]
+        }[options["mode"]]
 
         logged_call_command(self.stdout, "reset_db", interactive=False)
 

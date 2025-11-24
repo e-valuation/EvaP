@@ -8,15 +8,15 @@ class Command(BaseCommand):
     help = "Dumps all relevant contents of the database into test_data.json."
 
     def add_arguments(self, parser):
-        parser.add_argument("--minimalresults", action="store_const", const="minimal")
+        parser.add_argument("--mode", default="full", choices=["full", "minimal"])
 
     requires_migrations_checks = True
 
     def handle(self, *args, **options):
         outfile_name = {
-            None: settings.MODULE / "development" / "fixtures" / "test_data.json",
+            "full": settings.MODULE / "development" / "fixtures" / "test_data.json",
             "minimal": settings.MODULE / "results" / "fixtures" / "minimal_test_data_results.json"
-        }[minimalresults]
+        }[options["mode"]]
         
         logged_call_command(
             self.stdout,

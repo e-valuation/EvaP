@@ -62,8 +62,8 @@ jobs:
         run: git diff --exit-code
       - name: Create new minimal_test_data_results.json
         run: |
-          python manage.py reload_testdata --minimalresults --noinput
-          python manage.py dump_testdata --minimalresults
+          python manage.py reload_testdata --mode minimal --noinput
+          python manage.py dump_testdata --mode minimal
       - name: Check if minimal_test_data_results.json changed
         run: git diff --exit-code
 
