@@ -1189,3 +1189,15 @@ class QuestionFormTests(TestCase):
         question.refresh_from_db()
         self.assertEqual(question.type, QuestionType.POSITIVE_LIKERT)
         self.assertTrue(question.allows_additional_textanswers)
+
+    def test_clean_for_dropout_questionnaire(self):
+        dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
+        question = baker.make(Question, questionnaire=dropout_questionnaire, type=QuestionType.POSITIVE_LIKERT)
+
+        form_data = get_form_data_from_instance(QuestionForm, question)
+        form_data["counts_for_grade"] = True
+
+        form = QuestionForm(form_data, instance=question)
+        # The clean method should override counts_for_grade to False
+        self.assertTrue(form.is_valid())
+        self.assertFalse(form.cleaned_data["counts_for_grade"])
