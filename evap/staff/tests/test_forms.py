@@ -1153,4 +1153,39 @@ class EvaluationCopyFormTests(TestCase):
 
 
 class QuestionFormTests(TestCase):
-    pass
+    def test_allows_additional_textanswers_persistence_after_type_change(self):
+        """
+        Test that allows_additional_textanswers can be changed and persisted correctly
+        even after changing the question type from TEXT/HEADING to a Likert type.
+        Regression test for #2539.
+        """
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        question = baker.make(
+            Question,
+            questionnaire=questionnaire,
+            type=QuestionType.TEXT,
+            allows_additional_textanswers=False,
+        )
+
+        # First save: set allows_additional_textanswers to False
+        form_data = get_form_data_from_instance(QuestionForm, question)
+        self.assertFalse(form_data["allows_additional_textanswers"])
+
+        form = QuestionForm(form_data, instance=question)
+        self.assertTrue(form.is_valid())
+        form.save()
+
+        question.refresh_from_db()
+        self.assertFalse(question.allows_additional_textanswers)
+
+        form_data = get_form_data_from_instance(QuestionForm, question)
+        form_data["type"] = QuestionType.POSITIVE_LIKERT
+        form_data["allows_additional_textanswers"] = True
+
+        form = QuestionForm(form_data, instance=question)
+        self.assertTrue(form.is_valid())
+        form.save()
+
+        question.refresh_from_db()
+        self.assertEqual(question.type, QuestionType.POSITIVE_LIKERT)
+        self.assertTrue(question.allows_additional_textanswers)
