@@ -5,12 +5,17 @@ from evap.evaluation.management.commands.tools import logged_call_command
 
 
 class Command(BaseCommand):
-    args = ""
     help = "Dumps all relevant contents of the database into test_data.json."
+
+    def add_arguments(self, parser):
+        parser.add_argument("--minimalresults", action="store_true")
+
     requires_migrations_checks = True
 
     def handle(self, *args, **options):
         outfile_name = settings.MODULE / "development" / "fixtures" / "test_data.json"
+        if options["minimalresults"]:
+            outfile_name = settings.MODULE / "results" / "fixtures" / "minimal_test_data_results.json"
         logged_call_command(
             self.stdout,
             "dumpdata",

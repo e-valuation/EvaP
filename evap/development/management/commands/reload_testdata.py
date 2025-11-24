@@ -11,12 +11,17 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--noinput", action="store_true")
+        parser.add_argument("--minimalresults", action="store_true")
 
     def handle(self, *args, **options):
         self.stdout.write("")
         self.stdout.write("WARNING! This will drop the database and upload directory and cause IRREPARABLE DATA LOSS.")
         if not options["noinput"] and not confirm_harmful_operation(self.stdout):
             return
+
+        data = "test_data"
+        if options["minimalresults"]:
+            data = "minimal_test_data_results"
 
         logged_call_command(self.stdout, "reset_db", interactive=False)
 
@@ -26,7 +31,7 @@ class Command(BaseCommand):
         # their pks might differ from the ones in the dump, which results in errors on loaddata
         logged_call_command(self.stdout, "flush", interactive=False)
 
-        logged_call_command(self.stdout, "loaddata", "test_data")
+        logged_call_command(self.stdout, "loaddata", data)
 
         logged_call_command(self.stdout, "clear_cache", "--all", "-v=1")
 
