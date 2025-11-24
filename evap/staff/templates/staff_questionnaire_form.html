@@ -101,11 +101,10 @@
                     el.remove();
                 });
                 applyTomSelect(row.querySelectorAll("select"));
-                staffQuestionnaireForm.registerSelectChangedHandlers();
             };
             makeFormSortable("question_table", "questions", rowChanged, rowAdded, true, true);
 
-            staffQuestionnaireForm.registerSelectChangedHandlers();
+
         </script>
     {% endif %}
 {% endblock %}
