@@ -31,10 +31,10 @@
         </div>
     </h3>
     {% language evaluation_language %}
-    <div class="card mb-3">
-        <div class="card-body">
-            {% include 'student_vote_questionnaire_group.html' with questionnaire_group=forms preview=True %}
+        <div class="card mb-3">
+            <div class="card-body">
+                {% include 'student_vote_questionnaire_group.html' with questionnaire_group=forms preview=True %}
+            </div>
         </div>
-    </div>
     {% endlanguage %}
 {% endblock %}
