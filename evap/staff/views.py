@@ -1703,7 +1703,7 @@ def evaluation_textanswers(request: HttpRequest, evaluation_id: int) -> HttpResp
     if not evaluation.can_publish_text_results:
         raise PermissionDenied
 
-    view = request.GET.get("next-view", "quick")
+    view = request.GET.get("view", "quick")
     assert view in ["quick", "full", "undecided", "flagged"]
     filter_for_view = {
         "undecided": Q(review_decision=TextAnswer.ReviewDecision.UNDECIDED),
@@ -1834,7 +1834,7 @@ def evaluation_textanswer_edit(request, textanswer_id):
         url = reverse(
             "staff:evaluation_textanswers",
             args=[evaluation.pk],
-            query={"next-view": view} if view else None,
+            query={"view": view} if view else None,
             fragment="textanswer-" + str(textanswer_id),
         )
         return HttpResponseRedirect(url)
