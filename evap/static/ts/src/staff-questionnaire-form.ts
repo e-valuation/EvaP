@@ -67,73 +67,53 @@ export class StaffQuestionnaireForm {
         const selectedType = saneParseInt(this.questionnaireTypeSelect.value);
         const countsForGradeCheckboxes = document.querySelectorAll(".counts-for-grade-checkbox");
 
-        if (selectedType === QUESTIONNAIRE_TYPE_DROPOUT) {
-            countsForGradeCheckboxes.forEach(checkbox => {
-                const checkboxElement = checkbox as HTMLInputElement;
-                const questionTypeCell = checkboxElement.closest("td.question-type");
-                assertDefined(questionTypeCell);
+        countsForGradeCheckboxes.forEach(checkbox => {
+            const checkboxElement = checkbox as HTMLInputElement;
+            const questionTypeCell = checkboxElement.closest("td.question-type");
+            assertDefined(questionTypeCell);
 
-                const questionTypeSelect = selectOrError<HTMLSelectElement>("select", questionTypeCell);
+            const questionTypeSelect = selectOrError<HTMLSelectElement>("select", questionTypeCell);
 
-                if (questionTypeSelect.value === "") {
-                    return;
-                }
+            if (questionTypeSelect.value === "") {
+                return;
+            }
 
+            if (selectedType === QUESTIONNAIRE_TYPE_DROPOUT) {
                 this.disableAndUncheckCheckbox(checkboxElement);
-            });
-        } else {
-            countsForGradeCheckboxes.forEach(checkbox => {
-                const checkboxElement = checkbox as HTMLInputElement;
-                const questionTypeCell = checkboxElement.closest("td.question-type");
-                assertDefined(questionTypeCell);
-
-                const questionTypeSelect = selectOrError<HTMLSelectElement>("select", questionTypeCell);
-
-                if (questionTypeSelect.value === "") {
-                    return;
-                }
-
+            } else {
                 const questionType = saneParseInt(questionTypeSelect.value);
                 if (questionType === QUESTION_TYPE_TEXT || questionType === QUESTION_TYPE_HEADING) {
                     this.disableAndUncheckCheckbox(checkboxElement);
                 } else {
                     this.enableAndCheckCheckbox(checkboxElement);
                 }
-            });
-        }
+            }
+        });
     };
 
     private initialize = () => {
         // Initialize the state of all checkboxes based on current question types and questionnaire type
         const questionnaireType = saneParseInt(this.questionnaireTypeSelect.value);
 
-        // Iterate through all question rows
         document.querySelectorAll(".question-type").forEach(questionTypeCell => {
             const questionTypeSelect = selectOrError<HTMLSelectElement>("select", questionTypeCell);
             const questionType = saneParseInt(questionTypeSelect.value);
 
-            // Skip if no question type selected
             if (questionTypeSelect.value === "") {
                 return;
             }
 
             const checkboxes = questionTypeCell.querySelectorAll("input[type=checkbox]");
+            const isTextOrHeading = questionType === QUESTION_TYPE_TEXT || questionType === QUESTION_TYPE_HEADING;
 
-            if (questionType === QUESTION_TYPE_TEXT || questionType === QUESTION_TYPE_HEADING) {
-                checkboxes.forEach(checkbox => {
-                    const checkboxElement = checkbox as HTMLInputElement;
+            checkboxes.forEach(checkbox => {
+                const checkboxElement = checkbox as HTMLInputElement;
+                const isCountsForGrade = checkboxElement.classList.contains("counts-for-grade-checkbox");
+
+                if (isTextOrHeading || (questionnaireType === QUESTIONNAIRE_TYPE_DROPOUT && isCountsForGrade)) {
                     checkboxElement.disabled = true;
-                });
-            }
-
-            if (questionnaireType === QUESTIONNAIRE_TYPE_DROPOUT) {
-                checkboxes.forEach(checkbox => {
-                    const checkboxElement = checkbox as HTMLInputElement;
-                    if (checkboxElement.classList.contains("counts-for-grade-checkbox")) {
-                        checkboxElement.disabled = true;
-                    }
-                });
-            }
+                }
+            });
         });
     };
 
