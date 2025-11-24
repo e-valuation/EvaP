@@ -446,7 +446,8 @@ class VisualRegressionTestCase(LiveServerTest):
             timeout=self._http_timeout_seconds,
         ).raise_for_status()
 
-        self.assertFalse(error_message)
+        if error_message:
+            self.fail(error_message)
 
 
 def classes_of_element(element: WebElement) -> list[str]:
