@@ -45,7 +45,7 @@ export class StaffQuestionnaireForm {
         if (questionTypeCell && target.matches("select")) {
             const questionTypeSelect = target as HTMLSelectElement;
             const questionType = saneParseInt(questionTypeSelect.value);
-            
+
             const checkboxes = questionTypeCell.querySelectorAll("input[type=checkbox]");
 
             if (questionType === QUESTION_TYPE_TEXT || questionType === QUESTION_TYPE_HEADING) {
