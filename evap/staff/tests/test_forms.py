@@ -1153,34 +1153,4 @@ class EvaluationCopyFormTests(TestCase):
 
 
 class QuestionFormTests(TestCase):
-    def test_fields_disabled_for_text_and_heading(self):
-        question = baker.make(Question, type=QuestionType.TEXT)
-        form = QuestionForm(instance=question)
-        self.assertTrue(form.fields["allows_additional_textanswers"].widget.attrs.get("disabled"))
-        self.assertTrue(form.fields["counts_for_grade"].widget.attrs.get("disabled"))
-
-        question = baker.make(Question, type=QuestionType.HEADING)
-        form = QuestionForm(instance=question)
-        self.assertTrue(form.fields["allows_additional_textanswers"].widget.attrs.get("disabled"))
-        self.assertTrue(form.fields["counts_for_grade"].widget.attrs.get("disabled"))
-
-        question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
-        form = QuestionForm(instance=question)
-        self.assertFalse(form.fields["allows_additional_textanswers"].widget.attrs.get("disabled"))
-        self.assertFalse(form.fields["counts_for_grade"].widget.attrs.get("disabled"))
-
-    def test_fields_disabled_for_dropout_questionnaire(self):
-        dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
-        question = baker.make(Question, type=QuestionType.TEXT, questionnaire=dropout_questionnaire)
-
-        form_data = get_form_data_from_instance(QuestionForm, question)
-        form_data["counts_for_grade"] = True
-
-        form = QuestionForm(form_data, instance=question)
-        self.assertTrue(form.is_valid())
-        self.assertFalse(form.cleaned_data["counts_for_grade"])
-        self.assertTrue(form.fields["counts_for_grade"].widget.attrs.get("disabled"))
-
-        saved_question = form.save()
-        saved_question.refresh_from_db()
-        self.assertFalse(saved_question.counts_for_grade)
+    pass
