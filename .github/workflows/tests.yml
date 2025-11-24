@@ -60,6 +60,12 @@ jobs:
           python manage.py dump_testdata
       - name: Check if test_data.json changed
         run: git diff --exit-code
+      - name: Create new minimal_test_data_results.json
+        run: |
+          python manage.py reload_testdata --minimalresults --noinput
+          python manage.py dump_testdata --minimalresults
+      - name: Check if minimal_test_data_results.json changed
+        run: git diff --exit-code
 
   build_wheel:
     name: Build wheel
