@@ -11,7 +11,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--noinput", action="store_true")
-        parser.add_argument("--minimalresults", action="store_true")
+        parser.add_argument("--minimalresults", action="store_const", const="minimal")
 
     def handle(self, *args, **options):
         self.stdout.write("")
@@ -19,9 +19,10 @@ class Command(BaseCommand):
         if not options["noinput"] and not confirm_harmful_operation(self.stdout):
             return
 
-        data = "test_data"
-        if options["minimalresults"]:
-            data = "minimal_test_data_results"
+        data = {
+            None: "test_data",
+            "minimal": "minimal_test_data_results"
+        }[minimalresults]
 
         logged_call_command(self.stdout, "reset_db", interactive=False)
 
