@@ -3322,10 +3322,12 @@ class TestQuestionnaireViewView(WebTestStaffModeWith200Check):
         user.save()
         page = self.app.get(url=self.url, user=user, status=200)
         self.assertIn(self.question.text_de, page)
+        self.assertNotIn(self.question.text_en, page)
 
         lang_url = self.url + "?language=en"
         page = self.app.get(url=lang_url, user=user, status=200)
         self.assertIn(self.question.text_en, page)
+        self.assertNotIn(self.question.text_de, page)
 
 
 class TestQuestionnaireCopyView(WebTestStaffMode):
