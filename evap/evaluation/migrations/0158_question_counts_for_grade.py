@@ -19,7 +19,7 @@ def set_initial_values(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("evaluation", "0156_alter_userprofile_options"),
+        ("evaluation", "0157_coursetype_skip_on_automated_import"),
     ]
 
     operations = [
