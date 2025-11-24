@@ -16,7 +16,7 @@
                         <div>{% translate 'Flag' %}</div>
                     </div>
                     {% for answer in result.answers %}
-                        <div class="grid-row" id="{{ answer.id }}">
+                        <div class="grid-row" id="textanswer-{{ answer.id }}">
                             <div>
                                 {{ answer.answer|linebreaksbr }}
                                 {% if answer.original_answer %}

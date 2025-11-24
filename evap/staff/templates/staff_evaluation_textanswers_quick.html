@@ -201,7 +201,7 @@
             document.querySelector("#shared-full-textanswer-flag-form"),
             "{% url 'staff:evaluation_textanswers_skip' %}",
         );
-        const params = new URLSearchParams(document.location.search);
-        slider.attach(params.get("textanswer-id"))
+        const hash = document.location.hash
+        slider.attach(hash.startsWith("#textanswer-") ? hash.substring(12) : null)
     </script>
 {% endblock %}

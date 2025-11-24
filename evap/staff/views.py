@@ -1716,7 +1716,6 @@ def evaluation_textanswers(request: HttpRequest, evaluation_id: int) -> HttpResp
     )
 
     template_data = {"semester": semester, "evaluation": evaluation, "view": view}
-
     if view == "quick":
         visited = request.session.get("review-visited", set())
         skipped = request.session.get("review-skipped", set())
@@ -1835,7 +1834,8 @@ def evaluation_textanswer_edit(request, textanswer_id):
         url = reverse(
             "staff:evaluation_textanswers",
             args=[evaluation.pk],
-            query={"next-view": view, "textanswer-id": textanswer.id} if view else {"textanswer-id": textanswer.id},
+            query={"next-view": view} if view else None,
+            fragment="textanswer-" + str(textanswer_id),
         )
         return HttpResponseRedirect(url)
 
