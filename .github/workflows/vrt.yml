@@ -1,0 +1,47 @@
+name: Visual Test Suite
+on:
+  pull_request_target:
+    types: [opened, synchronize]
+jobs:
+  visual-regression-tests:
+    runs-on: ubuntu-22.04
+    name: Visual Regression Tests
+    env:
+      VRT_APIURL: "https://example.com"
+      VRT_APIKEY: "superSecretKey"
+      VRT_PROJECT: ${{ secrets.VRT_PROJECT }}
+    steps:
+      - name: Check if user is collaborator
+        uses: actions/github-script@v8
+        env:
+          TRIGGERING_USERNAME: ${{ github.triggering_actor }}
+        with:
+          script: |
+            const username = process.env.TRIGGERING_USERNAME;
+            
+            const isCollaborator = await github.rest.repos.checkCollaborator({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                username: username
+            })
+                .then(({status}) => status === 204)
+                .catch((error) => {
+                    if (error.status === 404) return false;
+                    throw error;
+                });
+            
+            if(!isCollaborator) {
+              console.error(`Insufficient privileges, ${username} is not a collaborator`);
+              process.exit(1)
+            }
+            
+            console.log(`User ${username} is a project collaborator, continuing...`)
+
+      - uses: actions/checkout@v6
+        with:
+          submodules: true
+      - uses: ./.github/setup_evap
+        with:
+          npm-ci: true
+      - name: Run visual regression tests
+        run: python manage.py vrt_test
