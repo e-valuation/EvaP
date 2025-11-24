@@ -19,10 +19,7 @@ class Command(BaseCommand):
         if not options["noinput"] and not confirm_harmful_operation(self.stdout):
             return
 
-        data = {
-            "full": "test_data",
-            "minimal": "minimal_test_data_results"
-        }[options["mode"]]
+        data = {"full": "test_data", "minimal": "minimal_test_data_results"}[options["mode"]]
 
         logged_call_command(self.stdout, "reset_db", interactive=False)
 

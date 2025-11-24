@@ -15,9 +15,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         outfile_name = {
             "full": settings.MODULE / "development" / "fixtures" / "test_data.json",
-            "minimal": settings.MODULE / "results" / "fixtures" / "minimal_test_data_results.json"
+            "minimal": settings.MODULE / "results" / "fixtures" / "minimal_test_data_results.json",
         }[options["mode"]]
-        
+
         logged_call_command(
             self.stdout,
             "dumpdata",
