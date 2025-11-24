@@ -6,7 +6,7 @@
     {{ block.super }}
     <div class="row flex-grow-1 overflow-hidden">
         <div class="col-12 col-xl-8 mh-100 overflow-auto">
-            {% include 'messages.html' %}
+            {% include 'messages.html' with styles="pt-3" %}
             <h3 class="pt-2">
                 {% if evaluation_form.instance.id %}
                     {{ evaluation.full_name }} ({{ evaluation.course.semester.name }})
