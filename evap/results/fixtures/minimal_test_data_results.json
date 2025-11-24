@@ -67,6 +67,7 @@
     "name_de": "a type",
     "name_en": "a type",
     "import_names": "[]",
+    "skip_on_automated_import": false,
     "order": -1
   }
 },
