@@ -11,6 +11,10 @@ export class StaffQuestionnaireForm {
     constructor(questionTable: HTMLTableElement) {
         this.questionTable = questionTable;
         this.questionnaireTypeSelect = selectOrError<HTMLSelectElement>("#id_type");
+
+        this.questionTable.addEventListener("change", this.handleQuestionTypeChange);
+        this.questionnaireTypeSelect.addEventListener("change", this.handleQuestionnaireTypeChange);
+
         this.initialize();
     }
     private disableAndUncheckCheckbox = (checkbox: HTMLInputElement) => {
@@ -36,30 +40,32 @@ export class StaffQuestionnaireForm {
     };
 
     private handleQuestionTypeChange = (e: Event) => {
-        const target = e.currentTarget as HTMLSelectElement;
-        const questionType = saneParseInt(target.value);
+        const target = e.target as HTMLElement;
         const questionTypeCell = target.closest("td.question-type");
-        if (!questionTypeCell) return;
+        if (questionTypeCell && target.matches("select")) {
+            const questionTypeSelect = target as HTMLSelectElement;
+            const questionType = saneParseInt(questionTypeSelect.value);
+            
+            const checkboxes = questionTypeCell.querySelectorAll("input[type=checkbox]");
 
-        const checkboxes = questionTypeCell.querySelectorAll("input[type=checkbox]");
+            if (questionType === QUESTION_TYPE_TEXT || questionType === QUESTION_TYPE_HEADING) {
+                this.disableAllCheckboxes(checkboxes);
+                return;
+            }
 
-        if (questionType === QUESTION_TYPE_TEXT || questionType === QUESTION_TYPE_HEADING) {
-            this.disableAllCheckboxes(checkboxes);
-            return;
-        }
-
-        const questionnaireType = saneParseInt(this.questionnaireTypeSelect.value);
-        if (questionnaireType === QUESTIONNAIRE_TYPE_DROPOUT) {
-            checkboxes.forEach(checkbox => {
-                const checkboxElement = checkbox as HTMLInputElement;
-                if (checkboxElement.classList.contains("counts-for-grade-checkbox")) {
-                    this.disableAndUncheckCheckbox(checkboxElement);
-                } else {
-                    this.enableAndCheckCheckbox(checkboxElement);
-                }
-            });
-        } else {
-            this.enableAllCheckboxes(checkboxes);
+            const questionnaireType = saneParseInt(this.questionnaireTypeSelect.value);
+            if (questionnaireType === QUESTIONNAIRE_TYPE_DROPOUT) {
+                checkboxes.forEach(checkbox => {
+                    const checkboxElement = checkbox as HTMLInputElement;
+                    if (checkboxElement.classList.contains("counts-for-grade-checkbox")) {
+                        this.disableAndUncheckCheckbox(checkboxElement);
+                    } else {
+                        this.enableAndCheckCheckbox(checkboxElement);
+                    }
+                });
+            } else {
+                this.enableAllCheckboxes(checkboxes);
+            }
         }
     };
 
