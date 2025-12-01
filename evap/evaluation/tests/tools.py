@@ -55,7 +55,11 @@ class EvapTestRunner(DiscoverRunner):
     def add_arguments(cls, parser):
         super().add_arguments(parser)
 
-        parser.add_argument("--headed", help="Do not run selenium tests in headless mode.", action="store_true")
+        parser.add_argument(
+            "--headed",
+            help="Run the tests in non-headless mode, which makes the browser window visible. Useful for debugging.",
+            action="store_true"
+        )
 
     def setup_test_environment(self, **kwargs):
         super().setup_test_environment(**kwargs)
