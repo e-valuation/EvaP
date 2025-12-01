@@ -17,10 +17,11 @@ from evap.evaluation.models import (
     Question,
     Questionnaire,
     Semester,
+    TextAnswer,
     UserProfile,
-    TextAnswer
 )
 from evap.evaluation.tests.tools import LiveServerTest, classes_of_element
+
 
 class EvaluationEditLiveTest(LiveServerTest):
     def test_submit_changes_form_data(self):
@@ -113,6 +114,7 @@ class EvaluationEditLiveTest(LiveServerTest):
 
         self.wait.until(invisibility_of_element_located((By.XPATH, "//td//a[contains(text(),'course name')]")))
 
+
 class ParticipantCollapseTests(LiveServerTest):
     def test_collapse_with_editor_approved(self) -> None:
 
@@ -174,10 +176,11 @@ class ParticipantCollapseTests(LiveServerTest):
         counter = card_header.find_element(By.CSS_SELECTOR, ".rounded-pill")
         self.assertEqual(counter.text, "0")
 
+
 class TextAnswerEditLiveTest(LiveServerTest):
     def test_edit_textanswer_redirect(self):
         """Regression test for #1696"""
-        
+
         responsible = baker.make(UserProfile)
         evaluation = baker.make(
             Evaluation,
@@ -185,7 +188,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
             vote_start_datetime=datetime(2099, 1, 1, 0, 0),
             vote_end_date=date(2099, 12, 31),
             state=Evaluation.State.EVALUATED,
-            can_publish_text_results=True
+            can_publish_text_results=True,
         )
 
         question1 = baker.make(
@@ -196,10 +199,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
         evaluation.general_contribution.questionnaires.set([general_questionnaire])
 
         contribution1 = baker.make(
-            Contribution,
-            evaluation=evaluation,
-            contributor=None,
-            questionnaires=[general_questionnaire]
+            Contribution, evaluation=evaluation, contributor=None, questionnaires=[general_questionnaire]
         )
 
         textanswer1 = baker.make(
@@ -208,16 +208,16 @@ class TextAnswerEditLiveTest(LiveServerTest):
             contribution=contribution1,
             answer="this is answer will be edited",
             original_answer=None,
-            review_decision=TextAnswer.ReviewDecision.UNDECIDED
+            review_decision=TextAnswer.ReviewDecision.UNDECIDED,
         )
 
-        textanswer2 = baker.make(
+        baker.make(
             TextAnswer,
             question=question1,
             contribution=contribution1,
             answer="this is a dummy answer",
             original_answer=None,
-            review_decision=TextAnswer.ReviewDecision.UNDECIDED
+            review_decision=TextAnswer.ReviewDecision.UNDECIDED,
         )
 
         with self.enter_staff_mode():
@@ -232,6 +232,8 @@ class TextAnswerEditLiveTest(LiveServerTest):
         with self.enter_staff_mode():
             submit_btn.click()
 
-        answer = self.selenium.find_elements(By.XPATH, "//div[@class='slider-item card-body active' and @data-layer='2']")
+        answer = self.selenium.find_elements(
+            By.XPATH, "//div[@class='slider-item card-body active' and @data-layer='2']"
+        )
 
-        self.assertEqual(str(answer[0].get_attribute("id")).split('-',1)[1], str(textanswer1.pk))
+        self.assertEqual(str(answer[0].get_attribute("id")).split("-", 1)[1], str(textanswer1.pk))
