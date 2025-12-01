@@ -19,7 +19,9 @@ from django.test.selenium import SeleniumTestCase
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone, translation
 from model_bakery import baker
+from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.webdriver import WebDriver
+from selenium.webdriver.support.expected_conditions import staleness_of
 from selenium.webdriver.support.wait import WebDriverWait
 
 from evap.evaluation.models import (
@@ -268,7 +270,7 @@ def assert_no_database_modifications(*args, **kwargs):
 class LiveServerTest(SeleniumTestCase):
     browser = "firefox"
     selenium: WebDriver
-    headless = False
+    headless = True
     window_size = (1920, 4096)  # large height to workaround scrolling
     serialized_rollback = True  # SeleniumTestCase is a TransactionTestCase, which drops migration data. This keeps fixture data but may slow down tests, see https://docs.djangoproject.com/en/5.0/topics/testing/overview/#test-case-serialized-rollback
     static_handler = StaticFilesHandler  # see StaticLiveServerTestCase
@@ -314,6 +316,12 @@ class LiveServerTest(SeleniumTestCase):
     @property
     def wait(self) -> WebDriverWait:
         return WebDriverWait(self.selenium, 10)
+
+    @contextmanager
+    def wait_until_page_reloads(self):
+        html_element = self.selenium.find_element(By.TAG_NAME, "html")
+        yield
+        self.wait.until(staleness_of(html_element))
 
     @classmethod
     def setUpClass(cls) -> None:

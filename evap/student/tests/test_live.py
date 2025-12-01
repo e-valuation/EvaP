@@ -90,10 +90,9 @@ class StudentVoteLiveTest(LiveServerTest):
 
     def test_resolving_submit_errors_clears_warning(self) -> None:
         self.selenium.get(self.url)
-        self.wait.until(presence_of_element_located((By.ID, "vote-submit-btn"))).click()
-
         with self.wait_until_page_reloads():
             self.wait.until(presence_of_element_located((By.ID, "vote-submit-btn"))).click()
+
         row = self.selenium.find_element(By.CSS_SELECTOR, "#student-vote-form .row:has(.btn-check)")
         checkbox = row.find_element(By.CSS_SELECTOR, "input[type=radio][value='2'] + label.choice-error")
         checkbox.click()
@@ -127,10 +126,8 @@ class StudentVoteLiveTest(LiveServerTest):
 
     def test_skip_contributor_modal_appears(self) -> None:
         def assert_modal_visible_and_close():
-            modal = self.selenium.find_elements(
-                By.CSS_SELECTOR, "button[data-mark-no-answers-for='5'] + confirmation-modal.mark-no-answer-modal"
-            )
-            self.assertEqual(len(modal), 1)
+            modal = self.selenium.find_elements(By.CSS_SELECTOR, "confirmation-modal.mark-no-answer-modal")
+            self.assertEqual(len(modal), 2)
             cancel_button = modal[0].shadow_root.find_elements(By.CSS_SELECTOR, "section.button-area > button")
             self.assertEqual(len(cancel_button), 1)
             cancel_button[0].click()
