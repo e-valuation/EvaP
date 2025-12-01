@@ -2027,6 +2027,8 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
 
     @property
     def is_external(self):
+        if self.is_proxy_user and not self.email:
+            return False
         if not self.email:
             return True
         return is_external_email(self.email)

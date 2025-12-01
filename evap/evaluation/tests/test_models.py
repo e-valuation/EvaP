@@ -599,6 +599,23 @@ class TestUserProfile(TestCase):
         del user.is_student
         self.assertFalse(user.is_student)
 
+    @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com"])
+    def test_is_external(self):
+        user = baker.make(UserProfile, email="user@institution.example.com")
+        self.assertFalse(user.is_external)
+
+        user.is_proxy_user = True
+        user.save()
+        self.assertFalse(user.is_external)
+
+        user.email = None
+        user.save()
+        self.assertFalse(user.is_external)
+
+        user.is_proxy_user = False
+        user.save()
+        self.assertTrue(user.is_external)
+
     def test_can_be_deleted_by_manager(self):
         user = baker.make(UserProfile)
         baker.make(Evaluation, participants=[user], state=Evaluation.State.NEW)
