@@ -18,7 +18,7 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./.github/setup_evap
         with:
           start-db: true
@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./.github/setup_evap
         with:
           start-db: true
@@ -50,7 +50,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./.github/setup_evap
         with:
           start-db: true
@@ -71,7 +71,7 @@ jobs:
     name: Build wheel
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: DeterminateSystems/nix-installer-action@main
@@ -79,7 +79,7 @@ jobs:
       - run: tar tvf dist/*.tar.gz
       - run: unzip -l dist/*.whl
       - run: nix run .#check_dist -- pyproject.toml dist/*.whl
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: wheel
           path: dist/
@@ -92,7 +92,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: wheel
       - run: pip install *.whl
@@ -109,7 +109,7 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
 
@@ -138,7 +138,7 @@ jobs:
     name: MyPy
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./.github/setup_evap
       - name: Run MyPy
         run: mypy
@@ -148,7 +148,7 @@ jobs:
     name: Test Typescript
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: ./.github/setup_evap
@@ -164,7 +164,7 @@ jobs:
     name: Linter
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./.github/setup_evap
         with:
           npm-ci: "true"
@@ -184,7 +184,7 @@ jobs:
     name: Formatting
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./.github/setup_evap
         with:
           npm-ci: true
@@ -204,11 +204,11 @@ jobs:
     needs: build_wheel
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           path: main
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           repository: e-valuation/evap-deployment
           path: deployment
@@ -222,7 +222,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: wheel
 
@@ -258,7 +258,7 @@ jobs:
     runs-on: macos-15
     name: Build nix environment on MacOS
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: ./.github/setup_evap
