@@ -199,9 +199,7 @@ class TestNegativeLikertQuestions(WebTest):
         cls.voting_user = baker.make(UserProfile, email="voting_user1@institution.example.com")
 
         cls.evaluation = baker.make(
-            Evaluation,
-            participants=[cls.voting_user],
-            state=Evaluation.State.IN_EVALUATION,
+            Evaluation, participants=[cls.voting_user], state=Evaluation.State.IN_EVALUATION, main_language="en"
         )
 
         cls.question = baker.make(
@@ -274,3 +272,8 @@ class TestResetEvaluation(WebTestStaffMode):
             self.reset_from_x_to_new(s, success_expected=True)
         for s in invalid_start_states:
             self.reset_from_x_to_new(s, success_expected=False)
+
+
+class TestCatalogJsView(WebTestWith200Check):
+    url = "/catalog.js"
+    test_users = [""]

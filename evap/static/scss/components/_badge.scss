@@ -46,6 +46,14 @@
     @include bar-shadow($evap-dark-blue);
 }
 
+.badge-percentage {
+    @extend %badge;
+    background-color: $evap-light-blue;
+    color: black;
+    display: inline-block;
+    width: 100%;
+}
+
 @for $i from 0 through 10 {
     .badge-participants-#{$i} {
         background-color: mix($evap-dark-blue, $evap-light-blue, $i * 10%);

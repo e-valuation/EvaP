@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from datetime import time as datetime_time
@@ -10,7 +11,7 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.db import transaction
 from django.utils.timezone import now
-from pydantic import ConfigDict, TypeAdapter, with_config
+from pydantic import TypeAdapter
 from typing_extensions import TypedDict
 
 from evap.evaluation.models import Contribution, Course, CourseType, Evaluation, Program, Semester, UserProfile
@@ -24,14 +25,16 @@ class ImportStudent(TypedDict):
     gguid: str
     email: str
     name: str  # last name
-    christianname: str  # first name
+    christianname: str  # official, full first name
+    # name officially registered to address the person (not necessarily the chosen name)
+    callingname: str
 
 
 class ImportLecturer(TypedDict):
     gguid: str
     email: str
     name: str  # last name
-    christianname: str  # first name
+    christianname: str  # official, full first name
     titlefront: str  # title
 
 
@@ -51,6 +54,9 @@ class ImportAppointment(TypedDict):
     end: str
 
 
+LANGUAGE_MAP = {"Deutsch": "de", "Englisch": "en"}
+
+
 class ImportEvent(TypedDict):
     """An event can be a teaching course or exam course that we import together as a course with two evaluations."""
 
@@ -64,9 +70,9 @@ class ImportEvent(TypedDict):
     appointments: NotRequired[list[ImportAppointment]]
     lecturers: NotRequired[list[ImportRelated]]
     students: NotRequired[list[ImportRelated]]
+    language: str  # Deutsch/Englisch
 
 
-@with_config(ConfigDict(extra="forbid"))
 class ImportDict(TypedDict):
     students: list[ImportStudent]
     lecturers: list[ImportLecturer]
@@ -127,6 +133,7 @@ class ImportStatistics:
         log += self._make_total(len(self.name_changes))
         for name_change in self.name_changes:
             log += f"- {name_change.old_first_name_given} {name_change.old_last_name} → {name_change.new_first_name_given} {name_change.new_last_name} (email: {name_change.email})\n"
+        log += "\n"
 
         log += self._make_stats("New Courses", self.new_courses)
         log += self._make_stats("New Evaluations", self.new_evaluations)
@@ -177,31 +184,43 @@ class JSONImporter:
         self.courses_by_gguid: dict[str, Course] = {}
         self.statistics = ImportStatistics()
 
+    @staticmethod
+    def _clean_whitespaces(text: str) -> str:
+        # Use regex for cleaning to also include non-ASCII whitespaces like non-breaking whitespaces
+        return re.sub(r"\s+", " ", text.strip())
+
+    def _get_first_name_given(self, entry: ImportStudent) -> str:
+        if entry["callingname"]:
+            return entry["callingname"]
+        return entry["christianname"]
+
     def _get_users_with_longest_title(self, user_profiles: list[UserProfile]) -> list[UserProfile]:
         max_title_len = max((len(user.title) for user in user_profiles), default=0)
         return [user for user in user_profiles if len(user.title) == max_title_len]
 
     def _remove_non_responsible_users(self, user_profiles: list[UserProfile]) -> list[UserProfile]:
-        return list(filter(lambda p: p.email not in settings.NON_RESPONSIBLE_USERS, user_profiles))
+        return [user for user in user_profiles if user.email not in settings.NON_RESPONSIBLE_USERS]
 
     def _get_course_type(self, name: str) -> CourseType:
-        lookup = name.strip().lower()
+        name = self._clean_whitespaces(name)
+        lookup = name.lower()
         if lookup in self.course_type_cache:
             return self.course_type_cache[lookup]
 
         # It could happen that the importer needs a new course type
         course_type, __ = CourseType.objects.get_or_create(name_de=name, defaults={"name_en": name})
-        self.course_type_cache[name] = course_type
+        self.course_type_cache[lookup] = course_type
         return course_type
 
     def _get_program(self, name: str) -> Program:
+        name = self._clean_whitespaces(name)
         lookup = name.strip().lower()
         if lookup in self.program_cache:
             return self.program_cache[lookup]
 
         # It could happen that the importer needs a new program
         program, __ = Program.objects.get_or_create(name_de=name, defaults={"name_en": name})
-        self.program_cache[name] = program
+        self.program_cache[lookup] = program
         return program
 
     def _get_user_profiles(self, data: list[ImportRelated]) -> list[UserProfile]:
@@ -223,15 +242,20 @@ class JSONImporter:
     def _import_students(self, data: list[ImportStudent]) -> None:
         for entry in data:
             email = clean_email(entry["email"])
+            first_name_given = self._clean_whitespaces(self._get_first_name_given(entry))
+            last_name = self._clean_whitespaces(entry["name"])
             if not email:
                 self.statistics.warnings.append(
-                    WarningMessage(obj=f"Student {entry['christianname']} {entry['name']}", message="No email defined")
+                    WarningMessage(obj=f"Student {first_name_given} {last_name}", message="No email defined")
                 )
             else:
+                if email in settings.IGNORE_USERS:
+                    continue
+
                 user_profile, __, changes = update_or_create_with_changes(
                     UserProfile,
                     email=email,
-                    defaults={"last_name": entry["name"], "first_name_given": entry["christianname"]},
+                    defaults={"last_name": last_name, "first_name_given": first_name_given},
                 )
                 if changes:
                     self._create_name_change_from_changes(user_profile, changes)
@@ -241,20 +265,26 @@ class JSONImporter:
     def _import_lecturers(self, data: list[ImportLecturer]) -> None:
         for entry in data:
             email = clean_email(entry["email"])
+            first_name_given = self._clean_whitespaces(entry["christianname"])
+            last_name = self._clean_whitespaces(entry["name"])
             if not email:
                 self.statistics.warnings.append(
                     WarningMessage(
-                        obj=f"Contributor {entry['christianname']} {entry['name']}", message="No email defined"
+                        obj=f"Contributor {first_name_given} {last_name}",
+                        message="No email defined",
                     )
                 )
             else:
+                if email in settings.IGNORE_USERS:
+                    continue
+
                 user_profile, __, changes = update_or_create_with_changes(
                     UserProfile,
                     email=email,
                     defaults={
-                        "last_name": entry["name"],
-                        "first_name_given": entry["christianname"],
-                        "title": entry["titlefront"],
+                        "last_name": last_name,
+                        "first_name_given": first_name_given,
+                        "title": self._clean_whitespaces(entry["titlefront"]),
                     },
                 )
                 if changes:
@@ -262,8 +292,18 @@ class JSONImporter:
 
                 self.users_by_gguid[entry["gguid"]] = user_profile
 
-    def _import_course(self, data: ImportEvent, course_type: CourseType | None = None) -> Course:
+    def _import_course(self, data: ImportEvent, course_type: CourseType | None = None) -> Course | None:
         course_type = self._get_course_type(data["type"]) if course_type is None else course_type
+
+        if course_type.skip_on_automated_import:
+            self.statistics.warnings.append(
+                WarningMessage(
+                    obj=data["title"],
+                    message=f"Course skipped because skipping of courses with type {course_type.name_en} is activated",
+                )
+            )
+            return None
+
         responsibles = self._get_user_profiles(data["lecturers"])
         responsibles = self._remove_non_responsible_users(responsibles)
         responsibles = self._get_users_with_longest_title(responsibles)
@@ -273,7 +313,11 @@ class JSONImporter:
             Course,
             semester=self.semester,
             cms_id=data["gguid"],
-            defaults={"name_de": data["title"], "name_en": data["title_en"], "type": course_type},
+            defaults={
+                "name_de": self._clean_whitespaces(data["title"]),
+                "name_en": self._clean_whitespaces(data["title_en"]),
+                "type": course_type,
+            },
         )
         changes |= update_m2m_with_changes(course, "responsibles", responsibles)
 
@@ -300,44 +344,37 @@ class JSONImporter:
             course.programs.add(*programs)
 
     def _import_course_from_unused_exam(self, data: ImportEvent) -> Course | None:
-        prefix, sep, actual_title = data["title"].partition(":")
-        prefix = prefix.strip()
-        actual_title = actual_title.strip()
-        if not sep:
-            return None
-
         try:
-            course_type = CourseType.objects.get(import_names__contains=[prefix])
+            course_type = CourseType.objects.get(import_names__contains=[data["type"]])
         except CourseType.DoesNotExist:
             return None
 
-        data["title"] = actual_title
-        if ":" in data["title_en"]:
-            data["title_en"] = data["title_en"].partition(":")[2].strip()
         return self._import_course(data, course_type)
 
     # pylint: disable=too-many-locals
     def _import_evaluation(self, course: Course, data: ImportEvent) -> Evaluation:  # noqa: PLR0912
         if "appointments" not in data or not data["appointments"]:
+            course_info = f"{course.name} ({course.type})"
+            if data["isexam"]:
+                course_info += " [Exam]"
             self.statistics.warnings.append(
-                WarningMessage(obj=course.name, message="No dates defined, using default end date")
+                WarningMessage(obj=course_info, message="No dates defined, using default end date")
             )
             course_end = datetime.combine(self.default_course_end, self.MIDNIGHT)
         else:
             course_end = max(datetime.strptime(app["end"], self.DATETIME_FORMAT) for app in data["appointments"])
 
-        assert isinstance(data["isexam"], bool)
         if data["isexam"]:
             # Set evaluation time frame of three days for exam evaluations:
             evaluation_start_datetime = course_end.replace(hour=8, minute=0, second=0, microsecond=0) + timedelta(
                 days=1
             )
-            evaluation_end_date = (course_end + timedelta(days=3)).date()
+            evaluation_end_date = (course_end + settings.EXAM_EVALUATION_DEFAULT_DURATION).date()
 
             name_de = data["title"].split(" - ")[-1] if " - " in data["title"] else "Prüfung"
             name_en = data["title_en"].split(" - ")[-1] if " - " in data["title_en"] else "Exam"
 
-            weight = 1
+            weight = settings.EXAM_EVALUATION_DEFAULT_WEIGHT
 
             # Update previously created main evaluation
             # If events are graded for any program, wait for grade upload before publishing
@@ -348,6 +385,8 @@ class JSONImporter:
             course.evaluations.all().update(
                 wait_for_grade_upload_before_publishing=wait_for_grade_upload_before_publishing
             )
+
+            is_rewarded = False
         else:
             # Set evaluation time frame of two weeks for normal evaluations:
             # Start datetime is at 8:00 am on the monday in the week before the event ends
@@ -359,20 +398,33 @@ class JSONImporter:
 
             name_de, name_en = "", ""
 
-            weight = 9
+            weight = settings.MAIN_EVALUATION_DEFAULT_WEIGHT
 
             # Might be overwritten when importing related exam evaluation
             wait_for_grade_upload_before_publishing = True
 
+            is_rewarded = True
+
+        main_language = LANGUAGE_MAP.get(data["language"], Evaluation.UNDECIDED_MAIN_LANGUAGE)
+        if main_language == Evaluation.UNDECIDED_MAIN_LANGUAGE:
+            self.statistics.warnings.append(
+                WarningMessage(
+                    obj=data["title"],
+                    message=f"Event has an unknown language: {data['language']}, main language has been set to undecided",
+                )
+            )
+
         participants = self._get_user_profiles(data["students"]) if "students" in data else []
 
         defaults = {
-            "name_de": name_de,
-            "name_en": name_en,
+            "name_de": self._clean_whitespaces(name_de),
+            "name_en": self._clean_whitespaces(name_en),
             "vote_start_datetime": evaluation_start_datetime,
             "vote_end_date": evaluation_end_date,
             "wait_for_grade_upload_before_publishing": wait_for_grade_upload_before_publishing,
             "weight": weight,
+            "is_rewarded": is_rewarded,
+            "main_language": main_language,
         }
         evaluation, created = Evaluation.objects.get_or_create(
             course=course,
@@ -415,20 +467,19 @@ class JSONImporter:
             return None, False
 
         contribution, created = Contribution.objects.update_or_create(
-            evaluation=evaluation,
-            contributor=user_profile,
+            evaluation=evaluation, contributor=user_profile, role=Contribution.Role.EDITOR
         )
         return contribution, created
 
-    def _import_events(self, data: list[ImportEvent]) -> None:
+    def _import_events(self, data: list[ImportEvent]) -> None:  # noqa:PLR0912
         # Divide in two lists so corresponding courses are imported before their exams
         non_exam_events = (event for event in data if not event["isexam"])
         exam_events = (event for event in data if event["isexam"])
 
         for event in non_exam_events:
             course = self._import_course(event)
-
-            self._import_evaluation(course, event)
+            if course is not None:
+                self._import_evaluation(course, event)
 
         exam_events_without_related_non_exam_event = []
         courses_with_exams: dict[Course, list[Evaluation]] = {}
@@ -440,7 +491,11 @@ class JSONImporter:
             # Exam events have the non-exam event as a single entry in the relatedevents list
             # We lookup the Course from this non-exam event (the main evaluation) to add the exam evaluation to the same Course
             assert len(event["relatedevents"]) == 1
-            course = self.courses_by_gguid[event["relatedevents"][0]["gguid"]]
+
+            # Don't import if course was skipped
+            course = self.courses_by_gguid.get(event["relatedevents"][0]["gguid"])
+            if course is None:
+                continue
 
             self._import_course_programs(course, event)
 

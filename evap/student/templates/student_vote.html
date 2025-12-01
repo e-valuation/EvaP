@@ -51,7 +51,32 @@
             </small>
         </div>
     {% endif %}
-    <h3 class="mb-3">{{ evaluation.full_name }} ({{ evaluation.course.semester.name }})</h3>
+    <h3 class="mb-3 d-flex justify-content-between flex-column-mobile">
+        {{ evaluation.full_name }} ({{ evaluation.course.semester.name }})
+
+        <div class="float-lg-end mt-3 mt-lg-0 d-flex justify-content-end height-fit-content">
+            <div class="btn-switch btn-switch-light btn-switch-evaluation-language">
+                <div class="btn-switch-label my-auto">
+                    {% translate "Questionnaire language" %}
+                    <span class="fas fa-circle-info" data-bs-toggle="tooltip" title="{% translate 'This only changes the language of the questionnaire and not the whole page. Changing this will not delete your existing answers.' %}"></span>
+                </div>
+                
+                <div class="btn-switch btn-group">
+                    {% for language_code, language_name in languages %}
+                        <a data-bs-toggle="tooltip"
+                           data-bs-placement="bottom"
+                           data-set-spinner-icon="span-set-evaluation-language-{{ language_code }}"
+                           title="{{ language_name }}"
+                           role="button"
+                           href="{{ request.path }}?language={{ language_code }}"
+                           class="btn btn-sm btn-light{% if evaluation_language == language_code %} active{% endif %}">
+                            <span id="span-set-evaluation-language-{{ language_code }}">{{ language_code|upper }}</span>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </h3>
     <form id="student-vote-form" method="POST" class="form-horizontal">
         {% csrf_token %}
 
@@ -87,7 +112,7 @@
         {% if evaluation_form_group_dropout %}
             <div class="card card-outline-warning mb-3">
                 <div class="card-header">
-                    <span class="fas fa-triangle-exclamation"></span> {% translate 'Dropout Questionnaire' %}
+                    <span class="fas fa-triangle-exclamation"></span> {% translate 'Dropout questionnaire' %}
                 </div>
                 <div class="card-body">
                     <p>
@@ -107,59 +132,61 @@
             </div>
         {% endif %}
 
-        {% if evaluation_form_group_top %}
-            <div class="card card-outline-primary mb-3">
-                <div class="card-header">
-                    {% translate 'General questions' %}
+        {% language evaluation_language %}
+            {% if evaluation_form_group_top %}
+                <div class="card card-outline-primary mb-3">
+                    <div class="card-header">
+                        {% translate 'General questions' %}
+                    </div>
+                    <div class="card-body">
+                        {% include 'student_vote_questionnaire_group.html' with questionnaire_group=evaluation_form_group_top textanswers_visible_to=general_contribution_textanswers_visible_to preview=preview %}
+                    </div>
                 </div>
-                <div class="card-body">
-                    {% include 'student_vote_questionnaire_group.html' with questionnaire_group=evaluation_form_group_top textanswers_visible_to=general_contribution_textanswers_visible_to preview=preview %}
-                </div>
-            </div>
-        {% endif %}
-        {% if contributor_form_groups %}
-            <div class="card card-outline-primary mb-3">
-                <div class="card-header">
-                    {% translate 'Questions about the contributors' %}
-                </div>
-                <div class="card-body">
-                    {% if not preview %}
-                        <div class="callout callout-info">
-                            {% blocktranslate %}Please vote for all contributors you worked with. Click on "I can't give feedback" to skip a person.{% endblocktranslate %}
-                        </div>
-                    {% endif %}
+            {% endif %}
+            {% if contributor_form_groups %}
+                <div class="card card-outline-primary mb-3">
+                    <div class="card-header">
+                        {% translate 'Questions about the contributors' %}
+                    </div>
+                    <div class="card-body">
+                        {% if not preview %}
+                            <div class="callout callout-info">
+                                {% blocktranslate %}Please vote for all contributors you worked with. Click on "I can't give feedback" to skip a person.{% endblocktranslate %}
+                            </div>
+                        {% endif %}
 
-                    {% for contributor, label, form_group, contributor_has_errors, textanswers_visible_to in contributor_form_groups %}
-                        <div class="card collapsible{% if not forloop.last %} mb-3{% endif %}">
-                            <div class="card-header d-flex tab-row">
-                                <div class="me-auto">
-                                    <button class="collapse-toggle{% if errors_exist and not contributor_has_errors %} collapsed tab-selectable{% endif %} bg-transparent" data-bs-toggle="collapse"
-                                        data-bs-target="#vote-area-{{ contributor.id }}" aria-expanded="false" aria-controls="vote-area-{{ contributor.id }}" tabindex="-1" type="button">
-                                        {{ contributor.full_name }}
-                                        {% if label %} &ndash; <span class="fst-italic">{{ label }}</span>{% endif %}
-                                    </button>
+                        {% for contributor, label, form_group, contributor_has_errors, textanswers_visible_to in contributor_form_groups %}
+                            <div class="card collapsible{% if not forloop.last %} mb-3{% endif %}">
+                                <div class="card-header d-flex tab-row">
+                                    <div class="me-auto">
+                                        <button class="collapse-toggle{% if errors_exist and not contributor_has_errors %} collapsed tab-selectable{% endif %} bg-transparent" data-bs-toggle="collapse"
+                                            data-bs-target="#vote-area-{{ contributor.id }}" aria-expanded="false" aria-controls="vote-area-{{ contributor.id }}" tabindex="-1" type="button">
+                                            {{ contributor.full_name }}
+                                            {% if label %} &ndash; <span class="fst-italic">{{ label }}</span>{% endif %}
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="collapse{% if not errors_exist or contributor_has_errors %} show{% endif %}" id="vote-area-{{ contributor.id }}">
+                                    <div class="card-body">
+                                        {% include 'student_vote_questionnaire_group.html' with questionnaire_group=form_group preview=preview textanswers_visible_to=textanswers_visible_to contributor=contributor%}
+                                    </div>
                                 </div>
                             </div>
-                            <div class="collapse{% if not errors_exist or contributor_has_errors %} show{% endif %}" id="vote-area-{{ contributor.id }}">
-                                <div class="card-body">
-                                    {% include 'student_vote_questionnaire_group.html' with questionnaire_group=form_group preview=preview textanswers_visible_to=textanswers_visible_to contributor=contributor%}
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
+                        {% endfor %}
+                    </div>
                 </div>
-            </div>
-        {% endif %}
-        {% if evaluation_form_group_bottom %}
-            <div class="card card-outline-primary mb-3">
-                <div class="card-header">
-                    {% translate "General questions" %}
+            {% endif %}
+            {% if evaluation_form_group_bottom %}
+                <div class="card card-outline-primary mb-3">
+                    <div class="card-header">
+                        {% translate "General questions" %}
+                    </div>
+                    <div class="card-body">
+                        {% include "student_vote_questionnaire_group.html" with questionnaire_group=evaluation_form_group_bottom textanswers_visible_to=general_contribution_textanswers_visible_to preview=preview %}
+                    </div>
                 </div>
-                <div class="card-body">
-                    {% include "student_vote_questionnaire_group.html" with questionnaire_group=evaluation_form_group_bottom textanswers_visible_to=general_contribution_textanswers_visible_to preview=preview %}
-                </div>
-            </div>
-        {% endif %}
+            {% endif %}
+        {% endlanguage %}
         {% if small_evaluation_size_warning and not preview and evaluation.num_voters == 0 %}
             <div class="callout callout-warning mb-3" id="bottom_text_results_publish_confirmation_card">
                 <div class="callout-header">
@@ -216,6 +243,19 @@
                 bottom: document.querySelector("#text_results_publish_confirmation_bottom"),
                 bottomCard: document.querySelector("#bottom_text_results_publish_confirmation_card"),
             };
+
+            // Ensure that selected questionnaire language is saved and loaded
+            const languageStorageKey = "student-vote-language-{{ evaluation.id }}-{{ request.user.id }}";
+            const params = new URLSearchParams(document.location.search);
+            const currentlySelectedLanguage = "{{ evaluation_language|escapejs }}";
+            const savedLanguage = localStorage.getItem(languageStorageKey);
+
+            if (params.get("language")) {
+                localStorage.setItem(languageStorageKey, currentlySelectedLanguage);
+            } else if (savedLanguage && savedLanguage !== currentlySelectedLanguage) {
+                params.set("language", savedLanguage);
+                document.location.search = params.toString();
+            }
 
             const formSaver = new AutoFormSaver(document.getElementById("student-vote-form"), {
                 customKeySuffix: "[user={{ request.user.id }}]", // don't load data for other users

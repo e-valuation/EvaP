@@ -19,7 +19,7 @@ from django.template.defaultfilters import yesno
 from django.utils.formats import localize
 from django.utils.translation import gettext_lazy as _
 
-from evap.evaluation.tools import capitalize_first
+from evap.evaluation.tools import capitalize_first, inject_choices_constraint
 
 CREATE_LOGENTRIES = True
 
@@ -103,6 +103,7 @@ class LogEntry(models.Model):
     request_id = models.CharField(max_length=36, blank=True)
     data = models.JSONField(default=dict, encoder=LogJSONEncoder)
 
+    @inject_choices_constraint(locals())
     class Meta:
         ordering = ["-datetime", "-id"]
 
@@ -257,7 +258,10 @@ class LoggedModel(models.Model):
             self._logentry = self._create_log_entry(*args, **kwargs)
 
     def _update_log(self, changes, action_type: InstanceActionType, store_in_db=True):
-        if not changes or not CREATE_LOGENTRIES:
+        if not CREATE_LOGENTRIES:
+            return
+        if action_type == InstanceActionType.CHANGE and not changes:
+            # All changes are on unlogged fields
             return
 
         self._attach_log_entry_if_not_exists(action_type)

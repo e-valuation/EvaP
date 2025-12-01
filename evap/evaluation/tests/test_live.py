@@ -1,5 +1,4 @@
 from django.core import mail
-from django.urls import reverse
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.expected_conditions import text_to_be_present_in_element, visibility_of_element_located
 
@@ -8,7 +7,7 @@ from evap.evaluation.tests.tools import LiveServerTest
 
 class ContactModalTests(LiveServerTest):
     def test_contact_modal(self) -> None:
-        self.selenium.get(self.live_server_url + reverse("evaluation:index"))
+        self.selenium.get(self.reverse("evaluation:index"))
         self.selenium.find_element(By.ID, "feedbackModalShowButton").click()
         self.wait.until(visibility_of_element_located((By.ID, "feedbackModalMessageText")))
         self.selenium.find_element(By.ID, "feedbackModalMessageText").send_keys("Test message")

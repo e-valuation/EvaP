@@ -1,6 +1,5 @@
 from typing import Any
 
-from django.urls import reverse
 from model_bakery import baker
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.expected_conditions import (
@@ -90,6 +89,7 @@ class ResultsIndexLiveTests(LiveServerTest):
                 course=courses[course_name],
                 _participant_count=participant_count,
                 _voter_count=voter_count,
+                main_language="en",
                 **attrs,
             )
 
@@ -101,7 +101,7 @@ class ResultsIndexLiveTests(LiveServerTest):
         make_evaluation("d", 50, 45)
         make_evaluation("e", 5, 5)
 
-        self.url = self.live_server_url + reverse("results:index")
+        self.url = self.reverse("results:index")
 
     def assertRowsVisible(self, *rows: tuple[str, str]):
         items = tuple(

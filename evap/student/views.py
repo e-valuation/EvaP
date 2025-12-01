@@ -13,6 +13,7 @@ from django.db.models import Exists, F, Max, OuterRef, Q, Sum
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.utils import translation
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 
@@ -65,8 +66,7 @@ class GlobalRewards:
 
         evaluations = (
             Semester.active_semester()
-            .evaluations.filter(is_single_result=False)
-            .exclude(state__lt=Evaluation.State.APPROVED)
+            .evaluations.exclude(state__lt=Evaluation.State.APPROVED)
             .exclude(is_rewarded=False)
             .exclude(id__in=settings.GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS)
             .exclude(course__type__id__in=settings.GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS)
@@ -252,7 +252,9 @@ def render_vote_page(
     dropout: bool,
     for_rendering_in_modal: bool = False,
 ) -> HttpResponse:
-    form_groups = get_vote_page_form_groups(request, evaluation, preview=preview, preselect_no_answer=dropout)
+    language = request.GET.get("language", evaluation.main_language)
+    with translation.override(language):
+        form_groups = get_vote_page_form_groups(request, evaluation, preview=preview, preselect_no_answer=dropout)
 
     assert preview or not all(form.is_valid() for form_group in form_groups.values() for form in form_group)
 
@@ -305,6 +307,8 @@ def render_vote_page(
         "general_contribution_textanswers_visible_to": textanswers_visible_to(evaluation.general_contribution),
         "text_answer_warnings": TextAnswerWarning.objects.all(),
         "voter_count_needed_for_publishing_rating_results": settings.VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS,
+        "languages": settings.LANGUAGES,
+        "evaluation_language": language,
     }
     return render(request, "student_vote.html", template_data)
 

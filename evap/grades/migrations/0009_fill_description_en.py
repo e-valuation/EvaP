@@ -14,7 +14,7 @@ def fill_description_en(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('grades', '0008_add_gradedocument_description_en'),
+        ("grades", "0008_add_gradedocument_description_en"),
     ]
 
     operations = [

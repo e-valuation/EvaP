@@ -6,38 +6,38 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0059_add_yes_no_questions'),
+        ("evaluation", "0059_add_yes_no_questions"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='faqquestion',
-            name='question_de',
-            field=models.CharField(max_length=1024, verbose_name='question (german)'),
+            model_name="faqquestion",
+            name="question_de",
+            field=models.CharField(max_length=1024, verbose_name="question (german)"),
         ),
         migrations.AlterField(
-            model_name='faqquestion',
-            name='question_en',
-            field=models.CharField(max_length=1024, verbose_name='question (english)'),
+            model_name="faqquestion",
+            name="question_en",
+            field=models.CharField(max_length=1024, verbose_name="question (english)"),
         ),
         migrations.AlterField(
-            model_name='faqsection',
-            name='title_de',
-            field=models.CharField(max_length=255, verbose_name='section title (german)'),
+            model_name="faqsection",
+            name="title_de",
+            field=models.CharField(max_length=255, verbose_name="section title (german)"),
         ),
         migrations.AlterField(
-            model_name='faqsection',
-            name='title_en',
-            field=models.CharField(max_length=255, verbose_name='section title (english)'),
+            model_name="faqsection",
+            name="title_en",
+            field=models.CharField(max_length=255, verbose_name="section title (english)"),
         ),
         migrations.AlterField(
-            model_name='question',
-            name='text_de',
-            field=models.CharField(max_length=1024, verbose_name='question text (german)'),
+            model_name="question",
+            name="text_de",
+            field=models.CharField(max_length=1024, verbose_name="question text (german)"),
         ),
         migrations.AlterField(
-            model_name='question',
-            name='text_en',
-            field=models.CharField(max_length=1024, verbose_name='question text (english)'),
+            model_name="question",
+            name="text_en",
+            field=models.CharField(max_length=1024, verbose_name="question text (english)"),
         ),
     ]

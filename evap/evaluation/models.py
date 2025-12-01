@@ -42,6 +42,7 @@ from evap.evaluation.models_logging import LoggedModel
 from evap.evaluation.tools import (
     StrOrPromise,
     clean_email,
+    inject_choices_constraint,
     is_external_email,
     is_prefetched,
     password_login_is_active,
@@ -213,6 +214,7 @@ class Questionnaire(models.Model):
 
     objects = QuestionnaireManager()
 
+    @inject_choices_constraint(locals())
     class Meta:
         ordering = ["type", "order", "pk"]
         verbose_name = _("questionnaire")
@@ -262,18 +264,12 @@ class Questionnaire(models.Model):
         return not self.contributions.exists()
 
     @property
-    def text_questions(self):
+    def text_questions(self) -> list["Question"]:
         return [question for question in self.questions.all() if question.is_text_question]
 
     @property
-    def rating_questions(self):
+    def rating_questions(self) -> list["Question"]:
         return [question for question in self.questions.all() if question.is_rating_question]
-
-    SINGLE_RESULT_QUESTIONNAIRE_NAME = "Single result"
-
-    @classmethod
-    def single_result_questionnaire(cls):
-        return cls.objects.get(name_en=cls.SINGLE_RESULT_QUESTIONNAIRE_NAME)
 
 
 class Program(models.Model):
@@ -307,6 +303,7 @@ class CourseType(models.Model):
     import_names = ArrayField(
         models.CharField(max_length=1024), default=list, verbose_name=_("import names"), blank=True
     )
+    skip_on_automated_import = models.BooleanField(verbose_name=_("skip on automated import"), default=False)
 
     order = models.IntegerField(verbose_name=_("course type order"), default=-1)
 
@@ -423,6 +420,8 @@ class Course(LoggedModel):
 class Evaluation(LoggedModel):
     """Models a single evaluation, e.g. the exam evaluation of the Math 101 course of 2002."""
 
+    UNDECIDED_MAIN_LANGUAGE = "x"
+
     class State(models.IntegerChoices):
         NEW = 10, _("new")
         PREPARED = 20, _("prepared")
@@ -442,10 +441,16 @@ class Evaluation(LoggedModel):
     name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), blank=True)
     name = translate(en="name_en", de="name_de")
 
+    # questionnaires are shown in this language by default
+    main_language = models.CharField(
+        max_length=2,
+        verbose_name=_("main language"),
+        default=UNDECIDED_MAIN_LANGUAGE,
+        choices=settings.LANGUAGES + [(UNDECIDED_MAIN_LANGUAGE, _("undecided"))],
+    )
+
     # defines how large the influence of this evaluation's grade is on the total grade of its course
     weight = models.PositiveSmallIntegerField(verbose_name=_("weight"), default=1)
-
-    is_single_result = models.BooleanField(verbose_name=_("is single result"), default=False)
 
     # whether participants must vote to qualify for reward points
     is_rewarded = models.BooleanField(verbose_name=_("is rewarded"), default=True)
@@ -496,7 +501,7 @@ class Evaluation(LoggedModel):
 
     @property
     def has_exam_evaluation(self):
-        return self.course.evaluations.filter(name_de="Klausur", name_en="Exam").exists()
+        return self.course.evaluations.filter(Q(name_de="Klausur") | Q(name_en="Exam")).exists()
 
     @property
     def earliest_possible_exam_date(self):
@@ -504,17 +509,17 @@ class Evaluation(LoggedModel):
 
     @transaction.atomic
     def create_exam_evaluation(self, exam_date: date):
-        self.weight = 9
+        self.weight = settings.MAIN_EVALUATION_DEFAULT_WEIGHT
         self.vote_end_date = exam_date - timedelta(days=1)
         self.save()
         exam_evaluation = Evaluation(
             course=self.course,
             name_de="Klausur",
             name_en="Exam",
-            weight=1,
+            weight=settings.EXAM_EVALUATION_DEFAULT_WEIGHT,
             is_rewarded=False,
             vote_start_datetime=datetime.combine(exam_date + timedelta(days=1), time(8, 0)),
-            vote_end_date=exam_date + timedelta(days=3),
+            vote_end_date=exam_date + settings.EXAM_EVALUATION_DEFAULT_DURATION,
         )
         exam_evaluation.save()
 
@@ -532,6 +537,7 @@ class Evaluation(LoggedModel):
         REVIEW_URGENT = auto()
         REVIEWED = auto()
 
+    @inject_choices_constraint(locals())
     class Meta:
         unique_together = [
             ["course", "name_de"],
@@ -653,6 +659,10 @@ class Evaluation(LoggedModel):
         return self.general_contribution and self.general_contribution.questionnaires.count() > 0
 
     @property
+    def has_decided_main_language(self):
+        return self.main_language != self.UNDECIDED_MAIN_LANGUAGE
+
+    @property
     def all_contributions_have_questionnaires(self):
         if is_prefetched(self, "contributions"):
             if not self.contributions:
@@ -690,8 +700,6 @@ class Evaluation(LoggedModel):
         return True
 
     def can_results_page_be_seen_by(self, user):
-        if self.is_single_result:
-            return False
         if user.is_manager:
             return True
         if user.is_reviewer and not self.course.semester.results_are_archived:
@@ -704,7 +712,7 @@ class Evaluation(LoggedModel):
 
     @property
     def can_reset_to_new(self):
-        return Evaluation.State.PREPARED <= self.state <= Evaluation.State.REVIEWED and not self.is_single_result
+        return Evaluation.State.PREPARED <= self.state <= Evaluation.State.REVIEWED
 
     @property
     def can_be_edited_by_manager(self):
@@ -712,7 +720,7 @@ class Evaluation(LoggedModel):
 
     @property
     def can_be_deleted_by_manager(self):
-        return self.can_be_edited_by_manager and (self.num_voters == 0 or self.is_single_result)
+        return self.can_be_edited_by_manager and self.num_voters == 0
 
     @cached_property
     def num_participants(self):
@@ -730,11 +738,7 @@ class Evaluation(LoggedModel):
             raise NotArchivableError
         if self._participant_count is not None:
             assert self._voter_count is not None
-            assert (
-                self.is_single_result
-                or self._voter_count == self.voters.count()
-                and self._participant_count == self.participants.count()
-            )
+            assert self._voter_count == self.voters.count() and self._participant_count == self.participants.count()
             return
         assert self._participant_count is None and self._voter_count is None
         self._participant_count = self.num_participants
@@ -766,9 +770,6 @@ class Evaluation(LoggedModel):
 
     @property
     def can_publish_average_grade(self):
-        if self.is_single_result:
-            return True
-
         # the average grade is only published if at least the configured percentage of participants voted during the evaluation for significance reasons
         return (
             self.can_publish_rating_results
@@ -777,9 +778,6 @@ class Evaluation(LoggedModel):
 
     @property
     def can_publish_rating_results(self):
-        if self.is_single_result:
-            return True
-
         # the rating results are only published if at least the configured number of participants voted during the evaluation for anonymity reasons
         return self.num_voters >= settings.VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS
 
@@ -787,7 +785,12 @@ class Evaluation(LoggedModel):
     def ready_for_editors(self):
         pass
 
-    @transition(field=state, source=State.PREPARED, target=State.EDITOR_APPROVED)
+    @transition(
+        field=state,
+        source=State.PREPARED,
+        target=State.EDITOR_APPROVED,
+        conditions=[lambda self: self.has_decided_main_language],
+    )
     def editor_approve(self):
         pass
 
@@ -795,7 +798,7 @@ class Evaluation(LoggedModel):
         field=state,
         source=[State.NEW, State.PREPARED, State.EDITOR_APPROVED],
         target=State.APPROVED,
-        conditions=[lambda self: self.general_contribution_has_questionnaires],
+        conditions=[lambda self: self.general_contribution_has_questionnaires and self.has_decided_main_language],
     )
     def manager_approve(self):
         pass
@@ -836,15 +839,6 @@ class Evaluation(LoggedModel):
         pass
 
     @transition(
-        field=state,
-        source=[State.NEW, State.REVIEWED],
-        target=State.REVIEWED,
-        conditions=[lambda self: self.is_single_result],
-    )
-    def skip_review_single_result(self):
-        pass
-
-    @transition(
         field=state, source=State.REVIEWED, target=State.EVALUATED, conditions=[lambda self: not self.is_fully_reviewed]
     )
     def reopen_review(self):
@@ -852,7 +846,7 @@ class Evaluation(LoggedModel):
 
     @transition(field=state, source=State.REVIEWED, target=State.PUBLISHED)
     def publish(self):
-        assert self.is_single_result or self._voter_count is None and self._participant_count is None
+        assert self._voter_count is None and self._participant_count is None
         self._voter_count = self.num_voters
         self._participant_count = self.num_participants
 
@@ -870,11 +864,7 @@ class Evaluation(LoggedModel):
 
     @transition(field=state, source=State.PUBLISHED, target=State.REVIEWED)
     def unpublish(self):
-        assert (
-            self.is_single_result
-            or self._voter_count == self.voters.count()
-            and self._participant_count == self.participants.count()
-        )
+        assert self._voter_count == self.voters.count() and self._participant_count == self.participants.count()
         self._voter_count = None
         self._participant_count = None
 
@@ -900,7 +890,7 @@ class Evaluation(LoggedModel):
 
     @property
     def voter_ratio(self):
-        if self.is_single_result or self.num_participants == 0:
+        if self.num_participants == 0:
             return 0
         return self.num_voters / self.num_participants
 
@@ -1085,7 +1075,6 @@ class Evaluation(LoggedModel):
     def unlogged_fields(self):
         return super().unlogged_fields + [
             "voters",
-            "is_single_result",
             "can_publish_text_results",
             "_voter_count",
             "_participant_count",
@@ -1149,6 +1138,7 @@ class Contribution(LoggedModel):
 
     order = models.IntegerField(verbose_name=_("contribution order"), default=-1)
 
+    @inject_choices_constraint(locals())
     class Meta:
         unique_together = [["evaluation", "contributor"]]
         ordering = ["order"]
@@ -1157,7 +1147,11 @@ class Contribution(LoggedModel):
 
     @property
     def unlogged_fields(self):
-        return super().unlogged_fields + ["evaluation"] + (["contributor"] if self.is_general else [])
+        return (
+            super().unlogged_fields
+            + ["evaluation"]
+            + (["contributor", "role", "label", "textanswer_visibility"] if self.is_general else [])
+        )
 
     @property
     def is_general(self):
@@ -1237,6 +1231,7 @@ class Question(models.Model):
 
     type = models.PositiveSmallIntegerField(choices=QUESTION_TYPES, verbose_name=_("question type"))
 
+    @inject_choices_constraint(locals())
     class Meta:
         ordering = ["order"]
         verbose_name = _("question")
@@ -1522,7 +1517,7 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
 class Answer(models.Model):
     """
     An abstract answer to a question. For anonymity purposes, the answering
-    user ist not stored in the object. Concrete subclasses are
+    user is not stored in the object. Concrete subclasses are
     `RatingAnswerCounter`, and `TextAnswer`.
     """
 
@@ -1584,6 +1579,7 @@ class TextAnswer(Answer):
     # Staff users marked this answer for internal purposes; the meaning of the flag is determined by users
     is_flagged = models.BooleanField(verbose_name=_("is flagged"), default=False)
 
+    @inject_choices_constraint(locals())
     class Meta:
         # Prevent ordering by date for privacy reasons. Otherwise, entries
         # may be returned in insertion order.
@@ -1715,6 +1711,7 @@ class Infotext(models.Model):
         blank=False,
     )
 
+    @inject_choices_constraint(locals())
     class Meta:
         verbose_name = _("infotext")
         verbose_name_plural = _("infotexts")
@@ -1805,24 +1802,33 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
         blank=True,
         default="",
         verbose_name=_("display name"),
-        help_text=_("This will replace your first name."),
+        help_text=_("Replaces the first name."),
     )
     last_name = models.CharField(max_length=255, blank=True, verbose_name=_("last name"))
 
     language = models.CharField(max_length=8, blank=True, default="", verbose_name=_("language"))
 
-    # delegates of the user, which can also manage their evaluations
     delegates = models.ManyToManyField(
-        "evaluation.UserProfile", verbose_name=_("Delegates"), related_name="represented_users", blank=True
+        "evaluation.UserProfile",
+        verbose_name=_("Delegates"),
+        related_name="represented_users",
+        blank=True,
+        help_text=_("Users who can edit evaluations and see results on behalf of this user."),
     )
 
-    # users to which all emails should be sent in cc without giving them delegate rights
     cc_users = models.ManyToManyField(
-        "evaluation.UserProfile", verbose_name=_("CC Users"), related_name="ccing_users", blank=True
+        "evaluation.UserProfile",
+        verbose_name=_("CC Users"),
+        related_name="ccing_users",
+        blank=True,
+        help_text=_("Users who receive a copy of all emails sent to this user."),
     )
 
-    # flag for proxy users which represent a group of users
-    is_proxy_user = models.BooleanField(default=False, verbose_name=_("Proxy user"))
+    is_proxy_user = models.BooleanField(
+        default=False,
+        verbose_name=_("Proxy user"),
+        help_text=_("Technical user that represents a group of users."),
+    )
 
     # key for url based login of this user
     MAX_LOGIN_KEY = 2**31 - 1
@@ -1849,12 +1855,13 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
 
     objects = UserProfileManager()
 
+    @inject_choices_constraint(locals())
     class Meta:
         # keep in sync with ordering_key
         ordering = [
-            Lower(NullIf("last_name", Value(""))),
-            Lower(Coalesce(NullIf("first_name_chosen", Value("")), NullIf("first_name_given", Value("")))),
-            Lower("email"),
+            Lower(NullIf("last_name", Value(""))).asc(),
+            Lower(Coalesce(NullIf("first_name_chosen", Value("")), NullIf("first_name_given", Value("")))).asc(),
+            Lower("email").asc(),
         ]
 
         verbose_name = _("user")
@@ -2020,6 +2027,8 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
 
     @property
     def is_external(self):
+        if self.is_proxy_user and not self.email:
+            return False
         if not self.email:
             return True
         return is_external_email(self.email)
