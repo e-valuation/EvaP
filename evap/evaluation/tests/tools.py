@@ -58,7 +58,7 @@ class EvapTestRunner(DiscoverRunner):
         parser.add_argument(
             "--headed",
             help="Run the tests in non-headless mode, which makes the browser window visible. Useful for debugging.",
-            action="store_true"
+            action="store_true",
         )
 
     def setup_test_environment(self, **kwargs):
