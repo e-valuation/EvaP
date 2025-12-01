@@ -669,7 +669,6 @@ class TestResultsSemesterEvaluationDetailViewPrivateEvaluation(WebTest):
 
 
 class TestResultsTextanswerVisibility(WebTest):
-
     fixtures = ["minimal_test_data_results"]
     general_textanswers = {
         ".general_orig_published.",

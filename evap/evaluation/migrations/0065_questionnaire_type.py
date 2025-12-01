@@ -14,7 +14,6 @@ def migrate_type_to_is_for_contributors(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0064_questionnaire_index_rename"),
     ]

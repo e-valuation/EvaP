@@ -18,7 +18,6 @@ def fill_can_edit_from_role(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0114_remove_username"),
     ]

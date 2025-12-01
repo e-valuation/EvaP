@@ -116,7 +116,6 @@ class EvaluationEditLiveTest(LiveServerTest):
 
 class ParticipantCollapseTests(LiveServerTest):
     def test_collapse_with_editor_approved(self) -> None:
-
         participants = baker.make(UserProfile, _quantity=20)
         baker.make(UserProfile, last_name="participant")
 

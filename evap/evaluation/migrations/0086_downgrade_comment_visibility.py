@@ -14,7 +14,6 @@ def upgrade_comment_visibility(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0085_delete_cronjob_user"),
     ]

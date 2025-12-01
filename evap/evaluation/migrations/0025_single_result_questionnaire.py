@@ -14,7 +14,6 @@ def add_single_result_questionnaire(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0024_remove_likertanswers_and_gradeanswers"),
     ]

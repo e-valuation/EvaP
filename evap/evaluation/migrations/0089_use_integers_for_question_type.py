@@ -20,7 +20,6 @@ def question_types_convert_int_to_char(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0088_prepare_use_integers_and_groups_for_question_type"),
     ]

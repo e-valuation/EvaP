@@ -10,7 +10,6 @@ def _migrate(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0153_alter_userprofile_cc_users_and_more"),
     ]

@@ -26,7 +26,6 @@ def refill_reviewed_answer_field(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0069_delete_hidden_text_answers"),
     ]

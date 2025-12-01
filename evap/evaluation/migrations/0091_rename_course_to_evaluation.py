@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("grades", "0013_prepare_rename_course_to_evaluation"),
         ("evaluation", "0090_add_bipolar_question_type"),

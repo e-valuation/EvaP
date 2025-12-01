@@ -6,7 +6,6 @@ import evap.evaluation.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0123_evaluation_state_fsm_int"),
     ]
