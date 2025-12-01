@@ -34,9 +34,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import translation
 from django.utils.html import format_html
-from django.utils.translation import get_language
+from django.utils.translation import get_language, gettext_lazy, ngettext
 from django.utils.translation import gettext as _
-from django.utils.translation import gettext_lazy, ngettext
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, FormView, UpdateView
 

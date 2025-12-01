@@ -3,9 +3,8 @@ import logging
 import re
 from collections.abc import Iterable
 from dataclasses import dataclass, field
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from datetime import time as datetime_time
-from datetime import timedelta
 from typing import Any, NotRequired
 
 from django.conf import settings
