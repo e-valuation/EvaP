@@ -187,9 +187,7 @@ class JSONImporter:
             for import_name in course_type.import_names
         }
         self.exam_type_cache: dict[str, ExamType] = {
-            import_name.strip().lower(): exam_type
-            for exam_type in ExamType.objects.all()
-            for import_name in exam_type.import_names
+            import_name: exam_type for exam_type in ExamType.objects.all() for import_name in exam_type.import_names
         }
         self.program_cache: dict[str, Program] = {
             import_name.strip().lower(): program
@@ -204,11 +202,28 @@ class JSONImporter:
         # Use regex for cleaning to also include non-ASCII whitespaces like non-breaking whitespaces
         return re.sub(r"\s+", " ", text.strip())
 
-    def _disambiguate_name(self, wanted_name: str, current_names: list[str]):
+    def _extract_number_in_name(self, name: str, wanted_name: str) -> int | None:
+        if not name.startswith(wanted_name):
+            return None
+        name = name.removeprefix(wanted_name).strip()
+        if not name:
+            return 1
+        if not (name.startswith("(") and name.endswith(")")):
+            return None
+        name = name.removeprefix("(").removesuffix(")")
+        try:
+            number = int(name)
+            if number < 0:
+                return None
+            return number
+        except ValueError:
+            return None
+
+    def _disambiguate_name(self, wanted_name: str, current_names: list[str]) -> str:
         if not current_names:
             return wanted_name
-        matches = [re.match(rf"^{wanted_name}(?:\s+\((\d+)\))?$", name) for name in current_names]
-        real_matches = [int(match.groups(default="1")[0]) for match in matches if match]
+        matches = (self._extract_number_in_name(name, wanted_name) for name in current_names)
+        real_matches = [match for match in matches if match is not None]
         if not real_matches:
             return wanted_name
         number = max(real_matches)
@@ -238,13 +253,16 @@ class JSONImporter:
         return course_type
 
     def _get_exam_type(self, name: str) -> ExamType:
-        lookup = name.strip().lower()
-        if lookup in self.exam_type_cache:
-            return self.exam_type_cache[lookup]
+        name = self._clean_whitespaces(name)
+        if name in self.exam_type_cache:
+            return self.exam_type_cache[name]
 
         # It could happen that the importer needs a new exam type
-        exam_type, __ = ExamType.objects.get_or_create(name_de=name, defaults={"name_en": name})
-        self.exam_type_cache[lookup] = exam_type
+        exam_type, __ = ExamType.objects.get_or_create(name_de=name, defaults={"name_en": name, "import_names": [name]})
+        if name not in exam_type.import_names:
+            exam_type.import_names.append(name)
+            exam_type.save()
+        self.exam_type_cache[name] = exam_type
         return exam_type
 
     def _get_program(self, name: str) -> Program:
@@ -414,15 +432,13 @@ class JSONImporter:
 
             exam_type = self._get_exam_type(data["type"])
             if not evaluation:
+                name_de = data["title"].split(" - ")[-1] if " - " in data["title"] else exam_type.name_de
+                name_en = data["title_en"].split(" - ")[-1] if " - " in data["title_en"] else exam_type.name_en
                 name_de = self._clean_whitespaces(
-                    self._disambiguate_name(
-                        exam_type.name_de, list(course.evaluations.values_list("name_de", flat=True))
-                    )
+                    self._disambiguate_name(name_de, list(course.evaluations.values_list("name_de", flat=True)))
                 )
                 name_en = self._clean_whitespaces(
-                    self._disambiguate_name(
-                        exam_type.name_en, list(course.evaluations.values_list("name_en", flat=True))
-                    )
+                    self._disambiguate_name(name_en, list(course.evaluations.values_list("name_en", flat=True)))
                 )
 
             weight = settings.EXAM_EVALUATION_DEFAULT_WEIGHT
@@ -482,6 +498,7 @@ class JSONImporter:
             evaluation = Evaluation.objects.create(
                 course=course,
                 cms_id=data["gguid"],
+                # we only want to set names on creation to avoid renumbering
                 name_de=name_de,
                 name_en=name_en,
                 **defaults,

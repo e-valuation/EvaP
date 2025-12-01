@@ -9,7 +9,7 @@ from datetime import date, datetime, time, timedelta
 from enum import Enum, auto
 from functools import partial
 from numbers import Real
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from django.conf import settings
 from django.contrib import messages
@@ -50,9 +50,6 @@ from evap.evaluation.tools import (
     vote_end_datetime,
 )
 from evap.tools import date_to_datetime
-
-if TYPE_CHECKING:
-    from evap.staff.forms import ExamEvaluationForm
 
 logger = logging.getLogger(__name__)
 
@@ -538,12 +535,6 @@ class Evaluation(LoggedModel):
     @property
     def earliest_possible_exam_date(self):
         return self.vote_start_datetime.date() + timedelta(days=1)
-
-    @property
-    def create_exam_evaluation_form(self) -> "ExamEvaluationForm":
-        from evap.staff.forms import ExamEvaluationForm  # noqa: PLC0415
-
-        return ExamEvaluationForm(None, evaluation=self)
 
     @transaction.atomic
     def create_exam_evaluation(self, exam_date: date, exam_type: ExamType):

@@ -207,8 +207,8 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
         },
         {
             "gguid": "0x42",
-            "title": "Die Antwort auf die endgültige Frage - Nach dem Leben",
-            "title_en": "The Answer to the Ultimate Question - Of Life",
+            "title": "Die Antwort auf die endgültige Frage nach dem Leben",
+            "title_en": "The Answer to the Ultimate Question of Life",
             "type": "Klausur",
             "isexam": True,
             "courses": [
@@ -223,8 +223,8 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
         },
         {
             "gguid": "0x43",
-            "title": "Die Antwort auf die endgültige Frage - Nach dem Universum",
-            "title_en": "The Answer to the Ultimate Question - Of the Universe",
+            "title": "Die Antwort auf die endgültige Frage nach dem Universum",
+            "title_en": "The Answer to the Ultimate Question of the Universe",
             "type": "Klausur",
             "isexam": True,
             "courses": [
@@ -260,8 +260,8 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
         },
         {
             "gguid": "0x51",
-            "title": "Frühe Klausur",
-            "title_en": "Early Exam",
+            "title": "Frühe Klausur - Früh",
+            "title_en": "Early Exam - Early",
             "type": "Klausur",
             "isexam": True,
             "courses": [
@@ -554,13 +554,19 @@ class TestImportEvents(TestCase):
         # evaluation has undecided language
         self.assertEqual(evaluation_everything.main_language, Evaluation.UNDECIDED_MAIN_LANGUAGE)
 
-        # use second part of title after dash
+        # disambiguate exam names
         evaluation_life = Evaluation.objects.get(cms_id="0x42")
         self.assertEqual(evaluation_life.name_de, "Klausur")
         self.assertEqual(evaluation_life.name_en, "Exam")
         evaluation_universe = Evaluation.objects.get(cms_id="0x43")
         self.assertEqual(evaluation_universe.name_de, "Klausur (2)")
         self.assertEqual(evaluation_universe.name_en, "Exam (2)")
+
+        # use second part of title after dash
+        evaluation_early = Evaluation.objects.get(cms_id="0x51")
+        self.assertTrue(evaluation_early.exam_type)
+        self.assertEqual(evaluation_early.name_de, "Früh")
+        self.assertEqual(evaluation_early.name_en, "Early")
 
         # don't update evaluation period for late course
         evaluation_late_lecture = Evaluation.objects.get(cms_id="0x50")
@@ -789,6 +795,8 @@ class TestImportEvents(TestCase):
         self.assertEqual(importer._disambiguate_name("Klausur", ["Klausur (0)"]), "Klausur (1)")
         # doesn't match on negative numbers
         self.assertEqual(importer._disambiguate_name("Klausur", ["Klausur (-1)"]), "Klausur")
+        # doesn't fail on arbitary strings
+        self.assertEqual(importer._disambiguate_name("Klausur", ["Klausur (mündlich)"]), "Klausur")
 
     def test_exam_type_existing(self):
         exam_type = ExamType.objects.create(name_en="Presentation", name_de="Präsentation")

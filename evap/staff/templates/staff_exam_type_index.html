@@ -10,7 +10,7 @@
 {% block content %}
     {{ block.super }}
 
-    <form id="exam-type-form" method="POST" class="form-horizontal tomselectform">
+    <form method="POST" class="form-horizontal tomselectform">
         {% csrf_token %}
         {{ formset.management_form }}
 
@@ -28,6 +28,7 @@
                                     title="{% translate 'When selected, the JSON importer will skip all exam evaluations from the CMS data with this exam type."' %}">
                                 </span>
                             </th>
+                            <th class="width-percent-5 text-end">{% translate 'Actions' %}</th>
                         </tr>
                     </thead>
                     <tbody>

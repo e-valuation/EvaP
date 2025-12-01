@@ -571,6 +571,7 @@ class ExamEvaluationForm(forms.Form):
             raise ValidationError(
                 _("The end date of the main evaluation would be before its start date. No exam evaluation was created.")
             )
+        return cleaned_data
 
 
 class ContributionForm(forms.ModelForm):

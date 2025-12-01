@@ -915,9 +915,13 @@ def semester_questionnaire_assign(request, semester_id):
                 if evaluation.exam_type is None
                 else list(form.cleaned_data[f"exam-{evaluation.exam_type.id}"])
             )
-            contributor_questionnaires = list(
-                form.cleaned_data["all-contributors"] | form.cleaned_data[f"contributor-{evaluation.course.type.id}"]
-            )
+
+            contributor_questionnaires = []
+            if evaluation.exam_type is None:
+                contributor_questionnaires = list(
+                    form.cleaned_data["all-contributors"]
+                    | form.cleaned_data[f"contributor-{evaluation.course.type.id}"]
+                )
 
             if general_questionnaires:
                 evaluation.general_contribution.questionnaires.set(general_questionnaires)
