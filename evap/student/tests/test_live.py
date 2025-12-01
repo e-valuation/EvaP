@@ -92,6 +92,8 @@ class StudentVoteLiveTest(LiveServerTest):
         self.selenium.get(self.url)
         self.wait.until(presence_of_element_located((By.ID, "vote-submit-btn"))).click()
 
+        with self.wait_until_page_reloads():
+            self.wait.until(presence_of_element_located((By.ID, "vote-submit-btn"))).click()
         row = self.selenium.find_element(By.CSS_SELECTOR, "#student-vote-form .row:has(.btn-check)")
         checkbox = row.find_element(By.CSS_SELECTOR, "input[type=radio][value='2'] + label.choice-error")
         checkbox.click()
@@ -125,12 +127,15 @@ class StudentVoteLiveTest(LiveServerTest):
 
     def test_skip_contributor_modal_appears(self) -> None:
         def assert_modal_visible_and_close():
-            modal = self.selenium.find_elements(By.CSS_SELECTOR,"button[data-mark-no-answers-for='5'] + confirmation-modal.mark-no-answer-modal")
+            modal = self.selenium.find_elements(
+                By.CSS_SELECTOR, "button[data-mark-no-answers-for='5'] + confirmation-modal.mark-no-answer-modal"
+            )
             self.assertEqual(len(modal), 1)
             cancel_button = modal[0].shadow_root.find_elements(By.CSS_SELECTOR, "section.button-area > button")
             self.assertEqual(len(cancel_button), 1)
             cancel_button[0].click()
             time.sleep(1)
+
         self.selenium.get(self.url)
 
         button = self.wait.until(presence_of_element_located((By.CSS_SELECTOR, "[data-mark-no-answers-for]")))
@@ -157,7 +162,9 @@ class StudentVoteLiveTest(LiveServerTest):
 
         textareas = vote_area.find_elements(By.CSS_SELECTOR, "textarea")
         textarea = self.wait.until(
-            expected_conditions.element_to_be_clickable((By.CSS_SELECTOR, f"textarea[name='{textareas[0].get_attribute('name')}']"))
+            expected_conditions.element_to_be_clickable(
+                (By.CSS_SELECTOR, f"textarea[name='{textareas[0].get_attribute('name')}']")
+            )
         )
         textarea.click()
         textarea.send_keys("a")
@@ -167,7 +174,9 @@ class StudentVoteLiveTest(LiveServerTest):
         textarea.click()
         textarea.send_keys(Keys.BACKSPACE)
         textarea = self.wait.until(
-            expected_conditions.element_to_be_clickable((By.CSS_SELECTOR, f"textarea[name='{textareas[1].get_attribute('name')}']"))
+            expected_conditions.element_to_be_clickable(
+                (By.CSS_SELECTOR, f"textarea[name='{textareas[1].get_attribute('name')}']")
+            )
         )
         textarea.click()
         textarea.send_keys("b")
