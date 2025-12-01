@@ -5,7 +5,7 @@ from model_bakery import baker
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.expected_conditions import element_to_be_clickable, visibility_of_element_located
 
-from evap.evaluation.models import Contribution, Course, Evaluation, Program, Question, Questionnaire, UserProfile
+from evap.evaluation.models import Contribution, Course, Evaluation, Program, Question, Questionnaire, UserProfile, TextAnswer
 from evap.evaluation.tests.tools import LiveServerTest
 
 
@@ -71,3 +71,66 @@ class EvaluationEditLiveTest(LiveServerTest):
         self.assertEqual(contribution1.order, 0)
         self.assertEqual(contribution1.role, Contribution.Role.EDITOR)
         self.assertEqual(contribution1.textanswer_visibility, Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+
+class TextAnswerEditLiveTest(LiveServerTest):
+    def test_edit_textanswer_redirect(self):
+        """Regression test for #1696"""
+
+        responsible = baker.make(UserProfile)
+        evaluation = baker.make(
+            Evaluation,
+            course=baker.make(Course, programs=[baker.make(Program)], responsibles=[responsible]),
+            vote_start_datetime=datetime(2099, 1, 1, 0, 0),
+            vote_end_date=date(2099, 12, 31),
+            state=Evaluation.State.EVALUATED,
+            can_publish_text_results=True
+        )
+
+        question1 = baker.make(
+            Question,
+        )
+
+        general_questionnaire = baker.make(Questionnaire, questions=[question1])
+        evaluation.general_contribution.questionnaires.set([general_questionnaire])
+
+        contribution1 = baker.make(
+            Contribution,
+            evaluation=evaluation,
+            contributor=None,
+            questionnaires=[general_questionnaire]
+        )
+
+        textanswer1 = baker.make(
+            TextAnswer,
+            question=question1,
+            contribution=contribution1,
+            answer="this is answer will be edited",
+            original_answer=None,
+            review_decision=TextAnswer.ReviewDecision.UNDECIDED
+        )
+
+        textanswer2 = baker.make(
+            TextAnswer,
+            question=question1,
+            contribution=contribution1,
+            answer="this is a dummy answer",
+            original_answer=None,
+            review_decision=TextAnswer.ReviewDecision.UNDECIDED
+        )
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.live_server_url + reverse("staff:evaluation_textanswer_edit", args=[textanswer1.pk]))
+
+        textanswer_field = self.selenium.find_element(By.XPATH, "//textarea[@name='answer']")
+        submit_btn = self.selenium.find_element(By.ID, "textanswer-edit-submit-button")
+
+        textanswer_field.clear()
+        textanswer_field.send_keys("edited answer")
+
+        with self.enter_staff_mode():
+            submit_btn.click()
+
+        answer = self.selenium.find_elements(By.XPATH, "//div[@class='slider-item card-body active' and @data-layer='2']")
+
+        self.assertEqual(str(answer[0].get_attribute("id")).split('-',1)[1], str(textanswer1.pk))
+        
