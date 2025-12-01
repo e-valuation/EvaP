@@ -253,8 +253,9 @@ def render_vote_page(
     for_rendering_in_modal: bool = False,
 ) -> HttpResponse:
     if evaluation.main_language == evaluation.UNDECIDED_MAIN_LANGUAGE:
-        evaluation.main_language = "en"
-    language = request.GET.get("language", evaluation.main_language)
+        language = request.GET.get("language", "en")
+    else:
+        language = request.GET.get("language", evaluation.main_language)
     with translation.override(language):
         form_groups = get_vote_page_form_groups(request, evaluation, preview=preview, preselect_no_answer=dropout)
 
