@@ -202,6 +202,7 @@
             "{% url 'staff:evaluation_textanswers_skip' %}",
         );
         const hash = document.location.hash
-        slider.attach(hash.startsWith("#textanswer-") ? hash.substring(12) : null)
+        const hashPrefix = "#textanswer-"
+        slider.attach(hash.startsWith(hashPrefix) ? hash.substring(hashPrefix.length) : null)
     </script>
 {% endblock %}
