@@ -177,10 +177,7 @@ input[type="search"]::-webkit-search-cancel-button {
 
 .tab-link-black {
     color: $black;
-    // background-color: $light-gray;
-    // border: none;
 }
-
 
 .tab-link-black:hover {
     color: $black;
@@ -190,9 +187,20 @@ input[type="search"]::-webkit-search-cancel-button {
 .tab-header {
     background-color: $light-gray;
     border-bottom: 1px solid $medium-gray;
-    padding-top: 1px;
+    border-radius: $card-inner-border-radius $card-inner-border-radius 0px 0px;
 }
 
 .nav-header {
     border: none;
+    padding: 2pt;
+    padding-bottom: 0pt;
+}
+
+.nav-item-new {
+    padding: 0pt;
+}
+
+.nav-tabs .nav-item .nav-link.smaller-padding {
+    padding-top: 0.25em;
+    padding-bottom: 0.25em;
 }
