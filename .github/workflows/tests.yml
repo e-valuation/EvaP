@@ -190,9 +190,7 @@ jobs:
           npm-ci: true
 
       - name: Check code formatting
-        run: black --check .
-      - name: Check imports formatting
-        run: isort . --check --diff
+        run: ruff format --check .
       - run: ls -laR evap/static/ts
       - name: Check TypeScript formatting
         run: npx prettier --list-different --log-level debug 'evap/static/ts/**/*.ts'
