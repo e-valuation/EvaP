@@ -19,7 +19,7 @@ class Command(BaseCommand):
 
     def run_isort(self):
         self.stdout.write("Executing ruff check --select I --fix .")
-        subprocess.run(["ruff", "check", "--select", "I", "--fix", "."], check=False)
+        subprocess.run(["ruff", "check", "--select", "I", "--fix", "."], check=False) # nosec
 
     def run_prettier(self):
         self.stdout.write("Executing npx prettier")
