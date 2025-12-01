@@ -46,7 +46,7 @@ class EvapTestRunner(DiscoverRunner):
     def __init__(self, *args: Any, headed=False, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-        self.option_headed = headed
+        self.__headed = headed
 
         if not self.tags and not self.exclude_tags:
             self.exclude_tags = {"selenium"}
@@ -60,7 +60,7 @@ class EvapTestRunner(DiscoverRunner):
     def setup_test_environment(self, **kwargs):
         super().setup_test_environment(**kwargs)
 
-        LiveServerTest.headless = not self.option_headed
+        LiveServerTest.headless = not self.__headed
 
 
 class ResetLanguageOnTearDownMixin:
