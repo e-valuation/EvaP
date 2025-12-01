@@ -18,7 +18,7 @@ from evap.evaluation.models import (
     Questionnaire,
     Semester,
     UserProfile,
-    Textanswer
+    TextAnswer
 )
 from evap.evaluation.tests.tools import LiveServerTest, classes_of_element
 
