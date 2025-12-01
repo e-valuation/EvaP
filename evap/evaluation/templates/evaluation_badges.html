@@ -5,7 +5,7 @@
 {% endif %}
 {% if not mode == 'subentry' %}
     {% if evaluation.exam_type %}
-        <span class="badge bg-light badge-course-type">{{ evaluation.exam_type }}</span>
+        <span class="badge bg-light badge-exam-type">{{ evaluation.exam_type }}</span>
     {% else %}
         <span class="badge bg-secondary badge-course-type">{{ evaluation.course.type }}</span>
     {% endif %}
