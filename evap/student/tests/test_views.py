@@ -438,7 +438,7 @@ class TestVoteView(WebTest):
         dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
         baker.make(Question, questionnaire=dropout_questionnaire, order=0, type=QuestionType.POSITIVE_LIKERT)
         self.evaluation.general_contribution.questionnaires.add(dropout_questionnaire)
-        
+
         self.help_test_answer()
 
     def test_answer(self):
@@ -579,7 +579,7 @@ class TestVoteView(WebTest):
         request = RequestFactory().get(reverse("student:vote", args=[self.evaluation.id]))
         request.user = self.voting_user1
         with patch("django.utils.translation.gettext_lazy") as mock:
-            get_vote_page_form_groups(request, self.evaluation, preview=False, preselect_no_answer=False, dropout=False)
+            get_vote_page_form_groups(request, self.evaluation, preview=False, dropout=False)
             self.assertEqual(mock.call_count, 0)
 
 
