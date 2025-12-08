@@ -797,6 +797,7 @@ class TestImportEvents(TestCase):
         self.assertEqual(importer._disambiguate_name("Klausur", ["Klausur (-1)"]), "Klausur")
         # doesn't fail on arbitary strings
         self.assertEqual(importer._disambiguate_name("Klausur", ["Klausur (mündlich)"]), "Klausur")
+        self.assertEqual(importer._disambiguate_name("Klausur", ["Klausur 2"]), "Klausur")
 
     def test_exam_type_existing(self):
         exam_type = ExamType.objects.create(name_en="Presentation", name_de="Präsentation")
