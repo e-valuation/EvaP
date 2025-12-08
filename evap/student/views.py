@@ -214,18 +214,16 @@ def create_voting_form(
 def create_voting_forms(
     request, contribution: Contribution, questionnaires: Iterable[Questionnaire], preselect_no_answer: bool, dropout: bool
 ) -> list[QuestionnaireVotingForm]:
-    voting_forms = []
-    for questionnaire in questionnaires:
-        if not dropout and questionnaire.is_dropout:
-            continue
-        voting_forms.append(create_voting_form(
+    return [
+        create_voting_form(
             request,
             contribution,
             questionnaire,
             preselect_no_answer=(preselect_no_answer and not questionnaire.is_dropout),
             # dropout questionnaires should not be preselected
-        ))
-    return voting_forms
+        )
+        for questionnaire in questionnaires if dropout or not questionnaire.is_dropout
+    ]
 
 
 def get_vote_page_form_groups(
