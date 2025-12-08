@@ -3304,6 +3304,7 @@ class TestQuestionnaireViewView(WebTestStaffModeWith200Check):
         cls.test_users = [make_manager()]
 
         questionnaire = baker.make(Questionnaire)
+        cls.question = baker.make(Question, questionnaire=questionnaire)
         cls.url = f"/staff/questionnaire/{questionnaire.pk}"
 
         baker.make(
@@ -3314,6 +3315,19 @@ class TestQuestionnaireViewView(WebTestStaffModeWith200Check):
             _bulk_create=True,
             allows_additional_textanswers=False,
         )
+
+    def test_preview_change_language(self):
+        user = self.test_users[0]
+        user.language = "de"
+        user.save()
+        page = self.app.get(url=self.url, user=user, status=200)
+        self.assertIn(self.question.text_de, page)
+        self.assertNotIn(self.question.text_en, page)
+
+        lang_url = self.url + "?language=en"
+        page = self.app.get(url=lang_url, user=user, status=200)
+        self.assertIn(self.question.text_en, page)
+        self.assertNotIn(self.question.text_de, page)
 
 
 class TestQuestionnaireCopyView(WebTestStaffMode):
