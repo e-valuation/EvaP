@@ -16,6 +16,8 @@ from evap.evaluation.models import (
     EmailTemplate,
     Evaluation,
     NotArchivableError,
+    ParticipantImportOverride,
+    ParticipantImportOverrideStatusChoices,
     Question,
     Questionnaire,
     QuestionType,
@@ -542,6 +544,55 @@ class TestEvaluations(WebTest):
         evaluation.main_language = "en"
         evaluation.save()
         evaluation.manager_approve()
+
+    def test_imported_evaluation_manually_add_participant(self):
+        user_profile_1 = baker.make(UserProfile)
+        user_profile_2 = baker.make(UserProfile)
+        course = baker.make(Course, cms_id="cms-course-1")
+        evaluation = baker.make(Evaluation, course=course, cms_id="")
+
+        evaluation.participants.add(user_profile_1)
+
+        self.assertEqual(ParticipantImportOverride.objects.count(), 0)
+
+        evaluation.cms_id = "cms-evaluation-1"
+        evaluation.save()
+
+        evaluation.participants.add(user_profile_2)
+
+        override = ParticipantImportOverride.objects.get()
+        self.assertEqual(override.evaluation, evaluation)
+        self.assertEqual(override.user, user_profile_2)
+        self.assertEqual(override.status, ParticipantImportOverrideStatusChoices.MANUALLY_ADDED)
+
+        evaluation.participants.remove(user_profile_2)
+
+        self.assertEqual(ParticipantImportOverride.objects.count(), 0)
+
+    def test_imported_evaluation_manually_remove_contributor(self):
+        user_profile_1 = baker.make(UserProfile)
+        user_profile_2 = baker.make(UserProfile)
+        course = baker.make(Course, cms_id="cms-course-1")
+        evaluation = baker.make(Evaluation, course=course, cms_id="")
+
+        evaluation.participants.add(user_profile_1)
+        evaluation.participants.add(user_profile_2)
+
+        self.assertEqual(ParticipantImportOverride.objects.count(), 0)
+
+        evaluation.participants.remove(user_profile_1)
+
+        self.assertEqual(ParticipantImportOverride.objects.count(), 0)
+
+        evaluation.cms_id = "cms-evaluation-1"
+        evaluation.save()
+
+        evaluation.participants.remove(user_profile_2)
+
+        override = ParticipantImportOverride.objects.get()
+        self.assertEqual(override.evaluation, evaluation)
+        self.assertEqual(override.user, user_profile_2)
+        self.assertEqual(override.status, ParticipantImportOverrideStatusChoices.MANUALLY_REMOVED)
 
 
 class TestCourse(TestCase):
