@@ -244,9 +244,7 @@ def get_vote_page_form_groups(
         questionnaires = contribution.questionnaires.all()
         if not questionnaires.exists():
             continue
-        form_groups[contribution] = create_voting_forms(
-            request, contribution, questionnaires, dropout=dropout
-        )
+        form_groups[contribution] = create_voting_forms(request, contribution, questionnaires, dropout=dropout)
 
     return form_groups
 
@@ -261,9 +259,7 @@ def render_vote_page(
 ) -> HttpResponse:
     language = request.GET.get("language", evaluation.main_language)
     with translation.override(language):
-        form_groups = get_vote_page_form_groups(
-            request, evaluation, preview=preview, dropout=dropout
-        )
+        form_groups = get_vote_page_form_groups(request, evaluation, preview=preview, dropout=dropout)
 
     assert preview or not all(form.is_valid() for form_group in form_groups.values() for form in form_group)
 
@@ -333,9 +329,7 @@ def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> Htt
     if not evaluation.can_be_voted_for_by(request.user):
         raise PermissionDenied
 
-    form_groups = get_vote_page_form_groups(
-        request, evaluation, preview=False, dropout=dropout
-    )
+    form_groups = get_vote_page_form_groups(request, evaluation, preview=False, dropout=dropout)
     if not all(form.is_valid() for form_group in form_groups.values() for form in form_group):
         return render_vote_page(request, evaluation, preview=False, dropout=dropout)
 
