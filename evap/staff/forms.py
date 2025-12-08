@@ -554,14 +554,15 @@ class ExamEvaluationForm(forms.Form):
     )
     exam_type = forms.ModelChoiceField(ExamType.objects.all(), required=True, label=_("Exam Type"))
 
-    def __init__(self, *args, evaluation=None, **kwargs):
+    def __init__(self, *args, evaluation=None, form_id=None, **kwargs):
         super().__init__(*args, **kwargs)
-        if evaluation:
-            for field in ["base_evaluation", "exam_date", "exam_type"]:
-                self.fields[field].widget.attrs["form"] = f"exam_creation_form_{evaluation.id}"
+        if form_id is not None:
+            for field in self.fields.values():
+                field.widget.attrs["form"] = form_id
+        if evaluation is not None:
             self.fields["exam_date"].widget.attrs["min"] = evaluation.earliest_possible_exam_date
-            self.fields["exam_type"].initial = ExamType.objects.order_by("order").first()
             self.fields["base_evaluation"].initial = evaluation
+        self.fields["exam_type"].initial = ExamType.objects.order_by("order").first()
 
     def clean(self):
         cleaned_data = super().clean()

@@ -1,6 +1,7 @@
 import json
 import logging
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from datetime import time as datetime_time
@@ -187,7 +188,9 @@ class JSONImporter:
             for import_name in course_type.import_names
         }
         self.exam_type_cache: dict[str, ExamType] = {
-            import_name: exam_type for exam_type in ExamType.objects.all() for import_name in exam_type.import_names
+            import_name.strip().lower(): exam_type
+            for exam_type in ExamType.objects.all()
+            for import_name in exam_type.import_names
         }
         self.program_cache: dict[str, Program] = {
             import_name.strip().lower(): program
@@ -213,15 +216,13 @@ class JSONImporter:
         name = name.removeprefix("(").removesuffix(")")
         try:
             number = int(name)
-            if number < 0:
-                return None
-            return number
         except ValueError:
             return None
+        if number < 0:
+            return None
+        return number
 
-    def _disambiguate_name(self, wanted_name: str, current_names: list[str]) -> str:
-        if not current_names:
-            return wanted_name
+    def _disambiguate_name(self, wanted_name: str, current_names: Iterable[str]) -> str:
         matches = (self._extract_number_in_name(name, wanted_name) for name in current_names)
         real_matches = [match for match in matches if match is not None]
         if not real_matches:
@@ -254,15 +255,16 @@ class JSONImporter:
 
     def _get_exam_type(self, name: str) -> ExamType:
         name = self._clean_whitespaces(name)
-        if name in self.exam_type_cache:
-            return self.exam_type_cache[name]
+        lookup = name.lower()
+        if lookup in self.exam_type_cache:
+            return self.exam_type_cache[lookup]
 
         # It could happen that the importer needs a new exam type
         exam_type, __ = ExamType.objects.get_or_create(name_de=name, defaults={"name_en": name, "import_names": [name]})
         if name not in exam_type.import_names:
             exam_type.import_names.append(name)
             exam_type.save()
-        self.exam_type_cache[name] = exam_type
+        self.exam_type_cache[lookup] = exam_type
         return exam_type
 
     def _get_program(self, name: str) -> Program:
@@ -432,13 +434,13 @@ class JSONImporter:
 
             exam_type = self._get_exam_type(data["type"])
             if not evaluation:
-                name_de = data["title"].split(" - ")[-1] if " - " in data["title"] else exam_type.name_de
-                name_en = data["title_en"].split(" - ")[-1] if " - " in data["title_en"] else exam_type.name_en
-                name_de = self._clean_whitespaces(
-                    self._disambiguate_name(name_de, list(course.evaluations.values_list("name_de", flat=True)))
+                name_de = data["title"].partition(" - ")[2] or exam_type.name_de
+                name_en = data["title_en"].partition(" - ")[2] or exam_type.name_en
+                name_de = self._disambiguate_name(
+                    self._clean_whitespaces(name_de), course.evaluations.values_list("name_de", flat=True)
                 )
-                name_en = self._clean_whitespaces(
-                    self._disambiguate_name(name_en, list(course.evaluations.values_list("name_en", flat=True)))
+                name_en = self._disambiguate_name(
+                    self._clean_whitespaces(name_en), course.evaluations.values_list("name_en", flat=True)
                 )
 
             weight = settings.EXAM_EVALUATION_DEFAULT_WEIGHT
