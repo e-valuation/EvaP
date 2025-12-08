@@ -10,7 +10,7 @@
 {% block content %}
     {{ block.super }}
 
-    <form method="POST" class="form-horizontal tomselectform">
+    <form id="exam-type-form" method="POST" class="form-horizontal tomselectform">
         {% csrf_token %}
         {{ formset.management_form }}
 

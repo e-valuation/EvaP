@@ -434,8 +434,8 @@ class JSONImporter:
 
             exam_type = self._get_exam_type(data["type"])
             if not evaluation:
-                name_de = data["title"].partition(" - ")[2] or exam_type.name_de
-                name_en = data["title_en"].partition(" - ")[2] or exam_type.name_en
+                name_de = data["title"].split(" - ")[-1] if " - " in data["title"] else exam_type.name_de
+                name_en = data["title_en"].split(" - ")[-1] if " - " in data["title_en"] else exam_type.name_en
                 name_de = self._disambiguate_name(
                     self._clean_whitespaces(name_de), course.evaluations.values_list("name_de", flat=True)
                 )

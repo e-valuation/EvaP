@@ -3553,6 +3553,51 @@ class TestCourseTypeMergeView(WebTestStaffMode):
             self.assertTrue(course.type == self.main_type)
 
 
+class TestExamTypeView(WebTestStaffMode):
+    url = "/staff/exam_types/"
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.manager = make_manager()
+
+    @staticmethod
+    def set_import_names(field, value):
+        # Webtest will check that all values are included in the options, so we modify the options beforehand
+        field.options = [(name, False, name) for name in value]
+        field.value = value
+
+    def test_page_displays_something(self):
+        ExamType.objects.create(name_de="uZJcsl0rNc", name_en="uZJcsl0rNc")
+        page = self.app.get(self.url, user=self.manager, status=200)
+        self.assertIn("uZJcsl0rNc", page)
+
+    def test_exam_type_form(self):
+        """
+        Adds a exam type via the staff form and verifies that the type was created in the db.
+        """
+        page = self.app.get(self.url, user=self.manager, status=200)
+        form = page.forms["exam-type-form"]
+        form["form-0-name_de"].value = "Klausur"
+        form["form-0-name_en"].value = "Exam"
+        self.set_import_names(form["form-0-import_names"], ["Klausur", "K"])
+        response = form.submit().follow()
+        self.assertContains(response, "Successfully")
+
+        self.assertEqual(ExamType.objects.count(), 1)
+        self.assertTrue(
+            ExamType.objects.filter(name_de="Klausur", name_en="Exam", import_names=["Klausur", "K"]).exists()
+        )
+
+    def test_import_names_duplicated_error(self):
+        baker.make(ExamType, _bulk_create=True, _quantity=2)
+        page = self.app.get(self.url, user=self.manager, status=200)
+        form = page.forms["exam-type-form"]
+        self.set_import_names(form["form-0-import_names"], ["Klausur", "k"])
+        self.set_import_names(form["form-1-import_names"], ["Prüfung", "K"])
+        response = form.submit()
+        self.assertContains(response, "Import name &quot;K&quot; is duplicated. Import names are not case sensitive.")
+
+
 class TestProgramMergeSelectionView(WebTestStaffMode):
     url = reverse("staff:program_merge_selection")
 
