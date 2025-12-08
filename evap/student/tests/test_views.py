@@ -346,7 +346,7 @@ class TestVoteView(WebTest):
         field_id = partial(answer_field_id, self.contribution2, self.contributor_questionnaire)
         self.assertEqual(form[field_id(self.contributor_text_question)].value, "some more text")
 
-    def test_answer(self):
+    def help_test_answer(self):
         page = self.app.get(self.url, user=self.voting_user1, status=200)
         form = page.forms["student-vote-form"]
         self.fill_form(form)
@@ -432,6 +432,17 @@ class TestVoteView(WebTest):
             question=self.bottom_text_question, contribution=self.evaluation.general_contribution
         ).values_list("answer", flat=True)
         self.assertEqual(list(answers), ["some bottom text"] * 2)
+
+    def test_answer_with_dropout_questionnaire(self):
+        # regression test for #2578
+        dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
+        baker.make(Question, questionnaire=dropout_questionnaire, order=0, type=QuestionType.POSITIVE_LIKERT)
+        self.evaluation.general_contribution.questionnaires.add(dropout_questionnaire)
+
+        self.help_test_answer()
+
+    def test_answer(self):
+        self.help_test_answer()
 
     def test_vote_timestamp(self):
         time_before = datetime.datetime.now()
@@ -568,7 +579,7 @@ class TestVoteView(WebTest):
         request = RequestFactory().get(reverse("student:vote", args=[self.evaluation.id]))
         request.user = self.voting_user1
         with patch("django.utils.translation.gettext_lazy") as mock:
-            get_vote_page_form_groups(request, self.evaluation, preview=False, preselect_no_answer=False)
+            get_vote_page_form_groups(request, self.evaluation, preview=False, dropout=False)
             self.assertEqual(mock.call_count, 0)
 
 

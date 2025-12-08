@@ -212,22 +212,27 @@ def create_voting_form(
 
 
 def create_voting_forms(
-    request, contribution: Contribution, questionnaires: Iterable[Questionnaire], preselect_no_answer: bool
+    request,
+    contribution: Contribution,
+    questionnaires: Iterable[Questionnaire],
+    *,
+    dropout: bool,
 ) -> list[QuestionnaireVotingForm]:
     return [
         create_voting_form(
             request,
             contribution,
             questionnaire,
-            preselect_no_answer=(preselect_no_answer and not questionnaire.is_dropout),
+            preselect_no_answer=(dropout and not questionnaire.is_dropout),
             # dropout questionnaires should not be preselected
         )
         for questionnaire in questionnaires
+        if dropout or not questionnaire.is_dropout
     ]
 
 
 def get_vote_page_form_groups(
-    request, evaluation: Evaluation, *, preview: bool, preselect_no_answer: bool
+    request, evaluation: Evaluation, *, preview: bool, dropout: bool
 ) -> OrderedDict[Contribution, list[QuestionnaireVotingForm]]:
     contributions_to_vote_on = evaluation.contributions.all()
     # prevent a user from voting on themselves
@@ -239,7 +244,7 @@ def get_vote_page_form_groups(
         questionnaires = contribution.questionnaires.all()
         if not questionnaires.exists():
             continue
-        form_groups[contribution] = create_voting_forms(request, contribution, questionnaires, preselect_no_answer)
+        form_groups[contribution] = create_voting_forms(request, contribution, questionnaires, dropout=dropout)
 
     return form_groups
 
@@ -254,7 +259,7 @@ def render_vote_page(
 ) -> HttpResponse:
     language = request.GET.get("language", evaluation.main_language)
     with translation.override(language):
-        form_groups = get_vote_page_form_groups(request, evaluation, preview=preview, preselect_no_answer=dropout)
+        form_groups = get_vote_page_form_groups(request, evaluation, preview=preview, dropout=dropout)
 
     assert preview or not all(form.is_valid() for form_group in form_groups.values() for form in form_group)
 
@@ -324,7 +329,7 @@ def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> Htt
     if not evaluation.can_be_voted_for_by(request.user):
         raise PermissionDenied
 
-    form_groups = get_vote_page_form_groups(request, evaluation, preview=False, preselect_no_answer=False)
+    form_groups = get_vote_page_form_groups(request, evaluation, preview=False, dropout=dropout)
     if not all(form.is_valid() for form_group in form_groups.values() for form in form_group):
         return render_vote_page(request, evaluation, preview=False, dropout=dropout)
 
