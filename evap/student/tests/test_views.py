@@ -166,6 +166,7 @@ class TestVoteView(WebTest):
         cls.top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         cls.bottom_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM)
         cls.contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
+        cls.dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
 
         cls.contributor_heading_question = baker.make(
             Question, questionnaire=cls.contributor_questionnaire, order=0, type=QuestionType.HEADING
@@ -201,6 +202,19 @@ class TestVoteView(WebTest):
         )
         cls.bottom_grade_question = baker.make(
             Question, questionnaire=cls.bottom_general_questionnaire, order=3, type=QuestionType.GRADE
+        )
+
+        cls.dropout_heading_question = baker.make(
+            Question, questionnaire=cls.dropout_questionnaire, order=0, type=QuestionType.HEADING
+        )
+        cls.dropout_text_question = baker.make(
+            Question, questionnaire=cls.dropout_questionnaire, order=1, type=QuestionType.TEXT
+        )
+        cls.dropout_likert_question = baker.make(
+            Question, questionnaire=cls.dropout_questionnaire, order=2, type=QuestionType.POSITIVE_LIKERT
+        )
+        cls.droptout_grade_question = baker.make(
+            Question, questionnaire=cls.dropout_questionnaire, order=3, type=QuestionType.GRADE
         )
 
         cls.contribution1 = baker.make(
@@ -345,6 +359,15 @@ class TestVoteView(WebTest):
 
         field_id = partial(answer_field_id, self.contribution2, self.contributor_questionnaire)
         self.assertEqual(form[field_id(self.contributor_text_question)].value, "some more text")
+
+    def test_answer_with_dropout_questionnaire(self):
+        self.evaluation.general_contribution.questionnaires.add(self.dropout_questionnaire)
+
+        page = self.app.get(self.url, user=self.voting_user1, status=200)
+        form = page.forms["student-vote-form"]
+        self.fill_form(form)
+        response = form.submit()
+        self.assertEqual(SUCCESS_MAGIC_STRING, response.body.decode())
 
     def test_answer(self):
         page = self.app.get(self.url, user=self.voting_user1, status=200)
