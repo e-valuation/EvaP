@@ -97,6 +97,7 @@
   "fields": {
     "state": 80,
     "course": 1,
+    "exam_type": null,
     "name_de": "a new evaluation",
     "name_en": "an evaluation",
     "main_language": "x",

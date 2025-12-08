@@ -1,6 +1,7 @@
 import json
 import logging
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from datetime import time as datetime_time
@@ -14,7 +15,16 @@ from django.utils.timezone import now
 from pydantic import TypeAdapter
 from typing_extensions import TypedDict
 
-from evap.evaluation.models import Contribution, Course, CourseType, Evaluation, Program, Semester, UserProfile
+from evap.evaluation.models import (
+    Contribution,
+    Course,
+    CourseType,
+    Evaluation,
+    ExamType,
+    Program,
+    Semester,
+    UserProfile,
+)
 from evap.evaluation.tools import clean_email
 from evap.staff.tools import update_m2m_with_changes, update_or_create_with_changes, update_with_changes
 
@@ -163,6 +173,7 @@ class ImportStatistics:
         mail.send()
 
 
+# pylint: disable=too-many-instance-attributes
 class JSONImporter:
     DATETIME_FORMAT = "%d.%m.%Y %H:%M:%S"
     MIDNIGHT = datetime_time()
@@ -176,6 +187,11 @@ class JSONImporter:
             for course_type in CourseType.objects.all()
             for import_name in course_type.import_names
         }
+        self.exam_type_cache: dict[str, ExamType] = {
+            import_name.strip().lower(): exam_type
+            for exam_type in ExamType.objects.all()
+            for import_name in exam_type.import_names
+        }
         self.program_cache: dict[str, Program] = {
             import_name.strip().lower(): program
             for program in Program.objects.all()
@@ -188,6 +204,31 @@ class JSONImporter:
     def _clean_whitespaces(text: str) -> str:
         # Use regex for cleaning to also include non-ASCII whitespaces like non-breaking whitespaces
         return re.sub(r"\s+", " ", text.strip())
+
+    def _extract_number_in_name(self, name: str, wanted_name: str) -> int | None:
+        if not name.startswith(wanted_name):
+            return None
+        name = name.removeprefix(wanted_name).strip()
+        if not name:
+            return 1
+        if not (name.startswith("(") and name.endswith(")")):
+            return None
+        name = name.removeprefix("(").removesuffix(")")
+        try:
+            number = int(name)
+        except ValueError:
+            return None
+        if number < 0:
+            return None
+        return number
+
+    def _disambiguate_name(self, wanted_name: str, current_names: Iterable[str]) -> str:
+        matches = (self._extract_number_in_name(name, wanted_name) for name in current_names)
+        real_matches = [match for match in matches if match is not None]
+        if not real_matches:
+            return wanted_name
+        number = max(real_matches)
+        return f"{wanted_name} ({number+1})"
 
     def _get_first_name_given(self, entry: ImportStudent) -> str:
         if entry["callingname"]:
@@ -211,6 +252,20 @@ class JSONImporter:
         course_type, __ = CourseType.objects.get_or_create(name_de=name, defaults={"name_en": name})
         self.course_type_cache[lookup] = course_type
         return course_type
+
+    def _get_exam_type(self, name: str) -> ExamType:
+        name = self._clean_whitespaces(name)
+        lookup = name.lower()
+        if lookup in self.exam_type_cache:
+            return self.exam_type_cache[lookup]
+
+        # It could happen that the importer needs a new exam type
+        exam_type, __ = ExamType.objects.get_or_create(name_de=name, defaults={"name_en": name, "import_names": [name]})
+        if name not in exam_type.import_names:
+            exam_type.import_names.append(name)
+            exam_type.save()
+        self.exam_type_cache[lookup] = exam_type
+        return exam_type
 
     def _get_program(self, name: str) -> Program:
         name = self._clean_whitespaces(name)
@@ -352,7 +407,7 @@ class JSONImporter:
         return self._import_course(data, course_type)
 
     # pylint: disable=too-many-locals
-    def _import_evaluation(self, course: Course, data: ImportEvent) -> Evaluation:  # noqa: PLR0912
+    def _import_evaluation(self, course: Course, data: ImportEvent) -> Evaluation:  # noqa: PLR0912, PLR0915
         if "appointments" not in data or not data["appointments"]:
             course_info = f"{course.name} ({course.type})"
             if data["isexam"]:
@@ -364,6 +419,12 @@ class JSONImporter:
         else:
             course_end = max(datetime.strptime(app["end"], self.DATETIME_FORMAT) for app in data["appointments"])
 
+        name_de, name_en = "", ""
+        try:
+            evaluation = Evaluation.objects.get(course=course, cms_id=data["gguid"])
+        except Evaluation.DoesNotExist:
+            evaluation = None
+
         if data["isexam"]:
             # Set evaluation time frame of three days for exam evaluations:
             evaluation_start_datetime = course_end.replace(hour=8, minute=0, second=0, microsecond=0) + timedelta(
@@ -371,8 +432,16 @@ class JSONImporter:
             )
             evaluation_end_date = (course_end + settings.EXAM_EVALUATION_DEFAULT_DURATION).date()
 
-            name_de = data["title"].split(" - ")[-1] if " - " in data["title"] else "Prüfung"
-            name_en = data["title_en"].split(" - ")[-1] if " - " in data["title_en"] else "Exam"
+            exam_type = self._get_exam_type(data["type"])
+            if not evaluation:
+                name_de = data["title"].split(" - ")[-1] if " - " in data["title"] else exam_type.name_de
+                name_en = data["title_en"].split(" - ")[-1] if " - " in data["title_en"] else exam_type.name_en
+                name_de = self._disambiguate_name(
+                    self._clean_whitespaces(name_de), course.evaluations.values_list("name_de", flat=True)
+                )
+                name_en = self._disambiguate_name(
+                    self._clean_whitespaces(name_en), course.evaluations.values_list("name_en", flat=True)
+                )
 
             weight = settings.EXAM_EVALUATION_DEFAULT_WEIGHT
 
@@ -396,7 +465,7 @@ class JSONImporter:
             # End date is on the sunday in the week the event ends
             evaluation_end_date = (course_end + timedelta(days=6 - course_end.weekday())).date()
 
-            name_de, name_en = "", ""
+            exam_type = None
 
             weight = settings.MAIN_EVALUATION_DEFAULT_WEIGHT
 
@@ -410,15 +479,14 @@ class JSONImporter:
             self.statistics.warnings.append(
                 WarningMessage(
                     obj=data["title"],
-                    message=f"Event has an unknown language: {data['language']}, main language has been set to undecided",
+                    message=f"Event has an unknown language (\"{data['language']}\"), main language was set to undecided",
                 )
             )
 
         participants = self._get_user_profiles(data["students"]) if "students" in data else []
 
         defaults = {
-            "name_de": self._clean_whitespaces(name_de),
-            "name_en": self._clean_whitespaces(name_en),
+            "exam_type": exam_type,
             "vote_start_datetime": evaluation_start_datetime,
             "vote_end_date": evaluation_end_date,
             "wait_for_grade_upload_before_publishing": wait_for_grade_upload_before_publishing,
@@ -426,11 +494,18 @@ class JSONImporter:
             "is_rewarded": is_rewarded,
             "main_language": main_language,
         }
-        evaluation, created = Evaluation.objects.get_or_create(
-            course=course,
-            cms_id=data["gguid"],
-            defaults=defaults,
-        )
+
+        created = not evaluation
+        if not evaluation:
+            evaluation = Evaluation.objects.create(
+                course=course,
+                cms_id=data["gguid"],
+                # we only want to set names on creation to avoid renumbering
+                name_de=name_de,
+                name_en=name_en,
+                **defaults,
+            )
+
         if evaluation.state < Evaluation.State.APPROVED:
             direct_changes = update_with_changes(evaluation, defaults)
 

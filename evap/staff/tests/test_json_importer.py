@@ -18,6 +18,7 @@ from evap.evaluation.models import (
     Course,
     CourseType,
     Evaluation,
+    ExamType,
     Program,
     Questionnaire,
     Semester,
@@ -206,8 +207,8 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
         },
         {
             "gguid": "0x42",
-            "title": "Die Antwort auf die endgültige Frage - Nach dem Leben",
-            "title_en": "The Answer to the Ultimate Question - Of Life",
+            "title": "Die Antwort auf die endgültige Frage nach dem Leben",
+            "title_en": "The Answer to the Ultimate Question of Life",
             "type": "Klausur",
             "isexam": True,
             "courses": [
@@ -222,8 +223,8 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
         },
         {
             "gguid": "0x43",
-            "title": "Die Antwort auf die endgültige Frage - Nach dem Universum",
-            "title_en": "The Answer to the Ultimate Question - Of the Universe",
+            "title": "Die Antwort auf die endgültige Frage nach dem Universum",
+            "title_en": "The Answer to the Ultimate Question of the Universe",
             "type": "Klausur",
             "isexam": True,
             "courses": [
@@ -259,8 +260,8 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
         },
         {
             "gguid": "0x51",
-            "title": "Frühe Klausur",
-            "title_en": "Early Exam",
+            "title": "Frühe Klausur - Früh",
+            "title_en": "Early Exam - Early",
             "type": "Klausur",
             "isexam": True,
             "courses": [
@@ -423,6 +424,7 @@ class TestImportEvents(TestCase):
         self.assertEqual(main_evaluation.course, course)
         self.assertEqual(main_evaluation.name_de, "")
         self.assertEqual(main_evaluation.name_en, "")
+        self.assertEqual(main_evaluation.exam_type, None)
         # [{"begin": "30.04.2024 10:15", "end": "15.07.2024 11:45"}]
         self.assertEqual(main_evaluation.vote_start_datetime, datetime(2024, 7, 8, 8, 0))
         # exam is on 29.07.2024, so evaluation period should be until day before
@@ -451,8 +453,10 @@ class TestImportEvents(TestCase):
 
         exam_evaluation = Evaluation.objects.get(name_en="Exam")
         self.assertEqual(exam_evaluation.course, course)
-        self.assertEqual(exam_evaluation.name_de, "Prüfung")
+        self.assertEqual(exam_evaluation.name_de, "Klausur")
         self.assertEqual(exam_evaluation.name_en, "Exam")
+        self.assertEqual(exam_evaluation.exam_type.name_de, "Klausur")
+        self.assertEqual(exam_evaluation.exam_type.name_en, "Exam")
         # [{"begin": "29.07.2024 10:15", "end": "29.07.2024 11:45"}]
         self.assertEqual(exam_evaluation.vote_start_datetime, datetime(2024, 7, 30, 8, 0))
         self.assertEqual(exam_evaluation.vote_end_date, date(2024, 8, 1))
@@ -550,13 +554,19 @@ class TestImportEvents(TestCase):
         # evaluation has undecided language
         self.assertEqual(evaluation_everything.main_language, Evaluation.UNDECIDED_MAIN_LANGUAGE)
 
-        # use second part of title after dash
+        # disambiguate exam names
         evaluation_life = Evaluation.objects.get(cms_id="0x42")
-        self.assertEqual(evaluation_life.name_de, "Nach dem Leben")
-        self.assertEqual(evaluation_life.name_en, "Of Life")
+        self.assertEqual(evaluation_life.name_de, "Klausur")
+        self.assertEqual(evaluation_life.name_en, "Exam")
         evaluation_universe = Evaluation.objects.get(cms_id="0x43")
-        self.assertEqual(evaluation_universe.name_de, "Nach dem Universum")
-        self.assertEqual(evaluation_universe.name_en, "Of the Universe")
+        self.assertEqual(evaluation_universe.name_de, "Klausur (2)")
+        self.assertEqual(evaluation_universe.name_en, "Exam (2)")
+
+        # use second part of title after dash
+        evaluation_early = Evaluation.objects.get(cms_id="0x51")
+        self.assertTrue(evaluation_early.exam_type)
+        self.assertEqual(evaluation_early.name_de, "Früh")
+        self.assertEqual(evaluation_early.name_en, "Early")
 
         # don't update evaluation period for late course
         evaluation_late_lecture = Evaluation.objects.get(cms_id="0x50")
@@ -593,7 +603,7 @@ class TestImportEvents(TestCase):
                 ),
                 WarningMessage(
                     obj="Der ganze Rest",
-                    message="Event has an unknown language: random_value, main language has been set to undecided",
+                    message='Event has an unknown language ("random_value"), main language was set to undecided',
                 ),
             ],
         )
@@ -671,14 +681,14 @@ class TestImportEvents(TestCase):
 
         evaluation = Evaluation.objects.get(name_en="")
 
-        evaluation.name_en = "Test"
+        evaluation.is_rewarded = False
         evaluation.save()
 
         importer = self._import()
 
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
 
-        self.assertEqual(evaluation.name_en, "")
+        self.assertTrue(evaluation.is_rewarded)
         self.assertEqual(len(importer.statistics.attempted_changes), 0)
 
         evaluation.general_contribution.questionnaires.add(
@@ -686,14 +696,14 @@ class TestImportEvents(TestCase):
         )
         evaluation.main_language = "en"
         evaluation.manager_approve()
-        evaluation.name_en = "Test"
+        evaluation.is_rewarded = False
         evaluation.save()
 
         importer = self._import()
 
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
 
-        self.assertEqual(evaluation.name_en, "Test")
+        self.assertFalse(evaluation.is_rewarded)
 
         self.assertEqual(len(importer.statistics.attempted_changes), 1)
 
@@ -773,6 +783,46 @@ class TestImportEvents(TestCase):
 
             with self.assertRaises(CommandError):
                 call_command("json_import", self.semester.id + 42, test_filename, "01.01.2000", stdout=output)
+
+    def test_disambiguate_name(self):
+        importer = JSONImporter(self.semester, date(2000, 1, 1))
+
+        self.assertEqual(importer._disambiguate_name("Klausur", []), "Klausur")
+        self.assertEqual(importer._disambiguate_name("Klausur", [""]), "Klausur")
+        self.assertEqual(importer._disambiguate_name("Klausur", ["Klausur"]), "Klausur (2)")
+        self.assertEqual(importer._disambiguate_name("Klausur", ["Klausur", "Klausur (2)"]), "Klausur (3)")
+        self.assertEqual(importer._disambiguate_name("Klausur", ["Klausur", "Klausur (3)"]), "Klausur (4)")
+        self.assertEqual(importer._disambiguate_name("Klausur", ["Klausur (0)"]), "Klausur (1)")
+        # doesn't match on negative numbers
+        self.assertEqual(importer._disambiguate_name("Klausur", ["Klausur (-1)"]), "Klausur")
+        # doesn't fail on arbitary strings
+        self.assertEqual(importer._disambiguate_name("Klausur", ["Klausur (mündlich)"]), "Klausur")
+        self.assertEqual(importer._disambiguate_name("Klausur", ["Klausur 2"]), "Klausur")
+
+    def test_exam_type_existing(self):
+        exam_type = ExamType.objects.create(name_en="Presentation", name_de="Präsentation")
+        data = deepcopy(EXAMPLE_DATA)
+        data["events"][1]["type"] = "Präsentation"
+
+        self._import(data)
+
+        exam_evaluation = Evaluation.objects.get(cms_id=data["events"][1]["gguid"])
+
+        self.assertEqual(exam_evaluation.name_de, exam_type.name_de)
+        self.assertEqual(exam_evaluation.name_en, exam_type.name_en)
+
+    def test_exam_type_different_name(self):
+        data = deepcopy(EXAMPLE_DATA)
+        data["events"][1]["type"] = "Präsentation"
+
+        self._import(data)
+
+        exam_evaluation = Evaluation.objects.get(cms_id=data["events"][1]["gguid"])
+
+        self.assertEqual(exam_evaluation.exam_type.name_de, "Präsentation")
+        self.assertEqual(exam_evaluation.exam_type.name_en, "Präsentation")
+        self.assertEqual(exam_evaluation.name_de, exam_evaluation.exam_type.name_de)
+        self.assertEqual(exam_evaluation.name_en, exam_evaluation.exam_type.name_de)
 
     def test_clean_whitespaces(self):
         importer = JSONImporter(self.semester, date(2000, 1, 1))

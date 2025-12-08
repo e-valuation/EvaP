@@ -25,6 +25,7 @@ from evap.evaluation.models import (
     CourseType,
     EmailTemplate,
     Evaluation,
+    ExamType,
     FaqQuestion,
     Infotext,
     Program,
@@ -949,11 +950,12 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
 
         cls.responsible = baker.make(UserProfile)
 
-        cls.questionnaires = baker.make(Questionnaire, type=Questionnaire.Type.TOP, _quantity=2)
+        cls.questionnaires = baker.make(Questionnaire, type=Questionnaire.Type.TOP, _quantity=4)
         cls.questionnaire_contributor, cls.questionnaire_responsible = baker.make(
             Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, _quantity=2
         )
         cls.course_types = baker.make(CourseType, _quantity=3)
+        cls.exam_types = baker.make(ExamType, _quantity=3)
         cls.evaluations = baker.make(
             Evaluation,
             course__semester=semester,
@@ -961,6 +963,16 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
             course__type=iter(cls.course_types),
             _quantity=3,
         )
+        cls.exam_evaluations = [
+            baker.make(
+                Evaluation,
+                course=main_evaluation.course,
+                exam_type=exam_type,
+                name_de=exam_type.name_de,
+                name_en=exam_type.name_en,
+            )
+            for main_evaluation, exam_type in zip(cls.evaluations, cls.exam_types, strict=True)
+        ]
         baker.make(
             Contribution,
             contributor=cls.responsible,
@@ -977,6 +989,8 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
         form[f"general-{self.course_types[1].id}"] = [self.questionnaires[1].pk]
         form[f"contributor-{self.course_types[0].id}"] = [self.questionnaire_responsible.pk]
         form["all-contributors"] = [self.questionnaire_contributor.pk]
+        form[f"exam-{self.exam_types[0].id}"] = [self.questionnaires[2].pk, self.questionnaires[3].pk]
+        form[f"exam-{self.exam_types[1].id}"] = [self.questionnaires[3].pk]
 
         response = form.submit().follow()
         self.assertContains(response, "Successfully")
@@ -1003,6 +1017,18 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
         )
 
         self.assertQuerySetEqual(self.evaluations[2].general_contribution.questionnaires.all(), [])
+
+        self.assertQuerySetEqual(
+            self.exam_evaluations[0].general_contribution.questionnaires.all(),
+            [self.questionnaires[2], self.questionnaires[3]],
+            ordered=False,
+        )
+
+        self.assertQuerySetEqual(
+            self.exam_evaluations[1].general_contribution.questionnaires.all(), [self.questionnaires[3]]
+        )
+
+        self.assertQuerySetEqual(self.exam_evaluations[2].general_contribution.questionnaires.all(), [])
 
 
 class TestSemesterPreparationReminderView(WebTestStaffModeWith200Check):
@@ -1994,8 +2020,9 @@ class TestEvaluationExamCreation(WebTestStaffMode):
         cls.contributions = baker.make(
             Contribution, evaluation=cls.evaluation, _fill_optional=["contributor"], _quantity=3, _bulk_create=True
         )
+        cls.exam_type = baker.make(ExamType)
         cls.exam_date = datetime.date.today() + datetime.timedelta(days=10)
-        cls.params = {"evaluation_id": cls.evaluation.pk, "exam_date": cls.exam_date}
+        cls.params = {"base_evaluation": cls.evaluation.pk, "exam_date": cls.exam_date, "exam_type": cls.exam_type.id}
         cls.exam_questionnaire = baker.make(Questionnaire, pk=111)
 
     def test_create_exam_evaluation(self):
@@ -2008,8 +2035,9 @@ class TestEvaluationExamCreation(WebTestStaffMode):
             datetime.datetime.combine(self.exam_date + datetime.timedelta(days=1), datetime.time(8, 0)),
         )
         self.assertEqual(exam_evaluation.vote_end_date, self.exam_date + settings.EXAM_EVALUATION_DEFAULT_DURATION)
-        self.assertEqual(exam_evaluation.name_de, "Klausur")
-        self.assertEqual(exam_evaluation.name_en, "Exam")
+        self.assertEqual(exam_evaluation.exam_type, self.exam_type)
+        self.assertEqual(exam_evaluation.name_de, self.exam_type.name_de)
+        self.assertEqual(exam_evaluation.name_en, self.exam_type.name_en)
         self.assertEqual(exam_evaluation.course, self.evaluation.course)
         self.assertQuerySetEqual(exam_evaluation.participants.all(), self.evaluation.participants.all())
         self.assertEqual(exam_evaluation.weight, settings.EXAM_EVALUATION_DEFAULT_WEIGHT)
@@ -2019,19 +2047,10 @@ class TestEvaluationExamCreation(WebTestStaffMode):
         self.assertEqual(evaluation.vote_end_date, self.exam_date - datetime.timedelta(days=1))
 
     def test_exam_evaluation_for_already_existing_exam_evaluation(self):
-        baker.make(Evaluation, course=self.course, name_en="Exam", name_de="Klausur")
-        self.assertTrue(self.evaluation.has_exam_evaluation)
-        with assert_no_database_modifications():
-            self.app.post(self.url, user=self.manager, status=400, params=self.params)
-
-    def test_exam_evaluation_for_already_existing_exam_evaluation_without_default_en_name(self):
-        baker.make(Evaluation, course=self.course, name_en="Test", name_de="Klausur")
-        self.assertTrue(self.evaluation.has_exam_evaluation)
-        with assert_no_database_modifications():
-            self.app.post(self.url, user=self.manager, status=400, params=self.params)
-
-    def test_exam_evaluation_for_already_existing_exam_evaluation_without_default_de_name(self):
-        baker.make(Evaluation, course=self.course, name_en="Exam", name_de="Prüfung")
+        exam_type = baker.make(ExamType)
+        baker.make(
+            Evaluation, course=self.course, exam_type=exam_type, name_de=exam_type.name_de, name_en=exam_type.name_en
+        )
         self.assertTrue(self.evaluation.has_exam_evaluation)
         with assert_no_database_modifications():
             self.app.post(self.url, user=self.manager, status=400, params=self.params)
@@ -2040,16 +2059,6 @@ class TestEvaluationExamCreation(WebTestStaffMode):
         self.evaluation.vote_start_datetime = datetime.datetime.now() + datetime.timedelta(days=100)
         self.evaluation.vote_end_date = datetime.date.today() + datetime.timedelta(days=150)
         self.evaluation.save()
-        with assert_no_database_modifications():
-            self.app.post(self.url, user=self.manager, status=400, params=self.params)
-
-    def test_exam_evaluation_with_missing_date(self):
-        self.params.pop("exam_date")
-        with assert_no_database_modifications():
-            self.app.post(self.url, user=self.manager, status=400, params=self.params)
-
-    def test_exam_evaluation_with_wrongly_formatted_date(self):
-        self.params["exam_date"] = ""
         with assert_no_database_modifications():
             self.app.post(self.url, user=self.manager, status=400, params=self.params)
 
@@ -3556,6 +3565,51 @@ class TestCourseTypeMergeView(WebTestStaffMode):
         self.assertEqual(Course.objects.filter(type=self.main_type).count(), 2)
         for course in Course.objects.all():
             self.assertTrue(course.type == self.main_type)
+
+
+class TestExamTypeView(WebTestStaffMode):
+    url = "/staff/exam_types/"
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.manager = make_manager()
+
+    @staticmethod
+    def set_import_names(field, value):
+        # Webtest will check that all values are included in the options, so we modify the options beforehand
+        field.options = [(name, False, name) for name in value]
+        field.value = value
+
+    def test_page_displays_something(self):
+        ExamType.objects.create(name_de="uZJcsl0rNc", name_en="uZJcsl0rNc")
+        page = self.app.get(self.url, user=self.manager, status=200)
+        self.assertIn("uZJcsl0rNc", page)
+
+    def test_exam_type_form(self):
+        """
+        Adds a exam type via the staff form and verifies that the type was created in the db.
+        """
+        page = self.app.get(self.url, user=self.manager, status=200)
+        form = page.forms["exam-type-form"]
+        form["form-0-name_de"].value = "Klausur"
+        form["form-0-name_en"].value = "Exam"
+        self.set_import_names(form["form-0-import_names"], ["Klausur", "K"])
+        response = form.submit().follow()
+        self.assertContains(response, "Successfully")
+
+        self.assertEqual(ExamType.objects.count(), 1)
+        self.assertTrue(
+            ExamType.objects.filter(name_de="Klausur", name_en="Exam", import_names=["Klausur", "K"]).exists()
+        )
+
+    def test_import_names_duplicated_error(self):
+        baker.make(ExamType, _bulk_create=True, _quantity=2)
+        page = self.app.get(self.url, user=self.manager, status=200)
+        form = page.forms["exam-type-form"]
+        self.set_import_names(form["form-0-import_names"], ["Klausur", "k"])
+        self.set_import_names(form["form-1-import_names"], ["Prüfung", "K"])
+        response = form.submit()
+        self.assertContains(response, "Import name &quot;K&quot; is duplicated. Import names are not case sensitive.")
 
 
 class TestProgramMergeSelectionView(WebTestStaffMode):
