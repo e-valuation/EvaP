@@ -591,7 +591,7 @@ class TestVoteView(WebTest):
         request = RequestFactory().get(reverse("student:vote", args=[self.evaluation.id]))
         request.user = self.voting_user1
         with patch("django.utils.translation.gettext_lazy") as mock:
-            get_vote_page_form_groups(request, self.evaluation, preview=False, preselect_no_answer=False)
+            get_vote_page_form_groups(request, self.evaluation, preview=False, preselect_no_answer=False, dropout=False)
             self.assertEqual(mock.call_count, 0)
 
 
