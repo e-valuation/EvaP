@@ -178,7 +178,7 @@ def get_parameter_from_url_or_session(request: HttpRequest, parameter: str, defa
     if result_str is None:  # if no parameter is given take session value
         result = request.session.get(parameter, default)
     else:
-        result = {"true": True, "false": False}.get(result_str.lower())  # convert parameter to boolean
+        result = {"true": True, "false": False}.get(result_str.lower(), default)  # convert parameter to boolean
     request.session[parameter] = result  # store value for session
     return result
 

@@ -26,6 +26,7 @@ from django.db.models import (
     Q,
     Sum,
     When,
+    Value,
 )
 from django.forms import BaseForm, formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
@@ -1801,29 +1802,43 @@ def evaluation_preview(request, evaluation_id):
 
 @manager_required
 def questionnaire_index(request):
-    filter_questionnaires = get_parameter_from_url_or_session(request, "filter_questionnaires")
+    filters = ["all", "visible", "non-archived"]
+    filter_questionnaires = request.GET.get("filter_questionnaires", filters[0])
+    if filter_questionnaires not in filters:
+        filter_questionnaires = filters[0]
 
     prefetch_list = ("questions", "contributions__evaluation")
-    general_questionnaires = Questionnaire.objects.general_questionnaires().prefetch_related(*prefetch_list)
-    contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().prefetch_related(*prefetch_list)
-    dropout_questionnaires = Questionnaire.objects.dropout_questionnaires().prefetch_related(*prefetch_list)
+    questionnaires = [
+        Questionnaire.objects.general_questionnaires().prefetch_related(*prefetch_list),
+        Questionnaire.objects.contributor_questionnaires().prefetch_related(*prefetch_list),
+        Questionnaire.objects.dropout_questionnaires().prefetch_related(*prefetch_list),
+    ]
 
-    if filter_questionnaires:
-        general_questionnaires = general_questionnaires.exclude(visibility=Questionnaire.Visibility.HIDDEN)
-        contributor_questionnaires = contributor_questionnaires.exclude(visibility=Questionnaire.Visibility.HIDDEN)
+    if filter_questionnaires != "all":
+        questionnaires = [q_type.exclude(visibility=Questionnaire.Visibility.ARCHIVED) for q_type in questionnaires]
+        if filter_questionnaires == "visible":
+            questionnaires = [q_type.exclude(visibility=Questionnaire.Visibility.HIDDEN) for q_type in questionnaires]
+    
+    questionnaires = [q_type.order_by(
+        Case(
+            When(visibility=Questionnaire.Visibility.ARCHIVED, then=Value(1)),
+            default=Value(0),
+            output_field=IntegerField(),
+        )
+    ) for q_type in questionnaires]
 
     general_questionnaires_top = [
-        questionnaire for questionnaire in general_questionnaires if questionnaire.is_above_contributors
+        questionnaire for questionnaire in questionnaires[0] if questionnaire.is_above_contributors
     ]
     general_questionnaires_bottom = [
-        questionnaire for questionnaire in general_questionnaires if questionnaire.is_below_contributors
+        questionnaire for questionnaire in questionnaires[0] if questionnaire.is_below_contributors
     ]
 
     template_data = {
         "general_questionnaires_top": general_questionnaires_top,
         "general_questionnaires_bottom": general_questionnaires_bottom,
-        "contributor_questionnaires": contributor_questionnaires,
-        "dropout_questionnaires": dropout_questionnaires,
+        "contributor_questionnaires": questionnaires[1],
+        "dropout_questionnaires": questionnaires[2],
         "filter_questionnaires": filter_questionnaires,
     }
     return render(request, "staff_questionnaire_index.html", template_data)

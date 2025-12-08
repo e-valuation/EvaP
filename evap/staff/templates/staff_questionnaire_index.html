@@ -10,13 +10,16 @@
         </div>
         <div class="col-auto">
             <div class="btn-switch btn-switch-light">
-                <div class="btn-switch-label">{% translate 'Hidden questionnaires' %}</div>
+                <div class="btn-switch-label">{% translate 'Show questionnaires' %}</div>
                 <div class="btn-switch btn-group">
-                    <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=false" role="button" class="btn btn-sm btn-light{% if not filter_questionnaires %} active{% endif %}">
-                    {% translate 'Show' %}
+                    <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=all" role="button" class="btn btn-sm btn-light{% if filter_questionnaires == 'all' %} active{% endif %}">
+                    {% translate 'All' %}
                     </a>
-                    <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=true" role="button" class="btn btn-sm btn-light{% if filter_questionnaires %} active{% endif %}">
-                        {% translate 'Hide' %}
+                    <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=visible" role="button" class="btn btn-sm btn-light{% if filter_questionnaires == 'visible' %} active{% endif %}">
+                        {% translate 'Visible' %}
+                    </a>
+                    <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=non-archived" role="button" class="btn btn-sm btn-light{% if filter_questionnaires == 'non-archived' %} active{% endif %}">
+                        {% translate 'Non-archived' %}
                     </a>
                 </div>
             </div>
