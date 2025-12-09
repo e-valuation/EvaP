@@ -548,11 +548,11 @@ class EvaluationCopyForm(EvaluationForm):
 class ExamEvaluationForm(forms.Form):
     base_evaluation = forms.ModelChoiceField(Evaluation.objects.all(), required=True, widget=forms.HiddenInput())
     exam_date = forms.DateField(
-        label=_("Exam Date"),
+        label=_("Exam date"),
         required=True,
         localize=True,
     )
-    exam_type = forms.ModelChoiceField(ExamType.objects.all(), required=True, label=_("Exam Type"))
+    exam_type = forms.ModelChoiceField(ExamType.objects.all(), required=True, label=_("Exam type"))
 
     def __init__(self, *args, evaluation=None, form_id=None, **kwargs):
         super().__init__(*args, **kwargs)
