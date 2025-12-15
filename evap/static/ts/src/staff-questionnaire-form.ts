@@ -17,25 +17,25 @@ export class StaffQuestionnaireForm {
 
         this.initialize();
     }
-    private disableAndUncheckCheckbox = (checkbox: HTMLInputElement) => {
+    private disableAndUncheck = (checkbox: HTMLInputElement) => {
         checkbox.checked = false;
         checkbox.disabled = true;
     };
 
-    private enableAndCheckCheckbox = (checkbox: HTMLInputElement) => {
+    private enableAndCheck = (checkbox: HTMLInputElement) => {
         checkbox.checked = true;
         checkbox.disabled = false;
     };
 
-    private disableAllCheckboxes = (checkboxes: NodeListOf<Element>) => {
+    private disableAll = (checkboxes: NodeListOf<Element>) => {
         checkboxes.forEach(checkbox => {
-            this.disableAndUncheckCheckbox(checkbox as HTMLInputElement);
+            this.disableAndUncheck(checkbox as HTMLInputElement);
         });
     };
 
-    private enableAllCheckboxes = (checkboxes: NodeListOf<Element>) => {
+    private enableAll = (checkboxes: NodeListOf<Element>) => {
         checkboxes.forEach(checkbox => {
-            this.enableAndCheckCheckbox(checkbox as HTMLInputElement);
+            this.enableAndCheck(checkbox as HTMLInputElement);
         });
     };
 
@@ -49,7 +49,7 @@ export class StaffQuestionnaireForm {
             const checkboxes = questionTypeCell.querySelectorAll("input[type=checkbox]");
 
             if (questionType === QUESTION_TYPE_TEXT || questionType === QUESTION_TYPE_HEADING) {
-                this.disableAllCheckboxes(checkboxes);
+                this.disableAll(checkboxes);
                 return;
             }
 
@@ -58,13 +58,13 @@ export class StaffQuestionnaireForm {
                 checkboxes.forEach(checkbox => {
                     const checkboxElement = checkbox as HTMLInputElement;
                     if (checkboxElement.classList.contains("counts-for-grade-checkbox")) {
-                        this.disableAndUncheckCheckbox(checkboxElement);
+                        this.disableAndUncheck(checkboxElement);
                     } else {
-                        this.enableAndCheckCheckbox(checkboxElement);
+                        this.enableAndCheck(checkboxElement);
                     }
                 });
             } else {
-                this.enableAllCheckboxes(checkboxes);
+                this.enableAll(checkboxes);
             }
         }
     };
@@ -85,13 +85,13 @@ export class StaffQuestionnaireForm {
             }
 
             if (selectedType === QUESTIONNAIRE_TYPE_DROPOUT) {
-                this.disableAndUncheckCheckbox(checkboxElement);
+                this.disableAndUncheck(checkboxElement);
             } else {
                 const questionType = saneParseInt(questionTypeSelect.value);
                 if (questionType === QUESTION_TYPE_TEXT || questionType === QUESTION_TYPE_HEADING) {
-                    this.disableAndUncheckCheckbox(checkboxElement);
+                    this.disableAndUncheck(checkboxElement);
                 } else {
-                    this.enableAndCheckCheckbox(checkboxElement);
+                    this.enableAndCheck(checkboxElement);
                 }
             }
         });
@@ -121,13 +121,5 @@ export class StaffQuestionnaireForm {
                 }
             });
         });
-    };
-
-    public registerSelectChangedHandlers = () => {
-        document.querySelectorAll(".question-type select").forEach(selectElement => {
-            selectElement.addEventListener("change", this.handleQuestionTypeChange);
-        });
-
-        this.questionnaireTypeSelect.addEventListener("change", this.handleQuestionnaireTypeChange);
     };
 }
