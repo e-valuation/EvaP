@@ -1,8 +1,6 @@
 from datetime import date, datetime
 
-from django.test import override_settings
 from django.urls import reverse
-from freezegun import freeze_time
 from model_bakery import baker
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
@@ -186,40 +184,40 @@ class ParticipantCollapseTests(LiveServerTest):
 
 class StaffSemesterViewRegressionTest(VisualRegressionTestCase):
 
-    @freeze_time("2025-10-27")
-    @override_settings(SLOGANS_EN=["Einigermaßen verlässlich aussehende Pixeltestung"])
     def test_regression(self):
         baker.seed(31902)
 
-        responsible = baker.make(UserProfile)
+        responsible = baker.make(UserProfile, last_name="aResponsibleUser")
+        program = baker.make(Program)
         evaluation = baker.make(
             Evaluation,
-            course=baker.make(Course, programs=[baker.make(Program)], responsibles=[responsible]),
+            course__responsibles=[responsible],
+            course__programs=[program],
             vote_start_datetime=datetime(2099, 1, 1, 0, 0),
             vote_end_date=date(2099, 12, 31),
             main_language="en",
         )
         baker.make(
             Evaluation,
-            course=baker.make(
-                Course, semester=evaluation.course.semester, programs=[baker.make(Program)], responsibles=[responsible]
-            ),
+            course__semester=evaluation.course.semester,
+            course__programs=[program],
+            course__responsibles=[responsible],
             vote_start_datetime=datetime(2099, 1, 1, 0, 0),
             vote_end_date=date(2099, 12, 31),
             main_language="en",
         )
+
+        general_questionnaire = baker.make(Questionnaire, questions=[baker.make(Question)])
         baker.make(
             Evaluation,
-            course=baker.make(
-                Course, semester=evaluation.course.semester, programs=[baker.make(Program)], responsibles=[responsible]
-            ),
+            course__semester=evaluation.course.semester,
+            course__programs=[program],
+            course__responsibles=[responsible],
+            general_contribution__questionnaires=[general_questionnaire],
             vote_start_datetime=datetime(2099, 1, 1, 0, 0),
             vote_end_date=date(2099, 12, 31),
             main_language="de",
         )
-
-        general_questionnaire = baker.make(Questionnaire, questions=[baker.make(Question)])
-        evaluation.general_contribution.questionnaires.set([general_questionnaire])
 
         baker.make(
             Contribution,

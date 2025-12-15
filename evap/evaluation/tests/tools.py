@@ -17,12 +17,13 @@ from django.contrib.auth.models import Group
 from django.contrib.staticfiles.handlers import StaticFilesHandler
 from django.db import DEFAULT_DB_ALIAS, connection, connections
 from django.http.request import HttpRequest, QueryDict
-from django.test import tag
+from django.test import override_settings, tag
 from django.test.runner import DiscoverRunner
 from django.test.selenium import SeleniumTestCase
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone, translation
+from freezegun import freeze_time
 from model_bakery import baker
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.webdriver import WebDriver
@@ -364,17 +365,20 @@ class LiveServerTest(SeleniumTestCase):
         cls.selenium.set_window_size(*cls.window_size)
 
 
+@override_settings(SLOGANS_EN=["Einigermaßen verlässlich aussehende Pixeltestung"])
 @tag("vrt")
 class VisualRegressionTestCase(LiveServerTest):
     window_size = (1920, 1080)
     _http_timeout_seconds = 3
 
     def setUp(self) -> None:
-        with connection.cursor() as cursor:
-            # reset userprofile id sequence to keep test reproducible
-            cursor.execute("ALTER SEQUENCE evaluation_userprofile_id_seq restart")
-
         super().setUp()
+
+        self.freezer = freeze_time("2025-10-27")
+        self.freezer.start()
+
+    def tearDown(self) -> None:
+        self.freezer.stop()
 
     @property
     def viewport(self):

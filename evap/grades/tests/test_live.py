@@ -8,8 +8,6 @@ from evap.evaluation.tests.tools import VisualRegressionTestCase
 
 class GradesViewTest(VisualRegressionTestCase):
 
-    @freeze_time("2025-10-27")
-    @override_settings(SLOGANS_EN=["Einigermaßen verlässlich aussehende Pixeltestung"])
     def test_grades_semester_view(self):
         baker.seed(31902)
 
