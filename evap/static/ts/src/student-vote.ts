@@ -3,10 +3,7 @@ import { AutoFormSaver } from "./auto-form-saver.js";
 import { CSRF_HEADERS } from "./csrf-utils.js";
 import { initTextAnswerWarnings } from "./text-answer-warnings.js";
 import { assert } from "./utils.js";
-
-// TODO: templates
-// TODO: bootstrap
-// TODO: for attribute on Button
+import { Collapse } from "bootstrap";
 
 function isInvisible(el: Element): boolean {
     if (getComputedStyle(el).display === "none") {
@@ -137,11 +134,11 @@ studentForm.addEventListener("keydown", (e: KeyboardEvent) => {
             // Just giving back control to the browser here doesn't work, because
             // it would navigate backwards through the controls of the current row.
             disableFocusHandler = true;
-            selectables[0].focus({preventScroll: true});
+            selectables[0].focus({ preventScroll: true });
             return;
         } else if (nextRowIndex === rows.length) {
             // User wants to tab out behind the form area
-            selectables[selectables.length - 1].focus({preventScroll: true});
+            selectables[selectables.length - 1].focus({ preventScroll: true });
             return;
         }
     } while (isInvisible(rows[nextRowIndex]) || !hasTabbingTarget(rows[nextRowIndex]));
@@ -168,7 +165,7 @@ function findCorrectInputInRow(row: HTMLElement) {
 }
 
 function fancyFocus(element: HTMLElement) {
-    element.focus({preventScroll: true});
+    element.focus({ preventScroll: true });
     element.scrollIntoView({
         behavior: "smooth",
         block: "center",
@@ -184,7 +181,6 @@ function scrollToFirstChoiceError() {
         fancyFocus(findCorrectInputInRow(tabRow));
     }
 }
-
 
 const dataElement = document.querySelector<HTMLElement>(".dataElement")!;
 const evaluationId = dataElement.dataset.evaluation_id!;
@@ -233,7 +229,7 @@ const formSaver = new AutoFormSaver(document.getElementById("student-vote-form")
 const languageCode = dataElement.dataset.language_code!;
 function updateLastSavedLabel() {
     const timeNow = new Date();
-    const lastSavedLabel = document.getElementById('last-saved')!;
+    const lastSavedLabel = document.getElementById("last-saved")!;
     const lastSavedStorageValue = localStorage.getItem(languageStorageKey);
     if (lastSavedStorageValue !== null) {
         const lastSavedDate = new Date(lastSavedStorageValue);
@@ -249,15 +245,21 @@ function updateLastSavedLabel() {
         } else if (delta < 60) {
             timeStamp = "{% translate 'less than 1 minute ago' %}";
         } else if (delta < 60 * 30) {
-            timeStamp = relativeTimeFormat.format(-Math.round(delta / 60), 'minutes');
+            timeStamp = relativeTimeFormat.format(-Math.round(delta / 60), "minutes");
         } else if (delta < 60 * 60 * 12) {
-            timeStamp = padWithLeadingZeros(lastSavedDate.getHours()) + ":" + padWithLeadingZeros(lastSavedDate.getMinutes());
+            timeStamp =
+                padWithLeadingZeros(lastSavedDate.getHours()) + ":" + padWithLeadingZeros(lastSavedDate.getMinutes());
         } else {
-            timeStamp = lastSavedDate.getFullYear().toString() + "-"
-                + padWithLeadingZeros(lastSavedDate.getMonth() + 1) + "-"
-                + padWithLeadingZeros(lastSavedDate.getDate()) + " "
-                + padWithLeadingZeros(lastSavedDate.getHours()) + ":"
-                + padWithLeadingZeros(lastSavedDate.getMinutes());
+            timeStamp =
+                lastSavedDate.getFullYear().toString() +
+                "-" +
+                padWithLeadingZeros(lastSavedDate.getMonth() + 1) +
+                "-" +
+                padWithLeadingZeros(lastSavedDate.getDate()) +
+                " " +
+                padWithLeadingZeros(lastSavedDate.getHours()) +
+                ":" +
+                padWithLeadingZeros(lastSavedDate.getMinutes());
         }
         lastSavedLabel.innerText = "{% translate 'Last saved locally' %}: " + timeStamp;
     } else {
@@ -278,14 +280,17 @@ updateLastSavedLabel();
 setInterval(updateLastSavedLabel, 1000);
 
 const textAnswerWarnings = document.getElementById("text-answer-warnings") as HTMLTextAreaElement;
-initTextAnswerWarnings(document.querySelectorAll("#student-vote-form textarea"), JSON.parse(textAnswerWarnings.textContent) as string[][]);
+initTextAnswerWarnings(
+    document.querySelectorAll("#student-vote-form textarea"),
+    JSON.parse(textAnswerWarnings.textContent) as string[][],
+);
 
-const form = document.getElementById('student-vote-form') as HTMLFormElement;
+const form = document.getElementById("student-vote-form") as HTMLFormElement;
 const successMagicString = dataElement.dataset.success_magic_string!;
 const successRedirectUrl = dataElement.dataset.success_redirect_url!;
 const submitListener = (event: Event) => {
     event.preventDefault(); // don't use the default submission
-    const submitButton = document.getElementById('vote-submit-btn') as HTMLButtonElement;
+    const submitButton = document.getElementById("vote-submit-btn") as HTMLButtonElement;
     const originalText = submitButton.innerText;
 
     submitButton.innerText = "{% translate 'Submitting...' %}";
@@ -295,31 +300,37 @@ const submitListener = (event: Event) => {
         body: new FormData(form),
         headers: CSRF_HEADERS,
         method: form.method,
-    }).then(response => {
-        assert(response.ok);
-        return response.text();
-    }).then(response_text => {
-        if (response_text === successMagicString) {
-            formSaver.releaseData();
-            window.location.replace(successRedirectUrl);
-        } else {
-            // resubmit without this handler to show the site with the form errors
-            form.removeEventListener("submit", submitListener);
-            form.requestSubmit();
-        }
-    }).catch((_: unknown) => {
-        // show a warning if the post isn't successful
-        document.getElementById('submit-error-warning')!.classList.remove("d-none");
-        submitButton.innerText = originalText;
-        submitButton.disabled = false;
-    });
+    })
+        .then(response => {
+            assert(response.ok);
+            return response.text();
+        })
+        .then(response_text => {
+            if (response_text === successMagicString) {
+                formSaver.releaseData();
+                window.location.replace(successRedirectUrl);
+            } else {
+                // resubmit without this handler to show the site with the form errors
+                form.removeEventListener("submit", submitListener);
+                form.requestSubmit();
+            }
+        })
+        .catch((_: unknown) => {
+            // show a warning if the post isn't successful
+            document.getElementById("submit-error-warning")!.classList.remove("d-none");
+            submitButton.innerText = originalText;
+            submitButton.disabled = false;
+        });
 };
 form.addEventListener("submit", submitListener);
 
-function clearChoiceError(voteButton: HTMLInputElement) {
-    voteButton.closest(".row")!.querySelectorAll(".choice-error").forEach(highlightedElement => {
-        highlightedElement.classList.remove("choice-error");
-    });
+function clearChoiceError(voteButton: HTMLElement) {
+    voteButton
+        .closest(".row")!
+        .querySelectorAll(".choice-error")
+        .forEach(highlightedElement => {
+            highlightedElement.classList.remove("choice-error");
+        });
 }
 
 document.querySelectorAll<HTMLButtonElement>("[data-mark-no-answers-for]").forEach(button => {
@@ -336,7 +347,7 @@ document.querySelectorAll<HTMLButtonElement>("[data-mark-no-answers-for]").forEa
         formSaver.saveAllData();
 
         // hide questionnaire for contributor
-        const voteAreaCollapse = bootstrap.Collapse.getOrCreateInstance(voteArea);
+        const voteAreaCollapse = Collapse.getOrCreateInstance(voteArea);
         voteAreaCollapse.hide();
         collapseToggle.classList.add("tab-selectable");
 
@@ -345,14 +356,13 @@ document.querySelectorAll<HTMLButtonElement>("[data-mark-no-answers-for]").forEa
         button.disabled = true;
     });
 
-    voteArea.querySelectorAll(".vote-inputs [type=radio]:not([value='6'])")
-        .forEach(radioInput => {
-            radioInput.addEventListener("click", () => {
-                collapseToggle.classList.remove("tab-selectable");
-                button.classList.add("tab-selectable");
-                button.disabled = false;
-            });
+    voteArea.querySelectorAll(".vote-inputs [type=radio]:not([value='6'])").forEach(radioInput => {
+        radioInput.addEventListener("click", () => {
+            collapseToggle.classList.remove("tab-selectable");
+            button.classList.add("tab-selectable");
+            button.disabled = false;
         });
+    });
 
     collapseToggle.addEventListener("click", () => {
         if (button.classList.contains("tab-selectable")) {
@@ -362,15 +372,18 @@ document.querySelectorAll<HTMLButtonElement>("[data-mark-no-answers-for]").forEa
 });
 
 // remove error highlighting when an answer was selected
-document.querySelectorAll<HTMLInputElement>(".vote-btn.choice-error").forEach(voteButton => {
+document.querySelectorAll<HTMLLabelElement>(".vote-btn.choice-error").forEach(voteButton => {
     voteButton.addEventListener("click", () => clearChoiceError(voteButton));
-    const actualInput = document.getElementById(voteButton.attributes.for.value)!;
+    console.log(voteButton.attributes);
+    const actualInput = document.getElementById(voteButton.htmlFor)!;
     actualInput.addEventListener("click", () => clearChoiceError(voteButton));
 });
 
 document.querySelectorAll<HTMLButtonElement>(".btn-textanswer").forEach(textanswerButton => {
     const textfieldClass = textanswerButton.dataset.bsTarget!;
-    const textfield = textanswerButton.closest(".row")!.querySelector<HTMLTextAreaElement>(textfieldClass + " textarea")!;
+    const textfield = textanswerButton
+        .closest(".row")!
+        .querySelector<HTMLTextAreaElement>(textfieldClass + " textarea")!;
     textanswerButton.addEventListener("click", () => {
         // focus textarea when opening the collapsed area
         const isOpening = textanswerButton.classList.contains("collapsed");
