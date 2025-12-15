@@ -1,5 +1,3 @@
-from django.test import override_settings
-from freezegun import freeze_time
 from model_bakery import baker
 
 from evap.evaluation.models import Course, Evaluation, Group, Semester
