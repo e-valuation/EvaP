@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "baseUrl": ".",
-        "target": "es2019",
+        "target": "es2020",
         "strict": true,
         "esModuleInterop": true,
         "moduleResolution": "node"
