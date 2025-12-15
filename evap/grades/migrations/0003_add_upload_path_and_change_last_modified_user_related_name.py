@@ -6,7 +6,6 @@ import evap.grades.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("grades", "0002_initial_data"),
     ]

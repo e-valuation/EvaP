@@ -16,7 +16,6 @@ def populate_is_single_result(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0076_add_semester_short_names"),
     ]

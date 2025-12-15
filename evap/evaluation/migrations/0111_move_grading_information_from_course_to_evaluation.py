@@ -14,7 +14,6 @@ def move_grading_information_to_course(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0110_semester_is_active"),
     ]

@@ -1821,7 +1821,6 @@ class EvapBaseUser(models.Model):
 
 
 class UserProfile(EvapBaseUser, PermissionsMixin):
-
     # null=True because certain external users don't have an address
     email = models.EmailField(max_length=255, unique=True, blank=True, null=True, verbose_name=_("email address"))
 

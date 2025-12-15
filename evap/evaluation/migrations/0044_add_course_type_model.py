@@ -13,7 +13,6 @@ def add_course_types(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0043_auto_20160221_1543"),
     ]

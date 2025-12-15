@@ -384,9 +384,9 @@ STATIC_ROOT = DATADIR / "static_collected"
 MEDIA_ROOT = DATADIR / "upload"
 
 ### Evaluation progress rewards
-GLOBAL_EVALUATION_PROGRESS_REWARDS: list[tuple[Fraction, str]] = (
-    []
-)  # (required_voter_ratio between 0 and 1, reward_text)
+GLOBAL_EVALUATION_PROGRESS_REWARDS: list[
+    tuple[Fraction, str]
+] = []  # (required_voter_ratio between 0 and 1, reward_text)
 GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS: list[int] = []
 GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS: list[int] = []
 GLOBAL_EVALUATION_PROGRESS_INFO_TEXT: dict[str, str] = {"de": "", "en": ""}

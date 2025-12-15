@@ -6,7 +6,6 @@ import evap.evaluation.models_logging
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0119_contribution_verbose_name"),
     ]

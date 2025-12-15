@@ -14,7 +14,6 @@ def insert_emailtemplates(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0003_auto_add_course_is_graded"),
     ]

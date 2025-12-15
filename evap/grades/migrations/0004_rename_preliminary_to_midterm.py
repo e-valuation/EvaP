@@ -10,7 +10,6 @@ def rename(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("grades", "0003_add_upload_path_and_change_last_modified_user_related_name"),
     ]

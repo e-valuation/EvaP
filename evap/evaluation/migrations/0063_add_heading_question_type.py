@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0062_replace_textanswer_id_with_uuid"),
     ]

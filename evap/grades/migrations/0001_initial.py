@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0029_user_sorting_and_related_names_to_contribution"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),

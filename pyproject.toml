@@ -23,12 +23,10 @@ psycopg-c = ["psycopg[c]"]
 
 [dependency-groups]
 dev = [
-    "black~=25.9.0",
     "coverage[toml]~=7.10.2",
     "django-debug-toolbar~=6.0",
     "django-stubs~=5.2.5",
     "django-webtest~=1.9.13",
-    "isort~=6.1.0",
     "model-bakery~=1.20.0",
     "mypy~=1.18.2",
     "openpyxl-stubs~=0.1.25",
@@ -43,7 +41,6 @@ dev = [
 lsp = [
     "python-lsp-server",
     "pylsp-rope",
-    "python-lsp-black",
     "python-lsp-ruff",
     "pylsp-mypy",
 ]
@@ -77,29 +74,12 @@ artifacts = [
 
 ##############################################
 
-[tool.black]
-line-length = 120
-include = '(evap|tools).*\.pyi?$'
-extend-exclude = """\
-    .*/urls\\.py|\
-"""
-
-##############################################
-
-[tool.isort]
-profile = "black"
-src_paths = ["evap", "tools"]
-line_length = 120
-skip_gitignore = true
-
-##############################################
-
 [tool.ruff]
 line-length = 120
 
 [tool.ruff.lint]
 # Those are interesting, but not yet addressed: PYI,Q,SIM,PTH,TRY,RUF
-select = ["F", "E", "B", "W", "N", "UP", "YTT", "FIX", "ASYNC", "A", "DJ", "EXE", "ICN", "G", "SLOT", "TID", "TCH", "INT", "C4", "ISC", "INP", "PIE", "RSE", "RET", "COM","PGH","FLY", "PERF", "PL", "BLE"]
+select = ["F", "E", "B", "W", "N", "UP", "YTT", "FIX", "ASYNC", "A", "DJ", "EXE", "ICN", "G", "SLOT", "TID", "TCH", "INT", "C4", "ISC", "INP", "PIE", "RSE", "RET", "COM","PGH","FLY", "PERF", "PL", "BLE", "I"]
 ignore = [
     "E501",                  # line-too-long: black does code formatting for us
     "FIX004",                # hacks should be possible

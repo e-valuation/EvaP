@@ -9,7 +9,6 @@ def delete_original_answers(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0071_remove_reviewed_answer_field_for_textanswers"),
     ]

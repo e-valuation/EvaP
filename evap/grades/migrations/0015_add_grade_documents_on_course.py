@@ -3,7 +3,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0094_remove_unused_evaluation_fields"),
         ("grades", "0014_rename_course_to_evaluation"),

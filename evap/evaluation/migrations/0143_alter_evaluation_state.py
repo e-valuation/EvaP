@@ -5,7 +5,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0142_alter_evaluation_state"),
     ]
