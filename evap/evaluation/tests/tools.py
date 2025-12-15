@@ -364,12 +364,23 @@ class LiveServerTest(SeleniumTestCase):
         super().setUpClass()
         cls.selenium.set_window_size(*cls.window_size)
 
+def untag(*tags_to_remove):
+    """Decorator to remove tags from a test class or method."""
+
+    def decorator(obj):
+        if hasattr(obj, "tags"):
+            obj.tags = obj.tags - set(tags_to_remove)
+        return obj
+
+    return decorator
 
 @override_settings(SLOGANS_EN=["Einigermaßen verlässlich aussehende Pixeltestung"])
-@tag("vrt")
 class VisualRegressionTestCase(LiveServerTest):
     window_size = (1920, 1080)
     _http_timeout_seconds = 3
+
+    # removes the "selenium" tag inherited from LiveServerTest > SeleniumTestCase to prevent accidental test execution
+    tags = set("vrt")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
