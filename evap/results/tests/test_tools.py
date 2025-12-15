@@ -486,10 +486,12 @@ class TestCalculateAverageDistribution(TestCase):
         cache_results(self.evaluation)
         evaluation_results = get_results(self.evaluation)
 
-        question_results = []
-        for contribution_result in evaluation_results.contribution_results:
-            for questionnaire_result in contribution_result.questionnaire_results:
-                question_results.extend(questionnaire_result.question_results)
+        question_results = [
+            question_result
+            for contribution_result in evaluation_results.contribution_results
+            for questionnaire_result in contribution_result.questionnaire_results
+            for question_result in questionnaire_result.question_results
+        ]
 
         self.assertIsNone(average_grade_questions_distribution(question_results))
         self.assertIsNone(average_non_grade_rating_questions_distribution(question_results))
@@ -512,23 +514,11 @@ class TestCalculateAverageDistribution(TestCase):
         make_rating_answer_counters(dropout_question, self.evaluation.general_contribution, [10, 0, 0, 0, 0])
         cache_results(self.evaluation)
 
-        # Should not raise an AssertionError
         distribution_with_dropout = calculate_average_distribution(self.evaluation)
-
         self.assertEqual(distribution_without_dropout, distribution_with_dropout)
 
-    def test_dropout_questionnaire_with_counts_for_grade_true(self):
-        dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
-        # Create a question with counts_for_grade=True (bypassing form validation)
-        dropout_question = baker.make(
-            Question,
-            questionnaire=dropout_questionnaire,
-            type=QuestionType.GRADE,
-            counts_for_grade=True,
-        )
-        self.evaluation.general_contribution.questionnaires.add(dropout_questionnaire)
-
-        make_rating_answer_counters(dropout_question, self.evaluation.general_contribution, [1, 0, 0, 0, 0])
+        dropout_question.counts_for_grade = True
+        dropout_question.save()
         cache_results(self.evaluation)
 
         # Should raise AssertionError because dropout questionnaire has counts_for_grade=True
