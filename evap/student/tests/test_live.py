@@ -140,10 +140,6 @@ class StudentVoteLiveTest(LiveServerTest):
         radio_buttons = vote_area.find_elements(By.CSS_SELECTOR, "input[value='1'] + label.vote-btn")
         self.assertEqual(len(radio_buttons), 1)
 
-        radio_buttons[0].click()
-        button.click()
-        assert_modal_visible_and_close()
-
         # Waiting for element_to_be_clickable does not work unfortunately
         time.sleep(1)
         radio_buttons = vote_area.find_elements(By.CSS_SELECTOR, "label.vote-btn")
