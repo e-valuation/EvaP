@@ -22,7 +22,7 @@ class GradesViewTest(VisualRegressionTestCase):
                 course=iter(courses),
                 wait_for_grade_upload_before_publishing=True,
                 state=Evaluation.State.IN_EVALUATION,
-                _quantity=len(courses)
+                _quantity=len(courses),
             )
             self.selenium.get(self.reverse("grades:semester_view", args=[semester.id]))
 
