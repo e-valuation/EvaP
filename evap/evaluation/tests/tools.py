@@ -5,7 +5,7 @@ from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from datetime import timedelta
 from importlib import import_module
-from typing import Any
+from typing import Any, Tuple
 
 import django.test
 import django_webtest
@@ -375,11 +375,11 @@ class VisualRegressionTestCase(LiveServerTest):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.apiUrl =  os.environ.get("VRT_APIURL")
-        self.ciBuildId =  os.environ.get("VRT_CIBUILDID")
-        self.branchName =  os.environ.get("VRT_BRANCHNAME")
-        self.apiKey =  os.environ.get("VRT_APIKEY")
-        self.projectId =  os.environ.get("VRT_PROJECT")
+        self.apiUrl = os.environ.get("VRT_APIURL")
+        self.ciBuildId = os.environ.get("VRT_CIBUILDID")
+        self.branchName = os.environ.get("VRT_BRANCHNAME")
+        self.apiKey = os.environ.get("VRT_APIKEY")
+        self.projectId = os.environ.get("VRT_PROJECT")
 
         self.headers = {
             "apiKey": self.apiKey,
@@ -388,6 +388,7 @@ class VisualRegressionTestCase(LiveServerTest):
 
         self.data = {
             "project": self.projectId,
+            "projectId": self.projectId,  # this is not a typo, depending on the request either project/projectId is used
             "branchName": self.branchName,
             "ciBuildId": self.ciBuildId,
         }
@@ -408,51 +409,64 @@ class VisualRegressionTestCase(LiveServerTest):
     def viewport(self):
         return f"{self.window_size[0]}x{self.window_size[1]}"
 
-    def trigger_screenshot(self, name: str):
-        full_name = self.__class__.__name__ + "_" + name
+    def setUp(self) -> None:
+        super().setUp()
+        self.build_id = self._startVRTSession()
 
+    def tearDown(self) -> None:
+        super().tearDown()
+        self._stopVRTSession()
+
+    def _startVRTSession(self) -> str:
         registration_response = requests.post(
-            f'{self.apiUrl}/builds',
+            f"{self.apiUrl}/builds",
             data=json.dumps(self.data),
             headers=self.headers,
             timeout=self._http_timeout_seconds,
         )
 
         registration_response.raise_for_status()
-        build_id = registration_response.json().get("id")
+        return registration_response.json().get("id")
 
+    def _stopVRTSession(self):
+        # marks the session of the current as done
+        requests.patch(
+            f"{self.apiUrl}/builds/{self.build_id}",
+            data={},
+            headers=self.headers,
+            timeout=self._http_timeout_seconds,
+        ).raise_for_status()
+
+    def _postScreenshot(self, name) -> Tuple[str, str]:
         test_data = self.data | {
-            "projectId": self.projectId,
-            "name": full_name,
+            "name": name,
             "imageBase64": self.selenium.get_screenshot_as_base64(),
             "viewport": self.viewport,
-            "buildId": build_id,
+            "buildId": self.build_id,
         }
 
         test_response = requests.post(
-            f'{self.apiUrl}/test-runs',
+            f"{self.apiUrl}/test-runs",
             data=json.dumps(test_data),
             headers=self.headers,
             timeout=self._http_timeout_seconds,
         )
 
         test_response.raise_for_status()
+        payload = test_response.json()
+        return (payload.get("status"), payload.get("url", "<url-not-found>"))
 
-        review_url = test_response.json().get("url", "<url-not-found>")
+    def trigger_screenshot(self, name: str):
+        full_name = self.__class__.__name__ + "_" + name
+
+        status, review_url = self._postScreenshot(full_name)
+
         switcher = {
             "new": f"No Baseline! Review manually: {review_url}",
             "unresolved": f"Difference found: {review_url}",
         }
 
-        error_message = switcher.get(test_response.json().get("status"))
-
-        response = requests.patch(
-            f'{self.apiUrl}/builds/{build_id}',
-            data={},
-            headers=self.headers,
-            timeout=self._http_timeout_seconds,
-        )
-        response.raise_for_status()
+        error_message = switcher.get(status)
 
         if error_message:
             self.fail(error_message)
