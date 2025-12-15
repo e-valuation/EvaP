@@ -27,7 +27,7 @@ export class ConfirmationModal extends HTMLElement {
         const showButton = selectOrError("[slot=show-button]", this);
         showButton.addEventListener("click", event => {
             event.stopPropagation();
-            this.show();
+            this.showModal();
         });
         const updateDisabledAttribute = () => {
             this.toggleAttribute("disabled", showButton.hasAttribute("disabled"));
@@ -68,7 +68,7 @@ export class ConfirmationModal extends HTMLElement {
         }
     };
 
-    show = () => {
+    showModal = () => {
         this.dialog.showModal();
     };
 
