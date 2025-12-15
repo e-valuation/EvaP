@@ -34,6 +34,11 @@ class Migration(migrations.Migration):
             old_name="degrees",
             new_name="programs",
         ),
+        # quickfix for https://code.djangoproject.com/ticket/36800. Will break when they fix it.
+        migrations.RunSQL(
+            sql='ALTER TABLE "evaluation_course_degrees" RENAME TO "evaluation_course_programs";',
+            reverse_sql='ALTER TABLE "evaluation_course_programs" RENAME TO "evaluation_course_degrees";',
+        ),
         migrations.AlterField(
             model_name="course",
             name="programs",
