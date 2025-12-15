@@ -1,7 +1,7 @@
 import itertools
 import threading
 from collections import defaultdict, namedtuple
-from collections.abc import Iterator
+from collections.abc import Iterator, Iterable
 from contextlib import contextmanager
 from datetime import date, datetime, time
 from enum import Enum
@@ -362,8 +362,14 @@ def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  #
         match action:
             case "pre_remove":
                 action_type = FieldActionType.M2M_REMOVE
+                # We don't need to log empty removals
+                if len(pk_set) == 0:
+                    return
             case "pre_add":
                 action_type = FieldActionType.M2M_ADD
+                # We don't need to log empty additions
+                if len(pk_set) == 0:
+                    return
             case "pre_clear":
                 # Since we are not clearing the LoggedModdel instance, we need to log the removal of the related instances
                 action_type = FieldActionType.M2M_REMOVE
@@ -389,8 +395,14 @@ def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  #
             return
 
         if action == "pre_remove":
+            # We don't need to log empty removals
+            if len(pk_set) == 0:
+                return
             instance.log_m2m_change(field_name, FieldActionType.M2M_REMOVE, list(pk_set))
         elif action == "pre_add":
+            # We don't need to log empty additions
+            if len(pk_set) == 0:
+                return
             instance.log_m2m_change(field_name, FieldActionType.M2M_ADD, list(pk_set))
         elif action == "pre_clear":
             instance.log_m2m_change(field_name, FieldActionType.M2M_CLEAR, [])

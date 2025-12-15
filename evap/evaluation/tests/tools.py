@@ -4,6 +4,8 @@ from contextlib import contextmanager
 from datetime import timedelta
 from importlib import import_module
 from typing import Any
+import json
+import re
 
 import django.test
 import django_webtest
@@ -292,7 +294,40 @@ def assert_no_database_modifications(*args, **kwargs):
             lower_sql = query["sql"].lower()
             if not any(lower_sql.startswith(prefix) for prefix in allowed_prefixes):
                 raise AssertionError("Unexpected modifying query found: " + query["sql"])
+            
+@contextmanager
+def assert_no_database_useless_logging(*args, **kwargs):
+    assert len(connections.all()) == 1, "Found more than one connection, so the decorator might monitor the wrong one"
 
+    conn = connections[DEFAULT_DB_ALIAS]
+    with CaptureQueriesContext(conn):
+        yield
+
+        for query in conn.queries_log:
+            if query["sql"].startswith('INSERT INTO "evaluation_logentry"') and has_bad_logging_data(extract_jsonb(query["sql"])):
+                raise AssertionError("Unexpected modifying query found: " + query["sql"])
+
+# Helper method that extracts the json literal from an SQL Values clause.
+# Assumes the JSON appears between the last single quotes.
+# Added to solve issue: #2576
+def extract_jsonb(sql: str):
+    match = re.search(r"'(\{.*?)'::jsonb", sql) # gets the last '{...}' before ::jsonb from the sql string.
+    if not match:
+        return None
+    try:
+        return json.loads(match.group(1))
+    except json.JSONDecodeError:
+        return None
+
+# Detect empty array adds, e.g. {"programs": {"add": []}}
+# Added to solve issue: #2576
+def has_bad_logging_data(data: dict | None) -> bool:
+    if not isinstance(data, dict):
+        return False
+    for key, value in data.items():
+        if isinstance(value, dict) and "add" in value and value["add"] == []:
+            return True
+    return False
 
 class LiveServerTest(SeleniumTestCase):
     browser = "firefox"
