@@ -191,9 +191,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
             can_publish_text_results=True,
         )
 
-        question1 = baker.make(
-            Question,
-        )
+        question1 = baker.make(Question)
 
         general_questionnaire = baker.make(Questionnaire, questions=[question1])
         evaluation.general_contribution.questionnaires.set([general_questionnaire])
@@ -206,7 +204,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
             TextAnswer,
             question=question1,
             contribution=contribution1,
-            answer="this is answer will be edited",
+            answer="this answer will be edited",
             original_answer=None,
             review_decision=TextAnswer.ReviewDecision.UNDECIDED,
         )
@@ -221,7 +219,18 @@ class TextAnswerEditLiveTest(LiveServerTest):
         )
 
         with self.enter_staff_mode():
-            self.selenium.get(self.live_server_url + reverse("staff:evaluation_textanswer_edit", args=[textanswer1.pk]))
+            self.selenium.get(
+                self.reverse("staff:evaluation_textanswers", query={"view": "quick"}, args=[evaluation.pk])
+            )
+
+        next_textanswer_btn = self.selenium.find_element(By.XPATH, "//span[@data-slide='right']")
+        edit_btn = self.selenium.find_element(By.ID, "textanswer-edit-btn")
+
+        while not self.wait.until(visibility_of_element_located((By.ID, "textanswer-" + str(textanswer1.pk)))):
+            next_textanswer_btn.click()
+
+        with self.enter_staff_mode():
+            edit_btn.click()
 
         textanswer_field = self.selenium.find_element(By.XPATH, "//textarea[@name='answer']")
         submit_btn = self.selenium.find_element(By.ID, "textanswer-edit-submit-button")
@@ -232,8 +241,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
         with self.enter_staff_mode():
             submit_btn.click()
 
-        answer = self.selenium.find_elements(
-            By.XPATH, "//div[@class='slider-item card-body active' and @data-layer='2']"
+        self.wait.until(visibility_of_element_located((By.XPATH, "//div[contains(text(), 'edited answer')]")))
+        self.wait.until(
+            invisibility_of_element_located((By.XPATH, "//div[contains(text(), 'this is a dummy answer')]"))
         )
-
-        self.assertEqual(str(answer[0].get_attribute("id")).split("-", 1)[1], str(textanswer1.pk))
