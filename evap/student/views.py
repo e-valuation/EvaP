@@ -1,22 +1,33 @@
 import datetime
 import math
 from collections import OrderedDict
+from collections.abc import Iterable
 from dataclasses import dataclass
 from fractions import Fraction
 
 from django.conf import settings
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import transaction
 from django.db.models import Exists, F, Max, OuterRef, Q, Sum
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.utils import translation
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 
 from evap.evaluation.auth import participant_required
-from evap.evaluation.models import NO_ANSWER, Evaluation, RatingAnswerCounter, Semester, TextAnswer, VoteTimestamp
+from evap.evaluation.models import (
+    NO_ANSWER,
+    Contribution,
+    Evaluation,
+    Questionnaire,
+    RatingAnswerCounter,
+    Semester,
+    TextAnswer,
+    VoteTimestamp,
+)
 from evap.results.tools import (
     annotate_distributions_and_grades,
     get_evaluations_with_course_result_attributes,
@@ -55,8 +66,7 @@ class GlobalRewards:
 
         evaluations = (
             Semester.active_semester()
-            .evaluations.filter(is_single_result=False)
-            .exclude(state__lt=Evaluation.State.APPROVED)
+            .evaluations.exclude(state__lt=Evaluation.State.APPROVED)
             .exclude(is_rewarded=False)
             .exclude(id__in=settings.GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS)
             .exclude(course__type__id__in=settings.GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS)
@@ -185,7 +195,45 @@ def index(request):
     return render(request, "student_index.html", template_data)
 
 
-def get_vote_page_form_groups(request, evaluation, preview):
+def create_voting_form(
+    request, contribution: Contribution, questionnaire: Questionnaire, preselect_no_answer: bool
+) -> QuestionnaireVotingForm:
+    initial = None
+
+    if preselect_no_answer:
+        initial = dict.fromkeys(
+            [answer_field_id(contribution, questionnaire, question) for question in questionnaire.rating_questions],
+            str(NO_ANSWER),
+        )
+
+    return QuestionnaireVotingForm(
+        request.POST or None, contribution=contribution, questionnaire=questionnaire, initial=initial
+    )
+
+
+def create_voting_forms(
+    request,
+    contribution: Contribution,
+    questionnaires: Iterable[Questionnaire],
+    *,
+    dropout: bool,
+) -> list[QuestionnaireVotingForm]:
+    return [
+        create_voting_form(
+            request,
+            contribution,
+            questionnaire,
+            preselect_no_answer=(dropout and not questionnaire.is_dropout),
+            # dropout questionnaires should not be preselected
+        )
+        for questionnaire in questionnaires
+        if dropout or not questionnaire.is_dropout
+    ]
+
+
+def get_vote_page_form_groups(
+    request, evaluation: Evaluation, *, preview: bool, dropout: bool
+) -> OrderedDict[Contribution, list[QuestionnaireVotingForm]]:
     contributions_to_vote_on = evaluation.contributions.all()
     # prevent a user from voting on themselves
     if not preview:
@@ -196,15 +244,22 @@ def get_vote_page_form_groups(request, evaluation, preview):
         questionnaires = contribution.questionnaires.all()
         if not questionnaires.exists():
             continue
-        form_groups[contribution] = [
-            QuestionnaireVotingForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
-            for questionnaire in questionnaires
-        ]
+        form_groups[contribution] = create_voting_forms(request, contribution, questionnaires, dropout=dropout)
+
     return form_groups
 
 
-def render_vote_page(request, evaluation, preview, for_rendering_in_modal=False):
-    form_groups = get_vote_page_form_groups(request, evaluation, preview)
+def render_vote_page(
+    request: HttpRequest,
+    evaluation: Evaluation,
+    *,
+    preview: bool,
+    dropout: bool,
+    for_rendering_in_modal: bool = False,
+) -> HttpResponse:
+    language = request.GET.get("language", evaluation.main_language)
+    with translation.override(language):
+        form_groups = get_vote_page_form_groups(request, evaluation, preview=preview, dropout=dropout)
 
     assert preview or not all(form.is_valid() for form_group in form_groups.values() for form in form_group)
 
@@ -223,6 +278,11 @@ def render_vote_page(request, evaluation, preview, for_rendering_in_modal=False)
     evaluation_form_group_top = [
         questions_form for questions_form in evaluation_form_group if questions_form.questionnaire.is_above_contributors
     ]
+
+    evaluation_form_group_dropout = []
+    if dropout:
+        evaluation_form_group_dropout = [f for f in evaluation_form_group if f.questionnaire.is_dropout]
+
     evaluation_form_group_bottom = [
         questions_form for questions_form in evaluation_form_group if questions_form.questionnaire.is_below_contributors
     ]
@@ -233,7 +293,7 @@ def render_vote_page(request, evaluation, preview, for_rendering_in_modal=False)
     contributor_errors_exist = any(form.errors for form_group in form_groups.values() for form in form_group)
     errors_exist = contributor_errors_exist or any(
         any(form.errors for form in form_group)
-        for form_group in [evaluation_form_group_top, evaluation_form_group_bottom]
+        for form_group in [evaluation_form_group_top, evaluation_form_group_bottom, evaluation_form_group_dropout]
     )
 
     template_data = {
@@ -241,6 +301,7 @@ def render_vote_page(request, evaluation, preview, for_rendering_in_modal=False)
         "errors_exist": errors_exist,
         "evaluation_form_group_top": evaluation_form_group_top,
         "evaluation_form_group_bottom": evaluation_form_group_bottom,
+        "evaluation_form_group_dropout": evaluation_form_group_dropout,
         "contributor_form_groups": contributor_form_groups,
         "evaluation": evaluation,
         "small_evaluation_size_warning": evaluation.num_participants <= settings.SMALL_COURSE_SIZE,
@@ -251,26 +312,35 @@ def render_vote_page(request, evaluation, preview, for_rendering_in_modal=False)
         "general_contribution_textanswers_visible_to": textanswers_visible_to(evaluation.general_contribution),
         "text_answer_warnings": TextAnswerWarning.objects.all(),
         "voter_count_needed_for_publishing_rating_results": settings.VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS,
+        "languages": settings.LANGUAGES,
+        "evaluation_language": language,
     }
     return render(request, "student_vote.html", template_data)
 
 
 @participant_required
-def vote(request, evaluation_id):  # noqa: PLR0912
+def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> HttpResponse:  # noqa: PLR0912
     # pylint: disable=too-many-nested-blocks
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
+
+    if dropout and not evaluation.is_dropout_allowed:
+        raise SuspiciousOperation("Dropping out is not allowed")
+
     if not evaluation.can_be_voted_for_by(request.user):
         raise PermissionDenied
 
-    form_groups = get_vote_page_form_groups(request, evaluation, preview=False)
+    form_groups = get_vote_page_form_groups(request, evaluation, preview=False, dropout=dropout)
     if not all(form.is_valid() for form_group in form_groups.values() for form in form_group):
-        return render_vote_page(request, evaluation, preview=False)
+        return render_vote_page(request, evaluation, preview=False, dropout=dropout)
 
     # all forms are valid, begin vote operation
     with transaction.atomic():
         # add user to evaluation.voters
         # not using evaluation.voters.add(request.user) since that fails silently when done twice.
         evaluation.voters.through.objects.create(userprofile_id=request.user.pk, evaluation_id=evaluation.pk)
+
+        if dropout:
+            Evaluation.objects.filter(pk=evaluation.pk).update(dropout_count=F("dropout_count") + 1)
 
         for contribution, form_group in form_groups.items():
             for questionnaire_form in form_group:
@@ -279,8 +349,7 @@ def vote(request, evaluation_id):  # noqa: PLR0912
                     if question.is_heading_question:
                         continue
 
-                    identifier = answer_field_id(contribution, questionnaire, question)
-                    value = questionnaire_form.cleaned_data.get(identifier)
+                    value = questionnaire_form.cleaned_data.get(answer_field_id(contribution, questionnaire, question))
 
                     if question.is_text_question:
                         if value:
@@ -311,17 +380,16 @@ def vote(request, evaluation_id):  # noqa: PLR0912
         RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation).update(id=F("id"))
         TextAnswer.objects.filter(contribution__evaluation=evaluation).update(id=F("id"))
 
-        if not evaluation.can_publish_text_results:
-            # enable text result publishing if first user confirmed that publishing is okay or second user voted
-            if (
-                request.POST.get("text_results_publish_confirmation_top") == "on"
-                or request.POST.get("text_results_publish_confirmation_bottom") == "on"
-                or evaluation.voters.count() >= 2
-            ):
-                evaluation.can_publish_text_results = True
-                evaluation.save()
+    if not evaluation.can_publish_text_results:
+        # enable text result publishing if first user confirmed that publishing is okay or second user voted
+        if (
+            request.POST.get("text_results_publish_confirmation_top") == "on"
+            or request.POST.get("text_results_publish_confirmation_bottom") == "on"
+            or evaluation.voters.count() >= 2
+        ):
+            Evaluation.objects.filter(pk=evaluation.pk).update(can_publish_text_results=True)
 
-        evaluation.evaluation_evaluated.send(sender=Evaluation, request=request, semester=evaluation.course.semester)
+    evaluation.evaluation_evaluated.send(sender=Evaluation, request=request, semester=evaluation.course.semester)
 
     messages.success(request, _("Your vote was recorded."))
     return HttpResponse(SUCCESS_MAGIC_STRING)

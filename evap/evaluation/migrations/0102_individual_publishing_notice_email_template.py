@@ -20,12 +20,9 @@ def remove_participant_email_template(apps, _schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('evaluation', '0101_evaluation_weight'),
+        ("evaluation", "0101_evaluation_weight"),
     ]
 
     operations = [
-        migrations.RunPython(
-            insert_participant_email_template,
-            reverse_code=remove_participant_email_template
-        ),
+        migrations.RunPython(insert_participant_email_template, reverse_code=remove_participant_email_template),
     ]

@@ -6,35 +6,30 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0087_rename_comment_visibility_to_textanswer_visibility'),
+        ("evaluation", "0087_rename_comment_visibility_to_textanswer_visibility"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='question',
-            name='int_type',
+            model_name="question",
+            name="int_type",
             field=models.PositiveSmallIntegerField(
                 choices=(
-                    ('Text', (
-                        (0, 'Text question'),
-                    )),
-                    ('Unipolar Likert', (
-                        (1, 'Agreement question'),
-                    )),
-                    ('Grade', (
-                        (2, 'Grade question'),
-                    )),
-                    ('Yes-no', (
-                        (3, 'Positive yes-no question'),
-                        (4, 'Negative yes-no question'),
-                    )),
-                    ('Layout', (
-                        (5, 'Heading'),
-                    ))
+                    ("Text", ((0, "Text question"),)),
+                    ("Unipolar Likert", ((1, "Agreement question"),)),
+                    ("Grade", ((2, "Grade question"),)),
+                    (
+                        "Yes-no",
+                        (
+                            (3, "Positive yes-no question"),
+                            (4, "Negative yes-no question"),
+                        ),
+                    ),
+                    ("Layout", ((5, "Heading"),)),
                 ),
-                verbose_name='question type',
-                default=0
+                verbose_name="question type",
+                default=0,
             ),
-            preserve_default=False
+            preserve_default=False,
         ),
     ]

@@ -25,7 +25,7 @@
                 </td>
                 <td class="width-percent-20 text-end">
                     {% if evaluation.state == evaluation.State.IN_EVALUATION and not evaluation.voted_for and evaluation.is_in_evaluation_period  %}
-                        <a class="btn btn-sm btn-primary btn-row-hover" href="{% url 'student:vote' evaluation.id %}">{% translate 'Evaluate' %}</a>
+                        {% include 'student_index_evaluate_or_drop.html' %}
                     {% endif %}
                 </td>
             </tr>

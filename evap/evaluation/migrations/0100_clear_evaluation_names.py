@@ -4,7 +4,7 @@ from django.db import migrations, models
 
 
 def clear_evaluation_names(apps, _schema_editor):
-    Evaluation = apps.get_model('evaluation', 'Evaluation')
+    Evaluation = apps.get_model("evaluation", "Evaluation")
     for evaluation in Evaluation.objects.all():
         if evaluation.course.evaluations.count() == 1:
             evaluation.name_de = ""
@@ -13,8 +13,8 @@ def clear_evaluation_names(apps, _schema_editor):
 
 
 def name_evaluations(apps, _schema_editor):
-    Evaluation = apps.get_model('evaluation', 'Evaluation')
-    Course = apps.get_model('evaluation', 'Course')
+    Evaluation = apps.get_model("evaluation", "Evaluation")
+    Course = apps.get_model("evaluation", "Course")
     for course in Course.objects.all():
         if course.evaluations.count() == 1:
             evaluation = Evaluation.objects.get(pk=course.evaluations.first().pk)
@@ -32,24 +32,21 @@ def name_evaluations(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0099_multiple_evaluations_per_course'),
+        ("evaluation", "0099_multiple_evaluations_per_course"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='evaluation',
-            name='name_de',
-            field=models.CharField(blank=True, default='', max_length=1024, verbose_name='name (german)'),
+            model_name="evaluation",
+            name="name_de",
+            field=models.CharField(blank=True, default="", max_length=1024, verbose_name="name (german)"),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='evaluation',
-            name='name_en',
-            field=models.CharField(blank=True, default='', max_length=1024, verbose_name='name (english)'),
+            model_name="evaluation",
+            name="name_en",
+            field=models.CharField(blank=True, default="", max_length=1024, verbose_name="name (english)"),
             preserve_default=False,
         ),
-        migrations.RunPython(
-            clear_evaluation_names,
-            reverse_code=name_evaluations
-        ),
+        migrations.RunPython(clear_evaluation_names, reverse_code=name_evaluations),
     ]

@@ -21,6 +21,7 @@
     text-align: center;
     min-width: 3.5rem;
     padding-inline: 0.3rem;
+    font-weight: normal;
 }
 
 .badge-grade {
@@ -43,6 +44,14 @@
     }
 
     @include bar-shadow($evap-dark-blue);
+}
+
+.badge-percentage {
+    @extend %badge;
+    background-color: $evap-light-blue;
+    color: black;
+    display: inline-block;
+    width: 100%;
 }
 
 @for $i from 0 through 10 {

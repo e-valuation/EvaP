@@ -17,10 +17,12 @@ from django.http.request import HttpRequest, QueryDict
 from django.test.runner import DiscoverRunner
 from django.test.selenium import SeleniumTestCase
 from django.test.utils import CaptureQueriesContext
+from django.urls import reverse
 from django.utils import timezone, translation
 from model_bakery import baker
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.webdriver import WebDriver
+from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.expected_conditions import staleness_of
 from selenium.webdriver.support.wait import WebDriverWait
 
@@ -41,10 +43,28 @@ from evap.evaluation.models import (
 class EvapTestRunner(DiscoverRunner):
     """Skips selenium tests by default, if no other tags are specified."""
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, *args: Any, headed=False, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
+
+        self.__headed = headed
+
         if not self.tags and not self.exclude_tags:
             self.exclude_tags = {"selenium"}
+
+    @classmethod
+    def add_arguments(cls, parser):
+        super().add_arguments(parser)
+
+        parser.add_argument(
+            "--headed",
+            help="Run the tests in non-headless mode, which makes the browser window visible. Useful for debugging.",
+            action="store_true",
+        )
+
+    def setup_test_environment(self, **kwargs):
+        super().setup_test_environment(**kwargs)
+
+        LiveServerTest.headless = not self.__headed
 
 
 class ResetLanguageOnTearDownMixin:
@@ -73,7 +93,7 @@ def to_querydict(dictionary):
 
 
 # taken from http://lukeplant.me.uk/blog/posts/fuzzy-testing-with-assertnumqueries/
-class FuzzyInt(int):
+class FuzzyInt(int):  # noqa: PLW1641
     def __new__(cls, lowest, highest):
         obj = super().__new__(cls, highest)
         obj.lowest = lowest
@@ -160,6 +180,7 @@ def create_evaluation_with_responsible_and_editor():
         "course": baker.make(Course, programs=[baker.make(Program)], responsibles=[responsible]),
         "vote_start_datetime": in_one_hour,
         "vote_end_date": tomorrow,
+        "main_language": "en",
     }
 
     evaluation = baker.make(Evaluation, **evaluation_params)
@@ -170,7 +191,13 @@ def create_evaluation_with_responsible_and_editor():
         questionnaires=[baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)],
         role=Contribution.Role.EDITOR,
     )
-    evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire, type=Questionnaire.Type.TOP)])
+    evaluation.general_contribution.questionnaires.set(
+        [
+            baker.make(Questionnaire, type=Questionnaire.Type.TOP),
+            baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT),
+            baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM),
+        ]
+    )
 
     return {
         "evaluation": evaluation,
@@ -282,6 +309,9 @@ class LiveServerTest(SeleniumTestCase):
         self.selenium.get(self.live_server_url)
         self.login(self.manager)
 
+    def reverse(self, *args, **kwargs):
+        return self.live_server_url + reverse(*args, **kwargs)
+
     @classmethod
     def make_request(cls) -> HttpRequest:
         request = HttpRequest()
@@ -327,3 +357,10 @@ class LiveServerTest(SeleniumTestCase):
     def setUpClass(cls) -> None:
         super().setUpClass()
         cls.selenium.set_window_size(*cls.window_size)
+
+
+def classes_of_element(element: WebElement) -> list[str]:
+    classes = element.get_attribute("class")
+    if classes is None:
+        return []
+    return classes.split(" ")

@@ -56,6 +56,10 @@ CONTRIBUTIONS_WEIGHT = 1
 GENERAL_GRADE_QUESTIONS_WEIGHT = 1
 # the average grade of all general non-grade questions is weighted this much for the evaluation's average grade
 GENERAL_NON_GRADE_QUESTIONS_WEIGHT = 1
+# default weight for exam evaluations
+EXAM_EVALUATION_DEFAULT_WEIGHT = 1
+# default weight for evaluations with exam
+MAIN_EVALUATION_DEFAULT_WEIGHT = 9
 
 # number of reward points a student should have for a semester after evaluating the given fraction of evaluations.
 REWARD_POINTS = [
@@ -110,14 +114,20 @@ EVALUATION_END_OFFSET_HOURS = 3
 # Amount of hours in which participant will be warned
 EVALUATION_END_WARNING_PERIOD = 5
 
+# default timedelta for exam evaluation vote_end_date after exam date
+EXAM_EVALUATION_DEFAULT_DURATION = timedelta(days=3)
+
 # Questionnaires automatically added to exam evaluations
 EXAM_QUESTIONNAIRE_IDS: list[int] = []
 
-# Emails of users that shouldn't be imported as responsibles during JSON import
+# Emails of users that shouldn't be imported as responsibles and contributors during JSON import
 NON_RESPONSIBLE_USERS: set[str] = set()
 
 # Study programs that shouldn't be imported during JSON import
 IGNORE_PROGRAMS: set[str] = set()
+
+# Emails of users that shouldn't be imported as participants or contributors during JSON import
+IGNORE_USERS: set[str] = set()
 
 ### Installation specific settings
 

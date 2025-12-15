@@ -32,6 +32,7 @@ from django.forms.models import inlineformset_factory, modelformset_factory
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
+from django.utils import translation
 from django.utils.html import format_html
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
@@ -48,6 +49,7 @@ from evap.evaluation.models import (
     CourseType,
     EmailTemplate,
     Evaluation,
+    ExamType,
     FaqQuestion,
     FaqSection,
     Infotext,
@@ -92,6 +94,8 @@ from evap.staff.forms import (
     EvaluationEmailForm,
     EvaluationForm,
     EvaluationParticipantCopyForm,
+    ExamEvaluationForm,
+    ExamTypeForm,
     ExportSheetForm,
     FaqQuestionForm,
     FaqSectionForm,
@@ -105,7 +109,6 @@ from evap.staff.forms import (
     QuestionnairesAssignForm,
     RemindResponsibleForm,
     SemesterForm,
-    SingleResultForm,
     TextAnswerForm,
     TextAnswerWarningForm,
     UserBulkUpdateForm,
@@ -225,8 +228,6 @@ def semester_view(request, semester_id) -> HttpResponse:
     program_stats: dict[Program, Stats] = defaultdict(Stats)
     total_stats = Stats()
     for evaluation in evaluations:
-        if evaluation.is_single_result:
-            continue
         programs = evaluation.course.programs.all()
         stats_objects = [program_stats[program] for program in programs]
         stats_objects += [total_stats]
@@ -302,8 +303,8 @@ class ResetToNewOperation(EvaluationOperation):
     @staticmethod
     def warning_for_inapplicables(amount: int):
         return ngettext(
-            "{} evaluation cannot be reset, because it is already in preparation, published, or a single result. It was removed from the selection.",
-            "{} evaluations cannot be reset, because they were already in preparation, published, or a single result. They were removed from the selection.",
+            "{} evaluation cannot be reset, because it is already in preparation or published. It was removed from the selection.",
+            "{} evaluations cannot be reset, because they were already in preparation or published. They were removed from the selection.",
             amount,
         ).format(amount)
 
@@ -783,7 +784,6 @@ def semester_raw_export(_request, semester_id):
             _("Name"),
             _("Programs"),
             _("Type"),
-            _("Single result"),
             _("State"),
             _("#Voters"),
             _("#Participants"),
@@ -803,7 +803,6 @@ def semester_raw_export(_request, semester_id):
                 evaluation.full_name,
                 programs,
                 evaluation.course.type.name,
-                evaluation.is_single_result,
                 evaluation.state_str,
                 evaluation.num_voters,
                 evaluation.num_participants,
@@ -907,14 +906,23 @@ def semester_questionnaire_assign(request, semester_id):
         raise PermissionDenied
     evaluations = semester.evaluations.filter(state=Evaluation.State.NEW)
     course_types = CourseType.objects.filter(courses__evaluations__in=evaluations)
-    form = QuestionnairesAssignForm(request.POST or None, course_types=course_types)
+    exam_types = ExamType.objects.filter(evaluations__in=evaluations)
+    form = QuestionnairesAssignForm(request.POST or None, course_types=course_types, exam_types=exam_types)
 
     if form.is_valid():
         for evaluation in evaluations:
-            general_questionnaires = list(form.cleaned_data[f"general-{evaluation.course.type.id}"])
-            contributor_questionnaires = list(
-                form.cleaned_data["all-contributors"] | form.cleaned_data[f"contributor-{evaluation.course.type.id}"]
+            general_questionnaires = (
+                list(form.cleaned_data[f"general-{evaluation.course.type.id}"])
+                if evaluation.exam_type is None
+                else list(form.cleaned_data[f"exam-{evaluation.exam_type.id}"])
             )
+
+            contributor_questionnaires = []
+            if evaluation.exam_type is None:
+                contributor_questionnaires = list(
+                    form.cleaned_data["all-contributors"]
+                    | form.cleaned_data[f"contributor-{evaluation.course.type.id}"]
+                )
 
             if general_questionnaires:
                 evaluation.general_contribution.questionnaires.set(general_questionnaires)
@@ -931,6 +939,7 @@ def semester_questionnaire_assign(request, semester_id):
     general_fields = [field for field in form if field.name.startswith("general-")]
     contributor_fields = [field for field in form if field.name.startswith("contributor-")]
     contributor_fields.append(form["all-contributors"])
+    exam_fields = [field for field in form if field.name.startswith("exam-")]
 
     return render(
         request,
@@ -940,6 +949,7 @@ def semester_questionnaire_assign(request, semester_id):
             "form": form,
             "general_fields": general_fields,
             "contributor_fields": contributor_fields,
+            "exam_fields": exam_fields,
         },
     )
 
@@ -1063,7 +1073,7 @@ def course_create(request, semester_id):
     operation = request.POST.get("operation")
 
     if course_form.is_valid():
-        if operation not in ("save", "save_create_evaluation", "save_create_single_result"):
+        if operation not in ("save", "save_create_evaluation"):
             raise SuspiciousOperation("Invalid POST operation")
 
         course = course_form.save()
@@ -1071,8 +1081,6 @@ def course_create(request, semester_id):
         messages.success(request, _("Successfully created course."))
         if operation == "save_create_evaluation":
             return redirect("staff:evaluation_create_for_course", course.id)
-        if operation == "save_create_single_result":
-            return redirect("staff:single_result_create_for_course", course.id)
         return redirect("staff:semester_view", semester_id)
 
     return render(
@@ -1103,7 +1111,7 @@ def course_copy(request, course_id):
 
         return redirect("staff:semester_view", copied_course.semester_id)
 
-    evaluations = sorted(course.evaluations.exclude(is_single_result=True), key=lambda cr: cr.full_name)
+    evaluations = sorted(course.evaluations.all(), key=lambda cr: cr.full_name)
     return render(
         request,
         "staff_course_copyform.html",
@@ -1121,29 +1129,16 @@ def course_copy(request, course_id):
 @require_POST
 @manager_required
 def create_exam_evaluation(request: HttpRequest) -> HttpResponse:
-    evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
-    if evaluation.is_single_result:
-        raise SuspiciousOperation("Creating an exam evaluation for a single result evaluation is not allowed.")
+    form = ExamEvaluationForm(request.POST)
 
-    if evaluation.has_exam_evaluation:
-        raise SuspiciousOperation("An exam evaluation already exists for this course.")
-
-    exam_date_string = request.POST.get("exam_date")
-    if not exam_date_string:
-        return HttpResponseBadRequest("Exam date missing.")
-    try:
-        exam_date = datetime.strptime(exam_date_string, "%Y-%m-%d").date()
-    except ValueError:
-        return HttpResponseBadRequest("Exam date invalid.")
-
-    if exam_date < evaluation.earliest_possible_exam_date:
-        raise SuspiciousOperation(
-            "The end date of the main evaluation would be before its start date. No exam evaluation was created."
+    if form.is_valid():
+        form.cleaned_data["base_evaluation"].create_exam_evaluation(
+            form.cleaned_data["exam_date"], form.cleaned_data["exam_type"]
         )
+        messages.success(request, _("Successfully created exam evaluation."))
+        return HttpResponse()  # 200 OK
 
-    evaluation.create_exam_evaluation(exam_date)
-    messages.success(request, _("Successfully created exam evaluation."))
-    return HttpResponse()  # 200 OK
+    raise SuspiciousOperation(form.errors)
 
 
 @manager_required
@@ -1174,7 +1169,7 @@ class CourseEditView(SuccessMessageMixin, UpdateView):
     def form_valid(self, form: BaseForm) -> HttpResponse:
         assert isinstance(form, CourseForm)  # https://www.github.com/typeddjango/django-stubs/issues/1809
 
-        if self.request.POST.get("operation") not in ("save", "save_create_evaluation", "save_create_single_result"):
+        if self.request.POST.get("operation") not in ("save", "save_create_evaluation"):
             raise SuspiciousOperation("Invalid POST operation")
 
         response = super().form_valid(form)
@@ -1188,8 +1183,6 @@ class CourseEditView(SuccessMessageMixin, UpdateView):
                 return reverse("staff:semester_view", args=[self.object.semester.id])
             case "save_create_evaluation":
                 return reverse("staff:evaluation_create_for_course", args=[self.object.id])
-            case "save_create_single_result":
-                return reverse("staff:single_result_create_for_course", args=[self.object.id])
         raise SuspiciousOperation("Unexpected operation")
 
 
@@ -1238,6 +1231,7 @@ def evaluation_create_impl(request, semester: Semester, course: Course | None):
             "editable": True,
             "state": "",
             "questionnaires_with_answers_per_contributor": {},
+            "plain_page": True,
         },
     )
 
@@ -1284,39 +1278,9 @@ def evaluation_copy(request, evaluation_id):
             "editable": True,
             "state": "",
             "questionnaires_with_answers_per_contributor": {},
+            "plain_page": True,
         },
     )
-
-
-def single_result_create_impl(request, semester: Semester, course: Course | None):
-    if course is not None:
-        assert course.semester == semester
-    if semester.participations_are_archived:
-        raise PermissionDenied
-    evaluation = Evaluation(course=course)
-
-    form = SingleResultForm(request.POST or None, instance=evaluation, semester=semester)
-
-    if form.is_valid():
-        evaluation = form.save()
-        update_template_cache_of_published_evaluations_in_course(evaluation.course)
-
-        messages.success(request, _("Successfully created single result."))
-        return redirect("staff:semester_view", semester.pk)
-
-    return render(request, "staff_single_result_form.html", {"semester": semester, "form": form, "editable": True})
-
-
-@manager_required
-def single_result_create_for_semester(request, semester_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-    return single_result_create_impl(request, semester, None)
-
-
-@manager_required
-def single_result_create_for_course(request, course_id):
-    course = get_object_or_404(Course, id=course_id)
-    return single_result_create_impl(request, course.semester, course)
 
 
 @manager_required
@@ -1326,8 +1290,6 @@ def evaluation_edit(request, evaluation_id):
     if request.method == "POST" and not evaluation.can_be_edited_by_manager:
         raise SuspiciousOperation("Modifying this evaluation is not allowed.")
 
-    if evaluation.is_single_result:
-        return helper_single_result_edit(request, evaluation)
     return helper_evaluation_edit(request, evaluation)
 
 
@@ -1338,17 +1300,22 @@ def helper_evaluation_edit(request, evaluation):
         Evaluation, Contribution, formset=ContributionFormset, form=ContributionForm, extra=1 if editable else 0
     )
 
-    evaluation_form = EvaluationForm(request.POST or None, instance=evaluation, semester=evaluation.course.semester)
+    operation = request.POST.get("operation")
+
+    if request.method == "POST" and operation not in ("save", "approve"):
+        raise SuspiciousOperation("Invalid POST operation")
+
+    evaluation_form = EvaluationForm(
+        request.POST or None,
+        instance=evaluation,
+        semester=evaluation.course.semester,
+        requires_decided_main_language=operation == "approve",
+    )
     formset = InlineContributionFormset(
         request.POST or None, instance=evaluation, form_kwargs={"evaluation": evaluation}
     )
 
-    operation = request.POST.get("operation")
-
     if evaluation_form.is_valid() and formset.is_valid():
-        if operation not in ("save", "approve"):
-            raise SuspiciousOperation("Invalid POST operation")
-
         if not evaluation.can_be_edited_by_manager or evaluation.participations_are_archived:
             raise SuspiciousOperation("Modifying this evaluation is not allowed.")
 
@@ -1413,28 +1380,9 @@ def helper_evaluation_edit(request, evaluation):
         "state": evaluation.state,
         "editable": editable,
         "questionnaires_with_answers_per_contributor": questionnaires_with_answers_per_contributor,
+        "plain_page": True,
     }
     return render(request, "staff_evaluation_form.html", template_data)
-
-
-@manager_required
-def helper_single_result_edit(request, evaluation):
-    semester = evaluation.course.semester
-    form = SingleResultForm(request.POST or None, instance=evaluation, semester=semester)
-
-    if form.is_valid():
-        if not evaluation.can_be_edited_by_manager or evaluation.participations_are_archived:
-            raise SuspiciousOperation("Modifying this evaluation is not allowed.")
-
-        form.save()
-        messages.success(request, _("Successfully updated single result."))
-        return redirect("staff:semester_view", semester.id)
-
-    return render(
-        request,
-        "staff_single_result_form.html",
-        {"evaluation": evaluation, "semester": semester, "form": form, "editable": evaluation.can_be_edited_by_manager},
-    )
 
 
 @require_POST
@@ -1453,8 +1401,6 @@ def evaluation_delete(request):
         )
 
     with temporary_receiver(RewardPointGranting.granted_by_evaluation_deletion, notify_reward_points):
-        if evaluation.is_single_result:
-            RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation).delete()
         evaluation.delete()
         update_template_cache_of_published_evaluations_in_course(evaluation.course)
 
@@ -1850,7 +1796,7 @@ def evaluation_preview(request, evaluation_id):
     if evaluation.course.semester.results_are_archived and not request.user.is_manager:
         raise PermissionDenied
 
-    return render_vote_page(request, evaluation, preview=True)
+    return render_vote_page(request, evaluation, preview=True, dropout=False)
 
 
 @manager_required
@@ -1860,6 +1806,7 @@ def questionnaire_index(request):
     prefetch_list = ("questions", "contributions__evaluation")
     general_questionnaires = Questionnaire.objects.general_questionnaires().prefetch_related(*prefetch_list)
     contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().prefetch_related(*prefetch_list)
+    dropout_questionnaires = Questionnaire.objects.dropout_questionnaires().prefetch_related(*prefetch_list)
 
     if filter_questionnaires:
         general_questionnaires = general_questionnaires.exclude(visibility=Questionnaire.Visibility.HIDDEN)
@@ -1876,6 +1823,7 @@ def questionnaire_index(request):
         "general_questionnaires_top": general_questionnaires_top,
         "general_questionnaires_bottom": general_questionnaires_bottom,
         "contributor_questionnaires": contributor_questionnaires,
+        "dropout_questionnaires": dropout_questionnaires,
         "filter_questionnaires": filter_questionnaires,
     }
     return render(request, "staff_questionnaire_index.html", template_data)
@@ -1883,13 +1831,24 @@ def questionnaire_index(request):
 
 @manager_required
 def questionnaire_view(request, questionnaire_id):
+    language = request.GET.get("language", request.user.language)
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
 
     # build forms
     contribution = Contribution(contributor=request.user)
-    form = QuestionnaireVotingForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
+    with translation.override(language):
+        form = QuestionnaireVotingForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
 
-    return render(request, "staff_questionnaire_view.html", {"forms": [form], "questionnaire": questionnaire})
+    return render(
+        request,
+        "staff_questionnaire_view.html",
+        {
+            "forms": [form],
+            "questionnaire": questionnaire,
+            "languages": settings.LANGUAGES,
+            "evaluation_language": language,
+        },
+    )
 
 
 @manager_required
@@ -1950,12 +1909,12 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
         for question_form in formset.forms:
             disable_all_except_named(question_form.fields, ["id"])
 
-        # disallow type changed from and to contributor
-        form.fields["type"].choices = [
-            choice
-            for choice in Questionnaire.Type.choices
-            if (choice[0] == Questionnaire.Type.CONTRIBUTOR) == (questionnaire.type == Questionnaire.Type.CONTRIBUTOR)
-        ]
+        # disallow type changed from and to contributor or dropout
+        single_types = [Questionnaire.Type.CONTRIBUTOR, Questionnaire.Type.DROPOUT]
+        if questionnaire.type in single_types:
+            form.fields["type"].choices = filter(lambda c: c[0] == questionnaire.type, form.fields["type"].choices)
+        else:
+            form.fields["type"].choices = filter(lambda c: c[0] not in single_types, form.fields["type"].choices)
 
     return form, formset
 
@@ -2235,6 +2194,21 @@ def course_type_merge(request, main_type_id, other_type_id):
         "staff_course_type_merge.html",
         {"main_type": main_type, "other_type": other_type, "courses_with_other_type": courses_with_other_type},
     )
+
+
+@manager_required
+class ExamTypeIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
+    model = ExamType
+    formset_class = modelformset_factory(
+        ExamType,
+        form=ExamTypeForm,
+        formset=ModelWithImportNamesFormset,
+        can_delete=True,
+        extra=1,
+    )
+    template_name = "staff_exam_type_index.html"
+    success_url = reverse_lazy("staff:exam_type_index")
+    success_message = gettext_lazy("Successfully updated the exam types.")
 
 
 @manager_required

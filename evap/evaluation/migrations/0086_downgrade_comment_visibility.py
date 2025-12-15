@@ -4,26 +4,31 @@ from django.db import migrations, models
 
 
 def downgrade_comment_visibility(apps, _schema_editor):
-    Contribution = apps.get_model('evaluation', 'Contribution')
+    Contribution = apps.get_model("evaluation", "Contribution")
     Contribution.objects.filter(comment_visibility="ALL").update(comment_visibility="GENERAL")
 
 
 def upgrade_comment_visibility(apps, _schema_editor):
-    Contribution = apps.get_model('evaluation', 'Contribution')
+    Contribution = apps.get_model("evaluation", "Contribution")
     Contribution.objects.filter(responsible=True).update(comment_visibility="ALL")
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0085_delete_cronjob_user'),
+        ("evaluation", "0085_delete_cronjob_user"),
     ]
 
     operations = [
         migrations.RunPython(downgrade_comment_visibility, reverse_code=upgrade_comment_visibility),
         migrations.AlterField(
-            model_name='contribution',
-            name='comment_visibility',
-            field=models.CharField(choices=[('OWN', 'Own'), ('GENERAL', 'Own and general')], default='OWN', max_length=10, verbose_name='comment visibility'),
+            model_name="contribution",
+            name="comment_visibility",
+            field=models.CharField(
+                choices=[("OWN", "Own"), ("GENERAL", "Own and general")],
+                default="OWN",
+                max_length=10,
+                verbose_name="comment visibility",
+            ),
         ),
     ]

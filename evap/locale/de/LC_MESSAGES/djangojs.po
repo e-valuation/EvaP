@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-02 16:26+0000\n"
+"POT-Creation-Date: 2025-12-09 10:01+0000\n"
 "PO-Revision-Date: 2023-12-18 18:41+0100\n"
 "Last-Translator: Johannes Wolf <janno42@posteo.de>\n"
 "Language-Team: Johannes Wolf (janno42)\n"
@@ -18,14 +18,26 @@ msgstr ""
 
 #: evap/static/js/custom-success-form.js:14 evap/static/js/datagrid.js:275
 #: evap/static/js/notebook.js:27 evap/static/ts/src/custom-success-form.ts:20
-#: evap/static/ts/src/datagrid.ts:367 evap/static/ts/src/notebook.ts:31
+#: evap/static/ts/src/datagrid.ts:376 evap/static/ts/src/notebook.ts:31
+#: evap/static_collected/ts/src/custom-success-form.0ec3288e96d7.ts:20
+#: evap/static_collected/ts/src/custom-success-form.d0f046927abc.ts:20
+#: evap/static_collected/ts/src/custom-success-form.ts:20
+#: evap/static_collected/ts/src/datagrid.ac4e9809fbcc.ts:366
+#: evap/static_collected/ts/src/datagrid.ccb8e88ee9c6.ts:367
+#: evap/static_collected/ts/src/datagrid.ts:366
+#: evap/static_collected/ts/src/notebook.42667ac58c70.ts:31
+#: evap/static_collected/ts/src/notebook.ts:31
 msgid "The server is not responding."
 msgstr "Der Server reagiert nicht."
 
 #: evap/static/js/sortable-form.js:23 evap/static/ts/src/sortable-form.ts:48
+#: evap/static_collected/ts/src/sortable-form.d4e8f82bba80.ts:48
+#: evap/static_collected/ts/src/sortable-form.ts:48
 msgid "Delete"
 msgstr "Löschen"
 
 #: evap/static/js/sortable-form.js:24 evap/static/ts/src/sortable-form.ts:49
+#: evap/static_collected/ts/src/sortable-form.d4e8f82bba80.ts:49
+#: evap/static_collected/ts/src/sortable-form.ts:49
 msgid "add another"
 msgstr "Weitere·n hinzufügen"

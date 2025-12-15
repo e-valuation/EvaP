@@ -17,7 +17,7 @@ urlpatterns = [
     path("logout", django.contrib.auth.views.LogoutView.as_view(next_page="/"), name="django-auth-logout"),
     path("oidc/", include('mozilla_django_oidc.urls')),
 
-    path("catalog.js", no_login_required(JavaScriptCatalog.as_view()), name="javascript-catalog"),
+    path("catalog.js", no_login_required(JavaScriptCatalog).as_view(), name="javascript-catalog"),
 ]
 
 if settings.DEBUG:

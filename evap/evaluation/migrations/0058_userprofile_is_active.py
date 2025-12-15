@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0057_alter_and_rename_vote_start_date'),
+        ("evaluation", "0057_alter_and_rename_vote_start_date"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='userprofile',
-            name='is_active',
-            field=models.BooleanField(default=True, verbose_name='active'),
+            model_name="userprofile",
+            name="is_active",
+            field=models.BooleanField(default=True, verbose_name="active"),
         ),
     ]

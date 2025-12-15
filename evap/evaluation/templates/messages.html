@@ -1,0 +1,8 @@
+{% load evaluation_filters %}
+
+{% for message in messages %}
+	<div class="alert alert-{{ message.tags|message_class }} alert-dismissible">
+		{{ message }}
+		<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+	</div>
+{% endfor %}

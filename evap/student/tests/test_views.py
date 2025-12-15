@@ -1,11 +1,15 @@
 import datetime
 from fractions import Fraction
 from functools import partial
+from unittest.mock import patch
 
+from django.test import RequestFactory
 from django.test.utils import override_settings
+from django.urls import reverse
 from model_bakery import baker
 
 from evap.evaluation.models import (
+    NO_ANSWER,
     Answer,
     Contribution,
     Evaluation,
@@ -19,8 +23,8 @@ from evap.evaluation.models import (
     VoteTimestamp,
 )
 from evap.evaluation.tests.tools import FuzzyInt, WebTest, WebTestWith200Check
-from evap.student.tools import answer_field_id
-from evap.student.views import SUCCESS_MAGIC_STRING
+from evap.student.tools import answer_field_id, parse_answer_field_id
+from evap.student.views import SUCCESS_MAGIC_STRING, get_vote_page_form_groups
 
 
 class TestStudentIndexView(WebTestWith200Check):
@@ -75,7 +79,6 @@ class TestStudentIndexView(WebTestWith200Check):
 
         # excluded
         make_evaluation(is_rewarded=False)
-        make_evaluation(is_single_result=True)
         make_evaluation(course__is_private=True)
         make_evaluation(id=1043)
         make_evaluation(course__type__id=1042)
@@ -156,6 +159,7 @@ class TestVoteView(WebTest):
             Evaluation,
             participants=[cls.voting_user1, cls.voting_user2, cls.contributor1],
             state=Evaluation.State.IN_EVALUATION,
+            main_language="en",
         )
         cls.url = f"/student/vote/{cls.evaluation.pk}"
 
@@ -342,7 +346,7 @@ class TestVoteView(WebTest):
         field_id = partial(answer_field_id, self.contribution2, self.contributor_questionnaire)
         self.assertEqual(form[field_id(self.contributor_text_question)].value, "some more text")
 
-    def test_answer(self):
+    def help_test_answer(self):
         page = self.app.get(self.url, user=self.voting_user1, status=200)
         form = page.forms["student-vote-form"]
         self.fill_form(form)
@@ -428,6 +432,17 @@ class TestVoteView(WebTest):
             question=self.bottom_text_question, contribution=self.evaluation.general_contribution
         ).values_list("answer", flat=True)
         self.assertEqual(list(answers), ["some bottom text"] * 2)
+
+    def test_answer_with_dropout_questionnaire(self):
+        # regression test for #2578
+        dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
+        baker.make(Question, questionnaire=dropout_questionnaire, order=0, type=QuestionType.POSITIVE_LIKERT)
+        self.evaluation.general_contribution.questionnaires.add(dropout_questionnaire)
+
+        self.help_test_answer()
+
+    def test_answer(self):
+        self.help_test_answer()
 
     def test_vote_timestamp(self):
         time_before = datetime.datetime.now()
@@ -559,3 +574,155 @@ class TestVoteView(WebTest):
         query = TextAnswer.objects.raw("SELECT id, xmin FROM evaluation_textanswer")
         text_answer_xmins = [row.xmin for row in query]
         self.assertTrue(all(xmin == text_answer_xmins[0] for xmin in text_answer_xmins))
+
+    def test_main_language_does_not_use_gettext_lazy(self):
+        request = RequestFactory().get(reverse("student:vote", args=[self.evaluation.id]))
+        request.user = self.voting_user1
+        with patch("django.utils.translation.gettext_lazy") as mock:
+            get_vote_page_form_groups(request, self.evaluation, preview=False, dropout=False)
+            self.assertEqual(mock.call_count, 0)
+
+
+class TestDropoutView(WebTest):
+    @classmethod
+    def setUpTestData(cls) -> None:
+        cls.user = baker.make(UserProfile, email="student@institution.example.com")
+        cls.user2 = baker.make(UserProfile, email="student2@institution.example.com")
+
+        cls.normal_question = baker.make(Question, type=QuestionType.EASY_DIFFICULT)
+        cls.dropout_question = baker.make(Question, type=QuestionType.POSITIVE_YES_NO)
+
+        cls.normal_questionnaire = baker.make(
+            Questionnaire,
+            type=Questionnaire.Type.TOP,
+            questions=[
+                baker.make(Question, type=QuestionType.TEXT),
+                cls.normal_question,
+            ],
+        )
+        cls.dropout_questionnaire = baker.make(
+            Questionnaire, type=Questionnaire.Type.DROPOUT, questions=[cls.dropout_question]
+        )
+
+        cls.evaluation = baker.make(
+            Evaluation, state=Evaluation.State.IN_EVALUATION, participants=[cls.user, cls.user2], main_language="en"
+        )
+
+        cls.evaluation.general_contribution.questionnaires.add(cls.dropout_questionnaire, cls.normal_questionnaire)
+
+    def assert_no_answer_set(self, form, dropout_questionnaire: Questionnaire):
+        for name, fields in form.fields.items():
+            if name is not None and name.startswith("question_"):
+                _, questionnaire_id, _, _ = parse_answer_field_id(name)
+                field = fields[0]
+
+                if field.tag == "textarea":
+                    self.assertEqual(
+                        field.value,
+                        "",
+                        "Answers to textarea-Questions in the general contribution should be empty",
+                    )
+                    continue
+
+                if questionnaire_id == dropout_questionnaire.id:
+                    self.assertIsNone(field.value, "dropout questionnaires should not be preselected")
+                    continue
+
+                self.assertEqual(
+                    field.value,
+                    str(NO_ANSWER),
+                    "Answers to Questions in the general contribution should be set to NO_ANSWER",
+                )
+
+    def test_choosing_dropout_sets_to_no_answer(self):
+        response = self.app.get(url=reverse("student:drop", args=[self.evaluation.id]), user=self.user, status=200)
+        form = response.forms["student-vote-form"]
+
+        self.assertIn(
+            answer_field_id(self.evaluation.general_contribution, self.dropout_questionnaire, self.dropout_question),
+            form.fields.keys(),
+            "The dropout questionnaire should be shown",
+        )
+
+        self.assert_no_answer_set(form, dropout_questionnaire=self.dropout_questionnaire)
+
+    def test_dropout_possible_iff_dropout_questionnaire_attached(self):
+        self.assertTrue(self.evaluation.is_dropout_allowed)
+        self.assertTrue(
+            self.evaluation.general_contribution.questionnaires.filter(type=Questionnaire.Type.DROPOUT).exists()
+        )
+
+        normal_questionnaires = self.evaluation.general_contribution.questionnaires.exclude(
+            type=Questionnaire.Type.DROPOUT
+        ).all()
+        self.evaluation.general_contribution.questionnaires.set(normal_questionnaires)
+
+        self.assertFalse(self.evaluation.is_dropout_allowed)
+        self.assertFalse(
+            self.evaluation.general_contribution.questionnaires.filter(type=Questionnaire.Type.DROPOUT).exists()
+        )
+
+    def test_dropout_forbidden(self):
+        normal_questionnaires = self.evaluation.general_contribution.questionnaires.exclude(
+            type=Questionnaire.Type.DROPOUT
+        ).all()
+        self.evaluation.general_contribution.questionnaires.set(normal_questionnaires)
+
+        self.app.get(url=reverse("student:drop", args=[self.evaluation.id]), user=self.user, status=400)
+
+    def test_dropping_out_increments_dropout_counter(self):
+        self.assertEqual(self.evaluation.dropout_count, 0, "dropout count should be initially zero")
+
+        form = self.app.get(url=reverse("student:drop", args=[self.evaluation.id]), user=self.user, status=200).forms[
+            "student-vote-form"
+        ]
+        field_id = answer_field_id(
+            self.evaluation.general_contribution, self.dropout_questionnaire, self.dropout_question
+        )
+        form[field_id] = NO_ANSWER  # dropout question must be answered
+        form.submit()
+        self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
+
+        self.assertEqual(self.evaluation.dropout_count, 1, "dropout count should increment with dropout")
+
+        form = self.app.get(url=reverse("student:vote", args=[self.evaluation.id]), user=self.user2, status=200).forms[
+            "student-vote-form"
+        ]
+        form.submit()
+        self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
+
+        self.assertEqual(self.evaluation.dropout_count, 1, "dropout count should not change on normal vote")
+
+    def test_choice_fields_correctly_populated_by_server(self):
+        form = self.app.get(url=reverse("student:drop", args=[self.evaluation.id]), user=self.user, status=200).forms[
+            "student-vote-form"
+        ]
+
+        normal_question_id = answer_field_id(
+            self.evaluation.general_contribution, self.normal_questionnaire, self.normal_question
+        )
+        dropout_question_id = answer_field_id(
+            self.evaluation.general_contribution, self.dropout_questionnaire, self.dropout_question
+        )
+
+        self.assertEqual(form[normal_question_id].value, str(NO_ANSWER))
+        self.assertIsNone(form[dropout_question_id].value)
+
+        form[normal_question_id] = -1
+
+        # This form expected to be not submitted (not all questions are answered)
+        response = form.submit()
+        self.assertContains(response, "callout-danger")
+        form = response.forms["student-vote-form"]
+
+        self.assertEqual(form[normal_question_id].value, "-1")
+        self.assertIsNone(form[dropout_question_id].value)
+
+    def test_change_language_in_dropout(self):
+        url_dropout = reverse("student:drop", args=[self.evaluation.id])
+        url_vote = reverse("student:vote", args=[self.evaluation.id])
+        page = self.app.get(url=url_dropout, user=self.user, status=200)
+        html_site = page.body.decode()
+
+        self.assertNotIn(url_vote, html_site)
+        self.assertIn(url_dropout, html_site)

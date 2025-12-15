@@ -6,24 +6,24 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0117_logentry'),
+        ("evaluation", "0117_logentry"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='course',
-            name='last_modified_time',
+            model_name="course",
+            name="last_modified_time",
         ),
         migrations.RemoveField(
-            model_name='course',
-            name='last_modified_user',
+            model_name="course",
+            name="last_modified_user",
         ),
         migrations.RemoveField(
-            model_name='evaluation',
-            name='last_modified_time',
+            model_name="evaluation",
+            name="last_modified_time",
         ),
         migrations.RemoveField(
-            model_name='evaluation',
-            name='last_modified_user',
+            model_name="evaluation",
+            name="last_modified_user",
         ),
     ]

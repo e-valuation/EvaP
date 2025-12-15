@@ -1,5 +1,6 @@
 import { CSRF_HEADERS } from "./csrf-utils.js";
 import { RangeSlider, Range } from "./slider.js";
+import { assert, selectOrError } from "./utils.js";
 
 declare const Sortable: typeof import("sortablejs");
 
@@ -21,6 +22,7 @@ interface State {
 interface BaseParameters {
     storageKey: string;
     searchInput: HTMLInputElement;
+    resetSearch?: HTMLButtonElement;
 }
 
 interface DataGridParameters extends BaseParameters {
@@ -33,11 +35,12 @@ abstract class DataGrid {
     protected sortableHeaders: Map<string, HTMLElement>;
     protected container: HTMLElement;
     private searchInput: HTMLInputElement;
+    protected readonly resetSearch?: HTMLButtonElement;
     protected rows: Row[] = [];
     private delayTimer: number | undefined;
     protected state: State;
 
-    protected constructor({ storageKey, head, container, searchInput }: DataGridParameters) {
+    protected constructor({ storageKey, head, container, searchInput, resetSearch }: DataGridParameters) {
         this.storageKey = storageKey;
         this.sortableHeaders = new Map();
         head.querySelectorAll<HTMLElement>(".col-order").forEach(header => {
@@ -46,6 +49,7 @@ abstract class DataGrid {
         });
         this.container = container;
         this.searchInput = searchInput;
+        this.resetSearch = resetSearch;
         this.state = this.restoreStateFromStorage();
     }
 
@@ -74,6 +78,12 @@ abstract class DataGrid {
                 this.searchInput.blur();
             }
         });
+        this.resetSearch?.addEventListener("click", () => {
+            this.state.search = "";
+            this.filterRows();
+            this.renderToDOM();
+            this.reflectFilterStateOnInputs();
+        });
 
         for (const [column, header] of this.sortableHeaders) {
             header.addEventListener("click", () => {
@@ -91,7 +101,7 @@ abstract class DataGrid {
             .map(row => row as HTMLElement)
             .map(row => {
                 const searchWords = this.findSearchableCells(row).flatMap(element =>
-                    DataGrid.searchWordsOf(element.textContent!),
+                    DataGrid.searchWordsOf(element.textContent),
                 );
                 return {
                     element: row,
@@ -226,37 +236,37 @@ abstract class DataGrid {
 
 interface TableGridParameters extends BaseParameters {
     table: HTMLTableElement;
-    resetSearch: HTMLButtonElement;
 }
 
 // Table based data grid which uses its head and body
 export class TableGrid extends DataGrid {
-    private resetSearch: HTMLButtonElement;
+    private searchableColumnIndices: number[];
 
-    constructor({ table, resetSearch, ...options }: TableGridParameters) {
+    constructor({ table, ...options }: TableGridParameters) {
+        const thead: HTMLElement = selectOrError("thead", table);
         super({
-            head: table.querySelector("thead")!,
+            head: thead,
             container: table.querySelector("tbody")!,
             ...options,
         });
-        this.resetSearch = resetSearch;
-    }
+        this.searchableColumnIndices = [];
 
-    public bindEvents() {
-        super.bindEvents();
-        this.resetSearch.addEventListener("click", () => {
-            this.state.search = "";
-            this.filterRows();
-            this.renderToDOM();
-            this.reflectFilterStateOnInputs();
+        thead.querySelectorAll("th").forEach((header, index) => {
+            if (!header.hasAttribute("data-not-searchable")) {
+                this.searchableColumnIndices.push(index);
+            }
         });
     }
 
     protected findSearchableCells(row: HTMLElement): HTMLElement[] {
-        return [...row.children] as HTMLElement[];
+        return this.searchableColumnIndices.map(index => {
+            const child = row.children[index];
+            assert(child instanceof HTMLElement);
+            return child;
+        });
     }
 
-    protected fetchRowFilterValues(row: HTMLElement): Map<string, string[]> {
+    protected fetchRowFilterValues(_row: HTMLElement): Map<string, string[]> {
         return new Map();
     }
 
@@ -480,7 +490,7 @@ export class ResultGrid extends DataGrid {
         for (const [name, { selector, checkboxes }] of this.filterCheckboxes.entries()) {
             // To store filter values independent of the language, use the corresponding id from the checkbox
             const values = [...row.querySelectorAll(selector)]
-                .map(element => element.textContent?.trim())
+                .map(element => element.textContent.trim())
                 .map(filterName => checkboxes.find(checkbox => checkbox.dataset.filter === filterName)?.value)
                 .filter(v => v !== undefined);
             filterValues.set(name, values);

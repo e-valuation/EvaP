@@ -59,7 +59,7 @@ class TextAnswerVisibility:
         self.visible_by_delegation_count = visible_by_delegation_count
 
 
-def create_rating_result(question, answer_counters, additional_text_result=None):
+def create_rating_result(question: Question, answer_counters, additional_text_result=None):
     if answer_counters is None:
         return RatingResult(question, additional_text_result)
     if any(counter.count != 0 for counter in answer_counters):
@@ -76,13 +76,14 @@ class RatingResult:
     def has_answers(cls, rating_result) -> TypeGuard["AnsweredRatingResult"]:
         return isinstance(rating_result, AnsweredRatingResult)
 
-    def __init__(self, question, additional_text_result=None) -> None:
+    def __init__(self, question: Question, additional_text_result=None) -> None:
         assert question.is_rating_question
         self.question = discard_cached_related_objects(copy(question))
         self.additional_text_result = additional_text_result
         self.colors = tuple(
             color for _, color, value in self.choices.as_name_color_value_tuples() if value != NO_ANSWER
         )
+        self.warning = False
 
     @property
     def choices(self):
@@ -90,7 +91,7 @@ class RatingResult:
 
 
 class PublishedRatingResult(RatingResult):
-    def __init__(self, question, answer_counters, additional_text_result=None) -> None:
+    def __init__(self, question: Question, answer_counters, additional_text_result=None) -> None:
         super().__init__(question, additional_text_result)
         counts = OrderedDict(
             (value, [0, name, color, value]) for (name, color, value) in self.choices.as_name_color_value_tuples()
@@ -151,6 +152,7 @@ class QuestionnaireResult:
     def __init__(self, questionnaire: Questionnaire, question_results: list[QuestionResult]):
         self.questionnaire = discard_cached_related_objects(copy(questionnaire))
         self.question_results = question_results
+        self.warning = False
 
 
 class ContributionResult:
@@ -186,16 +188,6 @@ class EvaluationResult:
             for contribution_result in self.contribution_results
             for questionnaire_result in contribution_result.questionnaire_results
         ]
-
-
-def get_single_result_rating_result(evaluation):
-    assert evaluation.is_single_result
-
-    answer_counters = RatingAnswerCounter.objects.filter(contribution__evaluation__pk=evaluation.pk)
-    assert 1 <= len(answer_counters) <= 5
-
-    question = Question.objects.get(questionnaire__name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME)
-    return create_rating_result(question, answer_counters)
 
 
 def get_results_cache_key(evaluation: Evaluation) -> str:
@@ -282,11 +274,7 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
 
 def annotate_distributions_and_grades(evaluations):
     for evaluation in evaluations:
-        if not evaluation.is_single_result:
-            evaluation.distribution = calculate_average_distribution(evaluation)
-        else:
-            evaluation.single_result_rating_result = get_single_result_rating_result(evaluation)
-            evaluation.distribution = normalized_distribution(evaluation.single_result_rating_result.counts)
+        evaluation.distribution = calculate_average_distribution(evaluation)
         evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
 
 
@@ -358,11 +346,7 @@ def calculate_average_course_distribution(course, check_for_unpublished_evaluati
     return avg_distribution(
         [
             (
-                (
-                    calculate_average_distribution(evaluation)
-                    if not evaluation.is_single_result
-                    else normalized_distribution(get_single_result_rating_result(evaluation).counts)
-                ),
+                calculate_average_distribution(evaluation),
                 evaluation.weight,
             )
             for evaluation in course.evaluations.all()
@@ -409,7 +393,8 @@ def calculate_average_distribution(evaluation):
     grouped_results = defaultdict(list)
     for contribution_result in get_results(evaluation).contribution_results:
         for questionnaire_result in contribution_result.questionnaire_results:
-            grouped_results[contribution_result.contributor].extend(questionnaire_result.question_results)
+            if not questionnaire_result.questionnaire.is_dropout:  # dropout questionnaires are not counted
+                grouped_results[contribution_result.contributor].extend(questionnaire_result.question_results)
 
     evaluation_results = grouped_results.pop(None, [])
 

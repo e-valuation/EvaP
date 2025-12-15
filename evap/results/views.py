@@ -186,8 +186,8 @@ def evaluation_detail(request, semester_id, evaluation_id):
     remove_empty_questionnaire_and_contribution_results(evaluation_result)
     add_warnings(evaluation, evaluation_result)
 
-    top_results, bottom_results, contributor_results = split_evaluation_result_into_top_bottom_and_contributor(
-        evaluation_result, view_as_user, view_contributor_results
+    top_results, bottom_results, contributor_results, dropout_results = (
+        split_evaluation_result_into_questionnaire_types(evaluation_result, view_as_user, view_contributor_results)
     )
 
     course_evaluations = get_evaluations_of_course(evaluation.course, request)
@@ -234,6 +234,7 @@ def evaluation_detail(request, semester_id, evaluation_id):
         "general_questionnaire_results_top": top_results,
         "general_questionnaire_results_bottom": bottom_results,
         "contributor_contribution_results": contributor_results,
+        "dropout_questionnaire_results": dropout_results,
         "is_reviewer": view_as_user.is_reviewer,
         "is_contributor": evaluation.is_user_contributor(view_as_user),
         "is_responsible_or_contributor_or_delegate": is_responsible_or_contributor_or_delegate,
@@ -334,16 +335,19 @@ def remove_empty_questionnaire_and_contribution_results(evaluation_result):
     ]
 
 
-def split_evaluation_result_into_top_bottom_and_contributor(evaluation_result, view_as_user, view_contributor_results):
+def split_evaluation_result_into_questionnaire_types(evaluation_result, view_as_user, view_contributor_results):
     top_results = []
     bottom_results = []
     contributor_results = []
+    dropout_results = []
 
     for contribution_result in evaluation_result.contribution_results:
         if contribution_result.contributor is None:
             for questionnaire_result in contribution_result.questionnaire_results:
                 if questionnaire_result.questionnaire.is_below_contributors:
                     bottom_results.append(questionnaire_result)
+                elif questionnaire_result.questionnaire.is_dropout:
+                    dropout_results.append(questionnaire_result)
                 else:
                     top_results.append(questionnaire_result)
 
@@ -357,7 +361,7 @@ def split_evaluation_result_into_top_bottom_and_contributor(evaluation_result, v
         top_results += bottom_results
         bottom_results = []
 
-    return top_results, bottom_results, contributor_results
+    return top_results, bottom_results, contributor_results, dropout_results
 
 
 def get_evaluations_of_course(course, request):
@@ -403,6 +407,8 @@ def add_warnings(evaluation, evaluation_result):
         )
 
     for questionnaire_result in evaluation_result.questionnaire_results:
+        if questionnaire_result.questionnaire.is_dropout:
+            continue
         rating_results = [
             question_result
             for question_result in questionnaire_result.question_results

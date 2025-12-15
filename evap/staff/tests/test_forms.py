@@ -37,7 +37,6 @@ from evap.staff.forms import (
     EvaluationEmailForm,
     EvaluationForm,
     QuestionnaireForm,
-    SingleResultForm,
     UserForm,
 )
 
@@ -234,32 +233,6 @@ class UserFormTests(TestCase):
             latest_log = evaluation.related_logentries().order_by("id").last()
             self.assertIn("participants", latest_log.data)
             self.assertEqual(latest_log.data["participants"]["remove"], [student.pk])
-
-
-class SingleResultFormTests(TestCase):
-    def test_single_result_form_saves_participant_and_voter_count(self):
-        course = baker.make(Course)
-        evaluation = Evaluation(course=course, is_single_result=True)
-        form_data = {
-            "name_de": "qwertz",
-            "name_en": "qwertz",
-            "weight": 1,
-            "event_date": "2014-01-01",
-            "answer_1": 6,
-            "answer_2": 0,
-            "answer_3": 2,
-            "answer_4": 0,
-            "answer_5": 2,
-            "course": course.pk,
-        }
-        form = SingleResultForm(form_data, instance=evaluation, semester=evaluation.course.semester)
-        self.assertTrue(form.is_valid())
-
-        form.save()
-
-        evaluation = Evaluation.objects.get()
-        self.assertEqual(evaluation.num_participants, 10)
-        self.assertEqual(evaluation.num_voters, 10)
 
 
 class ContributionCopyFormTests(TestCase):
@@ -925,7 +898,7 @@ class EvaluationFormTests(TestCase):
         Tests validity of various start/end date combinations in
         the two evaluation edit forms.
         """
-        evaluation = baker.make(Evaluation)
+        evaluation = baker.make(Evaluation, main_language="en")
         evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
 
         # contributors: start date does not have to be in the future

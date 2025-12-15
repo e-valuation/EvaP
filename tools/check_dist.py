@@ -42,5 +42,5 @@ def main(argv):
     return ensure_all_artifacts_included(pyproject, args.wheels)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: nocover
     sys.exit(main(sys.argv[1:]))

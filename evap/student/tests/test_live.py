@@ -1,7 +1,6 @@
 import time
 
 from django.test import override_settings
-from django.urls import reverse
 from model_bakery import baker
 from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
@@ -14,7 +13,6 @@ from evap.evaluation.tests.tools import LiveServerTest
 
 
 class StudentVoteLiveTest(LiveServerTest):
-
     def setUp(self) -> None:
         super().setUp()
         voting_user1 = baker.make(UserProfile, email="voting_user1@institution.example.com")
@@ -26,6 +24,7 @@ class StudentVoteLiveTest(LiveServerTest):
             Evaluation,
             participants=[voting_user1, voting_user2, contributor1],
             state=Evaluation.State.IN_EVALUATION,
+            main_language="en",
         )
 
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
@@ -60,7 +59,7 @@ class StudentVoteLiveTest(LiveServerTest):
         )
 
         evaluation.general_contribution.questionnaires.set([top_general_questionnaire, bottom_general_questionnaire])
-        self.url = self.live_server_url + reverse("student:vote", args=[evaluation.pk])
+        self.url = self.reverse("student:vote", args=[evaluation.pk])
         self.login(voting_user1)
 
     def _get_publish_confirmation(self) -> dict[str, WebElement]:
