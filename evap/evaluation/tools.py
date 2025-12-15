@@ -32,7 +32,6 @@ else:
     except ImportError:
         StrOrPromise = Any  # on production setups, type alias to Any
 
-M = TypeVar("M", bound=Model)
 T = TypeVar("T")
 CellValue = str | int | float | None
 CV = TypeVar("CV", bound=CellValue)
@@ -104,7 +103,7 @@ def password_login_is_active() -> bool:
     return not openid_login_is_active()
 
 
-def get_object_from_dict_pk_entry_or_logged_40x(
+def get_object_from_dict_pk_entry_or_logged_40x[M: Model](
     model_cls: type[M], dict_obj: MultiValueDict[str, Any] | Mapping[str, Any], key: str
 ) -> M:
     try:
@@ -130,7 +129,7 @@ def is_prefetched(instance, attribute_name: str) -> bool:
     return False
 
 
-def discard_cached_related_objects(instance: M) -> M:
+def discard_cached_related_objects[M: Model](instance: M) -> M:
     """
     Discard all cached related objects (for ForeignKey and M2M Fields). Useful
     if there were changes, but django's caching would still give us the old
@@ -190,10 +189,7 @@ def translate(**kwargs):
     return property(lambda self: getattr(self, kwargs[get_language() or "en"]))
 
 
-EmailT = TypeVar("EmailT", str, None)
-
-
-def clean_email(email: EmailT) -> EmailT:
+def clean_email[EmailT: str | None](email: EmailT) -> EmailT:
     if email:
         email = email.strip().lower()
         # Replace email domains in case there are multiple alias domains used in the organisation and all emails should

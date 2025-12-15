@@ -2,7 +2,7 @@ from collections.abc import Iterable, Sequence
 from datetime import date, datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any
 
 from django.conf import settings
 from django.contrib import messages
@@ -418,14 +418,11 @@ def user_edit_link(user_id):
     )
 
 
-T = TypeVar("T", bound=Model)
-
-
-def update_or_create_with_changes(
-    model: type[T],
+def update_or_create_with_changes[M: Model](
+    model: type[M],
     defaults=None,
     **kwargs,
-) -> tuple[T, bool, dict[str, tuple[Any, Any]]]:
+) -> tuple[M, bool, dict[str, tuple[Any, Any]]]:
     """Do update_or_create and track changed values."""
 
     if not defaults:
