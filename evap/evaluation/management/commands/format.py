@@ -10,14 +10,12 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "formatter", nargs="?", choices=["ruff", "isort", "prettier", "python"], help="Specify a formatter to run."
+            "formatter", nargs="?", choices=["ruff", "prettier", "python"], help="Specify a formatter to run."
         )
 
     def run_ruff(self):
         self.stdout.write("Executing ruff format .")
         subprocess.run(["ruff", "format", "."], check=False)  # nosec
-
-    def run_isort(self):
         self.stdout.write("Executing ruff check --select I --fix .")
         subprocess.run(["ruff", "check", "--select", "I", "--fix", "."], check=False)  # nosec
 
@@ -28,7 +26,5 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if options["formatter"] in ("ruff", "python", None):
             self.run_ruff()
-        if options["formatter"] in ("isort", "python", None):
-            self.run_isort()
         if options["formatter"] in ("prettier", None):
             self.run_prettier()
