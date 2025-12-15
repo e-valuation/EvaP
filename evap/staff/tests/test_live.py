@@ -289,7 +289,7 @@ class StaffSemesterViewRegressionTest(VisualRegressionTestCase):
             vote_end_date=date(2099, 12, 31),
             main_language="en",
         )
-        _ = baker.make(
+        baker.make(
             Evaluation,
             course=baker.make(
                 Course, semester=evaluation.course.semester, programs=[baker.make(Program)], responsibles=[responsible]
@@ -298,7 +298,7 @@ class StaffSemesterViewRegressionTest(VisualRegressionTestCase):
             vote_end_date=date(2099, 12, 31),
             main_language="en",
         )
-        _ = baker.make(
+        baker.make(
             Evaluation,
             course=baker.make(
                 Course, semester=evaluation.course.semester, programs=[baker.make(Program)], responsibles=[responsible]
@@ -311,7 +311,7 @@ class StaffSemesterViewRegressionTest(VisualRegressionTestCase):
         general_questionnaire = baker.make(Questionnaire, questions=[baker.make(Question)])
         evaluation.general_contribution.questionnaires.set([general_questionnaire])
 
-        _ = baker.make(
+        baker.make(
             Contribution,
             evaluation=evaluation,
             contributor=responsible,
@@ -330,7 +330,7 @@ class StaffSemesterViewRegressionTest(VisualRegressionTestCase):
         with self.enter_staff_mode():
             self.selenium.get(self.reverse("staff:semester_view", args=[evaluation.course.semester_id]))
 
-            _ = self.wait.until(
+            self.wait.until(
                 expected_conditions.presence_of_element_located((By.CSS_SELECTOR, "#evaluation-filter-buttons .badge"))
             )
 
