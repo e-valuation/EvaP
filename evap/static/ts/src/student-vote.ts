@@ -1,8 +1,7 @@
-import { selectOrError } from "./utils.js";
+import { selectOrError, assert } from "./utils.js";
 import { AutoFormSaver } from "./auto-form-saver.js";
 import { CSRF_HEADERS } from "./csrf-utils.js";
 import { initTextAnswerWarnings } from "./text-answer-warnings.js";
-import { assert } from "./utils.js";
 import { Collapse } from "bootstrap";
 
 function isInvisible(el: Element): boolean {
