@@ -2,12 +2,14 @@ from datetime import date, datetime
 
 from django.urls import reverse
 from model_bakery import baker
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.expected_conditions import (
     element_to_be_clickable,
     invisibility_of_element_located,
     visibility_of_element_located,
 )
+from selenium.webdriver.support.wait import WebDriverWait
 
 from evap.evaluation.models import (
     Contribution,
@@ -200,6 +202,16 @@ class TextAnswerEditLiveTest(LiveServerTest):
             Contribution, evaluation=evaluation, contributor=None, questionnaires=[general_questionnaire]
         )
 
+        baker.make(
+            TextAnswer,
+            question=question1,
+            contribution=contribution1,
+            answer=iter(f"this is a dummy answer {i}" for i in range(3)),
+            original_answer=None,
+            review_decision=TextAnswer.ReviewDecision.UNDECIDED,
+            _quantity=3,
+        )
+
         textanswer1 = baker.make(
             TextAnswer,
             question=question1,
@@ -213,9 +225,10 @@ class TextAnswerEditLiveTest(LiveServerTest):
             TextAnswer,
             question=question1,
             contribution=contribution1,
-            answer="this is a dummy answer",
+            answer=iter(f"this is a dummy answer {i}" for i in range(3, 6)),
             original_answer=None,
             review_decision=TextAnswer.ReviewDecision.UNDECIDED,
+            _quantity=3,
         )
 
         with self.enter_staff_mode():
@@ -226,8 +239,15 @@ class TextAnswerEditLiveTest(LiveServerTest):
         next_textanswer_btn = self.selenium.find_element(By.XPATH, "//span[@data-slide='right']")
         edit_btn = self.selenium.find_element(By.ID, "textanswer-edit-btn")
 
-        while not self.wait.until(visibility_of_element_located((By.ID, "textanswer-" + str(textanswer1.pk)))):
-            next_textanswer_btn.click()
+        while True:
+            try:
+                WebDriverWait(self.selenium, 1).until(
+                    visibility_of_element_located((By.ID, f"textanswer-{str(textanswer1.pk)}"))
+                )
+                break
+            except TimeoutException:
+                with self.enter_staff_mode():
+                    next_textanswer_btn.click()
 
         with self.enter_staff_mode():
             edit_btn.click()
@@ -241,7 +261,9 @@ class TextAnswerEditLiveTest(LiveServerTest):
         with self.enter_staff_mode():
             submit_btn.click()
 
-        self.wait.until(visibility_of_element_located((By.XPATH, "//div[contains(text(), 'edited answer')]")))
-        self.wait.until(
+        WebDriverWait(self.selenium, 1).until(
+            visibility_of_element_located((By.XPATH, "//div[contains(text(), 'edited answer')]"))
+        )
+        WebDriverWait(self.selenium, 1).until(
             invisibility_of_element_located((By.XPATH, "//div[contains(text(), 'this is a dummy answer')]"))
         )
