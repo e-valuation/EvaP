@@ -227,7 +227,7 @@ class JSONImporter:
         if not real_matches:
             return wanted_name
         number = max(real_matches)
-        return f"{wanted_name} ({number+1})"
+        return f"{wanted_name} ({number + 1})"
 
     def _get_first_name_given(self, entry: ImportStudent) -> str:
         if entry["callingname"]:
@@ -478,7 +478,7 @@ class JSONImporter:
             self.statistics.warnings.append(
                 WarningMessage(
                     obj=data["title"],
-                    message=f"Event has an unknown language (\"{data['language']}\"), main language was set to undecided",
+                    message=f'Event has an unknown language ("{data["language"]}"), main language was set to undecided',
                 )
             )
 
