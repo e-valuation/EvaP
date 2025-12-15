@@ -19,15 +19,13 @@ class GradesViewTest(VisualRegressionTestCase):
             self.trigger_screenshot("grades:semester - no courses")
 
             courses = baker.make(Course, semester=semester, _quantity=30)
-            _ = [
-                baker.make(
-                    Evaluation,
-                    course=course,
-                    wait_for_grade_upload_before_publishing=True,
-                    state=Evaluation.State.IN_EVALUATION,
-                )
-                for course in courses
-            ]
+            baker.make(
+                Evaluation,
+                course=iter(courses),
+                wait_for_grade_upload_before_publishing=True,
+                state=Evaluation.State.IN_EVALUATION,
+                _quantity=len(courses)
+            )
             self.selenium.get(self.reverse("grades:semester_view", args=[semester.id]))
 
             self.trigger_screenshot("grades:semester - 30 courses")
