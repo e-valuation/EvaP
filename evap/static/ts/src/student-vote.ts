@@ -4,6 +4,10 @@ import { CSRF_HEADERS } from "./csrf-utils.js";
 import { initTextAnswerWarnings } from "./text-answer-warnings.js";
 import { assert } from "./utils.js";
 
+// TODO: templates
+// TODO: bootstrap
+// TODO: for attribute on Button
+
 function isInvisible(el: Element): boolean {
     if (getComputedStyle(el).display === "none") {
         return true;
@@ -182,7 +186,10 @@ function scrollToFirstChoiceError() {
 }
 
 
-const lastSavedStorageKey = "student-vote-last-saved-at-{{ evaluation.id }}-{{ request.user.id }}";
+const dataElement = document.querySelector<HTMLElement>(".dataElement")!;
+const evaluationId = dataElement.dataset.evaluation_id!;
+const requestUserId = dataElement.dataset.request_user_id;
+const languageStorageKey = `student-vote-last-saved-at-${evaluationId}-${requestUserId}`;
 const textResultsPublishConfirmation = {
     top: document.querySelector<HTMLInputElement>("#text_results_publish_confirmation_top")!,
     bottom: document.querySelector<HTMLInputElement>("#text_results_publish_confirmation_bottom")!,
@@ -190,9 +197,8 @@ const textResultsPublishConfirmation = {
 };
 
 // Ensure that selected questionnaire language is saved and loaded
-const languageStorageKey = "student-vote-language-{{ evaluation.id }}-{{ request.user.id }}";
 const params = new URLSearchParams(document.location.search);
-const currentlySelectedLanguage = "{{ evaluation_language|escapejs }}";
+const currentlySelectedLanguage = dataElement.dataset.evaluation_language!;
 const savedLanguage = localStorage.getItem(languageStorageKey);
 
 if (params.get("language")) {
@@ -203,7 +209,7 @@ if (params.get("language")) {
 }
 
 const formSaver = new AutoFormSaver(document.getElementById("student-vote-form") as HTMLFormElement, {
-    customKeySuffix: "[user={{ request.user.id }}]", // don't load data for other users
+    customKeySuffix: `[user=${requestUserId}]`, // don't load data for other users
     onRestore: function () {
         // restore publish confirmation state
         if (textResultsPublishConfirmation.bottomCard) {
@@ -220,18 +226,18 @@ const formSaver = new AutoFormSaver(document.getElementById("student-vote-form")
     },
     onSave: function () {
         const timeNow = new Date();
-        localStorage.setItem(lastSavedStorageKey, timeNow.toString());
+        localStorage.setItem(languageStorageKey, timeNow.toString());
     },
 });
 
+const languageCode = dataElement.dataset.language_code!;
 function updateLastSavedLabel() {
     const timeNow = new Date();
     const lastSavedLabel = document.getElementById('last-saved')!;
-    const lastSavedStorageValue = localStorage.getItem(lastSavedStorageKey);
+    const lastSavedStorageValue = localStorage.getItem(languageStorageKey);
     if (lastSavedStorageValue !== null) {
         const lastSavedDate = new Date(lastSavedStorageValue);
         const delta = Math.round((timeNow.getTime() - lastSavedDate.getTime()) / 1000);
-        const languageCode = "{{ LANGUAGE_CODE }}";
         const relativeTimeFormat = new Intl.RelativeTimeFormat(languageCode);
         let timeStamp;
         if (delta < 3) {
@@ -275,6 +281,8 @@ const textAnswerWarnings = document.getElementById("text-answer-warnings") as HT
 initTextAnswerWarnings(document.querySelectorAll("#student-vote-form textarea"), JSON.parse(textAnswerWarnings.textContent) as string[][]);
 
 const form = document.getElementById('student-vote-form') as HTMLFormElement;
+const successMagicString = dataElement.dataset.success_magic_string!;
+const successRedirectUrl = dataElement.dataset.success_redirect_url!;
 const submitListener = (event: Event) => {
     event.preventDefault(); // don't use the default submission
     const submitButton = document.getElementById('vote-submit-btn') as HTMLButtonElement;
@@ -291,9 +299,9 @@ const submitListener = (event: Event) => {
         assert(response.ok);
         return response.text();
     }).then(response_text => {
-        if (response_text === "{{ success_magic_string }}") {
+        if (response_text === successMagicString) {
             formSaver.releaseData();
-            window.location.replace("{{ success_redirect_url }}");
+            window.location.replace(successRedirectUrl);
         } else {
             // resubmit without this handler to show the site with the form errors
             form.removeEventListener("submit", submitListener);

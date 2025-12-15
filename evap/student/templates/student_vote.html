@@ -6,6 +6,14 @@
 
 {% block title %}{{ evaluation.full_name }} - {% translate 'Evaluation' %} - {{ block.super }}{% endblock %}
 
+<div class="dataElement"
+     data-evaluation-id="{{ evaluation.id }}"
+     data-request-user-id="{{ request.user.id }}"
+     data-evaluation-language="{{ evaluation_language|escapejs }}"
+     data-language-code="{{ LANGUAGE_CODE }}"
+     data-success-magic-string="{{ success_magic_string }}"
+     data-success-redirect-url="{{ success_redirect_url }}"></div>
+
 {% block breadcrumb_bar %}
     <div class="breadcrumb-bar">
         <ul class="breadcrumb">
@@ -60,7 +68,7 @@
                     {% translate "Questionnaire language" %}
                     <span class="fas fa-circle-info" data-bs-toggle="tooltip" title="{% translate 'This only changes the language of the questionnaire and not the whole page. Changing this will not delete your existing answers.' %}"></span>
                 </div>
-                
+
                 <div class="btn-switch btn-group">
                     {% for language_code, language_name in languages %}
                         <a data-bs-toggle="tooltip"
