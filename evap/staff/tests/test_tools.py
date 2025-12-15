@@ -421,7 +421,6 @@ class CheckDistTest(TestCase):
 
     def test_usage(self):
         with patch("sys.stderr.write") as print_mock:
-            exit_code = check_dist_main([])
-        self.assertEqual(exit_code, 1)
+            self.assertRaises(SystemExit, check_dist_main, [])
         print_mock.assert_called()
         self.assertIn("usage", print_mock.call_args_list[0][0][0])

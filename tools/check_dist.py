@@ -28,13 +28,10 @@ def ensure_all_artifacts_included(pyproject, wheel_paths):
 
 
 def main(argv):
-    parser = argparse.ArgumentParser("check_dist", exit_on_error=False)
+    parser = argparse.ArgumentParser("check_dist")
     parser.add_argument("pyproject", type=Path)
     parser.add_argument("wheels", type=Path, nargs="*")
-    try:
-        args = parser.parse_args(argv)
-    except SystemExit:
-        return 1
+    args = parser.parse_args(argv)
 
     with args.pyproject.open("rb") as f:
         pyproject = tomllib.load(f)
