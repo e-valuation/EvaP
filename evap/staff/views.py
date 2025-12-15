@@ -1221,13 +1221,6 @@ def evaluation_create_impl(request, semester: Semester, course: Course | None):
         messages.success(request, _("Successfully created evaluation."))
         return redirect("staff:semester_view", semester.id)
 
-    for q in evaluation_form.fields['general_questionnaires'].queryset:
-        print(f"questionnaire: {q.visibility}")
-    evaluation_form.fields['general_questionnaires'].queryset.exclude(visibility=3)
-    print("removed\n")
-    for q in evaluation_form.fields['general_questionnaires'].queryset:
-        print(f"questionnaire: {q.visibility}")
-
     return render(
         request,
         "staff_evaluation_form.html",
@@ -2028,7 +2021,7 @@ def questionnaire_new_version(request, questionnaire_id):
                 # Change old name before checking Form.
                 old_questionnaire.name_de = new_name_de
                 old_questionnaire.name_en = new_name_en
-                old_questionnaire.visibility = Questionnaire.Visibility.HIDDEN
+                old_questionnaire.visibility = Questionnaire.Visibility.ARCHIVED
                 old_questionnaire.save()
 
                 if not form.is_valid() or not formset.is_valid():
