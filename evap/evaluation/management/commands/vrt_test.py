@@ -12,7 +12,6 @@ class Command(BaseCommand):
     help = "Run the visual regression testing suite"
 
     def handle(self, *args, **options):
-
         assert os.environ.get("VRT_APIURL"), "env var VRT_APIURL must be set"
         assert os.environ.get("VRT_APIKEY"), "env var VRT_APIKEY must be set"
         assert os.environ.get("VRT_PROJECT"), "env var VRT_PROJECT must be set"

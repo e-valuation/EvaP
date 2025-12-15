@@ -5,7 +5,6 @@ from evap.evaluation.tests.tools import VisualRegressionTestCase
 
 
 class GradesViewTest(VisualRegressionTestCase):
-
     def test_grades_semester_view(self):
         baker.seed(31902)
 
