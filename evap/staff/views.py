@@ -1221,6 +1221,13 @@ def evaluation_create_impl(request, semester: Semester, course: Course | None):
         messages.success(request, _("Successfully created evaluation."))
         return redirect("staff:semester_view", semester.id)
 
+    for q in evaluation_form.fields['general_questionnaires'].queryset:
+        print(f"questionnaire: {q.visibility}")
+    evaluation_form.fields['general_questionnaires'].queryset.exclude(visibility=3)
+    print("removed\n")
+    for q in evaluation_form.fields['general_questionnaires'].queryset:
+        print(f"questionnaire: {q.visibility}")
+
     return render(
         request,
         "staff_evaluation_form.html",
@@ -1824,7 +1831,9 @@ def questionnaire_index(request):
             When(visibility=Questionnaire.Visibility.ARCHIVED, then=Value(1)),
             default=Value(0),
             output_field=IntegerField(),
-        )
+        ),
+        "order",
+        "pk",
     ) for q_type in questionnaires]
 
     general_questionnaires_top = [
