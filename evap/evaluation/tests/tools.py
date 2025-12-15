@@ -371,14 +371,37 @@ class VisualRegressionTestCase(LiveServerTest):
     window_size = (1920, 1080)
     _http_timeout_seconds = 3
 
-    def setUp(self) -> None:
-        super().setUp()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        self.freezer = freeze_time("2025-10-27")
-        self.freezer.start()
+        self.apiUrl =  os.environ.get("VRT_APIURL")
+        self.ciBuildId =  os.environ.get("VRT_CIBUILDID")
+        self.branchName =  os.environ.get("VRT_BRANCHNAME")
+        self.apiKey =  os.environ.get("VRT_APIKEY")
+        self.projectId =  os.environ.get("VRT_PROJECT")
 
-    def tearDown(self) -> None:
-        self.freezer.stop()
+        self.headers = {
+            "apiKey": self.apiKey,
+            "Content-Type": "application/json",
+        }
+
+        self.data = {
+            "project": self.projectId,
+            "branchName": self.branchName,
+            "ciBuildId": self.ciBuildId,
+        }
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+
+        cls.freezer = freeze_time("2025-10-27")
+        cls.freezer.start()
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        super().tearDownClass()
+        cls.freezer.stop()
 
     @property
     def viewport(self):
@@ -387,49 +410,28 @@ class VisualRegressionTestCase(LiveServerTest):
     def trigger_screenshot(self, name: str):
         full_name = self.__class__.__name__ + "_" + name
 
-        config = {
-            "apiUrl": os.environ.get("VRT_APIURL"),
-            "ciBuildId": os.environ.get("VRT_CIBUILDID"),
-            "branchName": os.environ.get("VRT_BRANCHNAME"),
-            "apiKey": os.environ.get("VRT_APIKEY"),
-            "projectId": os.environ.get("VRT_PROJECT"),
-        }
-
-        headers = {
-            "apiKey": config.get("apiKey"),
-            "Content-Type": "application/json",
-        }
-
-        data = {
-            "project": config.get("projectId"),
-            "branchName": config.get("branchName"),
-            "ciBuildId": config.get("ciBuildId"),
-        }
-
         registration_response = requests.post(
-            f'{config.get("apiUrl")}/builds',
-            data=json.dumps(data),
-            headers=headers,
+            f'{self.apiUrl}/builds',
+            data=json.dumps(self.data),
+            headers=self.headers,
             timeout=self._http_timeout_seconds,
         )
 
         registration_response.raise_for_status()
+        build_id = registration_response.json().get("id")
 
-        test_data = {
-            "project": config.get("projectId"),
-            "projectId": config.get("projectId"),
-            "branchName": config.get("branchName"),
-            "ciBuildId": config.get("ciBuildId"),
+        test_data = self.data | {
+            "projectId": self.projectId,
             "name": full_name,
             "imageBase64": self.selenium.get_screenshot_as_base64(),
             "viewport": self.viewport,
-            "buildId": registration_response.json().get("id"),
+            "buildId": build_id,
         }
 
         test_response = requests.post(
-            f'{config.get("apiUrl")}/test-runs',
+            f'{self.apiUrl}/test-runs',
             data=json.dumps(test_data),
-            headers=headers,
+            headers=self.headers,
             timeout=self._http_timeout_seconds,
         )
 
@@ -443,12 +445,13 @@ class VisualRegressionTestCase(LiveServerTest):
 
         error_message = switcher.get(test_response.json().get("status"))
 
-        _ = requests.patch(
-            f'{config.get("apiUrl")}/builds/{test_data.get("buildId")}',
+        response = requests.patch(
+            f'{self.apiUrl}/builds/{build_id}',
             data={},
-            headers=headers,
+            headers=self.headers,
             timeout=self._http_timeout_seconds,
-        ).raise_for_status()
+        )
+        response.raise_for_status()
 
         if error_message:
             self.fail(error_message)
