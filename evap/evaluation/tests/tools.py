@@ -453,7 +453,7 @@ class VisualRegressionTestCase(LiveServerTest):
 
         test_response.raise_for_status()
         payload = test_response.json()
-        return (payload.get("status"), payload.get("url", "<url-not-found>"))
+        return payload.get("status"), payload.get("url", "<url-not-found>")
 
     def trigger_screenshot(self, name: str):
         full_name = self.__class__.__name__ + "_" + name
