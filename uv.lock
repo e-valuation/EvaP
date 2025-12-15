@@ -350,7 +350,7 @@ psycopg-c = [
 
 [package.dev-dependencies]
 dev = [
-    { name = "coverage", extra = ["toml"] },
+    { name = "coverage" },
     { name = "django-debug-toolbar" },
     { name = "django-stubs" },
     { name = "django-webtest" },
@@ -391,7 +391,7 @@ provides-extras = ["psycopg-binary", "psycopg-c"]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "coverage", extras = ["toml"], specifier = "~=7.10.2" },
+    { name = "coverage", specifier = "~=7.10.2" },
     { name = "django-debug-toolbar", specifier = "~=6.0" },
     { name = "django-stubs", specifier = "~=5.2.5" },
     { name = "django-webtest", specifier = "~=1.9.13" },

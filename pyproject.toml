@@ -23,7 +23,7 @@ psycopg-c = ["psycopg[c]"]
 
 [dependency-groups]
 dev = [
-    "coverage[toml]~=7.10.2",
+    "coverage~=7.10.2",
     "django-debug-toolbar~=6.0",
     "django-stubs~=5.2.5",
     "django-webtest~=1.9.13",
