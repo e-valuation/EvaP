@@ -5,7 +5,7 @@ from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from datetime import timedelta
 from importlib import import_module
-from typing import Any, Tuple
+from typing import Any
 
 import django.test
 import django_webtest
@@ -15,9 +15,9 @@ from django.conf import settings
 from django.contrib.auth import login
 from django.contrib.auth.models import Group
 from django.contrib.staticfiles.handlers import StaticFilesHandler
-from django.db import DEFAULT_DB_ALIAS, connection, connections
+from django.db import DEFAULT_DB_ALIAS, connections
 from django.http.request import HttpRequest, QueryDict
-from django.test import override_settings, tag
+from django.test import override_settings
 from django.test.runner import DiscoverRunner
 from django.test.selenium import SeleniumTestCase
 from django.test.utils import CaptureQueriesContext
@@ -366,16 +366,6 @@ class LiveServerTest(SeleniumTestCase):
         cls.selenium.set_window_size(*cls.window_size)
 
 
-def untag(*tags_to_remove):
-    """Decorator to remove tags from a test class or method."""
-
-    def decorator(obj):
-        if hasattr(obj, "tags"):
-            obj.tags = obj.tags - set(tags_to_remove)
-        return obj
-
-    return decorator
-
 @tag("vrt")
 @override_settings(SLOGANS_EN=["Einigermaßen verlässlich aussehende Pixeltestung"])
 class VisualRegressionTestCase(LiveServerTest):
@@ -385,22 +375,19 @@ class VisualRegressionTestCase(LiveServerTest):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.apiUrl = os.environ.get("VRT_APIURL")
-        self.ciBuildId = os.environ.get("VRT_CIBUILDID")
-        self.branchName = os.environ.get("VRT_BRANCHNAME")
-        self.apiKey = os.environ.get("VRT_APIKEY")
-        self.projectId = os.environ.get("VRT_PROJECT")
+        self.api_url = os.environ.get("VRT_APIURL")
 
         self.headers = {
-            "apiKey": self.apiKey,
+            "apiKey": os.environ.get("VRT_APIKEY"),
             "Content-Type": "application/json",
         }
 
+        project_id = os.environ.get("VRT_PROJECT")
         self.data = {
-            "project": self.projectId,
-            "projectId": self.projectId,  # this is not a typo, depending on the request either project/projectId is used
-            "branchName": self.branchName,
-            "ciBuildId": self.ciBuildId,
+            "project": project_id,
+            "projectId": project_id,  # this is not a typo, depending on the request either project/projectId is used
+            "branchName": os.environ.get("VRT_BRANCHNAME"),
+            "ciBuildId": os.environ.get("VRT_CIBUILDID"),
         }
 
     @classmethod
@@ -421,15 +408,15 @@ class VisualRegressionTestCase(LiveServerTest):
 
     def setUp(self) -> None:
         super().setUp()
-        self.build_id = self._startVRTSession()
+        self.build_id = self._start_vrt_session()
 
     def tearDown(self) -> None:
         super().tearDown()
-        self._stopVRTSession()
+        self._stop_vrt_session()
 
-    def _startVRTSession(self) -> str:
+    def _start_vrt_session(self) -> str:
         registration_response = requests.post(
-            f"{self.apiUrl}/builds",
+            f"{self.api_url}/builds",
             data=json.dumps(self.data),
             headers=self.headers,
             timeout=self._http_timeout_seconds,
@@ -438,16 +425,16 @@ class VisualRegressionTestCase(LiveServerTest):
         registration_response.raise_for_status()
         return registration_response.json().get("id")
 
-    def _stopVRTSession(self):
+    def _stop_vrt_session(self):
         # marks the session of the current as done
         requests.patch(
-            f"{self.apiUrl}/builds/{self.build_id}",
+            f"{self.api_url}/builds/{self.build_id}",
             data={},
             headers=self.headers,
             timeout=self._http_timeout_seconds,
         ).raise_for_status()
 
-    def _postScreenshot(self, name) -> Tuple[str, str]:
+    def _post_screenshot(self, name) -> tuple[str, str]:
         test_data = self.data | {
             "name": name,
             "imageBase64": self.selenium.get_screenshot_as_base64(),
@@ -456,7 +443,7 @@ class VisualRegressionTestCase(LiveServerTest):
         }
 
         test_response = requests.post(
-            f"{self.apiUrl}/test-runs",
+            f"{self.api_url}/test-runs",
             data=json.dumps(test_data),
             headers=self.headers,
             timeout=self._http_timeout_seconds,
@@ -469,7 +456,7 @@ class VisualRegressionTestCase(LiveServerTest):
     def trigger_screenshot(self, name: str):
         full_name = self.__class__.__name__ + "_" + name
 
-        status, review_url = self._postScreenshot(full_name)
+        status, review_url = self._post_screenshot(full_name)
 
         switcher = {
             "new": f"No Baseline! Review manually: {review_url}",
