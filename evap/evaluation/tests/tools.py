@@ -46,7 +46,7 @@ from evap.evaluation.models import (
 
 
 class EvapTestRunner(DiscoverRunner):
-    """Skips selenium tests by default, if no other tags are specified."""
+    """Skips selenium and vrt tests by default, if no other tags are specified."""
 
     def __init__(self, *args: Any, headed=False, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -54,7 +54,7 @@ class EvapTestRunner(DiscoverRunner):
         self.__headed = headed
 
         if not self.tags and not self.exclude_tags:
-            self.exclude_tags = {"selenium"}
+            self.exclude_tags = {"selenium", "vrt"}
 
     @classmethod
     def add_arguments(cls, parser):
@@ -365,9 +365,18 @@ class LiveServerTest(SeleniumTestCase):
         super().setUpClass()
         cls.selenium.set_window_size(*cls.window_size)
 
+def untag(*tags_to_remove):
+    """Decorator to remove tags from a test class or method."""
 
-@override_settings(SLOGANS_EN=["Einigermaßen verlässlich aussehende Pixeltestung"])
+    def decorator(obj):
+        if hasattr(obj, "tags"):
+            obj.tags = obj.tags - set(tags_to_remove)
+        return obj
+
+    return decorator
+
 @tag("vrt")
+@override_settings(SLOGANS_EN=["Einigermaßen verlässlich aussehende Pixeltestung"])
 class VisualRegressionTestCase(LiveServerTest):
     window_size = (1920, 1080)
     _http_timeout_seconds = 3
