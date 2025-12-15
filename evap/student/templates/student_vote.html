@@ -413,11 +413,8 @@
                                 return true;
                             }
                         }
-
-                        const radioButtons = voteArea.querySelectorAll(".vote-inputs [type=radio]:not([value='6']):checked");
-                        console.log(radioButtons);
-                        return radioButtons.length > 0;
-                    }
+                        return false;
+                    };
 
                     if (shouldShowModal()) {
                         markNoAnswerModal.show();
