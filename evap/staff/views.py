@@ -25,8 +25,8 @@ from django.db.models import (
     Prefetch,
     Q,
     Sum,
-    When,
     Value,
+    When,
 )
 from django.forms import BaseForm, formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
@@ -1818,16 +1818,19 @@ def questionnaire_index(request):
         questionnaires = [q_type.exclude(visibility=Questionnaire.Visibility.ARCHIVED) for q_type in questionnaires]
         if filter_questionnaires == "visible":
             questionnaires = [q_type.exclude(visibility=Questionnaire.Visibility.HIDDEN) for q_type in questionnaires]
-    
-    questionnaires = [q_type.order_by(
-        Case(
-            When(visibility=Questionnaire.Visibility.ARCHIVED, then=Value(1)),
-            default=Value(0),
-            output_field=IntegerField(),
-        ),
-        "order",
-        "pk",
-    ) for q_type in questionnaires]
+
+    questionnaires = [
+        q_type.order_by(
+            Case(
+                When(visibility=Questionnaire.Visibility.ARCHIVED, then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField(),
+            ),
+            "order",
+            "pk",
+        )
+        for q_type in questionnaires
+    ]
 
     general_questionnaires_top = [
         questionnaire for questionnaire in questionnaires[0] if questionnaire.is_above_contributors
