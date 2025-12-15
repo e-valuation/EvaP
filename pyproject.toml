@@ -76,7 +76,6 @@ artifacts = [
 
 [tool.ruff]
 line-length = 120
-include = ["evap/**/*.py", "tools/**/*.py"]
 
 [tool.ruff.lint]
 # Those are interesting, but not yet addressed: PYI,Q,SIM,PTH,TRY,RUF
