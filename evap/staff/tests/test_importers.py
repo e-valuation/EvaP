@@ -502,7 +502,6 @@ class TestEnrollmentImport(ImporterTestCase):
 
     @override_settings(IMPORTER_MAX_ENROLLMENTS=1)
     def test_enrollment_importer_high_enrollment_warning(self):
-        
         with assert_no_database_useless_logging():
             importer_log_test = import_enrollments(self.default_excel_content, self.semester, None, None, test_run=True)
             importer_log_notest = import_enrollments(
@@ -648,7 +647,6 @@ class TestEnrollmentImport(ImporterTestCase):
         )
         with assert_no_database_useless_logging():
             importer_log = import_enrollments(excel_content, self.semester, None, None, test_run=True)
-        
         success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("The import run will create 1 course/evaluation and 3 users", "".join(success_messages))
         self.assertFalse(importer_log.has_errors())
