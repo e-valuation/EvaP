@@ -415,7 +415,9 @@ class JSONImporter:
         return self._import_course(data, course_type)
 
     # pylint: disable=too-many-locals
-    def _import_evaluation(self, course: Course, data: ImportEvent) -> Evaluation:  # noqa: PLR0912, PLR0915
+    def _import_evaluation(  # noqa: PLR0912, PLR0915
+        self, course: Course, data: ImportEvent, earliest_exam_date: date | None = None
+    ) -> Evaluation:
         if "appointments" not in data or not data["appointments"]:
             course_info = f"{course.name} ({course.type})"
             if data["isexam"]:
@@ -434,7 +436,7 @@ class JSONImporter:
             evaluation = None
 
         if data["isexam"]:
-            # Set evaluation time frame of three days for exam evaluations:
+            # Set evaluation period of three days for exam evaluations:
             evaluation_start_datetime = course_end.replace(hour=8, minute=0, second=0, microsecond=0) + timedelta(
                 days=1
             )
@@ -465,13 +467,32 @@ class JSONImporter:
 
             is_rewarded = False
         else:
-            # Set evaluation time frame of two weeks for normal evaluations:
+            # Set evaluation period of two weeks for normal evaluations:
             # Start datetime is at 8:00 am on the monday in the week before the event ends
             evaluation_start_datetime = course_end.replace(hour=8, minute=0, second=0, microsecond=0) - timedelta(
                 weeks=1, days=course_end.weekday()
             )
             # End date is on the sunday in the week the event ends
             evaluation_end_date = (course_end + timedelta(days=6 - course_end.weekday())).date()
+
+            # Change evaluation period according to earliest exam date, if the course has an exam
+            if earliest_exam_date:
+                if earliest_exam_date <= evaluation_start_datetime.date():
+                    self.statistics.warnings.append(
+                        WarningMessage(
+                            obj=course.name,
+                            message=f"Exam date ({earliest_exam_date}) is on or before start date of main evaluation",
+                        )
+                    )
+                elif earliest_exam_date - evaluation_start_datetime.date() < timedelta(days=4):
+                    self.statistics.warnings.append(
+                        WarningMessage(
+                            obj=course.name,
+                            message="Not automatically updating vote end date of main evaluation to day before exam because evaluation period would be less than 3 days",
+                        )
+                    )
+                else:
+                    evaluation_end_date = earliest_exam_date - timedelta(days=1)
 
             exam_type = None
 
@@ -555,22 +576,21 @@ class JSONImporter:
         return contribution, created
 
     def _import_events(self, data: list[ImportEvent]) -> None:  # noqa:PLR0912
-        # Divide in two lists so corresponding courses are imported before their exams
-        non_exam_events = (event for event in data if not event["isexam"])
-        exam_events = (event for event in data if event["isexam"])
+        # Divide in multiple lists to handle individually
+        non_exam_events, exam_events, exam_events_without_related_non_exam_event = [], [], []
+        for event in data:
+            if not event["isexam"]:
+                non_exam_events.append(event)
+            elif event.get("relatedevents"):
+                exam_events.append(event)
+            else:
+                exam_events_without_related_non_exam_event.append(event)
 
+        # Only import courses in first step, don't create evaluations yet
         for event in non_exam_events:
             course = self._import_course(event)
-            if course is not None:
-                self._import_evaluation(course, event)
 
-        exam_events_without_related_non_exam_event = []
-        courses_with_exams: dict[Course, list[Evaluation]] = {}
         for event in exam_events:
-            if not event.get("relatedevents"):
-                exam_events_without_related_non_exam_event.append(event)
-                continue
-
             # Exam events have the non-exam event as a single entry in the relatedevents list
             # We lookup the Course from this non-exam event (the main evaluation) to add the exam evaluation to the same Course
             assert len(event["relatedevents"]) == 1
@@ -581,12 +601,21 @@ class JSONImporter:
                 continue
 
             self._import_course_programs(course, event)
+            self._import_evaluation(course, event)
 
-            evaluation = self._import_evaluation(course, event)
-            if course in courses_with_exams:
-                courses_with_exams[course].append(evaluation)
-            else:
-                courses_with_exams[course] = [evaluation]
+        # Now import main evaluations
+        for event in non_exam_events:
+            course = self.courses_by_gguid.get(event["gguid"])
+            if course is not None:
+                exam_evaluations = [
+                    evaluation for evaluation in course.evaluations.all() if evaluation.exam_type is not None
+                ]
+                earliest_exam_date = None
+                if exam_evaluations:
+                    earliest_exam_date = min(
+                        evaluation.vote_start_datetime for evaluation in exam_evaluations
+                    ).date() - timedelta(days=1)
+                self._import_evaluation(course, event, earliest_exam_date=earliest_exam_date)
 
         # Handle exam events that exist on their own without a related non-exam event
         # They can be handled like non-exam events if they have a prefix existing in CourseType import names,
@@ -601,38 +630,6 @@ class JSONImporter:
             event["isexam"] = False
             self._import_course_programs(course_from_unused_exam, event)
             self._import_evaluation(course_from_unused_exam, event)
-
-        # Update vote end date of main evaluation to day before the exam date (course_end)
-        for course, exam_evaluations in courses_with_exams.items():
-            if not course.evaluations.filter(name_de="", name_en="").exists():
-                self.statistics.warnings.append(
-                    WarningMessage(
-                        obj=course.name, message="No main evaluation found to update vote end date to day before exam"
-                    )
-                )
-                continue
-            main_evaluation = course.evaluations.get(name_de="", name_en="")
-            vote_start_date = main_evaluation.vote_start_datetime.date()
-            earliest_exam_date = min(
-                evaluation.vote_start_datetime for evaluation in exam_evaluations
-            ).date() - timedelta(days=1)
-            if earliest_exam_date <= vote_start_date:
-                self.statistics.warnings.append(
-                    WarningMessage(
-                        obj=course.name,
-                        message=f"Exam date ({earliest_exam_date}) is on or before start date of main evaluation",
-                    )
-                )
-            elif earliest_exam_date - vote_start_date < timedelta(days=4):
-                self.statistics.warnings.append(
-                    WarningMessage(
-                        obj=course.name,
-                        message="Not automatically updating vote end date of main evaluation to day before exam because evaluation period would be less than 3 days",
-                    )
-                )
-            else:
-                main_evaluation.vote_end_date = earliest_exam_date - timedelta(days=1)
-                main_evaluation.save()
 
     @transaction.atomic
     def import_dict(self, data: dict) -> None:

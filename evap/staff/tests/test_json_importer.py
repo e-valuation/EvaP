@@ -528,8 +528,7 @@ class TestImportEvents(TestCase):
         self.assertEqual(Course.objects.count(), 6)
         self.assertEqual(Evaluation.objects.count(), len(EXAMPLE_DATA_SPECIAL_CASES["events"]))
 
-        evaluation = Evaluation.objects.first()
-        self.assertEqual(evaluation.course.name_de, "Terminlose Vorlesung")
+        evaluation = Evaluation.objects.get(course__name_de="Terminlose Vorlesung", name_de="")
 
         # evaluation has no English name, uses German
         self.assertEqual(evaluation.course.name_en, "Terminlose Vorlesung")
