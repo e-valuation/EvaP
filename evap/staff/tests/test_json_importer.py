@@ -331,8 +331,10 @@ class TestImportUserProfiles(TestCase):
             importer.statistics.name_changes,
             [
                 NameChange(
+                    old_title="",
                     old_last_name="Doe",
                     old_first_name_given="Jane",
+                    new_title="",
                     new_last_name=self.students[0]["name"],
                     new_first_name_given=self.students[0]["callingname"],
                     email=self.students[0]["email"],
@@ -358,7 +360,7 @@ class TestImportUserProfiles(TestCase):
 
     def test_import_existing_lecturers(self):
         user_profile = baker.make(
-            UserProfile, email=self.lecturers[0]["email"], last_name="Doe", first_name_given="Jane"
+            UserProfile, email=self.lecturers[0]["email"], last_name="Doe", first_name_given="Jane", title="Dr."
         )
 
         importer = JSONImporter(self.semester, date(2000, 1, 1))
@@ -377,8 +379,10 @@ class TestImportUserProfiles(TestCase):
             importer.statistics.name_changes,
             [
                 NameChange(
+                    old_title="Dr.",
                     old_last_name="Doe",
                     old_first_name_given="Jane",
+                    new_title=self.lecturers[0]["titlefront"],
                     new_last_name=self.lecturers[0]["name"],
                     new_first_name_given=self.lecturers[0]["christianname"],
                     email=self.lecturers[0]["email"],
