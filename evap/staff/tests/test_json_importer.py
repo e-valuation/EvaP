@@ -24,7 +24,6 @@ from evap.evaluation.models import (
     Semester,
     UserProfile,
 )
-from evap.evaluation.tests.tools import make_manager
 from evap.staff.importers.json import ImportDict, JSONImporter, NameChange, WarningMessage
 
 EXAMPLE_DATA: ImportDict = {
@@ -726,14 +725,21 @@ class TestImportEvents(TestCase):
         self.assertEqual(len(importer.statistics.updated_courses), 1)
         self.assertEqual(len(importer.statistics.new_courses), 0)
 
+    @override_settings(JSON_IMPORTER_LOG_RECIPIENTS=["test@example.com"])
     def test_importer_log_email_sent(self):
-        manager = make_manager()
-
         self._import()
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].subject, "[EvaP] JSON importer log")
-        self.assertEqual(mail.outbox[0].recipients(), [manager.email])
+        self.assertEqual(mail.outbox[0].recipients(), ["test@example.com"])
+
+    @override_settings(ADMINS=[("Admin", "admin@example.com")])
+    def test_importer_log_email_sent_no_recipients(self):
+        self._import()
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, "[EvaP] JSON importer log")
+        self.assertEqual(mail.outbox[0].recipients(), ["admin@example.com"])
 
     def test_importer_wrong_data(self):
         wrong_data = deepcopy(EXAMPLE_DATA)

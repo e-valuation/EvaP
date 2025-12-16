@@ -136,6 +136,11 @@ ADMINS: list[tuple[str, str]] = [
     # ('Your Name', 'your_email@example.com'),
 ]
 
+# People who get the JSON importer logs via email.
+JSON_IMPORTER_LOG_RECIPIENTS: list[str] = [
+    # 'your_email@example.com',
+]
+
 # The page URL that is used in email templates.
 PAGE_URL = "localhost:8000"
 

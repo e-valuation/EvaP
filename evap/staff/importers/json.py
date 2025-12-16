@@ -160,14 +160,19 @@ class ImportStatistics:
     def send_mail(self):
         subject = "[EvaP] JSON importer log"
 
-        managers = UserProfile.objects.filter(groups__name="Manager", email__isnull=False)
-        if not managers:
-            return
+        recipients = settings.JSON_IMPORTER_LOG_RECIPIENTS
+        if not recipients:
+            recipients = [a[1] for a in settings.ADMINS]
+        bcc_addresses = []
+        if settings.SEND_ALL_EMAILS_TO_ADMINS_IN_BCC:
+            bcc_addresses = [a[1] for a in settings.ADMINS]
+
         mail = EmailMultiAlternatives(
-            subject,
-            self.get_log(),
-            settings.SERVER_EMAIL,
-            [manager.email for manager in managers],
+            subject=subject,
+            body=self.get_log(),
+            from_email=settings.SERVER_EMAIL,
+            to=recipients,
+            bcc=bcc_addresses,
         )
         mail.send()
 
