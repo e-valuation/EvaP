@@ -93,8 +93,10 @@ import_dict_adapter = TypeAdapter(ImportDict)
 
 @dataclass
 class NameChange:
+    old_title: str
     old_last_name: str
     old_first_name_given: str
+    new_title: str
     new_last_name: str
     new_first_name_given: str
     email: str | None
@@ -141,7 +143,7 @@ class ImportStatistics:
         log += self._make_heading("Name Changes")
         log += self._make_total(len(self.name_changes))
         for name_change in self.name_changes:
-            log += f"- {name_change.old_first_name_given} {name_change.old_last_name} → {name_change.new_first_name_given} {name_change.new_last_name} (email: {name_change.email})\n"
+            log += f"- [{name_change.old_title}] {name_change.old_last_name}, {name_change.old_first_name_given} → [{name_change.new_title}] {name_change.new_last_name}, {name_change.new_first_name_given} (email: {name_change.email})\n"
         log += "\n"
 
         log += self._make_stats("New Courses", self.new_courses)
@@ -288,10 +290,12 @@ class JSONImporter:
 
     def _create_name_change_from_changes(self, user_profile: UserProfile, changes: dict[str, tuple[Any, Any]]) -> None:
         change = NameChange(
+            old_title=changes["title"][0] if changes.get("title") else user_profile.title,
             old_last_name=changes["last_name"][0] if changes.get("last_name") else user_profile.last_name,
             old_first_name_given=(
                 changes["first_name_given"][0] if changes.get("first_name_given") else user_profile.first_name_given
             ),
+            new_title=user_profile.title,
             new_last_name=user_profile.last_name,
             new_first_name_given=user_profile.first_name_given,
             email=user_profile.email,
