@@ -1,7 +1,7 @@
 import json
 import logging
 import re
-from collections.abc import Iterable
+from collections.abc import Collection, Iterable
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from datetime import time as datetime_time
@@ -109,14 +109,17 @@ class WarningMessage:
     message: str
 
 
+# pylint: disable=too-many-instance-attributes
 @dataclass
 class ImportStatistics:
     name_changes: list[NameChange] = field(default_factory=list)
     new_courses: list[Course] = field(default_factory=list)
     new_evaluations: list[Evaluation] = field(default_factory=list)
     updated_courses: list[Course] = field(default_factory=list)
-    updated_evaluations: list[Evaluation] = field(default_factory=list)
-    attempted_changes: list[Evaluation] = field(default_factory=list)
+    updated_evaluations: set[Evaluation] = field(default_factory=set)
+    updated_participants: list[Evaluation] = field(default_factory=list)
+    attempted_evaluation_changes: list[Evaluation] = field(default_factory=list)
+    attempted_participant_changes: list[Evaluation] = field(default_factory=list)
     warnings: list[WarningMessage] = field(default_factory=list)
 
     @staticmethod
@@ -128,7 +131,7 @@ class ImportStatistics:
         return f"({total} in total)\n\n"
 
     @staticmethod
-    def _make_stats(heading: str, objects: list) -> str:
+    def _make_stats(heading: str, objects: Collection) -> str:
         log = ImportStatistics._make_heading(heading)
         log += ImportStatistics._make_total(len(objects))
         for obj in objects:
@@ -151,7 +154,9 @@ class ImportStatistics:
         log += self._make_stats("New Evaluations", self.new_evaluations)
         log += self._make_stats("Updated Courses", self.updated_courses)
         log += self._make_stats("Updated Evaluations", self.updated_evaluations)
-        log += self._make_stats("Attempted Changes", self.attempted_changes)
+        log += self._make_stats("Updated Participants", self.updated_participants)
+        log += self._make_stats("Attempted Changes", self.attempted_evaluation_changes)
+        log += self._make_stats("Attempted Participant Changes", self.attempted_participant_changes)
 
         log += self._make_heading("Warnings")
         log += self._make_total(len(self.warnings))
@@ -546,26 +551,32 @@ class JSONImporter:
                 **defaults,
             )
 
-        if evaluation.state < Evaluation.State.APPROVED:
-            direct_changes = update_with_changes(evaluation, defaults)
+        allow_changes = evaluation.state < Evaluation.State.APPROVED
+        direct_changes = update_with_changes(evaluation, defaults, dry_run=not allow_changes)
+        assert not direct_changes or not created
+        if direct_changes and allow_changes:
+            self.statistics.updated_evaluations.add(evaluation)
+        elif direct_changes:
+            self.statistics.attempted_evaluation_changes.append(evaluation)
 
-            participant_changes = set(evaluation.participants.all()) != set(participants)
+        allow_changes = evaluation.state < Evaluation.State.IN_EVALUATION
+        participant_changes = set(evaluation.participants.all()) != set(participants)
+        if participant_changes and allow_changes:
             evaluation.participants.set(participants)
+            self.statistics.updated_participants.append(evaluation)
+        elif participant_changes:
+            self.statistics.attempted_participant_changes.append(evaluation)
 
-            any_lecturers_changed = False
-            if "lecturers" not in data:
-                self.statistics.warnings.append(
-                    WarningMessage(obj=evaluation.full_name, message="No contributors defined")
-                )
-            else:
-                for lecturer in data["lecturers"]:
-                    __, lecturer_created = self._import_contribution(evaluation, lecturer)
-                    any_lecturers_changed |= lecturer_created
-
-            if not created and (direct_changes or participant_changes or any_lecturers_changed):
-                self.statistics.updated_evaluations.append(evaluation)
-        else:
-            self.statistics.attempted_changes.append(evaluation)
+        allow_changes = evaluation.state < Evaluation.State.APPROVED
+        any_lecturers_changed = False
+        if allow_changes and "lecturers" not in data:
+            self.statistics.warnings.append(WarningMessage(obj=evaluation.full_name, message="No contributors defined"))
+        elif allow_changes:
+            for lecturer in data["lecturers"]:
+                __, lecturer_created = self._import_contribution(evaluation, lecturer)
+                any_lecturers_changed |= lecturer_created
+        if any_lecturers_changed and not created:
+            self.statistics.updated_evaluations.add(evaluation)
 
         if created:
             self.statistics.new_evaluations.append(evaluation)

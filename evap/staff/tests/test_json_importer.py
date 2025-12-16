@@ -704,7 +704,7 @@ class TestImportEvents(TestCase):
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
 
         self.assertTrue(evaluation.is_rewarded)
-        self.assertEqual(len(importer.statistics.attempted_changes), 0)
+        self.assertEqual(len(importer.statistics.attempted_evaluation_changes), 0)
 
         evaluation.general_contribution.questionnaires.add(
             baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
@@ -717,10 +717,41 @@ class TestImportEvents(TestCase):
         importer = self._import()
 
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
-
         self.assertFalse(evaluation.is_rewarded)
+        self.assertEqual(len(importer.statistics.attempted_evaluation_changes), 1)
+        self.assertEqual(evaluation.participants.count(), 2)
 
-        self.assertEqual(len(importer.statistics.attempted_changes), 1)
+        evaluation.participants.clear()
+        evaluation = Evaluation.objects.get(pk=evaluation.pk)
+        self.assertEqual(evaluation.participants.count(), 0)
+
+        importer = self._import()
+
+        self.assertEqual(len(importer.statistics.updated_participants), 1)
+        self.assertEqual(evaluation.participants.count(), 2)
+
+    def test_import_courses_evaluation_running(self):
+        self._import()
+
+        evaluation = Evaluation.objects.get(name_en="")
+        evaluation.participants.clear()
+        evaluation.general_contribution.questionnaires.add(
+            baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
+        )
+        evaluation.manager_approve()
+        evaluation.vote_start_datetime = datetime.now()
+        evaluation.vote_end_date = datetime.now().date() + timedelta(days=1)
+        evaluation.begin_evaluation()
+        evaluation.save()
+
+        self.assertEqual(evaluation.participants.count(), 0)
+
+        importer = self._import()
+
+        self.assertEqual(len(importer.statistics.attempted_evaluation_changes), 1)
+        self.assertEqual(len(importer.statistics.updated_participants), 0)
+        self.assertEqual(len(importer.statistics.attempted_participant_changes), 1)
+        self.assertEqual(evaluation.participants.count(), 0)
 
     def test_import_courses_update(self):
         self._import()
