@@ -10,6 +10,7 @@ from typing import Any, NotRequired
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.db import transaction
+from django.db.models import Min
 from django.utils.timezone import now
 from pydantic import TypeAdapter
 from typing_extensions import TypedDict
@@ -418,22 +419,26 @@ class JSONImporter:
     def _import_evaluation(  # noqa: PLR0912, PLR0915
         self, course: Course, data: ImportEvent, earliest_exam_date: date | None = None
     ) -> Evaluation:
+        try:
+            evaluation = Evaluation.objects.get(course=course, cms_id=data["gguid"])
+        except Evaluation.DoesNotExist:
+            evaluation = None
+
         if "appointments" not in data or not data["appointments"]:
             course_info = f"{course.name} ({course.type})"
             if data["isexam"]:
                 course_info += " [Exam]"
-            self.statistics.warnings.append(
-                WarningMessage(obj=course_info, message="No dates defined, using default end date")
-            )
+            # Warning is only necessary at time of creation
+            # Changes made afterward are logged as updates and can be reviewed individually
+            if not evaluation:
+                self.statistics.warnings.append(
+                    WarningMessage(obj=course_info, message="No dates defined, using default end date")
+                )
             course_end = datetime.combine(self.default_course_end, self.MIDNIGHT)
         else:
             course_end = max(datetime.strptime(app["end"], self.DATETIME_FORMAT) for app in data["appointments"])
 
         name_de, name_en = "", ""
-        try:
-            evaluation = Evaluation.objects.get(course=course, cms_id=data["gguid"])
-        except Evaluation.DoesNotExist:
-            evaluation = None
 
         if data["isexam"]:
             # Set evaluation period of three days for exam evaluations:
@@ -478,19 +483,25 @@ class JSONImporter:
             # Change evaluation period according to earliest exam date, if the course has an exam
             if earliest_exam_date:
                 if earliest_exam_date <= evaluation_start_datetime.date():
-                    self.statistics.warnings.append(
-                        WarningMessage(
-                            obj=course.name,
-                            message=f"Exam date ({earliest_exam_date}) is on or before start date of main evaluation",
+                    # Warning is only necessary at time of creation
+                    # Changes made afterward are logged as updates and can be reviewed individually
+                    if not evaluation:
+                        self.statistics.warnings.append(
+                            WarningMessage(
+                                obj=course.name,
+                                message=f"Exam date ({earliest_exam_date}) is on or before start date of main evaluation",
+                            )
                         )
-                    )
                 elif earliest_exam_date - evaluation_start_datetime.date() < timedelta(days=4):
-                    self.statistics.warnings.append(
-                        WarningMessage(
-                            obj=course.name,
-                            message="Not automatically updating vote end date of main evaluation to day before exam because evaluation period would be less than 3 days",
+                    # Warning is only necessary at time of creation
+                    # Changes made afterward are logged as updates and can be reviewed individually
+                    if not evaluation:
+                        self.statistics.warnings.append(
+                            WarningMessage(
+                                obj=course.name,
+                                message="Not automatically updating vote end date of main evaluation to day before exam because evaluation period would be less than 3 days",
+                            )
                         )
-                    )
                 else:
                     evaluation_end_date = earliest_exam_date - timedelta(days=1)
 
@@ -504,7 +515,7 @@ class JSONImporter:
             is_rewarded = True
 
         main_language = LANGUAGE_MAP.get(data["language"], Evaluation.UNDECIDED_MAIN_LANGUAGE)
-        if main_language == Evaluation.UNDECIDED_MAIN_LANGUAGE:
+        if main_language == Evaluation.UNDECIDED_MAIN_LANGUAGE and not evaluation:
             self.statistics.warnings.append(
                 WarningMessage(
                     obj=data["title"],
@@ -607,14 +618,12 @@ class JSONImporter:
         for event in non_exam_events:
             course = self.courses_by_gguid.get(event["gguid"])
             if course is not None:
-                exam_evaluations = [
-                    evaluation for evaluation in course.evaluations.all() if evaluation.exam_type is not None
-                ]
-                earliest_exam_date = None
-                if exam_evaluations:
-                    earliest_exam_date = min(
-                        evaluation.vote_start_datetime for evaluation in exam_evaluations
-                    ).date() - timedelta(days=1)
+                min_vote_start_datetime = course.evaluations.filter(exam_type__isnull=False).aggregate(
+                    Min("vote_start_datetime")
+                )["vote_start_datetime__min"]
+                earliest_exam_date = (
+                    min_vote_start_datetime.date() - timedelta(days=1) if min_vote_start_datetime else None
+                )
                 self._import_evaluation(course, event, earliest_exam_date=earliest_exam_date)
 
         # Handle exam events that exist on their own without a related non-exam event

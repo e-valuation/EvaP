@@ -24,6 +24,7 @@ from evap.evaluation.models import (
     Semester,
     UserProfile,
 )
+from evap.evaluation.models_logging import LogEntry
 from evap.staff.importers.json import ImportDict, JSONImporter, NameChange, WarningMessage
 
 EXAMPLE_DATA: ImportDict = {
@@ -488,6 +489,18 @@ class TestImportEvents(TestCase):
 
         self.assertEqual(len(importer.statistics.new_courses), 1)
         self.assertEqual(len(importer.statistics.new_evaluations), 2)
+
+        # The main evaluation should only have one LogEntry (from its creation) and no further updates
+        self.assertEqual(
+            LogEntry.objects.filter(
+                content_type__app_label="evaluation",
+                content_type__model="evaluation",
+                content_object_id=main_evaluation.pk,
+            ).count(),
+            1,
+        )
+        # Overall, 3 log entries should exist: Create Evaluation, Create General Contribution, Create Contribution of 3@example.com
+        self.assertEqual(main_evaluation.related_logentries().count(), 3)
 
     def test_import_courses_exam_without_related_evaluation(self):
         CourseType.objects.create(name_en="Foo", name_de="Foo", import_names=["nat"])
