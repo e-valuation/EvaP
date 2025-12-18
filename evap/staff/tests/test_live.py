@@ -246,8 +246,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
                 )
                 break
             except TimeoutException:
-                with self.enter_staff_mode():
-                    next_textanswer_btn.click()
+                next_textanswer_btn.click()
 
         with self.enter_staff_mode():
             edit_btn.click()
@@ -261,9 +260,9 @@ class TextAnswerEditLiveTest(LiveServerTest):
         with self.enter_staff_mode():
             submit_btn.click()
 
-        WebDriverWait(self.selenium, 1).until(
+        self.wait.until(
             visibility_of_element_located((By.XPATH, "//div[contains(text(), 'edited answer')]"))
         )
-        WebDriverWait(self.selenium, 1).until(
+        self.wait.until(
             invisibility_of_element_located((By.XPATH, "//div[contains(text(), 'this is a dummy answer')]"))
         )
