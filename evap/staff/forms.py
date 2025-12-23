@@ -157,7 +157,8 @@ class UserBulkUpdateForm(forms.Form):
 class SemesterForm(forms.ModelForm):
     class Meta:
         model = Semester
-        fields = ("name_de", "name_en", "short_name_de", "short_name_en")
+        fields = ("name_de", "name_en", "short_name_de", "short_name_en", "cms_name", "default_course_end_date")
+        localized_fields = ("default_course_end_date",)
 
     def save(self, commit=True):
         semester = super().save(commit)
