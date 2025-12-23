@@ -74,6 +74,14 @@ class Semester(models.Model):
     short_name_en = models.CharField(max_length=20, unique=True, verbose_name=_("short name (english)"))
     short_name = translate(en="short_name_en", de="short_name_de")
 
+    cms_name = models.CharField(
+        max_length=20,
+        blank=True,
+        verbose_name=_("CMS name"),
+        help_text=_("If set together with default course end date, CMS data is imported automatically every day."),
+    )
+    default_course_end_date = models.DateField(blank=True, null=True, verbose_name=_("default course end date"))
+
     participations_are_archived = models.BooleanField(default=False, verbose_name=_("participations are archived"))
     grade_documents_are_deleted = models.BooleanField(default=False, verbose_name=_("grade documents are deleted"))
     results_are_archived = models.BooleanField(default=False, verbose_name=_("results are archived"))

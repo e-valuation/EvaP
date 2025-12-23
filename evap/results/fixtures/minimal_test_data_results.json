@@ -7,6 +7,8 @@
     "name_en": "testsemester",
     "short_name_de": "",
     "short_name_en": "",
+    "cms_name": "",
+    "default_course_end_date": null,
     "participations_are_archived": false,
     "grade_documents_are_deleted": false,
     "results_are_archived": false,

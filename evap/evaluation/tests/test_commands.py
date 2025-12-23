@@ -3,7 +3,7 @@ from collections import defaultdict
 from datetime import date, datetime, timedelta
 from io import StringIO
 from itertools import chain, cycle
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock, call, mock_open, patch
 
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
@@ -561,3 +561,20 @@ class TestSendTextanswerRemindersCommand(TestCase):
         make_manager()
         management.call_command("send_reminders", stdout=StringIO())
         self.assertEqual(len(mail.outbox), 0)
+
+
+@override_settings(CMS_DATA_DOWNLOAD_URL="https://example.com/download?semester={}")
+class TestImportCMSData(TestCase):
+    @patch("evap.evaluation.management.commands.import_cms_data.download", return_value=True)
+    @patch("evap.staff.importers.json.JSONImporter")
+    def test_import_cms_data(self, mock_json_importer, mock_download):
+        semester = baker.make(Semester, cms_name="WS 25/26", default_course_end_date=date(2026, 2, 28))
+        baker.make(Semester, cms_name="WS 2025")
+        baker.make(Semester, default_course_end_date=date(2026, 2, 28))
+
+        with patch("builtins.open", mock_open(read_data="data")) as mock_data:
+            management.call_command("import_cms_data", stdout=StringIO())
+
+        mock_download.assert_called_once_with("https://example.com/download?semester=WS%2025/26", "CMS.json")
+        self.assertEqual(mock_data.call_count, 1)
+        mock_json_importer.assert_called_once_with(semester, semester.default_course_end_date)
