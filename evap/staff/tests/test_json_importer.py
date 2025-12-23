@@ -830,12 +830,12 @@ class TestImportEvents(TestCase):
             test_filename = os.path.join(temp_dir, "test.json")
             with open(test_filename, "w", encoding="utf-8") as f:
                 f.write(EXAMPLE_JSON)
-            call_command("json_import", self.semester.id, test_filename, "01.01.2000", stdout=output)
+            call_command("json_import", self.semester.id, test_filename, "2000-01-01", stdout=output)
 
             mock_import_json.assert_called_once_with(EXAMPLE_JSON)
 
             with self.assertRaises(CommandError):
-                call_command("json_import", self.semester.id + 42, test_filename, "01.01.2000", stdout=output)
+                call_command("json_import", self.semester.id + 42, test_filename, "2000-01-01", stdout=output)
 
     def test_disambiguate_name(self):
         importer = JSONImporter(self.semester, date(2000, 1, 1))

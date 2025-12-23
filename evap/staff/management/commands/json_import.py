@@ -25,5 +25,5 @@ class Command(BaseCommand):
             raise CommandError("Semester does not exist.") from e
 
         with open(options["file"]) as file:
-            default_course_end = datetime.strptime(options["default_course_end"], "%d.%m.%Y")
+            default_course_end = datetime.strptime(options["default_course_end"], "%Y-%m-%d")
             JSONImporter(semester, default_course_end).import_json(file.read())
