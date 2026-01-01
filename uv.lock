@@ -351,12 +351,15 @@ wheels = [
 ]
 
 [[package]]
-name = "django-fsm"
-version = "2.8.2"
+name = "django-fsm-2"
+version = "4.1.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/b6/5d/4d0aa7365097af11c373761d4d29e4cff59ac3e9a63b79a479b586a8fa7b/django-fsm-2.8.2.tar.gz", hash = "sha256:fe3be8fa916470360632b2a86aefcb342d67916fa4c5749caaa7760f88c0c49c", size = 15196, upload-time = "2024-04-09T07:32:53.712Z" }
+dependencies = [
+    { name = "django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/7e/8f/d1ec9bafdfd7830a40ab1f72887cd931e07f43552b03869495598cb1170c/django_fsm_2-4.1.0.tar.gz", hash = "sha256:5fbe34839f315a06e29052ded8868292fc469f8f37c8d4d88427ad15a92680ae", size = 17695, upload-time = "2025-11-03T15:03:43.477Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/44/fb/b121db1d293d5ebced04e081a685c91d94279a26e7f39147187592dcac04/django_fsm-2.8.2-py2.py3-none-any.whl", hash = "sha256:0b4d346a8de1c2c30c2206ced649e25695f567c072358030544a604fc937d235", size = 11975, upload-time = "2024-04-09T07:32:52.124Z" },
+    { url = "https://files.pythonhosted.org/packages/76/97/f4ce5f7b3f389e03c259b0501fc28a9d1db359b09776251130ae9c5e9590/django_fsm_2-4.1.0-py3-none-any.whl", hash = "sha256:58e20abe633c1375d80aca55fd66ca2431794d32f44751f333f386de869f0e6f", size = 14976, upload-time = "2025-11-03T15:03:41.938Z" },
 ]
 
 [[package]]
@@ -424,7 +427,7 @@ source = { editable = "." }
 dependencies = [
     { name = "django" },
     { name = "django-extensions" },
-    { name = "django-fsm" },
+    { name = "django-fsm-2" },
     { name = "mozilla-django-oidc" },
     { name = "openpyxl" },
     { name = "psycopg" },
@@ -470,7 +473,7 @@ lsp = [
 requires-dist = [
     { name = "django", specifier = "~=5.2.0" },
     { name = "django-extensions", specifier = "~=4.1.0" },
-    { name = "django-fsm", specifier = "~=2.8.2" },
+    { name = "django-fsm-2", specifier = "~=4.1.0" },
     { name = "mozilla-django-oidc", specifier = "~=4.0.1" },
     { name = "openpyxl", specifier = "~=3.1.5" },
     { name = "psycopg", specifier = "~=3.2.3" },

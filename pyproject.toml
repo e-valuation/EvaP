@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11.0"
 dependencies = [
     "django-extensions~=4.1.0",
-    "django-fsm~=2.8.2",
+    "django-fsm-2~=4.1.0",
     "Django~=5.2.0",
     "mozilla-django-oidc~=4.0.1",
     "openpyxl~=3.1.5",
