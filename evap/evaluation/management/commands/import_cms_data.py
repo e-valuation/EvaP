@@ -1,9 +1,11 @@
+import argparse
 import logging
 import urllib.parse
+from datetime import datetime
+from pathlib import Path
 
 import requests
-from django.conf import settings
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 
 from evap.evaluation.management.commands.tools import log_exceptions
 from evap.evaluation.models import Semester
@@ -11,49 +13,60 @@ from evap.staff.importers.json import JSONImporter
 
 logger = logging.getLogger(__name__)
 
+RETRIES = 3
+TIMEOUT = 120
+
+
+def parse_course_end_date(date_str) -> datetime:
+    return datetime.strptime(date_str, "%Y-%m-%d")
+
 
 @log_exceptions
 class Command(BaseCommand):
     help = "Downloads the JSON file with the CMS data for a given semester and imports it."
 
+    def add_arguments(self, parser: argparse.ArgumentParser):
+        mode = parser.add_subparsers(help="import mode", required=True, dest="mode")
+
+        download_mode = mode.add_parser("download")
+        download_mode.add_argument("url", type=str)
+
+        file_mode = mode.add_parser("file")
+        file_mode.add_argument("path-to-json", type=Path)
+        file_mode.add_argument("--semester-id", type=int, required=True)
+        file_mode.add_argument("--default-course-end-date", type=parse_course_end_date)
+
     def handle(self, *args, **options):
         logger.info("import_cms_data called.")
 
-        for semester in Semester.objects.filter(default_course_end_date__isnull=False).exclude(cms_name=""):
-            logger.info("Processing %s.", semester.name_en)
+        match options["mode"]:
+            case "download":
+                for semester in Semester.objects.filter(default_course_end_date__isnull=False, cms_name__ne=""):
+                    logger.info("Downloading data for %s.", semester.name_en)
+                    url = options["url"].format(urllib.parse.quote(semester.cms_name))
+                    for _ in range(RETRIES):
+                        try:
+                            json_contents = requests.get(url, timeout=TIMEOUT).text
+                            break
+                        except requests.exceptions.Timeout:
+                            logger.warning("Download timed out: %s", url)
+                    else:
+                        logger.warning("Giving up.")
+                        continue
 
-            semester_string = urllib.parse.quote(semester.cms_name)
-            url = settings.CMS_DATA_DOWNLOAD_URL.format(semester_string)
-            filename = "CMS.json"
-            download_successful = download(url, filename)
-            if not download_successful:
-                continue
+                    logger.info("Importing downloaded data for %s.", semester.name_en)
+                    JSONImporter(semester, semester.default_course_end_date).import_json(json_contents)
+                    logger.info("Finished %s.", semester.name_en)
+            case "file":
+                try:
+                    semester = Semester.objects.get(id=options["semester_id"])
+                except Semester.DoesNotExist as e:
+                    raise CommandError("Semester does not exist.") from e
 
-            import_data(semester, filename)
-            logger.info("Processing %s finished.", semester.name_en)
-
-        logger.info("import_cms_data finished.")
-
-
-def download(url, filename):
-    logger.info("Downloading data.")
-    tries = 0
-    while tries < 3:
-        try:
-            response = requests.get(url, timeout=120)
-            with open(filename, "wb") as file:
-                for chunk in response.iter_content(chunk_size=128):
-                    file.write(chunk)
-            logger.info("CMS data downloaded.")
-            return True
-        except requests.exceptions.Timeout:
-            tries += 1
-            logger.warning("Download timeout.")
-    logger.error("CMS data could not be downloaded.")
-    return False
-
-
-def import_data(semester, filename):
-    logger.info("Importing CMS data.")
-    with open(filename, encoding="utf-8") as file:
-        JSONImporter(semester, semester.default_course_end_date).import_json(file.read())
+                logger.info("Loading file data for %s.", semester.name_en)
+                default_course_end = options.get("default_course_end_date", semester.default_course_end_date)
+                if not default_course_end:
+                    raise CommandError("Semester has no default course end date, please specify one as an argument.")
+                with open(options["path-to-json"], encoding="utf-8") as file:
+                    JSONImporter(semester, default_course_end).import_json(file.read())
+                logger.info("Finished %s.", semester.name_en)
