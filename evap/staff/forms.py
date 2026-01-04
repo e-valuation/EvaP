@@ -25,6 +25,7 @@ from evap.evaluation.models import (
     Infotext,
     Program,
     Question,
+    QuestionAssignment,
     Questionnaire,
     QuestionType,
     Semester,
@@ -905,23 +906,58 @@ class ContributionCopyFormset(ContributionFormset):
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
-        fields = ("order", "questionnaire", "text_de", "text_en", "type", "allows_additional_textanswers")
+        fields = ("text_de", "text_en", "type", "allows_additional_textanswers")
         widgets = {
             "text_de": forms.Textarea(attrs={"rows": 2}),
             "text_en": forms.Textarea(attrs={"rows": 2}),
-            "order": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.instance.pk and self.instance.type in [QuestionType.TEXT, QuestionType.HEADING]:
-            self.fields["allows_additional_textanswers"].disabled = True
+        if self.instance.pk and self.instance.type in [QuestionType.TEXT, QuestionType.HEADING] and not self.data:
+            self.fields["allows_additional_textanswers"].disabled = True  # disable only for frontend; validate in clean
 
     def clean(self):
         super().clean()
         if self.cleaned_data.get("type") in [QuestionType.TEXT, QuestionType.HEADING]:
             self.cleaned_data["allows_additional_textanswers"] = False
         return self.cleaned_data
+
+    def save(self, *args, **kwargs) -> Question:
+        if self.instance.pk and self.instance.questionnaires.count() > 1 and self.has_changed():
+            self.instance.pk = None  # copy on write
+        return super().save(*args, **kwargs)
+
+
+class QuestionAssignmentForm(forms.ModelForm):
+    question = forms.ModelChoiceField(Question.objects.all(), widget=forms.HiddenInput(), required=False)
+
+    class Meta:
+        model = QuestionAssignment
+        fields = ("order", "questionnaire", "question")
+        widgets = {
+            "order": forms.HiddenInput(),
+        }
+
+    def __init__(self, *args, instance=None, **kwargs):
+        super().__init__(*args, instance=instance, **kwargs)
+        if hasattr(self.instance, "question"):
+            self.question_form = QuestionForm(*args, instance=self.instance.question, **kwargs)
+        else:
+            self.question_form = QuestionForm(*args, **kwargs)
+
+    def clean(self) -> None:
+        super().clean()
+        if not self.question_form.is_valid():
+            raise forms.ValidationError([])  # invalidate this form without message; errors are shown separatly
+
+    def has_changed(self) -> bool:
+        return super().has_changed() or self.question_form.has_changed()
+
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        self.instance.question = self.question_form.save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class QuestionnairesAssignForm(forms.Form):

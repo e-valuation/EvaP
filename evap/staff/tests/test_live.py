@@ -16,7 +16,7 @@ from evap.evaluation.models import (
     Course,
     Evaluation,
     Program,
-    Question,
+    QuestionAssignment,
     Questionnaire,
     Semester,
     TextAnswer,
@@ -38,7 +38,7 @@ class EvaluationEditLiveTest(LiveServerTest):
             main_language="en",
         )
 
-        general_questionnaire = baker.make(Questionnaire, questions=[baker.make(Question)])
+        general_questionnaire = baker.make(Questionnaire, question_assignments=[baker.make(QuestionAssignment)])
         evaluation.general_contribution.questionnaires.set([general_questionnaire])
 
         contribution1 = baker.make(
@@ -192,9 +192,9 @@ class TextAnswerEditLiveTest(LiveServerTest):
             can_publish_text_results=True,
         )
 
-        question1 = baker.make(Question)
+        question_assignment = baker.make(QuestionAssignment)
 
-        general_questionnaire = baker.make(Questionnaire, questions=[question1])
+        general_questionnaire = baker.make(Questionnaire, question_assignments=[question_assignment])
         evaluation.general_contribution.questionnaires.set([general_questionnaire])
 
         contribution1 = baker.make(
@@ -203,7 +203,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
 
         baker.make(
             TextAnswer,
-            question=question1,
+            assignment=question_assignment,
             contribution=contribution1,
             answer=iter(f"this is a dummy answer {i}" for i in range(3)),
             original_answer=None,
@@ -213,7 +213,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
 
         textanswer1 = baker.make(
             TextAnswer,
-            question=question1,
+            assignment=question_assignment,
             contribution=contribution1,
             answer="this answer will be edited",
             original_answer=None,
@@ -222,7 +222,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
 
         baker.make(
             TextAnswer,
-            question=question1,
+            assignment=question_assignment,
             contribution=contribution1,
             answer=iter(f"this is a dummy answer {i}" for i in range(3, 6)),
             original_answer=None,

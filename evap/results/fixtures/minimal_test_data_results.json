@@ -183,8 +183,6 @@
   "model": "evaluation.question",
   "pk": 1,
   "fields": {
-    "order": -1,
-    "questionnaire": 1,
     "text_de": "how?",
     "text_en": "how?",
     "allows_additional_textanswers": false,
@@ -195,32 +193,6 @@
   "model": "evaluation.question",
   "pk": 2,
   "fields": {
-    "order": -1,
-    "questionnaire": 1,
-    "text_de": "how much?",
-    "text_en": "how much?",
-    "allows_additional_textanswers": true,
-    "type": 1
-  }
-},
-{
-  "model": "evaluation.question",
-  "pk": 3,
-  "fields": {
-    "order": -1,
-    "questionnaire": 2,
-    "text_de": "how?",
-    "text_en": "how?",
-    "allows_additional_textanswers": false,
-    "type": 0
-  }
-},
-{
-  "model": "evaluation.question",
-  "pk": 4,
-  "fields": {
-    "order": -1,
-    "questionnaire": 2,
     "text_de": "how much?",
     "text_en": "how much?",
     "allows_additional_textanswers": true,
@@ -231,8 +203,6 @@
   "model": "evaluation.question",
   "pk": 5,
   "fields": {
-    "order": -1,
-    "questionnaire": 2,
     "text_de": "your grade",
     "text_en": "your grade",
     "allows_additional_textanswers": false,
@@ -240,10 +210,55 @@
   }
 },
 {
+  "model": "evaluation.questionassignment",
+  "pk": 1,
+  "fields": {
+    "question": 1,
+    "questionnaire": 1,
+    "order": -1
+  }
+},
+{
+  "model": "evaluation.questionassignment",
+  "pk": 2,
+  "fields": {
+    "question": 2,
+    "questionnaire": 1,
+    "order": -1
+  }
+},
+{
+  "model": "evaluation.questionassignment",
+  "pk": 3,
+  "fields": {
+    "question": 1,
+    "questionnaire": 2,
+    "order": -1
+  }
+},
+{
+  "model": "evaluation.questionassignment",
+  "pk": 4,
+  "fields": {
+    "question": 2,
+    "questionnaire": 2,
+    "order": -1
+  }
+},
+{
+  "model": "evaluation.questionassignment",
+  "pk": 5,
+  "fields": {
+    "question": 5,
+    "questionnaire": 2,
+    "order": -1
+  }
+},
+{
   "model": "evaluation.textanswer",
   "pk": "00000000-0000-0000-0000-000000000001",
   "fields": {
-    "question": 3,
+    "assignment": 3,
     "contribution": 1,
     "answer": ".general_orig_published.",
     "original_answer": null,
@@ -255,7 +270,7 @@
   "model": "evaluation.textanswer",
   "pk": "00000000-0000-0000-0000-000000000002",
   "fields": {
-    "question": 3,
+    "assignment": 3,
     "contribution": 1,
     "answer": ".general_orig_deleted.",
     "original_answer": null,
@@ -267,7 +282,7 @@
   "model": "evaluation.textanswer",
   "pk": "00000000-0000-0000-0000-000000000003",
   "fields": {
-    "question": 3,
+    "assignment": 3,
     "contribution": 1,
     "answer": ".general_changed_published.",
     "original_answer": ".general_orig_published_changed.",
@@ -279,7 +294,7 @@
   "model": "evaluation.textanswer",
   "pk": "00000000-0000-0000-0000-000000000009",
   "fields": {
-    "question": 1,
+    "assignment": 1,
     "contribution": 3,
     "answer": ".contributor_orig_published.",
     "original_answer": null,
@@ -291,7 +306,7 @@
   "model": "evaluation.textanswer",
   "pk": "00000000-0000-0000-0000-000000000010",
   "fields": {
-    "question": 1,
+    "assignment": 1,
     "contribution": 3,
     "answer": ".contributor_orig_private.",
     "original_answer": null,
@@ -303,7 +318,7 @@
   "model": "evaluation.textanswer",
   "pk": "00000000-0000-0000-0000-000000000011",
   "fields": {
-    "question": 1,
+    "assignment": 1,
     "contribution": 6,
     "answer": ".responsible_contributor_orig_published.",
     "original_answer": null,
@@ -315,7 +330,7 @@
   "model": "evaluation.textanswer",
   "pk": "00000000-0000-0000-0000-000000000012",
   "fields": {
-    "question": 1,
+    "assignment": 1,
     "contribution": 6,
     "answer": ".responsible_contributor_orig_deleted.",
     "original_answer": null,
@@ -327,7 +342,7 @@
   "model": "evaluation.textanswer",
   "pk": "00000000-0000-0000-0000-000000000013",
   "fields": {
-    "question": 1,
+    "assignment": 1,
     "contribution": 6,
     "answer": ".responsible_contributor_changed_published.",
     "original_answer": ".responsible_contributor_orig_published_changed.",
@@ -339,7 +354,7 @@
   "model": "evaluation.textanswer",
   "pk": "00000000-0000-0000-0000-000000000014",
   "fields": {
-    "question": 1,
+    "assignment": 1,
     "contribution": 6,
     "answer": ".responsible_contributor_orig_private.",
     "original_answer": null,
@@ -351,7 +366,7 @@
   "model": "evaluation.textanswer",
   "pk": "00000000-0000-0000-0000-000000000015",
   "fields": {
-    "question": 1,
+    "assignment": 1,
     "contribution": 6,
     "answer": ".responsible_contributor_orig_unreviewed.",
     "original_answer": null,
@@ -363,7 +378,7 @@
   "model": "evaluation.textanswer",
   "pk": "00000000-0000-0000-0000-000000000017",
   "fields": {
-    "question": 2,
+    "assignment": 2,
     "contribution": 6,
     "answer": ".responsible_contributor_additional_orig_published.",
     "original_answer": null,
@@ -375,7 +390,7 @@
   "model": "evaluation.textanswer",
   "pk": "00000000-0000-0000-0000-000000000018",
   "fields": {
-    "question": 2,
+    "assignment": 2,
     "contribution": 6,
     "answer": ".responsible_contributor_additional_orig_deleted.",
     "original_answer": null,
@@ -387,7 +402,7 @@
   "model": "evaluation.textanswer",
   "pk": "00000000-0000-0000-0000-000000000019",
   "fields": {
-    "question": 4,
+    "assignment": 4,
     "contribution": 1,
     "answer": ".general_additional_orig_published.",
     "original_answer": null,
@@ -399,7 +414,7 @@
   "model": "evaluation.textanswer",
   "pk": "00000000-0000-0000-0000-000000000020",
   "fields": {
-    "question": 4,
+    "assignment": 4,
     "contribution": 1,
     "answer": ".general_additional_orig_deleted.",
     "original_answer": null,

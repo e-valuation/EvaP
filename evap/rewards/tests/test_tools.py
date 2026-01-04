@@ -24,7 +24,7 @@ class TestGrantRewardPoints(WebTest):
         )
 
         questionnaire = baker.make(Questionnaire)
-        baker.make(Question, questionnaire=questionnaire, type=QuestionType.GRADE)
+        baker.make(Question, questionnaires=[questionnaire], type=QuestionType.GRADE)
         cls.evaluation.general_contribution.questionnaires.set([questionnaire])
 
     def setUp(self):

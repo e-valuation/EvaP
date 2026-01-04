@@ -2,7 +2,7 @@ import csv
 import itertools
 import logging
 from collections import OrderedDict, defaultdict, namedtuple
-from collections.abc import Container
+from collections.abc import Collection
 from dataclasses import dataclass
 from datetime import date, datetime
 from enum import Enum
@@ -53,7 +53,7 @@ from evap.evaluation.models import (
     FaqSection,
     Infotext,
     Program,
-    Question,
+    QuestionAssignment,
     Questionnaire,
     RatingAnswerCounter,
     Semester,
@@ -103,7 +103,7 @@ from evap.staff.forms import (
     ModelWithImportNamesFormset,
     ProgramForm,
     ProgramMergeSelectionForm,
-    QuestionForm,
+    QuestionAssignmentForm,
     QuestionnaireForm,
     QuestionnairesAssignForm,
     RemindResponsibleForm,
@@ -1356,10 +1356,10 @@ def helper_evaluation_edit(request, evaluation):
 
     assert set(Answer.__subclasses__()) == {TextAnswer, RatingAnswerCounter}
     contributor_questionnaire_pairs = [
-        (answer.contribution.contributor, answer.question.questionnaire)
+        (answer.contribution.contributor, answer.assignment.questionnaire)
         for answer_cls in [TextAnswer, RatingAnswerCounter]
         for answer in answer_cls.objects.filter(contribution__evaluation=evaluation).select_related(
-            "question__questionnaire", "contribution__contributor"
+            "assignment__questionnaire", "contribution__contributor"
         )
     ]
 
@@ -1601,13 +1601,13 @@ def get_evaluation_and_contributor_textanswer_sections(
 
     raw_answers = (
         TextAnswer.objects.filter(contribution__evaluation=evaluation)
-        .select_related("question__questionnaire", "contribution__contributor")
-        .order_by("contribution", "question__questionnaire", "question")
+        .select_related("assignment__questionnaire", "contribution__contributor", "assignment__question")
+        .order_by("contribution", "assignment__questionnaire", "assignment")
         .filter(textanswer_filter)
     )
 
     questionnaire_answer_groups = itertools.groupby(
-        raw_answers, lambda answer: (answer.contribution, answer.question.questionnaire)
+        raw_answers, lambda answer: (answer.contribution, answer.assignment.questionnaire)
     )
 
     for (contribution, questionnaire), questionnaire_answers in questionnaire_answer_groups:
@@ -1857,12 +1857,17 @@ def questionnaire_view(request, questionnaire_id):
 @manager_required
 def questionnaire_create(request):
     questionnaire = Questionnaire()
-    InlineQuestionFormset = inlineformset_factory(
-        Questionnaire, Question, formset=AtLeastOneFormset, form=QuestionForm, extra=1, exclude=("questionnaire",)
+    InlineQuestionAssignmentFormset = inlineformset_factory(
+        Questionnaire,
+        QuestionAssignment,
+        formset=AtLeastOneFormset,
+        form=QuestionAssignmentForm,
+        extra=1,
+        exclude=("questionnaire",),
     )
 
     form = QuestionnaireForm(request.POST or None, instance=questionnaire)
-    formset = InlineQuestionFormset(request.POST or None, instance=questionnaire)
+    formset = InlineQuestionAssignmentFormset(request.POST or None, instance=questionnaire)
 
     if form.is_valid() and formset.is_valid():
         form.save(force_highest_order=True)
@@ -1874,7 +1879,8 @@ def questionnaire_create(request):
     return render(request, "staff_questionnaire_form.html", {"form": form, "formset": formset, "editable": True})
 
 
-def disable_all_except_named(fields: dict[str, Any], names_of_editable: Container[str]):
+def disable_all_except_named(fields: dict[str, Any], names_of_editable: Collection[str]):
+    assert set(fields).issuperset(set(names_of_editable))
     for name, field in fields.items():
         if name not in names_of_editable:
             field.disabled = True
@@ -1893,17 +1899,17 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
             "min_num": question_count,
             "max_num": question_count,
         }
-    InlineQuestionFormset = inlineformset_factory(
+    InlineQuestionAssignmentFormset = inlineformset_factory(
         Questionnaire,
-        Question,
+        QuestionAssignment,
         formset=AtLeastOneFormset,
-        form=QuestionForm,
+        form=QuestionAssignmentForm,
         exclude=("questionnaire",),
         **formset_kwargs,
     )
 
     form = QuestionnaireForm(request.POST or None, instance=questionnaire)
-    formset = InlineQuestionFormset(request.POST or None, instance=questionnaire)
+    formset = InlineQuestionAssignmentFormset(request.POST or None, instance=questionnaire)
 
     if not editable:
         disable_all_except_named(
@@ -1911,6 +1917,7 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
         )
         for question_form in formset.forms:
             disable_all_except_named(question_form.fields, ["id"])
+            disable_all_except_named(question_form.question_form.fields, [])
 
         # disallow type changed from and to contributor or dropout
         single_types = [Questionnaire.Type.CONTRIBUTOR, Questionnaire.Type.DROPOUT]
@@ -1946,12 +1953,19 @@ def get_identical_form_and_formset(questionnaire):
     Generates a Questionnaire creation form and formset filled out like the already exisiting Questionnaire
     specified in questionnaire_id. Used for copying and creating of new versions.
     """
-    inline_question_formset = inlineformset_factory(
-        Questionnaire, Question, formset=AtLeastOneFormset, form=QuestionForm, extra=1, exclude=("questionnaire",)
+    InlineQuestionAssignmentFormset = inlineformset_factory(
+        Questionnaire,
+        QuestionAssignment,
+        formset=AtLeastOneFormset,
+        form=QuestionAssignmentForm,
+        extra=1,
+        exclude=("questionnaire",),
     )
 
     form = QuestionnaireForm(instance=questionnaire)
-    return form, inline_question_formset(instance=questionnaire, queryset=questionnaire.questions.all())
+    return form, InlineQuestionAssignmentFormset(
+        instance=questionnaire, queryset=questionnaire.question_assignments.all()
+    )
 
 
 @manager_required
@@ -1960,12 +1974,17 @@ def questionnaire_copy(request, questionnaire_id):
 
     if request.method == "POST":
         questionnaire = Questionnaire()
-        InlineQuestionFormset = inlineformset_factory(
-            Questionnaire, Question, formset=AtLeastOneFormset, form=QuestionForm, extra=1, exclude=("questionnaire",)
+        InlineQuestionAssignmentFormset = inlineformset_factory(
+            Questionnaire,
+            QuestionAssignment,
+            formset=AtLeastOneFormset,
+            form=QuestionAssignmentForm,
+            extra=1,
+            exclude=("questionnaire",),
         )
 
         form = QuestionnaireForm(request.POST, instance=questionnaire)
-        formset = InlineQuestionFormset(request.POST.copy(), instance=questionnaire, save_as_new=True)
+        formset = InlineQuestionAssignmentFormset(request.POST.copy(), instance=questionnaire, save_as_new=True)
 
         if form.is_valid() and formset.is_valid():
             form.save()
@@ -1995,12 +2014,17 @@ def questionnaire_new_version(request, questionnaire_id):
 
     if request.method == "POST":
         questionnaire = Questionnaire()
-        InlineQuestionFormset = inlineformset_factory(
-            Questionnaire, Question, formset=AtLeastOneFormset, form=QuestionForm, extra=1, exclude=("questionnaire",)
+        InlineQuestionAssignmentFormset = inlineformset_factory(
+            Questionnaire,
+            QuestionAssignment,
+            formset=AtLeastOneFormset,
+            form=QuestionAssignmentForm,
+            extra=1,
+            exclude=("questionnaire",),
         )
 
         form = QuestionnaireForm(request.POST, instance=questionnaire)
-        formset = InlineQuestionFormset(request.POST.copy(), instance=questionnaire, save_as_new=True)
+        formset = InlineQuestionAssignmentFormset(request.POST.copy(), instance=questionnaire, save_as_new=True)
 
         try:
             with transaction.atomic():

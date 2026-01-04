@@ -13,6 +13,7 @@ from evap.evaluation.models import (
     Evaluation,
     Program,
     Question,
+    QuestionAssignment,
     Questionnaire,
     QuestionType,
     RatingAnswerCounter,
@@ -605,33 +606,33 @@ class ContributionFormsetTests(TestCase):
     def test_answers_for_removed_questionnaires_deleted(self):
         # pylint: disable=too-many-locals
         evaluation = baker.make(Evaluation)
-        general_question_1 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
-        general_question_2 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
-        general_questionnaire_1 = baker.make(Questionnaire, questions=[general_question_1])
-        general_questionnaire_2 = baker.make(Questionnaire, questions=[general_question_2])
+        general_assignment_1 = baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT)
+        general_assignment_2 = baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT)
+        general_questionnaire_1 = baker.make(Questionnaire, question_assignments=[general_assignment_1])
+        general_questionnaire_2 = baker.make(Questionnaire, question_assignments=[general_assignment_2])
         evaluation.general_contribution.questionnaires.set([general_questionnaire_1, general_questionnaire_2])
-        contributor_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
+        contributor_assignment = baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT)
         contributor_questionnaire = baker.make(
             Questionnaire,
             type=Questionnaire.Type.CONTRIBUTOR,
-            questions=[contributor_question],
+            question_assignments=[contributor_assignment],
         )
         contribution_1 = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile))
         contribution_2 = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile))
         contribution_1.questionnaires.set([contributor_questionnaire])
         contribution_2.questionnaires.set([contributor_questionnaire])
-        ta_1 = baker.make(TextAnswer, contribution=evaluation.general_contribution, question=general_question_1)
-        ta_2 = baker.make(TextAnswer, contribution=evaluation.general_contribution, question=general_question_2)
-        ta_3 = baker.make(TextAnswer, contribution=contribution_1, question=contributor_question)
-        ta_4 = baker.make(TextAnswer, contribution=contribution_2, question=contributor_question)
+        ta_1 = baker.make(TextAnswer, contribution=evaluation.general_contribution, assignment=general_assignment_1)
+        ta_2 = baker.make(TextAnswer, contribution=evaluation.general_contribution, assignment=general_assignment_2)
+        ta_3 = baker.make(TextAnswer, contribution=contribution_1, assignment=contributor_assignment)
+        ta_4 = baker.make(TextAnswer, contribution=contribution_2, assignment=contributor_assignment)
         rac_1 = baker.make(
-            RatingAnswerCounter, contribution=evaluation.general_contribution, question=general_question_1
+            RatingAnswerCounter, contribution=evaluation.general_contribution, assignment=general_assignment_1
         )
         rac_2 = baker.make(
-            RatingAnswerCounter, contribution=evaluation.general_contribution, question=general_question_2
+            RatingAnswerCounter, contribution=evaluation.general_contribution, assignment=general_assignment_2
         )
-        rac_3 = baker.make(RatingAnswerCounter, contribution=contribution_1, question=contributor_question)
-        rac_4 = baker.make(RatingAnswerCounter, contribution=contribution_2, question=contributor_question)
+        rac_3 = baker.make(RatingAnswerCounter, contribution=contribution_1, assignment=contributor_assignment)
+        rac_4 = baker.make(RatingAnswerCounter, contribution=contribution_2, assignment=contributor_assignment)
 
         self.assertEqual(set(TextAnswer.objects.filter(contribution__evaluation=evaluation)), {ta_1, ta_2, ta_3, ta_4})
         self.assertEqual(
@@ -1040,33 +1041,31 @@ class EvaluationFormTests(TestCase):
     def test_answers_for_removed_questionnaires_deleted(self):
         # pylint: disable=too-many-locals
         evaluation = baker.make(Evaluation)
-        general_question_1 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
-        general_question_2 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
-        general_questionnaire_1 = baker.make(Questionnaire, questions=[general_question_1])
-        general_questionnaire_2 = baker.make(Questionnaire, questions=[general_question_2])
+        general_assignment_1 = baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT)
+        general_assignment_2 = baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT)
+        general_questionnaire_1 = baker.make(Questionnaire, question_assignments=[general_assignment_1])
+        general_questionnaire_2 = baker.make(Questionnaire, question_assignments=[general_assignment_2])
         evaluation.general_contribution.questionnaires.set([general_questionnaire_1, general_questionnaire_2])
-        contributor_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
+        contributor_assignment = baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT)
         contributor_questionnaire = baker.make(
-            Questionnaire,
-            type=Questionnaire.Type.CONTRIBUTOR,
-            questions=[contributor_question],
+            Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, question_assignments=[contributor_assignment]
         )
         contribution_1 = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile))
         contribution_2 = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile))
         contribution_1.questionnaires.set([contributor_questionnaire])
         contribution_2.questionnaires.set([contributor_questionnaire])
-        ta_1 = baker.make(TextAnswer, contribution=evaluation.general_contribution, question=general_question_1)
-        ta_2 = baker.make(TextAnswer, contribution=evaluation.general_contribution, question=general_question_2)
-        ta_3 = baker.make(TextAnswer, contribution=contribution_1, question=contributor_question)
-        ta_4 = baker.make(TextAnswer, contribution=contribution_2, question=contributor_question)
+        ta_1 = baker.make(TextAnswer, contribution=evaluation.general_contribution, assignment=general_assignment_1)
+        ta_2 = baker.make(TextAnswer, contribution=evaluation.general_contribution, assignment=general_assignment_2)
+        ta_3 = baker.make(TextAnswer, contribution=contribution_1, assignment=contributor_assignment)
+        ta_4 = baker.make(TextAnswer, contribution=contribution_2, assignment=contributor_assignment)
         rac_1 = baker.make(
-            RatingAnswerCounter, contribution=evaluation.general_contribution, question=general_question_1
+            RatingAnswerCounter, contribution=evaluation.general_contribution, assignment=general_assignment_1
         )
         rac_2 = baker.make(
-            RatingAnswerCounter, contribution=evaluation.general_contribution, question=general_question_2
+            RatingAnswerCounter, contribution=evaluation.general_contribution, assignment=general_assignment_2
         )
-        rac_3 = baker.make(RatingAnswerCounter, contribution=contribution_1, question=contributor_question)
-        rac_4 = baker.make(RatingAnswerCounter, contribution=contribution_2, question=contributor_question)
+        rac_3 = baker.make(RatingAnswerCounter, contribution=contribution_1, assignment=contributor_assignment)
+        rac_4 = baker.make(RatingAnswerCounter, contribution=contribution_2, assignment=contributor_assignment)
 
         self.assertEqual(set(TextAnswer.objects.filter(contribution__evaluation=evaluation)), {ta_1, ta_2, ta_3, ta_4})
         self.assertEqual(

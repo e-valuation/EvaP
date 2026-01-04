@@ -320,7 +320,7 @@ def render_vote_page(
 
 @participant_required
 def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> HttpResponse:  # noqa: PLR0912
-    # pylint: disable=too-many-nested-blocks
+    # pylint: disable=too-many-nested-blocks,too-many-locals
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
 
     if dropout and not evaluation.is_dropout_allowed:
@@ -345,7 +345,8 @@ def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> Htt
         for contribution, form_group in form_groups.items():
             for questionnaire_form in form_group:
                 questionnaire = questionnaire_form.questionnaire
-                for question in questionnaire.questions.all():
+                for assignment in questionnaire.question_assignments.all().prefetch_related("question"):
+                    question = assignment.question
                     if question.is_heading_question:
                         continue
 
@@ -354,12 +355,12 @@ def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> Htt
                     if question.is_text_question:
                         if value:
                             question.answer_class.objects.create(
-                                contribution=contribution, question=question, answer=value
+                                contribution=contribution, assignment=assignment, answer=value
                             )
                     else:
                         if value != NO_ANSWER:
                             answer_counter, __ = question.answer_class.objects.get_or_create(
-                                contribution=contribution, question=question, answer=value
+                                contribution=contribution, assignment=assignment, answer=value
                             )
                             answer_counter.count += 1
                             answer_counter.save()
@@ -370,7 +371,7 @@ def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> Htt
                             textanswer_value = questionnaire_form.cleaned_data.get(textanswer_identifier)
                             if textanswer_value:
                                 TextAnswer.objects.create(
-                                    contribution=contribution, question=question, answer=textanswer_value
+                                    contribution=contribution, assignment=assignment, answer=textanswer_value
                                 )
 
         VoteTimestamp.objects.create(evaluation=evaluation)
