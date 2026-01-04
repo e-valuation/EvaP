@@ -232,25 +232,27 @@ class Command(BaseCommand):
 
         self.stdout.write("Shuffling rating answer counter counts...")
 
-        contributions = Contribution.objects.all().prefetch_related("ratinganswercounter_set__question")
+        contributions = Contribution.objects.all().prefetch_related("ratinganswercounter_set__assignment__question")
         try:
             self.stdout.ending = ""
             progress_bar = ProgressBar(self.stdout, contributions.count())
             for contribution_counter, contribution in enumerate(contributions):
                 progress_bar.update(contribution_counter + 1)
 
-                counters_per_question = unordered_groupby(
-                    (counter.question, counter) for counter in contribution.ratinganswercounter_set.all()
+                counters_per_assignment = unordered_groupby(
+                    (counter.assignment, counter) for counter in contribution.ratinganswercounter_set.all()
                 )
 
-                for question, counters in counters_per_question.items():
+                for assignment, counters in counters_per_assignment.items():
                     original_sum = sum(counter.count for counter in counters)
 
-                    missing_values = set(CHOICES[question.type].values).difference({c.answer for c in counters})
+                    missing_values = set(CHOICES[assignment.question.type].values).difference(
+                        {c.answer for c in counters}
+                    )
                     missing_values.discard(NO_ANSWER)  # don't add NO_ANSWER counter if it didn't exist before
                     for value in missing_values:
                         counters.append(
-                            RatingAnswerCounter(question=question, contribution=contribution, answer=value, count=0)
+                            RatingAnswerCounter(assignment=assignment, contribution=contribution, answer=value, count=0)
                         )
 
                     generated_counts = [random.random() for c in counters]  # nosec
