@@ -824,18 +824,35 @@ class TestImportEvents(TestCase):
 
     @patch("evap.staff.importers.json.JSONImporter.import_json")
     def test_management_command(self, mock_import_json):
-        output = StringIO()
-
         with TemporaryDirectory() as temp_dir:
             test_filename = os.path.join(temp_dir, "test.json")
             with open(test_filename, "w", encoding="utf-8") as f:
                 f.write(EXAMPLE_JSON)
-            call_command("json_import", self.semester.id, test_filename, "2000-01-01", stdout=output)
+            call_command(
+                "import_cms_data",
+                "file",
+                "--semester-id",
+                self.semester.id,
+                "--default-course-end-date",
+                "2000-01-01",
+                test_filename,
+                stdout=StringIO(),
+            )
 
             mock_import_json.assert_called_once_with(EXAMPLE_JSON)
 
-            with self.assertRaises(CommandError):
-                call_command("json_import", self.semester.id + 42, test_filename, "2000-01-01", stdout=output)
+            with self.assertRaises(CommandError) as cm:
+                call_command(
+                    "import_cms_data",
+                    "file",
+                    "--semester-id",
+                    self.semester.id + 42,
+                    "--default-course-end-date",
+                    "2000-01-01",
+                    test_filename,
+                    stdout=StringIO(),
+                )
+            self.assertEqual(cm.exception.args, ("Semester does not exist.",))
 
     def test_disambiguate_name(self):
         importer = JSONImporter(self.semester, date(2000, 1, 1))
