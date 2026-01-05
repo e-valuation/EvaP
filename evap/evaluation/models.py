@@ -80,7 +80,7 @@ class Semester(models.Model):
         verbose_name=_("CMS name"),
         help_text=_("If set together with default course end date, CMS data is imported automatically every day."),
     )
-    default_course_end_date = models.DateField(blank=True, null=True, verbose_name=_("default course end date"))
+    default_course_end_date = models.DateField(null=True, verbose_name=_("default course end date for CMS import"))
 
     participations_are_archived = models.BooleanField(default=False, verbose_name=_("participations are archived"))
     grade_documents_are_deleted = models.BooleanField(default=False, verbose_name=_("grade documents are deleted"))
