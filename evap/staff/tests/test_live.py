@@ -260,9 +260,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
         with self.enter_staff_mode():
             submit_btn.click()
 
-        self.wait.until(
-            visibility_of_element_located((By.XPATH, "//div[contains(text(), 'edited answer')]"))
-        )
+        self.wait.until(visibility_of_element_located((By.XPATH, "//div[contains(text(), 'edited answer')]")))
         self.wait.until(
             invisibility_of_element_located((By.XPATH, "//div[contains(text(), 'this is a dummy answer')]"))
         )
