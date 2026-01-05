@@ -960,6 +960,7 @@ class QuestionAssignmentForm(forms.ModelForm):
     def has_changed(self) -> bool:
         return super().has_changed() or self.question_form.has_changed()
 
+    @transaction.atomic
     def save(self, commit: bool = True):
         if self.question_form.is_valid():
             self.instance.question = self.question_form.save(commit)
