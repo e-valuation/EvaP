@@ -915,7 +915,7 @@ class QuestionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance.pk and self.instance.type in [QuestionType.TEXT, QuestionType.HEADING] and not self.data:
-            self.fields["allows_additional_textanswers"].disabled = True
+            self.fields["allows_additional_textanswers"].disabled = True  # disable only for frontend; validate in clean
 
     def clean(self):
         super().clean()
