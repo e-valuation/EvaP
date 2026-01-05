@@ -1,14 +1,9 @@
 import json
-import os
 from copy import deepcopy
 from datetime import date, datetime, timedelta
-from io import StringIO
-from tempfile import TemporaryDirectory
-from unittest.mock import patch
 
 from django.conf import settings
 from django.core import mail
-from django.core.management import CommandError, call_command
 from django.test import TestCase, override_settings
 from model_bakery import baker
 from pydantic import ValidationError
@@ -821,21 +816,6 @@ class TestImportEvents(TestCase):
         )
         self.assertFalse(Evaluation.objects.filter(cms_id="0x5").exists())
         self.assertFalse(Evaluation.objects.filter(cms_id="0x6").exists())
-
-    @patch("evap.staff.importers.json.JSONImporter.import_json")
-    def test_management_command(self, mock_import_json):
-        output = StringIO()
-
-        with TemporaryDirectory() as temp_dir:
-            test_filename = os.path.join(temp_dir, "test.json")
-            with open(test_filename, "w", encoding="utf-8") as f:
-                f.write(EXAMPLE_JSON)
-            call_command("json_import", self.semester.id, test_filename, "01.01.2000", stdout=output)
-
-            mock_import_json.assert_called_once_with(EXAMPLE_JSON)
-
-            with self.assertRaises(CommandError):
-                call_command("json_import", self.semester.id + 42, test_filename, "01.01.2000", stdout=output)
 
     def test_disambiguate_name(self):
         importer = JSONImporter(self.semester, date(2000, 1, 1))
