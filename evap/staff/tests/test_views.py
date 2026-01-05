@@ -3339,6 +3339,14 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
 
         self.assertNotEqual(question, self.questionnaire.questions.get())
 
+    def test_invalid_question_edit(self) -> None:
+        baker.make(Contribution, questionnaires=[self.questionnaire], evaluation__state=Evaluation.State.NEW)
+        page = self.app.get(self.url, user=self.manager)
+        form = page.forms["questionnaire-form"]
+        form["question_assignments-0-type"].force_value(-1)
+        page = form.submit()
+        self.assertIn("Select a valid choice.", page)
+
 
 class TestQuestionnaireViewView(WebTestStaffModeWith200Check):
     @classmethod

@@ -958,10 +958,7 @@ class QuestionAssignmentForm(forms.ModelForm):
             raise forms.ValidationError([])
 
     def has_changed(self) -> bool:
-        has_changed = super().has_changed()
-        if self.question_form.is_valid():
-            return has_changed or self.question_form.has_changed()
-        return has_changed
+        return super().has_changed() or self.question_form.has_changed()
 
     def save(self, commit: bool = True):
         if self.question_form.is_valid():
