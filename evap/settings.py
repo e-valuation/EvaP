@@ -348,10 +348,6 @@ STAFF_MODE_INFO_TIMEOUT = 3 * 60 * 60  # three hours
 # see https://docs.djangoproject.com/en/5.0/ref/settings/#data-upload-max-number-fields
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None
 
-# URL where to download CMS JSON data.
-# Must contain a "{}" placeholder for the semester name, e.g., "https://example.com/download?semester={}"
-CMS_DATA_DOWNLOAD_URL = ""
-
 
 ### Internationalization
 
