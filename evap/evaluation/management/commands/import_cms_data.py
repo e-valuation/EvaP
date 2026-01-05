@@ -41,7 +41,7 @@ class Command(BaseCommand):
 
         match options["mode"]:
             case "download":
-                for semester in Semester.objects.filter(default_course_end_date__isnull=False, cms_name__ne=""):
+                for semester in Semester.objects.exclude(default_course_end_date__isnull=True).exclude(cms_name=""):
                     logger.info("Downloading data for %s.", semester.name_en)
                     url = options["url"].format(urllib.parse.quote(semester.cms_name))
                     for _ in range(RETRIES):
