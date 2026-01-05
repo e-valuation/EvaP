@@ -23,8 +23,6 @@ def parse_course_end_date(date_str) -> datetime:
 
 @log_exceptions
 class Command(BaseCommand):
-    help = "Downloads the JSON file with the CMS data for a given semester and imports it."
-
     def add_arguments(self, parser: argparse.ArgumentParser):
         mode = parser.add_subparsers(help="import mode", required=True, dest="mode")
 
