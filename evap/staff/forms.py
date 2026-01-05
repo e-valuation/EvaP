@@ -921,9 +921,12 @@ class QuestionForm(forms.ModelForm):
         super().clean()
         if self.cleaned_data.get("type") in [QuestionType.TEXT, QuestionType.HEADING]:
             self.cleaned_data["allows_additional_textanswers"] = False
+        return self.cleaned_data
+
+    def save(self, commit=True) -> Question:
         if self.instance.pk and self.instance.questionnaires.count() > 1 and self.has_changed():
             self.instance.pk = None  # copy on write
-        return self.cleaned_data
+        return super().save(commit=commit)
 
 
 class QuestionAssignmentForm(forms.ModelForm):
@@ -946,15 +949,7 @@ class QuestionAssignmentForm(forms.ModelForm):
 
     def clean(self) -> None:
         super().clean()
-        if (
-            self.cleaned_data.get("question") is not None
-            and self.cleaned_data["question"] != getattr(self.instance, "question", None)
-            or self.cleaned_data.get("DELETE") == "on"
-        ):
-            # update the linked question or remove the entire link
-            return
-
-        if not self.question_form.is_valid() and self.cleaned_data["DELETE"] != "on":
+        if not self.question_form.is_valid():
             raise forms.ValidationError([])
 
     def has_changed(self) -> bool:
@@ -962,8 +957,7 @@ class QuestionAssignmentForm(forms.ModelForm):
 
     @transaction.atomic
     def save(self, commit: bool = True):
-        if self.question_form.is_valid():
-            self.instance.question = self.question_form.save(commit)
+        self.instance.question = self.question_form.save(commit)
         return super().save(commit)
 
 
