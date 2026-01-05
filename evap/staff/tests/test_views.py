@@ -3339,6 +3339,54 @@ class TestQuestionnaireViewView(WebTestStaffModeWith200Check):
         self.assertNotIn(self.question.text_de, page)
 
 
+class TestQuestionnaireUsageView(WebTestStaffModeWith200Check):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = make_manager()
+
+        questionnaire = baker.make(Questionnaire)
+        cls.question = baker.make(Question, questionnaire=questionnaire)
+        cls.url = reverse("staff:questionnaire_usage", args=[questionnaire.pk])
+
+        cls.semesters = baker.make(
+            Semester,
+            name_de=iter(["Semester 1", "Semester 2", "Semester 3"]),
+            name_en=iter(["Semester 1", "Semester 2", "Semester 3"]),
+            _quantity=3,
+            _bulk_create=True,
+        )
+        cls.semester_without_questionnaire = baker.make(Semester, name_de="Semester 4", name_en="Semester 4")
+
+        cls.evaluations = {}
+        for semester in cls.semesters:
+            course = baker.make(Course, semester=semester)
+            evaluations = baker.make(
+                Evaluation,
+                course=course,
+                name_de=iter([f"Evaluation 1 - {semester.name}", f"Evaluation 2 - {semester.name}"]),
+                name_en=iter([f"Evaluation 1 - {semester.name}", f"Evaluation 2 - {semester.name}"]),
+                _quantity=2,
+            )
+            for evaluation in evaluations:
+                evaluation.save()
+                evaluation.general_contribution.questionnaires.set([questionnaire])
+
+    def test_questionnaire_usage_view(self):
+        page = self.app.get(self.url, user=self.user)
+        content = page.body.decode()
+
+        indexes = []
+        for semester in sorted(self.semesters, key=lambda s: s.created_at, reverse=True):
+            indexes.append(content.index(f"2 usages in {semester.name}"))
+            indexes += [
+                content.index(evaluation.full_name)
+                for evaluation in Evaluation.objects.filter(course__semester=semester).order_by("vote_start_datetime")
+            ]
+
+        self.assertListEqual(indexes, sorted(indexes))
+        self.assertNotIn(f"usages in {self.semester_without_questionnaire.name_en}", content)
+
+
 class TestQuestionnaireCopyView(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):

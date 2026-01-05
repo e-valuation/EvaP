@@ -1855,6 +1855,24 @@ def questionnaire_view(request, questionnaire_id):
 
 
 @manager_required
+def questionnaire_usage(request: HttpRequest, questionnaire_id: int) -> HttpResponse:
+    questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+
+    evaluations = (
+        Evaluation.objects.filter(contributions__questionnaires=questionnaire)
+        .prefetch_related("course__semester")
+        .order_by("-course__semester__created_at", "vote_start_datetime")
+    )
+
+    evaluations_grouped_by_semester = unordered_groupby((e.course.semester, e) for e in evaluations)
+    return render(
+        request,
+        "staff_questionnaire_usage.html",
+        {"questionnaire": questionnaire, "evaluations_grouped_by_semester": evaluations_grouped_by_semester},
+    )
+
+
+@manager_required
 def questionnaire_create(request):
     questionnaire = Questionnaire()
     InlineQuestionFormset = inlineformset_factory(
@@ -1937,7 +1955,13 @@ def questionnaire_edit(request, questionnaire_id):
         messages.success(request, _("Successfully updated questionnaire."))
         return redirect("staff:questionnaire_index")
 
-    template_data = {"questionnaire": questionnaire, "form": form, "formset": formset, "editable": editable}
+    template_data = {
+        "questionnaire": questionnaire,
+        "form": form,
+        "formset": formset,
+        "editable": editable,
+        "disable_breadcrumb_questionnaire": True,
+    }
     return render(request, "staff_questionnaire_form.html", template_data)
 
 
