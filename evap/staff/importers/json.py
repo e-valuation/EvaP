@@ -382,6 +382,7 @@ class JSONImporter:
 
         if course and course.evaluations.exclude(state=Evaluation.State.NEW).exists():
             self.statistics.attempted_course_changes.add(course)
+            # the course itself should not be updated but is still added to courses_by_gguid so that its evaluations will be processed
             self.courses_by_gguid[data["gguid"]] = course
             return course
 
@@ -563,27 +564,27 @@ class JSONImporter:
                 **defaults,
             )
 
-        allow_changes = evaluation.state == Evaluation.State.NEW
-        direct_changes = update_with_changes(evaluation, defaults, dry_run=not allow_changes)
+        allow_evaluation_changes = evaluation.state == Evaluation.State.NEW
+        direct_changes = update_with_changes(evaluation, defaults, dry_run=not allow_evaluation_changes)
         assert not direct_changes or not created
-        if direct_changes and allow_changes:
+        if direct_changes and allow_evaluation_changes:
             self.statistics.updated_evaluations.add(evaluation)
         elif direct_changes:
             self.statistics.attempted_evaluation_changes.append(evaluation)
 
-        allow_changes = evaluation.state < Evaluation.State.IN_EVALUATION
+        allow_participant_changes = evaluation.state < Evaluation.State.IN_EVALUATION
         participant_changes = set(evaluation.participants.all()) != set(participants)
-        if participant_changes and allow_changes:
+        if participant_changes and allow_participant_changes:
             evaluation.participants.set(participants)
             self.statistics.updated_participants.append(evaluation)
         elif participant_changes:
             self.statistics.attempted_participant_changes.append(evaluation)
 
-        allow_changes = evaluation.state == Evaluation.State.NEW
+        allow_contributor_changes = evaluation.state == Evaluation.State.NEW
         any_lecturers_changed = False
-        if allow_changes and "lecturers" not in data:
+        if allow_contributor_changes and "lecturers" not in data:
             self.statistics.warnings.append(WarningMessage(obj=evaluation.full_name, message="No contributors defined"))
-        elif allow_changes:
+        elif allow_contributor_changes:
             for lecturer in data["lecturers"]:
                 __, lecturer_created = self._import_contribution(evaluation, lecturer)
                 any_lecturers_changed |= lecturer_created

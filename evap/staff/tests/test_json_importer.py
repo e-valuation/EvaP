@@ -702,8 +702,8 @@ class TestImportEvents(TestCase):
 
         self.assertTrue(evaluation.is_rewarded)
         self.assertEqual(evaluation.course.name_en, "Process-oriented information systems")
-        self.assertEqual(len(importer.statistics.attempted_evaluation_changes), 0)
-        self.assertEqual(len(importer.statistics.attempted_course_changes), 0)
+        self.assertEqual(importer.statistics.attempted_evaluation_changes, [])
+        self.assertEqual(importer.statistics.attempted_course_changes, set())
 
         evaluation.ready_for_editors()
         evaluation.is_rewarded = False
