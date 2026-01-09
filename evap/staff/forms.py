@@ -956,8 +956,8 @@ class QuestionAssignmentForm(forms.ModelForm):
 
     @transaction.atomic
     def save(self, commit: bool = True):
-        self.instance.question = self.question_form.save(commit)
-        return super().save(commit)
+        self.instance.question = self.question_form.save(commit=commit)
+        return super().save(commit=commit)
 
 
 class QuestionnairesAssignForm(forms.Form):
