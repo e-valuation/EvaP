@@ -686,6 +686,39 @@ class TestImportEvents(TestCase):
             self.assertTrue(UserProfile.objects.filter(email="ignored.lecturer@example.com").exists())
             self.assertTrue(UserProfile.objects.filter(email="ignored.lecturer2@example.com").exists())
 
+    def test_import_courses_evaluation_not_new(self):
+        self._import()
+
+        evaluation = Evaluation.objects.get(name_en="")
+
+        evaluation.is_rewarded = False
+        evaluation.save()
+        evaluation.course.name_en = "Change"
+        evaluation.course.save()
+
+        importer = self._import()
+
+        evaluation = Evaluation.objects.get(pk=evaluation.pk)
+
+        self.assertTrue(evaluation.is_rewarded)
+        self.assertEqual(evaluation.course.name_en, "Process-oriented information systems")
+        self.assertEqual(importer.statistics.attempted_evaluation_changes, [])
+        self.assertEqual(importer.statistics.attempted_course_changes, set())
+
+        evaluation.ready_for_editors()
+        evaluation.is_rewarded = False
+        evaluation.save()
+        evaluation.course.name_en = "Change"
+        evaluation.course.save()
+
+        importer = self._import()
+
+        evaluation = Evaluation.objects.get(pk=evaluation.pk)
+        self.assertFalse(evaluation.is_rewarded)
+        self.assertEqual(evaluation.course.name_en, "Change")
+        self.assertEqual(len(importer.statistics.attempted_evaluation_changes), 1)
+        self.assertEqual(len(importer.statistics.attempted_course_changes), 1)
+
     def test_import_courses_evaluation_approved(self):
         self._import()
 

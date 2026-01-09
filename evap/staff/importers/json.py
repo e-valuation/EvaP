@@ -118,6 +118,7 @@ class ImportStatistics:
     updated_courses: list[Course] = field(default_factory=list)
     updated_evaluations: set[Evaluation] = field(default_factory=set)
     updated_participants: list[Evaluation] = field(default_factory=list)
+    attempted_course_changes: set[Course] = field(default_factory=set)
     attempted_evaluation_changes: list[Evaluation] = field(default_factory=list)
     attempted_participant_changes: list[Evaluation] = field(default_factory=list)
     warnings: list[WarningMessage] = field(default_factory=list)
@@ -155,7 +156,8 @@ class ImportStatistics:
         log += self._make_stats("Updated Courses", self.updated_courses)
         log += self._make_stats("Updated Evaluations", self.updated_evaluations)
         log += self._make_stats("Updated Participants", self.updated_participants)
-        log += self._make_stats("Attempted Changes", self.attempted_evaluation_changes)
+        log += self._make_stats("Attempted Course Changes", self.attempted_course_changes)
+        log += self._make_stats("Attempted Evaluation Changes", self.attempted_evaluation_changes)
         log += self._make_stats("Attempted Participant Changes", self.attempted_participant_changes)
 
         log += self._make_heading("Warnings")
@@ -373,6 +375,17 @@ class JSONImporter:
             )
             return None
 
+        try:
+            course = Course.objects.get(cms_id=data["gguid"])
+        except Course.DoesNotExist:
+            course = None
+
+        if course and course.evaluations.exclude(state=Evaluation.State.NEW).exists():
+            self.statistics.attempted_course_changes.add(course)
+            # the course itself should not be updated but is still added to courses_by_gguid so that its evaluations will be processed
+            self.courses_by_gguid[data["gguid"]] = course
+            return course
+
         responsibles = self._get_user_profiles(data["lecturers"])
         responsibles = self._remove_non_responsible_users(responsibles)
         responsibles = self._get_users_with_longest_title(responsibles)
@@ -551,27 +564,27 @@ class JSONImporter:
                 **defaults,
             )
 
-        allow_changes = evaluation.state < Evaluation.State.APPROVED
-        direct_changes = update_with_changes(evaluation, defaults, dry_run=not allow_changes)
+        allow_evaluation_changes = evaluation.state == Evaluation.State.NEW
+        direct_changes = update_with_changes(evaluation, defaults, dry_run=not allow_evaluation_changes)
         assert not direct_changes or not created
-        if direct_changes and allow_changes:
+        if direct_changes and allow_evaluation_changes:
             self.statistics.updated_evaluations.add(evaluation)
         elif direct_changes:
             self.statistics.attempted_evaluation_changes.append(evaluation)
 
-        allow_changes = evaluation.state < Evaluation.State.IN_EVALUATION
+        allow_participant_changes = evaluation.state < Evaluation.State.IN_EVALUATION
         participant_changes = set(evaluation.participants.all()) != set(participants)
-        if participant_changes and allow_changes:
+        if participant_changes and allow_participant_changes:
             evaluation.participants.set(participants)
             self.statistics.updated_participants.append(evaluation)
         elif participant_changes:
             self.statistics.attempted_participant_changes.append(evaluation)
 
-        allow_changes = evaluation.state < Evaluation.State.APPROVED
+        allow_contributor_changes = evaluation.state == Evaluation.State.NEW
         any_lecturers_changed = False
-        if allow_changes and "lecturers" not in data:
+        if allow_contributor_changes and "lecturers" not in data:
             self.statistics.warnings.append(WarningMessage(obj=evaluation.full_name, message="No contributors defined"))
-        elif allow_changes:
+        elif allow_contributor_changes:
             for lecturer in data["lecturers"]:
                 __, lecturer_created = self._import_contribution(evaluation, lecturer)
                 any_lecturers_changed |= lecturer_created
