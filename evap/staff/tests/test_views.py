@@ -3349,14 +3349,20 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
         self.assertIn("Select a valid choice.", page)
 
     def test_delete_question(self) -> None:
+        other_questionnaire = baker.make(Questionnaire)
+        other_question = baker.make(Question, questionnaires=[self.questionnaire, other_questionnaire])
         baker.make(QuestionAssignment, questionnaire=self.questionnaire, question__type=QuestionType.GRADE)
         baker.make(Contribution, questionnaires=[self.questionnaire], evaluation__state=Evaluation.State.NEW)
         page = self.app.get(self.url, user=self.manager)
         form = page.forms["questionnaire-form"]
         form["question_assignments-0-DELETE"] = "on"
         form["question_assignments-0-type"].force_value(-1)
+        form["question_assignments-1-DELETE"] = "on"
         form.submit().follow()
         self.assertQuerySetEqual(self.question.questionnaires.all(), [])
+        with self.assertRaises(Question.DoesNotExist):
+            self.question.refresh_from_db()
+        self.assertQuerySetEqual(other_question.questionnaires.all(), [other_questionnaire])
 
 
 class TestQuestionnaireViewView(WebTestStaffModeWith200Check):

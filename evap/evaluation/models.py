@@ -1370,6 +1370,15 @@ class QuestionAssignment(models.Model):
     class Meta:
         ordering = ["order"]
 
+    def delete(self, using=None, keep_parents=False) -> tuple[int, dict[str, int]]:
+        count = 0
+        meta: dict[str, int] = {}
+
+        if not self.question.questionnaires.exclude(pk=self.questionnaire.pk).exists():
+            count, meta = self.question.delete(using=using, keep_parents=False)  # garbage-collect unused questions
+        self_count, self_meta = super().delete(using=using, keep_parents=keep_parents)
+        return count + self_count, meta | self_meta
+
 
 @dataclass
 class Choices:
