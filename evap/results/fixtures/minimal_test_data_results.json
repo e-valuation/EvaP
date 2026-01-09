@@ -115,6 +115,7 @@
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
     "cms_id": null,
+    "staff_notes": "",
     "participants": [],
     "voters": []
   }
