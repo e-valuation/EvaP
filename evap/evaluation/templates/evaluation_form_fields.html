@@ -27,6 +27,7 @@
                     </div>
                 </div>
             </div>
+        {% elif field == evaluation_form.staff_notes %}{% comment %} Field is rendered manually in log area {% endcomment %}
         {% else %}
             {% include 'bootstrap_form_field.html' with field=field %}
         {% endif %}
