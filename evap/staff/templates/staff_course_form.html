@@ -1,5 +1,7 @@
 {% extends 'staff_course_base.html' %}
 
+{% load static %}
+
 {% block content %}
     {{ block.super }}
     <h3>
@@ -47,8 +49,59 @@
                 </div>
             </div>
         {% endif %}
-
-      {% include 'log/logentries.html' with logged_object=course %}
-
     </form>
+
+    {% if course.ignored_evaluations.count > 0 %}
+        <form id="ignored-evaluation-deletion-form" custom-success method="POST" action="{% url 'cms:ignored_evaluation_delete' %}">
+            {% csrf_token %}
+        </form>
+
+        <script type="module">
+            import { fadeOutThenRemove } from "{% static 'js/utils.js' %}";
+            document.getElementById("ignored-evaluation-deletion-form").addEventListener("submit-success", event => {
+                fadeOutThenRemove(document.getElementById(`ignored-evaluation-row-${event.detail.body.get("ignored_evaluation_id")}`))
+            });
+        </script>
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">{% translate 'Ignored evaluations' %}</h5>
+                <table class="table table-vertically-aligned">
+                    <thead>
+                        <tr>
+                            <th class="width-percent-35">{% translate 'Name' %}</th>
+                            <th class="width-percent-35">{% translate 'Notes' %}</th>
+                            <th class="width-percent-25">{% translate 'CMS ID' %}</th>
+                            <th class="width-percent-5"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ignored_evaluation in course.ignored_evaluations.all %}
+                            <tr id="ignored-evaluation-row-{{ ignored_evaluation.id }}">
+                                <td>{{ ignored_evaluation }}</td>
+                                <td>{{ ignored_evaluation.notes|linebreaks }}</td>
+                                <td>{{ ignored_evaluation.cms_id }}</td>
+                                <td class="text-end">
+                                    <confirmation-modal type="submit" form="ignored-evaluation-deletion-form" name="ignored_evaluation_id" value="{{ ignored_evaluation.id }}" confirm-button-class="btn-danger">
+                                        <span slot="title">{% translate 'Delete ignored evaluation' %}</span>
+                                        <span slot="action-text">{% translate 'Delete ignored evaluation' %}</span>
+                                        <span slot="question">
+                                            {% blocktranslate trimmed %}
+                                                Do you really want to delete the ignored evaluation <strong>{{ ignored_evaluation }}</strong>? It will then be imported again on the next CMS import.
+                                            {% endblocktranslate %}
+                                        </span>
+
+                                        <button slot="show-button" type="button" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Delete' %}">
+                                            <span class="fas fa-fw fa-trash" aria-hidden="true"></span>
+                                        </button>
+                                    </confirmation-modal>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+
+    {% include 'log/logentries.html' with logged_object=course %}
 {% endblock %}
