@@ -57,7 +57,7 @@
                                     {% endfor %}
                                     <td>{% include 'bootstrap_form_field_widget.html' with field=form_element.question_form.text_de %}</td>
                                     <td>{% include 'bootstrap_form_field_widget.html' with field=form_element.question_form.text_en %}</td>
-                                    <td class="question-type d-inline-block" data-toggle="tooltip">
+                                    <td class="question-type d-inline-block">
                                         {% include 'bootstrap_form_field_widget.html' with field=form_element.question_form.type %}
                                         <div class="form-check mt-1">
                                             <input class="form-check-input allow-textanswer-checkbox" id="{{ form_element.question_form.allows_additional_textanswers.id_for_label }}"
