@@ -13,6 +13,7 @@ urlpatterns = [
     path("contributor/", include('evap.contributor.urls')),
     path("rewards/", include('evap.rewards.urls')),
     path("grades/", include('evap.grades.urls')),
+    path("cms/", include('evap.cms.urls')),
 
     path("logout", django.contrib.auth.views.LogoutView.as_view(next_page="/"), name="django-auth-logout"),
     path("oidc/", include('mozilla_django_oidc.urls')),
