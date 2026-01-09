@@ -33,6 +33,9 @@ docs/_build
 coverage.xml
 htmlcov
 
+# our nix setup produces this
+process-compose.socket
+
 # pip puts editable packages here
 src
 !evap/static/ts/.prettierrc.json
