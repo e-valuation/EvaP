@@ -79,6 +79,9 @@
     <div>
     {% if not info_only and request.user.is_manager %}
         <a href="{% url 'staff:evaluation_edit' evaluation.id %}">{{ evaluation.full_name }}</a>
+        {% if evaluation.cms_id %}
+            <span class="fas fa-link" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Linked to CMS' %}"></span>
+        {% endif %}
         <a class="small no-underline" href="{% url 'staff:course_edit' evaluation.course.id %}" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Edit course' %}">
             <span class="fas fa-chalkboard-user"></span>
         </a>

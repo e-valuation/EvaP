@@ -523,6 +523,9 @@
                                     <td data-col="name" data-order="{{ course.name|lower }}">
                                         <div>
                                             <a href="{% url 'staff:course_edit' course.id %}">{{ course.name }}</a>
+                                            {% if course.cms_id %}
+                                                <span class="fas fa-link" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Linked to CMS' %}"></span>
+                                            {% endif %}
                                         </div>
                                         {% include 'course_badges.html' %}
                                     </td>
