@@ -939,10 +939,9 @@ class QuestionAssignmentForm(forms.ModelForm):
             "order": forms.HiddenInput(),
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, *args, instance=None, **kwargs):
+        super().__init__(*args, instance=instance, **kwargs)
         if hasattr(self.instance, "question"):
-            kwargs.pop("instance")
             self.question_form = QuestionForm(*args, instance=self.instance.question, **kwargs)
         else:
             self.question_form = QuestionForm(*args, **kwargs)
