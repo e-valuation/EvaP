@@ -3266,7 +3266,8 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
         cls.questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         cls.url = f"/staff/questionnaire/{cls.questionnaire.pk}/edit"
 
-        baker.make(QuestionAssignment, questionnaire=cls.questionnaire, question__type=QuestionType.TEXT)
+        cls.question = baker.make(Question, text_en="old", text_de="text", type=QuestionType.TEXT)
+        baker.make(QuestionAssignment, questionnaire=cls.questionnaire, question=cls.question)
 
     def test_allowed_type_changes_on_used_questionnaire(self):
         baker.make(Contribution, questionnaires=[self.questionnaire], evaluation__state=Evaluation.State.IN_EVALUATION)
@@ -3323,22 +3324,21 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
         return form.submit()
 
     def test_can_change_question(self) -> None:
-        question = self.questionnaire.questions.get()
-
         self.change_question().follow()
-        question.refresh_from_db()
-        self.assertEqual(question.text_de, "successfully")
-        self.assertEqual(question.text_en, "changed")
-        self.assertEqual(question.type, QuestionType.NEGATIVE_LIKERT)
-        self.assertEqual(question.allows_additional_textanswers, True)
+        self.question.refresh_from_db()
+        self.assertEqual(self.question.text_de, "successfully")
+        self.assertEqual(self.question.text_en, "changed")
+        self.assertEqual(self.question.type, QuestionType.NEGATIVE_LIKERT)
+        self.assertEqual(self.question.allows_additional_textanswers, True)
 
     def test_copy_on_write_used_question(self) -> None:
-        question = self.questionnaire.questions.get()
-        baker.make(QuestionAssignment, question=question)
+        baker.make(QuestionAssignment, question=self.question)
 
         self.change_question().follow()
 
-        self.assertNotEqual(question, self.questionnaire.questions.get())
+        self.question.refresh_from_db()
+        self.assertNotEqual(self.question, self.questionnaire.questions.get())
+        self.assertEqual(self.question.text_en, "old")
 
     def test_invalid_question_edit(self) -> None:
         baker.make(Contribution, questionnaires=[self.questionnaire], evaluation__state=Evaluation.State.NEW)
@@ -3349,7 +3349,6 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
         self.assertIn("Select a valid choice.", page)
 
     def test_delete_question(self) -> None:
-        question = self.questionnaire.questions.get()
         baker.make(QuestionAssignment, questionnaire=self.questionnaire, question__type=QuestionType.GRADE)
         baker.make(Contribution, questionnaires=[self.questionnaire], evaluation__state=Evaluation.State.NEW)
         page = self.app.get(self.url, user=self.manager)
@@ -3357,7 +3356,7 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
         form["question_assignments-0-DELETE"] = "on"
         form["question_assignments-0-type"].force_value(-1)
         form.submit().follow()
-        self.assertQuerySetEqual(question.questionnaires.all(), [])
+        self.assertQuerySetEqual(self.question.questionnaires.all(), [])
 
 
 class TestQuestionnaireViewView(WebTestStaffModeWith200Check):
