@@ -127,3 +127,7 @@ tr.evaluation-row:not(.heading-row) {
 .table-headerless tr:last-child td {
     border-bottom-width: 0;
 }
+
+td p {
+    margin-bottom: 0;
+}
