@@ -1,4 +1,6 @@
 .notebook {
+    display: flex;
+    justify-content: center;
     form[data-state] {
         --ready-display: none;
         --sending-display: none;
@@ -43,42 +45,41 @@
         flex-grow: 1;
     }
 
-    @media screen and (min-aspect-ratio: $notebook-break) {
-        .notebook-container {
-            width: 25vw;
-            padding-left: $spacer;
-            padding-bottom: $spacer;
-            padding-top: $spacer;
-        }
-
-        .notebook-card {
-            height: calc((100vh - #{$navbar-brand-height}) - (#{$footer-height} + ((#{$spacer} * 1.5) * 5))); // subtract 3 spacer with padding
-        }
+    .notebook-container {
+        width: 80vw; //approximation to be similar to evap-Content width
+        z-index: $zindex-fixed;
+        padding: $spacer;
     }
-
-    @media screen and (max-aspect-ratio: $notebook-break) {
-        .notebook-container {
-            width: 100vw;
-            z-index: $zindex-fixed;
-            padding: $spacer;
-        }
 
         .notebook-card {
             height: calc(45vh - (#{$spacer} * 1.5) * 2); // subtract spacer with padding
             min-height: 43.5vh; // approximation for size needed in smallest window (50vh - (spacer + leeway))
         }
+
+
+    @media screen and (min-aspect-ratio: $notebook-break), (min-width: $notebook-break-width) {
+    display: unset;
+    .notebook-container {
+        width: 25vw;
+        padding-right: 0;
+        z-index: 0;
+    }
+
+        .notebook-card {
+            height: calc((100vh - #{$navbar-brand-height}) - (#{$footer-height} + ((#{$spacer} * 1.5) * 5))); //approximation for similar gap to the footer as evap-Content
+        }
     }
 }
 
-@media screen and (min-aspect-ratio: $notebook-break) {
+
+    .notebook-margin {
+        margin-top: 50vh;
+    }
+
+@media screen and (min-aspect-ratio: $notebook-break), (min-width: $notebook-break-width) {
     .notebook-margin {
         max-width: 75vw;
         margin-left: 25vw;
-    }
-}
-
-@media screen and (max-aspect-ratio: $notebook-break) {
-    .notebook-margin {
-        margin-top: 50vh;
+        margin-top: 0;
     }
 }
