@@ -11,7 +11,7 @@ from model_bakery import baker
 
 import evap.staff.fixtures.excel_files_test_data as excel_data
 from evap.evaluation.models import Contribution, Course, CourseType, Evaluation, Program, Semester, UserProfile
-from evap.evaluation.tests.tools import TestCase, assert_no_database_modifications
+from evap.evaluation.tests.tools import TestCase, assert_no_database_modifications, assert_no_database_useless_logging
 from evap.staff.importers import (
     ImporterLog,
     ImporterLogEntry,
@@ -341,7 +341,8 @@ class TestEnrollmentImport(ImporterTestCase):
         return existing_course, existing_course_evaluation
 
     def test_valid_file_import(self):
-        importer_log = import_enrollments(self.default_excel_content, self.semester, None, None, test_run=True)
+        with assert_no_database_useless_logging():
+            importer_log = import_enrollments(self.default_excel_content, self.semester, None, None, test_run=True)
 
         success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("The import run will create 23 courses/evaluations and 23 users:", "".join(success_messages))
@@ -352,9 +353,10 @@ class TestEnrollmentImport(ImporterTestCase):
 
         old_user_count = UserProfile.objects.all().count()
 
-        importer_log = import_enrollments(
-            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
+        with assert_no_database_useless_logging():
+            importer_log = import_enrollments(
+                self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+            )
         success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn(
             "Successfully created 23 courses/evaluations, 6 participants and 17 contributors:",
@@ -374,13 +376,15 @@ class TestEnrollmentImport(ImporterTestCase):
     @patch("evap.staff.importers.user.clean_email", new=lambda email: "cleaned_" + email)
     @patch("evap.staff.importers.enrollment.clean_email", new=lambda email: "cleaned_" + email)
     def test_emails_are_cleaned(self):
-        import_enrollments(self.default_excel_content, self.semester, None, None, test_run=True)
+        with assert_no_database_useless_logging():
+            import_enrollments(self.default_excel_content, self.semester, None, None, test_run=True)
 
         old_user_count = UserProfile.objects.all().count()
 
-        import_enrollments(
-            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
+        with assert_no_database_useless_logging():
+            import_enrollments(
+                self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+            )
         expected_user_count = old_user_count + 23
         self.assertEqual(UserProfile.objects.all().count(), expected_user_count)
 
@@ -389,15 +393,17 @@ class TestEnrollmentImport(ImporterTestCase):
         self.assertTrue(UserProfile.objects.filter(email="cleaned_111@institution.example.com").exists())
 
     def test_import_with_empty_excel(self):
-        importer_log = import_enrollments(self.empty_excel_content, self.semester, None, None, test_run=True)
+        with assert_no_database_useless_logging():
+            importer_log = import_enrollments(self.empty_excel_content, self.semester, None, None, test_run=True)
 
         success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("The import run will create 0 courses/evaluations and 0 users.", success_messages)
         self.assertEqual(importer_log.errors_by_category(), {})
 
-        importer_log = import_enrollments(
-            self.empty_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
+        with assert_no_database_useless_logging():
+            importer_log = import_enrollments(
+                self.empty_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+            )
         success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn(
             "Successfully created 0 courses/evaluations, 0 participants and 0 contributors.",
@@ -408,15 +414,17 @@ class TestEnrollmentImport(ImporterTestCase):
     def test_programs_are_merged(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_program_merge_filedata)
 
-        importer_log_test = import_enrollments(excel_content, self.semester, None, None, test_run=True)
+        with assert_no_database_useless_logging():
+            importer_log_test = import_enrollments(excel_content, self.semester, None, None, test_run=True)
         success_messages_test = [msg.message for msg in importer_log_test.success_messages()]
         self.assertIn("The import run will create 1 course/evaluation and 3 users", "".join(success_messages_test))
         self.assertFalse(importer_log_test.has_errors())
         self.assertEqual(importer_log_test.warnings_by_category(), {})
 
-        importer_log_notest = import_enrollments(
-            excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
+        with assert_no_database_useless_logging():
+            importer_log_notest = import_enrollments(
+                excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+            )
         success_messages_notest = [msg.message for msg in importer_log_notest.success_messages()]
         self.assertIn(
             "Successfully created 1 course/evaluation, 2 participants and 1 contributor",
@@ -473,9 +481,10 @@ class TestEnrollmentImport(ImporterTestCase):
     def test_course_type_and_programs_are_retrieved_with_import_names(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_import_names_filedata)
 
-        importer_log = import_enrollments(
-            excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
+        with assert_no_database_useless_logging():
+            importer_log = import_enrollments(
+                excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+            )
         success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn(
             "Successfully created 2 courses/evaluations, 4 participants and 2 contributors:", "".join(success_messages)
@@ -493,10 +502,11 @@ class TestEnrollmentImport(ImporterTestCase):
 
     @override_settings(IMPORTER_MAX_ENROLLMENTS=1)
     def test_enrollment_importer_high_enrollment_warning(self):
-        importer_log_test = import_enrollments(self.default_excel_content, self.semester, None, None, test_run=True)
-        importer_log_notest = import_enrollments(
-            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
+        with assert_no_database_useless_logging():
+            importer_log_test = import_enrollments(self.default_excel_content, self.semester, None, None, test_run=True)
+            importer_log_notest = import_enrollments(
+                self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+            )
 
         self.assertEqual(importer_log_test.warnings_by_category(), importer_log_notest.warnings_by_category())
         self.assertCountEqual(
@@ -635,8 +645,8 @@ class TestEnrollmentImport(ImporterTestCase):
         excel_content = excel_data.create_memory_excel_file(
             excel_data.test_enrollment_data_consecutive_and_trailing_spaces_filedata
         )
-
-        importer_log = import_enrollments(excel_content, self.semester, None, None, test_run=True)
+        with assert_no_database_useless_logging():
+            importer_log = import_enrollments(excel_content, self.semester, None, None, test_run=True)
         success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("The import run will create 1 course/evaluation and 3 users", "".join(success_messages))
         self.assertFalse(importer_log.has_errors())
@@ -648,12 +658,13 @@ class TestEnrollmentImport(ImporterTestCase):
         old_dict = model_to_dict(existing_course)
         self.assertFalse(existing_course_evaluation.participants.exists())
 
-        importer_log_test = import_enrollments(
-            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=True
-        )
-        importer_log_notest = import_enrollments(
-            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
+        with assert_no_database_useless_logging():
+            importer_log_test = import_enrollments(
+                self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=True
+            )
+            importer_log_notest = import_enrollments(
+                self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+            )
 
         self.assertFalse(importer_log_test.has_errors())
         self.assertFalse(importer_log_notest.has_errors())
@@ -694,9 +705,10 @@ class TestEnrollmentImport(ImporterTestCase):
         # The existing course exactly matches one course in the import data by default. To create a conflict, the programs are changed
         existing_course.programs.set([Program.objects.get(name_de="Master")])
 
-        importer_log = import_enrollments(
-            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
+        with assert_no_database_useless_logging():
+            importer_log = import_enrollments(
+                self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+            )
         self.assertFalse(importer_log.has_errors())
 
         self.assertSetEqual(
@@ -751,7 +763,7 @@ class TestEnrollmentImport(ImporterTestCase):
         existing_evaluation._voter_count = existing_evaluation.voters.count()
         existing_evaluation.save()
 
-        with override_settings(DEBUG=False):
+        with override_settings(DEBUG=False) and assert_no_database_useless_logging():
             importer_log = import_enrollments(
                 self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
             )
@@ -832,9 +844,10 @@ class TestEnrollmentImport(ImporterTestCase):
         self.assertFalse(importer_log.has_errors())
         self.assertEqual(importer_log.warnings_by_category(), {})
 
-        importer_log = import_enrollments(
-            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
+        with assert_no_database_useless_logging():
+            importer_log = import_enrollments(
+                self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+            )
         self.assertFalse(importer_log.has_errors())
         self.assertEqual(importer_log.warnings_by_category(), {})
 
@@ -848,7 +861,8 @@ class TestEnrollmentImport(ImporterTestCase):
         )
         existing_evaluation.participants.add(user)
 
-        importer_log = import_enrollments(self.default_excel_content, self.semester, None, None, test_run=True)
+        with assert_no_database_useless_logging():
+            importer_log = import_enrollments(self.default_excel_content, self.semester, None, None, test_run=True)
 
         expected_warnings = ["Course Shake: 1 participant from the import file already participates in the evaluation."]
         self.assertEqual(
@@ -860,9 +874,10 @@ class TestEnrollmentImport(ImporterTestCase):
         )
         self.assertFalse(importer_log.has_errors())
 
-        importer_log = import_enrollments(
-            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
+        with assert_no_database_useless_logging():
+            importer_log = import_enrollments(
+                self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+            )
 
         self.assertEqual(
             [
@@ -884,8 +899,9 @@ class TestEnrollmentImport(ImporterTestCase):
         excel_content = excel_data.create_memory_excel_file(input_data)
 
         args = (excel_content, self.semester, self.vote_start_datetime, self.vote_end_date)
-        importer_log_test = import_enrollments(*args, test_run=True)
-        importer_log_notest = import_enrollments(*args, test_run=False)
+        with assert_no_database_useless_logging():
+            importer_log_test = import_enrollments(*args, test_run=True)
+            importer_log_notest = import_enrollments(*args, test_run=False)
 
         self.assertEqual(importer_log_test.warnings_by_category(), importer_log_notest.warnings_by_category())
         self.assertListEqual(
