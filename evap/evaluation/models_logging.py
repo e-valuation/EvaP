@@ -78,9 +78,15 @@ def _field_actions_for_field(field, actions):
     for field_action_type, items in actions.items():
         if field.many_to_many or field.many_to_one or field.one_to_one:
             # convert item values from primary keys to string-representation for relation-based fields
-            related_objects = field.related_model.objects.filter(pk__in=items)
-            missing = len(items) - related_objects.count()
-            items = [str(obj) for obj in related_objects] + [_("<deleted object>")] * missing
+
+            items_not_none = [i for i in items if i is not None]
+
+            pk_to_obj = {obj.pk: obj for obj in field.related_model.objects.filter(pk__in=items_not_none)}
+
+            items = [
+                _("<unset>") if item is None else str(pk_to_obj[item]) if item in pk_to_obj else _("<deleted object>")
+                for item in items
+            ]
         elif hasattr(field, "choices") and field.choices:
             # convert values from choice-based fields to their display equivalent
             items = [_choice_to_display(field, item) for item in items]
