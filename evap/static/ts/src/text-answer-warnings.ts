@@ -10,9 +10,13 @@ function containsSubArray<Type>(arr: Type[], sub: Type[]): boolean {
     for (let i = 0; i <= arr.length - sub.length; i++) {
         let j;
         for (j = 0; j < sub.length; j++) {
+            if (j == sub.length - 1 && arr[i + j].length > sub[j].length) {
+                if (!arr[i + j].startsWith(sub[j])) break;
+                if (null !== arr[i + j].substring(sub[j].length).match(RegExp("^[!?.]*$", ""))) return true;
+            }
             if (arr[i + j] !== sub[j]) break;
         }
-        if (j == sub.length) return true;
+        if (j >= sub.length) return true;
     }
     return false;
 }
@@ -52,7 +56,7 @@ function updateTextareaWarning(textarea: HTMLTextAreaElement, textAnswerWarnings
 
 export function initTextAnswerWarnings(textareas: NodeListOf<HTMLTextAreaElement>, textAnswerWarnings: string[][]) {
     textAnswerWarnings = textAnswerWarnings.map(triggerStrings => triggerStrings.map(normalize));
-
+    console.log(textAnswerWarnings);
     textareas.forEach(textarea => {
         let warningDelayTimer: ReturnType<typeof setTimeout>;
         textarea.addEventListener("input", () => {
