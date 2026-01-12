@@ -7,9 +7,9 @@ from pathlib import Path
 import requests
 from django.core.management.base import BaseCommand, CommandError
 
+from evap.cms.json_importer import JSONImporter
 from evap.evaluation.management.commands.tools import log_exceptions
 from evap.evaluation.models import Semester
-from evap.staff.importers.json import JSONImporter
 
 logger = logging.getLogger(__name__)
 

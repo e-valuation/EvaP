@@ -8,6 +8,7 @@ from django.test import TestCase, override_settings
 from model_bakery import baker
 from pydantic import ValidationError
 
+from evap.cms.json_importer import ImportDict, JSONImporter, NameChange, WarningMessage, _clean_whitespaces
 from evap.evaluation.models import (
     Contribution,
     Course,
@@ -20,7 +21,6 @@ from evap.evaluation.models import (
     UserProfile,
 )
 from evap.evaluation.models_logging import LogEntry
-from evap.staff.importers.json import ImportDict, JSONImporter, NameChange, WarningMessage, _clean_whitespaces
 
 EXAMPLE_DATA: ImportDict = {
     "students": [
