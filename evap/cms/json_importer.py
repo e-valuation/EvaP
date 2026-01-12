@@ -28,6 +28,8 @@ from evap.evaluation.models import (
 from evap.evaluation.tools import clean_email
 from evap.staff.tools import update_m2m_with_changes, update_or_create_with_changes, update_with_changes
 
+from .models import IgnoredEvaluation
+
 logger = logging.getLogger(__name__)
 
 
