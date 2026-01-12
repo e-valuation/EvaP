@@ -142,11 +142,7 @@ class StudentVoteLiveTest(LiveServerTest):
         vote_area = self.selenium.find_element(By.ID, f"vote-area-{id_}")
 
         textareas = vote_area.find_elements(By.CSS_SELECTOR, "textarea")
-        textarea = self.wait.until(
-            expected_conditions.element_to_be_clickable(
-                (By.CSS_SELECTOR, f"textarea[name='{textareas[0].get_attribute('name')}']")
-            )
-        )
+        textarea = vote_area.find_element(By.CSS_SELECTOR, f"textarea[name='{textareas[0].get_attribute('name')}']")
         radio_buttons = vote_area.find_elements(By.CSS_SELECTOR, "input[value='1'] + label.vote-btn")
         self.assertEqual(len(radio_buttons), 1)
 
