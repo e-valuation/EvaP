@@ -103,14 +103,14 @@ class ImportForm(forms.Form):
         label=_("Start of evaluation"),
         widget=forms.DateTimeInput(attrs={"type": "datetime-local", "class": "form-control"}),
         localize=True,
-        required=False
+        required=False,
     )
-    
+
     vote_end_date = forms.DateField(
         label=_("End of evaluation"),
         widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}),
         localize=True,
-        required=False
+        required=False,
     )
 
     excel_file = forms.FileField(
@@ -421,6 +421,10 @@ class EvaluationForm(forms.ModelForm):
         localized_fields = ("vote_start_datetime", "vote_end_date")
         field_classes = {
             "participants": UserModelMultipleChoiceField,
+        }
+        widgets = {
+            "vote_start_datetime": forms.DateTimeInput(attrs={"type": "datetime-local", "class": "form-control"}),
+            "vote_end_date": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
         }
 
     def __init__(self, *args, requires_decided_main_language=False, **kwargs):
