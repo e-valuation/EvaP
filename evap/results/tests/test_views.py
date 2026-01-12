@@ -538,6 +538,13 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         self.assertContains(response, "test-dropout-question-text")
         self.assertContains(response, "test-dropout-questionnaire-title")
 
+        # Assert Dropout Section is not shown if no dropout_results exist
+        self.evaluation.dropout_count = 0
+        self.evaluation.save()
+
+        response = self.app.get(self.url, user=self.manager, status=200)
+
+        self.assertNotContains(response, "test-dropout-questionnaire-title")
 
 class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
     @classmethod
