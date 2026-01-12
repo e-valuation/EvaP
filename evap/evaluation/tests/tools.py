@@ -17,7 +17,7 @@ from django.contrib.auth.models import Group
 from django.contrib.staticfiles.handlers import StaticFilesHandler
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.http.request import HttpRequest, QueryDict
-from django.test import override_settings
+from django.test import override_settings, tag
 from django.test.runner import DiscoverRunner
 from django.test.selenium import SeleniumTestCase
 from django.test.utils import CaptureQueriesContext
@@ -371,7 +371,7 @@ class LiveServerTest(SeleniumTestCase):
 class VisualRegressionTestCase(LiveServerTest):
     window_size = (1920, 1080)
     _http_timeout_seconds = 3
-    _freezer : Any
+    _freezer: Any
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
