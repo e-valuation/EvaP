@@ -1080,6 +1080,15 @@ class Evaluation(LoggedModel):
             "_participant_count",
             "dropout_count",
         ]
+    
+    def full_name_ordering_key(self):
+        normalized_full_name = self.full_name.lower()
+
+        normalized_full_name = normalized_full_name.replace('ä','a')
+        normalized_full_name = normalized_full_name.replace('ö','o')
+        normalized_full_name = normalized_full_name.replace('ü','u')
+        normalized_full_name = normalized_full_name.replace('ß','ss')
+        return normalized_full_name
 
 
 @receiver(post_transition, sender=Evaluation)
