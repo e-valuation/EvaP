@@ -763,7 +763,6 @@ class TestSemesterView(WebTestStaffMode):
         self.manager.language = "de"
         self.manager.save()
         page = self.app.get(self.url, user=self.manager).body.decode("utf-8")
-        position_evaluation1 = page.find("Evaluation 1")
         position_evaluation2 = page.find("Evaluation 2")
         position_evaluation3 = page.find("Evaluation 3")
         position_evaluation4 = page.find("Evaluation 4")
@@ -782,7 +781,6 @@ class TestSemesterView(WebTestStaffMode):
             position_evaluation2 = page.find("Evaluation 2")
             position_evaluation3 = page.find("Evaluation 3")
             position_evaluation4 = page.find("Evaluation 4")
-            position_evaluation5 = page.find("Evaluation 5")
             self.assertGreater(position_evaluation1, position_evaluation2)
             self.assertGreater(position_evaluation3, position_evaluation4)
 
