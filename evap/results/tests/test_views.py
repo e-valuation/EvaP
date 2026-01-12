@@ -546,6 +546,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
 
         self.assertNotContains(response, "test-dropout-questionnaire-title")
 
+
 class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
     @classmethod
     def setUpTestData(cls):
