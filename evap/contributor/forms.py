@@ -43,7 +43,7 @@ class EvaluationForm(forms.ModelForm):
         }
 
         widgets = {
-            "vote_start_datetime": forms.DateTimeInput(attrs={"type": "date", "class": "form-control"}),
+            "vote_start_datetime": forms.DateTimeInput(attrs={"type": "datetime-local", "class": "form-control"}),
             "vote_end_date": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
         }
 
