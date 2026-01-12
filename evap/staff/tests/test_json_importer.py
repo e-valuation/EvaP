@@ -20,7 +20,7 @@ from evap.evaluation.models import (
     UserProfile,
 )
 from evap.evaluation.models_logging import LogEntry
-from evap.staff.importers.json import ImportDict, JSONImporter, NameChange, WarningMessage
+from evap.staff.importers.json import ImportDict, JSONImporter, NameChange, WarningMessage, _clean_whitespaces
 
 EXAMPLE_DATA: ImportDict = {
     "students": [
@@ -891,10 +891,9 @@ class TestImportEvents(TestCase):
         self.assertEqual(exam_evaluation.name_en, exam_evaluation.exam_type.name_de)
 
     def test_clean_whitespaces(self):
-        importer = JSONImporter(self.semester, date(2000, 1, 1))
-        self.assertEqual(importer._clean_whitespaces(" front"), "front")
-        self.assertEqual(importer._clean_whitespaces("back "), "back")
-        self.assertEqual(importer._clean_whitespaces("inbetween  inbetween"), "inbetween inbetween")
-        self.assertEqual(importer._clean_whitespaces("inbetween \n inbetween"), "inbetween inbetween")
+        self.assertEqual(_clean_whitespaces(" front"), "front")
+        self.assertEqual(_clean_whitespaces("back "), "back")
+        self.assertEqual(_clean_whitespaces("inbetween  inbetween"), "inbetween inbetween")
+        self.assertEqual(_clean_whitespaces("inbetween \n inbetween"), "inbetween inbetween")
         # non-breaking whitespace
-        self.assertEqual(importer._clean_whitespaces("inbetween  inbetween"), "inbetween inbetween")
+        self.assertEqual(_clean_whitespaces("inbetween  inbetween"), "inbetween inbetween")
