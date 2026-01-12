@@ -43,6 +43,8 @@ jobs:
           submodules: true
       - uses: ./.github/setup_evap
         with:
+          shell: .#evap-frontend-dev
           npm-ci: true
+          start-db: true
       - name: Run visual regression tests
         run: python manage.py vrt_test
