@@ -201,7 +201,7 @@
 },
 {
   "model": "evaluation.question",
-  "pk": 3,
+  "pk": 5,
   "fields": {
     "text_de": "your grade",
     "text_en": "your grade",
@@ -249,7 +249,7 @@
   "model": "evaluation.questionassignment",
   "pk": 5,
   "fields": {
-    "question": 3,
+    "question": 5,
     "questionnaire": 2,
     "order": -1
   }

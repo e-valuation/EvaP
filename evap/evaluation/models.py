@@ -1369,6 +1369,7 @@ class QuestionAssignment(models.Model):
 
     class Meta:
         ordering = ["order"]
+        unique_together = [("question", "questionnaire"), ]
 
     def delete(self, using=None, keep_parents=False) -> tuple[int, dict[str, int]]:
         count = 0

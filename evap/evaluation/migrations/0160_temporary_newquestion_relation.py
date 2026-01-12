@@ -16,6 +16,7 @@ def questions_to_question_assignments(apps, _schema_editor):
         new_question = new_questions.setdefault(
             (question.text_de, question.text_en, question.allows_additional_textanswers, question.type),
             NewQuestion(
+                pk=question.pk,
                 text_de=question.text_de,
                 text_en=question.text_en,
                 allows_additional_textanswers=question.allows_additional_textanswers,
@@ -111,6 +112,10 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={"ordering": ["order"]},
+        ),
+        migrations.AlterUniqueTogether(
+            name='questionassignment',
+            unique_together={('question', 'questionnaire')},
         ),
         migrations.AddField(
             model_name="newquestion",
