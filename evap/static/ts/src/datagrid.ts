@@ -171,19 +171,19 @@ abstract class DataGrid {
         this.sortRows();
         this.renderToDOM();
     }
-    
+
     // Applies DIN 5007 Alternative 1 to string
     private normalizeValue(value: string) {
-        var normalized = value.toLowerCase();
+        let normalized = value.toLowerCase();
 
-        normalized = normalized.replace('ä','a');
-        normalized = normalized.replace('ü','u');
-        normalized = normalized.replace('ö','o');
-        normalized = normalized.replace('ß','ss');
+        normalized = normalized.replace("ä", "a");
+        normalized = normalized.replace("ü", "u");
+        normalized = normalized.replace("ö", "o");
+        normalized = normalized.replace("ß", "ss");
 
         return normalized;
     }
-    
+
     // Sorts rows respecting the current order by their orderValues
     private sortRows() {
         for (const header of this.sortableHeaders.values()) {
@@ -201,9 +201,9 @@ abstract class DataGrid {
 
         this.rows.sort((a, b) => {
             for (const [column, order] of this.state.order) {
-                var valueA = a.orderValues.get(column);
-                var valueB = b.orderValues.get(column);
-                if (typeof valueA === 'string' && typeof valueB === 'string') {
+                let valueA = a.orderValues.get(column);
+                let valueB = b.orderValues.get(column);
+                if (typeof valueA === "string" && typeof valueB === "string") {
                     valueA = this.normalizeValue(valueA);
                     valueB = this.normalizeValue(valueB);
                 }
@@ -216,7 +216,6 @@ abstract class DataGrid {
             return 0;
         });
     }
-
 
     // Reflects changes to the rows to the DOM
     protected renderToDOM() {
