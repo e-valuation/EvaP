@@ -203,7 +203,7 @@ class ImportCache(typing.Generic[T]):
     If a lookup fails, the object is created automatically and added to the cache.
     """
 
-    def __init__(self, model: type[T]):
+    def __init__(self, model: type[T]) -> None:
         self.model: type[T] = model
         self.cache: dict[str, T] = {
             import_name.strip().lower(): course_type
