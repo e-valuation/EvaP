@@ -203,7 +203,7 @@ def semester_view(request, semester_id) -> HttpResponse:
     rewards_active = is_semester_activated(semester)
 
     evaluations = get_evaluations_with_prefetched_data(semester)
-    evaluations = sorted(evaluations, key=lambda cr: cr.full_name)
+    evaluations = sorted(evaluations, key=Evaluation.full_name_ordering_key)
     courses = Course.objects.filter(semester=semester).prefetch_related(
         "type", "programs", "responsibles", "evaluations"
     )
