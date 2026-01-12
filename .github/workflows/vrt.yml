@@ -7,8 +7,8 @@ jobs:
     runs-on: ubuntu-22.04
     name: Visual Regression Tests
     env:
-      VRT_APIURL: "https://example.com"
-      VRT_APIKEY: "superSecretKey"
+      VRT_APIURL: ${{ vars.VRT_APIURL }}
+      VRT_APIKEY: ${{ secrets.VRT_APIKEY }}
       VRT_PROJECT: ${{ secrets.VRT_PROJECT }}
       VRT_BRANCHNAME: ${{ github.event.pull_request.head.label }}
     steps:
