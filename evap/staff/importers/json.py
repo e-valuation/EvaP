@@ -1,6 +1,7 @@
 import json
 import logging
 import re
+import typing
 from collections.abc import Collection, Iterable
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
@@ -187,6 +188,47 @@ class ImportStatistics:
         mail.send()
 
 
+def _clean_whitespaces(text: str) -> str:
+    # Use regex for cleaning to also include non-ASCII whitespaces like non-breaking whitespaces
+    return re.sub(r"\s+", " ", text.strip())
+
+
+T = typing.TypeVar("T", CourseType, ExamType, Program)
+
+
+class ImportCache(typing.Generic[T]):
+    """A helper class for importing CourseType, ExamType, or Program objects that by their import_names attribute.
+
+    Avoids repeated database queries by maintaining a mapping from normalized import names to model instances.
+    If a lookup fails, the object is created automatically and added to the cache.
+    """
+
+    def __init__(self, model: type[T]):
+        self.model: type[T] = model
+        self.cache: dict[str, T] = {
+            import_name.strip().lower(): course_type
+            for course_type in model.objects.all()
+            for import_name in course_type.import_names
+        }
+
+    def get(self, name: str) -> T:
+        lookup = _clean_whitespaces(name).strip().lower()
+        if lookup in self.cache:
+            return self.cache[lookup]
+
+        obj, __ = self.model.objects.get_or_create(
+            name_de=name,
+            defaults={"name_en": name, "import_names": [name]},
+        )
+
+        if name not in obj.import_names:
+            obj.import_names.append(name)
+            obj.save()
+
+        self.cache[lookup] = obj
+        return obj
+
+
 # pylint: disable=too-many-instance-attributes
 class JSONImporter:
     DATETIME_FORMAT = "%d.%m.%Y %H:%M:%S"
@@ -196,28 +238,11 @@ class JSONImporter:
         self.semester = semester
         self.default_course_end = default_course_end
         self.users_by_gguid: dict[str, UserProfile] = {}
-        self.course_type_cache: dict[str, CourseType] = {
-            import_name.strip().lower(): course_type
-            for course_type in CourseType.objects.all()
-            for import_name in course_type.import_names
-        }
-        self.exam_type_cache: dict[str, ExamType] = {
-            import_name.strip().lower(): exam_type
-            for exam_type in ExamType.objects.all()
-            for import_name in exam_type.import_names
-        }
-        self.program_cache: dict[str, Program] = {
-            import_name.strip().lower(): program
-            for program in Program.objects.all()
-            for import_name in program.import_names
-        }
+        self.course_type_import_cache = ImportCache(CourseType)
+        self.exam_type_import_cache = ImportCache(ExamType)
+        self.program_import_cache = ImportCache(Program)
         self.courses_by_gguid: dict[str, Course] = {}
         self.statistics = ImportStatistics()
-
-    @staticmethod
-    def _clean_whitespaces(text: str) -> str:
-        # Use regex for cleaning to also include non-ASCII whitespaces like non-breaking whitespaces
-        return re.sub(r"\s+", " ", text.strip())
 
     def _extract_number_in_name(self, name: str, wanted_name: str) -> int | None:
         if not name.startswith(wanted_name):
@@ -256,42 +281,6 @@ class JSONImporter:
     def _remove_non_responsible_users(self, user_profiles: list[UserProfile]) -> list[UserProfile]:
         return [user for user in user_profiles if user.email not in settings.NON_RESPONSIBLE_USERS]
 
-    def _get_course_type(self, name: str) -> CourseType:
-        name = self._clean_whitespaces(name)
-        lookup = name.lower()
-        if lookup in self.course_type_cache:
-            return self.course_type_cache[lookup]
-
-        # It could happen that the importer needs a new course type
-        course_type, __ = CourseType.objects.get_or_create(name_de=name, defaults={"name_en": name})
-        self.course_type_cache[lookup] = course_type
-        return course_type
-
-    def _get_exam_type(self, name: str) -> ExamType:
-        name = self._clean_whitespaces(name)
-        lookup = name.lower()
-        if lookup in self.exam_type_cache:
-            return self.exam_type_cache[lookup]
-
-        # It could happen that the importer needs a new exam type
-        exam_type, __ = ExamType.objects.get_or_create(name_de=name, defaults={"name_en": name, "import_names": [name]})
-        if name not in exam_type.import_names:
-            exam_type.import_names.append(name)
-            exam_type.save()
-        self.exam_type_cache[lookup] = exam_type
-        return exam_type
-
-    def _get_program(self, name: str) -> Program:
-        name = self._clean_whitespaces(name)
-        lookup = name.strip().lower()
-        if lookup in self.program_cache:
-            return self.program_cache[lookup]
-
-        # It could happen that the importer needs a new program
-        program, __ = Program.objects.get_or_create(name_de=name, defaults={"name_en": name})
-        self.program_cache[lookup] = program
-        return program
-
     def _get_user_profiles(self, data: list[ImportRelated]) -> list[UserProfile]:
         # as we skip probably some user profiles during import, they might not exist
         return [self.users_by_gguid[related["gguid"]] for related in data if related["gguid"] in self.users_by_gguid]
@@ -313,8 +302,8 @@ class JSONImporter:
     def _import_students(self, data: list[ImportStudent]) -> None:
         for entry in data:
             email = clean_email(entry["email"])
-            first_name_given = self._clean_whitespaces(self._get_first_name_given(entry))
-            last_name = self._clean_whitespaces(entry["name"])
+            first_name_given = _clean_whitespaces(self._get_first_name_given(entry))
+            last_name = _clean_whitespaces(entry["name"])
             if not email:
                 self.statistics.warnings.append(
                     WarningMessage(obj=f"Student {first_name_given} {last_name}", message="No email defined")
@@ -336,8 +325,8 @@ class JSONImporter:
     def _import_lecturers(self, data: list[ImportLecturer]) -> None:
         for entry in data:
             email = clean_email(entry["email"])
-            first_name_given = self._clean_whitespaces(entry["christianname"])
-            last_name = self._clean_whitespaces(entry["name"])
+            first_name_given = _clean_whitespaces(entry["christianname"])
+            last_name = _clean_whitespaces(entry["name"])
             if not email:
                 self.statistics.warnings.append(
                     WarningMessage(
@@ -355,7 +344,7 @@ class JSONImporter:
                     defaults={
                         "last_name": last_name,
                         "first_name_given": first_name_given,
-                        "title": self._clean_whitespaces(entry["titlefront"]),
+                        "title": _clean_whitespaces(entry["titlefront"]),
                     },
                 )
                 if changes:
@@ -364,7 +353,7 @@ class JSONImporter:
                 self.users_by_gguid[entry["gguid"]] = user_profile
 
     def _import_course(self, data: ImportEvent, course_type: CourseType | None = None) -> Course | None:
-        course_type = self._get_course_type(data["type"]) if course_type is None else course_type
+        course_type = self.course_type_import_cache.get(data["type"]) if course_type is None else course_type
 
         if course_type.skip_on_automated_import:
             self.statistics.warnings.append(
@@ -396,8 +385,8 @@ class JSONImporter:
             semester=self.semester,
             cms_id=data["gguid"],
             defaults={
-                "name_de": self._clean_whitespaces(data["title"]),
-                "name_en": self._clean_whitespaces(data["title_en"]),
+                "name_de": _clean_whitespaces(data["title"]),
+                "name_en": _clean_whitespaces(data["title_en"]),
                 "type": course_type,
             },
         )
@@ -420,9 +409,10 @@ class JSONImporter:
                 )
             )
         else:
-            programs = [
-                self._get_program(c["cprid"]) for c in data["courses"] if c["cprid"] not in settings.IGNORE_PROGRAMS
-            ]
+            program_import_names = [c["cprid"] for c in data["courses"] if c["cprid"] not in settings.IGNORE_PROGRAMS]
+
+            programs = [self.program_import_cache.get(c) for c in program_import_names]
+
             course.programs.add(*programs)
 
     def _import_course_from_unused_exam(self, data: ImportEvent) -> Course | None:
@@ -465,15 +455,15 @@ class JSONImporter:
             )
             evaluation_end_date = (course_end + settings.EXAM_EVALUATION_DEFAULT_DURATION).date()
 
-            exam_type = self._get_exam_type(data["type"])
+            exam_type = self.exam_type_import_cache.get(data["type"])
             if not evaluation:
                 name_de = data["title"].split(" - ")[-1] if " - " in data["title"] else exam_type.name_de
                 name_en = data["title_en"].split(" - ")[-1] if " - " in data["title_en"] else exam_type.name_en
                 name_de = self._disambiguate_name(
-                    self._clean_whitespaces(name_de), course.evaluations.values_list("name_de", flat=True)
+                    _clean_whitespaces(name_de), course.evaluations.values_list("name_de", flat=True)
                 )
                 name_en = self._disambiguate_name(
-                    self._clean_whitespaces(name_en), course.evaluations.values_list("name_en", flat=True)
+                    _clean_whitespaces(name_en), course.evaluations.values_list("name_en", flat=True)
                 )
 
             weight = settings.EXAM_EVALUATION_DEFAULT_WEIGHT
