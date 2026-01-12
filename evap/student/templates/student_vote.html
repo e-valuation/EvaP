@@ -447,7 +447,6 @@
                     if (markNoAnswerButton.classList.contains("tab-selectable")) {
                         collapseToggle.classList.remove("tab-selectable");
                     }
-                    console.log('here');
                     collapseEmptyTextanswerFields();
                 });
             });
@@ -484,7 +483,6 @@
                 textResultsPublishConfirmation.bottom.checked = isChecked;
                 textResultsPublishConfirmation.bottomCard.classList.toggle("d-none", isChecked);
             }
-
             if (textResultsPublishConfirmation.bottomCard) {
                 textResultsPublishConfirmation.top.addEventListener("change", updateTextResultsPublishConfirmation);
                 textResultsPublishConfirmation.bottom.addEventListener("change", () => {
