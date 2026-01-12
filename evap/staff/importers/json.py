@@ -206,9 +206,9 @@ class ImportCache(typing.Generic[T]):
     def __init__(self, model: type[T]) -> None:
         self.model: type[T] = model
         self.cache: dict[str, T] = {
-            import_name.strip().lower(): course_type
-            for course_type in model.objects.all()
-            for import_name in course_type.import_names
+            import_name.strip().lower(): model_instance
+            for model_instance in model.objects.all()
+            for import_name in model_instance.import_names
         }
 
     def get(self, name: str) -> T:
