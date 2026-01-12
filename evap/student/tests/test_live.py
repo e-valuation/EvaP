@@ -1,11 +1,8 @@
-import time
-
 from django.test import override_settings
 from model_bakery import baker
 from selenium.webdriver import Keys, ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
-from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.expected_conditions import presence_of_element_located, visibility_of_element_located
 
 from evap.evaluation.models import Contribution, Evaluation, Question, Questionnaire, QuestionType, UserProfile
@@ -127,10 +124,12 @@ class StudentVoteLiveTest(LiveServerTest):
         def get_open_modals():
             modals = self.selenium.find_elements(By.CSS_SELECTOR, "confirmation-modal.mark-no-answer-modal")
             return [modal for modal in modals if len(modal.shadow_root.find_elements(By.CSS_SELECTOR, "dialog:open")) == 1]
+
         def assert_modal_visible_and_close():
             modals = get_open_modals()
             self.assertEqual(len(modals), 1)
             ActionChains(self.selenium).send_keys(Keys.ESCAPE).perform()
+
         def assert_modal_not_visible():
             modals = get_open_modals()
             self.assertEqual(len(modals), 0)
