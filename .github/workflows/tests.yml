@@ -125,7 +125,7 @@ jobs:
           python manage.py scss
 
       - name: Run tests (shuffled)
-        run: coverage run manage.py test --shuffle --tag selenium
+        run: coverage run manage.py test --shuffle --tag selenium --exclude-tag vrt
       - name: Upload coverage
         uses: codecov/codecov-action@v5
         with:

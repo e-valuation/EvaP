@@ -39,6 +39,7 @@ dev = [
     "xlrd~=2.0.1",
     "typeguard~=4.4.0",
     "selenium~=4.36.0",
+    "freezegun~=1.5.5"
 ]
 lsp = [
     "python-lsp-server",
