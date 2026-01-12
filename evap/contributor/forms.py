@@ -42,6 +42,11 @@ class EvaluationForm(forms.ModelForm):
             "participants": UserModelMultipleChoiceField,
         }
 
+        widgets = {
+            "vote_start_datetime": forms.DateTimeInput(attrs={"type": "date", "class": "form-control"}),
+            "vote_end_date": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+        }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
