@@ -197,7 +197,7 @@ T = typing.TypeVar("T", CourseType, ExamType, Program)
 
 
 class ImportCache(typing.Generic[T]):
-    """A helper class for importing CourseType, ExamType, or Program objects that by their import_names attribute.
+    """A helper class for importing CourseType, ExamType, or Program objects by their import_names attribute.
 
     Avoids repeated database queries by maintaining a mapping from normalized import names to model instances.
     If a lookup fails, the object is created automatically and added to the cache.
