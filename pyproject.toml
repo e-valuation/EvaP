@@ -81,7 +81,7 @@ line-length = 120
 
 [tool.ruff.lint]
 # Those are interesting, but not yet addressed: PYI,Q,SIM,PTH,TRY,RUF
-select = ["F", "E", "B", "W", "N", "UP", "YTT", "FIX", "ASYNC", "A", "DJ", "EXE", "ICN", "G", "SLOT", "TID", "TCH", "INT", "C4", "ISC", "INP", "PIE", "RSE", "RET", "COM","PGH","FLY", "PERF", "PL", "BLE", "I"]
+select = ["F", "E", "B", "W", "N", "UP", "YTT", "FIX", "ASYNC", "A", "DJ", "EXE", "ICN", "G", "SLOT", "TID", "TCH", "INT", "C4", "ISC", "INP", "PIE", "RSE", "RET", "COM","PGH","FLY", "PERF", "PL", "BLE", "I", "INP"]
 ignore = [
     "E501",                  # line-too-long: black does code formatting for us
     "FIX004",                # hacks should be possible
