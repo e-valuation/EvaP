@@ -732,13 +732,31 @@ class TestSemesterView(WebTestStaffMode):
             Evaluation,
             name_de="Evaluation 1",
             name_en="Evaluation 1",
-            course=baker.make(Course, name_de="A", name_en="B", semester=cls.semester),
+            course=baker.make(Course, name_de="A", name_en="Z", semester=cls.semester),
         )
         baker.make(
             Evaluation,
             name_de="Evaluation 2",
             name_en="Evaluation 2",
-            course=baker.make(Course, name_de="B", name_en="A", semester=cls.semester),
+            course=baker.make(Course, name_de="Ä", name_en="Ü", semester=cls.semester),
+        )
+        baker.make(
+            Evaluation,
+            name_de="Evaluation 3",
+            name_en="Evaluation 3",
+            course=baker.make(Course, name_de="U", name_en="U", semester=cls.semester),
+        )
+        baker.make(
+            Evaluation,
+            name_de="Evaluation 4",
+            name_en="Evaluation 4",
+            course=baker.make(Course, name_de="Ü", name_en="Ä", semester=cls.semester),
+        )
+        baker.make(
+            Evaluation,
+            name_de="Evaluation 5",
+            name_en="Evaluation 5",
+            course=baker.make(Course, name_de="Z", name_en="A", semester=cls.semester),
         )
 
     def test_view_list_sorting(self):
@@ -747,7 +765,12 @@ class TestSemesterView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager).body.decode("utf-8")
         position_evaluation1 = page.find("Evaluation 1")
         position_evaluation2 = page.find("Evaluation 2")
-        self.assertLess(position_evaluation1, position_evaluation2)
+        position_evaluation3 = page.find("Evaluation 3")
+        position_evaluation4 = page.find("Evaluation 4")
+        position_evaluation5 = page.find("Evaluation 5")
+
+        self.assertLess(position_evaluation2, position_evaluation3)
+        self.assertLess(position_evaluation4, position_evaluation5)
         self.app.reset()  # language is only loaded on login, so we're forcing a re-login here
 
         # Re-enter staff mode, since the session was just reset
@@ -757,7 +780,11 @@ class TestSemesterView(WebTestStaffMode):
             page = self.app.get(self.url, user=self.manager).body.decode("utf-8")
             position_evaluation1 = page.find("Evaluation 1")
             position_evaluation2 = page.find("Evaluation 2")
+            position_evaluation3 = page.find("Evaluation 3")
+            position_evaluation4 = page.find("Evaluation 4")
+            position_evaluation5 = page.find("Evaluation 5")
             self.assertGreater(position_evaluation1, position_evaluation2)
+            self.assertGreater(position_evaluation3, position_evaluation4)
 
     def test_access_to_semester_with_archived_results(self):
         reviewer = baker.make(
