@@ -2409,6 +2409,25 @@ class TestEvaluationEditView(WebTestStaffMode):
             page, '<p class="mt-3">The Contribution "General Contribution" was created.</p><ul></ul>', html=True
         )
 
+    def test_hidden_and_archived_not_shown(self):
+        hidden_questionnaire = baker.make(Questionnaire, visibility=Questionnaire.Visibility.HIDDEN)
+        archived_questionnaire = baker.make(Questionnaire, visibility=Questionnaire.Visibility.ARCHIVED)
+        selected_hidden_questionnaire = baker.make(Questionnaire, visibility=Questionnaire.Visibility.HIDDEN)
+        selected_archived_questionnaire = baker.make(Questionnaire, visibility=Questionnaire.Visibility.ARCHIVED)
+
+        self.evaluation.general_contribution.questionnaires.set(
+            [selected_hidden_questionnaire, selected_archived_questionnaire]
+        )
+
+        page = self.app.get(self.url, user=self.manager)
+
+        self.assertIn(selected_hidden_questionnaire.name, page)
+        self.assertIn(selected_archived_questionnaire.name, page)
+        self.assertNotIn(hidden_questionnaire.name, page)
+        self.assertNotIn(archived_questionnaire.name, page)
+
+        self.evaluation.general_contribution.questionnaires.set([self.general_questionnaire])
+
 
 class TestEvaluationDeleteView(WebTestStaffMode):
     csrf_checks = False
@@ -3152,10 +3171,10 @@ class TestQuestionnaireNewVersionView(WebTestStaffMode):
         cls.manager = make_manager()
         cls.name_de_orig = "kurzer name"
         cls.name_en_orig = "short name"
-        questionnaire = baker.make(Questionnaire, name_de=cls.name_de_orig, name_en=cls.name_en_orig)
-        cls.url = f"/staff/questionnaire/{questionnaire.pk}/new_version"
+        cls.questionnaire = baker.make(Questionnaire, name_de=cls.name_de_orig, name_en=cls.name_en_orig)
+        cls.url = f"/staff/questionnaire/{cls.questionnaire.pk}/new_version"
 
-        baker.make(Question, questionnaire=questionnaire)
+        baker.make(Question, questionnaire=cls.questionnaire)
 
     def test_changes_old_title(self):
         page = self.app.get(url=self.url, user=self.manager)
@@ -3184,6 +3203,14 @@ class TestQuestionnaireNewVersionView(WebTestStaffMode):
 
         # We should get redirected back to the questionnaire index.
         self.assertEqual(page.location, "/staff/questionnaire/")
+
+    def test_change_old_visibility(self):
+        page = self.app.get(url=self.url, user=self.manager)
+        form = page.forms["questionnaire-form"]
+        form.submit()
+        self.assertEqual(
+            Questionnaire.objects.get(pk=self.questionnaire.pk).visibility, Questionnaire.Visibility.ARCHIVED
+        )
 
 
 class TestQuestionnaireCreateView(WebTestStaffMode):
