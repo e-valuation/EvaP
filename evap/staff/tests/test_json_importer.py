@@ -711,6 +711,8 @@ class TestImportEvents(TestCase):
         evaluation.course.name_en = "Change"
         evaluation.course.save()
 
+        # There is still an update occuring here, but empty m2m changes are no longer an issue.
+        # with assert_no_database_modifications():
         importer = self._import()
 
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
