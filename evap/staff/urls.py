@@ -54,6 +54,7 @@ urlpatterns = [
     path("questionnaire/", views.questionnaire_index, name="questionnaire_index"),
     path("questionnaire/create", views.questionnaire_create, name="questionnaire_create"),
     path("questionnaire/<int:questionnaire_id>", views.questionnaire_view, name="questionnaire_view"),
+    path("questionnaire/<int:questionnaire_id>/usage", views.questionnaire_usage, name="questionnaire_usage"),
     path("questionnaire/<int:questionnaire_id>/edit", views.questionnaire_edit, name="questionnaire_edit"),
     path("questionnaire/<int:questionnaire_id>/new_version", views.questionnaire_new_version, name="questionnaire_new_version"),
     path("questionnaire/<int:questionnaire_id>/copy", views.questionnaire_copy, name="questionnaire_copy"),
