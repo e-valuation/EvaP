@@ -118,7 +118,7 @@ django-settings-module = "evap.settings"
 # see https://docs.djangoproject.com/en/4.0/topics/forms/formsets/
 # For migrations, models are assigned as local variables. Until pylint supports configuration-per-directory, we also
 # need to allow that here (their issue 618)
-variable-rgx = "(^[a-z0-9_]+$)|(^[A-Za-z]+$)"
+variable-rgx = "(^[a-z0-9_]+$)|(^[A-Za-z]+$)|(^[A-Z_]+$)"
 argument-rgx = "(^[a-z0-9_]+$)|(^[A-Za-z]+$)"
 method-rgx = "(^[a-z0-9_]+$)|(^assert[A-Za-z]+$)"
 
