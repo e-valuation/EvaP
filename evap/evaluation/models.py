@@ -1119,6 +1119,9 @@ class Evaluation(LoggedModel):
             "dropout_count",
         ]
 
+    def full_name_ordering_key(self):
+        return self.full_name.lower().replace("ä", "a").replace("ö", "o").replace("ü", "u").replace("ß", "ss")
+
 
 @receiver(post_transition, sender=Evaluation)
 def evaluation_state_change(instance, source, **_kwargs):
