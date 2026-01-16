@@ -28,6 +28,8 @@ from evap.evaluation.models import (
 from evap.evaluation.tools import clean_email
 from evap.staff.tools import update_m2m_with_changes, update_or_create_with_changes, update_with_changes
 
+from .models import IgnoredEvaluation
+
 logger = logging.getLogger(__name__)
 
 
@@ -436,7 +438,11 @@ class JSONImporter:
     # pylint: disable=too-many-locals
     def _import_evaluation(  # noqa: PLR0912, PLR0915
         self, course: Course, data: ImportEvent, earliest_exam_date: date | None = None
-    ) -> Evaluation:
+    ) -> Evaluation | None:
+        # Don't import ignored evaluations again
+        if IgnoredEvaluation.objects.filter(cms_id=data["gguid"]).exists():
+            return None
+
         try:
             evaluation = Evaluation.objects.get(course=course, cms_id=data["gguid"])
         except Evaluation.DoesNotExist:
