@@ -79,9 +79,7 @@ def _field_actions_for_field(field, actions):
         if field.many_to_many or field.many_to_one or field.one_to_one:
             # convert item values from primary keys to string-representation for relation-based fields
 
-            items_not_none = [i for i in items if i is not None]
-
-            pk_to_obj = {obj.pk: obj for obj in field.related_model.objects.filter(pk__in=items_not_none)}
+            pk_to_obj = {obj.pk: obj for obj in field.related_model.objects.filter(pk__in=items)}
 
             items = [
                 _("<unset>") if item is None else str(pk_to_obj[item]) if item in pk_to_obj else _("<deleted object>")
