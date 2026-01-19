@@ -14,6 +14,7 @@ function isInvisible(el: Element): boolean {
 function hasTabbingTarget(element: HTMLElement): boolean {
     return element.querySelector(".tab-selectable") !== null;
 }
+console.log("here");
 
 function selectByNumberKey(row: HTMLElement, num: number) {
     let index = 2 * num - 1;
@@ -332,7 +333,9 @@ function clearChoiceError(voteButton: HTMLElement) {
         });
 }
 
+console.log("here");
 document.querySelectorAll<HTMLButtonElement>("[data-mark-no-answers-for]").forEach(button => {
+    console.log("here");
     const contributorId = button.dataset.markNoAnswersFor!;
     const voteArea = document.getElementById(`vote-area-${contributorId}`)!;
     const collapseToggle = voteArea.closest(".collapsible")!.querySelector(".collapse-toggle")!;
