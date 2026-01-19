@@ -1,8 +1,8 @@
+// declare const bootstrap: typeof import("bootstrap");
 import { selectOrError, assert } from "./utils.js";
 import { AutoFormSaver } from "./auto-form-saver.js";
 import { CSRF_HEADERS } from "./csrf-utils.js";
 import { initTextAnswerWarnings } from "./text-answer-warnings.js";
-import { Collapse } from "bootstrap";
 
 function isInvisible(el: Element): boolean {
     if (getComputedStyle(el).display === "none") {
@@ -349,7 +349,8 @@ document.querySelectorAll<HTMLButtonElement>("[data-mark-no-answers-for]").forEa
         formSaver.saveAllData();
 
         // hide questionnaire for contributor
-        const voteAreaCollapse = Collapse.getOrCreateInstance(voteArea);
+        // @ts-ignore
+        const voteAreaCollapse = bootstrap.Collapse.getOrCreateInstance(voteArea);
         voteAreaCollapse.hide();
         collapseToggle.classList.add("tab-selectable");
 
