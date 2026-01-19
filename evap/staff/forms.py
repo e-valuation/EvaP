@@ -101,7 +101,7 @@ class ImportForm(forms.Form):
 
     vote_start_datetime = forms.DateTimeField(
         label=_("Start of evaluation"),
-        widget=forms.DateTimeInput(attrs={"type": "datetime-local", "class": "form-control"}),
+        widget=forms.DateTimeInput(),
         localize=True,
         required=False,
     )
@@ -298,7 +298,7 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore[misc]
     vote_start_datetime = forms.DateTimeField(
         label=_("Start of evaluations"),
         localize=True,
-        widget=forms.DateTimeInput(attrs={"type": "datetime-local", "class": "form-control"}),
+        widget=forms.DateTimeInput(),
     )
 
     vote_end_date = forms.DateField(
@@ -423,7 +423,7 @@ class EvaluationForm(forms.ModelForm):
             "participants": UserModelMultipleChoiceField,
         }
         widgets = {
-            "vote_start_datetime": forms.DateTimeInput(attrs={"type": "datetime-local", "class": "form-control"}),
+            "vote_start_datetime": forms.DateTimeInput(),
             "vote_end_date": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
         }
 
