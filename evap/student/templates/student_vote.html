@@ -6,14 +6,6 @@
 
 {% block title %}{{ evaluation.full_name }} - {% translate 'Evaluation' %} - {{ block.super }}{% endblock %}
 
-<div class="dataElement"
-     data-evaluation-id="{{ evaluation.id }}"
-     data-request-user-id="{{ request.user.id }}"
-     data-evaluation-language="{{ evaluation_language|escapejs }}"
-     data-language-code="{{ LANGUAGE_CODE }}"
-     data-success-magic-string="{{ success_magic_string }}"
-     data-success-redirect-url="{{ success_redirect_url }}"></div>
-
 {% block breadcrumb_bar %}
     <div class="breadcrumb-bar">
         <ul class="breadcrumb">
@@ -24,6 +16,13 @@
 {% endblock %}
 
 {% block content %}
+    <div class="dataElement"
+         data-evaluation-id="{{ evaluation.id }}"
+         data-request-user-id="{{ request.user.id }}"
+         data-evaluation-language="{{ evaluation_language|escapejs }}"
+         data-language-code="{{ LANGUAGE_CODE }}"
+         data-success-magic-string="{{ success_magic_string }}"
+         data-success-redirect-url="{{ success_redirect_url }}"></div>
     {{ block.super }}
     {% if errors_exist %}
         <div class="callout callout-danger" role="alert">
