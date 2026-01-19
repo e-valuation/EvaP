@@ -368,10 +368,9 @@ def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  #
         case _:
             return
 
-    if action_type == (FieldActionType.M2M_ADD or FieldActionType.M2M_REMOVE):
-        if not pk_set:
-            # we don't need to log empty removals or additions, but we do log empty clears, that never enter this if.
-            return
+    if action_type in (FieldActionType.M2M_ADD, FieldActionType.M2M_REMOVE) and not pk_set:
+        # we don't need to log empty removals or additions, but we do log empty clears, that never enter this if.
+        return
 
     if reverse:
         # Since we are not clearing the LoggedModdel instance, we need to log the removal of the related instances
