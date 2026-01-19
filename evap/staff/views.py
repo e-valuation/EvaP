@@ -383,7 +383,7 @@ class ReadyForEditorsOperation(EvaluationOperation):
                 editors = UserProfile.objects.filter(
                     contributions__evaluation__in=responsible_evaluations,
                     contributions__role=Contribution.Role.EDITOR,
-                ).exclude(pk=responsible.pk)
+                ).exclude(pk__in=[responsible.pk for responsible in evaluations_by_responsible])
                 email_template.send_to_user(
                     responsible,
                     subject_params={},
