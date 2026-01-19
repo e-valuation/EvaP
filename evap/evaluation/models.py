@@ -1081,7 +1081,7 @@ class Evaluation(LoggedModel):
             "dropout_count",
         ]
 
-    def full_name_ordering_key(self):
+    def full_name_ordering_key(self) -> str:
         return self.full_name.lower().replace("ä", "a").replace("ö", "o").replace("ü", "u").replace("ß", "ss")
 
 
