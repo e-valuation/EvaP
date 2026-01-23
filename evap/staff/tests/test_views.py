@@ -3209,8 +3209,8 @@ class TestQuestionnaireCreateView(WebTestStaffMode):
         questionnaire_form["name_en"] = "test questionnaire"
         questionnaire_form["public_name_de"] = "Oeffentlicher Test Fragebogen"
         questionnaire_form["public_name_en"] = "Public Test Questionnaire"
-        questionnaire_form["question_assignments-0-text_de"].force_value('{"value":"Frage 1"}')
-        questionnaire_form["question_assignments-0-text_en"].force_value('{"value":"Question 1"}')
+        questionnaire_form["question_assignments-0-text_de"] = "Frage 1"
+        questionnaire_form["question_assignments-0-text_en"] = "Question 1"
         questionnaire_form["question_assignments-0-type"] = QuestionType.TEXT
         questionnaire_form["question_assignments-0-order"] = 0
         questionnaire_form["question_assignments-0-type"] = Questionnaire.Type.TOP
