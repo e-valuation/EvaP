@@ -2973,7 +2973,7 @@ class TestEvaluationTextAnswerView(WebTest):
             baker.make(
                 TextAnswer,
                 contribution=contribution,
-                question__question__type=QuestionType.TEXT,
+                assignment__question__type=QuestionType.TEXT,
                 _quantity=answer_count,
             )
 
