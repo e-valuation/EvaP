@@ -3350,7 +3350,8 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
         page = self.app.get(self.url, user=self.manager)
         form = page.forms["questionnaire-form"]
         form["question_assignments-0-type"].force_value(-1)
-        page = form.submit()
+        with assert_no_database_modifications():
+            page = form.submit()
         self.assertIn("Select a valid choice.", page)
 
     def test_delete_question(self) -> None:
