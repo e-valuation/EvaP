@@ -16,7 +16,7 @@ def questions_to_question_assignments(apps, _schema_editor):
         new_question = new_questions.setdefault(
             (question.text_de, question.text_en, question.allows_additional_textanswers, question.type),
             NewQuestion(
-                pk=question.pk,
+                # pk=question.pk,  # was only active when the test data jsons were regenerated to minimize the diff
                 text_de=question.text_de,
                 text_en=question.text_en,
                 allows_additional_textanswers=question.allows_additional_textanswers,
