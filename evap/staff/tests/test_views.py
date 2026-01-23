@@ -3266,7 +3266,9 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
         cls.questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         cls.url = f"/staff/questionnaire/{cls.questionnaire.pk}/edit"
 
-        cls.question = baker.make(Question, text_en="old", text_de="text", type=QuestionType.TEXT)
+        cls.question = baker.make(
+            Question, text_en="old", text_de="text", type=QuestionType.TEXT, allows_additional_textanswers=False
+        )
         baker.make(QuestionAssignment, questionnaire=cls.questionnaire, question=cls.question)
 
     def test_allowed_type_changes_on_used_questionnaire(self):
@@ -3339,6 +3341,9 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
         self.question.refresh_from_db()
         self.assertNotEqual(self.question, self.questionnaire.questions.get())
         self.assertEqual(self.question.text_en, "old")
+        self.assertEqual(self.question.text_de, "text")
+        self.assertEqual(self.question.type, QuestionType.TEXT)
+        self.assertEqual(self.question.allows_additional_textanswers, False)
 
     def test_invalid_question_edit(self) -> None:
         baker.make(Contribution, questionnaires=[self.questionnaire], evaluation__state=Evaluation.State.NEW)
