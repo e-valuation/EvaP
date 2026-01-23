@@ -1376,6 +1376,8 @@ class QuestionAssignment(models.Model):
         meta: dict[str, int] = {}
 
         if not self.question.questionnaires.exclude(pk=self.questionnaire.pk).exists():
+            if self.question.answer_class.objects.filter(assignment=self).exists():
+                raise AssertionError("cannot delete question with answers")
             count, meta = self.question.delete(using=using, keep_parents=False)  # garbage-collect unused questions
         self_count, self_meta = super().delete(using=using, keep_parents=keep_parents)
         return count + self_count, meta | self_meta
