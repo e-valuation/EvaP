@@ -923,10 +923,10 @@ class QuestionForm(forms.ModelForm):
             self.cleaned_data["allows_additional_textanswers"] = False
         return self.cleaned_data
 
-    def save(self, commit=True) -> Question:
+    def save(self, *args, **kwargs) -> Question:
         if self.instance.pk and self.instance.questionnaires.count() > 1 and self.has_changed():
             self.instance.pk = None  # copy on write
-        return super().save(commit=commit)
+        return super().save(*args, **kwargs)
 
 
 class QuestionAssignmentForm(forms.ModelForm):
@@ -955,9 +955,9 @@ class QuestionAssignmentForm(forms.ModelForm):
         return super().has_changed() or self.question_form.has_changed()
 
     @transaction.atomic
-    def save(self, commit: bool = True):
-        self.instance.question = self.question_form.save(commit=commit)
-        return super().save(commit=commit)
+    def save(self, *args, **kwargs):
+        self.instance.question = self.question_form.save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class QuestionnairesAssignForm(forms.Form):
