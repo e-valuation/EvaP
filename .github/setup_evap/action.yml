@@ -18,7 +18,17 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: DeterminateSystems/nix-installer-action@main
+    - name: Install nix
+      uses: nixbuild/nix-quick-install-action@v30
+    - name: Write nix.conf
+      run: cp -v nix/nix.conf ~/.config/nix/nix.conf
+      shell: bash
+    - name: Restore and save Nix store
+      uses: nix-community/cache-nix-action@v6
+      with:
+        primary-key: nix-${{ runner.os }}-${{ hashFiles('**/*.nix', 'flake.lock', 'uv.lock', 'evap/development/manage_autocompletion.sh') }}
+        restore-prefixes-first-match: nix-${{ runner.os }}-
+        gc-max-store-size-linux: 1G
     - uses: nicknovitski/nix-develop@v1
       with:
         arguments: "${{ inputs.shell }}"
