@@ -58,12 +58,22 @@ class TestStudentIndexView(WebTestWith200Check):
             self.app.get(self.url, user=self.user)
 
     @override_settings(
-        GLOBAL_EVALUATION_PROGRESS_REWARDS=[(Fraction(1, 10), "a dog"), (Fraction(5, 10), "a quokka")],
-        GLOBAL_EVALUATION_PROGRESS_INFO_TEXT={"de": "info_text_str", "en": "info_text_str"},
+        GLOBAL_EVALUATION_PROGRESS_REWARDS=[
+            (Fraction(1, 10), {"de": "a dog", "en": "a dog"}),
+            (Fraction(5, 10), {"de": "a quokka", "en": "a quokka"}),
+        ],
+        GLOBAL_EVALUATION_PROGRESS_CAMPAIGN={
+            "title_de": "global_evaluation_progress_title_str",
+            "title_en": "global_evaluation_progress_title_str",
+            "info_title_de": "global_evaluation_progress_info_title_str",
+            "info_title_en": "global_evaluation_progress_info_title_str",
+            "info_text_de": "global_evaluation_progress_info_text_str",
+            "info_text_en": "global_evaluation_progress_info_text_str",
+        },
         GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS=[1042],
         GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS=[1043],
     )
-    def test_global_reward_progress(self):
+    def test_global_evaluation_progress(self):
         excluded_states = [state for state in Evaluation.State if state < Evaluation.State.APPROVED]
         included_states = [state for state in Evaluation.State if state >= Evaluation.State.APPROVED]
 
@@ -97,8 +107,9 @@ class TestStudentIndexView(WebTestWith200Check):
         expected_voter_percent = 100 * expected_voters // expected_participants
 
         page = self.app.get(self.url, user=self.user)
-        self.assertIn("Fundraising", page)
-        self.assertIn("info_text_str", page)
+        self.assertIn("global_evaluation_progress_title_str", page)
+        self.assertIn("global_evaluation_progress_info_title_str", page)
+        self.assertIn("global_evaluation_progress_info_text_str", page)
         self.assertIn("Last evaluation:", page)
         self.assertIn(f"{expected_voters} submitted evaluations ({expected_voter_percent}%)", page)
         self.assertIn("a quokka", page)
@@ -106,8 +117,8 @@ class TestStudentIndexView(WebTestWith200Check):
         self.assertIn("a dog", page)
         self.assertIn("50%", page)
 
-    @override_settings(GLOBAL_EVALUATION_PROGRESS_REWARDS=[(Fraction("0.07"), "a dog")])
-    def test_global_reward_progress_edge_cases(self):
+    @override_settings(GLOBAL_EVALUATION_PROGRESS_REWARDS=[(Fraction("0.07"), {"de": "a dog", "en": "a dog"})])
+    def test_global_evaluation_progress_edge_cases(self):
         # no active semester
         Semester.objects.update(is_active=False)
         page = self.app.get(self.url, user=self.user)
@@ -138,12 +149,20 @@ class TestStudentIndexView(WebTestWith200Check):
 
     @override_settings(
         GLOBAL_EVALUATION_PROGRESS_REWARDS=[],
-        GLOBAL_EVALUATION_PROGRESS_INFO_TEXT={"de": "info_text_str", "en": "info_text_str"},
+        GLOBAL_EVALUATION_PROGRESS_CAMPAIGN={
+            "title_de": "global_evaluation_progress_title_str",
+            "title_en": "global_evaluation_progress_title_str",
+            "info_title_de": "global_evaluation_progress_info_title_str",
+            "info_title_en": "global_evaluation_progress_info_title_str",
+            "info_text_de": "global_evaluation_progress_info_text_str",
+            "info_text_en": "global_evaluation_progress_info_text_str",
+        },
     )
-    def test_global_reward_progress_hidden(self):
+    def test_global_evaluation_progress_hidden(self):
         page = self.app.get(self.url, user=self.user)
-        self.assertNotIn("Fundraising", page)
-        self.assertNotIn("info_text_str", page)
+        self.assertNotIn("global_evaluation_progress_title_str", page)
+        self.assertNotIn("global_evaluation_progress_info_title_str", page)
+        self.assertNotIn("global_evaluation_progress_info_text_str", page)
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
