@@ -373,17 +373,18 @@ class ReadyForEditorsOperation(EvaluationOperation):
             ).format(len(evaluations)),
         )
         if email_template:
-            evaluations_by_responsible = {}
+            evaluations_by_responsible: dict[UserProfile, list[Evaluation]] = defaultdict(list)
             for evaluation in evaluations:
                 for responsible in evaluation.course.responsibles.all():
-                    evaluations_by_responsible.setdefault(responsible, []).append(evaluation)
+                    evaluations_by_responsible[responsible].append(evaluation)
 
             for responsible, responsible_evaluations in evaluations_by_responsible.items():
                 body_params = {"user": responsible, "evaluations": responsible_evaluations}
                 editors = UserProfile.objects.filter(
                     contributions__evaluation__in=responsible_evaluations,
                     contributions__role=Contribution.Role.EDITOR,
-                ).exclude(pk__in=[responsible.pk for responsible in evaluations_by_responsible])
+                ).exclude(courses_responsible_for__evaluations__in=responsible_evaluations)
+
                 email_template.send_to_user(
                     responsible,
                     subject_params={},
