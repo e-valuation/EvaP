@@ -1372,12 +1372,13 @@ class QuestionAssignment(models.Model):
         unique_together = [("question", "questionnaire")]
 
     def delete(self, using=None, keep_parents=False) -> tuple[int, dict[str, int]]:
+        assert not self.question.answer_class.objects.filter(assignment=self).exists(), (
+            "cannot delete question with answers"
+        )
         count = 0
         meta: dict[str, int] = {}
 
         if not self.question.questionnaires.exclude(pk=self.questionnaire.pk).exists():
-            if self.question.answer_class.objects.filter(assignment=self).exists():
-                raise AssertionError("cannot delete question with answers")
             count, meta = self.question.delete(using=using, keep_parents=False)  # garbage-collect unused questions
         self_count, self_meta = super().delete(using=using, keep_parents=keep_parents)
         return count + self_count, meta | self_meta
