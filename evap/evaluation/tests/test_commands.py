@@ -611,3 +611,21 @@ class TestImportCMSData(TestCase):
                     stdout=StringIO(),
                 )
             self.assertEqual(cm.exception.args, ("Semester does not exist.",))
+
+    @patch("evap.evaluation.management.commands.import_cms_data.JSONImporter")
+    def test_uses_semester_default_course_end_date(self, mock_json_importer):
+        semester = baker.make(Semester, default_course_end_date=date(2001, 2, 3))
+        with TemporaryDirectory() as temp_dir:
+            test_filename = os.path.join(temp_dir, "test.json")
+            with open(test_filename, "w", encoding="utf-8") as f:
+                f.write("example contents")
+            call_command(
+                "import_cms_data",
+                "file",
+                "--semester-id",
+                semester.id,
+                test_filename,
+                stdout=StringIO(),
+            )
+
+            mock_json_importer.assert_called_once_with(semester, date(2001, 2, 3))
