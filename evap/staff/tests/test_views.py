@@ -3219,7 +3219,9 @@ class TestQuestionnaireIndexView(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.archived_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP, visibility=Questionnaire.Visibility.ARCHIVED)
+        cls.archived_questionnaire = baker.make(
+            Questionnaire, type=Questionnaire.Type.TOP, visibility=Questionnaire.Visibility.ARCHIVED
+        )
         cls.ordered_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP, order=5)
         cls.normal_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
 
