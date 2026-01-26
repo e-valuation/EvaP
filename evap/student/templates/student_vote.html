@@ -373,6 +373,17 @@
                 const textareaAnswerFields = voteArea.querySelectorAll(".vote-inputs textarea");
                 const collapseToggle = voteArea.closest(".collapsible").querySelector(".collapse-toggle");
 
+                const collapseEmptyTextanswerFields = () => {
+                    textareaAnswerFields.forEach(textareaAnswerField => {
+                        if (textareaAnswerField.value.trim().length > 0) return;
+                        const parent = textareaAnswerField.closest('.row-question');
+                        const button = parent.querySelector(".btn-textanswer");
+                        if (button === null) return;
+                        if (!button.classList.contains("collapsed")) {
+                            button.click();
+                        }
+                    });
+                };
                 const clearContributorAnswers = () => {
                     voteArea.querySelectorAll(".vote-inputs [type=radio][value='6']").forEach(radioInput => {
                         radioInput.checked = true;
@@ -395,17 +406,6 @@
 
                     collapseEmptyTextanswerFields();
                 }
-                const collapseEmptyTextanswerFields = () => {
-                    textareaAnswerFields.forEach(textareaAnswerField => {
-                        if (textareaAnswerField.value.trim().length > 0) return;
-                        const parent = textareaAnswerField.closest('.row-question');
-                        const button = parent.querySelector(".btn-textanswer");
-                        if (button === null) return;
-                        if (!button.classList.contains("collapsed")) {
-                            button.click();
-                        }
-                    });
-                };
                 markNoAnswerButton.addEventListener("click", () => {
                     const shouldShowModal = () => {
                         for (const textarea of textareaAnswerFields) {
