@@ -26,7 +26,7 @@ runs:
     - name: Restore and save Nix store
       uses: nix-community/cache-nix-action@v6
       with:
-        primary-key: nix-${{ runner.os }}-${{ hashFiles('**/*.nix', 'flake.lock', 'uv.lock', 'evap/development/manage_autocompletion.sh') }}
+        primary-key: nix-${{ runner.os }}-${{ hashFiles('**/*.nix', 'flake.lock', 'uv.lock', 'evap/development/manage_autocompletion.sh') }}-${{ inputs.shell }}-${{ inputs.start-db }}
         restore-prefixes-first-match: nix-${{ runner.os }}-
         gc-max-store-size-linux: 1G
     - uses: nicknovitski/nix-develop@v1
