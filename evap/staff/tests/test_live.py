@@ -173,3 +173,37 @@ class ParticipantCollapseTests(LiveServerTest):
 
         counter = card_header.find_element(By.CSS_SELECTOR, ".rounded-pill")
         self.assertEqual(counter.text, "0")
+
+
+class QuestionnaireLiveTest(LiveServerTest):
+
+    def test_questionnaire_selection(self):
+        top_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        bottom_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM)
+        with self.enter_staff_mode():
+            self.selenium.get(self.reverse("staff:questionnaire_index"))
+        
+        bottom_tab = self.selenium.find_element(By.ID, "bottomcontributorTab")
+
+        found_top = self.selenium.find_elements(By.XPATH("//*[contains(text(),'" + top_questionnaire.name + "')]"))
+        found_bottom = self.selenium.find_elements(By.XPATH("//*[contains(text(),'" + bottom_questionnaire.name + "')]"))
+
+        self.assertTrue(len(found_top))
+        self.assertFalse(len(found_bottom))
+
+        bottom_tab.click()
+
+        found_top = self.selenium.find_elements(By.XPATH("//*[contains(text(),'" + top_questionnaire.name + "')]"))
+        found_bottom = self.selenium.find_elements(By.XPATH("//*[contains(text(),'" + bottom_questionnaire.name + "')]"))
+
+        self.assertFalse(len(found_top))
+        self.assertTrue(len(found_bottom))
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.reverse("staff:questionnaire_index"))
+        
+        found_top = self.selenium.find_elements(By.XPATH("//*[contains(text(),'" + top_questionnaire.name + "')]"))
+        found_bottom = self.selenium.find_elements(By.XPATH("//*[contains(text(),'" + bottom_questionnaire.name + "')]"))
+
+        self.assertFalse(len(found_top))
+        self.assertTrue(len(found_bottom))
