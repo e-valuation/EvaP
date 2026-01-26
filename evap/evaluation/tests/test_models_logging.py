@@ -4,7 +4,7 @@ from unittest.mock import patch
 from django.utils.formats import localize
 from model_bakery import baker
 
-from evap.evaluation.models import Contribution, Course, Evaluation, Program, Questionnaire, UserProfile
+from evap.evaluation.models import Contribution, Course, Evaluation, ExamType, Program, Questionnaire, UserProfile
 from evap.evaluation.models_logging import FieldAction, InstanceActionType, _m2m_changed
 from evap.evaluation.tests.tools import TestCase, assert_no_database_modifications
 
@@ -214,3 +214,33 @@ class TestLoggedModel(TestCase):
 
         with assert_no_database_modifications():
             course.programs.add(program)
+
+    def test_clear_field(self):
+        """Test that clearing a field shows '<empty>' instead of '<deleted object>'"""
+        exam_type = baker.make(ExamType)
+        evaluation = baker.make(Evaluation, exam_type=exam_type)
+
+        evaluation = Evaluation.objects.get(pk=evaluation.pk)
+
+        evaluation.exam_type = None
+        evaluation.save()
+
+        self.assertEqual(
+            evaluation.related_logentries().latest("id").field_context_data,
+            {"exam_type": [FieldAction(label="Exam type", type="change", items=[exam_type.name_en, "<none>"])]},
+        )
+
+    def test_set_field(self):
+        """Test that setting a field from empty shows correct order with '<empty>' as old value"""
+        evaluation = baker.make(Evaluation, exam_type=None)
+        exam_type = baker.make(ExamType)
+
+        evaluation = Evaluation.objects.get(pk=evaluation.pk)
+
+        evaluation.exam_type = exam_type
+        evaluation.save()
+
+        self.assertEqual(
+            evaluation.related_logentries().latest("id").field_context_data,
+            {"exam_type": [FieldAction(label="Exam type", type="change", items=["<none>", exam_type.name_en])]},
+        )
