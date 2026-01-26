@@ -3325,25 +3325,26 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
         form["question_assignments-0-allows_additional_textanswers"] = True
         return form.submit()
 
+    def assert_question_change(self, question: Question, *, did_not_change: bool = False) -> None:
+        question.refresh_from_db()
+        self.assertEqual(question.text_en, "old" if did_not_change else "changed")
+        self.assertEqual(question.text_de, "text" if did_not_change else "successfully")
+        self.assertEqual(question.type, QuestionType.TEXT if did_not_change else QuestionType.NEGATIVE_LIKERT)
+        self.assertEqual(question.allows_additional_textanswers, not did_not_change)
+
     def test_can_change_question(self) -> None:
         self.change_question().follow()
-        self.question.refresh_from_db()
-        self.assertEqual(self.question.text_de, "successfully")
-        self.assertEqual(self.question.text_en, "changed")
-        self.assertEqual(self.question.type, QuestionType.NEGATIVE_LIKERT)
-        self.assertEqual(self.question.allows_additional_textanswers, True)
+        self.assert_question_change(self.question)
 
     def test_copy_on_write_used_question(self) -> None:
         baker.make(QuestionAssignment, question=self.question)
 
         self.change_question().follow()
 
-        self.question.refresh_from_db()
-        self.assertNotEqual(self.question, self.questionnaire.questions.get())
-        self.assertEqual(self.question.text_en, "old")
-        self.assertEqual(self.question.text_de, "text")
-        self.assertEqual(self.question.type, QuestionType.TEXT)
-        self.assertEqual(self.question.allows_additional_textanswers, False)
+        new_question = self.questionnaire.questions.get()
+        self.assertNotEqual(self.question, new_question)
+        self.assert_question_change(self.question, did_not_change=True)
+        self.assert_question_change(new_question)
 
     def test_invalid_question_edit(self) -> None:
         baker.make(Contribution, questionnaires=[self.questionnaire], evaluation__state=Evaluation.State.NEW)
