@@ -3261,9 +3261,10 @@ class TestQuestionnaireIndexView(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
-        cls.top_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        cls.bottom_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM)
+        cls.bottom_archived_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM, visiblilty=Questionnaire.Visibility.ARCHIVED)
+        cls.bottom_managers_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM, visiblilty=Questionnaire.Visibility.MANAGERS)
+        cls.top_hidden_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP, visiblity=Questionnaire.Visibility.HIDDEN)
+        cls.top_contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP, visibility=Questionnaire.Visibility.EDITORS)
 
     def test_questionnaire_ordering(self):
         # content = self.app.get(self.url, user=self.manager).body.decode()
