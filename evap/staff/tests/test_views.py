@@ -3346,6 +3346,11 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
         self.assert_question_change(self.question, did_not_change=True)
         self.assert_question_change(new_question)
 
+    def test_cannot_change_running_questionnaire_questions(self) -> None:
+        baker.make(Contribution, questionnaires=[self.questionnaire], evaluation__state=Evaluation.State.IN_EVALUATION)
+        self.change_question().follow()
+        self.assert_question_change(self.question, did_not_change=True)
+
     def test_invalid_question_edit(self) -> None:
         baker.make(Contribution, questionnaires=[self.questionnaire], evaluation__state=Evaluation.State.NEW)
         page = self.app.get(self.url, user=self.manager)
