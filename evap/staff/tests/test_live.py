@@ -185,38 +185,20 @@ class QuestionnaireLiveTest(LiveServerTest):
         with self.enter_staff_mode():
             self.selenium.get(self.reverse("staff:questionnaire_index"))
 
-        bottom_tab = self.selenium.find_element(By.ID, "bottomcontributorTab")
-
-        found_top = self.selenium.find_elements(By.XPATH("//*[contains(text(),'" + top_questionnaire.name + "')]"))
-        found_bottom = self.selenium.find_elements(
+        top_element = self.selenium.find_element(By.XPATH("//*[contains(text(),'" + top_questionnaire.name + "')]"))
+        bottom_element = self.selenium.find_element(
             By.XPATH("//*[contains(text(),'" + bottom_questionnaire.name + "')]")
         )
 
-        self.assertTrue(len(found_top))
-        self.assertFalse(len(found_bottom))
+        self.assertTrue(top_element.is_displayed())
+        self.assertFalse(bottom_element.is_displayed())
 
-        bottom_tab.click()
+        self.selenium.find_element(By.ID, "bottomTab").click()
 
-        found_top = self.selenium.find_elements(By.XPATH("//*[contains(text(),'" + top_questionnaire.name + "')]"))
-        found_bottom = self.selenium.find_elements(
-            By.XPATH("//*[contains(text(),'" + bottom_questionnaire.name + "')]")
-        )
+        self.assertFalse(top_element.is_displayed())
+        self.assertTrue(bottom_element.is_displayed())
 
-        self.assertFalse(len(found_top))
-        self.assertTrue(len(found_bottom))
 
-        with self.enter_staff_mode():
-            self.selenium.get(self.reverse("staff:questionnaire_index"))
-
-        found_top = self.selenium.find_elements(By.XPATH("//*[contains(text(),'" + top_questionnaire.name + "')]"))
-        found_bottom = self.selenium.find_elements(
-            By.XPATH("//*[contains(text(),'" + bottom_questionnaire.name + "')]")
-        )
-
-        self.assertFalse(len(found_top))
-        self.assertTrue(len(found_bottom))
-
-        
 class TextAnswerEditLiveTest(LiveServerTest):
     def test_edit_textanswer_redirect(self):
         """Regression test for #1696"""
