@@ -238,9 +238,9 @@ class JSONImporter:
         self.semester = semester
         self.default_course_end = default_course_end
         self.users_by_gguid: dict[str, UserProfile] = {}
-        self.course_type_import_cache = ImportCache(CourseType)
-        self.exam_type_import_cache = ImportCache(ExamType)
-        self.program_import_cache = ImportCache(Program)
+        self.course_type_cache = ImportCache(CourseType)
+        self.exam_type_cache = ImportCache(ExamType)
+        self.program_cache = ImportCache(Program)
         self.courses_by_gguid: dict[str, Course] = {}
         self.statistics = ImportStatistics()
 
