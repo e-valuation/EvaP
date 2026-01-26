@@ -3058,7 +3058,7 @@ class TestEvaluationTextAnswerEditView(WebTestStaffMode):
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         baker.make(Question, questionnaires=[top_general_questionnaire], type=QuestionType.POSITIVE_LIKERT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
-        bottom_questionnaire = baker.prepare(Questionnaire)
+        bottom_questionnaire = baker.make(Questionnaire)
 
         contribution = baker.make(
             Contribution,
