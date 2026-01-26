@@ -183,6 +183,14 @@ def get_parameter_from_url_or_session(request: HttpRequest, parameter: str, defa
     return result
 
 
+def get_string_from_url_or_session(request: HttpRequest, parameter: str, default=False) -> str:
+    result = request.GET.get(parameter, None)
+    if result is None:
+        result = request.session.get(parameter, default)
+    request.session[parameter] = result
+    return result
+
+
 def translate(**kwargs):
     # pylint is really buggy with this method.
     # pylint: disable=unused-variable, useless-suppression

@@ -70,6 +70,7 @@ from evap.evaluation.tools import (
     StrOrPromise,
     get_object_from_dict_pk_entry_or_logged_40x,
     get_parameter_from_url_or_session,
+    get_string_from_url_or_session,
     sort_formset,
     temporary_receiver,
 )
@@ -1802,9 +1803,9 @@ def evaluation_preview(request, evaluation_id):
 @manager_required
 def questionnaire_index(request):
     filters = ["all", "visible", "non-archived"]
-    filter_questionnaires = request.GET.get("filter_questionnaires", filters[0])
+    filter_questionnaires = get_string_from_url_or_session(request, "filter_questionnaires", filters[0])
     if filter_questionnaires not in filters:
-        filter_questionnaires = filters[0]
+        raise SuspiciousOperation()
 
     prefetch_list = ("questions", "contributions__evaluation")
     questionnaires = [
@@ -1813,11 +1814,15 @@ def questionnaire_index(request):
         Questionnaire.objects.dropout_questionnaires().prefetch_related(*prefetch_list),
     ]
 
-    if filter_questionnaires != "all":
-        questionnaires = [q_type.exclude(visibility=Questionnaire.Visibility.ARCHIVED) for q_type in questionnaires]
-        if filter_questionnaires == "visible":
-            questionnaires = [q_type.exclude(visibility=Questionnaire.Visibility.HIDDEN) for q_type in questionnaires]
+    match filter_questionnaires:
+        case "all":
+            pass
+        case "visible":
+            questionnaires = [q_type.exclude(visibility__in=[Questionnaire.Visibility.ARCHIVED, Questionnaire.Visibility.HIDDEN]) for q_type in questionnaires]    
+        case "non-archived":
+            questionnaires = [q_type.exclude(visibility=Questionnaire.Visibility.ARCHIVED) for q_type in questionnaires]
 
+    # archived questionnaires should be shown last, then use specified order 
     questionnaires = [
         q_type.order_by(
             Case(

@@ -63,42 +63,42 @@
             <div class="d-flex bg-dark-subtle border-bottom border-secondary rounded-card-top">
                 <ul class="nav nav-tabs border-0 p-1 pb-0" role="tablist">
                     <li class="nav-item p-0">
-                        <a class="nav-link active text-black hover-bg-light py-1" id="topTab" data-bs-toggle="pill" href="#top" role="tab">
-                            <span class="fas"></span>{% translate 'Top general questionnaires' %}
-                        </a>
+                        <button class="nav-link text-black hover-bg-light py-1" id="topTab" data-bs-toggle="tab" data-bs-target="#topTabContent" role="tab">
+                            {% translate 'Top general questionnaires' %}
+                        </button>
                     </li>
                     <li class="nav-item p-0">
-                        <a class="nav-link text-black hover-bg-light py-1" id="contributorTab" data-bs-toggle="pill" href="#contributor" role="tab">
-                            <span class="fas"></span>{% translate 'Contributor questionnaires' %}
-                        </a>
+                        <button class="nav-link text-black hover-bg-light py-1" id="contributorTab" data-bs-toggle="tab" data-bs-target="#contributorTabContent" role="tab">
+                            {% translate 'Contributor questionnaires' %}
+                        </button>
                     </li>
                     <li class="nav-item p-0">
-                        <a class="nav-link text-black hover-bg-light py-1" id="bottomTab" data-bs-toggle="pill" href="#bottom" role="tab">
-                            <span class="fas"></span>{% translate 'Bottom general questionnaires' %}
-                        </a>
+                        <button class="nav-link text-black hover-bg-light py-1" id="bottomTab" data-bs-toggle="tab" data-bs-target="#bottomTabContent" role="tab">
+                            {% translate 'Bottom general questionnaires' %}
+                        </button>
                     </li>
                     <li class="nav-item p-0">
-                        <a class="nav-link text-black hover-bg-light py-1" id="dropoutTab" data-bs-toggle="pill" href="#dropout" role="tab">
-                            <span class="fas"></span>{% translate 'Dropout questionnaires' %}
-                        </a>
+                        <button class="nav-link text-black hover-bg-light py-1" id="dropoutTab" data-bs-toggle="tab" data-bs-target="#dropoutTabContent" role="tab">
+                            {% translate 'Dropout questionnaires' %}
+                        </button>
                     </li>
                 </ul>
             </div>
 
             <div class="card-body tab-content">
-                <div class="tab-pane show active" id="top" role="tabpanel">
+                <div class="tab-pane show" id="topTabContent" role="tabpanel">
                     <div class="row align-items-center mb-3">
-                        {% include 'staff_questionnaire_index_list.html' with questionnaires=general_questionnaires_top headline=headline extra_classes='mb-3' type='top' %}
+                        {% include 'staff_questionnaire_index_list.html' with questionnaires=general_questionnaires_top extra_classes='mb-3' type='top' %}
                     </div>
                 </div>
-                <div class="tab-pane" id="contributor" role="tabpanel">
-                    {% include 'staff_questionnaire_index_list.html' with questionnaires=contributor_questionnaires headline=headline extra_classes='mb-3' type='contributor' %}
+                <div class="tab-pane" id="contributorTabContent" role="tabpanel">
+                    {% include 'staff_questionnaire_index_list.html' with questionnaires=contributor_questionnaires extra_classes='mb-3' type='contributor' %}
                 </div>
-                <div class="tab-pane" id="bottom" role="tabpanel">
-                    {% include 'staff_questionnaire_index_list.html' with questionnaires=general_questionnaires_bottom headline=headline extra_classes='mb-3' type='bottom' %}
+                <div class="tab-pane" id="bottomTabContent" role="tabpanel">
+                    {% include 'staff_questionnaire_index_list.html' with questionnaires=general_questionnaires_bottom extra_classes='mb-3' type='bottom' %}
                 </div>
-                <div class="tab-pane" id="dropout" role="tabpanel">
-                    {% include 'staff_questionnaire_index_list.html' with questionnaires=dropout_questionnaires headline=headline extra_classes='' type='dropout' %}
+                <div class="tab-pane" id="dropoutTabContent" role="tabpanel">
+                    {% include 'staff_questionnaire_index_list.html' with questionnaires=dropout_questionnaires extra_classes='' type='dropout' %}
                 </div>
             </div>
         </div>
@@ -166,8 +166,10 @@
     </script>
 
     <script type="module">
-        let tabName = localStorage['selected_q_tab'];
-        if (["topTab", "contributorTab", "bottomTab", "dropoutTab"].includes(tabName)) {
+        const tabIds = ["topTab", "contributorTab", "bottomTab", "dropoutTab"];
+        let tabName = localStorage.getItem('selected_q_tab') || tabIds[0];
+
+        if (tabIds.includes(tabName)) {
             let tab = document.getElementById(tabName);
             let tabTrigger = new bootstrap.Tab(tab);
             tabTrigger.show();
@@ -177,9 +179,8 @@
             localStorage['selected_q_tab'] = tab;
         }
 
-        document.getElementById("topTab").addEventListener("click", () => saveSelectedTab("topTab"));
-        document.getElementById("contributorTab").addEventListener("click", () => saveSelectedTab("contributorTab"));
-        document.getElementById("bottomTab").addEventListener("click", () => saveSelectedTab("bottomTab"));
-        document.getElementById("dropoutTab").addEventListener("click", () => saveSelectedTab("dropoutTab"));
+        for (const id of tabIds) {
+            document.getElementById(id).addEventListener("click", () => saveSelectedTab(id))
+        }
     </script>
 {% endblock %}
