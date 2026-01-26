@@ -6,13 +6,13 @@ function isTextMeaningless(text: string): boolean {
     return text.length > 0 && ["", "ka", "na", "none", "keine", "keines", "keiner"].includes(text.replace(/\W/g, ""));
 }
 
-function containsSubArray<Type>(arr: Type[], sub: Type[]): boolean {
+function containsPhrase(arr: string[], sub: string[]): boolean {
     for (let i = 0; i <= arr.length - sub.length; i++) {
         let j;
         for (j = 0; j < sub.length; j++) {
             if (j == sub.length - 1 && arr[i + j].length > sub[j].length) {
                 if (!arr[i + j].startsWith(sub[j])) break;
-                if (null !== arr[i + j].substring(sub[j].length).match(RegExp("^[!?.]*$", ""))) return true;
+                if (null !== RegExp("^[!?.]*$", "").exec(arr[i + j].substring(sub[j].length))) return true;
             }
             if (arr[i + j] !== sub[j]) break;
         }
@@ -24,7 +24,7 @@ function containsSubArray<Type>(arr: Type[], sub: Type[]): boolean {
 function matchesTriggerString(text: string, triggerString: string): boolean {
     const words = text.split(" ");
     const triggerWords = triggerString.split(" ");
-    return containsSubArray(words, triggerWords);
+    return containsPhrase(words, triggerWords);
 }
 
 function doesTextContainTriggerString(text: string, triggerStrings: string[]): boolean {
