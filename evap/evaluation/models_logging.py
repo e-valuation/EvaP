@@ -81,10 +81,7 @@ def _field_actions_for_field(field, actions):
 
             pk_to_obj = {obj.pk: obj for obj in field.related_model.objects.filter(pk__in=items)}
 
-            items = [
-                _("<none>") if item is None else str(pk_to_obj[item]) if item in pk_to_obj else _("<deleted object>")
-                for item in items
-            ]
+            items = [_("<none>") if item is None else str(pk_to_obj.get(item, _("<deleted object>"))) for item in items]
         elif hasattr(field, "choices") and field.choices:
             # convert values from choice-based fields to their display equivalent
             items = [_choice_to_display(field, item) for item in items]
