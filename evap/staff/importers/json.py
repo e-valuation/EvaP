@@ -212,7 +212,7 @@ class ImportCache(typing.Generic[T]):
         }
 
     def get(self, name: str) -> T:
-        lookup = _clean_whitespaces(name).strip().lower()
+        lookup = _clean_whitespaces(name).lower()
         if lookup in self.cache:
             return self.cache[lookup]
 
