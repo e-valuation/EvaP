@@ -185,9 +185,9 @@ class QuestionnaireLiveTest(LiveServerTest):
         with self.enter_staff_mode():
             self.selenium.get(self.reverse("staff:questionnaire_index"))
 
-        top_element = self.selenium.find_element(By.XPATH("//*[contains(text(),'" + top_questionnaire.name + "')]"))
+        top_element = self.selenium.find_element(By.XPATH, "//*[contains(text(),'" + top_questionnaire.name + "')]")
         bottom_element = self.selenium.find_element(
-            By.XPATH("//*[contains(text(),'" + bottom_questionnaire.name + "')]")
+            By.XPATH, "//*[contains(text(),'" + bottom_questionnaire.name + "')]"
         )
 
         self.assertTrue(top_element.is_displayed())
