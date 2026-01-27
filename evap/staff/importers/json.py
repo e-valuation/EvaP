@@ -238,9 +238,9 @@ class JSONImporter:
         self.semester = semester
         self.default_course_end = default_course_end
         self.users_by_gguid: dict[str, UserProfile] = {}
-        self.course_type_import_cache = ImportCache(CourseType)
-        self.exam_type_import_cache = ImportCache(ExamType)
-        self.program_import_cache = ImportCache(Program)
+        self.course_type_cache = ImportCache(CourseType)
+        self.exam_type_cache = ImportCache(ExamType)
+        self.program_cache = ImportCache(Program)
         self.courses_by_gguid: dict[str, Course] = {}
         self.statistics = ImportStatistics()
 
@@ -353,7 +353,7 @@ class JSONImporter:
                 self.users_by_gguid[entry["gguid"]] = user_profile
 
     def _import_course(self, data: ImportEvent, course_type: CourseType | None = None) -> Course | None:
-        course_type = self.course_type_import_cache.get(data["type"]) if course_type is None else course_type
+        course_type = self.course_type_cache.get(data["type"]) if course_type is None else course_type
 
         if course_type.skip_on_automated_import:
             self.statistics.warnings.append(
@@ -411,7 +411,7 @@ class JSONImporter:
         else:
             program_import_names = [c["cprid"] for c in data["courses"] if c["cprid"] not in settings.IGNORE_PROGRAMS]
 
-            programs = [self.program_import_cache.get(c) for c in program_import_names]
+            programs = [self.program_cache.get(c) for c in program_import_names]
 
             course.programs.add(*programs)
 
@@ -455,7 +455,7 @@ class JSONImporter:
             )
             evaluation_end_date = (course_end + settings.EXAM_EVALUATION_DEFAULT_DURATION).date()
 
-            exam_type = self.exam_type_import_cache.get(data["type"])
+            exam_type = self.exam_type_cache.get(data["type"])
             if not evaluation:
                 name_de = data["title"].split(" - ")[-1] if " - " in data["title"] else exam_type.name_de
                 name_en = data["title_en"].split(" - ")[-1] if " - " in data["title_en"] else exam_type.name_en
