@@ -525,7 +525,7 @@
                                     <td data-col="name" data-order="{{ course.name|lower }}">
                                         <div>
                                             <a href="{% url 'staff:course_edit' course.id %}">{{ course.name }}</a>
-                                            {% if course.cms_id %}
+                                            {% if course.course_links.exists %}
                                                 <span class="fas fa-link" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Linked to CMS' %}"></span>
                                             {% endif %}
                                         </div>

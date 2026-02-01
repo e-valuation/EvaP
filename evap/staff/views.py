@@ -1403,10 +1403,10 @@ def evaluation_delete(request):
         )
 
     with temporary_receiver(RewardPointGranting.granted_by_evaluation_deletion, notify_reward_points):
-        if evaluation.cms_id:
+        for evaluation_link in evaluation.evaluation_links.all():
             # remember deleted evaluation to prevent the importer from creating it again
             IgnoredEvaluation.objects.create(
-                cms_id=evaluation.cms_id,
+                cms_id=evaluation_link.cms_id,
                 name_de=evaluation.name_de,
                 name_en=evaluation.name_en,
                 course=evaluation.course,
