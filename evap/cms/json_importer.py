@@ -16,7 +16,11 @@ from django.utils.timezone import now
 from pydantic import TypeAdapter
 from typing_extensions import TypedDict
 
-from evap.cms.models import IgnoredEvaluation
+from evap.cms.models import (
+    CourseLink,
+    EvaluationLink,
+    IgnoredEvaluation,
+)
 from evap.evaluation.models import (
     Contribution,
     Course,
@@ -28,7 +32,7 @@ from evap.evaluation.models import (
     UserProfile,
 )
 from evap.evaluation.tools import clean_email
-from evap.staff.tools import update_m2m_with_changes, update_or_create_with_changes, update_with_changes
+from evap.staff.tools import update_or_create_with_changes, update_with_changes
 
 logger = logging.getLogger(__name__)
 
@@ -120,7 +124,6 @@ class ImportStatistics:
     updated_courses: list[Course] = field(default_factory=list)
     updated_evaluations: set[Evaluation] = field(default_factory=set)
     updated_participants: list[Evaluation] = field(default_factory=list)
-    attempted_course_changes: set[Course] = field(default_factory=set)
     attempted_evaluation_changes: list[Evaluation] = field(default_factory=list)
     attempted_participant_changes: list[Evaluation] = field(default_factory=list)
     warnings: list[WarningMessage] = field(default_factory=list)
@@ -158,7 +161,6 @@ class ImportStatistics:
         log += self._make_stats("Updated Courses", self.updated_courses)
         log += self._make_stats("Updated Evaluations", self.updated_evaluations)
         log += self._make_stats("Updated Participants", self.updated_participants)
-        log += self._make_stats("Attempted Course Changes", self.attempted_course_changes)
         log += self._make_stats("Attempted Evaluation Changes", self.attempted_evaluation_changes)
         log += self._make_stats("Attempted Participant Changes", self.attempted_participant_changes)
 
@@ -365,38 +367,36 @@ class JSONImporter:
             )
             return None
 
-        try:
-            course = Course.objects.get(cms_id=data["gguid"])
-        except Course.DoesNotExist:
-            course = None
-
-        if course and course.evaluations.exclude(state=Evaluation.State.NEW).exists():
-            self.statistics.attempted_course_changes.add(course)
-            # the course itself should not be updated but is still added to courses_by_gguid so that its evaluations will be processed
-            self.courses_by_gguid[data["gguid"]] = course
-            return course
-
-        responsibles = self._get_user_profiles(data["lecturers"])
-        responsibles = self._remove_non_responsible_users(responsibles)
-        responsibles = self._get_users_with_longest_title(responsibles)
         if not data["title_en"]:
             data["title_en"] = data["title"]
-        course, created, changes = update_or_create_with_changes(
-            Course,
-            semester=self.semester,
-            cms_id=data["gguid"],
-            defaults={
-                "name_de": _clean_whitespaces(data["title"]),
-                "name_en": _clean_whitespaces(data["title_en"]),
-                "type": course_type,
-            },
-        )
-        changes |= update_m2m_with_changes(course, "responsibles", responsibles)
 
-        if created:
+        try:
+            course_link = CourseLink.objects.get(cms_id=data["gguid"])
+            course = course_link.course
+            changes = update_with_changes(
+                course,
+                {
+                    "name_de": _clean_whitespaces(data["title"]),
+                    "name_en": _clean_whitespaces(data["title_en"]),
+                },
+            )
+            if changes:
+                self.statistics.updated_courses.append(course)
+        except CourseLink.DoesNotExist:
+            course = Course.objects.create(
+                semester=self.semester,
+                name_de=_clean_whitespaces(data["title"]),
+                name_en=_clean_whitespaces(data["title_en"]),
+                type=course_type,
+            )
+
+            responsibles = self._get_user_profiles(data["lecturers"])
+            responsibles = self._remove_non_responsible_users(responsibles)
+            responsibles = self._get_users_with_longest_title(responsibles)
+            course.responsibles.set(responsibles)
+
+            CourseLink.objects.create(course=course, cms_id=data["gguid"])
             self.statistics.new_courses.append(course)
-        elif changes:
-            self.statistics.updated_courses.append(course)
 
         self.courses_by_gguid[data["gguid"]] = course
 
@@ -433,7 +433,7 @@ class JSONImporter:
             return None
 
         try:
-            evaluation = Evaluation.objects.get(course=course, cms_id=data["gguid"])
+            evaluation = Evaluation.objects.get(course=course, evaluation_links__cms_id=data["gguid"])
         except Evaluation.DoesNotExist:
             evaluation = None
 
@@ -556,12 +556,12 @@ class JSONImporter:
         if not evaluation:
             evaluation = Evaluation.objects.create(
                 course=course,
-                cms_id=data["gguid"],
                 # we only want to set names on creation to avoid renumbering
                 name_de=name_de,
                 name_en=name_en,
                 **defaults,
             )
+            EvaluationLink.objects.create(evaluation=evaluation, cms_id=data["gguid"])
 
         allow_evaluation_changes = evaluation.state == Evaluation.State.NEW
         direct_changes = update_with_changes(evaluation, defaults, dry_run=not allow_evaluation_changes)

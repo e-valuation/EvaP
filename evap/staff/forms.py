@@ -352,7 +352,7 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore[misc]
         "_voter_count",
         "voters",
         "votetimestamp",
-        "cms_id",
+        "evaluation_links",
         "dropout_count",
         "staff_notes",
     }
