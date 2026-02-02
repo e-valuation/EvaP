@@ -822,4 +822,3 @@ class TestImportEvents(TestCase):
 
         evaluation = Evaluation.objects.get(cms_id=EXAMPLE_DATA["events"][1]["gguid"])
         self.assertEqual(evaluation.main_language, "de")
-
