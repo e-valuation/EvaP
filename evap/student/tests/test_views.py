@@ -111,7 +111,9 @@ class TestStudentIndexView(WebTestWith200Check):
         self.assertIn("global_evaluation_progress_info_title_str", page)
         self.assertIn("global_evaluation_progress_info_text_str", page)
         self.assertIn("Last evaluation:", page)
-        self.assertIn(f"{expected_voters} submitted evaluations ({expected_voter_percent}%)", page)
+        self.assertIn(
+            f"{expected_voters}/{expected_participants} submitted evaluations ({expected_voter_percent}%)", page
+        )
         self.assertIn("a quokka", page)
         self.assertIn("10%", page)
         self.assertIn("a dog", page)
