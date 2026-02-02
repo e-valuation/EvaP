@@ -177,92 +177,6 @@ class ParticipantCollapseTests(LiveServerTest):
         counter = card_header.find_element(By.CSS_SELECTOR, ".rounded-pill")
         self.assertEqual(counter.text, "0")
 
-
-class TextAnswerEditLiveTest(LiveServerTest):
-    def test_edit_textanswer_redirect(self):
-        """Regression test for #1696"""
-
-        responsible = baker.make(UserProfile)
-        evaluation = baker.make(
-            Evaluation,
-            course=baker.make(Course, programs=[baker.make(Program)], responsibles=[responsible]),
-            vote_start_datetime=datetime(2099, 1, 1, 0, 0),
-            vote_end_date=date(2099, 12, 31),
-            state=Evaluation.State.EVALUATED,
-            can_publish_text_results=True,
-        )
-
-        question_assignment = baker.make(QuestionAssignment)
-
-        general_questionnaire = baker.make(Questionnaire, question_assignments=[question_assignment])
-        evaluation.general_contribution.questionnaires.set([general_questionnaire])
-
-        contribution1 = baker.make(
-            Contribution, evaluation=evaluation, contributor=None, questionnaires=[general_questionnaire]
-        )
-
-        baker.make(
-            TextAnswer,
-            assignment=question_assignment,
-            contribution=contribution1,
-            answer=iter(f"this is a dummy answer {i}" for i in range(3)),
-            original_answer=None,
-            review_decision=TextAnswer.ReviewDecision.UNDECIDED,
-            _quantity=3,
-        )
-
-        textanswer1 = baker.make(
-            TextAnswer,
-            assignment=question_assignment,
-            contribution=contribution1,
-            answer="this answer will be edited",
-            original_answer=None,
-            review_decision=TextAnswer.ReviewDecision.UNDECIDED,
-        )
-
-        baker.make(
-            TextAnswer,
-            assignment=question_assignment,
-            contribution=contribution1,
-            answer=iter(f"this is a dummy answer {i}" for i in range(3, 6)),
-            original_answer=None,
-            review_decision=TextAnswer.ReviewDecision.UNDECIDED,
-            _quantity=3,
-        )
-
-        with self.enter_staff_mode():
-            self.selenium.get(
-                self.reverse("staff:evaluation_textanswers", query={"view": "quick"}, args=[evaluation.pk])
-            )
-
-        next_textanswer_btn = self.selenium.find_element(By.XPATH, "//span[@data-slide='right']")
-        edit_btn = self.selenium.find_element(By.ID, "textanswer-edit-btn")
-
-        while True:
-            try:
-                WebDriverWait(self.selenium, 1).until(
-                    visibility_of_element_located((By.ID, f"textanswer-{str(textanswer1.pk)}"))
-                )
-                break
-            except TimeoutException:
-                next_textanswer_btn.click()
-
-        with self.enter_staff_mode():
-            edit_btn.click()
-
-        textanswer_field = self.selenium.find_element(By.XPATH, "//textarea[@name='answer']")
-        submit_btn = self.selenium.find_element(By.ID, "textanswer-edit-submit-button")
-
-        textanswer_field.clear()
-        textanswer_field.send_keys("edited answer")
-
-        with self.enter_staff_mode():
-            submit_btn.click()
-
-        self.wait.until(visibility_of_element_located((By.XPATH, "//div[contains(text(), 'edited answer')]")))
-        self.wait.until(
-            invisibility_of_element_located((By.XPATH, "//div[contains(text(), 'this is a dummy answer')]"))
-        )
 class EvaluationGridLiveTest(LiveServerTest):
     def test_evaluation_grid_sorting(self):
         test_semester = baker.make(Semester)
@@ -344,3 +258,90 @@ class EvaluationGridLiveTest(LiveServerTest):
             self.assertEqual(table[2].get_attribute("data-order"), "ÜB – Evaluation 2")
             self.assertEqual(table[3].get_attribute("data-order"), "AE – Evaluation 5")
             self.assertEqual(table[4].get_attribute("data-order"), "ÄB – Evaluation 4")
+
+
+class TextAnswerEditLiveTest(LiveServerTest):
+    def test_edit_textanswer_redirect(self):
+        """Regression test for #1696"""
+
+        responsible = baker.make(UserProfile)
+        evaluation = baker.make(
+            Evaluation,
+            course=baker.make(Course, programs=[baker.make(Program)], responsibles=[responsible]),
+            vote_start_datetime=datetime(2099, 1, 1, 0, 0),
+            vote_end_date=date(2099, 12, 31),
+            state=Evaluation.State.EVALUATED,
+            can_publish_text_results=True,
+        )
+
+        question1 = baker.make(Question)
+
+        general_questionnaire = baker.make(Questionnaire, questions=[question1])
+        evaluation.general_contribution.questionnaires.set([general_questionnaire])
+
+        contribution1 = baker.make(
+            Contribution, evaluation=evaluation, contributor=None, questionnaires=[general_questionnaire]
+        )
+
+        baker.make(
+            TextAnswer,
+            question=question1,
+            contribution=contribution1,
+            answer=iter(f"this is a dummy answer {i}" for i in range(3)),
+            original_answer=None,
+            review_decision=TextAnswer.ReviewDecision.UNDECIDED,
+            _quantity=3,
+        )
+
+        textanswer1 = baker.make(
+            TextAnswer,
+            question=question1,
+            contribution=contribution1,
+            answer="this answer will be edited",
+            original_answer=None,
+            review_decision=TextAnswer.ReviewDecision.UNDECIDED,
+        )
+
+        baker.make(
+            TextAnswer,
+            question=question1,
+            contribution=contribution1,
+            answer=iter(f"this is a dummy answer {i}" for i in range(3, 6)),
+            original_answer=None,
+            review_decision=TextAnswer.ReviewDecision.UNDECIDED,
+            _quantity=3,
+        )
+
+        with self.enter_staff_mode():
+            self.selenium.get(
+                self.reverse("staff:evaluation_textanswers", query={"view": "quick"}, args=[evaluation.pk])
+            )
+
+        next_textanswer_btn = self.selenium.find_element(By.XPATH, "//span[@data-slide='right']")
+        edit_btn = self.selenium.find_element(By.ID, "textanswer-edit-btn")
+
+        while True:
+            try:
+                WebDriverWait(self.selenium, 1).until(
+                    visibility_of_element_located((By.ID, f"textanswer-{str(textanswer1.pk)}"))
+                )
+                break
+            except TimeoutException:
+                next_textanswer_btn.click()
+
+        with self.enter_staff_mode():
+            edit_btn.click()
+
+        textanswer_field = self.selenium.find_element(By.XPATH, "//textarea[@name='answer']")
+        submit_btn = self.selenium.find_element(By.ID, "textanswer-edit-submit-button")
+
+        textanswer_field.clear()
+        textanswer_field.send_keys("edited answer")
+
+        with self.enter_staff_mode():
+            submit_btn.click()
+
+        self.wait.until(visibility_of_element_located((By.XPATH, "//div[contains(text(), 'edited answer')]")))
+        self.wait.until(
+            invisibility_of_element_located((By.XPATH, "//div[contains(text(), 'this is a dummy answer')]"))
+        )
