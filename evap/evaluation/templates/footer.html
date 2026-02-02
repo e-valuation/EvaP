@@ -22,9 +22,10 @@
             <div class="navbar-nav justify-content-end feedback-button-placeholder">
                 {% if user.is_authenticated %}
                     <span class="feedback-button">
-                        <button id="feedbackModalShowButton" type="button" class="btn btn-dark">
-                            {% translate 'Problems/Feedback' %}
-                        </button>
+                        {% translate 'Feedback' as title %}
+                        {% translate 'You are welcome to submit feedback regarding the evaluation platform or specific evaluations. Please let us know how we can improve your experience on EvaP.' as teaser %}
+                        {% translate "Problems/Feedback" as show_button_text %}
+                        {% include 'contact_modal.html' with modal_id='feedbackModal' user=request.user title=title teaser=teaser show_button_text=show_button_text%}
                     </span>
                 {% endif %}
             </div>
