@@ -259,6 +259,8 @@ class EvaluationGridLiveTest(LiveServerTest):
             self.assertEqual(table[2].get_attribute("data-order"), "ÜB – Evaluation 2")
             self.assertEqual(table[3].get_attribute("data-order"), "AE – Evaluation 5")
             self.assertEqual(table[4].get_attribute("data-order"), "ÄB – Evaluation 4")
+
+
 class TextAnswerEditLiveTest(LiveServerTest):
     def test_edit_textanswer_redirect(self):
         """Regression test for #1696"""
