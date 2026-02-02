@@ -299,6 +299,7 @@ class HttpResponseNoContent(HttpResponse):
 class ExcelExporter(ABC):
     styles = {
         "default": xlwt.Style.default_style,
+        "missing_average": xlwt.Style.default_style,
         "headline": xlwt.easyxf(
             "font: bold on, height 400; alignment: horiz centre, vert centre, wrap on; borders: bottom medium",
             num_format_str="0.0",

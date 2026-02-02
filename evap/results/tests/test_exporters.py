@@ -174,12 +174,12 @@ class TestExporters(TestCase):
 
         # Load responses as Excel files and check for correct sorting
         workbook = xlrd.open_workbook(file_contents=content_de.read())
-        self.assertEqual(workbook.sheets()[0].row_values(0)[1], "A – Evaluation1\n")
-        self.assertEqual(workbook.sheets()[0].row_values(0)[2], "B – Evaluation2\n")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[2], "A – Evaluation1\n")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[3], "B – Evaluation2\n")
 
         workbook = xlrd.open_workbook(file_contents=content_en.read())
-        self.assertEqual(workbook.sheets()[0].row_values(0)[1], "A – Evaluation2\n")
-        self.assertEqual(workbook.sheets()[0].row_values(0)[2], "B – Evaluation1\n")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[2], "A – Evaluation2\n")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[3], "B – Evaluation1\n")
 
     def test_course_type_ordering(self):
         program = baker.make(Program)
@@ -220,8 +220,8 @@ class TestExporters(TestCase):
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
-        self.assertEqual(workbook.sheets()[0].row_values(0)[1], evaluation_1.full_name + "\n")
-        self.assertEqual(workbook.sheets()[0].row_values(0)[2], evaluation_2.full_name + "\n")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[2], evaluation_1.full_name + "\n")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[3], evaluation_2.full_name + "\n")
 
         course_type_2.order = 0
         course_type_2.save()
@@ -233,8 +233,8 @@ class TestExporters(TestCase):
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
-        self.assertEqual(workbook.sheets()[0].row_values(0)[1], evaluation_2.full_name + "\n")
-        self.assertEqual(workbook.sheets()[0].row_values(0)[2], evaluation_1.full_name + "\n")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[2], evaluation_2.full_name + "\n")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[3], evaluation_1.full_name + "\n")
 
     def test_multiple_sheets(self):
         binary_content = BytesIO()
@@ -286,17 +286,17 @@ class TestExporters(TestCase):
         sheet = self.get_export_sheet(
             include_unpublished=False, semester=semester, program=program, course_types=course_types
         )
-        self.assertEqual(len(sheet.row_values(0)), 2)
-        self.assertEqual(sheet.row_values(0)[1][:-1], published_evaluation.full_name)
+        self.assertEqual(len(sheet.row_values(0)), 3)
+        self.assertEqual(sheet.row_values(0)[2][:-1], published_evaluation.full_name)
 
         # Now, make sure that it appears when wanted
         sheet = self.get_export_sheet(
             include_unpublished=True, semester=semester, program=program, course_types=course_types
         )
-        self.assertEqual(len(sheet.row_values(0)), 3)
+        self.assertEqual(len(sheet.row_values(0)), 4)
         # These two should be ordered according to evaluation.course.type.order
-        self.assertEqual(sheet.row_values(0)[1][:-1], published_evaluation.full_name)
-        self.assertEqual(sheet.row_values(0)[2][:-1], unpublished_evaluation.full_name)
+        self.assertEqual(sheet.row_values(0)[2][:-1], published_evaluation.full_name)
+        self.assertEqual(sheet.row_values(0)[3][:-1], unpublished_evaluation.full_name)
 
     def test_include_not_enough_voters(self):
         semester = baker.make(Semester)
@@ -325,15 +325,15 @@ class TestExporters(TestCase):
 
         # First, make sure that the one with only a single voter does not appear
         sheet = self.get_export_sheet(semester, program, course_types, include_not_enough_voters=False)
-        self.assertEqual(len(sheet.row_values(0)), 2)
-        self.assertEqual(sheet.row_values(0)[1][:-1], enough_voters_evaluation.full_name)
+        self.assertEqual(len(sheet.row_values(0)), 3)
+        self.assertEqual(sheet.row_values(0)[2][:-1], enough_voters_evaluation.full_name)
 
         # Now, check with the option enabled
         sheet = self.get_export_sheet(semester, program, course_types, include_not_enough_voters=True)
-        self.assertEqual(len(sheet.row_values(0)), 3)
+        self.assertEqual(len(sheet.row_values(0)), 4)
         self.assertEqual(
             {enough_voters_evaluation.full_name, not_enough_voters_evaluation.full_name},
-            {sheet.row_values(0)[1][:-1], sheet.row_values(0)[2][:-1]},
+            {sheet.row_values(0)[2][:-1], sheet.row_values(0)[3][:-1]},
         )
 
     def test_no_program_or_course_type(self):
@@ -374,7 +374,7 @@ class TestExporters(TestCase):
         cache_results(evaluation)
 
         sheet = self.get_export_sheet(evaluation.course.semester, program, [course_type.id])
-        self.assertEqual(sheet.col_values(1)[1:3], [program.name, course_type.name])
+        self.assertEqual(sheet.col_values(2)[1:3], [program.name, course_type.name])
 
     def test_multiple_evaluations(self):
         semester = baker.make(Semester)
@@ -390,7 +390,7 @@ class TestExporters(TestCase):
 
         sheet = self.get_export_sheet(semester, program, [evaluation1.course.type.id, evaluation2.course.type.id])
 
-        self.assertEqual(set(sheet.row_values(0)[1:]), {evaluation1.full_name + "\n", evaluation2.full_name + "\n"})
+        self.assertEqual(set(sheet.row_values(0)[2:]), {evaluation1.full_name + "\n", evaluation2.full_name + "\n"})
 
     def test_correct_grades_and_bottom_numbers(self):
         program = baker.make(Program)
@@ -414,11 +414,11 @@ class TestExporters(TestCase):
 
         sheet = self.get_export_sheet(evaluation.course.semester, program, [evaluation.course.type.id])
 
-        self.assertEqual(sheet.row_values(5)[1], 2.0)  # question 1 average
-        self.assertEqual(sheet.row_values(8)[1], 3.0)  # question 2 average
-        self.assertEqual(sheet.row_values(10)[1], 2.5)  # Average grade
-        self.assertEqual(sheet.row_values(11)[1], "5/10")  # Voters / Participants
-        self.assertEqual(sheet.row_values(12)[1], "50%")  # Voter percentage
+        self.assertEqual(sheet.row_values(5)[2], 2.0)  # question 1 average
+        self.assertEqual(sheet.row_values(8)[2], 3.0)  # question 2 average
+        self.assertEqual(sheet.row_values(10)[2], 2.5)  # Average grade
+        self.assertEqual(sheet.row_values(11)[2], "5/10")  # Voters / Participants
+        self.assertEqual(sheet.row_values(12)[2], "50%")  # Voter percentage
 
     def test_course_grade(self):
         program = baker.make(Program)
@@ -446,9 +446,9 @@ class TestExporters(TestCase):
             cache_results(evaluation)
 
         sheet = self.get_export_sheet(course.semester, program, [course.type.id])
-        self.assertEqual(sheet.row_values(12)[1], expected_average)
         self.assertEqual(sheet.row_values(12)[2], expected_average)
         self.assertEqual(sheet.row_values(12)[3], expected_average)
+        self.assertEqual(sheet.row_values(12)[4], expected_average)
 
     def test_yes_no_question_result(self):
         program = baker.make(Program)
@@ -469,7 +469,7 @@ class TestExporters(TestCase):
 
         sheet = self.get_export_sheet(evaluation.course.semester, program, [evaluation.course.type.id])
         self.assertEqual(sheet.row_values(5)[0], question.text)
-        self.assertEqual(sheet.row_values(5)[1], "67%")
+        self.assertEqual(sheet.row_values(5)[2], "67%")
 
     def test_contributor_result_export(self):
         program = baker.make(Program)
@@ -516,24 +516,24 @@ class TestExporters(TestCase):
         workbook = xlrd.open_workbook(file_contents=binary_content)
 
         self.assertEqual(
-            workbook.sheets()[0].row_values(0)[1],
+            workbook.sheets()[0].row_values(0)[2],
             f"{evaluation_1.full_name}\n{evaluation_1.course.semester.name}\n{contributor.full_name}",
         )
         self.assertEqual(
-            workbook.sheets()[0].row_values(0)[2],
+            workbook.sheets()[0].row_values(0)[3],
             f"{evaluation_2.full_name}\n{evaluation_2.course.semester.name}\n{other_contributor.full_name}",
         )
         self.assertEqual(workbook.sheets()[0].row_values(4)[0], general_questionnaire.public_name)
         self.assertEqual(workbook.sheets()[0].row_values(5)[0], general_question.text)
-        self.assertEqual(workbook.sheets()[0].row_values(5)[2], 4.0)
+        self.assertEqual(workbook.sheets()[0].row_values(5)[3], 4.0)
         self.assertEqual(
             workbook.sheets()[0].row_values(7)[0],
             f"{contributor_questionnaire.public_name} ({contributor.full_name})",
         )
         self.assertEqual(workbook.sheets()[0].row_values(8)[0], contributor_question.text)
-        self.assertEqual(workbook.sheets()[0].row_values(8)[2], 3.0)
+        self.assertEqual(workbook.sheets()[0].row_values(8)[3], 3.0)
         self.assertEqual(workbook.sheets()[0].row_values(10)[0], "Overall Average Grade")
-        self.assertEqual(workbook.sheets()[0].row_values(10)[2], 3.25)
+        self.assertEqual(workbook.sheets()[0].row_values(10)[3], 3.25)
 
     def test_text_answer_export(self):
         evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED, can_publish_text_results=True)
@@ -578,3 +578,69 @@ class TestExporters(TestCase):
         self.assertEqual(sheet.row_values(3)[0], questions[0].text)
         self.assertEqual(sheet.row_values(5)[0], questions[1].text)
         self.assertEqual(sheet.row_values(6)[0], questions[2].text)
+
+    def test_total_average(self):
+        program = baker.make(Program)
+
+        questionnaire_1 = baker.make(Questionnaire, order=1, type=Questionnaire.Type.TOP)
+        questionnaire_2 = baker.make(Questionnaire, order=4, type=Questionnaire.Type.TOP)
+
+        question_1 = baker.make(Question, type=QuestionType.GRADE, questionnaire=questionnaire_1)
+        question_2 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire_2)
+
+        evaluation_1 = baker.make(
+            Evaluation,
+            course__programs=[program],
+            state=Evaluation.State.PUBLISHED,
+            _participant_count=2,
+            _voter_count=2,
+        )
+
+        evaluation_2 = baker.make(
+            Evaluation,
+            course__programs=[program],
+            state=Evaluation.State.PUBLISHED,
+            _participant_count=3,
+            _voter_count=3,
+        )
+
+        evaluation_1.general_contribution.questionnaires.set([questionnaire_1])
+
+        make_rating_answer_counters(question_1, evaluation_1.general_contribution, [1, 1, 0, 0, 0])
+
+        evaluation_2.general_contribution.questionnaires.set([questionnaire_1, questionnaire_2])
+
+        make_rating_answer_counters(question_1, evaluation_2.general_contribution, [1, 2, 0, 0, 0])
+        make_rating_answer_counters(question_2, evaluation_2.general_contribution)
+
+        cache_results(evaluation_1)
+        cache_results(evaluation_2)
+
+        binary_content = BytesIO()
+        ResultsExporter().export(
+            binary_content,
+            [evaluation_1.course.semester, evaluation_2.course.semester],
+            [
+                (
+                    [course_program.id for course_program in evaluation_1.course.programs.all()]
+                    + [course_program.id for course_program in evaluation_2.course.programs.all()],
+                    [evaluation_1.course.type.id, evaluation_2.course.type.id],
+                )
+            ],
+            True,
+            True,
+        )
+        binary_content.seek(0)
+        workbook = xlrd.open_workbook(file_contents=binary_content.read())
+
+        self.assertAlmostEqual(workbook.sheets()[0].row_values(5)[1], 1.5833333333333335)
+
+        self.assertEqual(
+            workbook.sheets()[0].row_values(0)[1],
+            "Average result for this question over all published evaluations in all semesters",
+        )
+
+        # average for second questionnaire must be the value from evaluation2 (since evaluation1 doesn't have the questionnaire)
+        self.assertEqual(float(workbook.sheets()[0].row_values(8)[1]), float(workbook.sheets()[0].row_values(8)[3]))
+        # average field next to the questionnaire title must be empty
+        self.assertEqual("", workbook.sheets()[0].row_values(8)[2])
