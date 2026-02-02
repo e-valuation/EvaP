@@ -25,6 +25,7 @@ from evap.evaluation.models import (
 )
 from evap.evaluation.models_logging import LogEntry
 from evap.evaluation.tests.tools import assert_no_database_modifications
+from evap.staff.importers.json import ImportDict, JSONImporter, NameChange, WarningMessage, _clean_whitespaces_and_hyphens
 
 EXAMPLE_DATA = json.loads(
     Path(evap.cms.fixtures.__file__).with_name("import_example_data.json").read_text(encoding="utf-8")
@@ -809,9 +810,16 @@ class TestImportEvents(TestCase):
         self.assertEqual(exam_evaluation.name_en, exam_evaluation.exam_type.name_de)
 
     def test_clean_whitespaces(self):
-        self.assertEqual(_clean_whitespaces(" front"), "front")
-        self.assertEqual(_clean_whitespaces("back "), "back")
-        self.assertEqual(_clean_whitespaces("inbetween  inbetween"), "inbetween inbetween")
-        self.assertEqual(_clean_whitespaces("inbetween \n inbetween"), "inbetween inbetween")
+        self.assertEqual(_clean_whitespaces_and_hyphens(" front"), "front")
+        self.assertEqual(_clean_whitespaces_and_hyphens("back "), "back")
+        self.assertEqual(_clean_whitespaces_and_hyphens("inbetween  inbetween"), "inbetween inbetween")
+        self.assertEqual(_clean_whitespaces_and_hyphens("inbetween \n inbetween"), "inbetween inbetween")
         # non-breaking whitespace
-        self.assertEqual(_clean_whitespaces("inbetween  inbetween"), "inbetween inbetween")
+        self.assertEqual(_clean_whitespaces_and_hyphens("inbetween  inbetween"), "inbetween inbetween")
+
+    def test_exam_missing_language(self):
+        self._import(EXAMPLE_DATA)
+
+        evaluation = Evaluation.objects.get(cms_id=EXAMPLE_DATA["events"][1]["gguid"])
+        self.assertEqual(evaluation.main_language, "de")
+
