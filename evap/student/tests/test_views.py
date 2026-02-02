@@ -132,7 +132,7 @@ class TestStudentIndexView(WebTestWith200Check):
         semester = baker.make(Semester, is_active=True)
         page = self.app.get(self.url, user=self.user)
         self.assertNotIn("Last evaluation:", page)
-        self.assertIn("0 submitted evaluations (0%)", page)
+        self.assertIn("0/0 submitted evaluations (0%)", page)
         self.assertIn("7%", page)
         self.assertIn("a dog", page)
 
@@ -145,7 +145,7 @@ class TestStudentIndexView(WebTestWith200Check):
             state=Evaluation.State.EVALUATED,
         )
         page = self.app.get(self.url, user=self.user)
-        self.assertIn("89 submitted evaluations (91%)", page)  # 91% is intentionally rounded down
+        self.assertIn("89/97 submitted evaluations (91%)", page)  # 91% is intentionally rounded down
         self.assertIn("7%", page)
         self.assertIn("a dog", page)
 
