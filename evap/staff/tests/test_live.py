@@ -174,3 +174,86 @@ class ParticipantCollapseTests(LiveServerTest):
 
         counter = card_header.find_element(By.CSS_SELECTOR, ".rounded-pill")
         self.assertEqual(counter.text, "0")
+
+
+class EvaluationGridLiveTest(LiveServerTest):
+    def test_evaluation_grid_sorting(self):
+        test_semester = baker.make(Semester)
+
+        baker.make(
+            Evaluation,
+            name_de="Evaluation 1",
+            name_en="Evaluation 1",
+            course=baker.make(Course, name_de="AE", name_en="Z", semester=test_semester),
+        )
+        baker.make(
+            Evaluation,
+            name_de="Evaluation 2",
+            name_en="Evaluation 2",
+            course=baker.make(Course, name_de="ÄB", name_en="ÜB", semester=test_semester),
+        )
+        baker.make(
+            Evaluation,
+            name_de="Evaluation 3",
+            name_en="Evaluation 3",
+            course=baker.make(Course, name_de="UE", name_en="UE", semester=test_semester),
+        )
+        baker.make(
+            Evaluation,
+            name_de="Evaluation 4",
+            name_en="Evaluation 4",
+            course=baker.make(Course, name_de="ÜB", name_en="ÄB", semester=test_semester),
+        )
+        baker.make(
+            Evaluation,
+            name_de="Evaluation 5",
+            name_en="Evaluation 5",
+            course=baker.make(Course, name_de="Z", name_en="AE", semester=test_semester),
+        )
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.live_server_url + reverse("staff:index"))
+
+            language_de_button = self.selenium.find_element(
+                By.XPATH,
+                "//form[@action='/set_lang']//button[@data-set-spinner-icon='span-set-language-de']//parent::form",
+            )
+
+            language_de_button.submit()
+            self.selenium.get(self.live_server_url + reverse("staff:semester_view", args=[test_semester.id]))
+            self.wait.until(visibility_of_element_located((By.CSS_SELECTOR, "#evaluation-table .col-order-asc")))
+
+            table = self.selenium.find_element(By.ID, "evaluation-table").find_elements(
+                By.XPATH, "//tbody//child::td[@data-col='name']"
+            )
+
+            self.assertEqual(table[0].get_attribute("data-order"), "ÄB – Evaluation 2")
+            self.assertEqual(table[1].get_attribute("data-order"), "AE – Evaluation 1")
+            self.assertEqual(table[2].get_attribute("data-order"), "ÜB – Evaluation 4")
+            self.assertEqual(table[3].get_attribute("data-order"), "UE – Evaluation 3")
+            self.assertEqual(table[4].get_attribute("data-order"), "Z – Evaluation 5")
+
+            self.selenium.get(self.live_server_url + reverse("staff:index"))
+
+            language_en_button = self.selenium.find_element(
+                By.XPATH,
+                "//form[@action='/set_lang']//button[@data-set-spinner-icon='span-set-language-en']//parent::form",
+            )
+
+            language_en_button.submit()
+            self.selenium.get(self.live_server_url + reverse("staff:semester_view", args=[test_semester.id]))
+            self.wait.until(visibility_of_element_located((By.ID, "evaluation-table")))
+
+            toggle_sort_button = self.selenium.find_element(By.XPATH, "//thead//th[@data-col='name']")
+            toggle_sort_button.click()
+            self.wait.until(visibility_of_element_located((By.ID, "evaluation-table")))
+
+            table = self.selenium.find_element(By.ID, "evaluation-table").find_elements(
+                By.XPATH, "//tbody//child::td[@data-col='name']"
+            )
+
+            self.assertEqual(table[0].get_attribute("data-order"), "Z – Evaluation 1")
+            self.assertEqual(table[1].get_attribute("data-order"), "UE – Evaluation 3")
+            self.assertEqual(table[2].get_attribute("data-order"), "ÜB – Evaluation 2")
+            self.assertEqual(table[3].get_attribute("data-order"), "AE – Evaluation 5")
+            self.assertEqual(table[4].get_attribute("data-order"), "ÄB – Evaluation 4")
