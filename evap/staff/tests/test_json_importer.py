@@ -20,7 +20,13 @@ from evap.evaluation.models import (
     UserProfile,
 )
 from evap.evaluation.models_logging import LogEntry
-from evap.staff.importers.json import ImportDict, JSONImporter, NameChange, WarningMessage, _clean_whitespaces_and_hyphens
+from evap.staff.importers.json import (
+    ImportDict,
+    JSONImporter,
+    NameChange,
+    WarningMessage,
+    _clean_whitespaces_and_hyphens,
+)
 
 EXAMPLE_DATA: ImportDict = {
     "students": [
@@ -903,4 +909,3 @@ class TestImportEvents(TestCase):
 
         evaluation = Evaluation.objects.get(cms_id=EXAMPLE_DATA["events"][1]["gguid"])
         self.assertEqual(evaluation.main_language, "de")
-
