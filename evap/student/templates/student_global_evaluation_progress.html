@@ -19,9 +19,9 @@
                         <span class="progress-bar bg-primary width-percent-{% widthratio global_evaluation_progress.bar_width_votes global_evaluation_progress.max_reward_votes 100 %}"></span>
                         <span class="progress-bartext">
                             {% blocktranslate trimmed count votes=global_evaluation_progress.vote_count with percent=global_evaluation_progress.vote_count|percentage_zero_on_error:global_evaluation_progress.participation_count max_votes=global_evaluation_progress.participation_count %}
-                                {{ votes }} of {{ max_votes }} submitted evaluation ({{ percent }})
+                                {{ votes }} of {{ max_votes }} evaluation submitted ({{ percent }})
                             {% plural %}
-                                {{ votes }} of {{ max_votes }} submitted evaluations ({{ percent }})
+                                {{ votes }} of {{ max_votes }} evaluations submitted ({{ percent }})
                             {% endblocktranslate %}
                         </span>
                     </span>
