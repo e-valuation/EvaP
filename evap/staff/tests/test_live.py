@@ -191,23 +191,29 @@ class QuestionnaireFormLiveTest(LiveServerTest):
         row = self.wait.until(visibility_of_element_located((By.CSS_SELECTOR, "#question_table tbody tr")))
         type_select = row.find_element(By.CSS_SELECTOR, "select[id$='-type']")
 
-        self.select_tom_select_option(type_select, str(QuestionType.TEXT))
-        self.assertTrue(
-            row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").get_attribute("disabled")
+        self.assert_question_type_controls(
+            row,
+            type_select,
+            QuestionType.TEXT,
+            allows_additional_textanswers_disabled=True,
+            counts_for_grade_disabled=True,
         )
-        self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").get_attribute("disabled"))
 
-        self.select_tom_select_option(type_select, str(QuestionType.POSITIVE_LIKERT))
-        self.assertFalse(
-            row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").get_attribute("disabled")
+        self.assert_question_type_controls(
+            row,
+            type_select,
+            QuestionType.POSITIVE_LIKERT,
+            allows_additional_textanswers_disabled=False,
+            counts_for_grade_disabled=False,
         )
-        self.assertFalse(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").get_attribute("disabled"))
 
-        self.select_tom_select_option(type_select, str(QuestionType.HEADING))
-        self.assertTrue(
-            row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").get_attribute("disabled")
+        self.assert_question_type_controls(
+            row,
+            type_select,
+            QuestionType.HEADING,
+            allows_additional_textanswers_disabled=True,
+            counts_for_grade_disabled=True,
         )
-        self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").get_attribute("disabled"))
 
         # Part 2: Add New Question
         self.selenium.find_element(By.CLASS_NAME, "add-row").click()
@@ -220,34 +226,28 @@ class QuestionnaireFormLiveTest(LiveServerTest):
         ]  # the last row is the add row button
         new_type_select = new_row.find_element(By.CSS_SELECTOR, "select[id$='-type']")
 
-        self.select_tom_select_option(new_type_select, str(QuestionType.TEXT))
-        self.assertTrue(
-            new_row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").get_attribute(
-                "disabled"
-            )
-        )
-        self.assertTrue(
-            new_row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").get_attribute("disabled")
+        self.assert_question_type_controls(
+            new_row,
+            new_type_select,
+            QuestionType.TEXT,
+            allows_additional_textanswers_disabled=True,
+            counts_for_grade_disabled=True,
         )
 
-        self.select_tom_select_option(new_type_select, str(QuestionType.POSITIVE_LIKERT))
-        self.assertFalse(
-            new_row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").get_attribute(
-                "disabled"
-            )
-        )
-        self.assertFalse(
-            new_row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").get_attribute("disabled")
+        self.assert_question_type_controls(
+            new_row,
+            new_type_select,
+            QuestionType.POSITIVE_LIKERT,
+            allows_additional_textanswers_disabled=False,
+            counts_for_grade_disabled=False,
         )
 
-        self.select_tom_select_option(new_type_select, str(QuestionType.HEADING))
-        self.assertTrue(
-            new_row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").get_attribute(
-                "disabled"
-            )
-        )
-        self.assertTrue(
-            new_row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").get_attribute("disabled")
+        self.assert_question_type_controls(
+            new_row,
+            new_type_select,
+            QuestionType.HEADING,
+            allows_additional_textanswers_disabled=True,
+            counts_for_grade_disabled=True,
         )
 
     def test_questionnaire_type_disabling_logic(self):
@@ -276,6 +276,29 @@ class QuestionnaireFormLiveTest(LiveServerTest):
 
     def select_tom_select_option(self, select_element, value):
         self.selenium.execute_script(f"arguments[0].tomselect.setValue('{value}');", select_element)
+
+    def assert_question_type_controls(
+        self,
+        row,
+        type_select,
+        question_type,
+        *,
+        allows_additional_textanswers_disabled,
+        counts_for_grade_disabled,
+    ):
+        self.select_tom_select_option(type_select, str(question_type))
+        self.assertEqual(
+            allows_additional_textanswers_disabled,
+            bool(
+                row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").get_attribute(
+                    "disabled"
+                )
+            ),
+        )
+        self.assertEqual(
+            counts_for_grade_disabled,
+            bool(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").get_attribute("disabled")),
+        )
 
 
 class TextAnswerEditLiveTest(LiveServerTest):
