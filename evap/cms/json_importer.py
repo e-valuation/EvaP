@@ -189,9 +189,9 @@ class ImportStatistics:
         mail.send()
 
 
-def _clean_whitespaces(text: str) -> str:
+def _clean_whitespaces_and_hyphens(text: str) -> str:
     # Use regex for cleaning to also include non-ASCII whitespaces like non-breaking whitespaces
-    return re.sub(r"\s+", " ", text.strip())
+    return re.sub(r"\s+", " ", text.strip()).replace(" - ", " – ")
 
 
 T = typing.TypeVar("T", CourseType, ExamType, Program)
@@ -213,7 +213,7 @@ class ImportCache(typing.Generic[T]):
         }
 
     def get(self, name: str) -> T:
-        lookup = _clean_whitespaces(name).lower()
+        lookup = _clean_whitespaces_and_hyphens(name).lower()
         if lookup in self.cache:
             return self.cache[lookup]
 
@@ -244,6 +244,7 @@ class JSONImporter:
         self.program_cache = ImportCache(Program)
         self.courses_by_gguid: dict[str, Course] = {}
         self.statistics = ImportStatistics()
+        self.events_dict: dict[str, ImportEvent] = {}
 
     def _extract_number_in_name(self, name: str, wanted_name: str) -> int | None:
         if not name.startswith(wanted_name):
@@ -303,8 +304,8 @@ class JSONImporter:
     def _import_students(self, data: list[ImportStudent]) -> None:
         for entry in data:
             email = clean_email(entry["email"])
-            first_name_given = _clean_whitespaces(self._get_first_name_given(entry))
-            last_name = _clean_whitespaces(entry["name"])
+            first_name_given = _clean_whitespaces_and_hyphens(self._get_first_name_given(entry))
+            last_name = _clean_whitespaces_and_hyphens(entry["name"])
             if not email:
                 self.statistics.warnings.append(
                     WarningMessage(obj=f"Student {first_name_given} {last_name}", message="No email defined")
@@ -326,8 +327,8 @@ class JSONImporter:
     def _import_lecturers(self, data: list[ImportLecturer]) -> None:
         for entry in data:
             email = clean_email(entry["email"])
-            first_name_given = _clean_whitespaces(entry["christianname"])
-            last_name = _clean_whitespaces(entry["name"])
+            first_name_given = _clean_whitespaces_and_hyphens(entry["christianname"])
+            last_name = _clean_whitespaces_and_hyphens(entry["name"])
             if not email:
                 self.statistics.warnings.append(
                     WarningMessage(
@@ -345,7 +346,7 @@ class JSONImporter:
                     defaults={
                         "last_name": last_name,
                         "first_name_given": first_name_given,
-                        "title": _clean_whitespaces(entry["titlefront"]),
+                        "title": _clean_whitespaces_and_hyphens(entry["titlefront"]),
                     },
                 )
                 if changes:
@@ -386,8 +387,8 @@ class JSONImporter:
             semester=self.semester,
             cms_id=data["gguid"],
             defaults={
-                "name_de": _clean_whitespaces(data["title"]),
-                "name_en": _clean_whitespaces(data["title_en"]),
+                "name_de": _clean_whitespaces_and_hyphens(data["title"]),
+                "name_en": _clean_whitespaces_and_hyphens(data["title_en"]),
                 "type": course_type,
             },
         )
@@ -465,10 +466,10 @@ class JSONImporter:
                 name_de = data["title"].split(" - ")[-1] if " - " in data["title"] else exam_type.name_de
                 name_en = data["title_en"].split(" - ")[-1] if " - " in data["title_en"] else exam_type.name_en
                 name_de = self._disambiguate_name(
-                    _clean_whitespaces(name_de), course.evaluations.values_list("name_de", flat=True)
+                    _clean_whitespaces_and_hyphens(name_de), course.evaluations.values_list("name_de", flat=True)
                 )
                 name_en = self._disambiguate_name(
-                    _clean_whitespaces(name_en), course.evaluations.values_list("name_en", flat=True)
+                    _clean_whitespaces_and_hyphens(name_en), course.evaluations.values_list("name_en", flat=True)
                 )
 
             weight = settings.EXAM_EVALUATION_DEFAULT_WEIGHT
@@ -532,6 +533,10 @@ class JSONImporter:
             is_rewarded = True
 
         main_language = LANGUAGE_MAP.get(data["language"], Evaluation.UNDECIDED_MAIN_LANGUAGE)
+        if main_language == Evaluation.UNDECIDED_MAIN_LANGUAGE and data.get("relatedevents"):
+            related_main_evaluation = self.events_dict[data["relatedevents"][0]["gguid"]]
+            main_language = LANGUAGE_MAP.get(related_main_evaluation["language"], Evaluation.UNDECIDED_MAIN_LANGUAGE)
+
         if main_language == Evaluation.UNDECIDED_MAIN_LANGUAGE and not evaluation:
             self.statistics.warnings.append(
                 WarningMessage(
@@ -605,7 +610,10 @@ class JSONImporter:
             return None, False
 
         contribution, created = Contribution.objects.update_or_create(
-            evaluation=evaluation, contributor=user_profile, role=Contribution.Role.EDITOR
+            evaluation=evaluation,
+            contributor=user_profile,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
         return contribution, created
 
@@ -613,6 +621,7 @@ class JSONImporter:
         # Divide in multiple lists to handle individually
         non_exam_events, exam_events, exam_events_without_related_non_exam_event = [], [], []
         for event in data:
+            self.events_dict[event["gguid"]] = event
             if not event["isexam"]:
                 non_exam_events.append(event)
             elif event.get("relatedevents"):
