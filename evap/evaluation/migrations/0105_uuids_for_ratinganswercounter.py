@@ -14,7 +14,6 @@ def fill_rating_answer_counter_uuids(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0104_userprofile_is_proxy_user"),
     ]

@@ -7,9 +7,34 @@
 
 {% block content %}
     {{ block.super }}
-    <div class="card mb-3">
-        <div class="card-body">
-            {% include 'student_vote_questionnaire_group.html' with questionnaire_group=forms preview=True %}
+    <h3 class="mb-3">
+        <div class="mt-3 mt-lg-0 d-flex justify-content-end">
+            <div class="btn-switch btn-switch-light btn-switch-evaluation-language">
+                <div class="btn-switch-label my-auto">
+                    {% translate "Questionnaire language" %}
+                </div>
+                    
+                <div class="btn-switch btn-group">
+                    {% for language_code, language_name in languages %}
+                        <a data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            data-set-spinner-icon="span-set-evaluation-language-{{ language_code }}"
+                            title="{{ language_name }}"
+                            role="button"
+                            href="{{ request.path }}?language={{ language_code }}"
+                            class="btn btn-sm btn-light{% if evaluation_language == language_code %} active{% endif %}">
+                            <span id="span-set-evaluation-language-{{ language_code }}">{{ language_code|upper }}</span>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
-    </div>
+    </h3>
+    {% language evaluation_language %}
+        <div class="card mb-3">
+            <div class="card-body">
+                {% include 'student_vote_questionnaire_group.html' with questionnaire_group=forms preview=True %}
+            </div>
+        </div>
+    {% endlanguage %}
 {% endblock %}

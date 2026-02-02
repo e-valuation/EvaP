@@ -28,6 +28,7 @@ from evap.evaluation.models import (
     TextAnswer,
     VoteTimestamp,
 )
+from evap.evaluation.tools import translate
 from evap.results.tools import (
     annotate_distributions_and_grades,
     get_evaluations_with_course_result_attributes,
@@ -41,12 +42,26 @@ SUCCESS_MAGIC_STRING = "vote submitted successfully"
 
 
 @dataclass
-class GlobalRewards:
+class GlobalEvaluationProgress:
     @dataclass
     class RewardProgress:
         progress: Fraction  # progress towards this reward, relative to max reward, between 0 and 1
         vote_ratio: Fraction
         text: str
+
+    @dataclass
+    class Campaign:
+        title_de: str
+        title_en: str
+        title = translate(en="title_en", de="title_de")
+
+        info_title_de: str
+        info_title_en: str
+        info_title = translate(en="info_title_en", de="info_title_de")
+
+        info_text_de: str
+        info_text_en: str
+        info_text = translate(en="info_text_en", de="info_text_de")
 
     vote_count: int
     participation_count: int
@@ -54,15 +69,17 @@ class GlobalRewards:
     bar_width_votes: int
     last_vote_datetime: datetime.datetime
     rewards_with_progress: list[RewardProgress]
-    info_text: str
+    campaign: Campaign
 
     @staticmethod
-    def from_settings() -> "GlobalRewards | None":
+    def from_settings() -> "GlobalEvaluationProgress | None":
         if not settings.GLOBAL_EVALUATION_PROGRESS_REWARDS:
             return None
 
         if not Semester.active_semester():
             return None
+
+        language = get_language()
 
         evaluations = (
             Semester.active_semester()
@@ -83,7 +100,9 @@ class GlobalRewards:
         max_reward_votes = math.ceil(max_reward_vote_ratio * participation_count)
 
         rewards_with_progress = [
-            GlobalRewards.RewardProgress(progress=vote_ratio / max_reward_vote_ratio, vote_ratio=vote_ratio, text=text)
+            GlobalEvaluationProgress.RewardProgress(
+                progress=vote_ratio / max_reward_vote_ratio, vote_ratio=vote_ratio, text=text[language]
+            )
             for vote_ratio, text in settings.GLOBAL_EVALUATION_PROGRESS_REWARDS
         ]
 
@@ -91,14 +110,14 @@ class GlobalRewards:
             "timestamp__max"
         ]
 
-        return GlobalRewards(
+        return GlobalEvaluationProgress(
             vote_count=vote_count,
             participation_count=participation_count,
             max_reward_votes=max_reward_votes,
             bar_width_votes=min(vote_count, max_reward_votes),
             last_vote_datetime=last_vote_datetime,
             rewards_with_progress=rewards_with_progress,
-            info_text=settings.GLOBAL_EVALUATION_PROGRESS_INFO_TEXT[get_language()],
+            campaign=GlobalEvaluationProgress.Campaign(**settings.GLOBAL_EVALUATION_PROGRESS_CAMPAIGN),
         )
 
 
@@ -189,7 +208,7 @@ def index(request):
         "can_download_grades": request.user.can_download_grades,
         "unfinished_evaluations": unfinished_evaluations,
         "evaluation_end_warning_period": settings.EVALUATION_END_WARNING_PERIOD,
-        "global_rewards": GlobalRewards.from_settings(),
+        "global_evaluation_progress": GlobalEvaluationProgress.from_settings(),
     }
 
     return render(request, "student_index.html", template_data)
@@ -212,22 +231,27 @@ def create_voting_form(
 
 
 def create_voting_forms(
-    request, contribution: Contribution, questionnaires: Iterable[Questionnaire], preselect_no_answer: bool
+    request,
+    contribution: Contribution,
+    questionnaires: Iterable[Questionnaire],
+    *,
+    dropout: bool,
 ) -> list[QuestionnaireVotingForm]:
     return [
         create_voting_form(
             request,
             contribution,
             questionnaire,
-            preselect_no_answer=(preselect_no_answer and not questionnaire.is_dropout),
+            preselect_no_answer=(dropout and not questionnaire.is_dropout),
             # dropout questionnaires should not be preselected
         )
         for questionnaire in questionnaires
+        if dropout or not questionnaire.is_dropout
     ]
 
 
 def get_vote_page_form_groups(
-    request, evaluation: Evaluation, *, preview: bool, preselect_no_answer: bool
+    request, evaluation: Evaluation, *, preview: bool, dropout: bool
 ) -> OrderedDict[Contribution, list[QuestionnaireVotingForm]]:
     contributions_to_vote_on = evaluation.contributions.all()
     # prevent a user from voting on themselves
@@ -239,7 +263,7 @@ def get_vote_page_form_groups(
         questionnaires = contribution.questionnaires.all()
         if not questionnaires.exists():
             continue
-        form_groups[contribution] = create_voting_forms(request, contribution, questionnaires, preselect_no_answer)
+        form_groups[contribution] = create_voting_forms(request, contribution, questionnaires, dropout=dropout)
 
     return form_groups
 
@@ -254,7 +278,7 @@ def render_vote_page(
 ) -> HttpResponse:
     language = request.GET.get("language", evaluation.main_language)
     with translation.override(language):
-        form_groups = get_vote_page_form_groups(request, evaluation, preview=preview, preselect_no_answer=dropout)
+        form_groups = get_vote_page_form_groups(request, evaluation, preview=preview, dropout=dropout)
 
     assert preview or not all(form.is_valid() for form_group in form_groups.values() for form in form_group)
 
@@ -324,7 +348,7 @@ def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> Htt
     if not evaluation.can_be_voted_for_by(request.user):
         raise PermissionDenied
 
-    form_groups = get_vote_page_form_groups(request, evaluation, preview=False, preselect_no_answer=False)
+    form_groups = get_vote_page_form_groups(request, evaluation, preview=False, dropout=dropout)
     if not all(form.is_valid() for form_group in form_groups.values() for form in form_group):
         return render_vote_page(request, evaluation, preview=False, dropout=dropout)
 

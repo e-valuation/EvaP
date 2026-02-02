@@ -136,6 +136,11 @@ ADMINS: list[tuple[str, str]] = [
     # ('Your Name', 'your_email@example.com'),
 ]
 
+# People who get the JSON importer logs via email.
+JSON_IMPORTER_LOG_RECIPIENTS: list[str] = [
+    # 'your_email@example.com',
+]
+
 # The page URL that is used in email templates.
 PAGE_URL = "localhost:8000"
 
@@ -384,12 +389,19 @@ STATIC_ROOT = DATADIR / "static_collected"
 MEDIA_ROOT = DATADIR / "upload"
 
 ### Evaluation progress rewards
-GLOBAL_EVALUATION_PROGRESS_REWARDS: list[tuple[Fraction, str]] = (
-    []
-)  # (required_voter_ratio between 0 and 1, reward_text)
+GLOBAL_EVALUATION_PROGRESS_REWARDS: list[
+    tuple[Fraction, dict[str, str]]
+] = []  # (required_voter_ratio between 0 and 1, reward_text)
 GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS: list[int] = []
 GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS: list[int] = []
-GLOBAL_EVALUATION_PROGRESS_INFO_TEXT: dict[str, str] = {"de": "", "en": ""}
+GLOBAL_EVALUATION_PROGRESS_CAMPAIGN: dict[str, str] = {
+    "title_de": "",
+    "title_en": "",
+    "info_title_de": "",
+    "info_title_en": "",
+    "info_text_de": "",
+    "info_text_en": "",
+}
 
 ### Slogans
 SLOGANS_DE = [

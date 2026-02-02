@@ -1,4 +1,5 @@
 {% load evaluation_filters %}
+{% load staff_templatetags %}
 
 {% with state=evaluation.state %}
 
@@ -182,10 +183,19 @@
                         {% endblocktranslate %}
                     </span>
                     <div slot="extra-inputs">
-                        <label>
-                            {% translate 'Exam Date:' %}
-                            <input type="date" name="exam_date" min="{{ evaluation.earliest_possible_exam_date }}" class="form-control" required form="exam_creation_form_{{ evaluation.id }}"/>
-                        </label>
+                        {% with create_exam_evaluation_form=evaluation|create_exam_evaluation_form %}
+                            {% include 'bootstrap_form_field.html' with field=create_exam_evaluation_form.base_evaluation %}
+
+                            {# Exam date rendered manually due to bug with Bootstrap datepicker not showing the actual picker in a modal #}
+                            <div class="mb-3 d-md-flex">
+                                <label class="col-md-3 pe-4 form-label" for="id_exam_date">{% trans "Exam Date" %}</label>
+                                <div class="col-md-7">
+                                    <input class="form-control" type="date" name="exam_date" form="exam_creation_form_{{ evaluation.pk }}" min="{{ evaluation.earliest_possible_exam_date }}" required="" id="id_exam_date">
+                                </div>
+                            </div>
+
+                            {% include 'bootstrap_form_field.html' with field=create_exam_evaluation_form.exam_type %}
+                        {% endwith %}
                     </div>
 
                     <button slot="show-button" type="button" class="btn btn-sm btn-light" title="{% translate 'Create exam evaluation' %}" data-bs-placement="top" data-bs-toggle="tooltip"><span class="fas fa-file-pen fa-fw"></span></button>

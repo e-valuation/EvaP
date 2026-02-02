@@ -18,7 +18,6 @@ def revert_rename(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0048_auto_20160301_1438"),
     ]

@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0155_choices_constraints"),
         ("grades", "0017_remove_grade_documents_from_evaluations"),

@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0087_rename_comment_visibility_to_textanswer_visibility"),
     ]

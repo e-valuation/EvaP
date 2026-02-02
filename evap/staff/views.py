@@ -32,10 +32,10 @@ from django.forms.models import inlineformset_factory, modelformset_factory
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
+from django.utils import translation
 from django.utils.html import format_html
-from django.utils.translation import get_language
+from django.utils.translation import get_language, gettext_lazy, ngettext
 from django.utils.translation import gettext as _
-from django.utils.translation import gettext_lazy, ngettext
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, FormView, UpdateView
 
@@ -48,6 +48,7 @@ from evap.evaluation.models import (
     CourseType,
     EmailTemplate,
     Evaluation,
+    ExamType,
     FaqQuestion,
     FaqSection,
     Infotext,
@@ -92,6 +93,8 @@ from evap.staff.forms import (
     EvaluationEmailForm,
     EvaluationForm,
     EvaluationParticipantCopyForm,
+    ExamEvaluationForm,
+    ExamTypeForm,
     ExportSheetForm,
     FaqQuestionForm,
     FaqSectionForm,
@@ -902,14 +905,23 @@ def semester_questionnaire_assign(request, semester_id):
         raise PermissionDenied
     evaluations = semester.evaluations.filter(state=Evaluation.State.NEW)
     course_types = CourseType.objects.filter(courses__evaluations__in=evaluations)
-    form = QuestionnairesAssignForm(request.POST or None, course_types=course_types)
+    exam_types = ExamType.objects.filter(evaluations__in=evaluations)
+    form = QuestionnairesAssignForm(request.POST or None, course_types=course_types, exam_types=exam_types)
 
     if form.is_valid():
         for evaluation in evaluations:
-            general_questionnaires = list(form.cleaned_data[f"general-{evaluation.course.type.id}"])
-            contributor_questionnaires = list(
-                form.cleaned_data["all-contributors"] | form.cleaned_data[f"contributor-{evaluation.course.type.id}"]
+            general_questionnaires = (
+                list(form.cleaned_data[f"general-{evaluation.course.type.id}"])
+                if evaluation.exam_type is None
+                else list(form.cleaned_data[f"exam-{evaluation.exam_type.id}"])
             )
+
+            contributor_questionnaires = []
+            if evaluation.exam_type is None:
+                contributor_questionnaires = list(
+                    form.cleaned_data["all-contributors"]
+                    | form.cleaned_data[f"contributor-{evaluation.course.type.id}"]
+                )
 
             if general_questionnaires:
                 evaluation.general_contribution.questionnaires.set(general_questionnaires)
@@ -926,6 +938,7 @@ def semester_questionnaire_assign(request, semester_id):
     general_fields = [field for field in form if field.name.startswith("general-")]
     contributor_fields = [field for field in form if field.name.startswith("contributor-")]
     contributor_fields.append(form["all-contributors"])
+    exam_fields = [field for field in form if field.name.startswith("exam-")]
 
     return render(
         request,
@@ -935,6 +948,7 @@ def semester_questionnaire_assign(request, semester_id):
             "form": form,
             "general_fields": general_fields,
             "contributor_fields": contributor_fields,
+            "exam_fields": exam_fields,
         },
     )
 
@@ -1114,27 +1128,16 @@ def course_copy(request, course_id):
 @require_POST
 @manager_required
 def create_exam_evaluation(request: HttpRequest) -> HttpResponse:
-    evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
+    form = ExamEvaluationForm(request.POST)
 
-    if evaluation.has_exam_evaluation:
-        raise SuspiciousOperation("An exam evaluation already exists for this course.")
-
-    exam_date_string = request.POST.get("exam_date")
-    if not exam_date_string:
-        return HttpResponseBadRequest("Exam date missing.")
-    try:
-        exam_date = datetime.strptime(exam_date_string, "%Y-%m-%d").date()
-    except ValueError:
-        return HttpResponseBadRequest("Exam date invalid.")
-
-    if exam_date < evaluation.earliest_possible_exam_date:
-        raise SuspiciousOperation(
-            "The end date of the main evaluation would be before its start date. No exam evaluation was created."
+    if form.is_valid():
+        form.cleaned_data["base_evaluation"].create_exam_evaluation(
+            form.cleaned_data["exam_date"], form.cleaned_data["exam_type"]
         )
+        messages.success(request, _("Successfully created exam evaluation."))
+        return HttpResponse()  # 200 OK
 
-    evaluation.create_exam_evaluation(exam_date)
-    messages.success(request, _("Successfully created exam evaluation."))
-    return HttpResponse()  # 200 OK
+    raise SuspiciousOperation(form.errors)
 
 
 @manager_required
@@ -1658,7 +1661,6 @@ def evaluation_textanswers(request: HttpRequest, evaluation_id: int) -> HttpResp
     )
 
     template_data = {"semester": semester, "evaluation": evaluation, "view": view}
-
     if view == "quick":
         visited = request.session.get("review-visited", set())
         skipped = request.session.get("review-skipped", set())
@@ -1770,11 +1772,16 @@ def evaluation_textanswer_edit(request, textanswer_id):
     assert_textanswer_review_permissions(evaluation)
 
     form = TextAnswerForm(request.POST or None, instance=textanswer)
-
+    view = request.GET.get("next-view")
     if form.is_valid():
         form.save()
         # jump to edited answer
-        url = reverse("staff:evaluation_textanswers", args=[evaluation.pk], fragment=str(textanswer.id))
+        url = reverse(
+            "staff:evaluation_textanswers",
+            args=[evaluation.pk],
+            query={"view": view} if view else None,
+            fragment="textanswer-" + str(textanswer_id),
+        )
         return HttpResponseRedirect(url)
 
     template_data = {
@@ -1827,13 +1834,24 @@ def questionnaire_index(request):
 
 @manager_required
 def questionnaire_view(request, questionnaire_id):
+    language = request.GET.get("language", request.user.language)
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
 
     # build forms
     contribution = Contribution(contributor=request.user)
-    form = QuestionnaireVotingForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
+    with translation.override(language):
+        form = QuestionnaireVotingForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
 
-    return render(request, "staff_questionnaire_view.html", {"forms": [form], "questionnaire": questionnaire})
+    return render(
+        request,
+        "staff_questionnaire_view.html",
+        {
+            "forms": [form],
+            "questionnaire": questionnaire,
+            "languages": settings.LANGUAGES,
+            "evaluation_language": language,
+        },
+    )
 
 
 @manager_required
@@ -2179,6 +2197,21 @@ def course_type_merge(request, main_type_id, other_type_id):
         "staff_course_type_merge.html",
         {"main_type": main_type, "other_type": other_type, "courses_with_other_type": courses_with_other_type},
     )
+
+
+@manager_required
+class ExamTypeIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
+    model = ExamType
+    formset_class = modelformset_factory(
+        ExamType,
+        form=ExamTypeForm,
+        formset=ModelWithImportNamesFormset,
+        can_delete=True,
+        extra=1,
+    )
+    template_name = "staff_exam_type_index.html"
+    success_url = reverse_lazy("staff:exam_type_index")
+    success_message = gettext_lazy("Successfully updated the exam types.")
 
 
 @manager_required

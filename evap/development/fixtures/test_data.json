@@ -28,6 +28,8 @@
     "name_en": "Winter term 2022/2023",
     "short_name_de": "WS 22/23",
     "short_name_en": "WT 22/23",
+    "cms_name": "",
+    "default_course_end_date": null,
     "participations_are_archived": true,
     "grade_documents_are_deleted": true,
     "results_are_archived": true,
@@ -43,6 +45,8 @@
     "name_en": "Summer term 2023",
     "short_name_de": "SS 23",
     "short_name_en": "ST 23",
+    "cms_name": "",
+    "default_course_end_date": null,
     "participations_are_archived": false,
     "grade_documents_are_deleted": false,
     "results_are_archived": false,
@@ -58,6 +62,8 @@
     "name_en": "Winter term 2023/2024",
     "short_name_de": "WS 23/24",
     "short_name_en": "WT 23/24",
+    "cms_name": "",
+    "default_course_end_date": null,
     "participations_are_archived": false,
     "grade_documents_are_deleted": false,
     "results_are_archived": false,
@@ -73,6 +79,8 @@
     "name_en": "Summer term 2024",
     "short_name_de": "SS 24",
     "short_name_en": "ST 24",
+    "cms_name": "",
+    "default_course_end_date": null,
     "participations_are_archived": false,
     "grade_documents_are_deleted": false,
     "results_are_archived": false,
@@ -757,6 +765,17 @@
     "import_names": "[\"Masterprojekt\"]",
     "skip_on_automated_import": false,
     "order": 5
+  }
+},
+{
+  "model": "evaluation.examtype",
+  "pk": 1,
+  "fields": {
+    "name_de": "Klausur",
+    "name_en": "Exam",
+    "import_names": "[]",
+    "skip_on_automated_import": false,
+    "order": 0
   }
 },
 {
@@ -3349,6 +3368,7 @@
   "fields": {
     "state": 80,
     "course": 4,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -3388,6 +3408,7 @@
   "fields": {
     "state": 70,
     "course": 87,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -3429,6 +3450,7 @@
   "fields": {
     "state": 70,
     "course": 116,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -3464,6 +3486,7 @@
   "fields": {
     "state": 80,
     "course": 53,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -3510,6 +3533,7 @@
   "fields": {
     "state": 80,
     "course": 76,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -3565,6 +3589,7 @@
   "fields": {
     "state": 70,
     "course": 128,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -3608,6 +3633,7 @@
   "fields": {
     "state": 80,
     "course": 100,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -3650,6 +3676,7 @@
   "fields": {
     "state": 70,
     "course": 83,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -3681,6 +3708,7 @@
   "fields": {
     "state": 70,
     "course": 113,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -3779,6 +3807,7 @@
   "fields": {
     "state": 80,
     "course": 134,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -3821,6 +3850,7 @@
   "fields": {
     "state": 80,
     "course": 60,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -3876,6 +3906,7 @@
   "fields": {
     "state": 70,
     "course": 34,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -3924,6 +3955,7 @@
   "fields": {
     "state": 80,
     "course": 1,
+    "exam_type": null,
     "name_de": "Softwarearchitektur",
     "name_en": "Software Architecture",
     "main_language": "en",
@@ -3968,6 +4000,7 @@
   "fields": {
     "state": 80,
     "course": 126,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -4009,6 +4042,7 @@
   "fields": {
     "state": 80,
     "course": 141,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -4132,6 +4166,7 @@
   "fields": {
     "state": 80,
     "course": 69,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -4273,6 +4308,7 @@
   "fields": {
     "state": 80,
     "course": 5,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -4350,6 +4386,7 @@
   "fields": {
     "state": 80,
     "course": 37,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -4389,6 +4426,7 @@
   "fields": {
     "state": 80,
     "course": 26,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -4536,6 +4574,7 @@
   "fields": {
     "state": 80,
     "course": 26,
+    "exam_type": null,
     "name_de": "C³: Konsistente Fahrzeug Gruppierung",
     "name_en": "C³: Consistent Car Clustering",
     "main_language": "en",
@@ -4691,6 +4730,7 @@
   "fields": {
     "state": 80,
     "course": 50,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -4744,6 +4784,7 @@
   "fields": {
     "state": 70,
     "course": 38,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -4781,6 +4822,7 @@
   "fields": {
     "state": 80,
     "course": 44,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -4926,6 +4968,7 @@
   "fields": {
     "state": 80,
     "course": 16,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -5054,6 +5097,7 @@
   "fields": {
     "state": 80,
     "course": 12,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -5195,6 +5239,7 @@
   "fields": {
     "state": 80,
     "course": 2,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -5362,6 +5407,7 @@
   "fields": {
     "state": 80,
     "course": 82,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -5499,6 +5545,7 @@
   "fields": {
     "state": 80,
     "course": 59,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -5562,6 +5609,7 @@
   "fields": {
     "state": 80,
     "course": 52,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -5609,6 +5657,7 @@
   "fields": {
     "state": 80,
     "course": 130,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -5650,6 +5699,7 @@
   "fields": {
     "state": 80,
     "course": 94,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -5708,6 +5758,7 @@
   "fields": {
     "state": 80,
     "course": 115,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -5776,6 +5827,7 @@
   "fields": {
     "state": 80,
     "course": 103,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -5825,6 +5877,7 @@
   "fields": {
     "state": 80,
     "course": 35,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -5880,6 +5933,7 @@
   "fields": {
     "state": 80,
     "course": 51,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -5945,6 +5999,7 @@
   "fields": {
     "state": 80,
     "course": 86,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -5982,6 +6037,7 @@
   "fields": {
     "state": 80,
     "course": 90,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -6027,6 +6083,7 @@
   "fields": {
     "state": 80,
     "course": 73,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -6084,6 +6141,7 @@
   "fields": {
     "state": 80,
     "course": 121,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -6125,6 +6183,7 @@
   "fields": {
     "state": 80,
     "course": 118,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -6154,6 +6213,7 @@
   "fields": {
     "state": 80,
     "course": 18,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -6193,6 +6253,7 @@
   "fields": {
     "state": 80,
     "course": 75,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -6226,6 +6287,7 @@
   "fields": {
     "state": 80,
     "course": 24,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -6264,6 +6326,7 @@
   "fields": {
     "state": 80,
     "course": 55,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -6300,6 +6363,7 @@
   "fields": {
     "state": 80,
     "course": 61,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -6346,6 +6410,7 @@
   "fields": {
     "state": 80,
     "course": 109,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -6468,6 +6533,7 @@
   "fields": {
     "state": 80,
     "course": 21,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -6498,6 +6564,7 @@
   "fields": {
     "state": 80,
     "course": 17,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -6546,6 +6613,7 @@
   "fields": {
     "state": 80,
     "course": 3,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -6580,6 +6648,7 @@
   "fields": {
     "state": 80,
     "course": 131,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -6692,6 +6761,7 @@
   "fields": {
     "state": 80,
     "course": 97,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -6728,6 +6798,7 @@
   "fields": {
     "state": 80,
     "course": 30,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -6792,6 +6863,7 @@
   "fields": {
     "state": 80,
     "course": 82,
+    "exam_type": null,
     "name_de": "Automated Analysis of Formal Models",
     "name_en": "Automated Analysis of Formal Models",
     "main_language": "en",
@@ -6847,6 +6919,7 @@
   "fields": {
     "state": 80,
     "course": 28,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -6893,6 +6966,7 @@
   "fields": {
     "state": 80,
     "course": 14,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -7027,6 +7101,7 @@
   "fields": {
     "state": 80,
     "course": 29,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -7174,6 +7249,7 @@
   "fields": {
     "state": 80,
     "course": 122,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -7227,6 +7303,7 @@
   "fields": {
     "state": 50,
     "course": 46,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -7261,6 +7338,7 @@
   "fields": {
     "state": 20,
     "course": 1,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "x",
@@ -7295,6 +7373,7 @@
   "fields": {
     "state": 10,
     "course": 65,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "x",
@@ -7332,6 +7411,7 @@
   "fields": {
     "state": 80,
     "course": 84,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -7376,6 +7456,7 @@
   "fields": {
     "state": 60,
     "course": 98,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -7409,6 +7490,7 @@
   "fields": {
     "state": 80,
     "course": 78,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -7452,6 +7534,7 @@
   "fields": {
     "state": 10,
     "course": 102,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "x",
@@ -7482,6 +7565,7 @@
   "fields": {
     "state": 10,
     "course": 63,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "x",
@@ -7514,6 +7598,7 @@
   "fields": {
     "state": 80,
     "course": 27,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -7576,6 +7661,7 @@
   "fields": {
     "state": 80,
     "course": 70,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -7617,6 +7703,7 @@
   "fields": {
     "state": 80,
     "course": 119,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -7679,6 +7766,7 @@
   "fields": {
     "state": 80,
     "course": 120,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -7786,6 +7874,7 @@
   "fields": {
     "state": 80,
     "course": 132,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -7834,6 +7923,7 @@
   "fields": {
     "state": 80,
     "course": 7,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -7916,6 +8006,7 @@
   "fields": {
     "state": 40,
     "course": 23,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -7947,6 +8038,7 @@
   "fields": {
     "state": 80,
     "course": 49,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -8012,6 +8104,7 @@
   "fields": {
     "state": 80,
     "course": 33,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -8085,6 +8178,7 @@
   "fields": {
     "state": 80,
     "course": 114,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -8141,6 +8235,7 @@
   "fields": {
     "state": 30,
     "course": 72,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "x",
@@ -8179,6 +8274,7 @@
   "fields": {
     "state": 30,
     "course": 89,
+    "exam_type": null,
     "name_de": "IT-Recht",
     "name_en": "Legal Aspects of Information Technology",
     "main_language": "x",
@@ -8217,6 +8313,7 @@
   "fields": {
     "state": 80,
     "course": 58,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -8364,6 +8461,7 @@
   "fields": {
     "state": 80,
     "course": 117,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -8398,6 +8496,7 @@
   "fields": {
     "state": 80,
     "course": 22,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -8449,6 +8548,7 @@
   "fields": {
     "state": 80,
     "course": 112,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -8494,6 +8594,7 @@
   "fields": {
     "state": 80,
     "course": 80,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -8525,6 +8626,7 @@
   "fields": {
     "state": 80,
     "course": 54,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -8589,6 +8691,7 @@
   "fields": {
     "state": 80,
     "course": 127,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -8625,6 +8728,7 @@
   "fields": {
     "state": 80,
     "course": 88,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -8655,6 +8759,7 @@
   "fields": {
     "state": 80,
     "course": 64,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -8815,6 +8920,7 @@
   "fields": {
     "state": 80,
     "course": 125,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -8863,6 +8969,7 @@
   "fields": {
     "state": 80,
     "course": 43,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -9001,6 +9108,7 @@
   "fields": {
     "state": 80,
     "course": 60,
+    "exam_type": null,
     "name_de": "Business Process Compliance",
     "name_en": "Business Process Compliance",
     "main_language": "en",
@@ -9066,6 +9174,7 @@
   "fields": {
     "state": 80,
     "course": 77,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -9106,6 +9215,7 @@
   "fields": {
     "state": 80,
     "course": 9,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -9168,6 +9278,7 @@
   "fields": {
     "state": 80,
     "course": 91,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -9210,6 +9321,7 @@
   "fields": {
     "state": 80,
     "course": 41,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -9248,6 +9360,7 @@
   "fields": {
     "state": 80,
     "course": 99,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -9280,6 +9393,7 @@
   "fields": {
     "state": 10,
     "course": 67,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "x",
@@ -9310,6 +9424,7 @@
   "fields": {
     "state": 80,
     "course": 11,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -9348,6 +9463,7 @@
   "fields": {
     "state": 80,
     "course": 96,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -9387,6 +9503,7 @@
   "fields": {
     "state": 80,
     "course": 138,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -9422,6 +9539,7 @@
   "fields": {
     "state": 60,
     "course": 40,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -9462,6 +9580,7 @@
   "fields": {
     "state": 10,
     "course": 57,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "x",
@@ -9489,6 +9608,7 @@
   "fields": {
     "state": 80,
     "course": 39,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -9525,6 +9645,7 @@
   "fields": {
     "state": 10,
     "course": 81,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "x",
@@ -9574,6 +9695,7 @@
   "fields": {
     "state": 10,
     "course": 93,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "x",
@@ -9602,6 +9724,7 @@
   "fields": {
     "state": 40,
     "course": 47,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -9630,6 +9753,7 @@
   "fields": {
     "state": 80,
     "course": 105,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -9670,6 +9794,7 @@
   "fields": {
     "state": 80,
     "course": 104,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -9702,6 +9827,7 @@
   "fields": {
     "state": 80,
     "course": 122,
+    "exam_type": null,
     "name_de": "Piggyback Profiling: Metadata for Query Results",
     "name_en": "Piggyback Profiling: Metadata for Query Results",
     "main_language": "en",
@@ -9734,6 +9860,7 @@
   "fields": {
     "state": 70,
     "course": 129,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -9767,10 +9894,11 @@
   "fields": {
     "state": 50,
     "course": 8,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
-    "weight": 1,
+    "weight": 9,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
@@ -9778,7 +9906,7 @@
     "_voter_count": null,
     "dropout_count": 5,
     "vote_start_datetime": "2024-02-01T00:00:00",
-    "vote_end_date": "2099-05-08",
+    "vote_end_date": "2025-12-23",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
     "cms_id": null,
@@ -9807,6 +9935,7 @@
   "fields": {
     "state": 80,
     "course": 139,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -9851,6 +9980,7 @@
   "fields": {
     "state": 80,
     "course": 107,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -9887,6 +10017,7 @@
   "fields": {
     "state": 10,
     "course": 142,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "x",
@@ -9917,6 +10048,7 @@
   "fields": {
     "state": 80,
     "course": 48,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -9953,6 +10085,7 @@
   "fields": {
     "state": 80,
     "course": 19,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -9991,6 +10124,7 @@
   "fields": {
     "state": 80,
     "course": 135,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -10022,6 +10156,7 @@
   "fields": {
     "state": 80,
     "course": 137,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -10104,6 +10239,7 @@
   "fields": {
     "state": 10,
     "course": 71,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "x",
@@ -10134,6 +10270,7 @@
   "fields": {
     "state": 80,
     "course": 79,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -10166,6 +10303,7 @@
   "fields": {
     "state": 80,
     "course": 74,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -10202,6 +10340,7 @@
   "fields": {
     "state": 80,
     "course": 108,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -10240,6 +10379,7 @@
   "fields": {
     "state": 80,
     "course": 85,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -10298,6 +10438,7 @@
   "fields": {
     "state": 80,
     "course": 66,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -10356,6 +10497,7 @@
   "fields": {
     "state": 10,
     "course": 56,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "x",
@@ -10388,6 +10530,7 @@
   "fields": {
     "state": 50,
     "course": 140,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -10436,6 +10579,7 @@
   "fields": {
     "state": 80,
     "course": 32,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -10598,6 +10742,7 @@
   "fields": {
     "state": 50,
     "course": 111,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -10632,6 +10777,7 @@
   "fields": {
     "state": 10,
     "course": 124,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "x",
@@ -10663,6 +10809,7 @@
   "fields": {
     "state": 80,
     "course": 68,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -10719,6 +10866,7 @@
   "fields": {
     "state": 80,
     "course": 42,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -10855,10 +11003,11 @@
   "fields": {
     "state": 20,
     "course": 92,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "x",
-    "weight": 1,
+    "weight": 9,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": false,
@@ -10866,7 +11015,7 @@
     "_voter_count": null,
     "dropout_count": 0,
     "vote_start_datetime": "2024-08-01T00:00:00",
-    "vote_end_date": "2024-08-31",
+    "vote_end_date": "2024-12-30",
     "allow_editors_to_edit": false,
     "wait_for_grade_upload_before_publishing": true,
     "cms_id": null,
@@ -10888,6 +11037,7 @@
   "fields": {
     "state": 50,
     "course": 89,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -10920,6 +11070,7 @@
   "fields": {
     "state": 80,
     "course": 106,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -11012,6 +11163,7 @@
   "fields": {
     "state": 80,
     "course": 110,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -11065,6 +11217,7 @@
   "fields": {
     "state": 80,
     "course": 36,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -11200,6 +11353,7 @@
   "fields": {
     "state": 80,
     "course": 101,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -11244,6 +11398,7 @@
   "fields": {
     "state": 80,
     "course": 10,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -11315,6 +11470,7 @@
   "fields": {
     "state": 80,
     "course": 25,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -11462,6 +11618,7 @@
   "fields": {
     "state": 80,
     "course": 15,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -11546,6 +11703,7 @@
   "fields": {
     "state": 80,
     "course": 133,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -11695,6 +11853,7 @@
   "fields": {
     "state": 20,
     "course": 45,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "x",
@@ -11728,6 +11887,7 @@
   "fields": {
     "state": 80,
     "course": 136,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -11753,6 +11913,7 @@
   "fields": {
     "state": 70,
     "course": 31,
+    "exam_type": null,
     "name_de": "",
     "name_en": "",
     "main_language": "en",
@@ -11778,6 +11939,7 @@
   "fields": {
     "state": 80,
     "course": 1,
+    "exam_type": null,
     "name_de": "CG quick",
     "name_en": "CG quick",
     "main_language": "en",
@@ -11794,6 +11956,75 @@
     "wait_for_grade_upload_before_publishing": true,
     "cms_id": null,
     "participants": [],
+    "voters": []
+  }
+},
+{
+  "model": "evaluation.evaluation",
+  "pk": 1716,
+  "fields": {
+    "state": 10,
+    "course": 8,
+    "exam_type": 1,
+    "name_de": "Klausur",
+    "name_en": "Exam",
+    "main_language": "x",
+    "weight": 1,
+    "is_rewarded": false,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
+    "_participant_count": null,
+    "_voter_count": null,
+    "dropout_count": 0,
+    "vote_start_datetime": "2025-12-25T08:00:00",
+    "vote_end_date": "2025-12-27",
+    "allow_editors_to_edit": true,
+    "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
+    "participants": [
+      452,
+      831,
+      830,
+      833,
+      505,
+      555,
+      834,
+      832
+    ],
+    "voters": []
+  }
+},
+{
+  "model": "evaluation.evaluation",
+  "pk": 1717,
+  "fields": {
+    "state": 10,
+    "course": 92,
+    "exam_type": 1,
+    "name_de": "Klausur",
+    "name_en": "Exam",
+    "main_language": "x",
+    "weight": 1,
+    "is_rewarded": false,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
+    "_participant_count": null,
+    "_voter_count": null,
+    "dropout_count": 0,
+    "vote_start_datetime": "2025-01-01T08:00:00",
+    "vote_end_date": "2025-01-03",
+    "allow_editors_to_edit": true,
+    "wait_for_grade_upload_before_publishing": true,
+    "cms_id": null,
+    "participants": [
+      406,
+      773,
+      564,
+      709,
+      776,
+      480,
+      399
+    ],
     "voters": []
   }
 },
@@ -20282,6 +20513,75 @@
     "textanswer_visibility": "OWN",
     "label": "",
     "order": 3,
+    "questionnaires": []
+  }
+},
+{
+  "model": "evaluation.contribution",
+  "pk": 4306,
+  "fields": {
+    "evaluation": 1716,
+    "contributor": null,
+    "role": 0,
+    "textanswer_visibility": "OWN",
+    "label": "",
+    "order": -1,
+    "questionnaires": [
+      111
+    ]
+  }
+},
+{
+  "model": "evaluation.contribution",
+  "pk": 4307,
+  "fields": {
+    "evaluation": 1716,
+    "contributor": 125,
+    "role": 0,
+    "textanswer_visibility": "OWN",
+    "label": "",
+    "order": -1,
+    "questionnaires": []
+  }
+},
+{
+  "model": "evaluation.contribution",
+  "pk": 4308,
+  "fields": {
+    "evaluation": 1717,
+    "contributor": null,
+    "role": 0,
+    "textanswer_visibility": "OWN",
+    "label": "",
+    "order": -1,
+    "questionnaires": [
+      111
+    ]
+  }
+},
+{
+  "model": "evaluation.contribution",
+  "pk": 4309,
+  "fields": {
+    "evaluation": 1717,
+    "contributor": 356,
+    "role": 0,
+    "textanswer_visibility": "OWN",
+    "label": "",
+    "order": -1,
+    "questionnaires": []
+  }
+},
+{
+  "model": "evaluation.contribution",
+  "pk": 4310,
+  "fields": {
+    "evaluation": 1717,
+    "contributor": 452,
+    "role": 0,
+    "textanswer_visibility": "OWN",
+    "label": "",
+    "order": -1,
     "questionnaires": []
   }
 },

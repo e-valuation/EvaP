@@ -1,0 +1,93 @@
+{% extends 'staff_base.html' %}
+
+{% load static %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    <li class="breadcrumb-item">{% translate 'Exam types' %}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+
+    <form id="exam-type-form" method="POST" class="form-horizontal tomselectform">
+        {% csrf_token %}
+        {{ formset.management_form }}
+
+        <div class="card mb-3">
+            <div class="card-body table-responsive">
+                <table id="exam_types_table" class="table table-vertically-aligned">
+                    <thead>
+                        <tr>
+                            <th class="movable"></th>
+                            <th class="width-percent-25">{% translate 'Name (German)' %}</th>
+                            <th class="width-percent-25">{% translate 'Name (English)' %}</th>
+                            <th class="width-percent-30">{% translate 'Import names' %}</th>
+                            <th class="width-percent-15">{% translate 'Skip on automated import' %}
+                                <span data-bs-toggle="tooltip" data-bs-placement="right" class="fas fa-circle-info"
+                                    title="{% translate 'When selected, the JSON importer will skip all exam evaluations from the CMS data with this exam type.' %}">
+                                </span>
+                            </th>
+                            <th class="width-percent-5 text-end">{% translate 'Actions' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for form in formset %}
+                            <tr class="tomselecttr sortable">
+                                <td class="movable">
+                                    <span class="movable-icon fas fa-up-down"></span>
+                                </td>
+                                <td>
+                                    {% for hidden in form.hidden_fields %}
+                                        {{ hidden }}
+                                    {% endfor %}
+                                    {% include 'bootstrap_form_field_widget.html' with field=form.name_de %}
+                                </td>
+                                <td>
+                                    {% include 'bootstrap_form_field_widget.html' with field=form.name_en %}
+                                </td>
+                                <td>
+                                    {% include 'bootstrap_form_field_widget.html' with field=form.import_names %}
+                                </td>
+                                <td>
+                                    {% include 'bootstrap_form_field_widget.html' with field=form.skip_on_automated_import %}
+                                </td>
+                                <td class="text-end">
+                                    {% if form.instance.can_be_deleted_by_manager %}
+                                        {% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}
+                                    {% else %}
+                                        <button type="button" disabled class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="left"
+                                            title="{% translate 'This exam type cannot be deleted because it is used for at least one evaluation.' %}">
+                                            <span class="fas fa-trash"></span>
+                                        </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
+                <button type="submit" class="btn btn-primary">{% translate 'Save exam types' %}</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+
+{% block additional_javascript %}
+    <script type="module">
+        import { makeFormSortable } from "{% static 'js/sortable-form.js' %}";
+        const rowChanged = function(row) {
+            const nameDe = row.querySelector('input[id$=-name_de]')?.value;
+            const nameEn = row.querySelector('input[id$=-name_en]')?.value;
+            return nameDe || nameEn;
+        };
+        const rowAdded = function(row) {
+            applyTomSelect(row.querySelectorAll("select"), tagTomSelectOptions);
+        };
+        makeFormSortable("exam_types_table", "form", rowChanged, rowAdded, true, true);
+        applyTomSelect(document.querySelectorAll("select:not(.form-template select)"), tagTomSelectOptions);
+    </script>
+{% endblock %}

@@ -13,7 +13,6 @@ def populate_rating_answer_counters(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0031_add_rating_answer_counter"),
     ]

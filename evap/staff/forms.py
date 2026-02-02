@@ -19,6 +19,7 @@ from evap.evaluation.models import (
     CourseType,
     EmailTemplate,
     Evaluation,
+    ExamType,
     FaqQuestion,
     FaqSection,
     Infotext,
@@ -156,7 +157,12 @@ class UserBulkUpdateForm(forms.Form):
 class SemesterForm(forms.ModelForm):
     class Meta:
         model = Semester
-        fields = ("name_de", "name_en", "short_name_de", "short_name_en")
+        fields = ("name_de", "name_en", "short_name_de", "short_name_en", "cms_name", "default_course_end_date")
+        localized_fields = ("default_course_end_date",)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["default_course_end_date"].required = False
 
     def save(self, commit=True):
         semester = super().save(commit)
@@ -213,6 +219,31 @@ class CourseTypeForm(forms.ModelForm):
                 Evaluation.objects.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING, course__type=course_type)
             )
         return course_type
+
+
+class ExamTypeForm(forms.ModelForm):
+    class Meta:
+        model = ExamType
+        fields = ("name_de", "name_en", "import_names", "skip_on_automated_import", "order")
+        field_classes = {
+            "import_names": CharArrayField,
+        }
+        widgets = {
+            "order": forms.HiddenInput(),
+        }
+
+    def clean(self):
+        super().clean()
+        if self.cleaned_data.get("DELETE") and not self.instance.can_be_deleted_by_manager:
+            raise SuspiciousOperation("Deleting exam type not allowed")
+
+    def save(self, *args, **kwargs):
+        exam_type = super().save(*args, **kwargs)
+        if "name_en" in self.changed_data or "name_de" in self.changed_data:
+            update_template_cache(
+                Evaluation.objects.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING, exam_type=exam_type)
+            )
+        return exam_type
 
 
 class ProgramMergeSelectionForm(forms.Form):
@@ -305,6 +336,7 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore[misc]
         "allow_editors_to_edit",
         "wait_for_grade_upload_before_publishing",
         "main_language",
+        "exam_type",
     }
 
     EVALUATION_EXCLUDED_FIELDS = {
@@ -386,6 +418,7 @@ class EvaluationForm(forms.ModelForm):
             "name_de",
             "name_en",
             "main_language",
+            "exam_type",
             "weight",
             "allow_editors_to_edit",
             "is_rewarded",
@@ -515,6 +548,36 @@ class EvaluationCopyForm(EvaluationForm):
         initial = forms.models.model_to_dict(instance, opts.fields, opts.exclude)
         initial["general_questionnaires"] = instance.general_contribution.questionnaires.all()
         super().__init__(data=data, initial=initial, semester=instance.course.semester)
+
+
+class ExamEvaluationForm(forms.Form):
+    base_evaluation = forms.ModelChoiceField(Evaluation.objects.all(), required=True, widget=forms.HiddenInput())
+    exam_date = forms.DateField(
+        label=_("Exam date"),
+        required=True,
+        localize=True,
+    )
+    exam_type = forms.ModelChoiceField(ExamType.objects.all(), required=True, label=_("Exam type"))
+
+    def __init__(self, *args, evaluation=None, form_id=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if form_id is not None:
+            for field in self.fields.values():
+                field.widget.attrs["form"] = form_id
+        if evaluation is not None:
+            self.fields["exam_date"].widget.attrs["min"] = evaluation.earliest_possible_exam_date
+            self.fields["base_evaluation"].initial = evaluation
+        self.fields["exam_type"].initial = ExamType.objects.order_by("order").first()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data["base_evaluation"].has_exam_evaluation:
+            raise ValidationError(_("An exam evaluation already exists for this course."))
+        if cleaned_data["exam_date"] < cleaned_data["base_evaluation"].earliest_possible_exam_date:
+            raise ValidationError(
+                _("The end date of the main evaluation would be before its start date. No exam evaluation was created.")
+            )
+        return cleaned_data
 
 
 class ContributionForm(forms.ModelForm):
@@ -862,7 +925,7 @@ class QuestionForm(forms.ModelForm):
 
 
 class QuestionnairesAssignForm(forms.Form):
-    def __init__(self, *args, course_types, **kwargs):
+    def __init__(self, *args, course_types, exam_types, **kwargs):
         super().__init__(*args, **kwargs)
 
         contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().exclude(
@@ -886,6 +949,13 @@ class QuestionnairesAssignForm(forms.Form):
         self.fields["all-contributors"] = forms.ModelMultipleChoiceField(
             label=_("All contributors"), required=False, queryset=contributor_questionnaires
         )
+
+        for exam_type in exam_types:
+            self.fields[f"exam-{exam_type.id}"] = forms.ModelMultipleChoiceField(
+                label=exam_type.name,
+                required=False,
+                queryset=non_contributor_questionnaires,
+            )
 
 
 class UserForm(forms.ModelForm):

@@ -20,7 +20,6 @@ def logentries_programs_to_degrees(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0144_alter_evaluation_state"),
     ]

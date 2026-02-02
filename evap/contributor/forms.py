@@ -31,6 +31,7 @@ class EvaluationForm(forms.ModelForm):
             "name_de_field",
             "name_en_field",
             "main_language",
+            "exam_type",
             "vote_start_datetime",
             "vote_end_date",
             "participants",
@@ -47,6 +48,10 @@ class EvaluationForm(forms.ModelForm):
 
         self.fields["name_de_field"].initial = self.instance.full_name_de
         self.fields["name_en_field"].initial = self.instance.full_name_en
+
+        self.fields["exam_type"].disabled = True
+        if self.instance.exam_type is None:
+            self.fields["exam_type"].widget = self.fields["exam_type"].hidden_widget()
 
         self.fields["general_questionnaires"].queryset = (
             Questionnaire.objects.general_questionnaires()
@@ -80,6 +85,10 @@ class EvaluationForm(forms.ModelForm):
         if not self.instance.allow_editors_to_edit:
             for field in self._meta.fields:
                 self.fields[field].disabled = True
+
+        if self.instance.exam_type is not None and self.instance.cms_id is not None:
+            self.fields["participants"].disabled = True
+            self.cms_disclaimer = _("Participants are regularly updated with exam registrations from the CMS.")
 
     def clean(self):
         super().clean()

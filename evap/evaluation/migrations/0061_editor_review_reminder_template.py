@@ -23,7 +23,6 @@ def remove_emailtemplates(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0060_change_text_fields_to_char_fields"),
     ]

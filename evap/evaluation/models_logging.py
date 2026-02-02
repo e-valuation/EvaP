@@ -358,18 +358,25 @@ def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  #
     if not issubclass(model_class, LoggedModel):
         return
 
-    if reverse:
-        match action:
-            case "pre_remove":
-                action_type = FieldActionType.M2M_REMOVE
-            case "pre_add":
-                action_type = FieldActionType.M2M_ADD
-            case "pre_clear":
-                # Since we are not clearing the LoggedModdel instance, we need to log the removal of the related instances
-                action_type = FieldActionType.M2M_REMOVE
-            case _:
-                return
+    match action:
+        case "pre_remove":
+            action_type = FieldActionType.M2M_REMOVE
+        case "pre_add":
+            action_type = FieldActionType.M2M_ADD
+        case "pre_clear":
+            action_type = FieldActionType.M2M_CLEAR
+        case _:
+            return
 
+    if action_type in (FieldActionType.M2M_ADD, FieldActionType.M2M_REMOVE) and not pk_set:
+        # we don't need to log empty removals or additions, but we do log empty clears, that never enter this if.
+        return
+
+    if reverse:
+        # Since we are not clearing the LoggedModdel instance, we need to log the removal of the related instances
+        # when in reverse, model the clear as a remove.
+        if action_type == FieldActionType.M2M_CLEAR:
+            action_type = FieldActionType.M2M_REMOVE
         if pk_set:
             related_instances = model.objects.filter(pk__in=pk_set)
         else:
@@ -383,14 +390,10 @@ def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  #
                 continue
 
             related_instance.log_m2m_change(field_name, action_type, [instance.pk])
-
     else:
         if field_name in instance.unlogged_fields:
             return
-
-        if action == "pre_remove":
-            instance.log_m2m_change(field_name, FieldActionType.M2M_REMOVE, list(pk_set))
-        elif action == "pre_add":
-            instance.log_m2m_change(field_name, FieldActionType.M2M_ADD, list(pk_set))
-        elif action == "pre_clear":
+        if action_type == FieldActionType.M2M_CLEAR:
             instance.log_m2m_change(field_name, FieldActionType.M2M_CLEAR, [])
+        else:
+            instance.log_m2m_change(field_name, action_type, list(pk_set))

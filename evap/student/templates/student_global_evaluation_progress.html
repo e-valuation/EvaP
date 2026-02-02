@@ -1,12 +1,12 @@
 {% load evaluation_filters %}
 
-{% if global_rewards %}
+{% if global_evaluation_progress %}
     <div class="card mb-3">
         <div class="card-header d-flex">
-            {% translate "Fundraising" %}
-            {% if global_rewards.last_vote_datetime %}
+            {{ global_evaluation_progress.campaign.title }}
+            {% if global_evaluation_progress.last_vote_datetime %}
                 <div class="ms-auto fw-normal fst-italic">
-                    {% blocktranslate trimmed with time_interval=global_rewards.last_vote_datetime|timesince %}
+                    {% blocktranslate trimmed with time_interval=global_evaluation_progress.last_vote_datetime|timesince %}
                         Last evaluation: {{ time_interval }} ago
                     {% endblocktranslate %}
                 </div>
@@ -16,9 +16,9 @@
             <div class="global-rewards-progress-bar pt-2 px-4">
                 <span class="progress-container">
                     <span class="progress m-0 bg-info">
-                        <span class="progress-bar bg-primary width-percent-{% widthratio global_rewards.bar_width_votes global_rewards.max_reward_votes 100 %}"></span>
+                        <span class="progress-bar bg-primary width-percent-{% widthratio global_evaluation_progress.bar_width_votes global_evaluation_progress.max_reward_votes 100 %}"></span>
                         <span class="progress-bartext">
-                            {% blocktranslate trimmed count votes=global_rewards.vote_count with percent=global_rewards.vote_count|percentage_zero_on_error:global_rewards.participation_count %}
+                            {% blocktranslate trimmed count votes=global_evaluation_progress.vote_count with percent=global_evaluation_progress.vote_count|percentage_zero_on_error:global_evaluation_progress.participation_count %}
                                 {{ votes }} submitted evaluation ({{ percent }})
                             {% plural %}
                                 {{ votes }} submitted evaluations ({{ percent }})
@@ -26,7 +26,7 @@
                         </span>
                     </span>
                 </span>
-                {% for reward in global_rewards.rewards_with_progress %}
+                {% for reward in global_evaluation_progress.rewards_with_progress %}
                     <div class="position-relative progress-step left-percent-{% widthratio reward.progress 1 100 %}">
                         <div class="mx-auto seperator"></div>
                         <div class="small text-center">
@@ -39,12 +39,12 @@
             <div class="card card-outline-light collapsible mt-2">
                 <div class="card-header d-flex">
                     <a class="collapse-toggle collapse-toggle-light collapsed" data-bs-toggle="collapse" href="#goal-info-text" aria-controls="goal-info-text">
-                        {% translate "Every vote counts! Read more about our fundraising goal." %}
+                        {{ global_evaluation_progress.campaign.info_title }}
                     </a>
                 </div>
                 <div class="collapse" id="goal-info-text">
                     <div class="card-body">
-                        {{ global_rewards.info_text }}
+                        {{ global_evaluation_progress.campaign.info_text }}
                     </div>
                 </div>
             </div>

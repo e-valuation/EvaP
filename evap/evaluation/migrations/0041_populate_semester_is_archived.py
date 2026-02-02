@@ -24,7 +24,6 @@ def set_is_archived(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0040_add_semester_is_archived"),
     ]

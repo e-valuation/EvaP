@@ -58,12 +58,22 @@ class TestStudentIndexView(WebTestWith200Check):
             self.app.get(self.url, user=self.user)
 
     @override_settings(
-        GLOBAL_EVALUATION_PROGRESS_REWARDS=[(Fraction(1, 10), "a dog"), (Fraction(5, 10), "a quokka")],
-        GLOBAL_EVALUATION_PROGRESS_INFO_TEXT={"de": "info_text_str", "en": "info_text_str"},
+        GLOBAL_EVALUATION_PROGRESS_REWARDS=[
+            (Fraction(1, 10), {"de": "a dog", "en": "a dog"}),
+            (Fraction(5, 10), {"de": "a quokka", "en": "a quokka"}),
+        ],
+        GLOBAL_EVALUATION_PROGRESS_CAMPAIGN={
+            "title_de": "global_evaluation_progress_title_str",
+            "title_en": "global_evaluation_progress_title_str",
+            "info_title_de": "global_evaluation_progress_info_title_str",
+            "info_title_en": "global_evaluation_progress_info_title_str",
+            "info_text_de": "global_evaluation_progress_info_text_str",
+            "info_text_en": "global_evaluation_progress_info_text_str",
+        },
         GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS=[1042],
         GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS=[1043],
     )
-    def test_global_reward_progress(self):
+    def test_global_evaluation_progress(self):
         excluded_states = [state for state in Evaluation.State if state < Evaluation.State.APPROVED]
         included_states = [state for state in Evaluation.State if state >= Evaluation.State.APPROVED]
 
@@ -97,8 +107,9 @@ class TestStudentIndexView(WebTestWith200Check):
         expected_voter_percent = 100 * expected_voters // expected_participants
 
         page = self.app.get(self.url, user=self.user)
-        self.assertIn("Fundraising", page)
-        self.assertIn("info_text_str", page)
+        self.assertIn("global_evaluation_progress_title_str", page)
+        self.assertIn("global_evaluation_progress_info_title_str", page)
+        self.assertIn("global_evaluation_progress_info_text_str", page)
         self.assertIn("Last evaluation:", page)
         self.assertIn(f"{expected_voters} submitted evaluations ({expected_voter_percent}%)", page)
         self.assertIn("a quokka", page)
@@ -106,8 +117,8 @@ class TestStudentIndexView(WebTestWith200Check):
         self.assertIn("a dog", page)
         self.assertIn("50%", page)
 
-    @override_settings(GLOBAL_EVALUATION_PROGRESS_REWARDS=[(Fraction("0.07"), "a dog")])
-    def test_global_reward_progress_edge_cases(self):
+    @override_settings(GLOBAL_EVALUATION_PROGRESS_REWARDS=[(Fraction("0.07"), {"de": "a dog", "en": "a dog"})])
+    def test_global_evaluation_progress_edge_cases(self):
         # no active semester
         Semester.objects.update(is_active=False)
         page = self.app.get(self.url, user=self.user)
@@ -138,12 +149,20 @@ class TestStudentIndexView(WebTestWith200Check):
 
     @override_settings(
         GLOBAL_EVALUATION_PROGRESS_REWARDS=[],
-        GLOBAL_EVALUATION_PROGRESS_INFO_TEXT={"de": "info_text_str", "en": "info_text_str"},
+        GLOBAL_EVALUATION_PROGRESS_CAMPAIGN={
+            "title_de": "global_evaluation_progress_title_str",
+            "title_en": "global_evaluation_progress_title_str",
+            "info_title_de": "global_evaluation_progress_info_title_str",
+            "info_title_en": "global_evaluation_progress_info_title_str",
+            "info_text_de": "global_evaluation_progress_info_text_str",
+            "info_text_en": "global_evaluation_progress_info_text_str",
+        },
     )
-    def test_global_reward_progress_hidden(self):
+    def test_global_evaluation_progress_hidden(self):
         page = self.app.get(self.url, user=self.user)
-        self.assertNotIn("Fundraising", page)
-        self.assertNotIn("info_text_str", page)
+        self.assertNotIn("global_evaluation_progress_title_str", page)
+        self.assertNotIn("global_evaluation_progress_info_title_str", page)
+        self.assertNotIn("global_evaluation_progress_info_text_str", page)
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
@@ -346,7 +365,7 @@ class TestVoteView(WebTest):
         field_id = partial(answer_field_id, self.contribution2, self.contributor_questionnaire)
         self.assertEqual(form[field_id(self.contributor_text_question)].value, "some more text")
 
-    def test_answer(self):
+    def help_test_answer(self):
         page = self.app.get(self.url, user=self.voting_user1, status=200)
         form = page.forms["student-vote-form"]
         self.fill_form(form)
@@ -432,6 +451,17 @@ class TestVoteView(WebTest):
             question=self.bottom_text_question, contribution=self.evaluation.general_contribution
         ).values_list("answer", flat=True)
         self.assertEqual(list(answers), ["some bottom text"] * 2)
+
+    def test_answer_with_dropout_questionnaire(self):
+        # regression test for #2578
+        dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
+        baker.make(Question, questionnaire=dropout_questionnaire, order=0, type=QuestionType.POSITIVE_LIKERT)
+        self.evaluation.general_contribution.questionnaires.add(dropout_questionnaire)
+
+        self.help_test_answer()
+
+    def test_answer(self):
+        self.help_test_answer()
 
     def test_vote_timestamp(self):
         time_before = datetime.datetime.now()
@@ -568,7 +598,7 @@ class TestVoteView(WebTest):
         request = RequestFactory().get(reverse("student:vote", args=[self.evaluation.id]))
         request.user = self.voting_user1
         with patch("django.utils.translation.gettext_lazy") as mock:
-            get_vote_page_form_groups(request, self.evaluation, preview=False, preselect_no_answer=False)
+            get_vote_page_form_groups(request, self.evaluation, preview=False, dropout=False)
             self.assertEqual(mock.call_count, 0)
 
 
