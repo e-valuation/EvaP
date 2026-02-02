@@ -20,7 +20,7 @@ from evap.evaluation.models import (
     UserProfile,
 )
 from evap.evaluation.models_logging import LogEntry
-from evap.staff.importers.json import ImportDict, JSONImporter, NameChange, WarningMessage, _clean_whitespaces
+from evap.staff.importers.json import ImportDict, JSONImporter, NameChange, WarningMessage, _clean_whitespaces_and_hyphens
 
 EXAMPLE_DATA: ImportDict = {
     "students": [
@@ -88,7 +88,7 @@ EXAMPLE_DATA: ImportDict = {
             "relatedevents": [{"gguid": "0x5"}],
             "lecturers": [{"gguid": "0x3"}, {"gguid": "0x4"}, {"gguid": "0x5"}],
             "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
-            "language": "Deutsch",
+            "language": "",
         },
         {
             "gguid": "0x7",
@@ -891,9 +891,16 @@ class TestImportEvents(TestCase):
         self.assertEqual(exam_evaluation.name_en, exam_evaluation.exam_type.name_de)
 
     def test_clean_whitespaces(self):
-        self.assertEqual(_clean_whitespaces(" front"), "front")
-        self.assertEqual(_clean_whitespaces("back "), "back")
-        self.assertEqual(_clean_whitespaces("inbetween  inbetween"), "inbetween inbetween")
-        self.assertEqual(_clean_whitespaces("inbetween \n inbetween"), "inbetween inbetween")
+        self.assertEqual(_clean_whitespaces_and_hyphens(" front"), "front")
+        self.assertEqual(_clean_whitespaces_and_hyphens("back "), "back")
+        self.assertEqual(_clean_whitespaces_and_hyphens("inbetween  inbetween"), "inbetween inbetween")
+        self.assertEqual(_clean_whitespaces_and_hyphens("inbetween \n inbetween"), "inbetween inbetween")
         # non-breaking whitespace
-        self.assertEqual(_clean_whitespaces("inbetween  inbetween"), "inbetween inbetween")
+        self.assertEqual(_clean_whitespaces_and_hyphens("inbetween  inbetween"), "inbetween inbetween")
+
+    def test_exam_missing_language(self):
+        self._import(EXAMPLE_DATA)
+
+        evaluation = Evaluation.objects.get(cms_id=EXAMPLE_DATA["events"][1]["gguid"])
+        self.assertEqual(evaluation.main_language, "de")
+
