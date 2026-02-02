@@ -3219,19 +3219,15 @@ class TestQuestionnaireIndexView(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.archived_questionnaire = baker.make(
-            Questionnaire, type=Questionnaire.Type.TOP, visibility=Questionnaire.Visibility.ARCHIVED
-        )
         cls.ordered_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP, order=5)
         cls.normal_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
 
     def test_ordering(self):
         content = self.app.get(self.url, user=self.manager).body.decode()
-        archived_index = content.index(self.archived_questionnaire.name)
         ordered_index = content.index(self.ordered_questionnaire.name)
         normal_index = content.index(self.normal_questionnaire.name)
 
-        self.assertTrue(normal_index < ordered_index < archived_index)
+        self.assertTrue(normal_index < ordered_index)
 
 
 class TestQuestionnaireCreateView(WebTestStaffMode):

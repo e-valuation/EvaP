@@ -25,7 +25,6 @@ from django.db.models import (
     Prefetch,
     Q,
     Sum,
-    Value,
     When,
 )
 from django.forms import BaseForm, formset_factory
@@ -1806,7 +1805,7 @@ def evaluation_preview(request, evaluation_id):
 
 @manager_required
 def questionnaire_index(request):
-    filters = ["all", "visible", "non-archived"]
+    filters = ["all", "visible", "archived"]
     filter_questionnaires = get_string_from_url_or_session(request, "filter_questionnaires", filters[0])
     if filter_questionnaires not in filters:
         raise SuspiciousOperation
@@ -1820,23 +1819,18 @@ def questionnaire_index(request):
 
     match filter_questionnaires:
         case "all":
-            pass
+            questionnaires = [q_type.exclude(visibility=Questionnaire.Visibility.ARCHIVED) for q_type in questionnaires]
         case "visible":
             questionnaires = [
                 q_type.exclude(visibility__in=[Questionnaire.Visibility.ARCHIVED, Questionnaire.Visibility.HIDDEN])
                 for q_type in questionnaires
             ]
-        case "non-archived":
-            questionnaires = [q_type.exclude(visibility=Questionnaire.Visibility.ARCHIVED) for q_type in questionnaires]
+        case "archived":
+            questionnaires = [q_type.filter(visibility=Questionnaire.Visibility.ARCHIVED) for q_type in questionnaires]
 
     # archived questionnaires should be shown last, then use specified order
     questionnaires = [
         q_type.order_by(
-            Case(
-                When(visibility=Questionnaire.Visibility.ARCHIVED, then=Value(1)),
-                default=Value(0),
-                output_field=IntegerField(),
-            ),
             "order",
             "pk",
         )

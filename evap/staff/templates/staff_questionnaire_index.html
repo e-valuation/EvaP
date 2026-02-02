@@ -18,8 +18,8 @@
                     <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=visible" role="button" class="btn btn-sm btn-light{% if filter_questionnaires == 'visible' %} active{% endif %}">
                         {% translate 'Visible' %}
                     </a>
-                    <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=non-archived" role="button" class="btn btn-sm btn-light{% if filter_questionnaires == 'non-archived' %} active{% endif %}">
-                        {% translate 'Non-archived' %}
+                    <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=archived" role="button" class="btn btn-sm btn-light{% if filter_questionnaires == 'archived' %} active{% endif %}">
+                        {% translate 'Archived' %}
                     </a>
                 </div>
             </div>
