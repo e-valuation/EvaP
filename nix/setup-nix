@@ -24,6 +24,5 @@ fi
 
 XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
 mkdir -p "$XDG_CONFIG_HOME/nix/"
-echo "experimental-features = flakes nix-command" >> "$XDG_CONFIG_HOME/nix/nix.conf"
-echo "max-jobs = auto" >> "$XDG_CONFIG_HOME/nix/nix.conf"
+cat $(dirname $0)/nix.conf >> "$XDG_CONFIG_HOME/nix/nix.conf"
 sudo systemctl enable --now nix-daemon
