@@ -3,6 +3,7 @@ from model_bakery import baker
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.expected_conditions import (
+    invisibility_of_element,
     presence_of_element_located,
     visibility_of_element_located,
 )
@@ -121,3 +122,47 @@ class StudentVoteLiveTest(LiveServerTest):
 
         id_ = button.get_attribute("data-mark-no-answers-for")
         self.assertEqual(len(self.selenium.find_elements(By.CSS_SELECTOR, f"#vote-area-{id_} .choice-error")), 0)
+
+    def get_open_modals(self):
+        modals = self.selenium.find_elements(By.CSS_SELECTOR, "confirmation-modal.mark-no-answer-modal")
+        return [modal for modal in modals if len(modal.shadow_root.find_elements(By.CSS_SELECTOR, "dialog:open")) == 1]
+
+    def test_skip_contributor_modal_not_shown(self) -> None:
+        self.selenium.get(self.url)
+
+        button = self.wait.until(presence_of_element_located((By.CSS_SELECTOR, "[data-mark-no-answers-for]")))
+        id_ = button.get_attribute("data-mark-no-answers-for")
+        vote_area = self.selenium.find_element(By.ID, f"vote-area-{id_}")
+
+        radio_button = vote_area.find_element(By.CSS_SELECTOR, "input[value='1'] + label.vote-btn")
+
+        open_textanswer = vote_area.find_element(By.CSS_SELECTOR, "button.btn-textanswer")
+        open_textanswer.click()
+
+        radio_button.click()
+        button.click()
+        self.assertEqual(len(self.get_open_modals()), 0)
+
+    def test_skip_contributor_modal_shown(self) -> None:
+        self.selenium.get(self.url)
+
+        button = self.wait.until(presence_of_element_located((By.CSS_SELECTOR, "[data-mark-no-answers-for]")))
+        id_ = button.get_attribute("data-mark-no-answers-for")
+        vote_area = self.selenium.find_element(By.ID, f"vote-area-{id_}")
+
+        textarea = vote_area.find_element(By.CSS_SELECTOR, "textarea")
+
+        open_textanswer = vote_area.find_element(By.CSS_SELECTOR, "button.btn-textanswer")
+        open_textanswer.click()
+
+        textarea.click()
+        textarea.send_keys("a")
+        button.click()
+        modals = self.get_open_modals()
+        self.assertEqual(len(modals), 1)
+        modal = modals[0]
+        confirm_button = modal.shadow_root.find_element(By.CSS_SELECTOR, "button[data-event-type='confirm']")
+        confirm_button.click()
+        self.wait.until(invisibility_of_element(modal))
+        self.assertEqual(len(self.get_open_modals()), 0)
+        self.assertEqual(textarea.text, "")
