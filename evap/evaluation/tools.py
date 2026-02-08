@@ -4,7 +4,7 @@ import typing
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Iterable, Mapping
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any
 from urllib.parse import quote
 
 import xlwt
@@ -187,7 +187,7 @@ def translate(**kwargs):
     return property(lambda self: getattr(self, kwargs[get_language() or "en"]))
 
 
-def clean_email[EmailT: str | None](email: EmailT) -> EmailT:
+def clean_email[EmailT: (str, None)](email: EmailT) -> EmailT:
     if email is None:
         return None
 
