@@ -7,7 +7,7 @@ requires-python = ">=3.13.0"
 dependencies = [
     "django-extensions~=4.1.0",
     "django-fsm~=2.8.2",
-    "Django~=6.0.0",
+    "Django~=6.0.2",
     "mozilla-django-oidc~=4.0.1",
     "openpyxl~=3.1.5",
     "psycopg~=3.3.2",
