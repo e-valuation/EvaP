@@ -29,7 +29,7 @@ We use [nix](https://nixos.org/) to manage the development environment.
    ```
 5. Open a new terminal. Enter the development shell and start EvaP:
    ```
-   cd ~/EvaP
+   cd EvaP
    nix develop
    ./manage.py run
    ```
@@ -45,15 +45,13 @@ Afterwards, `nix run .#services-full` will recreate a default development enviro
 
 We'd love to see contributions! PRs solving existing issues are most helpful to us. It's best if you ask to be assigned for the issue so we won't have multiple people working on the same issue. Feel free to open issues for bugs, setup problems, or feature requests. If you have other questions, feel free to contact the [organization members](https://github.com/orgs/e-valuation/people). You should probably branch off `main`, the branch `release` is used for stable revisions.
 
-Before committing, run the following commands:
+Before committing, run `./manage.py precommit` or alternatively, the individual commands:
 - `./manage.py typecheck`
 - `./manage.py test`
 - `./manage.py lint`
 - `./manage.py format` (applies automatic code formatting)
 
-or, to combine all three, simply run `./manage.py precommit`.
-
-You can also set up `pylint`, `isort`, `black` and `prettier` in your IDE to avoid doing this manually all the time.
+You can also set up `ruff`, `pylint`, and `prettier` in your IDE to avoid doing this manually all the time.
 
 ### Creating a Pull Request (Workflow Suggestion)
 1. (once) [Fork](https://github.com/e-valuation/EvaP/fork) the repository so you have a GitHub repo that you have write access to.

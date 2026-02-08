@@ -33,7 +33,7 @@ docs/_build
 coverage.xml
 htmlcov
 
-# our nix setup produces this
+# seen once in WSL, possibly produced by our nix setup
 process-compose.socket
 
 # pip puts editable packages here
