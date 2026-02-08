@@ -32,9 +32,7 @@ else:
     except ImportError:
         StrOrPromise = Any  # on production setups, type alias to Any
 
-T = TypeVar("T")
 CellValue = str | int | float | None
-CV = TypeVar("CV", bound=CellValue)
 
 
 def choice_database_values_from_django_choices_spec(django_choices_spec: "_ChoicesList") -> list:
@@ -335,7 +333,11 @@ class ExcelExporter(ABC):
         self.cur_col = 0
         self.cur_row += 1
 
-    def write_row(self, vals: Iterable[CV], style: str | typing.Callable[[CV], str] = "default") -> None:
+    def write_row[CV: CellValue](
+        self,
+        vals: Iterable[CV],
+        style: str | typing.Callable[[CV], str] = "default",
+    ) -> None:
         """
         Write a cell for every value and go to the next row.
         Styling can be chosen
