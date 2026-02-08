@@ -3,11 +3,11 @@ name = "evap"
 description = "EvaP"
 version = "2026.1.2"
 readme = "README.md"
-requires-python = ">=3.11.0"
+requires-python = ">=3.13.0"
 dependencies = [
     "django-extensions~=4.1.0",
     "django-fsm-2~=4.1.0",
-    "Django~=5.2.0",
+    "Django~=6.0.2",
     "mozilla-django-oidc~=5.0.2",
     "openpyxl~=3.1.5",
     "psycopg~=3.3.2",
@@ -24,7 +24,7 @@ psycopg-c = ["psycopg[c]"]
 
 [dependency-groups]
 dev = [
-    "coverage[toml]~=7.13.1",
+    "coverage~=7.13.1",
     "django-debug-toolbar~=6.0",
     "django-stubs~=5.2.5",
     "django-webtest~=1.9.13",

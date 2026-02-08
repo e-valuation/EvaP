@@ -1,7 +1,6 @@
 import json
 import logging
 import re
-import typing
 from collections.abc import Collection, Iterable
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
@@ -193,10 +192,7 @@ def _clean_whitespaces(text: str) -> str:
     return re.sub(r"\s+", " ", text.strip())
 
 
-T = typing.TypeVar("T", CourseType, ExamType, Program)
-
-
-class ImportCache(typing.Generic[T]):
+class ImportCache[T: (CourseType, ExamType, Program)]:
     """A helper class for importing objects by their import_names attribute.
 
     Avoids repeated database queries by maintaining a mapping from normalized import names to model instances.

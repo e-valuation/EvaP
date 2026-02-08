@@ -1,5 +1,4 @@
 from collections.abc import Callable
-from typing import TypeAlias
 from weakref import WeakSet
 
 from django.conf import settings
@@ -8,7 +7,7 @@ from django.utils import translation
 from django.views import View
 from mozilla_django_oidc.views import OIDCAuthenticationCallbackView, OIDCAuthenticationRequestView
 
-ViewFuncOrClass: TypeAlias = Callable | View
+type ViewFuncOrClass = Callable | View
 
 VIEWS_WITHOUT_LOGIN_REQUIRED: WeakSet[ViewFuncOrClass] = WeakSet()
 VIEWS_WITHOUT_LOGIN_REQUIRED.add(OIDCAuthenticationCallbackView)

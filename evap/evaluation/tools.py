@@ -4,7 +4,7 @@ import typing
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Iterable, Mapping
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any
 from urllib.parse import quote
 
 import xlwt
@@ -32,10 +32,7 @@ else:
     except ImportError:
         StrOrPromise = Any  # on production setups, type alias to Any
 
-M = TypeVar("M", bound=Model)
-T = TypeVar("T")
 CellValue = str | int | float | None
-CV = TypeVar("CV", bound=CellValue)
 
 
 def choice_database_values_from_django_choices_spec(django_choices_spec: "_ChoicesList") -> list:
@@ -104,7 +101,7 @@ def password_login_is_active() -> bool:
     return not openid_login_is_active()
 
 
-def get_object_from_dict_pk_entry_or_logged_40x(
+def get_object_from_dict_pk_entry_or_logged_40x[M: Model](
     model_cls: type[M], dict_obj: MultiValueDict[str, Any] | Mapping[str, Any], key: str
 ) -> M:
     try:
@@ -130,7 +127,7 @@ def is_prefetched(instance, attribute_name: str) -> bool:
     return False
 
 
-def discard_cached_related_objects(instance: M) -> M:
+def discard_cached_related_objects[M: Model](instance: M) -> M:
     """
     Discard all cached related objects (for ForeignKey and M2M Fields). Useful
     if there were changes, but django's caching would still give us the old
@@ -190,17 +187,16 @@ def translate(**kwargs):
     return property(lambda self: getattr(self, kwargs[get_language() or "en"]))
 
 
-EmailT = TypeVar("EmailT", str, None)
+def clean_email[EmailT: (str, None)](email: EmailT) -> EmailT:
+    if email is None:
+        return None
 
-
-def clean_email(email: EmailT) -> EmailT:
-    if email:
-        email = email.strip().lower()
-        # Replace email domains in case there are multiple alias domains used in the organisation and all emails should
-        # have the same domain on EvaP.
-        for original_domain, replaced_domain in settings.INSTITUTION_EMAIL_REPLACEMENTS:
-            if email.endswith(original_domain):
-                return email[: -len(original_domain)] + replaced_domain
+    email = email.strip().lower()
+    # Replace email domains in case there are multiple alias domains used in the organisation and all emails should
+    # have the same domain on EvaP.
+    for original_domain, replaced_domain in settings.INSTITUTION_EMAIL_REPLACEMENTS:
+        if email.endswith(original_domain):
+            return email[: -len(original_domain)] + replaced_domain
     return email
 
 
@@ -337,7 +333,11 @@ class ExcelExporter(ABC):
         self.cur_col = 0
         self.cur_row += 1
 
-    def write_row(self, vals: Iterable[CV], style: str | typing.Callable[[CV], str] = "default") -> None:
+    def write_row[CV: CellValue](
+        self,
+        vals: Iterable[CV],
+        style: str | typing.Callable[[CV], str] = "default",
+    ) -> None:
         """
         Write a cell for every value and go to the next row.
         Styling can be chosen
