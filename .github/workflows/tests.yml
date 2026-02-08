@@ -79,7 +79,7 @@ jobs:
       - run: tar tvf dist/*.tar.gz
       - run: unzip -l dist/*.whl
       - run: nix run .#check_dist -- pyproject.toml dist/*.whl
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: wheel
           path: dist/
@@ -92,7 +92,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: wheel
       - run: pip install *.whl
@@ -220,7 +220,7 @@ jobs:
         with:
           python-version: "3.13"
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: wheel
 

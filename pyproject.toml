@@ -1,18 +1,19 @@
 [project]
 name = "evap"
 description = "EvaP"
-version = "2025.12.0"
+version = "2026.1.2"
 readme = "README.md"
 requires-python = ">=3.13.0"
 dependencies = [
     "django-extensions~=4.1.0",
-    "django-fsm~=2.8.2",
+    "django-fsm-2~=4.1.0",
     "Django~=6.0.2",
-    "mozilla-django-oidc~=4.0.1",
+    "mozilla-django-oidc~=5.0.2",
     "openpyxl~=3.1.5",
     "psycopg~=3.3.2",
-    "pydantic~=2.11.7",
-    "redis~=6.4.0",
+    "pydantic~=2.12.5",
+    "redis~=7.1.0",
+    "requests~=2.32.4",
     "typing-extensions~=4.15.0",
     "xlwt~=1.3.0",
 ]
@@ -23,17 +24,18 @@ psycopg-c = ["psycopg[c]"]
 
 [dependency-groups]
 dev = [
-    "coverage~=7.10.2",
+    "coverage~=7.13.1",
     "django-debug-toolbar~=6.0",
     "django-stubs~=5.2.5",
     "django-webtest~=1.9.13",
-    "model-bakery~=1.20.5",
-    "mypy~=1.18.2",
+    "model-bakery~=1.21.0",
+    "mypy~=1.19.1",
     "openpyxl-stubs~=0.1.25",
-    "pylint-django~=2.6.1",
-    "pylint~=3.3.0",
-    "ruff~=0.13.3",
-    "tblib~=3.1.0",
+    "pylint-django~=2.7.0",
+    "pylint~=4.0.4",
+    "ruff~=0.14.12",
+    "tblib~=3.2.2",
+    "types-requests~=2.32.4",
     "xlrd~=2.0.1",
     "typeguard~=4.4.0",
     "selenium~=4.39.0",
@@ -79,7 +81,7 @@ line-length = 120
 
 [tool.ruff.lint]
 # Those are interesting, but not yet addressed: PYI,Q,SIM,PTH,TRY,RUF
-select = ["F", "E", "B", "W", "N", "UP", "YTT", "FIX", "ASYNC", "A", "DJ", "EXE", "ICN", "G", "SLOT", "TID", "TCH", "INT", "C4", "ISC", "INP", "PIE", "RSE", "RET", "COM","PGH","FLY", "PERF", "PL", "BLE", "I"]
+select = ["F", "E", "B", "W", "N", "UP", "YTT", "FIX", "ASYNC", "A", "DJ", "EXE", "ICN", "G", "SLOT", "TID", "TCH", "INT", "C4", "ISC", "INP", "PIE", "RSE", "RET", "COM","PGH","FLY", "PERF", "PL", "BLE", "I", "INP", "TID252"]
 ignore = [
     "E501",                  # line-too-long: black does code formatting for us
     "FIX004",                # hacks should be possible
@@ -116,7 +118,7 @@ django-settings-module = "evap.settings"
 # see https://docs.djangoproject.com/en/4.0/topics/forms/formsets/
 # For migrations, models are assigned as local variables. Until pylint supports configuration-per-directory, we also
 # need to allow that here (their issue 618)
-variable-rgx = "(^[a-z0-9_]+$)|(^[A-Za-z]+$)"
+variable-rgx = "(^[a-z0-9_]+$)|(^[A-Za-z]+$)|(^[A-Z_]+$)"
 argument-rgx = "(^[a-z0-9_]+$)|(^[A-Za-z]+$)"
 method-rgx = "(^[a-z0-9_]+$)|(^assert[A-Za-z]+$)"
 

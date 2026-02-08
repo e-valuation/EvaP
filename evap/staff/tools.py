@@ -438,16 +438,17 @@ def update_or_create_with_changes[M: Model](
     return obj, False, changes
 
 
-def update_with_changes(obj: Model, defaults: dict[str, Any]) -> dict[str, tuple[Any, Any]]:
+def update_with_changes(obj: Model, defaults: dict[str, Any], dry_run: bool = False) -> dict[str, tuple[Any, Any]]:
     """Update a model instance and track changed values."""
 
     changes = {}
     for key, value in defaults.items():
         if getattr(obj, key) != value:
             changes[key] = (getattr(obj, key), value)
-            setattr(obj, key, value)
+            if not dry_run:
+                setattr(obj, key, value)
 
-    if changes:
+    if changes and not dry_run:
         obj.save()
 
     return changes

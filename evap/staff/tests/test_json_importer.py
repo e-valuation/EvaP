@@ -1,14 +1,9 @@
 import json
-import os
 from copy import deepcopy
 from datetime import date, datetime, timedelta
-from io import StringIO
-from tempfile import TemporaryDirectory
-from unittest.mock import patch
 
 from django.conf import settings
 from django.core import mail
-from django.core.management import CommandError, call_command
 from django.test import TestCase, override_settings
 from model_bakery import baker
 from pydantic import ValidationError
@@ -24,8 +19,8 @@ from evap.evaluation.models import (
     Semester,
     UserProfile,
 )
-from evap.evaluation.tests.tools import make_manager
-from evap.staff.importers.json import ImportDict, JSONImporter, NameChange, WarningMessage
+from evap.evaluation.models_logging import LogEntry
+from evap.staff.importers.json import ImportDict, JSONImporter, NameChange, WarningMessage, _clean_whitespaces
 
 EXAMPLE_DATA: ImportDict = {
     "students": [
@@ -332,8 +327,10 @@ class TestImportUserProfiles(TestCase):
             importer.statistics.name_changes,
             [
                 NameChange(
+                    old_title="",
                     old_last_name="Doe",
                     old_first_name_given="Jane",
+                    new_title="",
                     new_last_name=self.students[0]["name"],
                     new_first_name_given=self.students[0]["callingname"],
                     email=self.students[0]["email"],
@@ -359,7 +356,7 @@ class TestImportUserProfiles(TestCase):
 
     def test_import_existing_lecturers(self):
         user_profile = baker.make(
-            UserProfile, email=self.lecturers[0]["email"], last_name="Doe", first_name_given="Jane"
+            UserProfile, email=self.lecturers[0]["email"], last_name="Doe", first_name_given="Jane", title="Dr."
         )
 
         importer = JSONImporter(self.semester, date(2000, 1, 1))
@@ -378,8 +375,10 @@ class TestImportUserProfiles(TestCase):
             importer.statistics.name_changes,
             [
                 NameChange(
+                    old_title="Dr.",
                     old_last_name="Doe",
                     old_first_name_given="Jane",
+                    new_title=self.lecturers[0]["titlefront"],
                     new_last_name=self.lecturers[0]["name"],
                     new_first_name_given=self.lecturers[0]["christianname"],
                     email=self.lecturers[0]["email"],
@@ -486,6 +485,18 @@ class TestImportEvents(TestCase):
         self.assertEqual(len(importer.statistics.new_courses), 1)
         self.assertEqual(len(importer.statistics.new_evaluations), 2)
 
+        # The main evaluation should only have one LogEntry (from its creation) and no further updates
+        self.assertEqual(
+            LogEntry.objects.filter(
+                content_type__app_label="evaluation",
+                content_type__model="evaluation",
+                content_object_id=main_evaluation.pk,
+            ).count(),
+            1,
+        )
+        # Overall, 3 log entries should exist: Create Evaluation, Create General Contribution, Create Contribution of 3@example.com
+        self.assertEqual(main_evaluation.related_logentries().count(), 3)
+
     def test_import_courses_exam_without_related_evaluation(self):
         CourseType.objects.create(name_en="Foo", name_de="Foo", import_names=["nat"])
         course_type = CourseType.objects.create(name_en="Bar", name_de="Bar", import_names=["Bachelorprojekt"])
@@ -525,8 +536,7 @@ class TestImportEvents(TestCase):
         self.assertEqual(Course.objects.count(), 6)
         self.assertEqual(Evaluation.objects.count(), len(EXAMPLE_DATA_SPECIAL_CASES["events"]))
 
-        evaluation = Evaluation.objects.first()
-        self.assertEqual(evaluation.course.name_de, "Terminlose Vorlesung")
+        evaluation = Evaluation.objects.get(course__name_de="Terminlose Vorlesung", name_de="")
 
         # evaluation has no English name, uses German
         self.assertEqual(evaluation.course.name_en, "Terminlose Vorlesung")
@@ -676,6 +686,39 @@ class TestImportEvents(TestCase):
             self.assertTrue(UserProfile.objects.filter(email="ignored.lecturer@example.com").exists())
             self.assertTrue(UserProfile.objects.filter(email="ignored.lecturer2@example.com").exists())
 
+    def test_import_courses_evaluation_not_new(self):
+        self._import()
+
+        evaluation = Evaluation.objects.get(name_en="")
+
+        evaluation.is_rewarded = False
+        evaluation.save()
+        evaluation.course.name_en = "Change"
+        evaluation.course.save()
+
+        importer = self._import()
+
+        evaluation = Evaluation.objects.get(pk=evaluation.pk)
+
+        self.assertTrue(evaluation.is_rewarded)
+        self.assertEqual(evaluation.course.name_en, "Process-oriented information systems")
+        self.assertEqual(importer.statistics.attempted_evaluation_changes, [])
+        self.assertEqual(importer.statistics.attempted_course_changes, set())
+
+        evaluation.ready_for_editors()
+        evaluation.is_rewarded = False
+        evaluation.save()
+        evaluation.course.name_en = "Change"
+        evaluation.course.save()
+
+        importer = self._import()
+
+        evaluation = Evaluation.objects.get(pk=evaluation.pk)
+        self.assertFalse(evaluation.is_rewarded)
+        self.assertEqual(evaluation.course.name_en, "Change")
+        self.assertEqual(len(importer.statistics.attempted_evaluation_changes), 1)
+        self.assertEqual(len(importer.statistics.attempted_course_changes), 1)
+
     def test_import_courses_evaluation_approved(self):
         self._import()
 
@@ -689,7 +732,7 @@ class TestImportEvents(TestCase):
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
 
         self.assertTrue(evaluation.is_rewarded)
-        self.assertEqual(len(importer.statistics.attempted_changes), 0)
+        self.assertEqual(len(importer.statistics.attempted_evaluation_changes), 0)
 
         evaluation.general_contribution.questionnaires.add(
             baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
@@ -702,10 +745,41 @@ class TestImportEvents(TestCase):
         importer = self._import()
 
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
-
         self.assertFalse(evaluation.is_rewarded)
+        self.assertEqual(len(importer.statistics.attempted_evaluation_changes), 1)
+        self.assertEqual(evaluation.participants.count(), 2)
 
-        self.assertEqual(len(importer.statistics.attempted_changes), 1)
+        evaluation.participants.clear()
+        evaluation = Evaluation.objects.get(pk=evaluation.pk)
+        self.assertEqual(evaluation.participants.count(), 0)
+
+        importer = self._import()
+
+        self.assertEqual(len(importer.statistics.updated_participants), 1)
+        self.assertEqual(evaluation.participants.count(), 2)
+
+    def test_import_courses_evaluation_running(self):
+        self._import()
+
+        evaluation = Evaluation.objects.get(name_en="")
+        evaluation.participants.clear()
+        evaluation.general_contribution.questionnaires.add(
+            baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
+        )
+        evaluation.manager_approve()
+        evaluation.vote_start_datetime = datetime.now()
+        evaluation.vote_end_date = datetime.now().date() + timedelta(days=1)
+        evaluation.begin_evaluation()
+        evaluation.save()
+
+        self.assertEqual(evaluation.participants.count(), 0)
+
+        importer = self._import()
+
+        self.assertEqual(len(importer.statistics.attempted_evaluation_changes), 1)
+        self.assertEqual(len(importer.statistics.updated_participants), 0)
+        self.assertEqual(len(importer.statistics.attempted_participant_changes), 1)
+        self.assertEqual(evaluation.participants.count(), 0)
 
     def test_import_courses_update(self):
         self._import()
@@ -726,14 +800,21 @@ class TestImportEvents(TestCase):
         self.assertEqual(len(importer.statistics.updated_courses), 1)
         self.assertEqual(len(importer.statistics.new_courses), 0)
 
+    @override_settings(JSON_IMPORTER_LOG_RECIPIENTS=["test@example.com"])
     def test_importer_log_email_sent(self):
-        manager = make_manager()
-
         self._import()
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].subject, "[EvaP] JSON importer log")
-        self.assertEqual(mail.outbox[0].recipients(), [manager.email])
+        self.assertEqual(mail.outbox[0].recipients(), ["test@example.com"])
+
+    @override_settings(ADMINS=[("Admin", "admin@example.com")])
+    def test_importer_log_email_sent_no_recipients(self):
+        self._import()
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, "[EvaP] JSON importer log")
+        self.assertEqual(mail.outbox[0].recipients(), ["admin@example.com"])
 
     def test_importer_wrong_data(self):
         wrong_data = deepcopy(EXAMPLE_DATA)
@@ -768,21 +849,6 @@ class TestImportEvents(TestCase):
         )
         self.assertFalse(Evaluation.objects.filter(cms_id="0x5").exists())
         self.assertFalse(Evaluation.objects.filter(cms_id="0x6").exists())
-
-    @patch("evap.staff.importers.json.JSONImporter.import_json")
-    def test_management_command(self, mock_import_json):
-        output = StringIO()
-
-        with TemporaryDirectory() as temp_dir:
-            test_filename = os.path.join(temp_dir, "test.json")
-            with open(test_filename, "w", encoding="utf-8") as f:
-                f.write(EXAMPLE_JSON)
-            call_command("json_import", self.semester.id, test_filename, "01.01.2000", stdout=output)
-
-            mock_import_json.assert_called_once_with(EXAMPLE_JSON)
-
-            with self.assertRaises(CommandError):
-                call_command("json_import", self.semester.id + 42, test_filename, "01.01.2000", stdout=output)
 
     def test_disambiguate_name(self):
         importer = JSONImporter(self.semester, date(2000, 1, 1))
@@ -825,10 +891,9 @@ class TestImportEvents(TestCase):
         self.assertEqual(exam_evaluation.name_en, exam_evaluation.exam_type.name_de)
 
     def test_clean_whitespaces(self):
-        importer = JSONImporter(self.semester, date(2000, 1, 1))
-        self.assertEqual(importer._clean_whitespaces(" front"), "front")
-        self.assertEqual(importer._clean_whitespaces("back "), "back")
-        self.assertEqual(importer._clean_whitespaces("inbetween  inbetween"), "inbetween inbetween")
-        self.assertEqual(importer._clean_whitespaces("inbetween \n inbetween"), "inbetween inbetween")
+        self.assertEqual(_clean_whitespaces(" front"), "front")
+        self.assertEqual(_clean_whitespaces("back "), "back")
+        self.assertEqual(_clean_whitespaces("inbetween  inbetween"), "inbetween inbetween")
+        self.assertEqual(_clean_whitespaces("inbetween \n inbetween"), "inbetween inbetween")
         # non-breaking whitespace
-        self.assertEqual(importer._clean_whitespaces("inbetween  inbetween"), "inbetween inbetween")
+        self.assertEqual(_clean_whitespaces("inbetween  inbetween"), "inbetween inbetween")
