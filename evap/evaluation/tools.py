@@ -189,7 +189,7 @@ def translate(**kwargs):
     return property(lambda self: getattr(self, kwargs[get_language() or "en"]))
 
 
-def clean_email(email: str | None) -> str | None:
+def clean_email[EmailT: str | None](email: EmailT) -> EmailT:
     if email is None:
         return None
 
