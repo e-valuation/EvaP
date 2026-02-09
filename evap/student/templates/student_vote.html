@@ -378,7 +378,7 @@
                         if (textareaAnswerField.value.trim().length > 0) return;
                         const parent = textareaAnswerField.closest('.row-question');
                         const button = parent.querySelector(".btn-textanswer");
-                        if (button === null) return;
+                        if (!button) return;
                         if (!button.classList.contains("collapsed")) {
                             button.click();
                         }
@@ -411,7 +411,7 @@
                 }
                 markNoAnswerButton.addEventListener("click", () => {
                     const textareaAnswerFields = voteArea.querySelectorAll(".vote-inputs textarea");
-                    const shouldShowModal = textareaAnswerFields.values().some(textarea => textarea.value.trim() !== "");
+                    const shouldShowModal = textareaAnswerFields.values().some(textarea => textarea.value.trim().length > 0);
 
                     if (shouldShowModal) {
                         markNoAnswerModal.showModal();
