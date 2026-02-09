@@ -735,7 +735,7 @@ class TestSemesterView(WebTestStaffMode):
             Evaluation,
             name_de="Evaluation 1",
             name_en="Evaluation 1",
-            course=baker.make(Course, name_de="A", name_en="B", semester=cls.semester)
+            course=baker.make(Course, name_de="A", name_en="B", semester=cls.semester),
         )
         baker.make(
             Evaluation,
