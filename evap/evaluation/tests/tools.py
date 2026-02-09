@@ -272,7 +272,7 @@ def assert_no_database_modifications(*args, **kwargs):
     assert len(connections.all()) == 1, "Found more than one connection, so the decorator might monitor the wrong one"
 
     # may be extended with other non-modifying verbs
-    allowed_prefixes = ["select", "savepoint", "release savepoint"]
+    allowed_prefixes = ["select", "savepoint", "release savepoint", "rollback to savepoint"]
 
     conn = connections[DEFAULT_DB_ALIAS]
     with CaptureQueriesContext(conn):

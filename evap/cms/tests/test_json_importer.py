@@ -1,4 +1,5 @@
 import json
+from contextlib import nullcontext
 from copy import deepcopy
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -23,6 +24,7 @@ from evap.evaluation.models import (
     UserProfile,
 )
 from evap.evaluation.models_logging import LogEntry
+from evap.evaluation.tests.tools import assert_no_database_modifications
 
 EXAMPLE_DATA = json.loads(
     Path(evap.cms.fixtures.__file__).with_name("import_example_data.json").read_text(encoding="utf-8")
@@ -313,17 +315,21 @@ class TestImportEvents(TestCase):
     def setUpTestData(cls):
         cls.semester = baker.make(Semester)
 
-    def _import(self, data=None):
+    def _import(self, data=None, assert_nop=False):
         if not data:
             data = EXAMPLE_DATA
         data = json.dumps(data)
-        importer = JSONImporter(self.semester, date(2000, 1, 1))
-        importer.import_json(data)
+
+        cm = assert_no_database_modifications() if assert_nop else nullcontext()
+        with cm:
+            importer = JSONImporter(self.semester, date(2000, 1, 1))
+            importer.import_json(data)
         return importer
 
     @override_settings(EXAM_EVALUATION_DEFAULT_DURATION=timedelta(days=3))
     def test_import_courses(self):
         importer = self._import()
+        self._import(assert_nop=True)
 
         course = Course.objects.get()
 
@@ -632,11 +638,7 @@ class TestImportEvents(TestCase):
         evaluation.course.name_en = "Change"
         evaluation.course.save()
 
-        importer = self._import()
-
-        evaluation = Evaluation.objects.get(pk=evaluation.pk)
-        self.assertFalse(evaluation.is_rewarded)
-        self.assertEqual(evaluation.course.name_en, "Change")
+        importer = self._import(assert_nop=True)
         self.assertEqual(len(importer.statistics.attempted_evaluation_changes), 1)
         self.assertEqual(len(importer.statistics.attempted_course_changes), 1)
 
@@ -663,12 +665,8 @@ class TestImportEvents(TestCase):
         evaluation.is_rewarded = False
         evaluation.save()
 
-        importer = self._import()
-
-        evaluation = Evaluation.objects.get(pk=evaluation.pk)
-        self.assertFalse(evaluation.is_rewarded)
+        importer = self._import(assert_nop=True)
         self.assertEqual(len(importer.statistics.attempted_evaluation_changes), 1)
-        self.assertEqual(evaluation.participants.count(), 2)
 
         evaluation.participants.clear()
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
@@ -695,12 +693,10 @@ class TestImportEvents(TestCase):
 
         self.assertEqual(evaluation.participants.count(), 0)
 
-        importer = self._import()
-
+        importer = self._import(assert_nop=True)
         self.assertEqual(len(importer.statistics.attempted_evaluation_changes), 1)
         self.assertEqual(len(importer.statistics.updated_participants), 0)
         self.assertEqual(len(importer.statistics.attempted_participant_changes), 1)
-        self.assertEqual(evaluation.participants.count(), 0)
 
     def test_import_courses_update(self):
         self._import()
@@ -740,7 +736,8 @@ class TestImportEvents(TestCase):
     def test_importer_wrong_data(self):
         wrong_data = deepcopy(EXAMPLE_DATA)
         wrong_data["events"][0]["isexam"] = "false"
-        with self.assertRaises(ValidationError):
+        # Note: not using assert_nop because the assert_no_database_modifications should include the assertRaises
+        with assert_no_database_modifications(), self.assertRaises(ValidationError):
             self._import(wrong_data)
 
         data_with_additional_attribute = deepcopy(EXAMPLE_DATA)
