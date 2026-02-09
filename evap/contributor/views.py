@@ -273,6 +273,7 @@ def evaluation_direct_delegation(request, evaluation_id):
         body_params=body_params,
         use_cc=True,
         additional_cc_users=[request.user],
+        evaluation=evaluation,
     )
 
     messages.add_message(
