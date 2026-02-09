@@ -1119,6 +1119,7 @@ class Evaluation(LoggedModel):
             "dropout_count",
         ]
 
+
 @receiver(post_transition, sender=Evaluation)
 def evaluation_state_change(instance, source, **_kwargs):
     """Evaluation.save checks whether caches must be updated based on this value"""

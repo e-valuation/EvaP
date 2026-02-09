@@ -133,7 +133,7 @@ class ParticipantCollapseTests(LiveServerTest):
         )
 
         with self.enter_staff_mode():
-            self.selenium.get(self.live_server_url + reverse("staff:evaluation_edit", args=[evaluation.id]))
+            self.selenium.get(self.reverse("staff:evaluation_edit", args=[evaluation.id]))
 
         card_header = self.selenium.find_element(By.CSS_SELECTOR, ".card:has(#id_participants) .card-header")
         self.assertIn("collapsed", classes_of_element(card_header))
@@ -167,7 +167,7 @@ class ParticipantCollapseTests(LiveServerTest):
         )
 
         with self.enter_staff_mode():
-            self.selenium.get(self.live_server_url + reverse("staff:evaluation_edit", args=[evaluation.id]))
+            self.selenium.get(self.reverse("staff:evaluation_edit", args=[evaluation.id]))
 
         card_header = self.selenium.find_element(By.CSS_SELECTOR, ".card:has(#id_participants) .card-header")
         self.assertNotIn("collapsed", classes_of_element(card_header))
@@ -184,45 +184,20 @@ class EvaluationGridLiveTest(LiveServerTest):
 
         baker.make(
             Evaluation,
-            name_de="Evaluation 1",
-            name_en="Evaluation 1",
-            course=baker.make(Course, name_de="AE", name_en="Z", semester=test_semester),
-        )
-        baker.make(
-            Evaluation,
-            name_de="Evaluation 2",
-            name_en="Evaluation 2",
-            course=baker.make(Course, name_de="ÄB", name_en="ÜB", semester=test_semester),
-        )
-        baker.make(
-            Evaluation,
-            name_de="Evaluation 3",
-            name_en="Evaluation 3",
-            course=baker.make(Course, name_de="UE", name_en="UE", semester=test_semester),
-        )
-        baker.make(
-            Evaluation,
-            name_de="Evaluation 4",
-            name_en="Evaluation 4",
-            course=baker.make(Course, name_de="ÜB", name_en="ÄB", semester=test_semester),
-        )
-        baker.make(
-            Evaluation,
-            name_de="Evaluation 5",
-            name_en="Evaluation 5",
-            course=baker.make(Course, name_de="Z", name_en="AE", semester=test_semester),
+            _quantity=5,
+            name_de=iter(f"Evaluation {i}" for i in range(1, 6)),
+            name_en=iter(f"Evaluation {i}" for i in range(1, 6)),
+            course__name_de=iter(("AE", "ÄB", "UE", "ÜB", "Z")),
+            course__name_en=iter(("Z", "ÜB", "UE", "ÄB", "AE")),
+            course__semester=test_semester,
         )
 
         with self.enter_staff_mode():
-            self.selenium.get(self.live_server_url + reverse("staff:index"))
+            self.selenium.get(self.reverse("staff:index"))
+            self.set_page_language("de")
 
-            language_de_button = self.selenium.find_element(
-                By.XPATH,
-                "//form[@action='/set_lang']//button[@data-set-spinner-icon='span-set-language-de']//parent::form",
-            )
 
-            language_de_button.submit()
-            self.selenium.get(self.live_server_url + reverse("staff:semester_view", args=[test_semester.id]))
+            self.selenium.get(self.reverse("staff:semester_view", args=[test_semester.id]))
             self.wait.until(visibility_of_element_located((By.CSS_SELECTOR, "#evaluation-table .col-order-asc")))
 
             table = self.selenium.find_element(By.ID, "evaluation-table").find_elements(
@@ -235,15 +210,10 @@ class EvaluationGridLiveTest(LiveServerTest):
             self.assertEqual(table[3].get_attribute("data-order"), "UE – Evaluation 3")
             self.assertEqual(table[4].get_attribute("data-order"), "Z – Evaluation 5")
 
-            self.selenium.get(self.live_server_url + reverse("staff:index"))
+            self.selenium.get(self.reverse("staff:index"))
+            self.set_page_language("en")
 
-            language_en_button = self.selenium.find_element(
-                By.XPATH,
-                "//form[@action='/set_lang']//button[@data-set-spinner-icon='span-set-language-en']//parent::form",
-            )
-
-            language_en_button.submit()
-            self.selenium.get(self.live_server_url + reverse("staff:semester_view", args=[test_semester.id]))
+            self.selenium.get(self.reverse("staff:semester_view", args=[test_semester.id]))
             self.wait.until(visibility_of_element_located((By.ID, "evaluation-table")))
 
             toggle_sort_button = self.selenium.find_element(By.XPATH, "//thead//th[@data-col='name']")
