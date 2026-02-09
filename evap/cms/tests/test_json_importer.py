@@ -406,6 +406,7 @@ class TestImportEvents(TestCase):
         self.assertTrue(
             all(
                 contribution.role == Contribution.Role.EDITOR
+                and contribution.textanswer_visibility == Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
                 for contribution in Contribution.objects.filter(evaluation=exam_evaluation, contributor__isnull=False)
             )
         )
@@ -817,8 +818,15 @@ class TestImportEvents(TestCase):
         # non-breaking whitespace
         self.assertEqual(_clean_whitespaces_and_hyphens("inbetween  inbetween"), "inbetween inbetween")
 
+    def test_clean_hyphens(self):
+        self.assertEqual(_clean_whitespaces_and_hyphens("Course - Evaluation"), "Course – Evaluation")
+        self.assertEqual(_clean_whitespaces_and_hyphens("-"), "-")
+
     def test_exam_missing_language(self):
         self._import(EXAMPLE_DATA)
 
         evaluation = Evaluation.objects.get(cms_id=EXAMPLE_DATA["events"][1]["gguid"])
         self.assertEqual(evaluation.main_language, "de")
+
+    def test_textanswer_visibility(self):
+        self._import(EXAMPLE_DATA)
