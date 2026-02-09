@@ -1159,10 +1159,9 @@ class QuestionFormTests(TestCase):
         even after changing the question type from TEXT/HEADING to a Likert type.
         Regression test for #2539.
         """
-        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         question = baker.make(
             Question,
-            questionnaire=questionnaire,
+            questionnaire__type=Questionnaire.Type.TOP,
             type=QuestionType.TEXT,
             allows_additional_textanswers=False,
         )
