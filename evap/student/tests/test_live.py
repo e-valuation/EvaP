@@ -1,6 +1,6 @@
 from django.test import override_settings
 from model_bakery import baker
-from selenium.webdriver import Keys, ActionChains
+from selenium.webdriver import ActionChains, Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.expected_conditions import (
@@ -145,7 +145,8 @@ class StudentVoteLiveTest(LiveServerTest):
         radio_button.click()
         button.click()
         self.assertEqual(len(self.get_open_modals()), 0)
-        self.assertNotIn("show", collapsible.get_attribute("class").split())
+        classes = collapsible.get_attribute("class") or ""
+        self.assertNotIn("show", classes.split())
 
     def test_skip_contributor_modal_shown(self) -> None:
         self.selenium.get(self.url)
