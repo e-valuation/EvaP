@@ -190,8 +190,13 @@ class ImportStatistics:
 
 
 def _clean_whitespaces_and_hyphens(text: str) -> str:
-    # Use regex for cleaning to also include non-ASCII whitespaces like non-breaking whitespaces
+    """Normalize to single space characters and en-dashes."""
     return re.sub(r"\s+", " ", text.strip()).replace(" - ", " – ")
+
+
+def get_related_events(event: ImportEvent) -> list[str]:
+    assert event["relatedevents"]
+    return [related_event["gguid"] for related_event in event["relatedevents"]]
 
 
 T = typing.TypeVar("T", CourseType, ExamType, Program)
@@ -244,7 +249,7 @@ class JSONImporter:
         self.program_cache = ImportCache(Program)
         self.courses_by_gguid: dict[str, Course] = {}
         self.statistics = ImportStatistics()
-        self.events_dict: dict[str, ImportEvent] = {}
+        self.events_by_gguid: dict[str, ImportEvent] = {}
 
     def _extract_number_in_name(self, name: str, wanted_name: str) -> int | None:
         if not name.startswith(wanted_name):
@@ -534,7 +539,7 @@ class JSONImporter:
 
         main_language = LANGUAGE_MAP.get(data["language"], Evaluation.UNDECIDED_MAIN_LANGUAGE)
         if main_language == Evaluation.UNDECIDED_MAIN_LANGUAGE and data.get("relatedevents"):
-            related_main_evaluation = self.events_dict[data["relatedevents"][0]["gguid"]]
+            related_main_evaluation = self.events_by_gguid[get_related_events(data)[0]]
             main_language = LANGUAGE_MAP.get(related_main_evaluation["language"], Evaluation.UNDECIDED_MAIN_LANGUAGE)
 
         if main_language == Evaluation.UNDECIDED_MAIN_LANGUAGE and not evaluation:
@@ -621,7 +626,7 @@ class JSONImporter:
         # Divide in multiple lists to handle individually
         non_exam_events, exam_events, exam_events_without_related_non_exam_event = [], [], []
         for event in data:
-            self.events_dict[event["gguid"]] = event
+            self.events_by_gguid[event["gguid"]] = event
             if not event["isexam"]:
                 non_exam_events.append(event)
             elif event.get("relatedevents"):
@@ -639,7 +644,7 @@ class JSONImporter:
             assert len(event["relatedevents"]) == 1
 
             # Don't import if course was skipped
-            course = self.courses_by_gguid.get(event["relatedevents"][0]["gguid"])
+            course = self.courses_by_gguid.get(get_related_events(event)[0])
             if course is None:
                 continue
 
