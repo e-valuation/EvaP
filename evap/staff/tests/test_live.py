@@ -1,6 +1,5 @@
 from datetime import date, datetime
 
-from django.urls import reverse
 from model_bakery import baker
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -195,7 +194,6 @@ class EvaluationGridLiveTest(LiveServerTest):
         with self.enter_staff_mode():
             self.selenium.get(self.reverse("staff:index"))
             self.set_page_language("de")
-
 
             self.selenium.get(self.reverse("staff:semester_view", args=[test_semester.id]))
             self.wait.until(visibility_of_element_located((By.CSS_SELECTOR, "#evaluation-table .col-order-asc")))
