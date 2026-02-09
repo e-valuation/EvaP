@@ -172,11 +172,6 @@ abstract class DataGrid {
         this.renderToDOM();
     }
 
-    // Applies DIN 5007 Alternative 1 to string
-    private normalizeValue(value: string) {
-        return value.toLowerCase().replace("ä", "a").replace("ü", "u").replace("ö", "o").replace("ß", "ss");
-    }
-
     // Sorts rows respecting the current order by their orderValues
     private sortRows() {
         for (const header of this.sortableHeaders.values()) {
