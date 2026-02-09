@@ -723,6 +723,25 @@ class TestUserImportView(WebTestStaffMode):
 
 # Staff - Semester Views
 class TestSemesterView(WebTestStaffMode):
+    @classmethod
+    def setUpTestData(cls):
+        cls.manager = make_manager()
+        cls.semester = baker.make(Semester)
+        cls.url = f"/staff/semester/{cls.semester.pk}"
+
+        baker.make(
+            Evaluation,
+            name_de="Evaluation 1",
+            name_en="Evaluation 1",
+            course=baker.make(Course, name_de="A", name_en="B", semester=cls.semester)
+        )
+        baker.make(
+            Evaluation,
+            name_de="Evaluation 2",
+            name_en="Evaluation 2",
+            course=baker.make(Course, name_de="B", name_en="A", semester=cls.semester),
+        )
+
     def test_access_to_semester_with_archived_results(self):
         reviewer = baker.make(
             UserProfile,
