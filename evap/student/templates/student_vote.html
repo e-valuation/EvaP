@@ -370,10 +370,10 @@
                 const contributorId = markNoAnswerButton.dataset.markNoAnswersFor;
                 const voteArea = document.getElementById(`vote-area-${contributorId}`);
                 const markNoAnswerModal = voteArea.querySelector(".mark-no-answer-modal");
-                const textareaAnswerFields = voteArea.querySelectorAll(".vote-inputs textarea");
                 const collapseToggle = voteArea.closest(".collapsible").querySelector(".collapse-toggle");
 
                 const collapseEmptyTextanswerFields = () => {
+                    const textareaAnswerFields = voteArea.querySelectorAll(".vote-inputs textarea");
                     textareaAnswerFields.forEach(textareaAnswerField => {
                         if (textareaAnswerField.value.trim().length > 0) return;
                         const parent = textareaAnswerField.closest('.row-question');
@@ -389,9 +389,11 @@
                         radioInput.checked = true;
                         clearChoiceError(radioInput);
                     });
+
+                    const textareaAnswerFields = voteArea.querySelectorAll(".vote-inputs textarea");
                     textareaAnswerFields.forEach((textarea) => {
                         textarea.value = "";
-                        textarea.dispatchEvent(new Event("input"));
+                        // textarea.dispatchEvent(new Event("input"));
                     });
 
                     formSaver.saveAllData();
@@ -407,16 +409,10 @@
                     collapseEmptyTextanswerFields();
                 }
                 markNoAnswerButton.addEventListener("click", () => {
-                    const shouldShowModal = () => {
-                        for (const textarea of textareaAnswerFields) {
-                            if (textarea.value.trim() !== "") {
-                                return true;
-                            }
-                        }
-                        return false;
-                    };
+                    const textareaAnswerFields = voteArea.querySelectorAll(".vote-inputs textarea");
+                    const shouldShowModal = textareaAnswerFields.values().some(textarea => textarea.value.trim() !== "");
 
-                    if (shouldShowModal()) {
+                    if (shouldShowModal) {
                         markNoAnswerModal.showModal();
                     } else {
                         clearContributorAnswers();
@@ -437,10 +433,9 @@
                             enableMarkNoAnswerButton();
                         });
                     });
+                const textareaAnswerFields = voteArea.querySelectorAll(".vote-inputs textarea");
                 textareaAnswerFields.forEach((textarea) => {
-                    textarea.addEventListener("input", () => {
-                        enableMarkNoAnswerButton();
-                    });
+                    textarea.addEventListener("input", enableMarkNoAnswerButton);
                 });
 
                 collapseToggle.addEventListener("click", () => {
