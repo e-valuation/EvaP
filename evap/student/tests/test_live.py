@@ -1,5 +1,6 @@
 from django.test import override_settings
 from model_bakery import baker
+from selenium.webdriver import Keys, ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.expected_conditions import (
@@ -139,9 +140,12 @@ class StudentVoteLiveTest(LiveServerTest):
         open_textanswer = vote_area.find_element(By.CSS_SELECTOR, "button.btn-textanswer")
         open_textanswer.click()
 
+        collapsible = vote_area.find_element(By.CSS_SELECTOR, "div.collapse.show")
+
         radio_button.click()
         button.click()
         self.assertEqual(len(self.get_open_modals()), 0)
+        self.assertNotIn("show", collapsible.get_attribute("class").split())
 
     def test_skip_contributor_modal_shown(self) -> None:
         self.selenium.get(self.url)
@@ -150,19 +154,22 @@ class StudentVoteLiveTest(LiveServerTest):
         id_ = button.get_attribute("data-mark-no-answers-for")
         vote_area = self.selenium.find_element(By.ID, f"vote-area-{id_}")
 
-        textarea = vote_area.find_element(By.CSS_SELECTOR, "textarea")
+        textarea = vote_area.find_elements(By.CSS_SELECTOR, "textarea")[1]
 
         open_textanswer = vote_area.find_element(By.CSS_SELECTOR, "button.btn-textanswer")
         open_textanswer.click()
 
-        textarea.click()
         textarea.send_keys("a")
         button.click()
         modals = self.get_open_modals()
         self.assertEqual(len(modals), 1)
-        modal = modals[0]
+        ActionChains(self.selenium).send_keys(Keys.ESCAPE).perform()
+        self.assertEqual(textarea.get_attribute("value"), "a")
+
+        button.click()
+        modal = self.get_open_modals()[0]
         confirm_button = modal.shadow_root.find_element(By.CSS_SELECTOR, "button[data-event-type='confirm']")
         confirm_button.click()
         self.wait.until(invisibility_of_element(modal))
         self.assertEqual(len(self.get_open_modals()), 0)
-        self.assertEqual(textarea.text, "")
+        self.assertEqual(textarea.get_attribute("value"), "")

@@ -393,7 +393,7 @@
                     const textareaAnswerFields = voteArea.querySelectorAll(".vote-inputs textarea");
                     textareaAnswerFields.forEach((textarea) => {
                         textarea.value = "";
-                        // textarea.dispatchEvent(new Event("input"));
+                        textarea.dispatchEvent(new Event("input"));
                     });
 
                     formSaver.saveAllData();
