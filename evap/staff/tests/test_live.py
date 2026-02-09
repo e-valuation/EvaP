@@ -261,21 +261,18 @@ class QuestionnaireFormLiveTest(LiveServerTest):
         questionnaire_type_select = self.selenium.find_element(By.ID, "id_type")
 
         # Change to Dropout
-        self.select_tom_select_option(questionnaire_type_select, str(Questionnaire.Type.DROPOUT))
+        self.set_tomselect_value(questionnaire_type_select, str(Questionnaire.Type.DROPOUT))
         self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").get_attribute("disabled"))
         self.assertFalse(
             row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").get_attribute("disabled")
         )
 
         # Change back to Top
-        self.select_tom_select_option(questionnaire_type_select, str(Questionnaire.Type.TOP))
+        self.set_tomselect_value(questionnaire_type_select, str(Questionnaire.Type.TOP))
         self.assertFalse(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").get_attribute("disabled"))
         self.assertFalse(
             row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").get_attribute("disabled")
         )
-
-    def select_tom_select_option(self, select_element, value):
-        self.selenium.execute_script(f"arguments[0].tomselect.setValue('{value}');", select_element)
 
     def assert_question_type_controls(
         self,
