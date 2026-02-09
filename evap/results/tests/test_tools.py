@@ -451,10 +451,27 @@ class TestCalculateAverageDistribution(TestCase):
         )
 
         counters = [
-            *make_rating_answer_counters(grade_question, self.contribution1, [1, 0, 0, 0, 0], False),
             *make_rating_answer_counters(non_counting_grade_question, self.contribution1, [0, 0, 0, 0, 1], False),
-            *make_rating_answer_counters(likert_question, self.contribution1, [0, 0, 3, 0, 0], False),
             *make_rating_answer_counters(non_counting_likert_question, self.contribution1, [0, 0, 0, 0, 3], False),
+        ]
+        RatingAnswerCounter.objects.bulk_create(counters)
+
+        cache_results(self.evaluation)
+        evaluation_results = get_results(self.evaluation)
+
+        question_results = [
+            question_result
+            for contribution_result in evaluation_results.contribution_results
+            for questionnaire_result in contribution_result.questionnaire_results
+            for question_result in questionnaire_result.question_results
+        ]
+
+        self.assertIsNone(average_grade_questions_distribution(question_results))
+        self.assertIsNone(average_non_grade_rating_questions_distribution(question_results))
+
+        counters = [
+            *make_rating_answer_counters(grade_question, self.contribution1, [1, 0, 0, 0, 0], False),
+            *make_rating_answer_counters(likert_question, self.contribution1, [0, 0, 3, 0, 0], False),
         ]
         RatingAnswerCounter.objects.bulk_create(counters)
 
@@ -475,26 +492,6 @@ class TestCalculateAverageDistribution(TestCase):
         self.assertEqual(
             non_grade_distribution, (0, 0, 1, 0, 0)
         )  # Only the counting likert question should be included
-
-        RatingAnswerCounter.objects.all().delete()
-        counters = [
-            *make_rating_answer_counters(non_counting_grade_question, self.contribution1, [0, 0, 0, 0, 1], False),
-            *make_rating_answer_counters(non_counting_likert_question, self.contribution1, [0, 0, 0, 0, 3], False),
-        ]
-        RatingAnswerCounter.objects.bulk_create(counters)
-
-        cache_results(self.evaluation)
-        evaluation_results = get_results(self.evaluation)
-
-        question_results = [
-            question_result
-            for contribution_result in evaluation_results.contribution_results
-            for questionnaire_result in contribution_result.questionnaire_results
-            for question_result in questionnaire_result.question_results
-        ]
-
-        self.assertIsNone(average_grade_questions_distribution(question_results))
-        self.assertIsNone(average_non_grade_rating_questions_distribution(question_results))
 
     def test_dropout_questionnaire_excluded_from_distribution(self):
         make_rating_answer_counters(self.question_grade, self.general_contribution, [0, 0, 0, 0, 10])

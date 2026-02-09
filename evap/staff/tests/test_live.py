@@ -181,6 +181,21 @@ class ParticipantCollapseTests(LiveServerTest):
 
 class QuestionnaireFormLiveTest(LiveServerTest):
     def test_question_type_disabling_logic(self):
+        def assert_type_allows(row, type_select, question_type, additional_textanswers, counts_for_grade):
+            self.set_tomselect_value(type_select, str(question_type))
+            self.assertNotEqual(
+                additional_textanswers,
+                bool(
+                    row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").get_attribute(
+                        "disabled"
+                    )
+                ),
+            )
+            self.assertNotEqual(
+                counts_for_grade,
+                bool(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").get_attribute("disabled")),
+            )
+
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         baker.make(Question, questionnaire=questionnaire, type=QuestionType.POSITIVE_LIKERT)
 
@@ -191,29 +206,11 @@ class QuestionnaireFormLiveTest(LiveServerTest):
         row = self.wait.until(visibility_of_element_located((By.CSS_SELECTOR, "#question_table tbody tr")))
         type_select = row.find_element(By.CSS_SELECTOR, "select[id$='-type']")
 
-        self.assert_question_type_controls(
-            row,
-            type_select,
-            QuestionType.TEXT,
-            allows_additional_textanswers_disabled=True,
-            counts_for_grade_disabled=True,
+        assert_type_allows(row, type_select, QuestionType.TEXT, additional_textanswers=False, counts_for_grade=False)
+        assert_type_allows(
+            row, type_select, QuestionType.POSITIVE_LIKERT, additional_textanswers=True, counts_for_grade=True
         )
-
-        self.assert_question_type_controls(
-            row,
-            type_select,
-            QuestionType.POSITIVE_LIKERT,
-            allows_additional_textanswers_disabled=False,
-            counts_for_grade_disabled=False,
-        )
-
-        self.assert_question_type_controls(
-            row,
-            type_select,
-            QuestionType.HEADING,
-            allows_additional_textanswers_disabled=True,
-            counts_for_grade_disabled=True,
-        )
+        assert_type_allows(row, type_select, QuestionType.HEADING, additional_textanswers=False, counts_for_grade=False)
 
         # Part 2: Add New Question
         self.selenium.find_element(By.CLASS_NAME, "add-row").click()
@@ -226,28 +223,14 @@ class QuestionnaireFormLiveTest(LiveServerTest):
         ]  # the last row is the add row button
         new_type_select = new_row.find_element(By.CSS_SELECTOR, "select[id$='-type']")
 
-        self.assert_question_type_controls(
-            new_row,
-            new_type_select,
-            QuestionType.TEXT,
-            allows_additional_textanswers_disabled=True,
-            counts_for_grade_disabled=True,
+        assert_type_allows(
+            new_row, new_type_select, QuestionType.TEXT, additional_textanswers=False, counts_for_grade=False
         )
-
-        self.assert_question_type_controls(
-            new_row,
-            new_type_select,
-            QuestionType.POSITIVE_LIKERT,
-            allows_additional_textanswers_disabled=False,
-            counts_for_grade_disabled=False,
+        assert_type_allows(
+            new_row, new_type_select, QuestionType.POSITIVE_LIKERT, additional_textanswers=True, counts_for_grade=True
         )
-
-        self.assert_question_type_controls(
-            new_row,
-            new_type_select,
-            QuestionType.HEADING,
-            allows_additional_textanswers_disabled=True,
-            counts_for_grade_disabled=True,
+        assert_type_allows(
+            new_row, new_type_select, QuestionType.HEADING, additional_textanswers=False, counts_for_grade=False
         )
 
     def test_questionnaire_type_disabling_logic(self):
@@ -272,29 +255,6 @@ class QuestionnaireFormLiveTest(LiveServerTest):
         self.assertFalse(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").get_attribute("disabled"))
         self.assertFalse(
             row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").get_attribute("disabled")
-        )
-
-    def assert_question_type_controls(
-        self,
-        row,
-        type_select,
-        question_type,
-        *,
-        allows_additional_textanswers_disabled,
-        counts_for_grade_disabled,
-    ):
-        self.select_tom_select_option(type_select, str(question_type))
-        self.assertEqual(
-            allows_additional_textanswers_disabled,
-            bool(
-                row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").get_attribute(
-                    "disabled"
-                )
-            ),
-        )
-        self.assertEqual(
-            counts_for_grade_disabled,
-            bool(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").get_attribute("disabled")),
         )
 
 
