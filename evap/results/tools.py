@@ -216,7 +216,7 @@ GET_RESULTS_PREFETCH_LOOKUPS = [
     "contributions__textanswer_set",
     "contributions__ratinganswercounter_set",
     "contributions__contributor__delegates",
-    "contributions__questionnaires__questions",
+    "contributions__questionnaires__question_assignments__question",
     "course__responsibles__delegates",
 ]
 
@@ -243,7 +243,7 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
     contributor_contribution_results = []
     for contribution in evaluation.contributions.all():
         questionnaire_results = []
-        for questionnaire in contribution.questionnaires.all().prefetch_related("question_assignments__question"):
+        for questionnaire in contribution.questionnaires.all():
             results: list[HeadingResult | TextResult | RatingResult] = []
             for assignment in questionnaire.question_assignments.all():
                 question = assignment.question
