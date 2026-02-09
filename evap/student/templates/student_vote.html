@@ -393,6 +393,7 @@
                     const textareaAnswerFields = voteArea.querySelectorAll(".vote-inputs textarea");
                     textareaAnswerFields.forEach((textarea) => {
                         textarea.value = "";
+                        // dispatch the event, so that the button to open the textarea changes back to the empty variant
                         textarea.dispatchEvent(new Event("input"));
                     });
 
