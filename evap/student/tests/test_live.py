@@ -145,8 +145,7 @@ class StudentVoteLiveTest(LiveServerTest):
         radio_button.click()
         button.click()
         self.assertEqual(len(self.get_open_modals()), 0)
-        classes = collapsible.get_attribute("class") or ""
-        self.assertNotIn("show", classes.split())
+        self.assertFalse(collapsible.is_displayed())
 
     def test_skip_contributor_modal_shown(self) -> None:
         self.selenium.get(self.url)
