@@ -359,6 +359,9 @@ class LiveServerTest(SeleniumTestCase):
         super().setUpClass()
         cls.selenium.set_window_size(*cls.window_size)
 
+    def set_tomselect_value(self, instance: WebElement, value: str) -> None:
+        self.selenium.execute_script(f"arguments[0].tomselect.setValue('{value}');", instance)
+
 
 def classes_of_element(element: WebElement) -> list[str]:
     classes = element.get_attribute("class")

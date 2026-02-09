@@ -544,6 +544,7 @@ class TestExporters(TestCase):
             _quantity=len(Questionnaire.Type.values),
             _bulk_create=True,
             allows_additional_textanswers=False,
+            counts_for_grade=False,
         )
 
         baker.make(
