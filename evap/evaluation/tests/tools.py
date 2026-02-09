@@ -276,22 +276,23 @@ def assert_no_database_modifications(*args, **kwargs):
 
     conn = connections[DEFAULT_DB_ALIAS]
     with CaptureQueriesContext(conn):
-        yield
+        try:
+            yield
+        finally:
+            for query in conn.queries_log:
+                if (
+                    query["sql"].startswith('INSERT INTO "testing_cache_sessions"')
+                    or query["sql"].startswith('UPDATE "testing_cache_sessions"')
+                    or query["sql"].startswith('DELETE FROM "testing_cache_sessions"')
+                    or query["sql"].startswith('UPDATE "evaluation_userprofile" SET "last_login" = ')
+                ):
+                    # These queries are caused by interacting with the test-app (self.app.get()), since that opens a session.
+                    # That's not what we want to test for here
+                    continue
 
-        for query in conn.queries_log:
-            if (
-                query["sql"].startswith('INSERT INTO "testing_cache_sessions"')
-                or query["sql"].startswith('UPDATE "testing_cache_sessions"')
-                or query["sql"].startswith('DELETE FROM "testing_cache_sessions"')
-                or query["sql"].startswith('UPDATE "evaluation_userprofile" SET "last_login" = ')
-            ):
-                # These queries are caused by interacting with the test-app (self.app.get()), since that opens a session.
-                # That's not what we want to test for here
-                continue
-
-            lower_sql = query["sql"].lower()
-            if not any(lower_sql.startswith(prefix) for prefix in allowed_prefixes):
-                raise AssertionError("Unexpected modifying query found: " + query["sql"])
+                lower_sql = query["sql"].lower()
+                if not any(lower_sql.startswith(prefix) for prefix in allowed_prefixes):
+                    raise AssertionError("Unexpected modifying query found: " + query["sql"])
 
 
 class LiveServerTest(SeleniumTestCase):
