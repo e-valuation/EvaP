@@ -479,9 +479,13 @@ class JSONImporter:
                 wait_for_grade_upload_before_publishing = True
             else:
                 wait_for_grade_upload_before_publishing = any(grade["scale"] for grade in data["courses"])
-            course.evaluations.all().update(
+
+            if course.evaluations.exclude(
                 wait_for_grade_upload_before_publishing=wait_for_grade_upload_before_publishing
-            )
+            ).exists():
+                course.evaluations.all().update(
+                    wait_for_grade_upload_before_publishing=wait_for_grade_upload_before_publishing
+                )
 
             is_rewarded = False
         else:
