@@ -19,10 +19,7 @@ runs:
   using: "composite"
   steps:
     - name: Install nix
-      uses: nixbuild/nix-quick-install-action@v34
-    - name: Write nix.conf
-      run: cp -v nix/nix.conf ~/.config/nix/nix.conf
-      shell: bash
+      uses: cachix/install-nix-action@v31
     - name: Restore and save Nix store
       uses: nix-community/cache-nix-action@v6
       with:

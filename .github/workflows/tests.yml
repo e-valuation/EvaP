@@ -74,8 +74,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           submodules: true
-      - uses: nixbuild/nix-quick-install-action@v34
-      - run: cp -v nix/nix.conf ~/.config/nix/nix.conf
+      - uses: cachix/install-nix-action@v31
       - uses: nix-community/cache-nix-action@v6
         with:
           primary-key: nix-${{ runner.os }}-${{ hashFiles('**/*.nix', 'flake.lock', 'uv.lock', 'evap/development/manage_autocompletion.sh') }}-build_wheel
@@ -215,8 +214,7 @@ jobs:
           repository: e-valuation/evap-deployment
           path: deployment
 
-      - uses: nixbuild/nix-quick-install-action@v34
-      - run: cp -v main/nix/nix.conf ~/.config/nix/nix.conf
+      - uses: cachix/install-nix-action@v31
       - uses: nix-community/cache-nix-action@v6
         with:
           primary-key: nix-${{ runner.os }}-${{ hashFiles('**/*.nix', 'flake.lock', 'uv.lock', 'evap/development/manage_autocompletion.sh') }}-backup_process
