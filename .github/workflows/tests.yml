@@ -75,7 +75,7 @@ jobs:
         with:
           submodules: true
       - uses: cachix/install-nix-action@v31
-      - uses: nix-community/cache-nix-action@v6
+      - uses: nix-community/cache-nix-action@v7
         with:
           primary-key: nix-${{ runner.os }}-${{ hashFiles('**/*.nix', 'flake.lock', 'uv.lock', 'evap/development/manage_autocompletion.sh') }}-build_wheel
       - run: nix run .#build-dist
@@ -215,7 +215,7 @@ jobs:
           path: deployment
 
       - uses: cachix/install-nix-action@v31
-      - uses: nix-community/cache-nix-action@v6
+      - uses: nix-community/cache-nix-action@v7
         with:
           primary-key: nix-${{ runner.os }}-${{ hashFiles('**/*.nix', 'flake.lock', 'uv.lock', 'evap/development/manage_autocompletion.sh') }}-backup_process
       - name: Start database
