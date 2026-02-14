@@ -16,23 +16,20 @@ from evap.rewards.tools import can_reward_points_be_used_by
 
 class RequestAuthUserBackend(ModelBackend):
     """
-    The RequestAuthBackend works together with the login_key_authentication view
+    The RequestAuthBackend works together with the otp_authentication view
     in evaluation/views.py to allow authentication of users via URL parameters,
     i.e. supplied in an email.
 
-    It looks for the appropriate key in the login_key field of the UserProfile.
+    Since the view already verifies the validity of the OTP for clearer user messaging,
+    this here doesn't add much, but Django's auth flow needs such a backend.
     """
 
     # Having a different method signature is okay according to django documentation:
     # https://docs.djangoproject.com/en/3.0/topics/auth/customizing/#writing-an-authentication-backend
-    def authenticate(self, request, key):  # pylint: disable=arguments-differ
-        if not key:
-            return None
-
-        try:
-            return UserProfile.objects.get(login_key=key)
-        except UserProfile.DoesNotExist:
-            return None
+    def authenticate(self, request, otp_hash):  # pylint: disable=arguments-differ
+        if otp_hash and otp_hash.user.is_active and otp_hash.is_valid():
+            return otp_hash.user
+        return None
 
 
 class EmailAuthenticationBackend(ModelBackend):

@@ -1588,10 +1588,11 @@ def evaluation_login_key_export(_request, evaluation_id):
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
     writer.writerow([_("Last name"), _("First name"), _("Email"), _("Login key")])
 
-    external_participants = (participant for participant in evaluation.participants.all() if participant.is_external)
-    for participant in external_participants:
-        participant.ensure_valid_login_key()
-        writer.writerow([participant.last_name, participant.first_name, participant.email, participant.login_url])
+    for participant in evaluation.participants.all():
+        if not participant.needs_login_key:
+            continue
+        login_url = participant.generate_login_url(typeable=True)
+        writer.writerow([participant.last_name, participant.first_name, participant.email, login_url])
 
     return response
 

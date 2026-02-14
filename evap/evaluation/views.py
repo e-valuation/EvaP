@@ -1,5 +1,4 @@
 import logging
-from datetime import date, timedelta
 
 from django.conf import settings
 from django.contrib import auth, messages
@@ -17,7 +16,7 @@ from django.views.generic import TemplateView
 from django.views.i18n import set_language
 
 from evap.evaluation.forms import LoginEmailForm, NewKeyForm, NotebookForm, ProfileForm
-from evap.evaluation.models import EmailTemplate, FaqSection, Semester, UserProfile
+from evap.evaluation.models import EmailTemplate, FaqSection, OtpHash, Semester, UserProfile
 from evap.evaluation.tools import HttpResponseNoContent, openid_login_is_active, password_login_is_active
 from evap.middleware import no_login_required
 
@@ -71,12 +70,9 @@ def index(request):
     # process form data
     if request.method == "POST":
         if new_key_form.is_valid():
-            # user wants a new login key
+            # user wants a new OTP
             profile = new_key_form.get_user()
-            profile.ensure_valid_login_key()
-            profile.save()
-
-            EmailTemplate.send_login_url_to_user(new_key_form.get_user())
+            EmailTemplate.send_login_url_to_user(profile)
 
             messages.success(request, _("We sent you an email with a one-time login URL. Please check your inbox."))
             return redirect("evaluation:index")
@@ -116,10 +112,15 @@ def index(request):
 
 
 @no_login_required
-def login_key_authentication(request, key):
-    user = auth.authenticate(request, key=key)
+def otp_authentication(request, otp: str):
+    otp_hash = OtpHash.get(otp)
 
-    if user and not user.is_active:
+    if not otp_hash:
+        messages.warning(request, _("Invalid login URL. Please request a new one below."))
+        return redirect("evaluation:index")
+
+    user = otp_hash.user
+    if not user.is_active:
         messages.error(request, _("Inactive users are not allowed to login."))
         return redirect("evaluation:index")
 
@@ -132,25 +133,18 @@ def login_key_authentication(request, key):
             )
         return redirect("evaluation:index")
 
-    if user and user.login_key_valid_until >= date.today():
+    if otp_hash.is_valid():
         if request.method != "POST":
-            template_data = {"username": user.full_name}
-            return render(request, "external_user_confirm_login.html", template_data)
+            return render(request, "external_user_confirm_login.html", {"username": user.full_name})
 
-        # User is valid. Set request.user and persist user in the session by logging the user in.
-        request.user = user
-        auth.login(request, user)
+        # Persist the authenticated user in the session.
+        authenticated_user = auth.authenticate(request, otp_hash=otp_hash)
+        auth.login(request, authenticated_user)
         messages.success(request, _("Logged in as %s.") % user.full_name)
-        # Invalidate the login key, but keep it stored so we can later identify the user that is trying to login and send a new link
-        user.login_key_valid_until = date.today() - timedelta(1)
-        user.save()
-    elif user:
-        # A user exists, but the login key is not valid anymore. Send the user a new one.
-        user.ensure_valid_login_key()
+        otp_hash.invalidate()
+    else:
         EmailTemplate.send_login_url_to_user(user)
         messages.warning(request, _("The login URL is not valid anymore. We sent you a new one to your email address."))
-    else:
-        messages.warning(request, _("Invalid login URL. Please request a new one below."))
 
     return redirect("evaluation:index")
 
