@@ -74,7 +74,10 @@ jobs:
       - uses: actions/checkout@v6
         with:
           submodules: true
-      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: cachix/install-nix-action@v31
+      - uses: nix-community/cache-nix-action@v7
+        with:
+          primary-key: nix-${{ runner.os }}-${{ hashFiles('**/*.nix', 'flake.lock', 'uv.lock', 'evap/development/manage_autocompletion.sh') }}-build_wheel
       - run: nix run .#build-dist
       - run: tar tvf dist/*.tar.gz
       - run: unzip -l dist/*.whl
@@ -211,7 +214,10 @@ jobs:
           repository: e-valuation/evap-deployment
           path: deployment
 
-      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: cachix/install-nix-action@v31
+      - uses: nix-community/cache-nix-action@v7
+        with:
+          primary-key: nix-${{ runner.os }}-${{ hashFiles('**/*.nix', 'flake.lock', 'uv.lock', 'evap/development/manage_autocompletion.sh') }}-backup_process
       - name: Start database
         working-directory: deployment
         run: nix run ../main#services -- --detached

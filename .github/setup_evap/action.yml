@@ -18,7 +18,12 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: DeterminateSystems/nix-installer-action@main
+    - name: Install nix
+      uses: cachix/install-nix-action@v31
+    - name: Restore and save Nix store
+      uses: nix-community/cache-nix-action@v7
+      with:
+        primary-key: nix-${{ runner.os }}-${{ hashFiles('**/*.nix', 'flake.lock', 'uv.lock', 'evap/development/manage_autocompletion.sh') }}-${{ inputs.shell }}-${{ inputs.start-db }}
     - uses: nicknovitski/nix-develop@v1
       with:
         arguments: "${{ inputs.shell }}"
