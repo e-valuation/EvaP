@@ -156,14 +156,18 @@ abstract class DataGrid {
                     row.filterValues.get(name)?.some(rowValue => rowValue === filterValue),
                 ),
             );
-            const isDisplayedByRangeFilters = [...this.state.rangeFilter].every(([name, bound]) =>
-                row.filterValues
-                    .get(name)
-                    ?.map(rawValue => parseFloat(rawValue))
-                    .some(rowValue => rowValue >= bound.low && rowValue <= bound.high),
-            );
+            const isDisplayedByRangeFilters = this.checkRangeFilters(row);
             row.isDisplayed = isDisplayedBySearch && isDisplayedByFilters && isDisplayedByRangeFilters;
         }
+    }
+
+    protected checkRangeFilters(row: Row): boolean {
+        return [...this.state.rangeFilter].every(([name, bound]) =>
+            row.filterValues
+                .get(name)
+                ?.map(rawValue => parseFloat(rawValue))
+                .some(rowValue => rowValue >= bound.low && rowValue <= bound.high),
+        );
     }
 
     protected sort(order: [string, "asc" | "desc"][]) {
@@ -420,6 +424,22 @@ export class ResultGrid extends DataGrid {
         this.sortOrderCheckboxes = sortOrderCheckboxes;
         this.resetFilter = resetFilter;
         this.resetOrder = resetOrder;
+    }
+
+    protected checkRangeFilters(row: Row): boolean {
+        return [...this.state.rangeFilter].every(([name, bound]) => {
+            const sliderEntry = this.filterSliders.get(name);
+            const isOpenEnd = sliderEntry?.slider.isOpenEnd() ?? false;
+
+            return row.filterValues
+                .get(name)
+                ?.map(rawValue => parseFloat(rawValue))
+                .some(rowValue => {
+                    const isWithinLow = rowValue >= bound.low;
+                    const isWithinHigh = isOpenEnd || rowValue <= bound.high;
+                    return isWithinLow && isWithinHigh;
+                });
+        });
     }
 
     public bindEvents() {
