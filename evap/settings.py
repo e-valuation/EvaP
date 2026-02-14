@@ -33,7 +33,13 @@ ENABLE_DEBUG_TOOLBAR = False
 
 ### EvaP logic
 
-LOGIN_KEY_VALIDITY = 210  # days, so roughly 7 months
+OTP_VALIDITY_HOURS = 14 * 24  # validity period for long (emailed) one-time passwords
+OTP_VALIDITY_HOURS_TYPEABLE = 7 * 24  # validity period for short typeable OTPs (e.g. exported in CSV)
+OTP_LENGTH = 40  # number of alphanumeric characters in a long OTP
+OTP_LENGTH_TYPEABLE = 8  # number of characters in a short typeable OTP
+OTP_ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+OTP_ALPHABET_TYPEABLE = "abcdefghjkmnpqrstuvwxyz23456789"  # excludes ambiguous chars like 0/O and 1/l/I
+MAX_OTPS_PER_USER = 10  # maximum number of OTP hashes (valid and invalid) per user
 
 VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS = 2
 VOTER_PERCENTAGE_NEEDED_FOR_PUBLISHING_AVERAGE_GRADE = 0.2

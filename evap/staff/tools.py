@@ -16,7 +16,7 @@ from django.utils.safestring import SafeString
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
-from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer, UserProfile
+from evap.evaluation.models import Contribution, Course, Evaluation, OtpHash, TextAnswer, UserProfile
 from evap.evaluation.models_logging import LogEntry
 from evap.evaluation.tools import StrOrPromise, clean_email, is_external_email
 from evap.grades.models import GradeDocument
@@ -242,6 +242,7 @@ def merge_users(  # noqa: PLR0915  # This is much stuff to do. However, splittin
     merged_user["represented_users"] = UserProfile.objects.filter(delegates__in=[main_user, other_user]).distinct()
     merged_user["cc_users"] = UserProfile.objects.filter(ccing_users__in=[main_user, other_user]).distinct()
     merged_user["ccing_users"] = UserProfile.objects.filter(cc_users__in=[main_user, other_user]).distinct()
+    merged_user["otp_hashes"] = OtpHash.objects.filter(user__in=[main_user, other_user]).distinct()
 
     errors = []
     warnings = []
