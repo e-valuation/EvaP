@@ -15,7 +15,7 @@ from evap.evaluation.models import (
     Course,
     Evaluation,
     Program,
-    Question,
+    QuestionAssignment,
     Questionnaire,
     QuestionType,
     RatingAnswerCounter,
@@ -194,7 +194,6 @@ class TestResultsView(WebTest):
         )[1:]
 
         questionnaire = baker.make(Questionnaire)
-        question_grade = baker.make(Question, questionnaire=questionnaire, type=QuestionType.GRADE)
 
         contributions = [e.general_contribution for e in published]
         for contribution in contributions:
@@ -202,7 +201,8 @@ class TestResultsView(WebTest):
         baker.make(
             RatingAnswerCounter,
             contribution=iter(contributions),
-            question=question_grade,
+            assignment__question__type=QuestionType.GRADE,
+            assignment__questionnaire=questionnaire,
             answer=2,
             count=2,
             _quantity=len(published),
@@ -272,22 +272,24 @@ class TestResultsViewContributionWarning(WebTest):
             questionnaires=[cls.questionnaire],
             contributor=contributor,
         )
-        cls.likert_question = baker.make(
-            Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=cls.questionnaire, order=2
+        cls.likert_assignment = baker.make(
+            QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=cls.questionnaire, order=2
         )
         cls.url = f"/results/semester/{cls.semester.id}/evaluation/{cls.evaluation.id}"
 
     def test_contributor_no_results_warning(self):
         # The contributor card should be collapsed iff all questions have no results
         # Regression test from https://github.com/e-valuation/EvaP/pull/2245
-        question2 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=self.questionnaire, order=2)
+        assignment2 = baker.make(
+            QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=self.questionnaire, order=2
+        )
 
         cache_results(self.evaluation)
         page = self.app.get(self.url, user=self.manager, status=200)
         self.assertIn("There are no results for this person", page)
         self.assertIn('class="collapse"', page)
 
-        make_rating_answer_counters(question2, self.contribution, [0, 0, 10, 0, 0])
+        make_rating_answer_counters(assignment2, self.contribution, [0, 0, 10, 0, 0])
 
         cache_results(self.evaluation)
         page = self.app.get(self.url, user=self.manager, status=200)
@@ -295,7 +297,7 @@ class TestResultsViewContributionWarning(WebTest):
         self.assertNotIn('class="collapse"', page)
 
     def test_many_answers_evaluation_no_warning(self):
-        make_rating_answer_counters(self.likert_question, self.contribution, [0, 0, 10, 0, 0])
+        make_rating_answer_counters(self.likert_assignment, self.contribution, [0, 0, 10, 0, 0])
         cache_results(self.evaluation)
         page = self.app.get(self.url, user=self.manager, status=200)
         self.assertNotIn("Only a few participants answered these questions.", page)
@@ -306,7 +308,7 @@ class TestResultsViewContributionWarning(WebTest):
         self.assertNotIn("Only a few participants answered these questions.", page)
 
     def test_few_answers_evaluation_show_warning(self):
-        make_rating_answer_counters(self.likert_question, self.contribution, [0, 0, 3, 0, 0])
+        make_rating_answer_counters(self.likert_assignment, self.contribution, [0, 0, 3, 0, 0])
         cache_results(self.evaluation)
         page = self.app.get(self.url, user=self.manager, status=200)
         self.assertIn("Only a few participants answered these questions.", page)
@@ -314,7 +316,7 @@ class TestResultsViewContributionWarning(WebTest):
     def test_few_answers_evaluation_dropout_no_warning(self):
         self.questionnaire.type = Questionnaire.Type.DROPOUT
         self.questionnaire.save()
-        make_rating_answer_counters(self.likert_question, self.contribution, [0, 0, 3, 0, 0])
+        make_rating_answer_counters(self.likert_assignment, self.contribution, [0, 0, 3, 0, 0])
         cache_results(self.evaluation)
         page = self.app.get(self.url, user=self.manager, status=200)
         self.assertNotIn("Only a few participants answered these questions.", page)
@@ -357,38 +359,40 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
         bottom_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM)
 
-        top_heading_question = baker.make(Question, type=QuestionType.HEADING, questionnaire=top_questionnaire, order=0)
-        top_likert_question = baker.make(
-            Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=top_questionnaire, order=1
+        top_heading_assignment = baker.make(
+            QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=top_questionnaire, order=0
+        )
+        top_likert_assignment = baker.make(
+            QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=top_questionnaire, order=1
         )
 
-        contributor_likert_question = baker.make(
-            Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=contributor_questionnaire
+        contributor_likert_assignment = baker.make(
+            QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=contributor_questionnaire
         )
 
-        bottom_heading_question = baker.make(
-            Question, type=QuestionType.HEADING, questionnaire=bottom_questionnaire, order=0
+        bottom_heading_assignment = baker.make(
+            QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=bottom_questionnaire, order=0
         )
-        bottom_likert_question = baker.make(
-            Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=bottom_questionnaire, order=1
+        bottom_likert_assignment = baker.make(
+            QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=bottom_questionnaire, order=1
         )
 
         self.evaluation.general_contribution.questionnaires.set([top_questionnaire, bottom_questionnaire])
         self.contribution.questionnaires.set([contributor_questionnaire])
 
-        make_rating_answer_counters(top_likert_question, self.evaluation.general_contribution)
-        make_rating_answer_counters(contributor_likert_question, self.contribution)
-        make_rating_answer_counters(bottom_likert_question, self.evaluation.general_contribution)
+        make_rating_answer_counters(top_likert_assignment, self.evaluation.general_contribution)
+        make_rating_answer_counters(contributor_likert_assignment, self.contribution)
+        make_rating_answer_counters(bottom_likert_assignment, self.evaluation.general_contribution)
 
         cache_results(self.evaluation)
 
         content = self.app.get(self.url, user=self.manager).body.decode()
 
-        top_heading_index = content.index(top_heading_question.text)
-        top_likert_index = content.index(top_likert_question.text)
-        contributor_likert_index = content.index(contributor_likert_question.text)
-        bottom_heading_index = content.index(bottom_heading_question.text)
-        bottom_likert_index = content.index(bottom_likert_question.text)
+        top_heading_index = content.index(top_heading_assignment.question.text)
+        top_likert_index = content.index(top_likert_assignment.question.text)
+        contributor_likert_index = content.index(contributor_likert_assignment.question.text)
+        bottom_heading_index = content.index(bottom_heading_assignment.question.text)
+        bottom_likert_index = content.index(bottom_likert_assignment.question.text)
 
         self.assertTrue(
             top_heading_index < top_likert_index < contributor_likert_index < bottom_heading_index < bottom_likert_index
@@ -398,24 +402,32 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         contributor = baker.make(UserProfile)
         questionnaire = baker.make(Questionnaire)
 
-        heading_question_0 = baker.make(Question, type=QuestionType.HEADING, questionnaire=questionnaire, order=0)
-        heading_question_1 = baker.make(Question, type=QuestionType.HEADING, questionnaire=questionnaire, order=1)
-        likert_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire, order=2)
-        heading_question_2 = baker.make(Question, type=QuestionType.HEADING, questionnaire=questionnaire, order=3)
+        heading_assignment_0 = baker.make(
+            QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=questionnaire, order=0
+        )
+        heading_assignment_1 = baker.make(
+            QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=questionnaire, order=1
+        )
+        likert_assignment = baker.make(
+            QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire, order=2
+        )
+        heading_assignment_2 = baker.make(
+            QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=questionnaire, order=3
+        )
 
         contribution = baker.make(
             Contribution, evaluation=self.evaluation, questionnaires=[questionnaire], contributor=contributor
         )
-        make_rating_answer_counters(likert_question, contribution)
+        make_rating_answer_counters(likert_assignment, contribution)
 
         cache_results(self.evaluation)
 
         page = self.app.get(self.url, user=self.manager)
 
-        self.assertNotIn(heading_question_0.text, page)
-        self.assertIn(heading_question_1.text, page)
-        self.assertIn(likert_question.text, page)
-        self.assertNotIn(heading_question_2.text, page)
+        self.assertNotIn(heading_assignment_0.question.text, page)
+        self.assertIn(heading_assignment_1.question.text, page)
+        self.assertIn(likert_assignment.question.text, page)
+        self.assertNotIn(heading_assignment_2.question.text, page)
 
     @override_settings(VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS=0)
     def test_default_view(self):
@@ -474,12 +486,17 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
             Evaluation, state=Evaluation.State.EVALUATED, course=baker.make(Course, semester=self.semester)
         )
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        likert_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire, order=1)
+        likert_assignment = baker.make(
+            QuestionAssignment,
+            question__type=QuestionType.POSITIVE_LIKERT,
+            questionnaire=questionnaire,
+            order=1,
+        )
         evaluation.general_contribution.questionnaires.set([questionnaire])
         participants = baker.make(UserProfile, _bulk_create=True, _quantity=20)
         evaluation.participants.set(participants)
         evaluation.voters.set(participants)
-        make_rating_answer_counters(likert_question, evaluation.general_contribution, [20, 0, 0, 0, 0])
+        make_rating_answer_counters(likert_assignment, evaluation.general_contribution, [20, 0, 0, 0, 0])
         cache_results(evaluation)
 
         url = f"/results/semester/{self.semester.id}/evaluation/{evaluation.id}"
@@ -519,14 +536,14 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         questionnaire = baker.make(
             Questionnaire, public_name_en="test-dropout-questionnaire-title", type=Questionnaire.Type.DROPOUT
         )
-        question = baker.make(
-            Question,
-            text_en="test-dropout-question-text",
-            type=QuestionType.POSITIVE_YES_NO,
+        assignment = baker.make(
+            QuestionAssignment,
+            question__text_en="test-dropout-question-text",
+            question__type=QuestionType.POSITIVE_YES_NO,
             questionnaire=questionnaire,
         )
         self.evaluation.general_contribution.questionnaires.add(questionnaire)
-        make_rating_answer_counters(question, self.evaluation.general_contribution, answer_counts=[10, 5])
+        make_rating_answer_counters(assignment, self.evaluation.general_contribution, answer_counts=[10, 5])
 
         cache_results(self.evaluation)
 
@@ -553,8 +570,8 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
         cls.url = f"/results/semester/{cls.evaluation.course.semester.pk}/evaluation/{cls.evaluation.pk}"
 
         questionnaire = baker.make(Questionnaire)
-        cls.question_grade = baker.make(Question, questionnaire=questionnaire, type=QuestionType.GRADE)
-        baker.make(Question, questionnaire=questionnaire, type=QuestionType.POSITIVE_LIKERT)
+        baker.make(QuestionAssignment, questionnaire=questionnaire, question__type=QuestionType.GRADE)
+        baker.make(QuestionAssignment, questionnaire=questionnaire, question__type=QuestionType.POSITIVE_LIKERT)
         cls.evaluation.general_contribution.questionnaires.set([questionnaire])
         cls.responsible_contribution = baker.make(
             Contribution, contributor=responsible, evaluation=cls.evaluation, questionnaires=[questionnaire]
@@ -808,7 +825,7 @@ class TestResultsOtherContributorsListOnExportView(WebTest):
         cls.url = f"/results/semester/{evaluation.course.semester.id}/evaluation/{evaluation.id}?view_contributor_results=personal"
 
         questionnaire = baker.make(Questionnaire)
-        baker.make(Question, questionnaire=questionnaire, type=QuestionType.POSITIVE_LIKERT)
+        baker.make(QuestionAssignment, questionnaire=questionnaire, question__type=QuestionType.POSITIVE_LIKERT)
         evaluation.general_contribution.questionnaires.set([questionnaire])
 
         baker.make(
