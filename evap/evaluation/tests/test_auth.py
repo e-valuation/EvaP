@@ -102,6 +102,13 @@ class LoginTests(WebTest):
         self.assertEqual(len(mail.outbox), 1)  # an OTP was sent
         self.assertContains(page, "We sent you an email with a one-time login URL. Please check your inbox.")
 
+    def test_invalid_otp_shows_error_message(self):
+        page = self.app.get("/otp/definitely-invalid-otp").follow()
+
+        self.assertContains(page, "Invalid login URL. Please request a new one below.")
+        self.assertIsInstance(page.context["user"], AnonymousUser)
+        self.assertNotContains(page, "Logout")
+
     @override_settings(
         OIDC_OP_AUTHORIZATION_ENDPOINT="https://oidc.example.com/auth",
         ACTIVATE_OPEN_ID_LOGIN=True,
