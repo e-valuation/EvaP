@@ -2079,9 +2079,7 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
         return UserProfile.email_needs_login_key(self.email)
 
     def generate_login_url(self, *, typeable: bool = False) -> str:
-        """Create an OTP and build a login URL for it."""
-        if not self.needs_login_key:
-            return ""
+        assert self.needs_login_key
         otp = OtpHash.create(self, typeable=typeable)
         return settings.PAGE_URL + reverse("evaluation:otp_authentication", kwargs={"otp": otp})
 
