@@ -251,7 +251,7 @@ class JSONImporter:
 
     def get_main_evaluation(self, exam_event: ImportEvent) -> ImportEvent:
         # expects exam evaluation as input
-        assert len(exam_event["relatedevents"]) == 1
+        assert exam_event["relatedevents"][0]["gguid"]
         return self.events_by_gguid.get(exam_event["relatedevents"][0]["gguid"])
 
     def _extract_number_in_name(self, name: str, wanted_name: str) -> int | None:
