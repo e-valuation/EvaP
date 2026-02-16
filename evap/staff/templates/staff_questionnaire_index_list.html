@@ -30,7 +30,7 @@
                                     <br />
                                     {% blocktranslate count questionnaire.questions.count as count %}{{ count }} question{% plural %}{{ count }} questions{% endblocktranslate %},
                                     <a href="{% url 'staff:questionnaire_usage' questionnaire.id %}">
-                                        {% blocktranslate count questionnaire.contributions.count as count %}used {{ count }} time{% plural %}used {{ count }} times{% endblocktranslate %}
+                                        {% blocktranslate count count=questionnaire.contributions.count %}used {{ count }} time{% plural %}used {{ count }} times{% endblocktranslate %}
                                     </a>
                                 </td>
                                 <td>

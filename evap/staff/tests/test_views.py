@@ -3429,9 +3429,10 @@ class TestQuestionnaireUsageView(WebTestStaffModeWith200Check):
     def setUpTestData(cls):
         cls.user = make_manager()
 
-        questionnaire = baker.make(Questionnaire)
-        cls.question = baker.make(Question, questionnaire=questionnaire)
-        cls.url = reverse("staff:questionnaire_usage", args=[questionnaire.pk])
+        cls.questionnaire = baker.make(Questionnaire)
+        cls.question = baker.make(Question)
+        cls.questionnaire.questions.add(cls.question)
+        cls.url = reverse("staff:questionnaire_usage", args=[cls.questionnaire.pk])
 
         cls.semesters = baker.make(
             Semester,
@@ -3442,8 +3443,8 @@ class TestQuestionnaireUsageView(WebTestStaffModeWith200Check):
         )
         cls.semester_without_questionnaire = baker.make(Semester, name_de="Semester 4", name_en="Semester 4")
 
-        cls.evaluations = {}
-        for semester in cls.semesters:
+    def test_questionnaire_usage_view(self):
+        for semester in self.semesters:
             course = baker.make(Course, semester=semester)
             evaluations = baker.make(
                 Evaluation,
@@ -3453,23 +3454,25 @@ class TestQuestionnaireUsageView(WebTestStaffModeWith200Check):
                 _quantity=2,
             )
             for evaluation in evaluations:
-                evaluation.save()
-                evaluation.general_contribution.questionnaires.set([questionnaire])
+                evaluation.general_contribution.questionnaires.set([self.questionnaire])
 
-    def test_questionnaire_usage_view(self):
-        page = self.app.get(self.url, user=self.user)
-        content = page.body.decode()
+        content = self.app.get(self.url, user=self.user).text
 
         indexes = []
         for semester in sorted(self.semesters, key=lambda s: s.created_at, reverse=True):
-            indexes.append(content.index(f"2 usages in {semester.name}"))
+            indexes.append(content.index(f'data-id="semester-{semester.id}"'))
             indexes += [
                 content.index(evaluation.full_name)
                 for evaluation in Evaluation.objects.filter(course__semester=semester).order_by("vote_start_datetime")
             ]
 
-        self.assertListEqual(indexes, sorted(indexes))
-        self.assertNotIn(f"usages in {self.semester_without_questionnaire.name_en}", content)
+        self.assertEqual(indexes, sorted(indexes))
+        self.assertNotIn(f'data-id="semester-{self.semester_without_questionnaire.id}"', content)
+
+    def test_questionnaire_usage_view_not_used(self):
+        content = self.app.get(self.url, user=self.user).text
+
+        self.assertIn("This questionnaire hasn't been used yet.", content)
 
 
 class TestQuestionnaireCopyView(WebTestStaffMode):
