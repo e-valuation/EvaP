@@ -14,11 +14,11 @@ from model_bakery import baker
 
 from evap.evaluation import auth
 from evap.evaluation.auth import class_or_function_check_decorator
-from evap.evaluation.models import Contribution, Evaluation, UserProfile
+from evap.evaluation.models import Contribution, EmailTemplate, Evaluation, OtpHash, UserProfile
 from evap.evaluation.tests.tools import WebTest
 
 
-@override_settings(PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"])
+@override_settings(PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"], PAGE_URL="http://testserver")
 class LoginTests(WebTest):
     csrf_checks = False
     url = reverse("evaluation:index")
@@ -26,9 +26,7 @@ class LoginTests(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.external_user = baker.make(UserProfile, email="extern@extern.com")
-        cls.external_user.ensure_valid_login_key()
         cls.inactive_external_user = baker.make(UserProfile, email="inactive@extern.com", is_active=False)
-        cls.inactive_external_user.ensure_valid_login_key()
         evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED)
         baker.make(
             Contribution,
@@ -40,38 +38,36 @@ class LoginTests(WebTest):
             _bulk_create=True,
         )
 
-    @override_settings(PAGE_URL="https://example.com")
     def test_login_url_generation(self):
-        generated_url = self.external_user.login_url
-        self.assertEqual(generated_url, f"https://example.com/key/{self.external_user.login_key}")
+        generated_url = self.external_user.generate_login_url()
+        self.assertRegex(generated_url, r"^http://testserver/otp/\w+$")
 
-        reversed_url = reverse("evaluation:login_key_authentication", args=[self.external_user.login_key])
-        self.assertEqual(reversed_url, f"/key/{self.external_user.login_key}")
+        short_url = self.external_user.generate_login_url(typeable=True)
+        self.assertRegex(short_url, r"^http://testserver/otp/\w+$")
 
     def test_login_url_works(self):
         self.assertRedirects(self.app.get(reverse("contributor:index")), "/?next=/contributor/")
 
-        url_with_key = reverse("evaluation:login_key_authentication", args=[self.external_user.login_key])
-        old_login_key = self.external_user.login_key
-        old_login_key_valid_until = self.external_user.login_key_valid_until
-        page = self.app.get(url_with_key)
-        self.external_user.refresh_from_db()
-        self.assertEqual(old_login_key, self.external_user.login_key)
-        self.assertEqual(old_login_key_valid_until, self.external_user.login_key_valid_until)
+        url = self.external_user.generate_login_url()
+        otp_count_before = OtpHash.objects.filter(user=self.external_user).count()
+        page = self.app.get(url)
+        # GET should not delete the OTP
+        self.assertEqual(OtpHash.objects.filter(user=self.external_user).count(), otp_count_before)
         self.assertContains(page, "Login")
         self.assertContains(page, self.external_user.full_name)
 
-        page = self.app.post(url_with_key).follow().follow()
+        page = self.app.post(url).follow().follow()
         self.assertEqual(page.context["user"], self.external_user)
         self.assertContains(page, "Logout")
         self.assertContains(page, self.external_user.full_name)
 
-    def test_login_key_valid_only_once(self):
-        page = self.app.get(reverse("evaluation:login_key_authentication", args=[self.external_user.login_key]))
+    def test_otp_valid_only_once(self):
+        EmailTemplate.objects.filter(name=EmailTemplate.LOGIN_KEY_CREATED).update(plain_content="{{ login_url }}")
+        url = self.external_user.generate_login_url()
+        page = self.app.get(url)
         self.assertContains(page, self.external_user.full_name)
 
-        url_with_key = reverse("evaluation:login_key_authentication", args=[self.external_user.login_key])
-        page = self.app.post(url_with_key).follow().follow()
+        page = self.app.post(url).follow().follow()
         self.assertEqual(page.context["user"], self.external_user)
         self.assertContains(page, "Logout")
 
@@ -79,30 +75,39 @@ class LoginTests(WebTest):
         self.assertIsInstance(page.context["user"], AnonymousUser)
         self.assertNotContains(page, "Logout")
 
-        page = self.app.get(url_with_key).follow()
+        # The same OTP should no longer work (OTP was deactivated on login)
+        page = self.app.get(url).follow()
         self.assertContains(page, "The login URL is not valid anymore.")
-        self.assertEqual(len(mail.outbox), 1)  # a new login key was sent
+        self.assertEqual(len(mail.outbox), 1)  # a new OTP was sent
 
-        new_key = UserProfile.objects.get(id=self.external_user.id).login_key
-        page = self.app.post(reverse("evaluation:login_key_authentication", args=[new_key])).follow().follow()
+        # The old OTP triggered a new one to be sent; verify that one
+        new_url = mail.outbox[0].body.strip()
+        self.assertTrue(new_url.startswith("http://testserver/otp/"))
+        page = self.app.post(new_url).follow().follow()
         self.assertContains(page, self.external_user.full_name)
 
     def test_inactive_external_users_can_not_login(self):
-        page = self.app.get(
-            reverse("evaluation:login_key_authentication", args=[self.inactive_external_user.login_key])
-        ).follow()
+        url = self.inactive_external_user.generate_login_url()
+        page = self.app.get(url).follow()
         self.assertContains(page, "Inactive users are not allowed to login")
         self.assertIsInstance(page.context["user"], AnonymousUser)
         self.assertNotContains(page, "Logout")
 
-    def test_login_key_resend_if_still_valid(self):
-        old_key = self.external_user.login_key
+    def test_otp_request_generates_new_otp(self):
+        otp_count_before = OtpHash.objects.filter(user=self.external_user).count()
         page = self.app.post(self.url, params={"submit_type": "new_key", "email": self.external_user.email}).follow()
-        new_key = UserProfile.objects.get(id=self.external_user.id).login_key
+        otp_count_after = OtpHash.objects.filter(user=self.external_user).count()
 
-        self.assertEqual(old_key, new_key)
-        self.assertEqual(len(mail.outbox), 1)  # a login key was sent
+        self.assertEqual(otp_count_after, otp_count_before + 1)
+        self.assertEqual(len(mail.outbox), 1)  # an OTP was sent
         self.assertContains(page, "We sent you an email with a one-time login URL. Please check your inbox.")
+
+    def test_invalid_otp_shows_error_message(self):
+        page = self.app.get("/otp/definitely-invalid-otp").follow()
+
+        self.assertContains(page, "Invalid login URL. Please request a new one below.")
+        self.assertIsInstance(page.context["user"], AnonymousUser)
+        self.assertNotContains(page, "Logout")
 
     @override_settings(
         OIDC_OP_AUTHORIZATION_ENDPOINT="https://oidc.example.com/auth",

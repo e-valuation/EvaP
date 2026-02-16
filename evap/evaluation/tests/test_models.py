@@ -787,7 +787,6 @@ class TestLoginUrlEmail(TestCase):
     def setUpTestData(cls):
         cls.other_user = baker.make(UserProfile, email="other@extern.com")
         cls.user = baker.make(UserProfile, email="extern@extern.com")
-        cls.user.ensure_valid_login_key()
 
         cls.evaluation = baker.make(Evaluation)
         baker.make(
@@ -800,7 +799,7 @@ class TestLoginUrlEmail(TestCase):
 
         cls.template = baker.make(EmailTemplate, plain_content="{{ login_url }}")
 
-        EmailTemplate.objects.filter(name="Login Key Created").update(plain_content="{{ user.login_url }}")
+        EmailTemplate.objects.filter(name="Login Key Created").update(plain_content="{{ login_url }}")
 
     @override_settings(PAGE_URL="https://example.com")
     def test_no_login_url_when_delegates_in_cc(self):
@@ -810,7 +809,7 @@ class TestLoginUrlEmail(TestCase):
         )
         self.assertEqual(len(mail.outbox), 2)
         self.assertEqual(mail.outbox[0].body, "")  # message does not contain the login url
-        self.assertEqual(mail.outbox[1].body, self.user.login_url)  # separate email with login url was sent
+        self.assertRegex(mail.outbox[1].body, r"^https://example\.com/otp/\w+$")
         self.assertEqual(len(mail.outbox[1].cc), 0)
         self.assertEqual(mail.outbox[1].to, [self.user.email])
 
@@ -821,7 +820,7 @@ class TestLoginUrlEmail(TestCase):
         )
         self.assertEqual(len(mail.outbox), 2)
         self.assertEqual(mail.outbox[0].body, "")  # message does not contain the login url
-        self.assertEqual(mail.outbox[1].body, self.user.login_url)  # separate email with login url was sent
+        self.assertIn("/otp/", mail.outbox[1].body)  # separate email with login url was sent
         self.assertEqual(len(mail.outbox[1].cc), 0)
         self.assertEqual(mail.outbox[1].to, [self.user.email])
 
@@ -831,7 +830,7 @@ class TestLoginUrlEmail(TestCase):
             [self.evaluation], [EmailTemplate.Recipients.CONTRIBUTORS], use_cc=True, request=None
         )
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(mail.outbox[0].body, self.user.login_url)  # message does contain the login url
+        self.assertIn("/otp/", mail.outbox[0].body)  # message does contain the login url
 
     def test_login_url_when_use_cc_is_false(self):
         # message is not sent to others in cc
@@ -840,7 +839,7 @@ class TestLoginUrlEmail(TestCase):
             [self.evaluation], [EmailTemplate.Recipients.CONTRIBUTORS], use_cc=False, request=None
         )
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(mail.outbox[0].body, self.user.login_url)  # message does contain the login url
+        self.assertIn("/otp/", mail.outbox[0].body)  # message does contain the login url
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])

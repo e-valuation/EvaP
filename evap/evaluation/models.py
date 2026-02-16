@@ -13,7 +13,7 @@ from typing import Any
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.hashers import check_password, is_password_usable, make_password
+from django.contrib.auth.hashers import PBKDF2PasswordHasher, check_password, is_password_usable, make_password
 from django.contrib.auth.models import BaseUserManager, Group, PermissionsMixin
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.postgres.fields import ArrayField
@@ -1869,12 +1869,6 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
         help_text=_("Technical user that represents a group of users."),
     )
 
-    # key for url based login of this user
-    MAX_LOGIN_KEY = 2**31 - 1
-
-    login_key = models.IntegerField(verbose_name=_("Login Key"), unique=True, blank=True, null=True)
-    login_key_valid_until = models.DateField(verbose_name=_("Login Key Validity"), blank=True, null=True)
-
     is_active = models.BooleanField(default=True, verbose_name=_("active"))
 
     notes = models.TextField(verbose_name=_("notes"), blank=True, default="", max_length=1024 * 1024)
@@ -2084,30 +2078,10 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
     def needs_login_key(self):
         return UserProfile.email_needs_login_key(self.email)
 
-    def ensure_valid_login_key(self):
-        if self.login_key and self.login_key_valid_until > date.today():
-            self.reset_login_key_validity()
-            return
-
-        while True:
-            key = secrets.choice(range(UserProfile.MAX_LOGIN_KEY))
-            try:
-                self.login_key = key
-                self.reset_login_key_validity()
-                break
-            except IntegrityError:
-                # unique constraint failed, the login key was already in use. Generate another one.
-                continue
-
-    def reset_login_key_validity(self):
-        self.login_key_valid_until = date.today() + timedelta(settings.LOGIN_KEY_VALIDITY)
-        self.save()
-
-    @property
-    def login_url(self):
-        if not self.needs_login_key:
-            return ""
-        return settings.PAGE_URL + reverse("evaluation:login_key_authentication", args=[self.login_key])
+    def generate_login_url(self, *, typeable: bool = False) -> str:
+        assert self.needs_login_key
+        otp = OtpHash.create(self, typeable=typeable)
+        return settings.PAGE_URL + reverse("evaluation:otp_authentication", kwargs={"otp": otp})
 
     def get_sorted_courses_responsible_for(self):
         return self.courses_responsible_for.order_by("semester__created_at", "name_de")
@@ -2129,6 +2103,80 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
             ).exclude(voters=self)
         )
         return sorted(evaluations_and_days_left, key=lambda tup: (tup[1], tup[0].full_name))
+
+
+class OtpHash(models.Model):
+    """Stores hashed one-time passwords (OTPs) for external user login via URL."""
+
+    _hasher = PBKDF2PasswordHasher()
+
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name="otp_hashes")
+    otp_hash = models.CharField(max_length=256, unique=True, verbose_name=_("Hashed OTP"))
+    valid_until = models.DateTimeField(verbose_name=_("Valid until"))
+
+    class Meta:
+        verbose_name = _("OTP hash")
+        verbose_name_plural = _("OTP hashes")
+
+    @classmethod
+    def create(cls, user: UserProfile, *, typeable: bool = False) -> str:
+        """Create a new OTP for the given user. Returns the raw OTP.
+
+        Enforces the per-user OTP limit.
+
+        If typeable is True, uses the TYPEABLE variants of
+        OTP_ALPHABET, OTP_LENGTH, and OTP_VALIDITY_HOURS.
+        """
+        # Keep only the newest (limit - 1) OTPs, delete everything else (expired + excess)
+        ids_to_keep = (
+            cls.objects.filter(user=user)
+            .order_by("-valid_until")
+            .values_list("id", flat=True)[: settings.MAX_OTPS_PER_USER - 1]
+        )
+        cls.objects.filter(user=user).exclude(id__in=ids_to_keep).delete()
+
+        if typeable:
+            alphabet = settings.OTP_ALPHABET_TYPEABLE
+            length = settings.OTP_LENGTH_TYPEABLE
+            validity = timedelta(hours=settings.OTP_VALIDITY_HOURS_TYPEABLE)
+        else:
+            alphabet = settings.OTP_ALPHABET
+            length = settings.OTP_LENGTH
+            validity = timedelta(hours=settings.OTP_VALIDITY_HOURS)
+
+        while True:
+            raw_otp = "".join(secrets.choice(alphabet) for _ in range(length))
+            try:
+                cls.objects.create(
+                    user=user,
+                    otp_hash=cls.hash_otp(raw_otp),
+                    valid_until=now() + validity,
+                )
+                return raw_otp
+            except IntegrityError:
+                # unique constraint failed, this OTP is already in use. Generate another one.
+                continue
+
+    @classmethod
+    def hash_otp(cls, otp: str) -> str:
+        # fixed iterations so that hashes are stable and can be queried for directly
+        # the salt needs to be static for the same reason, thus providing no additional security.
+        return cls._hasher.encode(otp, salt="otp", iterations=1_000_000)
+
+    @classmethod
+    def get(cls, otp: str) -> "OtpHash | None":
+        otp_hash = cls.hash_otp(otp)
+        try:
+            return cls.objects.select_related("user").get(otp_hash=otp_hash)
+        except cls.DoesNotExist:
+            return None
+
+    def is_valid(self) -> bool:
+        return self.valid_until >= now()
+
+    def invalidate(self) -> None:
+        self.valid_until = now() - timedelta(days=1)
+        self.save()
 
 
 def validate_template(value):
@@ -2280,9 +2328,8 @@ class EmailTemplate(models.Model):
         send_separate_login_url = False
         body_params["login_url"] = ""
         if user.needs_login_key:
-            user.ensure_valid_login_key()
             if not cc_addresses:
-                body_params["login_url"] = user.login_url
+                body_params["login_url"] = user.generate_login_url()
             else:
                 send_separate_login_url = True
 

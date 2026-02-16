@@ -1,7 +1,6 @@
 import itertools
 import os
 import random
-from datetime import date, timedelta
 from math import floor
 
 from django.conf import settings
@@ -16,6 +15,7 @@ from evap.evaluation.models import (
     Contribution,
     Course,
     CourseType,
+    OtpHash,
     Program,
     RatingAnswerCounter,
     Semester,
@@ -110,7 +110,8 @@ class Command(BaseCommand):
                 user.save()
 
         # Actually replace all the real user data
-        self.stdout.write("Replacing email addresses and login keys with fake ones...")
+        self.stdout.write("Replacing email addresses and deleting all OTPs...")
+        OtpHash.objects.all().delete()
         for user, name in zip(user_profiles, fake_usernames, strict=True):
             if user.email and user.email.split("@")[0] in Command.ignore_email_usernames:
                 continue
@@ -123,14 +124,6 @@ class Command(BaseCommand):
                 is_institution_domain = old_domain in Command.previous_institution_domains
                 new_domain = Command.new_institution_domain if is_institution_domain else Command.new_external_domain
                 user.email = (user.first_name_given + "." + user.last_name).lower() + "@" + new_domain
-
-            if user.login_key is not None:
-                # Create a new login key
-                user.login_key = None
-                user.valid_until = None
-                user.ensure_valid_login_key()
-                # Invalidate some keys
-                user.valid_until = date.today() + random.choice([1, -1]) * timedelta(365 * 100)  # nosec
 
             assert not user.has_usable_password()
 

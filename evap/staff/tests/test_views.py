@@ -28,6 +28,7 @@ from evap.evaluation.models import (
     ExamType,
     FaqQuestion,
     Infotext,
+    OtpHash,
     Program,
     Question,
     Questionnaire,
@@ -1525,17 +1526,18 @@ class TestLoginKeyExportView(WebTestStaffMode):
         cls.url = reverse("staff:evaluation_login_key_export", args=[evaluation.pk])
 
     def test_login_key_export_works_as_expected(self):
-        self.assertEqual(self.external_user.login_key, None)
-        self.assertEqual(self.internal_user.login_key, None)
+        self.assertEqual(OtpHash.objects.filter(user=self.external_user).count(), 0)
+        self.assertEqual(OtpHash.objects.filter(user=self.internal_user).count(), 0)
 
         response = self.app.get(self.url, user=self.manager)
 
-        self.external_user.refresh_from_db()
-        self.assertNotEqual(self.external_user.login_key, None)
-        self.assertEqual(self.internal_user.login_key, None)
+        # An OTP should have been created for the external user but not the internal one
+        self.assertEqual(OtpHash.objects.filter(user=self.external_user).count(), 1)
+        self.assertEqual(OtpHash.objects.filter(user=self.internal_user).count(), 0)
 
-        expected_string = f"Last name;First name;Email;Login key\n;;user@external.com;localhost:8000/key/{self.external_user.login_key}\n"
-        self.assertEqual(response.body.decode(), expected_string)
+        body = response.body.decode()
+        self.assertIn("Last name;First name;Email;Login key\n", body)
+        self.assertRegex(body, r"(?m)^;;user@external\.com;localhost:8000/otp/[A-Za-z0-9]{8}$")
 
 
 class TestEvaluationOperationView(WebTestStaffMode):
