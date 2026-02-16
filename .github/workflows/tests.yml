@@ -22,6 +22,7 @@ jobs:
       - uses: ./.github/setup_evap
         with:
           start-db: true
+          save-nix-store: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
 
       - name: Run tests
         run: coverage run manage.py test
@@ -78,6 +79,8 @@ jobs:
       - uses: nix-community/cache-nix-action@v7
         with:
           primary-key: nix-${{ runner.os }}-${{ hashFiles('**/*.nix', 'flake.lock', 'uv.lock', 'evap/development/manage_autocompletion.sh') }}-build_wheel
+          restore-prefixes-first-match: nix-${{ runner.os }}-${{ hashFiles('**/*.nix', 'flake.lock', 'uv.lock', 'evap/development/manage_autocompletion.sh') }}-
+          save: false
       - run: nix run .#build-dist
       - run: tar tvf dist/*.tar.gz
       - run: unzip -l dist/*.whl
@@ -215,9 +218,6 @@ jobs:
           path: deployment
 
       - uses: cachix/install-nix-action@v31
-      - uses: nix-community/cache-nix-action@v7
-        with:
-          primary-key: nix-${{ runner.os }}-${{ hashFiles('**/*.nix', 'flake.lock', 'uv.lock', 'evap/development/manage_autocompletion.sh') }}-backup_process
       - name: Start database
         working-directory: deployment
         run: nix run ../main#services -- --detached
