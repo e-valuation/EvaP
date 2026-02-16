@@ -229,16 +229,14 @@
                     <span class="fas fa-user"></span> {{ evaluation.dropout_count }}
                 </div>
             </div>
-            {% if dropout_questionnaire_results|length > 0 %}
             <div class="card-body">
-                {% for questionnaire_result in dropout_questionnaire_results %}
-                    {% include 'results_evaluation_detail_questionnaires.html' %}
-                {% endfor %}
+                {% if dropout_questionnaire_results|length > 0 %}
+                    {% for questionnaire_result in dropout_questionnaire_results %}
+                        {% include 'results_evaluation_detail_questionnaires.html' %}
+                    {% endfor %}
                 {% else %}
-                <i>
-                {% translate 'No additional answers were given.' %}
-                </i>
-            {% endif %}
+                    <i>{% translate 'No additional answers were given.' %}</i>
+                {% endif %}
             </div>
         </div>
     {% endif %}
