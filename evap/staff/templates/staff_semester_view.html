@@ -14,7 +14,7 @@
                 <a href="{% url 'staff:semester_edit' semester.id %}" class="btn btn-sm btn-secondary">{% translate 'Edit' %}</a>
                 <form reload-on-success method="POST" action="{% url 'staff:semester_make_active' %}" class="d-inline">
                     {% csrf_token %}
-                    <confirmation-modal type="submit" name="semester_id" value="{{ semester.id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% if semester.is_active %}{% translate 'This is the active semester.<br>'  %} {% endif %} {% translate 'The active semester is the semester that is initially opened for managers, reviewers, and grade uploaders. In the user profile form only the active semester\'s participations can be edited.' %}">
+                    <confirmation-modal type="submit" name="semester_id" value="{{ semester.id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% if semester.is_active %}{% translate 'This is the active semester.'  %} <br> {% endif %} {% blocktranslate%} The active semester is the semester that is initially opened for managers, reviewers, and grade uploaders. In the user profile form only the active semester's participations can be edited. {%endblocktranslate%}">
                         <span slot="title">{% translate 'Make this the active semester' %}</span>
                         <span slot="action-text">{% translate 'Make active' %}</span>
                         <span slot="question">
