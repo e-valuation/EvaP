@@ -23,7 +23,10 @@ export class StaffQuestionnaireForm {
     };
 
     private enableAndCheck = (checkbox: HTMLInputElement) => {
-        checkbox.checked = true;
+        // do not override currently input user selection, if there is no need to
+        if (checkbox.disabled) {
+            checkbox.checked = true;
+        }
         checkbox.disabled = false;
     };
 
@@ -99,27 +102,10 @@ export class StaffQuestionnaireForm {
 
     private initialize = () => {
         // Initialize the state of all checkboxes based on current question types and questionnaire type
-        const questionnaireType = saneParseInt(this.questionnaireTypeSelect.value);
+        const questionTypeSelects = this.questionTable.querySelectorAll<HTMLSelectElement>("td.question-type select");
 
-        document.querySelectorAll(".question-type").forEach(questionTypeCell => {
-            const questionTypeSelect = selectOrError<HTMLSelectElement>("select", questionTypeCell);
-            const questionType = saneParseInt(questionTypeSelect.value);
-
-            if (questionTypeSelect.value === "") {
-                return;
-            }
-
-            const checkboxes = questionTypeCell.querySelectorAll("input[type=checkbox]");
-            const isTextOrHeading = questionType === QUESTION_TYPE_TEXT || questionType === QUESTION_TYPE_HEADING;
-
-            checkboxes.forEach(checkbox => {
-                const checkboxElement = checkbox as HTMLInputElement;
-                const isCountsForGrade = checkboxElement.classList.contains("counts-for-grade-checkbox");
-
-                if (isTextOrHeading || (questionnaireType === QUESTIONNAIRE_TYPE_DROPOUT && isCountsForGrade)) {
-                    checkboxElement.disabled = true;
-                }
-            });
+        questionTypeSelects.forEach(select => {
+            select.dispatchEvent(new Event("change", { bubbles: true }));
         });
     };
 }
