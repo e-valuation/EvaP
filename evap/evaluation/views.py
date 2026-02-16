@@ -194,6 +194,7 @@ def contact(request):
             logger.exception("An exception occurred when sending the following contact email:\n%s\n", mail.message())
             raise
 
+    # 204 or helper method no_content
     return HttpResponseBadRequest()
 
 
