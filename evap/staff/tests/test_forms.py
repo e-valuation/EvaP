@@ -36,6 +36,7 @@ from evap.staff.forms import (
     EvaluationCopyForm,
     EvaluationEmailForm,
     EvaluationForm,
+    QuestionForm,
     QuestionnaireForm,
     UserForm,
 )
@@ -1149,3 +1150,53 @@ class EvaluationCopyFormTests(TestCase):
         copied_evaluation = form.save()
         self.assertNotEqual(copied_evaluation, self.evaluation)
         self.assertEqual(Evaluation.objects.count(), 2)
+
+
+class QuestionFormTests(TestCase):
+    def test_allows_additional_textanswers_persistence_after_type_change(self):
+        """
+        Test that allows_additional_textanswers can be changed and persisted correctly
+        even after changing the question type from TEXT/HEADING to a Likert type.
+        Regression test for #2539.
+        """
+        question = baker.make(
+            Question,
+            questionnaire__type=Questionnaire.Type.TOP,
+            type=QuestionType.TEXT,
+            allows_additional_textanswers=False,
+        )
+
+        # First save: set allows_additional_textanswers to False
+        form_data = get_form_data_from_instance(QuestionForm, question)
+        self.assertFalse(form_data["allows_additional_textanswers"])
+
+        form = QuestionForm(form_data, instance=question)
+        self.assertTrue(form.is_valid())
+        form.save()
+
+        question.refresh_from_db()
+        self.assertFalse(question.allows_additional_textanswers)
+
+        form_data = get_form_data_from_instance(QuestionForm, question)
+        form_data["type"] = QuestionType.POSITIVE_LIKERT
+        form_data["allows_additional_textanswers"] = True
+
+        form = QuestionForm(form_data, instance=question)
+        self.assertTrue(form.is_valid())
+        form.save()
+
+        question.refresh_from_db()
+        self.assertEqual(question.type, QuestionType.POSITIVE_LIKERT)
+        self.assertTrue(question.allows_additional_textanswers)
+
+    def test_clean_for_dropout_questionnaire(self):
+        dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
+        question = baker.make(Question, questionnaire=dropout_questionnaire, type=QuestionType.POSITIVE_LIKERT)
+
+        form_data = get_form_data_from_instance(QuestionForm, question)
+        form_data["counts_for_grade"] = True
+
+        form = QuestionForm(form_data, instance=question)
+        # The clean method should override counts_for_grade to False
+        self.assertTrue(form.is_valid())
+        self.assertFalse(form.cleaned_data["counts_for_grade"])

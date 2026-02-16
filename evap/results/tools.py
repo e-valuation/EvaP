@@ -324,7 +324,7 @@ def average_grade_questions_distribution(results):
         [
             (unipolarized_distribution(result), result.count_sum)
             for result in results
-            if result.question.is_grade_question
+            if result.question.is_grade_question and result.question.counts_for_grade
         ]
     )
 
@@ -334,7 +334,7 @@ def average_non_grade_rating_questions_distribution(results):
         [
             (unipolarized_distribution(result), result.count_sum)
             for result in results
-            if result.question.is_non_grade_rating_question
+            if result.question.is_non_grade_rating_question and result.question.counts_for_grade
         ]
     )
 
@@ -393,7 +393,9 @@ def calculate_average_distribution(evaluation):
     grouped_results = defaultdict(list)
     for contribution_result in get_results(evaluation).contribution_results:
         for questionnaire_result in contribution_result.questionnaire_results:
-            if not questionnaire_result.questionnaire.is_dropout:  # dropout questionnaires are not counted
+            if questionnaire_result.questionnaire.is_dropout:  # dropout questionnaires are not counted
+                assert not any(result.question.counts_for_grade for result in questionnaire_result.question_results)
+            if not questionnaire_result.questionnaire.is_dropout:
                 grouped_results[contribution_result.contributor].extend(questionnaire_result.question_results)
 
     evaluation_results = grouped_results.pop(None, [])
@@ -413,6 +415,8 @@ def calculate_average_distribution(evaluation):
                         ),
                     ]
                 ),
+                # The weight of this contributors grade is supposed to represent the number of students the
+                # contributor interacted with, which we derive from the max answer count, independently of counts_for_grades.
                 max(
                     (result.count_sum for result in contributor_results if result.question.is_rating_question),
                     default=0,

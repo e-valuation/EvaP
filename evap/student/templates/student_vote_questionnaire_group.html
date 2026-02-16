@@ -35,6 +35,9 @@
                         {% if field|is_choice_field %}
                             <div class="col-question col-lg-4 col-xl-5 d-flex justify-content-between{% if field.errors %} choice-error{% endif %}">
                                 <span class="me-1">
+                                    {% if not field.field.widget.attrs.counts_for_grade %}
+                                        <span class="fas fa-circle-minus icon-gray" data-bs-toggle="tooltip" title="{% translate "This question does not count toward the evaluation's grade" %}"></span>
+                                    {% endif %}
                                     {{ field.label }}
                                 </span>
                                 {% if allows_textanswer %}

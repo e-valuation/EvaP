@@ -29,12 +29,14 @@ class TextAnswerField(forms.CharField):
 
 
 class RatingAnswerField(forms.TypedChoiceField):
-    def __init__(self, widget_choices, *args, allows_textanswer=False, **kwargs):
+    def __init__(self, widget_choices, *args, allows_textanswer, counts_for_grade, **kwargs):
         self.allows_textanswer = allows_textanswer
+        self.counts_for_grade = counts_for_grade
         kwargs["coerce"] = int
         kwargs["widget"] = forms.RadioSelect(
             attrs={
                 "allows_textanswer": self.allows_textanswer,
+                "counts_for_grade": self.counts_for_grade,
                 "choices": widget_choices,
             }
         )
@@ -47,6 +49,7 @@ class RatingAnswerField(forms.TypedChoiceField):
             choices=zip(CHOICES[question.type].values, CHOICES[question.type].names, strict=True),
             label=question.text,
             allows_textanswer=question.allows_additional_textanswers,
+            counts_for_grade=question.counts_for_grade,
         )
 
 
