@@ -192,26 +192,28 @@ class EvaluationGridLiveTest(LiveServerTest):
         )
 
         with self.enter_staff_mode():
-            self.selenium.get(self.reverse("staff:index"))
-            self.set_page_language("de")
-
+            # self.selenium.get(self.reverse("staff:index"))
             self.selenium.get(self.reverse("staff:semester_view", args=[test_semester.id]))
-            self.wait.until(visibility_of_element_located((By.CSS_SELECTOR, "#evaluation-table .col-order-asc")))
+            with self.wait_until_page_reloads():
+                self.set_page_language("de")
 
+            # self.wait.until(visibility_of_element_located((By.CSS_SELECTOR, "#evaluation-table .col-order-asc")))
             table = self.selenium.find_element(By.ID, "evaluation-table").find_elements(
                 By.XPATH, "//tbody//child::td[@data-col='name']"
             )
 
+            breakpoint()
             self.assertEqual(table[0].get_attribute("data-order"), "ÄB – Evaluation 2")
             self.assertEqual(table[1].get_attribute("data-order"), "AE – Evaluation 1")
             self.assertEqual(table[2].get_attribute("data-order"), "ÜB – Evaluation 4")
             self.assertEqual(table[3].get_attribute("data-order"), "UE – Evaluation 3")
             self.assertEqual(table[4].get_attribute("data-order"), "Z – Evaluation 5")
 
-            self.selenium.get(self.reverse("staff:index"))
-            self.set_page_language("en")
+            # self.selenium.get(self.reverse("staff:index"))
+            with self.wait_until_page_reloads():
+                self.set_page_language("en")
 
-            self.selenium.get(self.reverse("staff:semester_view", args=[test_semester.id]))
+            # self.selenium.get(self.reverse("staff:semester_view", args=[test_semester.id]))
             self.wait.until(visibility_of_element_located((By.ID, "evaluation-table")))
 
             toggle_sort_button = self.selenium.find_element(By.XPATH, "//thead//th[@data-col='name']")
