@@ -220,7 +220,7 @@
         </div>
     {% endif %}
 
-    {% if evaluation.is_dropout_allowed or evaluation.dropout_count > 0 or dropout_questionnaire_results %}
+    {% if evaluation.dropout_count > 0 %}
         <div class="card card-outline-primary mb-3">
             <div class="card-header d-flex flex-row justify-content-between">
                 <span>{% translate 'Dropout' %}</span>
@@ -230,9 +230,13 @@
                 </div>
             </div>
             <div class="card-body">
-                {% for questionnaire_result in dropout_questionnaire_results %}
-                    {% include 'results_evaluation_detail_questionnaires.html' %}
-                {% endfor %}
+                {% if dropout_questionnaire_results|length > 0 %}
+                    {% for questionnaire_result in dropout_questionnaire_results %}
+                        {% include 'results_evaluation_detail_questionnaires.html' %}
+                    {% endfor %}
+                {% else %}
+                    <i>{% translate 'No additional answers were given.' %}</i>
+                {% endif %}
             </div>
         </div>
     {% endif %}
