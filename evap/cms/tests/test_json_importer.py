@@ -11,7 +11,7 @@ from model_bakery import baker
 from pydantic import ValidationError
 
 import evap.cms.fixtures
-from evap.cms.json_importer import ImportDict, JSONImporter, NameChange, WarningMessage, _clean_whitespaces
+from evap.cms.json_importer import ImportDict, JSONImporter, NameChange, WarningMessage, _clean_whitespaces_and_hyphens
 from evap.evaluation.models import (
     Contribution,
     Course,
@@ -25,7 +25,6 @@ from evap.evaluation.models import (
 )
 from evap.evaluation.models_logging import LogEntry
 from evap.evaluation.tests.tools import assert_no_database_modifications
-from evap.staff.importers.json import ImportDict, JSONImporter, NameChange, WarningMessage, _clean_whitespaces_and_hyphens
 
 EXAMPLE_DATA = json.loads(
     Path(evap.cms.fixtures.__file__).with_name("import_example_data.json").read_text(encoding="utf-8")
