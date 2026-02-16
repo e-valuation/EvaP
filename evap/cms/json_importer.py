@@ -193,6 +193,7 @@ def _clean_whitespaces_and_hyphens(text: str) -> str:
     """Normalize to single space characters and en-dashes."""
     return re.sub(r"\s+", " ", text.strip()).replace(" - ", " – ")
 
+
 T = typing.TypeVar("T", CourseType, ExamType, Program)
 
 
@@ -242,7 +243,7 @@ class JSONImporter:
         self.exam_type_cache = ImportCache(ExamType)
         self.program_cache = ImportCache(Program)
         self.statistics = ImportStatistics()
-        
+
         # raw events
         self.events_by_gguid: dict[str, ImportEvent] = {}
         # courses already parsed as events
@@ -250,7 +251,7 @@ class JSONImporter:
 
     def get_main_evaluation(self, exam_event: ImportEvent) -> ImportEvent | None:
         # expects exam evaluation as input
-        assert(len(exam_event["relatedevents"]) == 1)
+        assert len(exam_event["relatedevents"]) == 1
         return self.events_by_gguid.get(exam_event["relatedevents"][0]["gguid"])
 
     def _extract_number_in_name(self, name: str, wanted_name: str) -> int | None:
