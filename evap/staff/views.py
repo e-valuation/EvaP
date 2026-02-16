@@ -70,6 +70,7 @@ from evap.evaluation.tools import (
     StrOrPromise,
     get_object_from_dict_pk_entry_or_logged_40x,
     get_parameter_from_url_or_session,
+    get_string_from_url_or_session,
     sort_formset,
     temporary_receiver,
 )
@@ -1816,29 +1817,50 @@ def evaluation_preview(request, evaluation_id):
 
 @manager_required
 def questionnaire_index(request):
-    filter_questionnaires = get_parameter_from_url_or_session(request, "filter_questionnaires")
+    filters = ["all", "visible", "archived"]
+    filter_questionnaires = get_string_from_url_or_session(request, "filter_questionnaires", filters[0])
+    if filter_questionnaires not in filters:
+        raise SuspiciousOperation
 
     prefetch_list = ("questions", "contributions__evaluation")
-    general_questionnaires = Questionnaire.objects.general_questionnaires().prefetch_related(*prefetch_list)
-    contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().prefetch_related(*prefetch_list)
-    dropout_questionnaires = Questionnaire.objects.dropout_questionnaires().prefetch_related(*prefetch_list)
+    questionnaires = [
+        Questionnaire.objects.general_questionnaires().prefetch_related(*prefetch_list),
+        Questionnaire.objects.contributor_questionnaires().prefetch_related(*prefetch_list),
+        Questionnaire.objects.dropout_questionnaires().prefetch_related(*prefetch_list),
+    ]
 
-    if filter_questionnaires:
-        general_questionnaires = general_questionnaires.exclude(visibility=Questionnaire.Visibility.HIDDEN)
-        contributor_questionnaires = contributor_questionnaires.exclude(visibility=Questionnaire.Visibility.HIDDEN)
+    match filter_questionnaires:
+        case "all":
+            questionnaires = [q_type.exclude(visibility=Questionnaire.Visibility.ARCHIVED) for q_type in questionnaires]
+        case "visible":
+            questionnaires = [
+                q_type.exclude(visibility__in=[Questionnaire.Visibility.ARCHIVED, Questionnaire.Visibility.HIDDEN])
+                for q_type in questionnaires
+            ]
+        case "archived":
+            questionnaires = [q_type.filter(visibility=Questionnaire.Visibility.ARCHIVED) for q_type in questionnaires]
+
+    # archived questionnaires should be shown last, then use specified order
+    questionnaires = [
+        q_type.order_by(
+            "order",
+            "pk",
+        )
+        for q_type in questionnaires
+    ]
 
     general_questionnaires_top = [
-        questionnaire for questionnaire in general_questionnaires if questionnaire.is_above_contributors
+        questionnaire for questionnaire in questionnaires[0] if questionnaire.is_above_contributors
     ]
     general_questionnaires_bottom = [
-        questionnaire for questionnaire in general_questionnaires if questionnaire.is_below_contributors
+        questionnaire for questionnaire in questionnaires[0] if questionnaire.is_below_contributors
     ]
 
     template_data = {
         "general_questionnaires_top": general_questionnaires_top,
         "general_questionnaires_bottom": general_questionnaires_bottom,
-        "contributor_questionnaires": contributor_questionnaires,
-        "dropout_questionnaires": dropout_questionnaires,
+        "contributor_questionnaires": questionnaires[1],
+        "dropout_questionnaires": questionnaires[2],
         "filter_questionnaires": filter_questionnaires,
     }
     return render(request, "staff_questionnaire_index.html", template_data)
@@ -2019,7 +2041,7 @@ def questionnaire_new_version(request, questionnaire_id):
                 # Change old name before checking Form.
                 old_questionnaire.name_de = new_name_de
                 old_questionnaire.name_en = new_name_en
-                old_questionnaire.visibility = Questionnaire.Visibility.HIDDEN
+                old_questionnaire.visibility = Questionnaire.Visibility.ARCHIVED
                 old_questionnaire.save()
 
                 if not form.is_valid() or not formset.is_valid():
