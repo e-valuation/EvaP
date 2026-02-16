@@ -22,7 +22,7 @@ jobs:
       - uses: ./.github/setup_evap
         with:
           start-db: true
-          save-nix-store: ${{ true || (github.event_name == 'push' && github.ref_name == 'main') }}
+          save-nix-store: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
 
       - name: Run tests
         run: coverage run manage.py test
