@@ -373,10 +373,11 @@ class ReadyForEditorsOperation(EvaluationOperation):
             ).format(len(evaluations)),
         )
         if email_template:
-            evaluations_by_responsible: dict[UserProfile, list[Evaluation]] = defaultdict(list)
-            for evaluation in evaluations:
-                for responsible in evaluation.course.responsibles.all():
-                    evaluations_by_responsible[responsible].append(evaluation)
+            evaluations_by_responsible = unordered_groupby(
+                (responsible, evaluation)
+                for evaluation in evaluations
+                for responsible in evaluation.course.responsibles.all()
+            )
 
             for responsible, responsible_evaluations in evaluations_by_responsible.items():
                 body_params = {"user": responsible, "evaluations": responsible_evaluations}
