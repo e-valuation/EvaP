@@ -371,10 +371,10 @@
                 const voteArea = document.getElementById(`vote-area-${contributorId}`);
                 const markNoAnswerModal = voteArea.querySelector(".mark-no-answer-modal");
                 const collapseToggle = voteArea.closest(".collapsible").querySelector(".collapse-toggle");
+                const getTextAreaAnswerFields = () => voteArea.querySelectorAll(".vote-inputs textarea");
 
                 const collapseEmptyTextanswerFields = () => {
-                    const textareaAnswerFields = voteArea.querySelectorAll(".vote-inputs textarea");
-                    textareaAnswerFields.forEach(textareaAnswerField => {
+                    getTextAreaAnswerFields().forEach(textareaAnswerField => {
                         if (textareaAnswerField.value.trim().length > 0) return;
                         const parent = textareaAnswerField.closest('.row-question');
                         const button = parent.querySelector(".btn-textanswer");
@@ -390,8 +390,7 @@
                         clearChoiceError(radioInput);
                     });
 
-                    const textareaAnswerFields = voteArea.querySelectorAll(".vote-inputs textarea");
-                    textareaAnswerFields.forEach((textarea) => {
+                    getTextAreaAnswerFields().forEach((textarea) => {
                         textarea.value = "";
                         // dispatch the event, so that the button to open the textarea changes back to the empty variant
                         textarea.dispatchEvent(new Event("input"));
@@ -410,8 +409,7 @@
                     collapseEmptyTextanswerFields();
                 }
                 markNoAnswerButton.addEventListener("click", () => {
-                    const textareaAnswerFields = voteArea.querySelectorAll(".vote-inputs textarea");
-                    const shouldShowModal = textareaAnswerFields.values().some(textarea => textarea.value.trim().length > 0);
+                    const shouldShowModal = getTextAreaAnswerFields().values().some(textarea => textarea.value.trim().length > 0);
 
                     if (shouldShowModal) {
                         markNoAnswerModal.showModal();
@@ -434,8 +432,7 @@
                             enableMarkNoAnswerButton();
                         });
                     });
-                const textareaAnswerFields = voteArea.querySelectorAll(".vote-inputs textarea");
-                textareaAnswerFields.forEach((textarea) => {
+                getTextAreaAnswerFields().forEach((textarea) => {
                     textarea.addEventListener("input", enableMarkNoAnswerButton);
                 });
 
