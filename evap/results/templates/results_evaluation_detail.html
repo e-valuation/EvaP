@@ -234,12 +234,12 @@
                 {% for questionnaire_result in dropout_questionnaire_results %}
                     {% include 'results_evaluation_detail_questionnaires.html' %}
                 {% endfor %}
-            </div>
-            {% else %}
-            <i>
+                {% else %}
+                <i>
                 {% translate 'No additional answers were given.' %}
-            </i>
+                </i>
             {% endif %}
+            </div>
         </div>
     {% endif %}
 
