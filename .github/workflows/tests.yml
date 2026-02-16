@@ -252,9 +252,25 @@ jobs:
           EVAP_SKIP_APACHE_STEPS: true
           DJANGO_SETTINGS_MODULE: deployment_settings
 
+  nix-files-changed:
+    runs-on: ubuntu-22.04
+    name: Check whether nix files changed
+    outputs:
+      changed: ${{ steps.output-step.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v6
+      - run: git fetch origin main --depth 1
+      - id: output-step
+        run: |
+          set +e # don't crash if next command exits with nonzero
+          git diff --exit-code origin/main -- flake.nix flake.lock uv.lock
+          echo "changed=$?" | tee --append "$GITHUB_OUTPUT"
+
   macos-nix-build:
     runs-on: macos-15
     name: Build nix environment on MacOS
+    needs: [ "nix-files-changed" ]
+    if: needs.nix-files-changed.outputs.changed != 0
     steps:
       - uses: actions/checkout@v6
         with:
