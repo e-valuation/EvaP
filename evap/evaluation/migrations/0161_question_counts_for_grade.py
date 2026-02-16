@@ -18,7 +18,7 @@ def set_initial_values(apps, _schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("evaluation", "0159_semester_cms_name_semester_default_course_end_date"),
+        ("evaluation", "0160_evaluation_staff_notes"),
     ]
 
     operations = [
