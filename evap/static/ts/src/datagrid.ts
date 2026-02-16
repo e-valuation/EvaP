@@ -187,11 +187,19 @@ abstract class DataGrid {
             header.classList.add(`col-order-${ordering}`);
         }
 
+        const Collator = new Intl.Collator(document.documentElement.lang, { caseFirst: "false" });
         this.rows.sort((a, b) => {
             for (const [column, order] of this.state.order) {
-                if (a.orderValues.get(column)! < b.orderValues.get(column)!) {
+                const valueA = a.orderValues.get(column);
+                const valueB = b.orderValues.get(column);
+                if (typeof valueA === "string") {
+                    assert(typeof valueB === "string");
+                    return order === "asc" ? Collator.compare(valueA, valueB) : Collator.compare(valueB, valueA);
+                }
+                assert(typeof valueB !== "string");
+                if (valueA! < valueB!) {
                     return order === "asc" ? -1 : 1;
-                } else if (a.orderValues.get(column)! > b.orderValues.get(column)!) {
+                } else if (valueA! > valueB!) {
                     return order === "asc" ? 1 : -1;
                 }
             }
