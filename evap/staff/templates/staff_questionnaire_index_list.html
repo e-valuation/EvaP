@@ -29,7 +29,9 @@
                                     <strong class="questionnaire-name">{{ questionnaire.name }}</strong>
                                     <br />
                                     {% blocktranslate count questionnaire.questions.count as count %}{{ count }} question{% plural %}{{ count }} questions{% endblocktranslate %},
-                                    {% blocktranslate count questionnaire.contributions.count as count %}used {{ count }} time{% plural %}used {{ count }} times{% endblocktranslate %}
+                                    <a href="{% url 'staff:questionnaire_usage' questionnaire.id %}">
+                                        {% blocktranslate count count=questionnaire.contributions.count %}used {{ count }} time{% plural %}used {{ count }} times{% endblocktranslate %}
+                                    </a>
                                 </td>
                                 <td>
                                     {% if type != 'contributor' %}

@@ -4,7 +4,11 @@
     {{ block.super }}
     {% if questionnaire %}
         <li class="breadcrumb-item"><a href="{% url 'staff:questionnaire_index' %}">{% translate 'Questionnaires' %}</a></li>
-        <li class="breadcrumb-item">{{ questionnaire.name }}</li>
+        {% if disable_breadcrumb_questionnaire %}
+            <li class="breadcrumb-item">{{ questionnaire.name }}</li>
+        {% else %}
+            <li class="breadcrumb-item"><a href="{% url 'staff:questionnaire_edit' questionnaire.id %}">{{ questionnaire.name }}</a></li>
+        {% endif %}
     {% else %}
         <li class="breadcrumb-item">{% translate 'Questionnaires' %}</li>
     {% endif %}
