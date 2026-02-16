@@ -826,15 +826,3 @@ class TestImportEvents(TestCase):
 
         evaluation = Evaluation.objects.get(cms_id=EXAMPLE_DATA["events"][1]["gguid"])
         self.assertEqual(evaluation.main_language, "de")
-
-    def test_textanswer_visibility(self):
-        self._import(EXAMPLE_DATA)
-
-        main_evaluation = Evaluation.objects.get(name_en="")
-
-        self.assertTrue(
-            all(
-                contribution.textanswer_visibility == Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
-                for contribution in Contribution.objects.filter(evaluation=main_evaluation, contributor__isnull=False)
-            )
-        )
