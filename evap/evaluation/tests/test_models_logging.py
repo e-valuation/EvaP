@@ -216,7 +216,7 @@ class TestLoggedModel(TestCase):
             course.programs.add(program)
 
     def test_clear_field(self):
-        """Regression test for #2603"""
+        """When clearing a field, the log should say "<none>" as the new value. (Regression test for #2603)"""
         exam_type = baker.make(ExamType)
         evaluation = baker.make(Evaluation, exam_type=exam_type)
 
@@ -231,7 +231,7 @@ class TestLoggedModel(TestCase):
         )
 
     def test_set_field_from_none(self):
-        """Regression test for #2603"""
+        """Logging when setting the value of a field from None. (Regression test for #2603)"""
         evaluation = baker.make(Evaluation, exam_type=None)
         exam_type = baker.make(ExamType)
 
