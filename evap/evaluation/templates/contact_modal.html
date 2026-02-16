@@ -13,8 +13,12 @@
     </div>
 </div>
 
-<form>
-    <confirmation-modal>
+{# custom_success_form #}
+<form custom-success id="contact-modal-form" method="POST" action="{% url 'evaluation:contact' %}">
+    {% csrf_token %}
+    <input hidden name="title" value="{{ title }}"/>
+
+    <confirmation-modal type="submit">
         <span slot="title">{{ title }}</span>
         <span slot="question">{{ teaser }}</span>
         <span slot="action-text">{% translate 'Send Message' %}</span>
@@ -24,9 +28,9 @@
                 <label for="{{ modal_id }}SenderName" class="control-label my-auto pe-4">{% translate 'Sender' %}</label>
                 {% if modal_id == "feedbackModal" and allow_anonymous_feedback_messages %}
                     <div class="btn-group text-wrap" role="group" aria-label="{{ modal_id }} Radio Group">
-                        <input type="radio" class="btn-check" name="{{ modal_id }}RadioGroup" id="{{ modal_id }}SenderName" checked>
+                        <input type="radio" class="btn-check" name="anonymous" value="false" id="{{ modal_id }}SenderName" checked>
                         <label class="btn btn-sm btn-outline-primary text-break" for="{{ modal_id }}SenderName">{{ user.full_name }}</label>
-                        <input type="radio" class="btn-check" name="{{ modal_id }}RadioGroup" id="{{ modal_id }}AnonymousName">
+                        <input type="radio" class="btn-check" name="anonymous" value="true" id="{{ modal_id }}AnonymousName">
                         <label class="btn btn-sm btn-outline-primary text-break" for="{{ modal_id }}AnonymousName">{% translate 'Anonymous' %}</label>
                     </div>
                 {% else %}
@@ -35,16 +39,27 @@
                 <label for="{{ modal_id }}Subject" class="control-label my-auto pe-4 text-break">{% translate 'Subject' %}</label>
                 <input type="text" class="form-control mx-auto" id="{{ modal_id }}Subject" disabled value="{{ title }}"/>
             </div>
-            <textarea autofocus class="form-control modal-textfield my-4" id="{{ modal_id }}MessageText"></textarea>
+            <textarea autofocus class="form-control modal-textfield my-4" id="{{ modal_id }}MessageText" name="message"></textarea>
         </div>
 
         <button type="button" class="btn btn-dark" slot="show-button">{{ show_button_text }}</button>
     </confirmation-modal>
 </form>
-<script type="module">
-    import { ContactModalLogic } from "{% static 'js/contact_modal.js' %}";
+<script>
+    const SUCCESS_MESSAGE_TIMEOUT = 100000;
 
-    new ContactModalLogic("{{ modal_id }}", "{{ title|escapejs }}").attach();
+    const actionButtonElement = () => document.querySelector("button[data-event-type=confirm]");
+    const successMessageModal = new bootstrap.Modal(document.querySelector("#successMessageModal_{{ modal_id }}"));
+    const messageTextElement = document.querySelector("#{{ modal_id }}MessageText");
+
+    function onSuccess() {
+        successMessageModal.show();
+        messageTextElement.value = "";
+
+        setInterval(() => successMessageModal.hide(), SUCCESS_MESSAGE_TIMEOUT);
+    }
+    const contactModal = document.querySelector("#contact-modal-form");
+    contactModal.addEventListener("submit-success", onSuccess);
 </script>
 
 
