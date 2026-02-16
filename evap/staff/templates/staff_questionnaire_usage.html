@@ -27,5 +27,7 @@
                 </table>
             </div>
         </div>
+    {% empty %}
+        <div class="alert alert-warning">{% translate "This questionnaire hasn't been used yet." %}</div>
     {% endfor %}
 {% endblock %}
