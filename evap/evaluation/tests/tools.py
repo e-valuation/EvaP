@@ -358,11 +358,10 @@ class LiveServerTest(SeleniumTestCase):
         super().setUpClass()
         cls.selenium.set_window_size(*cls.window_size)
 
-    @contextmanager
     def set_page_language(self, language: str):
         language_button = self.selenium.find_element(
             By.XPATH,
-            f"//form[@action='/set_lang']//button[@data-set-spinner-icon='span-set-language-${language}']//parent::form",
+            f"//form[@action='/set_lang']//button[@data-set-spinner-icon='span-set-language-{language}']//parent::form",
         )
 
         language_button.submit()
