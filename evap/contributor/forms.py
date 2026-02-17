@@ -88,7 +88,7 @@ class EvaluationForm(forms.ModelForm):
 
         if self.instance.cms_evaluation_links.filter(is_active=True).exists():
             self.fields["participants"].disabled = True
-            self.cms_disclaimer = _("Participants are regularly updated with exam registrations from the CMS.")
+            self.cms_disclaimer = _("Participants are regularly updated with registrations from the CMS.")
 
     def clean(self):
         super().clean()
