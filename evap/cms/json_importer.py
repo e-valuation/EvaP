@@ -556,7 +556,17 @@ class JSONImporter:
                 )
             )
 
-        participants = self._get_user_profiles(data["students"]) if "students" in data else []
+        # Collect participants from all linked evaluations
+        if evaluation and evaluation.evaluation_links.count() > 1:
+            cms_ids = [evaluation_link.cms_id for evaluation_link in evaluation.evaluation_links.all()]
+            student_data = []
+            for cms_id in cms_ids:
+                event = self.events_by_gguid[cms_id]
+                if "students" in event:
+                    student_data.extend(event["students"])
+        else:
+            student_data = data["students"] if "students" in data else []
+        participants = self._get_user_profiles(student_data) if student_data else []
 
         defaults = {
             "exam_type": exam_type,
@@ -579,7 +589,9 @@ class JSONImporter:
             )
             EvaluationLink.objects.create(evaluation=evaluation, cms_id=data["gguid"])
 
-        allow_evaluation_changes = evaluation.state == Evaluation.State.NEW
+        # Only allow changes for new evaluations and if they have not more than one evaluation link
+        # Otherwise, data may already have been changed or be ambiguous
+        allow_evaluation_changes = evaluation.state == Evaluation.State.NEW and evaluation.evaluation_links.count() == 1
         direct_changes = update_with_changes(evaluation, defaults, dry_run=not allow_evaluation_changes)
         assert not direct_changes or not created
         if direct_changes and allow_evaluation_changes:
@@ -587,6 +599,7 @@ class JSONImporter:
         elif direct_changes:
             self.statistics.attempted_evaluation_changes.append(evaluation)
 
+        # Only allow participant changes for evaluations that have not yet started
         allow_participant_changes = evaluation.state < Evaluation.State.IN_EVALUATION
         participant_changes = set(evaluation.participants.all()) != set(participants)
         if participant_changes and allow_participant_changes:
@@ -595,7 +608,11 @@ class JSONImporter:
         elif participant_changes:
             self.statistics.attempted_participant_changes.append(evaluation)
 
-        allow_contributor_changes = evaluation.state == Evaluation.State.NEW
+        # Only allow changes for new evaluations and if they have not more than one evaluation link
+        # Otherwise, data may already have been changed or be ambiguous
+        allow_contributor_changes = (
+            evaluation.state == Evaluation.State.NEW and evaluation.evaluation_links.count() == 1
+        )
         any_lecturers_changed = False
         if allow_contributor_changes and "lecturers" not in data:
             self.statistics.warnings.append(WarningMessage(obj=evaluation.full_name, message="No contributors defined"))
