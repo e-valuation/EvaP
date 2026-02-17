@@ -479,6 +479,10 @@ class EvaluationForm(forms.ModelForm):
         if self.instance.pk:
             self.instance.old_course = self.instance.course
 
+        if self.instance.pk and self.instance.evaluation_links.filter(is_active=True).exists():
+            self.fields["participants"].disabled = True
+            self.cms_disclaimer = _("Participants are regularly updated with registrations from the CMS.")
+
     def validate_unique(self):
         super().validate_unique()
         # name_xy and course are unique together. This will be treated as a non-field-error since two
