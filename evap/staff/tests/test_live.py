@@ -105,9 +105,9 @@ class EvaluationEditLiveTest(LiveServerTest):
         search_input.clear()
         search_input.send_keys("course name")
 
-        self.wait.until(
-            visibility_of_element_located(
-                (By.XPATH, "//button[@slot='show-button' and @aria-label='Create exam evaluation']")
+        self.assertIsNotNone(
+            self.selenium.find_element(
+                By.XPATH, "//confirmation-modal/button[@slot='show-button' and contains(.,'Create exam evaluation')]"
             )
         )
 
