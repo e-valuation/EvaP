@@ -1,0 +1,22 @@
+<div class="contributor-grid-row heading-row course-row">
+    <div data-col="name" data-order="{{ course.name|lower }}">
+        <div>
+            <div>
+                {{ course.name }}
+            </div>
+            {% for program in course.programs.all %}
+                <span class="badge bg-primary">{{ program }}</span>
+            {% endfor %}
+            <span class="badge bg-secondary">{{ course.type }}</span>
+        </div>
+    </div>
+    <div data-col="result" data-order="{{ course.avg_grade|default:7 }}">
+        {% if course.not_all_evaluations_are_published %}
+            <div class="d-flex" data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Course result is not yet available.' %}">
+                {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass" %}
+            </div>
+        {% else %}
+            {% include 'evaluation_result_widget.html' with course_or_evaluation=course %}
+        {% endif %}
+    </div>
+</div>

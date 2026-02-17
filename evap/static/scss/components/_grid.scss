@@ -226,3 +226,28 @@ table th.col-order {
     grid-template-columns: auto auto;
     grid-column-gap: 0.5rem;
 }
+
+.contributor-grid-row {
+    @extend %table-grid;
+
+    grid:
+        "name   state   period  voters  result"
+        / auto   6rem    12rem    11rem   12rem;
+
+    // TODO-RK: Define breakpoints similar to results-grid-row
+
+    &.course-row {
+        padding-bottom: 0.2rem;
+    }
+
+    &.evaluation-row {
+        padding: 0.2rem 0.75rem 0.2rem 2rem;
+        font-size: 0.9rem;
+        row-gap: 0.25rem;
+
+        [data-col=name] {
+            font-style: italic;
+            color: $dark-gray;
+        }
+    }
+}
