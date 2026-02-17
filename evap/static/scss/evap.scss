@@ -24,6 +24,11 @@ body {
     }
 }
 
+.hide {
+    opacity: 0;
+    cursor: inherit;
+}
+
 .max-content-height {
     height: calc(100vh - 75px);
 }
