@@ -13,8 +13,16 @@
                 >
                     {% blocktranslate %}I can't give feedback about this contributor{% endblocktranslate %}
                 </button>
+                <confirmation-modal class="mark-no-answer-modal" confirm-button-class="btn-danger">
+                    <span slot="title">{% translate 'Delete answers about this person' %}</span>
+                    <span slot="action-text">{% translate 'Delete answers' %}</span>
+                    <span slot="question">
+                        {% blocktranslate %}Do you want to delete your answers about this person?{% endblocktranslate %}
+                    </span>
+                    <span slot="show-button" class="d-none"></span>
+                </confirmation-modal>
             </div>
-        {% endif%}
+        {% endif %}
     </div>
     {% if form.questionnaire.teaser %}
         <p>{{ form.questionnaire.teaser }}</p>
