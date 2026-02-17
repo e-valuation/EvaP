@@ -440,6 +440,10 @@ class JSONImporter:
         if IgnoredEvaluation.objects.filter(cms_id=data["gguid"]).exists():
             return None
 
+        # Skip evaluations with inactive link
+        if EvaluationLink.objects.filter(cms_id=data["gguid"], is_active=False).exists():
+            return None
+
         try:
             evaluation = Evaluation.objects.get(course=course, cms_evaluation_links__cms_id=data["gguid"])
         except Evaluation.DoesNotExist:
