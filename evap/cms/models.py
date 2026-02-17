@@ -13,6 +13,8 @@ class EvaluationLink(models.Model):
     # unique reference for import from campus management system
     cms_id = models.CharField(verbose_name=_("campus management system id"), unique=True, max_length=255)
 
+    is_active = models.BooleanField(verbose_name=_("active"), default=True)
+
     class Meta:
         verbose_name = _("evaluation link")
         verbose_name_plural = _("evaluation links")
@@ -23,6 +25,8 @@ class CourseLink(models.Model):
 
     # unique reference for import from campus management system
     cms_id = models.CharField(verbose_name=_("campus management system id"), unique=True, max_length=255)
+
+    is_active = models.BooleanField(verbose_name=_("active"), default=True)
 
     class Meta:
         verbose_name = _("course link")
