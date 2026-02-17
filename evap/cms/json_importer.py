@@ -427,7 +427,7 @@ class JSONImporter:
 
     # pylint: disable=too-many-locals
     def _import_evaluation(  # noqa: PLR0912, PLR0915
-        self, course: Course, data: ImportEvent, earliest_exam_date: date | None = None
+        self, course: Course, data: ImportEvent, all_events: list[ImportEvent], earliest_exam_date: date | None = None
     ) -> Evaluation | None:
         # Don't import ignored evaluations again
         if IgnoredEvaluation.objects.filter(cms_id=data["gguid"]).exists():
@@ -545,7 +545,16 @@ class JSONImporter:
                 )
             )
 
-        participants = self._get_user_profiles(data["students"]) if "students" in data else []
+        # Collect participants from all linked evaluations
+        if evaluation and evaluation.evaluation_links.count() > 1:
+            cms_ids = [evaluation_link.cms_id for evaluation_link in evaluation.evaluation_links.all()]
+            student_data = []
+            for event in all_events:
+                if event["gguid"] in cms_ids and "students" in event:
+                    student_data.extend(event["students"])
+        else:
+            student_data = data["students"] if "students" in data else []
+        participants = self._get_user_profiles(student_data) if student_data else []
 
         defaults = {
             "exam_type": exam_type,
@@ -568,7 +577,9 @@ class JSONImporter:
             )
             EvaluationLink.objects.create(evaluation=evaluation, cms_id=data["gguid"])
 
-        allow_evaluation_changes = evaluation.state == Evaluation.State.NEW
+        # Only allow changes for new evaluations and if they have not more than one evaluation link
+        # Otherwise, data may already have been changed or be ambiguous
+        allow_evaluation_changes = evaluation.state == Evaluation.State.NEW and evaluation.evaluation_links.count() == 1
         direct_changes = update_with_changes(evaluation, defaults, dry_run=not allow_evaluation_changes)
         assert not direct_changes or not created
         if direct_changes and allow_evaluation_changes:
@@ -576,6 +587,7 @@ class JSONImporter:
         elif direct_changes:
             self.statistics.attempted_evaluation_changes.append(evaluation)
 
+        # Only allow participant changes for evaluations that have not yet started
         allow_participant_changes = evaluation.state < Evaluation.State.IN_EVALUATION
         participant_changes = set(evaluation.participants.all()) != set(participants)
         if participant_changes and allow_participant_changes:
@@ -584,7 +596,11 @@ class JSONImporter:
         elif participant_changes:
             self.statistics.attempted_participant_changes.append(evaluation)
 
-        allow_contributor_changes = evaluation.state == Evaluation.State.NEW
+        # Only allow changes for new evaluations and if they have not more than one evaluation link
+        # Otherwise, data may already have been changed or be ambiguous
+        allow_contributor_changes = (
+            evaluation.state == Evaluation.State.NEW and evaluation.evaluation_links.count() == 1
+        )
         any_lecturers_changed = False
         if allow_contributor_changes and "lecturers" not in data:
             self.statistics.warnings.append(WarningMessage(obj=evaluation.full_name, message="No contributors defined"))
@@ -640,7 +656,7 @@ class JSONImporter:
                 continue
 
             self._import_course_programs(course, event)
-            self._import_evaluation(course, event)
+            self._import_evaluation(course, event, data)
 
         # Now import main evaluations
         for event in non_exam_events:
@@ -652,7 +668,7 @@ class JSONImporter:
                 earliest_exam_date = (
                     min_vote_start_datetime.date() - timedelta(days=1) if min_vote_start_datetime else None
                 )
-                self._import_evaluation(course, event, earliest_exam_date=earliest_exam_date)
+                self._import_evaluation(course, event, data, earliest_exam_date=earliest_exam_date)
 
         # Handle exam events that exist on their own without a related non-exam event
         # They can be handled like non-exam events if they have a prefix existing in CourseType import names,
@@ -666,7 +682,7 @@ class JSONImporter:
                 continue
             event["isexam"] = False
             self._import_course_programs(course_from_unused_exam, event)
-            self._import_evaluation(course_from_unused_exam, event)
+            self._import_evaluation(course_from_unused_exam, event, data)
 
     @transaction.atomic
     def import_dict(self, data: dict) -> None:

@@ -195,6 +195,11 @@
                                 <span class="fas fa-fw fa-copy"></span> {% translate 'Copy evaluation' %}
                             </a>
                         </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'cms:evaluation_merge_selection' evaluation.id %}">
+                                <span class="fas fa-fw fa-object-group"></span> {% translate 'Merge with other evaluation' %}
+                            </a>
+                        </li>
                         {% if not evaluation.has_exam_evaluation %}
                             <confirmation-modal type="submit" name="evaluation_id" value="{{ evaluation.id }}" confirm-button-class="btn-primary" form="exam_creation_form_{{ evaluation.id }}">
                                 <span slot="title">{% translate 'Create exam evaluation' %}</span>
