@@ -1390,10 +1390,14 @@ def helper_evaluation_edit(request, evaluation):
 
 @require_POST
 @manager_required
-@transaction.atomic
 def evaluation_delete(request):
     evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
+    return _evaluation_delete(request, evaluation)
 
+
+@manager_required
+@transaction.atomic
+def _evaluation_delete(request, evaluation):
     if not evaluation.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting evaluation not allowed")
 
