@@ -24,6 +24,7 @@
                         <span class="badge bg-light"><span class="{{ approval_state_values.icon }}"></span> {{ approval_state_values.description }}</span>
                     {% endwith %}
                     {% include 'course_badges.html' with course=evaluation.course %}
+                    {% include 'cms_evaluation_link_badges.html' %}
                 </div>
                 {% if editable %}
                     {% if questionnaires_with_answers_per_contributor %}

@@ -372,16 +372,17 @@ class JSONImporter:
 
         try:
             course_link = CourseLink.objects.get(cms_id=data["gguid"])
-            course = course_link.course
-            changes = update_with_changes(
-                course,
-                {
-                    "name_de": _clean_whitespaces(data["title"]),
-                    "name_en": _clean_whitespaces(data["title_en"]),
-                },
-            )
-            if changes:
-                self.statistics.updated_courses.append(course)
+            if course_link.is_active:
+                course = course_link.course
+                changes = update_with_changes(
+                    course,
+                    {
+                        "name_de": _clean_whitespaces(data["title"]),
+                        "name_en": _clean_whitespaces(data["title_en"]),
+                    },
+                )
+                if changes:
+                    self.statistics.updated_courses.append(course)
         except CourseLink.DoesNotExist:
             course = Course.objects.create(
                 semester=self.semester,
@@ -430,6 +431,10 @@ class JSONImporter:
     ) -> Evaluation | None:
         # Don't import ignored evaluations again
         if IgnoredEvaluation.objects.filter(cms_id=data["gguid"]).exists():
+            return None
+
+        # Skip evaluations with inactive link
+        if EvaluationLink.objects.filter(cms_id=data["gguid"], is_active=False).exists():
             return None
 
         try:
