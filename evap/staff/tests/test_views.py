@@ -1809,6 +1809,18 @@ class TestEvaluationOperationView(WebTestStaffMode):
         self.assertEqual(len(actual_emails), 1)
         self.assertEqual(actual_emails[0]["additional_cc_users"], set())
 
+    def test_operation_prepare_does_not_put_other_responsible_into_cc_if_they_are_editor(self):
+        other_responsible = baker.make(UserProfile, email="responsible2@example.com")
+        self.course.responsibles.add(other_responsible)
+
+        evaluation = baker.make(Evaluation, state=Evaluation.State.NEW, course=self.course)
+        baker.make(Contribution, evaluation=evaluation, contributor=other_responsible, role=Contribution.Role.EDITOR)
+
+        url_options = f"?evaluation={evaluation.pk}&target_state={Evaluation.State.PREPARED}"
+        actual_emails = self.submit_operation_prepare_form(url_options)
+
+        self.assertEqual([email["additional_cc_users"] for email in actual_emails], [set(), set()])
+
     def test_operation_prepare_does_not_send_email_to_contributors(self):
         contributor = baker.make(UserProfile, email="contributor@example.com")
         evaluation = baker.make(Evaluation, state=Evaluation.State.NEW, course=self.course)

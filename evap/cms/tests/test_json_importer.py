@@ -1,6 +1,8 @@
 import json
+from contextlib import nullcontext
 from copy import deepcopy
 from datetime import date, datetime, timedelta
+from pathlib import Path
 
 from django.conf import settings
 from django.core import mail
@@ -8,6 +10,8 @@ from django.test import TestCase, override_settings
 from model_bakery import baker
 from pydantic import ValidationError
 
+import evap.cms.fixtures
+from evap.cms.json_importer import ImportDict, JSONImporter, NameChange, WarningMessage, _clean_whitespaces
 from evap.evaluation.models import (
     Contribution,
     Course,
@@ -20,91 +24,11 @@ from evap.evaluation.models import (
     UserProfile,
 )
 from evap.evaluation.models_logging import LogEntry
-from evap.staff.importers.json import ImportDict, JSONImporter, NameChange, WarningMessage
+from evap.evaluation.tests.tools import assert_no_database_modifications
 
-EXAMPLE_DATA: ImportDict = {
-    "students": [
-        {"gguid": "0x1", "email": "1@example.com", "name": "1", "christianname": "w_1", "callingname": "1"},
-        {"gguid": "0x2", "email": "2@example.com", "name": "2", "christianname": "w_2", "callingname": "2"},
-    ],
-    "lecturers": [
-        {
-            "gguid": "0x3",
-            "email": "3@example.com",
-            "name": "3",
-            "christianname": "3",
-            "titlefront": "Prof. Dr.",
-        },
-        {
-            "gguid": "0x4",
-            "email": "4@example.com",
-            "name": "4",
-            "christianname": "4",
-            "titlefront": "Dr.",
-        },
-        {
-            "gguid": "0x5",
-            "email": "5@example.com",
-            "name": "5",
-            "christianname": "5",
-            "titlefront": "",
-        },
-        {
-            "gguid": "0x6",
-            "email": "6@example.com",
-            "name": "6",
-            "christianname": "6",
-            "titlefront": "",
-        },
-    ],
-    "events": [
-        {
-            "gguid": "0x5",
-            "title": "Prozessorientierte Informationssysteme",
-            "title_en": "Process-oriented information systems",
-            "type": "Vorlesung",
-            "isexam": False,
-            "courses": [],
-            "appointments": [
-                {"begin": "30.04.2024 10:15:00", "end": "30.04.2024 11:45:00"},
-                {"begin": "15.07.2024 10:15:00", "end": "15.07.2024 11:45:00"},
-            ],
-            "relatedevents": [{"gguid": "0x6"}],
-            "lecturers": [{"gguid": "0x3"}],
-            "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
-            "language": "Deutsch",
-        },
-        {
-            "gguid": "0x6",
-            "title": "Prozessorientierte Informationssysteme",
-            "title_en": "Process-oriented information systems",
-            "type": "Klausur",
-            "isexam": True,
-            "courses": [
-                {"cprid": "BA-Inf", "scale": "GRADE_PARTICIPATION"},
-                {"cprid": "MA-Inf", "scale": "GRADE_PARTICIPATION"},
-            ],
-            "appointments": [{"begin": "29.07.2024 10:15:00", "end": "29.07.2024 11:45:00"}],
-            "relatedevents": [{"gguid": "0x5"}],
-            "lecturers": [{"gguid": "0x3"}, {"gguid": "0x4"}, {"gguid": "0x5"}],
-            "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
-            "language": "Deutsch",
-        },
-        {
-            "gguid": "0x7",
-            "title": "Bachelorprojekt: Prozessorientierte Informationssysteme",
-            "title_en": "Bachelor's Project: Process-oriented information systems",
-            "type": "Bachelorprojekt",
-            "isexam": True,
-            "courses": [
-                {"cprid": "BA-Inf", "scale": "GRADE_PARTICIPATION"},
-            ],
-            "lecturers": [{"gguid": "0x3"}],
-            "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
-            "language": "Englisch",
-        },
-    ],
-}
+EXAMPLE_DATA = json.loads(
+    Path(evap.cms.fixtures.__file__).with_name("import_example_data.json").read_text(encoding="utf-8")
+)
 EXAMPLE_DATA_WITHOUT_RELATED_EVALUATION = {
     "students": EXAMPLE_DATA["students"],
     "lecturers": EXAMPLE_DATA["lecturers"],
@@ -281,7 +205,6 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
         },
     ],
 }
-EXAMPLE_JSON = json.dumps(EXAMPLE_DATA)
 
 
 class TestImportUserProfiles(TestCase):
@@ -392,17 +315,21 @@ class TestImportEvents(TestCase):
     def setUpTestData(cls):
         cls.semester = baker.make(Semester)
 
-    def _import(self, data=None):
+    def _import(self, data=None, assert_nop=False):
         if not data:
             data = EXAMPLE_DATA
         data = json.dumps(data)
-        importer = JSONImporter(self.semester, date(2000, 1, 1))
-        importer.import_json(data)
+
+        cm = assert_no_database_modifications() if assert_nop else nullcontext()
+        with cm:
+            importer = JSONImporter(self.semester, date(2000, 1, 1))
+            importer.import_json(data)
         return importer
 
     @override_settings(EXAM_EVALUATION_DEFAULT_DURATION=timedelta(days=3))
     def test_import_courses(self):
         importer = self._import()
+        self._import(assert_nop=True)
 
         course = Course.objects.get()
 
@@ -711,11 +638,7 @@ class TestImportEvents(TestCase):
         evaluation.course.name_en = "Change"
         evaluation.course.save()
 
-        importer = self._import()
-
-        evaluation = Evaluation.objects.get(pk=evaluation.pk)
-        self.assertFalse(evaluation.is_rewarded)
-        self.assertEqual(evaluation.course.name_en, "Change")
+        importer = self._import(assert_nop=True)
         self.assertEqual(len(importer.statistics.attempted_evaluation_changes), 1)
         self.assertEqual(len(importer.statistics.attempted_course_changes), 1)
 
@@ -742,12 +665,8 @@ class TestImportEvents(TestCase):
         evaluation.is_rewarded = False
         evaluation.save()
 
-        importer = self._import()
-
-        evaluation = Evaluation.objects.get(pk=evaluation.pk)
-        self.assertFalse(evaluation.is_rewarded)
+        importer = self._import(assert_nop=True)
         self.assertEqual(len(importer.statistics.attempted_evaluation_changes), 1)
-        self.assertEqual(evaluation.participants.count(), 2)
 
         evaluation.participants.clear()
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
@@ -774,12 +693,10 @@ class TestImportEvents(TestCase):
 
         self.assertEqual(evaluation.participants.count(), 0)
 
-        importer = self._import()
-
+        importer = self._import(assert_nop=True)
         self.assertEqual(len(importer.statistics.attempted_evaluation_changes), 1)
         self.assertEqual(len(importer.statistics.updated_participants), 0)
         self.assertEqual(len(importer.statistics.attempted_participant_changes), 1)
-        self.assertEqual(evaluation.participants.count(), 0)
 
     def test_import_courses_update(self):
         self._import()
@@ -819,7 +736,8 @@ class TestImportEvents(TestCase):
     def test_importer_wrong_data(self):
         wrong_data = deepcopy(EXAMPLE_DATA)
         wrong_data["events"][0]["isexam"] = "false"
-        with self.assertRaises(ValidationError):
+        # Note: not using assert_nop because the assert_no_database_modifications should include the assertRaises
+        with assert_no_database_modifications(), self.assertRaises(ValidationError):
             self._import(wrong_data)
 
         data_with_additional_attribute = deepcopy(EXAMPLE_DATA)
@@ -891,10 +809,9 @@ class TestImportEvents(TestCase):
         self.assertEqual(exam_evaluation.name_en, exam_evaluation.exam_type.name_de)
 
     def test_clean_whitespaces(self):
-        importer = JSONImporter(self.semester, date(2000, 1, 1))
-        self.assertEqual(importer._clean_whitespaces(" front"), "front")
-        self.assertEqual(importer._clean_whitespaces("back "), "back")
-        self.assertEqual(importer._clean_whitespaces("inbetween  inbetween"), "inbetween inbetween")
-        self.assertEqual(importer._clean_whitespaces("inbetween \n inbetween"), "inbetween inbetween")
+        self.assertEqual(_clean_whitespaces(" front"), "front")
+        self.assertEqual(_clean_whitespaces("back "), "back")
+        self.assertEqual(_clean_whitespaces("inbetween  inbetween"), "inbetween inbetween")
+        self.assertEqual(_clean_whitespaces("inbetween \n inbetween"), "inbetween inbetween")
         # non-breaking whitespace
-        self.assertEqual(importer._clean_whitespaces("inbetween  inbetween"), "inbetween inbetween")
+        self.assertEqual(_clean_whitespaces("inbetween  inbetween"), "inbetween inbetween")

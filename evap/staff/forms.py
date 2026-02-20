@@ -355,6 +355,7 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore[misc]
         "votetimestamp",
         "cms_id",
         "dropout_count",
+        "staff_notes",
     }
 
     CONTRIBUTION_COPIED_FIELDS = {
@@ -430,6 +431,7 @@ class EvaluationForm(forms.ModelForm):
             "participants",
             "general_questionnaires",
             "dropout_questionnaires",
+            "staff_notes",
         )
         localized_fields = ("vote_start_datetime", "vote_end_date")
         field_classes = {

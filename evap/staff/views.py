@@ -39,6 +39,7 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, FormView, UpdateView
 
+from evap.cms.models import IgnoredEvaluation
 from evap.contributor.views import export_contributor_results
 from evap.evaluation.auth import manager_required, reviewer_required, staff_permission_required
 from evap.evaluation.models import (
@@ -373,17 +374,19 @@ class ReadyForEditorsOperation(EvaluationOperation):
             ).format(len(evaluations)),
         )
         if email_template:
-            evaluations_by_responsible = {}
-            for evaluation in evaluations:
-                for responsible in evaluation.course.responsibles.all():
-                    evaluations_by_responsible.setdefault(responsible, []).append(evaluation)
+            evaluations_by_responsible = unordered_groupby(
+                (responsible, evaluation)
+                for evaluation in evaluations
+                for responsible in evaluation.course.responsibles.all()
+            )
 
             for responsible, responsible_evaluations in evaluations_by_responsible.items():
                 body_params = {"user": responsible, "evaluations": responsible_evaluations}
                 editors = UserProfile.objects.filter(
                     contributions__evaluation__in=responsible_evaluations,
                     contributions__role=Contribution.Role.EDITOR,
-                ).exclude(pk=responsible.pk)
+                ).exclude(courses_responsible_for__evaluations__in=responsible_evaluations)
+
                 email_template.send_to_user(
                     responsible,
                     subject_params={},
@@ -1400,6 +1403,15 @@ def evaluation_delete(request):
         )
 
     with temporary_receiver(RewardPointGranting.granted_by_evaluation_deletion, notify_reward_points):
+        if evaluation.cms_id:
+            # remember deleted evaluation to prevent the importer from creating it again
+            IgnoredEvaluation.objects.create(
+                cms_id=evaluation.cms_id,
+                name_de=evaluation.name_de,
+                name_en=evaluation.name_en,
+                course=evaluation.course,
+                notes=evaluation.staff_notes,
+            )
         evaluation.delete()
         update_template_cache_of_published_evaluations_in_course(evaluation.course)
 

@@ -4,9 +4,9 @@ from unittest.mock import patch
 from django.utils.formats import localize
 from model_bakery import baker
 
-from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, UserProfile
+from evap.evaluation.models import Contribution, Course, Evaluation, Program, Questionnaire, UserProfile
 from evap.evaluation.models_logging import FieldAction, InstanceActionType, _m2m_changed
-from evap.evaluation.tests.tools import TestCase
+from evap.evaluation.tests.tools import TestCase, assert_no_database_modifications
 
 
 class TestLoggedModel(TestCase):
@@ -205,3 +205,12 @@ class TestLoggedModel(TestCase):
             participant.evaluations_participating_in.clear()
             participant.evaluations_participating_in.add(self.evaluation)
             self.assertFalse(any("participants" in entry.data for entry in self.evaluation.related_logentries()))
+
+    def test_no_empty_m2m_logs(self):
+        course = baker.make(Course)
+        program = baker.make(Program)
+        course.programs.add(program)
+        course = Course.objects.get(pk=course.pk)
+
+        with assert_no_database_modifications():
+            course.programs.add(program)

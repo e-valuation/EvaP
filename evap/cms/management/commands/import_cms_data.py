@@ -7,9 +7,9 @@ from pathlib import Path
 import requests
 from django.core.management.base import BaseCommand, CommandError
 
+from evap.cms.json_importer import JSONImporter
 from evap.evaluation.management.commands.tools import log_exceptions
 from evap.evaluation.models import Semester
-from evap.staff.importers.json import JSONImporter
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ class Command(BaseCommand):
         file_mode = mode.add_parser("file")
         file_mode.add_argument("path-to-json", type=Path)
         file_mode.add_argument("--semester-id", type=int, required=True)
-        file_mode.add_argument("--default-course-end-date", type=parse_course_end_date)
+        file_mode.add_argument("--default-course-end-date", type=parse_course_end_date, default=argparse.SUPPRESS)
 
     def handle(self, *args, **options):
         logger.info("import_cms_data called.")

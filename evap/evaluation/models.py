@@ -536,6 +536,8 @@ class Evaluation(LoggedModel):
         verbose_name=_("campus management system id"), blank=True, null=True, unique=True, max_length=255
     )
 
+    staff_notes = models.TextField(verbose_name=_("staff notes"), blank=True)
+
     @property
     def has_exam_evaluation(self):
         return self.course.evaluations.filter(exam_type__isnull=False).exists()
