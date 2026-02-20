@@ -1208,8 +1208,8 @@ class Contribution(LoggedModel):
 
     def remove_answers_to_questionnaires(self, questionnaires):
         assert set(Answer.__subclasses__()) == {TextAnswer, RatingAnswerCounter}
-        TextAnswer.objects.filter(contribution=self, question__questionnaire__in=questionnaires).delete()
-        RatingAnswerCounter.objects.filter(contribution=self, question__questionnaire__in=questionnaires).delete()
+        TextAnswer.objects.filter(contribution=self, assignment__questionnaire__in=questionnaires).delete()
+        RatingAnswerCounter.objects.filter(contribution=self, assignment__questionnaire__in=questionnaires).delete()
 
 
 class QuestionType:
@@ -1262,8 +1262,9 @@ class Question(models.Model):
         (_("Layout"), ((QuestionType.HEADING, _("Heading")),)),
     )
 
-    order = models.IntegerField(verbose_name=_("question order"), default=-1)
-    questionnaire = models.ForeignKey(Questionnaire, models.CASCADE, related_name="questions")
+    questionnaires = models.ManyToManyField(
+        Questionnaire, through="evaluation.QuestionAssignment", related_name="questions"
+    )
     text_de = models.CharField(max_length=1024, verbose_name=_("question text (german)"))
     text_en = models.CharField(max_length=1024, verbose_name=_("question text (english)"))
     text = translate(en="text_en", de="text_de")
@@ -1273,7 +1274,6 @@ class Question(models.Model):
 
     @inject_choices_constraint(locals())
     class Meta:
-        ordering = ["order"]
         verbose_name = _("question")
         verbose_name_plural = _("questions")
         constraints = [
@@ -1362,6 +1362,28 @@ class Question(models.Model):
     @property
     def can_have_textanswers(self):
         return self.is_text_question or self.is_rating_question and self.allows_additional_textanswers
+
+
+class QuestionAssignment(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="assignments")
+    questionnaire = models.ForeignKey(Questionnaire, on_delete=models.CASCADE, related_name="question_assignments")
+    order = models.IntegerField(verbose_name=_("question order"), default=-1)
+
+    class Meta:
+        ordering = ["order"]
+        unique_together = [("question", "questionnaire")]
+
+    def delete(self, using=None, keep_parents=False) -> tuple[int, dict[str, int]]:
+        assert not self.question.answer_class.objects.filter(assignment=self).exists(), (
+            "cannot delete question with answers"
+        )
+        count = 0
+        meta: dict[str, int] = {}
+
+        if not self.question.questionnaires.exclude(pk=self.questionnaire.pk).exists():
+            count, meta = self.question.delete(using=using, keep_parents=False)  # garbage-collect unused questions
+        self_count, self_meta = super().delete(using=using, keep_parents=keep_parents)
+        return count + self_count, meta | self_meta
 
 
 @dataclass
@@ -1564,13 +1586,17 @@ class Answer(models.Model):
     # we use UUIDs to hide insertion order. See https://github.com/e-valuation/EvaP/wiki/Data-Economy
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    question = models.ForeignKey(Question, models.PROTECT)
+    assignment = models.ForeignKey(QuestionAssignment, models.PROTECT)
     contribution = models.ForeignKey(Contribution, models.PROTECT, related_name="%(class)s_set")
 
     class Meta:
         abstract = True
         verbose_name = _("answer")
         verbose_name_plural = _("answers")
+
+    @property
+    def question(self) -> Question:
+        return self.assignment.question
 
 
 class RatingAnswerCounter(Answer):
@@ -1586,7 +1612,7 @@ class RatingAnswerCounter(Answer):
     count = models.IntegerField(verbose_name=_("count"), default=0)
 
     class Meta:
-        unique_together = [["question", "contribution", "answer"]]
+        unique_together = [["assignment", "contribution", "answer"]]
         verbose_name = _("rating answer")
         verbose_name_plural = _("rating answers")
 

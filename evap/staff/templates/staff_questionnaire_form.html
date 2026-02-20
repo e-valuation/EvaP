@@ -39,6 +39,7 @@
                         <tbody>
                             {% for form_element in formset %}
                                 {% include 'bootstrap_form_errors.html' with errors=form_element.non_field_errors %}
+                                {% include 'bootstrap_form_errors.html' with errors=form_element.question_form.non_field_errors %}
 
                                 <tr class="tomselecttr sortable">
                                     {% for hidden in form_element.hidden_fields %}
@@ -51,18 +52,22 @@
                                     {% else %}
                                         <td></td>
                                     {% endif %}
-                                    <td>{% include 'bootstrap_form_field_widget.html' with field=form_element.text_de %}</td>
-                                    <td>{% include 'bootstrap_form_field_widget.html' with field=form_element.text_en %}</td>
-                                    <td class="question-type">
-                                        {% include 'bootstrap_form_field_widget.html' with field=form_element.type %}
+                                    {% for hidden in form_element.question_form.hidden_fields %}
+                                        {{ hidden }}
+                                    {% endfor %}
+                                    <td>{% include 'bootstrap_form_field_widget.html' with field=form_element.question_form.text_de %}</td>
+                                    <td>{% include 'bootstrap_form_field_widget.html' with field=form_element.question_form.text_en %}</td>
+                                    <td class="question-type d-inline-block">
+                                        {% include 'bootstrap_form_field_widget.html' with field=form_element.question_form.type %}
                                         <div class="form-check mt-1">
-                                            <input class="form-check-input allow-textanswer-checkbox" id="{{ form_element.allows_additional_textanswers.id_for_label }}" name="{{ form_element.allows_additional_textanswers.html_name }}"
-                                                type="checkbox" data-keep="true" {% if form_element.allows_additional_textanswers.value %} checked{% endif %}
-                                                {% if form_element.allows_additional_textanswers.field.disabled %} disabled{% endif %} />
-                                            <label class="form-check-label" for="{{ form_element.allows_additional_textanswers.id_for_label }}">{{ form_element.allows_additional_textanswers.label }}</label>
+                                            <input class="form-check-input allow-textanswer-checkbox" id="{{ form_element.question_form.allows_additional_textanswers.id_for_label }}"
+                                                   name="{{ form_element.question_form.allows_additional_textanswers.html_name }}" type="checkbox" data-keep="true"
+                                                {% if form_element.question_form.allows_additional_textanswers.value %} checked{% endif %}
+                                                {% if form_element.question_form.allows_additional_textanswers.field.disabled %} disabled{% endif %} />
+                                            <label class="form-check-label" for="{{ form_element.question_form.allows_additional_textanswers.id_for_label }}">{{ form_element.question_form.allows_additional_textanswers.label }}</label>
                                         </div>
                                     </td>
-                                    <td>{% include 'bootstrap_form_field_widget.html' with field=form_element.DELETE %}</td>
+                                    <td>{% include 'bootstrap_form_field_widget.html' with field=form_element.DELETE class="d-none" %}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -72,7 +77,7 @@
         </fieldset>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
-                <button type="submit" class="btn btn-primary">{% translate 'Save questionnaire' %}</button>
+                <button type="submit" class="btn btn-primary" id="questionnaire-save-btn">{% translate 'Save questionnaire' %}</button>
             </div>
         </div>
     </form>

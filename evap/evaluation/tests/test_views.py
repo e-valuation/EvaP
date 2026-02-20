@@ -5,7 +5,7 @@ from django.test import override_settings
 from django.urls import reverse
 from model_bakery import baker
 
-from evap.evaluation.models import Evaluation, Question, QuestionType, Semester, UserProfile
+from evap.evaluation.models import Evaluation, QuestionAssignment, QuestionType, Semester, UserProfile
 from evap.evaluation.tests.tools import (
     WebTest,
     WebTestWith200Check,
@@ -202,14 +202,14 @@ class TestNegativeLikertQuestions(WebTest):
             Evaluation, participants=[cls.voting_user], state=Evaluation.State.IN_EVALUATION, main_language="en"
         )
 
-        cls.question = baker.make(
-            Question,
-            type=QuestionType.NEGATIVE_LIKERT,
-            text_en="Negative Likert Question",
-            text_de="Negative Likert Frage",
+        assignment = baker.make(
+            QuestionAssignment,
+            question__type=QuestionType.NEGATIVE_LIKERT,
+            question__text_en="Negative Likert Question",
+            question__text_de="Negative Likert Frage",
         )
 
-        cls.evaluation.general_contribution.questionnaires.add(cls.question.questionnaire)
+        cls.evaluation.general_contribution.questionnaires.add(assignment.questionnaire)
 
         cls.url = reverse("student:vote", args=[cls.evaluation.pk])
 
