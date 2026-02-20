@@ -35,7 +35,7 @@ def question_assignments_to_questions(apps, _schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("evaluation", "0160_temporary_newquestion_relation"),
+        ("evaluation", "0161_temporary_newquestion_relation"),
     ]
 
     operations = [
