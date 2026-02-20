@@ -949,7 +949,7 @@ class QuestionAssignmentForm(forms.ModelForm):
     def clean(self) -> None:
         super().clean()
         if not self.question_form.is_valid():
-            raise forms.ValidationError([])  # invalidate this form without message; errors are shown separatly
+            raise forms.ValidationError([])  # invalidate this form without message; errors are shown separately
 
     def has_changed(self) -> bool:
         return super().has_changed() or self.question_form.has_changed()

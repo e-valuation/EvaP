@@ -167,7 +167,7 @@ class TestVoteView(WebTest):
         cls.bottom_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM)
         cls.contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
 
-        cls.contributor_heading_assignmnet = baker.make(
+        cls.contributor_heading_assignment = baker.make(
             QuestionAssignment,
             questionnaire=cls.contributor_questionnaire,
             order=0,
@@ -250,7 +250,7 @@ class TestVoteView(WebTest):
         top_heading_index = page.body.decode().index(self.top_heading_assignment.question.text)
         top_text_index = page.body.decode().index(self.top_text_assignment.question.text)
 
-        contributor_heading_index = page.body.decode().index(self.contributor_heading_assignmnet.question.text)
+        contributor_heading_index = page.body.decode().index(self.contributor_heading_assignment.question.text)
         contributor_likert_index = page.body.decode().index(self.contributor_likert_assignment.question.text)
 
         bottom_heading_index = page.body.decode().index(self.bottom_heading_assignment.question.text)
