@@ -121,13 +121,15 @@ def let_user_vote_for_evaluation(user, evaluation, create_answers=False):
     new_racs = []
 
     for contribution in evaluation.contributions.all().prefetch_related(
-        "ratinganswercounter_set", "questionnaires", "questionnaires__questions"
+        "ratinganswercounter_set",
+        "questionnaires",
+        "questionnaires__question_assignments__question",
     ):
         for rac in contribution.ratinganswercounter_set.all():
             if rac.answer == 1:
                 rac_by_contribution_assignment[(contribution, rac.assignment)] = rac
 
-        for questionnaire in contribution.questionnaires.all().prefetch_related("question_assignments__question"):
+        for questionnaire in contribution.questionnaires.all():
             for assignment in questionnaire.question_assignments.all():
                 question = assignment.question
                 if question.is_text_question:
