@@ -1,6 +1,5 @@
 from datetime import date, datetime
 
-from django.urls import reverse
 from model_bakery import baker
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -133,7 +132,7 @@ class ParticipantCollapseTests(LiveServerTest):
         )
 
         with self.enter_staff_mode():
-            self.selenium.get(self.live_server_url + reverse("staff:evaluation_edit", args=[evaluation.id]))
+            self.selenium.get(self.reverse("staff:evaluation_edit", args=[evaluation.id]))
 
         card_header = self.selenium.find_element(By.CSS_SELECTOR, ".card:has(#id_participants) .card-header")
         self.assertIn("collapsed", classes_of_element(card_header))
@@ -167,7 +166,7 @@ class ParticipantCollapseTests(LiveServerTest):
         )
 
         with self.enter_staff_mode():
-            self.selenium.get(self.live_server_url + reverse("staff:evaluation_edit", args=[evaluation.id]))
+            self.selenium.get(self.reverse("staff:evaluation_edit", args=[evaluation.id]))
 
         card_header = self.selenium.find_element(By.CSS_SELECTOR, ".card:has(#id_participants) .card-header")
         self.assertNotIn("collapsed", classes_of_element(card_header))
@@ -176,6 +175,60 @@ class ParticipantCollapseTests(LiveServerTest):
 
         counter = card_header.find_element(By.CSS_SELECTOR, ".rounded-pill")
         self.assertEqual(counter.text, "0")
+
+
+class EvaluationGridLiveTest(LiveServerTest):
+    def test_evaluation_grid_sorting(self):
+        test_semester = baker.make(Semester)
+
+        baker.make(
+            Evaluation,
+            _quantity=5,
+            name_de=iter(f"Evaluation {i}" for i in range(1, 6)),
+            name_en=iter(f"Evaluation {i}" for i in range(1, 6)),
+            course__name_de=iter(("AE", "ÄB", "UE", "ÜB", "Z")),
+            course__name_en=iter(("Z", "ÜB", "UE", "ÄB", "AE")),
+            course__semester=test_semester,
+        )
+
+        with self.enter_staff_mode():
+            # self.selenium.get(self.reverse("staff:index"))
+            self.selenium.get(self.reverse("staff:semester_view", args=[test_semester.id]))
+            with self.wait_until_page_reloads():
+                self.set_page_language("de")
+
+            # self.wait.until(visibility_of_element_located((By.CSS_SELECTOR, "#evaluation-table .col-order-asc")))
+            table = self.selenium.find_element(By.ID, "evaluation-table").find_elements(
+                By.XPATH, "//tbody//child::td[@data-col='name']"
+            )
+
+            breakpoint()
+            self.assertEqual(table[0].get_attribute("data-order"), "ÄB – Evaluation 2")
+            self.assertEqual(table[1].get_attribute("data-order"), "AE – Evaluation 1")
+            self.assertEqual(table[2].get_attribute("data-order"), "ÜB – Evaluation 4")
+            self.assertEqual(table[3].get_attribute("data-order"), "UE – Evaluation 3")
+            self.assertEqual(table[4].get_attribute("data-order"), "Z – Evaluation 5")
+
+            # self.selenium.get(self.reverse("staff:index"))
+            with self.wait_until_page_reloads():
+                self.set_page_language("en")
+
+            # self.selenium.get(self.reverse("staff:semester_view", args=[test_semester.id]))
+            self.wait.until(visibility_of_element_located((By.ID, "evaluation-table")))
+
+            toggle_sort_button = self.selenium.find_element(By.XPATH, "//thead//th[@data-col='name']")
+            toggle_sort_button.click()
+            self.wait.until(visibility_of_element_located((By.ID, "evaluation-table")))
+
+            table = self.selenium.find_element(By.ID, "evaluation-table").find_elements(
+                By.XPATH, "//tbody//child::td[@data-col='name']"
+            )
+
+            self.assertEqual(table[0].get_attribute("data-order"), "Z – Evaluation 1")
+            self.assertEqual(table[1].get_attribute("data-order"), "UE – Evaluation 3")
+            self.assertEqual(table[2].get_attribute("data-order"), "ÜB – Evaluation 2")
+            self.assertEqual(table[3].get_attribute("data-order"), "AE – Evaluation 5")
+            self.assertEqual(table[4].get_attribute("data-order"), "ÄB – Evaluation 4")
 
 
 class TextAnswerEditLiveTest(LiveServerTest):

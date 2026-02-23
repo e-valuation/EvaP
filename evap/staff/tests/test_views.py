@@ -742,24 +742,6 @@ class TestSemesterView(WebTestStaffMode):
             course=baker.make(Course, name_de="B", name_en="A", semester=cls.semester),
         )
 
-    def test_view_list_sorting(self):
-        self.manager.language = "de"
-        self.manager.save()
-        page = self.app.get(self.url, user=self.manager).body.decode("utf-8")
-        position_evaluation1 = page.find("Evaluation 1")
-        position_evaluation2 = page.find("Evaluation 2")
-        self.assertLess(position_evaluation1, position_evaluation2)
-        self.app.reset()  # language is only loaded on login, so we're forcing a re-login here
-
-        # Re-enter staff mode, since the session was just reset
-        with run_in_staff_mode(self):
-            self.manager.language = "en"
-            self.manager.save()
-            page = self.app.get(self.url, user=self.manager).body.decode("utf-8")
-            position_evaluation1 = page.find("Evaluation 1")
-            position_evaluation2 = page.find("Evaluation 2")
-            self.assertGreater(position_evaluation1, position_evaluation2)
-
     def test_access_to_semester_with_archived_results(self):
         reviewer = baker.make(
             UserProfile,
