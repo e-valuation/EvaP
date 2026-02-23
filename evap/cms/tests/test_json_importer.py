@@ -823,6 +823,7 @@ class TestImportEvents(TestCase):
 
     def test_exam_missing_language(self):
         self._import(EXAMPLE_DATA)
+        self.assertEqual(EXAMPLE_DATA["events"][0]["language"], "", "precondition for the test")
 
         evaluation = Evaluation.objects.get(cms_id=EXAMPLE_DATA["events"][1]["gguid"])
         self.assertEqual(evaluation.main_language, "de")
