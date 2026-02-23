@@ -15,11 +15,9 @@
                     <a class="nav-link nav-link-multiline" href="{% url 'evaluation:legal_notice' %}">{% translate 'Legal Notice' %}<br />{% translate 'Data Privacy' %}</a>
                 </li>
                 <li class="d-none d-sm-block nav-item">
-                    <a class="nav-link nav-link-multiline" href="https://github.com/e-valuation/EvaP/releases/tag/{% release_version %}" target="_blank">
-                        <div style="display: flex; align-items: center; gap: 6pt">
-                            <span class="fas fa-arrow-up-right-from-square"></span>
-                            <span> Version:<br />{% release_version %}</span>
-                        </div>
+                    <a class="nav-link" href="https://github.com/e-valuation/EvaP/releases/tag/{% release_version %}" target="_blank">
+                        <span class="fas fa-arrow-up-right-from-square me-1"></span>
+                        <span> Version: {% release_version %}</span>
                     </a>
                 </li>
             </ul>
