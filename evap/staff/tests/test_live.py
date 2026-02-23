@@ -4,6 +4,7 @@ from django.urls import reverse
 from model_bakery import baker
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.expected_conditions import (
     element_to_be_clickable,
     invisibility_of_element_located,
@@ -22,7 +23,7 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
-from evap.evaluation.tests.tools import LiveServerTest, classes_of_element
+from evap.evaluation.tests.tools import LiveServerTest, VisualRegressionTestCase, classes_of_element
 
 
 class EvaluationEditLiveTest(LiveServerTest):
@@ -94,7 +95,9 @@ class EvaluationEditLiveTest(LiveServerTest):
 
         semester = baker.make(Semester)
         course = baker.make(Course, semester=semester, name_en="course name")
-        baker.make(Evaluation, course=course, name_en="evaluation name")
+        baker.make(Evaluation, course=course, name_en="evaluation name searchable-needle")
+
+        evaluation_element = (By.XPATH, "//a[contains(text(),'searchable-needle')]")
 
         with self.enter_staff_mode():
             self.selenium.get(self.reverse("staff:semester_view", args=[semester.pk]))
@@ -105,6 +108,8 @@ class EvaluationEditLiveTest(LiveServerTest):
         search_input.clear()
         search_input.send_keys("course name")
 
+        self.wait.until(visibility_of_element_located(evaluation_element), "Evaluation should be searchable.")
+
         self.wait.until(
             visibility_of_element_located(
                 (By.XPATH, "//button[@slot='show-button' and @aria-label='Create exam evaluation']")
@@ -114,7 +119,9 @@ class EvaluationEditLiveTest(LiveServerTest):
         search_input.clear()
         search_input.send_keys("exam")
 
-        self.wait.until(invisibility_of_element_located((By.XPATH, "//td//a[contains(text(),'course name')]")))
+        self.wait.until(
+            invisibility_of_element_located(evaluation_element), "Searching for 'exam' should not yield results."
+        )
 
 
 class ParticipantCollapseTests(LiveServerTest):
@@ -263,3 +270,65 @@ class TextAnswerEditLiveTest(LiveServerTest):
         self.wait.until(
             invisibility_of_element_located((By.XPATH, "//div[contains(text(), 'this is a dummy answer')]"))
         )
+
+
+class StaffSemesterViewRegressionTest(VisualRegressionTestCase):
+    def test_regression(self):
+        baker.seed(31902)
+
+        responsible = baker.make(UserProfile, last_name="aResponsibleUser")
+        program = baker.make(Program)
+        evaluation = baker.make(
+            Evaluation,
+            course__responsibles=[responsible],
+            course__programs=[program],
+            vote_start_datetime=datetime(2099, 1, 1, 0, 0),
+            vote_end_date=date(2099, 12, 31),
+            main_language="en",
+        )
+        baker.make(
+            Evaluation,
+            course__semester=evaluation.course.semester,
+            course__programs=[program],
+            course__responsibles=[responsible],
+            vote_start_datetime=datetime(2099, 1, 1, 0, 0),
+            vote_end_date=date(2099, 12, 31),
+            main_language="en",
+        )
+
+        general_questionnaire = baker.make(Questionnaire, questions=[baker.make(Question)])
+        baker.make(
+            Evaluation,
+            course__semester=evaluation.course.semester,
+            course__programs=[program],
+            course__responsibles=[responsible],
+            general_contribution__questionnaires=[general_questionnaire],
+            vote_start_datetime=datetime(2099, 1, 1, 0, 0),
+            vote_end_date=date(2099, 12, 31),
+            main_language="de",
+        )
+
+        baker.make(
+            Contribution,
+            evaluation=evaluation,
+            contributor=responsible,
+            order=0,
+            role=Contribution.Role.CONTRIBUTOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.OWN_TEXTANSWERS,
+        )
+        baker.make(
+            Contribution,
+            evaluation=evaluation,
+            contributor=baker.make(UserProfile),
+            order=1,
+            role=Contribution.Role.EDITOR,
+        )
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.reverse("staff:semester_view", args=[evaluation.course.semester_id]))
+
+            self.wait.until(
+                expected_conditions.presence_of_element_located((By.CSS_SELECTOR, "#evaluation-filter-buttons .badge"))
+            )
+
+            self.trigger_screenshot("staff:index")

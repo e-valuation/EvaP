@@ -1,3 +1,5 @@
+import json
+import os
 import time
 from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
@@ -7,6 +9,7 @@ from typing import Any
 
 import django.test
 import django_webtest
+import requests
 import webtest
 from django.conf import settings
 from django.contrib.auth import login
@@ -14,11 +17,13 @@ from django.contrib.auth.models import Group
 from django.contrib.staticfiles.handlers import StaticFilesHandler
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.http.request import HttpRequest, QueryDict
+from django.test import override_settings, tag
 from django.test.runner import DiscoverRunner
 from django.test.selenium import SeleniumTestCase
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone, translation
+from freezegun import freeze_time
 from model_bakery import baker
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.webdriver import WebDriver
@@ -41,7 +46,7 @@ from evap.evaluation.models import (
 
 
 class EvapTestRunner(DiscoverRunner):
-    """Skips selenium tests by default, if no other tags are specified."""
+    """Skips selenium and vrt tests by default, if no other tags are specified."""
 
     def __init__(self, *args: Any, headed=False, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -49,7 +54,7 @@ class EvapTestRunner(DiscoverRunner):
         self.__headed = headed
 
         if not self.tags and not self.exclude_tags:
-            self.exclude_tags = {"selenium"}
+            self.exclude_tags = {"selenium", "vrt"}
 
     @classmethod
     def add_arguments(cls, parser):
@@ -305,6 +310,7 @@ class LiveServerTest(SeleniumTestCase):
 
     def setUp(self) -> None:
         super().setUp()
+
         self.request = self.make_request()
         self.manager = make_manager()
         self.selenium.get(self.live_server_url)
@@ -358,6 +364,110 @@ class LiveServerTest(SeleniumTestCase):
     def setUpClass(cls) -> None:
         super().setUpClass()
         cls.selenium.set_window_size(*cls.window_size)
+
+
+@tag("vrt")
+@override_settings(SLOGANS_EN=["Einigermaßen verlässlich aussehende Pixeltestung"])
+class VisualRegressionTestCase(LiveServerTest):
+    window_size = (1920, 1080)
+    _http_timeout_seconds = 3
+    _freezer: Any
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.api_url = os.environ.get("VRT_APIURL")
+
+        self.headers = {
+            "apiKey": os.environ.get("VRT_APIKEY"),
+            "Content-Type": "application/json",
+        }
+
+        project_id = os.environ.get("VRT_PROJECT")
+        self.data = {
+            "project": project_id,
+            "projectId": project_id,  # this is not a typo, depending on the request either project/projectId is used
+            "branchName": os.environ.get("VRT_BRANCHNAME"),
+            "ciBuildId": os.environ.get("VRT_CIBUILDID"),
+        }
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+
+        cls._freezer = freeze_time("2025-10-27")
+        cls._freezer.start()
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        super().tearDownClass()
+        cls._freezer.stop()
+
+    @property
+    def viewport(self):
+        return f"{self.window_size[0]}x{self.window_size[1]}"
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.build_id = self._start_vrt_session()
+
+    def tearDown(self) -> None:
+        super().tearDown()
+        self._stop_vrt_session()
+
+    def _start_vrt_session(self) -> str:
+        registration_response = requests.post(
+            f"{self.api_url}/builds",
+            data=json.dumps(self.data),
+            headers=self.headers,
+            timeout=self._http_timeout_seconds,
+        )
+
+        registration_response.raise_for_status()
+        return registration_response.json().get("id")
+
+    def _stop_vrt_session(self):
+        # marks the session of the current as done
+        requests.patch(
+            f"{self.api_url}/builds/{self.build_id}",
+            data={},
+            headers=self.headers,
+            timeout=self._http_timeout_seconds,
+        ).raise_for_status()
+
+    def _post_screenshot(self, name) -> tuple[str, str]:
+        test_data = self.data | {
+            "name": name,
+            "imageBase64": self.selenium.get_screenshot_as_base64(),
+            "viewport": self.viewport,
+            "buildId": self.build_id,
+        }
+
+        test_response = requests.post(
+            f"{self.api_url}/test-runs",
+            data=json.dumps(test_data),
+            headers=self.headers,
+            timeout=self._http_timeout_seconds,
+        )
+
+        test_response.raise_for_status()
+        payload = test_response.json()
+        return payload.get("status"), payload.get("url", "<url-not-found>")
+
+    def trigger_screenshot(self, name: str):
+        full_name = self.__class__.__name__ + "_" + name
+
+        status, review_url = self._post_screenshot(full_name)
+
+        switcher = {
+            "new": f"No Baseline! Review manually: {review_url}",
+            "unresolved": f"Difference found: {review_url}",
+        }
+
+        error_message = switcher.get(status)
+
+        if error_message:
+            self.fail(error_message)
 
 
 def classes_of_element(element: WebElement) -> list[str]:
