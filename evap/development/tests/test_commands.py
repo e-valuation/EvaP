@@ -21,6 +21,7 @@ class TestDumpTestDataCommand(TestCase):
             "rewards",
             "student",
             "grades",
+            "cms",
             "--exclude=evaluation.LogEntry",
             indent=2,
             natural_foreign=True,
