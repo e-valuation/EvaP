@@ -63,22 +63,20 @@
                                                 {% endblocktranslate %}
                                             </span>
 
-                                            <button slot="show-button" type="button" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Delete' %}">
-                                                <span class="fas fa-trash"></span>
-                                            </button>
-                                        </confirmation-modal>
-                                    {% else %}
-                                        <button type="button" disabled class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top"
-                                            title="{% translate 'This questionnaire cannot be deleted because it is already in use.' %}">
-                                            <span class="fas fa-trash"></span>
-                                        </button>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                                    <button slot="show-button" type="button" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Delete' %}">
+                                        <span class="fas fa-trash"></span>
+                                    </button>
+                                </confirmation-modal>
+                            {% else %}
+                                <button type="button" disabled class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top"
+                                    title="{% translate 'This questionnaire cannot be deleted because it is already in use.' %}">
+                                    <span class="fas fa-trash"></span>
+                                </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-{% endif %}
+</div>
