@@ -178,6 +178,27 @@ class ParticipantCollapseTests(LiveServerTest):
         self.assertEqual(counter.text, "0")
 
 
+class QuestionnaireLiveTest(LiveServerTest):
+    def test_questionnaire_selection(self):
+        top_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        bottom_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM)
+        with self.enter_staff_mode():
+            self.selenium.get(self.reverse("staff:questionnaire_index"))
+
+        top_element = self.selenium.find_element(By.XPATH, "//*[contains(text(),'" + top_questionnaire.name + "')]")
+        bottom_element = self.selenium.find_element(
+            By.XPATH, "//*[contains(text(),'" + bottom_questionnaire.name + "')]"
+        )
+
+        self.assertTrue(top_element.is_displayed())
+        self.assertFalse(bottom_element.is_displayed())
+
+        self.selenium.find_element(By.ID, "bottomTab").click()
+
+        self.assertFalse(top_element.is_displayed())
+        self.assertTrue(bottom_element.is_displayed())
+
+
 class TextAnswerEditLiveTest(LiveServerTest):
     def test_edit_textanswer_redirect(self):
         """Regression test for #1696"""

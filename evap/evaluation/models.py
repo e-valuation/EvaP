@@ -213,6 +213,7 @@ class Questionnaire(models.Model):
         HIDDEN = 0, _("Don't show")
         MANAGERS = 1, _("Managers only")
         EDITORS = 2, _("Managers and editors")
+        ARCHIVED = 3, _("Archived")
 
     visibility = models.IntegerField(
         choices=Visibility.choices, verbose_name=_("visibility"), default=Visibility.MANAGERS

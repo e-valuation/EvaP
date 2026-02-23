@@ -173,3 +173,12 @@ $alert-colors: (
 input[type="search"]::-webkit-search-cancel-button {
 	-webkit-appearance: none;
 }
+
+.hover-bg-light:hover {
+    background-color: $lighter-gray;
+}
+
+.rounded-card-top {
+    border-top-left-radius: $card-inner-border-radius;
+    border-top-right-radius: $card-inner-border-radius;
+}

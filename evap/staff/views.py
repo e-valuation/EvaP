@@ -70,6 +70,7 @@ from evap.evaluation.tools import (
     StrOrPromise,
     get_object_from_dict_pk_entry_or_logged_40x,
     get_parameter_from_url_or_session,
+    get_string_from_url_or_session,
     sort_formset,
     temporary_receiver,
 )
@@ -1816,29 +1817,33 @@ def evaluation_preview(request, evaluation_id):
 
 @manager_required
 def questionnaire_index(request):
-    filter_questionnaires = get_parameter_from_url_or_session(request, "filter_questionnaires")
+    filters = ["all", "visible", "archived"]
+    filter_questionnaires = get_string_from_url_or_session(request, "filter_questionnaires", filters[0])
+    if filter_questionnaires not in filters:
+        raise SuspiciousOperation
 
-    prefetch_list = ("questions", "contributions__evaluation")
-    general_questionnaires = Questionnaire.objects.general_questionnaires().prefetch_related(*prefetch_list)
-    contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().prefetch_related(*prefetch_list)
-    dropout_questionnaires = Questionnaire.objects.dropout_questionnaires().prefetch_related(*prefetch_list)
+    match filter_questionnaires:
+        case "all":
+            questionnaires_filter = ~Q(visibility=Questionnaire.Visibility.ARCHIVED)
+        case "visible":
+            questionnaires_filter = ~Q(
+                visibility__in=[Questionnaire.Visibility.ARCHIVED, Questionnaire.Visibility.HIDDEN]
+            )
+        case "archived":
+            questionnaires_filter = Q(visibility=Questionnaire.Visibility.ARCHIVED)
 
-    if filter_questionnaires:
-        general_questionnaires = general_questionnaires.exclude(visibility=Questionnaire.Visibility.HIDDEN)
-        contributor_questionnaires = contributor_questionnaires.exclude(visibility=Questionnaire.Visibility.HIDDEN)
-
-    general_questionnaires_top = [
-        questionnaire for questionnaire in general_questionnaires if questionnaire.is_above_contributors
-    ]
-    general_questionnaires_bottom = [
-        questionnaire for questionnaire in general_questionnaires if questionnaire.is_below_contributors
-    ]
+    questionnaires = (
+        Questionnaire.objects.all()
+        .filter(questionnaires_filter)
+        .order_by("order", "pk")
+        .prefetch_related("questions", "contributions__evaluation")
+    )
 
     template_data = {
-        "general_questionnaires_top": general_questionnaires_top,
-        "general_questionnaires_bottom": general_questionnaires_bottom,
-        "contributor_questionnaires": contributor_questionnaires,
-        "dropout_questionnaires": dropout_questionnaires,
+        "general_questionnaires_top": list(questionnaires.filter(type=Questionnaire.Type.TOP)),
+        "general_questionnaires_bottom": list(questionnaires.filter(type=Questionnaire.Type.BOTTOM)),
+        "contributor_questionnaires": list(questionnaires.filter(type=Questionnaire.Type.CONTRIBUTOR)),
+        "dropout_questionnaires": list(questionnaires.filter(type=Questionnaire.Type.DROPOUT)),
         "filter_questionnaires": filter_questionnaires,
     }
     return render(request, "staff_questionnaire_index.html", template_data)
@@ -2019,7 +2024,7 @@ def questionnaire_new_version(request, questionnaire_id):
                 # Change old name before checking Form.
                 old_questionnaire.name_de = new_name_de
                 old_questionnaire.name_en = new_name_en
-                old_questionnaire.visibility = Questionnaire.Visibility.HIDDEN
+                old_questionnaire.visibility = Questionnaire.Visibility.ARCHIVED
                 old_questionnaire.save()
 
                 if not form.is_valid() or not formset.is_valid():
