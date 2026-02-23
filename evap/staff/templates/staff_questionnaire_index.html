@@ -60,45 +60,45 @@
         </script>
 
         <div class="card card-outline p-0">
-            <div class="d-flex bg-dark-subtle border-bottom border-secondary rounded-card-top">
-                <ul class="nav nav-tabs border-0 p-0 pb-0" role="tablist">
-                    <li class="nav-item p-0">
-                        <button class="nav-link text-black hover-bg-light py-1" id="topTab" data-bs-toggle="tab" data-bs-target="#topTabContent" role="tab">
+            <div class="card-body">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link" id="topTab" data-bs-toggle="tab" data-bs-target="#topTabContent" role="tab">
                             {% translate 'Top general questionnaires' %}
                         </button>
                     </li>
-                    <li class="nav-item p-0">
-                        <button class="nav-link text-black hover-bg-light py-1" id="contributorTab" data-bs-toggle="tab" data-bs-target="#contributorTabContent" role="tab">
+                    <li class="nav-item">
+                        <button class="nav-link" id="contributorTab" data-bs-toggle="tab" data-bs-target="#contributorTabContent" role="tab">
                             {% translate 'Contributor questionnaires' %}
                         </button>
                     </li>
-                    <li class="nav-item p-0">
-                        <button class="nav-link text-black hover-bg-light py-1" id="bottomTab" data-bs-toggle="tab" data-bs-target="#bottomTabContent" role="tab">
+                    <li class="nav-item">
+                        <button class="nav-link" id="bottomTab" data-bs-toggle="tab" data-bs-target="#bottomTabContent" role="tab">
                             {% translate 'Bottom general questionnaires' %}
                         </button>
                     </li>
-                    <li class="nav-item p-0">
-                        <button class="nav-link text-black hover-bg-light py-1" id="dropoutTab" data-bs-toggle="tab" data-bs-target="#dropoutTabContent" role="tab">
+                    <li class="nav-item">
+                        <button class="nav-link" id="dropoutTab" data-bs-toggle="tab" data-bs-target="#dropoutTabContent" role="tab">
                             {% translate 'Dropout questionnaires' %}
                         </button>
                     </li>
                 </ul>
-            </div>
 
-            <div class="card-body tab-content">
-                <div class="tab-pane show" id="topTabContent" role="tabpanel">
-                    <div class="row align-items-center mb-3">
-                        {% include 'staff_questionnaire_index_list.html' with questionnaires=general_questionnaires_top type='top' %}
+                <div class="tab-content">
+                    <div class="tab-pane show" id="topTabContent" role="tabpanel">
+                        <div class="row align-items-center mb-3">
+                            {% include 'staff_questionnaire_index_list.html' with questionnaires=general_questionnaires_top type='top' %}
+                        </div>
                     </div>
-                </div>
-                <div class="tab-pane" id="contributorTabContent" role="tabpanel">
-                    {% include 'staff_questionnaire_index_list.html' with questionnaires=contributor_questionnaires type='contributor' %}
-                </div>
-                <div class="tab-pane" id="bottomTabContent" role="tabpanel">
-                    {% include 'staff_questionnaire_index_list.html' with questionnaires=general_questionnaires_bottom type='bottom' %}
-                </div>
-                <div class="tab-pane" id="dropoutTabContent" role="tabpanel">
-                    {% include 'staff_questionnaire_index_list.html' with questionnaires=dropout_questionnaires type='dropout' %}
+                    <div class="tab-pane" id="contributorTabContent" role="tabpanel">
+                        {% include 'staff_questionnaire_index_list.html' with questionnaires=contributor_questionnaires type='contributor' %}
+                    </div>
+                    <div class="tab-pane" id="bottomTabContent" role="tabpanel">
+                        {% include 'staff_questionnaire_index_list.html' with questionnaires=general_questionnaires_bottom type='bottom' %}
+                    </div>
+                    <div class="tab-pane" id="dropoutTabContent" role="tabpanel">
+                        {% include 'staff_questionnaire_index_list.html' with questionnaires=dropout_questionnaires type='dropout' %}
+                    </div>
                 </div>
             </div>
         </div>
