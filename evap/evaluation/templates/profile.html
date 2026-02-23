@@ -77,19 +77,13 @@
                         <button type="submit" class="btn btn-primary">
                             {% translate 'Save' %}
                         </button>
-                        <button type="button" class="btn btn-light" id="changeRequestModalShowButton">
-                            {% translate 'Request changes' %}
-                        </button>
+                        {% translate 'Request changes' as title %}
+                        {% translate 'You are welcome to submit feedback regarding the evaluation platform or specific evaluations. Please let us know how we can improve your experience on EvaP.' as teaser %}
+                        {% translate "Request changes" as show_button_text %}
+                        {% include 'contact_modal.html' with modal_id='feedbackModal' user=request.user title=title teaser=teaser show_button_class="btn btn-light" show_button_text=show_button_text%}
                     </div>
                 </div>
             </div>
         </div>
     </form>
-{% endblock %}
-
-{% block modals %}
-    {{ block.super }}
-    {% translate 'Request user setting changes' as title %}
-    {% translate 'Please tell us which of your settings we should change.' as teaser %}
-    {% include 'contact_modal.html' with modal_id='changeRequestModal' user=request.user title=title teaser=teaser %}
 {% endblock %}
