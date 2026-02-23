@@ -686,6 +686,7 @@ class TestImportEvents(TestCase):
         evaluation.general_contribution.questionnaires.add(
             baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
         )
+        evaluation.main_language = "de"
         evaluation.manager_approve()
         evaluation.vote_start_datetime = datetime.now()
         evaluation.vote_end_date = datetime.now().date() + timedelta(days=1)
