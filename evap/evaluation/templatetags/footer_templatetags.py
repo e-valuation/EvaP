@@ -1,5 +1,4 @@
-from importlib.metadata import version
-
+from django.conf import settings
 from django.template import Library
 
 register = Library()
@@ -7,4 +6,4 @@ register = Library()
 
 @register.simple_tag
 def release_version():
-    return version("evap")
+    return settings.RELEASE_VERSION
