@@ -10,13 +10,16 @@
         </div>
         <div class="col-auto">
             <div class="btn-switch btn-switch-light">
-                <div class="btn-switch-label">{% translate 'Hidden questionnaires' %}</div>
+                <div class="btn-switch-label">{% translate 'Show questionnaires' %}</div>
                 <div class="btn-switch btn-group">
-                    <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=false" role="button" class="btn btn-sm btn-light{% if not filter_questionnaires %} active{% endif %}">
-                    {% translate 'Show' %}
+                    <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=all" role="button" class="btn btn-sm btn-light{% if filter_questionnaires == 'all' %} active{% endif %}">
+                    {% translate 'All' %}
                     </a>
-                    <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=true" role="button" class="btn btn-sm btn-light{% if filter_questionnaires %} active{% endif %}">
-                        {% translate 'Hide' %}
+                    <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=visible" role="button" class="btn btn-sm btn-light{% if filter_questionnaires == 'visible' %} active{% endif %}">
+                        {% translate 'Visible' %}
+                    </a>
+                    <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=archived" role="button" class="btn btn-sm btn-light{% if filter_questionnaires == 'archived' %} active{% endif %}">
+                        {% translate 'Archived' %}
                     </a>
                 </div>
             </div>
@@ -56,14 +59,50 @@
             });
         </script>
 
-        {% translate 'Top general questionnaires' as headline %}
-        {% include 'staff_questionnaire_index_list.html' with questionnaires=general_questionnaires_top headline=headline extra_classes='mb-3' type='top' %}
-        {% translate 'Contributor questionnaires' as headline %}
-        {% include 'staff_questionnaire_index_list.html' with questionnaires=contributor_questionnaires headline=headline extra_classes='mb-3' type='contributor' %}
-        {% translate 'Bottom general questionnaires' as headline %}
-        {% include 'staff_questionnaire_index_list.html' with questionnaires=general_questionnaires_bottom headline=headline extra_classes='mb-3' type='bottom' %}
-        {% translate 'Dropout questionnaires' as headline %}
-        {% include 'staff_questionnaire_index_list.html' with questionnaires=dropout_questionnaires headline=headline extra_classes='' type='dropout' %}
+        <div class="card card-outline p-0">
+            <div class="d-flex bg-dark-subtle border-bottom border-secondary rounded-card-top">
+                <ul class="nav nav-tabs border-0 p-0 pb-0" role="tablist">
+                    <li class="nav-item p-0">
+                        <button class="nav-link text-black hover-bg-light py-1" id="topTab" data-bs-toggle="tab" data-bs-target="#topTabContent" role="tab">
+                            {% translate 'Top general questionnaires' %}
+                        </button>
+                    </li>
+                    <li class="nav-item p-0">
+                        <button class="nav-link text-black hover-bg-light py-1" id="contributorTab" data-bs-toggle="tab" data-bs-target="#contributorTabContent" role="tab">
+                            {% translate 'Contributor questionnaires' %}
+                        </button>
+                    </li>
+                    <li class="nav-item p-0">
+                        <button class="nav-link text-black hover-bg-light py-1" id="bottomTab" data-bs-toggle="tab" data-bs-target="#bottomTabContent" role="tab">
+                            {% translate 'Bottom general questionnaires' %}
+                        </button>
+                    </li>
+                    <li class="nav-item p-0">
+                        <button class="nav-link text-black hover-bg-light py-1" id="dropoutTab" data-bs-toggle="tab" data-bs-target="#dropoutTabContent" role="tab">
+                            {% translate 'Dropout questionnaires' %}
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card-body tab-content">
+                <div class="tab-pane show" id="topTabContent" role="tabpanel">
+                    <div class="row align-items-center mb-3">
+                        {% include 'staff_questionnaire_index_list.html' with questionnaires=general_questionnaires_top type='top' %}
+                    </div>
+                </div>
+                <div class="tab-pane" id="contributorTabContent" role="tabpanel">
+                    {% include 'staff_questionnaire_index_list.html' with questionnaires=contributor_questionnaires type='contributor' %}
+                </div>
+                <div class="tab-pane" id="bottomTabContent" role="tabpanel">
+                    {% include 'staff_questionnaire_index_list.html' with questionnaires=general_questionnaires_bottom type='bottom' %}
+                </div>
+                <div class="tab-pane" id="dropoutTabContent" role="tabpanel">
+                    {% include 'staff_questionnaire_index_list.html' with questionnaires=dropout_questionnaires type='dropout' %}
+                </div>
+            </div>
+        </div>
+
     {% else %}
         <p>
             {% translate 'There are no questionnaires yet.' %}
@@ -123,6 +162,25 @@
         }
         for (const button of document.querySelectorAll(".change-is-locked-button")) {
             button.addEventListener("click", () => changeLocked(button));
+        }
+    </script>
+
+    <script type="module">
+        const tabIds = ["topTab", "contributorTab", "bottomTab", "dropoutTab"];
+        const tabName = localStorage.getItem('staff_questionnaure_index_tab') || tabIds[0];
+
+        if (tabIds.includes(tabName)) {
+            const tab = document.getElementById(tabName);
+            const tabTrigger = new bootstrap.Tab(tab);
+            tabTrigger.show();
+        }
+
+        function saveSelectedTab(tab) {
+            localStorage['staff_questionnaure_index_tab'] = tab;
+        }
+
+        for (const id of tabIds) {
+            document.getElementById(id).addEventListener("click", () => saveSelectedTab(id))
         }
     </script>
 {% endblock %}
