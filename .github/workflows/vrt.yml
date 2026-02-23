@@ -49,5 +49,10 @@ jobs:
           shell: .#evap-frontend-dev
           npm-ci: true
           start-db: true
+      - name: Load Self-Signed Certificate
+        run: |
+          echo "${{ secrets.VRT_SSL_CERTIFICATE }}" > evap-vrt.crt
+          sudo cp evap-vrt.crt /usr/local/share/ca-certificates/
+          sudo update-ca-certificates
       - name: Run visual regression tests
         run: python manage.py vrt_test
