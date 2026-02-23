@@ -29,6 +29,13 @@ New portions and modifications are licensed under the conditions in LICENSE.md
 
 import { assert } from "./utils.js";
 
+type LocalStorageConstantsDictionary = Record<string, string>;
+export const localStorageConstants: LocalStorageConstantsDictionary = {
+    "local-storage-key-last-saved-at": "student-vote-last-saved-at",
+    "local-storage-key-language": "student-vote-language",
+    "local-storage-key-form-data": "student-vote",
+};
+
 interface AutoFormSaverOptions {
     href: string;
     customKeySuffix: string;
@@ -80,6 +87,10 @@ export class AutoFormSaver {
 
     getPrefix(field: Element) {
         return (
+            localStorageConstants["local-storage-key-form-data"] +
+            "-" +
+            this.options.href.split("/").slice(-1)[0] +
+            "-" +
             this.options.href +
             this.target.id +
             this.target.name +
