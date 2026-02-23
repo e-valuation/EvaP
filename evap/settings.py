@@ -12,6 +12,7 @@ import logging
 import sys
 from datetime import timedelta
 from fractions import Fraction
+from importlib.metadata import version
 from pathlib import Path
 from typing import Any
 
@@ -22,6 +23,7 @@ from evap.tools import MonthAndDay
 MODULE = Path(__file__).parent.resolve()
 CWD = Path(".").resolve()
 DATADIR = CWD / "data"
+RELEASE_VERSION = version("evap")
 
 ### Debugging
 
