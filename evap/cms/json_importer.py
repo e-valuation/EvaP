@@ -191,7 +191,7 @@ class ImportStatistics:
 
 def _clean_whitespaces_and_hyphens(text: str) -> str:
     """Normalize to single space characters and en-dashes."""
-    return re.sub(r"\s+", " ", text.strip()).replace(" - ", " – ")
+    return re.sub(r"\s+", " ", text.strip()).replace(" - ", " \u2013 ")
 
 
 T = typing.TypeVar("T", CourseType, ExamType, Program)
@@ -246,10 +246,12 @@ class JSONImporter:
 
         # raw events
         self.events_by_gguid: dict[str, ImportEvent] = {}
-        # courses already parsed as events
+        # events already parsed as courses
         self.courses_by_gguid: dict[str, Course] = {}
 
-    def get_main_evaluation(self, exam_event: ImportEvent) -> ImportEvent:
+    def get_main_evaluation_data(self, exam_event: ImportEvent) -> ImportEvent:
+        # Exam events have the non-exam event (its main evaluation) as a single entry in the relatedevents list
+
         # expects exam evaluation as input
         assert len(exam_event["relatedevents"]) == 1
         return self.events_by_gguid[exam_event["relatedevents"][0]["gguid"]]
@@ -541,8 +543,8 @@ class JSONImporter:
             is_rewarded = True
 
         main_language = LANGUAGE_MAP.get(data["language"], Evaluation.UNDECIDED_MAIN_LANGUAGE)
-        if main_language == Evaluation.UNDECIDED_MAIN_LANGUAGE and data.get("relatedevents"):
-            related_main_evaluation = self.get_main_evaluation(data)
+        if main_language == Evaluation.UNDECIDED_MAIN_LANGUAGE and data["isexam"]:
+            related_main_evaluation = self.get_main_evaluation_data(data)
             main_language = LANGUAGE_MAP.get(related_main_evaluation["language"], Evaluation.UNDECIDED_MAIN_LANGUAGE)
 
         if main_language == Evaluation.UNDECIDED_MAIN_LANGUAGE and not evaluation:
@@ -642,11 +644,10 @@ class JSONImporter:
             course = self._import_course(event)
 
         for event in exam_events:
-            # Exam events have the non-exam event as a single entry in the relatedevents list
-            # We lookup the Course from this non-exam event (the main evaluation) to add the exam evaluation to the same Course
+            # We lookup the Course from the main evaluation to add the exam evaluation to the same Course
 
             # Don't import if course was skipped
-            course = self.courses_by_gguid.get(self.get_main_evaluation(event)["gguid"])
+            course = self.courses_by_gguid.get(self.get_main_evaluation_data(event)["gguid"])
             if course is None:
                 continue
 
