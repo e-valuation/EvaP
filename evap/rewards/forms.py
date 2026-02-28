@@ -15,6 +15,10 @@ class RewardPointRedemptionEventForm(forms.ModelForm):
     class Meta:
         model = RewardPointRedemptionEvent
         fields = ("name_en", "name_de", "date", "redeem_end_date", "step")
+        widgets = {
+            "date": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+            "redeem_end_date": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

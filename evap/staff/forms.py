@@ -100,8 +100,19 @@ class ModelWithImportNamesFormset(forms.BaseModelFormSet):
 class ImportForm(forms.Form):
     use_required_attribute = False
 
-    vote_start_datetime = forms.DateTimeField(label=_("Start of evaluation"), localize=True, required=False)
-    vote_end_date = forms.DateField(label=_("End of evaluation"), localize=True, required=False)
+    vote_start_datetime = forms.DateTimeField(
+        label=_("Start of evaluation"),
+        widget=forms.DateTimeInput(),
+        localize=True,
+        required=False,
+    )
+
+    vote_end_date = forms.DateField(
+        label=_("End of evaluation"),
+        widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+        localize=True,
+        required=False,
+    )
 
     excel_file = forms.FileField(
         label=_("Excel file"),
@@ -314,8 +325,18 @@ class CourseForm(CourseFormMixin, forms.ModelForm):  # type: ignore[misc]
 
 class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore[misc]
     semester = forms.ModelChoiceField(Semester.objects.all())
-    vote_start_datetime = forms.DateTimeField(label=_("Start of evaluations"), localize=True)
-    vote_end_date = forms.DateField(label=_("Last day of evaluations"), localize=True)
+
+    vote_start_datetime = forms.DateTimeField(
+        label=_("Start of evaluations"),
+        localize=True,
+        widget=forms.DateTimeInput(),
+    )
+
+    vote_end_date = forms.DateField(
+        label=_("Last day of evaluations"),
+        localize=True,
+        widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+    )
 
     field_order = ["semester"]
 
@@ -435,6 +456,10 @@ class EvaluationForm(forms.ModelForm):
         localized_fields = ("vote_start_datetime", "vote_end_date")
         field_classes = {
             "participants": UserModelMultipleChoiceField,
+        }
+        widgets = {
+            "vote_start_datetime": forms.DateTimeInput(),
+            "vote_end_date": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
         }
 
     def __init__(self, *args, requires_decided_main_language=False, **kwargs):
