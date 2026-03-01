@@ -352,7 +352,7 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore[misc]
         "_voter_count",
         "voters",
         "votetimestamp",
-        "cms_id",
+        "evaluation_links",
         "dropout_count",
         "staff_notes",
     }
@@ -478,6 +478,10 @@ class EvaluationForm(forms.ModelForm):
 
         if self.instance.pk:
             self.instance.old_course = self.instance.course
+
+        if self.instance.pk and self.instance.evaluation_links.filter(is_active=True).exists():
+            self.fields["participants"].disabled = True
+            self.cms_disclaimer = _("Participants are regularly updated with registrations from the CMS.")
 
     def validate_unique(self):
         super().validate_unique()

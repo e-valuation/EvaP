@@ -12,6 +12,7 @@ from pydantic import ValidationError
 
 import evap.cms.fixtures
 from evap.cms.json_importer import ImportDict, JSONImporter, NameChange, WarningMessage, _clean_whitespaces
+from evap.cms.models import EvaluationLink, IgnoredEvaluation
 from evap.evaluation.models import (
     Contribution,
     Course,
@@ -51,6 +52,7 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
     "students": [
         {"gguid": "0x1", "email": "", "name": "1", "christianname": "w_1", "callingname": "1"},
         {"gguid": "0x2", "email": "2@example.com", "name": "2", "christianname": "w_2", "callingname": "2"},
+        {"gguid": "0x3", "email": "3@example.com", "name": "3", "christianname": "w_3", "callingname": "3"},
         {"gguid": "0x7", "email": "ignored.student@example.com", "name": "7", "christianname": "7", "callingname": "7"},
         {
             "gguid": "0x11",
@@ -162,7 +164,7 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
             "isexam": False,
             "appointments": [{"begin": "01.01.2025 01:01:01", "end": "31.12.2025 12:31:00"}],
             "lecturers": [{"gguid": "0x3"}],
-            "students": [{"gguid": "0x1"}, {"gguid": "0x2"}],
+            "students": [{"gguid": "0x1"}, {"gguid": "0x2"}, {"gguid": "0x3"}],
             "language": "random_value",
         },
         {
@@ -199,7 +201,7 @@ EXAMPLE_DATA_SPECIAL_CASES: ImportDict = {
             "type": "Vorlesung",
             "isexam": False,
             "lecturers": [{"gguid": "0x3"}, {"gguid": "0x6"}],
-            "students": [{"gguid": "0x1"}, {"gguid": "0x7"}],
+            "students": [{"gguid": "0x1"}, {"gguid": "0x3"}, {"gguid": "0x7"}],
             "appointments": [{"begin": "29.07.2024 10:15:00", "end": "29.07.2024 11:45:00"}],
             "language": "Deutsch",
         },
@@ -334,7 +336,7 @@ class TestImportEvents(TestCase):
         course = Course.objects.get()
 
         self.assertEqual(course.semester, self.semester)
-        self.assertEqual(course.cms_id, EXAMPLE_DATA["events"][0]["gguid"])
+        self.assertEqual(course.course_links.first().cms_id, EXAMPLE_DATA["events"][0]["gguid"])
         self.assertEqual(course.name_de, EXAMPLE_DATA["events"][0]["title"])
         self.assertEqual(course.name_en, EXAMPLE_DATA["events"][0]["title_en"])
         self.assertEqual(course.type.name_de, EXAMPLE_DATA["events"][0]["type"])
@@ -476,7 +478,7 @@ class TestImportEvents(TestCase):
         self.assertEqual(evaluation.vote_end_date, date(2025, 11, 30))
 
         # evaluation_without_exam has no "appointments", uses default dates
-        evaluation_without_exam = Evaluation.objects.get(cms_id="0x8")
+        evaluation_without_exam = Evaluation.objects.get(evaluation_links__cms_id="0x8")
         self.assertEqual(evaluation_without_exam.vote_start_datetime, datetime(1999, 12, 20, 8, 0))
         self.assertEqual(evaluation_without_exam.vote_end_date, date(2000, 1, 2))
 
@@ -485,28 +487,28 @@ class TestImportEvents(TestCase):
 
         # use import names and only import non-ignored programs
         self.assertEqual({d.name_en for d in evaluation.course.programs.all()}, {"BA-Inf", "Master Program", "Program"})
-        evaluation_everything = Evaluation.objects.get(cms_id="0x44")
+        evaluation_everything = Evaluation.objects.get(evaluation_links__cms_id="0x44")
         self.assertEqual(evaluation_everything.course.type, course_type)
 
         # evaluation has undecided language
         self.assertEqual(evaluation_everything.main_language, Evaluation.UNDECIDED_MAIN_LANGUAGE)
 
         # disambiguate exam names
-        evaluation_life = Evaluation.objects.get(cms_id="0x42")
+        evaluation_life = Evaluation.objects.get(evaluation_links__cms_id="0x42")
         self.assertEqual(evaluation_life.name_de, "Klausur")
         self.assertEqual(evaluation_life.name_en, "Exam")
-        evaluation_universe = Evaluation.objects.get(cms_id="0x43")
+        evaluation_universe = Evaluation.objects.get(evaluation_links__cms_id="0x43")
         self.assertEqual(evaluation_universe.name_de, "Klausur (2)")
         self.assertEqual(evaluation_universe.name_en, "Exam (2)")
 
         # use second part of title after dash
-        evaluation_early = Evaluation.objects.get(cms_id="0x51")
+        evaluation_early = Evaluation.objects.get(evaluation_links__cms_id="0x51")
         self.assertTrue(evaluation_early.exam_type)
         self.assertEqual(evaluation_early.name_de, "Früh")
         self.assertEqual(evaluation_early.name_en, "Early")
 
         # don't update evaluation period for late course
-        evaluation_late_lecture = Evaluation.objects.get(cms_id="0x50")
+        evaluation_late_lecture = Evaluation.objects.get(evaluation_links__cms_id="0x50")
         self.assertEqual(evaluation_late_lecture.vote_start_datetime, datetime(2025, 3, 10, 8, 0))
         self.assertEqual(evaluation_late_lecture.vote_end_date, date(2025, 3, 23))
 
@@ -562,7 +564,7 @@ class TestImportEvents(TestCase):
     def test_import_ignore_non_responsible_users(self):
         with override_settings(NON_RESPONSIBLE_USERS=["4@example.com", "ignored.lecturer2@example.com"]):
             self._import(EXAMPLE_DATA_SPECIAL_CASES)
-            evaluation = Evaluation.objects.get(cms_id="0x9")
+            evaluation = Evaluation.objects.get(evaluation_links__cms_id="0x9")
             self.assertEqual(set(evaluation.course.responsibles.values_list("email", flat=True)), {"5@example.com"})
             self.assertEqual(
                 set(
@@ -573,9 +575,10 @@ class TestImportEvents(TestCase):
                 {"5@example.com"},
             )
 
+    def test_import_all_responsibles(self):
         with override_settings(NON_RESPONSIBLE_USERS=[]):
             self._import(EXAMPLE_DATA_SPECIAL_CASES)
-            evaluation = Evaluation.objects.get(cms_id="0x9")
+            evaluation = Evaluation.objects.get(evaluation_links__cms_id="0x9")
             self.assertEqual(
                 set(evaluation.course.responsibles.values_list("email", flat=True)),
                 {"4@example.com", "5@example.com", "ignored.lecturer2@example.com"},
@@ -624,13 +627,11 @@ class TestImportEvents(TestCase):
         evaluation.course.save()
 
         importer = self._import()
-
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
 
         self.assertTrue(evaluation.is_rewarded)
         self.assertEqual(evaluation.course.name_en, "Process-oriented information systems")
         self.assertEqual(importer.statistics.attempted_evaluation_changes, [])
-        self.assertEqual(importer.statistics.attempted_course_changes, set())
 
         evaluation.ready_for_editors()
         evaluation.is_rewarded = False
@@ -638,9 +639,11 @@ class TestImportEvents(TestCase):
         evaluation.course.name_en = "Change"
         evaluation.course.save()
 
-        importer = self._import(assert_nop=True)
+        importer = self._import()
+        evaluation = Evaluation.objects.get(pk=evaluation.pk)
+
+        self.assertEqual(evaluation.course.name_en, "Process-oriented information systems")
         self.assertEqual(len(importer.statistics.attempted_evaluation_changes), 1)
-        self.assertEqual(len(importer.statistics.attempted_course_changes), 1)
 
     def test_import_courses_evaluation_approved(self):
         self._import()
@@ -765,8 +768,8 @@ class TestImportEvents(TestCase):
             )
             in importer.statistics.warnings,
         )
-        self.assertFalse(Evaluation.objects.filter(cms_id="0x5").exists())
-        self.assertFalse(Evaluation.objects.filter(cms_id="0x6").exists())
+        self.assertFalse(Evaluation.objects.filter(evaluation_links__cms_id="0x5").exists())
+        self.assertFalse(Evaluation.objects.filter(evaluation_links__cms_id="0x6").exists())
 
     def test_disambiguate_name(self):
         importer = JSONImporter(self.semester, date(2000, 1, 1))
@@ -790,7 +793,7 @@ class TestImportEvents(TestCase):
 
         self._import(data)
 
-        exam_evaluation = Evaluation.objects.get(cms_id=data["events"][1]["gguid"])
+        exam_evaluation = Evaluation.objects.get(evaluation_links__cms_id=data["events"][1]["gguid"])
 
         self.assertEqual(exam_evaluation.name_de, exam_type.name_de)
         self.assertEqual(exam_evaluation.name_en, exam_type.name_en)
@@ -801,7 +804,7 @@ class TestImportEvents(TestCase):
 
         self._import(data)
 
-        exam_evaluation = Evaluation.objects.get(cms_id=data["events"][1]["gguid"])
+        exam_evaluation = Evaluation.objects.get(evaluation_links__cms_id=data["events"][1]["gguid"])
 
         self.assertEqual(exam_evaluation.exam_type.name_de, "Präsentation")
         self.assertEqual(exam_evaluation.exam_type.name_en, "Präsentation")
@@ -815,3 +818,45 @@ class TestImportEvents(TestCase):
         self.assertEqual(_clean_whitespaces("inbetween \n inbetween"), "inbetween inbetween")
         # non-breaking whitespace
         self.assertEqual(_clean_whitespaces("inbetween  inbetween"), "inbetween inbetween")
+
+    def test_import_merged_evaluations(self):
+        self._import(EXAMPLE_DATA_SPECIAL_CASES)
+        main_evaluation = Evaluation.objects.get(evaluation_links__cms_id="0x10")
+        other_evaluation = Evaluation.objects.get(evaluation_links__cms_id="0x44")
+
+        evaluation_link = other_evaluation.evaluation_links.first()
+        evaluation_link.evaluation = main_evaluation
+        evaluation_link.save()
+        baker.make(IgnoredEvaluation, cms_id=evaluation_link.cms_id, course=other_evaluation.course)
+        main_evaluation.participants.add(*other_evaluation.participants.all())
+        other_evaluation.delete()
+
+        importer = self._import(EXAMPLE_DATA_SPECIAL_CASES)
+        evaluation = Evaluation.objects.get(evaluation_links__cms_id="0x10")
+        self.assertEqual(
+            set(evaluation.participants.values_list("last_name", flat=True)),
+            {"2", "3", "7"},
+        )
+        self.assertEqual(len(importer.statistics.updated_participants), 0)
+
+    def test_import_inactive_link(self):
+        self._import(EXAMPLE_DATA_SPECIAL_CASES)
+        evaluation = Evaluation.objects.get(evaluation_links__cms_id="0x51")
+        self.assertEqual(evaluation.main_language, "de")
+
+        evaluation.main_language = "en"
+        evaluation.save()
+
+        self._import(EXAMPLE_DATA_SPECIAL_CASES)
+        evaluation_link = EvaluationLink.objects.get(cms_id="0x51")
+        evaluation = evaluation_link.evaluation
+        self.assertEqual(evaluation.main_language, "de")
+
+        evaluation_link.is_active = False
+        evaluation_link.save()
+        evaluation.main_language = "en"
+        evaluation.save()
+
+        self._import(EXAMPLE_DATA_SPECIAL_CASES)
+        evaluation = Evaluation.objects.get(evaluation_links__cms_id="0x51")
+        self.assertEqual(evaluation.main_language, "en")

@@ -1,0 +1,8 @@
+{% load cms_filters %}
+
+{% if evaluation.evaluation_links.all|has_active_links %}
+    <span class="fas fa-link" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Linked to CMS' %}"></span>
+{% endif %}
+{% if evaluation.evaluation_links.all|has_inactive_links %}
+    <span class="fas fa-link-slash" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Has inactive CMS links' %}"></span>
+{% endif %}
