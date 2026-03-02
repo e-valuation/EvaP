@@ -102,6 +102,16 @@ class LoginTests(WebTest):
         self.assertEqual(len(mail.outbox), 1)  # an OTP was sent
         self.assertContains(page, "We sent you an email with a one-time login URL. Please check your inbox.")
 
+    def test_generating_more_than_max_otps_invalidates_oldest_only(self):
+        otps = [OtpHash.create(self.external_user) for _ in range(settings.MAX_OTPS_PER_USER + 1)]
+
+        self.assertIsNone(OtpHash.get(otps[0]))
+
+        for otp in otps[1:]:
+            otp_hash = OtpHash.get(otp)
+            self.assertIsNotNone(otp_hash)
+            self.assertTrue(otp_hash.is_valid())
+
     def test_invalid_otp_shows_error_message(self):
         page = self.app.get("/otp/definitely-invalid-otp").follow()
 

@@ -2169,7 +2169,7 @@ class OtpHash(models.Model):
             length = settings.OTP_LENGTH
             validity = settings.OTP_VALIDITY
 
-        while True:
+        for _ in range(10):
             raw_otp = "".join(secrets.choice(alphabet) for _ in range(length))
             try:
                 cls.objects.create(
