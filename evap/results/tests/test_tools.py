@@ -20,6 +20,8 @@ from evap.evaluation.tests.tools import TestCase, make_rating_answer_counters
 from evap.results.tools import (
     ViewContributorResults,
     ViewGeneralResults,
+    average_grade_questions_distribution,
+    average_non_grade_rating_questions_distribution,
     cache_results,
     calculate_average_course_distribution,
     calculate_average_distribution,
@@ -417,24 +419,93 @@ class TestCalculateAverageDistribution(TestCase):
         self.assertEqual(distribution[3], 0)
         self.assertEqual(distribution[4], 0)
 
-    def test_dropout_questionnaires_are_not_included(self):
-        general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        general_question = baker.make(Question, questionnaire=general_questionnaire, type=QuestionType.GRADE)
-
-        dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
-        dropout_question = baker.make(Question, questionnaire=dropout_questionnaire, type=QuestionType.GRADE)
-
-        contribution = baker.make(
-            Contribution, evaluation=self.evaluation, questionnaires=[general_questionnaire, dropout_questionnaire]
+    def test_average_questions_distribution(self):
+        grade_question = baker.make(
+            Question, questionnaire=self.questionnaire, type=QuestionType.GRADE, counts_for_grade=True
+        )
+        non_counting_grade_question = baker.make(
+            Question, questionnaire=self.questionnaire, type=QuestionType.GRADE, counts_for_grade=False
+        )
+        likert_question = baker.make(
+            Question, questionnaire=self.questionnaire, type=QuestionType.POSITIVE_LIKERT, counts_for_grade=True
+        )
+        non_counting_likert_question = baker.make(
+            Question, questionnaire=self.questionnaire, type=QuestionType.POSITIVE_LIKERT, counts_for_grade=False
         )
 
-        make_rating_answer_counters(general_question, contribution, [10, 10, 0, 0, 0])
-        make_rating_answer_counters(dropout_question, contribution, [0, 0, 0, 0, 10])
+        counters = [
+            *make_rating_answer_counters(non_counting_grade_question, self.contribution1, [0, 0, 0, 0, 1], False),
+            *make_rating_answer_counters(non_counting_likert_question, self.contribution1, [0, 0, 0, 0, 3], False),
+        ]
+        RatingAnswerCounter.objects.bulk_create(counters)
 
         cache_results(self.evaluation)
+        evaluation_results = get_results(self.evaluation)
 
-        calculated_grade = distribution_to_grade(calculate_average_distribution(self.evaluation))
-        self.assertAlmostEqual(calculated_grade, 1.5)
+        question_results = [
+            question_result
+            for contribution_result in evaluation_results.contribution_results
+            for questionnaire_result in contribution_result.questionnaire_results
+            for question_result in questionnaire_result.question_results
+        ]
+
+        self.assertIsNone(average_grade_questions_distribution(question_results))
+        self.assertIsNone(average_non_grade_rating_questions_distribution(question_results))
+
+        counters = [
+            *make_rating_answer_counters(grade_question, self.contribution1, [1, 0, 0, 0, 0], False),
+            *make_rating_answer_counters(likert_question, self.contribution1, [0, 0, 3, 0, 0], False),
+        ]
+        RatingAnswerCounter.objects.bulk_create(counters)
+
+        cache_results(self.evaluation)
+        evaluation_results = get_results(self.evaluation)
+
+        question_results = [
+            question_result
+            for contribution_result in evaluation_results.contribution_results
+            for questionnaire_result in contribution_result.questionnaire_results
+            for question_result in questionnaire_result.question_results
+        ]
+
+        grade_distribution = average_grade_questions_distribution(question_results)
+        self.assertEqual(grade_distribution, (1, 0, 0, 0, 0))  # Only the counting grade question should be included
+        self.assertAlmostEqual(distribution_to_grade(grade_distribution), 1.0)
+
+        non_grade_distribution = average_non_grade_rating_questions_distribution(question_results)
+        self.assertEqual(
+            non_grade_distribution, (0, 0, 1, 0, 0)
+        )  # Only the counting likert question should be included
+        self.assertAlmostEqual(distribution_to_grade(non_grade_distribution), 3.0)
+
+    def test_dropout_questionnaire_excluded_from_distribution(self):
+        make_rating_answer_counters(self.question_grade, self.general_contribution, [0, 0, 0, 0, 10])
+        cache_results(self.evaluation)
+
+        distribution_without_dropout = calculate_average_distribution(self.evaluation)
+        self.assertIsNotNone(distribution_without_dropout)
+
+        dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
+        dropout_question = baker.make(
+            Question,
+            questionnaire=dropout_questionnaire,
+            type=QuestionType.GRADE,
+            counts_for_grade=False,
+        )
+        self.evaluation.general_contribution.questionnaires.add(dropout_questionnaire)
+        make_rating_answer_counters(dropout_question, self.evaluation.general_contribution, [10, 0, 0, 0, 0])
+        cache_results(self.evaluation)
+
+        distribution_with_dropout = calculate_average_distribution(self.evaluation)
+        self.assertEqual(distribution_without_dropout, distribution_with_dropout)
+
+        dropout_question.counts_for_grade = True
+        dropout_question.save()
+        cache_results(self.evaluation)
+
+        # Should raise AssertionError because dropout questionnaire has counts_for_grade=True
+        with self.assertRaises(AssertionError):
+            calculate_average_distribution(self.evaluation)
 
 
 class TestTextAnswerVisibilityInfo(TestCase):
