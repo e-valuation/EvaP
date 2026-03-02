@@ -815,8 +815,8 @@ class TestImportEvents(TestCase):
         self.assertEqual(_clean_whitespaces_and_hyphens("back "), "back")
         self.assertEqual(_clean_whitespaces_and_hyphens("inbetween  inbetween"), "inbetween inbetween")
         self.assertEqual(_clean_whitespaces_and_hyphens("inbetween \n inbetween"), "inbetween inbetween")
-        # non-breaking whitespace
-        self.assertEqual(_clean_whitespaces_and_hyphens("inbetween  inbetween"), "inbetween inbetween")
+        # normal and narrow non-breaking space
+        self.assertEqual(_clean_whitespaces_and_hyphens("inbetween\u00a0 \u202finbetween"), "inbetween inbetween")
 
     def test_clean_hyphens(self):
         self.assertEqual(_clean_whitespaces_and_hyphens("Course - Evaluation"), "Course – Evaluation")
