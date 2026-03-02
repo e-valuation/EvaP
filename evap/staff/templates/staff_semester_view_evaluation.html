@@ -79,9 +79,7 @@
     <div>
     {% if not info_only and request.user.is_manager %}
         <a href="{% url 'staff:evaluation_edit' evaluation.id %}">{{ evaluation.full_name }}</a>
-        {% if evaluation.cms_id %}
-            <span class="fas fa-link" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Linked to CMS' %}"></span>
-        {% endif %}
+        {% include 'cms_evaluation_link_icons.html' %}
         <a class="small no-underline" href="{% url 'staff:course_edit' evaluation.course.id %}" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Edit course' %}">
             <span class="fas fa-chalkboard-user"></span>
         </a>
@@ -161,84 +159,102 @@
     </td>
 {% endif %}
 <td class="icon-buttons">
-    {% if not info_only %}
-        {% if evaluation.num_textanswers > 0 and state < evaluation.State.PUBLISHED %}
-            <a href="{% url 'staff:evaluation_textanswers' evaluation.id %}" class="btn btn-sm {% if state == evaluation.State.REVIEWED %}btn-light{% else %}btn-primary{% endif %}" data-bs-toggle="tooltip" title="{% translate 'Review text answers' %}">
-                <span class="fas fa-fw fa-magnifying-glass"></span>
-            </a>
-        {% endif %}
-        {% if request.user.is_manager %}
+    <div class="d-flex">
+        {% if not info_only %}
             {% if state < evaluation.State.IN_EVALUATION %}
-                <a href="{% url 'staff:evaluation_person_management' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" title="{% translate 'Manage participants/contributors' %}">
-                    <span class="fas fa-fw fa-user"></span>
+                <a href="{% url 'staff:evaluation_preview' evaluation.id %}" class="btn btn-sm btn-light me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Preview' %}">
+                    <span class="fas fa-fw fa-eye" aria-hidden="true"></span>
+                </a>
+            {% elif state < evaluation.State.PUBLISHED and evaluation|can_results_page_be_seen_by:request.user %}
+                <a href="{% url 'results:evaluation_detail' semester.id evaluation.id %}" class="btn btn-sm btn-light me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Preview results' %}">
+                    <span class="fas fa-fw fa-chart-simple" aria-hidden="true"></span>
+                </a>
+            {% elif state == evaluation.State.PUBLISHED and evaluation|can_results_page_be_seen_by:request.user %}
+                <a href="{% url 'results:evaluation_detail' semester.id evaluation.id %}" class="btn btn-sm btn-light me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Results' %}">
+                    <span class="fas fa-fw fa-chart-simple" aria-hidden="true"></span>
                 </a>
             {% endif %}
-            <a href="{% url 'staff:evaluation_copy' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" title="{% translate 'Copy' %}">
-                <span class="fas fa-fw fa-copy"></span>
-            </a>
-            {% if not evaluation.has_exam_evaluation %}
-                <confirmation-modal type="submit" name="evaluation_id" value="{{ evaluation.id }}" confirm-button-class="btn-primary" form="exam_creation_form_{{ evaluation.id }}">
-                    <span slot="title">{% translate 'Create exam evaluation' %}</span>
-                    <span slot="action-text">{% translate 'Create exam evaluation' %}</span>
-                    <span slot="question">
-                        {% blocktranslate trimmed %}
-                            Create an exam evaluation based on this evaluation. This will copy all the participants and contributors from the original evaluation. It will set the weight of the original evaluation to 9 and its end date will be set to the day before the exam.
-                        {% endblocktranslate %}
-                    </span>
-                    <div slot="extra-inputs">
-                        {% with create_exam_evaluation_form=evaluation|create_exam_evaluation_form %}
-                            {% include 'bootstrap_form_field.html' with field=create_exam_evaluation_form.base_evaluation %}
+            {% if evaluation.num_textanswers > 0 and state < evaluation.State.PUBLISHED %}
+                <a href="{% url 'staff:evaluation_textanswers' evaluation.id %}" class="btn btn-sm {% if state == evaluation.State.REVIEWED %}btn-light{% else %}btn-primary{% endif %} me-1" data-bs-toggle="tooltip" title="{% translate 'Review text answers' %}">
+                    <span class="fas fa-fw fa-magnifying-glass"></span>
+                </a>
+            {% endif %}
+            {% if request.user.is_manager %}
+                {% if state < evaluation.State.IN_EVALUATION %}
+                    <a href="{% url 'staff:evaluation_person_management' evaluation.id %}" class="btn btn-sm btn-light me-1" data-bs-toggle="tooltip" title="{% translate 'Manage participants/contributors' %}">
+                        <span class="fas fa-fw fa-user"></span>
+                    </a>
+                {% endif %}
+            {% endif %}
+            {% if request.user.is_manager %}
+                <div class="ms-auto dropdown">
+                    <a class="btn btn-sm btn-light dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"></a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" href="{% url 'staff:evaluation_copy' evaluation.id %}">
+                                <span class="fas fa-fw fa-copy"></span> {% translate 'Copy evaluation' %}
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'cms:evaluation_merge_selection' evaluation.id %}">
+                                <span class="fas fa-fw fa-object-group"></span> {% translate 'Merge with other evaluation' %}
+                            </a>
+                        </li>
+                        {% if not evaluation.has_exam_evaluation %}
+                            <confirmation-modal type="submit" name="evaluation_id" value="{{ evaluation.id }}" confirm-button-class="btn-primary" form="exam_creation_form_{{ evaluation.id }}">
+                                <span slot="title">{% translate 'Create exam evaluation' %}</span>
+                                <span slot="action-text">{% translate 'Create exam evaluation' %}</span>
+                                <span slot="question">
+                                    {% blocktranslate trimmed %}
+                                        Create an exam evaluation based on this evaluation. This will copy all the participants and contributors from the original evaluation. It will set the weight of the original evaluation to 9 and its end date will be set to the day before the exam.
+                                    {% endblocktranslate %}
+                                </span>
+                                <div slot="extra-inputs">
+                                    {% with create_exam_evaluation_form=evaluation|create_exam_evaluation_form %}
+                                        {% include 'bootstrap_form_field.html' with field=create_exam_evaluation_form.base_evaluation %}
 
-                            {# Exam date rendered manually due to bug with Bootstrap datepicker not showing the actual picker in a modal #}
-                            <div class="mb-3 d-md-flex">
-                                <label class="col-md-3 pe-4 form-label" for="id_exam_date">{% trans "Exam Date" %}</label>
-                                <div class="col-md-7">
-                                    <input class="form-control" type="date" name="exam_date" form="exam_creation_form_{{ evaluation.pk }}" min="{{ evaluation.earliest_possible_exam_date }}" required="" id="id_exam_date">
+                                        {# Exam date rendered manually due to bug with Bootstrap datepicker not showing the actual picker in a modal #}
+                                        <div class="mb-3 d-md-flex">
+                                            <label class="col-md-3 pe-4 form-label" for="id_exam_date">{% trans "Exam Date" %}</label>
+                                            <div class="col-md-7">
+                                                <input class="form-control" type="date" name="exam_date" form="exam_creation_form_{{ evaluation.pk }}" min="{{ evaluation.earliest_possible_exam_date }}" required="" id="id_exam_date">
+                                            </div>
+                                        </div>
+
+                                        {% include 'bootstrap_form_field.html' with field=create_exam_evaluation_form.exam_type %}
+                                    {% endwith %}
                                 </div>
-                            </div>
 
-                            {% include 'bootstrap_form_field.html' with field=create_exam_evaluation_form.exam_type %}
-                        {% endwith %}
-                    </div>
+                                <button slot="show-button" type="button" class="dropdown-item">
+                                    <span class="fas fa-fw fa-file-pen"></span> {% translate 'Create exam evaluation' %}
+                                </button>
+                            </confirmation-modal>
+                        {% endif %}
+                        <li>
+                            <a class="dropdown-item" href="{% url 'staff:evaluation_email' evaluation.id %}">
+                                <span class="fas fa-fw fa-envelope"></span> {% translate 'Send email' %}
+                            </a>
+                        </li>
+                        {% if evaluation.can_be_deleted_by_manager %}
+                            <confirmation-modal type="submit" form="evaluation-deletion-form" name="evaluation_id" value="{{ evaluation.id }}" confirm-button-class="btn-danger">
+                                <span slot="title">{% translate 'Delete evaluation' %}</span>
+                                <span slot="action-text">{% translate 'Delete evaluation' %}</span>
+                                <span slot="question">
+                                    {% blocktranslate trimmed with evaluation_name=evaluation.full_name %}
+                                        Do you really want to delete the evaluation <strong>{{ evaluation_name }}</strong>?
+                                    {% endblocktranslate %}
+                                </span>
 
-                    <button slot="show-button" type="button" class="btn btn-sm btn-light" title="{% translate 'Create exam evaluation' %}" data-bs-placement="top" data-bs-toggle="tooltip"><span class="fas fa-file-pen fa-fw"></span></button>
-                </confirmation-modal>
+                                <button slot="show-button" type="button" class="dropdown-item text-danger">
+                                    <span class="fas fa-fw fa-trash"></span> {% translate 'Delete' %}
+                                </button>
+                            </confirmation-modal>
+                        {% endif %}
+                    </ul>
+                </div>
             {% endif %}
         {% endif %}
-        {% if request.user.is_manager %}
-            <a href="{% url 'staff:evaluation_email' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Send email' %}">
-                <span class="fas fa-fw fa-envelope" aria-hidden="true"></span>
-            </a>
-        {% endif %}
-        {% if state < evaluation.State.IN_EVALUATION %}
-            <a href="{% url 'staff:evaluation_preview' evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Preview' %}">
-                <span class="fas fa-fw fa-eye" aria-hidden="true"></span>
-            </a>
-        {% elif state < evaluation.State.PUBLISHED and evaluation|can_results_page_be_seen_by:request.user %}
-            <a href="{% url 'results:evaluation_detail' semester.id evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Preview results' %}">
-                <span class="fas fa-fw fa-chart-simple" aria-hidden="true"></span>
-            </a>
-        {% elif state == evaluation.State.PUBLISHED and evaluation|can_results_page_be_seen_by:request.user %}
-            <a href="{% url 'results:evaluation_detail' semester.id evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Results' %}">
-                <span class="fas fa-fw fa-chart-simple" aria-hidden="true"></span>
-            </a>
-        {% endif %}
-        {% if request.user.is_manager and evaluation.can_be_deleted_by_manager %}
-            <confirmation-modal type="submit" form="evaluation-deletion-form" name="evaluation_id" value="{{ evaluation.id }}" confirm-button-class="btn-danger">
-                <span slot="title">{% translate 'Delete evaluation' %}</span>
-                <span slot="action-text">{% translate 'Delete evaluation' %}</span>
-                <span slot="question">
-                    {% blocktranslate trimmed with evaluation_name=evaluation.full_name %}
-                        Do you really want to delete the evaluation <strong>{{ evaluation_name }}</strong>?
-                    {% endblocktranslate %}
-                </span>
-
-                <button slot="show-button" type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Delete' %}">
-                    <span class="fas fa-fw fa-trash" aria-hidden="true"></span>
-                </button>
-            </confirmation-modal>
-        {% endif %}
-    {% endif %}
+    </div>
 </td>
 
 {% endwith %}
