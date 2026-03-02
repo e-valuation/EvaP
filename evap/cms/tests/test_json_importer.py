@@ -11,7 +11,7 @@ from model_bakery import baker
 from pydantic import ValidationError
 
 import evap.cms.fixtures
-from evap.cms.json_importer import ImportDict, JSONImporter, NameChange, WarningMessage, _clean_whitespaces
+from evap.cms.json_importer import ImportDict, JSONImporter, NameChange, WarningMessage, _clean_whitespaces_and_hyphens
 from evap.evaluation.models import (
     Contribution,
     Course,
@@ -405,6 +405,7 @@ class TestImportEvents(TestCase):
         self.assertTrue(
             all(
                 contribution.role == Contribution.Role.EDITOR
+                and contribution.textanswer_visibility == Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
                 for contribution in Contribution.objects.filter(evaluation=exam_evaluation, contributor__isnull=False)
             )
         )
@@ -685,6 +686,7 @@ class TestImportEvents(TestCase):
         evaluation.general_contribution.questionnaires.add(
             baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
         )
+        evaluation.main_language = "de"
         evaluation.manager_approve()
         evaluation.vote_start_datetime = datetime.now()
         evaluation.vote_end_date = datetime.now().date() + timedelta(days=1)
@@ -809,9 +811,20 @@ class TestImportEvents(TestCase):
         self.assertEqual(exam_evaluation.name_en, exam_evaluation.exam_type.name_de)
 
     def test_clean_whitespaces(self):
-        self.assertEqual(_clean_whitespaces(" front"), "front")
-        self.assertEqual(_clean_whitespaces("back "), "back")
-        self.assertEqual(_clean_whitespaces("inbetween  inbetween"), "inbetween inbetween")
-        self.assertEqual(_clean_whitespaces("inbetween \n inbetween"), "inbetween inbetween")
+        self.assertEqual(_clean_whitespaces_and_hyphens(" front"), "front")
+        self.assertEqual(_clean_whitespaces_and_hyphens("back "), "back")
+        self.assertEqual(_clean_whitespaces_and_hyphens("inbetween  inbetween"), "inbetween inbetween")
+        self.assertEqual(_clean_whitespaces_and_hyphens("inbetween \n inbetween"), "inbetween inbetween")
         # non-breaking whitespace
-        self.assertEqual(_clean_whitespaces("inbetween  inbetween"), "inbetween inbetween")
+        self.assertEqual(_clean_whitespaces_and_hyphens("inbetween  inbetween"), "inbetween inbetween")
+
+    def test_clean_hyphens(self):
+        self.assertEqual(_clean_whitespaces_and_hyphens("Course - Evaluation"), "Course – Evaluation")
+        self.assertEqual(_clean_whitespaces_and_hyphens("-"), "-")
+
+    def test_exam_missing_language(self):
+        self._import(EXAMPLE_DATA)
+        self.assertEqual(EXAMPLE_DATA["events"][0]["language"], "", "precondition for the test")
+
+        evaluation = Evaluation.objects.get(cms_id=EXAMPLE_DATA["events"][1]["gguid"])
+        self.assertEqual(evaluation.main_language, "de")
