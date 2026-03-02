@@ -1,20 +1,5 @@
 {% load static %}
 
-{# Is this actually needed #}
-
-<div class="modal fade" style="z-index: 1" id="successMessageModal_{{ modal_id }}" tabindex="-1" role="dialog" aria-labelledby="successMessageModalLabel_{{ modal_id }}" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="successMessageModalLabel_{{ modal_id }}">{% translate 'Message sent' %}</h5>
-            </div>
-            <div class="modal-body">
-                {% translate 'Your message was successfully sent.' %}
-            </div>
-        </div>
-    </div>
-</div>
-
 <form custom-success id="contact-modal-form" method="POST" action="{% url 'evaluation:contact' %}">
     {% csrf_token %}
     <input hidden name="title" value="{{ title }}"/>
@@ -43,7 +28,9 @@
             <textarea autofocus class="form-control modal-textfield my-4" id="{{ modal_id }}MessageText" name="message"></textarea>
         </div>
 
-        <button type="button" class="{{ show_button_class }}" slot="show-button">{{ show_button_text }}</button>
+        <div class="feedback-button" slot="show-button">
+            <button type="button" class="{{ show_button_class }}">{{ show_button_text }}</button>
+        </div>
     </confirmation-modal>
 </form>
 <script type="module">
