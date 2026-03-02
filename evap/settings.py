@@ -33,8 +33,8 @@ ENABLE_DEBUG_TOOLBAR = False
 
 ### EvaP logic
 
-OTP_VALIDITY_HOURS = 14 * 24  # validity period for long (emailed) one-time passwords
-OTP_VALIDITY_HOURS_TYPEABLE = 7 * 24  # validity period for short typeable OTPs (e.g. exported in CSV)
+OTP_VALIDITY = timedelta(days=14)  # validity period for long (emailed) one-time passwords
+OTP_VALIDITY_TYPEABLE = timedelta(days=7)  # validity period for short typeable OTPs (e.g. exported in CSV)
 OTP_LENGTH = 40  # number of alphanumeric characters in a long OTP
 OTP_LENGTH_TYPEABLE = 8  # number of characters in a short typeable OTP
 OTP_ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"

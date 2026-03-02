@@ -2151,24 +2151,23 @@ class OtpHash(models.Model):
         Enforces the per-user OTP limit.
 
         If typeable is True, uses the TYPEABLE variants of
-        OTP_ALPHABET, OTP_LENGTH, and OTP_VALIDITY_HOURS.
+        OTP_ALPHABET, OTP_LENGTH, and OTP_VALIDITY.
         """
         # Keep only the newest (limit - 1) OTPs, delete everything else (expired + excess)
         ids_to_keep = (
             cls.objects.filter(user=user)
-            .order_by("-valid_until")
-            .values_list("id", flat=True)[: settings.MAX_OTPS_PER_USER - 1]
+            .order_by("-valid_until")[: settings.MAX_OTPS_PER_USER - 1]
         )
         cls.objects.filter(user=user).exclude(id__in=ids_to_keep).delete()
 
         if typeable:
             alphabet = settings.OTP_ALPHABET_TYPEABLE
             length = settings.OTP_LENGTH_TYPEABLE
-            validity = timedelta(hours=settings.OTP_VALIDITY_HOURS_TYPEABLE)
+            validity = settings.OTP_VALIDITY_TYPEABLE
         else:
             alphabet = settings.OTP_ALPHABET
             length = settings.OTP_LENGTH
-            validity = timedelta(hours=settings.OTP_VALIDITY_HOURS)
+            validity = settings.OTP_VALIDITY
 
         while True:
             raw_otp = "".join(secrets.choice(alphabet) for _ in range(length))
