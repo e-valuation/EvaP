@@ -1,7 +1,8 @@
 from django.test import override_settings
 from model_bakery import baker
-from selenium.webdriver import ActionChains, Keys
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.expected_conditions import (
     invisibility_of_element,
