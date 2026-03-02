@@ -12,6 +12,7 @@ from evap.evaluation.models import (
     Evaluation,
     Program,
     Question,
+    QuestionAssignment,
     Questionnaire,
     QuestionType,
     Semester,
@@ -55,19 +56,27 @@ class TestExporters(TestCase):
         questionnaire_3 = baker.make(Questionnaire, order=1, type=Questionnaire.Type.BOTTOM)
         questionnaire_4 = baker.make(Questionnaire, order=4, type=Questionnaire.Type.BOTTOM)
 
-        question_1 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire_1)
-        question_2 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire_2)
-        question_3 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire_3)
-        question_4 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire_4)
+        assignment_1 = baker.make(
+            QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire_1
+        )
+        assignment_2 = baker.make(
+            QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire_2
+        )
+        assignment_3 = baker.make(
+            QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire_3
+        )
+        assignment_4 = baker.make(
+            QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire_4
+        )
 
         evaluation.general_contribution.questionnaires.set(
             [questionnaire_1, questionnaire_2, questionnaire_3, questionnaire_4]
         )
 
-        make_rating_answer_counters(question_1, evaluation.general_contribution)
-        make_rating_answer_counters(question_2, evaluation.general_contribution)
-        make_rating_answer_counters(question_3, evaluation.general_contribution)
-        make_rating_answer_counters(question_4, evaluation.general_contribution)
+        make_rating_answer_counters(assignment_1, evaluation.general_contribution)
+        make_rating_answer_counters(assignment_2, evaluation.general_contribution)
+        make_rating_answer_counters(assignment_3, evaluation.general_contribution)
+        make_rating_answer_counters(assignment_4, evaluation.general_contribution)
 
         cache_results(evaluation)
 
@@ -83,16 +92,16 @@ class TestExporters(TestCase):
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
         self.assertEqual(workbook.sheets()[0].row_values(4)[0], questionnaire_1.public_name)
-        self.assertEqual(workbook.sheets()[0].row_values(5)[0], question_1.text)
+        self.assertEqual(workbook.sheets()[0].row_values(5)[0], assignment_1.question.text)
 
         self.assertEqual(workbook.sheets()[0].row_values(7)[0], questionnaire_2.public_name)
-        self.assertEqual(workbook.sheets()[0].row_values(8)[0], question_2.text)
+        self.assertEqual(workbook.sheets()[0].row_values(8)[0], assignment_2.question.text)
 
         self.assertEqual(workbook.sheets()[0].row_values(10)[0], questionnaire_3.public_name)
-        self.assertEqual(workbook.sheets()[0].row_values(11)[0], question_3.text)
+        self.assertEqual(workbook.sheets()[0].row_values(11)[0], assignment_3.question.text)
 
         self.assertEqual(workbook.sheets()[0].row_values(13)[0], questionnaire_4.public_name)
-        self.assertEqual(workbook.sheets()[0].row_values(14)[0], question_4.text)
+        self.assertEqual(workbook.sheets()[0].row_values(14)[0], assignment_4.question.text)
 
     def test_heading_question_filtering(self):
         program = baker.make(Program)
@@ -107,15 +116,20 @@ class TestExporters(TestCase):
         evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
 
         questionnaire = baker.make(Questionnaire)
-        baker.make(Question, type=QuestionType.HEADING, questionnaire=questionnaire, order=0)
-        heading_question = baker.make(Question, type=QuestionType.HEADING, questionnaire=questionnaire, order=1)
-        likert_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire, order=2)
-        baker.make(Question, type=QuestionType.HEADING, questionnaire=questionnaire, order=3)
+
+        baker.make(QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=questionnaire, order=0)
+        heading_assignment = baker.make(
+            QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=questionnaire, order=1
+        )
+        likert_assignment = baker.make(
+            QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire, order=2
+        )
+        baker.make(QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=questionnaire, order=3)
 
         contribution = baker.make(
             Contribution, evaluation=evaluation, questionnaires=[questionnaire], contributor=contributor
         )
-        make_rating_answer_counters(likert_question, contribution)
+        make_rating_answer_counters(likert_assignment, contribution)
 
         cache_results(evaluation)
 
@@ -131,8 +145,8 @@ class TestExporters(TestCase):
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
         self.assertEqual(workbook.sheets()[0].row_values(4)[0], questionnaire.public_name)
-        self.assertEqual(workbook.sheets()[0].row_values(5)[0], heading_question.text)
-        self.assertEqual(workbook.sheets()[0].row_values(6)[0], likert_question.text)
+        self.assertEqual(workbook.sheets()[0].row_values(5)[0], heading_assignment.question.text)
+        self.assertEqual(workbook.sheets()[0].row_values(6)[0], likert_assignment.question.text)
         self.assertEqual(workbook.sheets()[0].row_values(7)[0], "")
 
     def test_view_excel_file_sorted(self):
@@ -205,13 +219,15 @@ class TestExporters(TestCase):
         cache_results(evaluation_2)
 
         questionnaire = baker.make(Questionnaire)
-        question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire)
+        assignment = baker.make(
+            QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire
+        )
 
         evaluation_1.general_contribution.questionnaires.set([questionnaire])
-        make_rating_answer_counters(question, evaluation_1.general_contribution)
+        make_rating_answer_counters(assignment, evaluation_1.general_contribution)
 
         evaluation_2.general_contribution.questionnaires.set([questionnaire])
-        make_rating_answer_counters(question, evaluation_2.general_contribution)
+        make_rating_answer_counters(assignment, evaluation_2.general_contribution)
 
         binary_content = BytesIO()
         ResultsExporter().export(
@@ -351,17 +367,19 @@ class TestExporters(TestCase):
             course__programs=[program],
         )
         used_questionnaire = baker.make(Questionnaire)
-        used_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=used_questionnaire)
+        used_assignment = baker.make(
+            QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=used_questionnaire
+        )
         unused_questionnaire = baker.make(Questionnaire)
-        unused_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=unused_questionnaire)
+        unused_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaires=[unused_questionnaire])
 
         evaluation.general_contribution.questionnaires.set([used_questionnaire, unused_questionnaire])
-        make_rating_answer_counters(used_question, evaluation.general_contribution)
+        make_rating_answer_counters(used_assignment, evaluation.general_contribution)
         cache_results(evaluation)
 
         sheet = self.get_export_sheet(evaluation.course.semester, program, [evaluation.course.type.id])
         self.assertEqual(sheet.row_values(4)[0], used_questionnaire.public_name)
-        self.assertEqual(sheet.row_values(5)[0], used_question.text)
+        self.assertEqual(sheet.row_values(5)[0], used_assignment.question.text)
         self.assertNotIn(unused_questionnaire.name, sheet.col_values(0))
         self.assertNotIn(unused_question.text, sheet.col_values(0))
 
@@ -403,11 +421,15 @@ class TestExporters(TestCase):
         )
         questionnaire1 = baker.make(Questionnaire, order=1)
         questionnaire2 = baker.make(Questionnaire, order=2)
-        question1 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire1)
-        question2 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire2)
+        assignment1 = baker.make(
+            QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire1
+        )
+        assignment2 = baker.make(
+            QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire2
+        )
 
-        make_rating_answer_counters(question1, evaluation.general_contribution, [1, 0, 1, 0, 0])
-        make_rating_answer_counters(question2, evaluation.general_contribution, [0, 1, 0, 1, 0])
+        make_rating_answer_counters(assignment1, evaluation.general_contribution, [1, 0, 1, 0, 0])
+        make_rating_answer_counters(assignment2, evaluation.general_contribution, [0, 1, 0, 1, 0])
 
         evaluation.general_contribution.questionnaires.set([questionnaire1, questionnaire2])
         cache_results(evaluation)
@@ -438,9 +460,11 @@ class TestExporters(TestCase):
         expected_average = 2.0
 
         questionnaire = baker.make(Questionnaire)
-        question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire)
+        assignment = baker.make(
+            QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire
+        )
         for grades, e in zip(grades_per_eval, evaluations, strict=True):
-            make_rating_answer_counters(question, e.general_contribution, grades)
+            make_rating_answer_counters(assignment, e.general_contribution, grades)
             e.general_contribution.questionnaires.set([questionnaire])
         for evaluation in evaluations:
             cache_results(evaluation)
@@ -460,15 +484,17 @@ class TestExporters(TestCase):
             state=Evaluation.State.PUBLISHED,
         )
         questionnaire = baker.make(Questionnaire)
-        question = baker.make(Question, type=QuestionType.POSITIVE_YES_NO, questionnaire=questionnaire)
+        assignment = baker.make(
+            QuestionAssignment, question__type=QuestionType.POSITIVE_YES_NO, questionnaire=questionnaire
+        )
 
-        make_rating_answer_counters(question, evaluation.general_contribution, [4, 2])
+        make_rating_answer_counters(assignment, evaluation.general_contribution, [4, 2])
 
         evaluation.general_contribution.questionnaires.set([questionnaire])
         cache_results(evaluation)
 
         sheet = self.get_export_sheet(evaluation.course.semester, program, [evaluation.course.type.id])
-        self.assertEqual(sheet.row_values(5)[0], question.text)
+        self.assertEqual(sheet.row_values(5)[0], assignment.question.text)
         self.assertEqual(sheet.row_values(5)[1], "67%")
 
     def test_contributor_result_export(self):
@@ -494,20 +520,22 @@ class TestExporters(TestCase):
 
         general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
-        general_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=general_questionnaire)
-        contributor_question = baker.make(
-            Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=contributor_questionnaire
+        general_assignment = baker.make(
+            QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=general_questionnaire
+        )
+        contributor_assignment = baker.make(
+            QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=contributor_questionnaire
         )
 
         evaluation_1.general_contribution.questionnaires.set([general_questionnaire])
-        make_rating_answer_counters(general_question, evaluation_1.general_contribution, [2, 0, 0, 0, 0])
+        make_rating_answer_counters(general_assignment, evaluation_1.general_contribution, [2, 0, 0, 0, 0])
         evaluation_2.general_contribution.questionnaires.set([general_questionnaire])
-        make_rating_answer_counters(general_question, evaluation_2.general_contribution, [0, 0, 0, 2, 0])
+        make_rating_answer_counters(general_assignment, evaluation_2.general_contribution, [0, 0, 0, 2, 0])
 
         contribution.questionnaires.set([contributor_questionnaire])
-        make_rating_answer_counters(contributor_question, contribution, [0, 0, 2, 0, 0])
+        make_rating_answer_counters(contributor_assignment, contribution, [0, 0, 2, 0, 0])
         other_contribution.questionnaires.set([contributor_questionnaire])
-        make_rating_answer_counters(contributor_question, other_contribution, [0, 2, 0, 0, 0])
+        make_rating_answer_counters(contributor_assignment, other_contribution, [0, 2, 0, 0, 0])
 
         cache_results(evaluation_1)
         cache_results(evaluation_2)
@@ -524,33 +552,33 @@ class TestExporters(TestCase):
             f"{evaluation_2.full_name}\n{evaluation_2.course.semester.name}\n{other_contributor.full_name}",
         )
         self.assertEqual(workbook.sheets()[0].row_values(4)[0], general_questionnaire.public_name)
-        self.assertEqual(workbook.sheets()[0].row_values(5)[0], general_question.text)
+        self.assertEqual(workbook.sheets()[0].row_values(5)[0], general_assignment.question.text)
         self.assertEqual(workbook.sheets()[0].row_values(5)[2], 4.0)
         self.assertEqual(
             workbook.sheets()[0].row_values(7)[0],
             f"{contributor_questionnaire.public_name} ({contributor.full_name})",
         )
-        self.assertEqual(workbook.sheets()[0].row_values(8)[0], contributor_question.text)
+        self.assertEqual(workbook.sheets()[0].row_values(8)[0], contributor_assignment.question.text)
         self.assertEqual(workbook.sheets()[0].row_values(8)[2], 3.0)
         self.assertEqual(workbook.sheets()[0].row_values(10)[0], "Overall Average Grade")
         self.assertEqual(workbook.sheets()[0].row_values(10)[2], 3.25)
 
     def test_text_answer_export(self):
         evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED, can_publish_text_results=True)
-        questions = baker.make(
-            Question,
+        assignments = baker.make(
+            QuestionAssignment,
             questionnaire__type=iter(Questionnaire.Type.values),
-            type=QuestionType.TEXT,
+            question__type=QuestionType.TEXT,
             _quantity=len(Questionnaire.Type.values),
             _bulk_create=True,
-            allows_additional_textanswers=False,
+            question__allows_additional_textanswers=False,
         )
 
         baker.make(
             TextAnswer,
-            question=iter(questions[idx] for idx in [0, 1, 2, 2, 0]),
+            assignment=iter(assignments[idx] for idx in [0, 1, 2, 2, 0]),
             contribution__evaluation=evaluation,
-            contribution__questionnaires=iter(questions[idx].questionnaire for idx in [0, 1, 2, 2, 0]),
+            contribution__questionnaires=iter(assignments[idx].questionnaire for idx in [0, 1, 2, 2, 0]),
             review_decision=TextAnswer.ReviewDecision.PUBLIC,
             _quantity=5,
         )
@@ -575,6 +603,6 @@ class TestExporters(TestCase):
         self.assertEqual(sheet.row_values(2)[0], evaluation.course.responsibles_names)
 
         # Questions are ordered by questionnaire type, answers keep their order respectively
-        self.assertEqual(sheet.row_values(3)[0], questions[0].text)
-        self.assertEqual(sheet.row_values(5)[0], questions[1].text)
-        self.assertEqual(sheet.row_values(6)[0], questions[2].text)
+        self.assertEqual(sheet.row_values(3)[0], assignments[0].question.text)
+        self.assertEqual(sheet.row_values(5)[0], assignments[1].question.text)
+        self.assertEqual(sheet.row_values(6)[0], assignments[2].question.text)
