@@ -23,14 +23,14 @@ runs:
   using: "composite"
   steps:
     - name: Install nix
-      uses: cachix/install-nix-action@v31
+      uses: cachix/install-nix-action@4e002c8ec80594ecd40e759629461e26c8abed15 # v31
     - name: Restore and save Nix store
-      uses: nix-community/cache-nix-action@v7
+      uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
       with:
         primary-key: nix-${{ runner.os }}-${{ hashFiles('**/*.nix', 'flake.lock', 'uv.lock', 'evap/development/manage_autocompletion.sh') }}-${{ inputs.shell }}-${{ inputs.start-db }}
         restore-prefixes-first-match: nix-${{ runner.os }}-${{ hashFiles('**/*.nix', 'flake.lock', 'uv.lock', 'evap/development/manage_autocompletion.sh') }}-
         save: ${{ inputs.save-nix-store == 'true' }}
-    - uses: nicknovitski/nix-develop@v1
+    - uses: nicknovitski/nix-develop@9be7cfb4b10451d3390a75dc18ad0465bed4932a # v1
       with:
         arguments: "${{ inputs.shell }}"
 
