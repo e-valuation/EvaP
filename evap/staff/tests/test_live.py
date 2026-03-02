@@ -201,7 +201,6 @@ class EvaluationGridLiveTest(LiveServerTest):
                 By.XPATH, "//tbody//child::td[@data-col='name']"
             )
 
-            breakpoint()
             self.assertEqual(table[0].get_attribute("data-order"), "ÄB – Evaluation 2")
             self.assertEqual(table[1].get_attribute("data-order"), "AE – Evaluation 1")
             self.assertEqual(table[2].get_attribute("data-order"), "ÜB – Evaluation 4")
