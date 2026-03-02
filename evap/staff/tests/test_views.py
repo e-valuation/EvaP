@@ -3190,7 +3190,7 @@ class TestQuestionnaireNewVersionView(WebTestStaffMode):
         cls.name_de_orig = "kurzer name"
         cls.name_en_orig = "short name"
         cls.questionnaire = baker.make(Questionnaire, name_de=cls.name_de_orig, name_en=cls.name_en_orig)
-        cls.url = f"/staff/questionnaire/{cls.questionnaire.pk}/new_version"#
+        cls.url = f"/staff/questionnaire/{cls.questionnaire.pk}/new_version"
 
         baker.make(QuestionAssignment, questionnaire=cls.questionnaire)
 
