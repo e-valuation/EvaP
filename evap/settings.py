@@ -262,6 +262,7 @@ INSTALLED_APPS = [
     "evap.contributor",
     "evap.rewards",
     "evap.grades",
+    "evap.cms",
     "django.forms",
     "mozilla_django_oidc",
 ]

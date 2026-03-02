@@ -67,6 +67,9 @@
             </form>
         </div>
         <div class="col-12 col-xl-4 mh-100 overflow-auto">
+            <div class="mb-2">
+                <textarea id="{{ evaluation_form.staff_notes.id_for_label }}" name="{{ evaluation_form.staff_notes.name }}" rows="3" class="form-control" form="evaluation-form" placeholder="{% translate 'Notes' %}"{% if not editable %} disabled{% endif %}>{{ evaluation_form.staff_notes.value }}</textarea>
+            </div>
             {% include 'log/logentries.html' with logged_object=evaluation %}
         </div>
     </div>

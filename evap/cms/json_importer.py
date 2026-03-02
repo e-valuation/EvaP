@@ -15,6 +15,7 @@ from django.utils.timezone import now
 from pydantic import TypeAdapter
 from typing_extensions import TypedDict
 
+from evap.cms.models import IgnoredEvaluation
 from evap.evaluation.models import (
     Contribution,
     Course,
@@ -422,7 +423,11 @@ class JSONImporter:
     # pylint: disable=too-many-locals
     def _import_evaluation(  # noqa: PLR0912, PLR0915
         self, course: Course, data: ImportEvent, earliest_exam_date: date | None = None
-    ) -> Evaluation:
+    ) -> Evaluation | None:
+        # Don't import ignored evaluations again
+        if IgnoredEvaluation.objects.filter(cms_id=data["gguid"]).exists():
+            return None
+
         try:
             evaluation = Evaluation.objects.get(course=course, cms_id=data["gguid"])
         except Evaluation.DoesNotExist:
@@ -470,9 +475,13 @@ class JSONImporter:
                 wait_for_grade_upload_before_publishing = True
             else:
                 wait_for_grade_upload_before_publishing = any(grade["scale"] for grade in data["courses"])
-            course.evaluations.all().update(
+
+            if course.evaluations.exclude(
                 wait_for_grade_upload_before_publishing=wait_for_grade_upload_before_publishing
-            )
+            ).exists():
+                course.evaluations.all().update(
+                    wait_for_grade_upload_before_publishing=wait_for_grade_upload_before_publishing
+                )
 
             is_rewarded = False
         else:

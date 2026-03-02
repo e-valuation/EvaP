@@ -18,9 +18,8 @@ class Command(BaseCommand):
             sys.exit(1)
 
         call_command("typecheck")
+        call_command("format")
+        call_command("lint")
 
         # subprocess call so our sys.argv check in settings.py works
         subprocess_run_or_exit(["./manage.py", "test"], self.stdout)
-
-        call_command("format")
-        call_command("lint")

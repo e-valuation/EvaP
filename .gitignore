@@ -33,6 +33,9 @@ docs/_build
 coverage.xml
 htmlcov
 
+# Ignored by default, but seen as untracked in WSL once
+process-compose.socket
+
 # pip puts editable packages here
 src
 !evap/static/ts/.prettierrc.json

@@ -330,15 +330,15 @@
                                 title="{% translate 'No text answers available or evaluation not yet finished' %}">
                                 <span class="fas fa-comment icon-gray"></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="unreviewed_textanswers_urgent"
-                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
-                                title="{% translate 'Text answers awaiting urgent review because grading process is finished' %}">
-                                <span class="fas fa-comment icon-red"></span>
-                            </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="unreviewed_textanswers"
                                 data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
                                 title="{% translate 'Text answers awaiting review' %}">
                                 <span class="fas fa-comment icon-blue"></span>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-light" data-filter="unreviewed_textanswers_urgent"
+                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
+                                title="{% translate 'Text answers awaiting urgent review because grading process is finished' %}">
+                                <span class="fas fa-comment icon-red"></span>
                             </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="textanswers_reviewed"
                                 data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
@@ -352,15 +352,15 @@
                                 title="{% translate 'Evaluation not finished' %}">
                                 <span class="fas fa-chart-simple icon-gray"></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="results_not_published"
-                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
-                                title="{% translate 'Results not yet published although grading process is finished' %}">
-                                <span class="fas fa-chart-simple icon-red"></span>
-                            </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="results_not_yet_published"
                                 data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
                                 title="{% translate 'Results not yet published' %}">
                                 <span class="fas fa-chart-simple icon-blue"></span>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-light" data-filter="results_not_published"
+                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
+                                title="{% translate 'Results not yet published although grading process is finished' %}">
+                                <span class="fas fa-chart-simple icon-red"></span>
                             </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="results_published"
                                 data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
@@ -506,7 +506,8 @@
                         <colgroup>
                             <col />
                             <col style="width: 14em" />
-                            <col style="width: 12em" />
+                            <col style="width: 10em" />
+                            <col style="width: 10em" />
                             <col style="width: 9em" />
                         </colgroup>
                         <thead>
@@ -514,6 +515,7 @@
                                 <th class="col-order" data-col="name">{% translate 'Course' %}</th>
                                 <th class="col-order" data-col="responsible">{% translate 'Responsible' %}</th>
                                 <th class="col-order" data-col="evaluation-count">{% translate '#Evaluations' %}</th>
+                                <th class="col-order" data-col="ignored-evaluation-count">{% translate '#Ignored evaluations' %}</th>
                                 <th data-not-searchable></th>
                             </tr>
                         </thead>
@@ -523,6 +525,9 @@
                                     <td data-col="name" data-order="{{ course.name|lower }}">
                                         <div>
                                             <a href="{% url 'staff:course_edit' course.id %}">{{ course.name }}</a>
+                                            {% if course.cms_id %}
+                                                <span class="fas fa-link" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Linked to CMS' %}"></span>
+                                            {% endif %}
                                         </div>
                                         {% include 'course_badges.html' %}
                                     </td>
@@ -537,6 +542,9 @@
                                         {% else %}
                                             {{ course.evaluations.count }}
                                         {% endif %}
+                                    </td>
+                                    <td data-col="ignored-evaluation-count" data-order="{{ course.ignored_evaluations.count }}">
+                                        {{ course.ignored_evaluations.count }}
                                     </td>
                                     <td class="icon-buttons">
                                         {% if request.user.is_manager %}
