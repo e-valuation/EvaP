@@ -509,10 +509,14 @@ if TESTING:
             "LOCATION": "testing_cache_sessions",
         },
     }
-    from model_bakery import random_gen
+
+    def gen_string() -> str:
+        from model_bakery import random_gen  # noqa: PLC0415 # model_bakery may import django ORM stuff
+
+        return random_gen.gen_string(20)
 
     # give random char field values a reasonable length
-    BAKER_CUSTOM_FIELDS_GEN = {"django.db.models.CharField": lambda: random_gen.gen_string(20)}
+    BAKER_CUSTOM_FIELDS_GEN = {"django.db.models.CharField": gen_string}
 
 
 # Development helpers
