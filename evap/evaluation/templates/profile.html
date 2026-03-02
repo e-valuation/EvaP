@@ -5,22 +5,21 @@
 {% block content %}
     {{ block.super }}
     <h3>{% translate 'Profile' %}</h3>
-
-    <form id="profile-form" method="POST" class="form-horizontal multiselect-form">
-        {% csrf_token %}
-        <div class="row row-cols-1 row-cols-md-2 g-4 mb-3">
-            <div class="col">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h4 class="card-title mb-4">{% translate 'Personal information' %}</h4>
-                        {% for field in profile_form %}
-                            {% if field != profile_form.delegates %}
-                                {% include 'bootstrap_form_field.html' with field=field %}
-                            {% endif %}
-                        {% endfor %}
-                    </div>
+    <div class="row row-cols-1 row-cols-md-2 g-4 mb-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">{% translate 'Personal information' %}</h4>
+                    {% for field in profile_form %}
+                        {% if field != profile_form.delegates %}
+                            {% include 'bootstrap_form_field.html' with field=field %}
+                        {% endif %}
+                    {% endfor %}
                 </div>
             </div>
+        </div>
+        <form id="profile-form" method="POST" class="form-horizontal multiselect-form">
+            {% csrf_token %}
             {% if user.is_editor %}
                 <div class="col">
                     <div class="card h-100">
@@ -68,15 +67,14 @@
                     </div>
                 </div>
             {% endif %}
-        </div>
-
+        </form>
         <div class="row row-cols-1 {% if user.is_editor %}row-cols-md-1{% else %}row-cols-md-2{% endif %} g-4">
-            <div class="col">
-                <div class="card card-submit-area card-submit-area-2 text-center">
-                    <div class="card-body tab-row">
-                        <button type="submit" class="btn btn-primary">
-                            {% translate 'Save' %}
-                        </button>
+            <div class="card card-submit-area card-submit-area-2 text-center w-100">
+                <div class="card-body tab-row row">
+                    <button type="submit" class="btn btn-primary">
+                        {% translate 'Save' %}
+                    </button>
+                    <div>
                         {% translate 'Request changes' as title %}
                         {% translate 'You are welcome to submit feedback regarding the evaluation platform or specific evaluations. Please let us know how we can improve your experience on EvaP.' as teaser %}
                         {% translate "Request changes" as show_button_text %}
@@ -85,5 +83,5 @@
                 </div>
             </div>
         </div>
-    </form>
+    </div>
 {% endblock %}
