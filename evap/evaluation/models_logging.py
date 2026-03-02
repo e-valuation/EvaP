@@ -4,7 +4,7 @@ from collections import defaultdict, namedtuple
 from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import date, datetime, time
-from enum import Enum
+from enum import StrEnum
 from json import JSONEncoder
 from typing import assert_never
 
@@ -35,7 +35,7 @@ def disable_logentries() -> Iterator[None]:
         CREATE_LOGENTRIES = old_mode
 
 
-class FieldActionType(str, Enum):
+class FieldActionType(StrEnum):
     M2M_ADD = "add"
     M2M_REMOVE = "remove"
     M2M_CLEAR = "clear"
@@ -47,7 +47,7 @@ class FieldActionType(str, Enum):
 FieldAction = namedtuple("FieldAction", "label type items")
 
 
-class InstanceActionType(str, Enum):
+class InstanceActionType(StrEnum):
     CREATE = "create"
     CHANGE = "change"
     DELETE = "delete"
