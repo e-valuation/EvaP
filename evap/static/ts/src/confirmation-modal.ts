@@ -52,7 +52,6 @@ export class ConfirmationModal extends HTMLElement {
             return;
         }
 
-        console.log("here");
         this.closeDialogSlowly();
 
         if (isConfirm) {
@@ -73,7 +72,6 @@ export class ConfirmationModal extends HTMLElement {
         this.dialog.addEventListener(
             "animationend",
             () => {
-                console.log("final close");
                 this.dialog.removeAttribute("closing");
                 this.dialog.close();
             },
