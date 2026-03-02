@@ -216,7 +216,7 @@ GET_RESULTS_PREFETCH_LOOKUPS = [
     "contributions__textanswer_set",
     "contributions__ratinganswercounter_set",
     "contributions__contributor__delegates",
-    "contributions__questionnaires__questions",
+    "contributions__questionnaires__question_assignments__question",
     "course__responsibles__delegates",
 ]
 
@@ -227,15 +227,15 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
 
     prefetch_related_objects([evaluation], *GET_RESULTS_PREFETCH_LOOKUPS)
 
-    tas_per_contribution_question: dict[tuple[int, int], list[TextAnswer]] = unordered_groupby(
-        ((textanswer.contribution_id, textanswer.question_id), textanswer)
+    tas_per_contribution_assignment: dict[tuple[int, int], list[TextAnswer]] = unordered_groupby(
+        ((textanswer.contribution_id, textanswer.assignment_id), textanswer)
         for contribution in evaluation.contributions.all()
         for textanswer in contribution.textanswer_set.all()
         if textanswer.review_decision in [TextAnswer.ReviewDecision.PRIVATE, TextAnswer.ReviewDecision.PUBLIC]
     )
 
-    racs_per_contribution_question: dict[tuple[int, int], list[RatingAnswerCounter]] = unordered_groupby(
-        ((counter.contribution_id, counter.question_id), counter)
+    racs_per_contribution_assignment: dict[tuple[int, int], list[RatingAnswerCounter]] = unordered_groupby(
+        ((counter.contribution_id, counter.assignment_id), counter)
         for contribution in evaluation.contributions.all()
         for counter in contribution.ratinganswercounter_set.all()
     )
@@ -245,19 +245,20 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
         questionnaire_results = []
         for questionnaire in contribution.questionnaires.all():
             results: list[HeadingResult | TextResult | RatingResult] = []
-            for question in questionnaire.questions.all():
+            for assignment in questionnaire.question_assignments.all():
+                question = assignment.question
                 if question.is_heading_question:
                     results.append(HeadingResult(question=question))
                     continue
                 text_result = None
                 if question.can_have_textanswers and evaluation.can_publish_text_results:
-                    answers = tas_per_contribution_question.get((contribution.id, question.id), [])
+                    answers = tas_per_contribution_assignment.get((contribution.id, assignment.id), [])
                     text_result = TextResult(
                         question=question, answers=answers, answers_visible_to=textanswers_visible_to(contribution)
                     )
                 if question.is_rating_question:
                     if evaluation.can_publish_rating_results:
-                        answer_counters = racs_per_contribution_question.get((contribution.id, question.id), [])
+                        answer_counters = racs_per_contribution_assignment.get((contribution.id, assignment.id), [])
                     else:
                         answer_counters = None
                     results.append(create_rating_result(question, answer_counters, additional_text_result=text_result))
