@@ -1,3 +1,5 @@
+{% load footer_templatetags %}
+
 <div class="footer d-print-none">
     <div class="color-bar">
         <div class="vote-bg-green width-percent-52"></div>
@@ -13,7 +15,10 @@
                     <a class="nav-link nav-link-multiline" href="{% url 'evaluation:legal_notice' %}">{% translate 'Legal Notice' %}<br />{% translate 'Data Privacy' %}</a>
                 </li>
                 <li class="d-none d-sm-block nav-item">
-                    <a class="nav-link" href="https://github.com/e-valuation/EvaP" target="_blank"><span class="fas fa-arrow-up-right-from-square"></span> {% translate 'GitHub project' %}</a>
+                    <a class="nav-link" href="https://github.com/e-valuation/EvaP/releases/tag/{% release_version %}" target="_blank">
+                        <span class="fas fa-arrow-up-right-from-square me-1"></span>
+                        <span> Version: {% release_version %}</span>
+                    </a>
                 </li>
             </ul>
             <div class="d-none d-lg-block navbar-nav justify-content-center text-center">
