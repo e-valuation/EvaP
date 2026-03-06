@@ -18,9 +18,10 @@ from evap.evaluation.models import Contribution, EmailTemplate, Evaluation, OtpH
 from evap.evaluation.tests.tools import WebTest
 
 
-@override_settings(PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"], PAGE_URL="http://testserver")
-class LoginTests(WebTest):
+@override_settings(PAGE_URL="http://testserver")
+class LoginTestsOtp(WebTest):
     csrf_checks = False
+    typeable = False
     url = reverse("evaluation:index")
 
     @classmethod
@@ -39,16 +40,13 @@ class LoginTests(WebTest):
         )
 
     def test_login_url_generation(self):
-        generated_url = self.external_user.generate_login_url()
+        generated_url = self.external_user.generate_login_url(typeable=self.typeable)
         self.assertRegex(generated_url, r"^http://testserver/otp/\w+$")
-
-        short_url = self.external_user.generate_login_url(typeable=True)
-        self.assertRegex(short_url, r"^http://testserver/otp/\w+$")
 
     def test_login_url_works(self):
         self.assertRedirects(self.app.get(reverse("contributor:index")), "/?next=/contributor/")
 
-        url = self.external_user.generate_login_url()
+        url = self.external_user.generate_login_url(typeable=self.typeable)
         otp_count_before = OtpHash.objects.filter(user=self.external_user).count()
         page = self.app.get(url)
         # GET should not delete the OTP
@@ -63,7 +61,7 @@ class LoginTests(WebTest):
 
     def test_otp_valid_only_once(self):
         EmailTemplate.objects.filter(name=EmailTemplate.LOGIN_KEY_CREATED).update(plain_content="{{ login_url }}")
-        url = self.external_user.generate_login_url()
+        url = self.external_user.generate_login_url(typeable=self.typeable)
         page = self.app.get(url)
         self.assertContains(page, self.external_user.full_name)
 
@@ -87,7 +85,7 @@ class LoginTests(WebTest):
         self.assertContains(page, self.external_user.full_name)
 
     def test_inactive_external_users_can_not_login(self):
-        url = self.inactive_external_user.generate_login_url()
+        url = self.inactive_external_user.generate_login_url(typeable=self.typeable)
         page = self.app.get(url).follow()
         self.assertContains(page, "Inactive users are not allowed to login")
         self.assertIsInstance(page.context["user"], AnonymousUser)
@@ -103,7 +101,7 @@ class LoginTests(WebTest):
         self.assertContains(page, "We sent you an email with a one-time login URL. Please check your inbox.")
 
     def test_generating_more_than_max_otps_invalidates_oldest_only(self):
-        otps = [OtpHash.create(self.external_user) for _ in range(settings.MAX_OTPS_PER_USER + 1)]
+        otps = [OtpHash.create(self.external_user, typeable=self.typeable) for _ in range(settings.MAX_OTPS_PER_USER + 1)]
 
         self.assertIsNone(OtpHash.get(otps[0]))
 
@@ -112,12 +110,27 @@ class LoginTests(WebTest):
             self.assertIsNotNone(otp_hash)
             self.assertTrue(otp_hash.is_valid())
 
+
+class LoginTestsOtpTypeable(LoginTestsOtp):
+    typeable = True
+
+
+class LoginTestsOtpAdditional(WebTest):
+    """ OTP tests that don't need the typeable parameter """
+    csrf_checks = False
+    url = reverse("evaluation:index")
+
     def test_invalid_otp_shows_error_message(self):
         page = self.app.get("/otp/definitely-invalid-otp").follow()
 
         self.assertContains(page, "Invalid login URL. Please request a new one below.")
         self.assertIsInstance(page.context["user"], AnonymousUser)
         self.assertNotContains(page, "Logout")
+
+
+class LoginTestsOidc(WebTest):
+    csrf_checks = False
+    url = reverse("evaluation:index")
 
     @override_settings(
         OIDC_OP_AUTHORIZATION_ENDPOINT="https://oidc.example.com/auth",
@@ -239,6 +252,12 @@ class LoginTests(WebTest):
         login_logout(cleaned_email)
         assert_existence(True, False, True)
         self.assertEqual(len(mail.outbox), 1)
+
+
+@override_settings(PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"])
+class LoginTestsPassword(WebTest):
+    csrf_checks = False
+    url = reverse("evaluation:index")
 
     @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
     def test_passworduser_login(self):
