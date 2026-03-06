@@ -141,6 +141,7 @@ def otp_authentication(request, otp: str):
         authenticated_user = auth.authenticate(request, otp_hash=otp_hash)
         auth.login(request, authenticated_user)
         messages.success(request, _("Logged in as %s.") % user.full_name)
+        # Invalidate, not delete, so the branch below can send a new one on expired keys
         otp_hash.invalidate()
     else:
         EmailTemplate.send_login_url_to_user(user)

@@ -2200,7 +2200,8 @@ class OtpHash(models.Model):
         return self.valid_until >= now()
 
     def invalidate(self) -> None:
-        self.valid_until = now() - timedelta(days=1)
+        # send it way back so enforce_otp_count_limit deletes it before any active OTPs
+        self.valid_until = now() - timedelta(days=365)
         self.save()
 
 
