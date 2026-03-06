@@ -7,7 +7,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("evaluation", "0160_evaluation_staff_notes"),
+        ("evaluation", "0162_unified_questions_from_tmp_relation"),
     ]
 
     operations = [
