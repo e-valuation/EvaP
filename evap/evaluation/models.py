@@ -2154,10 +2154,7 @@ class OtpHash(models.Model):
         OTP_ALPHABET, OTP_LENGTH, and OTP_VALIDITY.
         """
         # Keep only the newest (limit - 1) OTPs, delete everything else (expired + excess)
-        ids_to_keep = (
-            cls.objects.filter(user=user)
-            .order_by("-valid_until")[: settings.MAX_OTPS_PER_USER - 1]
-        )
+        ids_to_keep = cls.objects.filter(user=user).order_by("-valid_until")[: settings.MAX_OTPS_PER_USER - 1]
         cls.objects.filter(user=user).exclude(id__in=ids_to_keep).delete()
 
         if typeable:
@@ -2169,7 +2166,7 @@ class OtpHash(models.Model):
             length = settings.OTP_LENGTH
             validity = settings.OTP_VALIDITY
 
-        for _ in range(10):
+        for _i in range(10):
             raw_otp = "".join(secrets.choice(alphabet) for _ in range(length))
             try:
                 cls.objects.create(
@@ -2181,6 +2178,7 @@ class OtpHash(models.Model):
             except IntegrityError:
                 # unique constraint failed, this OTP is already in use. Generate another one.
                 continue
+        raise RuntimeError("Failed to create OTP after 10 attempts")
 
     @classmethod
     def hash_otp(cls, otp: str) -> str:

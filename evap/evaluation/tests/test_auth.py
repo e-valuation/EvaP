@@ -18,8 +18,7 @@ from evap.evaluation.models import Contribution, EmailTemplate, Evaluation, OtpH
 from evap.evaluation.tests.tools import WebTest
 
 
-
-@override_settings(PAGE_URL="http://testserver", OTP_HASH_ITERATIONS=10_000) # speed up tests
+@override_settings(PAGE_URL="http://testserver", OTP_HASH_ITERATIONS=10_000)  # speed up tests
 class LoginTestsOtp(WebTest):
     csrf_checks = False
     typeable = False
@@ -102,7 +101,9 @@ class LoginTestsOtp(WebTest):
         self.assertContains(page, "We sent you an email with a one-time login URL. Please check your inbox.")
 
     def test_generating_more_than_max_otps_invalidates_oldest_only(self):
-        otps = [OtpHash.create(self.external_user, typeable=self.typeable) for _ in range(settings.MAX_OTPS_PER_USER + 1)]
+        otps = [
+            OtpHash.create(self.external_user, typeable=self.typeable) for _ in range(settings.MAX_OTPS_PER_USER + 1)
+        ]
 
         self.assertIsNone(OtpHash.get(otps[0]))
 
@@ -116,9 +117,10 @@ class LoginTestsOtpTypeable(LoginTestsOtp):
     typeable = True
 
 
-@override_settings(OTP_HASH_ITERATIONS=10_000) # speed up tests
+@override_settings(OTP_HASH_ITERATIONS=10_000)  # speed up tests
 class LoginTestsOtpAdditional(WebTest):
-    """ OTP tests that don't need the typeable parameter """
+    """OTP tests that don't need the typeable parameter"""
+
     csrf_checks = False
     url = reverse("evaluation:index")
 
