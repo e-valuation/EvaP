@@ -2145,17 +2145,19 @@ class OtpHash(models.Model):
         verbose_name_plural = _("OTP hashes")
 
     @classmethod
+    def enforce_otp_count_limit(cls, user: UserProfile) -> None:
+        """Keep only the newest (limit - 1) OTPs for the user, delete the rest."""
+        ids_to_keep = cls.objects.filter(user=user).order_by("-valid_until")[: settings.MAX_OTPS_PER_USER - 1]
+        cls.objects.filter(user=user).exclude(id__in=ids_to_keep).delete()
+
+    @classmethod
     def create(cls, user: UserProfile, *, typeable: bool = False) -> str:
         """Create a new OTP for the given user. Returns the raw OTP.
-
-        Enforces the per-user OTP limit.
 
         If typeable is True, uses the TYPEABLE variants of
         OTP_ALPHABET, OTP_LENGTH, and OTP_VALIDITY.
         """
-        # Keep only the newest (limit - 1) OTPs, delete everything else (expired + excess)
-        ids_to_keep = cls.objects.filter(user=user).order_by("-valid_until")[: settings.MAX_OTPS_PER_USER - 1]
-        cls.objects.filter(user=user).exclude(id__in=ids_to_keep).delete()
+        cls.enforce_otp_count_limit(user)
 
         if typeable:
             alphabet = settings.OTP_ALPHABET_TYPEABLE

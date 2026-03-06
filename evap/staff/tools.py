@@ -315,6 +315,8 @@ def merge_users(  # noqa: PLR0915  # This is much stuff to do. However, splittin
             setattr(main_user, key, value)  # use direct assignment for everything else
     main_user.save()
 
+    OtpHash.enforce_otp_count_limit(main_user)
+
     # delete rewards
     other_user.reward_point_grantings.all().delete()
     other_user.reward_point_redemptions.all().delete()
