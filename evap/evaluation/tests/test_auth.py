@@ -18,7 +18,8 @@ from evap.evaluation.models import Contribution, EmailTemplate, Evaluation, OtpH
 from evap.evaluation.tests.tools import WebTest
 
 
-@override_settings(PAGE_URL="http://testserver")
+
+@override_settings(PAGE_URL="http://testserver", OTP_HASH_ITERATIONS=10_000) # speed up tests
 class LoginTestsOtp(WebTest):
     csrf_checks = False
     typeable = False
@@ -115,6 +116,7 @@ class LoginTestsOtpTypeable(LoginTestsOtp):
     typeable = True
 
 
+@override_settings(OTP_HASH_ITERATIONS=10_000) # speed up tests
 class LoginTestsOtpAdditional(WebTest):
     """ OTP tests that don't need the typeable parameter """
     csrf_checks = False

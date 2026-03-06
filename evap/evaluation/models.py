@@ -2186,7 +2186,7 @@ class OtpHash(models.Model):
     def hash_otp(cls, otp: str) -> str:
         # fixed iterations so that hashes are stable and can be queried for directly
         # the salt needs to be static for the same reason, thus providing no additional security.
-        return cls._hasher.encode(otp, salt="otp", iterations=1_000_000)
+        return cls._hasher.encode(otp, salt="otp", iterations=settings.OTP_HASH_ITERATIONS)
 
     @classmethod
     def get(cls, otp: str) -> "OtpHash | None":
