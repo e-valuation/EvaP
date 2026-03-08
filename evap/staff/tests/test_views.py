@@ -3374,6 +3374,7 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
 
     def test_delete_question(self) -> None:
         other_questionnaire = baker.make(Questionnaire)
+        # Use HEADING to test for a regression, see https://github.com/e-valuation/EvaP/pull/2665
         other_question = baker.make(
             Question, questionnaires=[self.questionnaire, other_questionnaire], type=QuestionType.HEADING
         )
