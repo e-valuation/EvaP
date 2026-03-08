@@ -3374,7 +3374,9 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
 
     def test_delete_question(self) -> None:
         other_questionnaire = baker.make(Questionnaire)
-        other_question = baker.make(Question, questionnaires=[self.questionnaire, other_questionnaire])
+        other_question = baker.make(
+            Question, questionnaires=[self.questionnaire, other_questionnaire], type=QuestionType.HEADING
+        )
         baker.make(QuestionAssignment, questionnaire=self.questionnaire, question__type=QuestionType.GRADE)
         baker.make(Contribution, questionnaires=[self.questionnaire], evaluation__state=Evaluation.State.NEW)
         page = self.app.get(self.url, user=self.manager)
