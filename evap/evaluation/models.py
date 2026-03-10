@@ -1374,9 +1374,10 @@ class QuestionAssignment(models.Model):
         unique_together = [("question", "questionnaire")]
 
     def delete(self, using=None, keep_parents=False) -> tuple[int, dict[str, int]]:
-        assert not self.question.answer_class.objects.filter(assignment=self).exists(), (
-            "cannot delete question with answers"
-        )
+        if not self.question.is_heading_question:
+            assert not self.question.answer_class.objects.filter(assignment=self).exists(), (
+                "cannot delete question with answers"
+            )
         count = 0
         meta: dict[str, int] = {}
 
