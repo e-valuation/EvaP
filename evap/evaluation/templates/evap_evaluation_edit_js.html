@@ -4,8 +4,7 @@
     <script type="module">
         import { makeFormSortable } from "{% static 'js/sortable-form.js' %}";
         const rowChanged = function(row) {
-            const name = row.querySelector("select[id$=-contributor] > [selected]")?.textContent;
-            const nameChanged = name && name !== "---------";
+            const nameChanged = row.querySelector("select[id$=-contributor]")?.value;
             const idChanged = row.querySelector("input[id$=-id]")?.value;
 
             const questionnaireChanged = row.querySelector("input[name$=-questionnaires]:checked") !== null
