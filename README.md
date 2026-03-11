@@ -47,7 +47,7 @@ We'd love to see contributions! PRs solving existing issues are most helpful to 
 
 Before committing, run `./manage.py precommit` or alternatively, the individual commands:
 - `./manage.py typecheck`
-- `./manage.py test`
+- `./manage.py test --parallel 6`
 - `./manage.py lint`
 - `./manage.py format` (applies automatic code formatting)
 

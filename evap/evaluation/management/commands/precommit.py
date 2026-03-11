@@ -22,4 +22,4 @@ class Command(BaseCommand):
         call_command("lint")
 
         # subprocess call so our sys.argv check in settings.py works
-        subprocess_run_or_exit(["./manage.py", "test"], self.stdout)
+        subprocess_run_or_exit(["./manage.py", "test", "--parallel", "6"], self.stdout)
