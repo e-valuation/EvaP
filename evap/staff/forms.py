@@ -1146,12 +1146,21 @@ class UserForm(forms.ModelForm):
 
 
 class UserMergeSelectionForm(forms.Form):
-    main_user = UserModelChoiceField(UserProfile.objects.all())
-    other_user = UserModelChoiceField(UserProfile.objects.all())
+    main_user = UserModelChoiceField(UserProfile.objects.all(), widget=ServerSearchSelect())
+    other_user = UserModelChoiceField(UserProfile.objects.all(), widget=ServerSearchSelect())
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["main_user"].widget.search_url = reverse("staff:fetch_user_profiles")
+        self.fields["other_user"].widget.search_url = reverse("staff:fetch_user_profiles")
 
 
 class UserEditSelectionForm(forms.Form):
-    user = UserModelChoiceField(UserProfile.objects.all())
+    user = UserModelChoiceField(UserProfile.objects.all(), widget=ServerSearchSelect())
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["user"].widget.search_url = reverse("staff:fetch_user_profiles")
 
 
 class FaqSectionForm(forms.ModelForm):

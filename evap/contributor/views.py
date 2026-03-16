@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import IntegrityError, transaction
-from django.db.models import Exists, Max, OuterRef, Q
+from django.db.models import Exists, Max, OuterRef, Q, QuerySet
 from django.forms.models import inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.safestring import mark_safe
@@ -26,6 +26,7 @@ from evap.evaluation.tools import (
     get_parameter_from_url_or_session,
     sort_formset,
 )
+from evap.evaluation.views import UserProfileSearchView
 from evap.results.exporters import ResultsExporter
 from evap.results.tools import annotate_distributions_and_grades, get_evaluations_with_course_result_attributes
 from evap.staff.forms import ContributionFormset
@@ -304,3 +305,13 @@ def export_contributor_results(contributor):
 @responsible_or_contributor_or_delegate_required
 def export(request):
     return export_contributor_results(request.user)
+
+
+@responsible_or_contributor_or_delegate_required
+class DelegateToUserProfileSearchView(UserProfileSearchView):
+    def search(self, query, request, *args, **kwargs) -> QuerySet[UserProfile]:
+        return (
+            super()
+            .search(query, request, *args, **kwargs)
+            .filter(pk__in=DelegateSelectionForm.get_delegate_to_queryset())
+        )
