@@ -193,8 +193,7 @@ class EvaluationGridLiveTest(LiveServerTest):
 
         with self.enter_staff_mode():
             self.selenium.get(self.reverse("staff:semester_view", args=[test_semester.id]))
-            with self.wait_until_page_reloads():
-                self.set_page_language("de")
+            self.set_page_language("de")
 
             table_entries = self.selenium.find_elements(
                 By.XPATH, "//table[@id='evaluation-table']//tbody//child::td[@data-col='name']"
@@ -213,8 +212,7 @@ class EvaluationGridLiveTest(LiveServerTest):
             actual = [entry.get_attribute("data-order") for entry in table_entries]
             self.assertEqual(actual, expected)
 
-            with self.wait_until_page_reloads():
-                self.set_page_language("en")
+            self.set_page_language("en")
 
             self.wait.until(visibility_of_element_located((By.ID, "evaluation-table")))
 
