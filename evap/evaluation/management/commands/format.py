@@ -21,7 +21,9 @@ class Command(BaseCommand):
 
     def run_prettier(self):
         self.stdout.write("Executing npx prettier")
-        subprocess.run(["npx", "prettier", "--write", "evap/static/ts/**/*.ts"], check=False)  # nosec
+        subprocess.run(
+            ["npx", "prettier", "--write", "evap/static/ts/**/*.ts", "evap/static/ts/eslint.config.js"], check=False
+        )  # nosec
 
     def handle(self, *args, **options):
         if options["formatter"] in ("ruff", "python", None):
