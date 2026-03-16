@@ -59,13 +59,17 @@ class TestSemester(WebTest):
         self.assertTrue(semester.can_be_deleted_by_manager)
 
 
-class TestQuestionnaire(WebTest):
+class TestQuestionnaire(TestCase):
     def test_can_be_deleted_by_manager(self):
         questionnaire = baker.make(Questionnaire)
         self.assertTrue(questionnaire.can_be_deleted_by_manager)
 
         baker.make(Contribution, questionnaires=[questionnaire])
         self.assertFalse(questionnaire.can_be_deleted_by_manager)
+
+    def test_locked_contributor_questionnaire(self):
+        questionnaire = baker.prepare(Questionnaire, is_locked=True, type=Questionnaire.Type.CONTRIBUTOR)
+        self.assertRaises(ValidationError, questionnaire.clean)
 
 
 class TestQuestionAssignment(TestCase):
@@ -1169,9 +1173,3 @@ class TestEmailRecipientList(TestCase):
             evaluation, [EmailTemplate.Recipients.CONTRIBUTORS], filter_users_in_cc=True
         )
         self.assertCountEqual(recipient_list, [contributor2, contributor3])
-
-
-class QuestionnaireTests(TestCase):
-    def test_locked_contributor_questionnaire(self):
-        questionnaire = baker.prepare(Questionnaire, is_locked=True, type=Questionnaire.Type.CONTRIBUTOR)
-        self.assertRaises(ValidationError, questionnaire.clean)
