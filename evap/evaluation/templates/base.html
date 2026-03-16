@@ -91,6 +91,29 @@
             };
             activateTooltips();
 
+            activateQuestionnaireTooltips = function(selector = "") {
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll(selector + ' [data-bs-toggle="questionnaire-tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    var container = 'body';
+                    if (tooltipTriggerEl.dataset.container){
+                        container = tooltipTriggerEl.closest(tooltipTriggerEl.dataset.container);
+                    }
+                    return new bootstrap.Tooltip(tooltipTriggerEl, {container: container, html: true, trigger: 'hover', popperConfig: function (defaultBsPopperConfig) {
+                        return {
+                            placement: 'right',
+                            modifiers: [{
+                                name: 'preventOverflow',
+                                altAxis: true,
+                                rootBoundary: 'viewport',
+                            },
+                        ],
+                        };
+                    }})
+                })
+
+            };
+            activateQuestionnaireTooltips();
+
             // These are workarounds around incompatibilities of django, django-dynamic-formsets, and tomselect.
             // tomselect can't handle already tomselect'd forms that were copies made by django-dynamic-formsets'
             // "add another" button, so we take a copy of a non-tomselect'd form here
