@@ -25,7 +25,8 @@
                 <label for="{{ modal_id }}Subject" class="control-label my-auto pe-4 text-break">{% translate 'Subject' %}</label>
                 <input type="text" class="form-control mx-auto" id="{{ modal_id }}Subject" disabled value="{{ title }}"/>
             </div>
-            <textarea autofocus class="form-control modal-textfield my-4" id="{{ modal_id }}MessageText" name="message"></textarea>
+            <label for="{{ modal_id }}MessageText" class="d-none">Nachricht</label>
+            <textarea autofocus class="form-control modal-textfield my-4" id="{{ modal_id }}MessageText" name="message" placeholder="Nachricht"></textarea>
         </div>
 
         <div class="feedback-button" slot="show-button">
