@@ -246,7 +246,7 @@ class TestContributorEvaluationEditView(WebTest):
         self.evaluation.save()
         page = self.app.get(self.url, user=self.responsible, status=200)
 
-        self.assertIn("changeEvaluationRequestModalLabel", page)
+        self.assertIn("createContributorAccountRequestModalTitle", page)
 
         self.assertNotIn("Adam &amp;amp; Eve", page)
         self.assertIn("Adam &amp; Eve", page)
