@@ -3,9 +3,10 @@ from datetime import datetime
 from django import forms
 from django.db.models import Q
 from django.forms.widgets import CheckboxSelectMultiple
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from evap.evaluation.forms import UserModelChoiceField, UserModelMultipleChoiceField
+from evap.evaluation.forms import ServerSearchSelect, UserModelChoiceField, UserModelMultipleChoiceField
 from evap.evaluation.models import Course, Evaluation, Questionnaire, UserProfile
 from evap.evaluation.tools import vote_end_datetime
 from evap.staff.forms import ContributionForm
@@ -155,6 +156,14 @@ class EditorContributionForm(ContributionForm):
 
 
 class DelegateSelectionForm(forms.Form):
+    @staticmethod
+    def get_delegate_to_queryset():
+        return UserProfile.objects.exclude(is_active=False).exclude(is_proxy_user=True)
+
     delegate_to = UserModelChoiceField(
-        label=_("Delegate to"), queryset=UserProfile.objects.exclude(is_active=False).exclude(is_proxy_user=True)
+        label=_("Delegate to"), queryset=get_delegate_to_queryset(), widget=ServerSearchSelect()
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["delegate_to"].widget.search_url = reverse("contributor:fetch_delegate_to_user_profiles")
