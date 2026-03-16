@@ -77,10 +77,10 @@
                 <button type="submit" class="btn btn-primary">
                     {% translate 'Save' %}
                 </button>
-                {% translate 'Feedback' as title %}
+                {% translate 'Request user setting changes' as title %}
                 {% translate 'You are welcome to submit feedback regarding the evaluation platform or specific evaluations. Please let us know how we can improve your experience on EvaP.' as teaser %}
-                {% translate "Problems/Feedback" as show_button_text %}
-                {% include 'contact_modal.html' with modal_id='feedbackModal' user=request.user title=title teaser=teaser show_button_text=show_button_text show_button_class="btn btn-light"%}
+                {% translate "Request changes" as show_button_text %}
+                {% include 'contact_modal.html' with modal_id='requestChangesModal' user=request.user title=title teaser=teaser show_button_text=show_button_text show_button_class="btn btn-light"%}
             </div>
         </div>
     </div>

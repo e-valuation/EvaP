@@ -1,6 +1,6 @@
 {% load static %}
 
-<form custom-success id="contact-modal-form" method="POST" action="{% url 'evaluation:contact' %}">
+<form custom-success id="contact-modal-form-{{ modal_id }}" method="POST" action="{% url 'evaluation:contact' %}">
     {% csrf_token %}
     <input hidden name="title" value="{{ title }}"/>
 
@@ -28,24 +28,19 @@
             <textarea autofocus class="form-control modal-textfield my-4" id="{{ modal_id }}MessageText" name="message"></textarea>
         </div>
 
-        <span class="feedback-button" slot="show-button">
+        <div class="feedback-button" slot="show-button">
             <button type="button" class="{{ show_button_class }}">{{ show_button_text }}</button>
-        </span>
+        </div>
     </confirmation-modal>
 </form>
 <script type="module">
-    const SUCCESS_MESSAGE_TIMEOUT = 100000;
-
-    const actionButtonElement = () => document.querySelector("button[data-event-type=confirm]");
-    const successMessageModal = new bootstrap.Modal(document.querySelector("#successMessageModal_{{ modal_id }}"));
-    const messageTextElement = document.querySelector("#{{ modal_id }}MessageText");
+   const messageTextElement = document.querySelector("#{{ modal_id }}MessageText");
 
     function onSuccess() {
-        successMessageModal.show();
         messageTextElement.value = "";
-
-        setInterval(() => successMessageModal.hide(), SUCCESS_MESSAGE_TIMEOUT);
+        window.location.reload();
+        console.log("here");
     }
-    const contactModal = document.querySelector("#contact-modal-form");
+    const contactModal = document.querySelector("#contact-modal-form-{{ modal_id }}");
     contactModal.addEventListener("submit-success", onSuccess);
 </script>
