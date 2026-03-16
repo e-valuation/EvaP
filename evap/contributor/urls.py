@@ -10,5 +10,7 @@ urlpatterns = [
     path("evaluation/<int:evaluation_id>", views.evaluation_view, name="evaluation_view"),
     path("evaluation/<int:evaluation_id>/edit", views.evaluation_edit, name="evaluation_edit"),
     path("evaluation/<int:evaluation_id>/preview", views.evaluation_preview, name="evaluation_preview"),
-    path("evaluation/<int:evaluation_id>/direct_delegation", views.evaluation_direct_delegation, name="evaluation_direct_delegation")
+    path("evaluation/<int:evaluation_id>/direct_delegation", views.evaluation_direct_delegation, name="evaluation_direct_delegation"),
+    path("user_profiles/delegate_to/", views.DelegateToUserProfileSearchView.as_view(),
+         name="fetch_delegate_to_user_profiles"),
 ]
