@@ -182,11 +182,11 @@ class EvaluationGridLiveTest(LiveServerTest):
 
         baker.make(
             Evaluation,
-            _quantity=5,
-            name_de=iter(f"Evaluation {i}" for i in range(1, 6)),
-            name_en=iter(f"Evaluation {i}" for i in range(1, 6)),
-            course__name_de=iter(("AE", "ÄB", "UE", "ÜB", "Z")),
-            course__name_en=iter(("Z", "ÜB", "UE", "ÄB", "AE")),
+            _quantity=7,
+            name_de=iter(f"Evaluation {i}" for i in range(1, 8)),
+            name_en=iter(f"Evaluation {i}" for i in range(1, 8)),
+            course__name_de=iter(("AA", "ÄB", "AC", "AE", "UB", "ÜC", "Z")),
+            course__name_en=iter(("Z", "ÜC", "UB", "AE", "AC", "ÄB", "AA")),
             course__semester=test_semester,
         )
 
@@ -201,11 +201,13 @@ class EvaluationGridLiveTest(LiveServerTest):
                 By.XPATH, "//tbody//child::td[@data-col='name']"
             )
 
-            self.assertEqual(table[0].get_attribute("data-order"), "ÄB – Evaluation 2")
-            self.assertEqual(table[1].get_attribute("data-order"), "AE – Evaluation 1")
-            self.assertEqual(table[2].get_attribute("data-order"), "ÜB – Evaluation 4")
-            self.assertEqual(table[3].get_attribute("data-order"), "UE – Evaluation 3")
-            self.assertEqual(table[4].get_attribute("data-order"), "Z – Evaluation 5")
+            self.assertEqual(table[0].get_attribute("data-order"), "AA – Evaluation 1")
+            self.assertEqual(table[1].get_attribute("data-order"), "ÄB – Evaluation 2")
+            self.assertEqual(table[2].get_attribute("data-order"), "AC – Evaluation 3")
+            self.assertEqual(table[3].get_attribute("data-order"), "AE – Evaluation 4")
+            self.assertEqual(table[4].get_attribute("data-order"), "UB – Evaluation 5")
+            self.assertEqual(table[5].get_attribute("data-order"), "ÜC – Evaluation 6")
+            self.assertEqual(table[6].get_attribute("data-order"), "Z – Evaluation 7")
 
             # self.selenium.get(self.reverse("staff:index"))
             with self.wait_until_page_reloads():
@@ -223,10 +225,12 @@ class EvaluationGridLiveTest(LiveServerTest):
             )
 
             self.assertEqual(table[0].get_attribute("data-order"), "Z – Evaluation 1")
-            self.assertEqual(table[1].get_attribute("data-order"), "UE – Evaluation 3")
-            self.assertEqual(table[2].get_attribute("data-order"), "ÜB – Evaluation 2")
-            self.assertEqual(table[3].get_attribute("data-order"), "AE – Evaluation 5")
-            self.assertEqual(table[4].get_attribute("data-order"), "ÄB – Evaluation 4")
+            self.assertEqual(table[1].get_attribute("data-order"), "ÜC – Evaluation 2")
+            self.assertEqual(table[2].get_attribute("data-order"), "UB – Evaluation 3")
+            self.assertEqual(table[3].get_attribute("data-order"), "AE – Evaluation 4")
+            self.assertEqual(table[4].get_attribute("data-order"), "AC – Evaluation 5")
+            self.assertEqual(table[5].get_attribute("data-order"), "ÄB – Evaluation 6")
+            self.assertEqual(table[6].get_attribute("data-order"), "AA – Evaluation 7")
 
 
 class TextAnswerEditLiveTest(LiveServerTest):
