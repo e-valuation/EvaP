@@ -11,11 +11,11 @@ class ContactModalTests(LiveServerTest):
         self.selenium.find_element(By.ID, "feedbackModalShowButton").click()
         self.wait.until(visibility_of_element_located((By.ID, "feedbackModalMessageText")))
         self.selenium.find_element(By.ID, "feedbackModalMessageText").send_keys("Test message")
-        self.selenium.find_element(By.ID, "feedbackModalActionButton").click()
+        self.selenium.find_element(By.CSS_SELECTOR, "span[slot='action-text']").click()
 
         self.wait.until(
             text_to_be_present_in_element(
-                (By.CSS_SELECTOR, "#successMessageModal_feedbackModal .modal-body"),
+                (By.CSS_SELECTOR, ".alert-success"),
                 "Your message was successfully sent.",
             )
         )
