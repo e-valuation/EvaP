@@ -76,7 +76,7 @@
                             {% blocktranslate asvar title with evaluation_name=evaluation.full_name %}Request evaluation changes for {{ evaluation_name }}{% endblocktranslate %}
                             {% translate 'Please tell us what changes to the evaluation we should make.' as teaser %}
                             {% translate 'Request changes' as show_button_text %}
-                            {% include 'contact_modal.html' with modal_id='changeEvaluationRequestModal' user=request.user title=title teaser=teaser show_button_text=show_button_text show_button_class="btn btn-sm btn-light"%}
+                            {% include 'contact_modal.html' with modal_id='changeEvaluationRequestModal' user=request.user title=title teaser=teaser show_button_text=show_button_text show_button_class="btn btn-sm btn-light" %}
                         </div>
                     {% endif %}
                 </div>
