@@ -23,6 +23,7 @@ from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
 from django.db.models import CheckConstraint, Count, Exists, F, Manager, OuterRef, Q, QuerySet, Subquery, Value
 from django.db.models.functions import Coalesce, Lower, NullIf, TruncDate
+from django.db.models.signals import post_delete
 from django.dispatch import Signal, receiver
 from django.http import HttpRequest
 from django.template import Context, Template
@@ -1373,18 +1374,14 @@ class QuestionAssignment(models.Model):
         ordering = ["order"]
         unique_together = [("question", "questionnaire")]
 
-    def delete(self, using=None, keep_parents=False) -> tuple[int, dict[str, int]]:
-        if not self.question.is_heading_question:
-            assert not self.question.answer_class.objects.filter(assignment=self).exists(), (
-                "cannot delete question with answers"
-            )
-        count = 0
-        meta: dict[str, int] = {}
 
-        if not self.question.questionnaires.exclude(pk=self.questionnaire.pk).exists():
-            count, meta = self.question.delete(using=using, keep_parents=False)  # garbage-collect unused questions
-        self_count, self_meta = super().delete(using=using, keep_parents=keep_parents)
-        return count + self_count, meta | self_meta
+@receiver(post_delete, sender=QuestionAssignment)
+@transaction.atomic
+def _question_assignment_post_delete(*, instance: QuestionAssignment, **_kwargs) -> None:
+    """Garbage-collect unused questions once no questionnaires reference them anymore."""
+
+    if not QuestionAssignment.objects.filter(question=instance.question.pk).exists():
+        Question.objects.filter(pk=instance.question.pk).delete()
 
 
 @dataclass

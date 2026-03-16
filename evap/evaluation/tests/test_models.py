@@ -17,6 +17,7 @@ from evap.evaluation.models import (
     Evaluation,
     NotArchivableError,
     Question,
+    QuestionAssignment,
     Questionnaire,
     QuestionType,
     Semester,
@@ -65,6 +66,26 @@ class TestQuestionnaire(WebTest):
 
         baker.make(Contribution, questionnaires=[questionnaire])
         self.assertFalse(questionnaire.can_be_deleted_by_manager)
+
+
+class TestQuestionAssignment(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.assignment = baker.make(QuestionAssignment)
+        cls.question = cls.assignment.question
+        cls.questionnaire = cls.assignment.questionnaire
+
+    def test_assignment_delete_gc(self):
+        self.assignment.delete()
+        self.assertRaises(Question.DoesNotExist, self.question.refresh_from_db)
+
+    def test_assignment_queryset_delete_gc(self):
+        QuestionAssignment.objects.filter(pk=self.assignment.pk).delete()
+        self.assertRaises(Question.DoesNotExist, self.question.refresh_from_db)
+
+    def test_questionnaire_cascading_delete_gc(self):
+        self.questionnaire.delete()
+        self.assertRaises(Question.DoesNotExist, self.question.refresh_from_db)
 
 
 @override_settings(EVALUATION_END_OFFSET_HOURS=0)
