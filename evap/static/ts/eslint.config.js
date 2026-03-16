@@ -51,7 +51,7 @@ export default tseslint.config(
             "@typescript-eslint/no-unsafe-assignment": "warn",
             // Note: you must disable the base rule as it can report incorrect errors
             "no-unused-private-class-members": "off",
-            "@typescript-eslint/no-unused-private-class-members": "error"
+            "@typescript-eslint/no-unused-private-class-members": "error",
         },
     },
 );
