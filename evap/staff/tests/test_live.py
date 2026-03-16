@@ -192,46 +192,52 @@ class EvaluationGridLiveTest(LiveServerTest):
         )
 
         with self.enter_staff_mode():
-            # self.selenium.get(self.reverse("staff:index"))
             self.selenium.get(self.reverse("staff:semester_view", args=[test_semester.id]))
             with self.wait_until_page_reloads():
                 self.set_page_language("de")
 
-            # self.wait.until(visibility_of_element_located((By.CSS_SELECTOR, "#evaluation-table .col-order-asc")))
-            table = self.selenium.find_element(By.ID, "evaluation-table").find_elements(
-                By.XPATH, "//tbody//child::td[@data-col='name']"
+            table_entries = self.selenium.find_elements(
+                By.XPATH, "//table[@id='evaluation-table']//tbody//child::td[@data-col='name']"
             )
 
-            self.assertEqual(table[0].get_attribute("data-order"), "AA – Evaluation 1")
-            self.assertEqual(table[1].get_attribute("data-order"), "ÄB – Evaluation 2")
-            self.assertEqual(table[2].get_attribute("data-order"), "AC – Evaluation 3")
-            self.assertEqual(table[3].get_attribute("data-order"), "AE – Evaluation 4")
-            self.assertEqual(table[4].get_attribute("data-order"), "UB – Evaluation 5")
-            self.assertEqual(table[5].get_attribute("data-order"), "ÜC – Evaluation 6")
-            self.assertEqual(table[6].get_attribute("data-order"), "Z – Evaluation 7")
+            expected = [
+                "AA – Evaluation 1",
+                "ÄB – Evaluation 2",
+                "AC – Evaluation 3",
+                "AE – Evaluation 4",
+                "UB – Evaluation 5",
+                "ÜC – Evaluation 6",
+                "Z – Evaluation 7",
+            ]
 
-            # self.selenium.get(self.reverse("staff:index"))
+            actual = [entry.get_attribute("data-order") for entry in table_entries]
+            self.assertEqual(actual, expected)
+
             with self.wait_until_page_reloads():
                 self.set_page_language("en")
 
-            # self.selenium.get(self.reverse("staff:semester_view", args=[test_semester.id]))
             self.wait.until(visibility_of_element_located((By.ID, "evaluation-table")))
 
             toggle_sort_button = self.selenium.find_element(By.XPATH, "//thead//th[@data-col='name']")
             toggle_sort_button.click()
             self.wait.until(visibility_of_element_located((By.ID, "evaluation-table")))
 
-            table = self.selenium.find_element(By.ID, "evaluation-table").find_elements(
-                By.XPATH, "//tbody//child::td[@data-col='name']"
+            table_entries = self.selenium.find_elements(
+                By.XPATH, "//table[@id='evaluation-table']//tbody//child::td[@data-col='name']"
             )
 
-            self.assertEqual(table[0].get_attribute("data-order"), "Z – Evaluation 1")
-            self.assertEqual(table[1].get_attribute("data-order"), "ÜC – Evaluation 2")
-            self.assertEqual(table[2].get_attribute("data-order"), "UB – Evaluation 3")
-            self.assertEqual(table[3].get_attribute("data-order"), "AE – Evaluation 4")
-            self.assertEqual(table[4].get_attribute("data-order"), "AC – Evaluation 5")
-            self.assertEqual(table[5].get_attribute("data-order"), "ÄB – Evaluation 6")
-            self.assertEqual(table[6].get_attribute("data-order"), "AA – Evaluation 7")
+            expected = [
+                "Z – Evaluation 1",
+                "ÜC – Evaluation 2",
+                "UB – Evaluation 3",
+                "AE – Evaluation 4",
+                "AC – Evaluation 5",
+                "ÄB – Evaluation 6",
+                "AA – Evaluation 7",
+            ]
+
+            actual = [entry.get_attribute("data-order") for entry in table_entries]
+            self.assertEqual(actual, expected)
 
 
 class TextAnswerEditLiveTest(LiveServerTest):
