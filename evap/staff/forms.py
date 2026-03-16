@@ -5,14 +5,20 @@ from django import forms
 from django.contrib.auth.models import Group
 from django.core.exceptions import SuspiciousOperation, ValidationError
 from django.db import transaction
-from django.db.models import Max, Q
+from django.db.models import Max, Q, QuerySet
 from django.forms.models import BaseInlineFormSet
 from django.forms.widgets import CheckboxSelectMultiple
 from django.http.request import QueryDict
+from django.urls import reverse
 from django.utils.text import normalize_newlines
 from django.utils.translation import gettext_lazy as _
 
-from evap.evaluation.forms import UserModelChoiceField, UserModelMultipleChoiceField
+from evap.evaluation.forms import (
+    ServerSearchSelect,
+    ServerSearchSelectMultiple,
+    UserModelChoiceField,
+    UserModelMultipleChoiceField,
+)
 from evap.evaluation.models import (
     Contribution,
     Course,
@@ -437,6 +443,14 @@ class EvaluationForm(forms.ModelForm):
         field_classes = {
             "participants": UserModelMultipleChoiceField,
         }
+        widgets = {"participants": ServerSearchSelectMultiple()}
+
+    @classmethod
+    def get_participants_queryset(cls, evaluation: Evaluation | None) -> QuerySet[UserProfile]:
+        queryset = UserProfile.objects.exclude(is_active=False)
+        if evaluation.pk is not None:
+            queryset = (queryset | evaluation.participants.all()).distinct()
+        return queryset
 
     def __init__(self, *args, requires_decided_main_language=False, **kwargs):
         semester = kwargs.pop("semester", None)
@@ -456,12 +470,10 @@ class EvaluationForm(forms.ModelForm):
             Questionnaire.objects.dropout_questionnaires().filter(visible_questionnaires).distinct()
         )
 
-        queryset = UserProfile.objects.exclude(is_active=False)
-        if self.instance.pk is not None:
-            queryset = (queryset | self.instance.participants.all()).distinct()
-        self.fields["participants"].queryset = queryset
-        # this avoids participant lists being cached, e.g. after removing a participant and reloading the page without saving, the participant should appear again
-        self.fields["participants"].widget.attrs["autocomplete"] = "off"
+        self.fields["participants"].queryset = self.get_participants_queryset(self.instance)
+        self.fields["participants"].widget.search_url = reverse(
+            "staff:fetch_participants_user_profiles", args=[self.instance.pk]
+        )
 
         if general_contribution := self.instance.general_contribution:
             self.fields["general_questionnaires"].initial = [
@@ -588,7 +600,6 @@ class ExamEvaluationForm(forms.Form):
 
 
 class ContributionForm(forms.ModelForm):
-    contributor = UserModelChoiceField(queryset=UserProfile.objects.exclude(is_active=False))
     evaluation = forms.ModelChoiceField(
         Evaluation.objects.all(), disabled=True, required=False, widget=forms.HiddenInput()
     )
@@ -603,12 +614,18 @@ class ContributionForm(forms.ModelForm):
     class Meta:
         model = Contribution
         fields = ("evaluation", "contributor", "questionnaires", "role", "textanswer_visibility", "label", "order")
+        field_classes = {"contributor": UserModelChoiceField}
         widgets = {
             "order": forms.HiddenInput(),
             # RadioSelects are necessary so each value gets a id_for_label, see #1769.
             "role": forms.RadioSelect(),
             "textanswer_visibility": forms.RadioSelect(),
+            "contributor": ServerSearchSelect(),
         }
+
+    @classmethod
+    def get_contributor_queryset(cls):
+        return UserProfile.objects.exclude(is_active=False)
 
     def __init__(self, *args, evaluation=None, **kwargs):
         self.evaluation = evaluation
@@ -620,7 +637,10 @@ class ContributionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if self.instance.contributor:
-            self.fields["contributor"].queryset |= UserProfile.objects.filter(pk=self.instance.contributor.pk)
+            self.fields["contributor"].queryset = self.get_contributor_queryset() | UserProfile.objects.filter(
+                pk=self.instance.contributor.pk
+            )
+            self.fields["contributor"].widget.search_url = reverse("staff:fetch_contributor_user_profiles")
 
         self.fields["questionnaires"].queryset = (
             Questionnaire.objects.contributor_questionnaires()
@@ -1025,13 +1045,22 @@ class UserForm(forms.ModelForm):
             "delegates": UserModelMultipleChoiceField,
             "cc_users": UserModelMultipleChoiceField,
         }
+        widgets = {
+            "delegates": ServerSearchSelectMultiple,
+            "cc_users": ServerSearchSelectMultiple,
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_with_same_email = None
+        self.remove_messages = []
+
         evaluations_in_active_semester = Evaluation.objects.filter(course__semester=Semester.active_semester())
         self.fields["evaluations_participating_in"].queryset = evaluations_in_active_semester
-        self.remove_messages = []
+
+        self.fields["cc_users"].widget.search_url = reverse("staff:fetch_user_profiles")
+        self.fields["delegates"].widget.search_url = reverse("staff:fetch_user_profiles")
+
         if self.instance.pk:
             self.fields["evaluations_participating_in"].initial = evaluations_in_active_semester.filter(
                 participants=self.instance
