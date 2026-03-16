@@ -189,12 +189,12 @@ def contact(request):
         try:
             mail.send()
             logger.info("Sent contact email: \n%s\n", mail.message())
+            messages.success(request, _("Message was successfully sent."))
             return HttpResponse()
         except Exception:
             logger.exception("An exception occurred when sending the following contact email:\n%s\n", mail.message())
             raise
 
-    # 204 or helper method no_content
     return HttpResponseBadRequest()
 
 
