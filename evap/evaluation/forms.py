@@ -156,3 +156,23 @@ class NotebookForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ("notes",)
+
+
+class ServerSearchSelect(forms.Select):
+    template_name = "django/forms/widgets/server_select.html"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.attrs["autocomplete"] = "off"
+
+    @property
+    def search_url(self):
+        return self.attrs["data-tomselect-server-search"]
+
+    @search_url.setter
+    def search_url(self, value):
+        self.attrs["data-tomselect-server-search"] = value
+
+
+class ServerSearchSelectMultiple(ServerSearchSelect, forms.SelectMultiple):
+    pass
