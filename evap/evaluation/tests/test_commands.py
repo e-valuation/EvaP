@@ -513,7 +513,10 @@ class TestFormatCommand(TestCase):
             [
                 call(["ruff", "format", "."], check=False),
                 call(["ruff", "check", "--select", "I", "--fix", "."], check=False),
-                call(["npx", "prettier", "--write", "evap/static/ts/**/*.ts"], check=False),
+                call(
+                    ["npx", "prettier", "--write", "evap/static/ts/**/*.ts", "evap/static/ts/eslint.config.js"],
+                    check=False,
+                ),
             ]
         )
 
