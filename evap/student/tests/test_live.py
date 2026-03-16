@@ -28,6 +28,7 @@ class StudentVoteLiveTest(LiveServerTest):
         voting_user2 = baker.make(UserProfile, email="voting_user2@institution.example.com")
         contributor1 = baker.make(UserProfile, email="contributor1@institution.example.com")
         contributor2 = baker.make(UserProfile, email="contributor2@institution.example.com")
+        
         evaluation = baker.make(
             Evaluation,
             participants=[voting_user1, voting_user2, contributor1],

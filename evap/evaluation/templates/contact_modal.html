@@ -40,7 +40,6 @@
     function onSuccess() {
         messageTextElement.value = "";
         window.location.reload();
-        console.log("here");
     }
     const contactModal = document.querySelector("#contact-modal-form-{{ modal_id }}");
     contactModal.addEventListener("submit-success", onSuccess);
