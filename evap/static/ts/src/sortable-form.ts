@@ -1,21 +1,7 @@
-import { selectOrError } from "./utils.js";
+import { assert, selectOrError } from "./utils.js";
 
 declare const Sortable: typeof import("sortablejs");
-
-interface FormsetOptions {
-    prefix: string;
-    deleteCssClass: string;
-    deleteText: string;
-    addText: string;
-    added: (arg: JQuery<HTMLTableRowElement>) => void;
-    formTemplate: string | null;
-}
-
-declare global {
-    interface JQuery {
-        formset: (arg: FormsetOptions) => void;
-    }
-}
+declare const $: any; // jquery global object
 
 export function makeFormSortable(
     tableId: string,
@@ -47,8 +33,9 @@ export function makeFormSortable(
         deleteCssClass: removeAsButton ? "btn btn-danger btn-sm" : "delete-row",
         deleteText: removeAsButton ? '<span class="fas fa-trash"></span>' : window.gettext("Delete"),
         addText: window.gettext("add another"),
-        added: function (rowJQuery: JQuery<HTMLTableRowElement>) {
+        added: function (rowJQuery: any) {
             const row = rowJQuery.get()[0];
+            assert(row instanceof HTMLTableRowElement);
             row.querySelectorAll<HTMLInputElement>("input[id$=-order]").forEach(input => {
                 input.value = row.parentElement?.childElementCount.toString() ?? "";
             });

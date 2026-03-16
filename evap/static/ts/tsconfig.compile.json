@@ -7,7 +7,6 @@
         "tsBuildInfoFile": ".tsbuildinfo.json",
         "types": [
             "bootstrap",
-            "jquery",
             "sortablejs"
         ]
     },
