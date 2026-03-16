@@ -308,10 +308,21 @@ def export(request):
 
 
 @responsible_or_contributor_or_delegate_required
-class DelegateToUserProfileSearchView(UserProfileSearchView):
+class DelegatesUserProfileSearchView(UserProfileSearchView):
     def search(self, query, request, *args, **kwargs) -> QuerySet[UserProfile]:
         return (
             super()
             .search(query, request, *args, **kwargs)
-            .filter(pk__in=DelegateSelectionForm.get_delegate_to_queryset())
+            .filter(pk__in=DelegateSelectionForm.get_delegates_queryset())
+        )
+
+
+@responsible_or_contributor_or_delegate_required
+class ParticipantsUserProfileSearchView(UserProfileSearchView):
+    def search(self, query, request, *args, **kwargs) -> QuerySet[UserProfile]:
+        evaluation = get_object_or_404(Evaluation, id=kwargs["evaluation"]) if kwargs.get("evaluation") else None
+        return (
+            super()
+            .search(query, request, *args, **kwargs)
+            .filter(pk__in=EvaluationForm.get_participants_queryset(evaluation))
         )
