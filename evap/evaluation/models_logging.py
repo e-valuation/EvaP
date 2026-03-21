@@ -1,12 +1,12 @@
 import itertools
 import threading
 from collections import defaultdict, namedtuple
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator, Sequence
 from contextlib import contextmanager
 from datetime import date, datetime, time
 from enum import StrEnum
 from json import JSONEncoder
-from typing import assert_never
+from typing import Any, assert_never, cast
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -19,7 +19,8 @@ from django.template.defaultfilters import yesno
 from django.utils.formats import localize
 from django.utils.translation import gettext_lazy as _
 
-from evap.evaluation.tools import capitalize_first, inject_choices_constraint
+from evap.evaluation.tools import StrOrPromise, capitalize_first, inject_choices_constraint
+from evap.tools import assert_not_none
 
 CREATE_LOGENTRIES = True
 
@@ -58,7 +59,7 @@ class LogJSONEncoder(JSONEncoder):
     As JSON can't store datetime objects, we localize them to strings.
     """
 
-    def default(self, o):
+    def default(self, o: Any) -> str:
         # o is the object to serialize -- we can't rename the argument in JSONEncoder
         if isinstance(o, date | time | datetime):
             return localize(o)
@@ -72,7 +73,7 @@ def _choice_to_display(field, choice):  # does not support nested choices
     return choice
 
 
-def _field_actions_for_field(field, actions):
+def _field_actions_for_field(field: models.Field | Any, actions: dict[str, Any]) -> Iterable[FieldAction]:
     label = capitalize_first(getattr(field, "verbose_name", field.name))
 
     for field_action_type, items in actions.items():
@@ -146,12 +147,12 @@ class LoggedModel(models.Model):
     class Meta:
         abstract = True
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self._logentry = None
-        self._m2m_changes = defaultdict(lambda: defaultdict(list))
+        self._logentry: LogEntry | None = None
+        self._m2m_changes: dict[str, dict[FieldActionType, list]] = defaultdict(lambda: defaultdict(list))
 
-    def save(self, *args, **kw):
+    def save(self, *args, **kw) -> None:
         # Are we creating a new instance?
         # https://docs.djangoproject.com/en/3.0/ref/models/instances/#customizing-model-loading
         if self._state.adding:
@@ -164,7 +165,7 @@ class LoggedModel(models.Model):
             self.log_instance_change()
             super().save(*args, **kw)
 
-    def _as_dict(self):
+    def _as_dict(self) -> dict[str, Any]:
         """
         Return a dict mapping field names to values saved in this instance.
         Only include field names that are not to be ignored for logging and
@@ -177,7 +178,7 @@ class LoggedModel(models.Model):
         ]
         return model_to_dict(self, fields)
 
-    def _get_change_data(self, action_type: InstanceActionType):
+    def _get_change_data(self, action_type: InstanceActionType) -> dict[str, Any]:
         """
         Return a dict mapping field names to changes that happened in this model instance,
         depending on the action that is being done to the instance.
@@ -216,26 +217,26 @@ class LoggedModel(models.Model):
 
         return changes
 
-    def log_m2m_change(self, field_name, action_type: FieldActionType, change_list, **kwargs):
+    def log_m2m_change(self, field_name: str, action_type: FieldActionType, change_list: list, **kwargs: Any) -> None:
         # This might be called multiple times with cumulating changes
         # But this is fine, since the old changes will be included in the latest log update
         # See https://github.com/e-valuation/EvaP/issues/1594
         self._m2m_changes[field_name][action_type] += change_list
         self._update_log(self._m2m_changes, InstanceActionType.CHANGE, **kwargs)
 
-    def log_instance_create(self):
+    def log_instance_create(self) -> None:
         changes = self._get_change_data(InstanceActionType.CREATE)
         self._update_log(changes, InstanceActionType.CREATE)
 
-    def log_instance_change(self):
+    def log_instance_change(self) -> None:
         changes = self._get_change_data(InstanceActionType.CHANGE)
         self._update_log(changes, InstanceActionType.CHANGE)
 
-    def log_instance_delete(self):
+    def log_instance_delete(self) -> None:
         changes = self._get_change_data(InstanceActionType.DELETE)
         self._update_log(changes, InstanceActionType.DELETE)
 
-    def _create_log_entry(self, action_type=InstanceActionType.CREATE):
+    def _create_log_entry(self, action_type: InstanceActionType = InstanceActionType.CREATE) -> LogEntry:
         try:
             user = self.thread.request.user
             request_id = self.thread.request_id
@@ -273,13 +274,13 @@ class LoggedModel(models.Model):
         if store_in_db:
             self._logentry.save()
 
-    def delete(self, *args, **kw):
+    def delete(self, *args, **kw) -> tuple[int, dict[str, int]]:
         self.log_instance_delete()
         self.related_logentries().delete()
         super().delete(*args, **kw)
 
     @staticmethod
-    def update_log_after_bulk_create(instances):
+    def update_log_after_bulk_create(instances: "Iterable[LoggedModel]") -> None:
         for instance in instances:
             instance._logentry = instance._create_log_entry()
 
@@ -288,8 +289,12 @@ class LoggedModel(models.Model):
 
     @staticmethod
     def update_log_after_m2m_bulk_create(
-        from_instances, through_instances, from_pk_attribute: str, to_pk_attribute: str, m2m_field: str
-    ):
+        from_instances: "Iterable[LoggedModel]",
+        through_instances: Iterable[models.Model],
+        from_pk_attribute: str,
+        to_pk_attribute: str,
+        m2m_field: str,
+    ) -> None:
         added_related = defaultdict(list)
         for instance in through_instances:
             from_pk = getattr(instance, from_pk_attribute)
@@ -307,7 +312,7 @@ class LoggedModel(models.Model):
         LogEntry.objects.bulk_create(to_create)
         LogEntry.objects.bulk_update(to_update, ["data"])
 
-    def related_logentries(self):
+    def related_logentries(self) -> models.QuerySet[LogEntry]:
         """
         Return a queryset with all logentries that should be shown with this model.
         """
@@ -316,7 +321,7 @@ class LoggedModel(models.Model):
             attached_to_object_id=self.pk,
         )
 
-    def grouped_logentries(self):
+    def grouped_logentries(self) -> Iterable[list[LogEntry]]:
         """
         Returns a list of lists of logentries for display. The order is not changed.
         Logentries are grouped if they have a matching request_id.
@@ -330,7 +335,7 @@ class LoggedModel(models.Model):
         )
 
     @property
-    def object_to_attach_logentries_to(self):
+    def object_to_attach_logentries_to(self) -> tuple[type[models.Model], int]:
         """
         Return a model class and primary key for the object for which this logentry should be shown.
         By default, show it to the object described by the logentry itself.
@@ -341,14 +346,22 @@ class LoggedModel(models.Model):
         return type(self), self.pk
 
     @property
-    def unlogged_fields(self):
+    def unlogged_fields(self) -> list[str]:
         """Specify a list of field names so that these fields don't get logged."""
         return ["id", "order"]
 
 
 @receiver(m2m_changed)
-def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  # noqa: PLR0912
-    model_class = model if reverse else type(instance)
+def _m2m_changed(  # noqa: PLR0912
+    sender: Any,
+    instance: models.Model | None,
+    action: str | None,
+    reverse: bool,
+    model: type[models.Model],
+    pk_set: set[int] | None,
+    **kwargs: Any,
+) -> None:
+    model_class = cast("type[models.Model]", model if reverse else type(instance))
     field_name = next(
         (field.name for field in model_class._meta.many_to_many if getattr(model_class, field.name).through == sender),
         None,

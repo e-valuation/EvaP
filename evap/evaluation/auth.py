@@ -1,11 +1,13 @@
 import inspect
 from collections.abc import Callable, Iterable
 from functools import wraps
+from typing import Any
 
 from django.conf import settings
 from django.contrib.auth.backends import ModelBackend
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage
+from django.http import HttpRequest
 from django.utils.decorators import method_decorator
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 
@@ -25,7 +27,7 @@ class RequestAuthUserBackend(ModelBackend):
 
     # Having a different method signature is okay according to django documentation:
     # https://docs.djangoproject.com/en/3.0/topics/auth/customizing/#writing-an-authentication-backend
-    def authenticate(self, request, key):  # pylint: disable=arguments-differ
+    def authenticate(self, request: HttpRequest, key: int) -> UserProfile | None:  # type: ignore[override] # pylint: disable=arguments-differ
         if not key:
             return None
 
@@ -37,7 +39,9 @@ class RequestAuthUserBackend(ModelBackend):
 
 class EmailAuthenticationBackend(ModelBackend):
     # https://docs.djangoproject.com/en/3.1/topics/auth/customizing/#writing-an-authentication-backend
-    def authenticate(self, request, email=None, password=None):  # pylint: disable=arguments-differ,arguments-renamed
+    def authenticate(  # type: ignore[override] # pylint: disable=arguments-differ,arguments-renamed
+        self, request: HttpRequest | None, email: str | None = None, password: str | None = None
+    ) -> UserProfile | None:
         assert password_login_is_active()
         try:
             user = UserProfile.objects.get(email=email)
@@ -79,57 +83,57 @@ def class_or_function_check_decorator(test_func: Callable[[UserProfile], bool]):
 
 
 @class_or_function_check_decorator
-def internal_required(user):
+def internal_required(user: UserProfile) -> bool:
     return not user.is_external
 
 
 @class_or_function_check_decorator
-def staff_permission_required(user):
+def staff_permission_required(user: UserProfile) -> bool:
     return user.has_staff_permission
 
 
 @class_or_function_check_decorator
-def manager_required(user):
+def manager_required(user: UserProfile) -> bool:
     return user.is_manager
 
 
 @class_or_function_check_decorator
-def reviewer_required(user):
+def reviewer_required(user: UserProfile) -> bool:
     return user.is_reviewer
 
 
 @class_or_function_check_decorator
-def grade_publisher_required(user):
+def grade_publisher_required(user: UserProfile) -> bool:
     return user.is_grade_publisher
 
 
 @class_or_function_check_decorator
-def grade_publisher_or_manager_required(user):
+def grade_publisher_or_manager_required(user: UserProfile) -> bool:
     return user.is_grade_publisher or user.is_manager
 
 
 @class_or_function_check_decorator
-def grade_downloader_required(user):
+def grade_downloader_required(user: UserProfile) -> bool:
     return user.can_download_grades
 
 
 @class_or_function_check_decorator
-def responsible_or_contributor_or_delegate_required(user):
+def responsible_or_contributor_or_delegate_required(user: UserProfile) -> bool:
     return user.is_responsible_or_contributor_or_delegate
 
 
 @class_or_function_check_decorator
-def editor_or_delegate_required(user):
+def editor_or_delegate_required(user: UserProfile) -> bool:
     return user.is_editor_or_delegate
 
 
 @class_or_function_check_decorator
-def participant_required(user):
+def participant_required(user: UserProfile) -> bool:
     return user.is_participant
 
 
 @class_or_function_check_decorator
-def reward_user_required(user):
+def reward_user_required(user: UserProfile) -> bool:
     return can_reward_points_be_used_by(user)
 
 
@@ -142,13 +146,13 @@ class OpenIDAuthenticationBackend(OIDCAuthenticationBackend):
         if previous_domain := settings.OIDC_EMAIL_TRANSITIONS.get(domain):
             yield f"{name}@{previous_domain}"
 
-    def get_userinfo(self, *args, **kwargs):
+    def get_userinfo(self, *args, **kwargs) -> Any:
         claims = super().get_userinfo(*args, **kwargs)
         if "email" in claims:
             claims["email"] = clean_email(claims["email"])
         return claims
 
-    def filter_users_by_claims(self, claims):
+    def filter_users_by_claims(self, claims: dict[str, Any]) -> list[UserProfile]:
         assert openid_login_is_active()
         email = claims.get("email")
         if not email:
@@ -162,7 +166,7 @@ class OpenIDAuthenticationBackend(OIDCAuthenticationBackend):
 
         return []
 
-    def create_user(self, claims):
+    def create_user(self, claims: dict[str, Any]) -> UserProfile:
         assert openid_login_is_active()
         return self.UserModel.objects.create(
             email=claims.get("email"),
@@ -170,7 +174,7 @@ class OpenIDAuthenticationBackend(OIDCAuthenticationBackend):
             last_name=claims.get("family_name", ""),
         )
 
-    def update_user(self, user, claims):
+    def update_user(self, user: UserProfile, claims: dict[str, Any]) -> UserProfile:
         assert openid_login_is_active()
         if not user.first_name_given:
             user.first_name_given = claims.get("given_name", "")

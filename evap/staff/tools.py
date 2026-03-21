@@ -10,13 +10,14 @@ from django.contrib.auth.models import Group
 from django.core.exceptions import SuspiciousOperation
 from django.db import transaction
 from django.db.models import Count, Max, Model
+from django.http import HttpRequest
 from django.urls import reverse
 from django.utils.html import escape, format_html, format_html_join
 from django.utils.safestring import SafeString
+from django.utils.translation import gettext, ngettext
 from django.utils.translation import gettext_lazy as _
-from django.utils.translation import ngettext
 
-from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer, UserProfile
+from evap.evaluation.models import Contribution, Course, Evaluation, Semester, TextAnswer, UserProfile
 from evap.evaluation.models_logging import LogEntry
 from evap.evaluation.tools import StrOrPromise, clean_email, is_external_email
 from evap.grades.models import GradeDocument
@@ -34,11 +35,11 @@ class ImportType(Enum):
     USER_BULK_UPDATE = "user_bulk_update"
 
 
-def generate_import_path(user_id, import_type) -> Path:
+def generate_import_path(user_id: int, import_type: ImportType) -> Path:
     return settings.MEDIA_ROOT / "temp_import_files" / f"{user_id}.{import_type.value}.xls"
 
 
-def save_import_file(excel_file, user_id, import_type):
+def save_import_file(excel_file, user_id: int, import_type: ImportType) -> None:
     path = generate_import_path(user_id, import_type)
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "wb") as file:
@@ -47,17 +48,17 @@ def save_import_file(excel_file, user_id, import_type):
     excel_file.seek(0)
 
 
-def delete_import_file(user_id, import_type):
+def delete_import_file(user_id: int, import_type: ImportType) -> None:
     path = generate_import_path(user_id, import_type)
     path.unlink(missing_ok=True)
 
 
-def import_file_exists(user_id, import_type):
+def import_file_exists(user_id: int, import_type: ImportType) -> bool:
     path = generate_import_path(user_id, import_type)
     return path.is_file()
 
 
-def get_import_file_content_or_raise(user_id, import_type):
+def get_import_file_content_or_raise(user_id: int, import_type: ImportType) -> bytes:
     path = generate_import_path(user_id, import_type)
     if not path.is_file():
         raise SuspiciousOperation("No test run performed previously.")
@@ -85,7 +86,7 @@ def conditional_escape(s: str) -> SafeString:
     return escape(s)
 
 
-def find_matching_internal_user_for_email(request, email):
+def find_matching_internal_user_for_email(request: HttpRequest, email: str) -> UserProfile | None:
     # for internal users only the part before the @ must be the same to match a user to an email
     matching_users = [
         user
@@ -102,7 +103,7 @@ def find_matching_internal_user_for_email(request, email):
     return matching_users[0]
 
 
-def bulk_update_users(request, user_file_content, test_run):  # noqa: PLR0912
+def bulk_update_users(request: HttpRequest, user_file_content: bytes, test_run: bool) -> bool:  # noqa: PLR0912
     # pylint: disable=too-many-locals
     # user_file must have one user per line in the format "{username},{email}"
     imported_emails = {clean_email(line.decode().split(",")[1]) for line in user_file_content.splitlines()}
@@ -192,6 +193,7 @@ def bulk_update_users(request, user_file_content, test_run):  # noqa: PLR0912
         )
 
     with transaction.atomic():
+        message: StrOrPromise
         for user in deletable_users + users_to_mark_inactive:
             for message in remove_user_from_represented_and_ccing_users(
                 user, deletable_users + users_to_mark_inactive, test_run
@@ -222,11 +224,11 @@ def bulk_update_users(request, user_file_content, test_run):  # noqa: PLR0912
 
 @transaction.atomic
 def merge_users(  # noqa: PLR0915  # This is much stuff to do. However, splitting it up into subtasks doesn't make much sense.
-    main_user, other_user, preview=False
+    main_user: UserProfile, other_user: UserProfile, preview: bool = False
 ):
     """Merges other_user into main_user"""
 
-    merged_user = {}
+    merged_user: dict[str, Any] = {}
     merged_user["is_active"] = main_user.is_active or other_user.is_active
     merged_user["title"] = main_user.title or other_user.title or ""
     merged_user["first_name_chosen"] = main_user.first_name_chosen or other_user.first_name_chosen or ""
@@ -334,7 +336,7 @@ def merge_users(  # noqa: PLR0915  # This is much stuff to do. However, splittin
     return merged_user, errors, warnings
 
 
-def find_unreviewed_evaluations(semester, excluded):
+def find_unreviewed_evaluations(semester: Semester, excluded: Iterable[int]) -> list[Evaluation]:
     # as evaluations are open for an offset of hours after vote_end_datetime, the evaluations ending yesterday are also excluded during offset
     exclude_date = date.today()
     if datetime.now().hour < settings.EVALUATION_END_OFFSET_HOURS:
@@ -353,11 +355,13 @@ def find_unreviewed_evaluations(semester, excluded):
             )
             .annotate(num_unreviewed_textanswers=Count("contributions__textanswer_set"))
         ),
-        key=lambda e: (-e.grading_process_is_finished, e.vote_end_date, -e.num_unreviewed_textanswers),
+        key=lambda e: (-e.grading_process_is_finished, e.vote_end_date, -e.num_unreviewed_textanswers),  # type: ignore[attr-defined]
     )
 
 
-def remove_user_from_represented_and_ccing_users(user, ignored_users=None, test_run=False):
+def remove_user_from_represented_and_ccing_users(
+    user: UserProfile, ignored_users: Iterable[UserProfile] | None = None, test_run: bool = False
+) -> list[str]:
     remove_messages = []
     ignored_users = ignored_users or []
     for represented_user in user.represented_users.exclude(id__in=[user.id for user in ignored_users]):
@@ -381,7 +385,7 @@ def remove_user_from_represented_and_ccing_users(user, ignored_users=None, test_
     return remove_messages
 
 
-def remove_participations_if_inactive(user: UserProfile, test_run=False) -> list[StrOrPromise]:
+def remove_participations_if_inactive(user: UserProfile, test_run: bool = False) -> list[StrOrPromise]:
     if user.is_active and not user.can_be_marked_inactive_by_manager:
         return []
     last_participation = user.evaluations_participating_in.aggregate(Max("vote_end_date"))["vote_end_date__max"]
@@ -410,7 +414,7 @@ def remove_participations_if_inactive(user: UserProfile, test_run=False) -> list
     ]
 
 
-def user_edit_link(user_id):
+def user_edit_link(user_id: int) -> SafeString:
     return format_html(
         '<a href="{}" target=_blank><span class="fas fa-user-pen"></span> {}</a>',
         reverse("staff:user_edit", kwargs={"user_id": user_id}),
@@ -420,7 +424,7 @@ def user_edit_link(user_id):
 
 def update_or_create_with_changes[M: Model](
     model: type[M],
-    defaults=None,
+    defaults: dict | None = None,
     **kwargs,
 ) -> tuple[M, bool, dict[str, tuple[Any, Any]]]:
     """Do update_or_create and track changed values."""

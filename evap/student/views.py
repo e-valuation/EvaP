@@ -4,6 +4,7 @@ from collections import OrderedDict
 from collections.abc import Iterable
 from dataclasses import dataclass
 from fractions import Fraction
+from typing import TYPE_CHECKING, cast
 
 from django.conf import settings
 from django.contrib import messages
@@ -37,6 +38,10 @@ from evap.results.tools import (
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.models import TextAnswerWarning
 from evap.student.tools import answer_field_id
+
+if TYPE_CHECKING:
+    from evap.evaluation.models import UserProfile
+
 
 SUCCESS_MAGIC_STRING = "vote submitted successfully"
 

@@ -4,7 +4,7 @@ import typing
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Iterable, Iterator, Mapping
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Never
 from urllib.parse import quote
 
 import xlwt

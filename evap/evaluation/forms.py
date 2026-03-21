@@ -10,6 +10,7 @@ from django.views.decorators.debug import sensitive_variables
 
 from evap.evaluation.models import Evaluation, UserProfile
 from evap.results.tools import STATES_WITH_RESULTS_CACHING, cache_results
+from evap.tools import assert_not_none
 
 logger = logging.getLogger(__name__)
 

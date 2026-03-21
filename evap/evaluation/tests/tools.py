@@ -4,7 +4,6 @@ from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from datetime import timedelta
 from importlib import import_module
-from typing import Any
 
 import django.test
 import django_webtest
