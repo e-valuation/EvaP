@@ -59,7 +59,7 @@ class BaseRewardPointRedemptionFormSet(forms.BaseFormSet):
         kwargs = super().get_form_kwargs(index)
         if not self.initial:
             return kwargs
-        kwargs["initial"] = self.initial[index]
+        kwargs["initial"] = self.initial[assert_not_none(index)]
         kwargs["initial"]["total_points_available"] = reward_points_of_user(self.user)
         return kwargs
 

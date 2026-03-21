@@ -118,7 +118,7 @@ class PublishedRatingResult(RatingResult):
         for answer_counter in answer_counters:
             assert counts[answer_counter.answer][0] == 0
             counts[answer_counter.answer][0] = answer_counter.count
-        self.counts = tuple(count for count, _, _, _ in counts.values())
+        self.counts = tuple(cast("int", count) for count, _, _, _ in counts.values())
         self.zipped_choices = tuple(counts.values())
 
     @property
@@ -345,7 +345,10 @@ def avg_distribution(weighted_distributions: Iterable[tuple[tuple[float, ...] | 
 def average_grade_questions_distribution(results: Iterable[RatingResult | HeadingResult | TextResult]) -> Distribution:
     return avg_distribution(
         [
-            (unipolarized_distribution(result), result.count_sum)
+            (
+                unipolarized_distribution(cast("PublishedRatingResult", result)),
+                cast("PublishedRatingResult", result).count_sum,
+            )
             for result in results
             if result.question.is_grade_question
         ]
@@ -357,7 +360,10 @@ def average_non_grade_rating_questions_distribution(
 ) -> Distribution:
     return avg_distribution(
         [
-            (unipolarized_distribution(result), result.count_sum)
+            (
+                unipolarized_distribution(cast("PublishedRatingResult", result)),
+                cast("PublishedRatingResult", result).count_sum,
+            )
             for result in results
             if result.question.is_non_grade_rating_question
         ]
@@ -441,7 +447,11 @@ def calculate_average_distribution(evaluation: Evaluation) -> Distribution:
                     ]
                 ),
                 max(
-                    (result.count_sum for result in contributor_results if result.question.is_rating_question),
+                    (
+                        cast("PublishedRatingResult", result).count_sum
+                        for result in contributor_results
+                        if result.question.is_rating_question
+                    ),
                     default=0,
                 ),
             )
