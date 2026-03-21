@@ -388,6 +388,13 @@ class Course(LoggedModel):
     # grade publishers can set this to True, then the course will be handled as if final grades have already been uploaded
     gets_no_grade_documents = models.BooleanField(verbose_name=_("gets no grade documents"), default=False)
 
+    if TYPE_CHECKING:
+        not_all_evaluations_are_published: bool | None = None
+        distribution: tuple[float, ...] | None = None
+        evaluation_count: int | None = None
+        evaluation_weight_sum: int | None = None
+        avg_grade: float | None = None
+
     class Meta:
         unique_together = [
             ["semester", "name_de"],
@@ -537,6 +544,11 @@ class Evaluation(LoggedModel):
     )
 
     staff_notes = models.TextField(verbose_name=_("staff notes"), blank=True)
+
+    if TYPE_CHECKING:
+        distribution: tuple[float, ...] | None = None
+        avg_grade: float | None = None
+        state_change_source: "Evaluation.State | None" = None
 
     @property
     def has_exam_evaluation(self) -> bool:
@@ -695,8 +707,8 @@ class Evaluation(LoggedModel):
         )
 
     @property
-    def general_contribution_has_questionnaires(self):
-        return self.general_contribution and self.general_contribution.questionnaires.count() > 0
+    def general_contribution_has_questionnaires(self) -> bool:
+        return self.general_contribution is not None and self.general_contribution.questionnaires.count() > 0
 
     @property
     def has_decided_main_language(self) -> bool:
@@ -708,8 +720,12 @@ class Evaluation(LoggedModel):
             if not self.contributions:
                 return False
 
-            if is_prefetched(self.contributions[0], "questionnaires"):
-                return all(len(contribution.questionnaires) > 0 for contribution in self.contributions)
+            contributions = cast("Sequence[Contribution]", self.contributions)
+            if is_prefetched(contributions[0], "questionnaires"):
+                return all(
+                    len(cast("Sequence[Questionnaire]", contribution.questionnaires)) > 0
+                    for contribution in contributions
+                )
 
         return (
             self.general_contribution is not None
@@ -1121,11 +1137,11 @@ class Evaluation(LoggedModel):
     ) -> "QuerySet[Evaluation]":
         subquery = Evaluation.objects.filter(pk=OuterRef("pk"))
 
-        participant_count_subquery = subquery.annotate(
+        participant_count_subquery = subquery.annotate(  # type: ignore[no-redef,misc]
             num_participants=Coalesce("_participant_count", Count("participants")),
         ).values("num_participants")
 
-        voter_count_subquery = subquery.annotate(
+        voter_count_subquery = subquery.annotate(  # type: ignore[no-redef,misc]
             num_voters=Coalesce("_voter_count", Count("voters")),
         ).values("num_voters")
 
@@ -1146,15 +1162,15 @@ class Evaluation(LoggedModel):
 
 
 @receiver(post_transition, sender=Evaluation)
-def evaluation_state_change(instance, source, **_kwargs):
+def evaluation_state_change(instance: Evaluation, source: int, **_kwargs: Any) -> None:
     """Evaluation.save checks whether caches must be updated based on this value"""
     # if multiple state changes are happening, state_change_source should be the first source
     if not hasattr(instance, "state_change_source"):
-        instance.state_change_source = source
+        cast("Any", instance).state_change_source = source
 
 
 @receiver(post_transition, sender=Evaluation)
-def log_state_transition(instance, name, source: int, target: int, **_kwargs):
+def log_state_transition(instance: Evaluation, name: str, source: int, target: int, **_kwargs: Any) -> None:
     logger.info(
         'Evaluation "%s" (id %d) moved from state "%s" to state "%s", caused by transition "%s".',
         instance,
@@ -1765,7 +1781,9 @@ class NotHalfEmptyConstraint(CheckConstraint):
             super().validate(model, instance, exclude, using)
         except ValidationError as e:
             e.error_dict = {
-                field_name: ValidationError(instance._meta.get_field(field_name).error_messages["blank"], code="blank")
+                field_name: [
+                    ValidationError(instance._meta.get_field(field_name).error_messages["blank"], code="blank")
+                ]
                 for field_name in self.fields
                 if getattr(instance, field_name) == ""
             }
@@ -1808,19 +1826,34 @@ class Infotext(models.Model):
             ),
         )
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
         return not (self.title or self.content)
 
 
-class UserProfileManager(BaseUserManager):
-    def create_user(self, *, email, password=None, first_name_given=None, last_name=None):
+class UserProfileManager(BaseUserManager["UserProfile"]):
+    def create_user(
+        self,
+        *,
+        email: str,
+        password: str | None = None,
+        first_name_given: str | None = None,
+        last_name: str | None = None,
+    ) -> "UserProfile":
         user = self.model(email=self.normalize_email(email), first_name_given=first_name_given, last_name=last_name)
-        validate_password(password, user=user)
+        if password is not None:
+            validate_password(password, user=user)
         user.set_password(password)
         user.save()
         return user
 
-    def create_superuser(self, *, email, password=None, first_name_given=None, last_name=None):
+    def create_superuser(
+        self,
+        *,
+        email: str,
+        password: str | None = None,
+        first_name_given: str | None = None,
+        last_name: str | None = None,
+    ) -> "UserProfile":
         user = self.create_user(
             password=password,
             email=self.normalize_email(email),
@@ -2070,12 +2103,10 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
             return True
 
         last_semester_participated = (
-            Semester.objects.filter(courses__evaluations__participants=self).order_by("-created_at").first()
+            Semester.objects.filter(courses__evaluations__participants=self).order_by("-created_at").get()
         )
         last_semester_contributed = (
-            Semester.objects.filter(courses__evaluations__contributions__contributor=self)
-            .order_by("-created_at")
-            .first()
+            Semester.objects.filter(courses__evaluations__contributions__contributor=self).order_by("-created_at").get()
         )
 
         return last_semester_participated.created_at >= last_semester_contributed.created_at
@@ -2127,11 +2158,11 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
         return is_external_email(email)
 
     @property
-    def needs_login_key(self):
-        return UserProfile.email_needs_login_key(self.email)
+    def needs_login_key(self) -> bool:
+        return self.email is not None and UserProfile.email_needs_login_key(self.email)
 
-    def ensure_valid_login_key(self):
-        if self.login_key and self.login_key_valid_until > date.today():
+    def ensure_valid_login_key(self) -> None:
+        if self.login_key and assert_not_none(self.login_key_valid_until) > date.today():
             self.reset_login_key_validity()
             return
 

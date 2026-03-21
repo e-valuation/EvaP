@@ -130,6 +130,7 @@ def upload_grades(request: HttpRequest, course_id: int) -> HttpResponse:
     form = GradeDocumentForm(request.POST or None, request.FILES or None, instance=grade_document)
 
     if form.is_valid():
+        assert isinstance(request.user, UserProfile)
         form.save(modifying_user=request.user)
 
         if final_grades:
@@ -195,6 +196,7 @@ def edit_grades(request: HttpRequest, grade_document_id: int) -> HttpResponse:
     )  # if parameter is not given, assume midterm grades
 
     if form.is_valid():
+        assert isinstance(request.user, UserProfile)
         form.save(modifying_user=request.user)
         messages.success(request, _("Successfully updated grades."))
         return redirect("grades:course_view", course.id)

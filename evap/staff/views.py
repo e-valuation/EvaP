@@ -210,8 +210,7 @@ def semester_view(request, semester_id: int) -> HttpResponse:
         raise PermissionDenied
     rewards_active = is_semester_activated(semester)
 
-    evaluations = get_evaluations_with_prefetched_data(semester)
-    evaluations = sorted(evaluations, key=lambda cr: cr.full_name)
+    evaluations = sorted(get_evaluations_with_prefetched_data(semester), key=lambda cr: cr.full_name)
     courses = Course.objects.filter(semester=semester).prefetch_related(
         "type", "programs", "responsibles", "evaluations", "ignored_evaluations", "cms_course_links"
     )
@@ -708,6 +707,7 @@ def semester_import(request: HttpRequest, semester_id: int) -> HttpResponse:
     import_type = ImportType.SEMESTER
 
     importer_log = None
+    user_id = assert_not_none(request.user.id)
 
     if request.method == "POST":
         operation = request.POST.get("operation")
@@ -715,7 +715,7 @@ def semester_import(request: HttpRequest, semester_id: int) -> HttpResponse:
             raise SuspiciousOperation("Invalid POST operation")
 
         if operation == "test":
-            delete_import_file(request.user.id, import_type)  # remove old files if still exist
+            delete_import_file(user_id, import_type)  # remove old files if still exist
             excel_form.fields["excel_file"].required = True
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data["excel_file"]
@@ -724,10 +724,10 @@ def semester_import(request: HttpRequest, semester_id: int) -> HttpResponse:
                     file_content, semester, vote_start_datetime=None, vote_end_date=None, test_run=True
                 )
                 if not importer_log.has_errors():
-                    save_import_file(excel_file, request.user.id, import_type)
+                    save_import_file(excel_file, user_id, import_type)
 
         elif operation == "import":
-            file_content = get_import_file_content_or_raise(request.user.id, import_type)
+            file_content = get_import_file_content_or_raise(user_id, import_type)
             excel_form.fields["vote_start_datetime"].required = True
             excel_form.fields["vote_end_date"].required = True
             if excel_form.is_valid():
@@ -737,10 +737,10 @@ def semester_import(request: HttpRequest, semester_id: int) -> HttpResponse:
                     file_content, semester, vote_start_datetime, vote_end_date, test_run=False
                 )
                 importer_log.forward_messages_to_django(request)
-                delete_import_file(request.user.id, import_type)
+                delete_import_file(user_id, import_type)
                 return redirect("staff:semester_view", semester_id)
 
-    test_passed = import_file_exists(request.user.id, import_type)
+    test_passed = import_file_exists(user_id, import_type)
     # casting warnings to a normal dict is necessary for the template to iterate over it.
     return render(
         request,
@@ -982,8 +982,8 @@ def semester_preparation_reminder(request: HttpRequest, semester_id: int) -> Htt
 
     if request.method == "POST":
         template = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_REMINDER)
-        for responsible, evaluations, __ in responsible_list:
-            body_params = {"user": responsible, "evaluations": evaluations}
+        for responsible, responsible_evaluations, __ in responsible_list:
+            body_params = {"user": responsible, "evaluations": responsible_evaluations}
             template.send_to_user(responsible, subject_params={}, body_params=body_params, use_cc=True, request=request)
         messages.success(request, _("Successfully sent reminders to everyone."))
         return HttpResponse()
@@ -1367,7 +1367,7 @@ def helper_evaluation_edit(request: HttpRequest, evaluation: Evaluation) -> Http
     contributor_questionnaire_pairs = [
         (answer.contribution.contributor, answer.assignment.questionnaire)
         for answer_cls in [TextAnswer, RatingAnswerCounter]
-        for answer in answer_cls.objects.filter(contribution__evaluation=evaluation).select_related(
+        for answer in answer_cls.objects.filter(contribution__evaluation=evaluation).select_related(  # type: ignore[attr-defined]
             "assignment__questionnaire", "contribution__contributor"
         )
     ]
@@ -1532,6 +1532,8 @@ def evaluation_person_management(request: HttpRequest, evaluation_id: int) -> Ht
 
     importer_log = None
 
+    user_id = assert_not_none(request.user.id)
+
     if request.method == "POST":
         operation = request.POST.get("operation")
         if operation not in (
@@ -1554,7 +1556,7 @@ def evaluation_person_management(request: HttpRequest, evaluation_id: int) -> Ht
         copy_form = participant_copy_form if "participants" in operation else contributor_copy_form
 
         if import_action == ImportAction.TEST:
-            delete_import_file(request.user.id, import_type)  # remove old files if still exist
+            delete_import_file(user_id, import_type)  # remove old files if still exist
             excel_form.fields["excel_file"].required = True
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data["excel_file"]
@@ -1563,7 +1565,7 @@ def evaluation_person_management(request: HttpRequest, evaluation_id: int) -> Ht
                     import_type, evaluation, test_run=True, file_content=file_content
                 )
                 if not importer_log.has_errors():
-                    save_import_file(excel_file, request.user.id, import_type)
+                    save_import_file(excel_file, user_id, import_type)
         else:
             successfully_processed = import_or_copy_participants(
                 request, "-replace-" in operation, import_action, import_type, evaluation, copy_form
@@ -1571,8 +1573,8 @@ def evaluation_person_management(request: HttpRequest, evaluation_id: int) -> Ht
             if successfully_processed:
                 return redirect("staff:semester_view", evaluation.course.semester.pk)
 
-    participant_test_passed = import_file_exists(request.user.id, ImportType.PARTICIPANT)
-    contributor_test_passed = import_file_exists(request.user.id, ImportType.CONTRIBUTOR)
+    participant_test_passed = import_file_exists(user_id, ImportType.PARTICIPANT)
+    contributor_test_passed = import_file_exists(user_id, ImportType.CONTRIBUTOR)
     return render(
         request,
         "staff_evaluation_person_management.html",
@@ -1818,6 +1820,7 @@ def evaluation_textanswer_edit(request: HttpRequest, textanswer_id: UUID) -> Htt
 @reviewer_required
 def evaluation_preview(request: HttpRequest, evaluation_id: int) -> HttpResponse:
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
+    assert isinstance(request.user, UserProfile)
     if evaluation.course.semester.results_are_archived and not request.user.is_manager:
         raise PermissionDenied
 
@@ -1859,7 +1862,8 @@ def questionnaire_index(request: HttpRequest) -> HttpResponse:
 
 
 @manager_required
-def questionnaire_view(request, questionnaire_id):
+def questionnaire_view(request: HttpRequest, questionnaire_id: int) -> HttpResponse:
+    assert isinstance(request.user, UserProfile)
     language = request.GET.get("language", request.user.language)
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
 
@@ -1951,7 +1955,7 @@ def make_questionnaire_edit_forms(
         formset=AtLeastOneFormset,
         form=QuestionAssignmentForm,
         exclude=("questionnaire",),
-        **formset_kwargs,
+        **formset_kwargs,  # type: ignore[arg-type]
     )
 
     form = QuestionnaireForm(request.POST or None, instance=questionnaire)
@@ -1968,9 +1972,9 @@ def make_questionnaire_edit_forms(
         # disallow type changed from and to contributor or dropout
         single_types = [Questionnaire.Type.CONTRIBUTOR, Questionnaire.Type.DROPOUT]
         if questionnaire.type in single_types:
-            form.fields["type"].choices = filter(lambda c: c[0] == questionnaire.type, form.fields["type"].choices)
+            form.fields["type"].choices = filter(lambda c: c[0] == questionnaire.type, form.fields["type"].choices)  # type: ignore[attr-defined,arg-type]
         else:
-            form.fields["type"].choices = filter(lambda c: c[0] not in single_types, form.fields["type"].choices)
+            form.fields["type"].choices = filter(lambda c: c[0] not in single_types, form.fields["type"].choices)  # type: ignore[attr-defined,arg-type]
 
     return form, formset
 
@@ -2116,9 +2120,9 @@ def questionnaire_delete(request: HttpRequest) -> HttpResponse:
 
 @require_POST
 @manager_required
-def questionnaire_update_indices(request):
+def questionnaire_update_indices(request: HttpRequest) -> HttpResponse:
     try:
-        order_by_questionnaire = {int(key): int(value) for key, value in request.POST.items()}
+        order_by_questionnaire = {int(key): int(value) for key, value in request.POST.items() if isinstance(value, str)}
     except (TypeError, ValueError) as e:
         raise SuspiciousOperation from e
 
@@ -2334,7 +2338,7 @@ def user_list(request: HttpRequest) -> HttpResponse:
         users = users.exclude(is_active=False)
 
     users = (
-        users
+        users  # type: ignore[no-redef,misc]
         # the following six annotations basically add three bools indicating whether each user is part of a group or not.
         .annotate(manager_group_count=Sum(Case(When(groups__name="Manager", then=1), output_field=IntegerField())))
         .annotate(is_manager=ExpressionWrapper(Q(manager_group_count__exact=1), output_field=BooleanField()))
@@ -2384,11 +2388,12 @@ class UserCreateView(SuccessMessageMixin, CreateView):
 
 
 @manager_required
-def user_import(request):
+def user_import(request: HttpRequest) -> HttpResponse:
     excel_form = UserImportForm(request.POST or None, request.FILES or None)
     import_type = ImportType.USER
 
     importer_log = None
+    user_id = assert_not_none(request.user.id)
 
     if request.method == "POST":
         operation = request.POST.get("operation")
@@ -2396,23 +2401,23 @@ def user_import(request):
             raise SuspiciousOperation("Invalid POST operation")
 
         if operation == "test":
-            delete_import_file(request.user.id, import_type)  # remove old files if still exist
+            delete_import_file(user_id, import_type)  # remove old files if still exist
             excel_form.fields["excel_file"].required = True
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data["excel_file"]
                 file_content = excel_file.read()
                 __, importer_log = import_users(file_content, test_run=True)
                 if not importer_log.has_errors():
-                    save_import_file(excel_file, request.user.id, import_type)
+                    save_import_file(excel_file, user_id, import_type)
 
         elif operation == "import":
-            file_content = get_import_file_content_or_raise(request.user.id, import_type)
+            file_content = get_import_file_content_or_raise(user_id, import_type)
             __, importer_log = import_users(file_content, test_run=False)
             importer_log.forward_messages_to_django(request)
-            delete_import_file(request.user.id, import_type)
+            delete_import_file(user_id, import_type)
             return redirect("staff:user_index")
 
-    test_passed = import_file_exists(request.user.id, import_type)
+    test_passed = import_file_exists(user_id, import_type)
     # casting warnings to a normal dict is necessary for the template to iterate over it.
     return render(
         request,
@@ -2501,18 +2506,19 @@ def user_resend_email(request: HttpRequest) -> HttpResponse:
 
 
 @manager_required
-def user_bulk_update(request):
+def user_bulk_update(request: HttpRequest) -> HttpResponse:
     form = UserBulkUpdateForm(request.POST or None, request.FILES or None)
     operation = request.POST.get("operation")
     test_run = operation == "test"
     import_type = ImportType.USER_BULK_UPDATE
+    user_id = assert_not_none(request.user.id)
 
     if request.POST:
         if operation not in ("test", "bulk_update"):
             raise SuspiciousOperation("Invalid POST operation")
 
         if test_run:
-            delete_import_file(request.user.id, import_type)  # remove old files if still exist
+            delete_import_file(user_id, import_type)  # remove old files if still exist
             form.fields["user_file"].required = True
             if form.is_valid():
                 user_file = form.cleaned_data["user_file"]
@@ -2529,14 +2535,14 @@ def user_bulk_update(request):
                     )
 
                 if success:
-                    save_import_file(user_file, request.user.id, import_type)
+                    save_import_file(user_file, user_id, import_type)
         else:
-            file_content = get_import_file_content_or_raise(request.user.id, import_type)
+            file_content = get_import_file_content_or_raise(user_id, import_type)
             bulk_update_users(request, file_content, test_run)
-            delete_import_file(request.user.id, import_type)
+            delete_import_file(user_id, import_type)
             return redirect("staff:user_index")
 
-    test_passed = import_file_exists(request.user.id, import_type)
+    test_passed = import_file_exists(user_id, import_type)
     return render(request, "staff_user_bulk_update.html", {"form": form, "test_passed": test_passed})
 
 

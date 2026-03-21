@@ -90,7 +90,7 @@ def find_matching_internal_user_for_email(request: HttpRequest, email: str) -> U
     # for internal users only the part before the @ must be the same to match a user to an email
     matching_users = [
         user
-        for user in UserProfile.objects.filter(email__startswith=email.split("@")[0] + "@").order_by("id")
+        for user in UserProfile.objects.filter(email__startswith=email.split("@", maxsplit=1)[0] + "@").order_by("id")
         if not user.is_external
     ]
 
@@ -122,7 +122,7 @@ def bulk_update_users(request: HttpRequest, user_file_content: bytes, test_run: 
             messages.error(
                 request,
                 format_html(
-                    _("Multiple users match the email {}:{}"),
+                    gettext("Multiple users match the email {}:{}"),
                     imported_email,
                     create_user_list_html_string_for_message(e.args[0]),
                 ),
@@ -162,7 +162,7 @@ def bulk_update_users(request: HttpRequest, user_file_content: bytes, test_run: 
         messages.info(
             request,
             format_html(
-                _("Users to be updated are:{}"),
+                gettext("Users to be updated are:{}"),
                 format_html_join(
                     "",
                     "<br />{} {} ({} &gt; {})",
@@ -173,13 +173,15 @@ def bulk_update_users(request: HttpRequest, user_file_content: bytes, test_run: 
     if deletable_users:
         messages.info(
             request,
-            format_html(_("Users to be deleted are:{}"), create_user_list_html_string_for_message(deletable_users)),
+            format_html(
+                gettext("Users to be deleted are:{}"), create_user_list_html_string_for_message(deletable_users)
+            ),
         )
     if users_to_mark_inactive:
         messages.info(
             request,
             format_html(
-                _("Users to be marked inactive are:{}"),
+                gettext("Users to be marked inactive are:{}"),
                 create_user_list_html_string_for_message(users_to_mark_inactive),
             ),
         )
@@ -187,7 +189,7 @@ def bulk_update_users(request: HttpRequest, user_file_content: bytes, test_run: 
         messages.info(
             request,
             format_html(
-                _("Users to be created are:{}"),
+                gettext("Users to be created are:{}"),
                 format_html_join("", "<br />{}", ((email,) for email in emails_of_users_to_be_created)),
             ),
         )

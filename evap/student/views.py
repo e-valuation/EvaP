@@ -81,14 +81,13 @@ class GlobalEvaluationProgress:
         if not settings.GLOBAL_EVALUATION_PROGRESS_REWARDS:
             return None
 
-        if not Semester.active_semester():
+        if not (active_semester := Semester.active_semester()):
             return None
 
         language = get_language()
 
         evaluations = (
-            Semester.active_semester()
-            .evaluations.exclude(state__lt=Evaluation.State.APPROVED)
+            active_semester.evaluations.exclude(state__lt=Evaluation.State.APPROVED)
             .exclude(is_rewarded=False)
             .exclude(id__in=settings.GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS)
             .exclude(course__type__id__in=settings.GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS)
@@ -363,7 +362,7 @@ def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> Htt
     if dropout and not evaluation.is_dropout_allowed:
         raise SuspiciousOperation("Dropping out is not allowed")
 
-    if not evaluation.can_be_voted_for_by(request.user):
+    if not evaluation.can_be_voted_for_by(cast("UserProfile", request.user)):
         raise PermissionDenied
 
     form_groups = get_vote_page_form_groups(request, evaluation, preview=False, dropout=dropout)

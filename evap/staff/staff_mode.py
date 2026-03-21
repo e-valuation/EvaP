@@ -37,6 +37,7 @@ def staff_mode_middleware(
                     messages.info(request, _("Your staff mode timed out."))
 
         if is_in_staff_mode(request):
+            assert isinstance(request.user, UserProfile)
             assert request.user.has_staff_permission
             request.user.is_participant = False
             request.user.is_student = False
@@ -47,8 +48,8 @@ def staff_mode_middleware(
             request.user.is_responsible_or_contributor_or_delegate = False
         else:
             request.user.is_staff = False
-            request.user.is_manager = False
-            request.user.is_reviewer = False
+            request.user.is_manager = False  # type: ignore[union-attr]
+            request.user.is_reviewer = False  # type: ignore[union-attr]
 
         return get_response(request)
 
@@ -59,7 +60,8 @@ def is_in_staff_mode(request: HttpRequest) -> bool:
     return "staff_mode_start_time" in request.session
 
 
-def update_staff_mode(request):
+def update_staff_mode(request: HttpRequest) -> None:
+    assert isinstance(request.user, UserProfile)
     if not request.user.has_staff_permission:
         exit_staff_mode(request)
         return
