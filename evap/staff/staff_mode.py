@@ -1,11 +1,17 @@
 import time
+from collections.abc import Callable
 
 from django.conf import settings
 from django.contrib import messages
+from django.http import HttpRequest, HttpResponseBase
 from django.utils.translation import gettext as _
 
+from evap.evaluation.models import UserProfile
 
-def staff_mode_middleware(get_response):
+
+def staff_mode_middleware(
+    get_response: Callable[[HttpRequest], HttpResponseBase],
+) -> Callable[[HttpRequest], HttpResponseBase]:
     """
     Middleware handling the staff mode.
 
@@ -13,7 +19,7 @@ def staff_mode_middleware(get_response):
     Otherwise, the last request time will be updated.
     """
 
-    def middleware(request):
+    def middleware(request: HttpRequest) -> HttpResponseBase:
         if is_in_staff_mode(request):
             current_time = time.time()
             if current_time <= request.session.get("staff_mode_start_time", 0) + settings.STAFF_MODE_TIMEOUT:
@@ -49,7 +55,7 @@ def staff_mode_middleware(get_response):
     return middleware
 
 
-def is_in_staff_mode(request):
+def is_in_staff_mode(request: HttpRequest) -> bool:
     return "staff_mode_start_time" in request.session
 
 
@@ -62,11 +68,11 @@ def update_staff_mode(request):
     request.session.modified = True
 
 
-def enter_staff_mode(request):
+def enter_staff_mode(request: HttpRequest) -> None:
     update_staff_mode(request)
 
 
-def exit_staff_mode(request):
+def exit_staff_mode(request: HttpRequest) -> None:
     if is_in_staff_mode(request):
         del request.session["staff_mode_start_time"]
         request.session.modified = True

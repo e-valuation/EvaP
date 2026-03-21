@@ -2,18 +2,20 @@ import datetime
 import re
 import typing
 from abc import ABC, abstractmethod
-from collections.abc import Callable, Iterable, Mapping
+from collections.abc import Callable, Iterable, Iterator, Mapping
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Never
 from urllib.parse import quote
 
 import xlwt
+from django import forms
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation, ValidationError
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.models import Field, Model, Q
 from django.db.models.constraints import CheckConstraint
 from django.db.models.fields.mixins import FieldCacheMixin
+from django.dispatch.dispatcher import Signal
 from django.forms.formsets import BaseFormSet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -83,7 +85,7 @@ def inject_choices_constraint(model_locals: Mapping[str, Any]) -> Callable[[type
 
 
 @contextmanager
-def temporary_receiver(signal, func, **kwargs):
+def temporary_receiver(signal: Signal, func: Callable, **kwargs: Any) -> Iterator[None]:
     # semi-copy of https://github.com/django/django/blob/3266f2516c27dd25abebe8e8f7b8778650ab4f18/django/dispatch/dispatcher.py#L472
     # with sane contextmanager behavior (receivers are unlinked on exit). We don't support lists of signals (for now).
     signal.connect(receiver=func, **kwargs)
@@ -111,7 +113,7 @@ def get_object_from_dict_pk_entry_or_logged_40x[M: Model](
         raise SuspiciousOperation from e
 
 
-def is_prefetched(instance, attribute_name: str) -> bool:
+def is_prefetched(instance: Any, attribute_name: str) -> bool:
     """
     Is the given related attribute prefetched? Can be used to do ordering or counting in python and avoid additional
     database queries
@@ -170,7 +172,7 @@ def vote_end_datetime(vote_end_date: datetime.date) -> datetime.datetime:
     return date_to_datetime(vote_end_date) + datetime.timedelta(hours=24 + settings.EVALUATION_END_OFFSET_HOURS)
 
 
-def get_parameter_from_url_or_session(request: HttpRequest, parameter: str, default=False) -> bool:
+def get_parameter_from_url_or_session(request: HttpRequest, parameter: str, default: bool = False) -> bool:
     result_str = request.GET.get(parameter, None)
     if result_str is None:  # if no parameter is given take session value
         result = request.session.get(parameter, default)
@@ -188,14 +190,14 @@ def get_string_from_url_or_session(request: HttpRequest, parameter: str, default
     return result
 
 
-def translate(**kwargs):
+def translate(**kwargs: Any) -> property:
     # pylint is really buggy with this method.
     # pylint: disable=unused-variable, useless-suppression
     # get_language may return None if there is no session (e.g. during management commands)
     return property(lambda self: getattr(self, kwargs[get_language() or "en"]))
 
 
-def clean_email[EmailT: (str, None)](email: EmailT) -> EmailT:
+def clean_email[EmailT: (str, str | None)](email: EmailT) -> EmailT:
     if email is None:
         return None
 
@@ -218,11 +220,13 @@ class FormsetView(FormView):
     Just like `FormView`, but with a renaming from "form" to "formset".
     """
 
+    formset_class: type[BaseFormSet]
+
     @property
     def form_class(self):
         return self.formset_class
 
-    def get_context_data(self, **kwargs) -> dict[str, Any]:
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context["formset"] = context.pop("form")
         return context
@@ -237,10 +241,10 @@ class FormsetView(FormView):
     def get_formset_kwargs(self) -> dict:
         return super().get_form_kwargs()
 
-    def form_valid(self, form) -> HttpResponse:
+    def form_valid(self, form: BaseFormSet) -> HttpResponse:
         return self.formset_valid(form)
 
-    def formset_valid(self, formset) -> HttpResponse:
+    def formset_valid(self, formset: BaseFormSet) -> HttpResponse:
         return super().form_valid(formset)
 
 
@@ -252,7 +256,7 @@ class SaveValidFormMixin:
     example if a formset for a collection of objects is submitted.
     """
 
-    def form_valid(self, form) -> HttpResponse:
+    def form_valid(self, form: forms.ModelForm | forms.BaseModelFormSet) -> HttpResponse:
         form.save()
         return super().form_valid(form)  # type: ignore[misc]  # there is no valid way to annotate this
 
@@ -365,7 +369,7 @@ class ExcelExporter(ABC):
     def export_impl(self, *args, **kwargs) -> None:
         """Specify the logic to insert the data into the sheet here."""
 
-    def export(self, response, *args, **kwargs) -> None:
+    def export(self, response: HttpResponse | typing.BinaryIO, *args, **kwargs) -> None:
         """Convenience method to avoid some boilerplate."""
         self.export_impl(*args, **kwargs)
         self.workbook.save(response)

@@ -10,7 +10,7 @@ from evap.evaluation.models import Course
 from evap.evaluation.tools import inject_choices_constraint, translate
 
 
-def helper_upload_path(instance, filename):
+def helper_upload_path(instance: "GradeDocument", filename: str) -> str:
     return f"grades/{instance.course.id}/{filename}"
 
 
@@ -41,22 +41,22 @@ class GradeDocument(models.Model):
         verbose_name_plural = _("Grade Documents")
         unique_together = [["course", "description_de"], ["course", "description_en"]]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.description
 
-    def filename(self):
+    def filename(self) -> str:
         return os.path.basename(self.file.name)
 
 
 @receiver(pre_delete, sender=GradeDocument)
-def delete_file_pre_delete(instance, **_kwargs):
+def delete_file_pre_delete(instance: GradeDocument, **_kwargs) -> None:
     if instance.file:
         instance.file.delete(False)
 
 
 # Changing should lead to the removal of the old file
 @receiver(pre_save, sender=GradeDocument)
-def delete_file_pre_save(instance, **_kwargs):
+def delete_file_pre_save(instance: GradeDocument, **_kwargs) -> None:
     if not instance.pk:  # We do not want to trigger document creation
         return
     try:

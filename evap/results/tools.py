@@ -4,15 +4,17 @@ from collections.abc import Iterable
 from copy import copy
 from enum import Enum
 from math import ceil, modf
-from typing import TypeGuard, cast
+from typing import TYPE_CHECKING, TypeGuard, cast
 
 from django.conf import settings
 from django.core.cache import caches
-from django.db.models import Exists, OuterRef, Sum, prefetch_related_objects
+from django.db.models import Exists, OuterRef, QuerySet, Sum, prefetch_related_objects
 
 from evap.evaluation.models import (
     CHOICES,
     NO_ANSWER,
+    BipolarChoices,
+    Choices,
     Contribution,
     Course,
     Evaluation,
@@ -24,6 +26,9 @@ from evap.evaluation.models import (
 )
 from evap.evaluation.tools import discard_cached_related_objects
 from evap.tools import assert_not_none, unordered_groupby
+
+if TYPE_CHECKING:
+    from numbers import Real
 
 STATES_WITH_RESULTS_CACHING = {Evaluation.State.EVALUATED, Evaluation.State.REVIEWED, Evaluation.State.PUBLISHED}
 STATES_WITH_RESULT_TEMPLATE_CACHING = {Evaluation.State.PUBLISHED}
@@ -59,7 +64,11 @@ class TextAnswerVisibility:
         self.visible_by_delegation_count = visible_by_delegation_count
 
 
-def create_rating_result(question: Question, answer_counters, additional_text_result=None):
+def create_rating_result(
+    question: Question,
+    answer_counters: Iterable[RatingAnswerCounter] | None,
+    additional_text_result: "TextResult | None" = None,
+) -> "RatingResult":
     if answer_counters is None:
         return RatingResult(question, additional_text_result)
     if any(counter.count != 0 for counter in answer_counters):
@@ -69,14 +78,18 @@ def create_rating_result(question: Question, answer_counters, additional_text_re
 
 class RatingResult:
     @classmethod
-    def is_published(cls, rating_result) -> TypeGuard["PublishedRatingResult"]:
+    def is_published(
+        cls, rating_result: "RatingResult | TextResult | HeadingResult"
+    ) -> TypeGuard["PublishedRatingResult"]:
         return isinstance(rating_result, PublishedRatingResult)
 
     @classmethod
-    def has_answers(cls, rating_result) -> TypeGuard["AnsweredRatingResult"]:
+    def has_answers(
+        cls, rating_result: "RatingResult | TextResult | HeadingResult"
+    ) -> TypeGuard["AnsweredRatingResult"]:
         return isinstance(rating_result, AnsweredRatingResult)
 
-    def __init__(self, question: Question, additional_text_result=None) -> None:
+    def __init__(self, question: Question, additional_text_result: "TextResult | None" = None) -> None:
         assert question.is_rating_question
         self.question = discard_cached_related_objects(copy(question))
         self.additional_text_result = additional_text_result
@@ -86,12 +99,17 @@ class RatingResult:
         self.warning = False
 
     @property
-    def choices(self):
+    def choices(self) -> Choices | BipolarChoices:
         return CHOICES[self.question.type]
 
 
 class PublishedRatingResult(RatingResult):
-    def __init__(self, question: Question, answer_counters, additional_text_result=None) -> None:
+    def __init__(
+        self,
+        question: Question,
+        answer_counters: Iterable[RatingAnswerCounter],
+        additional_text_result: "TextResult | None" = None,
+    ) -> None:
         super().__init__(question, additional_text_result)
         counts = OrderedDict(
             (value, [0, name, color, value]) for (name, color, value) in self.choices.as_name_color_value_tuples()
@@ -194,7 +212,7 @@ def get_results_cache_key(evaluation: Evaluation) -> str:
     return f"evap.staff.results.tools.get_results-{evaluation.id:d}"
 
 
-def cache_results(evaluation, *, refetch_related_objects=True):
+def cache_results(evaluation: Evaluation, *, refetch_related_objects: bool = True) -> None:
     assert evaluation.state in STATES_WITH_RESULTS_CACHING
     cache_key = get_results_cache_key(evaluation)
     caches["results"].set(cache_key, _get_results_impl(evaluation, refetch_related_objects=refetch_related_objects))
@@ -273,13 +291,16 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
     return EvaluationResult(contributor_contribution_results)
 
 
-def annotate_distributions_and_grades(evaluations):
+def annotate_distributions_and_grades(evaluations: Iterable[Evaluation]) -> None:
     for evaluation in evaluations:
         evaluation.distribution = calculate_average_distribution(evaluation)
         evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
 
 
-def normalized_distribution(distribution):
+type Distribution = tuple[float, ...] | None
+
+
+def normalized_distribution(distribution: Iterable[float] | None) -> Distribution:
     """Returns a normalized distribution with the individual values adding up to 1.
     Can also be used to convert counts to a distribution."""
     if distribution is None:
@@ -292,12 +313,13 @@ def normalized_distribution(distribution):
     return tuple((value / distribution_sum) for value in distribution)
 
 
-def unipolarized_distribution(result):
-    summed_distribution = [0, 0, 0, 0, 0]
+def unipolarized_distribution(result: PublishedRatingResult) -> Distribution:
+    summed_distribution: list[float] = [0, 0, 0, 0, 0]
 
     if not result.counts:
         return None
 
+    grade: float | Real
     for counts, grade in zip(result.counts, result.choices.grades, strict=True):
         grade_fraction, grade = modf(grade)
         grade = int(grade)
@@ -308,11 +330,11 @@ def unipolarized_distribution(result):
     return normalized_distribution(summed_distribution)
 
 
-def avg_distribution(weighted_distributions):
+def avg_distribution(weighted_distributions: Iterable[tuple[tuple[float, ...] | None, float]]) -> Distribution:
     if all(distribution is None for distribution, __ in weighted_distributions):
         return None
 
-    summed_distribution = [0, 0, 0, 0, 0]
+    summed_distribution: list[float] = [0, 0, 0, 0, 0]
     for distribution, weight in weighted_distributions:
         if distribution:
             for index, value in enumerate(distribution):
@@ -320,7 +342,7 @@ def avg_distribution(weighted_distributions):
     return normalized_distribution(summed_distribution)
 
 
-def average_grade_questions_distribution(results):
+def average_grade_questions_distribution(results: Iterable[RatingResult | HeadingResult | TextResult]) -> Distribution:
     return avg_distribution(
         [
             (unipolarized_distribution(result), result.count_sum)
@@ -330,7 +352,9 @@ def average_grade_questions_distribution(results):
     )
 
 
-def average_non_grade_rating_questions_distribution(results):
+def average_non_grade_rating_questions_distribution(
+    results: Iterable[RatingResult | HeadingResult | TextResult],
+) -> Distribution:
     return avg_distribution(
         [
             (unipolarized_distribution(result), result.count_sum)
@@ -340,7 +364,9 @@ def average_non_grade_rating_questions_distribution(results):
     )
 
 
-def calculate_average_course_distribution(course, check_for_unpublished_evaluations=True):
+def calculate_average_course_distribution(
+    course: Course, check_for_unpublished_evaluations: bool = True
+) -> Distribution:
     if check_for_unpublished_evaluations and course.evaluations.exclude(state=Evaluation.State.PUBLISHED).exists():
         return None
 
@@ -355,7 +381,7 @@ def calculate_average_course_distribution(course, check_for_unpublished_evaluati
     )
 
 
-def get_evaluations_with_course_result_attributes(evaluations):
+def get_evaluations_with_course_result_attributes[T: (QuerySet[Evaluation], list[Evaluation])](evaluations: T) -> T:
     courses_with_unpublished_evaluations = set(
         Course.objects.filter(evaluations__in=evaluations)
         .filter(Exists(Evaluation.objects.filter(course=OuterRef("pk")).exclude(state=Evaluation.State.PUBLISHED)))
@@ -384,7 +410,7 @@ def get_evaluations_with_course_result_attributes(evaluations):
     return evaluations
 
 
-def calculate_average_distribution(evaluation):
+def calculate_average_distribution(evaluation: Evaluation) -> Distribution:
     assert evaluation.state >= Evaluation.State.IN_EVALUATION
 
     if not evaluation.can_staff_see_average_grade or not evaluation.can_publish_average_grade:
@@ -435,19 +461,22 @@ def calculate_average_distribution(evaluation):
     )
 
 
-def distribution_to_grade(distribution):
+def distribution_to_grade(distribution: Distribution) -> float | None:
     if distribution is None:
         return None
     return sum(answer * percentage for answer, percentage in enumerate(distribution, start=1))
 
 
-def color_mix(color1, color2, fraction):
+type Color = tuple[int, int, int]
+
+
+def color_mix(color1: Color, color2: Color, fraction: float) -> Color:
     return cast(
         "tuple[int, int, int]", tuple(int(round(color1[i] * (1 - fraction) + color2[i] * fraction)) for i in range(3))
     )
 
 
-def get_grade_color(grade):
+def get_grade_color(grade: float) -> Color:
     # Can happen if no one leaves any grades. Return white because it least likely causes problems.
     if not grade:
         return (255, 255, 255)

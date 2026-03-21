@@ -1,11 +1,13 @@
 from collections import defaultdict
 from statistics import median
+from typing import TYPE_CHECKING, cast
 
 from django.conf import settings
 from django.core.cache import caches
 from django.core.cache.utils import make_template_fragment_key
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.db.models import Count, QuerySet
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import get_template
 from django.utils import translation
@@ -16,7 +18,10 @@ from evap.evaluation.tools import AttachmentResponse
 from evap.results.exporters import TextAnswerExporter
 from evap.results.tools import (
     STATES_WITH_RESULT_TEMPLATE_CACHING,
+    ContributionResult,
+    EvaluationResult,
     HeadingResult,
+    QuestionnaireResult,
     RatingResult,
     TextResult,
     ViewContributorResults,
@@ -28,40 +33,47 @@ from evap.results.tools import (
 )
 from evap.tools import unordered_groupby
 
+if TYPE_CHECKING:
+    from typing import Any
 
-def get_course_result_template_fragment_cache_key(course_id, language):
+    from evap.results.tools import PublishedRatingResult
+
+
+def get_course_result_template_fragment_cache_key(course_id: int, language: str) -> str:
     return make_template_fragment_key("course_result_template_fragment", [course_id, language])
 
 
-def get_evaluation_result_template_fragment_cache_key(evaluation_id, language, links_to_results_page):
+def get_evaluation_result_template_fragment_cache_key(
+    evaluation_id: int, language: str, links_to_results_page: bool
+) -> str:
     return make_template_fragment_key(
         "evaluation_result_template_fragment", [evaluation_id, language, links_to_results_page]
     )
 
 
-def delete_template_cache(evaluation):
+def delete_template_cache(evaluation: Evaluation) -> None:
     assert evaluation.state not in STATES_WITH_RESULT_TEMPLATE_CACHING
     _delete_template_cache_impl(evaluation)
 
 
-def _delete_template_cache_impl(evaluation):
+def _delete_template_cache_impl(evaluation: Evaluation) -> None:
     _delete_evaluation_template_cache_impl(evaluation)
     _delete_course_template_cache_impl(evaluation.course)
 
 
-def _delete_evaluation_template_cache_impl(evaluation):
+def _delete_evaluation_template_cache_impl(evaluation: Evaluation) -> None:
     caches["results"].delete(get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", True))
     caches["results"].delete(get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", False))
     caches["results"].delete(get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", True))
     caches["results"].delete(get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", False))
 
 
-def _delete_course_template_cache_impl(course):
+def _delete_course_template_cache_impl(course: Course) -> None:
     caches["results"].delete(get_course_result_template_fragment_cache_key(course.id, "en"))
     caches["results"].delete(get_course_result_template_fragment_cache_key(course.id, "de"))
 
 
-def update_template_cache(evaluations):
+def update_template_cache[T: (QuerySet[Evaluation], list[Evaluation])](evaluations: T) -> None:
     assert all(evaluation.state in STATES_WITH_RESULT_TEMPLATE_CACHING for evaluation in evaluations)
     evaluations = get_evaluations_with_course_result_attributes(get_evaluations_with_prefetched_data(evaluations))
 
@@ -100,7 +112,7 @@ def update_template_cache(evaluations):
         translation.activate(current_language)  # reset to previously set language to prevent unwanted side effects
 
 
-def update_template_cache_of_published_evaluations_in_course(course):
+def update_template_cache_of_published_evaluations_in_course(course: Course) -> None:
     # Delete template caches for evaluations that no longer need to be cached (e.g. after unpublishing)
     _delete_course_template_cache_impl(course)
 
@@ -108,8 +120,8 @@ def update_template_cache_of_published_evaluations_in_course(course):
     update_template_cache(course_evaluations)
 
 
-def get_evaluations_with_prefetched_data(evaluations):
-    if isinstance(evaluations, QuerySet):  # type: ignore[misc]
+def get_evaluations_with_prefetched_data[T: (list[Evaluation], QuerySet[Evaluation])](evaluations: T) -> T:
+    if isinstance(evaluations, QuerySet):
         evaluations = evaluations.select_related("course__type").prefetch_related(
             "course__programs",
             "course__semester",
@@ -165,7 +177,7 @@ def index(request):
     return render(request, "results_index.html", template_data)
 
 
-def evaluation_detail(request, semester_id, evaluation_id):
+def evaluation_detail(request: HttpRequest, semester_id: int, evaluation_id: int) -> HttpResponse:
     # pylint: disable=too-many-locals
     semester = get_object_or_404(Semester, id=semester_id)
     evaluation = get_object_or_404(semester.evaluations, id=evaluation_id, course__semester=semester)
@@ -261,8 +273,12 @@ def evaluation_detail(request, semester_id, evaluation_id):
 
 
 def remove_textanswers_that_the_user_must_not_see(
-    evaluation_result, user, represented_users, view_general_results, view_contributor_results
-):
+    evaluation_result: EvaluationResult,
+    user: UserProfile,
+    represented_users: list[UserProfile],
+    view_general_results: ViewGeneralResults,
+    view_contributor_results: ViewContributorResults,
+) -> None:
     for questionnaire_result in evaluation_result.questionnaire_results:
         for question_result in questionnaire_result.question_results:
             if isinstance(question_result, TextResult):
@@ -282,7 +298,7 @@ def remove_textanswers_that_the_user_must_not_see(
                     )
                 ]
         # remove empty TextResults
-        cleaned_results = []
+        cleaned_results: list[TextResult | HeadingResult | RatingResult] = []
         for result in questionnaire_result.question_results:
             if isinstance(result, TextResult):
                 if result.answers:
@@ -296,9 +312,9 @@ def remove_textanswers_that_the_user_must_not_see(
         questionnaire_result.question_results = cleaned_results
 
 
-def filter_text_answers(evaluation_result):
+def filter_text_answers(evaluation_result: EvaluationResult) -> None:
     for questionnaire_result in evaluation_result.questionnaire_results:
-        question_results = []
+        question_results: list[RatingResult | HeadingResult | TextResult] = []
         for result in questionnaire_result.question_results:
             if isinstance(result, TextResult):
                 question_results.append(result)
@@ -307,7 +323,7 @@ def filter_text_answers(evaluation_result):
         questionnaire_result.question_results = question_results
 
 
-def exclude_empty_headings(evaluation_result):
+def exclude_empty_headings(evaluation_result: EvaluationResult) -> None:
     for questionnaire_result in evaluation_result.questionnaire_results:
         filtered_question_results = []
         for i, question_result in enumerate(questionnaire_result.question_results):
@@ -321,7 +337,7 @@ def exclude_empty_headings(evaluation_result):
         questionnaire_result.question_results = filtered_question_results
 
 
-def remove_empty_questionnaire_and_contribution_results(evaluation_result):
+def remove_empty_questionnaire_and_contribution_results(evaluation_result: EvaluationResult) -> None:
     for contribution_result in evaluation_result.contribution_results:
         contribution_result.questionnaire_results = [
             questionnaire_result
@@ -335,7 +351,9 @@ def remove_empty_questionnaire_and_contribution_results(evaluation_result):
     ]
 
 
-def split_evaluation_result_into_questionnaire_types(evaluation_result, view_as_user, view_contributor_results):
+def split_evaluation_result_into_questionnaire_types(
+    evaluation_result: EvaluationResult, view_as_user: UserProfile, view_contributor_results: ViewContributorResults
+) -> tuple[list[QuestionnaireResult], list[QuestionnaireResult], list[ContributionResult], list[QuestionnaireResult]]:
     top_results = []
     bottom_results = []
     contributor_results = []
@@ -364,7 +382,8 @@ def split_evaluation_result_into_questionnaire_types(evaluation_result, view_as_
     return top_results, bottom_results, contributor_results, dropout_results
 
 
-def get_evaluations_of_course(course, request):
+def get_evaluations_of_course(course: Course, request: HttpRequest) -> list[Evaluation]:
+    assert isinstance(request.user, UserProfile)
     course_evaluations = []
 
     if course.evaluations.count() > 1:
@@ -383,7 +402,7 @@ def get_evaluations_of_course(course, request):
     return course_evaluations
 
 
-def add_warnings(evaluation, evaluation_result):
+def add_warnings(evaluation: Evaluation, evaluation_result: EvaluationResult) -> None:
     if not evaluation.can_publish_rating_results:
         return
 
@@ -427,7 +446,9 @@ def add_warnings(evaluation, evaluation_result):
             )
 
 
-def evaluation_detail_parse_get_parameters(request, evaluation):
+def evaluation_detail_parse_get_parameters(
+    request, evaluation: Evaluation
+) -> tuple[ViewGeneralResults, ViewContributorResults, UserProfile, list[UserProfile], int | None]:
     if not evaluation.can_results_page_be_seen_by(request.user):
         raise PermissionDenied
 
@@ -451,7 +472,9 @@ def evaluation_detail_parse_get_parameters(request, evaluation):
     return view_general_results, view_contributor_results, view_as_user, represented_users, contributor_id
 
 
-def extract_evaluation_answer_data(request, evaluation):
+def extract_evaluation_answer_data(
+    request: HttpRequest, evaluation: Evaluation
+) -> tuple[TextAnswerExporter.InputData, int | None]:
     # TextAnswerExporter wants a dict from Question to tuple of contributor_name and string list (of the answers)
     (
         view_general_results,
@@ -472,7 +495,7 @@ def extract_evaluation_answer_data(request, evaluation):
     return results, contributor_id
 
 
-def evaluation_text_answers_export(request, evaluation_id):
+def evaluation_text_answers_export(request: HttpRequest, evaluation_id: int) -> HttpResponse:
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
 
     results, contributor_id = extract_evaluation_answer_data(request, evaluation)

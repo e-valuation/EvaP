@@ -170,7 +170,7 @@ class ImportStatistics:
 
         return log
 
-    def send_mail(self):
+    def send_mail(self) -> None:
         subject = "[EvaP] JSON importer log"
 
         recipients = settings.JSON_IMPORTER_LOG_RECIPIENTS

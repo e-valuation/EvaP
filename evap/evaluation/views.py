@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib import auth, messages
 from django.core.exceptions import SuspiciousOperation
 from django.core.mail import EmailMessage
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.encoding import iri_to_uri
@@ -24,7 +24,7 @@ from evap.middleware import no_login_required
 logger = logging.getLogger(__name__)
 
 
-def redirect_user_to_start_page(user):  # noqa: PLR0911
+def redirect_user_to_start_page(user: UserProfile) -> HttpResponse:  # noqa: PLR0911
     active_semester = Semester.active_semester()
 
     if user.is_reviewer:
@@ -53,7 +53,7 @@ def redirect_user_to_start_page(user):  # noqa: PLR0911
 
 @no_login_required
 @sensitive_post_parameters("password")
-def index(request):
+def index(request: HttpRequest) -> HttpResponse:
     """Main entry page into EvaP providing all the login options available. The OpenID login is thought to be used for
     internal users. The login key mechanism is meant to be used to include external participants, e.g. visiting
     students or visiting contributors. A login with email and password is available if OpenID is deactivated.
@@ -116,7 +116,7 @@ def index(request):
 
 
 @no_login_required
-def login_key_authentication(request, key):
+def login_key_authentication(request: HttpRequest, key: str) -> HttpResponse:
     user = auth.authenticate(request, key=key)
 
     if user and not user.is_active:
@@ -156,7 +156,7 @@ def login_key_authentication(request, key):
 
 
 @no_login_required
-def faq(request):
+def faq(request: HttpRequest) -> HttpResponse:
     return render(request, "faq.html", {"sections": FaqSection.objects.all()})
 
 
@@ -167,7 +167,7 @@ class LegalNoticeView(TemplateView):
 
 
 @require_POST
-def contact(request):
+def contact(request: HttpRequest) -> HttpResponse:
     sent_anonymous = request.POST.get("anonymous") == "true"
     if sent_anonymous and not settings.ALLOW_ANONYMOUS_FEEDBACK_MESSAGES:
         raise SuspiciousOperation("Anonymous feedback messages are not allowed, however received one from user!")
@@ -199,7 +199,7 @@ def contact(request):
 
 @no_login_required
 @require_POST
-def set_lang(request):
+def set_lang(request: HttpRequest) -> HttpResponse:
     if request.user.is_authenticated:
         user = request.user
         user.language = request.POST.get("language", "en")
@@ -208,7 +208,7 @@ def set_lang(request):
     return set_language(request)
 
 
-def profile_edit(request):
+def profile_edit(request: HttpRequest) -> HttpResponse:
     user = request.user
     profile_form = ProfileForm(request.POST or None, request.FILES or None, instance=user)
 
@@ -230,7 +230,7 @@ def profile_edit(request):
 
 
 @require_POST
-def set_notes(request):
+def set_notes(request: HttpRequest) -> HttpResponse:
     form = NotebookForm(request.POST, instance=request.user)
     if form.is_valid():
         form.save()
