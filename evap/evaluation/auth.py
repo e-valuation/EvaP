@@ -64,7 +64,8 @@ def class_or_function_check_decorator(test_func: Callable[[UserProfile], bool]):
 
     def function_decorator(func):
         @wraps(func)
-        def wrapped(request, *args, **kwargs):
+        def wrapped(request: HttpRequest, *args, **kwargs) -> Any:
+            assert isinstance(request.user, UserProfile)
             if not test_func(request.user):
                 raise PermissionDenied
             return func(request, *args, **kwargs)

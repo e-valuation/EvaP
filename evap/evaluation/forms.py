@@ -33,8 +33,8 @@ class LoginEmailForm(forms.Form):
         super().__init__(*args, **kwargs)
 
     @sensitive_variables("password")
-    def clean_password(self):
-        email = self.cleaned_data.get("email")
+    def clean_password(self) -> str | None:
+        email = assert_not_none(self.cleaned_data.get("email"))
         password = self.cleaned_data.get("password")
 
         email = email.lower()
@@ -69,8 +69,8 @@ class NewKeyForm(forms.Form):
 
         super().__init__(*args, **kwargs)
 
-    def clean_email(self):
-        email = self.cleaned_data.get("email")
+    def clean_email(self) -> str:
+        email: str = assert_not_none(self.cleaned_data.get("email"))
 
         if not UserProfile.email_needs_login_key(email):
             raise forms.ValidationError(

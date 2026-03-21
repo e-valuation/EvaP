@@ -29,13 +29,15 @@ from evap.rewards.tools import grant_eligible_reward_points_for_semester, redeem
 
 
 @reward_user_required
-def index(request):
+def index(request: HttpRequest) -> HttpResponse:
     status = 200
+
+    assert isinstance(request.user, UserProfile)
 
     events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=date.today()).order_by("date")
 
     # pylint: disable=unexpected-keyword-arg
-    formset = RewardPointRedemptionFormSet(
+    formset: Any = RewardPointRedemptionFormSet(
         request.POST or None,
         initial=[{"event": e, "points": 0} for e in events],
         user=request.user,

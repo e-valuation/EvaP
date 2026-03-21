@@ -135,11 +135,17 @@ def get_evaluations_with_prefetched_data[T: (list[Evaluation], QuerySet[Evaluati
 
 
 @internal_required
-def index(request):
+def index(request: HttpRequest) -> HttpResponse:
+    assert isinstance(request.user, UserProfile)
+
     semesters = Semester.get_all_with_published_unarchived_results()
-    evaluations = Evaluation.objects.filter(course__semester__in=semesters, state=Evaluation.State.PUBLISHED)
-    evaluations = evaluations.select_related("course", "course__semester")
-    evaluations = [evaluation for evaluation in evaluations if evaluation.can_be_seen_by(request.user)]
+    evaluations = [
+        evaluation
+        for evaluation in Evaluation.objects.filter(
+            course__semester__in=semesters, state=Evaluation.State.PUBLISHED
+        ).select_related("course", "course__semester")
+        if evaluation.can_be_seen_by(request.user)
+    ]
 
     if request.user.is_reviewer:
         additional_evaluations = get_evaluations_with_prefetched_data(
@@ -148,8 +154,7 @@ def index(request):
                 state__in=[Evaluation.State.IN_EVALUATION, Evaluation.State.EVALUATED, Evaluation.State.REVIEWED],
             )
         )
-        additional_evaluations = get_evaluations_with_course_result_attributes(additional_evaluations)
-        evaluations += additional_evaluations
+        evaluations += get_evaluations_with_course_result_attributes(additional_evaluations)
 
     # put evaluations into a dict that maps from course to a list of evaluations.
     # this dict is sorted by course.pk (important for the zip below)
@@ -164,7 +169,7 @@ def index(request):
         Course.objects.filter(pk__in=course_pks).annotate(num_evaluations=Count("evaluations")).order_by("pk").defer()
     )
     for course, annotated_course in zip(courses_and_evaluations.keys(), annotated_courses, strict=True):
-        course.num_evaluations = annotated_course.num_evaluations
+        cast("Any", course).num_evaluations = annotated_course.num_evaluations
 
     programs = Program.objects.filter(courses__pk__in=course_pks).distinct()
     course_types = CourseType.objects.filter(courses__pk__in=course_pks).distinct()
@@ -411,7 +416,7 @@ def add_warnings(evaluation: Evaluation, evaluation_result: EvaluationResult) ->
     for questionnaire_result in evaluation_result.questionnaire_results:
         max_answers = max(
             (
-                question_result.count_sum
+                cast("PublishedRatingResult", question_result).count_sum
                 for question_result in questionnaire_result.question_results
                 if question_result.question.is_rating_question
             ),
@@ -429,7 +434,7 @@ def add_warnings(evaluation: Evaluation, evaluation_result: EvaluationResult) ->
         if questionnaire_result.questionnaire.is_dropout:
             continue
         rating_results = [
-            question_result
+            cast("PublishedRatingResult", question_result)
             for question_result in questionnaire_result.question_results
             if question_result.question.is_rating_question
         ]
@@ -447,8 +452,9 @@ def add_warnings(evaluation: Evaluation, evaluation_result: EvaluationResult) ->
 
 
 def evaluation_detail_parse_get_parameters(
-    request, evaluation: Evaluation
+    request: HttpRequest, evaluation: Evaluation
 ) -> tuple[ViewGeneralResults, ViewContributorResults, UserProfile, list[UserProfile], int | None]:
+    assert isinstance(request.user, UserProfile)
     if not evaluation.can_results_page_be_seen_by(request.user):
         raise PermissionDenied
 

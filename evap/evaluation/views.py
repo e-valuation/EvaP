@@ -177,6 +177,7 @@ def contact(request: HttpRequest) -> HttpResponse:
         sender = "anonymous user"
         subject = "[EvaP] Anonymous message"
     else:
+        assert isinstance(request.user, UserProfile)
         sender = request.user.email or f"User {request.user.id}"
         subject = f"[EvaP] Message from {sender}"
     if message:
@@ -218,6 +219,7 @@ def profile_edit(request: HttpRequest) -> HttpResponse:
             messages.success(request, _("Successfully updated your profile."))
             return redirect("evaluation:profile_edit")
 
+    assert isinstance(user, UserProfile)
     editor_context = {
         "delegate_of": user.represented_users.all(),
         "cc_users": user.cc_users.all(),
@@ -238,8 +240,9 @@ def set_notes(request: HttpRequest) -> HttpResponse:
     return HttpResponseBadRequest()
 
 
-def set_startpage(request):
+def set_startpage(request: HttpRequest) -> HttpResponse:
     user = request.user
+    assert isinstance(user, UserProfile)
     startpage = request.POST.get("page")
     if startpage not in UserProfile.StartPage.values:
         return HttpResponseBadRequest()

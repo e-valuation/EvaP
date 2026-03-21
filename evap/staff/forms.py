@@ -73,8 +73,9 @@ class CharArrayField(forms.Field):
 
 
 class BoundCharArrayField(forms.BoundField):
-    def as_widget(self, widget=None, attrs=None, only_initial=False):
+    def as_widget(self, widget: Widget | None = None, attrs: Any = None, only_initial: bool = False) -> SafeString:
         widget = widget or self.field.widget
+        assert isinstance(widget, ChoiceWidget)
         # Inject all current values as choices so they don’t get discarded
         if self.value():
             widget.choices = [(value, value) for value in self.value()]
@@ -90,7 +91,7 @@ class ModelWithImportNamesFormset(forms.BaseModelFormSet):
         super().clean()
         import_names = set()
         for form in self.forms:
-            if self.can_delete and self._should_delete_form(form):
+            if self.can_delete and self._should_delete_form(form):  # type: ignore[attr-defined]
                 continue
             for import_name in form.cleaned_data.get("import_names", []):
                 if import_name.lower() in import_names:
@@ -144,7 +145,7 @@ class EvaluationParticipantCopyForm(forms.Form):
             if evaluation_choices:
                 choices += [(semester.name, evaluation_choices)]
 
-        self.fields["evaluation"].choices = choices
+        cast(forms.ModelChoiceField, self.fields["evaluation"]).choices = choices
         self.fields["evaluation"].widget.attrs["tomselect-no-sort"] = ""
 
     def clean(self) -> None:
@@ -287,11 +288,11 @@ class CourseFormMixin:
             "responsibles": UserModelMultipleChoiceField,
         }
 
-    def _set_responsibles_queryset(self, existing_course:Course|None=None)->None:
+    def _set_responsibles_queryset(self, existing_course: Course | None = None) -> None:
         queryset = UserProfile.objects.exclude(is_active=False)
         if existing_course:
             queryset = (queryset | existing_course.responsibles.all()).distinct()
-        self.fields["responsibles"].queryset = queryset
+        self.fields["responsibles"].queryset = queryset  # type: ignore[attr-defined]
 
     def validate_unique(self):
         super().validate_unique()
@@ -697,9 +698,9 @@ class EvaluationEmailForm(forms.Form):
 
         return self.cleaned_data
 
-    def email_addresses(self):
+    def email_addresses(self) -> set[str]:
         recipients = self.template.recipient_list_for_evaluation(
-            self.evaluation, self.recipient_groups, filter_users_in_cc=False
+            self.evaluation, assert_not_none(self.recipient_groups), filter_users_in_cc=False
         )
         return {user.email for user in recipients if user.email}
 
@@ -1025,12 +1026,14 @@ class UserForm(forms.ModelForm):
             "cc_users": UserModelMultipleChoiceField,
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.user_with_same_email = None
+        self.user_with_same_email: UserProfile | None = None
         evaluations_in_active_semester = Evaluation.objects.filter(course__semester=Semester.active_semester())
-        self.fields["evaluations_participating_in"].queryset = evaluations_in_active_semester
-        self.remove_messages = []
+        cast(
+            forms.ModelMultipleChoiceField, self.fields["evaluations_participating_in"]
+        ).queryset = evaluations_in_active_semester
+        self.remove_messages: list[list[str]] = []
         if self.instance.pk:
             self.fields["evaluations_participating_in"].initial = evaluations_in_active_semester.filter(
                 participants=self.instance
