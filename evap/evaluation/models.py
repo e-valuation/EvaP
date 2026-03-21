@@ -919,7 +919,7 @@ class Evaluation(LoggedModel):
         if "general_contribution" in self.__dict__ and self.general_contribution is not None:
             return self.general_contribution
 
-        contribution, created = self.contributions.get_or_create(contributor=None)
+        contribution, __ = self.contributions.get_or_create(contributor=None)
         self.__dict__["general_contribution"] = contribution
         return assert_not_none(self.general_contribution)
 

@@ -2421,7 +2421,13 @@ class TestEvaluationEditView(WebTestStaffMode):
     def test_general_contribution_log_entry(self):
         page = self.app.get(self.url, user=self.manager)
         self.assertContains(
-            page, '<p class="mt-3">The Contribution "General Contribution" was created.</p><ul></ul>', html=True
+            page,
+            f"""
+            <p class="mt-3">The Contribution "General Contribution" was created.</p>
+            <ul>
+                <li>Questionnaires added: {self.general_questionnaire.name}</li>
+            </ul>""",
+            html=True,
         )
 
 
