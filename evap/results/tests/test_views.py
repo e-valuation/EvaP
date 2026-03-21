@@ -206,6 +206,7 @@ class TestResultsView(WebTest):
             answer=2,
             count=2,
             _quantity=len(published),
+            _bulk_create=True,
         )
 
         for evaluation in published:

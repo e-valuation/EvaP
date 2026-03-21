@@ -133,6 +133,7 @@ class TestEventsView(WebTestStaffModeWith200Check):
             event=self.redemption_event1,
             value=1,
             _quantity=quantity,
+            _bulk_create=True,
         )
         response = self.app.get(self.url, user=self.test_users[0])
 

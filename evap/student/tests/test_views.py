@@ -92,11 +92,11 @@ class TestStudentIndexView(WebTestWith200Check):
         make_evaluation(course__is_private=True)
         make_evaluation(id=1043)
         make_evaluation(course__type__id=1042)
-        make_evaluation(_quantity=len(excluded_states), state=iter(excluded_states))
+        make_evaluation(_quantity=len(excluded_states), _bulk_create=True, state=iter(excluded_states))
 
         # included
         included_evaluations = [
-            *make_evaluation(_quantity=len(included_states), state=iter(included_states)),
+            *make_evaluation(_quantity=len(included_states), _bulk_create=True, state=iter(included_states)),
             make_evaluation(_voter_count=123, _participant_count=456),
         ]
 

@@ -119,7 +119,7 @@ class EvaluationEditLiveTest(LiveServerTest):
 
 class ParticipantCollapseTests(LiveServerTest):
     def test_collapse_with_editor_approved(self) -> None:
-        participants = baker.make(UserProfile, _quantity=20)
+        participants = baker.make(UserProfile, _quantity=20, _bulk_create=True)
         baker.make(UserProfile, last_name="participant")
 
         responsible = baker.make(UserProfile)
@@ -209,6 +209,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
             original_answer=None,
             review_decision=TextAnswer.ReviewDecision.UNDECIDED,
             _quantity=3,
+            _bulk_create=True,
         )
 
         textanswer1 = baker.make(
@@ -228,6 +229,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
             original_answer=None,
             review_decision=TextAnswer.ReviewDecision.UNDECIDED,
             _quantity=3,
+            _bulk_create=True,
         )
 
         with self.enter_staff_mode():

@@ -137,7 +137,7 @@ class TestHelperMethods(TestCase):
 
     def test_discard_cached_related_objects_discards_cached_m2m_instances(self):
         evaluation = baker.make(Evaluation)
-        baker.make(UserProfile, evaluations_participating_in=[evaluation], _quantity=2)
+        baker.make(UserProfile, evaluations_participating_in=[evaluation], _quantity=2, _bulk_create=True)
 
         # M2M fields are not implicitly cached
         with self.assertNumQueries(1):
