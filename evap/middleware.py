@@ -3,6 +3,7 @@ from weakref import WeakSet
 
 from django.conf import settings
 from django.contrib.auth.views import redirect_to_login
+from django.http import HttpRequest, HttpResponse
 from django.utils import translation
 from django.views import View
 from mozilla_django_oidc.views import OIDCAuthenticationCallbackView, OIDCAuthenticationRequestView
@@ -15,10 +16,10 @@ VIEWS_WITHOUT_LOGIN_REQUIRED.add(OIDCAuthenticationRequestView)
 
 
 class RequireLoginMiddleware:
-    def __init__(self, get_response):
+    def __init__(self, get_response: Callable[[HttpRequest], HttpResponse]) -> None:
         self.get_response = get_response
 
-    def __call__(self, request):
+    def __call__(self, request: HttpRequest) -> HttpResponse:
         return self.get_response(request)
 
     @staticmethod
@@ -32,7 +33,7 @@ class RequireLoginMiddleware:
         return False
 
     @classmethod
-    def process_view(cls, request, view_func, _view_args, _view_kwargs):
+    def process_view(cls, request: HttpRequest, view_func, _view_args, _view_kwargs) -> HttpResponse | None:
         # Returning None tells django to pass the request on
         if request.user.is_authenticated:
             return None
@@ -44,7 +45,7 @@ class RequireLoginMiddleware:
         return redirect_to_login(request.get_full_path())
 
 
-def no_login_required(class_or_function: ViewFuncOrClass):
+def no_login_required(class_or_function: ViewFuncOrClass) -> ViewFuncOrClass:
     # view funcs of class based views are shared, so we cannot track them here. Use the decorator on the class instead.
     assert not hasattr(class_or_function, "view_class"), "unexpected called with a view function of a class based view"
 
@@ -52,8 +53,10 @@ def no_login_required(class_or_function: ViewFuncOrClass):
     return class_or_function
 
 
-def user_language_middleware(get_response):
-    def middleware(request):
+def user_language_middleware(
+    get_response: Callable[[HttpRequest], HttpResponse],
+) -> Callable[[HttpRequest], HttpResponse]:
+    def middleware(request: HttpRequest) -> HttpResponse:
         if not (request.user and request.user.is_authenticated):
             return get_response(request)
         if request.user.language == translation.get_language():

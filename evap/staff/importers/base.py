@@ -10,6 +10,7 @@ from typing import Any
 import openpyxl
 from django.conf import settings
 from django.contrib import messages
+from django.http import HttpRequest
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy, ngettext
 
@@ -78,7 +79,7 @@ class ImporterLog:
         grouped_messages = itertools.groupby(sorted_messages, lambda msg: msg.category)
         return {category: list(messages) for category, messages in grouped_messages}
 
-    def add_message(self, message: ImporterLogEntry):
+    def add_message(self, message: ImporterLogEntry) -> None:
         self.messages.append(message)
 
     def has_errors(self) -> bool:
@@ -97,7 +98,7 @@ class ImporterLog:
     def errors_by_category(self) -> dict[ImporterLogEntry.Category, list[ImporterLogEntry]]:
         return self._messages_with_level_by_category(ImporterLogEntry.Level.ERROR)
 
-    def forward_messages_to_django(self, request) -> None:
+    def forward_messages_to_django(self, request: HttpRequest) -> None:
         method_by_level = {
             ImporterLogEntry.Level.SUCCESS: messages.success,
             ImporterLogEntry.Level.WARNING: messages.warning,
@@ -107,13 +108,19 @@ class ImporterLog:
         for message in self.messages:
             method_by_level[message.level](request, message.message)
 
-    def add_error(self, message_text, *, category=ImporterLogEntry.Category.GENERAL):
+    def add_error(
+        self, message_text: str, *, category: ImporterLogEntry.Category = ImporterLogEntry.Category.GENERAL
+    ) -> None:
         return self.add_message(ImporterLogEntry(ImporterLogEntry.Level.ERROR, category, message_text))
 
-    def add_warning(self, message_text, *, category=ImporterLogEntry.Category.GENERAL):
+    def add_warning(
+        self, message_text: str, *, category: ImporterLogEntry.Category = ImporterLogEntry.Category.GENERAL
+    ) -> None:
         return self.add_message(ImporterLogEntry(ImporterLogEntry.Level.WARNING, category, message_text))
 
-    def add_success(self, message_text, *, category=ImporterLogEntry.Category.GENERAL):
+    def add_success(
+        self, message_text: str, *, category: ImporterLogEntry.Category = ImporterLogEntry.Category.GENERAL
+    ) -> None:
         return self.add_message(ImporterLogEntry(ImporterLogEntry.Level.SUCCESS, category, message_text))
 
 
@@ -141,7 +148,7 @@ class ConvertExceptionsToMessages:
     def __init__(self, importer_log: ImporterLog):
         self.importer_log = importer_log
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         pass
 
     def __exit__(self, exc_type, exc_value, traceback) -> bool:
@@ -184,7 +191,7 @@ class InputRow(ABC):
         pass
 
     @classmethod
-    def from_cells(cls, location: ExcelFileLocation, cells: Iterable[str]):
+    def from_cells(cls, location: ExcelFileLocation, cells: Iterable[str]) -> "InputRow":
         return cls(location, *cells)
 
 
@@ -198,7 +205,7 @@ class ExcelFileRowMapper:
         self.row_cls = row_cls
         self.importer_log = importer_log
 
-    def map(self, file_content: bytes):
+    def map(self, file_content: bytes) -> list:
         try:
             book = openpyxl.load_workbook(BytesIO(file_content))
         except Exception as e:  # noqa: BLE001
@@ -257,7 +264,7 @@ class FirstLocationAndCountTracker:
         self.first_location_by_key: dict[Any, ExcelFileLocation] = {}
         self.location_count_by_key: Counter = Counter()
 
-    def add_location_for_key(self, location: ExcelFileLocation, key: Any):
+    def add_location_for_key(self, location: ExcelFileLocation, key: Any) -> None:
         self.first_location_by_key.setdefault(key, location)
         self.location_count_by_key.update([key])
 

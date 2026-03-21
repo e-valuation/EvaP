@@ -1,4 +1,5 @@
 import subprocess  # nosec
+from argparse import ArgumentParser
 
 from django.core.management.base import BaseCommand
 
@@ -8,24 +9,24 @@ class Command(BaseCommand):
     help = "Runs code formatting"
     requires_migrations_checks = False
 
-    def add_arguments(self, parser):
+    def add_arguments(self, parser: ArgumentParser) -> None:
         parser.add_argument(
             "formatter", nargs="?", choices=["ruff", "prettier", "python"], help="Specify a formatter to run."
         )
 
-    def run_ruff(self):
+    def run_ruff(self) -> None:
         self.stdout.write("Executing ruff format .")
         subprocess.run(["ruff", "format", "."], check=False)  # nosec
         self.stdout.write("Executing ruff check --select I --fix .")
         subprocess.run(["ruff", "check", "--select", "I", "--fix", "."], check=False)  # nosec
 
-    def run_prettier(self):
+    def run_prettier(self) -> None:
         self.stdout.write("Executing npx prettier")
         subprocess.run(
             ["npx", "prettier", "--write", "evap/static/ts/**/*.ts", "evap/static/ts/eslint.config.js"], check=False
         )  # nosec
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options) -> None:
         if options["formatter"] in ("ruff", "python", None):
             self.run_ruff()
         if options["formatter"] in ("prettier", None):

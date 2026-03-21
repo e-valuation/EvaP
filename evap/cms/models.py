@@ -23,7 +23,7 @@ class IgnoredEvaluation(models.Model):
         verbose_name = _("ignored evaluation")
         verbose_name_plural = _("ignored evaluations")
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.name:
             return f"{self.course.name} – {self.name}"
         return self.course.name

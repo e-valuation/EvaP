@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db.models.query import QuerySet
-from django.http import FileResponse, HttpResponse
+from django.http import FileResponse, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET, require_POST
@@ -15,7 +15,7 @@ from evap.evaluation.auth import (
     grade_publisher_or_manager_required,
     grade_publisher_required,
 )
-from evap.evaluation.models import Course, EmailTemplate, Evaluation, Semester
+from evap.evaluation.models import Course, EmailTemplate, Evaluation, Semester, UserProfile
 from evap.evaluation.tools import get_object_from_dict_pk_entry_or_logged_40x
 from evap.grades.forms import GradeDocumentForm
 from evap.grades.models import GradeDocument
@@ -95,7 +95,7 @@ class CourseView(DetailView):
         }
 
 
-def on_grading_process_finished(course):
+def on_grading_process_finished(course: Course) -> None:
     evaluations = course.evaluations.all()
     if all(evaluation.state == Evaluation.State.REVIEWED for evaluation in evaluations):
         for evaluation in evaluations:
@@ -109,7 +109,7 @@ def on_grading_process_finished(course):
 
 
 @grade_publisher_required
-def upload_grades(request, course_id):
+def upload_grades(request: HttpRequest, course_id: int) -> HttpResponse:
     course = get_object_or_404(Course, id=course_id)
     semester = course.semester
     if semester.grade_documents_are_deleted:
@@ -150,7 +150,7 @@ def upload_grades(request, course_id):
 
 @require_POST
 @grade_publisher_required
-def set_no_grades(request):
+def set_no_grades(request: HttpRequest) -> HttpResponse:
     course = get_object_from_dict_pk_entry_or_logged_40x(Course, request.POST, "course_id")
 
     try:
@@ -172,7 +172,7 @@ def set_no_grades(request):
 
 @require_GET
 @grade_downloader_required
-def download_grades(request, grade_document_id):
+def download_grades(request: HttpRequest, grade_document_id: int) -> FileResponse:
     grade_document = get_object_or_404(GradeDocument, id=grade_document_id)
     if grade_document.course.semester.grade_documents_are_deleted:
         raise PermissionDenied
@@ -181,7 +181,7 @@ def download_grades(request, grade_document_id):
 
 
 @grade_publisher_required
-def edit_grades(request, grade_document_id):
+def edit_grades(request: HttpRequest, grade_document_id: int) -> HttpResponse:
     grade_document = get_object_or_404(GradeDocument, id=grade_document_id)
     course = grade_document.course
     semester = course.semester
@@ -211,7 +211,7 @@ def edit_grades(request, grade_document_id):
 
 @require_POST
 @grade_publisher_required
-def delete_grades(request):
+def delete_grades(request: HttpRequest) -> HttpResponse:
     grade_document = get_object_from_dict_pk_entry_or_logged_40x(GradeDocument, request.POST, "grade_document_id")
     grade_document.delete()
     return HttpResponse()  # 200 OK

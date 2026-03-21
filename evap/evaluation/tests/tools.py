@@ -3,7 +3,6 @@ from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from datetime import timedelta
 from importlib import import_module
-from typing import Any
 
 import django.test
 import django_webtest
@@ -43,7 +42,7 @@ from evap.evaluation.models import (
 class EvapTestRunner(DiscoverRunner):
     """Skips selenium tests by default, if no other tags are specified."""
 
-    def __init__(self, *args: Any, headed=False, **kwargs: Any) -> None:
+    def __init__(self, *args, headed=False, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         self.__headed = headed

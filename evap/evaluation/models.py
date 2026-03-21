@@ -8,8 +8,7 @@ from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta
 from enum import Enum, auto
 from functools import partial
-from numbers import Real
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 
 from django.conf import settings
 from django.contrib import messages
@@ -50,7 +49,12 @@ from evap.evaluation.tools import (
     translate,
     vote_end_datetime,
 )
-from evap.tools import date_to_datetime
+from evap.tools import assert_not_none, date_to_datetime
+
+if TYPE_CHECKING:
+    import builtins
+
+    from evap.grades.models import GradeDocument
 
 logger = logging.getLogger(__name__)
 
@@ -99,11 +103,11 @@ class Semester(models.Model):
         verbose_name = _("semester")
         verbose_name_plural = _("semesters")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     @property
-    def can_be_deleted_by_manager(self):
+    def can_be_deleted_by_manager(self) -> bool:
         if self.is_active:
             return False
 
@@ -113,21 +117,21 @@ class Semester(models.Model):
         return self.participations_are_archived and self.grade_documents_are_deleted and self.results_are_archived
 
     @property
-    def participations_can_be_archived(self):
+    def participations_can_be_archived(self) -> bool:
         return not self.participations_are_archived and all(
             evaluation.participations_can_be_archived for evaluation in self.evaluations.all()
         )
 
     @property
-    def grade_documents_can_be_deleted(self):
+    def grade_documents_can_be_deleted(self) -> bool:
         return not self.grade_documents_are_deleted
 
     @property
-    def results_can_be_archived(self):
+    def results_can_be_archived(self) -> bool:
         return not self.results_are_archived
 
     @transaction.atomic
-    def archive(self):
+    def archive(self) -> None:
         if not self.participations_can_be_archived:
             raise NotArchivableError
         for evaluation in self.evaluations.all():
@@ -136,7 +140,7 @@ class Semester(models.Model):
         self.save()
 
     @transaction.atomic
-    def delete_grade_documents(self):
+    def delete_grade_documents(self) -> None:
         # Resolving this circular dependency makes the code more ugly, so we leave it.
         from evap.grades.models import GradeDocument  # noqa: PLC0415
 
@@ -146,24 +150,24 @@ class Semester(models.Model):
         self.grade_documents_are_deleted = True
         self.save()
 
-    def archive_results(self):
+    def archive_results(self) -> None:
         if not self.results_can_be_archived:
             raise NotArchivableError
         self.results_are_archived = True
         self.save()
 
     @classmethod
-    def get_all_with_published_unarchived_results(cls):
+    def get_all_with_published_unarchived_results(cls) -> "QuerySet[Semester]":
         return cls.objects.filter(
             courses__evaluations__state=Evaluation.State.PUBLISHED, results_are_archived=False
         ).distinct()
 
     @classmethod
-    def active_semester(cls):
+    def active_semester(cls) -> "Semester | None":
         return cls.objects.filter(is_active=True).first()
 
     @property
-    def evaluations(self):
+    def evaluations(self) -> "QuerySet[Evaluation]":
         return Evaluation.objects.filter(course__semester=self)
 
 
@@ -229,16 +233,16 @@ class Questionnaire(models.Model):
         verbose_name = _("questionnaire")
         verbose_name_plural = _("questionnaires")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def __lt__(self, other):
+    def __lt__(self, other: "Questionnaire") -> bool:
         return (self.type, self.order, self.pk) < (other.type, other.order, other.pk)
 
-    def __gt__(self, other):
+    def __gt__(self, other: "Questionnaire") -> bool:
         return (self.type, self.order, self.pk) > (other.type, other.order, other.pk)
 
-    def clean(self):
+    def clean(self) -> None:
         if self.type == self.Type.CONTRIBUTOR and self.is_locked:
             raise ValidationError({"is_locked": _("Contributor questionnaires cannot be locked.")})
 
@@ -259,7 +263,7 @@ class Questionnaire(models.Model):
         return self.type in (self.Type.TOP, self.Type.BOTTOM)
 
     @property
-    def can_be_edited_by_manager(self):
+    def can_be_edited_by_manager(self) -> bool:
         if is_prefetched(self, "contributions"):
             if all(is_prefetched(contribution, "evaluation") for contribution in self.contributions.all()):
                 return all(
@@ -269,7 +273,7 @@ class Questionnaire(models.Model):
         return not self.contributions.exclude(evaluation__state=Evaluation.State.NEW).exists()
 
     @property
-    def can_be_deleted_by_manager(self):
+    def can_be_deleted_by_manager(self) -> bool:
         return not self.contributions.exists()
 
     @property
@@ -294,10 +298,10 @@ class Program(models.Model):
     class Meta:
         ordering = ["order"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def can_be_deleted_by_manager(self):
+    def can_be_deleted_by_manager(self) -> bool:
         if self.pk is None:
             return True
         return not self.courses.all().exists()
@@ -319,10 +323,10 @@ class CourseType(models.Model):
     class Meta:
         ordering = ["order"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def can_be_deleted_by_manager(self):
+    def can_be_deleted_by_manager(self) -> bool:
         if not self.pk:
             return True
         return not self.courses.all().exists()
@@ -344,7 +348,7 @@ class ExamType(models.Model):
     class Meta:
         ordering = ["order"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     def can_be_deleted_by_manager(self) -> bool:
@@ -392,11 +396,11 @@ class Course(LoggedModel):
         verbose_name = _("course")
         verbose_name_plural = _("courses")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     @classmethod
-    def objects_with_missing_final_grades(cls):
+    def objects_with_missing_final_grades(cls) -> "QuerySet[Course]":
         from evap.grades.models import GradeDocument  # noqa: PLC0415
 
         return (
@@ -410,41 +414,41 @@ class Course(LoggedModel):
         )
 
     @property
-    def unlogged_fields(self):
+    def unlogged_fields(self) -> list[str]:
         return super().unlogged_fields + ["semester", "gets_no_grade_documents"]
 
     @property
-    def can_be_edited_by_manager(self):
+    def can_be_edited_by_manager(self) -> bool:
         return not self.semester.participations_are_archived
 
     @property
-    def can_be_deleted_by_manager(self):
+    def can_be_deleted_by_manager(self) -> bool:
         return not self.evaluations.exists()
 
     @property
-    def final_grade_documents(self):
+    def final_grade_documents(self) -> "QuerySet[GradeDocument]":
         # We think it's better to use the imported constant here instead of using some workaround
         from evap.grades.models import GradeDocument  # noqa: PLC0415
 
         return self.grade_documents.filter(type=GradeDocument.Type.FINAL_GRADES)
 
     @property
-    def midterm_grade_documents(self):
+    def midterm_grade_documents(self) -> "QuerySet[GradeDocument]":
         # We think it's better to use the imported constant here instead of using some workaround
         from evap.grades.models import GradeDocument  # noqa: PLC0415
 
         return self.grade_documents.filter(type=GradeDocument.Type.MIDTERM_GRADES)
 
     @cached_property
-    def responsibles_names(self):
+    def responsibles_names(self) -> str:
         return ", ".join(responsible.full_name for responsible in self.responsibles.all())
 
     @property
-    def has_external_responsible(self):
+    def has_external_responsible(self) -> bool:
         return any(responsible.is_external for responsible in self.responsibles.all())
 
     @property
-    def all_evaluations_finished(self):
+    def all_evaluations_finished(self) -> bool:
         if is_prefetched(self, "evaluations"):
             return all(evaluation.state >= Evaluation.State.EVALUATED for evaluation in self.evaluations.all())
 
@@ -540,15 +544,15 @@ class Evaluation(LoggedModel):
     staff_notes = models.TextField(verbose_name=_("staff notes"), blank=True)
 
     @property
-    def has_exam_evaluation(self):
+    def has_exam_evaluation(self) -> bool:
         return self.course.evaluations.filter(exam_type__isnull=False).exists()
 
     @property
-    def earliest_possible_exam_date(self):
+    def earliest_possible_exam_date(self) -> date:
         return self.vote_start_datetime.date() + timedelta(days=1)
 
     @transaction.atomic
-    def create_exam_evaluation(self, exam_date: date, exam_type: ExamType):
+    def create_exam_evaluation(self, exam_date: date, exam_type: ExamType) -> None:
         self.weight = settings.MAIN_EVALUATION_DEFAULT_WEIGHT
         self.vote_end_date = exam_date - timedelta(days=1)
         self.save()
@@ -597,10 +601,10 @@ class Evaluation(LoggedModel):
             ),
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.full_name
 
-    def save(self, *args, **kw):
+    def save(self, *args, **kw) -> None:
         super().save(*args, **kw)
 
         # make sure there is a general contribution
@@ -610,10 +614,10 @@ class Evaluation(LoggedModel):
 
         if hasattr(self, "state_change_source"):
 
-            def state_changed_to(self, state_set):
+            def state_changed_to(self: Evaluation, state_set: Collection[Evaluation.State]) -> bool:
                 return self.state_change_source not in state_set and self.state in state_set
 
-            def state_changed_from(self, state_set):
+            def state_changed_from(self: Evaluation, state_set: Collection[Evaluation.State]) -> bool:
                 return self.state_change_source in state_set and self.state not in state_set
 
             # It's clear that results.models will need to reference evaluation.models' classes in ForeignKeys.
@@ -651,44 +655,44 @@ class Evaluation(LoggedModel):
             del self.state_change_source
 
     @property
-    def full_name(self):
+    def full_name(self) -> str:
         if self.name:
             return f"{self.course.name} – {self.name}"
         return self.course.name
 
     @property
-    def full_name_de(self):
+    def full_name_de(self) -> str:
         if self.name_de:
             return f"{self.course.name_de} – {self.name_de}"
         return self.course.name_de
 
     @property
-    def full_name_en(self):
+    def full_name_en(self) -> str:
         if self.name_en:
             return f"{self.course.name_en} – {self.name_en}"
         return self.course.name_en
 
     @property
-    def is_fully_reviewed(self):
+    def is_fully_reviewed(self) -> bool:
         if not self.can_publish_text_results:
             return True
         return not self.unreviewed_textanswer_set.exists()
 
     @property
-    def display_vote_end_datetime(self):
+    def display_vote_end_datetime(self) -> datetime:
         return date_to_datetime(self.vote_end_date) + timedelta(hours=24)
 
     @property
-    def vote_end_datetime(self):
+    def vote_end_datetime(self) -> datetime:
         return vote_end_datetime(self.vote_end_date)
 
     @property
-    def runtime(self):
+    def runtime(self) -> int:
         delta = self.vote_end_datetime - self.vote_start_datetime
         return delta.days + 1
 
     @property
-    def is_in_evaluation_period(self):
+    def is_in_evaluation_period(self) -> bool:
         return self.vote_start_datetime <= datetime.now() <= self.vote_end_datetime
 
     @property
@@ -700,11 +704,11 @@ class Evaluation(LoggedModel):
         return self.general_contribution and self.general_contribution.questionnaires.count() > 0
 
     @property
-    def has_decided_main_language(self):
+    def has_decided_main_language(self) -> bool:
         return self.main_language != self.UNDECIDED_MAIN_LANGUAGE
 
     @property
-    def all_contributions_have_questionnaires(self):
+    def all_contributions_have_questionnaires(self) -> bool:
         if is_prefetched(self, "contributions"):
             if not self.contributions:
                 return False
@@ -717,7 +721,7 @@ class Evaluation(LoggedModel):
             and not self.contributions.annotate(Count("questionnaires")).filter(questionnaires__count=0).exists()
         )
 
-    def can_be_voted_for_by(self, user):
+    def can_be_voted_for_by(self, user: "UserProfile") -> bool:
         """Returns whether the user is allowed to vote on this evaluation."""
         return (
             self.state == Evaluation.State.IN_EVALUATION
@@ -726,7 +730,7 @@ class Evaluation(LoggedModel):
             and user not in self.voters.all()
         )
 
-    def can_be_seen_by(self, user):
+    def can_be_seen_by(self, user: "UserProfile") -> bool:
         if user.is_manager:
             return True
         if self.state == Evaluation.State.NEW:
@@ -740,7 +744,7 @@ class Evaluation(LoggedModel):
             )
         return True
 
-    def can_results_page_be_seen_by(self, user):
+    def can_results_page_be_seen_by(self, user: "UserProfile") -> bool:
         if user.is_manager:
             return True
         if user.is_reviewer and not self.course.semester.results_are_archived:
@@ -752,19 +756,19 @@ class Evaluation(LoggedModel):
         return self.can_be_seen_by(user)
 
     @property
-    def can_reset_to_new(self):
+    def can_reset_to_new(self) -> bool:
         return Evaluation.State.PREPARED <= self.state <= Evaluation.State.REVIEWED
 
     @property
-    def can_be_edited_by_manager(self):
+    def can_be_edited_by_manager(self) -> bool:
         return not self.participations_are_archived and self.state < Evaluation.State.PUBLISHED
 
     @property
-    def can_be_deleted_by_manager(self):
+    def can_be_deleted_by_manager(self) -> bool:
         return self.can_be_edited_by_manager and self.num_voters == 0
 
     @cached_property
-    def num_participants(self):
+    def num_participants(self) -> int:
         if self._participant_count is not None:
             return self._participant_count
 
@@ -773,7 +777,7 @@ class Evaluation(LoggedModel):
 
         return self.participants.count()
 
-    def _archive(self):
+    def _archive(self) -> None:
         """Should be called only via Semester.archive"""
         if not self.participations_can_be_archived:
             raise NotArchivableError
@@ -788,29 +792,29 @@ class Evaluation(LoggedModel):
         self.related_logentries().delete()
 
     @property
-    def participations_are_archived(self):
+    def participations_are_archived(self) -> bool:
         semester_participations_are_archived = self.course.semester.participations_are_archived
         if semester_participations_are_archived:
             assert self._participant_count is not None and self._voter_count is not None
         return semester_participations_are_archived
 
     @property
-    def participations_can_be_archived(self):
+    def participations_can_be_archived(self) -> bool:
         return not self.course.semester.participations_are_archived and self.state in [
             Evaluation.State.NEW,
             Evaluation.State.PUBLISHED,
         ]
 
     @property
-    def has_external_participant(self):
+    def has_external_participant(self) -> bool:
         return any(participant.is_external for participant in self.participants.all())
 
     @property
-    def can_staff_see_average_grade(self):
+    def can_staff_see_average_grade(self) -> bool:
         return self.state >= Evaluation.State.EVALUATED
 
     @property
-    def can_publish_average_grade(self):
+    def can_publish_average_grade(self) -> bool:
         # the average grade is only published if at least the configured percentage of participants voted during the evaluation for significance reasons
         return (
             self.can_publish_rating_results
@@ -818,12 +822,12 @@ class Evaluation(LoggedModel):
         )
 
     @property
-    def can_publish_rating_results(self):
+    def can_publish_rating_results(self) -> bool:
         # the rating results are only published if at least the configured number of participants voted during the evaluation for anonymity reasons
         return self.num_voters >= settings.VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS
 
     @transition(field=state, source=[State.NEW, State.EDITOR_APPROVED], target=State.PREPARED)
-    def ready_for_editors(self):
+    def ready_for_editors(self) -> None:
         pass
 
     @transition(
@@ -832,7 +836,7 @@ class Evaluation(LoggedModel):
         target=State.EDITOR_APPROVED,
         conditions=[lambda self: self.has_decided_main_language],
     )
-    def editor_approve(self):
+    def editor_approve(self) -> None:
         pass
 
     @transition(
@@ -841,11 +845,11 @@ class Evaluation(LoggedModel):
         target=State.APPROVED,
         conditions=[lambda self: self.general_contribution_has_questionnaires and self.has_decided_main_language],
     )
-    def manager_approve(self):
+    def manager_approve(self) -> None:
         pass
 
     @transition(field=state, target=State.NEW, conditions=[lambda self: self.can_reset_to_new])
-    def reset_to_new(self, *, delete_previous_answers: bool):
+    def reset_to_new(self, *, delete_previous_answers: bool) -> None:
         if delete_previous_answers:
             for answer_class in Answer.__subclasses__():
                 answer_class._default_manager.filter(contribution__evaluation=self).delete()
@@ -857,7 +861,7 @@ class Evaluation(LoggedModel):
         target=State.IN_EVALUATION,
         conditions=[lambda self: self.is_in_evaluation_period],
     )
-    def begin_evaluation(self):
+    def begin_evaluation(self) -> None:
         pass
 
     @transition(
@@ -866,27 +870,27 @@ class Evaluation(LoggedModel):
         target=State.IN_EVALUATION,
         conditions=[lambda self: self.is_in_evaluation_period],
     )
-    def reopen_evaluation(self):
+    def reopen_evaluation(self) -> None:
         pass
 
     @transition(field=state, source=State.IN_EVALUATION, target=State.EVALUATED)
-    def end_evaluation(self):
+    def end_evaluation(self) -> None:
         pass
 
     @transition(
         field=state, source=State.EVALUATED, target=State.REVIEWED, conditions=[lambda self: self.is_fully_reviewed]
     )
-    def end_review(self):
+    def end_review(self) -> None:
         pass
 
     @transition(
         field=state, source=State.REVIEWED, target=State.EVALUATED, conditions=[lambda self: not self.is_fully_reviewed]
     )
-    def reopen_review(self):
+    def reopen_review(self) -> None:
         pass
 
     @transition(field=state, source=State.REVIEWED, target=State.PUBLISHED)
-    def publish(self):
+    def publish(self) -> None:
         assert self._voter_count is None and self._participant_count is None
         self._voter_count = self.num_voters
         self._participant_count = self.num_participants
@@ -904,13 +908,13 @@ class Evaluation(LoggedModel):
             self.textanswer_set.update(original_answer=None)
 
     @transition(field=state, source=State.PUBLISHED, target=State.REVIEWED)
-    def unpublish(self):
+    def unpublish(self) -> None:
         assert self._voter_count == self.voters.count() and self._participant_count == self.participants.count()
         self._voter_count = None
         self._participant_count = None
 
     @property
-    def state_str(self):
+    def state_str(self) -> StrOrPromise:
         return Evaluation.State(self.state).label
 
     @cached_property
@@ -924,68 +928,68 @@ class Evaluation(LoggedModel):
             return None
 
     @cached_property
-    def num_voters(self):
+    def num_voters(self) -> int:
         if self._voter_count is not None:
             return self._voter_count
         return self.voters.count()
 
     @property
-    def voter_ratio(self):
+    def voter_ratio(self) -> float:
         if self.num_participants == 0:
             return 0
         return self.num_voters / self.num_participants
 
     @property
-    def due_participants(self):
+    def due_participants(self) -> "QuerySet[UserProfile]":
         return self.participants.exclude(pk__in=self.voters.all())
 
     @cached_property
-    def num_contributors(self):
+    def num_contributors(self) -> int:
         return UserProfile.objects.filter(contributions__evaluation=self).count()
 
     @property
-    def days_left_for_evaluation(self):
+    def days_left_for_evaluation(self) -> int:
         return (self.vote_end_date - date.today()).days
 
     @property
-    def display_time_left_for_evaluation(self):
+    def display_time_left_for_evaluation(self) -> timedelta:
         return self.display_vote_end_datetime - datetime.now()
 
     @property
-    def time_left_for_evaluation(self):
+    def time_left_for_evaluation(self) -> timedelta:
         return self.vote_end_datetime - datetime.now()
 
     @property
-    def display_hours_left_for_evaluation(self):
+    def display_hours_left_for_evaluation(self) -> float:
         return self.display_time_left_for_evaluation / timedelta(hours=1)
 
     @property
-    def hours_left_for_evaluation(self):
+    def hours_left_for_evaluation(self) -> float:
         return self.time_left_for_evaluation / timedelta(hours=1)
 
     @property
-    def ends_soon(self):
+    def ends_soon(self) -> bool:
         return 0 < self.time_left_for_evaluation.total_seconds() < settings.EVALUATION_END_WARNING_PERIOD * 3600
 
     @property
-    def days_until_evaluation(self):
+    def days_until_evaluation(self) -> int:
         days_left = (self.vote_start_datetime.date() - date.today()).days
         if self.vote_start_datetime < datetime.now():
             days_left -= 1
         return days_left
 
     @property
-    def hours_until_evaluation(self):
+    def hours_until_evaluation(self) -> float:
         return (self.vote_start_datetime - datetime.now()) / timedelta(hours=1)
 
-    def is_user_editor_or_delegate(self, user):
+    def is_user_editor_or_delegate(self, user: "UserProfile") -> bool:
         represented_users = user.represented_users.all() | UserProfile.objects.filter(pk=user.pk)
         return (
             self.contributions.filter(contributor__in=represented_users, role=Contribution.Role.EDITOR).exists()
             or self.course.responsibles.filter(pk__in=represented_users).exists()
         )
 
-    def is_user_responsible_or_contributor_or_delegate(self, user):
+    def is_user_responsible_or_contributor_or_delegate(self, user: "UserProfile") -> bool:
         # early out that saves database hits since is_responsible_or_contributor_or_delegate is a cached_property
         if not user.is_responsible_or_contributor_or_delegate:
             return False
@@ -995,33 +999,33 @@ class Evaluation(LoggedModel):
             or self.course.responsibles.filter(pk__in=represented_users).exists()
         )
 
-    def is_user_contributor(self, user):
+    def is_user_contributor(self, user: "UserProfile") -> bool:
         return self.contributions.filter(contributor=user).exists()
 
     @property
-    def textanswer_set(self):
+    def textanswer_set(self) -> "QuerySet[TextAnswer]":
         return TextAnswer.objects.filter(contribution__evaluation=self)
 
     @cached_property
-    def num_textanswers(self):
+    def num_textanswers(self) -> int:
         if not self.can_publish_text_results:
             return 0
         return self.textanswer_set.count()
 
     @property
-    def unreviewed_textanswer_set(self):
+    def unreviewed_textanswer_set(self) -> "QuerySet[TextAnswer]":
         return self.textanswer_set.filter(review_decision=TextAnswer.ReviewDecision.UNDECIDED)
 
     @property
-    def reviewed_textanswer_set(self):
+    def reviewed_textanswer_set(self) -> "QuerySet[TextAnswer]":
         return self.textanswer_set.exclude(review_decision=TextAnswer.ReviewDecision.UNDECIDED)
 
     @cached_property
-    def num_reviewed_textanswers(self):
+    def num_reviewed_textanswers(self) -> int:
         return self.reviewed_textanswer_set.count()
 
     @property
-    def textanswer_review_state(self):
+    def textanswer_review_state(self) -> "Evaluation.TextAnswerReviewState":
         if self.num_textanswers == 0:
             return self.TextAnswerReviewState.NO_TEXTANSWERS
 
@@ -1037,15 +1041,15 @@ class Evaluation(LoggedModel):
         return self.TextAnswerReviewState.REVIEW_NEEDED
 
     @property
-    def ratinganswer_counters(self):
+    def ratinganswer_counters(self) -> "QuerySet[RatingAnswerCounter]":
         return RatingAnswerCounter.objects.filter(contribution__evaluation=self)
 
     @property
-    def all_participants_are_external(self):
+    def all_participants_are_external(self) -> bool:
         return all(participant.is_external for participant in self.participants.all())
 
     @property
-    def grading_process_is_finished(self):
+    def grading_process_is_finished(self) -> bool:
         return (
             not self.wait_for_grade_upload_before_publishing
             or self.course.gets_no_grade_documents
@@ -1055,7 +1059,7 @@ class Evaluation(LoggedModel):
         )
 
     @classmethod
-    def update_evaluations(cls):
+    def update_evaluations(cls) -> None:
         logger.info("update_evaluations called. Processing evaluations now.")
 
         evaluations_new_in_evaluation = []
@@ -1096,7 +1100,9 @@ class Evaluation(LoggedModel):
         logger.info("update_evaluations finished.")
 
     @classmethod
-    def annotate_with_participant_and_voter_counts(cls, evaluation_query):
+    def annotate_with_participant_and_voter_counts(
+        cls, evaluation_query: "QuerySet[Evaluation]"
+    ) -> "QuerySet[Evaluation]":
         subquery = Evaluation.objects.filter(pk=OuterRef("pk"))
 
         participant_count_subquery = subquery.annotate(
@@ -1107,13 +1113,13 @@ class Evaluation(LoggedModel):
             num_voters=Coalesce("_voter_count", Count("voters")),
         ).values("num_voters")
 
-        return evaluation_query.annotate(
+        return evaluation_query.annotate(  # type: ignore[no-redef]
             num_participants=Subquery(participant_count_subquery),
             num_voters=Subquery(voter_count_subquery),
         )
 
     @property
-    def unlogged_fields(self):
+    def unlogged_fields(self) -> list[str]:
         return super().unlogged_fields + [
             "voters",
             "can_publish_text_results",
@@ -1187,7 +1193,7 @@ class Contribution(LoggedModel):
         verbose_name_plural = _("contributions")
 
     @property
-    def unlogged_fields(self):
+    def unlogged_fields(self) -> list[str]:
         return (
             super().unlogged_fields
             + ["evaluation"]
@@ -1195,19 +1201,19 @@ class Contribution(LoggedModel):
         )
 
     @property
-    def is_general(self):
+    def is_general(self) -> bool:
         return self.contributor_id is None
 
     @property
-    def object_to_attach_logentries_to(self):
+    def object_to_attach_logentries_to(self) -> tuple[type[Evaluation], int]:
         return Evaluation, self.evaluation_id
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.contributor:
             return _("Contribution by {full_name}").format(full_name=self.contributor.full_name)
         return str(_("General Contribution"))
 
-    def remove_answers_to_questionnaires(self, questionnaires):
+    def remove_answers_to_questionnaires(self, questionnaires: Iterable[Questionnaire]) -> None:
         assert set(Answer.__subclasses__()) == {TextAnswer, RatingAnswerCounter}
         TextAnswer.objects.filter(contribution=self, assignment__questionnaire__in=questionnaires).delete()
         RatingAnswerCounter.objects.filter(contribution=self, assignment__questionnaire__in=questionnaires).delete()
@@ -1286,7 +1292,7 @@ class Question(models.Model):
             )
         ]
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> None:
         if self.type in [QuestionType.TEXT, QuestionType.HEADING]:
             self.allows_additional_textanswers = False
             if "update_fields" in kwargs:
@@ -1295,7 +1301,7 @@ class Question(models.Model):
         super().save(*args, **kwargs)
 
     @property
-    def answer_class(self):
+    def answer_class(self) -> "builtins.type[Answer]":
         if self.is_text_question:
             return TextAnswer
         if self.is_rating_question:
@@ -1304,15 +1310,15 @@ class Question(models.Model):
         raise AssertionError(f"Unknown answer type: {self.type!r}")
 
     @property
-    def is_positive_likert_question(self):
+    def is_positive_likert_question(self) -> bool:
         return self.type == QuestionType.POSITIVE_LIKERT
 
     @property
-    def is_negative_likert_question(self):
+    def is_negative_likert_question(self) -> bool:
         return self.type == QuestionType.NEGATIVE_LIKERT
 
     @property
-    def is_bipolar_likert_question(self):
+    def is_bipolar_likert_question(self) -> bool:
         return self.type in (
             QuestionType.EASY_DIFFICULT,
             QuestionType.FEW_MANY,
@@ -1323,27 +1329,27 @@ class Question(models.Model):
         )
 
     @property
-    def is_text_question(self):
+    def is_text_question(self) -> bool:
         return self.type == QuestionType.TEXT
 
     @property
-    def is_grade_question(self):
+    def is_grade_question(self) -> bool:
         return self.type == QuestionType.GRADE
 
     @property
-    def is_positive_yes_no_question(self):
+    def is_positive_yes_no_question(self) -> bool:
         return self.type == QuestionType.POSITIVE_YES_NO
 
     @property
-    def is_negative_yes_no_question(self):
+    def is_negative_yes_no_question(self) -> bool:
         return self.type == QuestionType.NEGATIVE_YES_NO
 
     @property
-    def is_yes_no_question(self):
+    def is_yes_no_question(self) -> bool:
         return self.is_positive_yes_no_question or self.is_negative_yes_no_question
 
     @property
-    def is_rating_question(self):
+    def is_rating_question(self) -> bool:
         return (
             self.is_grade_question
             or self.is_bipolar_likert_question
@@ -1353,15 +1359,15 @@ class Question(models.Model):
         )
 
     @property
-    def is_non_grade_rating_question(self):
+    def is_non_grade_rating_question(self) -> bool:
         return self.is_rating_question and not self.is_grade_question
 
     @property
-    def is_heading_question(self):
+    def is_heading_question(self) -> bool:
         return self.type == QuestionType.HEADING
 
     @property
-    def can_have_textanswers(self):
+    def can_have_textanswers(self) -> bool:
         return self.is_text_question or self.is_rating_question and self.allows_additional_textanswers
 
 
@@ -1377,7 +1383,7 @@ class QuestionAssignment(models.Model):
 
 @receiver(post_delete, sender=QuestionAssignment)
 @transaction.atomic
-def _question_assignment_post_delete(*, instance: QuestionAssignment, **_kwargs) -> None:
+def _question_assignment_post_delete(*, instance: QuestionAssignment, **_kwargs: Any) -> None:
     """Garbage-collect unused questions once no questionnaires reference them anymore."""
 
     if not QuestionAssignment.objects.filter(question=instance.question.pk).exists():
@@ -1387,13 +1393,13 @@ def _question_assignment_post_delete(*, instance: QuestionAssignment, **_kwargs)
 @dataclass
 class Choices:
     css_class: str
-    values: tuple[Real]
+    values: tuple[int]
     colors: tuple[str]
-    grades: tuple[Real]
+    grades: tuple[int]
     names: list[StrOrPromise]
     is_inverted: bool
 
-    def as_name_color_value_tuples(self):
+    def as_name_color_value_tuples(self) -> "Iterable[tuple[StrOrPromise, str, int]]":
         return zip(self.names, self.colors, self.values, strict=True)
 
 
@@ -1655,29 +1661,29 @@ class TextAnswer(Answer):
         ]
 
     @property
-    def will_be_deleted(self):
+    def will_be_deleted(self) -> bool:
         return self.review_decision == self.ReviewDecision.DELETED
 
     @property
-    def will_be_private(self):
+    def will_be_private(self) -> bool:
         return self.review_decision == self.ReviewDecision.PRIVATE
 
     @property
-    def will_be_public(self):
+    def will_be_public(self) -> bool:
         return self.review_decision == self.ReviewDecision.PUBLIC
 
     # Once evaluation results are published, the review decision is executed
     # and thus, an answer _is_ private or _is_ public from that point on.
     @property
-    def is_public(self):
+    def is_public(self) -> bool:
         return self.will_be_public
 
     @property
-    def is_private(self):
+    def is_private(self) -> bool:
         return self.will_be_private
 
     @property
-    def is_reviewed(self):
+    def is_reviewed(self) -> bool:
         return self.review_decision != self.ReviewDecision.UNDECIDED
 
 
@@ -1722,7 +1728,7 @@ class NotHalfEmptyConstraint(CheckConstraint):
 
     fields: list[str] = []
 
-    def __init__(self, *, fields: list[str], name: str, **kwargs):
+    def __init__(self, *, fields: list[str], name: str, **kwargs: Any) -> None:
         self.fields = fields
         assert "condition" not in kwargs
 
@@ -1826,31 +1832,31 @@ class EvapBaseUser(models.Model):
     class Meta:
         abstract = True
 
-    def get_username(self):
+    def get_username(self) -> str:
         # required for django-webtest. See https://github.com/django-webtest/django-webtest/issues/134.
         return getattr(self, self.USERNAME_FIELD)
 
     @property
-    def is_anonymous(self):
+    def is_anonymous(self) -> bool:
         # django.contrib.auth.checks requires this to be MethodType
         return False
 
     @property
-    def is_authenticated(self):
+    def is_authenticated(self) -> bool:
         return True
 
-    def set_password(self, raw_password):
+    def set_password(self, raw_password: str | None) -> None:
         self.password = make_password(raw_password)
 
-    def check_password(self, raw_password):
-        def setter(raw_password):
+    def check_password(self, raw_password: str | None) -> bool:
+        def setter(raw_password: str) -> None:
             self.set_password(raw_password)
             # Password hash upgrades shouldn't be considered password changes.
             self.save(update_fields=["password"])
 
         return check_password(raw_password, self.password, setter)
 
-    def has_usable_password(self):
+    def has_usable_password(self) -> bool:
         return is_password_usable(self.password)
 
 
@@ -1933,10 +1939,10 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS: list[str] = ["first_name_given", "last_name"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.full_name
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> None:
         # This is not guaranteed to be called on every insert. For example, the importers use bulk insertion.
 
         if self.has_usable_password() and not password_login_is_active():
@@ -1948,10 +1954,10 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
         super().save(*args, **kwargs)
 
     @property
-    def first_name(self):
+    def first_name(self) -> str:
         return self.first_name_chosen or self.first_name_given
 
-    def ordering_key(self):
+    def ordering_key(self) -> tuple[str, str, str]:
         # keep in sync with Meta.ordering
         lower_last_name = (self.last_name or "").lower()
         lower_first_name = (self.first_name or "").lower()
@@ -1959,7 +1965,7 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
         return (lower_last_name, lower_first_name, lower_email)
 
     @property
-    def full_name(self):
+    def full_name(self) -> str:
         if self.last_name:
             name = self.last_name
             if self.first_name:
@@ -1976,35 +1982,35 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
         return name
 
     @property
-    def full_name_with_additional_info(self):
+    def full_name_with_additional_info(self) -> str:
         name = self.full_name
         if self.is_external:
             return name + " [ext.]"
         return f"{name} ({self.email})"
 
     @cached_property
-    def is_staff(self):
+    def is_staff(self) -> bool:
         return self.is_manager or self.is_reviewer
 
     # Required for staff mode to work, since several other cached properties (including is_staff) are overwritten
     @property
-    def has_staff_permission(self):
+    def has_staff_permission(self) -> bool:
         return self.groups.filter(name="Manager").exists() or self.groups.filter(name="Reviewer").exists()
 
     @cached_property
-    def is_manager(self):
+    def is_manager(self) -> bool:
         return self.groups.filter(name="Manager").exists()
 
     @cached_property
-    def is_reviewer(self):
+    def is_reviewer(self) -> bool:
         return self.is_manager or self.groups.filter(name="Reviewer").exists()
 
     @cached_property
-    def is_grade_publisher(self):
+    def is_grade_publisher(self) -> bool:
         return self.groups.filter(name="Grade publisher").exists()
 
     @property
-    def can_be_marked_inactive_by_manager(self):
+    def can_be_marked_inactive_by_manager(self) -> bool:
         if self.is_reviewer or self.is_grade_publisher or self.is_superuser:
             return False
         if any(not evaluation.participations_are_archived for evaluation in self.evaluations_participating_in.all()):
@@ -2016,7 +2022,7 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
         return True
 
     @property
-    def can_be_deleted_by_manager(self):
+    def can_be_deleted_by_manager(self) -> bool:
         if (
             self.is_responsible
             or self.is_contributor
@@ -2032,11 +2038,11 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
         return True
 
     @cached_property
-    def is_participant(self):
+    def is_participant(self) -> bool:
         return self.evaluations_participating_in.exists()
 
     @cached_property
-    def is_student(self):
+    def is_student(self) -> bool:
         """
         A UserProfile is not considered to be a student anymore if the
         newest contribution is newer than the newest participation.
@@ -2059,37 +2065,37 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
         return last_semester_participated.created_at >= last_semester_contributed.created_at
 
     @cached_property
-    def is_contributor(self):
+    def is_contributor(self) -> bool:
         return self.contributions.exists()
 
     @cached_property
-    def is_editor(self):
+    def is_editor(self) -> bool:
         return self.contributions.filter(role=Contribution.Role.EDITOR).exists() or self.is_responsible
 
     @cached_property
-    def is_responsible(self):
+    def is_responsible(self) -> bool:
         return self.courses_responsible_for.exists()
 
     @cached_property
-    def is_delegate(self):
+    def is_delegate(self) -> bool:
         return self.represented_users.exists()
 
     @cached_property
-    def is_editor_or_delegate(self):
+    def is_editor_or_delegate(self) -> bool:
         return self.is_editor or self.is_delegate
 
     @cached_property
-    def is_responsible_or_contributor_or_delegate(self):
+    def is_responsible_or_contributor_or_delegate(self) -> bool:
         return self.is_responsible or self.is_contributor or self.is_delegate
 
     @cached_property
-    def show_startpage_button(self):
+    def show_startpage_button(self) -> bool:
         return [self.is_participant, self.is_responsible_or_contributor_or_delegate, self.is_grade_publisher].count(
             True
         ) > 1
 
     @property
-    def is_external(self):
+    def is_external(self) -> bool:
         if self.is_proxy_user and not self.email:
             return False
         if not self.email:
@@ -2097,11 +2103,11 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
         return is_external_email(self.email)
 
     @property
-    def can_download_grades(self):
+    def can_download_grades(self) -> bool:
         return not self.is_external
 
     @staticmethod
-    def email_needs_login_key(email):
+    def email_needs_login_key(email: str) -> bool:
         return is_external_email(email)
 
     @property
@@ -2123,29 +2129,29 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
                 # unique constraint failed, the login key was already in use. Generate another one.
                 continue
 
-    def reset_login_key_validity(self):
+    def reset_login_key_validity(self) -> None:
         self.login_key_valid_until = date.today() + timedelta(settings.LOGIN_KEY_VALIDITY)
         self.save()
 
     @property
-    def login_url(self):
+    def login_url(self) -> str:
         if not self.needs_login_key:
             return ""
         return settings.PAGE_URL + reverse("evaluation:login_key_authentication", args=[self.login_key])
 
-    def get_sorted_courses_responsible_for(self):
+    def get_sorted_courses_responsible_for(self) -> QuerySet[Course]:
         return self.courses_responsible_for.order_by("semester__created_at", "name_de")
 
-    def get_sorted_contributions(self):
+    def get_sorted_contributions(self) -> QuerySet[Contribution]:
         return self.contributions.order_by("evaluation__course__semester__created_at", "evaluation__name_de")
 
-    def get_sorted_evaluations_participating_in(self):
+    def get_sorted_evaluations_participating_in(self) -> QuerySet[Evaluation]:
         return self.evaluations_participating_in.order_by("course__semester__created_at", "name_de")
 
-    def get_sorted_evaluations_voted_for(self):
+    def get_sorted_evaluations_voted_for(self) -> QuerySet[Evaluation]:
         return self.evaluations_voted_for.order_by("course__semester__created_at", "name_de")
 
-    def get_sorted_due_evaluations(self):
+    def get_sorted_due_evaluations(self) -> list[tuple[Evaluation, int]]:
         evaluations_and_days_left = (
             (evaluation, evaluation.days_left_for_evaluation)
             for evaluation in Evaluation.objects.filter(
@@ -2155,7 +2161,7 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
         return sorted(evaluations_and_days_left, key=lambda tup: (tup[1], tup[0].full_name))
 
 
-def validate_template(value):
+def validate_template(value: str) -> None:
     """Field validator which ensures that the value can be compiled into a
     Django Template."""
     try:
@@ -2250,7 +2256,7 @@ class EmailTemplate(models.Model):
         evaluations: Iterable[Evaluation],
         recipient_groups: Container[Recipients],
         use_cc: bool,
-        request: HttpRequest,
+        request: HttpRequest | None,
     ) -> None:
         user_evaluation_map: dict[UserProfile, list[Evaluation]] = {}
         for evaluation in evaluations:

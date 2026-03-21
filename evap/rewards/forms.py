@@ -1,5 +1,7 @@
+from collections.abc import Generator
 from contextlib import contextmanager
 from datetime import date
+from typing import Any
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -9,6 +11,7 @@ from django.utils.translation import gettext as _
 from evap.evaluation.models import UserProfile
 from evap.rewards.models import RewardPointRedemption, RewardPointRedemptionEvent
 from evap.rewards.tools import reward_points_of_user
+from evap.tools import assert_not_none
 
 
 class RewardPointRedemptionEventForm(forms.ModelForm):
@@ -39,7 +42,7 @@ class RewardPointRedemptionForm(forms.Form):
             help_text=help_text,
         )
 
-    def clean_event(self):
+    def clean_event(self) -> RewardPointRedemptionEvent:
         event = self.cleaned_data["event"]
         if event.redeem_end_date < date.today():
             raise ValidationError(_("Sorry, the deadline for this event expired already."))
@@ -52,7 +55,7 @@ class BaseRewardPointRedemptionFormSet(forms.BaseFormSet):
         self.user = user
         self.locked = False
 
-    def get_form_kwargs(self, index):
+    def get_form_kwargs(self, index: int | None) -> dict[str, Any]:
         kwargs = super().get_form_kwargs(index)
         if not self.initial:
             return kwargs
@@ -61,7 +64,7 @@ class BaseRewardPointRedemptionFormSet(forms.BaseFormSet):
         return kwargs
 
     @contextmanager
-    def lock(self):
+    def lock(self) -> Generator:
         with transaction.atomic():
             # lock these rows to prevent race conditions
             list(self.user.reward_point_grantings.select_for_update())
@@ -73,7 +76,7 @@ class BaseRewardPointRedemptionFormSet(forms.BaseFormSet):
             finally:
                 self.locked = False
 
-    def clean(self):
+    def clean(self) -> None:
         assert self.locked
 
         if any(self.errors):

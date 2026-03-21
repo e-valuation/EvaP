@@ -4,11 +4,13 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
+from django.http import HttpRequest
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.debug import sensitive_variables
 
 from evap.evaluation.models import Evaluation, UserProfile
 from evap.results.tools import STATES_WITH_RESULTS_CACHING, cache_results
+from evap.tools import assert_not_none
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +21,7 @@ class LoginEmailForm(forms.Form):
     email = forms.CharField(label=_("Email"), max_length=254, widget=forms.EmailInput(attrs={"autofocus": True}))
     password = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
 
-    def __init__(self, request, *args, **kwargs):
+    def __init__(self, request: HttpRequest, *args, **kwargs) -> None:
         """
         If request is passed in, the form will validate that cookies are
         enabled. Note that the request (a HttpRequest object) must have set a
@@ -27,7 +29,7 @@ class LoginEmailForm(forms.Form):
         running this validation.
         """
         self.request = request
-        self.user_cache = None
+        self.user_cache: UserProfile | None = None
         super().__init__(*args, **kwargs)
 
     @sensitive_variables("password")
@@ -44,26 +46,26 @@ class LoginEmailForm(forms.Form):
         self.check_for_test_cookie()
         return password
 
-    def check_for_test_cookie(self):
+    def check_for_test_cookie(self) -> None:
         if self.request and not self.request.session.test_cookie_worked():
             raise forms.ValidationError(
                 _("Your Web browser doesn't appear to have cookies enabled. Cookies are required for logging in.")
             )
 
-    def get_user_id(self):
+    def get_user_id(self) -> int | None:
         if self.user_cache:
             return self.user_cache.id
         return None
 
-    def get_user(self):
+    def get_user(self) -> UserProfile | None:
         return self.user_cache
 
 
 class NewKeyForm(forms.Form):
     email = forms.EmailField(label=_("Email address"))
 
-    def __init__(self, *args, **kwargs):
-        self.user_cache = None
+    def __init__(self, *args, **kwargs) -> None:
+        self.user_cache: UserProfile | None = None
 
         super().__init__(*args, **kwargs)
 
@@ -90,19 +92,19 @@ class NewKeyForm(forms.Form):
 
         return email
 
-    def get_user(self):
+    def get_user(self) -> UserProfile | None:
         return self.user_cache
 
 
 class UserModelChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
+    def label_from_instance(self, obj: UserProfile) -> str:
         return obj.full_name_with_additional_info
 
 
 class UserModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     widget = forms.SelectMultiple(attrs={"data-tomselect-fullwidth": ""})
 
-    def label_from_instance(self, obj):
+    def label_from_instance(self, obj: UserProfile) -> str:
         return obj.full_name_with_additional_info
 
 
@@ -118,12 +120,12 @@ class ProfileForm(forms.ModelForm):
             "delegates": UserModelMultipleChoiceField,
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         for field in ("title", "first_name_given", "last_name", "email"):
             self.fields[field].disabled = True
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> None:
         super().save(*args, **kwargs)
 
         if "first_name_chosen" in self.changed_data:
@@ -138,7 +140,7 @@ class ProfileForm(forms.ModelForm):
 
         logger.info('User "%s" edited the settings.', self.instance.email)
 
-    def clean_first_name_chosen(self):
+    def clean_first_name_chosen(self) -> str:
         name = self.cleaned_data["first_name_chosen"]
 
         for character in name:
@@ -149,7 +151,7 @@ class ProfileForm(forms.ModelForm):
 
 
 class NotebookForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.fields["notes"].widget.attrs.update({"class": "notebook-textarea"})
 
