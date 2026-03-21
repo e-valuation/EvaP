@@ -163,7 +163,7 @@ class TestHelperMethods(TestCase):
 
     def test_discard_cached_related_objects_discards_cached_m2m_reverse_instances(self):
         user = baker.make(UserProfile)
-        baker.make(Evaluation, participants=[user], _quantity=2)
+        baker.make(Evaluation, participants=[user], _quantity=2, _bulk_create=True)
 
         # Reverse M2M fields are not implicitly cached
         with self.assertNumQueries(1):

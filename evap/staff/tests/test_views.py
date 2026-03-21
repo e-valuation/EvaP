@@ -964,6 +964,7 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
             course__responsibles=[cls.responsible],
             course__type=iter(cls.course_types),
             _quantity=3,
+            _bulk_create=True,
         )
         cls.exam_evaluations = [
             baker.make(
@@ -3129,7 +3130,9 @@ class TestSemesterFlaggedTextAnswersView(WebTestStaffMode):
 
         manager = make_manager()
         student = baker.make(UserProfile)
-        evaluations = baker.make(Evaluation, course__semester=semester, participants=[student], _quantity=3)
+        evaluations = baker.make(
+            Evaluation, course__semester=semester, participants=[student], _quantity=3, _bulk_create=True
+        )
         textanswers = [
             [baker.make(TextAnswer, answer=f"Answer {i} {j}", contribution__evaluation=evaluation) for j in range(3)]
             for i, evaluation in enumerate(evaluations)
