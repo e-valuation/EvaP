@@ -24,6 +24,7 @@ from django.db.models import (
     OuterRef,
     Prefetch,
     Q,
+    QuerySet,
     Sum,
     When,
 )
@@ -73,6 +74,7 @@ from evap.evaluation.tools import (
     sort_formset,
     temporary_receiver,
 )
+from evap.evaluation.views import UserProfileSearchView
 from evap.grades.models import GradeDocument
 from evap.results.exporters import ResultsExporter
 from evap.results.tools import TextResult, calculate_average_distribution, distribution_to_grade
@@ -2693,3 +2695,27 @@ def enter_staff_mode(request):
 def exit_staff_mode(request):
     staff_mode.exit_staff_mode(request)
     return redirect("evaluation:index")
+
+
+@staff_permission_required
+class ParticipantsUserProfileSearchView(UserProfileSearchView):
+    def search(self, query, request, *args, **kwargs) -> QuerySet[UserProfile]:
+        evaluation = get_object_or_404(Evaluation, id=kwargs["evaluation"]) if kwargs.get("evaluation") else None
+        return (
+            super()
+            .search(query, request, *args, **kwargs)
+            .filter(pk__in=EvaluationForm.get_participants_queryset(evaluation))
+        )
+
+
+@staff_permission_required
+class ContributorUserProfileSearchView(UserProfileSearchView):
+    def search(self, query, request, *args, **kwargs) -> QuerySet[UserProfile]:
+        return (
+            super().search(query, request, *args, **kwargs).filter(pk__in=ContributionForm.get_contributor_queryset())
+        )
+
+
+@staff_permission_required
+class AllUserProfileSearchView(UserProfileSearchView):
+    pass
