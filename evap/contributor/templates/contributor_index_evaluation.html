@@ -1,0 +1,106 @@
+{% load evaluation_filters %}
+<!-- TODO-RK: Enable clicking on evaluations -->
+<div{% if evaluation|is_user_editor_or_delegate:user and evaluation.state == evaluation.State.PREPARED %}
+        class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} contributor-grid-row hover-row hover-row-info" href="{% url 'contributor:evaluation_edit' evaluation.id %}"
+    {% elif evaluation.state == evaluation.State.PUBLISHED and evaluation|can_results_page_be_seen_by:user %}
+        class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} contributor-grid-row hover-row" href="{% url 'results:evaluation_detail' semester.id evaluation.id %}"
+    {% else %}
+        class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} contributor-grid-row"
+    {% endif %}>
+    <div data-col="name" data-order="{{ evaluation.course.name|lower }}">
+        <div class="evaluation-name">
+            {% if evaluation.delegated_evaluation %}
+                <span class="text-secondary" data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="{% translate 'You are a delegate of a contributor who can edit the evaluation.' %}">
+                    <span class="fas fa-fw fa-people-arrows-left-right"></span>
+                </span>
+            {% elif evaluation.contributes_to %}
+                <span class="text-primary" data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="{% translate 'You are listed as a contributor for this evaluation.' %}">
+                    <span class="fas fa-person-chalkboard"></span>
+                </span>
+            {% else %}
+                <span class="text-secondary" data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="{% translate 'You are not listed as a contributor for this evaluation.' %}">
+                    <span class="fas fa-user-slash"></span>
+                </span>
+            {% endif %}
+            {% if course.evaluation_count > 1 %}
+                {% if evaluation.name %}
+                    {{ evaluation.name }}
+                {% else %}
+                    {{ course.name }}
+                {% endif %}
+            {% else %}
+                {{ evaluation.full_name }}
+            {% endif %}
+        </div>
+        {% if course.evaluation_count == 1 %}
+            {% include 'evaluation_badges.html' with mode='contributor' %}
+        {% else %}
+            {% if evaluation.is_midterm_evaluation %}<span class="badge bg-dark">{% translate 'Midterm evaluation' %}</span>{% endif %}
+        {% endif %}
+    </div>
+    <div data-col="state">
+        <span data-bs-toggle="tooltip" data-bs-placement="left" title="{{ evaluation.state|statedescription }}">{{ evaluation.state|statename }}</span>
+    </div>
+    <div data-col="period">
+        {{ evaluation.vote_start_datetime }} &ndash;<br />
+        {{ evaluation.vote_end_date }}<br />
+    </div>
+    <div data-col="voters" class="text-center">
+        {% if evaluation.state >= evaluation.State.IN_EVALUATION %}
+            {% include 'progress_bar.html' with done=evaluation.num_voters total=evaluation.num_participants %}
+        {% else %}
+            <span class="fas fa-user"></span> {{ evaluation.num_participants }}
+        {% endif %}
+    </div>
+    <div data-col="results" class="text-end">
+        {% if evaluation.state != evaluation.State.PUBLISHED %}
+            {% if evaluation|is_user_editor_or_delegate:user %}
+                {% if evaluation.state == evaluation.State.PREPARED %}
+                    <a href="{% url 'contributor:evaluation_edit' evaluation.id %}" class="btn btn-primary btn-row-hover"
+                        data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Edit or approve' %}">
+                        <span class="fas fa-pencil"></span>
+                    </a>
+                    {% if not evaluation|has_nonresponsible_editor %}
+                        <form class="d-inline" method="POST" action="{% url 'contributor:evaluation_direct_delegation' evaluation.id %}">
+                            {% csrf_token %}
+
+                            <confirmation-modal type="submit">
+                                <span slot="title">{% translate 'Delegate preparation' %}</span>
+                                <span slot="action-text">{% translate 'Delegate preparation' %}</span>
+                                <span slot="question">
+                                    {% blocktranslate trimmed %}Do you really want to delegate the preparation of the evaluation <strong>{{ evaluation }}</strong>?{% endblocktranslate %}
+                                </span>
+                                <div slot="extra-inputs">
+                                    <div class="my-4">
+                                        {% include 'bootstrap_form.html' with form=delegate_selection_form plain=True %}
+                                    </div>
+                                </div>
+
+                                <button slot="show-button" type="button" class="btn btn-sm btn-dark" title="{% translate 'Delegate preparation' %}" data-bs-toggle="tooltip" data-bs-placement="top">
+                                    <span class="fas fa-hand-point-left"></span>
+                                </button>
+                            </confirmation-modal>
+                        </form>
+                    {% endif %}
+                {% elif evaluation.state == evaluation.State.EDITOR_APPROVED or evaluation.state == evaluation.State.APPROVED %}
+                    <a href="{% url 'contributor:evaluation_view' evaluation.id %}" class="btn btn-sm btn-light"
+                        data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="{% translate 'You already approved the evaluation, the edit form will be disabled.' %}">
+                        <span class="fas fa-pencil"></span>
+                    </a>
+                {% endif %}
+            {% endif %}
+            {% if evaluation|is_user_responsible_or_contributor_or_delegate:user %}
+                <a href="{% url 'contributor:evaluation_preview' evaluation.id %}" class="btn btn-sm btn-light"
+                    data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Preview' %}">
+                    <span class="fas fa-eye"></span>
+                </a>
+            {% endif %}
+        {% elif evaluation.state == evaluation.State.PUBLISHED %}
+            {% include 'evaluation_result_widget.html' with course_or_evaluation=evaluation %}
+        {% endif %}
+    </div>
+</div>
