@@ -69,27 +69,19 @@
                 </div>
             {% endif %}
         </div>
+    </form>
 
-        <div class="row row-cols-1 {% if user.is_editor %}row-cols-md-1{% else %}row-cols-md-2{% endif %} g-4">
-            <div class="col">
-                <div class="card card-submit-area card-submit-area-2 text-center">
-                    <div class="card-body tab-row">
-                        <button type="submit" class="btn btn-primary">
-                            {% translate 'Save' %}
-                        </button>
-                        <button type="button" class="btn btn-light" id="changeRequestModalShowButton">
-                            {% translate 'Request changes' %}
-                        </button>
-                    </div>
-                </div>
+    <div class="row row-cols-1 {% if user.is_editor %}row-cols-md-1{% else %}row-cols-md-2{% endif %} g-4">
+        <div class="card card-submit-area card-submit-area-2">
+            <div class="card-body tab-row d-flex justify-content-center">
+                <button type="submit" class="btn btn-primary">
+                    {% translate 'Save' %}
+                </button>
+                {% translate 'Request user setting changes' as title %}
+                {% translate 'Please tell us which of your settings we should change.' as teaser %}
+                {% translate "Request changes" as show_button_text %}
+                {% include 'contact_modal.html' with modal_id='requestChangesModal' user=request.user title=title teaser=teaser show_button_text=show_button_text show_button_class="btn btn-light"%}
             </div>
         </div>
-    </form>
-{% endblock %}
-
-{% block modals %}
-    {{ block.super }}
-    {% translate 'Request user setting changes' as title %}
-    {% translate 'Please tell us which of your settings we should change.' as teaser %}
-    {% include 'contact_modal.html' with modal_id='changeRequestModal' user=request.user title=title teaser=teaser %}
+    </div>
 {% endblock %}
