@@ -1,0 +1,31 @@
+{% extends 'staff_base.html' %}
+
+{% block title %}
+   {% translate 'Merge evaluations' %}
+    {{ block.super }}
+{% endblock %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    <li class="breadcrumb-item">{% translate 'Merge evaluations' %}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <h3>{% translate 'Merge evaluations' %}</h3>
+
+    <form id="evaluation-merge-form" method="POST" class="form-horizontal">
+        {% csrf_token %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <p>{% translate 'Select the evaluations you want to merge. This will copy all participants and contributors, and will update the CMS links. Warning: This operation cannot be reverted in the UI.' %}</p>
+                {% include 'bootstrap_form.html' with form=form %}
+            </div>
+        </div>
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
+                <button type="submit" class="btn btn-warning">{% translate 'Merge' %}</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}
