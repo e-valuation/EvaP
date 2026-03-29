@@ -927,7 +927,7 @@ def semester_questionnaire_assign(request, semester_id):
                 )
 
             if general_questionnaires:
-                evaluation.general_contribution.questionnaires.set(general_questionnaires)
+                evaluation.ensure_general_contribution().questionnaires.set(general_questionnaires)
 
             if contributor_questionnaires:
                 for contribution in evaluation.contributions.exclude(contributor=None):

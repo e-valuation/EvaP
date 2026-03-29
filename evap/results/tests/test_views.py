@@ -190,12 +190,13 @@ class TestResultsView(WebTest):
             participants=participants,
             voters=participants,
             _quantity=3,
+            _bulk_create=True,
             _fill_optional=["name_de"],
         )[1:]
 
         questionnaire = baker.make(Questionnaire)
 
-        contributions = [e.general_contribution for e in published]
+        contributions = [e.ensure_general_contribution() for e in published]
         for contribution in contributions:
             contribution.questionnaires.add(questionnaire)
         baker.make(
