@@ -406,7 +406,7 @@ class TestCalculateAverageDistribution(TestCase):
 
     def test_calculate_average_course_distribution(self):
         make_rating_answer_counters(self.grade_assignment, self.contribution1, [2, 0, 0, 0, 0])
-        students = baker.make(UserProfile, _quantity=3)
+        students = baker.make(UserProfile, _quantity=3, _bulk_create=True)
 
         course = self.evaluation.course
         second_evaluation = baker.make(

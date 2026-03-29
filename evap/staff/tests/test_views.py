@@ -596,6 +596,7 @@ class TestUserExportView(WebTestStaffMode):
         baker.make(
             UserProfile,
             _quantity=5,
+            _bulk_create=True,
             _fill_optional=["first_name_given", "last_name", "email"],
             title=iter(("", "Some", "Custom", "Titles", "")),
         )
@@ -952,12 +953,12 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
 
         cls.responsible = baker.make(UserProfile)
 
-        cls.questionnaires = baker.make(Questionnaire, type=Questionnaire.Type.TOP, _quantity=4)
+        cls.questionnaires = baker.make(Questionnaire, type=Questionnaire.Type.TOP, _quantity=4, _bulk_create=True)
         cls.questionnaire_contributor, cls.questionnaire_responsible = baker.make(
-            Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, _quantity=2
+            Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, _quantity=2, _bulk_create=True
         )
-        cls.course_types = baker.make(CourseType, _quantity=3)
-        cls.exam_types = baker.make(ExamType, _quantity=3)
+        cls.course_types = baker.make(CourseType, _quantity=3, _bulk_create=True)
+        cls.exam_types = baker.make(ExamType, _quantity=3, _bulk_create=True)
         cls.evaluations = baker.make(
             Evaluation,
             course__semester=semester,
@@ -982,6 +983,7 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
             role=Contribution.Role.EDITOR,
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
             _quantity=3,
+            _bulk_create=True,
         )
 
     def test_questionnaire_assignment(self):
@@ -1105,6 +1107,7 @@ class TestGradeReminderView(WebTestStaffMode):
             wait_for_grade_upload_before_publishing=True,
             _fill_optional=["name_de", "name_en"],
             _quantity=2,
+            _bulk_create=True,
         )
         cls.course2_evaluation = baker.make(
             Evaluation,
@@ -2030,7 +2033,7 @@ class TestEvaluationExamCreation(WebTestStaffMode):
         cls.course = baker.make(Course)
         vote_start_datetime = datetime.datetime.now() - datetime.timedelta(days=50)
         cls.evaluation = baker.make(Evaluation, course=cls.course, vote_start_datetime=vote_start_datetime)
-        cls.evaluation.participants.set(baker.make(UserProfile, _quantity=3))
+        cls.evaluation.participants.set(baker.make(UserProfile, _quantity=3, _bulk_create=True))
         cls.contributions = baker.make(
             Contribution, evaluation=cls.evaluation, _fill_optional=["contributor"], _quantity=3, _bulk_create=True
         )
@@ -2306,6 +2309,7 @@ class TestEvaluationEditView(WebTestStaffMode):
             evaluations_participating_in=[self.evaluation, already_evaluated],
             evaluations_voted_for=[already_evaluated],
             _quantity=5,
+            _bulk_create=True,
         )
 
         page = self.app.get(self.url, user=self.manager)
@@ -2332,6 +2336,7 @@ class TestEvaluationEditView(WebTestStaffMode):
             evaluations_participating_in=[self.evaluation, already_evaluated],
             evaluations_voted_for=[already_evaluated],
             _quantity=4,
+            _bulk_create=True,
         )
         baker.make(
             RewardPointGranting,
@@ -2464,6 +2469,7 @@ class TestEvaluationDeleteView(WebTestStaffMode):
             evaluations_participating_in=[self.evaluation, already_evaluated],
             evaluations_voted_for=[already_evaluated],
             _quantity=5,
+            _bulk_create=True,
         )
 
         self.assertEqual(reward_points_of_user(student), 0)
@@ -2978,6 +2984,7 @@ class TestEvaluationTextAnswerView(WebTest):
             vote_end_date=datetime.date.today() - datetime.timedelta(days=2),
             can_publish_text_results=True,
             _quantity=2,
+            _bulk_create=True,
         )
 
         for evaluation, answer_count in zip(evaluations, [1, 2], strict=True):
@@ -2987,6 +2994,7 @@ class TestEvaluationTextAnswerView(WebTest):
                 contribution=contribution,
                 assignment__question__type=QuestionType.TEXT,
                 _quantity=answer_count,
+                _bulk_create=True,
             )
 
         url = reverse("staff:evaluation_textanswers", args=[self.evaluation2.pk])

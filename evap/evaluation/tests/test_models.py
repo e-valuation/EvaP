@@ -721,6 +721,7 @@ class TestUserProfile(TestCase):
             state=Evaluation.State.IN_EVALUATION,
             participants=[student],
             _quantity=3,
+            _bulk_create=True,
         )
 
         sorted_evaluations = student.get_sorted_due_evaluations()
@@ -1017,7 +1018,7 @@ class TestEmailTemplate(TestCase):
         responsible1 = baker.make(UserProfile)
         responsible2 = baker.make(UserProfile)
 
-        students = baker.make(UserProfile, _quantity=3)
+        students = baker.make(UserProfile, _quantity=3, _bulk_create=True)
         evaluation1 = baker.make(
             Evaluation, course__responsibles=[responsible1], participants=students, voters=students
         )
