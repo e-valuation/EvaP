@@ -44,6 +44,7 @@ class ResultsExporter(ExcelExporter):
         "average": xlwt.easyxf(
             "alignment: horiz centre, wrap on, rota 90; borders: left medium, top medium, right medium, bottom medium; font: italic on"
         ),
+        "missing_average": xlwt.Style.default_style,
         "total_voters": xlwt.easyxf("alignment: horiz centre; borders: left medium, right medium"),
         "evaluation_rate": xlwt.easyxf("alignment: horiz centre; borders: left medium, bottom medium, right medium"),
         "evaluation_weight": xlwt.easyxf("alignment: horiz centre; borders: left medium, right medium"),
