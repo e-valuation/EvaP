@@ -3307,6 +3307,12 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
             "Dropout questionnaires should not be changeable to different types",
         )
 
+    def test_used_questionnaire_disables_custom_checkboxes(self):
+        page = self.app.get(self.url, user=self.manager)
+        form = page.forms["questionnaire-form"]
+        self.assertIn("disabled", form["questions-0-allows_additional_textanswers"].attrs)
+        self.assertIn("disabled", form["questions-0-counts_for_grade"].attrs)
+
 
 class TestQuestionnaireViewView(WebTestStaffModeWith200Check):
     @classmethod
