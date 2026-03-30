@@ -968,8 +968,7 @@ def semester_preparation_reminder(request: HttpRequest, semester_id: int) -> Htt
     prepared_evaluations = semester.evaluations.filter(state=Evaluation.State.PREPARED)
     responsibles = UserProfile.objects.filter(courses_responsible_for__evaluations__in=prepared_evaluations).distinct()
     if internal_only:
-        responsibles = [responsible for responsible in responsibles if not responsible.is_external]
-
+        responsibles = responsibles.exclude(pk__in=[r.pk for r in responsibles if r.is_external])
 
     responsible_list = [
         (
