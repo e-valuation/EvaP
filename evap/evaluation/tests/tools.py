@@ -365,6 +365,15 @@ class LiveServerTest(SeleniumTestCase):
         super().setUpClass()
         cls.selenium.set_window_size(*cls.window_size)
 
+    def set_page_language(self, language: str):
+        with self.wait_until_page_reloads():
+            language_button = self.selenium.find_element(
+                By.XPATH,
+                f"//form[@action='/set_lang']//button[@data-set-spinner-icon='span-set-language-{language}']//parent::form",
+            )
+
+            language_button.submit()
+
 
 def classes_of_element(element: WebElement) -> list[str]:
     classes = element.get_attribute("class")
