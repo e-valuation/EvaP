@@ -264,7 +264,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
 
         baker.make(
             TextAnswer,
-            question=question1,
+            assignment__question=question1,
             contribution=contribution1,
             answer=iter(f"this is a dummy answer {i}" for i in range(3)),
             original_answer=None,
@@ -274,7 +274,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
 
         textanswer1 = baker.make(
             TextAnswer,
-            question=question1,
+            assignment__question=question1,
             contribution=contribution1,
             answer="this answer will be edited",
             original_answer=None,
@@ -283,7 +283,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
 
         baker.make(
             TextAnswer,
-            question=question1,
+            assignment__question=question1,
             contribution=contribution1,
             answer=iter(f"this is a dummy answer {i}" for i in range(3, 6)),
             original_answer=None,
