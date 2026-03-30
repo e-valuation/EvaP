@@ -15,6 +15,7 @@ from evap.evaluation.models import (
     Course,
     Evaluation,
     Program,
+    Question,
     QuestionAssignment,
     Questionnaire,
     Semester,
@@ -175,6 +176,7 @@ class ParticipantCollapseTests(LiveServerTest):
 
         counter = card_header.find_element(By.CSS_SELECTOR, ".rounded-pill")
         self.assertEqual(counter.text, "0")
+
 
 class EvaluationGridLiveTest(LiveServerTest):
     def test_evaluation_grid_sorting(self):
