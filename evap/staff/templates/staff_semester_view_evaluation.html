@@ -76,7 +76,7 @@
 {% endif %}
 
 <td data-col="name" data-order="{{ evaluation.full_name }}">
-    <div id="{{ evaluation.id }}">
+    <div>
     {% if not info_only and request.user.is_manager %}
         <a href="{% url 'staff:evaluation_edit' evaluation.id %}">{{ evaluation.full_name }}</a>
         {% include 'cms_evaluation_link_icons.html' %}
@@ -197,8 +197,8 @@
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item" onclick="copyNameToClipboard('{{ evaluation.id }}')"> <!-- should this be a link? -->
-                                <span class="fas fa-fw fa-copy"></span> {% translate 'Copy Name to Clipboard' %}
+                            <a class="dropdown-item" onclick="navigator.clipboard.writeText('{{ evaluation.full_name }}')">
+                                <span class="fas fa-fw fa-clipboard"></span> {% translate 'Copy name to clipboard' %}
                             </a>
                         </li>
                         <li>
@@ -264,17 +264,3 @@
 </td>
 
 {% endwith %}
-
-{% block additional_javascript %}
-    <script type="text/javascript">
-        function copyNameToClipboard(evaluation_id) {
-            var r = document.createRange();
-            r.selectNode(document.getElementById(evaluation_id));
-            window.getSelection().removeAllRanges();
-            window.getSelection().addRange(r);
-            document.execCommand('copy');
-            window.getSelection().removeAllRanges();
-        }
-    </script>
-{% endblock %}
- 
