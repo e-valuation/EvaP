@@ -959,7 +959,7 @@ def semester_questionnaire_assign(request, semester_id):
 @manager_required
 def semester_preparation_reminder(request: HttpRequest, semester_id: int) -> HttpResponse:
     semester = get_object_or_404(Semester, id=semester_id)
-    internal_only = request.GET.get("internal_only") == "true"
+    internal_only = request.POST.get("internal_only") == "true"
 
     evaluations = semester.evaluations.filter(
         state__in=[Evaluation.State.PREPARED, Evaluation.State.EDITOR_APPROVED]
@@ -967,9 +967,9 @@ def semester_preparation_reminder(request: HttpRequest, semester_id: int) -> Htt
 
     prepared_evaluations = semester.evaluations.filter(state=Evaluation.State.PREPARED)
     responsibles = UserProfile.objects.filter(courses_responsible_for__evaluations__in=prepared_evaluations).distinct()
-    if internal_only: 
+    if internal_only:
         responsibles = [responsible for responsible in responsibles if not responsible.is_external]
-    for responsible in responsibles: print(responsible.is_external)
+
 
     responsible_list = [
         (
