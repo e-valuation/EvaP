@@ -98,15 +98,14 @@
                     if (tooltipTriggerEl.dataset.container){
                         container = tooltipTriggerEl.closest(tooltipTriggerEl.dataset.container);
                     }
-                    return new bootstrap.Tooltip(tooltipTriggerEl, {container: container, html: true, trigger: 'hover', popperConfig: function (defaultBsPopperConfig) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl, {container: container, template: '<div class="tooltip py-2" role="tooltip"><div class="tooltip-inner"></div></div>', html: true, trigger: 'hover', popperConfig: function (defaultBsPopperConfig) {
                         return {
                             placement: 'right',
-                            modifiers: [{
-                                name: 'preventOverflow',
-                                altAxis: true,
-                                rootBoundary: 'viewport',
-                            },
-                        ],
+                            modifiers: [
+                                {
+                                    name: 'preventOverflow',
+                                },
+                            ],
                         };
                     }})
                 })
