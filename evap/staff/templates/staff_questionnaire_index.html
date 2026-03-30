@@ -13,7 +13,7 @@
                 <div class="btn-switch-label">{% translate 'Show questionnaires' %}</div>
                 <div class="btn-switch btn-group">
                     <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=all" role="button" class="btn btn-sm btn-light{% if filter_questionnaires == 'all' %} active{% endif %}">
-                    {% translate 'All' %}
+                        {% translate 'All' %}
                     </a>
                     <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=visible" role="button" class="btn btn-sm btn-light{% if filter_questionnaires == 'visible' %} active{% endif %}">
                         {% translate 'Visible' %}
