@@ -197,8 +197,8 @@ class QuestionnaireLiveTest(LiveServerTest):
 
         self.assertFalse(top_element.is_displayed())
         self.assertTrue(bottom_element.is_displayed())
-        
-        
+
+
 class EvaluationGridLiveTest(LiveServerTest):
     def test_evaluation_grid_sorting(self):
         test_semester = baker.make(Semester)
