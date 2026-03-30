@@ -1,0 +1,30 @@
+{% extends 'staff_questionnaire_base.html' %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    <li class="breadcrumb-item">{% translate 'Usage' %}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <h3>{{ questionnaire.name }}</h3>
+    {% for semester, evaluations in evaluations_grouped_by_semester.items %}
+        <div class="card mb-3 {% if semester.is_active %}card-outline-primary{% endif %}" data-id="semester-{{ semester.id }}">
+            <div class="card-header">
+                {{ semester.name }}
+                <span class="badge rounded-pill bg-dark">{{ evaluations|length }}</span>
+            </div>
+            <div class="card-body">
+                <table class="table table-seamless-links">
+                    {% for evaluation in evaluations %}
+                        <tr class="hover-row hover-row-info" data-url="{% url 'staff:evaluation_edit' evaluation.id %}">
+                            <td {% if forloop.last %}class="border-bottom-0"{% endif %}>{{ evaluation }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    {% empty %}
+        <div class="alert alert-warning">{% translate "This questionnaire hasn't been used yet." %}</div>
+    {% endfor %}
+{% endblock %}
