@@ -1,6 +1,5 @@
 from datetime import date, datetime
 
-from django.urls import reverse
 from model_bakery import baker
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -16,6 +15,7 @@ from evap.evaluation.models import (
     Course,
     Evaluation,
     Program,
+    Question,
     QuestionAssignment,
     Questionnaire,
     Semester,
@@ -133,7 +133,7 @@ class ParticipantCollapseTests(LiveServerTest):
         )
 
         with self.enter_staff_mode():
-            self.selenium.get(self.live_server_url + reverse("staff:evaluation_edit", args=[evaluation.id]))
+            self.selenium.get(self.reverse("staff:evaluation_edit", args=[evaluation.id]))
 
         card_header = self.selenium.find_element(By.CSS_SELECTOR, ".card:has(#id_participants) .card-header")
         self.assertIn("collapsed", classes_of_element(card_header))
@@ -167,7 +167,7 @@ class ParticipantCollapseTests(LiveServerTest):
         )
 
         with self.enter_staff_mode():
-            self.selenium.get(self.live_server_url + reverse("staff:evaluation_edit", args=[evaluation.id]))
+            self.selenium.get(self.reverse("staff:evaluation_edit", args=[evaluation.id]))
 
         card_header = self.selenium.find_element(By.CSS_SELECTOR, ".card:has(#id_participants) .card-header")
         self.assertNotIn("collapsed", classes_of_element(card_header))
@@ -197,6 +197,67 @@ class QuestionnaireLiveTest(LiveServerTest):
 
         self.assertFalse(top_element.is_displayed())
         self.assertTrue(bottom_element.is_displayed())
+        
+        
+class EvaluationGridLiveTest(LiveServerTest):
+    def test_evaluation_grid_sorting(self):
+        test_semester = baker.make(Semester)
+
+        baker.make(
+            Evaluation,
+            _quantity=7,
+            name_de=iter(f"Evaluation {i}" for i in range(1, 8)),
+            name_en=iter(f"Evaluation {i}" for i in range(1, 8)),
+            course__name_de=iter(("AA", "ÄB", "AC", "AE", "UB", "ÜC", "Z")),
+            course__name_en=iter(("Z", "ÜC", "UB", "AE", "AC", "ÄB", "AA")),
+            course__semester=test_semester,
+        )
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.reverse("staff:semester_view", args=[test_semester.id]))
+            self.set_page_language("de")
+
+            table_entries = self.selenium.find_elements(
+                By.XPATH, "//table[@id='evaluation-table']//tbody//child::td[@data-col='name']"
+            )
+
+            expected = [
+                "AA – Evaluation 1",
+                "ÄB – Evaluation 2",
+                "AC – Evaluation 3",
+                "AE – Evaluation 4",
+                "UB – Evaluation 5",
+                "ÜC – Evaluation 6",
+                "Z – Evaluation 7",
+            ]
+
+            actual = [entry.get_attribute("data-order") for entry in table_entries]
+            self.assertEqual(actual, expected)
+
+            self.set_page_language("en")
+
+            self.wait.until(visibility_of_element_located((By.ID, "evaluation-table")))
+
+            toggle_sort_button = self.selenium.find_element(By.XPATH, "//thead//th[@data-col='name']")
+            toggle_sort_button.click()
+            self.wait.until(visibility_of_element_located((By.ID, "evaluation-table")))
+
+            table_entries = self.selenium.find_elements(
+                By.XPATH, "//table[@id='evaluation-table']//tbody//child::td[@data-col='name']"
+            )
+
+            expected = [
+                "Z – Evaluation 1",
+                "ÜC – Evaluation 2",
+                "UB – Evaluation 3",
+                "AE – Evaluation 4",
+                "AC – Evaluation 5",
+                "ÄB – Evaluation 6",
+                "AA – Evaluation 7",
+            ]
+
+            actual = [entry.get_attribute("data-order") for entry in table_entries]
+            self.assertEqual(actual, expected)
 
 
 class TextAnswerEditLiveTest(LiveServerTest):
@@ -213,9 +274,9 @@ class TextAnswerEditLiveTest(LiveServerTest):
             can_publish_text_results=True,
         )
 
-        question_assignment = baker.make(QuestionAssignment)
+        question1 = baker.make(Question)
 
-        general_questionnaire = baker.make(Questionnaire, question_assignments=[question_assignment])
+        general_questionnaire = baker.make(Questionnaire, questions=[question1])
         evaluation.general_contribution.questionnaires.set([general_questionnaire])
 
         contribution1 = baker.make(
@@ -224,7 +285,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
 
         baker.make(
             TextAnswer,
-            assignment=question_assignment,
+            assignment__question=question1,
             contribution=contribution1,
             answer=iter(f"this is a dummy answer {i}" for i in range(3)),
             original_answer=None,
@@ -234,7 +295,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
 
         textanswer1 = baker.make(
             TextAnswer,
-            assignment=question_assignment,
+            assignment__question=question1,
             contribution=contribution1,
             answer="this answer will be edited",
             original_answer=None,
@@ -243,7 +304,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
 
         baker.make(
             TextAnswer,
-            assignment=question_assignment,
+            assignment__question=question1,
             contribution=contribution1,
             answer=iter(f"this is a dummy answer {i}" for i in range(3, 6)),
             original_answer=None,
