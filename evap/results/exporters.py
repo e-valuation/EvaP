@@ -297,13 +297,13 @@ class ResultsExporter(ExcelExporter):
 
     @classmethod
     def _get_average_grade_and_approval_ratio(
-        cls, questionnaire_id: int, question: Question, results: OrderedDict[int, list[QuestionResult]]
+        cls, question: Question, results: list[QuestionResult]
     ) -> tuple[float | None, float | None]:
         value_sum = 0.0
         count_sum = 0
         approval_count = 0
 
-        for grade_result in results[questionnaire_id]:
+        for grade_result in results:
             if grade_result.question.id != question.id or not RatingResult.has_answers(grade_result):
                 continue
 
@@ -338,7 +338,7 @@ class ResultsExporter(ExcelExporter):
                 results.get(questionnaire_id) is None
             ):  # we iterate over all distinct questionnaires from all evaluations but some evaluations do not include a specific questionnaire
                 continue
-            avg, average_approval_ratio = cls._get_average_grade_and_approval_ratio(questionnaire_id, question, results)
+            avg, average_approval_ratio = cls._get_average_grade_and_approval_ratio(question, results[questionnaire_id])
             if avg is not None:
                 avg_value_sum += avg
                 count_avg += 1
@@ -387,7 +387,7 @@ class ResultsExporter(ExcelExporter):
                     continue
 
                 avg, average_approval_ratio = self._get_average_grade_and_approval_ratio(
-                    questionnaire.id, question, results
+                    question, results[questionnaire.id]
                 )
 
                 if avg is None:
