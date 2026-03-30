@@ -22,23 +22,23 @@ export class StaffQuestionnaireForm {
         checkbox.disabled = true;
     };
 
-    private enableAndCheck = (checkbox: HTMLInputElement) => {
-        // do not override currently input user selection, if there is no need to
+    private enableAndInit = (checkbox: HTMLInputElement, initialValue: boolean) => {
+        // do not override current input user selection, if there is no need to
         if (checkbox.disabled) {
-            checkbox.checked = true;
+            checkbox.checked = initialValue;
         }
         checkbox.disabled = false;
     };
 
-    private disableAll = (checkboxes: NodeListOf<Element>) => {
+    private disableAndUncheckAll = (checkboxes: NodeListOf<Element>) => {
         checkboxes.forEach(checkbox => {
             this.disableAndUncheck(checkbox as HTMLInputElement);
         });
     };
 
-    private enableAll = (checkboxes: NodeListOf<Element>) => {
+    private enableAndInitAll = (checkboxes: NodeListOf<Element>, initialValue: boolean) => {
         checkboxes.forEach(checkbox => {
-            this.enableAndCheck(checkbox as HTMLInputElement);
+            this.enableAndInit(checkbox as HTMLInputElement, initialValue);
         });
     };
 
@@ -52,7 +52,7 @@ export class StaffQuestionnaireForm {
             const checkboxes = questionTypeCell.querySelectorAll("input[type=checkbox]");
 
             if (questionType === QUESTION_TYPE_TEXT || questionType === QUESTION_TYPE_HEADING) {
-                this.disableAll(checkboxes);
+                this.disableAndUncheckAll(checkboxes);
                 return;
             }
 
@@ -63,11 +63,11 @@ export class StaffQuestionnaireForm {
                     if (checkboxElement.classList.contains("counts-for-grade-checkbox")) {
                         this.disableAndUncheck(checkboxElement);
                     } else {
-                        this.enableAndCheck(checkboxElement);
+                        this.enableAndInit(checkboxElement, true);
                     }
                 });
             } else {
-                this.enableAll(checkboxes);
+                this.enableAndInitAll(checkboxes, true);
             }
         }
     };
@@ -94,7 +94,7 @@ export class StaffQuestionnaireForm {
                 if (questionType === QUESTION_TYPE_TEXT || questionType === QUESTION_TYPE_HEADING) {
                     this.disableAndUncheck(checkboxElement);
                 } else {
-                    this.enableAndCheck(checkboxElement);
+                    this.enableAndInit(checkboxElement, true);
                 }
             }
         });
