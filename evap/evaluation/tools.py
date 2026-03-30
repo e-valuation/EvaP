@@ -180,7 +180,7 @@ def get_parameter_from_url_or_session(request: HttpRequest, parameter: str, defa
     return result
 
 
-def get_string_from_url_or_session(request: HttpRequest, parameter: str, default: str = None) -> str:
+def get_string_from_url_or_session(request: HttpRequest, parameter: str, default: str | None = None) -> str | None:
     result = request.GET.get(parameter, None)
     if result is None:
         result = request.session.get(parameter, default)
