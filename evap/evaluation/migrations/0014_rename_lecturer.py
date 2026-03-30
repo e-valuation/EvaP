@@ -18,7 +18,6 @@ def rename_lecturer_reverse(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0013_rename_kind_to_type"),
     ]

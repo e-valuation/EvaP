@@ -26,7 +26,6 @@ def move_data_to_contribution(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0095_add_course_responsibles"),
     ]

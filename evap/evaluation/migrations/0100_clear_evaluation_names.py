@@ -30,7 +30,6 @@ def name_evaluations(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0099_multiple_evaluations_per_course"),
     ]

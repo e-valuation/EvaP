@@ -16,7 +16,6 @@ def create_degrees(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0014_create_degree_model"),
     ]

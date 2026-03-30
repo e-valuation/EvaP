@@ -11,7 +11,6 @@ def update_names(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("rewards", "0006_rewardpointredemptionevent_step"),
     ]

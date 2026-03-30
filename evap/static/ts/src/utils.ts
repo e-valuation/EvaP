@@ -5,7 +5,9 @@ export const selectOrError = <T extends Element>(selector: string, root: ParentN
 };
 
 export function assert(condition: unknown, message = "Assertion Failed"): asserts condition {
-    if (!condition) throw new Error(message);
+    if (!condition) {
+        throw new Error(message);
+    }
 }
 
 export function assertDefined<T>(val: T): asserts val is NonNullable<T> {

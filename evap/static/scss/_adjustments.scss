@@ -134,6 +134,10 @@ $alert-colors: (
     box-shadow: $input-focus-box-shadow;
 }
 
+.ts-border-0 .ts-control {
+    border: 0;
+}
+
 // Change .btn-group outlined border style to fix double borders with outlined button style
 // see https://github.com/twbs/bootstrap/issues/25888
 .btn-group.outline-fix {
@@ -153,4 +157,19 @@ $alert-colors: (
     :not(.btn-check:first-child) + .btn {
         margin-left: unset;
     }
+}
+
+.height-fit-content {
+    height: fit-content;
+}
+
+@include media-breakpoint-down(sm) {
+    .flex-column-mobile {
+        flex-direction: column;
+    }
+}
+
+// Hide the x in input fields on chrome
+input[type="search"]::-webkit-search-cancel-button {
+	-webkit-appearance: none;
 }

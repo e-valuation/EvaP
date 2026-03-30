@@ -19,11 +19,13 @@ from evap.evaluation.models import (
     CourseType,
     EmailTemplate,
     Evaluation,
+    ExamType,
     FaqQuestion,
     FaqSection,
     Infotext,
     Program,
     Question,
+    QuestionAssignment,
     Questionnaire,
     QuestionType,
     Semester,
@@ -156,7 +158,12 @@ class UserBulkUpdateForm(forms.Form):
 class SemesterForm(forms.ModelForm):
     class Meta:
         model = Semester
-        fields = ("name_de", "name_en", "short_name_de", "short_name_en")
+        fields = ("name_de", "name_en", "short_name_de", "short_name_en", "cms_name", "default_course_end_date")
+        localized_fields = ("default_course_end_date",)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["default_course_end_date"].required = False
 
     def save(self, commit=True):
         semester = super().save(commit)
@@ -193,7 +200,7 @@ class ProgramForm(forms.ModelForm):
 class CourseTypeForm(forms.ModelForm):
     class Meta:
         model = CourseType
-        fields = ("name_de", "name_en", "import_names", "order")
+        fields = ("name_de", "name_en", "import_names", "skip_on_automated_import", "order")
         field_classes = {
             "import_names": CharArrayField,
         }
@@ -213,6 +220,31 @@ class CourseTypeForm(forms.ModelForm):
                 Evaluation.objects.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING, course__type=course_type)
             )
         return course_type
+
+
+class ExamTypeForm(forms.ModelForm):
+    class Meta:
+        model = ExamType
+        fields = ("name_de", "name_en", "import_names", "skip_on_automated_import", "order")
+        field_classes = {
+            "import_names": CharArrayField,
+        }
+        widgets = {
+            "order": forms.HiddenInput(),
+        }
+
+    def clean(self):
+        super().clean()
+        if self.cleaned_data.get("DELETE") and not self.instance.can_be_deleted_by_manager:
+            raise SuspiciousOperation("Deleting exam type not allowed")
+
+    def save(self, *args, **kwargs):
+        exam_type = super().save(*args, **kwargs)
+        if "name_en" in self.changed_data or "name_de" in self.changed_data:
+            update_template_cache(
+                Evaluation.objects.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING, exam_type=exam_type)
+            )
+        return exam_type
 
 
 class ProgramMergeSelectionForm(forms.Form):
@@ -305,6 +337,7 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore[misc]
         "allow_editors_to_edit",
         "wait_for_grade_upload_before_publishing",
         "main_language",
+        "exam_type",
     }
 
     EVALUATION_EXCLUDED_FIELDS = {
@@ -322,6 +355,7 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore[misc]
         "votetimestamp",
         "cms_id",
         "dropout_count",
+        "staff_notes",
     }
 
     CONTRIBUTION_COPIED_FIELDS = {
@@ -386,6 +420,7 @@ class EvaluationForm(forms.ModelForm):
             "name_de",
             "name_en",
             "main_language",
+            "exam_type",
             "weight",
             "allow_editors_to_edit",
             "is_rewarded",
@@ -396,6 +431,7 @@ class EvaluationForm(forms.ModelForm):
             "participants",
             "general_questionnaires",
             "dropout_questionnaires",
+            "staff_notes",
         )
         localized_fields = ("vote_start_datetime", "vote_end_date")
         field_classes = {
@@ -424,6 +460,8 @@ class EvaluationForm(forms.ModelForm):
         if self.instance.pk is not None:
             queryset = (queryset | self.instance.participants.all()).distinct()
         self.fields["participants"].queryset = queryset
+        # this avoids participant lists being cached, e.g. after removing a participant and reloading the page without saving, the participant should appear again
+        self.fields["participants"].widget.attrs["autocomplete"] = "off"
 
         if general_contribution := self.instance.general_contribution:
             self.fields["general_questionnaires"].initial = [
@@ -513,6 +551,36 @@ class EvaluationCopyForm(EvaluationForm):
         initial = forms.models.model_to_dict(instance, opts.fields, opts.exclude)
         initial["general_questionnaires"] = instance.general_contribution.questionnaires.all()
         super().__init__(data=data, initial=initial, semester=instance.course.semester)
+
+
+class ExamEvaluationForm(forms.Form):
+    base_evaluation = forms.ModelChoiceField(Evaluation.objects.all(), required=True, widget=forms.HiddenInput())
+    exam_date = forms.DateField(
+        label=_("Exam date"),
+        required=True,
+        localize=True,
+    )
+    exam_type = forms.ModelChoiceField(ExamType.objects.all(), required=True, label=_("Exam type"))
+
+    def __init__(self, *args, evaluation=None, form_id=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if form_id is not None:
+            for field in self.fields.values():
+                field.widget.attrs["form"] = form_id
+        if evaluation is not None:
+            self.fields["exam_date"].widget.attrs["min"] = evaluation.earliest_possible_exam_date
+            self.fields["base_evaluation"].initial = evaluation
+        self.fields["exam_type"].initial = ExamType.objects.order_by("order").first()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data["base_evaluation"].has_exam_evaluation:
+            raise ValidationError(_("An exam evaluation already exists for this course."))
+        if cleaned_data["exam_date"] < cleaned_data["base_evaluation"].earliest_possible_exam_date:
+            raise ValidationError(
+                _("The end date of the main evaluation would be before its start date. No exam evaluation was created.")
+            )
+        return cleaned_data
 
 
 class ContributionForm(forms.ModelForm):
@@ -840,17 +908,16 @@ class ContributionCopyFormset(ContributionFormset):
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
-        fields = ("order", "questionnaire", "text_de", "text_en", "type", "allows_additional_textanswers")
+        fields = ("text_de", "text_en", "type", "allows_additional_textanswers")
         widgets = {
             "text_de": forms.Textarea(attrs={"rows": 2}),
             "text_en": forms.Textarea(attrs={"rows": 2}),
-            "order": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.instance.pk and self.instance.type in [QuestionType.TEXT, QuestionType.HEADING]:
-            self.fields["allows_additional_textanswers"].disabled = True
+        if self.instance.pk and self.instance.type in [QuestionType.TEXT, QuestionType.HEADING] and not self.data:
+            self.fields["allows_additional_textanswers"].disabled = True  # disable only for frontend; validate in clean
 
     def clean(self):
         super().clean()
@@ -858,9 +925,45 @@ class QuestionForm(forms.ModelForm):
             self.cleaned_data["allows_additional_textanswers"] = False
         return self.cleaned_data
 
+    def save(self, *args, **kwargs) -> Question:
+        if self.instance.pk and self.instance.questionnaires.count() > 1 and self.has_changed():
+            self.instance.pk = None  # copy on write
+        return super().save(*args, **kwargs)
+
+
+class QuestionAssignmentForm(forms.ModelForm):
+    question = forms.ModelChoiceField(Question.objects.all(), widget=forms.HiddenInput(), required=False)
+
+    class Meta:
+        model = QuestionAssignment
+        fields = ("order", "questionnaire", "question")
+        widgets = {
+            "order": forms.HiddenInput(),
+        }
+
+    def __init__(self, *args, instance=None, **kwargs):
+        super().__init__(*args, instance=instance, **kwargs)
+        if hasattr(self.instance, "question"):
+            self.question_form = QuestionForm(*args, instance=self.instance.question, **kwargs)
+        else:
+            self.question_form = QuestionForm(*args, **kwargs)
+
+    def clean(self) -> None:
+        super().clean()
+        if not self.question_form.is_valid():
+            raise forms.ValidationError([])  # invalidate this form without message; errors are shown separately
+
+    def has_changed(self) -> bool:
+        return super().has_changed() or self.question_form.has_changed()
+
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        self.instance.question = self.question_form.save(*args, **kwargs)
+        return super().save(*args, **kwargs)
+
 
 class QuestionnairesAssignForm(forms.Form):
-    def __init__(self, *args, course_types, **kwargs):
+    def __init__(self, *args, course_types, exam_types, **kwargs):
         super().__init__(*args, **kwargs)
 
         contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().exclude(
@@ -884,6 +987,13 @@ class QuestionnairesAssignForm(forms.Form):
         self.fields["all-contributors"] = forms.ModelMultipleChoiceField(
             label=_("All contributors"), required=False, queryset=contributor_questionnaires
         )
+
+        for exam_type in exam_types:
+            self.fields[f"exam-{exam_type.id}"] = forms.ModelMultipleChoiceField(
+                label=exam_type.name,
+                required=False,
+                queryset=non_contributor_questionnaires,
+            )
 
 
 class UserForm(forms.ModelForm):

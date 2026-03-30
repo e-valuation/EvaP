@@ -24,7 +24,6 @@ def delete_voter_and_participant_count(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0077_course_is_single_result"),
     ]

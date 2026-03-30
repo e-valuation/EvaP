@@ -2,7 +2,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0032_populate_rating_answer_counters"),
     ]

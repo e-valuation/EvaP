@@ -15,7 +15,6 @@ def fill_can_publish_text_results(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0067_course_is_midterm_evaluation"),
     ]

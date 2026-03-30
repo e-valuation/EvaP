@@ -16,7 +16,6 @@ def delete_cronjob_user(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0052_add_course_is_private"),
     ]

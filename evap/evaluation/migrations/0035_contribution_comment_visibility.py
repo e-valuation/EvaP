@@ -10,7 +10,6 @@ def set_comment_visibility(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0034_course_gets_no_grade_documents"),
     ]

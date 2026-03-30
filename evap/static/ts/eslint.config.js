@@ -25,6 +25,7 @@ export default tseslint.config(
             "@typescript-eslint/no-confusing-void-expression": ["error", { ignoreArrowShorthand: true }],
             "no-else-return": "error",
             "arrow-body-style": ["error", "as-needed"],
+            curly: ["error"],
             "@typescript-eslint/no-unused-vars": [
                 "warn",
                 {
@@ -48,6 +49,9 @@ export default tseslint.config(
             "@typescript-eslint/no-unsafe-member-access": "warn",
             "@typescript-eslint/no-unsafe-argument": "warn",
             "@typescript-eslint/no-unsafe-assignment": "warn",
+            // Note: you must disable the base rule as it can report incorrect errors
+            "no-unused-private-class-members": "off",
+            "@typescript-eslint/no-unused-private-class-members": "error",
         },
     },
 );

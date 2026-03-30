@@ -36,7 +36,6 @@ def make_single_result_questionnaire_for_contributors(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0097_remove_contribution_responsible"),
     ]

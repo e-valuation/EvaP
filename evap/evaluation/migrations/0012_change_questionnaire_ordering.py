@@ -2,7 +2,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0011_remove_textanswer_checked_and_hidden"),
     ]

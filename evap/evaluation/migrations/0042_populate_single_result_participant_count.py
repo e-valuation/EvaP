@@ -36,7 +36,6 @@ def set_participant_count_on_single_results(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0041_populate_semester_is_archived"),
     ]

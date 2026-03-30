@@ -9,7 +9,6 @@ def delete_hidden_textanswers(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0068_course_can_publish_text_results"),
     ]

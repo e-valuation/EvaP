@@ -32,7 +32,6 @@ def backward_update_states(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0009_add_textanswer_state"),
     ]

@@ -18,15 +18,16 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - uses: ./.github/setup_evap
         with:
           start-db: true
+          save-nix-store: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
 
       - name: Run tests
         run: coverage run manage.py test
       - name: Upload coverage
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -36,7 +37,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - uses: ./.github/setup_evap
         with:
           start-db: true
@@ -50,7 +51,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - uses: ./.github/setup_evap
         with:
           start-db: true
@@ -60,20 +61,31 @@ jobs:
           python manage.py dump_testdata
       - name: Check if test_data.json changed
         run: git diff --exit-code
+      - name: Create new minimal_test_data_results.json
+        run: |
+          python manage.py reload_testdata --mode minimal --noinput
+          python manage.py dump_testdata --mode minimal
+      - name: Check if minimal_test_data_results.json changed
+        run: git diff --exit-code
 
   build_wheel:
     name: Build wheel
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           submodules: true
-      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: cachix/install-nix-action@4e002c8ec80594ecd40e759629461e26c8abed15 # v31
+      - uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
+        with:
+          primary-key: nix-${{ runner.os }}-${{ hashFiles('**/*.nix', 'flake.lock', 'uv.lock', 'evap/development/manage_autocompletion.sh') }}-build_wheel
+          restore-prefixes-first-match: nix-${{ runner.os }}-${{ hashFiles('**/*.nix', 'flake.lock', 'uv.lock', 'evap/development/manage_autocompletion.sh') }}-
+          save: false
       - run: nix run .#build-dist
       - run: tar tvf dist/*.tar.gz
       - run: unzip -l dist/*.whl
       - run: nix run .#check_dist -- pyproject.toml dist/*.whl
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
           name: wheel
           path: dist/
@@ -83,10 +95,10 @@ jobs:
     needs: build_wheel
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
         with:
-          python-version: "3.11"
-      - uses: actions/download-artifact@v5
+          python-version: "3.13"
+      - uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8
         with:
           name: wheel
       - run: pip install *.whl
@@ -103,7 +115,7 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           submodules: true
 
@@ -121,7 +133,7 @@ jobs:
       - name: Run tests (shuffled)
         run: coverage run manage.py test --shuffle --tag selenium
       - name: Upload coverage
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5
         with:
           flags: frontend-tests
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -132,7 +144,7 @@ jobs:
     name: MyPy
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - uses: ./.github/setup_evap
       - name: Run MyPy
         run: mypy
@@ -142,7 +154,7 @@ jobs:
     name: Test Typescript
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           submodules: true
       - uses: ./.github/setup_evap
@@ -158,7 +170,7 @@ jobs:
     name: Linter
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - uses: ./.github/setup_evap
         with:
           npm-ci: "true"
@@ -178,18 +190,16 @@ jobs:
     name: Formatting
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - uses: ./.github/setup_evap
         with:
           npm-ci: true
 
       - name: Check code formatting
-        run: black --check .
-      - name: Check imports formatting
-        run: isort . --check --diff
+        run: ruff format --check .
       - run: ls -laR evap/static/ts
       - name: Check TypeScript formatting
-        run: npx prettier --list-different --log-level debug 'evap/static/ts/**/*.ts'
+        run: npx prettier --list-different --log-level debug 'evap/static/ts/**/*.ts' 'evap/static/ts/eslint.config.js'
 
   backup-process:
     runs-on: ubuntu-22.04
@@ -198,25 +208,25 @@ jobs:
     needs: build_wheel
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           path: main
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           repository: e-valuation/evap-deployment
           path: deployment
 
-      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: cachix/install-nix-action@4e002c8ec80594ecd40e759629461e26c8abed15 # v31
       - name: Start database
         working-directory: deployment
         run: nix run ../main#services -- --detached
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
         with:
-          python-version: "3.11"
+          python-version: "3.13"
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8
         with:
           name: wheel
 
@@ -248,11 +258,27 @@ jobs:
           EVAP_SKIP_APACHE_STEPS: true
           DJANGO_SETTINGS_MODULE: deployment_settings
 
+  nix-files-changed:
+    runs-on: ubuntu-22.04
+    name: Check whether nix files changed
+    outputs:
+      changed: ${{ steps.output-step.outputs.changed }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - run: git fetch origin main --depth 1
+      - id: output-step
+        run: |
+          set +e # don't crash if next command exits with nonzero
+          git diff --exit-code origin/main -- flake.nix flake.lock uv.lock
+          echo "changed=$?" | tee --append "$GITHUB_OUTPUT"
+
   macos-nix-build:
     runs-on: macos-15
     name: Build nix environment on MacOS
+    needs: [ "nix-files-changed" ]
+    if: needs.nix-files-changed.outputs.changed != 0
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           submodules: true
       - uses: ./.github/setup_evap

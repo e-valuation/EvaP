@@ -407,6 +407,8 @@ def add_warnings(evaluation, evaluation_result):
         )
 
     for questionnaire_result in evaluation_result.questionnaire_results:
+        if questionnaire_result.questionnaire.is_dropout:
+            continue
         rating_results = [
             question_result
             for question_result in questionnaire_result.question_results

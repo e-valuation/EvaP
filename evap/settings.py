@@ -12,6 +12,7 @@ import logging
 import sys
 from datetime import timedelta
 from fractions import Fraction
+from importlib.metadata import version
 from pathlib import Path
 from typing import Any
 
@@ -22,6 +23,7 @@ from evap.tools import MonthAndDay
 MODULE = Path(__file__).parent.resolve()
 CWD = Path(".").resolve()
 DATADIR = CWD / "data"
+RELEASE_VERSION = version("evap")
 
 ### Debugging
 
@@ -56,6 +58,10 @@ CONTRIBUTIONS_WEIGHT = 1
 GENERAL_GRADE_QUESTIONS_WEIGHT = 1
 # the average grade of all general non-grade questions is weighted this much for the evaluation's average grade
 GENERAL_NON_GRADE_QUESTIONS_WEIGHT = 1
+# default weight for exam evaluations
+EXAM_EVALUATION_DEFAULT_WEIGHT = 1
+# default weight for evaluations with exam
+MAIN_EVALUATION_DEFAULT_WEIGHT = 9
 
 # number of reward points a student should have for a semester after evaluating the given fraction of evaluations.
 REWARD_POINTS = [
@@ -110,20 +116,31 @@ EVALUATION_END_OFFSET_HOURS = 3
 # Amount of hours in which participant will be warned
 EVALUATION_END_WARNING_PERIOD = 5
 
+# default timedelta for exam evaluation vote_end_date after exam date
+EXAM_EVALUATION_DEFAULT_DURATION = timedelta(days=3)
+
 # Questionnaires automatically added to exam evaluations
 EXAM_QUESTIONNAIRE_IDS: list[int] = []
 
-# Emails of users that shouldn't be imported as responsibles during JSON import
+# Emails of users that shouldn't be imported as responsibles and contributors during JSON import
 NON_RESPONSIBLE_USERS: set[str] = set()
 
 # Study programs that shouldn't be imported during JSON import
 IGNORE_PROGRAMS: set[str] = set()
+
+# Emails of users that shouldn't be imported as participants or contributors during JSON import
+IGNORE_USERS: set[str] = set()
 
 ### Installation specific settings
 
 # People who get emails on errors.
 ADMINS: list[tuple[str, str]] = [
     # ('Your Name', 'your_email@example.com'),
+]
+
+# People who get the JSON importer logs via email.
+JSON_IMPORTER_LOG_RECIPIENTS: list[str] = [
+    # 'your_email@example.com',
 ]
 
 # The page URL that is used in email templates.
@@ -238,6 +255,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.postgres",
     "django_extensions",
     "evap.evaluation",
     "evap.staff",
@@ -246,6 +264,7 @@ INSTALLED_APPS = [
     "evap.contributor",
     "evap.rewards",
     "evap.grades",
+    "evap.cms",
     "django.forms",
     "mozilla_django_oidc",
 ]
@@ -374,12 +393,19 @@ STATIC_ROOT = DATADIR / "static_collected"
 MEDIA_ROOT = DATADIR / "upload"
 
 ### Evaluation progress rewards
-GLOBAL_EVALUATION_PROGRESS_REWARDS: list[tuple[Fraction, str]] = (
-    []
-)  # (required_voter_ratio between 0 and 1, reward_text)
+GLOBAL_EVALUATION_PROGRESS_REWARDS: list[
+    tuple[Fraction, dict[str, str]]
+] = []  # (required_voter_ratio between 0 and 1, reward_text)
 GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS: list[int] = []
 GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS: list[int] = []
-GLOBAL_EVALUATION_PROGRESS_INFO_TEXT: dict[str, str] = {"de": "", "en": ""}
+GLOBAL_EVALUATION_PROGRESS_CAMPAIGN: dict[str, str] = {
+    "title_de": "",
+    "title_en": "",
+    "info_title_de": "",
+    "info_title_en": "",
+    "info_text_de": "",
+    "info_text_en": "",
+}
 
 ### Slogans
 SLOGANS_DE = [
@@ -486,10 +512,14 @@ if TESTING:
             "LOCATION": "testing_cache_sessions",
         },
     }
-    from model_bakery import random_gen
+
+    def gen_string() -> str:
+        from model_bakery import random_gen  # noqa: PLC0415 # model_bakery may import django ORM stuff
+
+        return random_gen.gen_string(20)
 
     # give random char field values a reasonable length
-    BAKER_CUSTOM_FIELDS_GEN = {"django.db.models.CharField": lambda: random_gen.gen_string(20)}
+    BAKER_CUSTOM_FIELDS_GEN = {"django.db.models.CharField": gen_string}
 
 
 # Development helpers

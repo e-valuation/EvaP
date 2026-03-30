@@ -21,7 +21,12 @@
             <div class="row">
                 <div class="col-12 col-lg mb-3 mb-lg-0">
                     <label>
-                        <input type="search" name="search" class="form-control mb-3" placeholder="{% translate 'Search...' %}" />
+                        <div class="input-group">
+                            <input type="search" name="search" class="form-control" placeholder="{% translate 'Search...' %}" />
+                            <button class="btn btn-light text-secondary" type="button" data-reset="search" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Clear search filter' %}">
+                                <span class="fas fa-delete-left"></span>
+                            </button>
+                        </div>
                     </label>
 
                     <h6 class="card-subtitle mt-4 mb-1">{% trans 'Participants' %}</h6>
@@ -167,6 +172,7 @@
             sortColumnSelect: document.querySelector("[name=result-sort-column]"),
             sortOrderCheckboxes: [...document.querySelectorAll("[name=result-sort-order]")],
             resetFilter: document.querySelector("[data-reset=filter]"),
+            resetSearch: document.querySelector("[data-reset=search]"),
             resetOrder: document.querySelector("[data-reset=order]"),
         }).init();
     </script>

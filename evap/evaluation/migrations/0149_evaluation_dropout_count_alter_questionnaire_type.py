@@ -15,7 +15,6 @@ def remove_dropout_questionnaires(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0148_course_cms_id_evaluation_cms_id"),
     ]

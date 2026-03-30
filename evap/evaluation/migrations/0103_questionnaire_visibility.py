@@ -28,7 +28,6 @@ def remove_questionnaire_visibility(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0102_individual_publishing_notice_email_template"),
     ]

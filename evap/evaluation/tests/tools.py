@@ -22,6 +22,7 @@ from django.utils import timezone, translation
 from model_bakery import baker
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.webdriver import WebDriver
+from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.expected_conditions import staleness_of
 from selenium.webdriver.support.wait import WebDriverWait
 
@@ -31,7 +32,7 @@ from evap.evaluation.models import (
     Course,
     Evaluation,
     Program,
-    Question,
+    QuestionAssignment,
     Questionnaire,
     RatingAnswerCounter,
     TextAnswer,
@@ -42,10 +43,28 @@ from evap.evaluation.models import (
 class EvapTestRunner(DiscoverRunner):
     """Skips selenium tests by default, if no other tags are specified."""
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, *args: Any, headed=False, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
+
+        self.__headed = headed
+
         if not self.tags and not self.exclude_tags:
             self.exclude_tags = {"selenium"}
+
+    @classmethod
+    def add_arguments(cls, parser):
+        super().add_arguments(parser)
+
+        parser.add_argument(
+            "--headed",
+            help="Run the tests in non-headless mode, which makes the browser window visible. Useful for debugging.",
+            action="store_true",
+        )
+
+    def setup_test_environment(self, **kwargs):
+        super().setup_test_environment(**kwargs)
+
+        LiveServerTest.headless = not self.__headed
 
 
 class ResetLanguageOnTearDownMixin:
@@ -98,31 +117,36 @@ def let_user_vote_for_evaluation(user, evaluation, create_answers=False):
         return
 
     new_textanswers = []
-    rac_by_contribution_question = {}
+    rac_by_contribution_assignment = {}
     new_racs = []
 
     for contribution in evaluation.contributions.all().prefetch_related(
-        "ratinganswercounter_set", "questionnaires", "questionnaires__questions"
+        "ratinganswercounter_set",
+        "questionnaires",
+        "questionnaires__question_assignments__question",
     ):
         for rac in contribution.ratinganswercounter_set.all():
             if rac.answer == 1:
-                rac_by_contribution_question[(contribution, rac.question)] = rac
+                rac_by_contribution_assignment[(contribution, rac.assignment)] = rac
 
         for questionnaire in contribution.questionnaires.all():
-            for question in questionnaire.questions.all():
+            for assignment in questionnaire.question_assignments.all():
+                question = assignment.question
                 if question.is_text_question:
-                    new_textanswers.append(baker.prepare(TextAnswer, contribution=contribution, question=question))
+                    new_textanswers.append(baker.prepare(TextAnswer, contribution=contribution, assignment=assignment))
                 elif question.is_rating_question:
-                    if (contribution, question) not in rac_by_contribution_question:
-                        rac = baker.prepare(RatingAnswerCounter, contribution=contribution, question=question, answer=1)
+                    if (contribution, assignment) not in rac_by_contribution_assignment:
+                        rac = baker.prepare(
+                            RatingAnswerCounter, contribution=contribution, assignment=assignment, answer=1
+                        )
                         new_racs.append(rac)
-                        rac_by_contribution_question[(contribution, question)] = rac
+                        rac_by_contribution_assignment[(contribution, assignment)] = rac
 
-                    rac_by_contribution_question[(contribution, question)].count += 1
+                    rac_by_contribution_assignment[(contribution, assignment)].count += 1
 
     TextAnswer.objects.bulk_create(new_textanswers)
     RatingAnswerCounter.objects.bulk_create(new_racs)
-    RatingAnswerCounter.objects.bulk_update(rac_by_contribution_question.values(), ["count"])
+    RatingAnswerCounter.objects.bulk_update(rac_by_contribution_assignment.values(), ["count"])
 
 
 class WebTestWith200Check(WebTest):
@@ -213,19 +237,20 @@ def make_editor(user, evaluation):
 
 
 def make_rating_answer_counters(
-    question: Question,
+    assignment: QuestionAssignment,
     contribution: Contribution,
     answer_counts: Sequence[int] | None = None,
     store_in_db: bool = True,
 ):
     """
-    Create RatingAnswerCounters for a question for a contribution.
+    Create RatingAnswerCounters for a question assignment for a contribution.
     Examples:
-    make_rating_answer_counters(rating_question, contribution, [5, 15, 40, 60, 30])
-    make_rating_answer_counters(yesno_question, contribution, [15, 2])
-    make_rating_answer_counters(bipolar_question, contribution, [5, 5, 15, 30, 25, 15, 10])
+    make_rating_answer_counters(rating_assignment, contribution, [5, 15, 40, 60, 30])
+    make_rating_answer_counters(yesno_assignment, contribution, [15, 2])
+    make_rating_answer_counters(bipolar_assignment, contribution, [5, 5, 15, 30, 25, 15, 10])
     """
-    expected_counts = len(CHOICES[question.type].grades)
+    choices = CHOICES[assignment.question.type]
+    expected_counts = len(choices.grades)
 
     if answer_counts is None:
         answer_counts = [0] * expected_counts
@@ -235,10 +260,10 @@ def make_rating_answer_counters(
 
     counters = baker.prepare(
         RatingAnswerCounter,
-        question=question,
+        assignment=assignment,
         contribution=contribution,
         _quantity=len(answer_counts),
-        answer=iter(CHOICES[question.type].values),
+        answer=iter(choices.values),
         count=iter(answer_counts),
     )
 
@@ -253,26 +278,27 @@ def assert_no_database_modifications(*args, **kwargs):
     assert len(connections.all()) == 1, "Found more than one connection, so the decorator might monitor the wrong one"
 
     # may be extended with other non-modifying verbs
-    allowed_prefixes = ["select", "savepoint", "release savepoint"]
+    allowed_prefixes = ["select", "savepoint", "release savepoint", "rollback to savepoint"]
 
     conn = connections[DEFAULT_DB_ALIAS]
     with CaptureQueriesContext(conn):
-        yield
+        try:
+            yield
+        finally:
+            for query in conn.queries_log:
+                if (
+                    query["sql"].startswith('INSERT INTO "testing_cache_sessions"')
+                    or query["sql"].startswith('UPDATE "testing_cache_sessions"')
+                    or query["sql"].startswith('DELETE FROM "testing_cache_sessions"')
+                    or query["sql"].startswith('UPDATE "evaluation_userprofile" SET "last_login" = ')
+                ):
+                    # These queries are caused by interacting with the test-app (self.app.get()), since that opens a session.
+                    # That's not what we want to test for here
+                    continue
 
-        for query in conn.queries_log:
-            if (
-                query["sql"].startswith('INSERT INTO "testing_cache_sessions"')
-                or query["sql"].startswith('UPDATE "testing_cache_sessions"')
-                or query["sql"].startswith('DELETE FROM "testing_cache_sessions"')
-                or query["sql"].startswith('UPDATE "evaluation_userprofile" SET "last_login" = ')
-            ):
-                # These queries are caused by interacting with the test-app (self.app.get()), since that opens a session.
-                # That's not what we want to test for here
-                continue
-
-            lower_sql = query["sql"].lower()
-            if not any(lower_sql.startswith(prefix) for prefix in allowed_prefixes):
-                raise AssertionError("Unexpected modifying query found: " + query["sql"])
+                lower_sql = query["sql"].lower()
+                if not any(lower_sql.startswith(prefix) for prefix in allowed_prefixes):
+                    raise AssertionError("Unexpected modifying query found: " + query["sql"])
 
 
 class LiveServerTest(SeleniumTestCase):
@@ -338,3 +364,10 @@ class LiveServerTest(SeleniumTestCase):
     def setUpClass(cls) -> None:
         super().setUpClass()
         cls.selenium.set_window_size(*cls.window_size)
+
+
+def classes_of_element(element: WebElement) -> list[str]:
+    classes = element.get_attribute("class")
+    if classes is None:
+        return []
+    return classes.split(" ")

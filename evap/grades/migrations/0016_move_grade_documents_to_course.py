@@ -14,7 +14,6 @@ def move_grade_documents_to_evaluation(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("grades", "0015_add_grade_documents_on_course"),
     ]

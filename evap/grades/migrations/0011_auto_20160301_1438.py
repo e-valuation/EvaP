@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("grades", "0010_gradedocument_description_en_add_unique"),
     ]

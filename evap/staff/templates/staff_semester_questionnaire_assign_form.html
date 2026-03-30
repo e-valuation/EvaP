@@ -13,7 +13,7 @@
         {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">
-                <p>{% translate 'Select the questionnaires to be used for each course type. This will only change evaluations in preparation. Their questionnaires will be overwritten by this operation. Selecting nothing will not change the currently used questionnaires.' %}</p>
+                <p>{% translate 'Select the questionnaires to be used for each course/exam type. This will only change evaluations in preparation. Their questionnaires will be overwritten by this operation. Selecting nothing will not change the currently used questionnaires.' %}</p>
                 {% include 'bootstrap_form_errors.html' with errors=form.non_field_errors %}
                 <div class="row">
                     <div class="col-md-6">
@@ -23,6 +23,16 @@
                                 <fieldset>
                                     {% for field in general_fields %}
                                         {% include 'bootstrap_form_field.html' with field=field wide=True%}
+                                    {% endfor %}
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="card mt-2">
+                            <div class="card-body">
+                                <h4 class="card-title">{% translate 'Exam' %}</h4>
+                                <fieldset>
+                                    {% for field in exam_fields %}
+                                        {% include 'bootstrap_form_field.html' with field=field wide=True %}
                                     {% endfor %}
                                 </fieldset>
                             </div>

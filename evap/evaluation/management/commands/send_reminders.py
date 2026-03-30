@@ -43,14 +43,18 @@ class Command(BaseCommand):
 
     @staticmethod
     def send_student_reminders():
+        today = datetime.date.today()
         check_dates = [
-            datetime.date.today() + datetime.timedelta(days=number_of_days)
+            today + datetime.timedelta(days=number_of_days)
             for number_of_days in settings.REMIND_X_DAYS_AHEAD_OF_END_DATE
         ]
 
         recipients = set()
         for evaluation in Evaluation.objects.filter(
-            state=Evaluation.State.IN_EVALUATION, vote_end_date__in=check_dates
+            state=Evaluation.State.IN_EVALUATION,
+            vote_end_date__in=check_dates,
+            # only want evaluation which started before yesterday, see Issue#2400
+            vote_start_datetime__date__lt=today - datetime.timedelta(days=1),
         ):
             recipients.update(evaluation.due_participants)
 

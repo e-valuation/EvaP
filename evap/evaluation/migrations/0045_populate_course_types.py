@@ -21,7 +21,6 @@ def revert_course_types(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0044_add_course_type_model"),
     ]

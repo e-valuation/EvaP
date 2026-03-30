@@ -17,6 +17,7 @@ from evap.evaluation.models import (
     Evaluation,
     NotArchivableError,
     Question,
+    QuestionAssignment,
     Questionnaire,
     QuestionType,
     Semester,
@@ -58,13 +59,37 @@ class TestSemester(WebTest):
         self.assertTrue(semester.can_be_deleted_by_manager)
 
 
-class TestQuestionnaire(WebTest):
+class TestQuestionnaire(TestCase):
     def test_can_be_deleted_by_manager(self):
         questionnaire = baker.make(Questionnaire)
         self.assertTrue(questionnaire.can_be_deleted_by_manager)
 
         baker.make(Contribution, questionnaires=[questionnaire])
         self.assertFalse(questionnaire.can_be_deleted_by_manager)
+
+    def test_locked_contributor_questionnaire(self):
+        questionnaire = baker.prepare(Questionnaire, is_locked=True, type=Questionnaire.Type.CONTRIBUTOR)
+        self.assertRaises(ValidationError, questionnaire.clean)
+
+
+class TestQuestionAssignment(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.assignment = baker.make(QuestionAssignment)
+        cls.question = cls.assignment.question
+        cls.questionnaire = cls.assignment.questionnaire
+
+    def test_assignment_delete_gc(self):
+        self.assignment.delete()
+        self.assertRaises(Question.DoesNotExist, self.question.refresh_from_db)
+
+    def test_assignment_queryset_delete_gc(self):
+        QuestionAssignment.objects.filter(pk=self.assignment.pk).delete()
+        self.assertRaises(Question.DoesNotExist, self.question.refresh_from_db)
+
+    def test_questionnaire_cascading_delete_gc(self):
+        self.questionnaire.delete()
+        self.assertRaises(Question.DoesNotExist, self.question.refresh_from_db)
 
 
 @override_settings(EVALUATION_END_OFFSET_HOURS=0)
@@ -284,7 +309,7 @@ class TestEvaluations(WebTest):
         )
         evaluation.save()
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        baker.make(Question, questionnaire=top_general_questionnaire, type=QuestionType.POSITIVE_LIKERT)
+        baker.make(Question, questionnaires=[top_general_questionnaire], type=QuestionType.POSITIVE_LIKERT)
         evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
 
         self.assertFalse(evaluation.can_publish_text_results)
@@ -304,9 +329,13 @@ class TestEvaluations(WebTest):
             can_publish_text_results=False,
         )
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        question = baker.make(Question, type=QuestionType.TEXT, questionnaire=questionnaire)
         evaluation.general_contribution.questionnaires.set([questionnaire])
-        baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution)
+        baker.make(
+            TextAnswer,
+            assignment__question__type=QuestionType.TEXT,
+            assignment__questionnaire=questionnaire,
+            contribution=evaluation.general_contribution,
+        )
 
         self.assertEqual(evaluation.textanswer_set.count(), 1)
         evaluation.publish()
@@ -323,9 +352,13 @@ class TestEvaluations(WebTest):
             can_publish_text_results=True,
         )
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        question = baker.make(Question, type=QuestionType.TEXT, questionnaire=questionnaire)
         evaluation.general_contribution.questionnaires.set([questionnaire])
-        baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution)
+        baker.make(
+            TextAnswer,
+            assignment__question__type=QuestionType.TEXT,
+            assignment__questionnaire=questionnaire,
+            contribution=evaluation.general_contribution,
+        )
 
         self.assertEqual(evaluation.textanswer_set.count(), 1)
         evaluation.publish()
@@ -342,11 +375,11 @@ class TestEvaluations(WebTest):
             can_publish_text_results=True,
         )
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        question = baker.make(Question, type=QuestionType.TEXT, questionnaire=questionnaire)
         evaluation.general_contribution.questionnaires.set([questionnaire])
         baker.make(
             TextAnswer,
-            question=question,
+            assignment__question__type=QuestionType.TEXT,
+            assignment__questionnaire=questionnaire,
             contribution=evaluation.general_contribution,
             answer=iter(["deleted", "public", "private"]),
             review_decision=iter(
@@ -376,11 +409,11 @@ class TestEvaluations(WebTest):
             can_publish_text_results=True,
         )
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        question = baker.make(Question, type=QuestionType.TEXT, questionnaire=questionnaire)
         evaluation.general_contribution.questionnaires.set([questionnaire])
         baker.make(
             TextAnswer,
-            question=question,
+            assignment__question__type=QuestionType.TEXT,
+            assignment__questionnaire=questionnaire,
             contribution=evaluation.general_contribution,
             answer="published answer",
             original_answer="original answer",
@@ -598,6 +631,23 @@ class TestUserProfile(TestCase):
         # invalidate cached_property
         del user.is_student
         self.assertFalse(user.is_student)
+
+    @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com"])
+    def test_is_external(self):
+        user = baker.make(UserProfile, email="user@institution.example.com")
+        self.assertFalse(user.is_external)
+
+        user.is_proxy_user = True
+        user.save()
+        self.assertFalse(user.is_external)
+
+        user.email = None
+        user.save()
+        self.assertFalse(user.is_external)
+
+        user.is_proxy_user = False
+        user.save()
+        self.assertTrue(user.is_external)
 
     def test_can_be_deleted_by_manager(self):
         user = baker.make(UserProfile)
@@ -1123,9 +1173,3 @@ class TestEmailRecipientList(TestCase):
             evaluation, [EmailTemplate.Recipients.CONTRIBUTORS], filter_users_in_cc=True
         )
         self.assertCountEqual(recipient_list, [contributor2, contributor3])
-
-
-class QuestionnaireTests(TestCase):
-    def test_locked_contributor_questionnaire(self):
-        questionnaire = baker.prepare(Questionnaire, is_locked=True, type=Questionnaire.Type.CONTRIBUTOR)
-        self.assertRaises(ValidationError, questionnaire.clean)

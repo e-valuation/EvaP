@@ -13,7 +13,6 @@ def set_initial_values(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0120_use_django_db_models_jsonfield"),
     ]

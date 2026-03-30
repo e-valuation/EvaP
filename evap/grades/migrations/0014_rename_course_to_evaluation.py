@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0091_rename_course_to_evaluation"),
         ("grades", "0013_prepare_rename_course_to_evaluation"),

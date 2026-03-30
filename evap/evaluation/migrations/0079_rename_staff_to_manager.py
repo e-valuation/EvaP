@@ -18,7 +18,6 @@ def rename_group_reverse(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0078_populate_voter_and_participant_count"),
     ]

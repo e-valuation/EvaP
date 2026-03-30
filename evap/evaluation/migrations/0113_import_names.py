@@ -15,7 +15,6 @@ def fill_import_names(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0112_evaluation_allow_editors_to_edit"),
     ]

@@ -14,7 +14,6 @@ def fill_textanswer_uuid(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0061_editor_review_reminder_template"),
     ]

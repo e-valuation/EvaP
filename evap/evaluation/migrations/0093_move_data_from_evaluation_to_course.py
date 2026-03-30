@@ -37,7 +37,6 @@ def move_data_to_evaluation(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0092_add_course"),
     ]

@@ -20,7 +20,6 @@ def delete_cronjob_user(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0084_rename_course_comments_to_general_comments"),
     ]

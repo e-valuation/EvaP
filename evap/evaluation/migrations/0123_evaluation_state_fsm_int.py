@@ -61,7 +61,6 @@ def logentries_int_to_str(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0122_prepare_evaluation_state_fsm_int"),
     ]

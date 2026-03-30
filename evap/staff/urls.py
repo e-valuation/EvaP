@@ -54,6 +54,7 @@ urlpatterns = [
     path("questionnaire/", views.questionnaire_index, name="questionnaire_index"),
     path("questionnaire/create", views.questionnaire_create, name="questionnaire_create"),
     path("questionnaire/<int:questionnaire_id>", views.questionnaire_view, name="questionnaire_view"),
+    path("questionnaire/<int:questionnaire_id>/usage", views.questionnaire_usage, name="questionnaire_usage"),
     path("questionnaire/<int:questionnaire_id>/edit", views.questionnaire_edit, name="questionnaire_edit"),
     path("questionnaire/<int:questionnaire_id>/new_version", views.questionnaire_new_version, name="questionnaire_new_version"),
     path("questionnaire/<int:questionnaire_id>/copy", views.questionnaire_copy, name="questionnaire_copy"),
@@ -69,6 +70,8 @@ urlpatterns = [
     path("course_types/", views.CourseTypeIndexView.as_view(), name="course_type_index"),
     path("course_types/merge", views.course_type_merge_selection, name="course_type_merge_selection"),
     path("course_types/<int:main_type_id>/merge/<int:other_type_id>", views.course_type_merge, name="course_type_merge"),
+
+    path("exam_types/", views.ExamTypeIndexView.as_view(), name="exam_type_index"),
 
     path("user/", views.user_index, name="user_index"),
     path("user/create", views.UserCreateView.as_view(), name="user_create"),

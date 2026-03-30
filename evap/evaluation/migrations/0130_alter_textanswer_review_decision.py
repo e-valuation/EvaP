@@ -14,7 +14,6 @@ def backward(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0129_rename_state_textanswer_review_decision"),
     ]

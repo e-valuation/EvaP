@@ -14,7 +14,6 @@ def rename_general_comments_to_course_comments(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0083_remove_general_contributions_on_single_results"),
     ]

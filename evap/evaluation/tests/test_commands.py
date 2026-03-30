@@ -20,7 +20,7 @@ from evap.evaluation.models import (
     Course,
     EmailTemplate,
     Evaluation,
-    Question,
+    QuestionAssignment,
     Questionnaire,
     RatingAnswerCounter,
     Semester,
@@ -100,19 +100,19 @@ class TestAnonymizeCommand(TestCase):
         cls.contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
         cls.general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
 
-        cls.contributor_questions = baker.make(
-            Question,
+        cls.contributor_assignments = baker.make(
+            QuestionAssignment,
             _bulk_create=True,
             _quantity=10,
             questionnaire=cls.contributor_questionnaire,
-            type=cycle(iter(CHOICES.keys())),
+            question__type=cycle(iter(CHOICES.keys())),
         )
-        cls.general_questions = baker.make(
-            Question,
+        cls.general_assignments = baker.make(
+            QuestionAssignment,
             _bulk_create=True,
             _quantity=10,
             questionnaire=cls.contributor_questionnaire,
-            type=cycle(iter(CHOICES.keys())),
+            question__type=cycle(iter(CHOICES.keys())),
         )
 
         cls.contributor = baker.make(UserProfile, password=make_password(None))
@@ -136,9 +136,9 @@ class TestAnonymizeCommand(TestCase):
 
     def test_no_empty_rating_answer_counters_left(self):
         counters = []
-        for question in chain(self.contributor_questions, self.general_questions):
-            counts = [1 for choice in CHOICES[question.type].values if choice != NO_ANSWER]
-            counters.extend(make_rating_answer_counters(question, self.contribution, counts, False))
+        for assignment in chain(self.contributor_assignments, self.general_assignments):
+            counts = [1 for choice in CHOICES[assignment.question.type].values if choice != NO_ANSWER]
+            counters.extend(make_rating_answer_counters(assignment, self.contribution, counts, False))
         RatingAnswerCounter.objects.bulk_create(counters)
 
         old_count = RatingAnswerCounter.objects.count()
@@ -156,20 +156,24 @@ class TestAnonymizeCommand(TestCase):
         self.assertEqual(RatingAnswerCounter.objects.count(), 0)
 
     def test_answer_count_unchanged(self):
-        answers_per_question = defaultdict(int)
+        answers_per_assignment = defaultdict(int)
 
         counters = []
-        for question in chain(self.contributor_questions, self.general_questions):
-            counts = [random.randint(10, 100) for choice in CHOICES[question.type].values if choice != NO_ANSWER]
-            counters.extend(make_rating_answer_counters(question, self.contribution, counts, False))
-            answers_per_question[question] += sum(counts)
+        for assignment in chain(self.contributor_assignments, self.general_assignments):
+            counts = [
+                random.randint(10, 100) for choice in CHOICES[assignment.question.type].values if choice != NO_ANSWER
+            ]
+            counters.extend(make_rating_answer_counters(assignment, self.contribution, counts, False))
+            answers_per_assignment[assignment] += sum(counts)
         RatingAnswerCounter.objects.bulk_create(counters)
 
         management.call_command("anonymize", stdout=StringIO())
 
-        for question in chain(self.contributor_questions, self.general_questions):
-            answer_count = RatingAnswerCounter.objects.filter(question=question).aggregate(Sum("count"))["count__sum"]
-            self.assertEqual(answers_per_question[question], answer_count)
+        for assignment in chain(self.contributor_assignments, self.general_assignments):
+            answer_count = RatingAnswerCounter.objects.filter(assignment=assignment).aggregate(Sum("count"))[
+                "count__sum"
+            ]
+            self.assertEqual(answers_per_assignment[assignment], answer_count)
 
     def test_user_with_password(self):
         baker.make(UserProfile, password=make_password("evap"))
@@ -293,7 +297,7 @@ class TestSendRemindersCommand(TestCase):
         evaluation = baker.make(
             Evaluation,
             state=Evaluation.State.IN_EVALUATION,
-            vote_start_datetime=datetime.now() - timedelta(days=1),
+            vote_start_datetime=datetime.now() - timedelta(days=2),
             vote_end_date=date.today() + timedelta(days=2),
             participants=[user_to_remind],
         )
@@ -309,14 +313,14 @@ class TestSendRemindersCommand(TestCase):
         evaluation1 = baker.make(
             Evaluation,
             state=Evaluation.State.IN_EVALUATION,
-            vote_start_datetime=datetime.now() - timedelta(days=1),
+            vote_start_datetime=datetime.now() - timedelta(days=2),
             vote_end_date=date.today() + timedelta(days=0),
             participants=[user_to_remind],
         )
         evaluation2 = baker.make(
             Evaluation,
             state=Evaluation.State.IN_EVALUATION,
-            vote_start_datetime=datetime.now() - timedelta(days=1),
+            vote_start_datetime=datetime.now() - timedelta(days=2),
             vote_end_date=date.today() + timedelta(days=2),
             participants=[user_to_remind],
         )
@@ -334,7 +338,7 @@ class TestSendRemindersCommand(TestCase):
         baker.make(
             Evaluation,
             state=Evaluation.State.IN_EVALUATION,
-            vote_start_datetime=datetime.now() - timedelta(days=1),
+            vote_start_datetime=datetime.now() - timedelta(days=2),
             vote_end_date=date.today() + timedelta(days=2),
             participants=[user_no_remind],
             voters=[user_no_remind],
@@ -345,6 +349,44 @@ class TestSendRemindersCommand(TestCase):
 
         self.assertEqual(mock.call_count, 0)
         self.assertEqual(len(mail.outbox), 0)
+
+    def test_dont_remind_evaluation_started_yesterday(self):
+        # May fail if run across a day boundary, candidate for freezegun
+        user = baker.make(UserProfile)
+        course = baker.make(Course)
+        recent_evaluation = baker.make(
+            Evaluation,
+            course=course,
+            state=Evaluation.State.IN_EVALUATION,
+            name_en="recent",
+            name_de="recent",
+            vote_start_datetime=datetime.now() - timedelta(days=1),
+            vote_end_date=date.today() + timedelta(days=2),
+            participants=[user],
+        )
+
+        with patch("evap.evaluation.models.EmailTemplate.send_reminder_to_user") as mock:
+            management.call_command("send_reminders", stdout=StringIO())
+
+        mock.assert_not_called()
+
+        old_evaluation = baker.make(
+            Evaluation,
+            course=course,
+            state=Evaluation.State.IN_EVALUATION,
+            name_en="old",
+            name_de="old",
+            vote_start_datetime=datetime.now() - timedelta(days=2),
+            vote_end_date=date.today() + timedelta(days=2),
+            participants=[user],
+        )
+
+        with patch("evap.evaluation.models.EmailTemplate.send_reminder_to_user") as mock2:
+            management.call_command("send_reminders", stdout=StringIO())
+
+        mock2.assert_called_once_with(
+            user, first_due_in_days=2, due_evaluations=[(old_evaluation, 2), (recent_evaluation, 2)]
+        )
 
     @override_settings(TEXTANSWER_REVIEW_REMINDER_WEEKDAYS=list(range(7)))
     def test_send_text_answer_review_reminder(self):
@@ -469,9 +511,12 @@ class TestFormatCommand(TestCase):
         self.assertEqual(len(mock_subprocess_run.mock_calls), 3)
         mock_subprocess_run.assert_has_calls(
             [
-                call(["black", "."], check=False),
-                call(["isort", "."], check=False),
-                call(["npx", "prettier", "--write", "evap/static/ts/**/*.ts"], check=False),
+                call(["ruff", "format", "."], check=False),
+                call(["ruff", "check", "--select", "I", "--fix", "."], check=False),
+                call(
+                    ["npx", "prettier", "--write", "evap/static/ts/**/*.ts", "evap/static/ts/eslint.config.js"],
+                    check=False,
+                ),
             ]
         )
 

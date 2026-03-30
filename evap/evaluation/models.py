@@ -23,6 +23,7 @@ from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
 from django.db.models import CheckConstraint, Count, Exists, F, Manager, OuterRef, Q, QuerySet, Subquery, Value
 from django.db.models.functions import Coalesce, Lower, NullIf, TruncDate
+from django.db.models.signals import post_delete
 from django.dispatch import Signal, receiver
 from django.http import HttpRequest
 from django.template import Context, Template
@@ -73,6 +74,14 @@ class Semester(models.Model):
     short_name_de = models.CharField(max_length=20, unique=True, verbose_name=_("short name (german)"))
     short_name_en = models.CharField(max_length=20, unique=True, verbose_name=_("short name (english)"))
     short_name = translate(en="short_name_en", de="short_name_de")
+
+    cms_name = models.CharField(
+        max_length=20,
+        blank=True,
+        verbose_name=_("CMS name"),
+        help_text=_("If set together with default course end date, CMS data is imported automatically every day."),
+    )
+    default_course_end_date = models.DateField(null=True, verbose_name=_("default course end date for CMS import"))
 
     participations_are_archived = models.BooleanField(default=False, verbose_name=_("participations are archived"))
     grade_documents_are_deleted = models.BooleanField(default=False, verbose_name=_("grade documents are deleted"))
@@ -264,11 +273,11 @@ class Questionnaire(models.Model):
         return not self.contributions.exists()
 
     @property
-    def text_questions(self):
+    def text_questions(self) -> list["Question"]:
         return [question for question in self.questions.all() if question.is_text_question]
 
     @property
-    def rating_questions(self):
+    def rating_questions(self) -> list["Question"]:
         return [question for question in self.questions.all() if question.is_rating_question]
 
 
@@ -303,6 +312,7 @@ class CourseType(models.Model):
     import_names = ArrayField(
         models.CharField(max_length=1024), default=list, verbose_name=_("import names"), blank=True
     )
+    skip_on_automated_import = models.BooleanField(verbose_name=_("skip on automated import"), default=False)
 
     order = models.IntegerField(verbose_name=_("course type order"), default=-1)
 
@@ -316,6 +326,31 @@ class CourseType(models.Model):
         if not self.pk:
             return True
         return not self.courses.all().exists()
+
+
+class ExamType(models.Model):
+    """Model for the exam type of evaluation, e.g. a written exam"""
+
+    name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"), unique=True)
+    name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), unique=True)
+    name = translate(en="name_en", de="name_de")
+    import_names = ArrayField(
+        models.CharField(max_length=1024), default=list, verbose_name=_("import names"), blank=True
+    )
+    skip_on_automated_import = models.BooleanField(verbose_name=_("skip on automated import"), default=False)
+
+    order = models.IntegerField(verbose_name=_("exam type order"), default=-1)
+
+    class Meta:
+        ordering = ["order"]
+
+    def __str__(self):
+        return self.name
+
+    def can_be_deleted_by_manager(self) -> bool:
+        if self.pk is None:
+            return True
+        return not self.evaluations.all().exists()
 
 
 class Course(LoggedModel):
@@ -435,6 +470,10 @@ class Evaluation(LoggedModel):
 
     course = models.ForeignKey(Course, models.PROTECT, verbose_name=_("course"), related_name="evaluations")
 
+    exam_type = models.ForeignKey(
+        ExamType, models.PROTECT, verbose_name=_("exam type"), related_name="evaluations", blank=True, null=True
+    )
+
     # names can be empty, e.g., when there is just one evaluation in a course
     name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"), blank=True)
     name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), blank=True)
@@ -498,27 +537,30 @@ class Evaluation(LoggedModel):
         verbose_name=_("campus management system id"), blank=True, null=True, unique=True, max_length=255
     )
 
+    staff_notes = models.TextField(verbose_name=_("staff notes"), blank=True)
+
     @property
     def has_exam_evaluation(self):
-        return self.course.evaluations.filter(Q(name_de="Klausur") | Q(name_en="Exam")).exists()
+        return self.course.evaluations.filter(exam_type__isnull=False).exists()
 
     @property
     def earliest_possible_exam_date(self):
         return self.vote_start_datetime.date() + timedelta(days=1)
 
     @transaction.atomic
-    def create_exam_evaluation(self, exam_date: date):
-        self.weight = 9
+    def create_exam_evaluation(self, exam_date: date, exam_type: ExamType):
+        self.weight = settings.MAIN_EVALUATION_DEFAULT_WEIGHT
         self.vote_end_date = exam_date - timedelta(days=1)
         self.save()
         exam_evaluation = Evaluation(
             course=self.course,
-            name_de="Klausur",
-            name_en="Exam",
-            weight=1,
+            name_de=exam_type.name_de,
+            name_en=exam_type.name_en,
+            exam_type=exam_type,
+            weight=settings.EXAM_EVALUATION_DEFAULT_WEIGHT,
             is_rewarded=False,
             vote_start_datetime=datetime.combine(exam_date + timedelta(days=1), time(8, 0)),
-            vote_end_date=exam_date + timedelta(days=3),
+            vote_end_date=exam_date + settings.EXAM_EVALUATION_DEFAULT_DURATION,
         )
         exam_evaluation.save()
 
@@ -1146,7 +1188,11 @@ class Contribution(LoggedModel):
 
     @property
     def unlogged_fields(self):
-        return super().unlogged_fields + ["evaluation"] + (["contributor"] if self.is_general else [])
+        return (
+            super().unlogged_fields
+            + ["evaluation"]
+            + (["contributor", "role", "label", "textanswer_visibility"] if self.is_general else [])
+        )
 
     @property
     def is_general(self):
@@ -1163,8 +1209,8 @@ class Contribution(LoggedModel):
 
     def remove_answers_to_questionnaires(self, questionnaires):
         assert set(Answer.__subclasses__()) == {TextAnswer, RatingAnswerCounter}
-        TextAnswer.objects.filter(contribution=self, question__questionnaire__in=questionnaires).delete()
-        RatingAnswerCounter.objects.filter(contribution=self, question__questionnaire__in=questionnaires).delete()
+        TextAnswer.objects.filter(contribution=self, assignment__questionnaire__in=questionnaires).delete()
+        RatingAnswerCounter.objects.filter(contribution=self, assignment__questionnaire__in=questionnaires).delete()
 
 
 class QuestionType:
@@ -1217,8 +1263,9 @@ class Question(models.Model):
         (_("Layout"), ((QuestionType.HEADING, _("Heading")),)),
     )
 
-    order = models.IntegerField(verbose_name=_("question order"), default=-1)
-    questionnaire = models.ForeignKey(Questionnaire, models.CASCADE, related_name="questions")
+    questionnaires = models.ManyToManyField(
+        Questionnaire, through="evaluation.QuestionAssignment", related_name="questions"
+    )
     text_de = models.CharField(max_length=1024, verbose_name=_("question text (german)"))
     text_en = models.CharField(max_length=1024, verbose_name=_("question text (english)"))
     text = translate(en="text_en", de="text_de")
@@ -1228,7 +1275,6 @@ class Question(models.Model):
 
     @inject_choices_constraint(locals())
     class Meta:
-        ordering = ["order"]
         verbose_name = _("question")
         verbose_name_plural = _("questions")
         constraints = [
@@ -1317,6 +1363,25 @@ class Question(models.Model):
     @property
     def can_have_textanswers(self):
         return self.is_text_question or self.is_rating_question and self.allows_additional_textanswers
+
+
+class QuestionAssignment(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="assignments")
+    questionnaire = models.ForeignKey(Questionnaire, on_delete=models.CASCADE, related_name="question_assignments")
+    order = models.IntegerField(verbose_name=_("question order"), default=-1)
+
+    class Meta:
+        ordering = ["order"]
+        unique_together = [("question", "questionnaire")]
+
+
+@receiver(post_delete, sender=QuestionAssignment)
+@transaction.atomic
+def _question_assignment_post_delete(*, instance: QuestionAssignment, **_kwargs) -> None:
+    """Garbage-collect unused questions once no questionnaires reference them anymore."""
+
+    if not QuestionAssignment.objects.filter(question=instance.question.pk).exists():
+        Question.objects.filter(pk=instance.question.pk).delete()
 
 
 @dataclass
@@ -1512,20 +1577,24 @@ CHOICES: dict[int, Choices | BipolarChoices] = {
 class Answer(models.Model):
     """
     An abstract answer to a question. For anonymity purposes, the answering
-    user ist not stored in the object. Concrete subclasses are
+    user is not stored in the object. Concrete subclasses are
     `RatingAnswerCounter`, and `TextAnswer`.
     """
 
     # we use UUIDs to hide insertion order. See https://github.com/e-valuation/EvaP/wiki/Data-Economy
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    question = models.ForeignKey(Question, models.PROTECT)
+    assignment = models.ForeignKey(QuestionAssignment, models.PROTECT)
     contribution = models.ForeignKey(Contribution, models.PROTECT, related_name="%(class)s_set")
 
     class Meta:
         abstract = True
         verbose_name = _("answer")
         verbose_name_plural = _("answers")
+
+    @property
+    def question(self) -> Question:
+        return self.assignment.question
 
 
 class RatingAnswerCounter(Answer):
@@ -1541,7 +1610,7 @@ class RatingAnswerCounter(Answer):
     count = models.IntegerField(verbose_name=_("count"), default=0)
 
     class Meta:
-        unique_together = [["question", "contribution", "answer"]]
+        unique_together = [["assignment", "contribution", "answer"]]
         verbose_name = _("rating answer")
         verbose_name_plural = _("rating answers")
 
@@ -1786,7 +1855,6 @@ class EvapBaseUser(models.Model):
 
 
 class UserProfile(EvapBaseUser, PermissionsMixin):
-
     # null=True because certain external users don't have an address
     email = models.EmailField(max_length=255, unique=True, blank=True, null=True, verbose_name=_("email address"))
 
@@ -2022,6 +2090,8 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
 
     @property
     def is_external(self):
+        if self.is_proxy_user and not self.email:
+            return False
         if not self.email:
             return True
         return is_external_email(self.email)

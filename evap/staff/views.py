@@ -2,7 +2,7 @@ import csv
 import itertools
 import logging
 from collections import OrderedDict, defaultdict, namedtuple
-from collections.abc import Container
+from collections.abc import Collection
 from dataclasses import dataclass
 from datetime import date, datetime
 from enum import Enum
@@ -32,13 +32,14 @@ from django.forms.models import inlineformset_factory, modelformset_factory
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
+from django.utils import translation
 from django.utils.html import format_html
-from django.utils.translation import get_language
+from django.utils.translation import get_language, gettext_lazy, ngettext
 from django.utils.translation import gettext as _
-from django.utils.translation import gettext_lazy, ngettext
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, FormView, UpdateView
 
+from evap.cms.models import IgnoredEvaluation
 from evap.contributor.views import export_contributor_results
 from evap.evaluation.auth import manager_required, reviewer_required, staff_permission_required
 from evap.evaluation.models import (
@@ -48,11 +49,12 @@ from evap.evaluation.models import (
     CourseType,
     EmailTemplate,
     Evaluation,
+    ExamType,
     FaqQuestion,
     FaqSection,
     Infotext,
     Program,
-    Question,
+    QuestionAssignment,
     Questionnaire,
     RatingAnswerCounter,
     Semester,
@@ -92,6 +94,8 @@ from evap.staff.forms import (
     EvaluationEmailForm,
     EvaluationForm,
     EvaluationParticipantCopyForm,
+    ExamEvaluationForm,
+    ExamTypeForm,
     ExportSheetForm,
     FaqQuestionForm,
     FaqSectionForm,
@@ -100,7 +104,7 @@ from evap.staff.forms import (
     ModelWithImportNamesFormset,
     ProgramForm,
     ProgramMergeSelectionForm,
-    QuestionForm,
+    QuestionAssignmentForm,
     QuestionnaireForm,
     QuestionnairesAssignForm,
     RemindResponsibleForm,
@@ -370,17 +374,19 @@ class ReadyForEditorsOperation(EvaluationOperation):
             ).format(len(evaluations)),
         )
         if email_template:
-            evaluations_by_responsible = {}
-            for evaluation in evaluations:
-                for responsible in evaluation.course.responsibles.all():
-                    evaluations_by_responsible.setdefault(responsible, []).append(evaluation)
+            evaluations_by_responsible = unordered_groupby(
+                (responsible, evaluation)
+                for evaluation in evaluations
+                for responsible in evaluation.course.responsibles.all()
+            )
 
             for responsible, responsible_evaluations in evaluations_by_responsible.items():
                 body_params = {"user": responsible, "evaluations": responsible_evaluations}
                 editors = UserProfile.objects.filter(
                     contributions__evaluation__in=responsible_evaluations,
                     contributions__role=Contribution.Role.EDITOR,
-                ).exclude(pk=responsible.pk)
+                ).exclude(courses_responsible_for__evaluations__in=responsible_evaluations)
+
                 email_template.send_to_user(
                     responsible,
                     subject_params={},
@@ -902,14 +908,23 @@ def semester_questionnaire_assign(request, semester_id):
         raise PermissionDenied
     evaluations = semester.evaluations.filter(state=Evaluation.State.NEW)
     course_types = CourseType.objects.filter(courses__evaluations__in=evaluations)
-    form = QuestionnairesAssignForm(request.POST or None, course_types=course_types)
+    exam_types = ExamType.objects.filter(evaluations__in=evaluations)
+    form = QuestionnairesAssignForm(request.POST or None, course_types=course_types, exam_types=exam_types)
 
     if form.is_valid():
         for evaluation in evaluations:
-            general_questionnaires = list(form.cleaned_data[f"general-{evaluation.course.type.id}"])
-            contributor_questionnaires = list(
-                form.cleaned_data["all-contributors"] | form.cleaned_data[f"contributor-{evaluation.course.type.id}"]
+            general_questionnaires = (
+                list(form.cleaned_data[f"general-{evaluation.course.type.id}"])
+                if evaluation.exam_type is None
+                else list(form.cleaned_data[f"exam-{evaluation.exam_type.id}"])
             )
+
+            contributor_questionnaires = []
+            if evaluation.exam_type is None:
+                contributor_questionnaires = list(
+                    form.cleaned_data["all-contributors"]
+                    | form.cleaned_data[f"contributor-{evaluation.course.type.id}"]
+                )
 
             if general_questionnaires:
                 evaluation.general_contribution.questionnaires.set(general_questionnaires)
@@ -926,6 +941,7 @@ def semester_questionnaire_assign(request, semester_id):
     general_fields = [field for field in form if field.name.startswith("general-")]
     contributor_fields = [field for field in form if field.name.startswith("contributor-")]
     contributor_fields.append(form["all-contributors"])
+    exam_fields = [field for field in form if field.name.startswith("exam-")]
 
     return render(
         request,
@@ -935,6 +951,7 @@ def semester_questionnaire_assign(request, semester_id):
             "form": form,
             "general_fields": general_fields,
             "contributor_fields": contributor_fields,
+            "exam_fields": exam_fields,
         },
     )
 
@@ -1114,27 +1131,16 @@ def course_copy(request, course_id):
 @require_POST
 @manager_required
 def create_exam_evaluation(request: HttpRequest) -> HttpResponse:
-    evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
+    form = ExamEvaluationForm(request.POST)
 
-    if evaluation.has_exam_evaluation:
-        raise SuspiciousOperation("An exam evaluation already exists for this course.")
-
-    exam_date_string = request.POST.get("exam_date")
-    if not exam_date_string:
-        return HttpResponseBadRequest("Exam date missing.")
-    try:
-        exam_date = datetime.strptime(exam_date_string, "%Y-%m-%d").date()
-    except ValueError:
-        return HttpResponseBadRequest("Exam date invalid.")
-
-    if exam_date < evaluation.earliest_possible_exam_date:
-        raise SuspiciousOperation(
-            "The end date of the main evaluation would be before its start date. No exam evaluation was created."
+    if form.is_valid():
+        form.cleaned_data["base_evaluation"].create_exam_evaluation(
+            form.cleaned_data["exam_date"], form.cleaned_data["exam_type"]
         )
+        messages.success(request, _("Successfully created exam evaluation."))
+        return HttpResponse()  # 200 OK
 
-    evaluation.create_exam_evaluation(exam_date)
-    messages.success(request, _("Successfully created exam evaluation."))
-    return HttpResponse()  # 200 OK
+    raise SuspiciousOperation(form.errors)
 
 
 @manager_required
@@ -1227,6 +1233,7 @@ def evaluation_create_impl(request, semester: Semester, course: Course | None):
             "editable": True,
             "state": "",
             "questionnaires_with_answers_per_contributor": {},
+            "plain_page": True,
         },
     )
 
@@ -1273,6 +1280,7 @@ def evaluation_copy(request, evaluation_id):
             "editable": True,
             "state": "",
             "questionnaires_with_answers_per_contributor": {},
+            "plain_page": True,
         },
     )
 
@@ -1351,10 +1359,10 @@ def helper_evaluation_edit(request, evaluation):
 
     assert set(Answer.__subclasses__()) == {TextAnswer, RatingAnswerCounter}
     contributor_questionnaire_pairs = [
-        (answer.contribution.contributor, answer.question.questionnaire)
+        (answer.contribution.contributor, answer.assignment.questionnaire)
         for answer_cls in [TextAnswer, RatingAnswerCounter]
         for answer in answer_cls.objects.filter(contribution__evaluation=evaluation).select_related(
-            "question__questionnaire", "contribution__contributor"
+            "assignment__questionnaire", "contribution__contributor"
         )
     ]
 
@@ -1395,6 +1403,15 @@ def evaluation_delete(request):
         )
 
     with temporary_receiver(RewardPointGranting.granted_by_evaluation_deletion, notify_reward_points):
+        if evaluation.cms_id:
+            # remember deleted evaluation to prevent the importer from creating it again
+            IgnoredEvaluation.objects.create(
+                cms_id=evaluation.cms_id,
+                name_de=evaluation.name_de,
+                name_en=evaluation.name_en,
+                course=evaluation.course,
+                notes=evaluation.staff_notes,
+            )
         evaluation.delete()
         update_template_cache_of_published_evaluations_in_course(evaluation.course)
 
@@ -1596,13 +1613,13 @@ def get_evaluation_and_contributor_textanswer_sections(
 
     raw_answers = (
         TextAnswer.objects.filter(contribution__evaluation=evaluation)
-        .select_related("question__questionnaire", "contribution__contributor")
-        .order_by("contribution", "question__questionnaire", "question")
+        .select_related("assignment__questionnaire", "contribution__contributor", "assignment__question")
+        .order_by("contribution", "assignment__questionnaire", "assignment")
         .filter(textanswer_filter)
     )
 
     questionnaire_answer_groups = itertools.groupby(
-        raw_answers, lambda answer: (answer.contribution, answer.question.questionnaire)
+        raw_answers, lambda answer: (answer.contribution, answer.assignment.questionnaire)
     )
 
     for (contribution, questionnaire), questionnaire_answers in questionnaire_answer_groups:
@@ -1656,7 +1673,6 @@ def evaluation_textanswers(request: HttpRequest, evaluation_id: int) -> HttpResp
     )
 
     template_data = {"semester": semester, "evaluation": evaluation, "view": view}
-
     if view == "quick":
         visited = request.session.get("review-visited", set())
         skipped = request.session.get("review-skipped", set())
@@ -1768,11 +1784,16 @@ def evaluation_textanswer_edit(request, textanswer_id):
     assert_textanswer_review_permissions(evaluation)
 
     form = TextAnswerForm(request.POST or None, instance=textanswer)
-
+    view = request.GET.get("next-view")
     if form.is_valid():
         form.save()
         # jump to edited answer
-        url = reverse("staff:evaluation_textanswers", args=[evaluation.pk], fragment=str(textanswer.id))
+        url = reverse(
+            "staff:evaluation_textanswers",
+            args=[evaluation.pk],
+            query={"view": view} if view else None,
+            fragment="textanswer-" + str(textanswer_id),
+        )
         return HttpResponseRedirect(url)
 
     template_data = {
@@ -1825,24 +1846,58 @@ def questionnaire_index(request):
 
 @manager_required
 def questionnaire_view(request, questionnaire_id):
+    language = request.GET.get("language", request.user.language)
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
 
     # build forms
     contribution = Contribution(contributor=request.user)
-    form = QuestionnaireVotingForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
+    with translation.override(language):
+        form = QuestionnaireVotingForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
 
-    return render(request, "staff_questionnaire_view.html", {"forms": [form], "questionnaire": questionnaire})
+    return render(
+        request,
+        "staff_questionnaire_view.html",
+        {
+            "forms": [form],
+            "questionnaire": questionnaire,
+            "languages": settings.LANGUAGES,
+            "evaluation_language": language,
+        },
+    )
+
+
+@manager_required
+def questionnaire_usage(request: HttpRequest, questionnaire_id: int) -> HttpResponse:
+    questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+
+    evaluations = (
+        Evaluation.objects.filter(contributions__questionnaires=questionnaire)
+        .prefetch_related("course__semester")
+        .order_by("-course__semester__created_at", "vote_start_datetime")
+    )
+
+    evaluations_grouped_by_semester = unordered_groupby((e.course.semester, e) for e in evaluations)
+    return render(
+        request,
+        "staff_questionnaire_usage.html",
+        {"questionnaire": questionnaire, "evaluations_grouped_by_semester": evaluations_grouped_by_semester},
+    )
 
 
 @manager_required
 def questionnaire_create(request):
     questionnaire = Questionnaire()
-    InlineQuestionFormset = inlineformset_factory(
-        Questionnaire, Question, formset=AtLeastOneFormset, form=QuestionForm, extra=1, exclude=("questionnaire",)
+    InlineQuestionAssignmentFormset = inlineformset_factory(
+        Questionnaire,
+        QuestionAssignment,
+        formset=AtLeastOneFormset,
+        form=QuestionAssignmentForm,
+        extra=1,
+        exclude=("questionnaire",),
     )
 
     form = QuestionnaireForm(request.POST or None, instance=questionnaire)
-    formset = InlineQuestionFormset(request.POST or None, instance=questionnaire)
+    formset = InlineQuestionAssignmentFormset(request.POST or None, instance=questionnaire)
 
     if form.is_valid() and formset.is_valid():
         form.save(force_highest_order=True)
@@ -1854,7 +1909,8 @@ def questionnaire_create(request):
     return render(request, "staff_questionnaire_form.html", {"form": form, "formset": formset, "editable": True})
 
 
-def disable_all_except_named(fields: dict[str, Any], names_of_editable: Container[str]):
+def disable_all_except_named(fields: dict[str, Any], names_of_editable: Collection[str]):
+    assert set(fields).issuperset(set(names_of_editable))
     for name, field in fields.items():
         if name not in names_of_editable:
             field.disabled = True
@@ -1873,17 +1929,17 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
             "min_num": question_count,
             "max_num": question_count,
         }
-    InlineQuestionFormset = inlineformset_factory(
+    InlineQuestionAssignmentFormset = inlineformset_factory(
         Questionnaire,
-        Question,
+        QuestionAssignment,
         formset=AtLeastOneFormset,
-        form=QuestionForm,
+        form=QuestionAssignmentForm,
         exclude=("questionnaire",),
         **formset_kwargs,
     )
 
     form = QuestionnaireForm(request.POST or None, instance=questionnaire)
-    formset = InlineQuestionFormset(request.POST or None, instance=questionnaire)
+    formset = InlineQuestionAssignmentFormset(request.POST or None, instance=questionnaire)
 
     if not editable:
         disable_all_except_named(
@@ -1891,6 +1947,7 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
         )
         for question_form in formset.forms:
             disable_all_except_named(question_form.fields, ["id"])
+            disable_all_except_named(question_form.question_form.fields, [])
 
         # disallow type changed from and to contributor or dropout
         single_types = [Questionnaire.Type.CONTRIBUTOR, Questionnaire.Type.DROPOUT]
@@ -1917,7 +1974,13 @@ def questionnaire_edit(request, questionnaire_id):
         messages.success(request, _("Successfully updated questionnaire."))
         return redirect("staff:questionnaire_index")
 
-    template_data = {"questionnaire": questionnaire, "form": form, "formset": formset, "editable": editable}
+    template_data = {
+        "questionnaire": questionnaire,
+        "form": form,
+        "formset": formset,
+        "editable": editable,
+        "disable_breadcrumb_questionnaire": True,
+    }
     return render(request, "staff_questionnaire_form.html", template_data)
 
 
@@ -1926,12 +1989,19 @@ def get_identical_form_and_formset(questionnaire):
     Generates a Questionnaire creation form and formset filled out like the already exisiting Questionnaire
     specified in questionnaire_id. Used for copying and creating of new versions.
     """
-    inline_question_formset = inlineformset_factory(
-        Questionnaire, Question, formset=AtLeastOneFormset, form=QuestionForm, extra=1, exclude=("questionnaire",)
+    InlineQuestionAssignmentFormset = inlineformset_factory(
+        Questionnaire,
+        QuestionAssignment,
+        formset=AtLeastOneFormset,
+        form=QuestionAssignmentForm,
+        extra=1,
+        exclude=("questionnaire",),
     )
 
     form = QuestionnaireForm(instance=questionnaire)
-    return form, inline_question_formset(instance=questionnaire, queryset=questionnaire.questions.all())
+    return form, InlineQuestionAssignmentFormset(
+        instance=questionnaire, queryset=questionnaire.question_assignments.all()
+    )
 
 
 @manager_required
@@ -1940,12 +2010,17 @@ def questionnaire_copy(request, questionnaire_id):
 
     if request.method == "POST":
         questionnaire = Questionnaire()
-        InlineQuestionFormset = inlineformset_factory(
-            Questionnaire, Question, formset=AtLeastOneFormset, form=QuestionForm, extra=1, exclude=("questionnaire",)
+        InlineQuestionAssignmentFormset = inlineformset_factory(
+            Questionnaire,
+            QuestionAssignment,
+            formset=AtLeastOneFormset,
+            form=QuestionAssignmentForm,
+            extra=1,
+            exclude=("questionnaire",),
         )
 
         form = QuestionnaireForm(request.POST, instance=questionnaire)
-        formset = InlineQuestionFormset(request.POST.copy(), instance=questionnaire, save_as_new=True)
+        formset = InlineQuestionAssignmentFormset(request.POST.copy(), instance=questionnaire, save_as_new=True)
 
         if form.is_valid() and formset.is_valid():
             form.save()
@@ -1975,12 +2050,17 @@ def questionnaire_new_version(request, questionnaire_id):
 
     if request.method == "POST":
         questionnaire = Questionnaire()
-        InlineQuestionFormset = inlineformset_factory(
-            Questionnaire, Question, formset=AtLeastOneFormset, form=QuestionForm, extra=1, exclude=("questionnaire",)
+        InlineQuestionAssignmentFormset = inlineformset_factory(
+            Questionnaire,
+            QuestionAssignment,
+            formset=AtLeastOneFormset,
+            form=QuestionAssignmentForm,
+            extra=1,
+            exclude=("questionnaire",),
         )
 
         form = QuestionnaireForm(request.POST, instance=questionnaire)
-        formset = InlineQuestionFormset(request.POST.copy(), instance=questionnaire, save_as_new=True)
+        formset = InlineQuestionAssignmentFormset(request.POST.copy(), instance=questionnaire, save_as_new=True)
 
         try:
             with transaction.atomic():
@@ -2177,6 +2257,21 @@ def course_type_merge(request, main_type_id, other_type_id):
         "staff_course_type_merge.html",
         {"main_type": main_type, "other_type": other_type, "courses_with_other_type": courses_with_other_type},
     )
+
+
+@manager_required
+class ExamTypeIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
+    model = ExamType
+    formset_class = modelformset_factory(
+        ExamType,
+        form=ExamTypeForm,
+        formset=ModelWithImportNamesFormset,
+        can_delete=True,
+        extra=1,
+    )
+    template_name = "staff_exam_type_index.html"
+    success_url = reverse_lazy("staff:exam_type_index")
+    success_message = gettext_lazy("Successfully updated the exam types.")
 
 
 @manager_required

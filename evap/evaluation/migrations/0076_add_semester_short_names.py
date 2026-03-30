@@ -20,7 +20,6 @@ def populate_semester_short_names(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("evaluation", "0075_semester_results_are_archived"),
     ]
