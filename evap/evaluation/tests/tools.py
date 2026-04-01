@@ -1,3 +1,4 @@
+import random
 import time
 from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
@@ -44,10 +45,11 @@ from evap.evaluation.models import (
 class EvapTestRunner(DiscoverRunner):
     """Skips selenium tests by default, if no other tags are specified."""
 
-    def __init__(self, *args: Any, headed=False, **kwargs: Any) -> None:
+    def __init__(self, *args: Any, headed: bool, baker_seed: int, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
         self.__headed = headed
+        self.__baker_seed = baker_seed
 
         if not self.tags and not self.exclude_tags:
             self.exclude_tags = {"selenium"}
@@ -62,10 +64,21 @@ class EvapTestRunner(DiscoverRunner):
             action="store_true",
         )
 
+        parser.add_argument(
+            "--baker-seed",
+            nargs="?",
+            type=int,
+            default=random.getrandbits(32),
+            help="Force model-bakery to use this seed to generate random values. Default: random value",
+        )
+
     def setup_test_environment(self, **kwargs):
         super().setup_test_environment(**kwargs)
 
         LiveServerTest.headless = not self.__headed
+
+        baker.seed(self.__baker_seed)
+        self.log(f"Using baker seed: {self.__baker_seed}")
 
 
 class ResetLanguageOnTearDownMixin:
