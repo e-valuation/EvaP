@@ -14,6 +14,7 @@ from django.contrib.auth.models import Group
 from django.contrib.staticfiles.handlers import StaticFilesHandler
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.http.request import HttpRequest, QueryDict
+from django.test import override_settings
 from django.test.runner import DiscoverRunner
 from django.test.selenium import SeleniumTestCase
 from django.test.utils import CaptureQueriesContext
@@ -301,6 +302,8 @@ def assert_no_database_modifications(*args, **kwargs):
                     raise AssertionError("Unexpected modifying query found: " + query["sql"])
 
 
+# For the average LiveServerTest, if the "server" has an internal error, we want to abort/stacktrace/drop into debugger
+@override_settings(DEBUG_PROPAGATE_EXCEPTIONS=True)
 class LiveServerTest(SeleniumTestCase):
     browser = "firefox"
     selenium: WebDriver
