@@ -16,6 +16,7 @@ from evap.evaluation.models import (
     Question,
     QuestionAssignment,
     Questionnaire,
+    QuestionType,
     Semester,
     TextAnswer,
     UserProfile,
@@ -253,7 +254,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
             can_publish_text_results=True,
         )
 
-        question1 = baker.make(Question)
+        question1 = baker.make(Question, type=QuestionType.TEXT)
 
         general_questionnaire = baker.make(Questionnaire, questions=[question1])
         evaluation.general_contribution.questionnaires.set([general_questionnaire])
