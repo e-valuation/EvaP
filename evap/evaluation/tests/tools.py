@@ -313,6 +313,7 @@ class LiveServerTest(SeleniumTestCase):
         super().setUp()
         self.request = self.make_request()
         self.manager = make_manager()
+        self.selenium.implicitly_wait(0)
         self.selenium.get(self.live_server_url)
         self.login(self.manager)
 
@@ -352,7 +353,7 @@ class LiveServerTest(SeleniumTestCase):
 
     @property
     def wait(self) -> WebDriverWait:
-        return WebDriverWait(self.selenium, 10)
+        return WebDriverWait(self.selenium, 10, 0.1)
 
     @contextmanager
     def wait_until_page_reloads(self):
@@ -380,3 +381,8 @@ def classes_of_element(element: WebElement) -> list[str]:
     if classes is None:
         return []
     return classes.split(" ")
+
+
+def get_open_modals(driver: WebDriver, by: str, value: str) -> list[WebElement]:
+    modals = driver.find_elements(by, value)
+    return [modal for modal in modals if len(modal.shadow_root.find_elements(By.CSS_SELECTOR, "dialog:open")) == 1]
