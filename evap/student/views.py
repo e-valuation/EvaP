@@ -282,7 +282,12 @@ def render_vote_page(
 
     assert preview or not all(form.is_valid() for form_group in form_groups.values() for form in form_group)
 
-    evaluation_form_group = form_groups.pop(evaluation.general_contribution, default=[])
+    # TODO: Can we do this more elegantly? dict.pop requires that first input type is key type (=Contribution), but
+    # passing any other type (especially None) is fine and falls back to the default.
+    if evaluation.general_contribution is None:
+        evaluation_form_group = []
+    else:
+        evaluation_form_group = form_groups.pop(evaluation.general_contribution, default=[])
 
     contributor_form_groups = [
         (

@@ -946,6 +946,7 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
             course__responsibles=[cls.responsible],
             course__type=iter(cls.course_types),
             _quantity=3,
+            _bulk_create=True,
         )
         cls.exam_evaluations = [
             baker.make(
@@ -2402,7 +2403,13 @@ class TestEvaluationEditView(WebTestStaffMode):
     def test_general_contribution_log_entry(self):
         page = self.app.get(self.url, user=self.manager)
         self.assertContains(
-            page, '<p class="mt-3">The Contribution "General Contribution" was created.</p><ul></ul>', html=True
+            page,
+            f"""
+            <p class="mt-3">The Contribution "General Contribution" was created.</p>
+            <ul>
+                <li>Questionnaires added: {self.general_questionnaire.name}</li>
+            </ul>""",
+            html=True,
         )
 
 
@@ -3111,7 +3118,9 @@ class TestSemesterFlaggedTextAnswersView(WebTestStaffMode):
 
         manager = make_manager()
         student = baker.make(UserProfile)
-        evaluations = baker.make(Evaluation, course__semester=semester, participants=[student], _quantity=3)
+        evaluations = baker.make(
+            Evaluation, course__semester=semester, participants=[student], _quantity=3, _bulk_create=True
+        )
         textanswers = [
             [baker.make(TextAnswer, answer=f"Answer {i} {j}", contribution__evaluation=evaluation) for j in range(3)]
             for i, evaluation in enumerate(evaluations)

@@ -23,7 +23,7 @@ from evap.evaluation.models import (
     UserProfile,
 )
 from evap.evaluation.tools import discard_cached_related_objects
-from evap.tools import unordered_groupby
+from evap.tools import assert_not_none, unordered_groupby
 
 STATES_WITH_RESULTS_CACHING = {Evaluation.State.EVALUATED, Evaluation.State.REVIEWED, Evaluation.State.PUBLISHED}
 STATES_WITH_RESULT_TEMPLATE_CACHING = {Evaluation.State.PUBLISHED}
@@ -457,16 +457,21 @@ def get_grade_color(grade):
     return color_mix(GRADE_COLORS[next_lower], GRADE_COLORS[next_higher], grade - next_lower)
 
 
-def textanswers_visible_to(contribution):
+def textanswers_visible_to(contribution: Contribution | None) -> TextAnswerVisibility:
+    if contribution is None:
+        return TextAnswerVisibility(visible_by_contribution=[], visible_by_delegation_count=0)
+
+    contributors: set[UserProfile]
     if contribution.is_general:
         contributors = {
             other_contribution.contributor
             for other_contribution in contribution.evaluation.contributions.all()
             if other_contribution.textanswer_visibility == Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
+            and other_contribution.contributor is not None
         }
         contributors.update(contribution.evaluation.course.responsibles.all())
     else:
-        contributors = {contribution.contributor}
+        contributors = {assert_not_none(contribution.contributor)}
 
     non_proxy_contributors = [contributor for contributor in contributors if not contributor.is_proxy_user]
     delegates = {delegate for contributor in non_proxy_contributors for delegate in contributor.delegates.all()}
