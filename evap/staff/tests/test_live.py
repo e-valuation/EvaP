@@ -181,63 +181,48 @@ class ParticipantCollapseTests(LiveServerTest):
 
 class EvaluationGridLiveTest(LiveServerTest):
     def test_evaluation_grid_sorting(self):
-        test_semester = baker.make(Semester)
+        semester = baker.make(Semester)
 
         baker.make(
             Evaluation,
             _quantity=7,
-            name_de=iter(f"Evaluation {i}" for i in range(1, 8)),
-            name_en=iter(f"Evaluation {i}" for i in range(1, 8)),
+            name_en=baker.seq("Evaluation"),
+            name_de=baker.seq("Evaluation"),
+            course__name_en=iter(("AA", "ÄB", "AC", "AE", "UB", "ÜC", "Z")),
             course__name_de=iter(("AA", "ÄB", "AC", "AE", "UB", "ÜC", "Z")),
-            course__name_en=iter(("Z", "ÜC", "UB", "AE", "AC", "ÄB", "AA")),
-            course__semester=test_semester,
+            course__semester=semester,
         )
 
+        expected_ascending = [
+            "AA – Evaluation1",
+            "ÄB – Evaluation2",
+            "AC – Evaluation3",
+            "AE – Evaluation4",
+            "UB – Evaluation5",
+            "ÜC – Evaluation6",
+            "Z – Evaluation7",
+        ]
+        expected_descending = expected_ascending[::-1]
+
+        def make_order_is_as_expected(expected: list[str]):
+            def predicate(driver):
+                table_entries = driver.find_elements(By.CSS_SELECTOR, "#evaluation-table td[data-col=name]")
+                return expected == [entry.get_attribute("data-order") for entry in table_entries]
+
+            return predicate
+
         with self.enter_staff_mode():
-            self.selenium.get(self.reverse("staff:semester_view", args=[test_semester.id]))
+            self.selenium.get(self.reverse("staff:semester_view", args=[semester.id]))
+
             self.set_page_language("de")
-
-            table_entries = self.selenium.find_elements(
-                By.XPATH, "//table[@id='evaluation-table']//tbody//child::td[@data-col='name']"
-            )
-
-            expected = [
-                "AA – Evaluation 1",
-                "ÄB – Evaluation 2",
-                "AC – Evaluation 3",
-                "AE – Evaluation 4",
-                "UB – Evaluation 5",
-                "ÜC – Evaluation 6",
-                "Z – Evaluation 7",
-            ]
-
-            actual = [entry.get_attribute("data-order") for entry in table_entries]
-            self.assertEqual(actual, expected)
+            self.wait.until(make_order_is_as_expected(expected_ascending))
+            self.selenium.find_element(By.CSS_SELECTOR, "#evaluation-table th[data-col=name]").click()
+            self.wait.until(make_order_is_as_expected(expected_descending))
 
             self.set_page_language("en")
-
-            self.wait.until(visibility_of_element_located((By.ID, "evaluation-table")))
-
-            toggle_sort_button = self.selenium.find_element(By.XPATH, "//thead//th[@data-col='name']")
-            toggle_sort_button.click()
-            self.wait.until(visibility_of_element_located((By.ID, "evaluation-table")))
-
-            table_entries = self.selenium.find_elements(
-                By.XPATH, "//table[@id='evaluation-table']//tbody//child::td[@data-col='name']"
-            )
-
-            expected = [
-                "Z – Evaluation 1",
-                "ÜC – Evaluation 2",
-                "UB – Evaluation 3",
-                "AE – Evaluation 4",
-                "AC – Evaluation 5",
-                "ÄB – Evaluation 6",
-                "AA – Evaluation 7",
-            ]
-
-            actual = [entry.get_attribute("data-order") for entry in table_entries]
-            self.assertEqual(actual, expected)
+            self.wait.until(make_order_is_as_expected(expected_descending))
+            self.selenium.find_element(By.CSS_SELECTOR, "#evaluation-table th[data-col=name]").click()
+            self.wait.until(make_order_is_as_expected(expected_ascending))
 
 
 class TextAnswerEditLiveTest(LiveServerTest):
