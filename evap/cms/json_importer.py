@@ -15,7 +15,11 @@ from django.utils.timezone import now
 from pydantic import TypeAdapter
 from typing_extensions import TypedDict
 
-from evap.cms.models import IgnoredEvaluation
+from evap.cms.models import (
+    CourseLink,
+    EvaluationLink,
+    IgnoredEvaluation,
+)
 from evap.evaluation.models import (
     Contribution,
     Course,
@@ -27,7 +31,7 @@ from evap.evaluation.models import (
     UserProfile,
 )
 from evap.evaluation.tools import clean_email
-from evap.staff.tools import update_m2m_with_changes, update_or_create_with_changes, update_with_changes
+from evap.staff.tools import update_or_create_with_changes, update_with_changes
 
 logger = logging.getLogger(__name__)
 
@@ -119,7 +123,6 @@ class ImportStatistics:
     updated_courses: list[Course] = field(default_factory=list)
     updated_evaluations: set[Evaluation] = field(default_factory=set)
     updated_participants: list[Evaluation] = field(default_factory=list)
-    attempted_course_changes: set[Course] = field(default_factory=set)
     attempted_evaluation_changes: list[Evaluation] = field(default_factory=list)
     attempted_participant_changes: list[Evaluation] = field(default_factory=list)
     warnings: list[WarningMessage] = field(default_factory=list)
@@ -157,7 +160,6 @@ class ImportStatistics:
         log += self._make_stats("Updated Courses", self.updated_courses)
         log += self._make_stats("Updated Evaluations", self.updated_evaluations)
         log += self._make_stats("Updated Participants", self.updated_participants)
-        log += self._make_stats("Attempted Course Changes", self.attempted_course_changes)
         log += self._make_stats("Attempted Evaluation Changes", self.attempted_evaluation_changes)
         log += self._make_stats("Attempted Participant Changes", self.attempted_participant_changes)
 
@@ -372,38 +374,37 @@ class JSONImporter:
             )
             return None
 
-        try:
-            course = Course.objects.get(cms_id=data["gguid"])
-        except Course.DoesNotExist:
-            course = None
-
-        if course and course.evaluations.exclude(state=Evaluation.State.NEW).exists():
-            self.statistics.attempted_course_changes.add(course)
-            # the course itself should not be updated but is still added to courses_by_gguid so that its evaluations will be processed
-            self.courses_by_gguid[data["gguid"]] = course
-            return course
-
-        responsibles = self._get_user_profiles(data["lecturers"])
-        responsibles = self._remove_non_responsible_users(responsibles)
-        responsibles = self._get_users_with_longest_title(responsibles)
         if not data["title_en"]:
             data["title_en"] = data["title"]
-        course, created, changes = update_or_create_with_changes(
-            Course,
-            semester=self.semester,
-            cms_id=data["gguid"],
-            defaults={
-                "name_de": _clean_whitespaces_and_hyphens(data["title"]),
-                "name_en": _clean_whitespaces_and_hyphens(data["title_en"]),
-                "type": course_type,
-            },
-        )
-        changes |= update_m2m_with_changes(course, "responsibles", responsibles)
 
-        if created:
+        try:
+            cms_course_link = CourseLink.objects.get(cms_id=data["gguid"])
+            if cms_course_link.is_active:
+                course = cms_course_link.course
+                changes = update_with_changes(
+                    course,
+                    {
+                        "name_de": _clean_whitespaces_and_hyphens(data["title"]),
+                        "name_en": _clean_whitespaces_and_hyphens(data["title_en"]),
+                    },
+                )
+                if changes:
+                    self.statistics.updated_courses.append(course)
+        except CourseLink.DoesNotExist:
+            course = Course.objects.create(
+                semester=self.semester,
+                name_de=_clean_whitespaces_and_hyphens(data["title"]),
+                name_en=_clean_whitespaces_and_hyphens(data["title_en"]),
+                type=course_type,
+            )
+
+            responsibles = self._get_user_profiles(data["lecturers"])
+            responsibles = self._remove_non_responsible_users(responsibles)
+            responsibles = self._get_users_with_longest_title(responsibles)
+            course.responsibles.set(responsibles)
+
+            CourseLink.objects.create(course=course, cms_id=data["gguid"])
             self.statistics.new_courses.append(course)
-        elif changes:
-            self.statistics.updated_courses.append(course)
 
         self.courses_by_gguid[data["gguid"]] = course
 
@@ -439,8 +440,12 @@ class JSONImporter:
         if IgnoredEvaluation.objects.filter(cms_id=data["gguid"]).exists():
             return None
 
+        # Skip evaluations with inactive link
+        if EvaluationLink.objects.filter(cms_id=data["gguid"], is_active=False).exists():
+            return None
+
         try:
-            evaluation = Evaluation.objects.get(course=course, cms_id=data["gguid"])
+            evaluation = Evaluation.objects.get(course=course, cms_evaluation_links__cms_id=data["gguid"])
         except Evaluation.DoesNotExist:
             evaluation = None
 
@@ -551,7 +556,17 @@ class JSONImporter:
                 )
             )
 
-        participants = self._get_user_profiles(data["students"]) if "students" in data else []
+        # Collect participants from all linked evaluations
+        if evaluation and evaluation.cms_evaluation_links.count() > 1:
+            cms_ids = [cms_evaluation_link.cms_id for cms_evaluation_link in evaluation.cms_evaluation_links.all()]
+            student_data = []
+            for cms_id in cms_ids:
+                event = self.events_by_gguid[cms_id]
+                if "students" in event:
+                    student_data.extend(event["students"])
+        else:
+            student_data = data["students"] if "students" in data else []
+        participants = self._get_user_profiles(student_data) if student_data else []
 
         defaults = {
             "exam_type": exam_type,
@@ -567,14 +582,18 @@ class JSONImporter:
         if not evaluation:
             evaluation = Evaluation.objects.create(
                 course=course,
-                cms_id=data["gguid"],
                 # we only want to set names on creation to avoid renumbering
                 name_de=name_de,
                 name_en=name_en,
                 **defaults,
             )
+            EvaluationLink.objects.create(evaluation=evaluation, cms_id=data["gguid"])
 
-        allow_evaluation_changes = evaluation.state == Evaluation.State.NEW
+        # Only allow changes for new evaluations and if they have not more than one evaluation link
+        # Otherwise, data may already have been changed or be ambiguous
+        allow_evaluation_changes = (
+            evaluation.state == Evaluation.State.NEW and evaluation.cms_evaluation_links.count() == 1
+        )
         direct_changes = update_with_changes(evaluation, defaults, dry_run=not allow_evaluation_changes)
         assert not direct_changes or not created
         if direct_changes and allow_evaluation_changes:
@@ -582,6 +601,7 @@ class JSONImporter:
         elif direct_changes:
             self.statistics.attempted_evaluation_changes.append(evaluation)
 
+        # Only allow participant changes for evaluations that have not yet started
         allow_participant_changes = evaluation.state < Evaluation.State.IN_EVALUATION
         participant_changes = set(evaluation.participants.all()) != set(participants)
         if participant_changes and allow_participant_changes:
@@ -590,7 +610,11 @@ class JSONImporter:
         elif participant_changes:
             self.statistics.attempted_participant_changes.append(evaluation)
 
-        allow_contributor_changes = evaluation.state == Evaluation.State.NEW
+        # Only allow changes for new evaluations and if they have not more than one evaluation link
+        # Otherwise, data may already have been changed or be ambiguous
+        allow_contributor_changes = (
+            evaluation.state == Evaluation.State.NEW and evaluation.cms_evaluation_links.count() == 1
+        )
         any_lecturers_changed = False
         if allow_contributor_changes and "lecturers" not in data:
             self.statistics.warnings.append(WarningMessage(obj=evaluation.full_name, message="No contributors defined"))
