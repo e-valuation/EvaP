@@ -3263,7 +3263,7 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
         cls.question = baker.make(
             Question, text_en="old", text_de="text", type=QuestionType.TEXT, allows_additional_textanswers=False
         )
-        baker.make(QuestionAssignment, questionnaire=cls.questionnaire, question=cls.question)
+        baker.make(QuestionAssignment, questionnaire=cls.questionnaire, question=cls.question, order=0)
 
     def test_allowed_type_changes_on_used_questionnaire(self):
         baker.make(Contribution, questionnaires=[self.questionnaire], evaluation__state=Evaluation.State.IN_EVALUATION)
@@ -3357,16 +3357,18 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
     def test_delete_question(self) -> None:
         other_questionnaire = baker.make(Questionnaire)
         # Use HEADING to test for a regression, see https://github.com/e-valuation/EvaP/pull/2665
-        other_question = baker.make(
-            Question, questionnaires=[self.questionnaire, other_questionnaire], type=QuestionType.HEADING
-        )
-        baker.make(QuestionAssignment, questionnaire=self.questionnaire, question__type=QuestionType.GRADE)
+        other_question = baker.make(Question, type=QuestionType.HEADING)
+        baker.make(QuestionAssignment, question=other_question, questionnaire=self.questionnaire, order=1)
+        baker.make(QuestionAssignment, question=other_question, questionnaire=other_questionnaire, order=2)
+
+        baker.make(QuestionAssignment, questionnaire=self.questionnaire, question__type=QuestionType.GRADE, order=3)
+
         baker.make(Contribution, questionnaires=[self.questionnaire], evaluation__state=Evaluation.State.NEW)
         page = self.app.get(self.url, user=self.manager)
         form = page.forms["questionnaire-form"]
-        form["question_assignments-0-DELETE"] = "on"
+        form["question_assignments-0-DELETE"] = "on"  # self.question in self.questionnaire
         form["question_assignments-0-type"].force_value(-1)
-        form["question_assignments-1-DELETE"] = "on"
+        form["question_assignments-1-DELETE"] = "on"  # other_question in self.questionnaire
         form.submit().follow()
         self.assertQuerySetEqual(self.question.questionnaires.all(), [])
         with self.assertRaises(Question.DoesNotExist):
