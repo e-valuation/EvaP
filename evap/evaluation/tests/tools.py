@@ -321,6 +321,7 @@ class LiveServerTest(SeleniumTestCase):
     browser = "firefox"
     selenium: WebDriver
     headless = True
+    implicit_wait = 0
     window_size = (1920, 4096)  # large height to workaround scrolling
     serialized_rollback = True  # SeleniumTestCase is a TransactionTestCase, which drops migration data. This keeps fixture data but may slow down tests, see https://docs.djangoproject.com/en/5.0/topics/testing/overview/#test-case-serialized-rollback
     static_handler = StaticFilesHandler  # see StaticLiveServerTestCase
@@ -329,7 +330,6 @@ class LiveServerTest(SeleniumTestCase):
         super().setUp()
         self.request = self.make_request()
         self.manager = make_manager()
-        self.selenium.implicitly_wait(0)
         self.selenium.get(self.live_server_url)
         self.login(self.manager)
 
