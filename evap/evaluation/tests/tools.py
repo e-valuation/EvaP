@@ -77,8 +77,8 @@ class EvapTestRunner(DiscoverRunner):
 
         LiveServerTest.headless = not self.__headed
 
-        baker.seed(self.__baker_seed)
         self.log(f"Using baker seed: {self.__baker_seed}")
+        settings.EVAP_TEST_BAKER_SEED = self.__baker_seed
 
 
 class ResetLanguageOnTearDownMixin:
@@ -87,15 +87,32 @@ class ResetLanguageOnTearDownMixin:
         super().tearDown()
 
 
-class TestCase(ResetLanguageOnTearDownMixin, django.test.TestCase):
+class SeedBakerMixin:
+    @classmethod
+    def setUpClass(cls):
+        # runs before `setUpTestData`
+        baker.seed(settings.EVAP_TEST_BAKER_SEED)
+        super().setUpClass()
+
+    @classmethod
+    def _pre_setup(cls):
+        # runs before `setUp`
+        # Same seed would imply the same value sequence, which causes problems:
+        # * uniqueness constraints fail if setUpTestData and setUp both generate an instance of the same model class
+        # * "assert name not in page"-style asserts fail for shared names with non-unique fields
+        baker.seed(settings.EVAP_TEST_BAKER_SEED + 1)
+        super()._pre_setup()
+
+
+class TestCase(SeedBakerMixin, ResetLanguageOnTearDownMixin, django.test.TestCase):
     pass
 
 
-class SimpleTestCase(ResetLanguageOnTearDownMixin, django.test.SimpleTestCase):
+class SimpleTestCase(SeedBakerMixin, ResetLanguageOnTearDownMixin, django.test.SimpleTestCase):
     pass
 
 
-class WebTest(ResetLanguageOnTearDownMixin, django_webtest.WebTest):
+class WebTest(SeedBakerMixin, ResetLanguageOnTearDownMixin, django_webtest.WebTest):
     pass
 
 
@@ -317,7 +334,7 @@ def assert_no_database_modifications(*args, **kwargs):
 
 # For the average LiveServerTest, if the "server" has an internal error, we want to abort/stacktrace/drop into debugger
 @override_settings(DEBUG_PROPAGATE_EXCEPTIONS=True)
-class LiveServerTest(SeleniumTestCase):
+class LiveServerTest(SeedBakerMixin, SeleniumTestCase):
     browser = "firefox"
     selenium: WebDriver
     headless = True
