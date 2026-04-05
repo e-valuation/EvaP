@@ -3,14 +3,16 @@ from datetime import date, timedelta
 
 from django.conf import settings
 from django.contrib import auth, messages
-from django.core.exceptions import SuspiciousOperation
+from django.core.exceptions import BadRequest, SuspiciousOperation
 from django.core.mail import EmailMessage
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.db.models import Q, QuerySet
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.encoding import iri_to_uri
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
+from django.views import View
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
@@ -247,3 +249,32 @@ def set_startpage(request):
     user.save()
 
     return redirect("evaluation:index")
+
+
+class TomSelectSearchView(View):
+    def get(self, request, *args, **kwargs):
+        query = request.GET.get("query")
+        if query is None:
+            raise BadRequest("Please provide a search query")
+        items = self.search(query, request, *args, **kwargs)
+        items = [{"id": item.id, "label": self.get_item_label(item)} for item in items]
+        return JsonResponse({"items": items})
+
+    def get_item_label(self, item) -> str:
+        return str(item)
+
+    def search(self, query, request, *args, **kwargs) -> QuerySet:
+        raise NotImplementedError
+
+
+class UserProfileSearchView(TomSelectSearchView):
+    def get_item_label(self, item) -> str:
+        return item.full_name_with_additional_info
+
+    def search(self, query, request, *args, **kwargs) -> QuerySet[UserProfile]:
+        return UserProfile.objects.filter(
+            Q(first_name_given__icontains=query)
+            | Q(first_name_chosen__icontains=query)
+            | Q(last_name__icontains=query)
+            | Q(email__icontains=query)
+        )

@@ -140,7 +140,7 @@
 
             applyTomSelect = function(elements, additionalOptions = {}) {
                 elements.forEach((element) => {
-                    const minimumInputLength = element.options.length >= 50 ? 3 : 0;
+                    const minimumInputLength = (element.options.length >= 50 || element.hasAttribute("data-tomselect-server-search")) ? 3 : 0;
 
                     element.tomselect?.destroy();
                     element.classList.remove("form-select");  // TomSelect applies their own matching classes / styles
@@ -151,7 +151,7 @@
                     const baseOptions = {
                         createOnBlur: true,
                         placeholder: "{% translate 'Please select...' %}",
-                        hidePlaceholder: element.hasAttribute("data-tomselect-fullwidth") ? false : true,
+                        hidePlaceholder: !element.hasAttribute("data-tomselect-fullwidth"),
                         minimumInputLength,
                         render: {
                             option_create: (data, escape) => `<div class="create">${ escape(data.input) }</div>`,
@@ -161,8 +161,25 @@
                                 } else {
                                     return '<div class="no-results">{% translate "No results found" %}</div>';
                                 }
-                            }
+                            },
+                            not_loading: (data, escape) => `<div class="no-results">{% translate "Please enter ${ minimumInputLength } characters or more..." %}</div>`
                         },
+                        ...(element.hasAttribute("data-tomselect-server-search") ? {
+                            shouldLoad: (query) => query.length >= minimumInputLength,
+                            load: (query, callback) => {
+                                var url = element.getAttribute("data-tomselect-server-search") + "?query=" + encodeURIComponent(query);
+                                fetch(url)
+                                    .then(response => response.json())
+                                    .then(json => {
+                                        callback(json.items);
+                                    }).catch(() => {
+                                        callback();
+                                    });
+                            },
+                            valueField: 'id',
+                            labelField: 'label',
+                            searchField: 'label'
+                        } : {}),
                         closeAfterSelect: true, // also clears search input on enter.
                         plugins: {},
                         hideSelected: false,
@@ -209,7 +226,7 @@
                 const element = document.getElementById(id);
                 element.innerHTML = "";
                 element.className = "fas fa-spinner fa-spin";  // clears all other classes
-            };
+            }
 
             document.querySelectorAll("[data-set-spinner-icon]").forEach(el => {
                 el.addEventListener("click", () => setSpinnerIcon(el.dataset.setSpinnerIcon));

@@ -4,6 +4,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.debug import sensitive_variables
 
@@ -11,6 +12,26 @@ from evap.evaluation.models import Evaluation, UserProfile
 from evap.results.tools import STATES_WITH_RESULTS_CACHING, cache_results
 
 logger = logging.getLogger(__name__)
+
+
+class ServerSearchSelect(forms.Select):
+    template_name = "django/forms/widgets/server_select.html"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.attrs["autocomplete"] = "off"
+
+    @property
+    def search_url(self):
+        return self.attrs["data-tomselect-server-search"]
+
+    @search_url.setter
+    def search_url(self, value):
+        self.attrs["data-tomselect-server-search"] = value
+
+
+class ServerSearchSelectMultiple(ServerSearchSelect, forms.SelectMultiple):
+    pass
 
 
 class LoginEmailForm(forms.Form):
@@ -108,20 +129,20 @@ class UserModelMultipleChoiceField(forms.ModelMultipleChoiceField):
 
 class ProfileForm(forms.ModelForm):
     delegates = UserModelMultipleChoiceField(
-        queryset=UserProfile.objects.exclude(is_active=False).exclude(is_proxy_user=True), required=False
+        queryset=UserProfile.objects.exclude(is_active=False).exclude(is_proxy_user=True),
+        required=False,
+        widget=ServerSearchSelectMultiple(),
     )
 
     class Meta:
         model = UserProfile
         fields = ("title", "first_name_chosen", "first_name_given", "last_name", "email", "delegates")
-        field_classes = {
-            "delegates": UserModelMultipleChoiceField,
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in ("title", "first_name_given", "last_name", "email"):
             self.fields[field].disabled = True
+        self.fields["delegates"].widget.search_url = reverse("contributor:fetch_delegates_user_profiles")
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
