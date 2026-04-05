@@ -1,14 +1,12 @@
 from datetime import date, datetime
 
 from model_bakery import baker
-from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.expected_conditions import (
     element_to_be_clickable,
     invisibility_of_element_located,
     visibility_of_element_located,
 )
-from selenium.webdriver.support.wait import WebDriverWait
 
 from evap.evaluation.models import (
     Contribution,
@@ -18,6 +16,7 @@ from evap.evaluation.models import (
     Question,
     QuestionAssignment,
     Questionnaire,
+    QuestionType,
     Semester,
     TextAnswer,
     UserProfile,
@@ -144,7 +143,9 @@ class ParticipantCollapseTests(LiveServerTest):
         counter = card_header.find_element(By.CSS_SELECTOR, ".rounded-pill")
         self.assertEqual(counter.text, "20")
 
-        tomselect_input = self.selenium.find_element(By.CSS_SELECTOR, "input#id_participants-ts-control")
+        tomselect_input = self.wait.until(
+            visibility_of_element_located((By.CSS_SELECTOR, "input#id_participants-ts-control"))
+        )
         tomselect_input.click()
         tomselect_input.send_keys("participant")
         self.selenium.find_element(By.CSS_SELECTOR, ".option.active").click()
@@ -180,63 +181,48 @@ class ParticipantCollapseTests(LiveServerTest):
 
 class EvaluationGridLiveTest(LiveServerTest):
     def test_evaluation_grid_sorting(self):
-        test_semester = baker.make(Semester)
+        semester = baker.make(Semester)
 
         baker.make(
             Evaluation,
             _quantity=7,
-            name_de=iter(f"Evaluation {i}" for i in range(1, 8)),
-            name_en=iter(f"Evaluation {i}" for i in range(1, 8)),
+            name_en=baker.seq("Evaluation"),
+            name_de=baker.seq("Evaluation"),
+            course__name_en=iter(("AA", "ÄB", "AC", "AE", "UB", "ÜC", "Z")),
             course__name_de=iter(("AA", "ÄB", "AC", "AE", "UB", "ÜC", "Z")),
-            course__name_en=iter(("Z", "ÜC", "UB", "AE", "AC", "ÄB", "AA")),
-            course__semester=test_semester,
+            course__semester=semester,
         )
 
+        expected_ascending = [
+            "AA – Evaluation1",
+            "ÄB – Evaluation2",
+            "AC – Evaluation3",
+            "AE – Evaluation4",
+            "UB – Evaluation5",
+            "ÜC – Evaluation6",
+            "Z – Evaluation7",
+        ]
+        expected_descending = expected_ascending[::-1]
+
+        def make_order_is_as_expected(expected: list[str]):
+            def predicate(driver):
+                table_entries = driver.find_elements(By.CSS_SELECTOR, "#evaluation-table td[data-col=name]")
+                return expected == [entry.get_attribute("data-order") for entry in table_entries]
+
+            return predicate
+
         with self.enter_staff_mode():
-            self.selenium.get(self.reverse("staff:semester_view", args=[test_semester.id]))
+            self.selenium.get(self.reverse("staff:semester_view", args=[semester.id]))
+
             self.set_page_language("de")
-
-            table_entries = self.selenium.find_elements(
-                By.XPATH, "//table[@id='evaluation-table']//tbody//child::td[@data-col='name']"
-            )
-
-            expected = [
-                "AA – Evaluation 1",
-                "ÄB – Evaluation 2",
-                "AC – Evaluation 3",
-                "AE – Evaluation 4",
-                "UB – Evaluation 5",
-                "ÜC – Evaluation 6",
-                "Z – Evaluation 7",
-            ]
-
-            actual = [entry.get_attribute("data-order") for entry in table_entries]
-            self.assertEqual(actual, expected)
+            self.wait.until(make_order_is_as_expected(expected_ascending))
+            self.selenium.find_element(By.CSS_SELECTOR, "#evaluation-table th[data-col=name]").click()
+            self.wait.until(make_order_is_as_expected(expected_descending))
 
             self.set_page_language("en")
-
-            self.wait.until(visibility_of_element_located((By.ID, "evaluation-table")))
-
-            toggle_sort_button = self.selenium.find_element(By.XPATH, "//thead//th[@data-col='name']")
-            toggle_sort_button.click()
-            self.wait.until(visibility_of_element_located((By.ID, "evaluation-table")))
-
-            table_entries = self.selenium.find_elements(
-                By.XPATH, "//table[@id='evaluation-table']//tbody//child::td[@data-col='name']"
-            )
-
-            expected = [
-                "Z – Evaluation 1",
-                "ÜC – Evaluation 2",
-                "UB – Evaluation 3",
-                "AE – Evaluation 4",
-                "AC – Evaluation 5",
-                "ÄB – Evaluation 6",
-                "AA – Evaluation 7",
-            ]
-
-            actual = [entry.get_attribute("data-order") for entry in table_entries]
-            self.assertEqual(actual, expected)
+            self.wait.until(make_order_is_as_expected(expected_descending))
+            self.selenium.find_element(By.CSS_SELECTOR, "#evaluation-table th[data-col=name]").click()
+            self.wait.until(make_order_is_as_expected(expected_ascending))
 
 
 class TextAnswerEditLiveTest(LiveServerTest):
@@ -253,7 +239,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
             can_publish_text_results=True,
         )
 
-        question1 = baker.make(Question)
+        question1 = baker.make(Question, type=QuestionType.TEXT)
 
         general_questionnaire = baker.make(Questionnaire, questions=[question1])
         evaluation.general_contribution.questionnaires.set([general_questionnaire])
@@ -298,31 +284,31 @@ class TextAnswerEditLiveTest(LiveServerTest):
                 self.reverse("staff:evaluation_textanswers", query={"view": "quick"}, args=[evaluation.pk])
             )
 
-        next_textanswer_btn = self.selenium.find_element(By.XPATH, "//span[@data-slide='right']")
-        edit_btn = self.selenium.find_element(By.ID, "textanswer-edit-btn")
+            next_textanswer_btn = self.wait.until(
+                visibility_of_element_located((By.CSS_SELECTOR, "span[data-slide=right]"))
+            )
+            edit_btn = self.selenium.find_element(By.ID, "textanswer-edit-btn")
 
-        while True:
-            try:
-                WebDriverWait(self.selenium, 1).until(
-                    visibility_of_element_located((By.ID, f"textanswer-{str(textanswer1.pk)}"))
+            while True:
+                textanswer_element_visible = self.wait.until(
+                    visibility_of_element_located((By.CSS_SELECTOR, ".slider-item.card-body.active[id^=textanswer-]"))
                 )
+                if textanswer_element_visible.get_attribute("id") != f"textanswer-{str(textanswer1.pk)}":
+                    next_textanswer_btn.click()
+                    continue
                 break
-            except TimeoutException:
-                next_textanswer_btn.click()
 
-        with self.enter_staff_mode():
             edit_btn.click()
 
-        textanswer_field = self.selenium.find_element(By.XPATH, "//textarea[@name='answer']")
-        submit_btn = self.selenium.find_element(By.ID, "textanswer-edit-submit-button")
+            textanswer_field = self.selenium.find_element(By.XPATH, "//textarea[@name='answer']")
+            submit_btn = self.selenium.find_element(By.ID, "textanswer-edit-submit-button")
 
-        textanswer_field.clear()
-        textanswer_field.send_keys("edited answer")
+            textanswer_field.clear()
+            textanswer_field.send_keys("edited answer")
 
-        with self.enter_staff_mode():
             submit_btn.click()
 
-        self.wait.until(visibility_of_element_located((By.XPATH, "//div[contains(text(), 'edited answer')]")))
-        self.wait.until(
-            invisibility_of_element_located((By.XPATH, "//div[contains(text(), 'this is a dummy answer')]"))
-        )
+            self.wait.until(visibility_of_element_located((By.XPATH, "//div[contains(text(), 'edited answer')]")))
+            self.wait.until(
+                invisibility_of_element_located((By.XPATH, "//div[contains(text(), 'this is a dummy answer')]"))
+            )
