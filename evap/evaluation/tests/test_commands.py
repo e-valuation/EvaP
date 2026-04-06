@@ -532,7 +532,7 @@ class TestPrecommitCommand(TestCase):
     def test_subcommands_called(self, mock_call_command, mock_subprocess_run):
         management.call_command("precommit", stdout=StringIO())
 
-        mock_subprocess_run.assert_called_with(["./manage.py", "test", "--parallel", "6"], check=False)
+        mock_subprocess_run.assert_called_with(["./manage.py", "test", "--parallel"], check=False)
 
         self.assertEqual(mock_call_command.call_count, 3)
         mock_call_command.assert_any_call("typecheck")
