@@ -9,7 +9,7 @@ from datetime import date, datetime, time, timedelta
 from enum import Enum, auto
 from functools import partial
 from numbers import Real
-from typing import Any
+from typing import Any, cast
 
 from django.conf import settings
 from django.contrib import messages
@@ -830,7 +830,7 @@ class Evaluation(LoggedModel):
         field=state,
         source=State.PREPARED,
         target=State.EDITOR_APPROVED,
-        conditions=[lambda self: self.has_decided_main_language],
+        conditions=[lambda self: cast("Evaluation", self).has_decided_main_language],
     )
     def editor_approve(self):
         pass
@@ -839,12 +839,17 @@ class Evaluation(LoggedModel):
         field=state,
         source=[State.NEW, State.PREPARED, State.EDITOR_APPROVED],
         target=State.APPROVED,
-        conditions=[lambda self: self.general_contribution_has_questionnaires and self.has_decided_main_language],
+        conditions=[
+            lambda self: (
+                cast("Evaluation", self).general_contribution_has_questionnaires
+                and cast("Evaluation", self).has_decided_main_language
+            )
+        ],
     )
     def manager_approve(self):
         pass
 
-    @transition(field=state, target=State.NEW, conditions=[lambda self: self.can_reset_to_new])
+    @transition(field=state, target=State.NEW, conditions=[lambda self: cast("Evaluation", self).can_reset_to_new])
     def reset_to_new(self, *, delete_previous_answers: bool):
         if delete_previous_answers:
             for answer_class in Answer.__subclasses__():
@@ -855,7 +860,7 @@ class Evaluation(LoggedModel):
         field=state,
         source=State.APPROVED,
         target=State.IN_EVALUATION,
-        conditions=[lambda self: self.is_in_evaluation_period],
+        conditions=[lambda self: cast("Evaluation", self).is_in_evaluation_period],
     )
     def begin_evaluation(self):
         pass
@@ -864,7 +869,7 @@ class Evaluation(LoggedModel):
         field=state,
         source=[State.EVALUATED, State.REVIEWED],
         target=State.IN_EVALUATION,
-        conditions=[lambda self: self.is_in_evaluation_period],
+        conditions=[lambda self: cast("Evaluation", self).is_in_evaluation_period],
     )
     def reopen_evaluation(self):
         pass
@@ -874,13 +879,19 @@ class Evaluation(LoggedModel):
         pass
 
     @transition(
-        field=state, source=State.EVALUATED, target=State.REVIEWED, conditions=[lambda self: self.is_fully_reviewed]
+        field=state,
+        source=State.EVALUATED,
+        target=State.REVIEWED,
+        conditions=[lambda self: cast("Evaluation", self).is_fully_reviewed],
     )
     def end_review(self):
         pass
 
     @transition(
-        field=state, source=State.REVIEWED, target=State.EVALUATED, conditions=[lambda self: not self.is_fully_reviewed]
+        field=state,
+        source=State.REVIEWED,
+        target=State.EVALUATED,
+        conditions=[lambda self: not cast("Evaluation", self).is_fully_reviewed],
     )
     def reopen_review(self):
         pass
