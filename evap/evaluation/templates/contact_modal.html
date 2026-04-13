@@ -29,7 +29,7 @@
             <textarea autofocus class="form-control modal-textfield my-4" id="{{ modal_id }}MessageText" name="message" placeholder="Nachricht"></textarea>
         </div>
 
-        <div class="feedback-button" slot="show-button">
+        <div class="{% if modal_id == "feedbackModal" %}feedback-button{% endif %}" slot="show-button">
             <button type="button" class="{{ show_button_class }}" id="{{ modal_id }}ShowButton">{{ show_button_text }}</button>
         </div>
     </confirmation-modal>
