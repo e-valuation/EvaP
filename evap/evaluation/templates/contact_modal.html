@@ -1,6 +1,6 @@
 {% load static %}
 
-<form custom-success id="contact-modal-form-{{ modal_id }}" method="POST" action="{% url 'evaluation:contact' %}">
+<form reload-on-success id="contact-modal-form-{{ modal_id }}" method="POST" action="{% url 'evaluation:contact' %}">
     {% csrf_token %}
     <input hidden name="title" value="{{ title }}"/>
 
@@ -34,13 +34,3 @@
         </div>
     </confirmation-modal>
 </form>
-<script type="module">
-   const messageTextElement = document.querySelector("#{{ modal_id }}MessageText");
-
-    function onSuccess() {
-        messageTextElement.value = "";
-        window.location.reload();
-    }
-    const contactModal = document.querySelector("#contact-modal-form-{{ modal_id }}");
-    contactModal.addEventListener("submit-success", onSuccess);
-</script>
