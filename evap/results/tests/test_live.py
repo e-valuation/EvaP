@@ -130,8 +130,10 @@ class ResultsIndexLiveTests(LiveServerTest):
         self.selenium.get(self.url)
         self.wait.until(visibility_of_element_located((By.CLASS_NAME, "reset-button"))).click()
 
+        course_c_span = self.selenium.find_element(By.XPATH, "//span[contains(text(),'Course C')]")
+
         self.selenium.find_element(By.CSS_SELECTOR, "input[name=search]").send_keys("Exam")
-        self.wait.until(invisibility_of_element_located((By.XPATH, "//span[contains(text(),'Course C')]")))
+        self.wait.until(invisibility_of_element_located(course_c_span))
 
         self.assertRowsVisible(("Course A", "ST 13"))
 
