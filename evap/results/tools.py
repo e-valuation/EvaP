@@ -231,7 +231,7 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
         ((textanswer.contribution_id, textanswer.assignment_id), textanswer)
         for contribution in evaluation.contributions.all()
         for textanswer in contribution.textanswer_set.all()
-        if textanswer.review_decision in TextAnswer.ReviewDecision.KEEP
+        if textanswer.review_decision == TextAnswer.ReviewDecision.KEEP
     )
 
     racs_per_contribution_assignment: dict[tuple[int, int], list[RatingAnswerCounter]] = unordered_groupby(
