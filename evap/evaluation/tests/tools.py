@@ -78,7 +78,7 @@ class EvapTestRunner(DiscoverRunner):
         LiveServerTest.headless = not self.__headed
 
         self.log(f"Using baker seed: {self.__baker_seed}")
-        settings.EVAP_TEST_BAKER_SEED = self.__baker_seed
+        SeedBakerMixin.BAKER_SEED = self.__baker_seed
 
 
 class ResetLanguageOnTearDownMixin:
@@ -88,10 +88,12 @@ class ResetLanguageOnTearDownMixin:
 
 
 class SeedBakerMixin:
+    BAKER_SEED: int
+
     @classmethod
     def setUpClass(cls):
         # runs before `setUpTestData`
-        baker.seed(settings.EVAP_TEST_BAKER_SEED)
+        baker.seed(cls.BAKER_SEED)
         super().setUpClass()
 
     @classmethod
@@ -100,7 +102,7 @@ class SeedBakerMixin:
         # Same seed would imply the same value sequence, which causes problems:
         # * uniqueness constraints fail if setUpTestData and setUp both generate an instance of the same model class
         # * "assert name not in page"-style asserts fail for shared names with non-unique fields
-        baker.seed(settings.EVAP_TEST_BAKER_SEED + 1)
+        baker.seed(cls.BAKER_SEED + 1)
         super()._pre_setup()
 
 
