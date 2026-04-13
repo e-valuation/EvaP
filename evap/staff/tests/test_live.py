@@ -220,6 +220,7 @@ class EvaluationGridLiveTest(LiveServerTest):
             self.wait.until(make_order_is_as_expected(expected_descending))
 
             self.set_page_language("en")
+            # The table remembers and restores the last ordering, which is "name descending" now
             self.wait.until(make_order_is_as_expected(expected_descending))
             self.selenium.find_element(By.CSS_SELECTOR, "#evaluation-table th[data-col=name]").click()
             self.wait.until(make_order_is_as_expected(expected_ascending))
