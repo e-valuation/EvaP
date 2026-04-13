@@ -47,7 +47,7 @@ We'd love to see contributions! PRs solving existing issues are most helpful to 
 
 Before committing, run `./manage.py precommit` or alternatively, the individual commands:
 - `./manage.py typecheck`
-- `./manage.py test`
+- `./manage.py test` (check out [--keepdb](https://docs.djangoproject.com/en/6.0/ref/django-admin/#cmdoption-test-keepdb) and [--parallel](https://docs.djangoproject.com/en/6.0/ref/django-admin/#cmdoption-test-parallel) for faster execution)
 - `./manage.py lint`
 - `./manage.py format` (applies automatic code formatting)
 

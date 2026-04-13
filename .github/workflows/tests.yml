@@ -25,7 +25,9 @@ jobs:
           save-nix-store: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
 
       - name: Run tests
-        run: coverage run manage.py test
+        run: coverage run --concurrency=multiprocessing manage.py test --parallel
+      - name: Combine coverage reports
+        run: coverage combine
       - name: Upload coverage
         uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6
         with:
@@ -43,7 +45,7 @@ jobs:
           start-db: true
 
       - name: Run tests
-        run: python manage.py test --shuffle
+        run: python manage.py test --shuffle --parallel
 
   test_testdata:
     name: Test if testdata is up to date
@@ -131,7 +133,9 @@ jobs:
           python manage.py scss
 
       - name: Run tests (shuffled)
-        run: coverage run manage.py test --shuffle --tag selenium
+        run: coverage run  --concurrency=multiprocessing manage.py test --shuffle --tag selenium --parallel
+      - name: Combine coverage reports
+        run: coverage combine
       - name: Upload coverage
         uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6
         with:
