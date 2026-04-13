@@ -6,8 +6,8 @@
 
     <confirmation-modal type="submit">
         <span slot="title" id="{{ modal_id }}Title">{{ title }}</span>
-        <span slot="question" id="{{ modal_id }}Question">{{ teaser }}</span>
-        <span slot="action-text" id="{{ modal_id }}ActionText">{% translate 'Send Message' %}</span>
+        <span slot="question">{{ teaser }}</span>
+        <span slot="action-text">{% translate 'Send Message' %}</span>
 
         <div slot="extra-inputs">
             <div class="modal-grid">
