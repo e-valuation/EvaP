@@ -428,12 +428,13 @@ class VisualRegressionTestCase(LiveServerTest):
 
     def _stop_vrt_session(self):
         # marks the session of the current as done
-        requests.patch(
+        response = requests.patch(
             f"{self.api_url}/builds/{self.build_id}",
-            data={},
+            data=json.dumps({"isRunning": False}),
             headers=self.headers,
             timeout=self._http_timeout_seconds,
-        ).raise_for_status()
+        )
+        response.raise_for_status()
 
     def _post_screenshot(self, name) -> tuple[str, str]:
         test_data = self.data | {
