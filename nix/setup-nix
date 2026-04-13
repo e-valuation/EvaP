@@ -16,6 +16,9 @@ if apt --version &> /dev/null; then
 elif pacman --version &> /dev/null; then
     set -x
     sudo pacman -S nix
+elif dnf --version &> /dev/null; then
+    set -x
+    sudo dnf install nix nix-daemon -y
 else
     echo "Failed to detect package manager. Please install nix manually."
     echo "We recommend using the Determinate Nix Installer: https://install.determinate.systems"
