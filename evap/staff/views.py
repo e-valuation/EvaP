@@ -1744,8 +1744,7 @@ def evaluation_textanswers_update_publish(request):
         return redirect("staff:evaluation_textanswer_edit", answer.pk)
 
     review_decision_for_action = {
-        "publish": TextAnswer.ReviewDecision.PUBLIC,
-        "make_private": TextAnswer.ReviewDecision.PRIVATE,
+        "publish": TextAnswer.ReviewDecision.KEEP,
         "delete": TextAnswer.ReviewDecision.DELETED,
         "unreview": TextAnswer.ReviewDecision.UNDECIDED,
     }

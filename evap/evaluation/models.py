@@ -1628,8 +1628,7 @@ class TextAnswer(Answer):
         When publishing evaluation results, this answer should be ...
         """
 
-        PUBLIC = "PU", _("public")
-        PRIVATE = "PR", _("private")  # This answer should only be displayed to the contributor the question was about
+        KEEP = "KE", _("keep")
         DELETED = "DE", _("deleted")
 
         UNDECIDED = "UN", _("undecided")
@@ -1660,22 +1659,8 @@ class TextAnswer(Answer):
         return self.review_decision == self.ReviewDecision.DELETED
 
     @property
-    def will_be_private(self):
-        return self.review_decision == self.ReviewDecision.PRIVATE
-
-    @property
-    def will_be_public(self):
-        return self.review_decision == self.ReviewDecision.PUBLIC
-
-    # Once evaluation results are published, the review decision is executed
-    # and thus, an answer _is_ private or _is_ public from that point on.
-    @property
-    def is_public(self):
-        return self.will_be_public
-
-    @property
-    def is_private(self):
-        return self.will_be_private
+    def will_be_kept(self):
+        return self.review_decision == self.ReviewDecision.KEEP
 
     @property
     def is_reviewed(self):

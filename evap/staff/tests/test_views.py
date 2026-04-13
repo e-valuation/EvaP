@@ -885,7 +885,7 @@ class TestSemesterDeleteView(DeleteViewTestMixin, WebTestStaffMode):
         baker.make(
             TextAnswer,
             contribution=evaluation.general_contribution,
-            review_decision=TextAnswer.ReviewDecision.PUBLIC,
+            review_decision=TextAnswer.ReviewDecision.KEEP,
         )
 
         self.instance.archive()
@@ -2858,7 +2858,7 @@ class TestEvaluationTextAnswerView(WebTest):
             contribution=contribution,
             assignment=assignment,
             answer=cls.reviewed_answer,
-            review_decision=TextAnswer.ReviewDecision.PUBLIC,
+            review_decision=TextAnswer.ReviewDecision.KEEP,
         )
 
         cls.evaluation2 = baker.make(
@@ -3839,10 +3839,9 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         let_user_vote_for_evaluation(self.student2, self.evaluation)
 
         # now reviewing should work
-        self.assert_transition("publish", TextAnswer.ReviewDecision.UNDECIDED, TextAnswer.ReviewDecision.PUBLIC)
+        self.assert_transition("publish", TextAnswer.ReviewDecision.UNDECIDED, TextAnswer.ReviewDecision.KEEP)
         self.assert_transition("delete", TextAnswer.ReviewDecision.UNDECIDED, TextAnswer.ReviewDecision.DELETED)
-        self.assert_transition("make_private", TextAnswer.ReviewDecision.UNDECIDED, TextAnswer.ReviewDecision.PRIVATE)
-        self.assert_transition("unreview", TextAnswer.ReviewDecision.PUBLIC, TextAnswer.ReviewDecision.UNDECIDED)
+        self.assert_transition("unreview", TextAnswer.ReviewDecision.KEEP, TextAnswer.ReviewDecision.UNDECIDED)
 
         # textanswer_edit action should not change the state, but give a link to edit page
         response = self.assert_transition(
@@ -3871,7 +3870,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         self.assertEqual(len(textresult.answers), 0)
 
         textanswer = self.evaluation.unreviewed_textanswer_set[0]
-        textanswer.review_decision = TextAnswer.ReviewDecision.PUBLIC
+        textanswer.review_decision = TextAnswer.ReviewDecision.KEEP
         textanswer.save()
         self.evaluation.end_review()
         self.evaluation.save()
@@ -3884,13 +3883,13 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
 
     def test_published(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation)
-        self.assert_transition("publish", TextAnswer.ReviewDecision.UNDECIDED, TextAnswer.ReviewDecision.PUBLIC)
+        self.assert_transition("publish", TextAnswer.ReviewDecision.UNDECIDED, TextAnswer.ReviewDecision.KEEP)
         Evaluation.objects.filter(id=self.evaluation.id).update(state=Evaluation.State.PUBLISHED)
         self.assert_transition("publish", TextAnswer.ReviewDecision.UNDECIDED, status=403)
 
     def test_archived(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation)
-        self.assert_transition("publish", TextAnswer.ReviewDecision.UNDECIDED, TextAnswer.ReviewDecision.PUBLIC)
+        self.assert_transition("publish", TextAnswer.ReviewDecision.UNDECIDED, TextAnswer.ReviewDecision.KEEP)
         Semester.objects.filter(id=self.evaluation.course.semester.id).update(results_are_archived=True)
         self.assert_transition("publish", TextAnswer.ReviewDecision.UNDECIDED, status=403)
 
