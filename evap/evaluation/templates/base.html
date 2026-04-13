@@ -78,40 +78,27 @@
 
         <script type="module" src="{% static 'js/base-template.js' %}"></script>
         <script type="text/javascript">
-            activateTooltips = function(selector = "") {
-                var tooltipTriggerList = [].slice.call(document.querySelectorAll(selector + ' [data-bs-toggle="tooltip"]'))
-                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                    var container = 'body';
+            activateTooltips = function(selector = "", tooltipType = "tooltip", additionalOptions) {
+                const tooltipTriggerList = document.querySelectorAll(`${selector} [data-bs-toggle="${tooltipType}"]`);
+                const tooltipList = Array.from(tooltipTriggerList).map(tooltipTriggerEl => {
+                    let container = 'body';
                     if (tooltipTriggerEl.dataset.container){
                         container = tooltipTriggerEl.closest(tooltipTriggerEl.dataset.container);
                     }
-                    return new bootstrap.Tooltip(tooltipTriggerEl, {container: container, html: true, trigger: 'hover'})
-                })
-
+                    return new bootstrap.Tooltip(tooltipTriggerEl, {container: container, html: true, trigger: 'hover', ...additionalOptions});
+                });
             };
             activateTooltips();
 
-            activateQuestionnaireTooltips = function(selector = "") {
-                var tooltipTriggerList = [].slice.call(document.querySelectorAll(selector + ' [data-bs-toggle="questionnaire-tooltip"]'))
-                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                    var container = 'body';
-                    if (tooltipTriggerEl.dataset.container){
-                        container = tooltipTriggerEl.closest(tooltipTriggerEl.dataset.container);
-                    }
-                    return new bootstrap.Tooltip(tooltipTriggerEl, {container: container, template: '<div class="tooltip py-2" role="tooltip"><div class="tooltip-inner"></div></div>', html: true, trigger: 'hover', popperConfig: function (defaultBsPopperConfig) {
-                        return {
-                            placement: 'right',
-                            modifiers: [
-                                {
-                                    name: 'preventOverflow',
-                                },
-                            ],
-                        };
-                    }})
-                })
-
+            const questionnaireTooltipOptions = {
+                template: '<div class="tooltip py-2" role="tooltip"><div class="tooltip-inner"></div></div>',
+                popperConfig: config => {
+                    config.placement = 'right';
+                    config.modifiers = [{name: 'preventOverflow'}];
+                    return config;
+                }
             };
-            activateQuestionnaireTooltips();
+            activateTooltips("","questionnaire-tooltip", questionnaireTooltipOptions);
 
             // These are workarounds around incompatibilities of django, django-dynamic-formsets, and tomselect.
             // tomselect can't handle already tomselect'd forms that were copies made by django-dynamic-formsets'
