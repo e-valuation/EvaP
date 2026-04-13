@@ -666,7 +666,7 @@ class TestDropoutView(WebTest):
             Evaluation, state=Evaluation.State.IN_EVALUATION, participants=[cls.user, cls.user2], main_language="en"
         )
 
-        cls.evaluation.general_contribution.questionnaires.add(cls.dropout_questionnaire, cls.normal_questionnaire)
+        cls.evaluation.general_contribution.questionnaires.add(cls.dropout_questionnaire, cls.normal_questionnaire)  # type: ignore[misc]
 
     def assert_no_answer_set(self, form, dropout_questionnaire: Questionnaire):
         for name, fields in form.fields.items():
