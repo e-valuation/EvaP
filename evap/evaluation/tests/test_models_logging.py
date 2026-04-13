@@ -4,7 +4,7 @@ from unittest.mock import patch
 from django.utils.formats import localize
 from model_bakery import baker
 
-from evap.evaluation.models import Contribution, Course, Evaluation, Program, Questionnaire, UserProfile
+from evap.evaluation.models import Contribution, Course, Evaluation, ExamType, Program, Questionnaire, UserProfile
 from evap.evaluation.models_logging import FieldAction, InstanceActionType, _m2m_changed
 from evap.evaluation.tests.tools import TestCase, assert_no_database_modifications
 
@@ -214,3 +214,54 @@ class TestLoggedModel(TestCase):
 
         with assert_no_database_modifications():
             course.programs.add(program)
+
+    def test_clear_field(self):
+        """When clearing a field, the log should say "<none>" as the new value. (Regression test for #2603)"""
+        exam_type = baker.make(ExamType)
+        evaluation = baker.make(Evaluation, exam_type=exam_type)
+
+        evaluation = Evaluation.objects.get(pk=evaluation.pk)
+
+        evaluation.exam_type = None
+        evaluation.save()
+
+        self.assertEqual(
+            evaluation.related_logentries().latest("id").field_context_data,
+            {"exam_type": [FieldAction(label="Exam type", type="change", items=[exam_type.name_en, "<none>"])]},
+        )
+
+    def test_set_field_from_none(self):
+        """Logging when setting the value of a field from None. (Regression test for #2603)"""
+        evaluation = baker.make(Evaluation, exam_type=None)
+        exam_type = baker.make(ExamType)
+
+        evaluation = Evaluation.objects.get(pk=evaluation.pk)
+
+        evaluation.exam_type = exam_type
+        evaluation.save()
+
+        self.assertEqual(
+            evaluation.related_logentries().latest("id").field_context_data,
+            {"exam_type": [FieldAction(label="Exam type", type="change", items=["<none>", exam_type.name_en])]},
+        )
+
+    def test_deleted_object(self):
+        """Logging of deleted objects. (Regression test for #2603)"""
+        exam_type = baker.make(ExamType)
+        evaluation = baker.make(Evaluation, exam_type=exam_type)
+        exam_type2 = baker.make(ExamType)
+
+        evaluation = Evaluation.objects.get(pk=evaluation.pk)
+
+        evaluation.exam_type = exam_type2
+        evaluation.save()
+        exam_type.delete()
+
+        self.assertEqual(
+            evaluation.related_logentries().latest("id").field_context_data,
+            {
+                "exam_type": [
+                    FieldAction(label="Exam type", type="change", items=["<deleted object>", exam_type2.name_en])
+                ]
+            },
+        )

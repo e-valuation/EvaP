@@ -92,11 +92,11 @@ class TestStudentIndexView(WebTestWith200Check):
         make_evaluation(course__is_private=True)
         make_evaluation(id=1043)
         make_evaluation(course__type__id=1042)
-        make_evaluation(_quantity=len(excluded_states), state=iter(excluded_states))
+        make_evaluation(_quantity=len(excluded_states), _bulk_create=True, state=iter(excluded_states))
 
         # included
         included_evaluations = [
-            *make_evaluation(_quantity=len(included_states), state=iter(included_states)),
+            *make_evaluation(_quantity=len(included_states), _bulk_create=True, state=iter(included_states)),
             make_evaluation(_voter_count=123, _participant_count=456),
         ]
 
@@ -111,7 +111,9 @@ class TestStudentIndexView(WebTestWith200Check):
         self.assertIn("global_evaluation_progress_info_title_str", page)
         self.assertIn("global_evaluation_progress_info_text_str", page)
         self.assertIn("Last evaluation:", page)
-        self.assertIn(f"{expected_voters} submitted evaluations ({expected_voter_percent}%)", page)
+        self.assertIn(
+            f"{expected_voters} of {expected_participants} evaluations submitted ({expected_voter_percent}%)", page
+        )
         self.assertIn("a quokka", page)
         self.assertIn("10%", page)
         self.assertIn("a dog", page)
@@ -130,7 +132,7 @@ class TestStudentIndexView(WebTestWith200Check):
         semester = baker.make(Semester, is_active=True)
         page = self.app.get(self.url, user=self.user)
         self.assertNotIn("Last evaluation:", page)
-        self.assertIn("0 submitted evaluations (0%)", page)
+        self.assertIn("0 of 0 evaluations submitted (0%)", page)
         self.assertIn("7%", page)
         self.assertIn("a dog", page)
 
@@ -143,7 +145,7 @@ class TestStudentIndexView(WebTestWith200Check):
             state=Evaluation.State.EVALUATED,
         )
         page = self.app.get(self.url, user=self.user)
-        self.assertIn("89 submitted evaluations (91%)", page)  # 91% is intentionally rounded down
+        self.assertIn("89 of 97 evaluations submitted (91%)", page)  # 91% is intentionally rounded down
         self.assertIn("7%", page)
         self.assertIn("a dog", page)
 
@@ -664,7 +666,7 @@ class TestDropoutView(WebTest):
             Evaluation, state=Evaluation.State.IN_EVALUATION, participants=[cls.user, cls.user2], main_language="en"
         )
 
-        cls.evaluation.general_contribution.questionnaires.add(cls.dropout_questionnaire, cls.normal_questionnaire)
+        cls.evaluation.general_contribution.questionnaires.add(cls.dropout_questionnaire, cls.normal_questionnaire)  # type: ignore[misc]
 
     def assert_no_answer_set(self, form, dropout_questionnaire: Questionnaire):
         for name, fields in form.fields.items():

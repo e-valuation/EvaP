@@ -1,3 +1,4 @@
+import random
 import time
 from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
@@ -14,6 +15,7 @@ from django.contrib.auth.models import Group
 from django.contrib.staticfiles.handlers import StaticFilesHandler
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.http.request import HttpRequest, QueryDict
+from django.test import override_settings
 from django.test.runner import DiscoverRunner
 from django.test.selenium import SeleniumTestCase
 from django.test.utils import CaptureQueriesContext
@@ -43,10 +45,11 @@ from evap.evaluation.models import (
 class EvapTestRunner(DiscoverRunner):
     """Skips selenium tests by default, if no other tags are specified."""
 
-    def __init__(self, *args: Any, headed=False, **kwargs: Any) -> None:
+    def __init__(self, *args: Any, headed: bool, baker_seed: int, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
         self.__headed = headed
+        self.__baker_seed = baker_seed
 
         if not self.tags and not self.exclude_tags:
             self.exclude_tags = {"selenium"}
@@ -61,10 +64,21 @@ class EvapTestRunner(DiscoverRunner):
             action="store_true",
         )
 
+        parser.add_argument(
+            "--baker-seed",
+            nargs="?",
+            type=int,
+            default=random.getrandbits(32),
+            help="Force model-bakery to use this seed to generate random values. Default: random value",
+        )
+
     def setup_test_environment(self, **kwargs):
         super().setup_test_environment(**kwargs)
 
         LiveServerTest.headless = not self.__headed
+
+        self.log(f"Using baker seed: {self.__baker_seed}")
+        SeedBakerMixin.BAKER_SEED = self.__baker_seed
 
 
 class ResetLanguageOnTearDownMixin:
@@ -73,15 +87,34 @@ class ResetLanguageOnTearDownMixin:
         super().tearDown()
 
 
-class TestCase(ResetLanguageOnTearDownMixin, django.test.TestCase):
+class SeedBakerMixin:
+    BAKER_SEED: int
+
+    @classmethod
+    def setUpClass(cls):
+        # runs before `setUpTestData`
+        baker.seed(cls.BAKER_SEED)
+        super().setUpClass()
+
+    @classmethod
+    def _pre_setup(cls):
+        # runs before `setUp`
+        # Same seed would imply the same value sequence, which causes problems:
+        # * uniqueness constraints fail if setUpTestData and setUp both generate an instance of the same model class
+        # * "assert name not in page"-style asserts fail for shared names with non-unique fields
+        baker.seed(cls.BAKER_SEED + 1)
+        super()._pre_setup()
+
+
+class TestCase(SeedBakerMixin, ResetLanguageOnTearDownMixin, django.test.TestCase):
     pass
 
 
-class SimpleTestCase(ResetLanguageOnTearDownMixin, django.test.SimpleTestCase):
+class SimpleTestCase(SeedBakerMixin, ResetLanguageOnTearDownMixin, django.test.SimpleTestCase):
     pass
 
 
-class WebTest(ResetLanguageOnTearDownMixin, django_webtest.WebTest):
+class WebTest(SeedBakerMixin, ResetLanguageOnTearDownMixin, django_webtest.WebTest):
     pass
 
 
@@ -301,10 +334,13 @@ def assert_no_database_modifications(*args, **kwargs):
                     raise AssertionError("Unexpected modifying query found: " + query["sql"])
 
 
-class LiveServerTest(SeleniumTestCase):
+# For the average LiveServerTest, if the "server" has an internal error, we want to abort/stacktrace/drop into debugger
+@override_settings(DEBUG_PROPAGATE_EXCEPTIONS=True)
+class LiveServerTest(SeedBakerMixin, SeleniumTestCase):
     browser = "firefox"
     selenium: WebDriver
     headless = True
+    implicit_wait = 0
     window_size = (1920, 4096)  # large height to workaround scrolling
     serialized_rollback = True  # SeleniumTestCase is a TransactionTestCase, which drops migration data. This keeps fixture data but may slow down tests, see https://docs.djangoproject.com/en/5.0/topics/testing/overview/#test-case-serialized-rollback
     static_handler = StaticFilesHandler  # see StaticLiveServerTestCase
@@ -352,7 +388,7 @@ class LiveServerTest(SeleniumTestCase):
 
     @property
     def wait(self) -> WebDriverWait:
-        return WebDriverWait(self.selenium, 10)
+        return WebDriverWait(self.selenium, 10, 0.1)
 
     @contextmanager
     def wait_until_page_reloads(self):
@@ -365,9 +401,23 @@ class LiveServerTest(SeleniumTestCase):
         super().setUpClass()
         cls.selenium.set_window_size(*cls.window_size)
 
+    def set_page_language(self, language: str):
+        with self.wait_until_page_reloads():
+            language_button = self.selenium.find_element(
+                By.XPATH,
+                f"//form[@action='/set_lang']//button[@data-set-spinner-icon='span-set-language-{language}']//parent::form",
+            )
+
+            language_button.submit()
+
 
 def classes_of_element(element: WebElement) -> list[str]:
     classes = element.get_attribute("class")
     if classes is None:
         return []
     return classes.split(" ")
+
+
+def get_open_modals(driver: WebDriver, by: str, value: str) -> list[WebElement]:
+    modals = driver.find_elements(by, value)
+    return [modal for modal in modals if len(modal.shadow_root.find_elements(By.CSS_SELECTOR, "dialog:open")) == 1]

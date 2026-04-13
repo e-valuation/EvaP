@@ -179,6 +179,7 @@ def get_evaluations_with_prefetched_data(semester):
             "course__responsibles",
             "course__semester",
             "contributions__questionnaires",
+            "cms_evaluation_links",
         )
         .annotate(
             num_contributors=Count("contributions", filter=~Q(contributions__contributor=None), distinct=True),
@@ -209,7 +210,7 @@ def semester_view(request, semester_id) -> HttpResponse:
     evaluations = get_evaluations_with_prefetched_data(semester)
     evaluations = sorted(evaluations, key=lambda cr: cr.full_name)
     courses = Course.objects.filter(semester=semester).prefetch_related(
-        "type", "programs", "responsibles", "evaluations"
+        "type", "programs", "responsibles", "evaluations", "ignored_evaluations", "cms_course_links"
     )
 
     # semester statistics (per program)
@@ -1389,10 +1390,14 @@ def helper_evaluation_edit(request, evaluation):
 
 @require_POST
 @manager_required
-@transaction.atomic
 def evaluation_delete(request):
     evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
+    return _evaluation_delete(request, evaluation)
 
+
+@manager_required
+@transaction.atomic
+def _evaluation_delete(request, evaluation):
     if not evaluation.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting evaluation not allowed")
 
@@ -1403,10 +1408,10 @@ def evaluation_delete(request):
         )
 
     with temporary_receiver(RewardPointGranting.granted_by_evaluation_deletion, notify_reward_points):
-        if evaluation.cms_id:
+        for cms_evaluation_link in evaluation.cms_evaluation_links.all():
             # remember deleted evaluation to prevent the importer from creating it again
             IgnoredEvaluation.objects.create(
-                cms_id=evaluation.cms_id,
+                cms_id=cms_evaluation_link.cms_id,
                 name_de=evaluation.name_de,
                 name_en=evaluation.name_en,
                 course=evaluation.course,
@@ -1867,6 +1872,24 @@ def questionnaire_view(request, questionnaire_id):
 
 
 @manager_required
+def questionnaire_usage(request: HttpRequest, questionnaire_id: int) -> HttpResponse:
+    questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+
+    evaluations = (
+        Evaluation.objects.filter(contributions__questionnaires=questionnaire)
+        .prefetch_related("course__semester")
+        .order_by("-course__semester__created_at", "vote_start_datetime")
+    )
+
+    evaluations_grouped_by_semester = unordered_groupby((e.course.semester, e) for e in evaluations)
+    return render(
+        request,
+        "staff_questionnaire_usage.html",
+        {"questionnaire": questionnaire, "evaluations_grouped_by_semester": evaluations_grouped_by_semester},
+    )
+
+
+@manager_required
 def questionnaire_create(request):
     questionnaire = Questionnaire()
     InlineQuestionAssignmentFormset = inlineformset_factory(
@@ -1956,7 +1979,13 @@ def questionnaire_edit(request, questionnaire_id):
         messages.success(request, _("Successfully updated questionnaire."))
         return redirect("staff:questionnaire_index")
 
-    template_data = {"questionnaire": questionnaire, "form": form, "formset": formset, "editable": editable}
+    template_data = {
+        "questionnaire": questionnaire,
+        "form": form,
+        "formset": formset,
+        "editable": editable,
+        "disable_breadcrumb_questionnaire": True,
+    }
     return render(request, "staff_questionnaire_form.html", template_data)
 
 

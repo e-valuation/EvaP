@@ -451,6 +451,7 @@ class TestSendRemindersCommand(TestCase):
             wait_for_grade_upload_before_publishing=True,
             _fill_optional=["name_de", "name_en"],
             _quantity=4,
+            _bulk_create=True,
         )
 
         with patch("evap.evaluation.models.EmailTemplate.send_to_address") as send_mock:
@@ -513,7 +514,10 @@ class TestFormatCommand(TestCase):
             [
                 call(["ruff", "format", "."], check=False),
                 call(["ruff", "check", "--select", "I", "--fix", "."], check=False),
-                call(["npx", "prettier", "--write", "evap/static/ts/**/*.ts"], check=False),
+                call(
+                    ["npx", "prettier", "--write", "evap/static/ts/**/*.ts", "evap/static/ts/eslint.config.js"],
+                    check=False,
+                ),
             ]
         )
 

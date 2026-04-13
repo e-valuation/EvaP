@@ -11,6 +11,7 @@
             {% translate 'Create course' %}
         {% endif %}
     </h3>
+    {% include 'cms_course_link_badges.html' %}
     <form id="course-form" method="POST" class="form-horizontal multiselect-form tomselectform">
         {% csrf_token %}
 

@@ -1,23 +1,22 @@
 from datetime import date, datetime
 
-from django.urls import reverse
 from model_bakery import baker
-from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.expected_conditions import (
     element_to_be_clickable,
     invisibility_of_element_located,
     visibility_of_element_located,
 )
-from selenium.webdriver.support.wait import WebDriverWait
 
 from evap.evaluation.models import (
     Contribution,
     Course,
     Evaluation,
     Program,
+    Question,
     QuestionAssignment,
     Questionnaire,
+    QuestionType,
     Semester,
     TextAnswer,
     UserProfile,
@@ -105,9 +104,9 @@ class EvaluationEditLiveTest(LiveServerTest):
         search_input.clear()
         search_input.send_keys("course name")
 
-        self.wait.until(
-            visibility_of_element_located(
-                (By.XPATH, "//button[@slot='show-button' and @aria-label='Create exam evaluation']")
+        self.assertIsNotNone(
+            self.selenium.find_element(
+                By.XPATH, "//confirmation-modal/button[@slot='show-button' and contains(.,'Create exam evaluation')]"
             )
         )
 
@@ -119,7 +118,7 @@ class EvaluationEditLiveTest(LiveServerTest):
 
 class ParticipantCollapseTests(LiveServerTest):
     def test_collapse_with_editor_approved(self) -> None:
-        participants = baker.make(UserProfile, _quantity=20)
+        participants = baker.make(UserProfile, _quantity=20, _bulk_create=True)
         baker.make(UserProfile, last_name="participant")
 
         responsible = baker.make(UserProfile)
@@ -133,7 +132,7 @@ class ParticipantCollapseTests(LiveServerTest):
         )
 
         with self.enter_staff_mode():
-            self.selenium.get(self.live_server_url + reverse("staff:evaluation_edit", args=[evaluation.id]))
+            self.selenium.get(self.reverse("staff:evaluation_edit", args=[evaluation.id]))
 
         card_header = self.selenium.find_element(By.CSS_SELECTOR, ".card:has(#id_participants) .card-header")
         self.assertIn("collapsed", classes_of_element(card_header))
@@ -144,7 +143,9 @@ class ParticipantCollapseTests(LiveServerTest):
         counter = card_header.find_element(By.CSS_SELECTOR, ".rounded-pill")
         self.assertEqual(counter.text, "20")
 
-        tomselect_input = self.selenium.find_element(By.CSS_SELECTOR, "input#id_participants-ts-control")
+        tomselect_input = self.wait.until(
+            visibility_of_element_located((By.CSS_SELECTOR, "input#id_participants-ts-control"))
+        )
         tomselect_input.click()
         tomselect_input.send_keys("participant")
         self.selenium.find_element(By.CSS_SELECTOR, ".option.active").click()
@@ -167,7 +168,7 @@ class ParticipantCollapseTests(LiveServerTest):
         )
 
         with self.enter_staff_mode():
-            self.selenium.get(self.live_server_url + reverse("staff:evaluation_edit", args=[evaluation.id]))
+            self.selenium.get(self.reverse("staff:evaluation_edit", args=[evaluation.id]))
 
         card_header = self.selenium.find_element(By.CSS_SELECTOR, ".card:has(#id_participants) .card-header")
         self.assertNotIn("collapsed", classes_of_element(card_header))
@@ -176,6 +177,53 @@ class ParticipantCollapseTests(LiveServerTest):
 
         counter = card_header.find_element(By.CSS_SELECTOR, ".rounded-pill")
         self.assertEqual(counter.text, "0")
+
+
+class EvaluationGridLiveTest(LiveServerTest):
+    def test_evaluation_grid_sorting(self):
+        semester = baker.make(Semester)
+
+        baker.make(
+            Evaluation,
+            _quantity=7,
+            name_en=baker.seq("Evaluation"),
+            name_de=baker.seq("Evaluation"),
+            course__name_en=iter(("AA", "ÄB", "AC", "AE", "UB", "ÜC", "Z")),
+            course__name_de=iter(("AA", "ÄB", "AC", "AE", "UB", "ÜC", "Z")),
+            course__semester=semester,
+        )
+
+        expected_ascending = [
+            "AA – Evaluation1",
+            "ÄB – Evaluation2",
+            "AC – Evaluation3",
+            "AE – Evaluation4",
+            "UB – Evaluation5",
+            "ÜC – Evaluation6",
+            "Z – Evaluation7",
+        ]
+        expected_descending = expected_ascending[::-1]
+
+        def make_order_is_as_expected(expected: list[str]):
+            def predicate(driver):
+                table_entries = driver.find_elements(By.CSS_SELECTOR, "#evaluation-table td[data-col=name]")
+                return expected == [entry.get_attribute("data-order") for entry in table_entries]
+
+            return predicate
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.reverse("staff:semester_view", args=[semester.id]))
+
+            self.set_page_language("de")
+            self.wait.until(make_order_is_as_expected(expected_ascending))
+            self.selenium.find_element(By.CSS_SELECTOR, "#evaluation-table th[data-col=name]").click()
+            self.wait.until(make_order_is_as_expected(expected_descending))
+
+            self.set_page_language("en")
+            # The table remembers and restores the last ordering, which is "name descending" now
+            self.wait.until(make_order_is_as_expected(expected_descending))
+            self.selenium.find_element(By.CSS_SELECTOR, "#evaluation-table th[data-col=name]").click()
+            self.wait.until(make_order_is_as_expected(expected_ascending))
 
 
 class TextAnswerEditLiveTest(LiveServerTest):
@@ -192,9 +240,9 @@ class TextAnswerEditLiveTest(LiveServerTest):
             can_publish_text_results=True,
         )
 
-        question_assignment = baker.make(QuestionAssignment)
+        question1 = baker.make(Question, type=QuestionType.TEXT)
 
-        general_questionnaire = baker.make(Questionnaire, question_assignments=[question_assignment])
+        general_questionnaire = baker.make(Questionnaire, questions=[question1])
         evaluation.general_contribution.questionnaires.set([general_questionnaire])
 
         contribution1 = baker.make(
@@ -203,17 +251,18 @@ class TextAnswerEditLiveTest(LiveServerTest):
 
         baker.make(
             TextAnswer,
-            assignment=question_assignment,
+            assignment__question=question1,
             contribution=contribution1,
             answer=iter(f"this is a dummy answer {i}" for i in range(3)),
             original_answer=None,
             review_decision=TextAnswer.ReviewDecision.UNDECIDED,
             _quantity=3,
+            _bulk_create=True,
         )
 
         textanswer1 = baker.make(
             TextAnswer,
-            assignment=question_assignment,
+            assignment__question=question1,
             contribution=contribution1,
             answer="this answer will be edited",
             original_answer=None,
@@ -222,12 +271,13 @@ class TextAnswerEditLiveTest(LiveServerTest):
 
         baker.make(
             TextAnswer,
-            assignment=question_assignment,
+            assignment__question=question1,
             contribution=contribution1,
             answer=iter(f"this is a dummy answer {i}" for i in range(3, 6)),
             original_answer=None,
             review_decision=TextAnswer.ReviewDecision.UNDECIDED,
             _quantity=3,
+            _bulk_create=True,
         )
 
         with self.enter_staff_mode():
@@ -235,31 +285,31 @@ class TextAnswerEditLiveTest(LiveServerTest):
                 self.reverse("staff:evaluation_textanswers", query={"view": "quick"}, args=[evaluation.pk])
             )
 
-        next_textanswer_btn = self.selenium.find_element(By.XPATH, "//span[@data-slide='right']")
-        edit_btn = self.selenium.find_element(By.ID, "textanswer-edit-btn")
+            next_textanswer_btn = self.wait.until(
+                visibility_of_element_located((By.CSS_SELECTOR, "span[data-slide=right]"))
+            )
+            edit_btn = self.selenium.find_element(By.ID, "textanswer-edit-btn")
 
-        while True:
-            try:
-                WebDriverWait(self.selenium, 1).until(
-                    visibility_of_element_located((By.ID, f"textanswer-{str(textanswer1.pk)}"))
+            while True:
+                textanswer_element_visible = self.wait.until(
+                    visibility_of_element_located((By.CSS_SELECTOR, ".slider-item.card-body.active[id^=textanswer-]"))
                 )
+                if textanswer_element_visible.get_attribute("id") != f"textanswer-{str(textanswer1.pk)}":
+                    next_textanswer_btn.click()
+                    continue
                 break
-            except TimeoutException:
-                next_textanswer_btn.click()
 
-        with self.enter_staff_mode():
             edit_btn.click()
 
-        textanswer_field = self.selenium.find_element(By.XPATH, "//textarea[@name='answer']")
-        submit_btn = self.selenium.find_element(By.ID, "textanswer-edit-submit-button")
+            textanswer_field = self.selenium.find_element(By.XPATH, "//textarea[@name='answer']")
+            submit_btn = self.selenium.find_element(By.ID, "textanswer-edit-submit-button")
 
-        textanswer_field.clear()
-        textanswer_field.send_keys("edited answer")
+            textanswer_field.clear()
+            textanswer_field.send_keys("edited answer")
 
-        with self.enter_staff_mode():
             submit_btn.click()
 
-        self.wait.until(visibility_of_element_located((By.XPATH, "//div[contains(text(), 'edited answer')]")))
-        self.wait.until(
-            invisibility_of_element_located((By.XPATH, "//div[contains(text(), 'this is a dummy answer')]"))
-        )
+            self.wait.until(visibility_of_element_located((By.XPATH, "//div[contains(text(), 'edited answer')]")))
+            self.wait.until(
+                invisibility_of_element_located((By.XPATH, "//div[contains(text(), 'this is a dummy answer')]"))
+            )

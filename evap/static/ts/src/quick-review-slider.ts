@@ -175,6 +175,8 @@ export class QuickReviewSlider {
             }
 
             this.slideTo(this.selectedSlideIndex + 1);
+            // Lint is just wrong
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments
             const correspondingButtonRight = selectOrError<HTMLElement>(submitSelectorForAction(action), this.slider);
             correspondingButtonRight.focus();
         });

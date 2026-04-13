@@ -1,0 +1,14 @@
+{% if course.cms_course_links.exists %}
+    <div class="d-flex mb-2">
+        {% for cms_course_link in course.cms_course_links.all %}
+            <form reload-on-success method="POST" action="{% url 'cms:cms_course_link_update_activation' %}">
+                {% csrf_token %}
+                <input name="cms_course_link_id" type="hidden" value="{{ cms_course_link.id }}">
+                <input name="is_active" type="hidden" value="{% if cms_course_link.is_active %}false{% else %}true{% endif %}">
+                <button class="btn badge {% if cms_course_link.is_active %}bg-secondary-outline btn-outline-secondary{% else %}bg-warning{% endif %}{% if not forloop.last %} me-1{% endif %}" type="submit" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{% if cms_course_link.is_active %}{% translate "Linked to CMS. Click to deactivate." %}{% else %}{% translate "Link to CMS inactive. Click to activate." %}{% endif %}">
+                    <span class="fas {% if cms_course_link.is_active %}fa-link{% else %}fa-link-slash{% endif %}"></span> {{ cms_course_link.cms_id }}
+                </button>
+            </form>
+        {% endfor %}
+    </div>
+{% endif %}

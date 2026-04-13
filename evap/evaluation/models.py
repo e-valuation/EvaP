@@ -9,7 +9,7 @@ from datetime import date, datetime, time, timedelta
 from enum import Enum, auto
 from functools import partial
 from numbers import Real
-from typing import Any
+from typing import Any, cast
 
 from django.conf import settings
 from django.contrib import messages
@@ -23,6 +23,7 @@ from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
 from django.db.models import CheckConstraint, Count, Exists, F, Manager, OuterRef, Q, QuerySet, Subquery, Value
 from django.db.models.functions import Coalesce, Lower, NullIf, TruncDate
+from django.db.models.signals import post_delete
 from django.dispatch import Signal, receiver
 from django.http import HttpRequest
 from django.template import Context, Template
@@ -378,11 +379,6 @@ class Course(LoggedModel):
     # grade publishers can set this to True, then the course will be handled as if final grades have already been uploaded
     gets_no_grade_documents = models.BooleanField(verbose_name=_("gets no grade documents"), default=False)
 
-    # unique reference for import from campus management system
-    cms_id = models.CharField(
-        verbose_name=_("campus management system id"), blank=True, null=True, unique=True, max_length=255
-    )
-
     class Meta:
         unique_together = [
             ["semester", "name_de"],
@@ -529,11 +525,6 @@ class Evaluation(LoggedModel):
     # whether to wait for grade uploading before publishing results
     wait_for_grade_upload_before_publishing = models.BooleanField(
         verbose_name=_("wait for grade upload before publishing"), default=True
-    )
-
-    # unique reference for import from campus management system
-    cms_id = models.CharField(
-        verbose_name=_("campus management system id"), blank=True, null=True, unique=True, max_length=255
     )
 
     staff_notes = models.TextField(verbose_name=_("staff notes"), blank=True)
@@ -829,7 +820,7 @@ class Evaluation(LoggedModel):
         field=state,
         source=State.PREPARED,
         target=State.EDITOR_APPROVED,
-        conditions=[lambda self: self.has_decided_main_language],
+        conditions=[lambda self: cast("Evaluation", self).has_decided_main_language],
     )
     def editor_approve(self):
         pass
@@ -838,12 +829,17 @@ class Evaluation(LoggedModel):
         field=state,
         source=[State.NEW, State.PREPARED, State.EDITOR_APPROVED],
         target=State.APPROVED,
-        conditions=[lambda self: self.general_contribution_has_questionnaires and self.has_decided_main_language],
+        conditions=[
+            lambda self: (
+                cast("Evaluation", self).general_contribution_has_questionnaires
+                and cast("Evaluation", self).has_decided_main_language
+            )
+        ],
     )
     def manager_approve(self):
         pass
 
-    @transition(field=state, target=State.NEW, conditions=[lambda self: self.can_reset_to_new])
+    @transition(field=state, target=State.NEW, conditions=[lambda self: cast("Evaluation", self).can_reset_to_new])
     def reset_to_new(self, *, delete_previous_answers: bool):
         if delete_previous_answers:
             for answer_class in Answer.__subclasses__():
@@ -854,7 +850,7 @@ class Evaluation(LoggedModel):
         field=state,
         source=State.APPROVED,
         target=State.IN_EVALUATION,
-        conditions=[lambda self: self.is_in_evaluation_period],
+        conditions=[lambda self: cast("Evaluation", self).is_in_evaluation_period],
     )
     def begin_evaluation(self):
         pass
@@ -863,7 +859,7 @@ class Evaluation(LoggedModel):
         field=state,
         source=[State.EVALUATED, State.REVIEWED],
         target=State.IN_EVALUATION,
-        conditions=[lambda self: self.is_in_evaluation_period],
+        conditions=[lambda self: cast("Evaluation", self).is_in_evaluation_period],
     )
     def reopen_evaluation(self):
         pass
@@ -873,13 +869,19 @@ class Evaluation(LoggedModel):
         pass
 
     @transition(
-        field=state, source=State.EVALUATED, target=State.REVIEWED, conditions=[lambda self: self.is_fully_reviewed]
+        field=state,
+        source=State.EVALUATED,
+        target=State.REVIEWED,
+        conditions=[lambda self: cast("Evaluation", self).is_fully_reviewed],
     )
     def end_review(self):
         pass
 
     @transition(
-        field=state, source=State.REVIEWED, target=State.EVALUATED, conditions=[lambda self: not self.is_fully_reviewed]
+        field=state,
+        source=State.REVIEWED,
+        target=State.EVALUATED,
+        conditions=[lambda self: not cast("Evaluation", self).is_fully_reviewed],
     )
     def reopen_review(self):
         pass
@@ -1373,17 +1375,14 @@ class QuestionAssignment(models.Model):
         ordering = ["order"]
         unique_together = [("question", "questionnaire")]
 
-    def delete(self, using=None, keep_parents=False) -> tuple[int, dict[str, int]]:
-        assert not self.question.answer_class.objects.filter(assignment=self).exists(), (
-            "cannot delete question with answers"
-        )
-        count = 0
-        meta: dict[str, int] = {}
 
-        if not self.question.questionnaires.exclude(pk=self.questionnaire.pk).exists():
-            count, meta = self.question.delete(using=using, keep_parents=False)  # garbage-collect unused questions
-        self_count, self_meta = super().delete(using=using, keep_parents=keep_parents)
-        return count + self_count, meta | self_meta
+@receiver(post_delete, sender=QuestionAssignment)
+@transaction.atomic
+def _question_assignment_post_delete(*, instance: QuestionAssignment, **_kwargs) -> None:
+    """Garbage-collect unused questions once no questionnaires reference them anymore."""
+
+    if not QuestionAssignment.objects.filter(question=instance.question.pk).exists():
+        Question.objects.filter(pk=instance.question.pk).delete()
 
 
 @dataclass

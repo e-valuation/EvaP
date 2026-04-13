@@ -17,6 +17,7 @@ from evap.evaluation.models import (
     Evaluation,
     NotArchivableError,
     Question,
+    QuestionAssignment,
     Questionnaire,
     QuestionType,
     Semester,
@@ -58,13 +59,37 @@ class TestSemester(WebTest):
         self.assertTrue(semester.can_be_deleted_by_manager)
 
 
-class TestQuestionnaire(WebTest):
+class TestQuestionnaire(TestCase):
     def test_can_be_deleted_by_manager(self):
         questionnaire = baker.make(Questionnaire)
         self.assertTrue(questionnaire.can_be_deleted_by_manager)
 
         baker.make(Contribution, questionnaires=[questionnaire])
         self.assertFalse(questionnaire.can_be_deleted_by_manager)
+
+    def test_locked_contributor_questionnaire(self):
+        questionnaire = baker.prepare(Questionnaire, is_locked=True, type=Questionnaire.Type.CONTRIBUTOR)
+        self.assertRaises(ValidationError, questionnaire.clean)
+
+
+class TestQuestionAssignment(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.assignment = baker.make(QuestionAssignment)
+        cls.question = cls.assignment.question
+        cls.questionnaire = cls.assignment.questionnaire
+
+    def test_assignment_delete_gc(self):
+        self.assignment.delete()
+        self.assertRaises(Question.DoesNotExist, self.question.refresh_from_db)
+
+    def test_assignment_queryset_delete_gc(self):
+        QuestionAssignment.objects.filter(pk=self.assignment.pk).delete()
+        self.assertRaises(Question.DoesNotExist, self.question.refresh_from_db)
+
+    def test_questionnaire_cascading_delete_gc(self):
+        self.questionnaire.delete()
+        self.assertRaises(Question.DoesNotExist, self.question.refresh_from_db)
 
 
 @override_settings(EVALUATION_END_OFFSET_HOURS=0)
@@ -696,6 +721,7 @@ class TestUserProfile(TestCase):
             state=Evaluation.State.IN_EVALUATION,
             participants=[student],
             _quantity=3,
+            _bulk_create=True,
         )
 
         sorted_evaluations = student.get_sorted_due_evaluations()
@@ -992,7 +1018,7 @@ class TestEmailTemplate(TestCase):
         responsible1 = baker.make(UserProfile)
         responsible2 = baker.make(UserProfile)
 
-        students = baker.make(UserProfile, _quantity=3)
+        students = baker.make(UserProfile, _quantity=3, _bulk_create=True)
         evaluation1 = baker.make(
             Evaluation, course__responsibles=[responsible1], participants=students, voters=students
         )
@@ -1148,9 +1174,3 @@ class TestEmailRecipientList(TestCase):
             evaluation, [EmailTemplate.Recipients.CONTRIBUTORS], filter_users_in_cc=True
         )
         self.assertCountEqual(recipient_list, [contributor2, contributor3])
-
-
-class QuestionnaireTests(TestCase):
-    def test_locked_contributor_questionnaire(self):
-        questionnaire = baker.prepare(Questionnaire, is_locked=True, type=Questionnaire.Type.CONTRIBUTOR)
-        self.assertRaises(ValidationError, questionnaire.clean)

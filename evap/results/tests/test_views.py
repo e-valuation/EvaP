@@ -206,6 +206,7 @@ class TestResultsView(WebTest):
             answer=2,
             count=2,
             _quantity=len(published),
+            _bulk_create=True,
         )
 
         for evaluation in published:
@@ -554,6 +555,14 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         self.assertContains(response, "15", msg_prefix="answer count is shown")
         self.assertContains(response, "test-dropout-question-text")
         self.assertContains(response, "test-dropout-questionnaire-title")
+
+        # Assert Dropout Section is not shown if nobody dropped out
+        self.evaluation.dropout_count = 0
+        self.evaluation.save()
+
+        response = self.app.get(self.url, user=self.manager, status=200)
+
+        self.assertNotContains(response, "test-dropout-questionnaire-title")
 
 
 class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
