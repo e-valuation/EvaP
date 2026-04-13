@@ -30,6 +30,9 @@
 
         {% include "custom_elements.html" %}
 
+        {% block modals %}
+        {% endblock %}
+
         <div class="sticky-top d-print-none z-over-fixed">
             {% include_navbar user LANGUAGE_CODE %}
 
