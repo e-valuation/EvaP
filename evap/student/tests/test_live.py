@@ -134,7 +134,7 @@ class StudentVoteLiveTest(LiveServerTest):
         with self.wait_until_page_reloads():
             self.selenium.find_element(By.ID, "vote-submit-btn").click()
 
-        # wait for all java script to full execute, so our click handlers are registered
+        # wait for all javascript to fully execute, so our click handlers are registered
         self.wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
 
         row = self.selenium.find_element(By.CSS_SELECTOR, "#student-vote-form .row:has(.btn-check)")
