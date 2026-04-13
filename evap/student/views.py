@@ -348,6 +348,8 @@ def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> Htt
     if not evaluation.can_be_voted_for_by(request.user):
         raise PermissionDenied
 
+    assert False, "oh noes"
+
     form_groups = get_vote_page_form_groups(request, evaluation, preview=False, dropout=dropout)
     if not all(form.is_valid() for form_group in form_groups.values() for form in form_group):
         return render_vote_page(request, evaluation, preview=False, dropout=dropout)
