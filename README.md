@@ -18,28 +18,28 @@ We use [nix](https://nixos.org/) to manage the development environment.
 
 1. Windows only: Install the Windows Subsystem for Linux (WSL) using `wsl --install -d Ubuntu-24.04` (you may have to restart your computer and run this command again). Enter the WSL environment using the `wsl` command. On your first entry, you need to choose a username and password - anything works (for example: username "evap", password "evap"). Perform the next step outside of `/mnt`, for example by going to your home directory (`cd ~`).
 2. Install [git](https://git-scm.com/downloads). Run the following commands to clone and enter the EvaP repository:
-   ```
+   ```bash
    git clone --recurse-submodules https://github.com/e-valuation/EvaP.git
    cd EvaP
    ```
-3. On Linux and WSL, install nix by running `./nix/setup-nix`. On MacOS, install nix using the [Determinate Nix Installer](https://install.determinate.systems/). Afterwards, if you get a permission error when running nix, restart your computer.
-4. Start the needed background services for EvaP:
+3. On Linux and WSL, install nix by running `./nix/setup-nix`. On MacOS, install nix using the [Determinate Nix Installer](https://install.determinate.systems/). Afterwards, if you get any errors when running nix, restart your computer.
+4. Start EvaP and wait until you see a table view and the "evap" row shows "Running":
+   ```bash
+   nix run
    ```
-   nix run .#services-full
-   ```
-5. Open a new terminal. Enter the development shell and start EvaP:
-   ```
-   cd EvaP
-   nix develop
-   ./manage.py run
-   ```
-6. Open your web browser at http://localhost:8000/ and login with email `evap@institution.example.com` and password `evap`.
+5. Open your web browser at http://localhost:8000/ and login with email `evap@institution.example.com` and password `evap`.
 
-To stop EvaP or the background services, press `Ctrl-C`.
+When developing EvaP, you can open a shell with all dependencies available:
+```bash
+cd EvaP
+nix develop
+```
+
+To stop the EvaP services, press `Ctrl-C`.
 To exit the development shell, press `Ctrl-D` or type `exit`.
 
-Inside the development shell, after quitting the background services, you can run the command `clean-setup` to remove persistent state (database, node modules, localsettings).
-Afterwards, `nix run .#services-full` will recreate a default development environment on startup.
+Inside the development shell, after quitting the services, you can run the command `clean-setup` to remove persistent state (database, node modules, localsettings).
+Afterwards, `nix run` will recreate a default development environment on startup.
 
 ## Contributing
 
