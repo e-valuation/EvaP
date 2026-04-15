@@ -91,6 +91,7 @@
               ${inner-command}
             '';
           };
+          is_tty = true;
           depends_on = {
             "init-django".condition = "process_completed_successfully";
             "npm-ci".condition = "process_completed_successfully";
