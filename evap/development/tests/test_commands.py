@@ -65,15 +65,6 @@ class TestReloadTestdataCommand(TestCase):
 class TestRunCommand(TestCase):
     def test_calls_runserver(self):
         with patch("django.core.management.execute_from_command_line") as execute_mock:
-            with patch("subprocess.Popen") as popen_mock:
-                management.call_command("run", stdout=StringIO())
+            management.call_command("run", stdout=StringIO())
 
         execute_mock.assert_called_once_with(["manage.py", "runserver", "0.0.0.0:8000"])
-        self.assertEqual(popen_mock.call_count, 2)
-        popen_mock.assert_has_calls(
-            [
-                call(["./manage.py", "scss"]),
-                call(["./manage.py", "ts", "compile"]),
-            ],
-            any_order=True,
-        )
