@@ -1,5 +1,5 @@
 from io import StringIO
-from unittest.mock import call, patch
+from unittest.mock import patch
 
 from django.conf import settings
 from django.core import management

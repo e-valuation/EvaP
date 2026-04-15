@@ -253,7 +253,7 @@ class TestTsCommand(TestCase):
         management.call_command("ts", "compile", "--watch", stdout=StringIO())
 
         mock_subprocess_run.assert_called_once_with(
-            ["npx", "tsc", "--project", self.ts_path / "tsconfig.compile.json", "--watch"],
+            ["npx", "tsc", "--project", self.ts_path / "tsconfig.compile.json", "--watch", "--preserveWatchOutput"],
             check=False,
         )
 
