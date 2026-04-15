@@ -49,7 +49,7 @@ To exit the development shell, press `Ctrl-D` or type `exit`.
 
 If you start your code editor from the `nix develop` shell, it should automatically pick up all dependencies. If this does not work automatically, try using the `nix/nix-python` script in the EvaP project as the Python interpreter in your IDE.
 
-After quitting the services, you can run the command `nix run .#clean-setup` to remove persistent state (database, node modules, localsettings).
+After quitting `nix run`, you can run the command `nix run .#clean-setup` to remove persistent state (database, node modules, localsettings).
 Afterwards, `nix run` will recreate everything when you run it the next time.
 
 Before committing, run `./manage.py precommit` or alternatively, the individual commands:
