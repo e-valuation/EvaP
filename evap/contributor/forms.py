@@ -100,9 +100,9 @@ class EvaluationForm(forms.ModelForm):
             self.add_error("vote_end_date", _("The first day of evaluation must be before the last one."))
 
         # Ensure locked questionnaires cannot be deselected and only unlocked ones can be added
-        selected_questionnaires = (
-            self.instance.ensure_general_contribution().questionnaires.filter(is_locked=True).distinct()
-        )
+        selected_questionnaires = Questionnaire.objects.filter(
+            is_locked=True, contributions__contributor=None, contributions__evaluation=self.instance
+        ).distinct()
         selected_questionnaires |= self.cleaned_data.get("general_questionnaires").filter(is_locked=False)
         selected_questionnaires |= self.cleaned_data.get("dropout_questionnaires").filter(is_locked=False)
 

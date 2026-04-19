@@ -50,7 +50,7 @@ from evap.evaluation.tools import (
     translate,
     vote_end_datetime,
 )
-from evap.tools import assert_not_none, date_to_datetime
+from evap.tools import date_to_datetime
 
 logger = logging.getLogger(__name__)
 
@@ -921,7 +921,7 @@ class Evaluation(LoggedModel):
 
         contribution, __ = self.contributions.get_or_create(contributor=None)
         self.__dict__["general_contribution"] = contribution
-        return assert_not_none(self.general_contribution)
+        return contribution
 
     @cached_property
     def general_contribution(self) -> "Contribution | None":
