@@ -4,7 +4,7 @@ from collections.abc import Iterable
 from copy import copy
 from enum import Enum
 from math import ceil, modf
-from typing import TYPE_CHECKING, TypeGuard, cast
+from typing import TYPE_CHECKING, Any, TypeGuard, cast
 
 from django.conf import settings
 from django.core.cache import caches
@@ -291,7 +291,7 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
     return EvaluationResult(contributor_contribution_results)
 
 
-def annotate_distributions_and_grades(evaluations: Iterable[Evaluation]) -> None:
+def annotate_distributions_and_grades(evaluations: Any) -> None:
     for evaluation in evaluations:
         evaluation.distribution = calculate_average_distribution(evaluation)
         evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
@@ -403,15 +403,16 @@ def get_evaluations_with_course_result_attributes[T: (QuerySet[Evaluation], list
     evaluation_weight_sum_per_course_id = {entry[0]: entry[1] for entry in course_id_evaluation_weight_sum_pairs}
 
     for evaluation in evaluations:
-        if evaluation.course.id in courses_with_unpublished_evaluations:
-            evaluation.course.not_all_evaluations_are_published = True
-            evaluation.course.distribution = None
+        course = cast("Any", evaluation.course)
+        if course.id in courses_with_unpublished_evaluations:
+            course.not_all_evaluations_are_published = True
+            course.distribution = None
         else:
-            evaluation.course.distribution = calculate_average_course_distribution(evaluation.course, False)
+            course.distribution = calculate_average_course_distribution(evaluation.course, False)
 
-        evaluation.course.evaluation_count = evaluation.course.evaluations.count()
-        evaluation.course.avg_grade = distribution_to_grade(evaluation.course.distribution)
-        evaluation.course.evaluation_weight_sum = evaluation_weight_sum_per_course_id[evaluation.course.id]
+        course.evaluation_count = evaluation.course.evaluations.count()
+        course.avg_grade = distribution_to_grade(course.distribution)
+        course.evaluation_weight_sum = evaluation_weight_sum_per_course_id[evaluation.course.id]
 
     return evaluations
 

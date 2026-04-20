@@ -44,7 +44,7 @@ class GradeDocument(models.Model):
     def __str__(self) -> str:
         return self.description
 
-    def filename(self) -> str:
+    def filename(self):
         return os.path.basename(self.file.name)
 
 

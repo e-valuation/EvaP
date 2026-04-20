@@ -20,6 +20,7 @@ from evap.evaluation.forms import LoginEmailForm, NewKeyForm, NotebookForm, Prof
 from evap.evaluation.models import EmailTemplate, FaqSection, Semester, UserProfile
 from evap.evaluation.tools import HttpResponseNoContent, openid_login_is_active, password_login_is_active
 from evap.middleware import no_login_required
+from evap.tools import assert_not_none
 
 logger = logging.getLogger(__name__)
 
@@ -72,11 +73,11 @@ def index(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         if new_key_form.is_valid():
             # user wants a new login key
-            profile = new_key_form.get_user()
+            profile = assert_not_none(new_key_form.get_user())
             profile.ensure_valid_login_key()
             profile.save()
 
-            EmailTemplate.send_login_url_to_user(new_key_form.get_user())
+            EmailTemplate.send_login_url_to_user(profile)
 
             messages.success(request, _("We sent you an email with a one-time login URL. Please check your inbox."))
             return redirect("evaluation:index")
@@ -116,7 +117,7 @@ def index(request: HttpRequest) -> HttpResponse:
 
 
 @no_login_required
-def login_key_authentication(request: HttpRequest, key: str) -> HttpResponse:
+def login_key_authentication(request: HttpRequest, key: int) -> HttpResponse:
     user = auth.authenticate(request, key=key)
 
     if user and not user.is_active:
@@ -132,7 +133,7 @@ def login_key_authentication(request: HttpRequest, key: str) -> HttpResponse:
             )
         return redirect("evaluation:index")
 
-    if user and user.login_key_valid_until >= date.today():
+    if user and assert_not_none(user.login_key_valid_until) >= date.today():
         if request.method != "POST":
             template_data = {"username": user.full_name}
             return render(request, "external_user_confirm_login.html", template_data)

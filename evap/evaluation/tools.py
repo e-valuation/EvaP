@@ -4,7 +4,7 @@ import typing
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Iterable, Iterator, Mapping
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Never
+from typing import TYPE_CHECKING, Any
 from urllib.parse import quote
 
 import xlwt
@@ -113,7 +113,7 @@ def get_object_from_dict_pk_entry_or_logged_40x[M: Model](
         raise SuspiciousOperation from e
 
 
-def is_prefetched(instance: Any, attribute_name: str) -> bool:
+def is_prefetched(instance: Model, attribute_name: str) -> bool:
     """
     Is the given related attribute prefetched? Can be used to do ordering or counting in python and avoid additional
     database queries

@@ -1,7 +1,7 @@
 from collections.abc import Generator
 from contextlib import contextmanager
 from datetime import date
-from typing import Any
+from typing import Any, cast
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -107,6 +107,7 @@ class BaseRewardPointRedemptionFormSet(forms.BaseFormSet):
         return created
 
 
-RewardPointRedemptionFormSet = forms.formset_factory(
-    RewardPointRedemptionForm, formset=BaseRewardPointRedemptionFormSet, extra=0
+RewardPointRedemptionFormSet = cast(
+    "type[BaseRewardPointRedemptionFormSet]",
+    forms.formset_factory(RewardPointRedemptionForm, formset=BaseRewardPointRedemptionFormSet, extra=0),
 )

@@ -642,6 +642,8 @@ class TestVoteView(WebTest):
 
 
 class TestDropoutView(WebTest):
+    evaluation: Evaluation
+
     @classmethod
     def setUpTestData(cls) -> None:
         cls.user = baker.make(UserProfile, email="student@institution.example.com")
@@ -666,7 +668,7 @@ class TestDropoutView(WebTest):
             Evaluation, state=Evaluation.State.IN_EVALUATION, participants=[cls.user, cls.user2], main_language="en"
         )
 
-        cls.evaluation.general_contribution.questionnaires.add(cls.dropout_questionnaire, cls.normal_questionnaire)  # type: ignore[misc]
+        cls.evaluation.general_contribution.questionnaires.add(cls.dropout_questionnaire, cls.normal_questionnaire)  # type: ignore[union-attr]
 
     def assert_no_answer_set(self, form, dropout_questionnaire: Questionnaire):
         for name, fields in form.fields.items():

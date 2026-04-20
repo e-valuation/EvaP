@@ -34,8 +34,8 @@ class LoginEmailForm(forms.Form):
 
     @sensitive_variables("password")
     def clean_password(self) -> str | None:
-        email = assert_not_none(self.cleaned_data.get("email"))
-        password = self.cleaned_data.get("password")
+        email: str = self.cleaned_data["email"]
+        password: str | None = self.cleaned_data.get("password")
 
         email = email.lower()
 

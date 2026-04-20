@@ -394,6 +394,7 @@ def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> Htt
                                 contribution=contribution, assignment=assignment, answer=value
                             )
                     else:
+                        assert isinstance(question.answer_class, RatingAnswerCounter)
                         if value != NO_ANSWER:
                             answer_counter, __ = question.answer_class.objects.get_or_create(
                                 contribution=contribution, assignment=assignment, answer=value
