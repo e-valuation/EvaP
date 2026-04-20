@@ -31,103 +31,103 @@
             {% translate 'Courses' %}
         </div>
         <div class="card-body table-responsive">
-                <table class="table table-striped grade-course-table table-vertically-aligned">
-                    <thead>
+            <table class="table table-striped grade-course-table table-vertically-aligned">
+                <thead>
+                    <tr>
+                        <th class="width-percent-35 col-order" data-col="name">{% translate 'Name' %}</th>
+                        <th class="width-percent-20 col-order" data-col="responsible">{% translate 'Responsible' %}</th>
+                        <th data-not-searchable class="width-percent-10 col-order" data-col="complete">{% translate 'Evaluation completed' %}</th>
+                        <th data-not-searchable class="width-percent-10 col-order" data-col="midterm-grades">{% translate 'Midterm grade documents' %}</th>
+                        <th data-not-searchable class="width-percent-10 col-order" data-col="final-grades">{% translate 'Final grade documents' %}</th>
+                        <th data-not-searchable class="width-percent-15 text-end">{% translate 'Actions' %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course, num_midterm_grades, num_final_grades in courses %}
                         <tr>
-                            <th class="width-percent-35 col-order" data-col="name">{% translate 'Name' %}</th>
-                            <th class="width-percent-20 col-order" data-col="responsible">{% translate 'Responsible' %}</th>
-                            <th data-not-searchable class="width-percent-10 col-order" data-col="complete">{% translate 'Evaluation completed' %}</th>
-                            <th data-not-searchable class="width-percent-10 col-order" data-col="midterm-grades">{% translate 'Midterm grade documents' %}</th>
-                            <th data-not-searchable class="width-percent-10 col-order" data-col="final-grades">{% translate 'Final grade documents' %}</th>
-                            <th data-not-searchable class="width-percent-15 text-end">{% translate 'Actions' %}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for course, num_midterm_grades, num_final_grades in courses %}
-                            <tr>
-                                <td data-col="name" data-order="{{ course.name|lower }}">
-                                    <a href="{% url 'grades:course_view' course.id %}">{{ course.name }}</a>
-                                    <br />
-                                    {% include 'course_badges.html' %}
-                                </td>
-                                <td data-col="responsible" data-order="{{ course.responsibles.first.last_name|lower }}">
-                                    {{ course.responsibles_names }}
-                                </td>
-                                <td class="text-center" data-col="complete">{% if course.all_evaluations_finished %}<span class="fas fa-check"></span>{% endif %}
-                                <td class="text-center" data-col="midterm-grades">
-                                    {% if num_midterm_grades > 0 %}
-                                        <span class="fas fa-file"></span> {{ num_midterm_grades }}
-                                    {% endif %}
-                                </td>
-                                <td class="text-center" data-col="final-grades">
-                                    {% if num_final_grades > 0 %}
-                                        <span class="fas fa-file"></span> {{ num_final_grades }}
-                                    {% elif course.gets_no_grade_documents %}
+                            <td data-col="name" data-order="{{ course.name|lower }}">
+                                <a href="{% url 'grades:course_view' course.id %}">{{ course.name }}</a>
+                                <br />
+                                {% include 'course_badges.html' %}
+                            </td>
+                            <td data-col="responsible" data-order="{{ course.responsibles.first.last_name|lower }}">
+                                {{ course.responsibles_names }}
+                            </td>
+                            <td class="text-center" data-col="complete">{% if course.all_evaluations_finished %}<span class="fas fa-check"></span>{% endif %}
+                            <td class="text-center" data-col="midterm-grades">
+                                {% if num_midterm_grades > 0 %}
+                                    <span class="fas fa-file"></span> {{ num_midterm_grades }}
+                                {% endif %}
+                            </td>
+                            <td class="text-center" data-col="final-grades">
+                                {% if num_final_grades > 0 %}
+                                    <span class="fas fa-file"></span> {{ num_final_grades }}
+                                {% elif course.gets_no_grade_documents %}
+                                    <form reload-on-success method="POST" action="{% url 'grades:set_no_grades' %}" class="d-contents">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="course_id" value="{{ course.id }}">
+
+                                        <confirmation-modal type="submit" name="status" value="0" confirm-button-class="btn-primary">
+                                            <span slot="title">{% translate 'Will final grades be uploaded?' %}</span>
+                                            <span slot="action-text">{% translate 'Confirm' %}</span>
+                                            <span slot="question">
+                                                {% blocktranslate trimmed with course_name=course.name %}
+                                                    Please confirm that a grade document for the course <strong>{{ course_name }}</strong> will be uploaded later on.
+                                                {% endblocktranslate %}
+                                            </span>
+
+                                            <a slot="show-button" href="#">
+                                                <span class="fas fa-xmark light-link" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Grade documents for this course will not be uploaded. Click to change.' %}"></span>
+                                            </a>
+                                        </confirmation-modal>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td class="text-end" style="min-width:72px">
+                                {% if not course.gets_no_grade_documents %}
+                                    {% if num_final_grades == 0 %}
                                         <form reload-on-success method="POST" action="{% url 'grades:set_no_grades' %}" class="d-contents">
                                             {% csrf_token %}
                                             <input type="hidden" name="course_id" value="{{ course.id }}">
 
-                                            <confirmation-modal type="submit" name="status" value="0" confirm-button-class="btn-primary">
-                                                <span slot="title">{% translate 'Will final grades be uploaded?' %}</span>
+                                            <confirmation-modal type="submit" name="status" value="1" confirm-button-class="btn-primary">
+                                                <span slot="title">{% translate 'Have final grades been submitted?' %}</span>
                                                 <span slot="action-text">{% translate 'Confirm' %}</span>
                                                 <span slot="question">
                                                     {% blocktranslate trimmed with course_name=course.name %}
-                                                        Please confirm that a grade document for the course <strong>{{ course_name }}</strong> will be uploaded later on.
+                                                        Please confirm that the final grades for the course <strong>{{ course_name }}</strong> have been submitted but will not be uploaded.
                                                     {% endblocktranslate %}
                                                 </span>
 
-                                                <a slot="show-button" href="#">
-                                                    <span class="fas fa-xmark light-link" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Grade documents for this course will not be uploaded. Click to change.' %}"></span>
-                                                </a>
+                                                <button slot="show-button" type="button" {{ disable_if_archived }} class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Confirm that final grades have been submitted but will not be uploaded.' %}">
+                                                    <span class="fas fa-xmark"></span>
+                                                </button>
                                             </confirmation-modal>
                                         </form>
-                                    {% endif %}
-                                </td>
-                                <td class="text-end" style="min-width:72px">
-                                    {% if not course.gets_no_grade_documents %}
-                                        {% if num_final_grades == 0 %}
-                                            <form reload-on-success method="POST" action="{% url 'grades:set_no_grades' %}" class="d-contents">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="course_id" value="{{ course.id }}">
 
-                                                <confirmation-modal type="submit" name="status" value="1" confirm-button-class="btn-primary">
-                                                    <span slot="title">{% translate 'Have final grades been submitted?' %}</span>
-                                                    <span slot="action-text">{% translate 'Confirm' %}</span>
-                                                    <span slot="question">
-                                                        {% blocktranslate trimmed with course_name=course.name %}
-                                                            Please confirm that the final grades for the course <strong>{{ course_name }}</strong> have been submitted but will not be uploaded.
-                                                        {% endblocktranslate %}
-                                                    </span>
-
-                                                    <button slot="show-button" type="button" {{ disable_if_archived }} class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Confirm that final grades have been submitted but will not be uploaded.' %}">
-                                                        <span class="fas fa-xmark"></span>
-                                                    </button>
-                                                </confirmation-modal>
-                                            </form>
-
-                                            <div class="btn-group" role="group" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Upload grade document' %}">
-                                                <button type="button" id="btnUpload{{ course.id }}" class="btn btn-sm btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                    <span class="fas fa-upload"></span>
-                                                </button>
-                                                <div class="dropdown-menu" aria-labelledby="btnUpload{{ course.id }}">
-                                                    <a class="dropdown-item" href="{% url 'grades:upload_grades' course.id %}">{% translate 'Midterm grades' %}</a>
-                                                    <a class="dropdown-item" href="{% url 'grades:upload_grades' course.id %}?final=true">{% translate 'Final grades' %}</a>
-                                                </div>
+                                        <div class="btn-group" role="group" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Upload grade document' %}">
+                                            <button type="button" id="btnUpload{{ course.id }}" class="btn btn-sm btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <span class="fas fa-upload"></span>
+                                            </button>
+                                            <div class="dropdown-menu" aria-labelledby="btnUpload{{ course.id }}">
+                                                <a class="dropdown-item" href="{% url 'grades:upload_grades' course.id %}">{% translate 'Midterm grades' %}</a>
+                                                <a class="dropdown-item" href="{% url 'grades:upload_grades' course.id %}?final=true">{% translate 'Final grades' %}</a>
                                             </div>
-                                        {% else %}
-                                            <a href="{% url 'grades:course_view' course.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Change grade document' %}"><span class="fas fa-pencil"></span></a>
-                                        {% endif %}
+                                        </div>
+                                    {% else %}
+                                        <a href="{% url 'grades:course_view' course.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Change grade document' %}"><span class="fas fa-pencil"></span></a>
                                     {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                    <tfoot>
-                        <tr class="empty-disclaimer">
-                            <td colspan="999">{% translate 'No matching courses found.' %}</td>
+                                {% endif %}
+                            </td>
                         </tr>
-                    </tfoot>
-                </table>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="empty-disclaimer">
+                        <td colspan="999">{% translate 'No matching courses found.' %}</td>
+                    </tr>
+                </tfoot>
+            </table>
         </div>
     </div>
 {% endblock %}
