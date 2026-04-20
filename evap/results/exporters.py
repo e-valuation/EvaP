@@ -1,8 +1,8 @@
-import warnings
-from collections import OrderedDict, defaultdict
+import math
+import typing
+from collections import defaultdict
 from collections.abc import Iterable, Sequence
 from itertools import chain, repeat
-from typing import Any, TypeVar
 
 import xlwt
 from django.db.models import Q, QuerySet
@@ -24,13 +24,32 @@ from evap.results.tools import (
     get_results,
 )
 
-T = TypeVar("T", bound=Model)
+T = typing.TypeVar("T", bound=Model)
 QuerySetOrSequence = QuerySet[T] | Sequence[T]
-AnnotatedEvaluation = Any
+AnnotatedEvaluation = typing.Any
+
+
+class Averager:
+    def __init__(self):
+        self.sum = 0
+        self.count = 0
+
+    def record_value(self, value: float, weight: float = 1):
+        if math.isnan(value):
+            return
+
+        self.sum += value * weight
+        self.count += weight
+
+    def current_average(self):
+        if self.count == 0:
+            return math.nan
+
+        return self.sum / self.count
 
 
 class ResultsExporter(ExcelExporter):
-    CUSTOM_COLOR_START = 8
+    CUSTOM_COLOR_PALETTE_START_INDEX = 8
     NUM_GRADE_COLORS = 21  # 1.0 to 5.0 in 0.2 steps
     STEP = 0.2  # we only have a limited number of custom colors
 
@@ -65,7 +84,7 @@ class ResultsExporter(ExcelExporter):
 
     @classmethod
     def normalize_number(cls, number: float) -> float:
-        """floors 'number' to a multiply of cls.STEP"""
+        """floors number to a multiple of cls.STEP"""
         rounded_number = round(number, 1)  # see #302
         return round(int(rounded_number / cls.STEP + 0.0001) * cls.STEP, 1)
 
@@ -79,23 +98,17 @@ class ResultsExporter(ExcelExporter):
         Instances need the styles, but they should only be registered once for xlwt.
         """
 
-        if len(cls.COLOR_MAPPINGS) > 0:
-            # Method has already been called (probably in another import of this file).
-            warnings.warn(
-                "ResultsExporter.init_grade_styles has been called, "
-                "although the styles have already been initialized. "
-                "This can happen, if the file is imported / run multiple "
-                "times in one application run.",
-                ImportWarning,
-                stacklevel=3,
-            )
-            return
+        if cls.COLOR_MAPPINGS:
+            raise RuntimeError("ResultsExporter.init_grade_styles has been called twice.")
 
-        grade_base_style = "pattern: pattern solid, fore_colour {}; alignment: horiz centre; font: bold on; borders: left medium, right medium"
+        grade_base_style = (
+            "pattern: pattern solid, fore_colour {}; alignment: horiz centre; font: bold on; "
+            "borders: left medium, right medium"
+        )
         for i in range(cls.NUM_GRADE_COLORS):
             grade = 1 + i * cls.STEP
             color = get_grade_color(grade)
-            palette_index = cls.CUSTOM_COLOR_START + i
+            palette_index = cls.CUSTOM_COLOR_PALETTE_START_INDEX + i
             style_name = cls.grade_to_style(grade)
             color_name = style_name + "_color"
             xlwt.add_palette_colour(color_name, palette_index)
@@ -118,14 +131,14 @@ class ResultsExporter(ExcelExporter):
         return filtered_questions
 
     @staticmethod
-    def filter_evaluations(  # noqa: PLR0912
-        semesters: Iterable[Semester] | None = None,
-        evaluation_states: Iterable[Evaluation.State] | None = None,
-        program_ids: Iterable[int] | None = None,
-        course_type_ids: Iterable[int] | None = None,
-        contributor: UserProfile | None = None,
+    def filter_evaluations(
+        semesters: Iterable[Semester] | None,
+        evaluation_states: Iterable[Evaluation.State] | None,
+        program_ids: Iterable[int] | None,
+        course_type_ids: Iterable[int] | None,
+        contributor: UserProfile | None,
         include_not_enough_voters: bool = False,
-    ) -> tuple[list[tuple[Evaluation, OrderedDict[int, list[QuestionResult]]]], list[Questionnaire], bool]:
+    ) -> tuple[list[tuple[Evaluation, dict[int, list[QuestionResult]]]], list[Questionnaire], bool]:
         # pylint: disable=too-many-locals
         course_results_exist = False
         evaluations_with_results = []
@@ -140,31 +153,34 @@ class ResultsExporter(ExcelExporter):
             evaluations_filter &= Q(course__programs__in=program_ids)
         if course_type_ids is not None:
             evaluations_filter &= Q(course__type__in=course_type_ids)
-
-        if contributor:
-            evaluations_filter = evaluations_filter & (
-                Q(course__responsibles__in=[contributor]) | Q(contributions__contributor__in=[contributor])
+        if contributor is not None:
+            evaluations_filter &= Q(course__responsibles__in=[contributor]) | Q(
+                contributions__contributor__in=[contributor]
             )
+
         evaluations = Evaluation.objects.filter(evaluations_filter).distinct()
         for evaluation in evaluations:
             if not evaluation.can_publish_rating_results and not include_not_enough_voters:
                 continue
-            results: OrderedDict[int, list[QuestionResult]] = OrderedDict()
+
+            results: dict[int, list[QuestionResult]] = defaultdict(list)
             for contribution_result in get_results(evaluation).contribution_results:
                 for questionnaire_result in contribution_result.questionnaire_results:
-                    # RatingQuestion.counts is a tuple of integers or None, if this tuple is all zero, we want to exclude it
-                    question_results = questionnaire_result.question_results
-                    if not any(
-                        isinstance(question_result, AnsweredRatingResult) for question_result in question_results
-                    ):
+                    questionnaire_has_no_answered_results = all(
+                        not isinstance(question_result, AnsweredRatingResult)
+                        for question_result in questionnaire_result.question_results
+                    )
+                    if questionnaire_has_no_answered_results:
                         continue
+
                     if (
-                        not contributor
+                        contributor is None
                         or contribution_result.contributor is None
                         or contribution_result.contributor == contributor
                     ):
-                        results.setdefault(questionnaire_result.questionnaire.id, []).extend(question_results)
+                        results[questionnaire_result.questionnaire.id] += questionnaire_result.question_results
                         used_questionnaires.add(questionnaire_result.questionnaire)
+
             annotated_evaluation: AnnotatedEvaluation = evaluation
             annotated_evaluation.course_evaluations_count = annotated_evaluation.course.evaluations.count()
             if annotated_evaluation.course_evaluations_count > 1:
@@ -185,7 +201,7 @@ class ResultsExporter(ExcelExporter):
 
     def write_headings_and_evaluation_info(
         self,
-        evaluations_with_results: list[tuple[Evaluation, OrderedDict[int, list[QuestionResult]]]],
+        evaluations_with_results: list[tuple[Evaluation, dict[int, list[QuestionResult]]]],
         semesters: QuerySetOrSequence[Semester],
         contributor: UserProfile | None,
         programs: Iterable[int],
@@ -197,6 +213,7 @@ class ResultsExporter(ExcelExporter):
             export_name += f"\n{contributor.full_name}"
         elif len(semesters) == 1:
             export_name += f"\n{semesters[0].name}"
+
         if verbose_heading:
             program_names = [program.name for program in Program.objects.filter(pk__in=programs)]
             course_type_names = [course_type.name for course_type in CourseType.objects.filter(pk__in=course_types)]
@@ -237,7 +254,7 @@ class ResultsExporter(ExcelExporter):
 
     def write_overall_results(
         self,
-        evaluations_with_results: list[tuple[AnnotatedEvaluation, OrderedDict[int, list[QuestionResult]]]],
+        evaluations_with_results: list[tuple[AnnotatedEvaluation, dict[int, list[QuestionResult]]]],
         course_results_exist: bool,
     ) -> None:
         annotated_evaluations = [e for e, __ in evaluations_with_results]
@@ -296,89 +313,80 @@ class ResultsExporter(ExcelExporter):
             )
 
     @classmethod
-    def _get_average_grade_and_approval_ratio(
+    def _get_average_grade_and_approval(
         cls, question: Question, results: list[QuestionResult]
-    ) -> tuple[float | None, float | None]:
-        value_sum = 0.0
-        count_sum = 0
-        approval_count = 0
+    ) -> tuple[float, float | None]:
+        grade_averager = Averager()
+        approval_averager = Averager()
 
         for grade_result in results:
             if grade_result.question.id != question.id or not RatingResult.has_answers(grade_result):
                 continue
 
-            value_sum += grade_result.average * grade_result.count_sum
-            count_sum += grade_result.count_sum
+            grade_averager.record_value(grade_result.grade_average, weight=grade_result.count_sum)
+
             if question.is_yes_no_question:
-                approval_count += grade_result.approval_count
+                approval_averager.record_value(grade_result.approval_average, weight=grade_result.count_sum)
 
-        if not count_sum:
-            return None, None
-
-        avg = value_sum / count_sum
         if question.is_yes_no_question:
-            average_approval_ratio = approval_count / count_sum if count_sum > 0 else 0
-            return avg, average_approval_ratio
-        return avg, None
+            return grade_averager.current_average(), approval_averager.current_average()
+
+        return grade_averager.current_average(), None
 
     @classmethod
-    def _get_average_of_average_grade_and_approval_ratio(
+    def _get_average_of_average_grade_and_approval(
         cls,
-        evaluations_with_results: list[tuple[Evaluation, OrderedDict[int, list[QuestionResult]]]],
+        evaluations_with_results: list[tuple[Evaluation, dict[int, list[QuestionResult]]]],
         questionnaire_id: int,
         question: Question,
-    ) -> tuple[float | None, float | None]:
-        avg_value_sum = 0.0
-        count_avg = 0
-        avg_approval_sum = 0.0
-        count_approval = 0
+    ) -> tuple[float, float | None]:
+        average_grade_averager = Averager()
+        average_approval_averager = Averager()
 
-        for __, results in evaluations_with_results:
-            if (
-                results.get(questionnaire_id) is None
-            ):  # we iterate over all distinct questionnaires from all evaluations but some evaluations do not include a specific questionnaire
+        for __, results_by_questionnaire_id in evaluations_with_results:
+            if questionnaire_id not in results_by_questionnaire_id:
                 continue
-            avg, average_approval_ratio = cls._get_average_grade_and_approval_ratio(question, results[questionnaire_id])
-            if avg is not None:
-                avg_value_sum += avg
-                count_avg += 1
-            if average_approval_ratio is not None:
-                avg_approval_sum += average_approval_ratio
-                count_approval += 1
 
-        avg_value = avg_value_sum / count_avg if count_avg else None
-        avg_approval = avg_approval_sum / count_approval if count_approval else None
-        return avg_value, avg_approval
+            average_grade, average_approval = cls._get_average_grade_and_approval(
+                question, results_by_questionnaire_id[questionnaire_id]
+            )
+
+            average_grade_averager.record_value(average_grade)
+
+            if question.is_yes_no_question:
+                average_approval_averager.record_value(typing.cast("float", average_approval))
+
+        if question.is_yes_no_question:
+            return average_grade_averager.current_average(), average_approval_averager.current_average()
+
+        return average_grade_averager.current_average(), None
 
     def write_questionnaire(
         self,
         questionnaire: Questionnaire,
-        evaluations_with_results: list[tuple[Evaluation, OrderedDict[int, list[QuestionResult]]]],
+        evaluations_with_results: list[tuple[Evaluation, dict[int, list[QuestionResult]]]],
         contributor: UserProfile | None,
-        all_evaluations_with_results: list[tuple[Evaluation, OrderedDict[int, list[QuestionResult]]]],
+        all_evaluations_with_results: list[tuple[Evaluation, dict[int, list[QuestionResult]]]],
     ) -> None:
         if contributor and questionnaire.type == Questionnaire.Type.CONTRIBUTOR:
             self.write_cell(f"{questionnaire.public_name} ({contributor.full_name})", "bold")
         else:
             self.write_cell(questionnaire.public_name, "bold")
 
-        self.write_cell("", "border_left_right")
-
-        # first cell of row is printed above
         self.write_empty_row_with_styles(["border_left_right"] * len(evaluations_with_results))
 
         for question in self.filter_text_and_heading_questions(questionnaire.questions.all()):
             self.write_cell(question.text, "italic" if question.is_heading_question else "default")
 
-            average_grade, approval_ratio = self._get_average_of_average_grade_and_approval_ratio(
+            grade_average, approval_average = self._get_average_of_average_grade_and_approval(
                 all_evaluations_with_results, questionnaire.id, question
             )
-            if approval_ratio is not None and average_grade is not None:
-                self.write_cell(f"{approval_ratio:.0%}", self.grade_to_style(average_grade))
-            elif average_grade is not None:
-                self.write_cell(average_grade, self.grade_to_style(average_grade))
-            else:
+            if math.isnan(grade_average) or math.isnan(approval_average or 0):
                 self.write_cell("", "border_left_right")
+            elif question.is_yes_no_question:
+                self.write_cell(f"{approval_average:.0%}", self.grade_to_style(grade_average))
+            else:
+                self.write_cell(grade_average, self.grade_to_style(grade_average))
 
             # evaluations
             for __, results in evaluations_with_results:
@@ -386,18 +394,21 @@ class ResultsExporter(ExcelExporter):
                     self.write_cell(style="border_left_right")
                     continue
 
-                avg, average_approval_ratio = self._get_average_grade_and_approval_ratio(
+                evaluation_grade_average, evaluation_approval_ratio_average = self._get_average_grade_and_approval(
                     question, results[questionnaire.id]
                 )
 
-                if avg is None:
+                if math.isnan(evaluation_grade_average):
                     self.write_cell(style="border_left_right")
                     continue
 
                 if question.is_yes_no_question:
-                    self.write_cell(f"{average_approval_ratio:.0%}", self.grade_to_style(avg))
+                    self.write_cell(
+                        f"{evaluation_approval_ratio_average:.0%}", self.grade_to_style(evaluation_grade_average)
+                    )
                 else:
-                    self.write_cell(avg, self.grade_to_style(avg))
+                    self.write_cell(evaluation_grade_average, self.grade_to_style(evaluation_grade_average))
+
             self.next_row()
 
         self.write_empty_row_with_styles(["default"] + ["border_left_right"] * (len(evaluations_with_results) + 1))
@@ -415,16 +426,12 @@ class ResultsExporter(ExcelExporter):
         # We want to throw early here, since workbook.save() will throw an IndexError otherwise.
         assert len(selection_list) > 0
 
-        all_evaluations_with_results, _, _ = self.filter_evaluations(evaluation_states=[Evaluation.State.PUBLISHED])
-
         for sheet_counter, (program_ids, course_type_ids) in enumerate(selection_list, 1):
-            self.cur_sheet = self.workbook.add_sheet("Sheet " + str(sheet_counter))
-            self.cur_row = 0
-            self.cur_col = 0
+            self.next_sheet("Sheet " + str(sheet_counter))
 
             evaluation_states = [Evaluation.State.PUBLISHED]
             if include_unpublished:
-                evaluation_states.extend([Evaluation.State.EVALUATED, Evaluation.State.REVIEWED])
+                evaluation_states += [Evaluation.State.EVALUATED, Evaluation.State.REVIEWED]
 
             evaluations_with_results, used_questionnaires, course_results_exist = self.filter_evaluations(
                 semesters,
@@ -433,6 +440,15 @@ class ResultsExporter(ExcelExporter):
                 course_type_ids,
                 contributor,
                 include_not_enough_voters,
+            )
+
+            all_evaluations_with_results, __, ___ = self.filter_evaluations(
+                semesters=None,
+                evaluation_states=[Evaluation.State.PUBLISHED],
+                program_ids=program_ids,
+                course_type_ids=course_type_ids,
+                contributor=None,
+                include_not_enough_voters=False,
             )
 
             self.write_headings_and_evaluation_info(
@@ -447,7 +463,6 @@ class ResultsExporter(ExcelExporter):
             self.write_overall_results(evaluations_with_results, course_results_exist)
 
 
-# See method definition.
 ResultsExporter.init_grade_styles()
 
 
