@@ -1,6 +1,6 @@
 import logging
-from collections.abc import Iterable
-from typing import Any, Container, cast
+from collections.abc import Container, Iterable
+from typing import Any, cast
 
 from django import forms
 from django.contrib.auth.models import Group
@@ -145,7 +145,7 @@ class EvaluationParticipantCopyForm(forms.Form):
             if evaluation_choices:
                 choices += [(semester.name, evaluation_choices)]
 
-        cast(forms.ModelChoiceField, self.fields["evaluation"]).choices = choices
+        cast("forms.ModelChoiceField", self.fields["evaluation"]).choices = choices
         self.fields["evaluation"].widget.attrs["tomselect-no-sort"] = ""
 
     def clean(self) -> None:
@@ -540,8 +540,8 @@ class EvaluationForm(forms.ModelForm):
         evaluation = super().save(*args, **kw)
         general_contribution = evaluation.ensure_general_contribution()
 
-        selected_questionnaires = self.cleaned_data.get("general_questionnaires") | self.cleaned_data.get(
-            "dropout_questionnaires"
+        selected_questionnaires = (
+            self.cleaned_data["general_questionnaires"] | self.cleaned_data["dropout_questionnaires"]
         )
         removed_questionnaires = set(general_contribution.questionnaires.all()) - set(selected_questionnaires)
         general_contribution.remove_answers_to_questionnaires(removed_questionnaires)
@@ -952,8 +952,8 @@ class QuestionAssignmentForm(forms.ModelForm):
             "order": forms.HiddenInput(),
         }
 
-    def __init__(self, *args, instance=None, **kwargs) -> None:
-        super().__init__(*args, instance=instance, **kwargs)
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
         if hasattr(self.instance, "question"):
             self.question_form = QuestionForm(*args, instance=self.instance.question, **kwargs)
         else:
@@ -1038,9 +1038,9 @@ class UserForm(forms.ModelForm):
         self.user_with_same_email: UserProfile | None = None
         evaluations_in_active_semester = Evaluation.objects.filter(course__semester=Semester.active_semester())
         cast(
-            forms.ModelMultipleChoiceField, self.fields["evaluations_participating_in"]
+            "forms.ModelMultipleChoiceField", self.fields["evaluations_participating_in"]
         ).queryset = evaluations_in_active_semester
-        self.remove_messages: list[list[str]] = []
+        self.remove_messages: list[str] = []
         if self.instance.pk:
             self.fields["evaluations_participating_in"].initial = evaluations_in_active_semester.filter(
                 participants=self.instance

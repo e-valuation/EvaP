@@ -8,10 +8,6 @@ from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta
 from enum import Enum, auto
 from functools import partial
-from numbers import Real
-from typing import Any, cast
-from numbers import Real
-from typing import Any
 from typing import TYPE_CHECKING, Any, cast
 
 from django.conf import settings
@@ -388,13 +384,6 @@ class Course(LoggedModel):
     # grade publishers can set this to True, then the course will be handled as if final grades have already been uploaded
     gets_no_grade_documents = models.BooleanField(verbose_name=_("gets no grade documents"), default=False)
 
-    if TYPE_CHECKING:
-        not_all_evaluations_are_published: bool | None = None
-        distribution: tuple[float, ...] | None = None
-        evaluation_count: int | None = None
-        evaluation_weight_sum: int | None = None
-        avg_grade: float | None = None
-
     class Meta:
         unique_together = [
             ["semester", "name_de"],
@@ -545,11 +534,6 @@ class Evaluation(LoggedModel):
 
     staff_notes = models.TextField(verbose_name=_("staff notes"), blank=True)
 
-    if TYPE_CHECKING:
-        distribution: tuple[float, ...] | None = None
-        avg_grade: float | None = None
-        state_change_source: "Evaluation.State | None" = None
-
     @property
     def has_exam_evaluation(self) -> bool:
         return self.course.evaluations.filter(exam_type__isnull=False).exists()
@@ -618,10 +602,10 @@ class Evaluation(LoggedModel):
 
         if hasattr(self, "state_change_source"):
 
-            def state_changed_to(self: Evaluation, state_set: Collection[Evaluation.State]) -> bool:
+            def state_changed_to(self: Any, state_set: Collection[Evaluation.State]) -> bool:
                 return self.state_change_source not in state_set and self.state in state_set
 
-            def state_changed_from(self: Evaluation, state_set: Collection[Evaluation.State]) -> bool:
+            def state_changed_from(self: Any, state_set: Collection[Evaluation.State]) -> bool:
                 return self.state_change_source in state_set and self.state not in state_set
 
             # It's clear that results.models will need to reference evaluation.models' classes in ForeignKeys.
@@ -1333,7 +1317,7 @@ class Question(models.Model):
         super().save(*args, **kwargs)
 
     @property
-    def answer_class(self) -> "builtins.type[Answer]":
+    def answer_class(self) -> "builtins.type[TextAnswer | RatingAnswerCounter]":
         if self.is_text_question:
             return TextAnswer
         if self.is_rating_question:

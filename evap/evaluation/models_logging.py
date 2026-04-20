@@ -74,7 +74,7 @@ def _choice_to_display(field: models.Field, choice: Any) -> Any:
     return choice
 
 
-def _field_actions_for_field(field: models.Field | Any, actions: dict[str, Any]) -> Iterable[FieldAction]:
+def _field_actions_for_field(field: Any, actions: dict[str, Any]) -> Iterable[FieldAction]:
     label = capitalize_first(getattr(field, "verbose_name", field.name))
 
     for field_action_type, items in actions.items():
@@ -111,7 +111,7 @@ class LogEntry(models.Model):
         ordering = ["-datetime", "-id"]
 
     @property
-    def field_context_data(self) -> dict[str, Any]:
+    def field_context_data(self) -> dict[str, list[FieldAction]]:
         model = self.content_type.model_class()
         assert model is not None
         return {

@@ -147,7 +147,7 @@ class OpenIDAuthenticationBackend(OIDCAuthenticationBackend):
         if previous_domain := settings.OIDC_EMAIL_TRANSITIONS.get(domain):
             yield f"{name}@{previous_domain}"
 
-    def get_userinfo(self, *args, **kwargs) -> Any:
+    def get_userinfo(self, *args, **kwargs) -> dict[str, Any]:
         claims = super().get_userinfo(*args, **kwargs)
         if "email" in claims:
             claims["email"] = clean_email(claims["email"])
