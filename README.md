@@ -14,42 +14,49 @@ For the documentation, please see our [wiki](https://github.com/e-valuation/EvaP
 
 ## Development Setup
 
-We use [nix](https://nixos.org/) to manage the development environment.
+We use [nix](https://nixos.org/) to manage the development environment. To get a local version of EvaP running, follow these steps:
 
 1. Windows only: Install the Windows Subsystem for Linux (WSL) using `wsl --install -d Ubuntu-24.04` (you may have to restart your computer and run this command again). Enter the WSL environment using the `wsl` command. On your first entry, you need to choose a username and password - anything works (for example: username "evap", password "evap"). Perform the next step outside of `/mnt`, for example by going to your home directory (`cd ~`).
 2. Install [git](https://git-scm.com/downloads). Run the following commands to clone and enter the EvaP repository:
-   ```
-   git clone --recurse-submodules https://github.com/e-valuation/EvaP.git
+   ```bash
+   git clone https://github.com/e-valuation/EvaP.git
    cd EvaP
    ```
-3. On Linux and WSL, install nix by running `./nix/setup-nix`. On MacOS, install nix using the [Determinate Nix Installer](https://install.determinate.systems/). Afterwards, if you get a permission error when running nix, restart your computer.
-4. Start the needed background services for EvaP:
+3. Install nix by running `./nix/setup-nix`. Afterwards, if you get any errors when running nix, restart your computer.
+4. Start EvaP and wait until you see a table view and the "evap" row shows "Running":
+   ```bash
+   nix run
    ```
-   nix run .#services-full
-   ```
-5. Open a new terminal. Enter the development shell and start EvaP:
-   ```
-   cd EvaP
-   nix develop
-   ./manage.py run
-   ```
-6. Open your web browser at http://localhost:8000/ and login with email `evap@institution.example.com` and password `evap`.
+5. Open your web browser at http://localhost:8000/ and login with email `evap@institution.example.com` and password `evap`.
 
-To stop EvaP or the background services, press `Ctrl-C`.
-To exit the development shell, press `Ctrl-D` or type `exit`.
+To stop EvaP, press `Ctrl-C` and confirm with `Enter`.
 
-Inside the development shell, after quitting the background services, you can run the command `clean-setup` to remove persistent state (database, node modules, localsettings).
-Afterwards, `nix run .#services-full` will recreate a default development environment on startup.
+### What is going on?
+
+The command `nix run` starts a program called `process-compose` which performs some initial setup and orchestrates a number of processes needed to run EvaP. In particular, `nix` and `process-compose` handle installation of all dependencies, setup of the postgres database and redis cache, compilation of TypeScript, SCSS, and translation files, and running the Django development server. When changing Python, HTML, SCSS, or TypeScript files, you do not have to restart the server.
 
 ## Contributing
 
-We'd love to see contributions! PRs solving existing issues are most helpful to us. It's best if you ask to be assigned for the issue so we won't have multiple people working on the same issue. Feel free to open issues for bugs, setup problems, or feature requests. If you have other questions, feel free to contact the [organization members](https://github.com/orgs/e-valuation/people). You should probably branch off `main`, the branch `release` is used for stable revisions.
+We'd love to see contributions! PRs solving existing issues are most helpful to us. It's best if you ask to be assigned for the issue so we won't have multiple people working on the same issue. Feel free to open issues for bugs, setup problems, or feature requests. If you have other questions, feel free to contact the [organization members](https://github.com/orgs/e-valuation/people).
+
+To work on EvaP, you can open a shell with all dependencies available:
+```bash
+cd EvaP
+nix develop
+./manage.py test # In the shell, you can use ./manage.py commands
+```
+To exit the development shell, press `Ctrl-D` or type `exit`.
+
+If you start your code editor from the `nix develop` shell, it should automatically pick up all dependencies. If this does not work automatically, try using the `nix/nix-python` script in the EvaP project as the Python interpreter in your IDE.
+
+After quitting `nix run`, you can run the command `nix run .#clean-setup` to remove persistent state (database, node modules, localsettings).
+Afterwards, `nix run` will recreate everything when you run it the next time.
 
 Before committing, run `./manage.py precommit` or alternatively, the individual commands:
 - `./manage.py typecheck`
-- `./manage.py test`
+- `./manage.py test` (check out [--keepdb](https://docs.djangoproject.com/en/6.0/ref/django-admin/#cmdoption-test-keepdb) and [--parallel](https://docs.djangoproject.com/en/6.0/ref/django-admin/#cmdoption-test-parallel) for faster execution)
 - `./manage.py lint`
-- `./manage.py format` (applies automatic code formatting)
+- `./manage.py format`
 
 You can also set up `ruff`, `pylint`, and `prettier` in your IDE to avoid doing this manually all the time.
 

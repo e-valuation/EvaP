@@ -9,7 +9,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import transaction
-from django.db.models import Exists, F, Max, OuterRef, Q, Sum
+from django.db.models import Exists, F, Max, OuterRef, Sum
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -125,16 +125,26 @@ class GlobalEvaluationProgress:
 def index(request):
     query = (
         Evaluation.objects.annotate(
-            participates_in=Exists(Evaluation.objects.filter(id=OuterRef("id"), participants=request.user))
+            participates_in=Exists(
+                Evaluation.participants.through.objects.filter(
+                    evaluation_id=OuterRef("pk"), userprofile_id=request.user.id
+                )
+            )
         )
-        .annotate(voted_for=Exists(Evaluation.objects.filter(id=OuterRef("id"), voters=request.user)))
-        .filter(~Q(state=Evaluation.State.NEW), course__evaluations__participants=request.user)
+        .annotate(
+            voted_for=Exists(
+                Evaluation.voters.through.objects.filter(evaluation_id=OuterRef("pk"), userprofile_id=request.user.id)
+            )
+        )
+        .filter(course__evaluations__participants=request.user)
         .exclude(state=Evaluation.State.NEW)
-        .prefetch_related(
+        .select_related(
             "course",
             "course__semester",
-            "course__grade_documents",
             "course__type",
+        )
+        .prefetch_related(
+            "course__grade_documents",
             "course__evaluations",
             "course__responsibles",
             "course__programs",
@@ -282,7 +292,10 @@ def render_vote_page(
 
     assert preview or not all(form.is_valid() for form_group in form_groups.values() for form in form_group)
 
-    evaluation_form_group = form_groups.pop(evaluation.general_contribution, default=[])
+    if evaluation.general_contribution is None:
+        evaluation_form_group = []
+    else:
+        evaluation_form_group = form_groups.pop(evaluation.general_contribution, default=[])
 
     contributor_form_groups = [
         (
