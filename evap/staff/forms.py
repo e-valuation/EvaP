@@ -16,8 +16,6 @@ from django.utils.text import normalize_newlines
 from django.utils.translation import gettext_lazy as _
 
 from evap.evaluation.forms import (
-    ServerSearchSelect,
-    ServerSearchSelectMultiple,
     UserModelChoiceField,
     UserModelMultipleChoiceField,
 )
@@ -446,12 +444,11 @@ class EvaluationForm(forms.ModelForm):
         field_classes = {
             "participants": UserModelMultipleChoiceField,
         }
-        widgets = {"participants": ServerSearchSelectMultiple()}
 
     @classmethod
     def get_participants_queryset(cls, evaluation: Evaluation | None) -> QuerySet[UserProfile]:
         queryset = UserProfile.objects.exclude(is_active=False)
-        if evaluation.pk is not None:
+        if evaluation is not None and evaluation.pk is not None:
             queryset = (queryset | evaluation.participants.all()).distinct()
         return queryset
 
@@ -480,8 +477,8 @@ class EvaluationForm(forms.ModelForm):
         )
 
         self.fields["participants"].queryset = self.get_participants_queryset(self.instance)
-        self.fields["participants"].widget.search_url = reverse(
-            "staff:fetch_participants_user_profiles", args=[self.instance.pk]
+        self.fields["participants"].widget.options_endpoint = reverse(
+            "staff:participant_options", args=[self.instance.pk]
         )
 
         if general_contribution := self.instance.general_contribution:
@@ -630,7 +627,6 @@ class ContributionForm(forms.ModelForm):
             # RadioSelects are necessary so each value gets a id_for_label, see #1769.
             "role": forms.RadioSelect(),
             "textanswer_visibility": forms.RadioSelect(),
-            "contributor": ServerSearchSelect(),
         }
 
     @classmethod
@@ -650,7 +646,7 @@ class ContributionForm(forms.ModelForm):
             self.fields["contributor"].queryset = self.get_contributor_queryset() | UserProfile.objects.filter(
                 pk=self.instance.contributor.pk
             )
-            self.fields["contributor"].widget.search_url = reverse("staff:fetch_contributor_user_profiles")
+            self.fields["contributor"].widget.options_endpoint = reverse("staff:fetch_contributor_user_profiles")
 
         self.fields["questionnaires"].queryset = (
             Questionnaire.objects.contributor_questionnaires()
@@ -1055,10 +1051,6 @@ class UserForm(forms.ModelForm):
             "delegates": UserModelMultipleChoiceField,
             "cc_users": UserModelMultipleChoiceField,
         }
-        widgets = {
-            "delegates": ServerSearchSelectMultiple,
-            "cc_users": ServerSearchSelectMultiple,
-        }
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -1069,8 +1061,8 @@ class UserForm(forms.ModelForm):
         ).queryset = evaluations_in_active_semester
         self.remove_messages: list[str] = []
 
-        self.fields["cc_users"].widget.search_url = reverse("staff:fetch_user_profiles")
-        self.fields["delegates"].widget.search_url = reverse("staff:fetch_user_profiles")
+        self.fields["cc_users"].widget.options_endpoint = reverse("staff:user_profile_options")
+        self.fields["delegates"].widget.options_endpoint = reverse("staff:user_profile_options")
 
         if self.instance.pk:
             self.fields["evaluations_participating_in"].initial = evaluations_in_active_semester.filter(
@@ -1161,21 +1153,21 @@ class UserForm(forms.ModelForm):
 
 
 class UserMergeSelectionForm(forms.Form):
-    main_user = UserModelChoiceField(UserProfile.objects.all(), widget=ServerSearchSelect())
-    other_user = UserModelChoiceField(UserProfile.objects.all(), widget=ServerSearchSelect())
+    main_user = UserModelChoiceField(UserProfile.objects.all())
+    other_user = UserModelChoiceField(UserProfile.objects.all())
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["main_user"].widget.search_url = reverse("staff:fetch_user_profiles")
-        self.fields["other_user"].widget.search_url = reverse("staff:fetch_user_profiles")
+        self.fields["main_user"].widget.options_endpoint = reverse("staff:user_profile_options")
+        self.fields["other_user"].widget.options_endpoint = reverse("staff:user_profile_options")
 
 
 class UserEditSelectionForm(forms.Form):
-    user = UserModelChoiceField(UserProfile.objects.all(), widget=ServerSearchSelect())
+    user = UserModelChoiceField(UserProfile.objects.all())
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["user"].widget.search_url = reverse("staff:fetch_user_profiles")
+        self.fields["user"].widget.options_endpoint = reverse("staff:user_profile_options")
 
 
 class FaqSectionForm(forms.ModelForm):
