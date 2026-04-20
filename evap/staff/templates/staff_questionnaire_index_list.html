@@ -1,84 +1,71 @@
-{% if questionnaires %}
-    <div class="card collapsible {{ extra_classes }}">
-        <div class="card-header">
-            <a class="collapse-toggle" data-bs-toggle="collapse" href="#questionnaires-{{ type }}" aria-expanded="false" aria-controls="questionnaires-{{ type }}">
-                {% translate headline %}
-            </a>
-        </div>
-        <div class="collapse show" id="questionnaires-{{ type }}">
-            <div class="card-body table-responsive">
-                <table class="table table-vertically-aligned table-striped questionnaire-table">
-                    <thead>
-                        <tr class="table-header">
-                            <th class="width-percent-3 movable"></th>
-                            <th class="width-percent-52">{% translate 'Questionnaire' %}</th>
-                            <th data-not-searchable class="width-percent-10">
-                                {% if type != 'contributor' %}
-                                    {% translate 'Locked' %}
-                                {% endif %}
-                            </th>
-                            <th data-not-searchable class="width-percent-15">{% translate 'Visibility' %}</th>
-                            <th data-not-searchable class="width-percent-20 text-end">{% translate 'Actions' %}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for questionnaire in questionnaires %}
-                            <tr id="questionnaire-row-{{ questionnaire.id }}" class="sortable questionnaire" data-id="{{ questionnaire.id }}">
-                                <td class="movable"><span class="movable-icon fas fa-up-down"></span></td>
-                                <td>
-                                    <strong class="questionnaire-name">{{ questionnaire.name }}</strong>
-                                    <br />
-                                    {% blocktranslate count questionnaire.questions.count as count %}{{ count }} question{% plural %}{{ count }} questions{% endblocktranslate %},
-                                    <a href="{% url 'staff:questionnaire_usage' questionnaire.id %}">
-                                        {% blocktranslate count count=questionnaire.contributions.count %}used {{ count }} time{% plural %}used {{ count }} times{% endblocktranslate %}
-                                    </a>
-                                </td>
-                                <td>
-                                    {% if type != 'contributor' %}
-                                        <div class="btn-group icon-buttons">
-                                            <button data-is-locked="0" type="button" class="btn btn-sm change-is-locked-button btn-light{% if questionnaire.is_locked == False %} active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Allow editors to change the selection of this questionnaire' %}"><span class="fas fa-fw fa-lock-open" aria-hidden="true"></span></button>
-                                            <button data-is-locked="1" type="button" class="btn btn-sm change-is-locked-button btn-light{% if questionnaire.is_locked == True %} active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Prevent editors from changing the selection of this questionnaire' %}"><span class="fas fa-fw fa-lock" aria-hidden="true"></span></button>
-                                        </div>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div class="btn-group icon-buttons">
-                                        <button data-visibility="0" type="button" class="btn btn-sm change-visibility-button btn-light{% if questionnaire.visibility == 0 %} active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% blocktranslate %}Hide in lists{% endblocktranslate %}"><span class="fas fa-fw fa-eye-slash" aria-hidden="true"></span></button>
-                                        <button data-visibility="1" type="button" class="btn btn-sm change-visibility-button btn-light{% if questionnaire.visibility == 1 %} active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Show only for managers' %}"><span class="fas fa-fw fa-briefcase" aria-hidden="true"></span></button>
-                                        <button data-visibility="2" type="button" class="btn btn-sm change-visibility-button btn-light{% if questionnaire.visibility == 2 %} active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Show for managers and editors' %}"><span class="fas fa-fw fa-person-chalkboard" aria-hidden="true"></span></button>
-                                    </div>
-                                </td>
-                                <td class="text-end">
-                                    <a href="{% url 'staff:questionnaire_edit' questionnaire.id %}" class="btn btn-sm {%if questionnaire.can_be_edited_by_manager %}btn-primary{% else %}btn-light{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="{%if questionnaire.can_be_edited_by_manager %}{% translate 'Edit' %}{% else %}{% translate 'Edit (questionnaire is already in use)' %}{% endif %}"><span class="fas fa-pencil fa-fw"></span></a>
-                                    <a href="{% url 'staff:questionnaire_new_version' questionnaire.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Hide and create new version' %}"><span class="fas fa-turn-up fa-fw fa-rotate-90"></span></a>
-                                    <a href="{% url 'staff:questionnaire_copy' questionnaire.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Copy' %}"><span class="fas fa-copy fa-fw"></span></a>
-                                    <a href="{% url 'staff:questionnaire_view' questionnaire.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Preview' %}"><span class="fas fa-eye fa-fw"></span></a>
-                                    {% if questionnaire.can_be_deleted_by_manager %}
-                                        <confirmation-modal type="submit" form="questionnaire-deletion-form" name="questionnaire_id" value="{{ questionnaire.id }}" confirm-button-class="btn-danger">
-                                            <span slot="title">{% translate 'Delete questionnaire' %}</span>
-                                            <span slot="action-text">{% translate 'Delete questionnaire' %}</span>
-                                            <span slot="question">
-                                                {% blocktranslate trimmed with questionnaire_name=questionnaire.name %}
-                                                    Do you really want to delete the questionnaire <strong>{{questionnaire_name}}</strong>?
-                                                {% endblocktranslate %}
-                                            </span>
-
-                                            <button slot="show-button" type="button" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Delete' %}">
-                                                <span class="fas fa-trash"></span>
-                                            </button>
-                                        </confirmation-modal>
-                                    {% else %}
-                                        <button type="button" disabled class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top"
-                                            title="{% translate 'This questionnaire cannot be deleted because it is already in use.' %}">
-                                            <span class="fas fa-trash"></span>
-                                        </button>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<div class="collapse show" id="questionnaires-{{ type }}">
+    <div class="card-body table-responsive">
+        <table class="table table-vertically-aligned table-striped questionnaire-table">
+            <thead>
+                <tr class="table-header">
+                    <th class="width-percent-3 movable"></th>
+                    <th class="width-percent-52">{% translate 'Questionnaire' %}</th>
+                    <th data-not-searchable class="width-percent-10">
+                        {% if type != 'contributor' %}
+                            {% translate 'Locked' %}
+                        {% endif %}
+                    </th>
+                    <th data-not-searchable class="width-percent-15">{% translate 'Visibility' %}</th>
+                    <th data-not-searchable class="width-percent-20 text-end">{% translate 'Actions' %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for questionnaire in questionnaires %}
+                    <tr id="questionnaire-row-{{ questionnaire.id }}" class="sortable questionnaire" data-id="{{ questionnaire.id }}">
+                        <td class="movable"><span class="movable-icon fas fa-up-down"></span></td>
+                        <td>
+                            <strong class="questionnaire-name">{{ questionnaire.name }}</strong>
+                            <br />
+                            {% blocktranslate count questionnaire.contributions.count as count %}used {{ count }} time{% plural %}used {{ count }} times{% endblocktranslate %}
+                        </td>
+                        <td>
+                            {% if type != 'contributor' %}
+                                <div class="btn-group icon-buttons">
+                                    <button data-is-locked="0" type="button" class="btn btn-sm change-is-locked-button btn-light{% if questionnaire.is_locked == False %} active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Allow editors to change the selection of this questionnaire' %}"><span class="fas fa-fw fa-lock-open" aria-hidden="true"></span></button>
+                                    <button data-is-locked="1" type="button" class="btn btn-sm change-is-locked-button btn-light{% if questionnaire.is_locked == True %} active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Prevent editors from changing the selection of this questionnaire' %}"><span class="fas fa-fw fa-lock" aria-hidden="true"></span></button>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group icon-buttons">
+                                <button data-visibility="0" type="button" class="btn btn-sm change-visibility-button btn-light{% if questionnaire.visibility == 0 %} active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% blocktranslate %}Hide in lists{% endblocktranslate %}"><span class="fas fa-fw fa-eye-slash" aria-hidden="true"></span></button>
+                                <button data-visibility="1" type="button" class="btn btn-sm change-visibility-button btn-light{% if questionnaire.visibility == 1 %} active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Show only for managers' %}"><span class="fas fa-fw fa-briefcase" aria-hidden="true"></span></button>
+                                <button data-visibility="2" type="button" class="btn btn-sm change-visibility-button btn-light{% if questionnaire.visibility == 2 %} active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Show for managers and editors' %}"><span class="fas fa-fw fa-person-chalkboard" aria-hidden="true"></span></button>
+                                <button data-visibility="3" type="button" class="btn btn-sm change-visibility-button btn-light{% if questionnaire.visibility == 3 %} active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Archive' %}"><span class="fas fa-fw fa-box-archive" aria-hidden="true"></span></button>
+                            </div>
+                        </td>
+                        <td class="text-end">
+                            <a href="{% url 'staff:questionnaire_edit' questionnaire.id %}" class="btn btn-sm {%if questionnaire.can_be_edited_by_manager %}btn-primary{% else %}btn-light{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="{%if questionnaire.can_be_edited_by_manager %}{% translate 'Edit' %}{% else %}{% translate 'Edit (questionnaire is already in use)' %}{% endif %}"><span class="fas fa-pencil fa-fw"></span></a>
+                            <a href="{% url 'staff:questionnaire_new_version' questionnaire.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Archive and create new version' %}"><span class="fas fa-turn-up fa-fw fa-rotate-90"></span></a>
+                            <a href="{% url 'staff:questionnaire_copy' questionnaire.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Copy' %}"><span class="fas fa-copy fa-fw"></span></a>
+                            <a href="{% url 'staff:questionnaire_view' questionnaire.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Preview' %}"><span class="fas fa-eye fa-fw"></span></a>
+                            {% if questionnaire.can_be_deleted_by_manager %}
+                                <confirmation-modal type="submit" form="questionnaire-deletion-form" name="questionnaire_id" value="{{ questionnaire.id }}" confirm-button-class="btn-danger">
+                                    <span slot="title">{% translate 'Delete questionnaire' %}</span>
+                                    <span slot="action-text">{% translate 'Delete questionnaire' %}</span>
+                                    <span slot="question">
+                                        {% blocktranslate trimmed with questionnaire_name=questionnaire.name %}
+                                            Do you really want to delete the questionnaire <strong>{{questionnaire_name}}</strong>?
+                                        {% endblocktranslate %}
+                                    </span>
+                                    <button slot="show-button" type="button" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Delete' %}">
+                                        <span class="fas fa-trash"></span>
+                                    </button>
+                                </confirmation-modal>
+                            {% else %}
+                                <button type="button" disabled class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'This questionnaire cannot be deleted because it is already in use.' %}">
+                                    <span class="fas fa-trash"></span>
+                                </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-{% endif %}
+</div>

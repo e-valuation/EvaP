@@ -2417,6 +2417,23 @@ class TestEvaluationEditView(WebTestStaffMode):
             html=True,
         )
 
+    def test_hidden_and_archived_not_shown(self):
+        hidden_questionnaire = baker.make(Questionnaire, visibility=Questionnaire.Visibility.HIDDEN)
+        archived_questionnaire = baker.make(Questionnaire, visibility=Questionnaire.Visibility.ARCHIVED)
+        selected_hidden_questionnaire = baker.make(Questionnaire, visibility=Questionnaire.Visibility.HIDDEN)
+        selected_archived_questionnaire = baker.make(Questionnaire, visibility=Questionnaire.Visibility.ARCHIVED)
+
+        self.evaluation.general_contribution.questionnaires.set(
+            [selected_hidden_questionnaire, selected_archived_questionnaire]
+        )
+
+        page = self.app.get(self.url, user=self.manager)
+
+        self.assertIn(selected_hidden_questionnaire.name, page)
+        self.assertIn(selected_archived_questionnaire.name, page)
+        self.assertNotIn(archived_questionnaire.name, page)
+        self.assertNotIn(hidden_questionnaire.name, page)
+
 
 class TestEvaluationDeleteView(WebTestStaffMode):
     csrf_checks = False
@@ -3171,12 +3188,12 @@ class TestQuestionnaireNewVersionView(WebTestStaffMode):
         cls.manager = make_manager()
         cls.name_de_orig = "kurzer name"
         cls.name_en_orig = "short name"
-        questionnaire = baker.make(Questionnaire, name_de=cls.name_de_orig, name_en=cls.name_en_orig)
-        cls.url = f"/staff/questionnaire/{questionnaire.pk}/new_version"
+        cls.questionnaire = baker.make(Questionnaire, name_de=cls.name_de_orig, name_en=cls.name_en_orig)
+        cls.url = f"/staff/questionnaire/{cls.questionnaire.pk}/new_version"
 
-        baker.make(QuestionAssignment, questionnaire=questionnaire)
+        baker.make(QuestionAssignment, questionnaire=cls.questionnaire)
 
-    def test_changes_old_title(self):
+    def test_changes_old_title_and_visibility(self):
         page = self.app.get(url=self.url, user=self.manager)
         form = page.forms["questionnaire-form"]
 
@@ -3188,6 +3205,10 @@ class TestQuestionnaireNewVersionView(WebTestStaffMode):
 
         self.assertTrue(Questionnaire.objects.filter(name_de=self.name_de_orig, name_en=self.name_en_orig).exists())
         self.assertTrue(Questionnaire.objects.filter(name_de=new_name_de, name_en=new_name_en).exists())
+
+        self.assertEqual(
+            Questionnaire.objects.get(pk=self.questionnaire.pk).visibility, Questionnaire.Visibility.ARCHIVED
+        )
 
     def test_no_second_update(self):
         # First save.
@@ -3254,17 +3275,15 @@ class TestQuestionnaireIndexView(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
-        cls.top_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        cls.bottom_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM)
+        cls.ordered_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP, order=5)
+        cls.normal_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
 
     def test_ordering(self):
         content = self.app.get(self.url, user=self.manager).body.decode()
-        top_index = content.index(self.top_questionnaire.name)
-        contributor_index = content.index(self.contributor_questionnaire.name)
-        bottom_index = content.index(self.bottom_questionnaire.name)
+        ordered_index = content.index(self.ordered_questionnaire.name)
+        normal_index = content.index(self.normal_questionnaire.name)
 
-        self.assertTrue(top_index < contributor_index < bottom_index)
+        self.assertTrue(normal_index < ordered_index)
 
 
 class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
