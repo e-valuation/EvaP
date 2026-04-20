@@ -1006,7 +1006,9 @@ def semester_grade_reminder(request, semester_id: int) -> HttpResponse:
 
     template_data = {
         "semester": semester,
-        "responsibles_and_courses_without_final_grades": responsibles_and_courses_without_final_grades.items(),
+        "responsibles_and_courses_without_final_grades": sorted(
+            responsibles_and_courses_without_final_grades.items(), key=lambda t: t[0].ordering_key()
+        ),
     }
     return render(request, "staff_semester_grade_reminder.html", template_data)
 

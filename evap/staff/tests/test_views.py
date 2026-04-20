@@ -1075,13 +1075,18 @@ class TestGradeReminderView(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.responsible = baker.make(UserProfile, first_name_given="Bastius", last_name="Quid")
+        cls.responsible1 = baker.make(UserProfile, first_name_given="Bastius", last_name="Quid")
+        cls.responsible2 = baker.make(UserProfile, first_name_given="Bastius", last_name="Klum")
         cls.semester = baker.make(Semester)
         cls.url = reverse("staff:semester_grade_reminder", args=[cls.semester.pk])
 
-        course_args = {"responsibles": [cls.responsible], "gets_no_grade_documents": False, "semester": cls.semester}
-        cls.course1 = baker.make(Course, name_en="A-Course1", name_de="Z-Course1", **course_args)
-        cls.course2 = baker.make(Course, name_en="Z-Course2", name_de="A-Course2", **course_args)
+        course_args = {"gets_no_grade_documents": False, "semester": cls.semester}
+        cls.course1 = baker.make(
+            Course, name_en="A-Course1", name_de="Z-Course1", responsibles=[cls.responsible1], **course_args
+        )
+        cls.course2 = baker.make(
+            Course, name_en="Z-Course2", name_de="A-Course2", responsibles=[cls.responsible2], **course_args
+        )
 
         baker.make(
             Evaluation,
@@ -1122,8 +1127,8 @@ class TestGradeReminderView(WebTestStaffMode):
         body = page.body.decode()
         self.assertEqual(body.count("Z-Course2"), 1)
 
-        # courses should be ordered
-        self.assertLess(body.index("A-Course1"), body.index("Z-Course2"))
+        # responsibles should be ordered
+        self.assertLess(body.index("Z-Course2"), body.index("A-Course1"))
 
         self.manager.language = "de"
         self.manager.save()
