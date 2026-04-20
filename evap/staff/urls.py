@@ -102,12 +102,12 @@ urlpatterns = [
     path("enter_staff_mode", views.enter_staff_mode, name="enter_staff_mode"),
     path("exit_staff_mode", views.exit_staff_mode, name="exit_staff_mode"),
 
-    path("user_profiles/", views.AllUserProfileSearchView.as_view(),
-         name="fetch_user_profiles"),
+    path("user_profiles/", views.AllUserProfileOptionsView.as_view(),
+         name="user_profile_options"),
     path("user_profiles/participants/", views.ParticipantsUserProfileSearchView.as_view(),
-         name="fetch_participants_user_profiles"),
+         name="participant_options"),
     path("user_profiles/participants/<int:evaluation>", views.ParticipantsUserProfileSearchView.as_view(),
-         name="fetch_participants_user_profiles"),
+         name="participant_options"),
     path("user_profiles/contributor/", views.ContributorUserProfileSearchView.as_view(),
          name="fetch_contributor_user_profiles"),
 ]

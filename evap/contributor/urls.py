@@ -11,8 +11,8 @@ urlpatterns = [
     path("evaluation/<int:evaluation_id>/edit", views.evaluation_edit, name="evaluation_edit"),
     path("evaluation/<int:evaluation_id>/preview", views.evaluation_preview, name="evaluation_preview"),
     path("evaluation/<int:evaluation_id>/direct_delegation", views.evaluation_direct_delegation, name="evaluation_direct_delegation"),
-    path("user_profiles/delegates/", views.DelegatesUserProfileSearchView.as_view(),
-         name="fetch_delegates_user_profiles"),
-    path("user_profiles/participants/", views.ParticipantsUserProfileSearchView.as_view(),
-         name="fetch_participants_user_profiles"),
+    path("user_profiles/delegates/", views.DelegateOptionsView.as_view(),
+         name="delegate_options"),
+    path("user_profiles/participants/", views.ParticipantOptionsView.as_view(),
+         name="participant_options"),
 ]
