@@ -100,7 +100,9 @@ class StudentVoteLiveTest(LiveServerTest):
             evaluation=evaluation,
         )
 
-        evaluation.general_contribution.questionnaires.set([top_general_questionnaire, bottom_general_questionnaire])
+        evaluation.ensure_general_contribution().questionnaires.set(
+            [top_general_questionnaire, bottom_general_questionnaire]
+        )
         self.url = self.reverse("student:vote", args=[evaluation.pk])
         self.login(voting_user1)
 

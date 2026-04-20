@@ -534,18 +534,20 @@ class EvaluationForm(forms.ModelForm):
 
     def save(self, *args, **kw):
         evaluation = super().save(*args, **kw)
+        general_contribution = evaluation.ensure_general_contribution()
+
         selected_questionnaires = self.cleaned_data.get("general_questionnaires") | self.cleaned_data.get(
             "dropout_questionnaires"
         )
-        removed_questionnaires = set(self.instance.general_contribution.questionnaires.all()) - set(
-            selected_questionnaires
-        )
-        evaluation.general_contribution.remove_answers_to_questionnaires(removed_questionnaires)
-        evaluation.general_contribution.questionnaires.set(selected_questionnaires)
-        if hasattr(self.instance, "old_course"):
-            if self.instance.old_course != evaluation.course:
-                update_template_cache_of_published_evaluations_in_course(self.instance.old_course)
+        removed_questionnaires = set(general_contribution.questionnaires.all()) - set(selected_questionnaires)
+        general_contribution.remove_answers_to_questionnaires(removed_questionnaires)
+        general_contribution.questionnaires.set(selected_questionnaires)
+
+        if hasattr(evaluation, "old_course"):
+            if evaluation.old_course != evaluation.course:
+                update_template_cache_of_published_evaluations_in_course(evaluation.old_course)
                 update_template_cache_of_published_evaluations_in_course(evaluation.course)
+
         return evaluation
 
 
@@ -553,7 +555,8 @@ class EvaluationCopyForm(EvaluationForm):
     def __init__(self, data=None, instance=None):
         opts = self._meta
         initial = forms.models.model_to_dict(instance, opts.fields, opts.exclude)
-        initial["general_questionnaires"] = instance.general_contribution.questionnaires.all()
+        if instance.general_contribution is not None:
+            initial["general_questionnaires"] = instance.general_contribution.questionnaires.all()
         super().__init__(data=data, initial=initial, semester=instance.course.semester)
 
 

@@ -557,7 +557,7 @@ class Evaluation(LoggedModel):
         exam_evaluation.participants.set(self.participants.all())
         for contribution in self.contributions.exclude(contributor=None):
             exam_evaluation.contributions.create(contributor=contribution.contributor)
-        exam_evaluation.general_contribution.questionnaires.set(settings.EXAM_QUESTIONNAIRE_IDS)
+        exam_evaluation.ensure_general_contribution().questionnaires.set(settings.EXAM_QUESTIONNAIRE_IDS)
 
     class TextAnswerReviewState(Enum):
         do_not_call_in_templates = enum.nonmember(True)
@@ -593,10 +593,7 @@ class Evaluation(LoggedModel):
     def save(self, *args, **kw):
         super().save(*args, **kw)
 
-        # make sure there is a general contribution
-        if not self.general_contribution:
-            self.contributions.create(contributor=None)
-            del self.general_contribution  # invalidate cached property
+        self.ensure_general_contribution()
 
         if hasattr(self, "state_change_source"):
 
@@ -683,7 +680,10 @@ class Evaluation(LoggedModel):
 
     @property
     def is_dropout_allowed(self) -> bool:
-        return self.general_contribution.questionnaires.filter(type=Questionnaire.Type.DROPOUT).exists()
+        return (
+            self.general_contribution is not None
+            and self.general_contribution.questionnaires.filter(type=Questionnaire.Type.DROPOUT).exists()
+        )
 
     @property
     def general_contribution_has_questionnaires(self):
@@ -914,8 +914,18 @@ class Evaluation(LoggedModel):
     def state_str(self):
         return Evaluation.State(self.state).label
 
+    def ensure_general_contribution(self) -> "Contribution":
+        assert self.pk is not None
+
+        if "general_contribution" in self.__dict__ and self.general_contribution is not None:
+            return self.general_contribution
+
+        contribution, __ = self.contributions.get_or_create(contributor=None)
+        self.__dict__["general_contribution"] = contribution
+        return contribution
+
     @cached_property
-    def general_contribution(self):
+    def general_contribution(self) -> "Contribution | None":
         if self.pk is None:
             return None
 
@@ -2406,9 +2416,9 @@ class EmailTemplate(models.Model):
         evaluations_per_contributor = defaultdict(set)
         for evaluation in evaluations:
             # an average grade is published or a general text answer exists
-            relevant_information_published_for_responsibles = (
-                evaluation.can_publish_average_grade
-                or evaluation.textanswer_set.filter(contribution=evaluation.general_contribution).exists()
+            relevant_information_published_for_responsibles = evaluation.can_publish_average_grade or (
+                evaluation.general_contribution is not None
+                and evaluation.textanswer_set.filter(contribution=evaluation.general_contribution).exists()
             )
             if relevant_information_published_for_responsibles:
                 for responsible in evaluation.course.responsibles.all():
