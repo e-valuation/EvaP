@@ -286,5 +286,5 @@ jobs:
         with:
           submodules: true
       - uses: ./.github/setup_evap
-        with:
-          start-db: true
+      - name: Build default process-compose setup
+        run: nix build

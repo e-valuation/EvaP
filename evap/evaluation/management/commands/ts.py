@@ -53,7 +53,7 @@ class Command(BaseCommand):
         ]
 
         if watch:
-            command += ["--watch"]
+            command += ["--watch", "--preserveWatchOutput"]
 
         if fresh:
             (static_directory / "ts" / ".tsbuildinfo.json").unlink(missing_ok=True)

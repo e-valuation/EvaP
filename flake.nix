@@ -77,19 +77,22 @@
             inherit pkgs;
             inherit (self.devShells.${system}.evap.passthru) venv;
           };
-          make-process-compose = with-devenv-setup: (import inputs.process-compose-flake.lib { inherit pkgs; }).makeProcessCompose {
+          make-process-compose = mode: (import inputs.process-compose-flake.lib { inherit pkgs; }).makeProcessCompose {
             modules = [
               inputs.services-flake.processComposeModules.default
               pc-modules.databases
-              (lib.mkIf with-devenv-setup pc-modules.devenv-setup)
+              (lib.mkIf (mode > 0) pc-modules.devenv-setup)
+              (lib.mkIf (mode > 1) pc-modules.devenv)
             ];
           };
         in
         rec {
           python3 = pkgs.python313;
 
-          services = make-process-compose false;
-          services-full = make-process-compose true;
+          services = make-process-compose 0;
+          services-full = make-process-compose 1;
+          services-fuller = make-process-compose 2;
+          default = services-fuller;
 
           wait-for-pc = pkgs.writeShellApplication {
             name = "wait-for-pc";

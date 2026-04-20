@@ -78,4 +78,30 @@
       };
     };
   };
+
+  devenv = {
+    settings.processes =
+      let
+        make-dev-command = name: inner-command: {
+          command = pkgs.writeShellApplication {
+            inherit name;
+            runtimeInputs = [ venv pkgs.nodejs ];
+            text = ''
+              set -ex
+              ${inner-command}
+            '';
+          };
+          is_tty = true;
+          depends_on = {
+            "init-django".condition = "process_completed_successfully";
+            "npm-ci".condition = "process_completed_successfully";
+          };
+        };
+      in
+      {
+        ts = make-dev-command "ts" "./manage.py ts compile --fresh --watch";
+        scss = make-dev-command "scss" "./manage.py scss --watch";
+        evap = make-dev-command "evap" "./manage.py run";
+      };
+  };
 }
