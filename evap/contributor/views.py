@@ -26,7 +26,7 @@ from evap.evaluation.tools import (
     get_parameter_from_url_or_session,
     sort_formset,
 )
-from evap.evaluation.views import UserProfileSearchView
+from evap.evaluation.views import UserProfileOptionsBaseView
 from evap.results.exporters import ResultsExporter
 from evap.results.tools import annotate_distributions_and_grades, get_evaluations_with_course_result_attributes
 from evap.staff.forms import ContributionFormset
@@ -308,17 +308,13 @@ def export(request):
 
 
 @responsible_or_contributor_or_delegate_required
-class DelegatesUserProfileSearchView(UserProfileSearchView):
+class DelegateOptionsView(UserProfileOptionsBaseView):
     def search(self, query, request, *args, **kwargs) -> QuerySet[UserProfile]:
-        return (
-            super()
-            .search(query, request, *args, **kwargs)
-            .filter(pk__in=DelegateSelectionForm.get_delegates_queryset())
-        )
+        return super().search(query, request, *args, **kwargs).filter(pk__in=UserProfile.objects.get_delegates())
 
 
 @responsible_or_contributor_or_delegate_required
-class ParticipantsUserProfileSearchView(UserProfileSearchView):
+class ParticipantOptionsView(UserProfileOptionsBaseView):
     def search(self, query, request, *args, **kwargs) -> QuerySet[UserProfile]:
         evaluation = get_object_or_404(Evaluation, id=kwargs["evaluation"]) if kwargs.get("evaluation") else None
         return (

@@ -1,12 +1,13 @@
 import logging
+from abc import abstractmethod
 from datetime import date, timedelta
 
 from django.conf import settings
 from django.contrib import auth, messages
 from django.core.exceptions import BadRequest, SuspiciousOperation
 from django.core.mail import EmailMessage
-from django.db.models import Q, QuerySet
-from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
+from django.db.models import Model, Q, QuerySet
+from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.encoding import iri_to_uri
@@ -251,27 +252,29 @@ def set_startpage(request):
     return redirect("evaluation:index")
 
 
-class TomSelectSearchView(View):
-    def get(self, request, *args, **kwargs):
+class ServerSideSelectOptionsBaseView[T: Model](View):
+    def get(self, request: HttpRequest, *args, **kwargs) -> JsonResponse:
         query = request.GET.get("query")
         if query is None:
             raise BadRequest("Please provide a search query")
         items = self.search(query, request, *args, **kwargs)
-        items = [{"id": item.id, "label": self.get_item_label(item)} for item in items]
-        return JsonResponse({"items": items})
+        options = [{"id": item.pk, "text": self.get_item_label(item)} for item in items]
+        return JsonResponse({"options": options})
 
-    def get_item_label(self, item) -> str:
-        return str(item)
+    @abstractmethod
+    def get_item_label(self, item: T) -> str:
+        pass
 
-    def search(self, query, request, *args, **kwargs) -> QuerySet:
-        raise NotImplementedError
+    @abstractmethod
+    def search(self, query: str, request: HttpRequest, *args, **kwargs) -> QuerySet[T]:
+        pass
 
 
-class UserProfileSearchView(TomSelectSearchView):
+class UserProfileOptionsBaseView(ServerSideSelectOptionsBaseView[UserProfile]):
     def get_item_label(self, item) -> str:
         return item.full_name_with_additional_info
 
-    def search(self, query, request, *args, **kwargs) -> QuerySet[UserProfile]:
+    def search(self, query, request, *args, **kwargs):
         return UserProfile.objects.filter(
             Q(first_name_given__icontains=query)
             | Q(first_name_chosen__icontains=query)

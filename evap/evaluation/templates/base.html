@@ -140,7 +140,7 @@
 
             applyTomSelect = function(elements, additionalOptions = {}) {
                 elements.forEach((element) => {
-                    const minimumInputLength = (element.options.length >= 50 || element.hasAttribute("data-tomselect-server-search")) ? 3 : 0;
+                    const minimumInputLength = (element.options.length >= 50 || element.hasAttribute("data-tomselect-server-side-options-endpoint")) ? 3 : 0;
 
                     element.tomselect?.destroy();
                     element.classList.remove("form-select");  // TomSelect applies their own matching classes / styles
@@ -164,21 +164,21 @@
                             },
                             not_loading: (data, escape) => `<div class="no-results">{% translate "Please enter ${ minimumInputLength } characters or more..." %}</div>`
                         },
-                        ...(element.hasAttribute("data-tomselect-server-search") ? {
+                        ...(element.hasAttribute("data-tomselect-server-side-options-endpoint") ? {
                             shouldLoad: (query) => query.length >= minimumInputLength,
                             load: (query, callback) => {
-                                var url = element.getAttribute("data-tomselect-server-search") + "?query=" + encodeURIComponent(query);
+                                const url = element.getAttribute("data-tomselect-server-side-options-endpoint") + "?query=" + encodeURIComponent(query);
                                 fetch(url)
                                     .then(response => response.json())
                                     .then(json => {
-                                        callback(json.items);
+                                        callback(json.options);
                                     }).catch(() => {
                                         callback();
                                     });
                             },
                             valueField: 'id',
-                            labelField: 'label',
-                            searchField: 'label'
+                            labelField: 'text',
+                            searchField: 'text'
                         } : {}),
                         closeAfterSelect: true, // also clears search input on enter.
                         plugins: {},

@@ -7,8 +7,6 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from evap.evaluation.forms import (
-    ServerSearchSelect,
-    ServerSearchSelectMultiple,
     UserModelChoiceField,
     UserModelMultipleChoiceField,
 )
@@ -48,7 +46,6 @@ class EvaluationForm(forms.ModelForm):
         field_classes = {
             "participants": UserModelMultipleChoiceField,
         }
-        widgets = {"participants": ServerSearchSelectMultiple()}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -77,7 +74,7 @@ class EvaluationForm(forms.ModelForm):
         self.fields["vote_end_date"].localize = True
 
         self.fields["participants"].queryset = self.get_participants_queryset(self.instance)
-        self.fields["participants"].widget.search_url = reverse("contributor:fetch_participants_user_profiles")
+        self.fields["participants"].widget.options_endpoint = reverse("contributor:participant_options")
 
         if general_contribution := self.instance.general_contribution:
             self.fields["general_questionnaires"].initial = [
@@ -98,7 +95,7 @@ class EvaluationForm(forms.ModelForm):
     @classmethod
     def get_participants_queryset(cls, evaluation: Evaluation | None) -> QuerySet[UserProfile]:
         queryset = UserProfile.objects.exclude(is_active=False)
-        if evaluation.pk is not None:
+        if evaluation is not None and evaluation.pk is not None:
             queryset = (queryset | evaluation.participants.all()).distinct()
         return queryset
 
@@ -167,14 +164,8 @@ class EditorContributionForm(ContributionForm):
 
 
 class DelegateSelectionForm(forms.Form):
-    @staticmethod
-    def get_delegates_queryset():
-        return UserProfile.objects.exclude(is_active=False).exclude(is_proxy_user=True)
-
-    delegate_to = UserModelChoiceField(
-        label=_("Delegate to"), queryset=get_delegates_queryset(), widget=ServerSearchSelect()
-    )
+    delegate_to = UserModelChoiceField(label=_("Delegate to"), queryset=UserProfile.objects.get_delegates())
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["delegate_to"].widget.search_url = reverse("contributor:fetch_delegates_user_profiles")
+        self.fields["delegate_to"].widget.options_endpoint = reverse("contributor:delegate_options")

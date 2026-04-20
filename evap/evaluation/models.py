@@ -1811,6 +1811,9 @@ class UserProfileManager(BaseUserManager):
         user.groups.add(Group.objects.get(name="Manager"))
         return user
 
+    def get_delegates(self):
+        return self.exclude(is_active=False).exclude(is_proxy_user=True)
+
 
 assert settings.AUTH_PASSWORD_VALIDATORS == [], "Password validation configured, but evap will not apply it"
 

@@ -14,23 +14,24 @@ from evap.results.tools import STATES_WITH_RESULTS_CACHING, cache_results
 logger = logging.getLogger(__name__)
 
 
-class ServerSearchSelect(forms.Select):
-    template_name = "django/forms/widgets/server_select.html"
+class ServerSideOptionsSelectWidget(forms.Select):
+    template_name = "django/forms/widgets/server_side_options_select.html"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.attrs["autocomplete"] = "off"
+        if kwargs.get("options_endpoint"):
+            self.options_endpoint = kwargs["options_endpoint"]
 
     @property
-    def search_url(self):
-        return self.attrs["data-tomselect-server-search"]
+    def options_endpoint(self):
+        return self.attrs["data-tomselect-server-side-options-endpoint"]
 
-    @search_url.setter
-    def search_url(self, value):
-        self.attrs["data-tomselect-server-search"] = value
+    @options_endpoint.setter
+    def options_endpoint(self, value):
+        self.attrs["data-tomselect-server-side-options-endpoint"] = value
 
 
-class ServerSearchSelectMultiple(ServerSearchSelect, forms.SelectMultiple):
+class ServerSideOptionsSelectMultipleWidget(ServerSideOptionsSelectWidget, forms.SelectMultiple):
     pass
 
 
@@ -116,12 +117,14 @@ class NewKeyForm(forms.Form):
 
 
 class UserModelChoiceField(forms.ModelChoiceField):
+    widget = ServerSideOptionsSelectWidget()
+
     def label_from_instance(self, obj):
         return obj.full_name_with_additional_info
 
 
 class UserModelMultipleChoiceField(forms.ModelMultipleChoiceField):
-    widget = forms.SelectMultiple(attrs={"data-tomselect-fullwidth": ""})
+    widget = ServerSideOptionsSelectMultipleWidget(attrs={"data-tomselect-fullwidth": ""})
 
     def label_from_instance(self, obj):
         return obj.full_name_with_additional_info
@@ -129,9 +132,8 @@ class UserModelMultipleChoiceField(forms.ModelMultipleChoiceField):
 
 class ProfileForm(forms.ModelForm):
     delegates = UserModelMultipleChoiceField(
-        queryset=UserProfile.objects.exclude(is_active=False).exclude(is_proxy_user=True),
+        queryset=UserProfile.objects.get_delegates(),
         required=False,
-        widget=ServerSearchSelectMultiple(),
     )
 
     class Meta:
@@ -142,7 +144,7 @@ class ProfileForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field in ("title", "first_name_given", "last_name", "email"):
             self.fields[field].disabled = True
-        self.fields["delegates"].widget.search_url = reverse("contributor:fetch_delegates_user_profiles")
+        self.fields["delegates"].widget.options_endpoint = reverse("contributor:delegate_options")
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
