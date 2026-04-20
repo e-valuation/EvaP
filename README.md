@@ -22,7 +22,7 @@ We use [nix](https://nixos.org/) to manage the development environment. To get a
    git clone https://github.com/e-valuation/EvaP.git
    cd EvaP
    ```
-3. On Linux and WSL, install nix by running `./nix/setup-nix`. On MacOS, install nix using the [Determinate Nix Installer](https://install.determinate.systems/). Afterwards, if you get any errors when running nix, restart your computer.
+3. Install nix by running `./nix/setup-nix`. Afterwards, if you get any errors when running nix, restart your computer.
 4. Start EvaP and wait until you see a table view and the "evap" row shows "Running":
    ```bash
    nix run
