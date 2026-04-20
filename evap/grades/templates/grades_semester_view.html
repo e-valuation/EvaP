@@ -31,7 +31,6 @@
             {% translate 'Courses' %}
         </div>
         <div class="card-body table-responsive">
-            {% if courses %}
                 <table class="table table-striped grade-course-table table-vertically-aligned">
                     <thead>
                         <tr>
@@ -123,10 +122,12 @@
                             </tr>
                         {% endfor %}
                     </tbody>
+                    <tfoot>
+                        <tr class="empty-disclaimer">
+                            <td colspan="999">{% translate 'No matching courses found.' %}</td>
+                        </tr>
+                    </tfoot>
                 </table>
-            {% else %}
-                <span class="fst-italic">{% translate 'No courses have been created yet' %}</span>
-            {% endif %}
         </div>
     </div>
 {% endblock %}

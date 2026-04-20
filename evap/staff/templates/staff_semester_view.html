@@ -390,7 +390,6 @@
                 </script>
 
                 <form id="evaluation_operation_form" class="table-responsive" method="GET" action="{% url 'staff:evaluation_operation' semester.pk %}">
-                    {% if num_evaluations > 0 %}
                         <table id="evaluation-table" class="table table-striped table-narrow table-vertically-aligned">
                             <colgroup>
                                 <col style="width: 2.75em" />
@@ -423,14 +422,12 @@
                                 </tr>
                             {% endfor %}
                             </tbody>
+                            <tfoot>
+                                <tr class="empty-disclaimer">
+                                    <td colspan="999">{% translate 'No matching evaluations found.' %}</td>
+                                </tr>
+                            </tfoot>
                         </table>
-                    {% else %}
-                        <table class="table table-striped table-narrow table-vertically-aligned">
-                            <tbody>
-                                <tr><td><i>{% translate 'There are no evaluations in this semester.' %}</i></td></tr>
-                            </tbody>
-                        </table>
-                    {% endif %}
 
                     {% if request.user.is_manager and not semester.participations_are_archived %}
                         <div class="my-2">
@@ -490,7 +487,6 @@
                         </div>
                     </div>
                 </div>
-                {% if courses %}
                     <form id="course-deletion-form" custom-success method="POST" action="{% url 'staff:course_delete' %}">
                         {% csrf_token %}
                     </form>
@@ -576,14 +572,12 @@
                                 </tr>
                             {% endfor %}
                         </tbody>
+                        <tfoot>
+                            <tr class="empty-disclaimer">
+                                <td colspan="999">{% translate 'No matching courses found.' %}</td>
+                            </tr>
+                        </tfoot>
                     </table>
-                {% else %}
-                    <table class="table table-striped table-narrow table-vertically-aligned">
-                        <tbody>
-                            <tr><td><i>{% translate 'There are no courses in this semester.' %}</i></td></tr>
-                        </tbody>
-                    </table>
-                {% endif %}
             </div>
         </div>
     </div>

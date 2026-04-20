@@ -34,7 +34,6 @@
         </div>
     </div>
 
-    {% if general_questionnaires_top or general_questionnaires_bottom or contributor_questionnaires %}
         <form id="questionnaire-deletion-form" method="POST" action="{% url 'staff:questionnaire_delete' %}">
             {% csrf_token %}
         </form>
@@ -99,12 +98,6 @@
                 </div>
             </div>
         </div>
-
-    {% else %}
-        <p>
-            {% translate 'There are no questionnaires yet.' %}
-        </p>
-    {% endif %}
 {% endblock %}
 
 {% block additional_javascript %}
