@@ -92,11 +92,10 @@
 
             const questionnaireTooltipOptions = {
                 template: '<div class="tooltip py-2" role="tooltip"><div class="tooltip-inner"></div></div>',
-                popperConfig: config => {
-                    config.placement = 'right';
-                    config.modifiers = [{name: 'preventOverflow'}];
-                    return config;
-                }
+                popperConfig: {
+                    placement: 'right',
+                    modifiers: [{name: 'preventOverflow'}],
+                },
             };
             activateTooltips("","questionnaire-tooltip", questionnaireTooltipOptions);
 
