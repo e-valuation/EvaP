@@ -7,7 +7,7 @@
             title="{% include 'result_widget_tooltip.html' with question_result=question_result %}"
         >
             {% include 'distribution_with_grade.html' with question_result=question_result distribution=question_result.counts|normalized_distribution average=question_result.average %}
-            <div class="badge-participants badge-participants-{{ question_result.count_sum|participationclass:num_voters }} ms-2 ms-lg-3">
+            <div class="badge-participants badge-participants-{{ question_result.count_sum|badge_decile:num_voters }} ms-2 ms-lg-3">
                 <span class="fas fa-user"></span> {{ question_result.count_sum }}
             </div>
         </div>

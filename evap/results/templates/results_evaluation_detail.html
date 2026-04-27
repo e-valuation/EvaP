@@ -225,7 +225,7 @@
             <div class="card-header d-flex flex-row justify-content-between">
                 <span>{% translate 'Dropout' %}</span>
 
-                <div class="badge-participants badge-participants-{{ evaluation.dropout_count|participationclass:evaluation.num_voters }} ms-2 ms-lg-3">
+                <div class="badge-participants badge-participants-{{ evaluation.dropout_count|badge_decile:evaluation.num_voters }} ms-2 ms-lg-3">
                     <span class="fas fa-user"></span> {{ evaluation.dropout_count }}
                 </div>
             </div>

@@ -6,7 +6,7 @@
             {% blocktranslate asvar intro_text %}These text answers can be seen by:{% endblocktranslate %}
             {% include 'textanswer_visibility_info.html' with intro_text=intro_text visible_by_contribution=question_result.answers_visible_to.visible_by_contribution visible_by_delegation_count=question_result.answers_visible_to.visible_by_delegation_count %}
         </span>
-        <div class="d-inline-block badge-participants badge-participants-{{ num_answers|participationclass:num_voters }} ms-2">
+        <div class="d-inline-block badge-participants badge-participants-{{ num_answers|badge_decile:num_voters }} ms-2">
             <span class="fas fa-user"></span> {{ num_answers }}
         </div>
     </div>
