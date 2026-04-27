@@ -6,9 +6,9 @@
     {{ block.super }}
     <h3>
         {% if course_form.instance.id %}
-            <a data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Click to copy name' %}" onclick="navigator.clipboard.writeText('{{ course.name }}')">
+            <span data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Click to copy name' %}" onclick="navigator.clipboard.writeText('{{ course.name }}')">
                 {{ course.name }} ({{ course.semester.name }})
-            </a>
+            </span>
         {% else %}
             {% translate 'Create course' %}
         {% endif %}
