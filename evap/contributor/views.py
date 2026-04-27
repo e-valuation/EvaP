@@ -22,8 +22,8 @@ from evap.evaluation.models import (
 )
 from evap.evaluation.tools import (
     AttachmentResponse,
-    get_object_from_dict_pk_entry_or_logged_40x,
     get_bool_parameter_from_url_or_session,
+    get_object_from_dict_pk_entry_or_logged_40x,
     sort_formset,
 )
 from evap.results.exporters import ResultsExporter
