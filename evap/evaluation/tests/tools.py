@@ -410,6 +410,9 @@ class LiveServerTest(SeedBakerMixin, SeleniumTestCase):
 
             language_button.submit()
 
+    def set_tomselect_value(self, instance: WebElement, value: str) -> None:
+        self.selenium.execute_script(f"arguments[0].tomselect.setValue('{value}');", instance)
+
 
 def classes_of_element(element: WebElement) -> list[str]:
     classes = element.get_attribute("class")
