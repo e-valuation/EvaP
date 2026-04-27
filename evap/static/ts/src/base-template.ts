@@ -13,9 +13,13 @@ document.addEventListener("shown.bs.modal", e => {
 });
 
 document.addEventListener("click", e => {
-    if (!e.target) {return;}
+    if (!e.target) {
+        return;
+    }
     const modalEl = e.target as HTMLElement;
-    if (!modalEl.hasAttribute("data-copy-on-click")) {return;}
+    if (!modalEl.hasAttribute("data-copy-on-click")) {
+        return;
+    }
     const copy_string = modalEl.getAttribute("data-copy-on-click")?.toString();
     if (copy_string) {
         navigator.clipboard.writeText(copy_string);
