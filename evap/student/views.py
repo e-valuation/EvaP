@@ -253,7 +253,7 @@ def render_vote_page(
     for_rendering_in_modal: bool = False,
 ) -> HttpResponse:
     fallback_language = (
-        evaluation.main_language if evaluation.main_language != evaluation.UNDECIDED_MAIN_LANGUAGE else "en"
+       evaluation.main_language if evaluation.main_language != evaluation.UNDECIDED_MAIN_LANGUAGE else "en"
     )
     language = request.GET.get("language", fallback_language)
 

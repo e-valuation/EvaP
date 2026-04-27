@@ -2465,10 +2465,18 @@ class TestEvaluationPreviewView(WebTestStaffModeWith200Check):
         cls.test_users = [cls.manager]
         cls.url = reverse("staff:evaluation_preview", args=[cls.evaluation.pk])
 
+        cls.evaluation_un = baker.make(Evaluation, main_language="x")
+        cls.url2 = reverse("staff:evaluation_preview", args=[cls.evaluation_un.pk])
+
+
     def test_without_questionnaires_assigned(self):
         # regression test for #1747
         self.evaluation.general_contribution.questionnaires.set([])
         self.app.get(self.url, user=self.manager, status=200)
+
+    def test_lang_undecided(self):
+        self.app.get(self.url2, user=self.manager, status=200)
+        
 
 
 class TestEvaluationImportPersonsView(WebTestStaffMode):
