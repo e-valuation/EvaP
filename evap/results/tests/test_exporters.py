@@ -613,8 +613,12 @@ class TestExporters(TestCase):
         questionnaire_1 = baker.make(Questionnaire, order=1, type=Questionnaire.Type.TOP)
         questionnaire_2 = baker.make(Questionnaire, order=4, type=Questionnaire.Type.TOP)
 
-        question_1 = baker.make(Question, type=QuestionType.GRADE, questionnaire=questionnaire_1)
-        question_2 = baker.make(Question, type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire_2)
+        assignment_1 = baker.make(
+            QuestionAssignment, question__type=QuestionType.GRADE, questionnaire=questionnaire_1
+        )
+        assignment_2 = baker.make(
+            QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire_2
+        )
 
         evaluation_1 = baker.make(
             Evaluation,
@@ -634,12 +638,12 @@ class TestExporters(TestCase):
 
         evaluation_1.general_contribution.questionnaires.set([questionnaire_1])
 
-        make_rating_answer_counters(question_1, evaluation_1.general_contribution, [1, 1, 0, 0, 0])
+        make_rating_answer_counters(assignment_1, evaluation_1.general_contribution, [1, 1, 0, 0, 0])
 
         evaluation_2.general_contribution.questionnaires.set([questionnaire_1, questionnaire_2])
 
-        make_rating_answer_counters(question_1, evaluation_2.general_contribution, [1, 2, 0, 0, 0])
-        make_rating_answer_counters(question_2, evaluation_2.general_contribution)
+        make_rating_answer_counters(assignment_1, evaluation_2.general_contribution, [1, 2, 0, 0, 0])
+        make_rating_answer_counters(assignment_2, evaluation_2.general_contribution)
 
         cache_results(evaluation_1)
         cache_results(evaluation_2)
