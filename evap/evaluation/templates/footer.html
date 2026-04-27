@@ -12,7 +12,10 @@
         <div class="collapse navbar-collapse justify-content-between">
             <ul class="navbar-nav justify-content-start">
                 <li class="nav-item my-auto">
-                    <a class="nav-link nav-link-multiline" href="{% url 'evaluation:legal_notice' %}">{% translate 'Legal Notice' %}<br />{% translate 'Data Privacy' %}</a>
+                    <a class="nav-link nav-link-multiline" href="{% legal_link %}">
+                        <span>{% translate 'Legal Notice' %}</span>
+                        <span class="fas fa-arrow-up-right-from-square ps-1"></span>
+                    </a>
                 </li>
                 <li class="d-none d-sm-block nav-item">
                     <a class="nav-link" href="https://github.com/e-valuation/EvaP/releases/tag/{% release_version %}" target="_blank">
