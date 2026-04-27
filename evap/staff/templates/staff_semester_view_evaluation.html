@@ -197,7 +197,7 @@
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item" onclick="navigator.clipboard.writeText('{{ evaluation.full_name }}')">
+                            <a class="dropdown-item" data-copy-on-click="{{ evaluation.full_name }}">
                                 <span class="fas fa-fw fa-clipboard"></span> {% translate 'Copy name to clipboard' %}
                             </a>
                         </li>
