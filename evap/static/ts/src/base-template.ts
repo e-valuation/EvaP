@@ -19,5 +19,12 @@ document.addEventListener("click", e => {
     const copy_string = modalEl.getAttribute("data-copy-on-click")?.toString();
     if (copy_string) {
         navigator.clipboard.writeText(copy_string);
+        // console.log("copied");
+        // console.log(modalEl.getAttributeNames());
+        // console.log(modalEl.getAttribute("data-bs-original-title"))
+        // if (modalEl.hasAttribute("data-bs-original-title")) {
+        //     modalEl.setAttribute("data-bs-original-title", "Copied to clipboard");
+        //     console.log("data-bs-original-title");
+        // }
     }
 });
