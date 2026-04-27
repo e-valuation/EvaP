@@ -10,12 +10,9 @@
     }
 }
 
-select[multiple='multiple'] {
-    height: 0px;
-}
-
-select[multiple] {
-    min-height: 40px;
+// place tooltip for tomselect based on form-element height
+.tomselected {
+    height: 38px;
 }
 
 .email-form {
