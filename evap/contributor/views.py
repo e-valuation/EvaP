@@ -23,7 +23,7 @@ from evap.evaluation.models import (
 from evap.evaluation.tools import (
     AttachmentResponse,
     get_object_from_dict_pk_entry_or_logged_40x,
-    get_parameter_from_url_or_session,
+    get_bool_parameter_from_url_or_session,
     sort_formset,
 )
 from evap.results.exporters import ResultsExporter
@@ -35,7 +35,7 @@ from evap.student.views import render_vote_page
 @responsible_or_contributor_or_delegate_required
 def index(request):
     user = request.user
-    show_delegated = get_parameter_from_url_or_session(request, "show_delegated", True)
+    show_delegated = get_bool_parameter_from_url_or_session(request, "show_delegated", True)
 
     represented_proxy_users = user.represented_users.filter(is_proxy_user=True)
     contributor_visible_states = [

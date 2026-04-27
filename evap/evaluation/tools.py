@@ -170,7 +170,7 @@ def vote_end_datetime(vote_end_date: datetime.date) -> datetime.datetime:
     return date_to_datetime(vote_end_date) + datetime.timedelta(hours=24 + settings.EVALUATION_END_OFFSET_HOURS)
 
 
-def get_parameter_from_url_or_session(request: HttpRequest, parameter: str, default=False) -> bool:
+def get_bool_parameter_from_url_or_session(request: HttpRequest, parameter: str, default=False) -> bool:
     result_str = request.GET.get(parameter, None)
     if result_str is None:  # if no parameter is given take session value
         result = request.session.get(parameter, default)
@@ -180,7 +180,7 @@ def get_parameter_from_url_or_session(request: HttpRequest, parameter: str, defa
     return result
 
 
-def get_string_from_url_or_session(request: HttpRequest, parameter: str, default: str | None = None) -> str | None:
+def get_string_parameter_from_url_or_session(request: HttpRequest, parameter: str, default: str | None = None) -> str | None:
     result = request.GET.get(parameter, None)
     if result is None:
         result = request.session.get(parameter, default)

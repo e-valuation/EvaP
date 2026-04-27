@@ -69,8 +69,8 @@ from evap.evaluation.tools import (
     SaveValidFormMixin,
     StrOrPromise,
     get_object_from_dict_pk_entry_or_logged_40x,
-    get_parameter_from_url_or_session,
-    get_string_from_url_or_session,
+    get_bool_parameter_from_url_or_session,
+    get_string_parameter_from_url_or_session,
     sort_formset,
     temporary_receiver,
 )
@@ -1825,7 +1825,7 @@ def evaluation_preview(request, evaluation_id):
 @manager_required
 def questionnaire_index(request):
     filters = ["all", "visible", "archived"]
-    filter_questionnaires = get_string_from_url_or_session(request, "filter_questionnaires", filters[0])
+    filter_questionnaires = get_string_parameter_from_url_or_session(request, "filter_questionnaires", filters[0])
     if filter_questionnaires not in filters:
         raise SuspiciousOperation
 
@@ -2323,7 +2323,7 @@ def user_index(request):
 
 @manager_required
 def user_list(request):
-    filter_users = get_parameter_from_url_or_session(request, "filter_users")
+    filter_users = get_bool_parameter_from_url_or_session(request, "filter_users")
 
     users = UserProfile.objects.all()
     if filter_users:
