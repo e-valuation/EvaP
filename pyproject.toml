@@ -118,6 +118,7 @@ custom-blocks = ["breadcrumb_item", "breadcrumb_item_url"]
 ##############################################
 
 [tool.pylint.master]
+files = "evap,tools"
 jobs = 0
 
 load-plugins = ["pylint_django"]

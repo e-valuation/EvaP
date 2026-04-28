@@ -18,8 +18,8 @@ class Command(BaseCommand):
         subprocess.run(["ruff", "check", "."], check=False)  # nosec
 
     def run_pylint(self) -> None:
-        self.stdout.write("Executing pylint evap")
-        subprocess.run(["pylint", "evap", "tools"], check=False)  # nosec
+        self.stdout.write("Executing pylint")
+        subprocess.run(["pylint"], check=False)  # nosec
 
     def run_eslint(self) -> None:
         self.stdout.write("Executing npx eslint --quiet")
