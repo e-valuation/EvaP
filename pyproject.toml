@@ -11,7 +11,7 @@ dependencies = [
     "mozilla-django-oidc~=5.0.2",
     "openpyxl~=3.1.5",
     "psycopg~=3.3.2",
-    "pydantic~=2.12.5",
+    "pydantic~=2.13.3",
     "redis~=7.4.0",
     "requests~=2.33.1",
     "typing-extensions~=4.15.0",
@@ -38,7 +38,7 @@ dev = [
     "types-requests~=2.33.0",
     "xlrd~=2.0.1",
     "typeguard~=4.5.1",
-    "selenium~=4.41.0",
+    "selenium~=4.43.0",
 ]
 lsp = [
     "python-lsp-server",
