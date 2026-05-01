@@ -3,6 +3,7 @@ from collections import OrderedDict, defaultdict
 from collections.abc import Iterable
 from copy import copy
 from enum import Enum
+from itertools import takewhile
 from math import ceil, modf
 from typing import TypeGuard, cast
 
@@ -340,9 +341,13 @@ def average_non_grade_rating_questions_distribution(results):
     )
 
 
-def calculate_average_course_distribution(course, check_for_unpublished_evaluations=True):
+def calculate_average_course_distribution(course, check_for_unpublished_evaluations=True, annotated_evaluations=None):
     if check_for_unpublished_evaluations and course.evaluations.exclude(state=Evaluation.State.PUBLISHED).exists():
         return None
+    if annotated_evaluations is None:
+        annotated_evaluations = course.evaluations.all()
+    else:
+        annotated_evaluations = takewhile(lambda e: e.course == course, annotated_evaluations)
 
     return avg_distribution(
         [
@@ -350,7 +355,7 @@ def calculate_average_course_distribution(course, check_for_unpublished_evaluati
                 calculate_average_distribution(evaluation),
                 evaluation.weight,
             )
-            for evaluation in course.evaluations.all()
+            for evaluation in annotated_evaluations
         ]
     )
 
@@ -361,6 +366,12 @@ def get_evaluations_with_course_result_attributes(evaluations):
         .filter(Exists(Evaluation.objects.filter(course=OuterRef("pk")).exclude(state=Evaluation.State.PUBLISHED)))
         .values_list("id", flat=True)
     )
+    courses_without_unpublished_evaluations = Course.objects.filter(evaluations__in=evaluations).exclude(
+        id__in=courses_with_unpublished_evaluations
+    )
+    course_distribution_evaluations = Evaluation.annotate_with_participant_and_voter_counts(
+        Evaluation.objects.filter(course__in=courses_without_unpublished_evaluations)
+    ).order_by("course__id")
 
     course_id_evaluation_weight_sum_pairs = (
         Course.objects.annotate(Sum("evaluations__weight"))
@@ -370,12 +381,14 @@ def get_evaluations_with_course_result_attributes(evaluations):
 
     evaluation_weight_sum_per_course_id = {entry[0]: entry[1] for entry in course_id_evaluation_weight_sum_pairs}
 
-    for evaluation in evaluations:
+    for evaluation in sorted(evaluations, key=lambda e: e.course.id):
         if evaluation.course.id in courses_with_unpublished_evaluations:
             evaluation.course.not_all_evaluations_are_published = True
             evaluation.course.distribution = None
         else:
-            evaluation.course.distribution = calculate_average_course_distribution(evaluation.course, False)
+            evaluation.course.distribution = calculate_average_course_distribution(
+                evaluation.course, False, course_distribution_evaluations
+            )
 
         evaluation.course.evaluation_count = evaluation.course.evaluations.count()
         evaluation.course.avg_grade = distribution_to_grade(evaluation.course.distribution)

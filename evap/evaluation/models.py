@@ -731,6 +731,24 @@ class Evaluation(LoggedModel):
             )
         return True
 
+    @staticmethod
+    def can_be_seen_by_Q(user):
+        if user.is_manager:
+            return Q()
+
+        if user.is_reviewer:
+            return ~Q(state=Evaluation.State.NEW) & ~Q(course__semester__results_are_archived=True)
+
+        base_q = ~Q(state=Evaluation.State.NEW)
+        if user.is_external:
+            return base_q & Evaluation.user_is_responsible_or_contributor_or_delegate_Q(user) | Q(participants=user)
+
+        return base_q & (
+            ~Q(course__is_private=True)
+            | Evaluation.user_is_responsible_or_contributor_or_delegate_Q(user)
+            | Q(participants=user)
+        )
+
     def can_results_page_be_seen_by(self, user):
         if user.is_manager:
             return True
@@ -741,6 +759,27 @@ class Evaluation(LoggedModel):
         if not self.can_publish_rating_results or self.course.semester.results_are_archived:
             return self.is_user_responsible_or_contributor_or_delegate(user)
         return self.can_be_seen_by(user)
+
+    @staticmethod
+    def can_results_page_be_seen_by_Q(user):
+        if user.is_manager:
+            return Q()
+
+        if user.is_reviewer:
+            return ~Q(course__semester__results_are_archived=True)
+
+        base_q = Q(state=Evaluation.State.PUBLISHED)
+        threshold = settings.VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS
+
+        archived_or_insufficient_q = Q(course__semester__results_are_archived=True) | Q(num_voters__lt=threshold)
+        restricted_q = (
+            base_q & archived_or_insufficient_q & Evaluation.user_is_responsible_or_contributor_or_delegate_Q(user)
+        )
+
+        not_archived_and_sufficient_q = ~Q(course__semester__results_are_archived=True) & Q(num_voters__gte=threshold)
+        available_q = base_q & not_archived_and_sufficient_q & Evaluation.can_be_seen_by_Q(user)
+
+        return restricted_q | available_q
 
     @property
     def can_reset_to_new(self):
@@ -996,6 +1035,19 @@ class Evaluation(LoggedModel):
             self.contributions.filter(contributor__in=represented_users, role=Contribution.Role.EDITOR).exists()
             or self.course.responsibles.filter(pk__in=represented_users).exists()
         )
+
+    @staticmethod
+    def user_is_editor_or_delegate_Q(user):
+        represented_users = user.represented_users.all() | UserProfile.objects.filter(pk=user.pk)
+        return Q(
+            Q(contributions__contributor__in=represented_users, contributions__role=Contribution.Role.EDITOR)
+            | Q(course__responsibles__in=represented_users)
+        )
+
+    @staticmethod
+    def user_is_responsible_or_contributor_or_delegate_Q(user):
+        represented_users = user.represented_users.all() | UserProfile.objects.filter(pk=user.pk)
+        return Q(Q(contributions__contributor__in=represented_users) | Q(course__responsibles__in=represented_users))
 
     def is_user_responsible_or_contributor_or_delegate(self, user):
         # early out that saves database hits since is_responsible_or_contributor_or_delegate is a cached_property
