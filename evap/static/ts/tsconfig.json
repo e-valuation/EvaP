@@ -1,10 +1,9 @@
 {
     "compilerOptions": {
-        "baseUrl": ".",
         "target": "es2019",
         "strict": true,
         "esModuleInterop": true,
-        "moduleResolution": "node"
+        "module": "node16"
     },
     "include": ["**/*.ts", "eslint.config.js"]
 }
