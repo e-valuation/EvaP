@@ -16,12 +16,12 @@ from evap.evaluation.models import (
     Contribution,
     Course,
     CourseType,
+    Evaluation,
     Program,
     RatingAnswerCounter,
     Semester,
     TextAnswer,
     UserProfile,
-    Evaluation
 )
 from evap.tools import unordered_groupby
 
@@ -278,12 +278,12 @@ class Command(BaseCommand):
             self.stdout.ending = "\n"
 
     def anonymize_staff_notes(self, lorem_ipsum):
-            self.stdout.write("Replacing text answers with fake ones...")
-            for evaluation in Evaluation.objects.all():
-                if evaluation.staff_notes != "":
-                    evaluation.staff_notes = self.lorem(evaluation.staff_notes, lorem_ipsum)
-                    evaluation.save()
-                    
+        self.stdout.write("Replacing text answers with fake ones...")
+        for evaluation in Evaluation.objects.all():
+            if evaluation.staff_notes != "":
+                evaluation.staff_notes = self.lorem(evaluation.staff_notes, lorem_ipsum)
+                evaluation.save()
+
     # Returns a string with the same number of lorem ipsum words as the given text
     @staticmethod
     def lorem(text, lorem_ipsum):

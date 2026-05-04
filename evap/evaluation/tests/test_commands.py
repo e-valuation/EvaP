@@ -89,7 +89,7 @@ class TestAnonymizeCommand(TestCase):
             course=cls.course,
             name_de="Wie man Software testet",
             name_en="Testing your software",
-            staff_notes="This evaluation has dropout answers"
+            staff_notes="This evaluation has dropout answers",
         )
         baker.make(
             Evaluation,
@@ -180,7 +180,7 @@ class TestAnonymizeCommand(TestCase):
         baker.make(UserProfile, password=make_password("evap"))
         with self.assertRaises(AssertionError):
             management.call_command("anonymize", stdout=StringIO())
-    
+
     def test_staff_notes_are_anonymized(self):
         management.call_command("anonymize", stdout=StringIO())
         self.assertEqual(Evaluation.objects.get(id=self.evaluation.id).staff_notes, "Lorem ipsum dolor sit amet,")
