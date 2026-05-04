@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib import auth, messages
 from django.core.exceptions import SuspiciousOperation
 from django.core.mail import EmailMessage
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.encoding import iri_to_uri
@@ -19,11 +19,12 @@ from evap.evaluation.forms import LoginEmailForm, NewKeyForm, NotebookForm, Prof
 from evap.evaluation.models import EmailTemplate, FaqSection, Semester, UserProfile
 from evap.evaluation.tools import HttpResponseNoContent, openid_login_is_active, password_login_is_active
 from evap.middleware import no_login_required
+from evap.tools import assert_not_none
 
 logger = logging.getLogger(__name__)
 
 
-def redirect_user_to_start_page(user):  # noqa: PLR0911
+def redirect_user_to_start_page(user: UserProfile) -> HttpResponse:  # noqa: PLR0911
     active_semester = Semester.active_semester()
 
     if user.is_reviewer:
@@ -52,7 +53,7 @@ def redirect_user_to_start_page(user):  # noqa: PLR0911
 
 @no_login_required
 @sensitive_post_parameters("password")
-def index(request):
+def index(request: HttpRequest) -> HttpResponse:
     """Main entry page into EvaP providing all the login options available. The OpenID login is thought to be used for
     internal users. The login key mechanism is meant to be used to include external participants, e.g. visiting
     students or visiting contributors. A login with email and password is available if OpenID is deactivated.
@@ -71,11 +72,11 @@ def index(request):
     if request.method == "POST":
         if new_key_form.is_valid():
             # user wants a new login key
-            profile = new_key_form.get_user()
+            profile = assert_not_none(new_key_form.get_user())
             profile.ensure_valid_login_key()
             profile.save()
 
-            EmailTemplate.send_login_url_to_user(new_key_form.get_user())
+            EmailTemplate.send_login_url_to_user(profile)
 
             messages.success(request, _("We sent you an email with a one-time login URL. Please check your inbox."))
             return redirect("evaluation:index")
@@ -115,7 +116,7 @@ def index(request):
 
 
 @no_login_required
-def login_key_authentication(request, key):
+def login_key_authentication(request: HttpRequest, key: int) -> HttpResponse:
     user = auth.authenticate(request, key=key)
 
     if user and not user.is_active:
@@ -131,7 +132,7 @@ def login_key_authentication(request, key):
             )
         return redirect("evaluation:index")
 
-    if user and user.login_key_valid_until >= date.today():
+    if user and assert_not_none(user.login_key_valid_until) >= date.today():
         if request.method != "POST":
             template_data = {"username": user.full_name}
             return render(request, "external_user_confirm_login.html", template_data)
@@ -155,12 +156,12 @@ def login_key_authentication(request, key):
 
 
 @no_login_required
-def faq(request):
+def faq(request: HttpRequest) -> HttpResponse:
     return render(request, "faq.html", {"sections": FaqSection.objects.all()})
 
 
 @require_POST
-def contact(request):
+def contact(request: HttpRequest) -> HttpResponse:
     sent_anonymous = request.POST.get("anonymous") == "true"
     if sent_anonymous and not settings.ALLOW_ANONYMOUS_FEEDBACK_MESSAGES:
         raise SuspiciousOperation("Anonymous feedback messages are not allowed, however received one from user!")
@@ -170,6 +171,7 @@ def contact(request):
         sender = "anonymous user"
         subject = "[EvaP] Anonymous message"
     else:
+        assert isinstance(request.user, UserProfile)
         sender = request.user.email or f"User {request.user.id}"
         subject = f"[EvaP] Message from {sender}"
     if message:
@@ -192,7 +194,7 @@ def contact(request):
 
 @no_login_required
 @require_POST
-def set_lang(request):
+def set_lang(request: HttpRequest) -> HttpResponse:
     if request.user.is_authenticated:
         user = request.user
         user.language = request.POST.get("language", "en")
@@ -201,7 +203,7 @@ def set_lang(request):
     return set_language(request)
 
 
-def profile_edit(request):
+def profile_edit(request: HttpRequest) -> HttpResponse:
     user = request.user
     profile_form = ProfileForm(request.POST or None, request.FILES or None, instance=user)
 
@@ -211,6 +213,7 @@ def profile_edit(request):
             messages.success(request, _("Successfully updated your profile."))
             return redirect("evaluation:profile_edit")
 
+    assert isinstance(user, UserProfile)
     editor_context = {
         "delegate_of": user.represented_users.all(),
         "cc_users": user.cc_users.all(),
@@ -223,7 +226,7 @@ def profile_edit(request):
 
 
 @require_POST
-def set_notes(request):
+def set_notes(request: HttpRequest) -> HttpResponse:
     form = NotebookForm(request.POST, instance=request.user)
     if form.is_valid():
         form.save()
@@ -231,8 +234,9 @@ def set_notes(request):
     return HttpResponseBadRequest()
 
 
-def set_startpage(request):
+def set_startpage(request: HttpRequest) -> HttpResponse:
     user = request.user
+    assert isinstance(user, UserProfile)
     startpage = request.POST.get("page")
     if startpage not in UserProfile.StartPage.values:
         return HttpResponseBadRequest()
