@@ -4,13 +4,14 @@
     {% csrf_token %}
 
     <confirmation-modal type="submit">
+        <span slot="title">{{ title }}</span>
         <span slot="question">{{ teaser }}</span>
         <span slot="action-text">{% translate 'Send Message' %}</span>
 
         <div slot="extra-inputs">
             <div class="modal-grid">
                 <label for="{{ modal_id }}SenderName" class="control-label my-auto pe-4">{% translate 'Sender' %}</label>
-                {% if modal_id == "feedbackModal" and allow_anonymous_feedback_messages %}
+                {% if anonymous_mode_enabled %}
                     <div class="btn-group text-wrap" role="group" aria-label="{{ modal_id }} Radio Group">
                         <input type="radio" class="btn-check" name="anonymous" value="false" id="{{ modal_id }}SenderName" checked />
                         <label class="btn btn-sm btn-outline-primary text-break" for="{{ modal_id }}SenderName">{{ user.full_name }}</label>
@@ -23,11 +24,12 @@
                 <label for="{{ modal_id }}Subject" class="control-label my-auto pe-4 text-break">{% translate 'Subject' %}</label>
                 <input name="title" type="text" class="form-control mx-auto" id="{{ modal_id }}Subject" disabled value="{{ title }}"/>
             </div>
-            <label for="{{ modal_id }}MessageText" class="d-none">Nachricht</label>
+            <label for="{{ modal_id }}MessageText" class="d-none">{% translate 'Nachricht' %}</label>
             <textarea autofocus class="form-control modal-textfield my-4" id="{{ modal_id }}MessageText" name="message" placeholder="{% translate 'Nachricht' %}"></textarea>
         </div>
 
-        <div class="{% if modal_id == "feedbackModal" %}feedback-button{% endif %}" slot="show-button">
+{#        # move this to css class#}
+        <div slot="show-button">
             <button type="button" class="{{ show_button_class }}" id="{{ modal_id }}ShowButton">{{ show_button_text }}</button>
         </div>
     </confirmation-modal>

@@ -143,21 +143,22 @@ a:not([href]):not(.disabled) {
     }
 }
 
-.feedback-button {
-    @include media-breakpoint-up(md) {
-        position: fixed;
-        right: 10px;
-        bottom: 8px;
-        z-index: $zindex-fixed;
-    }
-
-    .btn-dark {
-        padding: 0 0.2rem;
-        color: $light-gray;
-    }
-}
 .feedback-button-placeholder {
     min-width: 140px;
+
+    [slot=show-button] {
+        @include media-breakpoint-up(md) {
+            position: fixed;
+            right: 10px;
+            bottom: 8px;
+            z-index: $zindex-fixed;
+        }
+
+        button {
+            padding: 0 0.2rem;
+            color: $light-gray;
+        }
+    }
 }
 
 @media screen and (min-aspect-ratio: $notebook-break) {
