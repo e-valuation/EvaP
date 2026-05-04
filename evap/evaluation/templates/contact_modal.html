@@ -2,7 +2,6 @@
 
 <form reload-on-success method="POST" action="{% url 'evaluation:contact' %}">
     {% csrf_token %}
-    <input hidden name="title" value="{{ title }}"/>
 
     <confirmation-modal type="submit">
         <span slot="question">{{ teaser }}</span>
