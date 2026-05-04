@@ -1,0 +1,10 @@
+from django.contrib.postgres.operations import TrigramExtension
+from django.db import migrations
+
+
+class Migration(migrations.Migration):
+    dependencies = [
+        ("evaluation", "0163_migrate_cms_links"),
+    ]
+
+    operations = [TrigramExtension()]
