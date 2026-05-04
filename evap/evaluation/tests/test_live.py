@@ -8,9 +8,10 @@ from evap.evaluation.tests.tools import LiveServerTest
 class ContactModalTests(LiveServerTest):
     def test_contact_modal(self) -> None:
         self.selenium.get(self.reverse("evaluation:index"))
+        self.wait_until_document_ready()
         self.selenium.find_element(By.ID, "feedbackModalShowButton").click()
-        self.wait.until(visibility_of_element_located((By.ID, "feedbackModalMessageText")))
-        self.selenium.find_element(By.ID, "feedbackModalMessageText").send_keys("Test message")
+        text_area = self.wait.until(visibility_of_element_located((By.ID, "feedbackModalMessageText")))
+        text_area.send_keys("Test message")
         self.selenium.find_element(By.CSS_SELECTOR, "confirmation-modal > span[slot='action-text']").click()
 
         self.wait.until(
