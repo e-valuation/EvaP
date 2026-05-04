@@ -177,9 +177,13 @@ def get_bool_parameter_from_url_or_session(request: HttpRequest, parameter: str,
 
 
 @typing.overload
-def get_string_parameter_from_url_or_session(request: HttpRequest, parameter: str) -> str | None: ...
+def get_string_parameter_from_url_or_session(request: HttpRequest, parameter: str) -> str | None:
+    pass
+
+
 @typing.overload
-def get_string_parameter_from_url_or_session(request: HttpRequest, parameter: str, default: str) -> str: ...
+def get_string_parameter_from_url_or_session(request: HttpRequest, parameter: str, default: str) -> str:
+    pass
 
 
 def get_string_parameter_from_url_or_session(request: HttpRequest, parameter: str, default=None):
