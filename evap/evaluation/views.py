@@ -261,10 +261,10 @@ class UserProfileOptionsBaseView(View):
         if query is None:
             raise BadRequest("Please provide a search query")
         items = self.get_queryset(request).filter(
-            Q(first_name_given__icontains=query)
-            | Q(first_name_chosen__icontains=query)
-            | Q(last_name__icontains=query)
-            | Q(email__icontains=query)
+            Q(first_name_given__trigram_similar=query)
+            | Q(first_name_chosen__trigram_similar=query)
+            | Q(last_name__trigram_similar=query)
+            | Q(email__trigram_similar=query)
         )
         options = [{"id": item.pk, "text": item.full_name_with_additional_info} for item in items]
         return JsonResponse({"options": options})
