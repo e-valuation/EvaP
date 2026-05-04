@@ -15,7 +15,11 @@ document.addEventListener("shown.bs.modal", e => {
 });
 
 document.addEventListener("click", e => {
-    if (!e.target) return;
+    if (!e.target) {
+        return;
+    }
     const element = e.target as HTMLElement;
-    if ("copyOnClick" in element.dataset) copyToClipboard(element.dataset.copyOnClick as string);
+    if ("copyOnClick" in element.dataset) {
+        copyToClipboard(element.dataset.copyOnClick as string);
+    }
 });
