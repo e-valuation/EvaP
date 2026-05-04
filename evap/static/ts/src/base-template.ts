@@ -1,4 +1,4 @@
-import { copyToClipboard } from "./copy-to-clipboard";
+import { copyToClipboard } from "./copy-to-clipboard.js";
 
 // This file contains all typescript code for the base.html template.
 
@@ -20,6 +20,7 @@ document.addEventListener("click", e => {
     }
     const element = e.target as HTMLElement;
     if ("copyOnClick" in element.dataset) {
-        void copyToClipboard(element.dataset.copyOnClick!);
+        // void copyToClipboard(element.dataset.copyOnClick!);
+        navigator.clipboard.writeText(element.dataset.copyOnClick!)
     }
 });
