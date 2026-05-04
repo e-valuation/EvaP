@@ -243,10 +243,11 @@ class TestContributorEvaluationEditView(WebTest):
         Regression test for #1060
         """
         self.evaluation.name_en = "Adam & Eve"
+        self.evaluation.allow_editors_to_edit = True
         self.evaluation.save()
         page = self.app.get(self.url, user=self.responsible, status=200)
 
-        self.assertIn("createContributorAccountRequestModalTitle", page)
+        self.assertIn("createParticipantAccountRequestModalSubject", page)
 
         self.assertNotIn("Adam &amp;amp; Eve", page)
         self.assertIn("Adam &amp; Eve", page)
