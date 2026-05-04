@@ -176,9 +176,9 @@ def get_bool_parameter_from_url_or_session(request: HttpRequest, parameter: str,
     )
 
 
-def get_string_parameter_from_url_or_session(
-    request: HttpRequest, parameter: str, default: str | None = None
-) -> str | None:
+def get_string_parameter_from_url_or_session[T_default](
+    request: HttpRequest, parameter: str, default: str | T_default = None
+) -> str | T_default:
     result = request.GET.get(parameter, None)
     if result is None:
         result = request.session.get(parameter, default)
