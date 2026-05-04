@@ -1,5 +1,7 @@
 .card-header {
     font-weight: bold;
+    flex-wrap: wrap;
+    justify-content: space-between;
 }
 
 .card-outline-primary {
