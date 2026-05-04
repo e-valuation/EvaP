@@ -106,6 +106,8 @@ def index(request: HttpRequest) -> HttpResponse:
         }
         return render(request, "index.html", template_data)
 
+    assert isinstance(request.user, UserProfile)
+
     # check for redirect variable
     redirect_to = request.GET.get("next", None)
     if redirect_to is not None and url_has_allowed_host_and_scheme(redirect_to, None):
@@ -196,6 +198,7 @@ def contact(request: HttpRequest) -> HttpResponse:
 @require_POST
 def set_lang(request: HttpRequest) -> HttpResponse:
     if request.user.is_authenticated:
+        assert isinstance(request.user, UserProfile)
         user = request.user
         user.language = request.POST.get("language", "en")
         user.save()
