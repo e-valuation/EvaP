@@ -189,7 +189,7 @@ STORAGES = {
 
 CONTACT_EMAIL = "webmaster@localhost"
 ALLOW_ANONYMOUS_FEEDBACK_MESSAGES = True
-LEGAL_NOTICE_LINK = "http://example.com/legalnotice"
+LEGAL_NOTICE_LINK = "https://example.com/legalnotice"
 
 # Config for mail system
 DEFAULT_FROM_EMAIL = "webmaster@localhost"
