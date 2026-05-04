@@ -176,9 +176,9 @@ def get_bool_parameter_from_url_or_session(request: HttpRequest, parameter: str,
     )
 
 
-@overload
+@typing.overload
 def get_string_parameter_from_url_or_session(request: HttpRequest, parameter: str) -> str | None: ...
-@overload
+@typing.overload
 def get_string_parameter_from_url_or_session(request: HttpRequest, parameter: str, default: str) -> str: ...
 
 def get_string_parameter_from_url_or_session(request: HttpRequest, parameter: str, default=None):
