@@ -173,7 +173,7 @@
                                     .then(json => {
                                         callback(json.options);
                                     }).catch(() => {
-                                        callback();
+                                        alert(window.gettext("The server is not responding."));
                                     });
                             },
                             valueField: 'id',

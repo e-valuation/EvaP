@@ -1,12 +1,11 @@
 import logging
-from abc import abstractmethod
 from datetime import date, timedelta
 
 from django.conf import settings
 from django.contrib import auth, messages
 from django.core.exceptions import BadRequest, SuspiciousOperation
 from django.core.mail import EmailMessage
-from django.db.models import Model, Q, QuerySet
+from django.db.models import Q, QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -252,32 +251,20 @@ def set_startpage(request):
     return redirect("evaluation:index")
 
 
-class ServerSideSelectOptionsBaseView[T: Model](View):
+class UserProfileOptionsBaseView(View):
+    @classmethod
+    def get_queryset(cls, request: HttpRequest, *args, **kwargs) -> QuerySet[UserProfile]:
+        return UserProfile.objects.all()
+
     def get(self, request: HttpRequest, *args, **kwargs) -> JsonResponse:
         query = request.GET.get("query")
         if query is None:
             raise BadRequest("Please provide a search query")
-        items = self.search(query, request, *args, **kwargs)
-        options = [{"id": item.pk, "text": self.get_item_label(item)} for item in items]
-        return JsonResponse({"options": options})
-
-    @abstractmethod
-    def get_item_label(self, item: T) -> str:
-        pass
-
-    @abstractmethod
-    def search(self, query: str, request: HttpRequest, *args, **kwargs) -> QuerySet[T]:
-        pass
-
-
-class UserProfileOptionsBaseView(ServerSideSelectOptionsBaseView[UserProfile]):
-    def get_item_label(self, item) -> str:
-        return item.full_name_with_additional_info
-
-    def search(self, query, request, *args, **kwargs):
-        return UserProfile.objects.filter(
+        items = self.get_queryset(request).filter(
             Q(first_name_given__icontains=query)
             | Q(first_name_chosen__icontains=query)
             | Q(last_name__icontains=query)
             | Q(email__icontains=query)
         )
+        options = [{"id": item.pk, "text": item.full_name_with_additional_info} for item in items]
+        return JsonResponse({"options": options})

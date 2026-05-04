@@ -309,16 +309,18 @@ def export(request):
 
 @responsible_or_contributor_or_delegate_required
 class DelegateOptionsView(UserProfileOptionsBaseView):
-    def search(self, query, request, *args, **kwargs) -> QuerySet[UserProfile]:
-        return super().search(query, request, *args, **kwargs).filter(pk__in=UserProfile.objects.get_delegates())
+    @classmethod
+    def get_queryset(cls, request, *args, **kwargs) -> QuerySet[UserProfile]:
+        return super().get_queryset(request, *args, **kwargs).filter(pk__in=UserProfile.objects.get_delegates())
 
 
 @responsible_or_contributor_or_delegate_required
 class ParticipantOptionsView(UserProfileOptionsBaseView):
-    def search(self, query, request, *args, **kwargs) -> QuerySet[UserProfile]:
+    @classmethod
+    def get_queryset(cls, request, *args, **kwargs) -> QuerySet[UserProfile]:
         evaluation = get_object_or_404(Evaluation, id=kwargs["evaluation"]) if kwargs.get("evaluation") else None
         return (
             super()
-            .search(query, request, *args, **kwargs)
+            .get_queryset(request, *args, **kwargs)
             .filter(pk__in=EvaluationForm.get_participants_queryset(evaluation))
         )

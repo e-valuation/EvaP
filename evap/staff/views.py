@@ -2728,21 +2728,21 @@ def exit_staff_mode(request):
 
 @staff_permission_required
 class ParticipantsUserProfileSearchView(UserProfileOptionsBaseView):
-    def search(self, query, request, *args, **kwargs) -> QuerySet[UserProfile]:
-        evaluation = get_object_or_404(Evaluation, id=kwargs["evaluation"]) if kwargs.get("evaluation") else None
+    @classmethod
+    def get_queryset(cls, request, *args, **kwargs) -> QuerySet[UserProfile]:
+        evaluation = get_object_or_404(Evaluation, id=kwargs["evaluation_id"]) if kwargs.get("evaluation_id") else None
         return (
             super()
-            .search(query, request, *args, **kwargs)
+            .get_queryset(request, *args, **kwargs)
             .filter(pk__in=EvaluationForm.get_participants_queryset(evaluation))
         )
 
 
 @staff_permission_required
 class ContributorUserProfileSearchView(UserProfileOptionsBaseView):
-    def search(self, query, request, *args, **kwargs) -> QuerySet[UserProfile]:
-        return (
-            super().search(query, request, *args, **kwargs).filter(pk__in=ContributionForm.get_contributor_queryset())
-        )
+    @classmethod
+    def get_queryset(cls, request, *args, **kwargs) -> QuerySet[UserProfile]:
+        return super().get_queryset(request, *args, **kwargs).filter(pk__in=ContributionForm.get_contributor_queryset())
 
 
 @staff_permission_required
