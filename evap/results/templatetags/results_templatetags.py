@@ -30,8 +30,8 @@ def evaluation_results_cache_timeout(evaluation):
     return 0  # don't cache at all
 
 
-@register.filter(name="badge_decile")
-def badge_decile(dividend, divisor):
+@register.filter(name="decile")
+def decile(dividend, divisor):
     if divisor <= 0:
         return 0
     return round((dividend / divisor) * 10)
