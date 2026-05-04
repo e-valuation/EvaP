@@ -19,8 +19,10 @@ document.addEventListener("click", e => {
         return;
     }
     const element = e.target as HTMLElement;
-    if ("copyOnClick" in element.dataset) {
-        // void copyToClipboard(element.dataset.copyOnClick!);
-        navigator.clipboard.writeText(element.dataset.copyOnClick!)
+    console.log(element.dataset)
+    if ("copyonclick" in element.dataset) {
+        void copyToClipboard(element.dataset.copyOnClick!);
+        console.log("test");
+        navigator.clipboard.writeText(element.dataset.copyOnClick!);
     }
 });

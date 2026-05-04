@@ -3,5 +3,6 @@ export async function copyHeaders(headers: string[]): Promise<void> {
 }
 
 export async function copyToClipboard(content: string): Promise<void> {
+    console.log("lib");
     await navigator.clipboard.writeText(content);
 }
