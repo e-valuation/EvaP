@@ -110,20 +110,6 @@ $alert-colors: (
     padding-top: 0.25rem;
 }
 
-// datetimepicker adjustments
-.bootstrap-datetimepicker-widget.dropdown-menu.timepicker-sbs {
-    width: 33em;
-
-    .datepicker {
-        flex: 0 0 60%;
-        max-width: 60%;
-    }
-
-    .timepicker {
-        flex: 0 0 40%;
-    }
-}
-
 // tomselect adjustments
 .ts-wrapper.multi .ts-control > div.active {
    background-color: $component-active-bg;
