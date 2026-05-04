@@ -579,7 +579,7 @@ class TestExporters(TestCase):
             assignment=iter(assignments[idx] for idx in [0, 1, 2, 2, 0]),
             contribution__evaluation=evaluation,
             contribution__questionnaires=iter(assignments[idx].questionnaire for idx in [0, 1, 2, 2, 0]),
-            review_decision=TextAnswer.ReviewDecision.PUBLIC,
+            review_decision=TextAnswer.ReviewDecision.KEEP,
             _quantity=5,
         )
 
