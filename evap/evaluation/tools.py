@@ -176,9 +176,9 @@ def get_bool_parameter_from_url_or_session(request: HttpRequest, parameter: str,
     )
 
 
-def get_string_parameter_from_url_or_session[T_default: (typing.Any, None)](
-    request: HttpRequest, parameter: str, default: T_default = None
-) -> str | T_default:
+def get_string_parameter_from_url_or_session[TDefault: (typing.Any, None)](
+    request: HttpRequest, parameter: str, default: TDefault = None
+) -> str | TDefault:
     result = request.GET.get(parameter, None)
     if result is None:
         result = request.session.get(parameter, default)
