@@ -1,3 +1,5 @@
+import { copyToClipboard } from "./copy-to-clipboard.js";
+
 // This file contains all typescript code for the base.html template.
 
 // Fix autofocus on bootstrap modals -> Focus the first element with `autofocus` attribute
@@ -9,5 +11,16 @@ document.addEventListener("shown.bs.modal", e => {
     const autofocusEl = modalEl.querySelector<HTMLElement>("[autofocus]");
     if (autofocusEl) {
         autofocusEl.focus();
+    }
+});
+
+document.addEventListener("click", e => {
+    if (!e.target) {
+        return;
+    }
+    const element = e.target as HTMLElement;
+    if ("copyOnClick" in element.dataset) {
+        // void copyToClipboard(element.dataset.copyOnClick!);
+        navigator.clipboard.writeText(element.dataset.copyOnClick!)
     }
 });

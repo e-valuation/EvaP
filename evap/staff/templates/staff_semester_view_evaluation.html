@@ -197,6 +197,11 @@
                             </a>
                         </li>
                         <li>
+                            <a class="dropdown-item" copyOnClick="{{ evaluation.full_name }}">
+                                <span class="fas fa-fw fa-clipboard"></span> {% translate 'Copy name to clipboard' %}
+                            </a>
+                        </li>
+                        <li>
                             <a class="dropdown-item" href="{% url 'cms:evaluation_merge_selection' evaluation.id %}">
                                 <span class="fas fa-fw fa-object-group"></span> {% translate 'Merge with other evaluation' %}
                             </a>
