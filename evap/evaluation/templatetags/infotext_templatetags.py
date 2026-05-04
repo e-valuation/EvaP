@@ -6,7 +6,7 @@ register = Library()
 
 
 @register.inclusion_tag("infobox.html")
-def show_infotext(page_name):
+def show_infotext(page_name: str):
     to_page_id = {
         "contributor_index": Infotext.Page.CONTRIBUTOR_INDEX,
         "grades_pages": Infotext.Page.GRADES_PAGES,

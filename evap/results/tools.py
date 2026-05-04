@@ -273,6 +273,9 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
     return EvaluationResult(contributor_contribution_results)
 
 
+type Distribution = tuple[float, ...] | None
+
+
 def annotate_distributions_and_grades(evaluations):
     for evaluation in evaluations:
         evaluation.distribution = calculate_average_distribution(evaluation)
