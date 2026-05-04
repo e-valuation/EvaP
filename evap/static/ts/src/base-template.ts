@@ -20,6 +20,6 @@ document.addEventListener("click", e => {
     }
     const element = e.target as HTMLElement;
     if ("copyOnClick" in element.dataset) {
-        copyToClipboard(element.dataset.copyOnClick as string);
+        void copyToClipboard(element.dataset.copyOnClick!);
     }
 });
