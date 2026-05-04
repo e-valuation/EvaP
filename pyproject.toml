@@ -181,6 +181,12 @@ exclude_also = [
 packages = ["evap", "tools"]
 plugins = ["mypy_django_plugin.main"]
 
+# list from https://mypy.readthedocs.io/en/stable/existing_code.html#introduce-stricter-options
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+strict_equality = true
+
 [tool.django-stubs]
 django_settings_module = "evap.settings"
 

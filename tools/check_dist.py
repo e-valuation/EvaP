@@ -3,13 +3,15 @@
 import argparse
 import sys
 import tomllib
+from collections.abc import Iterable
 from pathlib import Path
+from typing import Any
 from zipfile import ZipFile
 
 from pathspec.patterns.gitwildmatch import GitWildMatchPattern
 
 
-def ensure_all_artifacts_included(pyproject, wheel_paths):
+def ensure_all_artifacts_included(pyproject: Any, wheel_paths: Iterable[str]) -> int:
     try:
         artifacts = pyproject["tool"]["hatch"]["build"]["artifacts"]
     except KeyError:
@@ -27,7 +29,7 @@ def ensure_all_artifacts_included(pyproject, wheel_paths):
     return status
 
 
-def main(argv):
+def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser("check_dist")
     parser.add_argument("pyproject", type=Path)
     parser.add_argument("wheels", type=Path, nargs="*")

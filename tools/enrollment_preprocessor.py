@@ -44,7 +44,7 @@ class UserCells(NamedTuple):
             field.value = str(field.value).strip()
             yield field.value
 
-    def clean_user(self):
+    def clean_user(self) -> User:
         return User(*self._clean())
 
     def update_from(self, user: User) -> bool:
@@ -56,7 +56,7 @@ class UserCells(NamedTuple):
         return changed
 
 
-def user_from_row(row: tuple[Cell, ...]):
+def user_from_row(row: tuple[Cell, ...]) -> list[User]:
     return [
         UserCells(None, *row[:3]).clean_user(),
         UserCells(*row[7:]).clean_user(),

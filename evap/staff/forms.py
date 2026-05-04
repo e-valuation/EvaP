@@ -1,5 +1,6 @@
 import logging
-from collections.abc import Iterable
+from collections.abc import Container, Iterable
+from typing import Any, cast
 
 from django import forms
 from django.contrib.auth.models import Group
@@ -7,8 +8,9 @@ from django.core.exceptions import SuspiciousOperation, ValidationError
 from django.db import transaction
 from django.db.models import Max, Q
 from django.forms.models import BaseInlineFormSet
-from django.forms.widgets import CheckboxSelectMultiple
+from django.forms.widgets import CheckboxSelectMultiple, ChoiceWidget, Widget
 from django.http.request import QueryDict
+from django.utils.safestring import SafeString
 from django.utils.text import normalize_newlines
 from django.utils.translation import gettext_lazy as _
 
@@ -37,11 +39,12 @@ from evap.results.tools import STATES_WITH_RESULT_TEMPLATE_CACHING, STATES_WITH_
 from evap.results.views import update_template_cache, update_template_cache_of_published_evaluations_in_course
 from evap.staff.tools import remove_user_from_represented_and_ccing_users
 from evap.student.models import TextAnswerWarning
+from evap.tools import assert_not_none
 
 logger = logging.getLogger(__name__)
 
 
-def disable_all_fields(form):
+def disable_all_fields(form: forms.ModelForm) -> None:
     for field in form.fields.values():
         field.disabled = True
 
@@ -53,25 +56,26 @@ class CharArrayField(forms.Field):
         "invalid_list": _("Enter a list of values."),
     }
 
-    def __init__(self, base_field, *, max_length=None, **kwargs):
+    def __init__(self, base_field: forms.Field, *, max_length: int | None = None, **kwargs) -> None:
         super().__init__(**kwargs)
         assert isinstance(base_field, forms.CharField)
         assert max_length is None
 
-    def to_python(self, value):
+    def to_python(self, value: Any) -> list[str]:
         if not value:
             return []
         if not isinstance(value, Iterable):
             raise ValidationError(self.error_messages["invalid_list"], code="invalid_list")
         return [str(val) for val in value]
 
-    def get_bound_field(self, form, field_name):
+    def get_bound_field(self, form: forms.BaseForm, field_name: str) -> "BoundCharArrayField":
         return BoundCharArrayField(form, self, field_name)
 
 
 class BoundCharArrayField(forms.BoundField):
-    def as_widget(self, widget=None, attrs=None, only_initial=False):
+    def as_widget(self, widget: Widget | None = None, attrs: Any = None, only_initial: bool = False) -> SafeString:
         widget = widget or self.field.widget
+        assert isinstance(widget, ChoiceWidget)
         # Inject all current values as choices so they don’t get discarded
         if self.value():
             widget.choices = [(value, value) for value in self.value()]
@@ -83,11 +87,11 @@ class ModelWithImportNamesFormset(forms.BaseModelFormSet):
     A form set which validates that import names are not duplicated
     """
 
-    def clean(self):
+    def clean(self) -> None:
         super().clean()
         import_names = set()
         for form in self.forms:
-            if self.can_delete and self._should_delete_form(form):
+            if self.can_delete and self._should_delete_form(form):  # type: ignore[attr-defined]
                 continue
             for import_name in form.cleaned_data.get("import_names", []):
                 if import_name.lower() in import_names:
@@ -126,13 +130,13 @@ class EvaluationParticipantCopyForm(forms.Form):
         Evaluation.objects.all(), empty_label="<empty>", required=False, label=_("Evaluation")
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         self.evaluation_selection_required = False
 
         # Here we split the evaluations by semester and create supergroups for them. We also make sure to include an empty option.
-        choices = [("", "<empty>")]
+        choices: list[tuple[str, str | list[tuple[int, str]]]] = [("", "<empty>")]
         for semester in Semester.objects.all():
             evaluation_choices = [
                 (evaluation.pk, evaluation.full_name)
@@ -141,10 +145,10 @@ class EvaluationParticipantCopyForm(forms.Form):
             if evaluation_choices:
                 choices += [(semester.name, evaluation_choices)]
 
-        self.fields["evaluation"].choices = choices
+        cast("forms.ModelChoiceField", self.fields["evaluation"]).choices = choices
         self.fields["evaluation"].widget.attrs["tomselect-no-sort"] = ""
 
-    def clean(self):
+    def clean(self) -> None:
         if self.evaluation_selection_required and self.cleaned_data.get("evaluation") is None:
             raise ValidationError(_("Please select an evaluation from the dropdown menu."))
 
@@ -161,11 +165,11 @@ class SemesterForm(forms.ModelForm):
         fields = ("name_de", "name_en", "short_name_de", "short_name_en", "cms_name", "default_course_end_date")
         localized_fields = ("default_course_end_date",)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.fields["default_course_end_date"].required = False
 
-    def save(self, commit=True):
+    def save(self, commit: bool = True) -> Semester:
         semester = super().save(commit)
         if "short_name_en" in self.changed_data or "short_name_de" in self.changed_data:
             update_template_cache(semester.evaluations.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING))
@@ -183,12 +187,12 @@ class ProgramForm(forms.ModelForm):
             "order": forms.HiddenInput(),
         }
 
-    def clean(self):
+    def clean(self) -> None:
         super().clean()
         if self.cleaned_data.get("DELETE") and not self.instance.can_be_deleted_by_manager:
             raise SuspiciousOperation("Deleting program not allowed")
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> Program:
         program = super().save(*args, **kwargs)
         if "name_en" in self.changed_data or "name_de" in self.changed_data:
             update_template_cache(
@@ -208,12 +212,12 @@ class CourseTypeForm(forms.ModelForm):
             "order": forms.HiddenInput(),
         }
 
-    def clean(self):
+    def clean(self) -> None:
         super().clean()
         if self.cleaned_data.get("DELETE") and not self.instance.can_be_deleted_by_manager:
             raise SuspiciousOperation("Deleting course type not allowed")
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> CourseType:
         course_type = super().save(*args, **kwargs)
         if "name_en" in self.changed_data or "name_de" in self.changed_data:
             update_template_cache(
@@ -233,12 +237,12 @@ class ExamTypeForm(forms.ModelForm):
             "order": forms.HiddenInput(),
         }
 
-    def clean(self):
+    def clean(self) -> None:
         super().clean()
         if self.cleaned_data.get("DELETE") and not self.instance.can_be_deleted_by_manager:
             raise SuspiciousOperation("Deleting exam type not allowed")
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> ExamType:
         exam_type = super().save(*args, **kwargs)
         if "name_en" in self.changed_data or "name_de" in self.changed_data:
             update_template_cache(
@@ -252,7 +256,7 @@ class ProgramMergeSelectionForm(forms.Form):
     main_instance = forms.ModelChoiceField(Program.objects.all(), label=_("Main program"))
     other_instance = forms.ModelChoiceField(Program.objects.all(), label=_("Other program"))
 
-    def clean(self):
+    def clean(self) -> None:
         super().clean()
         if self.cleaned_data.get("main_instance") == self.cleaned_data.get("other_instance"):
             raise ValidationError(_("You must select two different programs."))
@@ -262,7 +266,7 @@ class CourseTypeMergeSelectionForm(forms.Form):
     main_type = forms.ModelChoiceField(CourseType.objects.all(), label=_("Main type"))
     other_type = forms.ModelChoiceField(CourseType.objects.all(), label=_("Other type"))
 
-    def clean(self):
+    def clean(self) -> None:
         super().clean()
         if self.cleaned_data.get("main_type") == self.cleaned_data.get("other_type"):
             raise ValidationError(_("You must select two different course types."))
@@ -284,11 +288,11 @@ class CourseFormMixin:
             "responsibles": UserModelMultipleChoiceField,
         }
 
-    def _set_responsibles_queryset(self, existing_course=None):
+    def _set_responsibles_queryset(self, existing_course: Course | None = None) -> None:
         queryset = UserProfile.objects.exclude(is_active=False)
         if existing_course:
             queryset = (queryset | existing_course.responsibles.all()).distinct()
-        self.fields["responsibles"].queryset = queryset
+        self.fields["responsibles"].queryset = queryset  # type: ignore[attr-defined]
 
     def validate_unique(self):
         super().validate_unique()
@@ -303,24 +307,24 @@ class CourseFormMixin:
                     self.add_error(name_field, e)
 
 
-class CourseForm(CourseFormMixin, forms.ModelForm):  # type: ignore[misc]
+class CourseForm(CourseFormMixin, forms.ModelForm):
     semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self._set_responsibles_queryset(self.instance if self.instance.pk else None)
         if not self.instance.can_be_edited_by_manager:
             disable_all_fields(self)
 
 
-class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore[misc]
+class CourseCopyForm(CourseFormMixin, forms.ModelForm):
     semester = forms.ModelChoiceField(Semester.objects.all())
     vote_start_datetime = forms.DateTimeField(label=_("Start of evaluations"), localize=True)
     vote_end_date = forms.DateField(label=_("Last day of evaluations"), localize=True)
 
     field_order = ["semester"]
 
-    def __init__(self, data=None, *, instance: Course):
+    def __init__(self, data: dict[str, Any] | None = None, *, instance: Course) -> None:
         self.old_course = instance
         opts = self._meta
         initial = forms.models.model_to_dict(instance, opts.fields, opts.exclude)
@@ -375,7 +379,7 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore[misc]
     }
 
     @transaction.atomic()
-    def save(self, commit=True) -> Course:
+    def save(self, commit: bool = True) -> Course:
         new_course: Course = super().save()
         # we need to create copies of evaluations and their participation as well
         for old_evaluation in self.old_course.evaluations.all():
@@ -523,7 +527,7 @@ class EvaluationForm(forms.ModelForm):
             self.add_error("main_language", _("You have to set a main language for this evaluation."))
         return main_language
 
-    def clean(self):
+    def clean(self) -> None:
         super().clean()
 
         vote_start_datetime = self.cleaned_data.get("vote_start_datetime")
@@ -532,12 +536,12 @@ class EvaluationForm(forms.ModelForm):
             self.add_error("vote_start_datetime", "")
             self.add_error("vote_end_date", _("The first day of evaluation must be before the last one."))
 
-    def save(self, *args, **kw):
+    def save(self, *args, **kw) -> Evaluation:
         evaluation = super().save(*args, **kw)
         general_contribution = evaluation.ensure_general_contribution()
 
-        selected_questionnaires = self.cleaned_data.get("general_questionnaires") | self.cleaned_data.get(
-            "dropout_questionnaires"
+        selected_questionnaires = (
+            self.cleaned_data["general_questionnaires"] | self.cleaned_data["dropout_questionnaires"]
         )
         removed_questionnaires = set(general_contribution.questionnaires.all()) - set(selected_questionnaires)
         general_contribution.remove_answers_to_questionnaires(removed_questionnaires)
@@ -552,7 +556,7 @@ class EvaluationForm(forms.ModelForm):
 
 
 class EvaluationCopyForm(EvaluationForm):
-    def __init__(self, data=None, instance=None):
+    def __init__(self, data=None, instance=None) -> None:
         opts = self._meta
         initial = forms.models.model_to_dict(instance, opts.fields, opts.exclude)
         if instance.general_contribution is not None:
@@ -569,7 +573,7 @@ class ExamEvaluationForm(forms.Form):
     )
     exam_type = forms.ModelChoiceField(ExamType.objects.all(), required=True, label=_("Exam type"))
 
-    def __init__(self, *args, evaluation=None, form_id=None, **kwargs):
+    def __init__(self, *args, evaluation=None, form_id=None, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         if form_id is not None:
             for field in self.fields.values():
@@ -642,12 +646,12 @@ class ContributionForm(forms.ModelForm):
             # form is used as read-only evaluation view
             disable_all_fields(self)
 
-    def clean(self):
+    def clean(self) -> None:
         if not self.cleaned_data.get("does_not_contribute") and not self.cleaned_data.get("questionnaires"):
             self.add_error("does_not_contribute", _("Select either this option or at least one questionnaire!"))
 
     @property
-    def show_delete_button(self):
+    def show_delete_button(self) -> bool:
         if self.instance.pk is None:
             return True  # not stored in the DB. Required so temporary instances in the formset can be deleted.
 
@@ -684,11 +688,11 @@ class EvaluationEmailForm(forms.Form):
     plain_content = forms.CharField(widget=forms.Textarea(), label=_("Plain Text"))
     html_content = forms.CharField(widget=forms.Textarea(), label=_("HTML"))
 
-    def __init__(self, *args, evaluation, export=False, **kwargs):
+    def __init__(self, *args, evaluation: Evaluation, export: bool = False, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.template = EmailTemplate()
         self.evaluation = evaluation
-        self.recipient_groups = None
+        self.recipient_groups: Container[EmailTemplate.Recipients] | None = None
         self.fields["subject"].required = not export
         self.fields["plain_content"].required = not export
         self.fields["html_content"].required = False
@@ -701,9 +705,9 @@ class EvaluationEmailForm(forms.Form):
 
         return self.cleaned_data
 
-    def email_addresses(self):
+    def email_addresses(self) -> set[str]:
         recipients = self.template.recipient_list_for_evaluation(
-            self.evaluation, self.recipient_groups, filter_users_in_cc=False
+            self.evaluation, assert_not_none(self.recipient_groups), filter_users_in_cc=False
         )
         return {user.email for user in recipients if user.email}
 
@@ -784,7 +788,7 @@ class QuestionnaireForm(forms.ModelForm):
 
 
 class AtLeastOneFormset(BaseInlineFormSet):
-    def clean(self):
+    def clean(self) -> None:
         super().clean()
         count = 0
         for form in self.forms:
@@ -796,13 +800,13 @@ class AtLeastOneFormset(BaseInlineFormSet):
 
 
 class ContributionFormset(BaseInlineFormSet):
-    def __init__(self, data=None, **kwargs):
+    def __init__(self, data=None, **kwargs) -> None:
         data = self.handle_moved_contributors(data, **kwargs)
         super().__init__(data, **kwargs)
         if self.instance.pk is not None:
             self.queryset = self.instance.contributions.exclude(contributor=None)
 
-    def handle_deleted_and_added_contributions(self):
+    def handle_deleted_and_added_contributions(self) -> None:
         """
         If a contributor got removed and added in the same formset, django would usually complain
         when validating the added form, as it does not check whether the existing contribution was deleted.
@@ -875,7 +879,7 @@ class ContributionFormset(BaseInlineFormSet):
                     break
         return data
 
-    def clean(self):
+    def clean(self) -> None:
         self.handle_deleted_and_added_contributions()
         found_contributor = set()
         for form in self.forms:
@@ -898,7 +902,7 @@ class ContributionFormset(BaseInlineFormSet):
 
 
 class ContributionCopyFormset(ContributionFormset):
-    def __init__(self, data, instance, new_instance):
+    def __init__(self, data, instance: Contribution, new_instance: Evaluation) -> None:
         # First, pass the old evaluation instance to create a ContributionCopyForm for each contribution
         super().__init__(data, instance=instance, form_kwargs={"evaluation": new_instance})
         # Then, use the new evaluation instance as target for validation and saving purposes
@@ -921,7 +925,7 @@ class QuestionForm(forms.ModelForm):
             "text_en": forms.Textarea(attrs={"rows": 2}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         if self.instance.pk and self.instance.type in [QuestionType.TEXT, QuestionType.HEADING] and not self.data:
             self.fields["allows_additional_textanswers"].disabled = True  # disable only for frontend; validate in clean
@@ -948,8 +952,8 @@ class QuestionAssignmentForm(forms.ModelForm):
             "order": forms.HiddenInput(),
         }
 
-    def __init__(self, *args, instance=None, **kwargs):
-        super().__init__(*args, instance=instance, **kwargs)
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
         if hasattr(self.instance, "question"):
             self.question_form = QuestionForm(*args, instance=self.instance.question, **kwargs)
         else:
@@ -970,7 +974,7 @@ class QuestionAssignmentForm(forms.ModelForm):
 
 
 class QuestionnairesAssignForm(forms.Form):
-    def __init__(self, *args, course_types, exam_types, **kwargs):
+    def __init__(self, *args, course_types: Iterable[CourseType], exam_types: Iterable[ExamType], **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().exclude(
@@ -1029,12 +1033,14 @@ class UserForm(forms.ModelForm):
             "cc_users": UserModelMultipleChoiceField,
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.user_with_same_email = None
+        self.user_with_same_email: UserProfile | None = None
         evaluations_in_active_semester = Evaluation.objects.filter(course__semester=Semester.active_semester())
-        self.fields["evaluations_participating_in"].queryset = evaluations_in_active_semester
-        self.remove_messages = []
+        cast(
+            "forms.ModelMultipleChoiceField", self.fields["evaluations_participating_in"]
+        ).queryset = evaluations_in_active_semester
+        self.remove_messages: list[str] = []
         if self.instance.pk:
             self.fields["evaluations_participating_in"].initial = evaluations_in_active_semester.filter(
                 participants=self.instance
@@ -1060,7 +1066,7 @@ class UserForm(forms.ModelForm):
 
         return evaluations_participating_in
 
-    def clean_email(self):
+    def clean_email(self) -> str | None:
         email = clean_email(self.cleaned_data.get("email"))
         if email is None:
             return None

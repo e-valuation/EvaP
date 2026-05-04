@@ -2,6 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
+from evap.evaluation.models import UserProfile
 from evap.grades.models import GradeDocument
 
 
@@ -28,7 +29,7 @@ class GradeDocumentForm(forms.ModelForm):
             self.fields["last_modified_time_2"].widget = forms.HiddenInput()
             self.fields["last_modified_user_2"].widget = forms.HiddenInput()
 
-    def clean_description_de(self):
+    def clean_description_de(self) -> str | None:
         description_de = self.cleaned_data.get("description_de")
         if (
             GradeDocument.objects.filter(course=self.instance.course, description_de=description_de)
@@ -38,7 +39,7 @@ class GradeDocumentForm(forms.ModelForm):
             raise ValidationError(_("This description for a grade document was already used for this course."))
         return description_de
 
-    def clean_description_en(self):
+    def clean_description_en(self) -> str | None:
         description_en = self.cleaned_data.get("description_en")
         if (
             GradeDocument.objects.filter(course=self.instance.course, description_en=description_en)
@@ -48,6 +49,6 @@ class GradeDocumentForm(forms.ModelForm):
             raise ValidationError(_("This description for a grade document was already used for this course."))
         return description_en
 
-    def save(self, *args, modifying_user, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, modifying_user: UserProfile | None, **kwargs) -> None:  # type: ignore[override] # pylint: disable=arguments-differ
         self.instance.last_modified_user = modifying_user
         super().save(*args, **kwargs)

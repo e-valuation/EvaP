@@ -4,6 +4,7 @@ from collections import OrderedDict
 from collections.abc import Iterable
 from dataclasses import dataclass
 from fractions import Fraction
+from typing import TYPE_CHECKING, cast
 
 from django.conf import settings
 from django.contrib import messages
@@ -37,6 +38,10 @@ from evap.results.tools import (
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.models import TextAnswerWarning
 from evap.student.tools import answer_field_id
+
+if TYPE_CHECKING:
+    from evap.evaluation.models import UserProfile
+
 
 SUCCESS_MAGIC_STRING = "vote submitted successfully"
 
@@ -76,14 +81,13 @@ class GlobalEvaluationProgress:
         if not settings.GLOBAL_EVALUATION_PROGRESS_REWARDS:
             return None
 
-        if not Semester.active_semester():
+        if not (active_semester := Semester.active_semester()):
             return None
 
         language = get_language()
 
         evaluations = (
-            Semester.active_semester()
-            .evaluations.exclude(state__lt=Evaluation.State.APPROVED)
+            active_semester.evaluations.exclude(state__lt=Evaluation.State.APPROVED)
             .exclude(is_rewarded=False)
             .exclude(id__in=settings.GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS)
             .exclude(course__type__id__in=settings.GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS)
@@ -358,7 +362,7 @@ def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> Htt
     if dropout and not evaluation.is_dropout_allowed:
         raise SuspiciousOperation("Dropping out is not allowed")
 
-    if not evaluation.can_be_voted_for_by(request.user):
+    if not evaluation.can_be_voted_for_by(cast("UserProfile", request.user)):
         raise PermissionDenied
 
     form_groups = get_vote_page_form_groups(request, evaluation, preview=False, dropout=dropout)
@@ -390,6 +394,7 @@ def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> Htt
                                 contribution=contribution, assignment=assignment, answer=value
                             )
                     else:
+                        assert isinstance(question.answer_class, RatingAnswerCounter)
                         if value != NO_ANSWER:
                             answer_counter, __ = question.answer_class.objects.get_or_create(
                                 contribution=contribution, assignment=assignment, answer=value
