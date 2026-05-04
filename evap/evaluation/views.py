@@ -3,14 +3,16 @@ from datetime import date, timedelta
 
 from django.conf import settings
 from django.contrib import auth, messages
-from django.core.exceptions import SuspiciousOperation
+from django.core.exceptions import BadRequest, SuspiciousOperation
 from django.core.mail import EmailMessage
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.db.models import Q, QuerySet
+from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.encoding import iri_to_uri
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
+from django.views import View
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.http import require_POST
 from django.views.i18n import set_language
@@ -240,3 +242,22 @@ def set_startpage(request):
     user.save()
 
     return redirect("evaluation:index")
+
+
+class UserProfileOptionsBaseView(View):
+    @classmethod
+    def get_queryset(cls, request: HttpRequest, *args, **kwargs) -> QuerySet[UserProfile]:
+        return UserProfile.objects.all()
+
+    def get(self, request: HttpRequest, *args, **kwargs) -> JsonResponse:
+        query = request.GET.get("query")
+        if query is None:
+            raise BadRequest("Please provide a search query")
+        items = self.get_queryset(request).filter(
+            Q(first_name_given__trigram_similar=query)
+            | Q(first_name_chosen__trigram_similar=query)
+            | Q(last_name__trigram_similar=query)
+            | Q(email__trigram_similar=query)
+        )
+        options = [{"id": item.pk, "text": item.full_name_with_additional_info} for item in items]
+        return JsonResponse({"options": options})
