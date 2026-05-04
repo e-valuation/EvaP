@@ -181,6 +181,7 @@ def get_string_parameter_from_url_or_session(request: HttpRequest, parameter: st
 @typing.overload
 def get_string_parameter_from_url_or_session(request: HttpRequest, parameter: str, default: str) -> str: ...
 
+
 def get_string_parameter_from_url_or_session(request: HttpRequest, parameter: str, default=None):
     result = request.GET.get(parameter, None)
     if result is None:
