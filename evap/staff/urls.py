@@ -106,7 +106,7 @@ urlpatterns = [
          name="user_profile_options"),
     path("user_profiles/participants/", views.ParticipantsUserProfileSearchView.as_view(),
          name="participant_options"),
-    path("user_profiles/participants/<int:evaluation>", views.ParticipantsUserProfileSearchView.as_view(),
+    path("user_profiles/participants/<int:evaluation_id>", views.ParticipantsUserProfileSearchView.as_view(),
          name="participant_options"),
     path("user_profiles/contributor/", views.ContributorUserProfileSearchView.as_view(),
          name="fetch_contributor_user_profiles"),
