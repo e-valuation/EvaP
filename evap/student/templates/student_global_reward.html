@@ -5,7 +5,7 @@
         <div class="card-header d-flex">
             {% translate "Fundraising" %}
             {% if global_rewards.last_vote_datetime %}
-                <div class="ms-auto fw-normal fst-italic">
+                <div class="fw-normal fst-italic">
                     {% blocktranslate trimmed with time_interval=global_rewards.last_vote_datetime|timesince %}
                         Last evaluation: {{ time_interval }} ago
                     {% endblocktranslate %}
