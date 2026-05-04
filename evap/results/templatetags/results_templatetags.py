@@ -3,8 +3,10 @@ from typing import Any
 
 from django.template import Library
 
+from evap.evaluation.models import Evaluation
 from evap.results.tools import (
     STATES_WITH_RESULT_TEMPLATE_CACHING,
+    Distribution,
     RatingResult,
     get_grade_color,
     normalized_distribution,
@@ -14,39 +16,39 @@ register = Library()
 
 
 @register.filter(name="gradecolor")
-def gradecolor(grade):
+def gradecolor(grade: float) -> str:
     return "rgb({}, {}, {})".format(*get_grade_color(grade))  # pylint: disable=consider-using-f-string
 
 
 @register.filter(name="normalized_distribution")
-def norm_distribution(distribution):
+def norm_distribution(distribution: Distribution) -> Distribution:
     return normalized_distribution(distribution)
 
 
 @register.filter(name="evaluation_results_cache_timeout")
-def evaluation_results_cache_timeout(evaluation):
+def evaluation_results_cache_timeout(evaluation: Evaluation) -> int | None:
     if evaluation.state in STATES_WITH_RESULT_TEMPLATE_CACHING:
         return None  # cache forever
     return 0  # don't cache at all
 
 
 @register.filter(name="participationclass")
-def participationclass(number_of_voters, number_of_participants):
+def participationclass(number_of_voters: int, number_of_participants: int) -> int:
     return round((number_of_voters / number_of_participants) * 10)
 
 
 @register.filter
-def has_answers(rating_result: RatingResult):
+def has_answers(rating_result: RatingResult) -> bool:
     return RatingResult.has_answers(rating_result)
 
 
 @register.filter
-def is_published(rating_result: RatingResult):
+def is_published(rating_result: RatingResult) -> bool:
     return RatingResult.is_published(rating_result)
 
 
 @register.filter
-def voters_order(evaluation) -> str:
+def voters_order(evaluation: Evaluation) -> str:
     """float to string conversion done in python to circumvent localization breaking number parsing"""
     return str(evaluation.voter_ratio)
 
