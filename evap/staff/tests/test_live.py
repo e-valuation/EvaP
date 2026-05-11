@@ -324,6 +324,35 @@ class QuestionnaireFormLiveTest(LiveServerTest):
             row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").get_attribute("disabled")
         )
 
+    def test_empty_extra_question_is_not_touched_for_dropout_questionnaire(self):
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
+        baker.make(
+            QuestionAssignment,
+            questionnaire=questionnaire,
+            question__type=QuestionType.POSITIVE_LIKERT,
+            counts_for_grade=False,
+        )
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.reverse("staff:questionnaire_edit", args=[questionnaire.pk]))
+
+        self.wait.until(
+            lambda driver: len(driver.find_elements(By.CSS_SELECTOR, "#question_table tbody tr.sortable")) >= 2
+        )
+        rows = [
+            row
+            for row in self.selenium.find_elements(By.CSS_SELECTOR, "#question_table tbody tr.sortable")
+            if row.is_displayed()
+        ]
+        extra_row = rows[-1]
+
+        type_select = extra_row.find_element(By.CSS_SELECTOR, "select[id$='-type']")
+        counts_for_grade_checkbox = extra_row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']")
+
+        self.assertEqual(type_select.get_attribute("value"), "")
+        self.assertFalse(counts_for_grade_checkbox.get_attribute("disabled"))
+        self.assertTrue(counts_for_grade_checkbox.is_selected())
+
 
 class TextAnswerEditLiveTest(LiveServerTest):
     def test_edit_textanswer_redirect(self):

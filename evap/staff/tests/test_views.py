@@ -3372,6 +3372,14 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
         self.change_question().follow()
         self.assert_question_change(self.question)
 
+    def test_empty_extra_question_is_not_saved(self) -> None:
+        page = self.app.get(self.url, user=self.manager)
+        form = page.forms["questionnaire-form"]
+
+        form.submit().follow()
+
+        self.assertEqual(self.questionnaire.question_assignments.count(), 1)
+
     def test_copy_on_write_used_question(self) -> None:
         baker.make(QuestionAssignment, question=self.question)
 
