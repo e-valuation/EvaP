@@ -267,7 +267,7 @@ class QuestionnaireFormLiveTest(LiveServerTest):
             )
 
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        baker.make(Question, questionnaire=questionnaire, type=QuestionType.POSITIVE_LIKERT)
+        baker.make(QuestionAssignment, questionnaire=questionnaire, question__type=QuestionType.POSITIVE_LIKERT)
 
         with self.enter_staff_mode():
             self.selenium.get(self.reverse("staff:questionnaire_edit", args=[questionnaire.pk]))
@@ -305,7 +305,7 @@ class QuestionnaireFormLiveTest(LiveServerTest):
 
     def test_questionnaire_type_disabling_logic(self):
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        baker.make(Question, questionnaire=questionnaire, type=QuestionType.POSITIVE_LIKERT)
+        baker.make(QuestionAssignment, questionnaire=questionnaire, question__type=QuestionType.POSITIVE_LIKERT)
 
         with self.enter_staff_mode():
             self.selenium.get(self.reverse("staff:questionnaire_edit", args=[questionnaire.pk]))
