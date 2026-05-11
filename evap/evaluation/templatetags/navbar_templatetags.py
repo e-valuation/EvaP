@@ -1,14 +1,15 @@
 from django.conf import settings
+from django.contrib.auth.models import AnonymousUser
 from django.db.models import Q
 from django.template import Library
 
-from evap.evaluation.models import Semester
+from evap.evaluation.models import Semester, UserProfile
 
 register = Library()
 
 
 @register.inclusion_tag("navbar.html")
-def include_navbar(user, language):
+def include_navbar(user: UserProfile | AnonymousUser, language: str):
     semesters_with_unarchived_results_or_grade_documents = Semester.objects.filter(
         Q(results_are_archived=False) | Q(grade_documents_are_deleted=False)
     )
