@@ -1183,54 +1183,41 @@ class QuestionnaireTests(TestCase):
         self.assertRaises(ValidationError, questionnaire.clean)
 
     def test_save_for_text_and_heading_question_type(self):
-        questionaire = baker.make(Questionnaire)
         # Use prepare() instead of make() to test Question.save() method behavior
         question_text = baker.prepare(
             Question,
-            questionnaire=questionaire,
             type=QuestionType.TEXT,
             allows_additional_textanswers=True,
-            counts_for_grade=True,
         )
         question_heading = baker.prepare(
             Question,
-            questionnaire=questionaire,
             type=QuestionType.HEADING,
             allows_additional_textanswers=True,
-            counts_for_grade=True,
         )
         question_rating = baker.prepare(
             Question,
-            questionnaire=questionaire,
             type=QuestionType.NEGATIVE_LIKERT,
             allows_additional_textanswers=True,
-            counts_for_grade=True,
         )
 
         question_rating.save()
         question_rating.refresh_from_db()
         self.assertEqual(question_rating.allows_additional_textanswers, True)
-        self.assertEqual(question_rating.counts_for_grade, True)
 
-        # Check if setting allows_additional_textanswers and counts_for_grade to False in the save method works
+        # Check if setting allows_additional_textanswers to False in the save method works
         question_rating.type = QuestionType.TEXT
         question_rating.save(update_fields=["type"])
         question_rating.refresh_from_db()
         self.assertEqual(question_rating.allows_additional_textanswers, False)
-        self.assertEqual(question_rating.counts_for_grade, False)
 
         with patch.object(models.Model, "save") as mock_save:
             question_text.save(update_fields=["text_de"])
             mock_save.assert_called_once()
             args, kwargs = mock_save.call_args
-            self.assertEqual(
-                set(kwargs["update_fields"]), {"allows_additional_textanswers", "counts_for_grade", "text_de"}
-            )
+            self.assertEqual(set(kwargs["update_fields"]), {"allows_additional_textanswers", "text_de"})
 
             mock_save.reset_mock()
             question_heading.save(update_fields=["text_de"])
             mock_save.assert_called_once()
             args, kwargs = mock_save.call_args
-            self.assertEqual(
-                set(kwargs["update_fields"]), {"allows_additional_textanswers", "counts_for_grade", "text_de"}
-            )
+            self.assertEqual(set(kwargs["update_fields"]), {"allows_additional_textanswers", "text_de"})

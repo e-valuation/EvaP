@@ -458,10 +458,16 @@ class TestCalculateAverageDistribution(TestCase):
 
     def test_average_questions_distribution(self):
         grade_assignment = baker.make(
-            QuestionAssignment, questionnaire=self.questionnaire, question__type=QuestionType.GRADE, counts_for_grade=True
+            QuestionAssignment,
+            questionnaire=self.questionnaire,
+            question__type=QuestionType.GRADE,
+            counts_for_grade=True,
         )
         non_counting_grade_assignment = baker.make(
-            QuestionAssignment, questionnaire=self.questionnaire, question__type=QuestionType.GRADE, counts_for_grade=False
+            QuestionAssignment,
+            questionnaire=self.questionnaire,
+            question__type=QuestionType.GRADE,
+            counts_for_grade=False,
         )
         likert_assignment = baker.make(
             QuestionAssignment,
