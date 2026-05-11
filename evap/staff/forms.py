@@ -954,6 +954,15 @@ class QuestionAssignmentForm(forms.ModelForm):
             self.question_form = QuestionForm(*args, instance=self.instance.question, **kwargs)
         else:
             self.question_form = QuestionForm(*args, **kwargs)
+        if (
+            self.instance.pk
+            and not self.data
+            and (
+                self.instance.questionnaire.is_dropout
+                or self.instance.question.type in [QuestionType.TEXT, QuestionType.HEADING]
+            )
+        ):
+            self.fields["counts_for_grade"].disabled = True  # disable only for frontend; validate in clean
 
     def clean(self):
         super().clean()
