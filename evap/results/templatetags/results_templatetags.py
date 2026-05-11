@@ -34,6 +34,8 @@ def evaluation_results_cache_timeout(evaluation: Evaluation) -> int | None:
 
 @register.filter(name="participationclass")
 def participationclass(number_of_voters: int, number_of_participants: int) -> int:
+    if number_of_participants == 0:
+        return 0
     return round((number_of_voters / number_of_participants) * 10)
 
 

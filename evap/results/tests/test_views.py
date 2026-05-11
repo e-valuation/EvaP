@@ -983,3 +983,17 @@ class TestTextAnswerExportView(WebTest):
             self.app.get(self.url + "?contributor_id=", user=self.reviewer, status=400)
             self.app.get(self.url + "?contributor_id=asd", user=self.reviewer, status=400)
             export_method.assert_not_called()
+
+
+class TestParticipationClassFilter(TestCase):
+    def test_handles_zero_participants(self):
+        from evap.results.templatetags.results_templatetags import participationclass
+
+        self.assertEqual(participationclass(0, 0), 0)
+
+    def test_returns_rounded_class(self):
+        from evap.results.templatetags.results_templatetags import participationclass
+
+        self.assertEqual(participationclass(0, 10), 0)
+        self.assertEqual(participationclass(5, 10), 5)
+        self.assertEqual(participationclass(10, 10), 10)
