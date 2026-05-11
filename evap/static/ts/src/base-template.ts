@@ -14,15 +14,8 @@ document.addEventListener("shown.bs.modal", e => {
     }
 });
 
-document.addEventListener("click", e => {
-    if (!e.target) {
-        return;
-    }
-    const element = e.target as HTMLElement;
-    console.log(element.dataset)
-    if ("copyonclick" in element.dataset) {
-        void copyToClipboard(element.dataset.copyOnClick!);
-        console.log("test");
-        navigator.clipboard.writeText(element.dataset.copyOnClick!);
-    }
-});
+for (const element of document.querySelectorAll<HTMLElement>("[data-copy-on-click]")) {
+    element.addEventListener("click", () => {
+        copyToClipboard(element.dataset.copyOnClick!);
+    });
+}
