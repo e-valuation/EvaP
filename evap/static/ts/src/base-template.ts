@@ -16,6 +16,6 @@ document.addEventListener("shown.bs.modal", e => {
 
 for (const element of document.querySelectorAll<HTMLElement>("[data-copy-on-click]")) {
     element.addEventListener("click", () => {
-        copyToClipboard(element.dataset.copyOnClick!);
+        void copyToClipboard(element.dataset.copyOnClick!);
     });
 }
