@@ -915,7 +915,7 @@ class ContributionCopyFormset(ContributionFormset):
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
-        fields = ("text_de", "text_en", "type", "allows_additional_textanswers", "counts_for_grade",)
+        fields = ("text_de", "text_en", "type", "allows_additional_textanswers")
         widgets = {
             "text_de": forms.Textarea(attrs={"rows": 2}),
             "text_en": forms.Textarea(attrs={"rows": 2}),
@@ -928,12 +928,8 @@ class QuestionForm(forms.ModelForm):
 
     def clean(self):
         super().clean()
-        questionnaire = self.cleaned_data.get("questionnaire")
-        if questionnaire and questionnaire.is_dropout:
-            self.cleaned_data["counts_for_grade"] = False
         if self.cleaned_data.get("type") in [QuestionType.TEXT, QuestionType.HEADING]:
             self.cleaned_data["allows_additional_textanswers"] = False
-            self.cleaned_data["counts_for_grade"] = False
         return self.cleaned_data
 
     def save(self, *args, **kwargs) -> Question:
@@ -947,7 +943,7 @@ class QuestionAssignmentForm(forms.ModelForm):
 
     class Meta:
         model = QuestionAssignment
-        fields = ("order", "questionnaire", "question")
+        fields = ("order", "questionnaire", "question", "counts_for_grade")
         widgets = {
             "order": forms.HiddenInput(),
         }
@@ -959,10 +955,15 @@ class QuestionAssignmentForm(forms.ModelForm):
         else:
             self.question_form = QuestionForm(*args, **kwargs)
 
-    def clean(self) -> None:
+    def clean(self):
         super().clean()
         if not self.question_form.is_valid():
             raise forms.ValidationError([])  # invalidate this form without message; errors are shown separately
+        questionnaire = self.cleaned_data.get("questionnaire") or getattr(self.instance, "questionnaire", None)
+        question_type = self.question_form.cleaned_data.get("type")
+        if questionnaire and questionnaire.is_dropout or question_type in [QuestionType.TEXT, QuestionType.HEADING]:
+            self.cleaned_data["counts_for_grade"] = False
+        return self.cleaned_data
 
     def has_changed(self) -> bool:
         return super().has_changed() or self.question_form.has_changed()
