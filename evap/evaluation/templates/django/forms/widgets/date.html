@@ -1,10 +1,10 @@
 <div class="input-group" id="datepicker1" data-td-target-input="nearest" data-td-target-toggle="nearest">
-    <input id="datetimepicker1Input" 
-        type="text" 
-        class="form-control" 
+    <input id="datetimepicker1Input"
+        type="text"
+        class="form-control"
         data-td-target="#datetimepicker1"
         name="{{ widget.name }}"
-        {% if widget.value and widget.value != 'None' %} 
+        {% if widget.value and widget.value != 'None' %}
             value="{{ widget.value }}"{% endif %}
         {% include 'django/forms/widgets/attrs.html' %}
     />
