@@ -246,6 +246,7 @@ class QuestionnaireLiveTest(LiveServerTest):
         self.assertFalse(top_element.is_displayed())
         self.assertTrue(bottom_element.is_displayed())
 
+
 class QuestionnaireFormLiveTest(LiveServerTest):
     def test_question_type_disabling_logic(self):
         def assert_type_allows(row, type_select, question_type, additional_textanswers, counts_for_grade):

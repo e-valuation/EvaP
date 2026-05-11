@@ -37,6 +37,7 @@ from evap.staff.forms import (
     EvaluationCopyForm,
     EvaluationEmailForm,
     EvaluationForm,
+    QuestionAssignmentForm,
     QuestionForm,
     QuestionnaireForm,
     UserForm,
@@ -1192,12 +1193,18 @@ class QuestionFormTests(TestCase):
 
     def test_clean_for_dropout_questionnaire(self):
         dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
-        question = baker.make(Question, questionnaire=dropout_questionnaire, type=QuestionType.POSITIVE_LIKERT)
+        assignment = baker.make(
+            QuestionAssignment,
+            questionnaire=dropout_questionnaire,
+            question__type=QuestionType.POSITIVE_LIKERT,
+            counts_for_grade=True,
+        )
 
-        form_data = get_form_data_from_instance(QuestionForm, question)
+        form_data = get_form_data_from_instance(QuestionAssignmentForm, assignment)
+        form_data.update(get_form_data_from_instance(QuestionForm, assignment.question))
         form_data["counts_for_grade"] = True
 
-        form = QuestionForm(form_data, instance=question)
+        form = QuestionAssignmentForm(form_data, instance=assignment)
         # The clean method should override counts_for_grade to False
         self.assertTrue(form.is_valid())
         self.assertFalse(form.cleaned_data["counts_for_grade"])
