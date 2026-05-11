@@ -12,13 +12,13 @@
                 </div>
             {% endif %}
             <h3 class="pt-2">
-                <span class="btn-clipboard" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Click to copy name' %}" data-copy-on-click="{{ evaluation.full_name }}">
-                    {% if evaluation_form.instance.id %}
+                {% if evaluation_form.instance.id %}
+                    <span class="btn-clipboard" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Click to copy name' %}" data-copy-on-click="{{ evaluation.full_name }}">
                         {{ evaluation.full_name }} ({{ evaluation.course.semester.name }})
-                    {% else %}
-                        {% translate 'Create evaluation' %}
-                    {% endif %}
-                </span>
+                    </span>
+                {% else %}
+                    {% translate 'Create evaluation' %}
+                {% endif %}
             </h3>
             {% if evaluation_form.instance.id %}
                 <div class="mb-2">
