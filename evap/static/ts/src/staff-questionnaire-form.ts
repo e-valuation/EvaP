@@ -47,6 +47,10 @@ export class StaffQuestionnaireForm {
         const questionTypeCell = target.closest("td.question-type");
         if (questionTypeCell && target.matches("select")) {
             const questionTypeSelect = target as HTMLSelectElement;
+            if (questionTypeSelect.value === "") {
+                return;
+            }
+
             const questionType = saneParseInt(questionTypeSelect.value);
 
             const checkboxes = questionTypeCell.querySelectorAll("input[type=checkbox]");
