@@ -18,8 +18,8 @@
             <link rel="stylesheet" href="{% static 'tempus-dominus/tempus-dominus.min.css' %}" />
             <script src="{% static 'js/popper.min.js' %}"></script>
             <script src="{% static 'tempus-dominus/tempus-dominus.min.js' %}"></script>
-            <script src="{% static 'js/tempus-dominus-date-init.js' %}"></script>
-            <script src="{% static 'js/tempus-dominus-datetime-init.js' %}"></script>
+            <script type="module" src="{% static 'js/tempus-dominus-date-init.js' %}"></script>
+            <script type="module" src="{% static 'js/tempus-dominus-datetime-init.js' %}"></script>
             {% if debug %}
                 <link rel="icon" type="image/png" sizes="64x64" href="{% static 'images/favicon_gray.png' %}" />
             {% else %}

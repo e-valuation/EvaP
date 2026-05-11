@@ -1,4 +1,4 @@
-/// <reference path="./tempus-dominus.d.ts" />
+import { tempusDominus } from "./tempus-dominus.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     const pickerElements = document.querySelectorAll<HTMLElement>("[id^='datetimepicker']");
