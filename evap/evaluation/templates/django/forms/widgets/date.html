@@ -1,14 +1,14 @@
 <div class="input-group" id="datepicker1" data-td-target-input="nearest" data-td-target-toggle="nearest">
-    <input id="datetimepicker1Input"
+    <input id="datetimepickerInput"
         type="text"
         class="form-control"
-        data-td-target="#datetimepicker1"
+        data-td-target="#datetimepicker"
         name="{{ widget.name }}"
         {% if widget.value and widget.value != 'None' %}
             value="{{ widget.value }}"{% endif %}
         {% include 'django/forms/widgets/attrs.html' %}
     />
-    <span class="input-group-text" data-td-target="#datetimepicker1" data-td-toggle="datetimepicker">
+    <span class="input-group-text" data-td-target="#datetimepicker" data-td-toggle="datetimepicker">
         <i class="fas fa-calendar"></i>
     </span>
 </div>
