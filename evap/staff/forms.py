@@ -8,7 +8,7 @@ from django.core.exceptions import SuspiciousOperation, ValidationError
 from django.db import transaction
 from django.db.models import Max, Q
 from django.forms.models import BaseInlineFormSet
-from django.forms.widgets import CheckboxSelectMultiple, ChoiceWidget, Widget
+from django.forms.widgets import CheckboxSelectMultiple, Widget
 from django.http.request import QueryDict
 from django.utils.safestring import SafeString
 from django.utils.text import normalize_newlines
@@ -75,9 +75,8 @@ class CharArrayField(forms.Field):
 class BoundCharArrayField(forms.BoundField):
     def as_widget(self, widget: Widget | None = None, attrs: Any = None, only_initial: bool = False) -> SafeString:
         widget = widget or self.field.widget
-        assert isinstance(widget, ChoiceWidget)
         # Inject all current values as choices so they don’t get discarded
-        if self.value():
+        if self.value() and hasattr(widget, "choices"):
             widget.choices = [(value, value) for value in self.value()]
         return super().as_widget(widget, attrs, only_initial)
 
@@ -902,7 +901,7 @@ class ContributionFormset(BaseInlineFormSet):
 
 
 class ContributionCopyFormset(ContributionFormset):
-    def __init__(self, data, instance: Contribution, new_instance: Evaluation) -> None:
+    def __init__(self, data, instance: Evaluation, new_instance: Evaluation) -> None:
         # First, pass the old evaluation instance to create a ContributionCopyForm for each contribution
         super().__init__(data, instance=instance, form_kwargs={"evaluation": new_instance})
         # Then, use the new evaluation instance as target for validation and saving purposes
@@ -955,9 +954,8 @@ class QuestionAssignmentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         if hasattr(self.instance, "question"):
-            self.question_form = QuestionForm(*args, instance=self.instance.question, **kwargs)
-        else:
-            self.question_form = QuestionForm(*args, **kwargs)
+            kwargs["instance"] = self.instance.question
+        self.question_form = QuestionForm(*args, **kwargs)
 
     def clean(self) -> None:
         super().clean()

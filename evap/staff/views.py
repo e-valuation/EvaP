@@ -70,7 +70,6 @@ from evap.evaluation.tools import (
     HttpResponseNoContent,
     SaveValidFormMixin,
     StrOrPromise,
-    get_bool_parameter_from_url_or_session,
     get_object_from_dict_pk_entry_or_logged_40x,
     get_string_parameter_from_url_or_session,
     sort_formset,
@@ -2331,7 +2330,7 @@ def user_index(request: HttpRequest) -> HttpResponse:
 
 @manager_required
 def user_list(request: HttpRequest) -> HttpResponse:
-    filter_users = get_parameter_from_url_or_session(request, "filter_users")
+    filter_users = get_string_parameter_from_url_or_session(request, "filter_users")
 
     users = UserProfile.objects.all()
     if filter_users:

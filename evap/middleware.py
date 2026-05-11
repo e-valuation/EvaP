@@ -3,7 +3,7 @@ from weakref import WeakSet
 
 from django.conf import settings
 from django.contrib.auth.views import redirect_to_login
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseBase
 from django.utils import translation
 from django.views import View
 from mozilla_django_oidc.views import OIDCAuthenticationCallbackView, OIDCAuthenticationRequestView
@@ -16,10 +16,10 @@ VIEWS_WITHOUT_LOGIN_REQUIRED.add(OIDCAuthenticationRequestView)
 
 
 class RequireLoginMiddleware:
-    def __init__(self, get_response: Callable[[HttpRequest], HttpResponse]) -> None:
+    def __init__(self, get_response: Callable[[HttpRequest], HttpResponseBase]) -> None:
         self.get_response = get_response
 
-    def __call__(self, request: HttpRequest) -> HttpResponse:
+    def __call__(self, request: HttpRequest) -> HttpResponseBase:
         return self.get_response(request)
 
     @staticmethod
@@ -54,9 +54,9 @@ def no_login_required[ViewT: ViewFuncOrClass](class_or_function: ViewT) -> ViewT
 
 
 def user_language_middleware(
-    get_response: Callable[[HttpRequest], HttpResponse],
-) -> Callable[[HttpRequest], HttpResponse]:
-    def middleware(request: HttpRequest) -> HttpResponse:
+    get_response: Callable[[HttpRequest], HttpResponseBase],
+) -> Callable[[HttpRequest], HttpResponseBase]:
+    def middleware(request: HttpRequest) -> HttpResponseBase:
         if not (request.user and request.user.is_authenticated):
             return get_response(request)
         if request.user.language == translation.get_language():
