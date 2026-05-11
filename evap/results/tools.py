@@ -17,6 +17,7 @@ from evap.evaluation.models import (
     Course,
     Evaluation,
     Question,
+    QuestionAssignment,
     Questionnaire,
     RatingAnswerCounter,
     TextAnswer,
@@ -59,12 +60,12 @@ class TextAnswerVisibility:
         self.visible_by_delegation_count = visible_by_delegation_count
 
 
-def create_rating_result(question: Question, answer_counters, additional_text_result=None):
+def create_rating_result(assignment: QuestionAssignment, answer_counters, additional_text_result=None):
     if answer_counters is None:
-        return RatingResult(question, additional_text_result)
+        return RatingResult(assignment, additional_text_result)
     if any(counter.count != 0 for counter in answer_counters):
-        return AnsweredRatingResult(question, answer_counters, additional_text_result)
-    return PublishedRatingResult(question, answer_counters, additional_text_result)
+        return AnsweredRatingResult(assignment, answer_counters, additional_text_result)
+    return PublishedRatingResult(assignment, answer_counters, additional_text_result)
 
 
 class RatingResult:
@@ -76,9 +77,15 @@ class RatingResult:
     def has_answers(cls, rating_result) -> TypeGuard["AnsweredRatingResult"]:
         return isinstance(rating_result, AnsweredRatingResult)
 
-    def __init__(self, question: Question, additional_text_result=None) -> None:
+    def __init__(
+        self,
+        assignment: QuestionAssignment,
+        additional_text_result=None,
+    ) -> None:
+        question = assignment.question
         assert question.is_rating_question
         self.question = discard_cached_related_objects(copy(question))
+        self.counts_for_grade = assignment.counts_for_grade
         self.additional_text_result = additional_text_result
         self.colors = tuple(
             color for _, color, value in self.choices.as_name_color_value_tuples() if value != NO_ANSWER
@@ -91,8 +98,13 @@ class RatingResult:
 
 
 class PublishedRatingResult(RatingResult):
-    def __init__(self, question: Question, answer_counters, additional_text_result=None) -> None:
-        super().__init__(question, additional_text_result)
+    def __init__(
+        self,
+        assignment: QuestionAssignment,
+        answer_counters,
+        additional_text_result=None,
+    ) -> None:
+        super().__init__(assignment, additional_text_result)
         counts = OrderedDict(
             (value, [0, name, color, value]) for (name, color, value) in self.choices.as_name_color_value_tuples()
         )
@@ -261,7 +273,9 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
                         answer_counters = racs_per_contribution_assignment.get((contribution.id, assignment.id), [])
                     else:
                         answer_counters = None
-                    results.append(create_rating_result(question, answer_counters, additional_text_result=text_result))
+                    results.append(
+                        create_rating_result(assignment, answer_counters, additional_text_result=text_result)
+                    )
                 elif question.is_text_question and evaluation.can_publish_text_results:
                     assert text_result is not None
                     results.append(text_result)
@@ -328,7 +342,7 @@ def average_grade_questions_distribution(results):
         [
             (unipolarized_distribution(result), result.count_sum)
             for result in results
-            if result.question.is_grade_question and result.question.counts_for_grade
+            if isinstance(result, RatingResult) and result.question.is_grade_question and result.counts_for_grade
         ]
     )
 
@@ -338,7 +352,9 @@ def average_non_grade_rating_questions_distribution(results):
         [
             (unipolarized_distribution(result), result.count_sum)
             for result in results
-            if result.question.is_non_grade_rating_question and result.question.counts_for_grade
+            if isinstance(result, RatingResult)
+            and result.question.is_non_grade_rating_question
+            and result.counts_for_grade
         ]
     )
 
@@ -398,7 +414,10 @@ def calculate_average_distribution(evaluation):
     for contribution_result in get_results(evaluation).contribution_results:
         for questionnaire_result in contribution_result.questionnaire_results:
             if questionnaire_result.questionnaire.is_dropout:  # dropout questionnaires are not counted
-                assert not any(result.question.counts_for_grade for result in questionnaire_result.question_results)
+                assert not any(
+                    isinstance(result, RatingResult) and result.counts_for_grade
+                    for result in questionnaire_result.question_results
+                )
             if not questionnaire_result.questionnaire.is_dropout:
                 grouped_results[contribution_result.contributor].extend(questionnaire_result.question_results)
 
