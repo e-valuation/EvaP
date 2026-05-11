@@ -10,7 +10,6 @@ from django.views.decorators.debug import sensitive_variables
 
 from evap.evaluation.models import Evaluation, UserProfile
 from evap.results.tools import STATES_WITH_RESULTS_CACHING, cache_results
-from evap.tools import assert_not_none
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +69,7 @@ class NewKeyForm(forms.Form):
         super().__init__(*args, **kwargs)
 
     def clean_email(self) -> str:
-        email: str = assert_not_none(self.cleaned_data.get("email"))
+        email: str = self.cleaned_data["email"]
 
         if not UserProfile.email_needs_login_key(email):
             raise forms.ValidationError(
