@@ -3048,7 +3048,7 @@ class TestEvaluationTextAnswerView(WebTest):
             questionnaire=iter(questionnaires),
             question__type=QuestionType.TEXT,
             question__allows_additional_textanswers=False,
-            question__counts_for_grade=False,
+            counts_for_grade=False,
             **kwargs,
         )
         baker.make(TextAnswer, assignment=iter(assignments), contribution=iter(contributions), **kwargs)
@@ -3448,7 +3448,7 @@ class TestQuestionnaireViewView(WebTestStaffModeWith200Check):
             _quantity=3,
             _bulk_create=True,
             question__allows_additional_textanswers=False,
-            question__counts_for_grade=iter([False, True, True]),
+            counts_for_grade=iter([False, True, True]),
         )
 
     def test_preview_change_language(self):

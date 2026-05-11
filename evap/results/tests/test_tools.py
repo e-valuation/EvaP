@@ -371,7 +371,7 @@ class TestCalculateAverageDistribution(TestCase):
             self.likert_assignment, self.general_contribution, [5, 3, 1, 1, 0]
         )
 
-        result = create_rating_result(self.likert_assignment.question, answer_counters)
+        result = create_rating_result(self.likert_assignment, answer_counters)
         distribution = unipolarized_distribution(result)
         self.assertAlmostEqual(distribution[0], 0.5)
         self.assertAlmostEqual(distribution[1], 0.3)
@@ -384,7 +384,7 @@ class TestCalculateAverageDistribution(TestCase):
             self.bipolar_assignment, self.general_contribution, [0, 1, 4, 8, 2, 2, 3]
         )
 
-        result = create_rating_result(self.bipolar_assignment.question, answer_counters)
+        result = create_rating_result(self.bipolar_assignment, answer_counters)
         distribution = unipolarized_distribution(result)
         self.assertAlmostEqual(distribution[0], 0.4)
         self.assertAlmostEqual(distribution[1], 0.2)
@@ -398,7 +398,7 @@ class TestCalculateAverageDistribution(TestCase):
         )
         answer_counters = make_rating_answer_counters(yesno_assignment, self.general_contribution, [57, 43])
 
-        result = create_rating_result(yesno_assignment.question, answer_counters)
+        result = create_rating_result(yesno_assignment, answer_counters)
         distribution = unipolarized_distribution(result)
         self.assertAlmostEqual(distribution[0], 0.57)
         self.assertEqual(distribution[1], 0)
@@ -457,22 +457,28 @@ class TestCalculateAverageDistribution(TestCase):
         make_rating_answer_counters(dropout_assignment, contribution, [0, 0, 0, 0, 10])
 
     def test_average_questions_distribution(self):
-        grade_question = baker.make(
-            Question, questionnaire=self.questionnaire, type=QuestionType.GRADE, counts_for_grade=True
+        grade_assignment = baker.make(
+            QuestionAssignment, questionnaire=self.questionnaire, question__type=QuestionType.GRADE, counts_for_grade=True
         )
-        non_counting_grade_question = baker.make(
-            Question, questionnaire=self.questionnaire, type=QuestionType.GRADE, counts_for_grade=False
+        non_counting_grade_assignment = baker.make(
+            QuestionAssignment, questionnaire=self.questionnaire, question__type=QuestionType.GRADE, counts_for_grade=False
         )
-        likert_question = baker.make(
-            Question, questionnaire=self.questionnaire, type=QuestionType.POSITIVE_LIKERT, counts_for_grade=True
+        likert_assignment = baker.make(
+            QuestionAssignment,
+            questionnaire=self.questionnaire,
+            question__type=QuestionType.POSITIVE_LIKERT,
+            counts_for_grade=True,
         )
-        non_counting_likert_question = baker.make(
-            Question, questionnaire=self.questionnaire, type=QuestionType.POSITIVE_LIKERT, counts_for_grade=False
+        non_counting_likert_assignment = baker.make(
+            QuestionAssignment,
+            questionnaire=self.questionnaire,
+            question__type=QuestionType.POSITIVE_LIKERT,
+            counts_for_grade=False,
         )
 
         counters = [
-            *make_rating_answer_counters(non_counting_grade_question, self.contribution1, [0, 0, 0, 0, 1], False),
-            *make_rating_answer_counters(non_counting_likert_question, self.contribution1, [0, 0, 0, 0, 3], False),
+            *make_rating_answer_counters(non_counting_grade_assignment, self.contribution1, [0, 0, 0, 0, 1], False),
+            *make_rating_answer_counters(non_counting_likert_assignment, self.contribution1, [0, 0, 0, 0, 3], False),
         ]
         RatingAnswerCounter.objects.bulk_create(counters)
 
@@ -490,8 +496,8 @@ class TestCalculateAverageDistribution(TestCase):
         self.assertIsNone(average_non_grade_rating_questions_distribution(question_results))
 
         counters = [
-            *make_rating_answer_counters(grade_question, self.contribution1, [1, 0, 0, 0, 0], False),
-            *make_rating_answer_counters(likert_question, self.contribution1, [0, 0, 3, 0, 0], False),
+            *make_rating_answer_counters(grade_assignment, self.contribution1, [1, 0, 0, 0, 0], False),
+            *make_rating_answer_counters(likert_assignment, self.contribution1, [0, 0, 3, 0, 0], False),
         ]
         RatingAnswerCounter.objects.bulk_create(counters)
 
@@ -516,28 +522,28 @@ class TestCalculateAverageDistribution(TestCase):
         self.assertAlmostEqual(distribution_to_grade(non_grade_distribution), 3.0)
 
     def test_dropout_questionnaire_excluded_from_distribution(self):
-        make_rating_answer_counters(self.question_grade, self.general_contribution, [0, 0, 0, 0, 10])
+        make_rating_answer_counters(self.grade_assignment, self.general_contribution, [0, 0, 0, 0, 10])
         cache_results(self.evaluation)
 
         distribution_without_dropout = calculate_average_distribution(self.evaluation)
         self.assertIsNotNone(distribution_without_dropout)
 
         dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
-        dropout_question = baker.make(
-            Question,
+        dropout_assignment = baker.make(
+            QuestionAssignment,
             questionnaire=dropout_questionnaire,
-            type=QuestionType.GRADE,
+            question__type=QuestionType.GRADE,
             counts_for_grade=False,
         )
         self.evaluation.general_contribution.questionnaires.add(dropout_questionnaire)
-        make_rating_answer_counters(dropout_question, self.evaluation.general_contribution, [10, 0, 0, 0, 0])
+        make_rating_answer_counters(dropout_assignment, self.evaluation.general_contribution, [10, 0, 0, 0, 0])
         cache_results(self.evaluation)
 
         distribution_with_dropout = calculate_average_distribution(self.evaluation)
         self.assertEqual(distribution_without_dropout, distribution_with_dropout)
 
-        dropout_question.counts_for_grade = True
-        dropout_question.save()
+        dropout_assignment.counts_for_grade = True
+        dropout_assignment.save()
         cache_results(self.evaluation)
 
         # Should raise AssertionError because dropout questionnaire has counts_for_grade=True
