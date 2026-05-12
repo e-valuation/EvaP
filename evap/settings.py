@@ -47,8 +47,8 @@ PARTICIPATION_DELETION_AFTER_INACTIVE_TIME = timedelta(days=18 * 30)
 RESULTS_WARNING_COUNT = 4
 RESULTS_WARNING_PERCENTAGE = 0.5
 
-# when this value is selected, the filter acts as an open end (no upper limit)
-PARTICIPANT_FILTER_MAX_VALUE = 150
+# Maximum selectable participant count for the results page filter. Selecting this value means "this many or more".
+RESULTS_PARTICIPANT_FILTER_MAX_VALUE = 150
 
 ## percentages for calculating an evaluation's total average grade
 # grade questions are weighted this much for each contributor's average grade
