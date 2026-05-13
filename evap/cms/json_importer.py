@@ -642,8 +642,10 @@ class JSONImporter:
         contribution, created = Contribution.objects.update_or_create(
             evaluation=evaluation,
             contributor=user_profile,
-            role=Contribution.Role.EDITOR,
-            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            create_defaults={
+                "role": Contribution.Role.EDITOR,
+                "textanswer_visibility": Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            },
         )
         return contribution, created
 
