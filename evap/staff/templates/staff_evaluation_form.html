@@ -13,7 +13,7 @@
             {% endif %}
             <h3 class="pt-2">
                 {% if evaluation_form.instance.id %}
-                    <span class="btn-clipboard" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Click to copy name' %}" data-copy-on-click="{{ evaluation.full_name }}">
+                    <span data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Click to copy name' %}" data-copy-on-click="{{ evaluation.full_name }}">
                         {{ evaluation.full_name }} ({{ evaluation.course.semester.name }})
                     </span>
                 {% else %}
