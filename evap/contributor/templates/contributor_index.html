@@ -82,9 +82,9 @@
                                 </tr>
                             {% endif %}
                             {% for evaluation in evaluations|dictsort:"name" %}
-                                <tr {% if evaluation|is_user_editor_or_delegate:user and evaluation.state == evaluation.State.PREPARED %}
+                                <tr {% if evaluation.user_is_editor_or_delegate and evaluation.state == evaluation.State.PREPARED %}
                                         class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} hover-row hover-row-info" data-url="{% url 'contributor:evaluation_edit' evaluation.id %}"
-                                    {% elif evaluation.state == evaluation.State.PUBLISHED and evaluation|can_results_page_be_seen_by:user %}
+                                    {% elif evaluation.state == evaluation.State.PUBLISHED and evaluation.user_can_see_results_page %}
                                         class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} hover-row results-row" data-url="{% url 'results:evaluation_detail' semester.id evaluation.id %}"
                                     {% else %}
                                         class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %}"
@@ -139,7 +139,7 @@
                                     {% endif %}
                                     <td class="text-end">
                                         {% if evaluation.state != evaluation.State.PUBLISHED %}
-                                            {% if evaluation|is_user_editor_or_delegate:user %}
+                                            {% if evaluation.user_is_editor_or_delegate %}
                                                 {% if evaluation.state == evaluation.State.PREPARED %}
                                                     <a href="{% url 'contributor:evaluation_edit' evaluation.id %}" class="btn btn-primary btn-row-hover"
                                                         data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Edit or approve' %}">
@@ -175,7 +175,7 @@
                                                     </a>
                                                 {% endif %}
                                             {% endif %}
-                                            {% if evaluation|is_user_responsible_or_contributor_or_delegate:user %}
+                                            {% if evaluation.user_is_responsible_or_contributor_or_delegate %}
                                                 <a href="{% url 'contributor:evaluation_preview' evaluation.id %}" class="btn btn-sm btn-light"
                                                     data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Preview' %}">
                                                     <span class="fas fa-eye"></span>

@@ -58,8 +58,15 @@ def index(request):
     )
 
     own_evaluations = (
-        Evaluation.objects.filter(course__in=own_courses)
+        Evaluation.annotate_with_participant_and_voter_counts(Evaluation.objects.filter(course__in=own_courses))
         .annotate(contributes_to=Exists(Evaluation.objects.filter(id=OuterRef("id"), contributions__contributor=user)))
+        .annotate(user_is_editor_or_delegate=Evaluation.user_is_editor_or_delegate_Q(user))
+        .annotate(
+            user_is_responsible_or_contributor_or_delegate=Evaluation.user_is_responsible_or_contributor_or_delegate_Q(
+                user
+            )
+        )
+        .annotate(user_can_see_results_page=Evaluation.can_results_page_be_seen_by_Q(user))
         .prefetch_related("course", "course__evaluations", "course__programs", "course__type", "course__semester")
     )
     own_evaluations = [evaluation for evaluation in own_evaluations if evaluation.can_be_seen_by(user)]
@@ -77,9 +84,20 @@ def index(request):
                 )
             )
         )
-        delegated_evaluations = Evaluation.objects.filter(course__in=delegated_courses).prefetch_related(
-            "course", "course__evaluations", "course__programs", "course__type", "course__semester"
+        delegated_evaluations = (
+            Evaluation.annotate_with_participant_and_voter_counts(
+                Evaluation.objects.filter(course__in=delegated_courses)
+            )
+            .annotate(user_is_editor_or_delegate=Evaluation.user_is_editor_or_delegate_Q(user))
+            .annotate(
+                user_is_responsible_or_contributor_or_delegate=Evaluation.user_is_responsible_or_contributor_or_delegate_Q(
+                    user
+                )
+            )
+            .annotate(user_can_see_results_page=Evaluation.can_results_page_be_seen_by_Q(user))
+            .prefetch_related("course", "course__evaluations", "course__programs", "course__type", "course__semester")
         )
+
         delegated_evaluations = [evaluation for evaluation in delegated_evaluations if evaluation.can_be_seen_by(user)]
         for evaluation in delegated_evaluations:
             evaluation.delegated_evaluation = True
