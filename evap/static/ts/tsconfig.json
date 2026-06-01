@@ -3,7 +3,11 @@
         "target": "es2019",
         "strict": true,
         "esModuleInterop": true,
-        "module": "node16"
+        "moduleResolution": "bundler",
+        "paths": {
+          "src/*": ["./src/*"]
+        },
+        "types": ["jest"]
     },
     "include": ["**/*.ts", "eslint.config.js"]
 }
