@@ -343,8 +343,8 @@ def average_grade_questions_distribution(
     return avg_distribution(
         [
             (
-                unipolarized_distribution(cast(PublishedRatingResult, result)),
-                cast(PublishedRatingResult, result).count_sum,
+                unipolarized_distribution(cast("PublishedRatingResult", result)),
+                cast("PublishedRatingResult", result).count_sum,
             )
             for result in results
             if isinstance(result, RatingResult) and result.question.is_grade_question and result.counts_for_grade
