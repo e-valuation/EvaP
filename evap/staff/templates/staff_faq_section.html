@@ -1,11 +1,19 @@
 {% extends 'staff_base.html' %}
 
 {% load static %}
+{% load staff_templatetags %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'staff:faq_index' %}">{% translate 'FAQ Sections' %}</a></li>
-    <li class="breadcrumb-item">{{ section.title }}</li>
+    
+    {% url 'staff:faq_index' as staff_faq_url %}
+    {% create_breadcrumb staff_faq_url %} 
+        {% translate 'FAQ Sections' %}
+    {% endcreate_breadcrumb %}
+
+    {% create_breadcrumb %} 
+        {{ section.title }}
+    {% endcreate_breadcrumb %}
 {% endblock %}
 
 {% block content %}

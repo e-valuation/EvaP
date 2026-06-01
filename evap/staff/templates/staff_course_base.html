@@ -1,4 +1,5 @@
 {% extends 'staff_semester_base.html' %}
+{% load staff_templatetags %}
 
 {% block title %}
     {% if course %}
@@ -11,13 +12,16 @@
 
 {% block breadcrumb %}
     {{ block.super }}
+
     {% if course %}
-        {% if disable_breadcrumb_course %}
-            <li class="breadcrumb-item">{{ course.name }}</li>
-        {% else %}
-            <li class="breadcrumb-item"><a href="{% url 'staff:course_edit' course.id %}">{{ course.name }}</a></li>
-        {% endif %}
+        {% url 'staff:course_edit' course.id as course_edit_url %}
+        {% create_breadcrumb course_edit_url %} 
+            {{ course.name }}
+        {% endcreate_breadcrumb %}
     {% elif evaluation.course %}
-        <li class="breadcrumb-item"><a href="{% url 'staff:course_edit' evaluation.course.id %}">{{ evaluation.course.name }}</a></li>
+        {% url 'staff:course_edit' evaluation.course.id as course_edit_url %}
+        {% create_breadcrumb course_edit_url %} 
+            {{ evaluation.course.name }}
+        {% endcreate_breadcrumb %}
     {% endif %}
 {% endblock %}

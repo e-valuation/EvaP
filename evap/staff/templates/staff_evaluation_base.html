@@ -1,5 +1,6 @@
 {% extends 'staff_course_base.html' %}
 
+{% load staff_templatetags %}
 {% block title %}
     {% if evaluation.name %}
         {{ evaluation.name }} -
@@ -11,9 +12,15 @@
     {{ block.super }}
     {% if evaluation %}
     	{% if evaluation.name %}
-        	<li class="breadcrumb-item">{{ evaluation.name }}</li>
+            {% url 'staff:evaluation_edit' evaluation.id as eval_edit_id %}
+            {% create_breadcrumb eval_edit_id %} 
+                {{ evaluation.name }}
+            {% endcreate_breadcrumb %}
     	{% else %}
-    		<li class="breadcrumb-item">{{ evaluation.course.name }}</li>
+            {% url 'staff:evaluation_edit' evaluation.id as eval_edit_id %}
+            {% create_breadcrumb eval_edit_id %} 
+                {{ evaluation.course.name }}
+            {% endcreate_breadcrumb %}
     	{% endif %}
     {% endif %}
 {% endblock %}

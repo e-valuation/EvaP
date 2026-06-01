@@ -1,10 +1,15 @@
 {% extends 'staff_semester_base.html' %}
 
 {% load static %}
+{% load staff_templatetags %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% translate 'Import semester data' %}</li>
+
+    
+    {% create_breadcrumb request.path %} 
+        {% translate 'Import semester data' %}
+    {% endcreate_breadcrumb %}
 {% endblock %}
 
 {% block content %}

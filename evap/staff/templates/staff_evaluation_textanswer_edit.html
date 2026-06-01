@@ -1,9 +1,17 @@
 {% extends 'staff_evaluation_base.html' %}
 
+{% load staff_templatetags %}
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'staff:evaluation_textanswers' evaluation.id %}#{{ textanswer.id }}">{% translate 'Text answers' %}</a></li>
-    <li class="breadcrumb-item">{{ textanswer.id }}</li>
+    
+    {% url 'staff:evaluation_textanswers' evaluation.id as staff_evaluation_textanswer_url %}
+    {% create_breadcrumb staff_evaluation_textanswer_url %}
+        {% translate 'Text answers' %}
+    {% endcreate_breadcrumb %}
+
+    {% create_breadcrumb request.path %} 
+        {{ textanswer.id }}
+    {% endcreate_breadcrumb %}
 {% endblock %}
 
 {% block content %}
