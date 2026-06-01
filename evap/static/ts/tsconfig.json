@@ -7,7 +7,6 @@
         "paths": {
           "src/*": ["./src/*"]
         },
-        "types": ["jest"]
     },
     "include": ["**/*.ts", "eslint.config.js"]
 }
