@@ -1,5 +1,6 @@
 import logging
 from collections.abc import Iterable
+from typing import Any
 
 from django import forms
 from django.contrib.auth.models import Group
@@ -964,11 +965,11 @@ class QuestionAssignmentForm(forms.ModelForm):
         ):
             self.fields["counts_for_grade"].disabled = True  # disable only for frontend; validate in clean
 
-    def clean(self):
+    def clean(self) -> dict[str, Any]:
         super().clean()
         if not self.question_form.is_valid():
             raise forms.ValidationError([])  # invalidate this form without message; errors are shown separately
-        questionnaire = self.cleaned_data.get("questionnaire") or getattr(self.instance, "questionnaire", None)
+        questionnaire = self.cleaned_data.get("questionnaire")
         question_type = self.question_form.cleaned_data.get("type")
         if questionnaire and questionnaire.is_dropout or question_type in [QuestionType.TEXT, QuestionType.HEADING]:
             self.cleaned_data["counts_for_grade"] = False
