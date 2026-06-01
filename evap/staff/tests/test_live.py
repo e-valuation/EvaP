@@ -251,17 +251,13 @@ class QuestionnaireFormLiveTest(LiveServerTest):
     def test_question_type_disabling_logic(self):
         def assert_type_allows(row, type_select, question_type, additional_textanswers, counts_for_grade):
             self.set_tomselect_value(type_select, str(question_type))
-            self.assertNotEqual(
+            self.assertEqual(
                 additional_textanswers,
-                bool(
-                    row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").get_attribute(
-                        "disabled"
-                    )
-                ),
+                row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").is_enabled(),
             )
-            self.assertNotEqual(
+            self.assertEqual(
                 counts_for_grade,
-                bool(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").get_attribute("disabled")),
+                row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").is_enabled(),
             )
 
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
@@ -303,7 +299,12 @@ class QuestionnaireFormLiveTest(LiveServerTest):
 
     def test_questionnaire_type_disabling_logic(self):
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        baker.make(QuestionAssignment, questionnaire=questionnaire, question__type=QuestionType.POSITIVE_LIKERT)
+        baker.make(
+            QuestionAssignment,
+            questionnaire=questionnaire,
+            question__type=QuestionType.POSITIVE_LIKERT,
+            counts_for_grade=True,
+        )
 
         with self.enter_staff_mode():
             self.selenium.get(self.reverse("staff:questionnaire_edit", args=[questionnaire.pk]))
@@ -311,19 +312,19 @@ class QuestionnaireFormLiveTest(LiveServerTest):
         row = self.wait.until(visibility_of_element_located((By.CSS_SELECTOR, "#question_table tbody tr")))
         questionnaire_type_select = self.selenium.find_element(By.ID, "id_type")
 
+        self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").is_selected())
+
         # Change to Dropout
         self.set_tomselect_value(questionnaire_type_select, str(Questionnaire.Type.DROPOUT))
-        self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").get_attribute("disabled"))
-        self.assertFalse(
-            row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").get_attribute("disabled")
-        )
+        self.assertFalse(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").is_enabled())
+        self.assertFalse(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").is_selected())
+        self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").is_enabled())
 
         # Change back to Top
         self.set_tomselect_value(questionnaire_type_select, str(Questionnaire.Type.TOP))
-        self.assertFalse(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").get_attribute("disabled"))
-        self.assertFalse(
-            row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").get_attribute("disabled")
-        )
+        self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").is_enabled())
+        self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").is_selected())
+        self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").is_enabled())
 
     def test_empty_extra_question_is_not_touched_for_dropout_questionnaire(self):
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
@@ -351,7 +352,7 @@ class QuestionnaireFormLiveTest(LiveServerTest):
         counts_for_grade_checkbox = extra_row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']")
 
         self.assertEqual(type_select.get_attribute("value"), "")
-        self.assertFalse(counts_for_grade_checkbox.get_attribute("disabled"))
+        self.assertTrue(counts_for_grade_checkbox.is_enabled())
         self.assertTrue(counts_for_grade_checkbox.is_selected())
 
 
