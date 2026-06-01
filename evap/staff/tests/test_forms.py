@@ -1191,6 +1191,17 @@ class QuestionFormTests(TestCase):
         self.assertEqual(question.type, QuestionType.POSITIVE_LIKERT)
         self.assertTrue(question.allows_additional_textanswers)
 
+        form_data = get_form_data_from_instance(QuestionForm, question)
+        form_data["type"] = QuestionType.TEXT
+
+        form = QuestionForm(form_data, instance=question)
+        self.assertTrue(form.is_valid())
+        form.save()
+
+        question.refresh_from_db()
+        self.assertEqual(question.type, QuestionType.TEXT)
+        self.assertFalse(question.allows_additional_textanswers)
+
     def test_clean_for_dropout_questionnaire(self):
         dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
         assignment = baker.make(
