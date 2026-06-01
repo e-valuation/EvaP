@@ -53,7 +53,7 @@
                             <td data-col="responsible" data-order="{{ course.responsibles.first.last_name|lower }}">
                                 {{ course.responsibles_names }}
                             </td>
-                            <td class="text-center" data-col="complete">{% if course.all_evaluations_finished %}<span class="fas fa-check"></span>{% endif %}
+                            <td class="text-center" data-col="complete">{% if course.all_evaluations_finished %}<span class="fas fa-check"></span>{% endif %}</td>
                             <td class="text-center" data-col="midterm-grades">
                                 {% if num_midterm_grades > 0 %}
                                     <span class="fas fa-file"></span> {{ num_midterm_grades }}
