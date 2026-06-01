@@ -54,11 +54,10 @@ export class StaffQuestionnaireForm {
         const questionnaireType = saneParseInt(this.questionnaireTypeSelect.value);
         if (questionnaireType === QUESTIONNAIRE_TYPE_DROPOUT) {
             checkboxes.forEach(checkbox => {
-                const checkboxElement = checkbox as HTMLInputElement;
-                if (checkboxElement.classList.contains("counts-for-grade-checkbox")) {
-                    this.disableAndUncheck(checkboxElement);
+                if (checkbox.classList.contains("counts-for-grade-checkbox")) {
+                    this.disableAndUncheck(checkbox);
                 } else {
-                    this.enableAndInit(checkboxElement, true);
+                    this.enableAndInit(checkbox, true);
                 }
             });
         } else {
