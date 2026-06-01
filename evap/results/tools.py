@@ -337,10 +337,15 @@ def avg_distribution(weighted_distributions):
     return normalized_distribution(summed_distribution)
 
 
-def average_grade_questions_distribution(results):
+def average_grade_questions_distribution(
+    results: Iterable[RatingResult | HeadingResult | TextResult],
+) -> Distribution:
     return avg_distribution(
         [
-            (unipolarized_distribution(result), result.count_sum)
+            (
+                unipolarized_distribution(cast(PublishedRatingResult, result)),
+                cast(PublishedRatingResult, result).count_sum,
+            )
             for result in results
             if isinstance(result, RatingResult) and result.question.is_grade_question and result.counts_for_grade
         ]
@@ -418,8 +423,7 @@ def calculate_average_distribution(evaluation):
                     isinstance(result, RatingResult) and result.counts_for_grade
                     for result in questionnaire_result.question_results
                 )
-            if not questionnaire_result.questionnaire.is_dropout:
-                grouped_results[contribution_result.contributor].extend(questionnaire_result.question_results)
+            grouped_results[contribution_result.contributor].extend(questionnaire_result.question_results)
 
     evaluation_results = grouped_results.pop(None, [])
 
