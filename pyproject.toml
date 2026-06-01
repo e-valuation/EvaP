@@ -28,6 +28,7 @@ dev = [
     "django-debug-toolbar~=6.0",
     "django-stubs~=6.0.2",
     "django-webtest~=1.9.13",
+    "djangofmt~=0.2.9",
     "model-bakery~=1.23.3",
     "mypy~=1.20.0",
     "openpyxl-stubs~=0.1.25",
@@ -106,6 +107,11 @@ exclude = ["**/urls.py"]
 
 ##############################################
 
+[tool.djangofmt]
+extend-exclude = ["evap/static/bootstrap"]
+html-void-self-closing = "unchanged"
+
+##############################################
 
 [tool.pylint.master]
 jobs = 0
