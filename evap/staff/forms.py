@@ -751,7 +751,10 @@ class RemindResponsibleForm(forms.Form):
 class QuestionnaireForm(forms.ModelForm):
     class Meta:
         model = Questionnaire
-        widgets = {"order": forms.HiddenInput()}
+        widgets = {
+            "order": forms.HiddenInput(),
+            "type": forms.Select(attrs={"data-questionnaire-type-select": ""}),
+        }
         fields = (
             "type",
             "name_de",
@@ -922,11 +925,6 @@ class QuestionForm(forms.ModelForm):
             "text_en": forms.Textarea(attrs={"rows": 2}),
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance.pk and self.instance.type in [QuestionType.TEXT, QuestionType.HEADING] and not self.data:
-            self.fields["allows_additional_textanswers"].disabled = True  # disable only for frontend; validate in clean
-
     def clean(self):
         super().clean()
         if self.cleaned_data.get("type") in [QuestionType.TEXT, QuestionType.HEADING]:
@@ -955,15 +953,6 @@ class QuestionAssignmentForm(forms.ModelForm):
             self.question_form = QuestionForm(*args, instance=self.instance.question, **kwargs)
         else:
             self.question_form = QuestionForm(*args, **kwargs)
-        if (
-            self.instance.pk
-            and not self.data
-            and (
-                self.instance.questionnaire.is_dropout
-                or self.instance.question.type in [QuestionType.TEXT, QuestionType.HEADING]
-            )
-        ):
-            self.fields["counts_for_grade"].disabled = True  # disable only for frontend; validate in clean
 
     def clean(self) -> dict[str, Any]:
         super().clean()
