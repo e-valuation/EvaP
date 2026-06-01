@@ -13,7 +13,12 @@
         </div>
         <div class="card-body table-responsive">
             {% if grade_documents %}
-                <form id="grade-document-deletion-form" custom-success method="POST" action="{% url 'grades:delete_grades' %}">
+                <form
+                    id="grade-document-deletion-form"
+                    custom-success
+                    method="POST"
+                    action="{% url 'grades:delete_grades' %}"
+                >
                     {% csrf_token %}
                 </form>
 
@@ -31,21 +36,50 @@
                             <tr id="grade-document-row-{{ grade_document.id }}">
                                 <td>{{ grade_document.description }}</td>
                                 <td>{{ grade_document.get_type_display }}</td>
-                                <td>{{ grade_document.last_modified_time }}, {% translate 'by' %} {{ grade_document.last_modified_user }}</td>
                                 <td>
-                                    <a href="{% url 'grades:download_grades' grade_document.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Download' %}"><span class="fas fa-download"></span></a>
+                                    {{ grade_document.last_modified_time }}, {% translate 'by' %}
+                                    {{ grade_document.last_modified_user }}
+                                </td>
+                                <td>
+                                    <a
+                                        href="{% url 'grades:download_grades' grade_document.id %}"
+                                        class="btn btn-sm btn-light"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="top"
+                                        title="{% translate 'Download' %}"
+                                    ><span class="fas fa-download"></span></a>
                                     {% if user.is_grade_publisher %}
-                                        <a href="{% url 'grades:edit_grades' grade_document.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Edit' %}"><span class="fas fa-pencil"></span></a>
-                                        <confirmation-modal type="submit" form="grade-document-deletion-form" name="grade_document_id" value="{{ grade_document.id }}" confirm-button-class="btn-danger">
+                                        <a
+                                            href="{% url 'grades:edit_grades' grade_document.id %}"
+                                            class="btn btn-sm btn-light"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="{% translate 'Edit' %}"
+                                        ><span class="fas fa-pencil"></span></a>
+                                        <confirmation-modal
+                                            type="submit"
+                                            form="grade-document-deletion-form"
+                                            name="grade_document_id"
+                                            value="{{ grade_document.id }}"
+                                            confirm-button-class="btn-danger"
+                                        >
                                             <span slot="title">{% translate 'Delete grade document' %}</span>
                                             <span slot="action-text">{% translate 'Delete grade document' %}</span>
                                             <span slot="question">
                                                 {% blocktranslate trimmed with description=grade_document.description %}
-                                                    Do you really want to delete the grade document <strong>{{ description }}</strong>?
+                                                    Do you really want to delete the grade document <strong
+                                                    >{{ description }}</strong>?
                                                 {% endblocktranslate %}
                                             </span>
 
-                                            <button slot="show-button" type="button" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Delete' %}">
+                                            <button
+                                                slot="show-button"
+                                                type="button"
+                                                class="btn btn-sm btn-danger"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="{% translate 'Delete' %}"
+                                            >
                                                 <span class="fas fa-trash"></span>
                                             </button>
                                         </confirmation-modal>
@@ -69,7 +103,13 @@
         </div>
     </div>
     {% if user.is_grade_publisher %}
-        <a href="{% url 'grades:upload_grades' course.id %}" class="btn btn-dark">{% translate 'Upload new midterm grades' %}</a>
-        <a href="{% url 'grades:upload_grades' course.id %}?final=true" class="btn btn-dark">{% translate 'Upload new final grades' %}</a>
+        <a
+            href="{% url 'grades:upload_grades' course.id %}"
+            class="btn btn-dark"
+        >{% translate 'Upload new midterm grades' %}</a>
+        <a
+            href="{% url 'grades:upload_grades' course.id %}?final=true"
+            class="btn btn-dark"
+        >{% translate 'Upload new final grades' %}</a>
     {% endif %}
 {% endblock %}

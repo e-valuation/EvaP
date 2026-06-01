@@ -18,7 +18,9 @@
 
         <div class="card mb-3">
             <div class="card-body">
-                <p>{% translate 'Select the programs and course types you want to export. An export will include all evaluations of courses that have at least one of the selected programs and one of the selected course types. Add multiple lines to create an export file with multiple sheets.' %}</p>
+                <p>
+                    {% translate 'Select the programs and course types you want to export. An export will include all evaluations of courses that have at least one of the selected programs and one of the selected course types. Add multiple lines to create an export file with multiple sheets.' %}
+                </p>
                 <table id="exportsheets-table" class="table">
                     <thead>
                         <tr>
@@ -40,7 +42,9 @@
                                 <td>
                                     {% include 'multiple_checkbox_widget.html' with field=form.selected_course_types %}
                                 </td>
-                                <td>{% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}</td>
+                                <td>
+                                    {% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -50,13 +54,23 @@
         <div class="card mb-3">
             <div class="card-body">
                 <div class="form-check">
-                    <input class="form-check-input" id="include_unpublished" type="checkbox" name="include_unpublished" />
+                    <input
+                        class="form-check-input"
+                        id="include_unpublished"
+                        type="checkbox"
+                        name="include_unpublished"
+                    />
                     <label class="form-check-label" for="include_unpublished">
                         {% translate 'Include unpublished evaluations where the evaluation period ended in the export' %}
                     </label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" id="include_not_enough_voters" type="checkbox" name="include_not_enough_voters" />
+                    <input
+                        class="form-check-input"
+                        id="include_not_enough_voters"
+                        type="checkbox"
+                        name="include_not_enough_voters"
+                    />
                     <label class="form-check-label" for="include_not_enough_voters">
                         {% translate 'Include evaluations where not enough votes were given in the export' %}
                     </label>

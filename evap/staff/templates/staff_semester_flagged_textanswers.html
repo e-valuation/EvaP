@@ -17,7 +17,9 @@
 
                 {% for evaluation_flagged_textanswers in flagged_textanswers_by_evalaution %}
                     <h5 class="{% if not forloop.first %}mt-3{% endif %} mb-2">
-                        <a href="{% url 'staff:evaluation_textanswers' evaluation_flagged_textanswers.grouper.id %}?view=flagged">
+                        <a
+                            href="{% url 'staff:evaluation_textanswers' evaluation_flagged_textanswers.grouper.id %}?view=flagged"
+                        >
                             {{ evaluation_flagged_textanswers.grouper }}
                         </a>
                     </h5>

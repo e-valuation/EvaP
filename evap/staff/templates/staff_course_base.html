@@ -18,6 +18,8 @@
             <li class="breadcrumb-item"><a href="{% url 'staff:course_edit' course.id %}">{{ course.name }}</a></li>
         {% endif %}
     {% elif evaluation.course %}
-        <li class="breadcrumb-item"><a href="{% url 'staff:course_edit' evaluation.course.id %}">{{ evaluation.course.name }}</a></li>
+        <li class="breadcrumb-item">
+            <a href="{% url 'staff:course_edit' evaluation.course.id %}">{{ evaluation.course.name }}</a>
+        </li>
     {% endif %}
 {% endblock %}

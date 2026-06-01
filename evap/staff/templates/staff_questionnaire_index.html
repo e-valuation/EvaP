@@ -6,19 +6,34 @@
     {{ block.super }}
     <div class="row mb-3 align-items-center">
         <div class="col">
-            <a href="{% url 'staff:questionnaire_create' %}" class="btn btn-sm btn-dark">{% translate 'Create new questionnaire' %}</a>
+            <a
+                href="{% url 'staff:questionnaire_create' %}"
+                class="btn btn-sm btn-dark"
+            >{% translate 'Create new questionnaire' %}</a>
         </div>
         <div class="col-auto">
             <div class="btn-switch btn-switch-light">
                 <div class="btn-switch-label">{% translate 'Show questionnaires' %}</div>
                 <div class="btn-switch btn-group">
-                    <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=all" role="button" class="btn btn-sm btn-light{% if filter_questionnaires == 'all' %} active{% endif %}">
+                    <a
+                        href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=all"
+                        role="button"
+                        class="btn btn-sm btn-light{% if filter_questionnaires == 'all' %} active{% endif %}"
+                    >
                         {% translate 'All' %}
                     </a>
-                    <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=visible" role="button" class="btn btn-sm btn-light{% if filter_questionnaires == 'visible' %} active{% endif %}">
+                    <a
+                        href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=visible"
+                        role="button"
+                        class="btn btn-sm btn-light{% if filter_questionnaires == 'visible' %} active{% endif %}"
+                    >
                         {% translate 'Visible' %}
                     </a>
-                    <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=archived" role="button" class="btn btn-sm btn-light{% if filter_questionnaires == 'archived' %} active{% endif %}">
+                    <a
+                        href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=archived"
+                        role="button"
+                        class="btn btn-sm btn-light{% if filter_questionnaires == 'archived' %} active{% endif %}"
+                    >
                         {% translate 'Archived' %}
                     </a>
                 </div>
@@ -27,7 +42,14 @@
         <div class="col-3">
             <div class="input-group">
                 <input type="search" name="search" class="form-control" placeholder="{% translate 'Search...' %}" />
-                <button class="btn btn-light text-secondary" type="button" data-reset="search" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Clear filter' %}">
+                <button
+                    class="btn btn-light text-secondary"
+                    type="button"
+                    data-reset="search"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="{% translate 'Clear filter' %}"
+                >
                     <span class="fas fa-delete-left"></span>
                 </button>
             </div>
@@ -60,24 +82,52 @@
 
     <div class="card">
         <div class="card-header">
-            <ul class="nav nav-tabs card-header-tabs" >
+            <ul class="nav nav-tabs card-header-tabs">
                 <li class="nav-item">
-                    <a class="nav-link" id="topTab" href="#" data-bs-target="#topTabContent" data-bs-toggle="tab" role="tab">
+                    <a
+                        class="nav-link"
+                        id="topTab"
+                        href="#"
+                        data-bs-target="#topTabContent"
+                        data-bs-toggle="tab"
+                        role="tab"
+                    >
                         {% translate 'Top general questionnaires' %}
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="contributorTab" href="#" data-bs-target="#contributorTabContent" data-bs-toggle="tab" role="tab">
+                    <a
+                        class="nav-link"
+                        id="contributorTab"
+                        href="#"
+                        data-bs-target="#contributorTabContent"
+                        data-bs-toggle="tab"
+                        role="tab"
+                    >
                         {% translate 'Contributor questionnaires' %}
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="bottomTab" href="#" data-bs-target="#bottomTabContent" data-bs-toggle="tab" role="tab">
+                    <a
+                        class="nav-link"
+                        id="bottomTab"
+                        href="#"
+                        data-bs-target="#bottomTabContent"
+                        data-bs-toggle="tab"
+                        role="tab"
+                    >
                         {% translate 'Bottom general questionnaires' %}
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="dropoutTab" href="#" data-bs-target="#dropoutTabContent" data-bs-toggle="tab" role="tab">
+                    <a
+                        class="nav-link"
+                        id="dropoutTab"
+                        href="#"
+                        data-bs-target="#dropoutTabContent"
+                        data-bs-toggle="tab"
+                        role="tab"
+                    >
                         {% translate 'Dropout questionnaires' %}
                     </a>
                 </li>

@@ -16,7 +16,9 @@
             <div class="global-rewards-progress-bar pt-2 px-4">
                 <span class="progress-container">
                     <span class="progress m-0 bg-info">
-                        <span class="progress-bar bg-primary width-percent-{% widthratio global_evaluation_progress.bar_width_votes global_evaluation_progress.max_reward_votes 100 %}"></span>
+                        <span
+                            class="progress-bar bg-primary width-percent-{% widthratio global_evaluation_progress.bar_width_votes global_evaluation_progress.max_reward_votes 100 %}"
+                        ></span>
                         <span class="progress-bartext">
                             {% blocktranslate trimmed count participant_count=global_evaluation_progress.participation_count with percent=global_evaluation_progress.vote_count|percentage_zero_on_error:global_evaluation_progress.participation_count vote_count=global_evaluation_progress.vote_count %}
                                 {{ vote_count }} of {{ participant_count }} evaluation submitted ({{ percent }})
@@ -38,7 +40,12 @@
             </div>
             <div class="card card-outline-light collapsible mt-2">
                 <div class="card-header d-flex">
-                    <a class="collapse-toggle collapse-toggle-light collapsed" data-bs-toggle="collapse" href="#goal-info-text" aria-controls="goal-info-text">
+                    <a
+                        class="collapse-toggle collapse-toggle-light collapsed"
+                        data-bs-toggle="collapse"
+                        href="#goal-info-text"
+                        aria-controls="goal-info-text"
+                    >
                         {{ global_evaluation_progress.campaign.info_title }}
                     </a>
                 </div>

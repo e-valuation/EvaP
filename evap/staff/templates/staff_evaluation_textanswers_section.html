@@ -3,7 +3,9 @@
 {% for questionnaire, contributor, label, is_responsible, results in sections %}
     <div class="card{% if not forloop.last %} mb-3{% endif %}">
         <div class="card-header">
-            {{ questionnaire.public_name }}{% if contributor %}: {{ contributor.full_name }}{% if is_responsible %} ({% translate 'responsible' %}){% endif %}{% if label %} &ndash; <span class="fst-italic">{{ label }}</span>{% endif %}{% endif %}
+            {{ questionnaire.public_name }}{% if contributor %}: {{ contributor.full_name }}{% if is_responsible %}
+                    ({% translate 'responsible' %}){% endif %}{% if label %}
+                    &ndash; <span class="fst-italic">{{ label }}</span>{% endif %}{% endif %}
         </div>
         <div class="card-body">
             {% for result in results %}
@@ -26,32 +28,98 @@
                             </div>
                             <div>
                                 {% if user.is_manager %}
-                                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'staff:evaluation_textanswer_edit' answer.id %}?next-view={{ view }}"><span class="fas fa-pencil"></span></a>
+                                    <a
+                                        class="btn btn-sm btn-outline-secondary"
+                                        href="{% url 'staff:evaluation_textanswer_edit' answer.id %}?next-view={{ view }}"
+                                    ><span class="fas fa-pencil"></span></a>
                                 {% endif %}
                             </div>
                             <div>
-                                <form class="full-update-textanswer-form" method="POST" action="{% url 'staff:evaluation_textanswers_update_publish' %}">
+                                <form
+                                    class="full-update-textanswer-form"
+                                    method="POST"
+                                    action="{% url 'staff:evaluation_textanswers_update_publish' %}"
+                                >
                                     {% csrf_token %}
 
                                     <input type="hidden" name="answer_id" value="{{ answer.id }}" />
 
                                     <div class="btn-group btn-group-sm outline-fix" role="group">
-                                        <input type="radio" class="btn-check" name="action" value="publish" id="{{ answer.id }}-radio-publish" autocomplete="off" {% if answer.will_be_public %}checked{% endif %}>
-                                        <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-publish">{% translate 'Publish' %}</label>
+                                        <input
+                                            type="radio"
+                                            class="btn-check"
+                                            name="action"
+                                            value="publish"
+                                            id="{{ answer.id }}-radio-publish"
+                                            autocomplete="off"
+                                            {% if answer.will_be_public %}
+                                                checked
+                                            {% endif %}
+                                        >
+                                        <label
+                                            class="btn btn-outline-primary"
+                                            for="{{ answer.id }}-radio-publish"
+                                        >{% translate 'Publish' %}</label>
 
-                                        <input type="radio" class="btn-check" name="action" value="make_private" id="{{ answer.id }}-radio-private" autocomplete="off" {% if answer.will_be_private %}checked{% endif %} {% if not contributor %}disabled{% endif %}>
-                                        <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-private">{% translate 'Private' %}</label>
+                                        <input
+                                            type="radio"
+                                            class="btn-check"
+                                            name="action"
+                                            value="make_private"
+                                            id="{{ answer.id }}-radio-private"
+                                            autocomplete="off"
+                                            {% if answer.will_be_private %}
+                                                checked
+                                            {% endif %}
+                                            {% if not contributor %}
+                                                disabled
+                                            {% endif %}
+                                        >
+                                        <label
+                                            class="btn btn-outline-primary"
+                                            for="{{ answer.id }}-radio-private"
+                                        >{% translate 'Private' %}</label>
 
-                                        <input type="radio" class="btn-check" name="action" value="unreview" id="{{ answer.id }}-radio-undecided" autocomplete="off" {% if not answer.is_reviewed %}checked{% endif %}>
-                                        <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-undecided">{% translate 'Undecided' %}</label>
+                                        <input
+                                            type="radio"
+                                            class="btn-check"
+                                            name="action"
+                                            value="unreview"
+                                            id="{{ answer.id }}-radio-undecided"
+                                            autocomplete="off"
+                                            {% if not answer.is_reviewed %}
+                                                checked
+                                            {% endif %}
+                                        >
+                                        <label
+                                            class="btn btn-outline-primary"
+                                            for="{{ answer.id }}-radio-undecided"
+                                        >{% translate 'Undecided' %}</label>
 
-                                        <input type="radio" class="btn-check" name="action" value="delete" id="{{ answer.id }}-radio-delete" autocomplete="off" {% if answer.will_be_deleted %}checked{% endif %}>
-                                        <label class="btn btn-outline-primary" for="{{ answer.id }}-radio-delete">{% translate 'Delete' %}</label>
+                                        <input
+                                            type="radio"
+                                            class="btn-check"
+                                            name="action"
+                                            value="delete"
+                                            id="{{ answer.id }}-radio-delete"
+                                            autocomplete="off"
+                                            {% if answer.will_be_deleted %}
+                                                checked
+                                            {% endif %}
+                                        >
+                                        <label
+                                            class="btn btn-outline-primary"
+                                            for="{{ answer.id }}-radio-delete"
+                                        >{% translate 'Delete' %}</label>
                                     </div>
                                 </form>
                             </div>
                             <div>
-                                <form class="full-textanswer-flag-form" method="POST" action="{% url 'staff:evaluation_textanswers_update_flag' %}">
+                                <form
+                                    class="full-textanswer-flag-form"
+                                    method="POST"
+                                    action="{% url 'staff:evaluation_textanswers_update_flag' %}"
+                                >
                                     {% csrf_token %}
 
                                     <input type="hidden" name="answer_id" value="{{ answer.id }}" />

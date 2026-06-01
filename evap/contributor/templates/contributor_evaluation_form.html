@@ -18,9 +18,12 @@
 
     <div class="callout callout-info small">
         {% if editable %}
-            {% blocktranslate %}Please review the evaluation's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the evaluation on the bottom of the page.{% endblocktranslate %}
+            {% blocktranslate %}Please review the evaluation's details below, add all contributors and select suitable
+                questionnaires. Once everything is okay, please approve the evaluation on the bottom of the
+                page.{% endblocktranslate %}
         {% else %}
-            {% blocktranslate %}You cannot edit this evaluation because it has already been approved.{% endblocktranslate %}
+            {% blocktranslate %}You cannot edit this evaluation because it has already been
+                approved.{% endblocktranslate %}
         {% endif %}
     </div>
     <h3>
@@ -90,28 +93,45 @@
         <div class="card card-submit-area card-submit-area-3 text-center mb-3">
             <div class="card-body">
                 {% if editable %}
-                    <button name="operation" value="preview" type="submit" class="btn btn-light">{% translate 'Preview' %}</button>
-                    <button name="operation" value="save" type="submit" class="btn btn-primary">{% translate 'Save' %}</button>
+                    <button name="operation" value="preview" type="submit" class="btn btn-light">
+                        {% translate 'Preview' %}
+                    </button>
+                    <button name="operation" value="save" type="submit" class="btn btn-primary">
+                        {% translate 'Save' %}
+                    </button>
 
                     <confirmation-modal type="submit" name="operation" value="approve">
                         <span slot="title">{% translate 'Approve evaluation' %}</span>
                         <span slot="action-text">{% translate 'Approve evaluation' %}</span>
                         <span slot="question">
                             {% blocktranslate trimmed %}
-                                Do you want to approve this evaluation? This will allow the evaluation team to proceed with the preparation, but you won't be able to make any further changes.
+                                Do you want to approve this evaluation? This will allow the evaluation team to proceed
+                                with the preparation, but you won't be able to make any further changes.
                             {% endblocktranslate %}
                         </span>
 
-                        <button slot="show-button" type="button" class="btn btn-success">{% translate 'Save and approve' %}</button>
+                        <button slot="show-button" type="button" class="btn btn-success">
+                            {% translate 'Save and approve' %}
+                        </button>
                     </confirmation-modal>
                 {% endif %}
-                <a href="{% url 'contributor:index' %}" class="btn btn-light">{% if edit %}{% translate 'Cancel' %}{% else %}{% translate 'Back' %}{% endif %}</a>
+                <a
+                    href="{% url 'contributor:index' %}"
+                    class="btn btn-light"
+                >{% if edit %}{% translate 'Cancel' %}{% else %}{% translate 'Back' %}{% endif %}</a>
             </div>
         </div>
     </form>
 
     {% if preview_html %}
-        <div class="modal fade" id="previewModal" tabindex="-1" role="dialog" aria-labelledby="previewModalLabel" aria-hidden="true">
+        <div
+            class="modal fade"
+            id="previewModal"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="previewModalLabel"
+            aria-hidden="true"
+        >
             <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -122,7 +142,9 @@
                         {{ preview_html }}
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% translate 'Close' %}</button>
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                            {% translate 'Close' %}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -133,11 +155,13 @@
 {% block modals %}
     {{ block.super }}
 
-    {% blocktranslate asvar title with evaluation_name=evaluation.full_name %}Request account creation for {{ evaluation_name }}{% endblocktranslate %}
+    {% blocktranslate asvar title with evaluation_name=evaluation.full_name %}Request account creation for
+        {{ evaluation_name }}{% endblocktranslate %}
     {% translate 'Please tell us which new account we should create. We need the name and email for all new accounts.' as teaser %}
     {% include 'contact_modal.html' with modal_id='createAccountRequestModal' user=request.user title=title teaser=teaser %}
 
-    {% blocktranslate asvar title with evaluation_name=evaluation.full_name %}Request evaluation changes for {{ evaluation_name }}{% endblocktranslate %}
+    {% blocktranslate asvar title with evaluation_name=evaluation.full_name %}Request evaluation changes for
+        {{ evaluation_name }}{% endblocktranslate %}
     {% translate 'Please tell us what changes to the evaluation we should make.' as teaser %}
     {% include 'contact_modal.html' with modal_id='changeEvaluationRequestModal' user=request.user title=title teaser=teaser %}
 {% endblock %}

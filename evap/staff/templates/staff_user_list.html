@@ -15,10 +15,18 @@
             <div class="btn-switch btn-switch-light">
                 <div class="btn-switch-label">{% translate 'Inactive users' %}</div>
                 <div class="btn-switch btn-group">
-                    <a href="{% url 'staff:user_list' %}?filter_users=false" role="button" class="btn btn-sm btn-light{% if not filter_users %} active{% endif %}">
+                    <a
+                        href="{% url 'staff:user_list' %}?filter_users=false"
+                        role="button"
+                        class="btn btn-sm btn-light{% if not filter_users %} active{% endif %}"
+                    >
                         {% translate 'Show' %}
                     </a>
-                    <a href="{% url 'staff:user_list' %}?filter_users=true" role="button" class="btn btn-sm btn-light{% if filter_users %} active{% endif %}">
+                    <a
+                        href="{% url 'staff:user_list' %}?filter_users=true"
+                        role="button"
+                        class="btn btn-sm btn-light{% if filter_users %} active{% endif %}"
+                    >
                         {% translate 'Hide' %}
                     </a>
                 </div>
@@ -28,7 +36,14 @@
             <div class="input-group">
                 <input type="search" name="search" class="form-control" placeholder="{% translate 'Search...' %}" />
                 <div class="input-group-append">
-                    <button class="btn btn-light text-secondary" type="button" data-reset="search" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Clear search filter' %}">
+                    <button
+                        class="btn btn-light text-secondary"
+                        type="button"
+                        data-reset="search"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="{% translate 'Clear search filter' %}"
+                    >
                         <span class="fas fa-backspace"></span>
                     </button>
                 </div>
@@ -49,12 +64,19 @@
                 </thead>
                 <tbody>
                     {% for user in users %}
-                        <tr id="user-row-{{ user.id }}" class="hover-row hover-row-info" data-url="{% url 'staff:user_edit' user.id %}">
+                        <tr
+                            id="user-row-{{ user.id }}"
+                            class="hover-row hover-row-info"
+                            data-url="{% url 'staff:user_edit' user.id %}"
+                        >
                             <td>{{ user.full_name }}</td>
                             <td>{% if user.email %}{{ user.email }}{% endif %}</td>
                             <td>{% include 'staff_user_badges.html' with user=user %}</td>
                             <td class="text-end">
-                                <a href="{% url 'staff:user_edit' user.id %}" class="btn btn-primary btn-sm btn-row-hover"><span class="fas fa-pencil-alt"></span></a>
+                                <a
+                                    href="{% url 'staff:user_edit' user.id %}"
+                                    class="btn btn-primary btn-sm btn-row-hover"
+                                ><span class="fas fa-pencil-alt"></span></a>
                             </td>
                         </tr>
                     {% endfor %}

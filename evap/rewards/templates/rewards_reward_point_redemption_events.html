@@ -11,11 +11,17 @@
     {{ block.super }}
     <div class="row mb-2">
         <div class="col">
-            <a href="{% url 'rewards:reward_point_redemption_event_create' %}" class="btn btn-dark btn-sm">{% translate 'Create new event' %}</a>
+            <a
+                href="{% url 'rewards:reward_point_redemption_event_create' %}"
+                class="btn btn-dark btn-sm"
+            >{% translate 'Create new event' %}</a>
         </div>
         <div class="col text-end">
             {% translate 'Available reward points' %}: {{ total_points_available }}
-            <a href="{% url 'rewards:reward_points_export' %}" class="btn btn-light btn-sm ms-2">{% translate 'Export reward points' %}</a>
+            <a
+                href="{% url 'rewards:reward_points_export' %}"
+                class="btn btn-light btn-sm ms-2"
+            >{% translate 'Export reward points' %}</a>
         </div>
     </div>
 

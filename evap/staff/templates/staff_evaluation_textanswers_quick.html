@@ -5,7 +5,14 @@
 {% block content %}
     {{ block.super }}
 
-    <div class="modal fade" id="hotkeys-modal" tabindex="-1" role="dialog" aria-labelledby="hotkeys-modal-title" aria-hidden="true">
+    <div
+        class="modal fade"
+        id="hotkeys-modal"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="hotkeys-modal-title"
+        aria-hidden="true"
+    >
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -13,18 +20,54 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <table class="modal-body table table-striped table-vertically-aligned">
-                    <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>{% translate 'Navigate through answers' %}</td></tr>
-                    <tr><td><kbd>J</kbd></td><td>{% translate 'Publish answer' %}</td></tr>
-                    <tr><td><kbd>K</kbd></td><td>{% translate 'Make answer private to the contributor' %}</td></tr>
-                    <tr><td><kbd>L</kbd></td><td>{% translate 'Delete answer' %}</td></tr>
-                    <tr><td><kbd>&#x232b;</kbd></td><td>{% translate 'Unreview answer' %}</td></tr>
-                    <tr><td><kbd>E</kbd></td><td>{% translate 'Edit answer' %}</td></tr>
-                    <tr><td><kbd>F</kbd></td><td>{% translate 'Set flag' %}</td></tr>
-                    <tr><td><kbd>D</kbd></td><td>{% translate 'Clear flag' %}</td></tr>
-                    <tr><td><kbd>&#x21b2;</kbd></td><td>{% translate 'Review next evaluation' %}</td></tr>
-                    <tr><td><kbd>S</kbd></td><td>{% translate 'Skip evaluation' %}</td></tr>
-                    <tr><td><kbd>N</kbd></td><td>{% translate 'Show all again' %}</td></tr>
-                    <tr><td><kbd>M</kbd></td><td>{% translate 'Show undecided' %}</td></tr>
+                    <tr>
+                        <td><kbd>←</kbd> <kbd>→</kbd></td>
+                        <td>{% translate 'Navigate through answers' %}</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>J</kbd></td>
+                        <td>{% translate 'Publish answer' %}</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>K</kbd></td>
+                        <td>{% translate 'Make answer private to the contributor' %}</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>L</kbd></td>
+                        <td>{% translate 'Delete answer' %}</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>&#x232b;</kbd></td>
+                        <td>{% translate 'Unreview answer' %}</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>E</kbd></td>
+                        <td>{% translate 'Edit answer' %}</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>F</kbd></td>
+                        <td>{% translate 'Set flag' %}</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>D</kbd></td>
+                        <td>{% translate 'Clear flag' %}</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>&#x21b2;</kbd></td>
+                        <td>{% translate 'Review next evaluation' %}</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>S</kbd></td>
+                        <td>{% translate 'Skip evaluation' %}</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>N</kbd></td>
+                        <td>{% translate 'Show all again' %}</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>M</kbd></td>
+                        <td>{% translate 'Show undecided' %}</td>
+                    </tr>
                 </table>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
@@ -33,7 +76,11 @@
         </div>
     </div>
 
-    <form method="POST" action="{% url 'staff:evaluation_textanswers_update_flag' %}" id="shared-full-textanswer-flag-form">
+    <form
+        method="POST"
+        action="{% url 'staff:evaluation_textanswers_update_flag' %}"
+        id="shared-full-textanswer-flag-form"
+    >
         {% csrf_token %}
 
         <!--
@@ -51,24 +98,45 @@
         <div class="card card-outline-primary slider">
             <div class="card-header">
                 {% translate 'Text answers' %}
-                <span class="hotkey-btn" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Hotkeys' %}">
+                <span
+                    class="hotkey-btn"
+                    aria-hidden="true"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="right"
+                    title="{% translate 'Hotkeys' %}"
+                >
                     <span class="far fa-keyboard" data-bs-toggle="modal" data-bs-target="#hotkeys-modal"></span>
                 </span>
             </div>
             <div class="card-body slider-inner px-0">
                 <div class="slider-side slider-side-left">
-                    <span class="badge rounded-pill bg-primary" data-counter="reviewed-left" data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Reviewed text answers' %}"></span>
+                    <span
+                        class="badge rounded-pill bg-primary"
+                        data-counter="reviewed-left"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="left"
+                        title="{% translate 'Reviewed text answers' %}"
+                    ></span>
                     <span class="py-2 fas fa-chevron-left" data-slide="left"></span>
-                    <span class="badge rounded-pill bg-secondary" data-counter="unreviewed-left" data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Unreviewed text answers' %}"></span>
+                    <span
+                        class="badge rounded-pill bg-secondary"
+                        data-counter="unreviewed-left"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="left"
+                        title="{% translate 'Unreviewed text answers' %}"
+                    ></span>
                 </div>
                 <div class="slider-items">
                     {% for questionnaire, contributor, label, is_responsible, results in sections %}
                         <div class="slider-item card-header" data-layer="0">
-                            {{ questionnaire.public_name }}{% if contributor %}: {{ contributor.full_name }}{% if is_responsible %} ({% translate 'responsible' %}){% endif %}{% if label %} &ndash;&nbsp;<span class="fst-italic">{{ label }}</span>{% endif %}{% endif %}
+                            {{ questionnaire.public_name }}{% if contributor %}:
+                                {{ contributor.full_name }}{% if is_responsible %}
+                                    ({% translate 'responsible' %}){% endif %}{% if label %}
+                                    &ndash;&nbsp;<span class="fst-italic">{{ label }}</span>{% endif %}{% endif %}
                         </div>
                         {% for result in results %}
                             <div class="slider-item card-body" data-layer="1">
-                                {{ result.question.text}}
+                                {{ result.question.text }}
                             </div>
                             {% for answer in result.answers %}
                                 <input
@@ -90,7 +158,9 @@
                                     data-layer="2"
                                     id="textanswer-{{ answer.id }}"
                                     data-id="{{ answer.id }}"
-                                    {% if contributor %} data-contribution="yes"{% endif %}
+                                    {% if contributor %}
+                                        data-contribution="yes"
+                                    {% endif %}
                                     {% if answer.is_reviewed %}
                                         {% if answer.will_be_public %}
                                             data-review="publish"
@@ -100,11 +170,14 @@
                                             data-review="delete"
                                         {% endif %}
                                     {% endif %}
-                                    {% if answer.is_flagged %} data-is-flagged {% endif %}
+                                    {% if answer.is_flagged %}
+                                        data-is-flagged
+                                    {% endif %}
                                 >
                                     {{ answer.answer|linebreaksbr }}
                                     {% if answer.original_answer %}
-                                        <span class="textanswer-original">({{ answer.original_answer|linebreaksbr }})</span>
+                                        <span class="textanswer-original"
+                                        >({{ answer.original_answer|linebreaksbr }})</span>
                                     {% endif %}
                                 </div>
                             {% endfor %}
@@ -124,19 +197,36 @@
                             </span>
                         {% endif %}
                         {% for next_evaluation in next_evaluations %}
-                            <span data-next-evaluation-index="{{ forloop.counter0 }}" data-evaluation="{{ next_evaluation.pk }}">
-                                {% blocktranslate with name=next_evaluation.full_name count answers=next_evaluation.num_unreviewed_textanswers %}The next evaluation "{{ name }}" has got {{ answers }} unreviewed text answer.{% plural %}The next evaluation "{{ name }}" has got {{ answers }} unreviewed text answers.{% endblocktranslate %}
+                            <span
+                                data-next-evaluation-index="{{ forloop.counter0 }}"
+                                data-evaluation="{{ next_evaluation.pk }}"
+                            >
+                                {% blocktranslate with name=next_evaluation.full_name count answers=next_evaluation.num_unreviewed_textanswers %}The
+                                    next evaluation "{{ name }}" has got {{ answers }} unreviewed text
+                                    answer.{% plural %}The next evaluation "{{ name }}" has got {{ answers }} unreviewed
+                                    text answers.{% endblocktranslate %}
                             </span>
                         {% endfor %}
                     </div>
                 </div>
                 <div class="slider-side slider-side-right">
-                    <span class="badge rounded-pill bg-primary" data-counter="reviewed-right" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Reviewed text answers' %}"></span>
+                    <span
+                        class="badge rounded-pill bg-primary"
+                        data-counter="reviewed-right"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="right"
+                        title="{% translate 'Reviewed text answers' %}"
+                    ></span>
                     <span class="py-2 fas fa-chevron-right" data-slide="right" title=""></span>
-                    <span class="badge rounded-pill bg-secondary" data-counter="unreviewed-right" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Unreviewed text answers' %}"></span>
+                    <span
+                        class="badge rounded-pill bg-secondary"
+                        data-counter="unreviewed-right"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="right"
+                        title="{% translate 'Unreviewed text answers' %}"
+                    ></span>
                 </div>
             </div>
-
 
             <div class="card-footer d-flex align-items-center">
                 <div class="lcr-left">
@@ -150,8 +240,15 @@
                     <button type="submit" name="action" value="publish" class="btn btn-sm btn-outline-secondary">
                         {% translate 'Publish' %}
                     </button>
-                    <button type="submit" name="action" value="make_private" class="btn btn-sm btn-outline-secondary" disabled
-                        title="{% blocktranslate %}This answer is for a general question and can't be made private.{% endblocktranslate %}" data-bs-toggle="tooltip">
+                    <button
+                        type="submit"
+                        name="action"
+                        value="make_private"
+                        class="btn btn-sm btn-outline-secondary"
+                        disabled
+                        title="{% blocktranslate %}This answer is for a general question and can't be made private.{% endblocktranslate %}"
+                        data-bs-toggle="tooltip"
+                    >
                         {% translate 'Private' %}
                     </button>
                     <button type="submit" name="action" value="delete" class="btn btn-sm btn-outline-secondary">
@@ -161,7 +258,13 @@
                 <div class="lcr-center d-none" data-action-set="summary">
                     {% if next_evaluations %}
                         {% for next_evaluation in next_evaluations %}
-                            <a href="{% url 'staff:evaluation_textanswers' next_evaluation.id %}" data-next-evaluation-index="{{ forloop.counter0 }}" data-evaluation="{{ next_evaluation.pk }}" data-url="next-evaluation" class="btn btn-sm btn-primary">
+                            <a
+                                href="{% url 'staff:evaluation_textanswers' next_evaluation.id %}"
+                                data-next-evaluation-index="{{ forloop.counter0 }}"
+                                data-evaluation="{{ next_evaluation.pk }}"
+                                data-url="next-evaluation"
+                                class="btn btn-sm btn-primary"
+                            >
                                 {% translate 'Review next evaluation' %}
                             </a>
                         {% endfor %}
@@ -180,7 +283,13 @@
                     <div data-action-set="reviewing">
                         {% include "staff_evaluation_textanswer_flag_radios.html" with form="shared-full-textanswer-flag-form" id="shared" %}
                         {% if user.is_manager %}
-                            <button type="submit" id="textanswer-edit-btn" name="action" value="textanswer_edit" class="btn btn-sm btn-outline-secondary">
+                            <button
+                                type="submit"
+                                id="textanswer-edit-btn"
+                                name="action"
+                                value="textanswer_edit"
+                                class="btn btn-sm btn-outline-secondary"
+                            >
                                 <span class="fas fa-pencil"></span>
                             </button>
                         {% endif %}

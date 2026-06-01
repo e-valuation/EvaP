@@ -5,14 +5,18 @@
         want to think about input caching.
     -->
     <input
-        {% if form %}form="{{ form }}"{% endif %}
+        {% if form %}
+            form="{{ form }}"
+        {% endif %}
         type="radio"
         name="is_flagged"
         value="false"
         id="radio-flag-false-{{ id }}"
         class="btn-check"
         autocomplete="off"
-        {% if not is_initially_flagged %}checked{% endif %}
+        {% if not is_initially_flagged %}
+            checked
+        {% endif %}
     />
     <label
         for="radio-flag-false-{{ id }}"
@@ -22,14 +26,18 @@
     </label>
 
     <input
-        {% if form %}form="{{ form }}"{% endif %}
+        {% if form %}
+            form="{{ form }}"
+        {% endif %}
         type="radio"
         name="is_flagged"
         value="true"
         id="radio-flag-true-{{ id }}"
         class="btn-check"
         autocomplete="off"
-        {% if is_initially_flagged %}checked{% endif %}
+        {% if is_initially_flagged %}
+            checked
+        {% endif %}
     />
     <label
         for="radio-flag-true-{{ id }}"
