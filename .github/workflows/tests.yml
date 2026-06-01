@@ -204,6 +204,10 @@ jobs:
       - run: ls -laR evap/static/ts
       - name: Check TypeScript formatting
         run: npx prettier --list-different --log-level debug 'evap/static/ts/**/*.ts' 'evap/static/ts/eslint.config.js'
+      - name: Check HTML formatting
+        run: |
+          ./manage.py format html
+          git diff --exit-code
 
   backup-process:
     runs-on: ubuntu-22.04
