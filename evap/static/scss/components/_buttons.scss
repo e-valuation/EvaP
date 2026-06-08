@@ -154,7 +154,7 @@ a:not([href]):not(.disabled) {
             z-index: $zindex-fixed;
         }
 
-        button {
+        > button {
             padding: 0 0.2rem;
             color: $light-gray;
         }
