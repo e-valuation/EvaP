@@ -1,0 +1,68 @@
+// fix datetimepicker time selector width
+.time-container-clock,
+.time-container-hour,
+.time-container-minute {
+    width: 100%;
+}
+
+/* Overall widget wider */
+.tempus-dominus-widget.timepicker-sbs {
+    width: auto !important;
+    max-width: 540px;
+}
+
+/* Time container - wider to accommodate bigger inner elements */
+.tempus-dominus-widget.timepicker-sbs .time-container {
+    flex: 0 0 160px !important;
+    width: 160px !important;
+    padding: 6px !important;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+/* Clock - vertical centering */
+.tempus-dominus-widget.timepicker-sbs .time-container .clock {
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+/* Hour/Minute display - WIDER to fill horizontal space */
+.tempus-dominus-widget.timepicker-sbs .time-container .clock .hour,
+.tempus-dominus-widget.timepicker-sbs .time-container .clock .minute {
+    min-width: 65px !important; /* Increased from 50px */
+    width: 65px !important;     /* Increased from 50px */
+    font-size: 1.2em !important;
+    padding: 4px !important;
+}
+
+/* Up/down buttons - WIDER to match hour/minute width */
+.tempus-dominus-widget.timepicker-sbs .time-container .clock button {
+    min-width: 65px !important; /* Increased from 50px */
+    width: 65px !important;     /* Increased from 50px */
+    padding: 6px 8px !important;
+    margin: 2px !important;
+}
+
+/* Clock face - LARGER */
+.tempus-dominus-widget.timepicker-sbs .time-container .clock .clock-face {
+    width: 110px !important;
+    height: 110px !important;
+}
+
+/* Separator between hour/minute */
+.tempus-dominus-widget.timepicker-sbs .time-container .clock .separator {
+    padding: 0 8px !important;
+    font-size: 1.2em !important;
+}
+
+/* Date container */
+.tempus-dominus-widget.timepicker-sbs .date-container {
+    flex: 1 1 auto;
+    min-width: 290px;
+}
