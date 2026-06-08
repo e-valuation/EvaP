@@ -84,11 +84,11 @@ body, .fixed-top, .fixed-bottom, .is-fixed, .sticky-top {
 
 // explicitely set alert colors
 $alert-colors: (
-    "secondary" $light-gray $medium-gray,
-    "success" $evap-light-green $evap-green,
-    "info" $evap-light-blue $evap-dark-blue,
-    "warning" $evap-light-yellow $evap-yellow,
-    "danger" $evap-light-red $evap-red,
+    "secondary" $secondary-accent $secondary,
+    "success" $success-accent $success,
+    "info" $info $info-accent,
+    "warning" $warning-accent $warning,
+    "danger" $danger-accent $danger,
     "light" $lighter-gray $light-gray,
     "dark" $dark-gray $darker-gray
 );

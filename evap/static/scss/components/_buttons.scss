@@ -44,14 +44,14 @@ a:not([href]):not(.disabled) {
     cursor: pointer;
 }
 
-@include button-disabled-variant(".btn-primary", $evap-dark-blue, $evap-light-blue);
+@include button-disabled-variant(".btn-primary", $primary, $primary-accent); //TODO check which variants are needed
 @include button-disabled-variant(".btn-secondary", $dark-gray, $light-gray);
-@include button-disabled-variant(".btn-success", shade-color($evap-green, 25%), $evap-light-green);
-@include button-disabled-variant(".btn-danger", $evap-red, $evap-light-red);
-@include button-disabled-variant(".btn-warning", shade-color($evap-dark-yellow, 25%), $evap-light-yellow);
-@include button-disabled-variant(".btn-info", shade-color($evap-light-blue, 40%), tint-color($evap-light-blue, 10%));
+@include button-disabled-variant(".btn-success", shade-color($success, 25%), $success-accent);
+@include button-disabled-variant(".btn-danger", $danger, $danger-accent);
+@include button-disabled-variant(".btn-warning", shade-color($warning, 25%), $warning-accent);
+@include button-disabled-variant(".btn-info", shade-color($info, 40%), tint-color($info-accent, 10%));
 @include button-disabled-variant(".btn-light", $medium-gray, $lighter-gray);
-@include button-disabled-variant(".btn-dark", $white, $dark-gray, $darker-gray);
+@include button-disabled-variant(".btn-dark", $white, $dark-gray, $dark);
 
 .btn-switch {
     display: inline-flex;
@@ -275,7 +275,7 @@ a.collapse-toggle {
     border-color: $medium-gray;
 
     & > .fa-comment {
-        color: $darker-gray;
+        color: $dark;
     }
 
     &.has-contents > .fa-comment {

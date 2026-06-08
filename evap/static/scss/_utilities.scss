@@ -1,9 +1,9 @@
 .warning-label {
-    color: $evap-dark-yellow;
+    color: $warning;
 }
 
 .error-label {
-    color: $evap-dark-red;
+    color: $danger;
 }
 
 .light-link {
@@ -65,10 +65,10 @@ a.no-underline:hover {
 .bg-debug {
     background: repeating-linear-gradient(
         118deg,
-        tint-color($darker-gray, 12%),
-        tint-color($darker-gray, 12%) 3.5em,
-        $darker-gray 3.5em,
-        $darker-gray 7em
+        tint-color($dark, 12%),
+        tint-color($dark, 12%) 3.5em,
+        $dark 3.5em,
+        $dark 7em
     );
 }
 

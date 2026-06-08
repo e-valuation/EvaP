@@ -3,12 +3,12 @@
 }
 
 $table-colors: (
-    "primary" $evap-dark-blue $white,
+    "primary" $primary $white,
     "secondary" $medium-gray $black,
-    "success" $evap-green $black,
-    "info" $evap-light-blue $black,
-    "warning" $evap-yellow $black,
-    "danger" $evap-red $white $black,
+    "success" $success $black,
+    "info" $info $black,
+    "warning" $warning $black,
+    "danger" $danger $white $black,
     "light" $light-gray $black,
     "dark" $darker-gray $white
 );
