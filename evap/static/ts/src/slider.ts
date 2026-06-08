@@ -18,7 +18,7 @@ export class RangeSlider {
     private allowed: Range = { low: 0, high: 0 };
     private _value: Range = { low: 0, high: 0 };
 
-    private debounceTimeout?: number;
+    private debounceTimeout?: ReturnType<typeof setTimeout>;
 
     public constructor(sliderId: string) {
         this.rangeSlider = selectOrError<HTMLDivElement>("#" + sliderId);

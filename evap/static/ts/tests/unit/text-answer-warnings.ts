@@ -1,5 +1,7 @@
 import { testable } from "src/text-answer-warnings";
 
+import { test, expect, describe } from "@jest/globals";
+
 test("normalize converts to lower case", () => {
     expect(testable.normalize("This is MY comment")).toBe("this is my comment");
 });
