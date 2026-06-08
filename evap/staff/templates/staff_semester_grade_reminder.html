@@ -1,8 +1,14 @@
 {% extends 'staff_semester_base.html' %}
 
+{% load staff_templatetags %}
+
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% translate 'Grade publish reminder' %}</li>
+    
+    {% url request.resolver_match.view_name as self_url %}
+    {% create_breadcrumb self_url %} 
+        {% translate 'Grade publish reminder' %}
+    {% endcreate_breadcrumb %}
 {% endblock %}
 
 {% block content %}

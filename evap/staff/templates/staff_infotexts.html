@@ -1,8 +1,14 @@
 {% extends 'staff_base.html' %}
 
+{% load staff_templatetags %}
+
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% translate 'Infotexts' %}</li>
+    
+    {% url request.resolver_match.view_name as self_url %}
+    {% create_breadcrumb self_url %} 
+        {% translate 'Infotexts' %}
+    {% endcreate_breadcrumb %}
 {% endblock %}
 
 {% block content %}

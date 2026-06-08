@@ -1,10 +1,15 @@
 {% extends 'staff_base.html' %}
 
 {% load static %}
+{% load staff_templatetags %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% translate 'FAQ Sections' %}</li>
+    
+    {% url request.resolver_match.view_name as self_url %}
+    {% create_breadcrumb self_url %} 
+        {% translate 'FAQ Sections' %}
+    {% endcreate_breadcrumb %}
 {% endblock %}
 
 {% block content %}

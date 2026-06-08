@@ -1,11 +1,19 @@
 {% extends 'staff_base.html' %}
 
 {% load evaluation_filters %}
+{% load staff_templatetags %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'staff:program_index' %}">{% translate 'Programs' %}</a></li>
-    <li class="breadcrumb-item">{% translate 'Merge programs' %}</li>
+    
+    {% url 'staff:program_index' as programm_index_url %}
+    {% create_breadcrumb programm_index_url %} 
+        {% translate 'Programs' %}
+    {% endcreate_breadcrumb %}
+
+    {% create_breadcrumb %} 
+        {% translate 'Merge programs' %}
+    {% endcreate_breadcrumb %}
 {% endblock %}
 
 {% block content %}
