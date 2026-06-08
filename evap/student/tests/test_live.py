@@ -136,8 +136,7 @@ class StudentVoteLiveTest(LiveServerTest):
         with self.wait_until_page_reloads():
             self.selenium.find_element(By.ID, "vote-submit-btn").click()
 
-        # wait for all javascript to fully execute, so our click handlers are registered
-        self.wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
+        self.wait_until_document_ready()
 
         row = self.selenium.find_element(By.CSS_SELECTOR, "#student-vote-form .row:has(.btn-check)")
         error_marked = row.find_elements(By.CSS_SELECTOR, ".choice-error")
