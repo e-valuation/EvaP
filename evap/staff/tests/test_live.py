@@ -247,6 +247,115 @@ class QuestionnaireLiveTest(LiveServerTest):
         self.assertTrue(bottom_element.is_displayed())
 
 
+class QuestionnaireFormLiveTest(LiveServerTest):
+    def test_question_type_disabling_logic(self):
+        def assert_type_allows(row, type_select, question_type, additional_textanswers, counts_for_grade):
+            self.set_tomselect_value(type_select, str(question_type))
+            self.assertEqual(
+                additional_textanswers,
+                row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").is_enabled(),
+            )
+            self.assertEqual(
+                counts_for_grade,
+                row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").is_enabled(),
+            )
+
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        baker.make(QuestionAssignment, questionnaire=questionnaire, question__type=QuestionType.POSITIVE_LIKERT)
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.reverse("staff:questionnaire_edit", args=[questionnaire.pk]))
+
+        # Part 1: Edit Existing Question
+        row = self.wait.until(visibility_of_element_located((By.CSS_SELECTOR, "#question_table tbody tr")))
+        type_select = row.find_element(By.CSS_SELECTOR, "select[id$='-type']")
+
+        assert_type_allows(row, type_select, QuestionType.TEXT, additional_textanswers=False, counts_for_grade=False)
+        assert_type_allows(
+            row, type_select, QuestionType.POSITIVE_LIKERT, additional_textanswers=True, counts_for_grade=True
+        )
+        assert_type_allows(row, type_select, QuestionType.HEADING, additional_textanswers=False, counts_for_grade=False)
+
+        # Part 2: Add New Question
+        self.selenium.find_element(By.CLASS_NAME, "add-row").click()
+
+        # Wait until there are at least 3 rows (2 existing (since there is the default new row) + 1 new)
+        self.wait.until(lambda driver: len(driver.find_elements(By.CSS_SELECTOR, "#question_table tbody tr")) >= 3)
+
+        new_row = self.selenium.find_elements(By.CSS_SELECTOR, "#question_table tbody tr")[
+            -2
+        ]  # the last row is the add row button
+        new_type_select = new_row.find_element(By.CSS_SELECTOR, "select[id$='-type']")
+
+        assert_type_allows(
+            new_row, new_type_select, QuestionType.TEXT, additional_textanswers=False, counts_for_grade=False
+        )
+        assert_type_allows(
+            new_row, new_type_select, QuestionType.POSITIVE_LIKERT, additional_textanswers=True, counts_for_grade=True
+        )
+        assert_type_allows(
+            new_row, new_type_select, QuestionType.HEADING, additional_textanswers=False, counts_for_grade=False
+        )
+
+    def test_questionnaire_type_disabling_logic(self):
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        baker.make(
+            QuestionAssignment,
+            questionnaire=questionnaire,
+            question__type=QuestionType.POSITIVE_LIKERT,
+            counts_for_grade=True,
+        )
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.reverse("staff:questionnaire_edit", args=[questionnaire.pk]))
+
+        row = self.wait.until(visibility_of_element_located((By.CSS_SELECTOR, "#question_table tbody tr")))
+        questionnaire_type_select = self.selenium.find_element(By.ID, "id_type")
+
+        self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").is_selected())
+
+        # Change to Dropout
+        self.set_tomselect_value(questionnaire_type_select, str(Questionnaire.Type.DROPOUT))
+        self.assertFalse(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").is_enabled())
+        self.assertFalse(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").is_selected())
+        self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").is_enabled())
+
+        # Change back to Top
+        self.set_tomselect_value(questionnaire_type_select, str(Questionnaire.Type.TOP))
+        self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").is_enabled())
+        self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").is_selected())
+        self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").is_enabled())
+
+    def test_empty_extra_question_is_not_touched_for_dropout_questionnaire(self):
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
+        baker.make(
+            QuestionAssignment,
+            questionnaire=questionnaire,
+            question__type=QuestionType.POSITIVE_LIKERT,
+            counts_for_grade=False,
+        )
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.reverse("staff:questionnaire_edit", args=[questionnaire.pk]))
+
+        self.wait.until(
+            lambda driver: len(driver.find_elements(By.CSS_SELECTOR, "#question_table tbody tr.sortable")) >= 2
+        )
+        rows = [
+            row
+            for row in self.selenium.find_elements(By.CSS_SELECTOR, "#question_table tbody tr.sortable")
+            if row.is_displayed()
+        ]
+        extra_row = rows[-1]
+
+        type_select = extra_row.find_element(By.CSS_SELECTOR, "select[id$='-type']")
+        counts_for_grade_checkbox = extra_row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']")
+
+        self.assertEqual(type_select.get_attribute("value"), "")
+        self.assertTrue(counts_for_grade_checkbox.is_enabled())
+        self.assertTrue(counts_for_grade_checkbox.is_selected())
+
+
 class TextAnswerEditLiveTest(LiveServerTest):
     def test_edit_textanswer_redirect(self):
         """Regression test for #1696"""

@@ -3048,6 +3048,7 @@ class TestEvaluationTextAnswerView(WebTest):
             questionnaire=iter(questionnaires),
             question__type=QuestionType.TEXT,
             question__allows_additional_textanswers=False,
+            counts_for_grade=False,
             **kwargs,
         )
         baker.make(TextAnswer, assignment=iter(assignments), contribution=iter(contributions), **kwargs)
@@ -3371,6 +3372,14 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
         self.change_question().follow()
         self.assert_question_change(self.question)
 
+    def test_empty_extra_question_is_not_saved(self) -> None:
+        page = self.app.get(self.url, user=self.manager)
+        form = page.forms["questionnaire-form"]
+
+        form.submit().follow()
+
+        self.assertEqual(self.questionnaire.question_assignments.count(), 1)
+
     def test_copy_on_write_used_question(self) -> None:
         baker.make(QuestionAssignment, question=self.question)
 
@@ -3433,6 +3442,7 @@ class TestQuestionnaireViewView(WebTestStaffModeWith200Check):
             _quantity=3,
             _bulk_create=True,
             question__allows_additional_textanswers=False,
+            counts_for_grade=iter([False, True, True]),
         )
 
     def test_preview_change_language(self):

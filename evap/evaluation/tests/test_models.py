@@ -5,6 +5,7 @@ from django.contrib.auth.models import Group
 from django.core import mail
 from django.core.cache import caches
 from django.core.exceptions import ValidationError
+from django.db import models
 from django.test import override_settings
 from django_fsm import TransitionNotAllowed
 from model_bakery import baker
@@ -1174,3 +1175,49 @@ class TestEmailRecipientList(TestCase):
             evaluation, [EmailTemplate.Recipients.CONTRIBUTORS], filter_users_in_cc=True
         )
         self.assertCountEqual(recipient_list, [contributor2, contributor3])
+
+
+class QuestionnaireTests(TestCase):
+    def test_locked_contributor_questionnaire(self):
+        questionnaire = baker.prepare(Questionnaire, is_locked=True, type=Questionnaire.Type.CONTRIBUTOR)
+        self.assertRaises(ValidationError, questionnaire.clean)
+
+    def test_save_for_text_and_heading_question_type(self):
+        # Use prepare() instead of make() to test Question.save() method behavior
+        question_text = baker.prepare(
+            Question,
+            type=QuestionType.TEXT,
+            allows_additional_textanswers=True,
+        )
+        question_heading = baker.prepare(
+            Question,
+            type=QuestionType.HEADING,
+            allows_additional_textanswers=True,
+        )
+        question_rating = baker.prepare(
+            Question,
+            type=QuestionType.NEGATIVE_LIKERT,
+            allows_additional_textanswers=True,
+        )
+
+        question_rating.save()
+        question_rating.refresh_from_db()
+        self.assertEqual(question_rating.allows_additional_textanswers, True)
+
+        # Check if setting allows_additional_textanswers to False in the save method works
+        question_rating.type = QuestionType.TEXT
+        question_rating.save(update_fields=["type"])
+        question_rating.refresh_from_db()
+        self.assertEqual(question_rating.allows_additional_textanswers, False)
+
+        with patch.object(models.Model, "save") as mock_save:
+            question_text.save(update_fields=["text_de"])
+            mock_save.assert_called_once()
+            args, kwargs = mock_save.call_args
+            self.assertEqual(set(kwargs["update_fields"]), {"allows_additional_textanswers", "text_de"})
+
+            mock_save.reset_mock()
+            question_heading.save(update_fields=["text_de"])
+            mock_save.assert_called_once()
+            args, kwargs = mock_save.call_args
+            self.assertEqual(set(kwargs["update_fields"]), {"allows_additional_textanswers", "text_de"})
