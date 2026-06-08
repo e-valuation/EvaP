@@ -1121,13 +1121,13 @@ class Evaluation(LoggedModel):
     ) -> "QuerySet[Evaluation]":
         subquery = Evaluation.objects.filter(pk=OuterRef("pk"))
 
-        participant_count_subquery = subquery.annotate(  # type: ignore[no-redef,misc]
-            num_participants=Coalesce("_participant_count", Count("participants")),
-        ).values("num_participants")
+        participant_count_subquery = subquery.annotate(
+            annotated_num_participants=Coalesce("_participant_count", Count("participants")),
+        ).values("annotated_num_participants")
 
-        voter_count_subquery = subquery.annotate(  # type: ignore[no-redef,misc]
-            num_voters=Coalesce("_voter_count", Count("voters")),
-        ).values("num_voters")
+        voter_count_subquery = subquery.annotate(
+            annotated_num_voters=Coalesce("_voter_count", Count("voters")),
+        ).values("annotated_num_voters")
 
         return evaluation_query.annotate(  # type: ignore[no-redef]
             num_participants=Subquery(participant_count_subquery),
@@ -1146,11 +1146,11 @@ class Evaluation(LoggedModel):
 
 
 @receiver(post_transition, sender=Evaluation)
-def evaluation_state_change(instance: Evaluation, source: int, **_kwargs: Any) -> None:
+def evaluation_state_change(instance: Any, source: int, **_kwargs: Any) -> None:
     """Evaluation.save checks whether caches must be updated based on this value"""
     # if multiple state changes are happening, state_change_source should be the first source
     if not hasattr(instance, "state_change_source"):
-        cast("Any", instance).state_change_source = source
+        instance.state_change_source = source
 
 
 @receiver(post_transition, sender=Evaluation)

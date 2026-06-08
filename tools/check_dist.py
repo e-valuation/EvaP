@@ -11,7 +11,7 @@ from zipfile import ZipFile
 from pathspec.patterns.gitwildmatch import GitWildMatchPattern
 
 
-def ensure_all_artifacts_included(pyproject: Any, wheel_paths: Iterable[str]) -> int:
+def ensure_all_artifacts_included(pyproject: Any, wheel_paths: Iterable[Path]) -> int:
     try:
         artifacts = pyproject["tool"]["hatch"]["build"]["artifacts"]
     except KeyError:

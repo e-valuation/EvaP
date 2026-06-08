@@ -193,7 +193,6 @@ django_settings_module = "evap.settings"
 [[tool.mypy.overrides]]
 module = [
     "django_fsm.*",
-    "django_sendfile.*",
     "django_webtest.*",
     "debug_toolbar.*",
     "mozilla_django_oidc.*",

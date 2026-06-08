@@ -184,7 +184,7 @@ class LoggedModel(models.Model):
         ]
         return model_to_dict(self, fields)
 
-    def _get_change_data(self, action_type: InstanceActionType) -> dict[str, Any]:
+    def _get_change_data(self, action_type: InstanceActionType) -> dict[str, dict[FieldActionType, list]]:
         """
         Return a dict mapping field names to changes that happened in this model instance,
         depending on the action that is being done to the instance.
@@ -369,7 +369,7 @@ def _m2m_changed(  # noqa: PLR0912
     pk_set: set[int] | None,
     **kwargs: Any,
 ) -> None:
-    model_class = cast("type[models.Model]", model if reverse else type(instance))
+    model_class = model if reverse else type(assert_not_none(instance))
     field_name = next(
         (field.name for field in model_class._meta.many_to_many if getattr(model_class, field.name).through == sender),
         None,
@@ -400,7 +400,7 @@ def _m2m_changed(  # noqa: PLR0912
         if action_type == FieldActionType.M2M_CLEAR:
             action_type = FieldActionType.M2M_REMOVE
         if pk_set:
-            related_instances = cast("Any", model_class).objects.filter(pk__in=pk_set)
+            related_instances = model_class._default_manager.filter(pk__in=pk_set)
         else:
             # When action is pre_clear, pk_set is None, so we need to get the related instances from the instance itself
             related_name = assert_not_none(model._meta.get_field(field_name).remote_field.get_accessor_name())  # type: ignore[union-attr]

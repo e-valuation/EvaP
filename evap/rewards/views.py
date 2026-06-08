@@ -37,7 +37,7 @@ def index(request: HttpRequest) -> HttpResponse:
     events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=date.today()).order_by("date")
 
     # pylint: disable=unexpected-keyword-arg
-    formset: Any = RewardPointRedemptionFormSet(
+    formset = RewardPointRedemptionFormSet(
         request.POST or None,
         initial=[{"event": e, "points": 0} for e in events],
         user=request.user,
