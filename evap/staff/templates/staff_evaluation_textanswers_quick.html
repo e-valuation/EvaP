@@ -92,10 +92,8 @@
                                     data-id="{{ answer.id }}"
                                     {% if contributor %} data-contribution="yes"{% endif %}
                                     {% if answer.is_reviewed %}
-                                        {% if answer.will_be_public %}
+                                        {% if answer.will_be_kept %}
                                             data-review="publish"
-                                        {% elif answer.will_be_private %}
-                                            data-review="make_private"
                                         {% else %}
                                             data-review="delete"
                                         {% endif %}
