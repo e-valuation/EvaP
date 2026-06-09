@@ -16,6 +16,7 @@ from evap.evaluation.models import (
     Contribution,
     Course,
     CourseType,
+    Evaluation,
     Program,
     RatingAnswerCounter,
     Semester,
@@ -69,7 +70,7 @@ class Command(BaseCommand):
                 self.anonymize_evaluations()
                 self.anonymize_questionnaires()
                 self.anonymize_answers(lorem_ipsum)
-
+                self.anonymize_staff_notes(lorem_ipsum)
                 self.stdout.write("")
                 self.stdout.write("Done.")
 
@@ -275,6 +276,13 @@ class Command(BaseCommand):
                     assert original_sum == sum(counter.count for counter in counters)
         finally:
             self.stdout.ending = "\n"
+
+    def anonymize_staff_notes(self, lorem_ipsum):
+        self.stdout.write("Replacing text answers with fake ones...")
+        for evaluation in Evaluation.objects.all():
+            if evaluation.staff_notes != "":
+                evaluation.staff_notes = self.lorem(evaluation.staff_notes, lorem_ipsum)
+                evaluation.save()
 
     # Returns a string with the same number of lorem ipsum words as the given text
     @staticmethod
