@@ -100,7 +100,7 @@
                 applyTomSelect(row.querySelectorAll("select"));
                 registerSelectChangedHandlers();
             };
-            makeFormSortable("question_table", "questions", rowChanged, rowAdded, true, true);
+            makeFormSortable("question_table", "question_assignments", rowChanged, rowAdded, true, true);
 
             const selectChangedHandler = function(e) {
                 const checkbox = this.closest("td.question-type").querySelector("input[type=checkbox]");
