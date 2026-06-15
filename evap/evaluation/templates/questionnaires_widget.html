@@ -15,13 +15,13 @@
                 {{ questionnaire.description }}<br />
             {% endif %}
             <ul>
-                {% for question in questionnaire.questions.all %}
-                    {% if question.is_heading_question %}
+                {% for assignment in questionnaire.question_assignments.all %}
+                    {% if assignment.question.is_heading_question %}
                         </ul>
-                        {{ question.text }}
+                        {{ assignment.question.text }}
                         <ul>
                     {% else %}
-                        <li>{{ question.text }}</li>
+                        <li>{{ assignment.question.text }}</li>
                     {% endif %}
                 {% endfor %}
             </ul>
