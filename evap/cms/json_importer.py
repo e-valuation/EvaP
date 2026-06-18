@@ -434,7 +434,7 @@ class JSONImporter:
 
     # pylint: disable=too-many-locals
     def _import_evaluation(  # noqa: PLR0912, PLR0915
-        self, course: Course, data: ImportEvent, earliest_exam_date: date | None = None
+        self, cms_course: Course, data: ImportEvent, earliest_exam_date: date | None = None
     ) -> Evaluation | None:
         # Don't import ignored evaluations again
         if IgnoredEvaluation.objects.filter(cms_id=data["gguid"]).exists():
@@ -444,8 +444,11 @@ class JSONImporter:
         if EvaluationLink.objects.filter(cms_id=data["gguid"], is_active=False).exists():
             return None
 
+        course = cms_course  # by default, we use the course listed in the cms as the evaluation's course
         try:
-            evaluation = Evaluation.objects.get(course=course, cms_evaluation_links__cms_id=data["gguid"])
+            evaluation = Evaluation.objects.get(cms_evaluation_links__cms_id=data["gguid"])
+            # if the evaluation already exists, we use its course in case it was merged into a different course
+            course = evaluation.course
         except Evaluation.DoesNotExist:
             evaluation = None
 
