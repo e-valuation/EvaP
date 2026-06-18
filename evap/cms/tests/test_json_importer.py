@@ -871,6 +871,7 @@ class TestImportEvents(TestCase):
 
         importer = self._import(EXAMPLE_DATA_SPECIAL_CASES)
         evaluation = Evaluation.objects.get(cms_evaluation_links__cms_id="0x10")
+        # the evaluation should have three participants (because student "1" has no email and is skipped)
         self.assertEqual(
             set(evaluation.participants.values_list("last_name", flat=True)),
             {"2", "3", "7"},
