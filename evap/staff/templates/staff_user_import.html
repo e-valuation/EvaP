@@ -6,12 +6,12 @@
 {% block breadcrumb %}
     {{ block.super }}
     {% url 'staff:user_index' as user_index_url %}
-    {% create_breadcrumb user_index_url %} 
+    {% breadcrumb_item user_index_url %} 
         {% translate 'Users' %}
-    {% endcreate_breadcrumb %}
-    {% create_breadcrumb %} 
+    {% endbreadcrumb_item %}
+    {% breadcrumb_item %} 
         {% translate 'Import users' %}
-    {% endcreate_breadcrumb %}
+    {% endbreadcrumb_item %}
 {% endblock %}
 
 {% block content %}

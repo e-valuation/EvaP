@@ -1,5 +1,5 @@
 from django.template import Library
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 
 from evap.staff.forms import ExamEvaluationForm
 
@@ -13,13 +13,18 @@ def create_exam_evaluation_form(evaluation):
 
 
 @register.simple_block_tag(takes_context=True)
-def create_breadcrumb(context, content, url=None):
+def breadcrumb_item(context, content, url=None):
     request = context["request"]
     current_path = request.path
+
     if url is None or current_path == url:
-        html = f'<li class="breadcrumb-item">{content}</li>'
-    else:
-        # create the href="link" string.
-        href_str = f'href="{url}"'
-        html = f'<li class="breadcrumb-item"><a {href_str}>{content}</a></li>'
-    return mark_safe(html)
+        return format_html(
+            '<li class="breadcrumb-item">{}</li>',
+            content,
+        )
+
+    return format_html(
+        '<li class="breadcrumb-item"><a href="{}">{}</a></li>',
+        url,
+        content,
+    )

@@ -12,8 +12,8 @@
     {{ block.super }}
     {% if semester %}
         {% url 'staff:semester_view' semester.id as semester_view_url %}
-        {% create_breadcrumb url=semester_view_url %} 
+        {% breadcrumb_item semester_view_url %} 
             {{ semester.name }}
-        {% endcreate_breadcrumb %}
+        {% endbreadcrumb_item %}
     {% endif %}
 {% endblock %}

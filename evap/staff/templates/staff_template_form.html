@@ -5,12 +5,12 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    {% create_breadcrumb %} 
+    {% breadcrumb_item %} 
         {% translate 'Templates' %}
-    {% endcreate_breadcrumb %}
-    {% create_breadcrumb %} 
+    {% endbreadcrumb_item %}
+    {% breadcrumb_item %} 
         {{ template.name }}
-    {% endcreate_breadcrumb %}
+    {% endbreadcrumb_item %}
 {% endblock %}
 
 {% block content %}

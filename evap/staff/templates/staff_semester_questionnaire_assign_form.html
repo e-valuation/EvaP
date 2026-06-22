@@ -4,9 +4,9 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    {% create_breadcrumb request.path %} 
+    {% breadcrumb_item %} 
         {% translate 'Assign questionnaires' %}
-    {% endcreate_breadcrumb %}
+    {% endbreadcrumb_item %}
 {% endblock %}
 
 {% block content %}

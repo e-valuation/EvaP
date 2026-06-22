@@ -6,13 +6,13 @@
     {{ block.super }}
 
     {% url 'staff:program_index' as programm_index_url %}
-    {% create_breadcrumb programm_index_url %} 
+    {% breadcrumb_item programm_index_url %} 
         {% translate 'Programs' %}
-    {% endcreate_breadcrumb %}
+    {% endbreadcrumb_item %}
 
-    {% create_breadcrumb request.path %} 
+    {% breadcrumb_item %} 
         {% translate 'Merge programs' %}
-    {% endcreate_breadcrumb %}
+    {% endbreadcrumb_item %}
 {% endblock %}
 
 {% block content %}

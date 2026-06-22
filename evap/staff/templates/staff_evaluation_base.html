@@ -13,14 +13,14 @@
     {% if evaluation %}
     	{% if evaluation.name %}
             {% url 'staff:evaluation_edit' evaluation.id as eval_edit_id %}
-            {% create_breadcrumb eval_edit_id %} 
+            {% breadcrumb_item eval_edit_id %} 
                 {{ evaluation.name }}
-            {% endcreate_breadcrumb %}
+            {% endbreadcrumb_item %}
     	{% else %}
             {% url 'staff:evaluation_edit' evaluation.id as eval_edit_id %}
-            {% create_breadcrumb eval_edit_id %} 
+            {% breadcrumb_item eval_edit_id %} 
                 {{ evaluation.course.name }}
-            {% endcreate_breadcrumb %}
+            {% endbreadcrumb_item %}
     	{% endif %}
     {% endif %}
 {% endblock %}

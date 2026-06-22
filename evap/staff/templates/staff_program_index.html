@@ -5,11 +5,10 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-
-    {% url request.resolver_match.view_name as self_url %}
-    {% create_breadcrumb self_url %} 
+    
+    {% breadcrumb_item %} 
         {% translate 'Programs' %}
-    {% endcreate_breadcrumb %}
+    {% endbreadcrumb_item %}
 {% endblock %}
 
 {% block content %}

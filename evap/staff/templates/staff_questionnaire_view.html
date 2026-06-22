@@ -4,9 +4,9 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    {% create_breadcrumb %} 
+    {% breadcrumb_item %} 
         {% translate 'Preview' %}
-    {% endcreate_breadcrumb %}
+    {% endbreadcrumb_item %}
 {% endblock %}
 
 {% block content %}

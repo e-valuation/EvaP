@@ -6,25 +6,25 @@
     {{ block.super }}
     {% if questionnaire %}
         {% url 'staff:questionnaire_index' as question_index_url %}
-        {% create_breadcrumb question_index_url %} 
+        {% breadcrumb_item question_index_url %} 
             {% translate 'Questionnaires' %}
-        {% endcreate_breadcrumb %}
+        {% endbreadcrumb_item %}
 
         {% if disable_breadcrumb_questionnaire %}
-            {% create_breadcrumb %} 
+            {% breadcrumb_item %} 
                 {{ questionnaire.name }}
-            {% endcreate_breadcrumb %}
+            {% endbreadcrumb_item %}
         {% else %}
         
             {% url 'staff:questionnaire_edit' questionnaire.id as question_edit_url %}
-            {% create_breadcrumb question_edit_url %} 
+            {% breadcrumb_item question_edit_url %} 
                 {{ questionnaire.name }}
-            {% endcreate_breadcrumb %}
+            {% endbreadcrumb_item %}
         {% endif %}
     {% else %}
-        {% create_breadcrumb %} 
+        {% breadcrumb_item %} 
             {% translate 'Questionnaires' %}
-        {% endcreate_breadcrumb %}
+        {% endbreadcrumb_item %}
     {% endif %}
 {% endblock %}
 

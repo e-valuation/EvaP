@@ -6,9 +6,9 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    {% create_breadcrumb %} 
+    {% breadcrumb_item %} 
         {% translate 'Text answer warnings' %}
-    {% endcreate_breadcrumb %}
+    {% endbreadcrumb_item %}
 {% endblock %}
 
 {% block content %}

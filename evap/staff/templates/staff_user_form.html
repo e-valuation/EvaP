@@ -6,17 +6,17 @@
 {% block breadcrumb %}
     {{ block.super }}
     {% url 'staff:user_index' as user_index_url %}
-    {% create_breadcrumb user_index_url %} 
+    {% breadcrumb_item user_index_url %} 
         {% translate 'Users' %}
-    {% endcreate_breadcrumb %}
+    {% endbreadcrumb_item %}
     {% if form.instance.id %}
-        {% create_breadcrumb %} 
+        {% breadcrumb_item %} 
             {{ form.instance.full_name }}
-        {% endcreate_breadcrumb %}
+        {% endbreadcrumb_item %}
     {% else %}
-        {% create_breadcrumb %} 
+        {% breadcrumb_item %} 
             {% translate 'Create user' %}
-        {% endcreate_breadcrumb %}
+        {% endbreadcrumb_item %}
     {% endif %}
 {% endblock %}
 

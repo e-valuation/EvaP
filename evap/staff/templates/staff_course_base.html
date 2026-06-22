@@ -15,13 +15,13 @@
 
     {% if course %}
         {% url 'staff:course_edit' course.id as course_edit_url %}
-        {% create_breadcrumb course_edit_url %} 
+        {% breadcrumb_item course_edit_url %} 
             {{ course.name }}
-        {% endcreate_breadcrumb %}
+        {% endbreadcrumb_item %}
     {% elif evaluation.course %}
         {% url 'staff:course_edit' evaluation.course.id as course_edit_url %}
-        {% create_breadcrumb course_edit_url %} 
+        {% breadcrumb_item course_edit_url %} 
             {{ evaluation.course.name }}
-        {% endcreate_breadcrumb %}
+        {% endbreadcrumb_item %}
     {% endif %}
 {% endblock %}

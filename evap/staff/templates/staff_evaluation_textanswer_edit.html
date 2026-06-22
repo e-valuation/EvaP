@@ -5,13 +5,13 @@
     {{ block.super }}
     
     {% url 'staff:evaluation_textanswers' evaluation.id as staff_evaluation_textanswer_url %}
-    {% create_breadcrumb staff_evaluation_textanswer_url %}
+    {% breadcrumb_item staff_evaluation_textanswer_url %}
         {% translate 'Text answers' %}
-    {% endcreate_breadcrumb %}
+    {% endbreadcrumb_item %}
 
-    {% create_breadcrumb request.path %} 
+    {% breadcrumb_item %} 
         {{ textanswer.id }}
-    {% endcreate_breadcrumb %}
+    {% endbreadcrumb_item %}
 {% endblock %}
 
 {% block content %}
