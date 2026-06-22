@@ -75,8 +75,25 @@
 
     .seperator {
         width: 1px;
-        height: 8px;
+        //height: 8px;
         border: $dark-gray 1px solid;
     }
 }
 
+.progress-step:nth-of-type(3n + 1) {
+    .seperator {
+        height: 8px;
+    }
+}
+
+.progress-step:nth-of-type(3n + 2) {
+    .seperator {
+        height: 26px;
+    }
+}
+
+.progress-step:nth-of-type(3n) {
+    .seperator {
+        height: 44px;
+    }
+}
