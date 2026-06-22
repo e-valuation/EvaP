@@ -1,6 +1,6 @@
 from django import forms
 
-from evap.evaluation.models import CHOICES, Question
+from evap.evaluation.models import CHOICES, Question, QuestionAssignment
 from evap.student.tools import answer_field_id
 
 
@@ -29,24 +29,28 @@ class TextAnswerField(forms.CharField):
 
 
 class RatingAnswerField(forms.TypedChoiceField):
-    def __init__(self, widget_choices, *args, allows_textanswer=False, **kwargs):
+    def __init__(self, widget_choices, *args, allows_textanswer, counts_for_grade, **kwargs):
         self.allows_textanswer = allows_textanswer
+        self.counts_for_grade = counts_for_grade
         kwargs["coerce"] = int
         kwargs["widget"] = forms.RadioSelect(
             attrs={
                 "allows_textanswer": self.allows_textanswer,
+                "counts_for_grade": self.counts_for_grade,
                 "choices": widget_choices,
             }
         )
         super().__init__(*args, **kwargs)
 
     @classmethod
-    def from_question(cls, question: Question):
+    def from_assignment(cls, assignment: QuestionAssignment):
+        question = assignment.question
         return cls(
             widget_choices=CHOICES[question.type],
             choices=zip(CHOICES[question.type].values, CHOICES[question.type].names, strict=True),
             label=question.text,
             allows_textanswer=question.allows_additional_textanswers,
+            counts_for_grade=assignment.counts_for_grade,
         )
 
 
@@ -59,11 +63,12 @@ class QuestionnaireVotingForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.questionnaire = questionnaire
 
-        for question in self.questionnaire.questions.all():
+        for assignment in self.questionnaire.question_assignments.all():
+            question = assignment.question
             if question.is_text_question:
                 field = TextAnswerField.from_question(question)
             elif question.is_rating_question:
-                field = RatingAnswerField.from_question(question)
+                field = RatingAnswerField.from_assignment(assignment)
             else:
                 assert question.is_heading_question
                 field = HeadingField.from_question(question)

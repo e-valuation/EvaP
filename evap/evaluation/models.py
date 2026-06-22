@@ -1295,7 +1295,7 @@ class Question(models.Model):
                     ~(Q(type=QuestionType.TEXT) | Q(type=QuestionType.HEADING)) | ~Q(allows_additional_textanswers=True)
                 ),
                 name="check_evaluation_textanswer_or_heading_question_has_no_additional_textanswers",
-            )
+            ),
         ]
 
     def save(self, *args, **kwargs):
@@ -1381,6 +1381,7 @@ class QuestionAssignment(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="assignments")
     questionnaire = models.ForeignKey(Questionnaire, on_delete=models.CASCADE, related_name="question_assignments")
     order = models.IntegerField(verbose_name=_("question order"), default=-1)
+    counts_for_grade = models.BooleanField(default=True, verbose_name=_("counts toward the evaluation's grade"))
 
     class Meta:
         ordering = ["order"]
