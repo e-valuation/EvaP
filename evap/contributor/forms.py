@@ -1,11 +1,15 @@
 from datetime import datetime
 
 from django import forms
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 from django.forms.widgets import CheckboxSelectMultiple
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from evap.evaluation.forms import UserModelChoiceField, UserModelMultipleChoiceField
+from evap.evaluation.forms import (
+    UserModelChoiceField,
+    UserModelMultipleChoiceField,
+)
 from evap.evaluation.models import Course, Evaluation, Questionnaire, UserProfile
 from evap.evaluation.tools import vote_end_datetime
 from evap.staff.forms import ContributionForm
@@ -69,10 +73,8 @@ class EvaluationForm(forms.ModelForm):
         self.fields["vote_start_datetime"].localize = True
         self.fields["vote_end_date"].localize = True
 
-        queryset = UserProfile.objects.exclude(is_active=False)
-        if self.instance.pk is not None:
-            queryset = (queryset | self.instance.participants.all()).distinct()
-        self.fields["participants"].queryset = queryset
+        self.fields["participants"].queryset = self.get_participants_queryset(self.instance)
+        self.fields["participants"].widget.options_endpoint = reverse("contributor:participant_options")
 
         if general_contribution := self.instance.general_contribution:
             self.fields["general_questionnaires"].initial = [
@@ -89,6 +91,13 @@ class EvaluationForm(forms.ModelForm):
         if self.instance.cms_evaluation_links.filter(is_active=True).exists():
             self.fields["participants"].disabled = True
             self.cms_disclaimer = _("Participants are regularly updated with registrations from the CMS.")
+
+    @classmethod
+    def get_participants_queryset(cls, evaluation: Evaluation | None) -> QuerySet[UserProfile]:
+        queryset = UserProfile.objects.exclude(is_active=False)
+        if evaluation is not None and evaluation.pk is not None:
+            queryset = (queryset | evaluation.participants.all()).distinct()
+        return queryset
 
     def clean(self):
         super().clean()
@@ -157,6 +166,8 @@ class EditorContributionForm(ContributionForm):
 
 
 class DelegateSelectionForm(forms.Form):
-    delegate_to = UserModelChoiceField(
-        label=_("Delegate to"), queryset=UserProfile.objects.exclude(is_active=False).exclude(is_proxy_user=True)
-    )
+    delegate_to = UserModelChoiceField(label=_("Delegate to"), queryset=UserProfile.objects.get_delegates())
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["delegate_to"].widget.options_endpoint = reverse("contributor:delegate_options")
