@@ -3,26 +3,26 @@
 }
 
 .card-outline-primary {
-    border-color: rgba($evap-dark-blue, 0.5);
+    border-color: rgba($primary, 0.5);
 
     > .card-header {
-        background-color: $evap-light-blue;
+        background-color: $primary-accent;
     }
 }
 
 .card-outline-warning {
-    border-color: $evap-yellow;
+    border-color: $warning;
 
     > .card-header {
-        background-color: rgba($evap-yellow, 0.5);
+        background-color: rgba($warning, 0.5);
     }
 }
 
 .card-outline-danger {
-    border-color: $evap-red;
+    border-color: $danger;
 
     > .card-header {
-        background-color: rgba($evap-red, 0.5);
+        background-color: rgba($danger, 0.5);
     }
 }
 
@@ -58,7 +58,7 @@
 
 .card-submit-area {
     background-color: $lighter-gray;
-    border-color: rgba($evap-dark-blue, 0.5);
+    border-color: rgba($primary, 0.5);
     min-height: 65px;
 }
 

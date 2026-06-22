@@ -4,12 +4,6 @@ $evap-yellow:       #efe258;
 $evap-orange:       #f29e58;
 $evap-red:          #eb595a;
 
-$evap-dark-green:   shade-color($evap-green, 20%);
-$evap-dark-lime:    shade-color($evap-lime, 20%);
-$evap-dark-yellow:  shade-color($evap-yellow, 20%);
-$evap-dark-orange:  shade-color($evap-orange, 20%);
-$evap-dark-red:     shade-color($evap-red, 20%);
-
 $evap-light-green:  tint-color($evap-green, 60%);
 $evap-light-lime:   tint-color($evap-lime, 60%);
 $evap-light-yellow: tint-color($evap-yellow, 60%);
@@ -28,11 +22,17 @@ $darker-gray:       #495057;
 $black:             #000000;
 
 $primary: $evap-dark-blue;
+$primary-accent: $evap-light-blue;
 $secondary: $dark-gray;
+$secondary-accent: $light-gray;
 $success: $evap-green;
+$success-accent: $evap-light-green;
 $info: $evap-light-blue;
+$info-accent: $evap-dark-blue;
 $warning: $evap-yellow;
+$warning-accent: $evap-light-yellow;
 $danger: $evap-red;
+$danger-accent: $evap-light-red;
 $light: $lighter-gray;
 $dark: $darker-gray;
 

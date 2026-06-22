@@ -38,7 +38,7 @@
 
     &.choice-error {
         font-weight: bold;
-        color: $evap-dark-red;
+        color: $danger;
     }
 
     @include media-breakpoint-up(lg) {
