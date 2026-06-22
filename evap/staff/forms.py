@@ -974,10 +974,10 @@ class QuestionnairesAssignForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().exclude(
-            visibility=Questionnaire.Visibility.HIDDEN
+            visibility__in=(Questionnaire.Visibility.HIDDEN, Questionnaire.Visibility.ARCHIVED)
         )
         non_contributor_questionnaires = Questionnaire.objects.non_contributor_questionnaires().exclude(
-            visibility=Questionnaire.Visibility.HIDDEN
+            visibility__in=(Questionnaire.Visibility.HIDDEN, Questionnaire.Visibility.ARCHIVED)
         )
 
         for course_type in course_types:
