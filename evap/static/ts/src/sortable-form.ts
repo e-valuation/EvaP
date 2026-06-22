@@ -38,6 +38,8 @@ export function makeFormSortable(
             // eslint-disable-next-line
             const row = rowJQuery.get()[0];
             assert(row instanceof HTMLTableRowElement);
+            row.classList.remove("form-template");
+
             row.querySelectorAll<HTMLInputElement>("input[id$=-order]").forEach(input => {
                 input.value = row.parentElement?.childElementCount.toString() ?? "";
             });
