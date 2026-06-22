@@ -1,9 +1,18 @@
 {% extends 'staff_base.html' %}
 
+{% load staff_templatetags %}
+
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'staff:course_type_index' %}">{% translate 'Course types' %}</a></li>
-    <li class="breadcrumb-item">{% translate 'Merge course types' %}</li>
+    {% url 'staff:course_type_index' as course_type_index_url %}
+    {% breadcrumb_item course_type_index_url %} 
+        {% translate 'Course types' %}
+    {% endbreadcrumb_item %}
+
+    {% breadcrumb_item %} 
+        {% translate 'Merge course types' %}
+    {% endbreadcrumb_item %}
+    
 {% endblock %}
 
 {% block content %}

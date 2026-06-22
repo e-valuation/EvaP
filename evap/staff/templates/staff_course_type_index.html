@@ -1,10 +1,14 @@
 {% extends 'staff_base.html' %}
 
+{% load staff_templatetags %}
 {% load static %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% translate 'Course types' %}</li>
+
+    {% breadcrumb_item %} 
+        {% translate 'Course types' %}
+    {% endbreadcrumb_item %}
 {% endblock %}
 
 {% block content %}

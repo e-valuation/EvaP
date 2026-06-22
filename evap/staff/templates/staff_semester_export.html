@@ -1,10 +1,14 @@
 {% extends 'staff_semester_base.html' %}
 
 {% load evaluation_filters static %}
+{% load staff_templatetags %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% translate 'Export' %}</li>
+    
+    {% breadcrumb_item %} 
+        {% translate 'Export' %}
+    {% endbreadcrumb_item %}
 {% endblock %}
 
 {% block content %}

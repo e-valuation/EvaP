@@ -1,8 +1,12 @@
 {% extends 'staff_semester_base.html' %}
 
+{% load staff_templatetags %}
+
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% translate 'Assign questionnaires' %}</li>
+    {% breadcrumb_item %} 
+        {% translate 'Assign questionnaires' %}
+    {% endbreadcrumb_item %}
 {% endblock %}
 
 {% block content %}
