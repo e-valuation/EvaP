@@ -445,7 +445,10 @@ class JSONImporter:
             return None
 
         try:
-            evaluation = Evaluation.objects.get(course=course, cms_evaluation_links__cms_id=data["gguid"])
+            evaluation = Evaluation.objects.get(cms_evaluation_links__cms_id=data["gguid"])
+            # get the course from the evaluation in case it was merged into a different course than defined in the
+            # import data
+            course = evaluation.course
         except Evaluation.DoesNotExist:
             evaluation = None
 
