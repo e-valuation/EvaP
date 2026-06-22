@@ -100,9 +100,9 @@ $alert-colors: (
     }
 }
 .alert-primary {
-    background-color: tint-color($evap-dark-blue, 50%);
-    border-color: $evap-dark-blue;
-    color: shade-color($evap-dark-blue, 50%);
+    background-color: tint-color($primary, 50%);
+    border-color: $primary;
+    color: shade-color($primary, 50%);
 }
 
 // fix checkbox positions

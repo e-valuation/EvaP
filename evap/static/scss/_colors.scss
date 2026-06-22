@@ -4,12 +4,6 @@ $evap-yellow:       #efe258;
 $evap-orange:       #f29e58;
 $evap-red:          #eb595a;
 
-$evap-dark-green:   shade-color($evap-green, 20%);
-$evap-dark-lime:    shade-color($evap-lime, 20%);
-$evap-dark-yellow:  shade-color($evap-yellow, 20%);
-$evap-dark-orange:  shade-color($evap-orange, 20%);
-$evap-dark-red:     shade-color($evap-red, 20%);
-
 $evap-light-green:  tint-color($evap-green, 60%);
 $evap-light-lime:   tint-color($evap-lime, 60%);
 $evap-light-yellow: tint-color($evap-yellow, 60%);
