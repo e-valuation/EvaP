@@ -38,7 +38,7 @@ export class StaffQuestionnaireForm {
             return;
         }
 
-        const questionTypeSelect = target as HTMLSelectElement;
+        const questionTypeSelect = target;
         if (questionTypeSelect.value === "") {
             return;
         }
