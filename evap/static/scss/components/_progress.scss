@@ -73,7 +73,7 @@
     grid-column-start: 1;
     grid-row-start: 2;
 
-    .seperator {
+    .separator {
         width: 1px;
         //height: 8px;
         border: $dark-gray 1px solid;
@@ -81,19 +81,19 @@
 }
 
 .progress-step:nth-of-type(3n + 1) {
-    .seperator {
+    .separator {
         height: 8px;
     }
 }
 
 .progress-step:nth-of-type(3n + 2) {
-    .seperator {
+    .separator {
         height: 26px;
     }
 }
 
 .progress-step:nth-of-type(3n) {
-    .seperator {
+    .separator {
         height: 44px;
     }
 }
