@@ -186,6 +186,7 @@ def contact(request: HttpRequest) -> HttpResponse:
         try:
             mail.send()
             logger.info("Sent contact email: \n%s\n", mail.message())
+            messages.success(request, _("Your message was successfully sent."))
             return HttpResponse()
         except Exception:
             logger.exception("An exception occurred when sending the following contact email:\n%s\n", mail.message())
