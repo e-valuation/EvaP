@@ -3141,50 +3141,64 @@ class TestEvaluationTextAnswerEditView(WebTestStaffMode):
 
 
 class TestSemesterFlaggedTextAnswersView(WebTestStaffMode):
-    def test_correct_answers_show_up(self):
-        semester = baker.make(Semester)
+    @classmethod
+    def setUpTestData(cls):
+        cls.semester = baker.make(Semester)
 
-        url = reverse("staff:semester_flagged_textanswers", args=[semester.pk])
+        cls.url = reverse("staff:semester_flagged_textanswers", args=[cls.semester.pk])
 
-        manager = make_manager()
-        student = baker.make(UserProfile)
-        evaluations = baker.make(
-            Evaluation, course__semester=semester, participants=[student], _quantity=3, _bulk_create=True
+        cls.manager = make_manager()
+        cls.student = baker.make(UserProfile)
+        cls.evaluations = baker.make(
+            Evaluation, course__semester=cls.semester, participants=[cls.student], _quantity=3, _bulk_create=True
         )
-        textanswers = [
+        cls.textanswers = [
             [baker.make(TextAnswer, answer=f"Answer {i} {j}", contribution__evaluation=evaluation) for j in range(3)]
-            for i, evaluation in enumerate(evaluations)
+            for i, evaluation in enumerate(cls.evaluations)
         ]
 
-        response = self.app.get(url, user=manager)
+        cls.flagged_ids = [(0, 0), (0, 1), (1, 0)]
+
+    def test_correct_answers_show_up(self):
+        response = self.app.get(self.url, user=self.manager)
         self.assertContains(response, "There are no flagged textanswers")
 
-        flagged_ids = [(0, 0), (0, 1), (1, 0)]
         expected_texts = [
             "Answer 0 0",
             "Answer 0 1",
             "Answer 1 0",
-            evaluations[0].full_name,
-            evaluations[1].full_name,
+            self.evaluations[0].full_name,
+            self.evaluations[1].full_name,
         ]
         unexpected_texts = [
             "There are no flagged textanswers",
             "Answer 0 2",
             "Answer 1 1",
             "Answer 2 0",
-            evaluations[2].full_name,
+            self.evaluations[2].full_name,
         ]
 
-        for i, j in flagged_ids:
-            textanswers[i][j].is_flagged = True
-            textanswers[i][j].save()
+        for i, j in self.flagged_ids:
+            self.textanswers[i][j].is_flagged = True
+            self.textanswers[i][j].save()
 
-        response = self.app.get(url, user=manager)
+        response = self.app.get(self.url, user=self.manager)
 
         for text in expected_texts:
             self.assertContains(response, text)
         for text in unexpected_texts:
             self.assertNotContains(response, text)
+
+    def test_answer_grouping_and_question_order(self):
+        for i, j in self.flagged_ids:
+            self.textanswers[i][j].is_flagged = True
+            self.textanswers[i][j].save()
+
+        response = self.app.get(self.url, user=self.manager).body.decode()
+        for row in self.textanswers:
+            for textanswer in row:
+                if textanswer.is_flagged:
+                    self.assertLess(response.index(textanswer.question.text), response.index(textanswer.answer))
 
 
 class TestQuestionnaireNewVersionView(WebTestStaffMode):
