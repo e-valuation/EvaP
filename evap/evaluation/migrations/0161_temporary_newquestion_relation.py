@@ -2,6 +2,7 @@
 
 import django.db.models.deletion
 from django.db import migrations, models
+from django.db.models import OuterRef, Subquery
 
 
 def questions_to_question_assignments(apps, _schema_editor):
@@ -10,33 +11,58 @@ def questions_to_question_assignments(apps, _schema_editor):
     QuestionAssignment = apps.get_model("evaluation", "QuestionAssignment")
     RatingAnswerCounter = apps.get_model("evaluation", "RatingAnswerCounter")
     TextAnswer = apps.get_model("evaluation", "TextAnswer")
-    assignments = {}
-    new_questions = {}
-    for question in Question.objects.all():
-        new_question = new_questions.setdefault(
-            (question.text_de, question.text_en, question.allows_additional_textanswers, question.type),
-            NewQuestion(
-                # pk=question.pk,  # was only active when the test data jsons were regenerated to minimize the diff
-                text_de=question.text_de,
-                text_en=question.text_en,
-                allows_additional_textanswers=question.allows_additional_textanswers,
-                type=question.type,
-            ),
-        )
-        assignments[question.pk] = QuestionAssignment(
-            question=new_question, questionnaire_id=question.questionnaire_id, order=question.order
-        )
-    NewQuestion.objects.bulk_create(new_questions.values())
-    QuestionAssignment.objects.bulk_create(assignments.values())
 
-    def set_question_assignment(answer):
-        answer.assignment = assignments[answer.question_id]
-        return answer
+    NewQuestion.objects.bulk_create(
+        # added "pk" to order_by and values for test_data migration
+        (
+            NewQuestion(**v)
+            for v in Question.objects.all()
+            .order_by("text_de", "text_en", "allows_additional_textanswers", "type")
+            .values("text_de", "text_en", "allows_additional_textanswers", "type")
+            .distinct("text_de", "text_en", "allows_additional_textanswers", "type")
+            .iterator()
+        ),
+        batch_size=2000,
+    )
+    QuestionAssignment.objects.bulk_create(
+        (
+            QuestionAssignment(**v)
+            for v in Question.objects.all()
+            .annotate(
+                question_id=NewQuestion.objects.filter(
+                    text_de=OuterRef("text_de"),
+                    text_en=OuterRef("text_en"),
+                    allows_additional_textanswers=OuterRef("allows_additional_textanswers"),
+                    type=OuterRef("type"),
+                ).values("id"),
+            )
+            .values("question_id", "order", "questionnaire_id")
+            .iterator()
+        ),
+        batch_size=2000,
+    )
 
     for model in (RatingAnswerCounter, TextAnswer):
-        model.objects.bulk_update(
-            map(set_question_assignment, model.objects.all()),
-            fields=["assignment"],
+        model.objects.update(
+            assignment=QuestionAssignment.objects.filter(
+                question__text_de=Subquery(
+                    Question.objects.filter(id=OuterRef(OuterRef("question_id"))).values("text_de")[:1]
+                ),
+                question__text_en=Subquery(
+                    Question.objects.filter(id=OuterRef(OuterRef("question_id"))).values("text_en")[:1]
+                ),
+                question__allows_additional_textanswers=Subquery(
+                    Question.objects.filter(id=OuterRef(OuterRef("question_id"))).values(
+                        "allows_additional_textanswers"
+                    )[:1]
+                ),
+                question__type=Subquery(
+                    Question.objects.filter(id=OuterRef(OuterRef("question_id"))).values("type")[:1]
+                ),
+                questionnaire_id=Subquery(
+                    Question.objects.filter(id=OuterRef(OuterRef("question_id"))).values("questionnaire_id")[:1]
+                ),
+            ).values("id")
         )
 
 

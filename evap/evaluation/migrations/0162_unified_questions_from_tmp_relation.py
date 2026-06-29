@@ -2,6 +2,7 @@
 
 import django.db.models.deletion
 from django.db import migrations, models
+from django.db.models import F, OuterRef, Subquery
 
 
 def question_assignments_to_questions(apps, _schema_editor):
@@ -9,27 +10,58 @@ def question_assignments_to_questions(apps, _schema_editor):
     QuestionAssignment = apps.get_model("evaluation", "QuestionAssignment")
     RatingAnswerCounter = apps.get_model("evaluation", "RatingAnswerCounter")
     TextAnswer = apps.get_model("evaluation", "TextAnswer")
-    questions = {}
-    for question_assignment in QuestionAssignment.objects.all().prefetch_related("question"):
-        new_question = question_assignment.question
-        questions[question_assignment.pk] = Question(
-            text_de=new_question.text_de,
-            text_en=new_question.text_en,
-            allows_additional_textanswers=new_question.allows_additional_textanswers,
-            type=new_question.type,
-            questionnaire=question_assignment.questionnaire,
-            order=question_assignment.order,
-        )
-    Question.objects.bulk_create(questions.values())
 
-    def set_question(answer):
-        answer.question_id = questions[answer.assignment_id].pk
-        return answer
+    Question.objects.bulk_create(
+        (
+            Question(**v)
+            for v in QuestionAssignment.objects.annotate(
+                text_de=F("question__text_de"),
+                text_en=F("question__text_en"),
+                allows_additional_textanswers=F("question__allows_additional_textanswers"),
+                type=F("question__type"),
+            )
+            .values(
+                "text_de",
+                "text_en",
+                "allows_additional_textanswers",
+                "type",
+                "questionnaire_id",
+                "order",
+            )
+            .iterator()
+        ),
+        batch_size=2000,
+    )
 
     for model in (RatingAnswerCounter, TextAnswer):
-        model.objects.bulk_update(
-            map(set_question, model.objects.all()),
-            fields=["question"],
+        model.objects.update(
+            question=Question.objects.filter(
+                text_de=Subquery(
+                    QuestionAssignment.objects.filter(id=OuterRef(OuterRef("assignment_id"))).values(
+                        "question__text_de"
+                    )[:1]
+                ),
+                text_en=Subquery(
+                    QuestionAssignment.objects.filter(id=OuterRef(OuterRef("assignment_id"))).values(
+                        "question__text_en"
+                    )[:1]
+                ),
+                allows_additional_textanswers=Subquery(
+                    QuestionAssignment.objects.filter(id=OuterRef(OuterRef("assignment_id"))).values(
+                        "question__allows_additional_textanswers"
+                    )[:1]
+                ),
+                type=Subquery(
+                    QuestionAssignment.objects.filter(id=OuterRef(OuterRef("assignment_id"))).values("question__type")[
+                        :1
+                    ]
+                ),
+                questionnaire_id=Subquery(
+                    QuestionAssignment.objects.filter(id=OuterRef(OuterRef("assignment_id"))).values(
+                        "questionnaire_id"
+                    )[:1]
+                ),
+            ).values("id")
         )
 
 
