@@ -15,19 +15,37 @@
     <div class="d-flex mb-3">
         <div class="me-auto">
             {% if responsible_list and interactive %}
-                <form reload-on-success method="POST" action="{% url 'staff:semester_preparation_reminder' semester_id=semester.id %}">
-                    {% csrf_token %}
+                <div class="d-flex align-items-center gap-1">
+                    <form reload-on-success method="POST" action="{% url 'staff:semester_preparation_reminder' semester_id=semester.id %}">
+                        {% csrf_token %}
 
-                    <input type="hidden" name="semester_id" value="{{ semester.id }}" />
+                        <input type="hidden" name="semester_id" value="{{ semester.id }}" />
 
-                    <confirmation-modal type="submit">
-                        <span slot="title">{% translate 'Remind all' %}</span>
-                        <span slot="action-text">{% translate 'Remind all' %}</span>
-                        <span slot="question">{% translate 'Do you really want to remind everyone?' %}</span>
+                        <confirmation-modal type="submit">
+                            <span slot="title">{% translate 'Remind all' %}</span>
+                            <span slot="action-text">{% translate 'Remind all' %}</span>
+                            <span slot="question">{% translate 'Do you really want to remind everyone?' %}</span>
 
-                        <button slot="show-button" type="button" id="remindAllButton" class="btn btn-sm btn-light">{% translate 'Remind all' %}</button>
-                    </confirmation-modal>
-                </form>
+                            <button slot="show-button" type="button" id="remindAllButton" class="btn btn-sm btn-light">{% translate 'Remind all' %}</button>
+                        </confirmation-modal>
+                    </form>
+
+                    <form reload-on-success method="POST" action="{% url 'staff:semester_preparation_reminder' semester_id=semester.id %}">
+                        {% csrf_token %}
+
+                        <input type="hidden" name="semester_id" value="{{ semester.id }}" />
+                        <input type="hidden" name="internal_only" value="true">
+
+                        <confirmation-modal type="submit">
+                            <span slot="title">{% translate 'Remind all internal users' %}</span>
+                            <span slot="action-text">{% translate 'Remind all internal users' %}</span>
+                            <span slot="question">{% translate 'Do you really want to remind all internal users?' %}</span>
+
+                            <button slot="show-button" type="button" id="remindAllInternalUsersButton" class="btn btn-sm btn-light">{% translate 'Remind all internal users' %}</button>
+                        </confirmation-modal>
+                    </form>
+                </div>
+
             {% endif %}
         </div>
         <div class="btn-switch btn-switch-light ms-2 d-print-none h-">
