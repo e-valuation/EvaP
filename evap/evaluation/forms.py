@@ -133,7 +133,7 @@ class UserModelMultipleChoiceField(forms.ModelMultipleChoiceField):
 
 class ProfileForm(forms.ModelForm):
     delegates = UserModelMultipleChoiceField(
-        queryset=UserProfile.objects.get_delegates(),
+        queryset=UserProfile.objects.get_delegate_options(),
         required=False,
     )
 
