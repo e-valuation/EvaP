@@ -278,7 +278,7 @@ def get_vote_page_form_groups(
     return form_groups
 
 
-def render_vote_page(
+def render_vote_page(  # pylint: disable=too-many-locals
     request: HttpRequest,
     evaluation: Evaluation,
     *,
