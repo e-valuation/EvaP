@@ -166,7 +166,7 @@ class EditorContributionForm(ContributionForm):
 
 
 class DelegateSelectionForm(forms.Form):
-    delegate_to = UserModelChoiceField(label=_("Delegate to"), queryset=UserProfile.objects.get_delegates())
+    delegate_to = UserModelChoiceField(label=_("Delegate to"), queryset=UserProfile.objects.get_delegate_options())
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
