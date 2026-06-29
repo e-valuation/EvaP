@@ -1822,7 +1822,7 @@ class UserProfileManager(BaseUserManager):
         user.groups.add(Group.objects.get(name="Manager"))
         return user
 
-    def get_delegates(self):
+    def get_delegate_options(self):
         return self.exclude(is_active=False).exclude(is_proxy_user=True)
 
 

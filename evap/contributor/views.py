@@ -311,7 +311,7 @@ def export(request):
 class DelegateOptionsView(UserProfileOptionsBaseView):
     @classmethod
     def get_queryset(cls, request, *args, **kwargs) -> QuerySet[UserProfile]:
-        return super().get_queryset(request, *args, **kwargs).filter(pk__in=UserProfile.objects.get_delegates())
+        return super().get_queryset(request, *args, **kwargs).filter(pk__in=UserProfile.objects.get_delegate_options())
 
 
 @responsible_or_contributor_or_delegate_required
