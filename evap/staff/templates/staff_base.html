@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load staff_templatetags %}
 
 {% block title %}{% translate 'Manage' %} - {{ block.super }}{% endblock %}
 
@@ -7,9 +8,14 @@
         <ul class="breadcrumb">
             {% block breadcrumb %}
                 {% if disable_breadcrumb_manager or not user.is_manager %}
-                    <li class="breadcrumb-item">{% translate 'Manage' %}</li>
+                    {% breadcrumb_item %} 
+                        {% translate 'Manage' %}
+                    {% endbreadcrumb_item %}
                 {% else %}
-                    <li class="breadcrumb-item"><a href="{% url 'staff:index' %}">{% translate 'Manage' %}</a></li>
+                    {% url 'staff:index' as staff_index_url %}
+                    {% breadcrumb_item staff_index_url %} 
+                        {% translate 'Manage' %}
+                    {% endbreadcrumb_item %}
                 {% endif %}
             {% endblock %}
         </ul>

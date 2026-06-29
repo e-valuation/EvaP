@@ -1,8 +1,12 @@
 {% extends 'staff_questionnaire_base.html' %}
 
+{% load staff_templatetags %}
+
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% translate 'Preview' %}</li>
+    {% breadcrumb_item %} 
+        {% translate 'Preview' %}
+    {% endbreadcrumb_item %}
 {% endblock %}
 
 {% block content %}

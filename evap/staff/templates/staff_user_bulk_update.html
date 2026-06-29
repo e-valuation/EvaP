@@ -1,9 +1,16 @@
 {% extends 'staff_base.html' %}
 
+{% load staff_templatetags %}
+
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'staff:user_index' %}">{% translate 'Users' %}</a></li>
-    <li class="breadcrumb-item">{% translate 'Bulk update' %}</li>
+    {% url 'staff:user_index' as user_index_url %}
+    {% breadcrumb_item user_index_url %} 
+        {% translate 'Users' %}
+    {% endbreadcrumb_item %}
+    {% breadcrumb_item %} 
+        {% translate 'Bulk update' %}
+    {% endbreadcrumb_item %}
 {% endblock %}
 
 {% block content %}

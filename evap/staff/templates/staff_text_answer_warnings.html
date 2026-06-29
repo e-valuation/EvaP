@@ -2,10 +2,13 @@
 
 {% load static %}
 {% load student_filters %}
+{% load staff_templatetags %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% translate 'Text answer warnings' %}</li>
+    {% breadcrumb_item %} 
+        {% translate 'Text answer warnings' %}
+    {% endbreadcrumb_item %}
 {% endblock %}
 
 {% block content %}

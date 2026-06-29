@@ -1,10 +1,14 @@
 {% extends 'staff_evaluation_base.html' %}
 
 {% load evaluation_filters %}
+{% load staff_templatetags %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% translate 'Text answers' %}</li>
+    
+    {% breadcrumb_item %} 
+        {% translate 'Text answers' %}
+    {% endbreadcrumb_item %}
 {% endblock %}
 
 {% block content %}

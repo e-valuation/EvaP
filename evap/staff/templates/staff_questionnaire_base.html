@@ -1,16 +1,30 @@
 {% extends 'staff_base.html' %}
 
+{% load staff_templatetags %}
+
 {% block breadcrumb %}
     {{ block.super }}
     {% if questionnaire %}
-        <li class="breadcrumb-item"><a href="{% url 'staff:questionnaire_index' %}">{% translate 'Questionnaires' %}</a></li>
+        {% url 'staff:questionnaire_index' as question_index_url %}
+        {% breadcrumb_item question_index_url %} 
+            {% translate 'Questionnaires' %}
+        {% endbreadcrumb_item %}
+
         {% if disable_breadcrumb_questionnaire %}
-            <li class="breadcrumb-item">{{ questionnaire.name }}</li>
+            {% breadcrumb_item %} 
+                {{ questionnaire.name }}
+            {% endbreadcrumb_item %}
         {% else %}
-            <li class="breadcrumb-item"><a href="{% url 'staff:questionnaire_edit' questionnaire.id %}">{{ questionnaire.name }}</a></li>
+        
+            {% url 'staff:questionnaire_edit' questionnaire.id as question_edit_url %}
+            {% breadcrumb_item question_edit_url %} 
+                {{ questionnaire.name }}
+            {% endbreadcrumb_item %}
         {% endif %}
     {% else %}
-        <li class="breadcrumb-item">{% translate 'Questionnaires' %}</li>
+        {% breadcrumb_item %} 
+            {% translate 'Questionnaires' %}
+        {% endbreadcrumb_item %}
     {% endif %}
 {% endblock %}
 

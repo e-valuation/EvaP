@@ -1,10 +1,13 @@
 {% extends 'staff_semester_base.html' %}
 
 {% load evaluation_filters %}
+{% load staff_templatetags %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% translate 'Preparation reminder' %}</li>
+    {% breadcrumb_item %} 
+        {% translate 'Preparation reminder' %}
+    {% endbreadcrumb_item %}
 {% endblock %}
 
 {% block content %}
