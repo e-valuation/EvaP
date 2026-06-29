@@ -266,24 +266,26 @@ class TestVoteView(WebTest):
         )
 
     def test_question_ordering(self):
+        # Reorder questions after creation, regression test for #2741
+        self.bottom_text_assignment.order = 4
+        self.bottom_text_assignment.save()
+        self.bottom_grade_assignment.order = 1
+        self.bottom_grade_assignment.save()
+
         page = self.app.get(self.url, user=self.voting_user1, status=200)
 
-        top_heading_index = page.body.decode().index(self.top_heading_assignment.question.text)
-        top_text_index = page.body.decode().index(self.top_text_assignment.question.text)
-
-        contributor_heading_index = page.body.decode().index(self.contributor_heading_assignment.question.text)
-        contributor_likert_index = page.body.decode().index(self.contributor_likert_assignment.question.text)
-
-        bottom_heading_index = page.body.decode().index(self.bottom_heading_assignment.question.text)
-        bottom_grade_index = page.body.decode().index(self.bottom_grade_assignment.question.text)
+        def index(assignment):
+            return page.body.decode().index(assignment.question.text)
 
         self.assertTrue(
-            top_heading_index
-            < top_text_index
-            < contributor_heading_index
-            < contributor_likert_index
-            < bottom_heading_index
-            < bottom_grade_index
+            index(self.top_heading_assignment)
+            < index(self.top_text_assignment)
+            < index(self.contributor_heading_assignment)
+            < index(self.contributor_likert_assignment)
+            < index(self.bottom_heading_assignment)
+            < index(self.bottom_grade_assignment)
+            < index(self.bottom_likert_assignment)
+            < index(self.bottom_text_assignment)
         )
 
     def fill_form(self, form, fill_general_complete=True, fill_contributors_complete=True):
