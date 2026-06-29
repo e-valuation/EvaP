@@ -54,7 +54,7 @@
         {% if evaluation.state == evaluation.State.IN_EVALUATION %}
             <span class="badge bg-warning"><span class="fas fa-play icon-gray"></span> {% translate 'Still in evaluation' %}</span>
         {% else %}
-            <span class="badge bg-light"><span class="fas fa-stop icon-green"></span> {% translate 'Evaluation finished' %}</span>
+            <span class="badge bg-light"><span class="fas fa-stop icon-success"></span> {% translate 'Evaluation finished' %}</span>
         {% endif %}
         {% include 'evaluation_badges.html' with mode='manager' %}
     </div>

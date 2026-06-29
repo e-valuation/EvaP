@@ -36,19 +36,19 @@
 
 .badge-participants {
     @extend %badge;
-    background-color: $evap-dark-blue;
+    background-color: $primary;
     color: white;
 
     .fa-user {
         font-size: 80%;
     }
 
-    @include bar-shadow($evap-dark-blue);
+    @include bar-shadow($primary);
 }
 
 .badge-percentage {
     @extend %badge;
-    background-color: $evap-light-blue;
+    background-color: $primary-accent;
     color: black;
     display: inline-block;
     width: 100%;
@@ -56,7 +56,7 @@
 
 @for $i from 0 through 10 {
     .badge-participants-#{$i} {
-        background-color: mix($evap-dark-blue, $evap-light-blue, $i * 10%);
+        background-color: mix($primary, $primary-accent, $i * 10%);
     }
 }
 
@@ -68,8 +68,8 @@
 
 .bg-primary-outline {
     background-color: $white;
-    color: $evap-dark-blue;
-    border: 1px solid $evap-dark-blue;
+    color: $primary;
+    border: 1px solid $primary;
     padding: 0.27em 0.35em;
 }
 

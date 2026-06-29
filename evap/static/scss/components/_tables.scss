@@ -3,12 +3,12 @@
 }
 
 $table-colors: (
-    "primary" $evap-dark-blue $white,
+    "primary" $primary $white,
     "secondary" $medium-gray $black,
-    "success" $evap-green $black,
-    "info" $evap-light-blue $black,
-    "warning" $evap-yellow $black,
-    "danger" $evap-red $white $black,
+    "success" $success $black,
+    "info" $info $black,
+    "warning" $warning $black,
+    "danger" $danger $white $black,
     "light" $light-gray $black,
     "dark" $darker-gray $white
 );
@@ -56,10 +56,10 @@ $table-colors: (
         }
 
         &.hover-row-info {
-            background-color: $evap-light-blue;
+            background-color: $primary-accent;
 
             .btn-primary {
-                box-shadow: 0 0 0 3px rgba($evap-dark-blue, .5);
+                box-shadow: 0 0 0 3px rgba($primary, .5);
             }
         }
 
@@ -72,7 +72,7 @@ $table-colors: (
 }
 
 .preview-row .evaluation-name {
-    color: $evap-dark-yellow;
+    color: shade-color($warning, 20%);
 }
 
 .results-row {
@@ -114,7 +114,7 @@ tr.evaluation-row:not(.heading-row) {
 
 .current-row-follows + .results-grid-row {
     border-radius: 0.2rem;
-    box-shadow: inset 0 0 6px $evap-dark-blue;
+    box-shadow: inset 0 0 6px $primary;
 }
 
 .heading-row {
