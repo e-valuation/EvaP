@@ -1707,7 +1707,7 @@ def semester_flagged_textanswers(request: HttpRequest, semester_id: int) -> Http
     flagged_textanswers = TextAnswer.objects.filter(
         is_flagged=True,
         contribution__evaluation__course__semester=semester,
-    ).order_by("contribution__evaluation")
+    ).order_by("contribution__evaluation", "assignment__questionnaire", "assignment__question")
 
     template_data = {
         "semester": semester,

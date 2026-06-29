@@ -21,9 +21,15 @@
                             {{ evaluation_flagged_textanswers.grouper }}
                         </a>
                     </h5>
+                    {% regroup evaluation_flagged_textanswers.list by assignment.question.text as flagged_textanswers_by_question %}
                     <ul>
-                        {% for textanswer in evaluation_flagged_textanswers.list %}
-                            <li>{{ textanswer.answer }}</li>
+                        {% for question_flagged_textanswers in flagged_textanswers_by_question %}
+                            <h6 class="{% if not forloop.first %}mt-3{% endif %} mb-2">{{ question_flagged_textanswers.grouper }}</h6>
+                            <ul>
+                                {% for textanswer in question_flagged_textanswers.list %}
+                                    <li>{{ textanswer.answer }}</li>
+                                {% endfor %}
+                            </ul>
                         {% endfor %}
                     </ul>
                 {% endfor %}
