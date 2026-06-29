@@ -2510,6 +2510,12 @@ class TestEvaluationPreviewView(WebTestStaffModeWith200Check):
         self.evaluation.general_contribution.questionnaires.set([])
         self.app.get(self.url, user=self.manager, status=200)
 
+    def test_lang_undecided(self) -> None:
+        evaluation = baker.make(Evaluation, main_language=Evaluation.UNDECIDED_MAIN_LANGUAGE)
+        evaluation.ensure_general_contribution().questionnaires.set([baker.make(Questionnaire)])
+        url = reverse("staff:evaluation_preview", args=[evaluation.pk])
+        self.app.get(url, user=self.manager, status=200)
+
 
 class TestEvaluationImportPersonsView(WebTestStaffMode):
     @classmethod

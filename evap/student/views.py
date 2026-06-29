@@ -278,7 +278,7 @@ def get_vote_page_form_groups(
     return form_groups
 
 
-def render_vote_page(
+def render_vote_page(  # pylint: disable=too-many-locals
     request: HttpRequest,
     evaluation: Evaluation,
     *,
@@ -286,7 +286,11 @@ def render_vote_page(
     dropout: bool,
     for_rendering_in_modal: bool = False,
 ) -> HttpResponse:
-    language = request.GET.get("language", evaluation.main_language)
+    fallback_language = (
+        evaluation.main_language if evaluation.main_language != Evaluation.UNDECIDED_MAIN_LANGUAGE else "en"
+    )
+    language = request.GET.get("language", fallback_language)
+
     with translation.override(language):
         form_groups = get_vote_page_form_groups(request, evaluation, preview=preview, dropout=dropout)
 
