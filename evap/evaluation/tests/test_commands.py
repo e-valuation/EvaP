@@ -509,7 +509,7 @@ class TestFormatCommand(TestCase):
     @patch("subprocess.run", return_value=FakeSubprocessRunResult())
     def test_formatters_called(self, mock_subprocess_run):
         management.call_command("format", stdout=StringIO())
-        self.assertEqual(len(mock_subprocess_run.mock_calls), 3)
+        self.assertEqual(len(mock_subprocess_run.mock_calls), 4)
         mock_subprocess_run.assert_has_calls(
             [
                 call(["ruff", "format", "."], check=False),
@@ -518,6 +518,7 @@ class TestFormatCommand(TestCase):
                     ["npx", "prettier", "--write", "evap/static/ts/**/*.ts", "evap/static/ts/eslint.config.js"],
                     check=False,
                 ),
+                call(["djangofmt", "."], check=False),
             ]
         )
 

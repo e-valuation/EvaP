@@ -380,8 +380,8 @@ class TestUserMergeSelectionView(WebTestStaffMode):
         expected_url = reverse("staff:user_merge", args=[suggested_main_user.pk, suggested_merge_candidate.pk])
         unexpected_url = reverse("staff:user_merge", args=[suggested_merge_candidate.pk, suggested_main_user.pk])
 
-        self.assertContains(page, f'<a href="{expected_url}"')
-        self.assertNotContains(page, f'<a href="{unexpected_url}"')
+        self.assertContains(page, f'href="{expected_url}"')
+        self.assertNotContains(page, f'href="{unexpected_url}"')
 
 
 class TestUserMergeView(WebTestStaffModeWith200Check):
@@ -2357,28 +2357,32 @@ class TestEvaluationEditView(WebTestStaffMode):
         self.assertNotIn("The removal as participant has granted the user &quot;d@institution.example.com&quot;", page)
 
     def test_questionnaire_with_answers_warning(self):
+        ws = lambda s: s.replace(" ", r"\s*")  # noqa: E731
+
         page = self.app.get(self.url, user=self.manager)
-        self.assertIn('<label class="form-check-label" for="id_general_questionnaires_3">', page)
-        self.assertIn('<label class="form-check-label" for="id_contributions-0-questionnaires_0">', page)
-        self.assertIn('<label class="form-check-label" for="id_contributions-1-questionnaires_0">', page)
+        self.assertRegex(page.text, ws('<label class="form-check-label" for="id_general_questionnaires_3" >'))
+        self.assertRegex(page.text, ws('<label class="form-check-label" for="id_contributions-0-questionnaires_0" >'))
+        self.assertRegex(page.text, ws('<label class="form-check-label" for="id_contributions-1-questionnaires_0" >'))
 
         baker.make(TextAnswer, contribution=self.evaluation.general_contribution, assignment=self.general_assignment)
         baker.make(RatingAnswerCounter, contribution=self.contribution1, assignment=self.contributor_assignment)
 
         page = self.app.get(self.url, user=self.manager)
-        self.assertIn('<label class="form-check-label badge bg-danger" for="id_general_questionnaires_3">', page)
-        self.assertIn(
-            '<label class="form-check-label badge bg-danger" for="id_contributions-0-questionnaires_0">', page
+        self.assertRegex(
+            page.text, ws('<label class="form-check-label badge bg-danger" for="id_general_questionnaires_3" >')
         )
-        self.assertNotIn(
-            '<label class="form-check-label badge bg-danger" for="id_contributions-1-questionnaires_0">', page
+        self.assertRegex(
+            page.text, ws('<label class="form-check-label badge bg-danger" for="id_contributions-0-questionnaires_0" >')
+        )
+        self.assertNotRegex(
+            page.text, ws('<label class="form-check-label badge bg-danger" for="id_contributions-1-questionnaires_0" >')
         )
 
         baker.make(RatingAnswerCounter, contribution=self.contribution2, assignment=self.contributor_assignment)
 
         page = self.app.get(self.url, user=self.manager)
-        self.assertIn(
-            '<label class="form-check-label badge bg-danger" for="id_contributions-1-questionnaires_0">', page
+        self.assertRegex(
+            page.text, ws('<label class="form-check-label badge bg-danger" for="id_contributions-1-questionnaires_0" >')
         )
 
     @patch("django.utils.translation._trans", wraps=translation._trans)  # type: ignore[attr-defined]
