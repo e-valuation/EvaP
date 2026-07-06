@@ -254,12 +254,12 @@ class QuestionnaireFormLiveTest(LiveServerTest):
         def assert_type_allows(row, type_select, question_type, additional_textanswers, counts_for_grade):
             self.set_tomselect_value(type_select, str(question_type))
             self.assertEqual(
-                additional_textanswers,
                 row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").is_enabled(),
+                additional_textanswers,
             )
             self.assertEqual(
-                counts_for_grade,
                 row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").is_enabled(),
+                counts_for_grade,
             )
 
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
@@ -284,9 +284,7 @@ class QuestionnaireFormLiveTest(LiveServerTest):
         # Wait until there are at least 3 rows (2 existing (since there is the default new row) + 1 new)
         self.wait.until(lambda driver: len(driver.find_elements(By.CSS_SELECTOR, "#question_table tbody tr")) >= 3)
 
-        new_row = self.selenium.find_elements(By.CSS_SELECTOR, "#question_table tbody tr")[
-            -2
-        ]  # the last row is the add row button
+        new_row = self.selenium.find_elements(By.CSS_SELECTOR, "#question_table tbody tr")[1]
         new_type_select = new_row.find_element(By.CSS_SELECTOR, "select[id$='-type']")
 
         assert_type_allows(
