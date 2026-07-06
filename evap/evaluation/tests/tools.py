@@ -22,10 +22,14 @@ from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone, translation
 from model_bakery import baker
+from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
-from selenium.webdriver.support.expected_conditions import presence_of_element_located, staleness_of
+from selenium.webdriver.support.expected_conditions import (
+    presence_of_element_located,
+    staleness_of,
+)
 from selenium.webdriver.support.wait import WebDriverWait
 
 from evap.evaluation.models import (
@@ -396,6 +400,26 @@ class LiveServerTest(SeedBakerMixin, SeleniumTestCase):
         yield
         self.wait.until(staleness_of(html_element))
 
+    def search_and_select_in_tom_select(self, field_name: str, *keys: str, clear: bool = False):
+        self.wait.until(
+            presence_of_element_located((By.CSS_SELECTOR, f"#id_{field_name} ~ .ts-wrapper .ts-control"))
+        ).click()
+
+        if clear:
+            for el in self.selenium.find_elements(
+                By.CSS_SELECTOR, f"#id_{field_name} ~ .ts-wrapper .ts-control .remove"
+            ):
+                el.click()
+
+        input_field = self.wait.until(presence_of_element_located((By.ID, f"id_{field_name}-ts-control")))
+        if clear:
+            input_field.clear()
+        input_field.send_keys(*keys)
+
+        self.wait.until(presence_of_element_located((By.CSS_SELECTOR, f"#id_{field_name}-ts-dropdown .option")))
+
+        input_field.send_keys(Keys.ENTER)
+
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
@@ -431,16 +455,12 @@ class UserProfileSearchLiveServerTest(LiveServerTest):
 
         for user in users_to_find:
             for field in fields_to_use_for_search:
-                input_field = self.selenium.find_element(By.ID, f"id_{field_name}-ts-control")
-                input_field.clear()
-                input_field.send_keys(getattr(user, field))
+                self.search_and_select_in_tom_select(field_name, getattr(user, field), clear=True)
 
-                found_item = self.wait.until(presence_of_element_located((By.ID, f"id_{field_name}-opt-1")))
                 found_options = self.selenium.find_elements(By.CSS_SELECTOR, f"#id_{field_name}-ts-dropdown .option")
                 self.assertEqual(len(found_options), 1)
 
-                self.assertEqual(found_item.get_attribute("data-value"), str(user.pk))
-                found_item.click()
+                self.assertEqual(found_options[0].get_attribute("data-value"), str(user.pk))
 
                 input_field = self.selenium.find_element(By.ID, f"id_{field_name}")
                 self.assertEqual(input_field.get_attribute("value"), str(user.pk))
