@@ -158,9 +158,7 @@
                                     data-layer="2"
                                     id="textanswer-{{ answer.id }}"
                                     data-id="{{ answer.id }}"
-                                    {% if contributor %}
-                                        data-contribution="yes"
-                                    {% endif %}
+                                    {% if contributor %}data-contribution="yes"{% endif %}
                                     {% if answer.is_reviewed %}
                                         {% if answer.will_be_public %}
                                             data-review="publish"
@@ -170,9 +168,7 @@
                                             data-review="delete"
                                         {% endif %}
                                     {% endif %}
-                                    {% if answer.is_flagged %}
-                                        data-is-flagged
-                                    {% endif %}
+                                    {% if answer.is_flagged %}data-is-flagged{% endif %}
                                 >
                                     {{ answer.answer|linebreaksbr }}
                                     {% if answer.original_answer %}

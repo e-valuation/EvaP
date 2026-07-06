@@ -313,9 +313,7 @@
                                 value="export-login-keys"
                                 type="submit"
                                 class="btn btn-sm btn-primary form-submit-btn"
-                                {% if not evaluation.has_external_participant %}
-                                    disabled
-                                {% endif %}
+                                {% if not evaluation.has_external_participant %}disabled{% endif %}
                             >
                                 {% translate 'Export login keys' %}
                             </button>

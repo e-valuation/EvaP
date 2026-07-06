@@ -52,9 +52,7 @@
                                             value="publish"
                                             id="{{ answer.id }}-radio-publish"
                                             autocomplete="off"
-                                            {% if answer.will_be_public %}
-                                                checked
-                                            {% endif %}
+                                            {% if answer.will_be_public %}checked{% endif %}
                                         >
                                         <label
                                             class="btn btn-outline-primary"
@@ -68,12 +66,8 @@
                                             value="make_private"
                                             id="{{ answer.id }}-radio-private"
                                             autocomplete="off"
-                                            {% if answer.will_be_private %}
-                                                checked
-                                            {% endif %}
-                                            {% if not contributor %}
-                                                disabled
-                                            {% endif %}
+                                            {% if answer.will_be_private %}checked{% endif %}
+                                            {% if not contributor %}disabled{% endif %}
                                         >
                                         <label
                                             class="btn btn-outline-primary"
@@ -87,9 +81,7 @@
                                             value="unreview"
                                             id="{{ answer.id }}-radio-undecided"
                                             autocomplete="off"
-                                            {% if not answer.is_reviewed %}
-                                                checked
-                                            {% endif %}
+                                            {% if not answer.is_reviewed %}checked{% endif %}
                                         >
                                         <label
                                             class="btn btn-outline-primary"
@@ -103,9 +95,7 @@
                                             value="delete"
                                             id="{{ answer.id }}-radio-delete"
                                             autocomplete="off"
-                                            {% if answer.will_be_deleted %}
-                                                checked
-                                            {% endif %}
+                                            {% if answer.will_be_deleted %}checked{% endif %}
                                         >
                                         <label
                                             class="btn btn-outline-primary"

@@ -32,9 +32,7 @@
                                                             type="checkbox"
                                                             value="{{ choice.data.value }}"
                                                             autocomplete="off"
-                                                            {% if choice.data.value in field.value %}
-                                                                checked
-                                                            {% endif %}
+                                                            {% if choice.data.value in field.value %}checked{% endif %}
                                                         />
                                                         <label
                                                             class="btn btn-sm btn-outline-primary{% if field.errors %} error-label{% endif %}"

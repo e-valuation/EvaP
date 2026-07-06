@@ -96,9 +96,7 @@
                     class="form-control"
                     form="evaluation-form"
                     placeholder="{% translate 'Notes' %}"
-                    {% if not editable %}
-                        disabled
-                    {% endif %}
+                    {% if not editable %}disabled{% endif %}
                 >{{ evaluation_form.staff_notes.value }}</textarea>
             </div>
             {% include 'log/logentries.html' with logged_object=evaluation %}

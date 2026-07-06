@@ -7,9 +7,7 @@
     type="radio"
     value="{{ choice.data.value }}"
     autocomplete="off"
-    {% if choice.data.selected %}
-        checked
-    {% endif %}
+    {% if choice.data.selected %}checked{% endif %}
 />
 <label
     class="

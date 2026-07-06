@@ -37,9 +37,7 @@
                             slot="show-button"
                             type="button"
                             class="btn btn-sm btn-light"
-                            {% if semester.is_active %}
-                                disabled
-                            {% endif %}
+                            {% if semester.is_active %}disabled{% endif %}
                         >
                             {% translate 'Make active' %}
                         </button>
@@ -73,9 +71,7 @@
                         <button
                             slot="show-button"
                             type="button"
-                            {% if not semester.can_be_deleted_by_manager %}
-                                disabled
-                            {% endif %}
+                            {% if not semester.can_be_deleted_by_manager %}disabled{% endif %}
                             class="btn btn-sm btn-danger"
                         >
                             {% translate 'Delete' %}

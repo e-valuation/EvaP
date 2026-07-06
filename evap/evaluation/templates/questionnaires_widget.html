@@ -40,9 +40,7 @@
                 {% if choice.data.selected or questionnaire.is_locked and not manager and choice.data.value in field.initial %}
                     checked
                 {% endif %}
-                {% if field.field.disabled or questionnaire.is_locked and not manager %}
-                    disabled
-                {% endif %}
+                {% if field.field.disabled or questionnaire.is_locked and not manager %}disabled{% endif %}
             />
             <label
                 class="form-check-label{% if questionnaire in questionnaires_with_answers %} badge bg-danger{% endif %}"

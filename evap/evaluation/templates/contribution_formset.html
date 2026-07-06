@@ -49,12 +49,8 @@
                                 id="{{ form.does_not_contribute.id_for_label }}"
                                 name="{{ form.does_not_contribute.html_name }}"
                                 type="checkbox"
-                                {% if form.does_not_contribute.value %}
-                                    checked
-                                {% endif %}
-                                {% if form.does_not_contribute.field.disabled %}
-                                    disabled
-                                {% endif %}
+                                {% if form.does_not_contribute.value %}checked{% endif %}
+                                {% if form.does_not_contribute.field.disabled %}disabled{% endif %}
                             />
                             <label
                                 class="form-check-label"
