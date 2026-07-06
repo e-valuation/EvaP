@@ -36,6 +36,14 @@ input:checked + label.btn-light.for-above {
     }
 }
 
+@include color-mode(dark) {
+    .btn-light {
+        background-color: $body-bg-dark;
+        border: $darker-gray 1px solid;
+        color: $light-gray;
+    }
+}
+
 button:not(:disabled) {
     cursor: pointer;
 }
@@ -55,7 +63,7 @@ a:not([href]):not(.disabled) {
 
 .btn-switch {
     display: inline-flex;
-    background-color: tint-color($light-gray, 4%);
+    background-color: $light-gray;
     border-radius: 0.2rem;
 
     .btn-toolbar {
@@ -63,12 +71,23 @@ a:not([href]):not(.disabled) {
     }
 
     .btn-group {
-        background: tint-color($light-gray, 4%);
+        background: $light-gray;
 
         &::before {
             width: 0.5rem;
             content: "";
         }
+    }
+}
+@include color-mode(dark) {
+    .btn-switch {
+        background-color: $background-accent-dark;
+        .btn-group {
+            background: $background-accent-dark;
+        }
+    }
+    .btn-switch-label {
+        color: $light-gray;
     }
 }
 .btn-switch-light {
