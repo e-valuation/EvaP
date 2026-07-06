@@ -12,7 +12,7 @@ from pydantic import ValidationError
 
 import evap.cms.fixtures
 from evap.cms.json_importer import ImportDict, JSONImporter, NameChange, WarningMessage, _clean_whitespaces_and_hyphens
-from evap.cms.models import EvaluationLink, IgnoredEvaluation
+from evap.cms.models import CourseLink, EvaluationLink, IgnoredEvaluation
 from evap.evaluation.models import (
     Contribution,
     Course,
@@ -586,6 +586,19 @@ class TestImportEvents(TestCase):
         # use weights
         self.assertEqual(evaluation_everything.weight, settings.MAIN_EVALUATION_DEFAULT_WEIGHT)
         self.assertEqual(evaluation_life.weight, settings.EXAM_EVALUATION_DEFAULT_WEIGHT)
+
+    def test_import_courses_deactivated_link(self):
+        course = baker.make(Course, name_en="unchanged")
+        course_link = baker.make(CourseLink, cms_id="0x9", course=course, is_active=False)
+        self._import(EXAMPLE_DATA_SPECIAL_CASES)
+        self.assertEqual(course_link.course.name_en, "unchanged")
+
+        course_link.is_active = True
+        course_link.save()
+
+        self._import(EXAMPLE_DATA_SPECIAL_CASES)
+        course_link = CourseLink.objects.get(cms_id="0x9")
+        self.assertEqual(course_link.course.name_en, "Vorlesung mit vielen Verantwortlichen")
 
     def test_import_ignore_non_responsible_users(self):
         with override_settings(NON_RESPONSIBLE_USERS=["4@example.com", "ignored.lecturer2@example.com"]):

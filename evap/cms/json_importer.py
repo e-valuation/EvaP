@@ -379,17 +379,19 @@ class JSONImporter:
 
         try:
             cms_course_link = CourseLink.objects.get(cms_id=data["gguid"])
-            if cms_course_link.is_active:
-                course = cms_course_link.course
-                changes = update_with_changes(
-                    course,
-                    {
-                        "name_de": _clean_whitespaces_and_hyphens(data["title"]),
-                        "name_en": _clean_whitespaces_and_hyphens(data["title_en"]),
-                    },
-                )
-                if changes:
-                    self.statistics.updated_courses.append(course)
+            if not cms_course_link.is_active:
+                return None
+
+            course = cms_course_link.course
+            changes = update_with_changes(
+                course,
+                {
+                    "name_de": _clean_whitespaces_and_hyphens(data["title"]),
+                    "name_en": _clean_whitespaces_and_hyphens(data["title_en"]),
+                },
+            )
+            if changes:
+                self.statistics.updated_courses.append(course)
         except CourseLink.DoesNotExist:
             course = Course.objects.create(
                 semester=self.semester,
