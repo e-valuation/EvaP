@@ -12,7 +12,9 @@
             {% endif %}
         "
         href="{% url 'evaluation:index' %}"
-    ><img class="brand-image" src="{% static 'images/evap.png' %}" alt="" /></a>
+    >
+        <img class="brand-image" src="{% static 'images/evap.png' %}" alt="" />
+    </a>
     <button
         class="navbar-toggler"
         type="button"
@@ -26,13 +28,20 @@
     </button>
     <div class="collapse navbar-collapse justify-content-between" id="navbarNavDropdown">
         <span
-            class="d-none {% if user.is_participant and user.is_responsible_or_contributor_or_delegate or user.is_reviewer %}d-xl-block{% else %}d-lg-block{% endif %} navbar-nav justify-content-start"
+            class="
+                d-none
+                {% if user.is_participant and user.is_responsible_or_contributor_or_delegate or user.is_reviewer %}d-xl-block{% else %}d-lg-block{% endif %}
+                navbar-nav
+                justify-content-start
+            "
         >
-            <a href="{% url 'evaluation:index' %}"><img
+            <a href="{% url 'evaluation:index' %}">
+                <img
                     class="brand-image"
                     src="{% static 'images/evap.png' %}"
                     alt=""
-                /></a>
+                />
+            </a>
         </span>
         <ul class="navbar-nav justify-content-center">
             {% if user.is_authenticated %}
@@ -63,13 +72,17 @@
                             data-bs-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded="false"
-                        >{% translate 'Semesters' %}</a>
+                        >
+                            {% translate 'Semesters' %}
+                        </a>
                         <div class="dropdown-menu" aria-labelledby="navbarSemestersDropdownMenuLink">
                             {% for semester in result_semesters %}
                                 <a
                                     class="dropdown-item"
                                     href="{% url 'staff:semester_view' semester.id %}"
-                                >{{ semester.name }}</a>
+                                >
+                                    {{ semester.name }}
+                                </a>
                             {% endfor %}
                         </div>
                     </li>
@@ -82,13 +95,17 @@
                             data-bs-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded="false"
-                        >{% translate 'Review' %}</a>
+                        >
+                            {% translate 'Review' %}
+                        </a>
                         <div class="dropdown-menu" aria-labelledby="navbarReviewDropdownMenuLink">
                             {% for semester in result_semesters %}
                                 <a
                                     class="dropdown-item"
                                     href="{% url 'staff:semester_view' semester.id %}"
-                                >{{ semester.name }}</a>
+                                >
+                                    {{ semester.name }}
+                                </a>
                             {% endfor %}
                         </div>
                     </li>
@@ -106,7 +123,9 @@
                         <a
                             class="nav-link"
                             href="{% url 'staff:questionnaire_index' %}"
-                        >{% translate 'Questionnaires' %}</a>
+                        >
+                            {% translate 'Questionnaires' %}
+                        </a>
                     </li>
                 {% endif %}
                 {% if user.is_grade_publisher %}
@@ -125,7 +144,9 @@
                                 <a
                                     class="dropdown-item dropdown-item-indent"
                                     href="{% url 'grades:semester_view' semester.id %}"
-                                >{{ semester.name }}</a>
+                                >
+                                    {{ semester.name }}
+                                </a>
                             {% endfor %}
                         </div>
                     </li>
@@ -239,7 +260,9 @@
                         data-bs-toggle="dropdown"
                         aria-haspopup="true"
                         aria-expanded="false"
-                    ><span class="fas fa-user"></span> {{ user.full_name }}</a>
+                    >
+                        <span class="fas fa-user"></span> {{ user.full_name }}
+                    </a>
                     <div
                         class="dropdown-menu dropdown-menu-end dropdown-menu-tight"
                         aria-labelledby="navbarUserDropdownMenuLink"
@@ -247,7 +270,9 @@
                         <a
                             class="dropdown-item"
                             href="{% url 'evaluation:profile_edit' %}"
-                        >{% translate 'Profile' %}</a>
+                        >
+                            {% translate 'Profile' %}
+                        </a>
                         <form method="post" action="{% url 'django-auth-logout' %}" id="logout-form">
                             {% csrf_token %}
                             <button type="submit" class="dropdown-item">{% translate 'Logout' %}</button>
