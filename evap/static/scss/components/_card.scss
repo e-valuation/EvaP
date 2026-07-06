@@ -2,11 +2,13 @@
     font-weight: bold;
 }
 
-.card-outline-primary {
-    border-color: rgba($primary, 0.5);
+@include color-mode(light) {
+    .card-outline-primary {
+        border-color: rgba($primary, 0.5);
 
-    > .card-header {
-        background-color: $primary-accent;
+        > .card-header {
+            background-color: $primary-accent;
+        }
     }
 }
 
@@ -57,9 +59,14 @@
 }
 
 .card-submit-area {
-    background-color: $lighter-gray;
     border-color: rgba($primary, 0.5);
     min-height: 65px;
+}
+
+@include color-mode(light) {
+    .card-submit-area {
+        background-color: $lighter-gray;
+    }
 }
 
 .card-submit-area-small {

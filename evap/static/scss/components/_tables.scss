@@ -117,10 +117,12 @@ tr.evaluation-row:not(.heading-row) {
     box-shadow: inset 0 0 6px $primary;
 }
 
-.heading-row {
-    .distribution-bar,
-    .badge-grade {
-        border: 1px solid $dark-gray;
+@include color-mode(light) {
+    .heading-row {
+        .distribution-bar,
+        .badge-grade {
+            border: 1px solid $dark-gray;
+        }
     }
 }
 
