@@ -19,11 +19,7 @@ class ContributorDelegationLiveTest(LiveServerTest):
             vote_start_datetime=datetime(2099, 1, 1, 0, 0),
             vote_end_date=date(2099, 12, 31),
         )
-        self.assertFalse(
-            Contribution.objects.filter(
-                evaluation=evaluation, contributor__email="manager@institution.example.com"
-            ).exists()
-        )
+        self.assertFalse(Contribution.objects.filter(evaluation=evaluation, contributor=self.manager).exists())
         self.assertEqual(evaluation.contributions.count(), 1)
         self.selenium.get(self.reverse("contributor:index"))
 
@@ -32,23 +28,13 @@ class ContributorDelegationLiveTest(LiveServerTest):
         )
         delegate_button.click()
 
-        open_dropdown_field = self.selenium.find_element(By.CSS_SELECTOR, "input[placeholder='Please select...']")
-        open_dropdown_field.click()
-
-        first_option = self.selenium.find_element(
-            By.XPATH, "//div[contains(@class, 'option') and contains(text(), 'manager')]"
-        )
-        first_option.click()
+        self.search_and_select_in_tom_select("delegate_to", self.manager.email)
 
         submit_button = self.selenium.find_element(By.CSS_SELECTOR, "span[slot='action-text']")
         submit_button.click()
 
         self.assertEqual(evaluation.contributions.count(), 2)
-        self.assertTrue(
-            Contribution.objects.filter(
-                evaluation=evaluation, contributor__email="manager@institution.example.com"
-            ).exists()
-        )
+        self.assertTrue(Contribution.objects.filter(evaluation=evaluation, contributor=self.manager).exists())
 
 
 class ContributorUserProfileSearchLiveTest(UserProfileSearchLiveServerTest):
