@@ -80,20 +80,22 @@
     }
 }
 
-.progress-step:nth-of-type(3n + 1) {
-    .separator {
-        height: 8px;
+@include media-breakpoint-down(md) {
+    .progress-step:nth-of-type(3n + 1) {
+        .separator {
+            height: 8px;
+        }
     }
-}
-
-.progress-step:nth-of-type(3n + 2) {
-    .separator {
-        height: 26px;
+    
+    .progress-step:nth-of-type(3n + 2) {
+        .separator {
+            height: 26px;
+        }
     }
-}
-
-.progress-step:nth-of-type(3n) {
-    .separator {
-        height: 44px;
+    
+    .progress-step:nth-of-type(3n) {
+        .separator {
+            height: 44px;
+        }
     }
 }
