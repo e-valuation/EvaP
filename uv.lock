@@ -520,7 +520,7 @@ dev = [
     { name = "django-debug-toolbar", specifier = "~=7.0" },
     { name = "django-stubs", specifier = "~=6.0.2" },
     { name = "django-webtest", specifier = "~=1.9.13" },
-    { name = "djangofmt", specifier = "~=0.2.9" },
+    { name = "djangofmt", specifier = "~=0.2.11" },
     { name = "model-bakery", specifier = "~=1.24.0" },
     { name = "mypy", specifier = "~=2.1.0" },
     { name = "openpyxl-stubs", specifier = "~=0.1.25" },
