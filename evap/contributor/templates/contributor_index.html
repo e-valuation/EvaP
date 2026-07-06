@@ -150,9 +150,11 @@
                                             {% if course.evaluation_count == 1 %}
                                                 {% include 'evaluation_badges.html' with mode='contributor' %}
                                             {% else %}
-                                                {% if evaluation.is_midterm_evaluation %}<span
-                                                        class="badge bg-dark"
-                                                    >{% translate 'Midterm evaluation' %}</span>{% endif %}
+                                                {% if evaluation.is_midterm_evaluation %}
+                                                    <span class="badge bg-dark">
+                                                        {% translate 'Midterm evaluation' %}
+                                                    </span>
+                                                {% endif %}
                                             {% endif %}
                                         </td>
                                         <td>
@@ -197,17 +199,18 @@
                                                                 {% csrf_token %}
 
                                                                 <confirmation-modal type="submit">
-                                                                    <span
-                                                                        slot="title"
-                                                                    >{% translate 'Delegate preparation' %}</span>
-                                                                    <span
-                                                                        slot="action-text"
-                                                                    >{% translate 'Delegate preparation' %}</span>
+                                                                    <span slot="title">
+                                                                        {% translate 'Delegate preparation' %}
+                                                                    </span>
+                                                                    <span slot="action-text">
+                                                                        {% translate 'Delegate preparation' %}
+                                                                    </span>
                                                                     <span slot="question">
-                                                                        {% blocktranslate trimmed %}Do you really want
-                                                                            to delegate the preparation of the
-                                                                            evaluation <strong
-                                                                            >{{ evaluation }}</strong>?{% endblocktranslate %}
+                                                                        {% blocktranslate trimmed %}
+                                                                            Do you really want to delegate the
+                                                                            preparation of the evaluation
+                                                                            <strong>{{ evaluation }}</strong>?
+                                                                        {% endblocktranslate %}
                                                                     </span>
                                                                     <div slot="extra-inputs">
                                                                         <div class="my-4">

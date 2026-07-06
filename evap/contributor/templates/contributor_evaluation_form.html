@@ -155,13 +155,15 @@
 {% block modals %}
     {{ block.super }}
 
-    {% blocktranslate trimmed asvar title with evaluation_name=evaluation.full_name %}Request account creation for
-        {{ evaluation_name }}{% endblocktranslate %}
+    {% blocktranslate trimmed asvar title with evaluation_name=evaluation.full_name %}
+        Request account creation for {{ evaluation_name }}
+    {% endblocktranslate %}
     {% translate 'Please tell us which new account we should create. We need the name and email for all new accounts.' as teaser %}
     {% include 'contact_modal.html' with modal_id='createAccountRequestModal' user=request.user title=title teaser=teaser %}
 
-    {% blocktranslate trimmed asvar title with evaluation_name=evaluation.full_name %}Request evaluation changes for
-        {{ evaluation_name }}{% endblocktranslate %}
+    {% blocktranslate trimmed asvar title with evaluation_name=evaluation.full_name %}
+        Request evaluation changes for {{ evaluation_name }}
+    {% endblocktranslate %}
     {% translate 'Please tell us what changes to the evaluation we should make.' as teaser %}
     {% include 'contact_modal.html' with modal_id='changeEvaluationRequestModal' user=request.user title=title teaser=teaser %}
 {% endblock %}
