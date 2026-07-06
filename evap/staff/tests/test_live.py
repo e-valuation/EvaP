@@ -61,15 +61,7 @@ class EvaluationEditLiveTest(LiveServerTest):
         with self.enter_staff_mode():
             self.selenium.get(self.reverse("staff:evaluation_edit", args=[evaluation.pk]))
 
-        row = self.wait.until(visibility_of_element_located((By.CSS_SELECTOR, "#id_contributions-0-contributor")))
-        tomselect_options = row.get_property("tomselect")["options"]
-        manager_text = "manager (manager@institution.example.com)"
-        manager_options = [key for key, value in tomselect_options.items() if value["text"] == manager_text]
-        self.assertEqual(len(manager_options), 1)
-        self.selenium.execute_script(
-            f"""let tomselect = document.querySelector("#id_contributions-0-contributor").tomselect;
-            tomselect.setValue("{manager_options[0]}");"""
-        )
+        self.search_and_select_in_tom_select("contributions-0-contributor", self.manager.email)
 
         submit_btn = self.wait.until(
             element_to_be_clickable((By.XPATH, "//button[@name='operation' and @value='save']"))
@@ -145,12 +137,9 @@ class ParticipantCollapseTests(LiveServerTest):
         counter = card_header.find_element(By.CSS_SELECTOR, ".rounded-pill")
         self.assertEqual(counter.text, "20")
 
-        tomselect_input = self.wait.until(
-            visibility_of_element_located((By.CSS_SELECTOR, "input#id_participants-ts-control"))
-        )
-        tomselect_input.click()
-        tomselect_input.send_keys("participant")
-        self.selenium.find_element(By.CSS_SELECTOR, ".option.active").click()
+        self.wait.until(visibility_of_element_located((By.CSS_SELECTOR, "#id_participants ~ .ts-wrapper .ts-control")))
+
+        self.search_and_select_in_tom_select("participants", "participant")
         self.assertEqual(counter.text, "21")
 
         random_participant_remove_button = self.selenium.find_element(
