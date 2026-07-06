@@ -161,7 +161,7 @@ class TestProfileView(WebTest):
         user = baker.make(UserProfile)
         page = self.app.get(self.url, user=self.responsible)
         form = page.forms["profile-form"]
-        form["delegates"] = [user.pk]
+        form["delegates"].force_value([user.pk])
         form.submit()
 
         self.responsible.refresh_from_db()
