@@ -177,11 +177,8 @@
                                 const url = element.getAttribute("data-tomselect-server-side-options-endpoint") + "?query=" + encodeURIComponent(query);
                                 fetch(url)
                                     .then(response => response.json())
-                                    .then(json => {
-                                        callback(json.options);
-                                    }).catch(() => {
-                                        alert(window.gettext("The server is not responding."));
-                                    });
+                                    .then(json => callback(json.options))
+                                    .catch(() => alert(window.gettext("The server is not responding.")));
                             },
                             valueField: 'id',
                             labelField: 'text',

@@ -2724,7 +2724,7 @@ def exit_staff_mode(request):
 
 
 @staff_permission_required
-class ParticipantsUserProfileSearchView(UserProfileOptionsBaseView):
+class ParticipantsUserProfileOptionsView(UserProfileOptionsBaseView):
     @classmethod
     def get_queryset(cls, request, *args, **kwargs) -> QuerySet[UserProfile]:
         evaluation = get_object_or_404(Evaluation, id=kwargs["evaluation_id"]) if kwargs.get("evaluation_id") else None
@@ -2736,7 +2736,7 @@ class ParticipantsUserProfileSearchView(UserProfileOptionsBaseView):
 
 
 @staff_permission_required
-class ContributorUserProfileSearchView(UserProfileOptionsBaseView):
+class ContributorUserProfileOptionsView(UserProfileOptionsBaseView):
     @classmethod
     def get_queryset(cls, request, *args, **kwargs) -> QuerySet[UserProfile]:
         return super().get_queryset(request, *args, **kwargs).filter(pk__in=ContributionForm.get_contributor_queryset())
