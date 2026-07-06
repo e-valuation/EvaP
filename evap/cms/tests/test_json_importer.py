@@ -430,6 +430,28 @@ class TestImportEvents(TestCase):
         # Overall, 3 log entries should exist: Create Evaluation, Create General Contribution, Create Contribution of 3@example.com
         self.assertEqual(main_evaluation.related_logentries().count(), 3)
 
+    def test_import_contributor_contribution_update(self) -> None:
+        """Regression test for #2728"""
+
+        contributions = Contribution.objects.exclude(contributor=None)
+
+        self._import()
+        self.assertFalse(
+            contributions.exclude(
+                role=Contribution.Role.EDITOR,
+                textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            ).exists(),
+            msg="assumed default values from import",
+        )
+
+        contributions.update(role=Contribution.Role.CONTRIBUTOR)
+        self._import(assert_nop=True)
+        contributions.update(
+            role=Contribution.Role.EDITOR,  # back to default
+            textanswer_visibility=Contribution.TextAnswerVisibility.OWN_TEXTANSWERS,
+        )
+        self._import(assert_nop=True)
+
     def test_import_courses_exam_without_related_evaluation(self):
         CourseType.objects.create(name_en="Foo", name_de="Foo", import_names=["nat"])
         course_type = CourseType.objects.create(name_en="Bar", name_de="Bar", import_names=["Bachelorprojekt"])

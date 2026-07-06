@@ -275,11 +275,19 @@ class Questionnaire(models.Model):
 
     @property
     def text_questions(self) -> list["Question"]:
-        return [question for question in self.questions.all() if question.is_text_question]
+        return [
+            assignment.question
+            for assignment in self.question_assignments.all()
+            if assignment.question.is_text_question
+        ]
 
     @property
     def rating_questions(self) -> list["Question"]:
-        return [question for question in self.questions.all() if question.is_rating_question]
+        return [
+            assignment.question
+            for assignment in self.question_assignments.all()
+            if assignment.question.is_rating_question
+        ]
 
 
 class Program(models.Model):
