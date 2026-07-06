@@ -181,3 +181,13 @@ input[type="search"]::-webkit-search-cancel-button {
         background-color: $light-gray;
     }
 }
+
+.distribution-bar-container {
+    background-color: transparent;
+}
+
+@include color-mode(dark) {
+    #evaluation-table {
+        border-color: $darker-gray;
+    }
+}

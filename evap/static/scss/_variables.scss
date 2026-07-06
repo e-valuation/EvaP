@@ -33,16 +33,17 @@ $border-radius-lg:            .3rem !default;
 $border-radius-xl:            .75rem !default;
 $border-radius-2xl:           1.5rem !default;
 
+$body-bg-dark: $background-dark;
 $border-color: $medium-gray;
 
 $headings-margin-bottom: 1rem;
 
 $table-accent-bg: transparent;
-$table-striped-bg: tint-color($light-gray, 50%);
-$table-border-color: $light-gray;
+//$table-striped-bg: tint-color($light-gray, 50%);
+$table-border-color: $medium-gray;
 $table-group-separator-color: $medium-gray;
 
-$card-cap-bg: $table-striped-bg;
+//$card-cap-bg: $table-striped-bg;
 
 $accordion-border-width: 0;
 $accordion-button-active-bg: $primary-accent;
@@ -58,6 +59,7 @@ $order-button-down-icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2
 $btn-disabled-opacity: 0.45;
 
 $dropdown-padding-y: 0.25rem;
+$dropdown-link-hover-color: $black;
 $dropdown-link-hover-bg: $light-gray;
 $dropdown-item-padding-y: 0.15rem;
 $dropdown-item-padding-x: 1rem;
