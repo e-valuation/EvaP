@@ -18,11 +18,11 @@
 
     <div class="callout callout-info small">
         {% if editable %}
-            {% blocktranslate %}Please review the evaluation's details below, add all contributors and select suitable
+            {% blocktranslate trimmed %}Please review the evaluation's details below, add all contributors and select suitable
                 questionnaires. Once everything is okay, please approve the evaluation on the bottom of the
                 page.{% endblocktranslate %}
         {% else %}
-            {% blocktranslate %}You cannot edit this evaluation because it has already been
+            {% blocktranslate trimmed %}You cannot edit this evaluation because it has already been
                 approved.{% endblocktranslate %}
         {% endif %}
     </div>
@@ -155,12 +155,12 @@
 {% block modals %}
     {{ block.super }}
 
-    {% blocktranslate asvar title with evaluation_name=evaluation.full_name %}Request account creation for
+    {% blocktranslate trimmed asvar title with evaluation_name=evaluation.full_name %}Request account creation for
         {{ evaluation_name }}{% endblocktranslate %}
     {% translate 'Please tell us which new account we should create. We need the name and email for all new accounts.' as teaser %}
     {% include 'contact_modal.html' with modal_id='createAccountRequestModal' user=request.user title=title teaser=teaser %}
 
-    {% blocktranslate asvar title with evaluation_name=evaluation.full_name %}Request evaluation changes for
+    {% blocktranslate trimmed asvar title with evaluation_name=evaluation.full_name %}Request evaluation changes for
         {{ evaluation_name }}{% endblocktranslate %}
     {% translate 'Please tell us what changes to the evaluation we should make.' as teaser %}
     {% include 'contact_modal.html' with modal_id='changeEvaluationRequestModal' user=request.user title=title teaser=teaser %}

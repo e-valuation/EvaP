@@ -201,7 +201,7 @@
                                 data-next-evaluation-index="{{ forloop.counter0 }}"
                                 data-evaluation="{{ next_evaluation.pk }}"
                             >
-                                {% blocktranslate with name=next_evaluation.full_name count answers=next_evaluation.num_unreviewed_textanswers %}The
+                                {% blocktranslate trimmed with name=next_evaluation.full_name count answers=next_evaluation.num_unreviewed_textanswers %}The
                                     next evaluation "{{ name }}" has got {{ answers }} unreviewed text
                                     answer.{% plural %}The next evaluation "{{ name }}" has got {{ answers }} unreviewed
                                     text answers.{% endblocktranslate %}

@@ -11,7 +11,7 @@
     {% if show_automated_publishing_info %}
         <div class="callout callout-info">
             <b>{% translate 'Automated publishing' %}</b><br />
-            {% blocktranslate %}After this file with final grades was uploaded, the evaluation results will be published
+            {% blocktranslate trimmed %}After this file with final grades was uploaded, the evaluation results will be published
                 automatically once the evaluation ends. If the evaluation has already ended, it will be published
                 immediately. All contributors and participants will receive an email informing them about the published
                 evaluation results and the available grade file document.{% endblocktranslate %}
@@ -20,10 +20,10 @@
 
     <h3 class="mb-3">
         {% if final_grades %}
-            {% blocktranslate with course=course.name semester=semester.name %}Upload final grades for {{ course }}
+            {% blocktranslate trimmed with course=course.name semester=semester.name %}Upload final grades for {{ course }}
                 ({{ semester }}){% endblocktranslate %}
         {% else %}
-            {% blocktranslate with course=course.name semester=semester.name %}Upload midterm grades for {{ course }}
+            {% blocktranslate trimmed with course=course.name semester=semester.name %}Upload midterm grades for {{ course }}
                 ({{ semester }}){% endblocktranslate %}
         {% endif %}
     </h3>

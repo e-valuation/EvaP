@@ -1,7 +1,7 @@
 <span class="small">
     {{ evaluation.vote_start_datetime }}{% if not start_only %}
         &ndash;<br />
-        {{ evaluation.vote_end_date }} ({% blocktranslate count runtime=evaluation.runtime %}{{ runtime }}
+        {{ evaluation.vote_end_date }} ({% blocktranslate trimmed count runtime=evaluation.runtime %}{{ runtime }}
             day{% plural %}{{ runtime }} days{% endblocktranslate %}){% endif %}
 </span><br />
 {% if not start_only %}

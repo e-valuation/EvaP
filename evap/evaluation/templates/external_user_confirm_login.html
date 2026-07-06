@@ -19,7 +19,7 @@
                         {% csrf_token %}
                         <div class="d-flex justify-content-center">
                             <button type="submit" class="btn btn-primary login-button">
-                                {% blocktranslate %}Login as {{ username }}{% endblocktranslate %}
+                                {% blocktranslate trimmed %}Login as {{ username }}{% endblocktranslate %}
                             </button>
                         </div>
                     </form>

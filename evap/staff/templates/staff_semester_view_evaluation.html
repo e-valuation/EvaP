@@ -252,7 +252,7 @@
                         title="{% translate 'Grade documents (Midterm, Final)' %}"
                     >
                         <span class="fas fa-file"></span>
-                        {% blocktranslate with midterm=evaluation.midterm_grade_documents_count final=evaluation.final_grade_documents_count %}M:
+                        {% blocktranslate trimmed with midterm=evaluation.midterm_grade_documents_count final=evaluation.final_grade_documents_count %}M:
                             {{ midterm }}, F: {{ final }}{% endblocktranslate %}
                     </span>
                 {% else %}
@@ -263,7 +263,7 @@
                         title="{% translate 'Grade documents (Midterm, Final)' %}"
                     >
                         <span class="fas fa-file"></span>
-                        {% blocktranslate with midterm=evaluation.midterm_grade_documents_count final=evaluation.final_grade_documents_count %}M:
+                        {% blocktranslate trimmed with midterm=evaluation.midterm_grade_documents_count final=evaluation.final_grade_documents_count %}M:
                             {{ midterm }}, F: {{ final }}{% endblocktranslate %}
                     </a>
                 {% endif %}

@@ -6,7 +6,7 @@
     {{ block.super }}
     {% if form.errors %}
         <div class="alert alert-danger" role="alert">
-            {% blocktranslate %}Please fill out all required fields and select at least one recipient
+            {% blocktranslate trimmed %}Please fill out all required fields and select at least one recipient
                 group.{% endblocktranslate %}
         </div>
     {% endif %}
