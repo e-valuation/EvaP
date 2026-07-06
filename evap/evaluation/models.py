@@ -1395,6 +1395,15 @@ class QuestionAssignment(models.Model):
         ordering = ["order"]
         unique_together = [("question", "questionnaire")]
 
+    def save(self, *args, **kwargs):
+        # Questions in dropout questionnaires and text/heading questions can never count toward the grade.
+        if self.questionnaire.is_dropout or self.question.type in [QuestionType.TEXT, QuestionType.HEADING]:
+            self.counts_for_grade = False
+            if "update_fields" in kwargs:
+                kwargs["update_fields"] = {"counts_for_grade"}.union(kwargs["update_fields"])
+
+        super().save(*args, **kwargs)
+
 
 @receiver(post_delete, sender=QuestionAssignment)
 @transaction.atomic

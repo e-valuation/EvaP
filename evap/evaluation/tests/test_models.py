@@ -91,6 +91,36 @@ class TestQuestionAssignment(TestCase):
         self.questionnaire.delete()
         self.assertRaises(Question.DoesNotExist, self.question.refresh_from_db)
 
+    def test_save_coerces_counts_for_grade(self):
+        # counts_for_grade is forced to False for dropout questionnaires and text/heading questions.
+        dropout = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
+        top = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+
+        dropout_assignment = baker.make(
+            QuestionAssignment, questionnaire=dropout, question__type=QuestionType.GRADE, counts_for_grade=True
+        )
+        dropout_assignment.refresh_from_db()
+        self.assertFalse(dropout_assignment.counts_for_grade)
+
+        for question_type in [QuestionType.TEXT, QuestionType.HEADING]:
+            assignment = baker.make(
+                QuestionAssignment, questionnaire=top, question__type=question_type, counts_for_grade=True
+            )
+            assignment.refresh_from_db()
+            self.assertFalse(assignment.counts_for_grade)
+
+        rating_assignment = baker.make(
+            QuestionAssignment, questionnaire=top, question__type=QuestionType.GRADE, counts_for_grade=True
+        )
+        rating_assignment.refresh_from_db()
+        self.assertTrue(rating_assignment.counts_for_grade)
+
+        # the coercion is persisted on a partial save even when counts_for_grade is not in update_fields
+        QuestionAssignment.objects.filter(pk=dropout_assignment.pk).update(counts_for_grade=True)
+        dropout_assignment.save(update_fields=["order"])
+        dropout_assignment.refresh_from_db()
+        self.assertFalse(dropout_assignment.counts_for_grade)
+
 
 @override_settings(EVALUATION_END_OFFSET_HOURS=0)
 class TestEvaluations(WebTest):

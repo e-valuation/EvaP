@@ -548,8 +548,8 @@ class TestCalculateAverageDistribution(TestCase):
         distribution_with_dropout = calculate_average_distribution(self.evaluation)
         self.assertEqual(distribution_without_dropout, distribution_with_dropout)
 
-        dropout_assignment.counts_for_grade = True
-        dropout_assignment.save()
+        # QuestionAssignment.save() coerces counts_for_grade to False for dropout questionnaires
+        QuestionAssignment.objects.filter(pk=dropout_assignment.pk).update(counts_for_grade=True)
         cache_results(self.evaluation)
 
         # Should raise AssertionError because dropout questionnaire has counts_for_grade=True
