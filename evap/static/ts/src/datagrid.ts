@@ -1,5 +1,5 @@
 import { CSRF_HEADERS } from "./csrf-utils.js";
-import { RangeSlider, Range } from "./slider.js";
+import { Range, RangeSlider } from "./slider.js";
 import { assert, selectOrError } from "./utils.js";
 
 declare const Sortable: typeof import("sortablejs");
@@ -36,10 +36,16 @@ interface DataGridParameters extends BaseParameters {
 }
 
 export class DataGrid {
-    public readonly rows: Row[] = [];
+    private _rows?: Row[];
     private delayTimer: number | undefined;
-    // @ts-expect-error is initialized when calling .init()
-    protected state: State;
+    protected state: State = {
+        equalityFilter: new Map<string, string[]>(),
+        rangeFilter: new Map<string, Range>(),
+        search: "",
+        order: this.defaultOrder,
+    };
+    protected readonly filterButtons: HTMLButtonElement[] = [];
+    protected readonly resetFilterButton?: HTMLButtonElement;
 
     protected constructor(
         private readonly storageKey: string,
@@ -47,11 +53,14 @@ export class DataGrid {
         public readonly container: HTMLElement,
         private readonly searchInput: HTMLInputElement,
         protected readonly resetSearch: HTMLButtonElement | undefined,
-        protected readonly filterButtons: HTMLButtonElement[],
-        protected readonly resetFilterButton: HTMLButtonElement | undefined,
         private readonly getRowElements: () => HTMLElement[] = () => [...this.container.children] as HTMLElement[],
         protected readonly defaultOrder: Order = [],
     ) {}
+
+    public get rows() {
+        this._rows ??= this.fetchRows(this.getRowElements());
+        return this._rows;
+    }
 
     public static buildSortableHeadersMap(headerContainer: HTMLElement): Map<string, HTMLElement> {
         const sortableHeaders = new Map<string, HTMLElement>();
@@ -70,21 +79,15 @@ export class DataGrid {
 
         const [firstColumn] = sortableHeaders.keys();
 
-        const dataGrid = new DataGrid(
+        return new DataGrid(
             storageKey,
             sortableHeaders,
             tbody,
             searchInput,
             resetSearch,
-            [],
-            undefined,
             () => [...tbody.children] as HTMLElement[],
             firstColumn ? [[firstColumn, "asc"]] : [],
         );
-
-        dataGrid.init();
-
-        return dataGrid;
     }
 
     public static fromCSSGridTable({
@@ -93,8 +96,6 @@ export class DataGrid {
         searchInput,
         resetSearch,
         gridHeader,
-        filterButtons,
-        resetFilterButton,
         defaultOrder,
     }: {
         gridContainer: HTMLElement;
@@ -103,24 +104,18 @@ export class DataGrid {
     } & BaseParameters): DataGrid {
         const head: HTMLElement = gridHeader ?? selectOrError(".gridHeader", gridContainer);
 
-        const dataGrid = new DataGrid(
+        return new DataGrid(
             storageKey,
             this.buildSortableHeadersMap(head),
             gridContainer,
             searchInput,
             resetSearch,
-            filterButtons,
-            resetFilterButton,
             () =>
                 [...gridContainer.children].filter(
                     row => !row.classList.contains("gridHeader") && !row.classList.contains("empty-disclaimer"),
                 ) as HTMLElement[],
             defaultOrder,
         );
-
-        dataGrid.init();
-
-        return dataGrid;
     }
 
     private static createBadgePill(count: number): HTMLElement {
@@ -131,44 +126,53 @@ export class DataGrid {
         return pill;
     }
 
-    public bindFilterButtons(filterButtons: HTMLButtonElement[], filterFieldName: string) {
+    public bindRadioFilterButtons(filterButtons: HTMLButtonElement[]) {
         for (const filterButton of filterButtons) {
-            console.assert(
-                !!filterButton.dataset[filterFieldName],
-                `data-field '${filterFieldName} must be defined on button`,
-                filterButton,
-            );
+            const filterCategory = filterButton.dataset.filterCategory;
+            const filterValue = filterButton.dataset.filterValue;
 
+            if (!filterCategory || !filterValue) {
+                console.error("Filter buttons need both data-filter-value and data-filter-category!", filterButton);
+                continue;
+            }
+
+            if (!this.state.equalityFilter.has(filterCategory)) {
+                this.state.equalityFilter.set(filterCategory, []);
+            }
             const count = this.rows.filter(row =>
-                row.filterValues.get(filterFieldName)!.includes(filterButton.dataset[filterFieldName]!),
+                row.filterValues.get(filterCategory)?.some(v => v === filterValue),
             ).length;
             filterButton.append(DataGrid.createBadgePill(count));
 
             filterButton.addEventListener("click", () => {
                 if (filterButton.classList.contains("active")) {
                     filterButton.classList.remove("active");
-                    this.state.equalityFilter.delete(filterFieldName);
+                    this.removeEqualityFeature(filterCategory, filterValue);
                 } else {
-                    filterButtons.forEach(button => button.classList.remove("active"));
+                    // TODO: multi filter
+                    this.filterButtons.forEach(b => b.classList.remove("active"));
+                    this.clearEqualityFilter(filterCategory);
                     filterButton.classList.add("active");
-                    this.state.equalityFilter.set(filterFieldName, [filterButton.dataset[filterFieldName]!]);
+                    this.addEqualityFilter(filterCategory, filterValue);
                 }
             });
         }
+        return this;
     }
 
-    // TODO: range filter?
-    // TODO: think about switching to builder pattern
+    // TODO: bindCheckboxFilterButtons()
+    // TODO: bindRangeFilter()
+
+    // TODO: think about using separate builder class
 
     public init() {
-        this.state = this.restoreStateFromStorage();
-        // @ts-expect-error this is the initialization TODO
-        this.rows = this.fetchRows(this.getRowElements());
+        this.restoreStateFromStorage();
         this.reflectFilterStateOnInputs();
         this.filterRows();
         this.sortRows();
         this.bindEvents();
         this.renderToDOM();
+        return this;
     }
 
     private addEqualityFilter(filterCategory: string, filterValue: string) {
@@ -232,38 +236,6 @@ export class DataGrid {
             this.renderToDOM();
             this.reflectFilterStateOnInputs();
         });
-
-        // TODO: move into bindRadioFilter() (and bindCheckboxFilter)
-        for (const filterButton of this.filterButtons) {
-            const filterCategory = filterButton.dataset.filterCategory;
-            const filterValue = filterButton.dataset.filterValue;
-
-            if (!filterCategory || !filterValue) {
-                console.error("Filter buttons need both data-filter-value and data-filter-category!", filterButton);
-                continue;
-            }
-
-            if (!this.state.equalityFilter.has(filterCategory)) {
-                this.state.equalityFilter.set(filterCategory, []);
-            }
-            const count = this.rows.filter(row =>
-                row.filterValues.get(filterCategory)?.some(v => v === filterValue),
-            ).length;
-            filterButton.append(DataGrid.createBadgePill(count));
-
-            filterButton.addEventListener("click", () => {
-                if (filterButton.classList.contains("active")) {
-                    filterButton.classList.remove("active");
-                    this.removeEqualityFeature(filterCategory, filterValue);
-                } else {
-                    // TODO: multi filter
-                    this.filterButtons.forEach(b => b.classList.remove("active"));
-                    this.clearEqualityFilter(filterCategory);
-                    filterButton.classList.add("active");
-                    this.addEqualityFilter(filterCategory, filterValue);
-                }
-            });
-        }
 
         this.resetFilterButton?.addEventListener("click", () => {
             this.state.equalityFilter.clear();
@@ -417,10 +389,26 @@ export class DataGrid {
         this.saveStateToStorage();
     }
 
-    private restoreStateFromStorage(): State {
+    private restoreStateFromStorage(): void {
         const stored = JSON.parse(localStorage.getItem(this.storageKey)!) ?? {};
-        return {
-            equalityFilter: new Map(stored.equalityFilter),
+
+        // set previous equality filters, if they exist
+        try {
+            const previousEqualityFilter = new Map<string, string[]>(stored.equalityFilter);
+            for (const previousFilterCategory in previousEqualityFilter) {
+                if (this.state.equalityFilter.get(previousFilterCategory)) {
+                    this.state.equalityFilter.set(
+                        previousFilterCategory,
+                        previousEqualityFilter.get(previousFilterCategory)!,
+                    );
+                }
+            }
+        } catch (e) {
+            console.warn("Could not restore previous equality filter from:", stored, e);
+        }
+
+        this.state = {
+            ...this.state,
             rangeFilter: new Map(stored.rangeFilter),
             search: stored.search ?? "",
             order: stored.order ?? this.defaultOrder,
@@ -527,15 +515,7 @@ export class ResultGrid extends DataGrid {
         resetOrder,
         ...options
     }: ResultGridParameters) {
-        super(
-            options.storageKey,
-            options.sortableHeaders,
-            options.container,
-            options.searchInput,
-            options.resetSearch,
-            [],
-            undefined,
-        );
+        super(options.storageKey, options.sortableHeaders, options.container, options.searchInput, options.resetSearch);
         this.filterCheckboxes = filterCheckboxes;
         this.filterSliders = filterSliders;
         this.sortColumnSelect = sortColumnSelect;

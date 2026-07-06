@@ -243,29 +243,29 @@ class EvaluationGridLiveTest(LiveServerTest):
         with self.enter_staff_mode():
             self.selenium.get(self.reverse("staff:semester_view", args=[semester.id]))
 
-            def find_visible_rows(driver):
-                return driver.find_elements(By.CSS_SELECTOR, "#evaluation-grid .gridRow:not(.gridHeader)")
+        def find_visible_rows(driver):
+            return driver.find_elements(By.CSS_SELECTOR, "#evaluation-grid .gridRow:not(.gridHeader)")
 
-            self.wait.until(lambda d: len(find_visible_rows(d)) == 3, "All elements should be visible by default")
+        self.wait.until(lambda d: len(find_visible_rows(d)) == 3, "All elements should be visible by default")
 
-            search = self.selenium.find_element(By.CSS_SELECTOR, "input[name=search-evaluation]")
-            reset_search = self.selenium.find_element(By.CSS_SELECTOR, "[data-reset=search-evaluation]")
+        search = self.selenium.find_element(By.CSS_SELECTOR, "input[name=search-evaluation]")
+        reset_search = self.selenium.find_element(By.CSS_SELECTOR, "[data-reset=search-evaluation]")
 
-            search.send_keys("Ba")
+        search.send_keys("Ba")
 
-            self.wait.until(lambda d: len(find_visible_rows(d)) == 2, "Only Bar & Baz should be visible")
+        self.wait.until(lambda d: len(find_visible_rows(d)) == 2, "Only Bar & Baz should be visible")
 
-            search.send_keys("r")
+        search.send_keys("r")
 
-            self.wait.until(lambda d: len(find_visible_rows(d)) == 1, "Only Bar should be visible")
+        self.wait.until(lambda d: len(find_visible_rows(d)) == 1, "Only Bar should be visible")
 
-            search.send_keys(Keys.BACKSPACE)
+        search.send_keys(Keys.BACKSPACE)
 
-            self.wait.until(lambda d: len(find_visible_rows(d)) == 2, "Bar & Baz should be visible")
+        self.wait.until(lambda d: len(find_visible_rows(d)) == 2, "Bar & Baz should be visible")
 
-            reset_search.click()
+        reset_search.click()
 
-            self.wait.until(lambda d: len(find_visible_rows(d)) == 3, "All elements should be visible")
+        self.wait.until(lambda d: len(find_visible_rows(d)) == 3, "All elements should be visible")
 
     def test_evaluation_grid_filtering(self):
         semester = baker.make(Semester)
@@ -290,34 +290,42 @@ class EvaluationGridLiveTest(LiveServerTest):
         with self.enter_staff_mode():
             self.selenium.get(self.reverse("staff:semester_view", args=[semester.id]))
 
-            def visible_row_names(driver):
-                return [
-                    element.get_attribute("data-order")
-                    for element in driver.find_elements(
-                        By.CSS_SELECTOR, '#evaluation-grid :not(.gridHeader) [data-col="name"]'
-                    )
-                ]
+        def visible_evaluation_states(driver):
+            return [
+                element.get_attribute("data-filter-value")
+                for element in driver.find_elements(
+                    By.CSS_SELECTOR, '#evaluation-grid :not(.gridHeader) [data-col="state-approval"]'
+                )
+            ]
 
-            self.wait.until(lambda d: len(visible_row_names(d)) == 3, "All elements should be visible by default")
+        self.wait.until(
+            lambda d: len(visible_evaluation_states(d)) == 3, "All evaluations should be visible by default"
+        )
 
-            filter_in_preparation = self.selenium.find_element(
-                By.CSS_SELECTOR, '#evaluation-filter-buttons [data-filter-value="10"]'
-            )
-            filter_editor_approved = self.selenium.find_element(
-                By.CSS_SELECTOR, '#evaluation-filter-buttons [data-filter-value="30"]'
-            )
+        filter_in_preparation = self.selenium.find_element(
+            By.CSS_SELECTOR, '#evaluation-filter-buttons [data-filter-value="10"]'
+        )
+        filter_editor_approved = self.selenium.find_element(
+            By.CSS_SELECTOR, '#evaluation-filter-buttons [data-filter-value="30"]'
+        )
 
-            filter_in_preparation.click()
+        filter_in_preparation.click()
 
-            self.wait.until(lambda d: visible_row_names(d)[0].startswith(foo_eval.course.name))
+        self.wait.until(
+            lambda d: visible_evaluation_states(d) == [str(foo_eval.state)],
+            'Only "In Preparation" evaluation should be visible',
+        )
 
-            filter_editor_approved.click()
+        filter_editor_approved.click()
 
-            self.wait.until(lambda d: visible_row_names(d)[0].startswith(baz_eval.course.name))
+        self.wait.until(
+            lambda d: visible_evaluation_states(d) == [str(baz_eval.state)],
+            'Only "Approved by Editor" evaluation should be visible',
+        )
 
-            filter_editor_approved.click()
+        filter_editor_approved.click()
 
-            self.wait.until(lambda d: len(visible_row_names(d)) == 3, "All elements should be visible")
+        self.wait.until(lambda d: len(visible_evaluation_states(d)) == 3, "All evaluations should be visible")
 
 
 class QuestionnaireIndexLiveTest(LiveServerTest):

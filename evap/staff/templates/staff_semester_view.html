@@ -963,9 +963,10 @@
                     gridContainer: evaluationGrid,
                     searchInput: document.querySelector("input[name=search-evaluation]"),
                     resetSearch: document.querySelector("[data-reset=search-evaluation]"),
-                    filterButtons: [...document.querySelectorAll('#evaluation-filter-buttons [data-filter-value]')],
                     defaultOrder: [["name", "asc"]]
-                });
+                })
+                .bindRadioFilterButtons([...document.querySelectorAll('#evaluation-filter-buttons [data-filter-value]')])
+                .init();
         }
         const courseGrid = document.querySelector("#course-grid");
         if (courseGrid) {
