@@ -474,8 +474,10 @@ class EvaluationForm(forms.ModelForm):
         )
 
         self.fields["participants"].queryset = self.get_participants_queryset(self.instance)
-        self.fields["participants"].widget.options_endpoint = reverse(
-            "staff:participant_options", args=[self.instance.pk]
+        self.fields["participants"].widget.options_endpoint = (
+            reverse("staff:participant_options", args=[self.instance.pk])
+            if self.instance.pk
+            else reverse("staff:participant_options")
         )
 
         if general_contribution := self.instance.general_contribution:
