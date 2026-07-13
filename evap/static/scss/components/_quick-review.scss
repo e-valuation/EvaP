@@ -35,14 +35,17 @@
     opacity: 0;
     transition-property: transform, opacity;
     transition-duration: 0.2s;
-    &.alert, &[data-layer="2"] {
+    &.alert,
+    &[data-layer="2"] {
         flex: auto;
     }
     &.alert {
         margin: 0;
         justify-content: center;
     }
-    &.to-left, &.to-right, &.active {
+    &.to-left,
+    &.to-right,
+    &.active {
         display: flex;
         flex-direction: column;
     }

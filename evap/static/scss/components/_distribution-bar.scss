@@ -1,4 +1,4 @@
-@use 'sass:math';
+@use "sass:math";
 
 .pole-icon {
     font-size: 1.4rem;
@@ -26,7 +26,8 @@
         box-shadow: 0 0 1px $dark-gray;
     }
 
-    .left, .right {
+    .left,
+    .right {
         position: absolute;
         top: 0.05rem;
         color: $darker-gray;
@@ -63,9 +64,8 @@
     }
 
     &:not(:empty) {
-        min-width: calc(3ch + 2*3px); // 3 characters + left and right border
+        min-width: calc(3ch + 2 * 3px); // 3 characters + left and right border
     }
-
 }
 
 .result-widget:hover {

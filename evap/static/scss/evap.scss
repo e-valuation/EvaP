@@ -103,7 +103,8 @@ body {
 }
 
 .break-word {
-    li, a {
+    li,
+    a {
         word-wrap: break-word;
     }
 }

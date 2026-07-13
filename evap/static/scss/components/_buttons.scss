@@ -32,7 +32,9 @@ input:checked + label.btn-light.for-above {
     border-color: $dark-gray;
 
     &:focus-visible {
-        box-shadow: inset 0 0 5px $dark-gray, 0 0 0 $btn-focus-width rgba($dark-gray, 0.5);
+        box-shadow:
+            inset 0 0 5px $dark-gray,
+            0 0 0 $btn-focus-width rgba($dark-gray, 0.5);
     }
 }
 
@@ -138,7 +140,7 @@ a:not([href]):not(.disabled) {
 .btn-switch-evaluation-language {
     .btn-group {
         .btn {
-                min-width: 38px;
+            min-width: 38px;
         }
     }
 }
@@ -285,7 +287,9 @@ a.collapse-toggle {
     box-shadow: inset 0 0 10px $dark-gray;
 
     &:focus-visible {
-        box-shadow: $btn-focus-box-shadow, inset 0 0 10px $dark-gray;
+        box-shadow:
+            $btn-focus-box-shadow,
+            inset 0 0 10px $dark-gray;
     }
 
     &.collapsed {

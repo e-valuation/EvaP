@@ -1,7 +1,13 @@
 @import "../bootstrap/scss/mixins";
 
 @mixin bar-shadow($color) {
-    text-shadow: 0 0 2px $color, 0 0 2px $color, 0 0 2px $color, 0 0 2px $color, 0 0 2px $color, 0 0 2px $color;
+    text-shadow:
+        0 0 2px $color,
+        0 0 2px $color,
+        0 0 2px $color,
+        0 0 2px $color,
+        0 0 2px $color,
+        0 0 2px $color;
 }
 
 @mixin no-user-select {
@@ -35,7 +41,10 @@
         @content;
     } @else {
         $print-index: index(map-keys($breakpoints), $print-breakpoint);
-        $print: index(map-keys($breakpoints), $lower) <= $print-index and $print-index <= index(map-keys($breakpoints), $upper);
+        $print: index(map-keys($breakpoints), $lower) <=
+            $print-index and
+            $print-index <=
+            index(map-keys($breakpoints), $upper);
         $media-query: "screen and #{$screen}";
         @if $print {
             $media-query: "print, #{$screen}";
