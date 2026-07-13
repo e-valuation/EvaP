@@ -4,7 +4,7 @@
     flex: 1;
     position: relative;
     font-size: unset;
-    background-color: $evap-light-blue;
+    background-color: $info;
 }
 
 .progress-container .progress-empty {
@@ -21,16 +21,16 @@
 
 .progress-container-warning {
     .progress {
-        background-color: $evap-yellow;
+        background-color: $warning;
     }
 
     .progress-bar {
-        background-color: $evap-dark-yellow;
+        background-color: shade-color($warning, 20%);
     }
 
     .progress-bartext {
         color: $black;
-        @include bar-shadow($evap-dark-yellow);
+        @include bar-shadow(shade-color($warning, 20%));
     }
 }
 
@@ -41,7 +41,7 @@
     color: $white;
     width: 100%;
     text-align: center;
-    @include bar-shadow($evap-dark-blue);
+    @include bar-shadow($primary);
 }
 
 .progress-badge-wrapper {

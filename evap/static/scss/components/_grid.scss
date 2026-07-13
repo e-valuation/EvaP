@@ -38,7 +38,7 @@
 
     &.choice-error {
         font-weight: bold;
-        color: $evap-dark-red;
+        color: $danger;
     }
 
     @include media-breakpoint-up(lg) {
@@ -69,7 +69,6 @@
     align-items: center;
 
     @at-root a#{&} {
-        color: $black;
         &:hover {
             text-decoration: none;
         }
@@ -77,6 +76,15 @@
 
     @include media-breakpoint-up(lg) {
         column-gap: 2rem;
+    }
+}
+
+.results-grid-row, .textanswer-review-grid {
+    color: $black;
+}
+@include color-mode(dark) {
+   .results-grid-row, .textanswer-review-grid {
+        color: $white;
     }
 }
 

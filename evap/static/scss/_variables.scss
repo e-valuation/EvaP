@@ -33,20 +33,21 @@ $border-radius-lg:            .3rem !default;
 $border-radius-xl:            .75rem !default;
 $border-radius-2xl:           1.5rem !default;
 
+$body-bg-dark: $background-dark;
 $border-color: $medium-gray;
 
 $headings-margin-bottom: 1rem;
 
 $table-accent-bg: transparent;
-$table-striped-bg: tint-color($light-gray, 50%);
-$table-border-color: $light-gray;
+//$table-striped-bg: tint-color($light-gray, 50%);
+$table-border-color: $medium-gray;
 $table-group-separator-color: $medium-gray;
 
-$card-cap-bg: $table-striped-bg;
+//$card-cap-bg: $table-striped-bg;
 
 $accordion-border-width: 0;
-$accordion-button-active-bg: $evap-light-blue;
-$accordion-button-active-color: $evap-dark-blue;
+$accordion-button-active-bg: $primary-accent;
+$accordion-button-active-color: $primary;
 $accordion-icon-transform: rotate(90deg);
 $accordion-button-icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$dark-gray}'><path fill-rule='evenodd' d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/></svg>");
 $accordion-button-active-icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$accordion-button-active-color}'><path fill-rule='evenodd' d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/></svg>");
@@ -58,6 +59,7 @@ $order-button-down-icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2
 $btn-disabled-opacity: 0.45;
 
 $dropdown-padding-y: 0.25rem;
+$dropdown-link-hover-color: $black;
 $dropdown-link-hover-bg: $light-gray;
 $dropdown-item-padding-y: 0.15rem;
 $dropdown-item-padding-x: 1rem;

@@ -130,6 +130,16 @@
                     </div>
                 </li>
             {% endif %}
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" id="bd-theme" data-bs-toggle="dropdown">
+                    <span id="span-toggle-color-mode-dropdown" class="fas fa-circle-half-stroke"></span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end dropdown-menu-tight" aria-labelledby="bd-theme">
+                    <button type="button" class="dropdown-item" data-bs-theme-value="light">{% translate 'Light' %}</button>
+                    <button type="button" class="dropdown-item" data-bs-theme-value="dark">{% translate 'Dark' %}</button>
+                    <button type="button" class="dropdown-item" data-bs-theme-value="auto">{% translate 'Auto' %}</button>
+                </div>
+            </li>
         </ul>
     </div>
 </nav>

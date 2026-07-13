@@ -24,6 +24,7 @@
                 <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon_16.png' %}" />
             {% endif %}
         {% endblock %}
+        <script type="text/javascript" src="{% static 'js/color-mode-toggler.js' %}"></script>
     </head>
     <body{% if not plain_page %} class="mb-footer"{% endif %}>
         <script type="text/javascript" src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>

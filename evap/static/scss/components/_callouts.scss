@@ -24,29 +24,29 @@
 }
 
 .callout-warning {
-    background-color: $evap-light-yellow;
-    border-color: $evap-yellow;
-    color: shade-color($evap-yellow, 60%);
+    background-color: $warning-accent;
+    border-color: $warning;
+    color: shade-color($warning, 60%);
 }
 
 .callout-danger {
-    background-color: $evap-light-red;
-    border-color: $evap-red;
-    color: shade-color($evap-red, 60%);
+    background-color: $danger-accent;
+    border-color: $danger;
+    color: shade-color($danger, 60%);
 }
 
 .callout-info {
-    background-color: $evap-light-blue;
-    border-color: $evap-dark-blue;
-    color: shade-color($evap-dark-blue, 60%);
+    background-color: $info;
+    border-color: $info-accent;
+    color: shade-color($info-accent, 60%);
 
     .callout-header {
-        color: $evap-dark-blue;
+        color: $info-accent;
     }
 
     &.closed:hover,
     &.closed:active {
-        background-color: shade-color($evap-light-blue, 20%);
+        background-color: shade-color($info, 20%);
     }
 }
 

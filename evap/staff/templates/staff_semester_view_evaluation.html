@@ -33,7 +33,7 @@
     </td>
 {% elif state >= evaluation.State.EVALUATED %}
     <td class="icon" data-col="state-evaluating" data-order="3" data-filter="evaluated">
-        <span class="fas fa-stop icon-green" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Evaluated' %}"></span>
+        <span class="fas fa-stop icon-success" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Evaluated' %}"></span>
     </td>
 {% endif %}
 
@@ -43,15 +43,15 @@
     </td>
 {% elif evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.REVIEW_URGENT %}
     <td class="icon" data-col="state-textanswers" data-order="1" data-filter="unreviewed_textanswers_urgent">
-        <span class="fas fa-comment icon-red" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Text answers awaiting urgent review because grading process is finished' %}"></span>
+        <span class="fas fa-comment icon-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Text answers awaiting urgent review because grading process is finished' %}"></span>
     </td>
 {% elif evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.REVIEW_NEEDED %}
     <td class="icon" data-col="state-textanswers" data-order="2" data-filter="unreviewed_textanswers">
-        <span class="fas fa-comment icon-blue" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Text answers awaiting review' %}"></span>
+        <span class="fas fa-comment icon-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Text answers awaiting review' %}"></span>
     </td>
 {% else %}
     <td class="icon" data-col="state-textanswers" data-order="4" data-filter="textanswers_reviewed">
-        <span class="fas fa-comment icon-green" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Text answers reviewed' %}"></span>
+        <span class="fas fa-comment icon-success" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Text answers reviewed' %}"></span>
     </td>
 {% endif %}
 
@@ -62,16 +62,16 @@
 {% elif state == evaluation.State.REVIEWED %}
     {% if evaluation.grading_process_is_finished %}
         <td class="icon text-center" data-col="state-results" data-order="0" data-filter="results_not_published">
-            <span class="fas fa-chart-simple icon-red" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Results not yet published although grading process is finished' %}"></span>
+            <span class="fas fa-chart-simple icon-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Results not yet published although grading process is finished' %}"></span>
         </td>
     {% else %}
         <td class="icon text-center" data-col="state-results" data-order="1" data-filter="results_not_yet_published">
-            <span class="fas fa-chart-simple icon-blue" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Results not yet published' %}"></span>
+            <span class="fas fa-chart-simple icon-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Results not yet published' %}"></span>
         </td>
     {% endif %}
 {% elif state == evaluation.State.PUBLISHED %}
     <td class="icon" data-col="state-results" data-order="3" data-filter="results_published">
-        <span class="fas fa-chart-simple icon-green" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Results published' %}"></span>
+        <span class="fas fa-chart-simple icon-success" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Results published' %}"></span>
     </td>
 {% endif %}
 
