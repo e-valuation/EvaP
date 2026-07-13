@@ -3315,7 +3315,13 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
         cls.question = baker.make(
             Question, text_en="old", text_de="text", type=QuestionType.TEXT, allows_additional_textanswers=False
         )
-        baker.make(QuestionAssignment, questionnaire=cls.questionnaire, question=cls.question, order=0)
+        baker.make(
+            QuestionAssignment,
+            questionnaire=cls.questionnaire,
+            question=cls.question,
+            order=0,
+            counts_for_grade=False,
+        )
 
     def test_allowed_type_changes_on_used_questionnaire(self):
         baker.make(Contribution, questionnaires=[self.questionnaire], evaluation__state=Evaluation.State.IN_EVALUATION)
@@ -3389,6 +3395,27 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
         form.submit().follow()
 
         self.assertEqual(self.questionnaire.question_assignments.count(), 1)
+
+    def test_rejects_counting_question_when_changing_to_dropout(self) -> None:
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        assignment = baker.make(
+            QuestionAssignment,
+            questionnaire=questionnaire,
+            question__type=QuestionType.POSITIVE_LIKERT,
+            counts_for_grade=True,
+        )
+
+        page = self.app.get(f"/staff/questionnaire/{questionnaire.pk}/edit", user=self.manager)
+        form = page.forms["questionnaire-form"]
+        form["type"] = Questionnaire.Type.DROPOUT
+        response = form.submit()
+
+        self.assertIn("Dropout questionnaires cannot contain questions that count toward the grade.", response)
+
+        questionnaire.refresh_from_db()
+        assignment.refresh_from_db()
+        self.assertEqual(questionnaire.type, Questionnaire.Type.TOP)
+        self.assertTrue(assignment.counts_for_grade)
 
     def test_copy_on_write_used_question(self) -> None:
         baker.make(QuestionAssignment, question=self.question)

@@ -967,8 +967,10 @@ class QuestionAssignmentForm(forms.ModelForm):
             raise forms.ValidationError([])  # invalidate this form without message; errors are shown separately
         questionnaire = self.cleaned_data.get("questionnaire")
         question_type = self.question_form.cleaned_data.get("type")
-        if questionnaire and questionnaire.is_dropout or question_type in [QuestionType.TEXT, QuestionType.HEADING]:
-            self.cleaned_data["counts_for_grade"] = False
+        if self.cleaned_data.get("counts_for_grade") and (questionnaire is not None and questionnaire.is_dropout):
+            raise ValidationError(_("Dropout questionnaires cannot contain questions that count toward the grade."))
+        if self.cleaned_data.get("counts_for_grade") and (question_type in [QuestionType.TEXT, QuestionType.HEADING]):
+            raise ValidationError(_("Text and heading questions cannot count toward the grade."))
         return self.cleaned_data
 
     def has_changed(self) -> bool:

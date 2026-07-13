@@ -1202,20 +1202,20 @@ class QuestionFormTests(TestCase):
         self.assertEqual(question.type, QuestionType.TEXT)
         self.assertFalse(question.allows_additional_textanswers)
 
-    def test_clean_for_dropout_questionnaire(self):
-        dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
-        assignment = baker.make(
-            QuestionAssignment,
-            questionnaire=dropout_questionnaire,
-            question__type=QuestionType.POSITIVE_LIKERT,
-            counts_for_grade=True,
-        )
+    def test_clean_rejects_counting_text_and_heading_questions(self):
+        for question_type in [QuestionType.TEXT, QuestionType.HEADING]:
+            with self.subTest(question_type=question_type):
+                assignment = baker.make(
+                    QuestionAssignment,
+                    questionnaire__type=Questionnaire.Type.TOP,
+                    question__type=QuestionType.POSITIVE_LIKERT,
+                    counts_for_grade=True,
+                )
+                form_data = get_form_data_from_instance(QuestionAssignmentForm, assignment)
+                form_data.update(get_form_data_from_instance(QuestionForm, assignment.question))
+                form_data["type"] = question_type
+                form_data["counts_for_grade"] = True
 
-        form_data = get_form_data_from_instance(QuestionAssignmentForm, assignment)
-        form_data.update(get_form_data_from_instance(QuestionForm, assignment.question))
-        form_data["counts_for_grade"] = True
-
-        form = QuestionAssignmentForm(form_data, instance=assignment)
-        # The clean method should override counts_for_grade to False
-        self.assertTrue(form.is_valid())
-        self.assertFalse(form.cleaned_data["counts_for_grade"])
+                form = QuestionAssignmentForm(form_data, instance=assignment)
+                self.assertFalse(form.is_valid())
+                self.assertIn("Text and heading questions cannot count toward the grade.", form.non_field_errors())
