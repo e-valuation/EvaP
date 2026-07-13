@@ -610,6 +610,7 @@ class TestExporters(TestCase):
 
     @override_settings(VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS=2)
     def test_question_average(self):
+        # pylint: disable=too-many-locals
         # The average is an all-semester all-course-type all-programs QuestionAssignment average.
 
         # This function tests multiple cases in one go:
