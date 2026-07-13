@@ -22,8 +22,8 @@ from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone, translation
 from model_bakery import baker
-from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.expected_conditions import (
@@ -401,9 +401,9 @@ class LiveServerTest(SeedBakerMixin, SeleniumTestCase):
         self.wait.until(staleness_of(html_element))
 
     def search_and_select_in_tom_select(self, field_name: str, *keys: str, clear: bool = False):
-        self.wait.until(
-            presence_of_element_located((By.CSS_SELECTOR, f"#id_{field_name} ~ .ts-wrapper .ts-control"))
-        ).click()
+        self.wait.until(presence_of_element_located((By.CSS_SELECTOR, f"#id_{field_name} ~ .ts-wrapper .ts-control")))
+        # Use JS for the click to not accidentally click an item in the tom select
+        self.selenium.execute_script(f'document.querySelector("#id_{field_name} ~ .ts-wrapper .ts-control").click()')
 
         if clear:
             for el in self.selenium.find_elements(
