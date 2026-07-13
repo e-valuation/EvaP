@@ -354,7 +354,8 @@ class ResultsExporter(ExcelExporter):
             average_grade_averager.record_value(average_grade)
 
             if question.is_yes_no_question:
-                average_approval_averager.record_value(typing.cast("float", average_approval))
+                assert average_approval is not None
+                average_approval_averager.record_value(average_approval)
 
         if question.is_yes_no_question:
             return average_grade_averager.current_average(), average_approval_averager.current_average()
