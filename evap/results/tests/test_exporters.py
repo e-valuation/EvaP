@@ -726,8 +726,11 @@ class TestExporters(TestCase):
         )
 
         evaluation_other_questionnaire.general_contribution.questionnaires.set([questionnaire_other])
-        make_rating_answer_counters(question_assignment_other_questionnaire,
-                                    evaluation_other_questionnaire.general_contribution, [0, 0, 0, 0, 2])
+        make_rating_answer_counters(
+            question_assignment_other_questionnaire,
+            evaluation_other_questionnaire.general_contribution,
+            [0, 0, 0, 0, 2],
+        )
         cache_results(evaluation_other_questionnaire)
 
         # test that unpublished evaluations don't get counted
@@ -757,8 +760,9 @@ class TestExporters(TestCase):
             _voter_count=1,
         )
         evaluation_not_enough_voters.general_contribution.questionnaires.set([questionnaire])
-        make_rating_answer_counters(question_assignment, evaluation_not_enough_voters.general_contribution,
-                                    [0, 0, 0, 0, 1])
+        make_rating_answer_counters(
+            question_assignment, evaluation_not_enough_voters.general_contribution, [0, 0, 0, 0, 1]
+        )
         cache_results(evaluation_not_enough_voters)
 
         # evaluation included in the average:
