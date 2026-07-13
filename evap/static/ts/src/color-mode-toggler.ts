@@ -2,7 +2,7 @@
  * Adapted color mode toggler from Bootstrap's docs (https://getbootstrap.com/)
  */
 
-import { unwrap } from "./utils";
+import { unwrap } from "./utils.js";
 
 (() => {
     "use strict";
