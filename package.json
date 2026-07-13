@@ -1,18 +1,18 @@
 {
     "devDependencies": {
-        "@types/bootstrap": "^5.2.10",
+        "@types/bootstrap": "^5.2.11",
         "@types/jest": "^30.0.0",
         "@types/sortablejs": "^1.3.32",
-        "@eslint/js": "^10.0.0",
-        "jest": "^30.0.0",
-        "jest-environment-jsdom": "^30.0.0",
-        "jest-jasmine2": "^30.0.0",
-        "jest-ts-webcompat-resolver": "^1.0.0",
-        "prettier": "^3.5.1",
-        "sass": "1.77.1",
-        "ts-jest": "^29.4.9",
-        "typescript": "^6.0.0",
-        "typescript-eslint": "^8.24.1"
+        "@eslint/js": "^10.0.1",
+        "jest": "^30.4.2",
+        "jest-environment-jsdom": "^30.4.1",
+        "jest-jasmine2": "^30.4.2",
+        "jest-ts-webcompat-resolver": "^1.0.1",
+        "prettier": "^3.9.4",
+        "sass": "1.101.0",
+        "ts-jest": "^29.4.11",
+        "typescript": "^6.0.3",
+        "typescript-eslint": "^8.62.1"
     },
     "jest": {
         "testRunner": "jest-jasmine2",

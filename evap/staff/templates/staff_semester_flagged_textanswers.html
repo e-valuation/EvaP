@@ -18,7 +18,11 @@
                 {% for evaluation_flagged_textanswers in flagged_textanswers_by_evalaution %}
                     <h5 class="{% if not forloop.first %}mt-3{% endif %} mb-2">
                         <a
-                            href="{% url 'staff:evaluation_textanswers' evaluation_flagged_textanswers.grouper.id %}?view=flagged"
+                            href="{% if evaluation_flagged_textanswers.grouper.state == evaluation_flagged_textanswers.grouper.State.PUBLISHED %}
+                                    {% url 'results:evaluation_detail' semester.id evaluation_flagged_textanswers.grouper.id %}
+                                {% else %}
+                                    {% url 'staff:evaluation_textanswers' evaluation_flagged_textanswers.grouper.id %}?view=flagged
+                                {% endif %}"
                         >
                             {{ evaluation_flagged_textanswers.grouper }}
                         </a>
