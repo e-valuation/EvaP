@@ -21,8 +21,8 @@ $dark-gray:         #868e96;
 $darker-gray:       #495057;
 $black:             #000000;
 
-$background-dark:        #101113;
-$background-accent-dark: tint-color($background-dark, 5%);
+$background-accent-dark: #101113;
+$background-dark:          tint-color($background-accent-dark, 5%);;
 
 $primary: $evap-dark-blue;
 $primary-accent: $evap-light-blue;
