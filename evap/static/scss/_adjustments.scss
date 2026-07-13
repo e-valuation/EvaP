@@ -124,6 +124,16 @@ $alert-colors: (
     }
 }
 
+@include color-mode(dark) {
+    .bootstrap-datetimepicker-widget {
+        td.day:hover, td.dow:hover, td span:hover, th:hover {
+            color: $black !important;
+            background-color: $light-gray !important;
+        }
+    }
+}
+
+
 // tomselect adjustments
 .ts-wrapper.multi .ts-control > div.active {
    background-color: $component-active-bg;
@@ -137,6 +147,32 @@ $alert-colors: (
 .ts-border-0 .ts-control {
     border: 0;
 }
+
+@include color-mode(dark) {
+    .ts-control, .ts-dropdown, .ts-wrapper.single.input-active .ts-control {
+        background-color: $background-dark;
+        color: $light-gray;
+        border-color: $darker-gray;
+
+        .option:hover {
+            background-color: $light-gray;
+            color: $black;
+        }
+        input {
+            color: $light-gray;
+        }
+    }
+    .ts-wrapper.multi {
+        .item {
+            background-color: $darker-gray !important;
+            color: $light-gray;
+        }
+    }
+    .ts-wrapper.plugin-remove_button .item .remove {
+        border-left: none;
+    }
+}
+
 
 // Change .btn-group outlined border style to fix double borders with outlined button style
 // see https://github.com/twbs/bootstrap/issues/25888

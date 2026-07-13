@@ -166,26 +166,3 @@ td.icon {
 @media print {
     @import "print";
 }
-
-@include color-mode(dark) {
-    .ts-control, .ts-dropdown, .ts-wrapper.single.input-active .ts-control {
-        background-color: $background-dark;
-        color: $light-gray;
-        border-color: $darker-gray;
-
-        .option:hover {
-            background-color: $light-gray;
-            color: $black;
-        }
-        input {
-            color: $light-gray;
-        }
-    }
-
-    .bootstrap-datetimepicker-widget {
-        td.day:hover, td.dow:hover, td span:hover, th:hover {
-            color: $black !important;
-            background-color: $light-gray !important;
-        }
-    }
-}

@@ -9,8 +9,9 @@
 }
 .badge-btn-zero {
     margin-left: 0.3rem;
-    color: $medium-gray;
-    background-color: $white;
+    color: $darker-gray;
+    background-color: $light-gray;
+    opacity: 0.5;
 }
 .bg-info, .bg-warning, .bg-light {
     color: $darker-gray;
@@ -78,4 +79,15 @@
     color: $secondary;
     border: 1px solid $secondary;
     padding: 0.27em 0.35em;
+}
+@include color-mode(dark) {
+    .badge-btn {
+        color: $light-gray;
+        background-color: $darker-gray;
+    }
+    .badge-btn-zero {
+        color: $light-gray;
+        background-color: $darker-gray;
+        opacity: 0.5;
+    }
 }
