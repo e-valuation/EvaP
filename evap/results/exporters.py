@@ -445,8 +445,8 @@ class ResultsExporter(ExcelExporter):
             all_evaluations_with_results, __, ___ = self.filter_evaluations(
                 semesters=None,
                 evaluation_states=[Evaluation.State.PUBLISHED],
-                program_ids=program_ids,
-                course_type_ids=course_type_ids,
+                program_ids=None,
+                course_type_ids=None,
                 contributor=None,
                 include_not_enough_voters=False,
             )
