@@ -9,7 +9,6 @@ from evap.evaluation.models import (
     Contribution,
     Course,
     Evaluation,
-    Question,
     QuestionAssignment,
     Questionnaire,
     QuestionType,
@@ -351,7 +350,12 @@ class TestCalculateAverageDistribution(TestCase):
             voters=[self.student1, self.student2],
         )
         questionnaire_text = baker.make(Questionnaire)
-        baker.make(Question, questionnaires=[questionnaire_text], type=QuestionType.TEXT)
+        baker.make(
+            QuestionAssignment,
+            questionnaire=questionnaire_text,
+            question__type=QuestionType.TEXT,
+            counts_for_grade=False,
+        )
         baker.make(
             Contribution,
             contributor=baker.make(UserProfile),
@@ -446,7 +450,10 @@ class TestCalculateAverageDistribution(TestCase):
 
         dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
         dropout_assignment = baker.make(
-            QuestionAssignment, questionnaire=dropout_questionnaire, question__type=QuestionType.GRADE
+            QuestionAssignment,
+            questionnaire=dropout_questionnaire,
+            question__type=QuestionType.GRADE,
+            counts_for_grade=False,
         )
 
         contribution = baker.make(
@@ -592,7 +599,10 @@ class TestTextAnswerVisibilityInfo(TestCase):
         )
         cls.questionnaire = baker.make(Questionnaire)
         cls.assignment = baker.make(
-            QuestionAssignment, questionnaire=cls.questionnaire, question__type=QuestionType.TEXT
+            QuestionAssignment,
+            questionnaire=cls.questionnaire,
+            question__type=QuestionType.TEXT,
+            counts_for_grade=False,
         )
         cls.assignment_likert = baker.make(
             QuestionAssignment, questionnaire=cls.questionnaire, question__type=QuestionType.POSITIVE_LIKERT

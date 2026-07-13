@@ -39,7 +39,10 @@ class EvaluationEditLiveTest(LiveServerTest):
             main_language="en",
         )
 
-        general_questionnaire = baker.make(Questionnaire, question_assignments=[baker.make(QuestionAssignment)])
+        general_questionnaire = baker.make(
+            Questionnaire,
+            question_assignments=[baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT)],
+        )
         evaluation.general_contribution.questionnaires.set([general_questionnaire])
 
         contribution1 = baker.make(
@@ -365,6 +368,7 @@ class QuestionnaireEditLiveTest(LiveServerTest):
             QuestionAssignment,
             questionnaire=self.questionnaire,
             question__text_en=(f"Q{i}" for i in range(5)),
+            question__type=QuestionType.POSITIVE_LIKERT,
             order=iter(range(5)),
             _bulk_create=True,
             _quantity=5,
@@ -426,7 +430,13 @@ class TextAnswerEditLiveTest(LiveServerTest):
 
         question1 = baker.make(Question, type=QuestionType.TEXT)
 
-        general_questionnaire = baker.make(Questionnaire, questions=[question1])
+        general_questionnaire = baker.make(Questionnaire)
+        assignment = baker.make(
+            QuestionAssignment,
+            questionnaire=general_questionnaire,
+            question=question1,
+            counts_for_grade=False,
+        )
         evaluation.general_contribution.questionnaires.set([general_questionnaire])
 
         contribution1 = baker.make(
@@ -435,7 +445,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
 
         baker.make(
             TextAnswer,
-            assignment__question=question1,
+            assignment=assignment,
             contribution=contribution1,
             answer=iter(f"this is a dummy answer {i}" for i in range(3)),
             original_answer=None,
@@ -446,7 +456,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
 
         textanswer1 = baker.make(
             TextAnswer,
-            assignment__question=question1,
+            assignment=assignment,
             contribution=contribution1,
             answer="this answer will be edited",
             original_answer=None,
@@ -455,7 +465,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
 
         baker.make(
             TextAnswer,
-            assignment__question=question1,
+            assignment=assignment,
             contribution=contribution1,
             answer=iter(f"this is a dummy answer {i}" for i in range(3, 6)),
             original_answer=None,

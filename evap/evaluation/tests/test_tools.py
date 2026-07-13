@@ -223,7 +223,7 @@ class TestHelperMethods(TestCase):
         with self.assertRaises(Http404):
             get_object_from_dict_pk_entry_or_logged_40x(TextAnswer, {"pk": UUID(int=0)}, "pk")
 
-        answer = baker.make(TextAnswer)
+        answer = baker.make(TextAnswer, assignment__counts_for_grade=False)
         self.assertEqual(get_object_from_dict_pk_entry_or_logged_40x(TextAnswer, {"pk": str(answer.pk)}, "pk"), answer)
 
     def test_subprocess_run_or_exit(self) -> None:

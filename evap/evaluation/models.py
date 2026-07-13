@@ -1396,11 +1396,10 @@ class QuestionAssignment(models.Model):
         unique_together = [("question", "questionnaire")]
 
     def save(self, *args, **kwargs):
-        # Questions in dropout questionnaires and text/heading questions can never count toward the grade.
-        if self.questionnaire.is_dropout or self.question.type in [QuestionType.TEXT, QuestionType.HEADING]:
-            self.counts_for_grade = False
-            if "update_fields" in kwargs:
-                kwargs["update_fields"] = {"counts_for_grade"}.union(kwargs["update_fields"])
+        if self.counts_for_grade and self.questionnaire.is_dropout:
+            raise IntegrityError("Questions in dropout questionnaires cannot count toward the grade.")
+        if self.counts_for_grade and self.question.type in [QuestionType.TEXT, QuestionType.HEADING]:
+            raise IntegrityError("Text and heading questions cannot count toward the grade.")
 
         super().save(*args, **kwargs)
 

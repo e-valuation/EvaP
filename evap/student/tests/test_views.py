@@ -193,9 +193,14 @@ class TestVoteView(WebTest):
             questionnaire=cls.contributor_questionnaire,
             order=0,
             question__type=QuestionType.HEADING,
+            counts_for_grade=False,
         )
         cls.contributor_text_assignment = baker.make(
-            QuestionAssignment, questionnaire=cls.contributor_questionnaire, order=1, question__type=QuestionType.TEXT
+            QuestionAssignment,
+            questionnaire=cls.contributor_questionnaire,
+            order=1,
+            question__type=QuestionType.TEXT,
+            counts_for_grade=False,
         )
         cls.contributor_likert_assignment = baker.make(
             QuestionAssignment,
@@ -209,9 +214,14 @@ class TestVoteView(WebTest):
             questionnaire=cls.top_general_questionnaire,
             order=0,
             question__type=QuestionType.HEADING,
+            counts_for_grade=False,
         )
         cls.top_text_assignment = baker.make(
-            QuestionAssignment, questionnaire=cls.top_general_questionnaire, order=1, question__type=QuestionType.TEXT
+            QuestionAssignment,
+            questionnaire=cls.top_general_questionnaire,
+            order=1,
+            question__type=QuestionType.TEXT,
+            counts_for_grade=False,
         )
         cls.top_likert_assignment = baker.make(
             QuestionAssignment,
@@ -228,12 +238,14 @@ class TestVoteView(WebTest):
             questionnaire=cls.bottom_general_questionnaire,
             order=0,
             question__type=QuestionType.HEADING,
+            counts_for_grade=False,
         )
         cls.bottom_text_assignment = baker.make(
             QuestionAssignment,
             questionnaire=cls.bottom_general_questionnaire,
             order=1,
             question__type=QuestionType.TEXT,
+            counts_for_grade=False,
         )
         cls.bottom_likert_assignment = baker.make(
             QuestionAssignment,
@@ -496,6 +508,7 @@ class TestVoteView(WebTest):
             questionnaire=dropout_questionnaire,
             order=0,
             question__type=QuestionType.POSITIVE_LIKERT,
+            counts_for_grade=False,
         )
         self.evaluation.general_contribution.questionnaires.add(dropout_questionnaire)
 
@@ -650,13 +663,15 @@ class TestDropoutView(WebTest):
         cls.user2 = baker.make(UserProfile, email="student2@institution.example.com")
 
         cls.normal_assignment = baker.make(QuestionAssignment, question__type=QuestionType.EASY_DIFFICULT)
-        cls.dropout_assignment = baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_YES_NO)
+        cls.dropout_assignment = baker.make(
+            QuestionAssignment, question__type=QuestionType.POSITIVE_YES_NO, counts_for_grade=False
+        )
 
         cls.normal_questionnaire = baker.make(
             Questionnaire,
             type=Questionnaire.Type.TOP,
             question_assignments=[
-                baker.make(QuestionAssignment, question__type=QuestionType.TEXT),
+                baker.make(QuestionAssignment, question__type=QuestionType.TEXT, counts_for_grade=False),
                 cls.normal_assignment,
             ],
         )

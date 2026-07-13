@@ -600,7 +600,11 @@ class ContributionFormsetTests(TestCase):
         self.assertTrue(formset.forms[0].show_delete_button)
         self.assertTrue(formset.forms[1].show_delete_button)
 
-        baker.make(RatingAnswerCounter, contribution=contribution)
+        baker.make(
+            RatingAnswerCounter,
+            contribution=contribution,
+            assignment__question__type=QuestionType.POSITIVE_LIKERT,
+        )
 
         self.assertFalse(formset.forms[0].show_delete_button)
         self.assertTrue(formset.forms[1].show_delete_button)
@@ -1161,11 +1165,12 @@ class QuestionFormTests(TestCase):
         even after changing the question type from TEXT/HEADING to a Likert type.
         Regression test for #2539.
         """
-        question = baker.make(
-            Question,
+        question = baker.make(Question, type=QuestionType.TEXT, allows_additional_textanswers=False)
+        baker.make(
+            QuestionAssignment,
             questionnaire__type=Questionnaire.Type.TOP,
-            type=QuestionType.TEXT,
-            allows_additional_textanswers=False,
+            question=question,
+            counts_for_grade=False,
         )
 
         # First save: set allows_additional_textanswers to False
