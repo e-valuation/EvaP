@@ -2,8 +2,9 @@
 
 {% if weight_info %}
     <p>
-        {% blocktranslate trimmed with percentage=weight_info %}This evaluation contributes {{ percentage }} to the
-            final grade of the course.{% endblocktranslate %}
+        {% blocktranslate trimmed with percentage=weight_info %}
+            This evaluation contributes {{ percentage }} to the final grade of the course.
+        {% endblocktranslate %}
     </p>
 {% endif %}
 {% if question_result %}

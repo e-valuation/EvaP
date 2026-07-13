@@ -22,12 +22,14 @@
             <div class="d-flex align-items-center justify-content-between">
                 <div class="p-2">
                     {% if contributor_errors_exist %}
-                        {% blocktranslate trimmed %}Please make sure to vote for all rating questions. You can also
-                            click on "I can't give feedback" to skip the questions about a single
-                            person.{% endblocktranslate %}
+                        {% blocktranslate trimmed %}
+                            Please make sure to vote for all rating questions. You can also click on "I can't give
+                            feedback" to skip the questions about a single person.
+                        {% endblocktranslate %}
                     {% else %}
-                        {% blocktranslate trimmed %}Please make sure to vote for all rating
-                            questions.{% endblocktranslate %}
+                        {% blocktranslate trimmed %}
+                            Please make sure to vote for all rating questions.
+                        {% endblocktranslate %}
                     {% endif %}
                 </div>
                 <button
@@ -59,8 +61,10 @@
         <div class="callout callout-info">
             <small>
                 <b>{% translate 'Questionnaire Preview' %}</b><br />
-                {% blocktranslate trimmed %}This is a preview of the questionnaire for the evaluation. Participants will
-                    see the questions below.{% endblocktranslate %}
+                {% blocktranslate trimmed %}
+                    This is a preview of the questionnaire for the evaluation. Participants will see the questions
+                    below.
+                {% endblocktranslate %}
             </small>
         </div>
     {% endif %}
@@ -116,10 +120,12 @@
                     </p>
                     {% if evaluation.num_voters == 0 %}
                         <p>
-                            {% blocktranslate trimmed %}You're the first person taking part in this evaluation. If you
-                                want your text answers to be shown to the contributors even if you remain the only
-                                person taking part, please check the box below. Otherwise your text answers will be
-                                deleted if no other person takes part in the evaluation.{% endblocktranslate %}
+                            {% blocktranslate trimmed %}
+                                You're the first person taking part in this evaluation. If you want your text answers to
+                                be shown to the contributors even if you remain the only person taking part, please
+                                check the box below. Otherwise your text answers will be deleted if no other person
+                                takes part in the evaluation.
+                            {% endblocktranslate %}
                         </p>
                         <div class="form-check mt-3">
                             <input
@@ -156,8 +162,9 @@
 
         {% if not preview %}
             <div class="callout callout-info">
-                {% blocktranslate trimmed %}Thank you for taking part in this evaluation. Please be polite and
-                    constructive in your feedback.{% endblocktranslate %}
+                {% blocktranslate trimmed %}
+                    Thank you for taking part in this evaluation. Please be polite and constructive in your feedback.
+                {% endblocktranslate %}
             </div>
         {% endif %}
 
@@ -180,8 +187,10 @@
                     <div class="card-body">
                         {% if not preview %}
                             <div class="callout callout-info">
-                                {% blocktranslate trimmed %}Please vote for all contributors you worked with. Click on
-                                    "I can't give feedback" to skip a person.{% endblocktranslate %}
+                                {% blocktranslate trimmed %}
+                                    Please vote for all contributors you worked with. Click on "I can't give feedback"
+                                    to skip a person.
+                                {% endblocktranslate %}
                             </div>
                         {% endif %}
 
@@ -234,10 +243,12 @@
                     <span class="fas fa-triangle-exclamation"></span> {% translate 'Small number of participants' %}
                 </div>
                 <div class="callout-content tab-row">
-                    {% blocktranslate trimmed %}You're the first person taking part in this evaluation. If you want your
-                        text answers to be shown to the contributors even if you remain the only person taking part,
-                        please check the box below. Otherwise your text answers will be deleted if no other person takes
-                        part in the evaluation.{% endblocktranslate %}
+                    {% blocktranslate trimmed %}
+                        You're the first person taking part in this evaluation. If you want your text answers to be
+                        shown to the contributors even if you remain the only person taking part, please check the box
+                        below. Otherwise your text answers will be deleted if no other person takes part in the
+                        evaluation.
+                    {% endblocktranslate %}
 
                     <div class="form-check mt-3">
                         <input
@@ -272,9 +283,10 @@
                         </button>
                         <p id="submit-error-warning" class="text-danger d-none">
                             <span class="fas fa-triangle-exclamation"></span>
-                            {% blocktranslate trimmed %}The server can't be reached. Your answers have been stored in
-                                your browser and it's safe to leave the page. Please try again later to submit the
-                                questionnaire.{% endblocktranslate %}
+                            {% blocktranslate trimmed %}
+                                The server can't be reached. Your answers have been stored in your browser and it's safe
+                                to leave the page. Please try again later to submit the questionnaire.
+                            {% endblocktranslate %}
                         </p>
                     {% endif %}
                 </div>
