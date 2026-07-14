@@ -381,21 +381,20 @@ class TestEvaluations(WebTest):
             assignment__question__type=QuestionType.TEXT,
             assignment__questionnaire=questionnaire,
             contribution=evaluation.general_contribution,
-            answer=iter(["deleted", "public", "private"]),
+            answer=iter(["deleted", "keep"]),
             review_decision=iter(
                 [
                     TextAnswer.ReviewDecision.DELETED,
-                    TextAnswer.ReviewDecision.PUBLIC,
-                    TextAnswer.ReviewDecision.PRIVATE,
+                    TextAnswer.ReviewDecision.KEEP,
                 ]
             ),
-            _quantity=3,
+            _quantity=2,
             _bulk_create=True,
         )
 
-        self.assertEqual(evaluation.textanswer_set.count(), 3)
-        evaluation.publish()
         self.assertEqual(evaluation.textanswer_set.count(), 2)
+        evaluation.publish()
+        self.assertEqual(evaluation.textanswer_set.count(), 1)
         self.assertFalse(TextAnswer.objects.filter(answer="deleted").exists())
 
     def test_original_textanswers_get_deleted_on_publish(self):
@@ -417,7 +416,7 @@ class TestEvaluations(WebTest):
             contribution=evaluation.general_contribution,
             answer="published answer",
             original_answer="original answer",
-            review_decision=TextAnswer.ReviewDecision.PUBLIC,
+            review_decision=TextAnswer.ReviewDecision.KEEP,
         )
 
         self.assertEqual(evaluation.textanswer_set.count(), 1)
@@ -548,7 +547,7 @@ class TestEvaluations(WebTest):
             evaluation.TextAnswerReviewState.REVIEW_URGENT,  # grades were uploaded
         )
 
-        textanswer.review_decision = TextAnswer.ReviewDecision.PUBLIC
+        textanswer.review_decision = TextAnswer.ReviewDecision.KEEP
         textanswer.save()
         del evaluation.num_reviewed_textanswers  # reset cached_property cache
 
