@@ -5,7 +5,7 @@ from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
 from enum import Enum
 from io import BytesIO
-from typing import Any
+from typing import Any, Self
 
 import openpyxl
 from django.conf import settings
@@ -191,21 +191,21 @@ class InputRow(ABC):
         pass
 
     @classmethod
-    def from_cells(cls, location: ExcelFileLocation, cells: Iterable[str]) -> "InputRow":
+    def from_cells(cls, location: ExcelFileLocation, cells: Iterable[str]) -> Self:
         return cls(location, *cells)
 
 
-class ExcelFileRowMapper:
+class ExcelFileRowMapper[R: InputRow]:
     """
     Take a excel file and map it to a list of row_cls instances
     """
 
-    def __init__(self, skip_first_n_rows: int, row_cls: type[InputRow], importer_log: ImporterLog):
+    def __init__(self, skip_first_n_rows: int, row_cls: type[R], importer_log: ImporterLog):
         self.skip_first_n_rows = skip_first_n_rows
         self.row_cls = row_cls
         self.importer_log = importer_log
 
-    def map(self, file_content: bytes) -> list:
+    def map(self, file_content: bytes) -> list[R]:
         try:
             book = openpyxl.load_workbook(BytesIO(file_content))
         except Exception as e:  # noqa: BLE001

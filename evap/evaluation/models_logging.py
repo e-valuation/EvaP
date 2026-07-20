@@ -6,7 +6,7 @@ from contextlib import contextmanager
 from datetime import date, datetime, time
 from enum import StrEnum
 from json import JSONEncoder
-from typing import Any, assert_never, cast
+from typing import Any, assert_never
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -121,7 +121,7 @@ class LogEntry(models.Model):
 
     @property
     def message(self) -> str:
-        match cast("InstanceActionType", self.action_type):
+        match InstanceActionType(self.action_type):
             case InstanceActionType.CHANGE:
                 if self.content_object:
                     message = _("The {cls} {obj} was changed.")

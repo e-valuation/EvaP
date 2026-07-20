@@ -1,6 +1,5 @@
 import csv
 from datetime import date, datetime
-from typing import Any
 
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
