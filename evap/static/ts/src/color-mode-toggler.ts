@@ -10,7 +10,6 @@ import { unwrap } from "./utils.js";
     const storedTheme = localStorage.getItem("theme");
 
     const getPreferredTheme = () => {
-        console.log("getPreferredTheme");
         if (storedTheme) {
             return storedTheme;
         }
