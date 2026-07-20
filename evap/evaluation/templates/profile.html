@@ -78,8 +78,8 @@
                     {% translate 'Save' %}
                 </button>
                 <form reload-on-success method="POST" id="request-changes-form" action="{% url 'evaluation:contact' %}">
-                        {% csrf_token %}
-                    </form>
+                    {% csrf_token %}
+                </form>
                 {% translate 'Request user setting changes' as title %}
                 {% translate 'Please tell us which of your settings we should change.' as teaser %}
                 {% translate "Request changes" as show_button_text %}
