@@ -244,9 +244,12 @@
             DataGrid.fromCSSGridTable({
                 storageKey: "grades-semester-{{ semester.id }}-data-grid",
                 gridContainer: gridElement,
-                searchInput: document.querySelector("input[name=search]"),
-                resetSearch: document.querySelector("[data-reset=search]"),
-            }).init();
+            })
+                .bindSearchField(
+                    document.querySelector("input[name=search]"),
+                    document.querySelector("[data-reset=search]"),
+                )
+                .init();
         }
     </script>
 {% endblock %}

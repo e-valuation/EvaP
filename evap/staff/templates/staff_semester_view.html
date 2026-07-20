@@ -23,7 +23,14 @@
                         value="{{ semester.id }}"
                         data-bs-toggle="tooltip"
                         data-bs-placement="top"
-                        title="{% if semester.is_active %}{% translate 'This is the active semester.' %}<br>{% endif %}{% blocktranslate %}The active semester is the semester that is initially opened for managers, reviewers, and grade uploaders. In the user profile form only the active semester's participations can be edited.{% endblocktranslate %}"
+                        title="
+
+
+
+
+
+
+                            {% if semester.is_active %}{% translate 'This is the active semester.' %}<br>{% endif %}{% blocktranslate %}The active semester is the semester that is initially opened for managers, reviewers, and grade uploaders. In the user profile form only the active semester's participations can be edited.{% endblocktranslate %}"
                     >
                         <span slot="title">{% translate 'Make this the active semester' %}</span>
                         <span slot="action-text">{% translate 'Make active' %}</span>
@@ -961,10 +968,12 @@
                 {
                     storageKey: "evaluation-semester-{{ semester.id }}-data-grid",
                     gridContainer: evaluationGrid,
-                    searchInput: document.querySelector("input[name=search-evaluation]"),
-                    resetSearch: document.querySelector("[data-reset=search-evaluation]"),
                     defaultOrder: [["name", "asc"]]
                 })
+                .bindSearchField(
+                    document.querySelector("input[name=search-evaluation]"),
+                    document.querySelector("[data-reset=search-evaluation]")
+                )
                 .bindRadioFilterButtons([...document.querySelectorAll('#evaluation-filter-buttons [data-filter-value]')])
                 .init();
         }
@@ -973,10 +982,13 @@
             DataGrid.fromCSSGridTable({
                 storageKey: "course-semester-{{ semester.id }}-data-grid",
                 gridContainer: courseGrid,
-                searchInput: document.querySelector("input[name=search-course]"),
-                resetSearch: document.querySelector("[data-reset=search-course]"),
                 filterButtons: []
             })
+            .bindSearchField(
+                document.querySelector("input[name=search-course]"),
+                document.querySelector("[data-reset=search-course]"),
+            )
+            .init()
         }
     </script>
 {% endblock %}

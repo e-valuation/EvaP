@@ -11,7 +11,7 @@ export class RangeSlider {
     public readonly lowSlider: HTMLInputElement;
     public readonly highSlider: HTMLInputElement;
 
-    private readonly rangeSlider: HTMLDivElement;
+    private readonly rangeSlider: HTMLElement;
     private readonly maxLabel: HTMLSpanElement;
     private readonly minLabel: HTMLSpanElement;
     private readonly rangeLabel: HTMLSpanElement;
@@ -20,13 +20,13 @@ export class RangeSlider {
 
     private debounceTimeout?: ReturnType<typeof setTimeout>;
 
-    public constructor(sliderId: string) {
-        this.rangeSlider = selectOrError<HTMLDivElement>("#" + sliderId);
+    public constructor(sliderElement: HTMLElement) {
+        this.rangeSlider = sliderElement;
         this.lowSlider = selectOrError<HTMLInputElement>("[name=low]", this.rangeSlider);
         this.highSlider = selectOrError<HTMLInputElement>("[name=high]", this.rangeSlider);
-        this.minLabel = selectOrError<HTMLSpanElement>(".text-start", this.rangeSlider);
-        this.maxLabel = selectOrError<HTMLSpanElement>(".text-end", this.rangeSlider);
-        this.rangeLabel = selectOrError<HTMLSpanElement>(".range-values", this.rangeSlider);
+        this.minLabel = selectOrError(".text-start", this.rangeSlider);
+        this.maxLabel = selectOrError(".text-end", this.rangeSlider);
+        this.rangeLabel = selectOrError(".range-values", this.rangeSlider);
 
         const setValueFromNestedElements = (): void => {
             this.value = { low: parseFloat(this.lowSlider.value), high: parseFloat(this.highSlider.value) };
