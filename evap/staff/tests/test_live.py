@@ -306,6 +306,7 @@ class QuestionnaireFormLiveTest(LiveServerTest):
             QuestionAssignment,
             questionnaire=questionnaire,
             question__type=QuestionType.POSITIVE_LIKERT,
+            question__allows_additional_textanswers=True,
             counts_for_grade=True,
         )
 
@@ -322,12 +323,14 @@ class QuestionnaireFormLiveTest(LiveServerTest):
         self.assertFalse(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").is_enabled())
         self.assertFalse(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").is_selected())
         self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").is_enabled())
+        self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").is_selected())
 
         # Change back to Top
         self.set_tomselect_value(questionnaire_type_select, str(Questionnaire.Type.TOP))
         self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").is_enabled())
         self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").is_selected())
         self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").is_enabled())
+        self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").is_selected())
 
     def test_empty_extra_question_is_not_touched_for_dropout_questionnaire(self):
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
@@ -341,9 +344,9 @@ class QuestionnaireFormLiveTest(LiveServerTest):
         with self.enter_staff_mode():
             self.selenium.get(self.reverse("staff:questionnaire_edit", args=[questionnaire.pk]))
 
-        self.wait.until(
-            lambda driver: len(driver.find_elements(By.CSS_SELECTOR, "#question_table tbody tr.sortable")) >= 2
-        )
+        existing_row_checkbox = "#question_table tbody tr.sortable input[id$='-counts_for_grade']"
+        self.wait.until(lambda driver: not driver.find_element(By.CSS_SELECTOR, existing_row_checkbox).is_enabled())
+
         rows = [
             row
             for row in self.selenium.find_elements(By.CSS_SELECTOR, "#question_table tbody tr.sortable")
@@ -353,10 +356,13 @@ class QuestionnaireFormLiveTest(LiveServerTest):
 
         type_select = extra_row.find_element(By.CSS_SELECTOR, "select[id$='-type']")
         counts_for_grade_checkbox = extra_row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']")
+        textanswers_checkbox = extra_row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']")
 
         self.assertEqual(type_select.get_attribute("value"), "")
         self.assertTrue(counts_for_grade_checkbox.is_enabled())
         self.assertTrue(counts_for_grade_checkbox.is_selected())
+        self.assertTrue(textanswers_checkbox.is_enabled())
+        self.assertTrue(textanswers_checkbox.is_selected())
 
 
 class QuestionnaireEditLiveTest(LiveServerTest):

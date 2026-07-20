@@ -121,8 +121,7 @@ class TestQuestionAssignment(TestCase):
         dropout_assignment = baker.make(
             QuestionAssignment, questionnaire=dropout, question=grade_question, counts_for_grade=False
         )
-        QuestionAssignment.objects.filter(pk=dropout_assignment.pk).update(counts_for_grade=True)
-        dropout_assignment.refresh_from_db()
+        dropout_assignment.counts_for_grade = True
         with self.assertRaises(IntegrityError):
             dropout_assignment.save(update_fields=["order"])
 

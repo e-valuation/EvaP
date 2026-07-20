@@ -463,6 +463,11 @@ class TestCalculateAverageDistribution(TestCase):
         make_rating_answer_counters(general_assignment, contribution, [10, 10, 0, 0, 0])
         make_rating_answer_counters(dropout_assignment, contribution, [0, 0, 0, 0, 10])
 
+        cache_results(self.evaluation)
+
+        calculated_grade = distribution_to_grade(calculate_average_distribution(self.evaluation))
+        self.assertAlmostEqual(calculated_grade, 1.5)
+
     def test_average_questions_distribution(self):
         grade_assignment = baker.make(
             QuestionAssignment,
