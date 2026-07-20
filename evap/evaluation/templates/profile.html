@@ -77,10 +77,13 @@
                 <button type="submit" class="btn btn-primary">
                     {% translate 'Save' %}
                 </button>
+                <form reload-on-success method="POST" id="request-changes-form" action="{% url 'evaluation:contact' %}">
+                        {% csrf_token %}
+                    </form>
                 {% translate 'Request user setting changes' as title %}
                 {% translate 'Please tell us which of your settings we should change.' as teaser %}
                 {% translate "Request changes" as show_button_text %}
-                {% include 'contact_modal.html' with modal_id='requestChangesModal' user=request.user title=title teaser=teaser show_button_text=show_button_text show_button_class="btn btn-light"%}
+                {% include 'contact_modal.html' with form_id="request-changes-form" modal_id='requestChangesModal' user=request.user title=title teaser=teaser show_button_text=show_button_text show_button_class="btn btn-light"%}
             </div>
         </div>
     </div>
