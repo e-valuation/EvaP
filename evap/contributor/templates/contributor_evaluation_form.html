@@ -69,14 +69,16 @@
                     <h5 class="card-title me-auto">{% translate 'Evaluation data' %}</h5>
                     {% if evaluation.allow_editors_to_edit %}
                         <div>
-                            {% blocktranslate asvar title with evaluation_name=evaluation.full_name %}Request account creation for {{ evaluation_name }}{% endblocktranslate %}
+                            {% blocktranslate asvar title with evaluation_name=evaluation.full_name %}Request account
+                                creation for {{ evaluation_name }}{% endblocktranslate %}
                             {% translate 'Please tell us which new account we should create. We need the name and email for all new accounts.' as teaser %}
                             {% translate 'Request creation of new account' as show_button_text %}
                             {% include 'contact_modal.html' with form_id="create-participant-account-form" modal_id='createParticipantAccountRequestModal' form_id='create-participant-account-form' user=request.user title=title teaser=teaser show_button_text=show_button_text show_button_class="btn btn-sm btn-light mb-3" %}
                         </div>
                     {% else %}
                         <div>
-                            {% blocktranslate asvar title with evaluation_name=evaluation.full_name %}Request evaluation changes for {{ evaluation_name }}{% endblocktranslate %}
+                            {% blocktranslate asvar title with evaluation_name=evaluation.full_name %}Request evaluation
+                                changes for {{ evaluation_name }}{% endblocktranslate %}
                             {% translate 'Please tell us what changes to the evaluation we should make.' as teaser %}
                             {% translate 'Request changes' as show_button_text %}
                             {% include 'contact_modal.html' with form_id="change-evaluation-form" modal_id='changeEvaluationRequestModal' form_id='change-evaluation-form' user=request.user title=title teaser=teaser show_button_text=show_button_text show_button_class="btn btn-sm btn-light" %}
@@ -162,7 +164,6 @@
         {% csrf_token %}
     </form>
 {% endblock %}
-
 
 {% block additional_javascript %}
     {% include 'evap_evaluation_edit_js.html' %}
