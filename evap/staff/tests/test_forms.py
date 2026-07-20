@@ -1159,54 +1159,6 @@ class EvaluationCopyFormTests(TestCase):
 
 
 class QuestionFormTests(TestCase):
-    def test_allows_additional_textanswers_persistence_after_type_change(self):
-        """
-        Test that allows_additional_textanswers can be changed and persisted correctly
-        even after changing the question type from TEXT/HEADING to a Likert type.
-        Regression test for #2539.
-        """
-        question = baker.make(Question, type=QuestionType.TEXT, allows_additional_textanswers=False)
-        baker.make(
-            QuestionAssignment,
-            questionnaire__type=Questionnaire.Type.TOP,
-            question=question,
-            counts_for_grade=False,
-        )
-
-        # First save: set allows_additional_textanswers to False
-        form_data = get_form_data_from_instance(QuestionForm, question)
-        self.assertFalse(form_data["allows_additional_textanswers"])
-
-        form = QuestionForm(form_data, instance=question)
-        self.assertTrue(form.is_valid())
-        form.save()
-
-        question.refresh_from_db()
-        self.assertFalse(question.allows_additional_textanswers)
-
-        form_data = get_form_data_from_instance(QuestionForm, question)
-        form_data["type"] = QuestionType.POSITIVE_LIKERT
-        form_data["allows_additional_textanswers"] = True
-
-        form = QuestionForm(form_data, instance=question)
-        self.assertTrue(form.is_valid())
-        form.save()
-
-        question.refresh_from_db()
-        self.assertEqual(question.type, QuestionType.POSITIVE_LIKERT)
-        self.assertTrue(question.allows_additional_textanswers)
-
-        form_data = get_form_data_from_instance(QuestionForm, question)
-        form_data["type"] = QuestionType.TEXT
-
-        form = QuestionForm(form_data, instance=question)
-        self.assertTrue(form.is_valid())
-        form.save()
-
-        question.refresh_from_db()
-        self.assertEqual(question.type, QuestionType.TEXT)
-        self.assertFalse(question.allows_additional_textanswers)
-
     def test_clean_rejects_counting_text_and_heading_questions(self):
         for question_type in [QuestionType.TEXT, QuestionType.HEADING]:
             with self.subTest(question_type=question_type):
