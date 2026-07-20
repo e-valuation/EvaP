@@ -340,16 +340,15 @@ def avg_distribution(weighted_distributions):
 def average_grade_questions_distribution(
     results: Iterable[RatingResult | HeadingResult | TextResult],
 ) -> Distribution:
-    return avg_distribution(
-        [
-            (
-                unipolarized_distribution(cast("PublishedRatingResult", result)),
-                cast("PublishedRatingResult", result).count_sum,
-            )
-            for result in results
-            if isinstance(result, RatingResult) and result.question.is_grade_question and result.counts_for_grade
-        ]
-    )
+    weighted_distributions = []
+    for result in results:
+        if isinstance(result, RatingResult) and result.question.is_grade_question and result.counts_for_grade:
+            # Unpublished RatingResults are only created when can_publish_rating_results is False. Reaching this
+            # function implies can_publish_average_grade, which is defined to imply can_publish_rating_results.
+            assert isinstance(result, PublishedRatingResult)
+            weighted_distributions.append((unipolarized_distribution(result), result.count_sum))
+
+    return avg_distribution(weighted_distributions)
 
 
 def average_non_grade_rating_questions_distribution(results):
@@ -418,11 +417,11 @@ def calculate_average_distribution(evaluation):
     grouped_results = defaultdict(list)
     for contribution_result in get_results(evaluation).contribution_results:
         for questionnaire_result in contribution_result.questionnaire_results:
-            if questionnaire_result.questionnaire.is_dropout:  # dropout questionnaires are not counted
+            if questionnaire_result.questionnaire.is_dropout:
                 assert not any(
                     isinstance(result, RatingResult) and result.counts_for_grade
                     for result in questionnaire_result.question_results
-                )
+                ), f"Dropout questionnaire {questionnaire_result.questionnaire.id} has results that count"
             grouped_results[contribution_result.contributor].extend(questionnaire_result.question_results)
 
     evaluation_results = grouped_results.pop(None, [])
@@ -443,7 +442,7 @@ def calculate_average_distribution(evaluation):
                     ]
                 ),
                 # The weight of this contributors grade is supposed to represent the number of students the
-                # contributor interacted with, which we derive from the max answer count, independently of counts_for_grades.
+                # contributor interacted with, which we derive from the max answer count, independently of counts_for_grade.
                 max(
                     (result.count_sum for result in contributor_results if result.question.is_rating_question),
                     default=0,
