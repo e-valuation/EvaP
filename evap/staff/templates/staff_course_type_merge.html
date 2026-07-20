@@ -15,9 +15,11 @@
     <div class="card mb-3">
         <div class="card-body">
             <p>
-                {% blocktranslate %}The following courses currently have the course type <strong>{{ other_type }}</strong> and will
-                get the type <strong>{{ main_type }}</strong> once you merge the course types. The course type <strong>
-                {{ other_type }}</strong> will be deleted after that.{% endblocktranslate %}
+                {% blocktranslate trimmed %}
+                    The following courses currently have the course type <strong>{{ other_type }}</strong> and will get
+                    the type <strong>{{ main_type }}</strong> once you merge the course types. The course type
+                    <strong>{{ other_type }}</strong> will be deleted after that.
+                {% endblocktranslate %}
             </p>
 
             <ul>

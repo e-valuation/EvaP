@@ -20,8 +20,12 @@
             <div class="card-body">
                 <p>
                     {% translate 'Upload Excel file' %}
-                    (<a href="{% url 'staff:download_sample_file' 'sample_user.xlsx' %}">{% translate 'Download sample file' %}</a>,
-                    <button type="button" class="btn btn-link" id="copy-user-headers-button">{% translate 'Copy headers to clipboard' %}</button>).
+                    (<a
+                        href="{% url 'staff:download_sample_file' 'sample_user.xlsx' %}"
+                    >{% translate 'Download sample file' %}</a>,
+                    <button type="button" class="btn btn-link" id="copy-user-headers-button">
+                        {% translate 'Copy headers to clipboard' %}
+                    </button>).
                     {% translate 'This will create all contained users.' %}
                 </p>
                 {% include 'bootstrap_form.html' with form=excel_form %}
@@ -30,9 +34,13 @@
         <div class="card card-submit-area{% if test_passed %} card-submit-area-2{% endif %} text-center mb-3">
             <div class="card-body">
                 {% if not test_passed %}
-                    <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% translate 'Upload and test' %}</button>
+                    <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">
+                        {% translate 'Upload and test' %}
+                    </button>
                 {% else %}
-                    <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% translate 'Upload and test' %}</button>
+                    <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">
+                        {% translate 'Upload and test' %}
+                    </button>
                     <confirmation-modal type="submit" name="operation" value="import">
                         <span slot="title">{% translate 'Import Users' %}</span>
                         <span slot="action-text">{% translate 'Import Users' %}</span>
@@ -42,7 +50,9 @@
                             {% endblocktranslate %}
                         </span>
 
-                        <button slot="show-button" type="button" class="btn btn-primary form-submit-button">{% translate 'Import previously uploaded file' %}</button>
+                        <button slot="show-button" type="button" class="btn btn-primary form-submit-button">
+                            {% translate 'Import previously uploaded file' %}
+                        </button>
                     </confirmation-modal>
                 {% endif %}
             </div>

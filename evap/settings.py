@@ -189,7 +189,7 @@ STORAGES = {
 
 CONTACT_EMAIL = "webmaster@localhost"
 ALLOW_ANONYMOUS_FEEDBACK_MESSAGES = True
-LEGAL_NOTICE_TEXT = "Objection! (this is a default setting that the administrators should change, please contact them)"
+LEGAL_NOTICE_LINK = "https://example.com/legalnotice"
 
 # Config for mail system
 DEFAULT_FROM_EMAIL = "webmaster@localhost"
@@ -435,7 +435,7 @@ SLOGANS_EN = [
 
 
 ### Allowed chosen first names / display names
-def CHARACTER_ALLOWED_IN_NAME(character):  # pylint: disable=invalid-name
+def CHARACTER_ALLOWED_IN_NAME(character: str) -> bool:  # pylint: disable=invalid-name
     return any(
         (
             ord(character) in range(32, 127),  # printable ASCII / Basic Latin characters

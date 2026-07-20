@@ -2,7 +2,11 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'rewards:reward_point_redemption_events' %}">{% translate 'Reward Point Redemption Events' %}</a></li>
+    <li class="breadcrumb-item">
+        <a
+            href="{% url 'rewards:reward_point_redemption_events' %}"
+        >{% translate 'Reward Point Redemption Events' %}</a>
+    </li>
     <li class="breadcrumb-item">{% translate 'Edit event' %}</li>
 {% endblock %}
 
@@ -23,6 +27,6 @@
     </form>
 {% endblock %}
 
- {% block additional_javascript %}
- {% include 'bootstrap_datetimepicker.html' %}
- {% endblock %}
+{% block additional_javascript %}
+    {% include 'bootstrap_datetimepicker.html' %}
+{% endblock %}

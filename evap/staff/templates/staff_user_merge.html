@@ -11,9 +11,12 @@
 {% block content %}
     {{ block.super }}
     <div class="d-flex">
-        <h3>{% translate 'Merge users' %}</h3> 
-        <div class="ms-auto"> 
-            <a class="btn btn-sm btn-light" href="{% url 'staff:user_merge' main_user_id=other_user.pk other_user_id=main_user.pk %}">{% translate 'Swap users' %}</a>
+        <h3>{% translate 'Merge users' %}</h3>
+        <div class="ms-auto">
+            <a
+                class="btn btn-sm btn-light"
+                href="{% url 'staff:user_merge' main_user_id=other_user.pk other_user_id=main_user.pk %}"
+            >{% translate 'Swap users' %}</a>
         </div>
     </div>
     <div class="card mb-3">
@@ -30,47 +33,93 @@
                 <tbody>
                     <tr>
                         <td><strong>{% translate 'Title' %}</strong></td>
-                        <td{% if main_user.title == merged_user.title %} class="table-info"{% endif %}>{{ main_user.title|default_if_none:"" }}</td>
-                        <td{% if other_user.title == merged_user.title %} class="table-info"{% endif %}>{{ other_user.title|default_if_none:"" }}</td>
-                        <td{% if merged_user.title %} class="table-success"{% endif %}>{{ merged_user.title|default_if_none:"" }}</td>
+                        <td {% if main_user.title == merged_user.title %}class="table-info"{% endif %}>
+                            {{ main_user.title|default_if_none:"" }}
+                        </td>
+                        <td {% if other_user.title == merged_user.title %}class="table-info"{% endif %}>
+                            {{ other_user.title|default_if_none:"" }}
+                        </td>
+                        <td {% if merged_user.title %}class="table-success"{% endif %}>
+                            {{ merged_user.title|default_if_none:"" }}
+                        </td>
                     </tr>
                     <tr>
                         <td><strong>{% translate 'First name' %}</strong></td>
-                        <td{% if main_user.first_name_given == merged_user.first_name_given %} class="table-info"{% endif %}>{{ main_user.first_name_given|default_if_none:"" }}</td>
-                        <td{% if other_user.first_name_given == merged_user.first_name_given %} class="table-info"{% endif %}>{{ other_user.first_name_given|default_if_none:"" }}</td>
-                        <td{% if merged_user.first_name_given %} class="table-success"{% endif %}>{{ merged_user.first_name_given|default_if_none:"" }}</td>
+                        <td
+                            {% if main_user.first_name_given == merged_user.first_name_given %}
+                                class="table-info"
+                            {% endif %}
+                        >
+                            {{ main_user.first_name_given|default_if_none:"" }}
+                        </td>
+                        <td
+                            {% if other_user.first_name_given == merged_user.first_name_given %}
+                                class="table-info"
+                            {% endif %}
+                        >
+                            {{ other_user.first_name_given|default_if_none:"" }}
+                        </td>
+                        <td {% if merged_user.first_name_given %}class="table-success"{% endif %}>
+                            {{ merged_user.first_name_given|default_if_none:"" }}
+                        </td>
                     </tr>
                     <tr>
                         <td><strong>{% translate 'Display name' %}</strong></td>
-                        <td{% if main_user.first_name_chosen == merged_user.first_name_chosen %} class="table-info"{% endif %}>{{ main_user.first_name_chosen|default_if_none:"" }}</td>
-                        <td{% if other_user.first_name_chosen == merged_user.first_name_chosen %} class="table-info"{% endif %}>{{ other_user.first_name_chosen|default_if_none:"" }}</td>
-                        <td{% if merged_user.first_name_chosen %} class="table-success"{% endif %}>{{ merged_user.first_name_chosen|default_if_none:"" }}</td>
+                        <td
+                            {% if main_user.first_name_chosen == merged_user.first_name_chosen %}
+                                class="table-info"
+                            {% endif %}
+                        >
+                            {{ main_user.first_name_chosen|default_if_none:"" }}
+                        </td>
+                        <td
+                            {% if other_user.first_name_chosen == merged_user.first_name_chosen %}
+                                class="table-info"
+                            {% endif %}
+                        >
+                            {{ other_user.first_name_chosen|default_if_none:"" }}
+                        </td>
+                        <td {% if merged_user.first_name_chosen %}class="table-success"{% endif %}>
+                            {{ merged_user.first_name_chosen|default_if_none:"" }}
+                        </td>
                     </tr>
                     <tr>
                         <td><strong>{% translate 'Last name' %}</strong></td>
-                        <td{% if main_user.last_name == merged_user.last_name %} class="table-info"{% endif %}>{{ main_user.last_name|default_if_none:"" }}</td>
-                        <td{% if other_user.last_name == merged_user.last_name %} class="table-info"{% endif %}>{{ other_user.last_name|default_if_none:"" }}</td>
-                        <td{% if merged_user.last_name %} class="table-success"{% endif %}>{{ merged_user.last_name|default_if_none:"" }}</td>
+                        <td {% if main_user.last_name == merged_user.last_name %}class="table-info"{% endif %}>
+                            {{ main_user.last_name|default_if_none:"" }}
+                        </td>
+                        <td {% if other_user.last_name == merged_user.last_name %}class="table-info"{% endif %}>
+                            {{ other_user.last_name|default_if_none:"" }}
+                        </td>
+                        <td {% if merged_user.last_name %}class="table-success"{% endif %}>
+                            {{ merged_user.last_name|default_if_none:"" }}
+                        </td>
                     </tr>
                     <tr>
                         <td><strong>{% translate 'Email' %}</strong></td>
-                        <td{% if main_user.email == merged_user.email %} class="table-info"{% endif %}>{{ main_user.email|default_if_none:"" }}</td>
-                        <td{% if other_user.email == merged_user.email %} class="table-info"{% endif %}>{{ other_user.email|default_if_none:"" }}</td>
-                        <td{% if merged_user.email %} class="table-success"{% endif %}>{{ merged_user.email|default_if_none:"" }}</td>
+                        <td {% if main_user.email == merged_user.email %}class="table-info"{% endif %}>
+                            {{ main_user.email|default_if_none:"" }}
+                        </td>
+                        <td {% if other_user.email == merged_user.email %}class="table-info"{% endif %}>
+                            {{ other_user.email|default_if_none:"" }}
+                        </td>
+                        <td {% if merged_user.email %}class="table-success"{% endif %}>
+                            {{ merged_user.email|default_if_none:"" }}
+                        </td>
                     </tr>
                     <tr>
                         <td><strong>{% translate 'Groups' %}</strong></td>
-                        <td{% if main_user.groups.all %} class="table-info"{% endif %}>
+                        <td {% if main_user.groups.all %}class="table-info"{% endif %}>
                             {% for group in main_user.groups.all %}
                                 <span class="badge bg-secondary">{{ group.name }}</span>
                             {% endfor %}
                         </td>
-                        <td{% if other_user.groups.all %} class="table-info"{% endif %}>
+                        <td {% if other_user.groups.all %}class="table-info"{% endif %}>
                             {% for group in other_user.groups.all %}
                                 <span class="badge bg-secondary">{{ group.name }}</span>
                             {% endfor %}
                         </td>
-                        <td{% if merged_user.groups %} class="table-success"{% endif %}>
+                        <td {% if merged_user.groups %}class="table-success"{% endif %}>
                             {% for group in merged_user.groups %}
                                 <span class="badge bg-secondary">{{ group }}</span>
                             {% endfor %}
@@ -78,17 +127,17 @@
                     </tr>
                     <tr>
                         <td><strong>{% translate 'Delegates' %}</strong></td>
-                        <td{% if main_user.delegates.all %} class="table-info"{% endif %}>
+                        <td {% if main_user.delegates.all %}class="table-info"{% endif %}>
                             {% for user in main_user.delegates.all %}
                                 {{ user.full_name }}{% if not forloop.last %},{% endif %}
                             {% endfor %}
                         </td>
-                        <td{% if other_user.delegates.all %} class="table-info"{% endif %}>
+                        <td {% if other_user.delegates.all %}class="table-info"{% endif %}>
                             {% for user in other_user.delegates.all %}
                                 {{ user.full_name }}{% if not forloop.last %},{% endif %}
                             {% endfor %}
                         </td>
-                        <td{% if merged_user.delegates %} class="table-success"{% endif %}>
+                        <td {% if merged_user.delegates %}class="table-success"{% endif %}>
                             {% for user in merged_user.delegates %}
                                 {{ user }}{% if not forloop.last %},{% endif %}
                             {% endfor %}
@@ -96,17 +145,17 @@
                     </tr>
                     <tr>
                         <td><strong>{% translate 'Represented users' %}</strong></td>
-                        <td{% if main_user.represented_users.all %} class="table-info"{% endif %}>
+                        <td {% if main_user.represented_users.all %}class="table-info"{% endif %}>
                             {% for user in main_user.represented_users.all %}
                                 {{ user.full_name }}{% if not forloop.last %},{% endif %}
                             {% endfor %}
                         </td>
-                        <td{% if other_user.represented_users.all %} class="table-info"{% endif %}>
+                        <td {% if other_user.represented_users.all %}class="table-info"{% endif %}>
                             {% for user in other_user.represented_users.all %}
                                 {{ user.full_name }}{% if not forloop.last %},{% endif %}
                             {% endfor %}
                         </td>
-                        <td{% if merged_user.represented_users %} class="table-success"{% endif %}>
+                        <td {% if merged_user.represented_users %}class="table-success"{% endif %}>
                             {% for user in merged_user.represented_users %}
                                 {{ user }}{% if not forloop.last %},{% endif %}
                             {% endfor %}
@@ -114,118 +163,124 @@
                     </tr>
                     <tr>
                         <td><strong>{% translate 'CC users' %}</strong></td>
-                        <td{% if main_user.cc_users.all %} class="table-info"{% endif %}>
+                        <td {% if main_user.cc_users.all %}class="table-info"{% endif %}>
                             {% for user in main_user.cc_users.all %}
                                 {{ user.full_name }}{% if not forloop.last %},{% endif %}
                             {% endfor %}
                         </td>
-                        <td{% if other_user.cc_users.all %} class="table-info"{% endif %}>
+                        <td {% if other_user.cc_users.all %}class="table-info"{% endif %}>
                             {% for user in other_user.cc_users.all %}
                                 {{ user.full_name }}{% if not forloop.last %},{% endif %}
                             {% endfor %}
                         </td>
-                        <td{% if merged_user.cc_users %} class="table-success"{% endif %}>
+                        <td {% if merged_user.cc_users %}class="table-success"{% endif %}>
                             {% for user in merged_user.cc_users %}
                                 {{ user }}{% if not forloop.last %},{% endif %}
                             {% endfor %}
                         </td>
                     </tr>
                     <tr>
-                        <td><strong>{% blocktranslate %}CC'ing users{% endblocktranslate %}</strong></td>
-                        <td{% if main_user.ccing_users.all %} class="table-info"{% endif %}>
+                        <td><strong>{% blocktranslate trimmed %}CC'ing users{% endblocktranslate %}</strong></td>
+                        <td {% if main_user.ccing_users.all %}class="table-info"{% endif %}>
                             {% for user in main_user.ccing_users.all %}
                                 {{ user.full_name }}{% if not forloop.last %},{% endif %}
                             {% endfor %}
                         </td>
-                        <td{% if other_user.ccing_users.all %} class="table-info"{% endif %}>
+                        <td {% if other_user.ccing_users.all %}class="table-info"{% endif %}>
                             {% for user in other_user.ccing_users.all %}
                                 {{ user.full_name }}{% if not forloop.last %},{% endif %}
                             {% endfor %}
                         </td>
-                        <td{% if merged_user.ccing_users %} class="table-success"{% endif %}>
+                        <td {% if merged_user.ccing_users %}class="table-success"{% endif %}>
                             {% for user in merged_user.ccing_users %}
                                 {{ user }}{% if not forloop.last %},{% endif %}
                             {% endfor %}
                         </td>
                     </tr>
 
-                    <tr{% if 'courses_responsible_for' in errors %} class="table-danger"{% endif %}>
+                    <tr {% if 'courses_responsible_for' in errors %}class="table-danger"{% endif %}>
                         <td><strong>{% translate 'Courses responsible for' %}</strong></td>
                         {% regroup main_user.get_sorted_courses_responsible_for by semester as course_list %}
-                        <td{% if course_list|length > 0 %} class="table-info"{% endif %}>
+                        <td {% if course_list|length > 0 %}class="table-info"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=course_list %}
                         </td>
                         {% regroup other_user.get_sorted_courses_responsible_for by semester as course_list %}
-                        <td{% if course_list|length > 0 %} class="table-info"{% endif %}>
+                        <td {% if course_list|length > 0 %}class="table-info"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=course_list %}
                         </td>
                         {% regroup merged_user.courses_responsible_for by semester as course_list %}
-                        <td{% if course_list|length > 0 %} class="table-success"{% endif %}>
+                        <td {% if course_list|length > 0 %}class="table-success"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=course_list %}
                         </td>
                     </tr>
 
-                    <tr{% if 'contributions' in errors %} class="table-danger"{% endif %}>
+                    <tr {% if 'contributions' in errors %}class="table-danger"{% endif %}>
                         <td><strong>{% translate 'Contributions' %}</strong></td>
                         {% regroup main_user.get_sorted_contributions by evaluation.course.semester as contribution_list %}
-                        <td{% if contribution_list|length > 0 %} class="table-info"{% endif %}>
+                        <td {% if contribution_list|length > 0 %}class="table-info"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=contribution_list %}
                         </td>
                         {% regroup other_user.get_sorted_contributions by evaluation.course.semester as contribution_list %}
-                        <td{% if contribution_list|length > 0 %} class="table-info"{% endif %}>
+                        <td {% if contribution_list|length > 0 %}class="table-info"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=contribution_list %}
                         </td>
                         {% regroup merged_user.contributions by evaluation.course.semester as contribution_list %}
-                        <td{% if contribution_list|length > 0 %} class="table-success"{% endif %}>
+                        <td {% if contribution_list|length > 0 %}class="table-success"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=contribution_list %}
                         </td>
                     </tr>
 
-                    <tr{% if 'evaluations_participating_in' in errors %} class="table-danger"{% endif %}>
+                    <tr {% if 'evaluations_participating_in' in errors %}class="table-danger"{% endif %}>
                         <td><strong>{% translate 'Participated in' %}</strong></td>
                         {% regroup main_user.get_sorted_evaluations_participating_in by course.semester as participation_list %}
-                        <td{% if participation_list|length > 0 %} class="table-info"{% endif %}>
+                        <td {% if participation_list|length > 0 %}class="table-info"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=participation_list %}
                         </td>
                         {% regroup other_user.get_sorted_evaluations_participating_in by course.semester as participation_list %}
-                        <td{% if participation_list|length > 0 %} class="table-info"{% endif %}>
+                        <td {% if participation_list|length > 0 %}class="table-info"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=participation_list %}
                         </td>
                         {% regroup merged_user.evaluations_participating_in by course.semester as participation_list %}
-                        <td{% if participation_list|length > 0 %} class="table-success"{% endif %}>
+                        <td {% if participation_list|length > 0 %}class="table-success"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=participation_list %}
                         </td>
                     </tr>
 
-                    <tr{% if 'evaluations_voted_for' in errors %} class="table-danger"{% endif %}>
+                    <tr {% if 'evaluations_voted_for' in errors %}class="table-danger"{% endif %}>
                         <td><strong>{% translate 'Voted for' %}</strong></td>
                         {% regroup main_user.get_sorted_evaluations_voted_for by course.semester as voting_list %}
-                        <td{% if voting_list|length > 0 %} class="table-info"{% endif %}>
+                        <td {% if voting_list|length > 0 %}class="table-info"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=voting_list %}
                         </td>
                         {% regroup other_user.get_sorted_evaluations_voted_for by course.semester as voting_list %}
-                        <td{% if voting_list|length > 0 %} class="table-info"{% endif %}>
+                        <td {% if voting_list|length > 0 %}class="table-info"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=voting_list %}
                         </td>
                         {% regroup merged_user.evaluations_voted_for by course.semester as voting_list %}
-                        <td{% if voting_list|length > 0 %} class="table-success"{% endif %}>
+                        <td {% if voting_list|length > 0 %}class="table-success"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=voting_list %}
                         </td>
                     </tr>
 
                     <tr>
                         <td><strong>{% translate 'Reward points' %}</strong></td>
-                        <td{% if main_user.reward_point_grantings.all %} class="table-info"{% endif %}>
+                        <td {% if main_user.reward_point_grantings.all %}class="table-info"{% endif %}>
                             {% include "staff_user_merge_reward_points_list.html" with user=main_user %}
                         </td>
-                        <td{% if other_user.reward_point_grantings.all and not 'rewards' in warnings %} class="table-info"
-                        {% elif other_user.reward_point_grantings.all and 'rewards' in warnings %} class="table-warning"{% endif %}>
+                        <td
+                            {% if other_user.reward_point_grantings.all and not 'rewards' in warnings %}
+                                class="table-info"
+                            {% elif other_user.reward_point_grantings.all and 'rewards' in warnings %}
+                                class="table-warning"
+                            {% endif %}
+                        >
                             {% if 'rewards' in warnings %}
-                                <span class="fas fa-triangle-exclamation"></span> {% translate 'The rewards of this user will be deleted and not be merged into the other user.' %}<br /><br />
+                                <span class="fas fa-triangle-exclamation"></span>
+                                {% translate 'The rewards of this user will be deleted and not be merged into the other user.' %}<br /><br />
                             {% endif %}
                             {% include "staff_user_merge_reward_points_list.html" with user=other_user %}
                         </td>
-                        <td{% if merged_user.reward_point_grantings %} class="table-success"{% endif %}>
+                        <td {% if merged_user.reward_point_grantings %}class="table-success"{% endif %}>
                             {% include "staff_user_merge_reward_points_list.html" with user=merged_user %}
                         </td>
                     </tr>
@@ -239,9 +294,13 @@
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
                 {% if errors %}
-                    {% blocktranslate %}The users can't be merged, because either contributions or participations for the same evaluation exist or the users are responsible for the same courses.{% endblocktranslate %}
+                    {% blocktranslate trimmed %}The users can't be merged, because either contributions or
+                        participations for the same evaluation exist or the users are responsible for the same
+                        courses.{% endblocktranslate %}
                 {% elif warnings %}
-                    <button type="submit" class="btn btn-warning"><span class="fas fa-triangle-exclamation"></span> {% translate 'Merge users' %}</button>
+                    <button type="submit" class="btn btn-warning">
+                        <span class="fas fa-triangle-exclamation"></span> {% translate 'Merge users' %}
+                    </button>
                 {% else %}
                     <button type="submit" class="btn btn-primary">{% translate 'Merge users' %}</button>
                 {% endif %}

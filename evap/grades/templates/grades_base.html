@@ -9,7 +9,9 @@
                 {% if disable_breadcrumb_grades or not user.is_grade_publisher %}
                     <li class="breadcrumb-item">{% translate 'Grade publishing' %}</li>
                 {% else %}
-                    <li class="breadcrumb-item"><a href="{% url 'grades:index' %}">{% translate 'Grade publishing' %}</a></li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'grades:index' %}">{% translate 'Grade publishing' %}</a>
+                    </li>
                 {% endif %}
             {% endblock %}
         </ul>

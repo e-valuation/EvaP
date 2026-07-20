@@ -639,11 +639,13 @@ class JSONImporter:
         if user_profile.email in settings.NON_RESPONSIBLE_USERS:
             return None, False
 
-        contribution, created = Contribution.objects.update_or_create(
+        contribution, created = Contribution.objects.get_or_create(
             evaluation=evaluation,
             contributor=user_profile,
-            role=Contribution.Role.EDITOR,
-            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            defaults={
+                "role": Contribution.Role.EDITOR,
+                "textanswer_visibility": Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            },
         )
         return contribution, created
 

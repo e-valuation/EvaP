@@ -18,8 +18,12 @@
             <div class="card-body">
                 <p>
                     {% translate 'Upload Excel file' %}
-                    (<a href="{% url 'staff:download_sample_file' 'sample.xlsx' %}">{% translate 'Download sample file' %}</a>,
-                    <button type="button" class="btn btn-link" id="copy-headers-button">{% translate 'Copy headers to clipboard' %}</button>).
+                    (<a
+                        href="{% url 'staff:download_sample_file' 'sample.xlsx' %}"
+                    >{% translate 'Download sample file' %}</a>,
+                    <button type="button" class="btn btn-link" id="copy-headers-button">
+                        {% translate 'Copy headers to clipboard' %}
+                    </button>).
                     {% translate 'This will create all containing participants, contributors and courses and connect them. It will also set the entered values as default for all evaluations.' %}
                 </p>
                 {% csrf_token %}
@@ -30,15 +34,23 @@
         <div class="card card-submit-area{% if test_passed %} card-submit-area-2{% endif %} text-center mb-3">
             <div class="card-body">
                 {% if not test_passed %}
-                    <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% translate 'Upload and test' %}</button>
+                    <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">
+                        {% translate 'Upload and test' %}
+                    </button>
                 {% else %}
-                    <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% translate 'Upload and test' %}</button>
+                    <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">
+                        {% translate 'Upload and test' %}
+                    </button>
                     <confirmation-modal type="submit" name="operation" value="import">
                         <span slot="title">{% translate 'Import semester data' %}</span>
                         <span slot="action-text">{% translate 'Import semester data' %}</span>
-                        <span slot="question">{% translate 'Do you really want to import semester data from the Excel file?' %}</span>
+                        <span
+                            slot="question"
+                        >{% translate 'Do you really want to import semester data from the Excel file?' %}</span>
 
-                        <button slot="show-button" type="button" class="btn btn-primary form-submit-btn">{% translate 'Import previously uploaded file' %}</button>
+                        <button slot="show-button" type="button" class="btn btn-primary form-submit-btn">
+                            {% translate 'Import previously uploaded file' %}
+                        </button>
                     </confirmation-modal>
                 {% endif %}
             </div>

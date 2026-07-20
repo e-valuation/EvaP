@@ -9,7 +9,10 @@
     {{ block.super }}
     <h3>{{ questionnaire.name }}</h3>
     {% for semester, evaluations in evaluations_grouped_by_semester.items %}
-        <div class="card mb-3 {% if semester.is_active %}card-outline-primary{% endif %}" data-id="semester-{{ semester.id }}">
+        <div
+            class="card mb-3 {% if semester.is_active %}card-outline-primary{% endif %}"
+            data-id="semester-{{ semester.id }}"
+        >
             <div class="card-header">
                 {{ semester.name }}
                 <span class="badge rounded-pill bg-dark">{{ evaluations|length }}</span>

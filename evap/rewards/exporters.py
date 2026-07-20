@@ -1,3 +1,5 @@
+from collections.abc import Iterable
+
 from django.utils.translation import gettext as _
 
 from evap.evaluation.tools import ExcelExporter
@@ -6,7 +8,7 @@ from evap.evaluation.tools import ExcelExporter
 class RewardsExporter(ExcelExporter):
     default_sheet_name = _("Redemptions")
 
-    def export_impl(self, users_with_redeemed_points):  # pylint: disable=arguments-differ
+    def export_impl(self, users_with_redeemed_points: Iterable) -> None:  # pylint: disable=arguments-differ
         self.write_row(
             [
                 _("Last name"),

@@ -131,3 +131,12 @@ tr.evaluation-row:not(.heading-row) {
 td p {
     margin-bottom: 0;
 }
+
+.empty-disclaimer {
+  font-style: italic;
+}
+
+table:has(tbody *) .empty-disclaimer,
+#results-grid:has(*) + .empty-disclaimer {
+    display: none;
+}

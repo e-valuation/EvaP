@@ -91,11 +91,6 @@ class TestStartpage(WebTest):
         self.assertRedirects(self.app.get(reverse("evaluation:index"), user=responsible), reverse("contributor:index"))
 
 
-class TestLegalNoticeView(WebTestWith200Check):
-    url = "/legal_notice"
-    test_users = [""]
-
-
 class TestFAQView(WebTestWith200Check):
     url = "/faq"
     test_users = [""]

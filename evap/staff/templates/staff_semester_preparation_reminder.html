@@ -15,7 +15,11 @@
     <div class="d-flex mb-3">
         <div class="me-auto">
             {% if responsible_list and interactive %}
-                <form reload-on-success method="POST" action="{% url 'staff:semester_preparation_reminder' semester_id=semester.id %}">
+                <form
+                    reload-on-success
+                    method="POST"
+                    action="{% url 'staff:semester_preparation_reminder' semester_id=semester.id %}"
+                >
                     {% csrf_token %}
 
                     <input type="hidden" name="semester_id" value="{{ semester.id }}" />
@@ -25,7 +29,9 @@
                         <span slot="action-text">{% translate 'Remind all' %}</span>
                         <span slot="question">{% translate 'Do you really want to remind everyone?' %}</span>
 
-                        <button slot="show-button" type="button" id="remindAllButton" class="btn btn-sm btn-light">{% translate 'Remind all' %}</button>
+                        <button slot="show-button" type="button" id="remindAllButton" class="btn btn-sm btn-light">
+                            {% translate 'Remind all' %}
+                        </button>
                     </confirmation-modal>
                 </form>
             {% endif %}
@@ -33,10 +39,18 @@
         <div class="btn-switch btn-switch-light ms-2 d-print-none h-">
             <div class="btn-switch-label">{% translate 'View' %}</div>
             <div class="btn-switch btn-group">
-                <a href="{% url 'staff:semester_preparation_reminder' semester_id=semester.id %}" role="button" class="btn btn-sm btn-light{% if interactive %} active{% endif %}">
+                <a
+                    href="{% url 'staff:semester_preparation_reminder' semester_id=semester.id %}"
+                    role="button"
+                    class="btn btn-sm btn-light{% if interactive %} active{% endif %}"
+                >
                     {% translate 'Interactive' %}
                 </a>
-                <a href="{% url 'staff:semester_preparation_reminder' semester_id=semester.id %}?mode=text" role="button" class="btn btn-sm btn-light{% if not interactive %} active{% endif %}">
+                <a
+                    href="{% url 'staff:semester_preparation_reminder' semester_id=semester.id %}?mode=text"
+                    role="button"
+                    class="btn btn-sm btn-light{% if not interactive %} active{% endif %}"
+                >
                     {% translate 'Text' %}
                 </a>
             </div>
@@ -48,15 +62,21 @@
             <div class="card{% if not forloop.last %} mb-3{% endif %}">
                 <div class="card-header d-flex">
                     <span class="ps-1 me-auto">
-                        <a href="{% url 'staff:user_edit' responsible.id %}">{{ responsible.full_name }}</a>, {% translate 'Delegates' %}:
+                        <a href="{% url 'staff:user_edit' responsible.id %}">{{ responsible.full_name }}</a>,
+                        {% translate 'Delegates' %}:
                         {% for delegate in delegates %}
-                            <a href="{% url 'staff:user_edit' delegate.id %}">{{ delegate.full_name }}</a>{% if not forloop.last %},{% endif %}
+                            <a
+                                href="{% url 'staff:user_edit' delegate.id %}"
+                            >{{ delegate.full_name }}</a>{% if not forloop.last %},{% endif %}
                         {% empty %}
                             &mdash;
                         {% endfor %}
                     </span>
                     <div>
-                        <a href="{% url 'staff:send_reminder' semester.id responsible.id %}" class="btn btn-sm btn-light">{% translate 'Send reminder' %}</a>
+                        <a
+                            href="{% url 'staff:send_reminder' semester.id responsible.id %}"
+                            class="btn btn-sm btn-light"
+                        >{% translate 'Send reminder' %}</a>
                     </div>
                 </div>
                 <div class="card-body">
@@ -70,18 +90,28 @@
                         </thead>
                         <tbody>
                             {% for evaluation in evaluations %}
-                                <tr{% if evaluation.state != evaluation.State.PREPARED %} class="deactivate"{% endif %}>
+                                <tr {% if evaluation.state != evaluation.State.PREPARED %}class="deactivate"{% endif %}>
                                     <th scope="row">
                                         {% with approval_state_values=evaluation.state|approval_state_values %}
-                                            <span class="{{ approval_state_values.icon }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ approval_state_values.description }}"></span>
+                                            <span
+                                                class="{{ approval_state_values.icon }}"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="{{ approval_state_values.description }}"
+                                            ></span>
                                         {% endwith %}
-                                        <a href="{% url 'staff:evaluation_edit' evaluation.id %}">{{ evaluation.full_name }}</a><br />
+                                        <a
+                                            href="{% url 'staff:evaluation_edit' evaluation.id %}"
+                                        >{{ evaluation.full_name }}</a><br />
                                         {% include 'evaluation_badges.html' with mode='manager' %}
                                     </th>
-                                    <td>{% include 'staff_evaluation_evaluation_period.html' with state=evaluation.state start_only=True %}</td>
+                                    <td>
+                                        {% include 'staff_evaluation_evaluation_period.html' with state=evaluation.state start_only=True %}
+                                    </td>
                                     <td>
                                         {% if evaluation.related_logentries.0.user %}
-                                            {{ evaluation.related_logentries.0.user }} ({{ evaluation.related_logentries.0.datetime|date:"SHORT_DATETIME_FORMAT" }})
+                                            {{ evaluation.related_logentries.0.user }}
+                                            ({{ evaluation.related_logentries.0.datetime|date:"SHORT_DATETIME_FORMAT" }})
                                         {% else %}
                                             &mdash;
                                         {% endif %}
@@ -99,7 +129,9 @@
                 {% for responsible, evaluations, _ in responsible_list %}
                     <b>{{ responsible.full_name }}</b><br />
                     {% for evaluation in evaluations %}
-                        - {{ evaluation.full_name }} (<span class="fst-italic">{{ evaluation.course.type }}</span>)<br />
+                        - {{ evaluation.full_name }} (<span
+                            class="fst-italic"
+                        >{{ evaluation.course.type }}</span>)<br />
                     {% endfor %}
                     {% if not forloop.last %}
                         <br />
