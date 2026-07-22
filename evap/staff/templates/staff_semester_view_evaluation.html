@@ -389,55 +389,57 @@
                                 </a>
                             </li>
                             {% if not evaluation.has_exam_evaluation %}
-                                <confirmation-modal
-                                    type="submit"
-                                    name="evaluation_id"
-                                    value="{{ evaluation.id }}"
-                                    confirm-button-class="btn-primary"
-                                    form="exam_creation_form_{{ evaluation.id }}"
-                                >
-                                    <span slot="title">{% translate 'Create exam evaluation' %}</span>
-                                    <span slot="action-text">{% translate 'Create exam evaluation' %}</span>
-                                    <span slot="question">
-                                        {% blocktranslate trimmed %}
-                                            Create an exam evaluation based on this evaluation. This will copy all the
-                                            participants and contributors from the original evaluation. It will set the
-                                            weight of the original evaluation to 9 and its end date will be set to the
-                                            day before the exam.
-                                        {% endblocktranslate %}
-                                    </span>
-                                    <div slot="extra-inputs">
-                                        {% with create_exam_evaluation_form=evaluation|create_exam_evaluation_form %}
-                                            {% include 'bootstrap_form_field.html' with field=create_exam_evaluation_form.base_evaluation %}
+                                <li>
+                                    <confirmation-modal
+                                        type="submit"
+                                        name="evaluation_id"
+                                        value="{{ evaluation.id }}"
+                                        confirm-button-class="btn-primary"
+                                        form="exam_creation_form_{{ evaluation.id }}"
+                                    >
+                                        <span slot="title">{% translate 'Create exam evaluation' %}</span>
+                                        <span slot="action-text">{% translate 'Create exam evaluation' %}</span>
+                                        <span slot="question">
+                                            {% blocktranslate trimmed %}
+                                                Create an exam evaluation based on this evaluation. This will copy all
+                                                the participants and contributors from the original evaluation. It will
+                                                set the weight of the original evaluation to 9 and its end date will be
+                                                set to the day before the exam.
+                                            {% endblocktranslate %}
+                                        </span>
+                                        <div slot="extra-inputs">
+                                            {% with create_exam_evaluation_form=evaluation|create_exam_evaluation_form %}
+                                                {% include 'bootstrap_form_field.html' with field=create_exam_evaluation_form.base_evaluation %}
 
-                                            {# Exam date rendered manually due to bug with Bootstrap datepicker not showing the actual picker in a modal #}
-                                            <div class="mb-3 d-md-flex">
-                                                <label
-                                                    class="col-md-3 pe-4 form-label"
-                                                    for="id_exam_date"
-                                                >{% trans "Exam Date" %}</label>
-                                                <div class="col-md-7">
-                                                    <input
-                                                        class="form-control"
-                                                        type="date"
-                                                        name="exam_date"
-                                                        form="exam_creation_form_{{ evaluation.pk }}"
-                                                        min="{{ evaluation.earliest_possible_exam_date }}"
-                                                        required=""
-                                                        id="id_exam_date"
-                                                    >
+                                                {# Exam date rendered manually due to bug with Bootstrap datepicker not showing the actual picker in a modal #}
+                                                <div class="mb-3 d-md-flex">
+                                                    <label
+                                                        class="col-md-3 pe-4 form-label"
+                                                        for="id_exam_date"
+                                                    >{% trans "Exam Date" %}</label>
+                                                    <div class="col-md-7">
+                                                        <input
+                                                            class="form-control"
+                                                            type="date"
+                                                            name="exam_date"
+                                                            form="exam_creation_form_{{ evaluation.pk }}"
+                                                            min="{{ evaluation.earliest_possible_exam_date }}"
+                                                            required=""
+                                                            id="id_exam_date"
+                                                        >
+                                                    </div>
                                                 </div>
-                                            </div>
 
-                                            {% include 'bootstrap_form_field.html' with field=create_exam_evaluation_form.exam_type %}
-                                        {% endwith %}
-                                    </div>
+                                                {% include 'bootstrap_form_field.html' with field=create_exam_evaluation_form.exam_type %}
+                                            {% endwith %}
+                                        </div>
 
-                                    <button slot="show-button" type="button" class="dropdown-item">
-                                        <span class="fas fa-fw fa-file-pen"></span>
-                                        {% translate 'Create exam evaluation' %}
-                                    </button>
-                                </confirmation-modal>
+                                        <button slot="show-button" type="button" class="dropdown-item">
+                                            <span class="fas fa-fw fa-file-pen"></span>
+                                            {% translate 'Create exam evaluation' %}
+                                        </button>
+                                    </confirmation-modal>
+                                </li>
                             {% endif %}
                             <li>
                                 <a class="dropdown-item" href="{% url 'staff:evaluation_email' evaluation.id %}">
@@ -445,26 +447,28 @@
                                 </a>
                             </li>
                             {% if evaluation.can_be_deleted_by_manager %}
-                                <confirmation-modal
-                                    type="submit"
-                                    form="evaluation-deletion-form"
-                                    name="evaluation_id"
-                                    value="{{ evaluation.id }}"
-                                    confirm-button-class="btn-danger"
-                                >
-                                    <span slot="title">{% translate 'Delete evaluation' %}</span>
-                                    <span slot="action-text">{% translate 'Delete evaluation' %}</span>
-                                    <span slot="question">
-                                        {% blocktranslate trimmed with evaluation_name=evaluation.full_name %}
-                                            Do you really want to delete the evaluation
-                                            <strong>{{ evaluation_name }}</strong>?
-                                        {% endblocktranslate %}
-                                    </span>
+                                <li>
+                                    <confirmation-modal
+                                        type="submit"
+                                        form="evaluation-deletion-form"
+                                        name="evaluation_id"
+                                        value="{{ evaluation.id }}"
+                                        confirm-button-class="btn-danger"
+                                    >
+                                        <span slot="title">{% translate 'Delete evaluation' %}</span>
+                                        <span slot="action-text">{% translate 'Delete evaluation' %}</span>
+                                        <span slot="question">
+                                            {% blocktranslate trimmed with evaluation_name=evaluation.full_name %}
+                                                Do you really want to delete the evaluation
+                                                <strong>{{ evaluation_name }}</strong>?
+                                            {% endblocktranslate %}
+                                        </span>
 
-                                    <button slot="show-button" type="button" class="dropdown-item text-danger">
-                                        <span class="fas fa-fw fa-trash"></span> {% translate 'Delete' %}
-                                    </button>
-                                </confirmation-modal>
+                                        <button slot="show-button" type="button" class="dropdown-item text-danger">
+                                            <span class="fas fa-fw fa-trash"></span> {% translate 'Delete' %}
+                                        </button>
+                                    </confirmation-modal>
+                                </li>
                             {% endif %}
                         </ul>
                     </div>

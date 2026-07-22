@@ -136,6 +136,7 @@ class ValidatingTestApp(django_webtest.DjangoTestApp):
         "reload-on-success",
         "999 columns",
         "999 established",
+        "not allowed as child of element “span”",
     )
 
     def do_request(self, req, *args, **kwargs) -> django_webtest.DjangoWebtestResponse:
