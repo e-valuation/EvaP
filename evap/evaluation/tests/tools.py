@@ -116,11 +116,16 @@ class SimpleTestCase(SeedBakerMixin, ResetLanguageOnTearDownMixin, django.test.S
 
 
 class InvalidHtmlError(Exception):
-    def __init__(self, errors: str) -> None:
+    def __init__(self, path: str, errors: list) -> None:
+        self.path = path
         self.errors = errors
 
+    def format_error(self, error) -> str:
+        return f"error: {error['message']}\ncontext:\n{error['extract']}"
+
     def __str__(self) -> str:
-        return f"html validation failed:\n{self.errors}"
+        errors = "\n".join(self.format_error(e) for e in self.errors)
+        return f"html validation failed for {self.path}:\n{errors}"
 
 
 class ValidatingTestApp(django_webtest.DjangoTestApp):
@@ -133,27 +138,27 @@ class ValidatingTestApp(django_webtest.DjangoTestApp):
         "999 established",
     )
 
-    def do_request(self, *args, **kwargs) -> django_webtest.DjangoWebtestResponse:
-        response = super().do_request(*args, **kwargs)
+    def do_request(self, req, *args, **kwargs) -> django_webtest.DjangoWebtestResponse:
+        response = super().do_request(req, *args, **kwargs)
         assert isinstance(response, django_webtest.DjangoWebtestResponse)
         if 200 <= response.status_code < 300 and response.content_type == "text/html":
-            self.validate_html(response.text)
+            self.validate_html(req.path, response.text)
         return response
 
-    def validate_html(self, html: str) -> None:
+    def validate_html(self, path: str, html: str) -> None:
         errors = requests.post(
             "http://localhost:8888",
             params={
-                "out": "gnu",
+                "out": "json",
                 "level": "error",
                 "filterpattern": "|".join(f".*{p}.*" for p in self.IGNORED_ERROR_PATTERNS),
             },
             headers={"Content-Type": "text/html"},
             data=html,
-        ).text
+        ).json()["messages"]
 
         if errors:
-            raise InvalidHtmlError(errors)
+            raise InvalidHtmlError(path, errors)
 
 
 class WebTest(SeedBakerMixin, ResetLanguageOnTearDownMixin, django_webtest.WebTest):
