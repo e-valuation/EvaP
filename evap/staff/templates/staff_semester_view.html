@@ -594,10 +594,10 @@
                 {% for evaluation in evaluations %}
                     {# separate forms for each modal since we want separate date-selection inputs because each exam_creation_modal needs its own exam date input field. #}
                     <form
-                        id="exam_creation_form_{{ evaluation.id }}"
+                        id="exam_creation_{{ evaluation.pk }}"
                         reload-on-success
                         method="post"
-                        action="{% url 'staff:create_exam_evaluation' %}"
+                        action="{% url 'staff:create_exam_evaluation' evaluation.pk %}"
                     >
                         {% csrf_token %}
                     </form>

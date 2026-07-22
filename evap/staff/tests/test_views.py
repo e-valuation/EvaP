@@ -2012,7 +2012,6 @@ class TestEvaluationCopyView(WebTestStaffMode):
 @override_settings(EXAM_QUESTIONNAIRE_IDS=[111])
 class TestEvaluationExamCreation(WebTestStaffMode):
     csrf_checks = False
-    url = reverse("staff:create_exam_evaluation")
 
     @classmethod
     def setUpTestData(cls):
@@ -2021,13 +2020,17 @@ class TestEvaluationExamCreation(WebTestStaffMode):
         cls.course = baker.make(Course)
         vote_start_datetime = datetime.datetime.now() - datetime.timedelta(days=50)
         cls.evaluation = baker.make(Evaluation, course=cls.course, vote_start_datetime=vote_start_datetime)
+        cls.url = reverse("staff:create_exam_evaluation", args=[cls.evaluation.pk])
         cls.evaluation.participants.set(baker.make(UserProfile, _quantity=3, _bulk_create=True))
         cls.contributions = baker.make(
             Contribution, evaluation=cls.evaluation, _fill_optional=["contributor"], _quantity=3, _bulk_create=True
         )
         cls.exam_type = baker.make(ExamType)
         cls.exam_date = datetime.date.today() + datetime.timedelta(days=10)
-        cls.params = {"base_evaluation": cls.evaluation.pk, "exam_date": cls.exam_date, "exam_type": cls.exam_type.id}
+        cls.params = {
+            f"exam_creation_{cls.evaluation.pk}-exam_date": cls.exam_date,
+            f"exam_creation_{cls.evaluation.pk}-exam_type": cls.exam_type.id,
+        }
         cls.exam_questionnaire = baker.make(Questionnaire, pk=111)
 
     def test_create_exam_evaluation(self):

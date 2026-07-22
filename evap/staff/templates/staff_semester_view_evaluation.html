@@ -395,7 +395,7 @@
                                         name="evaluation_id"
                                         value="{{ evaluation.id }}"
                                         confirm-button-class="btn-primary"
-                                        form="exam_creation_form_{{ evaluation.id }}"
+                                        form="exam_creation_{{ evaluation.pk }}"
                                     >
                                         <span slot="title">{% translate 'Create exam evaluation' %}</span>
                                         <span slot="action-text">{% translate 'Create exam evaluation' %}</span>
@@ -409,23 +409,21 @@
                                         </span>
                                         <div slot="extra-inputs">
                                             {% with create_exam_evaluation_form=evaluation|create_exam_evaluation_form %}
-                                                {% include 'bootstrap_form_field.html' with field=create_exam_evaluation_form.base_evaluation %}
-
                                                 {# Exam date rendered manually due to bug with Bootstrap datepicker not showing the actual picker in a modal #}
                                                 <div class="mb-3 d-md-flex">
                                                     <label
                                                         class="col-md-3 pe-4 form-label"
-                                                        for="id_exam_date"
+                                                        for="id_exam_date_{{evaluation.pk}}"
                                                     >{% trans "Exam Date" %}</label>
                                                     <div class="col-md-7">
                                                         <input
                                                             class="form-control"
                                                             type="date"
-                                                            name="exam_date"
-                                                            form="exam_creation_form_{{ evaluation.pk }}"
+                                                            name="exam_creation_{{ evaluation.pk }}-exam_date"
+                                                            form="exam_creation_{{ evaluation.pk }}"
                                                             min="{{ evaluation.earliest_possible_exam_date }}"
                                                             required=""
-                                                            id="id_exam_date"
+                                                            id="id_exam_date_{{evaluation.pk}}"
                                                         >
                                                     </div>
                                                 </div>
