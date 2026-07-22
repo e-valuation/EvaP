@@ -1,4 +1,3 @@
-import requests
 import random
 import time
 from collections.abc import Iterator, Sequence
@@ -9,6 +8,7 @@ from typing import Any
 
 import django.test
 import django_webtest
+import requests
 import webtest
 from django.conf import settings
 from django.contrib.auth import login
