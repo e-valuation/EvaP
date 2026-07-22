@@ -2359,7 +2359,7 @@ def user_list(request):
 
 @manager_required
 def user_export(request):
-    response = AttachmentResponse("exported_users.csv")
+    response = AttachmentResponse("exported_users.csv", content_type="text/csv")
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
     header_row = (_("Title"), _("Last name"), _("First name"), _("Email"))
     writer.writerow(header_row)

@@ -106,7 +106,6 @@
                 <a
                     class="btn btn-sm btn-light d-print-none"
                     href="{% url 'results:evaluation_text_answers_export' evaluation.id %}?view_general_results={{ view_general_results.value }}&view_contributor_results={{ view_contributor_results.value }}{% if contributor_id is not None %}&contributor_id={{ contributor_id }}{% endif %}"
-                    type="button"
                 >
                     {% translate 'Export visible text answers' %}
                 </a>

@@ -26,7 +26,7 @@
                 ></span>
                 {{ name }}: {{ count }}/{{ question_result.count_sum }}
                 ({{ count|percentage_one_decimal:question_result.count_sum }})
-                {% if not forloop.last %}</br>{% endif %}
+                {% if not forloop.last %}<br>{% endif %}
             {% endfor %}
         </p>
     {% endwith %}
