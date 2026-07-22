@@ -1,3 +1,4 @@
+import requests
 import random
 import time
 from collections.abc import Iterator, Sequence
@@ -114,8 +115,26 @@ class SimpleTestCase(SeedBakerMixin, ResetLanguageOnTearDownMixin, django.test.S
     pass
 
 
+class ValidatingTestApp(django_webtest.DjangoTestApp):
+    def do_request(self, *args, **kwargs) -> django_webtest.DjangoWebtestResponse:
+        response = super().do_request(*args, **kwargs)
+        assert isinstance(response, django_webtest.DjangoWebtestResponse)
+        if response.content_type == "text/html":
+            self.validate_html(response.text)
+        return response
+
+    def validate_html(self, html: str) -> None:
+        errors = requests.post(
+            "http://localhost:8888?laxtype=yes&out=gnu&asciiquotes=yes&doc=evap-test-name",
+            headers={"Content-Type": "text/html"},
+            data=html,
+        ).text
+        if errors:
+            raise ValueError(errors)
+
+
 class WebTest(SeedBakerMixin, ResetLanguageOnTearDownMixin, django_webtest.WebTest):
-    pass
+    app_class = ValidatingTestApp
 
 
 def to_querydict(dictionary):
