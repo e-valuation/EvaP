@@ -116,12 +116,16 @@ class SimpleTestCase(SeedBakerMixin, ResetLanguageOnTearDownMixin, django.test.S
 
 
 class InvalidHtmlError(Exception):
-    def __init__(self, path: str, errors: list) -> None:
+    def __init__(self, path: str, html: str, errors: list) -> None:
         self.path = path
+        self.html = html
         self.errors = errors
 
     def format_error(self, error) -> str:
-        return f"error: {error['message']}\ncontext:\n{error['extract']}"
+        s = f"error: {error['message']}\n"
+        if "extract" in error:
+            s += f"context:\n{error['extract']}"
+        return s
 
     def __str__(self) -> str:
         errors = "\n".join(self.format_error(e) for e in self.errors)
@@ -137,12 +141,13 @@ class ValidatingTestApp(django_webtest.DjangoTestApp):
         "999 columns",
         "999 established",
         "not allowed as child of element “span”",
+        'same "nearest ancestor autofocus scoping root element"',
     )
 
     def do_request(self, req, *args, **kwargs) -> django_webtest.DjangoWebtestResponse:
         response = super().do_request(req, *args, **kwargs)
         assert isinstance(response, django_webtest.DjangoWebtestResponse)
-        if 200 <= response.status_code < 300 and response.content_type == "text/html":
+        if response.content_type == "text/html" and response.text:
             self.validate_html(req.path, response.text)
         return response
 
@@ -159,7 +164,7 @@ class ValidatingTestApp(django_webtest.DjangoTestApp):
         ).json()["messages"]
 
         if errors:
-            raise InvalidHtmlError(path, errors)
+            raise InvalidHtmlError(path, html, errors)
 
 
 class WebTest(SeedBakerMixin, ResetLanguageOnTearDownMixin, django_webtest.WebTest):
