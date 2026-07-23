@@ -104,7 +104,7 @@
         evap = make-dev-command "evap" "./manage.py run";
 
         vnu-server.command = pkgs.writeShellScriptBin "vnu-server" ''
-          exec ${lib.getExe pkgs.jre_headless} -cp ${pkgs.validator-nu}/share/java/vnu.jar nu.validator.servlet.Main
+          exec ${lib.getExe pkgs.jre_headless} -cp ${pkgs.validator-nu}/share/java/vnu.jar nu.validator.servlet.Main 8001
         '';
       };
   };

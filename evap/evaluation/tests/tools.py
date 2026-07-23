@@ -1,5 +1,6 @@
 import random
 import time
+import warnings
 from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from datetime import timedelta
@@ -136,18 +137,15 @@ class ValidatingTestApp(django_webtest.DjangoTestApp):
     IGNORED_ERROR_PATTERNS = (
         "autocomplete",
         "not allowed as child of element “span”",
-
         # accessibility
         "aria",
         'same "nearest ancestor autofocus scoping root element"',
         "Every active “role=tab” element must have a corresponding “role=tabpanel” element",
         "An element with “role=tab” must be contained in, or owned by, an element with the “role” value “tablist”",
-
         # custom attributes
         "custom-success",
         "reload-on-success",
         "Attribute “tomselect-no-sort” not allowed on element “select”",
-
         # table correctness
         "seen in “table”",
         "not allowed as child of element “tr”",
@@ -155,6 +153,10 @@ class ValidatingTestApp(django_webtest.DjangoTestApp):
         "999 columns",
         "999 established",
     )
+
+    vnu_url: str | None = getattr(settings, "VNU_URL", None)
+    if vnu_url is None:
+        warnings.warn("Cannot validate HTML, VNU_URL not provided in settings", RuntimeWarning, stacklevel=2)
 
     def do_request(self, req, *args, **kwargs) -> django_webtest.DjangoWebtestResponse:
         response = super().do_request(req, *args, **kwargs)
@@ -164,8 +166,11 @@ class ValidatingTestApp(django_webtest.DjangoTestApp):
         return response
 
     def validate_html(self, path: str, html: str) -> None:
+        if self.vnu_url is None:
+            return
+
         errors = requests.post(
-            "http://localhost:8888",
+            self.vnu_url,
             params={
                 "out": "json",
                 "level": "error",
