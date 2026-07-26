@@ -178,6 +178,7 @@ class ValidatingTestApp(django_webtest.DjangoTestApp):
             },
             headers={"Content-Type": "text/html"},
             data=html,
+            timeout=10,
         ).json()["messages"]
 
         if errors:
