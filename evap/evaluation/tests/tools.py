@@ -154,7 +154,7 @@ class ValidatingTestApp(django_webtest.DjangoTestApp):
         "999 established",
     )
 
-    vnu_url: str | None = getattr(settings, "VNU_URL", None)
+    vnu_url: str | None = settings.VNU_URL
     if vnu_url is None:
         warnings.warn("Cannot validate HTML, VNU_URL not provided in settings", RuntimeWarning, stacklevel=2)
 
