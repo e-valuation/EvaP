@@ -102,11 +102,13 @@
         ts = make-dev-command "ts" "./manage.py ts compile --fresh --watch";
         scss = make-dev-command "scss" "./manage.py scss --watch";
         evap = make-dev-command "evap" "./manage.py run";
-
-        vnu-server.command = pkgs.writeShellScriptBin "vnu-server" ''
-          # See https://validator.github.io/validator/docs/vnu-server.1.html
-          exec ${lib.getExe pkgs.jre_headless} -cp ${pkgs.validator-nu}/share/java/vnu.jar nu.validator.servlet.Main 8001
-        '';
       };
+    };
+
+  vnu.settings.processes = {
+    vnu-server.command = pkgs.writeShellScriptBin "vnu-server" ''
+      # See https://validator.github.io/validator/docs/vnu-server.1.html
+      exec ${lib.getExe pkgs.jre_headless} -cp ${pkgs.validator-nu}/share/java/vnu.jar nu.validator.servlet.Main 8001
+    '';
   };
 }

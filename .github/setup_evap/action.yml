@@ -48,6 +48,6 @@ runs:
       if: ${{ inputs.npm-ci == 'true' }}
 
     - name: Start database
-      run: nix run .#services -- --detached && nix run .#wait-for-pc
+      run: nix run .#services-ci -- --detached && nix run .#wait-for-pc
       shell: bash
       if: ${{ inputs.start-db == 'true' }}
