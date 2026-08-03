@@ -4,9 +4,11 @@
 {% block breadcrumb %}
     {{ block.super }}
 
-    {% breadcrumb_item_url 'staff:evaluation_textanswers' evaluation.id fragment=textanswer.id|stringformat:"s" %}
-        {% translate 'Text answers' %}
-    {% endbreadcrumb_item_url %}
+    {% with fragment_id=textanswer.id|stringformat:"s" %}
+        {% breadcrumb_item_url 'staff:evaluation_textanswers' evaluation.id fragment="textanswer-"|add:fragment_id %}
+            {% translate 'Text answers' %}
+        {% endbreadcrumb_item_url %}
+    {% endwith %}
 
     {% breadcrumb_item %}
         {{ textanswer.id }}
