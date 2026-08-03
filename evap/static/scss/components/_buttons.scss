@@ -196,7 +196,7 @@ a:not([href]):not(.disabled) {
     border-color: $medium-gray !important;
 
     &:last-child {
-        width: 3.5rem;
+        width: 4rem;
     }
 
     .btn-check:focus-visible + & {
@@ -204,7 +204,6 @@ a:not([href]):not(.disabled) {
     }
 
     .vote-type-bipolar &:not(:last-child) {
-        width: 5rem;
         font-size: 0.8rem;
     }
 }
