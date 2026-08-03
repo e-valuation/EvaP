@@ -525,7 +525,6 @@ class ContributionFormsetTests(TestCase):
         self.assertTrue(formset.is_valid())
 
     def test_hidden_and_managers_only(self):
-        # DONE!
         """
         Asserts that hidden and archived questionnaires are shown to managers only if they are already selected for a
         contribution of the Evaluation, and that manager only questionnaires are always shown.
@@ -1031,7 +1030,6 @@ class EvaluationFormTests(TestCase):
         self.assertEqual({questionnaire}, set(evaluation.general_contribution.questionnaires.all()))
 
     def test_unused_questionnaire_visibility(self):
-        # DONE
         evaluation = baker.make(Evaluation)
         questionnaire_hidden = baker.make(
             Questionnaire, visibility=Questionnaire.Visibility.HIDDEN, type=Questionnaire.Type.TOP

@@ -8,7 +8,6 @@ from evap.staff.forms import ContributionFormset
 
 
 class EvaluationFormTests(TestCase):
-    # TODO: Test archived visibility -> tests do not exist
     def test_fields_disabled_when_editors_disallowed_to_edit(self):
         evaluation = baker.make(Evaluation)
 
@@ -44,7 +43,6 @@ class EvaluationFormTests(TestCase):
 
 class ContributionFormsetTests(TestCase):
     def test_managers_only(self):
-        # DONE
         """
         Asserts that managers_only questionnaires are shown to Editors only if they are already selected for a
         contribution of the Evaluation.
@@ -58,8 +56,12 @@ class ContributionFormsetTests(TestCase):
             Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.MANAGERS
         )
         # one hidden and archived questionnaire that should never be shown
-        questionnaire_hidden = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.HIDDEN)
-        questinnaire_archived = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.ARCHIVED)
+        questionnaire_hidden = baker.make(
+            Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.HIDDEN
+        )
+        questionnaire_archived = baker.make(
+            Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.ARCHIVED
+        )
 
         # just the normal questionnaire should be shown.
         contribution1 = baker.make(
@@ -76,14 +78,14 @@ class ContributionFormsetTests(TestCase):
         self.assertEqual(expected, set(formset.forms[1].fields["questionnaires"].queryset))
 
         # now a manager adds a manager only, hidden and archived questionnaire, which should be shown as well
-        contribution1.questionnaires.set([questionnaire_managers_only, questionnaire_hidden, questinnaire_archived])
+        contribution1.questionnaires.set([questionnaire_managers_only, questionnaire_hidden, questionnaire_archived])
 
         InlineContributionFormset = inlineformset_factory(
             Evaluation, Contribution, formset=ContributionFormset, form=EditorContributionForm, extra=1
         )
         formset = InlineContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation})
 
-        expected = {questionnaire, questionnaire_managers_only, questionnaire_hidden, questinnaire_archived}
+        expected = {questionnaire, questionnaire_managers_only, questionnaire_hidden, questionnaire_archived}
         self.assertEqual(expected, set(formset.forms[0].fields["questionnaires"].queryset))
         self.assertEqual(expected, set(formset.forms[1].fields["questionnaires"].queryset))
 
