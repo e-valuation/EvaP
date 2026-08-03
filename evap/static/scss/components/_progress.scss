@@ -80,6 +80,12 @@
     }
 }
 
+@include media-breakpoint-up(md) {
+    .spaced {
+        display: none;
+    }
+}
+
 @include media-breakpoint-down(md) {
     .progress-step:nth-of-type(3n + 1) {
         .spaced {
