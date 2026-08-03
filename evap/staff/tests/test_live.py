@@ -208,7 +208,9 @@ class EvaluationGridLiveTest(LiveServerTest):
 
         def make_order_is_as_expected(expected: list[str]):
             def predicate(driver):
-                table_entries = driver.find_elements(By.CSS_SELECTOR, "#evaluation-table td[data-col=name]")
+                table_entries = driver.find_elements(
+                    By.CSS_SELECTOR, "#evaluation-grid :not(.gridHeader) [data-col=name]"
+                )
                 return expected == [entry.get_attribute("data-order") for entry in table_entries]
 
             return predicate
@@ -218,14 +220,112 @@ class EvaluationGridLiveTest(LiveServerTest):
 
             self.set_page_language("de")
             self.wait.until(make_order_is_as_expected(expected_ascending))
-            self.selenium.find_element(By.CSS_SELECTOR, "#evaluation-table th[data-col=name]").click()
+            self.selenium.find_element(By.CSS_SELECTOR, "#evaluation-grid [data-col=name]").click()
             self.wait.until(make_order_is_as_expected(expected_descending))
 
             self.set_page_language("en")
             # The table remembers and restores the last ordering, which is "name descending" now
             self.wait.until(make_order_is_as_expected(expected_descending))
-            self.selenium.find_element(By.CSS_SELECTOR, "#evaluation-table th[data-col=name]").click()
+            self.selenium.find_element(By.CSS_SELECTOR, "#evaluation-grid .gridHeader [data-col=name]").click()
             self.wait.until(make_order_is_as_expected(expected_ascending))
+
+    def test_evaluation_grid_searching(self):
+        semester = baker.make(Semester)
+
+        baker.make(
+            Evaluation,
+            _quantity=3,
+            name_en=baker.seq("Evaluation"),
+            course__name_en=iter(("Foo", "Bar", "Baz")),
+            course__semester=semester,
+        )
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.reverse("staff:semester_view", args=[semester.id]))
+
+        def find_visible_rows(driver):
+            return driver.find_elements(By.CSS_SELECTOR, "#evaluation-grid .gridRow:not(.gridHeader)")
+
+        self.wait.until(lambda d: len(find_visible_rows(d)) == 3, "All elements should be visible by default")
+
+        search = self.selenium.find_element(By.CSS_SELECTOR, "input[name=search-evaluation]")
+        reset_search = self.selenium.find_element(By.CSS_SELECTOR, "[data-reset=search-evaluation]")
+
+        search.send_keys("Ba")
+
+        self.wait.until(lambda d: len(find_visible_rows(d)) == 2, "Only Bar & Baz should be visible")
+
+        search.send_keys("r")
+
+        self.wait.until(lambda d: len(find_visible_rows(d)) == 1, "Only Bar should be visible")
+
+        search.send_keys(Keys.BACKSPACE)
+
+        self.wait.until(lambda d: len(find_visible_rows(d)) == 2, "Bar & Baz should be visible")
+
+        reset_search.click()
+
+        self.wait.until(lambda d: len(find_visible_rows(d)) == 3, "All elements should be visible")
+
+    def test_evaluation_grid_filtering(self):
+        semester = baker.make(Semester)
+
+        [foo_eval, bar_eval, baz_eval] = baker.make(
+            Evaluation,
+            _quantity=3,
+            name_en=baker.seq("Evaluation"),
+            course__name_en=iter(("Foo", "Bar", "Baz")),
+            state=Evaluation.State.NEW,
+            course__semester=semester,
+        )
+
+        bar_eval.ready_for_editors()
+        bar_eval.save()
+
+        baz_eval.ready_for_editors()
+        baz_eval.main_language = "en"
+        baz_eval.editor_approve()
+        baz_eval.save()
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.reverse("staff:semester_view", args=[semester.id]))
+
+        def visible_evaluation_states(driver):
+            return [
+                element.get_attribute("data-filter-value")
+                for element in driver.find_elements(
+                    By.CSS_SELECTOR, '#evaluation-grid :not(.gridHeader) [data-col="state-approval"]'
+                )
+            ]
+
+        self.wait.until(
+            lambda d: len(visible_evaluation_states(d)) == 3, "All evaluations should be visible by default"
+        )
+
+        filter_in_preparation = self.selenium.find_element(
+            By.CSS_SELECTOR, '#evaluation-filter-buttons [data-filter-value="10"]'
+        )
+        filter_editor_approved = self.selenium.find_element(
+            By.CSS_SELECTOR, '#evaluation-filter-buttons [data-filter-value="30"]'
+        )
+
+        filter_in_preparation.click()
+
+        self.wait.until(
+            lambda d: visible_evaluation_states(d) == [str(foo_eval.state)],
+            'Only "In Preparation" evaluation should be visible',
+        )
+
+        filter_editor_approved.click()
+
+        self.wait.until(
+            lambda d: visible_evaluation_states(d) == [str(baz_eval.state)],
+            'Only "Approved by Editor" evaluation should be visible',
+        )
+
+        filter_editor_approved.click()
+
+        self.wait.until(lambda d: len(visible_evaluation_states(d)) == 3, "All evaluations should be visible")
 
 
 class QuestionnaireIndexLiveTest(LiveServerTest):

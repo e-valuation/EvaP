@@ -33,17 +33,17 @@ class ResultsIndexLiveTests(LiveServerTest):
                 short_name_en=f"ST {year % 1000}",
             )
 
-        semesters = [
-            make_summer_semester(2014),
-            make_winter_semester(2013),
-            make_summer_semester(2013),
-        ]
-        programs = {
+        self.semesters = {
+            "st 14": make_summer_semester(2014),
+            "wt 13": make_winter_semester(2013),
+            "st 13": make_summer_semester(2013),
+        }
+        self.programs = {
             "ba-a": baker.make(Program, name_de="Bachelor A", name_en="Bachelor A"),
             "ma-a": baker.make(Program, name_de="Master A", name_en="Master A"),
             "ma-b": baker.make(Program, name_de="Master B", name_en="Master B"),
         }
-        course_types = {
+        self.course_types = {
             "l": baker.make(CourseType, name_de="Vorlesung", name_en="Lecture"),
             "s": baker.make(CourseType, name_de="Seminar", name_en="Seminar"),
         }
@@ -65,21 +65,21 @@ class ResultsIndexLiveTests(LiveServerTest):
         def make_course(name, semester, course_type_name, program_names, responsible_names):
             return baker.make(
                 Course,
-                semester=semesters[semester],
+                semester=self.semesters[semester],
                 name_de=f"Veranstaltung {name}",
                 name_en=f"Course {name}",
-                type=course_types[course_type_name],
-                programs={programs[program_name] for program_name in program_names},
+                type=self.course_types[course_type_name],
+                programs={self.programs[program_name] for program_name in program_names},
                 responsibles={responsibles[responsible_name] for responsible_name in responsible_names},
             )
 
         courses = {
-            "a-0": make_course("A", 0, "l", {"ba-a"}, {"responsible"}),
-            "a-1": make_course("A", 1, "l", {"ba-a"}, {"responsible"}),
-            "a-2": make_course("A", 2, "l", {"ba-a"}, {"responsible"}),
-            "c": make_course("C", 0, "s", {"ba-a", "ma-a"}, {"goldwasser"}),
-            "d": make_course("D", 0, "l", {"ma-a", "ma-b"}, {"kuchenbuch", "goldwasser"}),
-            "e": make_course("E", 2, "s", {"ma-a"}, {"kuchenbuch"}),
+            "a-0": make_course("A", "st 14", "l", {"ba-a"}, {"responsible"}),
+            "a-1": make_course("A", "wt 13", "l", {"ba-a"}, {"responsible"}),
+            "a-2": make_course("A", "st 13", "l", {"ba-a"}, {"responsible"}),
+            "c": make_course("C", "st 14", "s", {"ba-a", "ma-a"}, {"goldwasser"}),
+            "d": make_course("D", "st 14", "l", {"ma-a", "ma-b"}, {"kuchenbuch", "goldwasser"}),
+            "e": make_course("E", "st 13", "s", {"ma-a"}, {"kuchenbuch"}),
         }
 
         def make_evaluation(course_name: str, participant_count: int, voter_count: int, **attrs: Any) -> None:
@@ -157,7 +157,9 @@ class ResultsIndexLiveTests(LiveServerTest):
         self.selenium.get(self.url)
         self.wait.until(visibility_of_element_located((By.CLASS_NAME, "reset-button"))).click()
 
-        self.selenium.find_element(By.CSS_SELECTOR, "input[name=semester][data-filter='ST 13']").click()
+        self.selenium.find_element(
+            By.CSS_SELECTOR, f"input[name=semester][data-filter-value='{self.semesters['st 13'].id}']"
+        ).click()
         self.assertRowsVisible(("Course A", "ST 13"), ("Course E", "ST 13"))
 
     def test_results_clear_filter(self):
@@ -170,7 +172,9 @@ class ResultsIndexLiveTests(LiveServerTest):
         course_type_checkbox = self.selenium.find_element(
             By.CSS_SELECTOR, "input[name=courseType][data-filter='Lecture']"
         )
-        semester_checkbox = self.selenium.find_element(By.CSS_SELECTOR, "input[name=semester][data-filter='ST 14']")
+        semester_checkbox = self.selenium.find_element(
+            By.CSS_SELECTOR, f"input[name=semester][data-filter-value='{self.semesters['st 14'].id}']"
+        )
         search_input.send_keys("Some search text")
         program_checkbox.click()
         course_type_checkbox.click()
