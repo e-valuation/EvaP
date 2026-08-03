@@ -1,8 +1,12 @@
 {% extends 'grades_course_base.html' %}
 
+{% load staff_templatetags %}
+
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% translate "Upload document" %}</li>
+    {% breadcrumb_item %}
+        {% translate "Upload document" %}
+    {% endbreadcrumb_item %}
 {% endblock %}
 
 {% block content %}

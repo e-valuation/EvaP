@@ -149,7 +149,6 @@ def index(request):
         "semesters": Semester.objects.all(),
         "templates": EmailTemplate.objects.all().order_by("id"),
         "sections": FaqSection.objects.all(),
-        "disable_breadcrumb_manager": True,
     }
     return render(request, "staff_index.html", template_data)
 
@@ -254,7 +253,6 @@ def semester_view(request, semester_id) -> HttpResponse:
         "semester": semester,
         "evaluations": evaluations,
         "Evaluation": Evaluation,
-        "disable_breadcrumb_semester": True,
         "rewards_active": rewards_active,
         "num_evaluations": len(evaluations),
         "program_stats": program_stats_with_total,
@@ -1127,7 +1125,6 @@ def course_copy(request, course_id):
             "semester": course.semester,
             "course_form": course_form,
             "editable": True,
-            "disable_breadcrumb_course": True,
         },
     )
 
@@ -1166,7 +1163,6 @@ class CourseEditView(SuccessMessageMixin, UpdateView):
         context_data = super().get_context_data(**kwargs) | {
             "semester": self.object.semester,
             "editable": self.object.can_be_edited_by_manager,
-            "disable_breadcrumb_course": True,
         }
         context_data["course_form"] = context_data.pop("form")
         return context_data
@@ -1985,13 +1981,7 @@ def questionnaire_edit(request, questionnaire_id):
         messages.success(request, _("Successfully updated questionnaire."))
         return redirect("staff:questionnaire_index")
 
-    template_data = {
-        "questionnaire": questionnaire,
-        "form": form,
-        "formset": formset,
-        "editable": editable,
-        "disable_breadcrumb_questionnaire": True,
-    }
+    template_data = {"questionnaire": questionnaire, "form": form, "formset": formset, "editable": editable}
     return render(request, "staff_questionnaire_form.html", template_data)
 
 
