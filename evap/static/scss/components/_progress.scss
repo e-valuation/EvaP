@@ -89,19 +89,19 @@
 @include media-breakpoint-down(md) {
     .progress-step:nth-of-type(3n + 1) {
         .spaced {
-            height: 8px;
+            display: none;
         }
     }
     
     .progress-step:nth-of-type(3n + 2) {
         .spaced {
-            height: 26px;
+            height: 18px;
         }
     }
     
     .progress-step:nth-of-type(3n) {
         .spaced {
-            height: 44px;
+            height: 36px;
         }
     }
 }
