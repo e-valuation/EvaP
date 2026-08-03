@@ -515,7 +515,14 @@ class TestFormatCommand(TestCase):
                 call(["ruff", "format", "."], check=False),
                 call(["ruff", "check", "--select", "I", "--fix", "."], check=False),
                 call(
-                    ["npx", "prettier", "--write", "evap/static/ts/**/*.ts", "evap/static/ts/eslint.config.js"],
+                    [
+                        "npx",
+                        "prettier",
+                        "--write",
+                        "evap/static/ts/**/*.ts",
+                        "evap/static/ts/eslint.config.js",
+                        "evap/static/scss/**/*.scss",
+                    ],
                     check=False,
                 ),
                 call(["djangofmt", "."], check=False),

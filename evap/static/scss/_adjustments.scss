@@ -2,14 +2,18 @@
 
 // remove wrongly added padding by Bootstrap, caused by the always visible scrollbar
 // (https://github.com/twbs/bootstrap/blob/v4-dev/js/src/modal.js#L429)
-body, .fixed-top, .fixed-bottom, .is-fixed, .sticky-top {
+body,
+.fixed-top,
+.fixed-bottom,
+.is-fixed,
+.sticky-top {
     padding-right: 0 !important;
 }
 
 // make collapsed card have no double bottom border
 // (bootstrap bug: https://github.com/twbs/bootstrap/issues/27108)
 .collapsible {
-    overflow: hidden;  // don't let background color overflow rounded border
+    overflow: hidden; // don't let background color overflow rounded border
 
     .card-header {
         border-bottom: none;
@@ -63,7 +67,9 @@ body, .fixed-top, .fixed-bottom, .is-fixed, .sticky-top {
         }
     }
 
-    &::after { display: none; }
+    &::after {
+        display: none;
+    }
     &::before {
         flex-shrink: 0;
         width: $accordion-icon-width;
@@ -126,7 +132,7 @@ $alert-colors: (
 
 // tomselect adjustments
 .ts-wrapper.multi .ts-control > div.active {
-   background-color: $component-active-bg;
+    background-color: $component-active-bg;
 }
 
 .focus .ts-control {
@@ -141,7 +147,6 @@ $alert-colors: (
 // Change .btn-group outlined border style to fix double borders with outlined button style
 // see https://github.com/twbs/bootstrap/issues/25888
 .btn-group.outline-fix {
-
     // If .btn is not the last element in the group, remove the right border.
     // Also uses :has to not remove the right border if the next element is a disabled input
     .btn:not(:last-child):has(+ :not(.btn-check[disabled])) {
@@ -171,7 +176,7 @@ $alert-colors: (
 
 // Hide the x in input fields on chrome
 input[type="search"]::-webkit-search-cancel-button {
-	-webkit-appearance: none;
+    -webkit-appearance: none;
 }
 
 // Fix tabs in card headers

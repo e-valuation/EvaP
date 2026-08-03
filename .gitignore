@@ -38,6 +38,7 @@ process-compose.socket
 
 # pip puts editable packages here
 src
+!evap/static/scss/.prettierrc.json
 !evap/static/ts/.prettierrc.json
 !evap/static/ts/src
 
