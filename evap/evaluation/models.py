@@ -1411,7 +1411,7 @@ class Choices:
     css_class: str
     values: tuple[int]
     colors: tuple[str]
-    grades: tuple[int]
+    grades: tuple[float]
     names: list[StrOrPromise]
     is_inverted: bool
 
@@ -2087,10 +2087,10 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
             return True
 
         last_semester_participated = (
-            Semester.objects.filter(courses__evaluations__participants=self).order_by("-created_at").get()
+            Semester.objects.filter(courses__evaluations__participants=self).order_by("-created_at")[0]
         )
         last_semester_contributed = (
-            Semester.objects.filter(courses__evaluations__contributions__contributor=self).order_by("-created_at").get()
+            Semester.objects.filter(courses__evaluations__contributions__contributor=self).order_by("-created_at")[0]
         )
 
         return last_semester_participated.created_at >= last_semester_contributed.created_at

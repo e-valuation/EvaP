@@ -4,7 +4,7 @@ from collections.abc import Iterable
 from copy import copy
 from enum import Enum
 from math import ceil, modf
-from typing import TYPE_CHECKING, TypeGuard, cast
+from typing import Any, TypeGuard, cast
 
 from django.conf import settings
 from django.core.cache import caches
@@ -24,12 +24,8 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
-from evap.evaluation.tools import discard_cached_related_objects
+from evap.evaluation.tools import StrOrPromise, discard_cached_related_objects
 from evap.tools import assert_not_none, unordered_groupby
-
-if TYPE_CHECKING:
-    from numbers import Real
-    from typing import Any
 
 STATES_WITH_RESULTS_CACHING = {Evaluation.State.EVALUATED, Evaluation.State.REVIEWED, Evaluation.State.PUBLISHED}
 STATES_WITH_RESULT_TEMPLATE_CACHING = {Evaluation.State.PUBLISHED}
@@ -320,10 +316,9 @@ def unipolarized_distribution(result: PublishedRatingResult) -> Distribution:
     if not result.counts:
         return None
 
-    grade: float | Real
     for counts, grade in zip(result.counts, result.choices.grades, strict=True):
-        grade_fraction, grade = modf(grade)
-        grade = int(grade)
+        grade_fraction, grade_whole = modf(grade)
+        grade = int(grade_whole)
         summed_distribution[grade - 1] += (1 - grade_fraction) * counts
         if grade < 5:
             summed_distribution[grade] += grade_fraction * counts
@@ -331,7 +326,7 @@ def unipolarized_distribution(result: PublishedRatingResult) -> Distribution:
     return normalized_distribution(summed_distribution)
 
 
-def avg_distribution(weighted_distributions: Iterable[tuple[tuple[float, ...] | None, float]]) -> Distribution:
+def avg_distribution(weighted_distributions: Iterable[tuple[Distribution, float]]) -> Distribution:
     if all(distribution is None for distribution, __ in weighted_distributions):
         return None
 

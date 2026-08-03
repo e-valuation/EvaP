@@ -70,6 +70,7 @@ from evap.evaluation.tools import (
     HttpResponseNoContent,
     SaveValidFormMixin,
     StrOrPromise,
+    get_bool_parameter_from_url_or_session,
     get_object_from_dict_pk_entry_or_logged_40x,
     get_string_parameter_from_url_or_session,
     sort_formset,
@@ -139,7 +140,7 @@ from evap.staff.tools import (
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.models import TextAnswerWarning
 from evap.student.views import render_vote_page
-from evap.tools import assert_not_none, unordered_groupby
+from evap.tools import unordered_groupby
 
 logger = logging.getLogger(__name__)
 
@@ -698,6 +699,8 @@ def semester_delete(request: HttpRequest) -> HttpResponse:
 
 @manager_required
 def semester_import(request: HttpRequest, semester_id: int) -> HttpResponse:
+    assert request.user.id is not None
+
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.participations_are_archived:
         raise PermissionDenied
@@ -706,7 +709,6 @@ def semester_import(request: HttpRequest, semester_id: int) -> HttpResponse:
     import_type = ImportType.SEMESTER
 
     importer_log = None
-    user_id = assert_not_none(request.user.id)
 
     if request.method == "POST":
         operation = request.POST.get("operation")
@@ -714,7 +716,7 @@ def semester_import(request: HttpRequest, semester_id: int) -> HttpResponse:
             raise SuspiciousOperation("Invalid POST operation")
 
         if operation == "test":
-            delete_import_file(user_id, import_type)  # remove old files if still exist
+            delete_import_file(request.user.id, import_type)  # remove old files if still exist
             excel_form.fields["excel_file"].required = True
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data["excel_file"]
@@ -723,10 +725,10 @@ def semester_import(request: HttpRequest, semester_id: int) -> HttpResponse:
                     file_content, semester, vote_start_datetime=None, vote_end_date=None, test_run=True
                 )
                 if not importer_log.has_errors():
-                    save_import_file(excel_file, user_id, import_type)
+                    save_import_file(excel_file, request.user.id, import_type)
 
         elif operation == "import":
-            file_content = get_import_file_content_or_raise(user_id, import_type)
+            file_content = get_import_file_content_or_raise(request.user.id, import_type)
             excel_form.fields["vote_start_datetime"].required = True
             excel_form.fields["vote_end_date"].required = True
             if excel_form.is_valid():
@@ -736,10 +738,10 @@ def semester_import(request: HttpRequest, semester_id: int) -> HttpResponse:
                     file_content, semester, vote_start_datetime, vote_end_date, test_run=False
                 )
                 importer_log.forward_messages_to_django(request)
-                delete_import_file(user_id, import_type)
+                delete_import_file(request.user.id, import_type)
                 return redirect("staff:semester_view", semester_id)
 
-    test_passed = import_file_exists(user_id, import_type)
+    test_passed = import_file_exists(request.user.id, import_type)
     # casting warnings to a normal dict is necessary for the template to iterate over it.
     return render(
         request,
@@ -1516,6 +1518,8 @@ def import_or_copy_participants(
 @manager_required
 @transaction.atomic
 def evaluation_person_management(request: HttpRequest, evaluation_id: int) -> HttpResponse:
+    assert request.user.id is not None
+
     # This view indeed handles 4 tasks. However, they are tightly coupled, splitting them up
     # would lead to more code duplication. Thus, we decided to leave it as is for now
     # pylint: disable=too-many-locals
@@ -1530,8 +1534,6 @@ def evaluation_person_management(request: HttpRequest, evaluation_id: int) -> Ht
     contributor_copy_form = EvaluationParticipantCopyForm(request.POST or None, prefix="cc")
 
     importer_log = None
-
-    user_id = assert_not_none(request.user.id)
 
     if request.method == "POST":
         operation = request.POST.get("operation")
@@ -1555,7 +1557,7 @@ def evaluation_person_management(request: HttpRequest, evaluation_id: int) -> Ht
         copy_form = participant_copy_form if "participants" in operation else contributor_copy_form
 
         if import_action == ImportAction.TEST:
-            delete_import_file(user_id, import_type)  # remove old files if still exist
+            delete_import_file(request.user.id, import_type)  # remove old files if still exist
             excel_form.fields["excel_file"].required = True
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data["excel_file"]
@@ -1564,7 +1566,7 @@ def evaluation_person_management(request: HttpRequest, evaluation_id: int) -> Ht
                     import_type, evaluation, test_run=True, file_content=file_content
                 )
                 if not importer_log.has_errors():
-                    save_import_file(excel_file, user_id, import_type)
+                    save_import_file(excel_file, request.user.id, import_type)
         else:
             successfully_processed = import_or_copy_participants(
                 request, "-replace-" in operation, import_action, import_type, evaluation, copy_form
@@ -1572,8 +1574,8 @@ def evaluation_person_management(request: HttpRequest, evaluation_id: int) -> Ht
             if successfully_processed:
                 return redirect("staff:semester_view", evaluation.course.semester.pk)
 
-    participant_test_passed = import_file_exists(user_id, ImportType.PARTICIPANT)
-    contributor_test_passed = import_file_exists(user_id, ImportType.CONTRIBUTOR)
+    participant_test_passed = import_file_exists(request.user.id, ImportType.PARTICIPANT)
+    contributor_test_passed = import_file_exists(request.user.id, ImportType.CONTRIBUTOR)
     return render(
         request,
         "staff_evaluation_person_management.html",
@@ -2330,7 +2332,7 @@ def user_index(request: HttpRequest) -> HttpResponse:
 
 @manager_required
 def user_list(request: HttpRequest) -> HttpResponse:
-    filter_users = get_string_parameter_from_url_or_session(request, "filter_users")
+    filter_users = get_bool_parameter_from_url_or_session(request, "filter_users")
 
     users = UserProfile.objects.all()
     if filter_users:
@@ -2388,11 +2390,12 @@ class UserCreateView(SuccessMessageMixin, CreateView):
 
 @manager_required
 def user_import(request: HttpRequest) -> HttpResponse:
+    assert request.user.id is not None
+
     excel_form = UserImportForm(request.POST or None, request.FILES or None)
     import_type = ImportType.USER
 
     importer_log = None
-    user_id = assert_not_none(request.user.id)
 
     if request.method == "POST":
         operation = request.POST.get("operation")
@@ -2400,23 +2403,23 @@ def user_import(request: HttpRequest) -> HttpResponse:
             raise SuspiciousOperation("Invalid POST operation")
 
         if operation == "test":
-            delete_import_file(user_id, import_type)  # remove old files if still exist
+            delete_import_file(request.user.id, import_type)  # remove old files if still exist
             excel_form.fields["excel_file"].required = True
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data["excel_file"]
                 file_content = excel_file.read()
                 __, importer_log = import_users(file_content, test_run=True)
                 if not importer_log.has_errors():
-                    save_import_file(excel_file, user_id, import_type)
+                    save_import_file(excel_file, request.user.id, import_type)
 
         elif operation == "import":
-            file_content = get_import_file_content_or_raise(user_id, import_type)
+            file_content = get_import_file_content_or_raise(request.user.id, import_type)
             __, importer_log = import_users(file_content, test_run=False)
             importer_log.forward_messages_to_django(request)
-            delete_import_file(user_id, import_type)
+            delete_import_file(request.user.id, import_type)
             return redirect("staff:user_index")
 
-    test_passed = import_file_exists(user_id, import_type)
+    test_passed = import_file_exists(request.user.id, import_type)
     # casting warnings to a normal dict is necessary for the template to iterate over it.
     return render(
         request,
@@ -2506,18 +2509,19 @@ def user_resend_email(request: HttpRequest) -> HttpResponse:
 
 @manager_required
 def user_bulk_update(request: HttpRequest) -> HttpResponse:
+    assert request.user.id is not None
+
     form = UserBulkUpdateForm(request.POST or None, request.FILES or None)
     operation = request.POST.get("operation")
     test_run = operation == "test"
     import_type = ImportType.USER_BULK_UPDATE
-    user_id = assert_not_none(request.user.id)
 
     if request.POST:
         if operation not in ("test", "bulk_update"):
             raise SuspiciousOperation("Invalid POST operation")
 
         if test_run:
-            delete_import_file(user_id, import_type)  # remove old files if still exist
+            delete_import_file(request.user.id, import_type)  # remove old files if still exist
             form.fields["user_file"].required = True
             if form.is_valid():
                 user_file = form.cleaned_data["user_file"]
@@ -2534,14 +2538,14 @@ def user_bulk_update(request: HttpRequest) -> HttpResponse:
                     )
 
                 if success:
-                    save_import_file(user_file, user_id, import_type)
+                    save_import_file(user_file, request.user.id, import_type)
         else:
-            file_content = get_import_file_content_or_raise(user_id, import_type)
+            file_content = get_import_file_content_or_raise(request.user.id, import_type)
             bulk_update_users(request, file_content, test_run)
-            delete_import_file(user_id, import_type)
+            delete_import_file(request.user.id, import_type)
             return redirect("staff:user_index")
 
-    test_passed = import_file_exists(user_id, import_type)
+    test_passed = import_file_exists(request.user.id, import_type)
     return render(request, "staff_user_bulk_update.html", {"form": form, "test_passed": test_passed})
 
 
