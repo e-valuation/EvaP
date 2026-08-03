@@ -1,14 +1,19 @@
 {% extends 'base.html' %}
 
 {% load evaluation_filters %}
+{% load staff_templatetags %}
 
 {% block title %}{% translate 'Your EvaP' %} - {{ block.super }}{% endblock %}
 
 {% block breadcrumb_bar %}
     <div class="breadcrumb-bar">
         <ul class="breadcrumb">
-            <li class="breadcrumb-item">{{ evaluation.course.semester.name }}</li>
-            <li class="breadcrumb-item">{{ evaluation.full_name }}</li>
+            {% breadcrumb_item %}
+                {{ evaluation.course.semester.name }}
+            {% endbreadcrumb_item %}
+            {% breadcrumb_item %}
+                {{ evaluation.full_name }}
+            {% endbreadcrumb_item %}
         </ul>
     </div>
 {% endblock %}

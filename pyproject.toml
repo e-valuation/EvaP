@@ -110,6 +110,7 @@ exclude = ["**/urls.py"]
 [tool.djangofmt]
 extend-exclude = ["evap/static/bootstrap"]
 html-void-self-closing = "unchanged"
+custom-blocks = ["breadcrumb_item", "breadcrumb_item_url"]
 
 ##############################################
 
