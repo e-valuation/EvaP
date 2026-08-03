@@ -621,150 +621,111 @@ class TestExporters(TestCase):
         # - the average does not include unpublished evaluations
         # - the average does not include evaluations with too few answers
 
-        course_type = baker.make(CourseType)
-        program = baker.make(Program)
-        semester = baker.make(Semester, name_de="WS 2026", name_en="WS 2026")
-        questionnaire = baker.make(Questionnaire, order=0)
-        question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
-        question_assignment = baker.make(
+        default_course_type = baker.make(CourseType)
+        default_program = baker.make(Program)
+        default_semester = baker.make(Semester, name_de="WS 2026", name_en="WS 2026")
+        default_questionnaire = baker.make(Questionnaire, order=0)
+        default_question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
+        default_question_assignment = baker.make(
             QuestionAssignment,
-            question=question,
-            questionnaire=questionnaire,
+            question=default_question,
+            questionnaire=default_questionnaire,
         )
-        evaluation = baker.make(
-            Evaluation,
-            course__name_en="default evaluation",
-            course__type=course_type,
-            course__programs=[program],
-            course__semester=semester,
-            state=Evaluation.State.PUBLISHED,
-            _participant_count=6,
-            _voter_count=6,
-        )
-        evaluation.general_contribution.questionnaires.set([questionnaire])
-        make_rating_answer_counters(question_assignment, evaluation.general_contribution, [2, 0, 0, 0, 0])
-        cache_results(evaluation)
 
+        def make_evaluation(
+            answer_counts: list[int],
+            question_assignment: QuestionAssignment = default_question_assignment,
+            **kwargs,
+        ):
+            kwargs = {
+                "course__name_en": "default evaluation",
+                "course__type": default_course_type,
+                "course__programs": [default_program],
+                "course__semester": default_semester,
+                "state": Evaluation.State.PUBLISHED,
+                "_participant_count": 6,
+                "_voter_count": 6,
+            } | kwargs
+
+            evaluation = baker.make(Evaluation, **kwargs)
+            evaluation.general_contribution.questionnaires.set([question_assignment.questionnaire])
+            make_rating_answer_counters(question_assignment, evaluation.general_contribution, answer_counts)
+            cache_results(evaluation)
+
+            return evaluation
+
+        make_evaluation(answer_counts=[2, 0, 0, 0, 0])
         # test that only evaluation results from specified program get included
         program2 = baker.make(Program)
 
-        evaluation_program2 = baker.make(
-            Evaluation,
+        make_evaluation(
+            answer_counts=[2, 0, 0, 0, 0],
             course__name_en="evaluation program2",
-            course__type=course_type,
             course__programs=[program2],
-            course__semester=semester,
-            state=Evaluation.State.PUBLISHED,
-            _participant_count=6,
-            _voter_count=6,
         )
-        evaluation_program2.general_contribution.questionnaires.set([questionnaire])
-        make_rating_answer_counters(question_assignment, evaluation_program2.general_contribution, [2, 0, 0, 0, 0])
-        cache_results(evaluation_program2)
 
         # test that the average comes from all semesters
         semester2 = baker.make(Semester, name_de="WS 2027", name_en="WS 2027")
 
-        evaluation_semester2 = baker.make(
-            Evaluation,
+        make_evaluation(
+            answer_counts=[0, 1, 0, 1, 0],
             course__name_en="evaluation semester 2",
-            course__type=course_type,
-            course__programs=[program],
             course__semester=semester2,
-            state=Evaluation.State.PUBLISHED,
-            _participant_count=6,
-            _voter_count=6,
         )
-        evaluation_semester2.general_contribution.questionnaires.set([questionnaire])
-        make_rating_answer_counters(question_assignment, evaluation_semester2.general_contribution, [0, 1, 0, 1, 0])
-        cache_results(evaluation_semester2)
 
         # test that not only evaluations with the given course type are included
         course_type2 = baker.make(CourseType)
 
-        evaluation_course_type2 = baker.make(
-            Evaluation,
+        make_evaluation(
+            answer_counts=[2, 0, 0, 0, 0],
             course__name_en="evaluation other course type",
             course__type=course_type2,
-            course__programs=[program],
-            course__semester=semester,
-            state=Evaluation.State.PUBLISHED,
-            _participant_count=6,
-            _voter_count=6,
         )
-        evaluation_course_type2.general_contribution.questionnaires.set([questionnaire])
-        make_rating_answer_counters(question_assignment, evaluation_course_type2.general_contribution, [2, 0, 0, 0, 0])
-        cache_results(evaluation_course_type2)
-
-        binary_content = BytesIO()
-        ResultsExporter().export(
-            binary_content,
-            semesters=[semester],
-            selection_list=[([program.id], [course_type.id])],
-            include_not_enough_voters=True,
-            include_unpublished=True,
-        )
-        binary_content.seek(0)
-        workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
         # test that for a given question, the average is calculated per questionnaire each
         questionnaire_other = baker.make(Questionnaire, order=1)
         question_assignment_other_questionnaire = baker.make(
             QuestionAssignment,
-            question=question,
+            question=default_question,
             questionnaire=questionnaire_other,
         )
 
-        evaluation_other_questionnaire = baker.make(
-            Evaluation,
+        make_evaluation(
+            answer_counts=[0, 0, 0, 0, 2],
+            question_assignment=question_assignment_other_questionnaire,
             course__name_en="evaluation other questionnaire",
-            course__type=course_type,
-            course__programs=[program],
-            course__semester=semester,
-            state=Evaluation.State.PUBLISHED,
-            _participant_count=6,
-            _voter_count=6,
         )
-
-        evaluation_other_questionnaire.general_contribution.questionnaires.set([questionnaire_other])
-        make_rating_answer_counters(
-            question_assignment_other_questionnaire,
-            evaluation_other_questionnaire.general_contribution,
-            [0, 0, 0, 0, 2],
-        )
-        cache_results(evaluation_other_questionnaire)
 
         # test that unpublished evaluations don't get counted
-        evaluation_unpublished = baker.make(
-            Evaluation,
+        make_evaluation(
+            answer_counts=[0, 0, 0, 0, 2],
             course__name_en="evaluation unpublished",
-            course__type=course_type,
-            course__programs=[program],
-            course__semester=semester,
             state=Evaluation.State.EVALUATED,
-            _participant_count=6,
-            _voter_count=6,
         )
-        evaluation_unpublished.general_contribution.questionnaires.set([questionnaire])
-        make_rating_answer_counters(question_assignment, evaluation_unpublished.general_contribution, [0, 0, 0, 0, 2])
-        cache_results(evaluation_unpublished)
 
         # test that evaluations with to few voters don't get counted
-        evaluation_not_enough_voters = baker.make(
-            Evaluation,
+        make_evaluation(
+            answer_counts=[0, 0, 0, 0, 1],
             course__name_en="evaluation not enough voters",
-            course__type=course_type,
-            course__programs=[program],
-            course__semester=semester,
-            state=Evaluation.State.PUBLISHED,
             _participant_count=1,
             _voter_count=1,
         )
-        evaluation_not_enough_voters.general_contribution.questionnaires.set([questionnaire])
-        make_rating_answer_counters(
-            question_assignment, evaluation_not_enough_voters.general_contribution, [0, 0, 0, 0, 1]
+
+        # test that archived evaluations don't get counted
+        semester_archived = baker.make(Semester, results_are_archived=True)
+        make_evaluation(
+            answer_counts=[0, 0, 0, 0, 2], course__name_en="evaluation archived", course__semester=semester_archived
         )
-        cache_results(evaluation_not_enough_voters)
+
+        binary_content = BytesIO()
+        ResultsExporter().export(
+            binary_content,
+            semesters=[default_semester],
+            selection_list=[([default_program.id], [default_course_type.id])],
+            include_not_enough_voters=True,
+            include_unpublished=True,
+        )
+        workbook = xlrd.open_workbook(file_contents=binary_content.getvalue())
 
         # evaluation included in the average:
         # - evaluation (1.0)
@@ -775,4 +736,5 @@ class TestExporters(TestCase):
         # - evaluation_other_questionnaire (5.0)
         # - evaluation_unpublished (5.0)
         # - evaluation_not_enough_voters (5.0)
+        # - evaluation_is_archived
         self.assertEqual(workbook.sheets()[0].row_values(5)[1], 1.5)

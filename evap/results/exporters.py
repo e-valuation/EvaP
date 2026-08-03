@@ -1,8 +1,8 @@
 import math
-import typing
 from collections import defaultdict
 from collections.abc import Iterable, Sequence
 from itertools import chain, repeat
+from typing import Any, TypeVar
 
 import xlwt
 from django.db.models import Q, QuerySet
@@ -24,9 +24,9 @@ from evap.results.tools import (
     get_results,
 )
 
-T = typing.TypeVar("T", bound=Model)
+T = TypeVar("T", bound=Model)
 QuerySetOrSequence = QuerySet[T] | Sequence[T]
-AnnotatedEvaluation = typing.Any
+AnnotatedEvaluation = Any
 
 
 class Averager:
@@ -101,10 +101,8 @@ class ResultsExporter(ExcelExporter):
         if cls.COLOR_MAPPINGS:
             raise RuntimeError("ResultsExporter.init_grade_styles has been called twice.")
 
-        grade_base_style = (
-            "pattern: pattern solid, fore_colour {}; alignment: horiz centre; font: bold on; "
-            "borders: left medium, right medium"
-        )
+        grade_base_style = "pattern: pattern solid, fore_colour {}; alignment: horiz centre; font: bold on; borders: left medium, right medium"
+
         for i in range(cls.NUM_GRADE_COLORS):
             grade = 1 + i * cls.STEP
             color = get_grade_color(grade)
@@ -131,7 +129,7 @@ class ResultsExporter(ExcelExporter):
         return filtered_questions
 
     @staticmethod
-    def filter_evaluations(
+    def filter_evaluations_for_average(
         semesters: Iterable[Semester] | None,
         evaluation_states: Iterable[Evaluation.State] | None,
         program_ids: Iterable[int] | None,
@@ -144,7 +142,8 @@ class ResultsExporter(ExcelExporter):
         evaluations_with_results = []
         used_questionnaires: set[Questionnaire] = set()
 
-        evaluations_filter = Q()
+        # Only include not-archived evaluations. This also serves to make the performance acceptable.
+        evaluations_filter = Q(course__semester__results_are_archived=False)
         if semesters is not None:
             evaluations_filter &= Q(course__semester__in=semesters)
         if evaluation_states is not None:
@@ -362,6 +361,14 @@ class ResultsExporter(ExcelExporter):
 
         return average_grade_averager.current_average(), None
 
+    def write_grade_cell(self, question: Question, grade_average: float | int, approval_average: float | int | None):
+        if math.isnan(grade_average) or math.isnan(approval_average or 0):
+            self.write_cell("", "border_left_right")
+        elif question.is_yes_no_question:
+            self.write_cell(f"{approval_average:.0%}", self.grade_to_style(grade_average))
+        else:
+            self.write_cell(grade_average, self.grade_to_style(grade_average))
+
     def write_questionnaire(
         self,
         questionnaire: Questionnaire,
@@ -382,12 +389,7 @@ class ResultsExporter(ExcelExporter):
             grade_average, approval_average = self._get_average_of_average_grade_and_approval(
                 all_evaluations_with_results, questionnaire.id, question
             )
-            if math.isnan(grade_average) or math.isnan(approval_average or 0):
-                self.write_cell("", "border_left_right")
-            elif question.is_yes_no_question:
-                self.write_cell(f"{approval_average:.0%}", self.grade_to_style(grade_average))
-            else:
-                self.write_cell(grade_average, self.grade_to_style(grade_average))
+            self.write_grade_cell(question, grade_average, approval_average)
 
             # evaluations
             for __, results in evaluations_with_results:
@@ -399,16 +401,7 @@ class ResultsExporter(ExcelExporter):
                     question, results[questionnaire.id]
                 )
 
-                if math.isnan(evaluation_grade_average):
-                    self.write_cell(style="border_left_right")
-                    continue
-
-                if question.is_yes_no_question:
-                    self.write_cell(
-                        f"{evaluation_approval_ratio_average:.0%}", self.grade_to_style(evaluation_grade_average)
-                    )
-                else:
-                    self.write_cell(evaluation_grade_average, self.grade_to_style(evaluation_grade_average))
+                self.write_grade_cell(question, evaluation_grade_average, evaluation_approval_ratio_average)
 
             self.next_row()
 
@@ -434,7 +427,7 @@ class ResultsExporter(ExcelExporter):
             if include_unpublished:
                 evaluation_states += [Evaluation.State.EVALUATED, Evaluation.State.REVIEWED]
 
-            evaluations_with_results, used_questionnaires, course_results_exist = self.filter_evaluations(
+            evaluations_with_results, used_questionnaires, course_results_exist = self.filter_evaluations_for_average(
                 semesters,
                 evaluation_states,
                 program_ids,
@@ -443,7 +436,7 @@ class ResultsExporter(ExcelExporter):
                 include_not_enough_voters,
             )
 
-            all_evaluations_with_results, __, ___ = self.filter_evaluations(
+            all_evaluations_with_results, __, ___ = self.filter_evaluations_for_average(
                 semesters=None,
                 evaluation_states=[Evaluation.State.PUBLISHED],
                 program_ids=None,
