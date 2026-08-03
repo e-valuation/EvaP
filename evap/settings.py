@@ -541,3 +541,6 @@ if DEBUG:
             "SHOW_TOOLBAR_CALLBACK": "evap.settings.show_toolbar",
             "JQUERY_URL": "",
         }
+
+if VNU_URL is not None:
+    MIDDLEWARE += ["evap.development.middleware.NuValidatorMiddleware"]
