@@ -73,10 +73,10 @@
             </small>
         </div>
     {% endif %}
-    <h3 class="mb-3 d-flex justify-content-between flex-column-mobile">
-        {{ evaluation.full_name }} ({{ evaluation.course.semester.name }})
+    <h3 class="mb-3 d-flex gap-2 justify-content-between align-items-end flex-column flex-md-row">
+        <span>{{ evaluation.full_name }} ({{ evaluation.course.semester.name }})</span>
 
-        <div class="float-lg-end mt-3 mt-lg-0 d-flex justify-content-end height-fit-content">
+        <div class="flex-shrink-0 justify-content-end height-fit-content">
             <div class="btn-switch btn-switch-light btn-switch-evaluation-language">
                 <div class="btn-switch-label my-auto">
                     {% translate "Questionnaire language" %}
