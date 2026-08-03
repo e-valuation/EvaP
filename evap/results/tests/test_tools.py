@@ -100,7 +100,7 @@ class TestCalculateResults(TestCase):
         question_result = questionnaire_result.question_results[0]
 
         self.assertEqual(question_result.count_sum, 150)
-        self.assertAlmostEqual(question_result.average, float(109) / 30)
+        self.assertAlmostEqual(question_result.grade_average, float(109) / 30)
         self.assertEqual(question_result.counts, (5, 15, 40, 60, 30))
 
     def test_calculation_bipolar_results(self):
@@ -132,7 +132,7 @@ class TestCalculateResults(TestCase):
         question_result = questionnaire_result.question_results[0]
 
         self.assertEqual(question_result.count_sum, 105)
-        self.assertAlmostEqual(question_result.average, 2.58730158)
+        self.assertAlmostEqual(question_result.grade_average, 2.58730158)
         self.assertEqual(question_result.counts, (5, 5, 15, 30, 25, 15, 10))
         self.assertEqual(question_result.minus_balance_count, 32.5)
         distribution = normalized_distribution(question_result.counts)
