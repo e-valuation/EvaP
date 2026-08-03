@@ -8,9 +8,9 @@
     {% breadcrumb_item_url 'staff:user_index' %}
         {% translate 'Users' %}
     {% endbreadcrumb_item_url %}
-    {% breadcrumb_item %}
+    {% breadcrumb_item_url 'staff:user_merge_selection' %}
         {% translate 'Merge users' %}
-    {% endbreadcrumb_item %}
+    {% endbreadcrumb_item_url %}
 {% endblock %}
 
 {% block content %}
