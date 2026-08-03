@@ -261,6 +261,7 @@
                                     type="submit"
                                     name="activation_status"
                                     value="on"
+                                    class="d-contents"
                                     confirm-button-class="btn-primary"
                                 >
                                     <span slot="title">{% translate 'Activate reward points' %}</span>
@@ -278,7 +279,7 @@
                                     <button
                                         slot="show-button"
                                         type="button"
-                                        class="btn btn-sm btn-light{% if rewards_active %} active{% endif %} h-100"
+                                        class="btn btn-sm btn-light{% if rewards_active %} active{% endif %}"
                                     >
                                         <span class="fas fa-check" aria-hidden="true"></span>
                                     </button>
