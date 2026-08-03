@@ -1,6 +1,5 @@
 import random
 import time
-import warnings
 from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from datetime import timedelta
@@ -9,7 +8,6 @@ from typing import Any
 
 import django.test
 import django_webtest
-import requests
 import webtest
 from django.conf import settings
 from django.contrib.auth import login
