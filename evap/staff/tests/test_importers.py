@@ -139,9 +139,11 @@ class TestUserImport(ImporterTestCase):
         self.assertEqual(
             [msg.message for msg in importer_log_test.warnings_by_category()[ImporterLogEntry.Category.DUPL]],
             [
-                "A user in the import file has the same first and last name as an existing user:<br />"
-                f" -  Lucilia Manilium, luma@institution.example.com [{user_edit_link(user.pk)}] (existing)<br />"
-                " -  Lucilia Manilium, lucilia.manilium@institution.example.com (import)",
+                (
+                    "A user in the import file has the same first and last name as an existing user:<br />"
+                    f" -  Lucilia Manilium, luma@institution.example.com [{user_edit_link(user.pk)}] (existing)<br />"
+                    " -  Lucilia Manilium, lucilia.manilium@institution.example.com (import)"
+                ),
             ],
         )
 
@@ -180,9 +182,11 @@ class TestUserImport(ImporterTestCase):
         self.assertFalse(importer_log.has_errors())
         self.assertEqual(
             [
-                "The existing user would be overwritten with the following data:<br />"
-                f" -  Basti Quid, bastius.quid@external.example.com [{user_edit_link(user_basti.pk)}] (existing)<br />"
-                " -  Bastius Quid, bastius.quid@external.example.com (import)",
+                (
+                    "The existing user would be overwritten with the following data:<br />"
+                    f" -  Basti Quid, bastius.quid@external.example.com [{user_edit_link(user_basti.pk)}] (existing)<br />"
+                    " -  Bastius Quid, bastius.quid@external.example.com (import)"
+                ),
             ],
             [msg.message for msg in importer_log.warnings_by_category()[ImporterLogEntry.Category.NAME]],
         )
@@ -191,9 +195,11 @@ class TestUserImport(ImporterTestCase):
         self.assertFalse(importer_log.has_errors())
         self.assertEqual(
             [
-                "The existing user was overwritten with the following data:<br />"
-                f" -  Basti Quid, bastius.quid@external.example.com [{user_edit_link(user_basti.pk)}] (existing)<br />"
-                " -  Bastius Quid, bastius.quid@external.example.com (import)"
+                (
+                    "The existing user was overwritten with the following data:<br />"
+                    f" -  Basti Quid, bastius.quid@external.example.com [{user_edit_link(user_basti.pk)}] (existing)<br />"
+                    " -  Bastius Quid, bastius.quid@external.example.com (import)"
+                ),
             ],
             [msg.message for msg in importer_log.warnings_by_category()[ImporterLogEntry.Category.NAME]],
         )
@@ -232,8 +238,10 @@ class TestUserImport(ImporterTestCase):
         self.assertEqual(
             [msg.message for msg in importer_log_test.warnings_by_category()[ImporterLogEntry.Category.INACTIVE]],
             [
-                "The following user is currently marked inactive and will be marked active upon importing: "
-                f" (empty) (empty), lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}]",
+                (
+                    "The following user is currently marked inactive and will be marked active upon importing: "
+                    f" (empty) (empty), lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}]"
+                ),
             ],
         )
 
@@ -241,8 +249,10 @@ class TestUserImport(ImporterTestCase):
         self.assertEqual(
             [msg.message for msg in importer_log_notest.warnings_by_category()[ImporterLogEntry.Category.INACTIVE]],
             [
-                "The following user was previously marked inactive and is now marked active upon importing: "
-                f" (empty) (empty), lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}]"
+                (
+                    "The following user was previously marked inactive and is now marked active upon importing: "
+                    f" (empty) (empty), lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}]"
+                ),
             ],
         )
 

@@ -91,10 +91,13 @@ ignore = [
     "COM812",                # incompatible with formatter
     "N802",                  # not as mighty as pylint's invalid-name https://github.com/astral-sh/ruff/issues/7660
     "PLR0913",               # we can't determine a good limit for arguments. reviews should spot bad cases of this.
-    "PLR2004", "PLW2901",
+    "PLR2004", "PLW2901"
 ]
 
 pep8-naming.extend-ignore-names = ["assert*", "*Formset"]  # custom assert methods use camelCase; Formsets use PascalCase
+
+[tool.ruff.lint.pylint]
+max-positional-args = 7      # Should match tool.pylint.design.max-positional-args  
 
 [tool.ruff.lint.per-file-ignores]
 "**/migrations/*.py" = ["N806"]  # migrations have model classes as local variables, we use PascalCase for these
@@ -159,10 +162,98 @@ disable = [
     "use-implicit-booleaness-not-comparison-to-zero",    # forces us to use less expressive code
     # the following are covered by ruff
     "broad-exception-caught", "line-too-long", "unused-wildcard-import", "wildcard-import", "too-many-arguments",
-    "too-many-statements", "too-many-return-statements", "too-many-branches", "unnecessary-lambda-assignment",
-    "global-statement",
-    "import-outside-toplevel",
+    "unnecessary-lambda-assignment",
     "wrong-import-position",
+    # Obtained using a script (See: https://github.com/e-valuation/EvaP/pull/2767)
+    # Very similar to the list (https://docs.astral.sh/ruff/default-rules/#pylint-pl) mapped to pylint names for the codes.
+    "typevar-name-incorrect-variance", #PLC0105
+    "typevar-double-variance", #PLC0131
+    "typevar-name-mismatch", #PLC0132
+    "single-string-used-for-slots", #PLC0205
+    "consider-using-dict-items", #PLC0206
+    "use-maxsplit-arg", #PLC0207
+    "use-sequence-for-iteration", #PLC0208
+    "useless-import-alias", #PLC0414
+    "import-outside-toplevel", #PLC0415
+    "use-implicit-booleaness-not-len", #PLC1802
+    "non-ascii-name", #PLC2401
+    "non-ascii-module-import", #PLC2403
+    "unnecessary-direct-lambda-call", #PLC3002
+    "init-is-generator", #PLE0100
+    "return-in-init", #PLE0101
+    "nonlocal-and-global", #PLE0115
+    "nonlocal-without-binding", #PLE0117
+    "used-prior-global-declaration", #PLE0118
+    "assigning-non-slot", #PLE0237
+    "duplicate-bases", #PLE0241
+    "unexpected-special-method-signature", #PLE0302
+    "invalid-length-returned", #PLE0303
+    "invalid-bool-returned", #PLE0304
+    "invalid-index-returned", #PLE0305
+    "invalid-str-returned", #PLE0307
+    "invalid-bytes-returned", #PLE0308
+    "invalid-hash-returned", #PLE0309
+    "invalid-all-object", #PLE0604
+    "invalid-all-format", #PLE0605
+    "potential-index-error", #PLE0643
+    "misplaced-bare-raise", #PLE0704
+    "repeated-keyword", #PLE1132
+    "await-outside-async", #PLE1142
+    "logging-too-many-args", #PLE1205
+    "logging-too-few-args", #PLE1206
+    "bad-format-character", #PLE1300
+    "bad-string-format-type", #PLE1307
+    "bad-str-strip-call", #PLE1310
+    "invalid-envvar-value", #PLE1507
+    "singledispatch-method", #PLE1519
+    "singledispatchmethod-function", #PLE1520
+    "yield-inside-async-function", #PLE1700
+    "bidirectional-unicode", #PLE2502
+    "invalid-character-backspace", #PLE2510
+    "invalid-character-sub", #PLE2512
+    "invalid-character-esc", #PLE2513
+    "invalid-character-nul", #PLE2514
+    "invalid-character-zero-width-space", #PLE2515
+    "comparison-with-itself", #PLR0124
+    "comparison-of-constants", #PLR0133
+    "property-with-parameters", #PLR0206
+    "consider-using-from-import", #PLR0402
+    "too-many-return-statements", #PLR0911
+    "too-many-branches", #PLR0912
+    "too-many-statements", #PLR0915
+    "too-many-positional-arguments", #PLR0917
+    "redefined-argument-from-local", #PLR1704
+    "stop-iteration-return", #PLR1708
+    "useless-return", #PLR1711
+    "consider-using-in", #PLR1714
+    "chained-comparison", #PLR1716
+    "consider-using-sys-exit", #PLR1722
+    "consider-using-min-builtin", #PLR1730
+    "unnecessary-dict-index-lookup", #PLR1733
+    "unnecessary-list-index-lookup", #PLR1736
+    "unnecessary-lambda", #PLW0108
+    "useless-else-on-loop", #PLW0120
+    "self-assigning-variable", #PLW0127
+    "redeclared-assigned-name", #PLW0128
+    "assert-on-string-literal", #PLW0129
+    "named-expr-without-context", #PLW0131
+    "pointless-exception-statement", #PLW0133
+    "nan-comparison", #PLW0177
+    "bad-staticmethod-argument", #PLW0211
+    "super-without-brackets", #PLW0245
+    "import-self", #PLW0406
+    "global-variable-not-assigned", #PLW0602
+    "global-statement", #PLW0603
+    "global-at-module-level", #PLW0604
+    "self-cls-assignment", #PLW0642
+    "binary-op-exception", #PLW0711
+    "bad-open-mode", #PLW1501
+    "shallow-copy-environ", #PLW1507
+    "invalid-envvar-default", #PLW1508
+    "subprocess-popen-preexec-fn", #PLW1509
+    "subprocess-run-check", #PLW1510
+    "useless-with-lock", #PLW2101
+    "nested-min-max", #PLW3301
 ]
 
 [tool.pylint.design]
