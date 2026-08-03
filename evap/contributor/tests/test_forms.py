@@ -8,6 +8,7 @@ from evap.staff.forms import ContributionFormset
 
 
 class EvaluationFormTests(TestCase):
+    # TODO: Test archived visibility -> tests do not exist
     def test_fields_disabled_when_editors_disallowed_to_edit(self):
         evaluation = baker.make(Evaluation)
 
@@ -43,6 +44,7 @@ class EvaluationFormTests(TestCase):
 
 class ContributionFormsetTests(TestCase):
     def test_managers_only(self):
+        # TODO: Test archived visibility
         """
         Asserts that managers_only questionnaires are shown to Editors only if they are already selected for a
         contribution of the Evaluation.

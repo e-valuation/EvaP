@@ -970,6 +970,7 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
         )
 
     def test_questionnaire_assignment(self):
+        # TODO: Test archived visibility
         page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["questionnaire-assign-form"]
         form[f"general-{self.course_types[0].id}"] = [self.questionnaires[0].pk, self.questionnaires[1].pk]
