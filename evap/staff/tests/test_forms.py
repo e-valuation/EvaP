@@ -527,7 +527,7 @@ class ContributionFormsetTests(TestCase):
     def test_hidden_and_managers_only(self):
         # TODO: Test archived visibility
         """
-        Asserts that hidden questionnaires are shown to managers only if they are already selected for a
+        Asserts that hidden and archived questionnaires are shown to managers only if they are already selected for a
         contribution of the Evaluation, and that manager only questionnaires are always shown.
         Regression test for #593.
         """
@@ -537,6 +537,9 @@ class ContributionFormsetTests(TestCase):
         )
         questionnaire_hidden = baker.make(
             Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.HIDDEN
+        )
+        questionnaire_archived = baker.make(
+            Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.ARCHIVED
         )
         questionnaire_managers_only = baker.make(
             Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.MANAGERS

@@ -970,9 +970,15 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
         )
 
     def test_questionnaire_assignment(self):
-        # TODO: Test archived visibility
+        archived_questionnaire = baker.make(Questionnaire, visibility=Questionnaire.Visibility.ARCHIVED)
+        hidden_questionnaire = baker.make(Questionnaire, visibility=Questionnaire.Visibility.HIDDEN)
+
         page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["questionnaire-assign-form"]
+
+        self.assertNotIn(archived_questionnaire.name, page)
+        self.assertNotIn(hidden_questionnaire.name, page)
+
         form[f"general-{self.course_types[0].id}"] = [self.questionnaires[0].pk, self.questionnaires[1].pk]
         form[f"general-{self.course_types[1].id}"] = [self.questionnaires[1].pk]
         form[f"contributor-{self.course_types[0].id}"] = [self.questionnaire_responsible.pk]
