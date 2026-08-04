@@ -6,6 +6,7 @@ from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, UserProfile
 from evap.evaluation.tests.tools import (
+    FuzzyInt,
     WebTest,
     WebTestWith200Check,
     create_evaluation_with_responsible_and_editor,
@@ -82,8 +83,32 @@ class TestContributorView(WebTestWith200Check):
 
     @classmethod
     def setUpTestData(cls):
-        users = create_evaluation_with_responsible_and_editor()
-        cls.test_users = [users["editor"], users["responsible"]]
+        result = create_evaluation_with_responsible_and_editor()
+        cls.responsible = result["responsible"]
+        cls.test_users = [result["editor"], cls.responsible]
+
+    def test_num_queries_is_not_constant(self):
+        """Current defect, see https://github.com/e-valuation/EvaP/issues/1229#issuecomment-4239035495."""
+        url = "/contributor/"
+        represented = baker.make(UserProfile, email="represented@example.com")
+        self.responsible.represented_users.add(represented)
+        evaluations = baker.make(
+            Evaluation,
+            name_en=iter(range(10)),
+            name_de=iter(range(10)),
+            state=Evaluation.State.PUBLISHED,
+            course__responsibles=[represented],
+            _quantity=10,
+            _bulk_create=True,
+        )
+        baker.make(
+            Contribution,
+            evaluation=iter(evaluations),
+            _quantity=10,
+            _bulk_create=True,
+        )
+        with self.assertNumQueries(FuzzyInt(80, 100)):
+            self.app.get(url, user=self.responsible)
 
 
 class TestContributorEvaluationView(WebTestWith200Check):
