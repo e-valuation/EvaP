@@ -207,7 +207,7 @@ class TestUserIndexView(WebTestStaffMode):
     def test_redirect(self):
         page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["user-edit-form"]
-        form["user"] = self.some_user.pk
+        form["user"].force_value(self.some_user.pk)
         response = form.submit(status=302)
         self.assertEqual(response.location, f"/staff/user/{self.some_user.pk}/edit")
 
@@ -360,8 +360,8 @@ class TestUserMergeSelectionView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["user-selection-form"]
-        form["main_user"] = self.main_user.pk
-        form["other_user"] = self.other_user.pk
+        form["main_user"].force_value(self.main_user.pk)
+        form["other_user"].force_value(self.other_user.pk)
 
         page = form.submit().follow()
 
@@ -1863,7 +1863,7 @@ class TestCourseCreateView(WebTestStaffMode):
         form["type"] = self.course_type.pk
         form["programs"] = [self.program.pk]
         form["is_private"] = False
-        form["responsibles"] = [self.responsible.pk]
+        form["responsibles"].force_value([self.responsible.pk])
         form["name_en"] = name_en
         form["name_de"] = name_de
         return form
@@ -1932,7 +1932,7 @@ class TestEvaluationCreateView(WebTestStaffMode):
         form["contributions-INITIAL_FORMS"] = 0
         form["contributions-MAX_NUM_FORMS"] = 5
         form["contributions-0-evaluation"] = ""
-        form["contributions-0-contributor"] = self.manager.pk
+        form["contributions-0-contributor"].force_value(self.manager.pk)
         form["contributions-0-questionnaires"] = [self.q2.pk]
         form["contributions-0-order"] = 0
         form["contributions-0-role"] = Contribution.Role.EDITOR
