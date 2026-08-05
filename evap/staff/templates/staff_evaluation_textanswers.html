@@ -16,7 +16,16 @@
 
     <div class="row mb-3 align-items-end">
         <div class="col">
-            <h3 class="mb-0">{{ evaluation.full_name }} ({{ evaluation.course.semester.name }})</h3>
+            <h3 class="mb-0">
+                <span
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="right"
+                    title="{% translate 'Click to copy name' %}"
+                    data-copy-on-click="{{ evaluation.full_name }}"
+                >
+                    {{ evaluation.full_name }} ({{ evaluation.course.semester.name }})
+                </span>
+            </h3>
         </div>
         <div class="col-auto">
             <div class="btn-switch btn-switch-light my-auto d-print-none">
