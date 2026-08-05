@@ -240,7 +240,7 @@ class LoginTests(WebTest):
             self.assertIsInstance(response.context["user"], AnonymousUser)
             self.assertNotContains(response, "Logout")
 
-        # correct password while password login is disabled. Disable the debug page
+        # correct password while password login is disabled. Disable the debug internal server error page
         with override_settings(ACTIVATE_OPEN_ID_LOGIN=True, DEBUG=False):
             self.assertFalse(auth.password_login_is_active())
 
