@@ -158,7 +158,7 @@ disable = [
     "use-implicit-booleaness-not-comparison-to-string",  # forces us to use less expressive code
     "use-implicit-booleaness-not-comparison-to-zero",    # forces us to use less expressive code
     # the following are covered by ruff
-    "broad-exception-caught", "line-too-long", "unused-wildcard-import", "wildcard-import", "too-many-arguments",
+    "broad-exception-caught", "line-too-long", "unused-wildcard-import", "wildcard-import",
     "unnecessary-lambda-assignment",
     "wrong-import-position",
     # Obtained using a script (See: https://github.com/e-valuation/EvaP/pull/2767)
@@ -217,6 +217,7 @@ disable = [
     "consider-using-from-import",               # R0402
     "too-many-return-statements",               # R0911
     "too-many-branches",                        # R0912
+    "too-many-arguments",                       # R0913
     "too-many-statements",                      # R0915
     "too-many-positional-arguments",            # R0917
     "redefined-argument-from-local",            # R1704
