@@ -90,14 +90,11 @@ ignore = [
     "DJ008",                 # do not use __str__ where it is not required
     "COM812",                # incompatible with formatter
     "N802",                  # not as mighty as pylint's invalid-name https://github.com/astral-sh/ruff/issues/7660
-    "PLR0913",               # we can't determine a good limit for arguments. reviews should spot bad cases of this.
+    "PLR0913", "PLR0917",    # we can't determine a good limit for arguments. reviews should spot bad cases of this.
     "PLR2004", "PLW2901"
 ]
 
 pep8-naming.extend-ignore-names = ["assert*", "*Formset"]  # custom assert methods use camelCase; Formsets use PascalCase
-
-[tool.ruff.lint.pylint]
-max-positional-args = 7
 
 [tool.ruff.lint.per-file-ignores]
 "**/migrations/*.py" = ["N806"]  # migrations have model classes as local variables, we use PascalCase for these
