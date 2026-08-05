@@ -248,7 +248,9 @@ class TestEvaluations(WebTest):
             wait_for_grade_upload_before_publishing=False,
         )
 
-        with patch("evap.evaluation.models.Evaluation.end_evaluation") as mock:
+        with patch(
+            "evap.evaluation.models.Evaluation.end_evaluation", autospec=True, side_effect=Evaluation.end_evaluation
+        ) as mock:
             Evaluation.update_evaluations()
 
         self.assertEqual(mock.call_count, 1)
