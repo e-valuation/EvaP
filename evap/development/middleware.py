@@ -48,6 +48,7 @@ class NuValidatorMiddleware:
         self.get_response = get_response
         assert isinstance(settings.VNU_URL, str)
         self.vnu_url = settings.VNU_URL
+        self.filter_pattern = "|".join(f".*{p}.*" for p in self.IGNORED_ERROR_PATTERNS)
 
     def __call__(self, request: HttpRequest) -> HttpResponseBase:
         response = self.get_response(request)
@@ -65,7 +66,7 @@ class NuValidatorMiddleware:
             params={
                 "out": "json",
                 "level": "error",
-                "filterpattern": "|".join(f".*{p}.*" for p in self.IGNORED_ERROR_PATTERNS),
+                "filterpattern": self.filter_pattern,
             },
             headers={"Content-Type": "text/html"},
             data=html,
