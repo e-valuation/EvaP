@@ -248,12 +248,18 @@ class TestEvaluations(WebTest):
             wait_for_grade_upload_before_publishing=False,
         )
 
-        with patch(
-            "evap.evaluation.models.Evaluation.end_evaluation", autospec=True, side_effect=Evaluation.end_evaluation
-        ) as mock:
+        with (
+            patch(
+                "evap.evaluation.models.Evaluation.end_evaluation", autospec=True, side_effect=Evaluation.end_evaluation
+            ) as evaluation_mock,
+            patch(
+                "evap.evaluation.models.Evaluation.end_review", autospec=True, side_effect=Evaluation.end_review
+            ) as review_mock,
+        ):
             Evaluation.update_evaluations()
 
-        self.assertEqual(mock.call_count, 1)
+        self.assertEqual(evaluation_mock.call_count, 1)
+        self.assertEqual(review_mock.call_count, 1)
 
     def test_approved_to_in_evaluation_sends_emails(self):
         """Regression test for #945"""
