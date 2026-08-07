@@ -20,26 +20,24 @@
             </h5>
             <div class="row">
                 <div class="col-12 col-lg mb-3 mb-lg-0">
-                    <label>
-                        <div class="input-group">
-                            <input
-                                type="search"
-                                name="search"
-                                class="form-control"
-                                placeholder="{% translate 'Search...' %}"
-                            />
-                            <button
-                                class="btn btn-light text-secondary"
-                                type="button"
-                                data-reset="search"
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="top"
-                                title="{% translate 'Clear search filter' %}"
-                            >
-                                <span class="fas fa-delete-left"></span>
-                            </button>
-                        </div>
-                    </label>
+                    <div class="input-group">
+                        <input
+                            type="search"
+                            name="search"
+                            class="form-control"
+                            placeholder="{% translate 'Search...' %}"
+                        />
+                        <button
+                            class="btn btn-light text-secondary"
+                            type="button"
+                            data-reset="search"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
+                            title="{% translate 'Clear search filter' %}"
+                        >
+                            <span class="fas fa-delete-left"></span>
+                        </button>
+                    </div>
 
                     <h6 class="card-subtitle mt-4 mb-1">{% trans 'Participants' %}</h6>
                     <div id="participant-filter">

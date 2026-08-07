@@ -28,3 +28,5 @@ CACHES = {
         "LOCATION": f"{REDIS_URL}?db=2",
     },
 }
+
+VNU_URL = "http://localhost:8001"

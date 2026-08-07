@@ -429,4 +429,4 @@ def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> Htt
     evaluation.evaluation_evaluated.send(sender=Evaluation, request=request, semester=evaluation.course.semester)
 
     messages.success(request, _("Your vote was recorded."))
-    return HttpResponse(SUCCESS_MAGIC_STRING)
+    return HttpResponse(SUCCESS_MAGIC_STRING, content_type="text/plain")

@@ -567,7 +567,6 @@ class EvaluationCopyForm(EvaluationForm):
 
 
 class ExamEvaluationForm(forms.Form):
-    base_evaluation = forms.ModelChoiceField(Evaluation.objects.all(), required=True, widget=forms.HiddenInput())
     exam_date = forms.DateField(
         label=_("Exam date"),
         required=True,
@@ -575,21 +574,20 @@ class ExamEvaluationForm(forms.Form):
     )
     exam_type = forms.ModelChoiceField(ExamType.objects.all(), required=True, label=_("Exam type"))
 
-    def __init__(self, *args, evaluation=None, form_id=None, **kwargs):
+    def __init__(self, *args, evaluation: Evaluation, form_id=None, **kwargs):
         super().__init__(*args, **kwargs)
+        self.evaluation = evaluation
         if form_id is not None:
             for field in self.fields.values():
                 field.widget.attrs["form"] = form_id
-        if evaluation is not None:
-            self.fields["exam_date"].widget.attrs["min"] = evaluation.earliest_possible_exam_date
-            self.fields["base_evaluation"].initial = evaluation
+        self.fields["exam_date"].widget.attrs["min"] = evaluation.earliest_possible_exam_date
         self.fields["exam_type"].initial = ExamType.objects.order_by("order").first()
 
     def clean(self):
         cleaned_data = super().clean()
-        if cleaned_data["base_evaluation"].has_exam_evaluation:
+        if self.evaluation.has_exam_evaluation:
             raise ValidationError(_("An exam evaluation already exists for this course."))
-        if cleaned_data["exam_date"] < cleaned_data["base_evaluation"].earliest_possible_exam_date:
+        if cleaned_data["exam_date"] < self.evaluation.earliest_possible_exam_date:
             raise ValidationError(
                 _("The end date of the main evaluation would be before its start date. No exam evaluation was created.")
             )

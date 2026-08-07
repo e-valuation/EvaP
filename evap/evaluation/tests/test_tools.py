@@ -5,10 +5,12 @@ from django.core import management
 from django.core.exceptions import SuspiciousOperation
 from django.db import transaction
 from django.db.models import Model, prefetch_related_objects
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.utils import translation
 from model_bakery import baker
 
+import evap.evaluation.views
+from evap.development.middleware import InvalidHtmlError
 from evap.evaluation.management.commands.tools import subprocess_run_or_exit
 from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer, UserProfile
 from evap.evaluation.tests.tools import SimpleTestCase, TestCase, WebTest
@@ -38,6 +40,21 @@ class TestLanguageMiddleware(WebTest):
         user.refresh_from_db()
         self.assertEqual(user.language, "de")
         self.assertEqual(translation.get_language(), "de")
+
+
+class TestNuValidatorMiddleware(WebTest):
+    @patch.object(
+        evap.evaluation.views,
+        "render",
+        return_value=HttpResponse(
+            content="<!DOCTYPE html><html><head><meta charset='utf-8'><title>Test</title></head><body><div></body></html>",
+            content_type="text/html",
+        ),
+    )
+    def test_rejects_invalid_html(self, _mock) -> None:
+        with self.assertRaises(InvalidHtmlError) as cm:
+            self.app.get("/")
+        self.assertIn("Unclosed element “div”", str(cm.exception))
 
 
 class SaboteurError(Exception):

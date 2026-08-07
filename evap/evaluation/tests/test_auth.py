@@ -97,7 +97,9 @@ class LoginTests(WebTest):
 
     def test_login_key_resend_if_still_valid(self):
         old_key = self.external_user.login_key
-        page = self.app.post(self.url, params={"submit_type": "new_key", "email": self.external_user.email}).follow()
+        page = self.app.post(
+            self.url, params={"submit_type": "new_key", "new-key-email": self.external_user.email}
+        ).follow()
         new_key = UserProfile.objects.get(id=self.external_user.id).login_key
 
         self.assertEqual(old_key, new_key)
@@ -234,8 +236,8 @@ class LoginTests(WebTest):
         with override_settings(ACTIVATE_OPEN_ID_LOGIN=False):
             page = self.app.get(self.url)
             password_form = page.forms["email-login-form"]
-            password_form["email"] = user.email
-            password_form["password"] = "asd"  # nosec
+            password_form["login-email"] = user.email
+            password_form["login-password"] = "asd"  # nosec
             response = password_form.submit()
             self.assertIsInstance(response.context["user"], AnonymousUser)
             self.assertNotContains(response, "Logout")
@@ -244,7 +246,7 @@ class LoginTests(WebTest):
         with override_settings(ACTIVATE_OPEN_ID_LOGIN=True):
             self.assertFalse(auth.password_login_is_active())
 
-            password_form["password"] = "evap"  # nosec
+            password_form["login-password"] = "evap"  # nosec
             response = password_form.submit(status=400)
             self.assertIsInstance(response.context["user"], AnonymousUser)
             self.assertNotContains(response, "Logout", status_code=400)
@@ -277,8 +279,8 @@ class LoginTestsWithCSRF(WebTest):
         """
         page = self.app.get(reverse("evaluation:index"))
         form = page.forms["email-login-form"]
-        form["email"] = self.staff_user.email
-        form["password"] = self.staff_user_password
+        form["login-email"] = self.staff_user.email
+        form["login-password"] = self.staff_user_password
         page = form.submit().follow().follow()
 
         # staff user should now be logged in and see the logout button
@@ -291,8 +293,8 @@ class LoginTestsWithCSRF(WebTest):
         # log user in again
         page = self.app.get(reverse("evaluation:index"))
         form = page.forms["email-login-form"]
-        form["email"] = self.staff_user.email
-        form["password"] = self.staff_user_password
+        form["login-email"] = self.staff_user.email
+        form["login-password"] = self.staff_user_password
         page = form.submit().follow().follow()
 
         # enter staff mode

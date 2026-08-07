@@ -1131,13 +1131,12 @@ def course_copy(request, course_id):
 
 @require_POST
 @manager_required
-def create_exam_evaluation(request: HttpRequest) -> HttpResponse:
-    form = ExamEvaluationForm(request.POST)
+def create_exam_evaluation(request: HttpRequest, evaluation_id: int) -> HttpResponse:
+    evaluation = get_object_or_404(Evaluation, id=evaluation_id)
+    form = ExamEvaluationForm(request.POST, evaluation=evaluation, prefix=f"exam_creation_{evaluation.pk}")
 
     if form.is_valid():
-        form.cleaned_data["base_evaluation"].create_exam_evaluation(
-            form.cleaned_data["exam_date"], form.cleaned_data["exam_type"]
-        )
+        evaluation.create_exam_evaluation(form.cleaned_data["exam_date"], form.cleaned_data["exam_type"])
         messages.success(request, _("Successfully created exam evaluation."))
         return HttpResponse()  # 200 OK
 
@@ -2350,7 +2349,7 @@ def user_list(request):
 
 @manager_required
 def user_export(request):
-    response = AttachmentResponse("exported_users.csv")
+    response = AttachmentResponse("exported_users.csv", content_type="text/csv")
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
     header_row = (_("Title"), _("Last name"), _("First name"), _("Email"))
     writer.writerow(header_row)
