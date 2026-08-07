@@ -39,7 +39,10 @@ class EvaluationEditLiveTest(LiveServerTest):
             main_language="en",
         )
 
-        general_questionnaire = baker.make(Questionnaire, question_assignments=[baker.make(QuestionAssignment)])
+        general_questionnaire = baker.make(
+            Questionnaire,
+            question_assignments=[baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT)],
+        )
         evaluation.general_contribution.questionnaires.set([general_questionnaire])
 
         contribution1 = baker.make(
@@ -249,6 +252,119 @@ class QuestionnaireIndexLiveTest(LiveServerTest):
         self.assertTrue(bottom_element.is_displayed())
 
 
+class QuestionnaireFormLiveTest(LiveServerTest):
+    def test_question_type_disabling_logic(self):
+        def assert_type_allows(row, type_select, question_type, additional_textanswers, counts_for_grade):
+            self.set_tomselect_value(type_select, str(question_type))
+            self.assertEqual(
+                row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").is_enabled(),
+                additional_textanswers,
+            )
+            self.assertEqual(
+                row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").is_enabled(),
+                counts_for_grade,
+            )
+
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        baker.make(QuestionAssignment, questionnaire=questionnaire, question__type=QuestionType.POSITIVE_LIKERT)
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.reverse("staff:questionnaire_edit", args=[questionnaire.pk]))
+
+        # Part 1: Edit Existing Question
+        row = self.wait.until(visibility_of_element_located((By.CSS_SELECTOR, "#question_table tbody tr")))
+        type_select = row.find_element(By.CSS_SELECTOR, "select[id$='-type']")
+
+        assert_type_allows(row, type_select, QuestionType.TEXT, additional_textanswers=False, counts_for_grade=False)
+        assert_type_allows(
+            row, type_select, QuestionType.POSITIVE_LIKERT, additional_textanswers=True, counts_for_grade=True
+        )
+        assert_type_allows(row, type_select, QuestionType.HEADING, additional_textanswers=False, counts_for_grade=False)
+
+        # Part 2: Add New Question
+        self.selenium.find_element(By.CLASS_NAME, "add-row").click()
+
+        # Wait until there are at least 3 rows (2 existing (since there is the default new row) + 1 new)
+        self.wait.until(lambda driver: len(driver.find_elements(By.CSS_SELECTOR, "#question_table tbody tr")) >= 3)
+
+        new_row = self.selenium.find_elements(By.CSS_SELECTOR, "#question_table tbody tr")[1]
+        new_type_select = new_row.find_element(By.CSS_SELECTOR, "select[id$='-type']")
+
+        assert_type_allows(
+            new_row, new_type_select, QuestionType.TEXT, additional_textanswers=False, counts_for_grade=False
+        )
+        assert_type_allows(
+            new_row, new_type_select, QuestionType.POSITIVE_LIKERT, additional_textanswers=True, counts_for_grade=True
+        )
+        assert_type_allows(
+            new_row, new_type_select, QuestionType.HEADING, additional_textanswers=False, counts_for_grade=False
+        )
+
+    def test_questionnaire_type_disabling_logic(self):
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        baker.make(
+            QuestionAssignment,
+            questionnaire=questionnaire,
+            question__type=QuestionType.POSITIVE_LIKERT,
+            question__allows_additional_textanswers=True,
+            counts_for_grade=True,
+        )
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.reverse("staff:questionnaire_edit", args=[questionnaire.pk]))
+
+        row = self.wait.until(visibility_of_element_located((By.CSS_SELECTOR, "#question_table tbody tr")))
+        questionnaire_type_select = self.selenium.find_element(By.ID, "id_type")
+
+        self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").is_selected())
+
+        # Change to Dropout
+        self.set_tomselect_value(questionnaire_type_select, str(Questionnaire.Type.DROPOUT))
+        self.assertFalse(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").is_enabled())
+        self.assertFalse(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").is_selected())
+        self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").is_enabled())
+        self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").is_selected())
+
+        # Change back to Top
+        self.set_tomselect_value(questionnaire_type_select, str(Questionnaire.Type.TOP))
+        self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").is_enabled())
+        self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']").is_selected())
+        self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").is_enabled())
+        self.assertTrue(row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']").is_selected())
+
+    def test_empty_extra_question_is_not_touched_for_dropout_questionnaire(self):
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
+        baker.make(
+            QuestionAssignment,
+            questionnaire=questionnaire,
+            question__type=QuestionType.POSITIVE_LIKERT,
+            counts_for_grade=False,
+        )
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.reverse("staff:questionnaire_edit", args=[questionnaire.pk]))
+
+        existing_row_checkbox = "#question_table tbody tr.sortable input[id$='-counts_for_grade']"
+        self.wait.until(lambda driver: not driver.find_element(By.CSS_SELECTOR, existing_row_checkbox).is_enabled())
+
+        rows = [
+            row
+            for row in self.selenium.find_elements(By.CSS_SELECTOR, "#question_table tbody tr.sortable")
+            if row.is_displayed()
+        ]
+        extra_row = rows[-1]
+
+        type_select = extra_row.find_element(By.CSS_SELECTOR, "select[id$='-type']")
+        counts_for_grade_checkbox = extra_row.find_element(By.CSS_SELECTOR, "input[id$='-counts_for_grade']")
+        textanswers_checkbox = extra_row.find_element(By.CSS_SELECTOR, "input[id$='-allows_additional_textanswers']")
+
+        self.assertEqual(type_select.get_attribute("value"), "")
+        self.assertTrue(counts_for_grade_checkbox.is_enabled())
+        self.assertTrue(counts_for_grade_checkbox.is_selected())
+        self.assertTrue(textanswers_checkbox.is_enabled())
+        self.assertTrue(textanswers_checkbox.is_selected())
+
+
 class QuestionnaireEditLiveTest(LiveServerTest):
     def setUp(self):
         super().setUp()
@@ -258,6 +374,7 @@ class QuestionnaireEditLiveTest(LiveServerTest):
             QuestionAssignment,
             questionnaire=self.questionnaire,
             question__text_en=(f"Q{i}" for i in range(5)),
+            question__type=QuestionType.POSITIVE_LIKERT,
             order=iter(range(5)),
             _bulk_create=True,
             _quantity=5,
@@ -319,7 +436,13 @@ class TextAnswerEditLiveTest(LiveServerTest):
 
         question1 = baker.make(Question, type=QuestionType.TEXT)
 
-        general_questionnaire = baker.make(Questionnaire, questions=[question1])
+        general_questionnaire = baker.make(Questionnaire)
+        assignment = baker.make(
+            QuestionAssignment,
+            questionnaire=general_questionnaire,
+            question=question1,
+            counts_for_grade=False,
+        )
         evaluation.general_contribution.questionnaires.set([general_questionnaire])
 
         contribution1 = baker.make(
@@ -328,7 +451,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
 
         baker.make(
             TextAnswer,
-            assignment__question=question1,
+            assignment=assignment,
             contribution=contribution1,
             answer=iter(f"this is a dummy answer {i}" for i in range(3)),
             original_answer=None,
@@ -339,7 +462,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
 
         textanswer1 = baker.make(
             TextAnswer,
-            assignment__question=question1,
+            assignment=assignment,
             contribution=contribution1,
             answer="this answer will be edited",
             original_answer=None,
@@ -348,7 +471,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
 
         baker.make(
             TextAnswer,
-            assignment__question=question1,
+            assignment=assignment,
             contribution=contribution1,
             answer=iter(f"this is a dummy answer {i}" for i in range(3, 6)),
             original_answer=None,

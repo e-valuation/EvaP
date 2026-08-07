@@ -1,5 +1,6 @@
 import logging
 from collections.abc import Iterable
+from typing import Any
 
 from django import forms
 from django.contrib.auth.models import Group
@@ -757,7 +758,10 @@ class RemindResponsibleForm(forms.Form):
 class QuestionnaireForm(forms.ModelForm):
     class Meta:
         model = Questionnaire
-        widgets = {"order": forms.HiddenInput()}
+        widgets = {
+            "order": forms.HiddenInput(),
+            "type": forms.Select(attrs={"data-questionnaire-type-select": ""}),
+        }
         fields = (
             "type",
             "name_de",
@@ -928,11 +932,6 @@ class QuestionForm(forms.ModelForm):
             "text_en": forms.Textarea(attrs={"rows": 2}),
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance.pk and self.instance.type in [QuestionType.TEXT, QuestionType.HEADING] and not self.data:
-            self.fields["allows_additional_textanswers"].disabled = True  # disable only for frontend; validate in clean
-
     def clean(self):
         super().clean()
         if self.cleaned_data.get("type") in [QuestionType.TEXT, QuestionType.HEADING]:
@@ -950,7 +949,7 @@ class QuestionAssignmentForm(forms.ModelForm):
 
     class Meta:
         model = QuestionAssignment
-        fields = ("order", "questionnaire", "question")
+        fields = ("order", "questionnaire", "question", "counts_for_grade")
         widgets = {
             "order": forms.HiddenInput(),
         }
@@ -962,10 +961,17 @@ class QuestionAssignmentForm(forms.ModelForm):
         else:
             self.question_form = QuestionForm(*args, **kwargs)
 
-    def clean(self) -> None:
+    def clean(self) -> dict[str, Any]:
         super().clean()
         if not self.question_form.is_valid():
             raise forms.ValidationError([])  # invalidate this form without message; errors are shown separately
+        questionnaire = self.cleaned_data.get("questionnaire")
+        question_type = self.question_form.cleaned_data.get("type")
+        if self.cleaned_data.get("counts_for_grade") and (questionnaire is not None and questionnaire.is_dropout):
+            raise ValidationError(_("Dropout questionnaires cannot contain questions that count toward the grade."))
+        if self.cleaned_data.get("counts_for_grade") and (question_type in [QuestionType.TEXT, QuestionType.HEADING]):
+            raise ValidationError(_("Text and heading questions cannot count toward the grade."))
+        return self.cleaned_data
 
     def has_changed(self) -> bool:
         return super().has_changed() or self.question_form.has_changed()
