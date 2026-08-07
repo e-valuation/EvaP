@@ -314,11 +314,11 @@ def assert_no_database_modifications(*args, **kwargs):
     allowed_prefixes = ["select", "savepoint", "release savepoint", "rollback to savepoint"]
 
     conn = connections[DEFAULT_DB_ALIAS]
-    with CaptureQueriesContext(conn):
+    with CaptureQueriesContext(conn) as context:
         try:
             yield
         finally:
-            for query in conn.queries_log:
+            for query in context.captured_queries:
                 if (
                     query["sql"].startswith('INSERT INTO "testing_cache_sessions"')
                     or query["sql"].startswith('UPDATE "testing_cache_sessions"')
