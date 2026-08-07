@@ -290,7 +290,7 @@ class TestUpdateEvaluationStatesCommand(TestCase):
         self.assertEqual(mock.call_count, 1)
 
 
-@override_settings(REMIND_X_DAYS_AHEAD_OF_END_DATE=[0, 2])
+@override_settings(REMIND_X_DAYS_AHEAD_OF_END_DATE=[0, 2], TEXTANSWER_REVIEW_REMINDER_WEEKDAYS=[])
 class TestSendRemindersCommand(TestCase):
     def test_remind_user_about_one_evaluation(self):
         user_to_remind = baker.make(UserProfile)
