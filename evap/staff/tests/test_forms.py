@@ -524,7 +524,7 @@ class ContributionFormsetTests(TestCase):
         formset = InlineContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data)
         self.assertTrue(formset.is_valid())
 
-    def test_hidden_and_managers_only(self):
+    def test_hidden_archived_and_managers_only(self):
         """
         Asserts that hidden and archived questionnaires are shown to managers only if they are already selected for a
         contribution of the Evaluation, and that manager only questionnaires are always shown.
@@ -558,7 +558,7 @@ class ContributionFormsetTests(TestCase):
         self.assertEqual(expected, set(formset.forms[0].fields["questionnaires"].queryset))
         self.assertEqual(expected, set(formset.forms[1].fields["questionnaires"].queryset))
 
-        # Suppose we had a hidden questionnaire already selected, that should be shown as well.
+        # Suppose we had an archived and hidden questionnaire already selected, that should be shown as well.
         contribution1.questionnaires.set([questionnaire_hidden, questionnaire_archived])
 
         InlineContributionFormset = inlineformset_factory(
