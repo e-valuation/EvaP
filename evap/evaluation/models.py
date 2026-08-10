@@ -279,11 +279,19 @@ class Questionnaire(models.Model):
 
     @property
     def text_questions(self) -> list["Question"]:
-        return [question for question in self.questions.all() if question.is_text_question]
+        return [
+            assignment.question
+            for assignment in self.question_assignments.all()
+            if assignment.question.is_text_question
+        ]
 
     @property
     def rating_questions(self) -> list["Question"]:
-        return [question for question in self.questions.all() if question.is_rating_question]
+        return [
+            assignment.question
+            for assignment in self.question_assignments.all()
+            if assignment.question.is_rating_question
+        ]
 
 
 class Program(models.Model):
@@ -2086,12 +2094,12 @@ class UserProfile(EvapBaseUser, PermissionsMixin):
         if not self.is_contributor or self.is_responsible:
             return True
 
-        last_semester_participated = (
-            Semester.objects.filter(courses__evaluations__participants=self).order_by("-created_at")[0]
-        )
-        last_semester_contributed = (
-            Semester.objects.filter(courses__evaluations__contributions__contributor=self).order_by("-created_at")[0]
-        )
+        last_semester_participated = Semester.objects.filter(courses__evaluations__participants=self).order_by(
+            "-created_at"
+        )[0]
+        last_semester_contributed = Semester.objects.filter(
+            courses__evaluations__contributions__contributor=self
+        ).order_by("-created_at")[0]
 
         return last_semester_participated.created_at >= last_semester_contributed.created_at
 

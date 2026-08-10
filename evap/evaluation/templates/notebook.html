@@ -1,12 +1,24 @@
 {% load static %}
 <div class="notebook">
-   <div class="collapse position-fixed collapse-horizontal notebook-animation mt-0 d-print-none" tabindex="-1" id="notebook" aria-expanded="false">
+    <div
+        class="collapse position-fixed collapse-horizontal notebook-animation mt-0 d-print-none"
+        tabindex="-1"
+        id="notebook"
+        aria-expanded="false"
+    >
         <div class="card">
             <div class="offcanvas-header pt-3 ps-3 pe-3">
                 <h5 class="card-title m-0">
                     {% translate 'Notebook' %}
                 </h5>
-                <button type="button" class="btn-close text-reset" data-bs-toggle="collapse" data-bs-target="#notebook" id="notebookButtonClose"></button>
+                <button
+                    type="button"
+                    class="btn-close text-reset"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#notebook"
+                    id="notebookButtonClose"
+                >
+                </button>
             </div>
 
             <form method="POST" action="{% url 'evaluation:set_notes' %}" id="notebook-form" data-state="ready">
@@ -20,7 +32,12 @@
                             <span class="visible-if-successful">{% translate 'Saved successfully' %}</span>
                         </button>
                         <div class="align-self-center right-to-element">
-                            <span class="ms-2 fas fa-circle-info" data-bs-toggle="tooltip" data-bs-placement="right" title="{% blocktranslate %}Here you can store private notes that you want to keep ready for future evaluations. The notes will be stored in plain text in your account on the EvaP server, but will not be shown to anyone but you.{% endblocktranslate %}"></span>
+                            <span
+                                class="ms-2 fas fa-circle-info"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="right"
+                                title="{% blocktranslate %}Here you can store private notes that you want to keep ready for future evaluations. The notes will be stored in plain text in your account on the EvaP server, but will not be shown to anyone but you.{% endblocktranslate %}"
+                            ></span>
                         </div>
                     </div>
                 </div>
@@ -30,7 +47,12 @@
 </div>
 
 <div class="collapse show d-print-none" tabindex="-1" id="notebookButton">
-    <button class="btn btn-outline-secondary button-open-notebook" type="button" data-bs-toggle="collapse" data-bs-target="#notebook">
+    <button
+        class="btn btn-outline-secondary button-open-notebook"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#notebook"
+    >
         <span class="fas fa-pen-to-square"></span>
     </button>
 </div>

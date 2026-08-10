@@ -28,8 +28,7 @@ class IndexView(TemplateView):
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         return super().get_context_data(**kwargs) | {
-            "semesters": Semester.objects.filter(grade_documents_are_deleted=False),
-            "disable_breadcrumb_grades": True,
+            "semesters": Semester.objects.filter(grade_documents_are_deleted=False)
         }
 
 
@@ -69,10 +68,7 @@ class SemesterView(DetailView):
         )
         courses = course_grade_document_count_tuples(query)
 
-        return super().get_context_data(**kwargs) | {
-            "courses": courses,
-            "disable_breadcrumb_semester": True,
-        }
+        return super().get_context_data(**kwargs) | {"courses": courses}
 
 
 @grade_publisher_or_manager_required
@@ -91,7 +87,6 @@ class CourseView(DetailView):
         return super().get_context_data(**kwargs) | {
             "semester": self.object.semester,
             "grade_documents": self.object.grade_documents.all(),
-            "disable_breadcrumb_course": True,
         }
 
 

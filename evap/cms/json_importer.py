@@ -379,17 +379,19 @@ class JSONImporter:
 
         try:
             cms_course_link = CourseLink.objects.get(cms_id=data["gguid"])
-            if cms_course_link.is_active:
-                course = cms_course_link.course
-                changes = update_with_changes(
-                    course,
-                    {
-                        "name_de": _clean_whitespaces_and_hyphens(data["title"]),
-                        "name_en": _clean_whitespaces_and_hyphens(data["title_en"]),
-                    },
-                )
-                if changes:
-                    self.statistics.updated_courses.append(course)
+            if not cms_course_link.is_active:
+                return None
+
+            course = cms_course_link.course
+            changes = update_with_changes(
+                course,
+                {
+                    "name_de": _clean_whitespaces_and_hyphens(data["title"]),
+                    "name_en": _clean_whitespaces_and_hyphens(data["title_en"]),
+                },
+            )
+            if changes:
+                self.statistics.updated_courses.append(course)
         except CourseLink.DoesNotExist:
             course = Course.objects.create(
                 semester=self.semester,
@@ -434,7 +436,7 @@ class JSONImporter:
 
     # pylint: disable=too-many-locals
     def _import_evaluation(  # noqa: PLR0912, PLR0915
-        self, course: Course, data: ImportEvent, earliest_exam_date: date | None = None
+        self, cms_course: Course, data: ImportEvent, earliest_exam_date: date | None = None
     ) -> Evaluation | None:
         # Don't import ignored evaluations again
         if IgnoredEvaluation.objects.filter(cms_id=data["gguid"]).exists():
@@ -444,8 +446,11 @@ class JSONImporter:
         if EvaluationLink.objects.filter(cms_id=data["gguid"], is_active=False).exists():
             return None
 
+        course = cms_course  # by default, we use the course listed in the cms as the evaluation's course
         try:
-            evaluation = Evaluation.objects.get(course=course, cms_evaluation_links__cms_id=data["gguid"])
+            evaluation = Evaluation.objects.get(cms_evaluation_links__cms_id=data["gguid"])
+            # if the evaluation already exists, we use its course in case it was merged into a different course
+            course = evaluation.course
         except Evaluation.DoesNotExist:
             evaluation = None
 
@@ -639,11 +644,13 @@ class JSONImporter:
         if user_profile.email in settings.NON_RESPONSIBLE_USERS:
             return None, False
 
-        contribution, created = Contribution.objects.update_or_create(
+        contribution, created = Contribution.objects.get_or_create(
             evaluation=evaluation,
             contributor=user_profile,
-            role=Contribution.Role.EDITOR,
-            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            defaults={
+                "role": Contribution.Role.EDITOR,
+                "textanswer_visibility": Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            },
         )
         return contribution, created
 

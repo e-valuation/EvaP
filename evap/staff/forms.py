@@ -452,11 +452,17 @@ class EvaluationForm(forms.ModelForm):
             visible_questionnaires |= Q(contributions__evaluation=self.instance)
 
         self.fields["general_questionnaires"].queryset = (
-            Questionnaire.objects.general_questionnaires().filter(visible_questionnaires).distinct()
+            Questionnaire.objects.general_questionnaires()
+            .filter(visible_questionnaires)
+            .distinct()
+            .prefetch_related("question_assignments", "question_assignments__question")
         )
 
         self.fields["dropout_questionnaires"].queryset = (
-            Questionnaire.objects.dropout_questionnaires().filter(visible_questionnaires).distinct()
+            Questionnaire.objects.dropout_questionnaires()
+            .filter(visible_questionnaires)
+            .distinct()
+            .prefetch_related("question_assignments", "question_assignments__question")
         )
 
         queryset = UserProfile.objects.exclude(is_active=False)
@@ -636,6 +642,7 @@ class ContributionForm(forms.ModelForm):
                 | Q(contributions__evaluation=(self.evaluation if self.evaluation.pk else None))
             )
             .distinct()
+            .prefetch_related("question_assignments", "question_assignments__question")
         )
 
         if self.instance.pk:
@@ -976,10 +983,10 @@ class QuestionnairesAssignForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().exclude(
-            visibility=Questionnaire.Visibility.HIDDEN
+            visibility__in=(Questionnaire.Visibility.HIDDEN, Questionnaire.Visibility.ARCHIVED)
         )
         non_contributor_questionnaires = Questionnaire.objects.non_contributor_questionnaires().exclude(
-            visibility=Questionnaire.Visibility.HIDDEN
+            visibility__in=(Questionnaire.Visibility.HIDDEN, Questionnaire.Visibility.ARCHIVED)
         )
 
         for course_type in course_types:

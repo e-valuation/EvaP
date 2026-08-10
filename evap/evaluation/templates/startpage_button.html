@@ -6,7 +6,14 @@
     <form id="startpage-form" class="d-flex" method="post" action="{% url 'evaluation:set_startpage' %}">
         {% csrf_token %}
         <input name="page" type="hidden" value="{{ page }}">
-        <button type="submit" class="btn {{ btnClass }} btn-light" data-set-spinner-icon="span-set-startpage" data-bs-toggle="tooltip" data-bs-placement="left" title="{% translate 'Make this my startpage' %}">
+        <button
+            type="submit"
+            class="btn {{ btnClass }} btn-light"
+            data-set-spinner-icon="span-set-startpage"
+            data-bs-toggle="tooltip"
+            data-bs-placement="left"
+            title="{% translate 'Make this my startpage' %}"
+        >
             <span id="span-set-startpage" class="fas fa-house"></span>
         </button>
     </form>

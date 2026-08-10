@@ -2,7 +2,7 @@
   description = "EvaP";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
     pyproject-nix = {
       url = "github:nix-community/pyproject.nix";
@@ -75,7 +75,7 @@
           pkgs = pkgsFor.${system};
           pc-modules = import ./nix/services.nix {
             inherit pkgs;
-            inherit (self.devShells.${system}.evap.passthru) venv;
+            inherit (self.devShells.${system}.evap-dev.passthru) venv;
           };
           make-process-compose = mode: (import inputs.process-compose-flake.lib { inherit pkgs; }).makeProcessCompose {
             modules = [

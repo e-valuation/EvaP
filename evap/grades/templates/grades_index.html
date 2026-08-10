@@ -10,9 +10,9 @@
         <div class="card-body">
             {% if semesters %}
                 <ul>
-                {% for semester in semesters %}
-                    <li><a href="{% url 'grades:semester_view' semester.id %}">{{ semester.name }}</a></li>
-                {% endfor %}
+                    {% for semester in semesters %}
+                        <li><a href="{% url 'grades:semester_view' semester.id %}">{{ semester.name }}</a></li>
+                    {% endfor %}
                 </ul>
             {% else %}
                 {% translate 'There are no semesters yet.' %}

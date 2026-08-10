@@ -11,7 +11,10 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser: ArgumentParser) -> None:
         parser.add_argument(
-            "formatter", nargs="?", choices=["ruff", "prettier", "python"], help="Specify a formatter to run."
+            "formatter",
+            nargs="?",
+            choices=["ruff", "prettier", "djangofmt", "html", "python"],
+            help="Specify a formatter to run.",
         )
 
     def run_ruff(self) -> None:
@@ -26,8 +29,14 @@ class Command(BaseCommand):
             ["npx", "prettier", "--write", "evap/static/ts/**/*.ts", "evap/static/ts/eslint.config.js"], check=False
         )  # nosec
 
+    def run_djangofmt(self) -> None:
+        self.stdout.write("Executing djangofmt")
+        subprocess.run(["djangofmt", "."], check=False)  # nosec
+
     def handle(self, *args, **options) -> None:
         if options["formatter"] in ("ruff", "python", None):
             self.run_ruff()
         if options["formatter"] in ("prettier", None):
             self.run_prettier()
+        if options["formatter"] in ("djangofmt", "html", None):
+            self.run_djangofmt()

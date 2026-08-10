@@ -24,7 +24,7 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
-from evap.evaluation.tools import StrOrPromise, discard_cached_related_objects
+from evap.evaluation.tools import discard_cached_related_objects
 from evap.tools import assert_not_none, unordered_groupby
 
 STATES_WITH_RESULTS_CACHING = {Evaluation.State.EVALUATED, Evaluation.State.REVIEWED, Evaluation.State.PUBLISHED}

@@ -1,10 +1,13 @@
 {% extends 'staff_base.html' %}
 
 {% load static %}
+{% load staff_templatetags %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% translate 'Users' %}</li>
+    {% breadcrumb_item_url 'staff:user_index' %}
+        {% translate 'Users' %}
+    {% endbreadcrumb_item_url %}
 {% endblock %}
 
 {% block content %}
@@ -18,10 +21,20 @@
                         <li><a href="{% url 'staff:user_list' %}" class="">{% translate 'User list' %}</a></li>
                         <li><a href="{% url 'staff:user_import' %}" class="">{% translate 'Import users' %}</a></li>
                         <li><a href="{% url 'staff:user_export' %}" class="">{% trans 'Export users' %}</a></li>
-                        <li><a href="{% url 'staff:user_merge_selection' %}" class="">{% translate 'Merge users' %}</a></li>
-                        <li><a href="{% url 'staff:user_bulk_update' %}" class="">{% translate 'Bulk update users' %}</a></li>
+                        <li>
+                            <a href="{% url 'staff:user_merge_selection' %}" class="">{% translate 'Merge users' %}</a>
+                        </li>
+                        <li>
+                            <a
+                                href="{% url 'staff:user_bulk_update' %}"
+                                class=""
+                            >{% translate 'Bulk update users' %}</a>
+                        </li>
                     </ul>
-                    <a href="{% url 'staff:user_create' %}" class="btn btn-sm btn-dark mt-2">{% translate 'Create new user' %}</a>
+                    <a
+                        href="{% url 'staff:user_create' %}"
+                        class="btn btn-sm btn-dark mt-2"
+                    >{% translate 'Create new user' %}</a>
                 </div>
             </div>
         </div>
@@ -35,7 +48,9 @@
                     </form>
                 </div>
                 <div class="card-footer text-center card-submit-area d-flex">
-                    <button type="submit" form="user-edit-form" class="btn btn-primary mx-auto my-auto">{% translate 'Edit' %}</button>
+                    <button type="submit" form="user-edit-form" class="btn btn-primary mx-auto my-auto">
+                        {% translate 'Edit' %}
+                    </button>
                 </div>
             </div>
         </div>

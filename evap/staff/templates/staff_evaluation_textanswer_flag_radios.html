@@ -5,7 +5,7 @@
         want to think about input caching.
     -->
     <input
-        {% if form %}form={{ form }}{% endif %}
+        {% if form %}form="{{ form }}"{% endif %}
         type="radio"
         name="is_flagged"
         value="false"
@@ -22,7 +22,7 @@
     </label>
 
     <input
-        {% if form %}form={{ form }}{% endif %}
+        {% if form %}form="{{ form }}"{% endif %}
         type="radio"
         name="is_flagged"
         value="true"
