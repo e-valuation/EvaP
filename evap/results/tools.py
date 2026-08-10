@@ -121,10 +121,14 @@ class PublishedRatingResult(RatingResult):
 
 class AnsweredRatingResult(PublishedRatingResult):
     @property
-    def average(self) -> float:
+    def grade_average(self) -> float:
         return (
             sum(grade * count for count, grade in zip(self.counts, self.choices.grades, strict=True)) / self.count_sum
         )
+
+    @property
+    def approval_average(self) -> float:
+        return self.approval_count / self.count_sum
 
 
 class TextResult:
