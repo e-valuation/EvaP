@@ -55,8 +55,13 @@ class ContributionFormsetTests(TestCase):
         questionnaire_managers_only = baker.make(
             Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.MANAGERS
         )
-        # one hidden questionnaire that should never be shown
-        baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.HIDDEN)
+        # one hidden and archived questionnaire that should never be shown
+        questionnaire_hidden = baker.make(
+            Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.HIDDEN
+        )
+        questionnaire_archived = baker.make(
+            Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.ARCHIVED
+        )
 
         # just the normal questionnaire should be shown.
         contribution1 = baker.make(
@@ -72,15 +77,15 @@ class ContributionFormsetTests(TestCase):
         self.assertEqual(expected, set(formset.forms[0].fields["questionnaires"].queryset))
         self.assertEqual(expected, set(formset.forms[1].fields["questionnaires"].queryset))
 
-        # now a manager adds a manager only questionnaire, which should be shown as well
-        contribution1.questionnaires.set([questionnaire_managers_only])
+        # now a manager adds a manager only, hidden and archived questionnaire, which should be shown as well
+        contribution1.questionnaires.set([questionnaire_managers_only, questionnaire_hidden, questionnaire_archived])
 
         InlineContributionFormset = inlineformset_factory(
             Evaluation, Contribution, formset=ContributionFormset, form=EditorContributionForm, extra=1
         )
         formset = InlineContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation})
 
-        expected = {questionnaire, questionnaire_managers_only}
+        expected = {questionnaire, questionnaire_managers_only, questionnaire_hidden, questionnaire_archived}
         self.assertEqual(expected, set(formset.forms[0].fields["questionnaires"].queryset))
         self.assertEqual(expected, set(formset.forms[1].fields["questionnaires"].queryset))
 
