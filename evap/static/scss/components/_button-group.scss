@@ -17,3 +17,9 @@ div.vote-inputs > textarea {
 div.vote-inputs label.choice-error {
     border-color: $danger !important;
 }
+
+@include color-mode(dark) {
+    div.vote-inputs {
+        border-color: $darker-gray !important;
+    }
+}

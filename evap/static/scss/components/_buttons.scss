@@ -37,10 +37,16 @@ input:checked + label.btn-light.for-above {
 }
 
 @include color-mode(dark) {
-    .btn-light {
+    .btn-light, .btn-textanswer{
         background-color: $body-bg-dark;
         border: $darker-gray 1px solid;
         color: $light-gray;
+        >.fa-comment {
+            color: $light-gray;
+        }
+    }
+    .btn-light:active, .btn-light.active, .btn-light:hover {
+        background-color: tint-color($background-dark, 10%);
     }
 }
 
@@ -263,12 +269,38 @@ a.collapse-toggle {
     }
 
     .btn-check:checked + .vote-btn-#{$name} {
-        background-color: $color;
+        background-color: shade-color($color, 50%);
         color: shade-color($color, 60%);
 
         &:hover {
             background-color: tint-color($color, 30%);
         }
+    }
+}
+
+@include color-mode(dark) {
+    @each $name, $color in $vote-colors {
+    .btn.vote-btn-#{$name} {
+        background-color: tint-color($background-dark, 10%);
+        color: shade-color($color, 10%);
+
+        &:hover {
+            background-color: shade-color($color, 60%);
+            color: shade-color($color, 20%);
+        }
+    }
+
+    .btn-check:checked + .vote-btn-#{$name} {
+        background-color: shade-color($color, 20%);
+        color: shade-color($color, 80%);
+
+        &:hover {
+            background-color: tint-color($color, 10%);
+        }
+    }
+    }
+    .btn.vote-btn {
+        border-color: $darker-gray !important;
     }
 }
 

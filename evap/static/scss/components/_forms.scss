@@ -71,3 +71,16 @@ select[multiple] {
     height: auto;
     display: inline-block;
 }
+
+.form-control:disabled {
+    background: $light-gray;
+    opacity: .5;
+    border-color: $dark-gray;
+}
+
+@include color-mode(dark) {
+    .form-control:disabled {
+        background-color: $background-dark;
+        opacity: .5;
+    }
+}

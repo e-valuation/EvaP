@@ -4,7 +4,22 @@
     padding: 4rem 2rem;
     border-radius: .3rem;
 
-    .card {
+    & .card {
         background-color: $lighter-gray;
+    }
+}
+
+@include color-mode(dark) {
+    .jumbotron-evap {
+        background-image: url("../images/triangles_color.svg");
+        color: $black;
+
+        & .card {
+            background-color: $background-dark;
+
+            & .card-title.text-dark {
+                color: $light-gray !important;
+            }
+        }
     }
 }

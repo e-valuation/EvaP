@@ -80,3 +80,14 @@
     }
 }
 
+@include color-mode(dark) {
+    .progress-bar {
+        background-color: $primary;
+    }
+    .progress {
+        background-color: shade-color($primary, 50%);
+    }
+    .progress-bartext {
+        text-shadow: none;
+    }
+}

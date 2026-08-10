@@ -11,6 +11,12 @@
     color: $black;
 }
 
+@include color-mode(dark) {
+    .light-link {
+        color: $white;
+    }
+}
+
 .nowrap {
     white-space: nowrap;
 }

@@ -1,48 +1,92 @@
 /*!
- * Adapted color mode toggler from Bootstrap's docs (https://getbootstrap.com/)
+ * Color mode toggler for Bootstrap's docs (https://getbootstrap.com/)
+ * Copyright 2011-2025 The Bootstrap Authors
+ * Licensed under the Creative Commons Attribution 3.0 Unported License.
  */
 
-import { unwrap } from "./utils.js";
-
 (() => {
-    "use strict";
+  'use strict'
 
-    const storedTheme = localStorage.getItem("theme");
+  type Theme = 'light' | 'dark' | 'auto' | string
 
-    const getPreferredTheme = () => {
-        if (storedTheme) {
-            return storedTheme;
-        }
+  const getStoredTheme = (): string | null => localStorage.getItem('theme')
+  const setStoredTheme = (theme: string): void => localStorage.setItem('theme', theme)
 
-        return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-    };
+  const getPreferredTheme = (): string => {
+    const storedTheme = getStoredTheme()
+    if (storedTheme) {
+      return storedTheme
+    }
 
-    const setTheme = function (theme: string) {
-        document.documentElement.setAttribute("data-bs-theme", theme);
-    };
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  }
 
-    setTheme(getPreferredTheme());
+  const setTheme = (theme: Theme): void => {
+    if (theme === 'auto') {
+      document.documentElement.setAttribute('data-bs-theme', (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'))
+    } else {
+      document.documentElement.setAttribute('data-bs-theme', theme)
+    }
+  }
 
-    const showActiveTheme = (theme: string) => {
-        const btnToActive = unwrap(document.querySelector(`[data-bs-theme-value="${theme}"]`));
+  setTheme(getPreferredTheme())
 
-        document.querySelectorAll("[data-bs-theme-value]").forEach(element => {
-            element.classList.remove("active");
-        });
+  const showActiveTheme = (theme: Theme, focus: boolean = false): void => {
+    const themeSwitcher = document.querySelector<HTMLElement>('#bd-theme')
 
-        btnToActive.classList.add("active");
-    };
+    if (!themeSwitcher) {
+      return
+    }
 
-    window.addEventListener("DOMContentLoaded", () => {
-        showActiveTheme(getPreferredTheme());
+    const themeSwitcherText = document.querySelector<HTMLElement>('#bd-theme-text')
+    const activeThemeIcon = document.querySelector<SVGUseElement>('.theme-icon-active use')
+    const btnToActive = document.querySelector<HTMLElement>(`[data-bs-theme-value="${theme}"]`)
 
-        document.querySelectorAll("[data-bs-theme-value]").forEach(toggle => {
-            toggle.addEventListener("click", () => {
-                const theme = unwrap(toggle.getAttribute("data-bs-theme-value"));
-                localStorage.setItem("theme", theme);
-                setTheme(theme);
-                showActiveTheme(theme);
-            });
-        });
-    });
-})();
+    if (!themeSwitcherText || !activeThemeIcon || !btnToActive) {
+      return
+    }
+
+    const svgOfActiveBtn = btnToActive.querySelector('svg use')?.getAttribute('href')
+
+    document.querySelectorAll<HTMLElement>('[data-bs-theme-value]').forEach(element => {
+      element.classList.remove('active')
+      element.setAttribute('aria-pressed', 'false')
+    })
+
+    btnToActive.classList.add('active')
+    btnToActive.setAttribute('aria-pressed', 'true')
+    if (svgOfActiveBtn) {
+      activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+    }
+    const themeSwitcherLabel = `${themeSwitcherText.textContent} (${btnToActive.dataset.bsThemeValue})`
+    themeSwitcher.setAttribute('aria-label', themeSwitcherLabel)
+
+    if (focus) {
+      themeSwitcher.focus()
+    }
+  }
+
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    const storedTheme = getStoredTheme()
+    if (storedTheme !== 'light' && storedTheme !== 'dark') {
+      setTheme(getPreferredTheme())
+    }
+  })
+
+  window.addEventListener('DOMContentLoaded', () => {
+    showActiveTheme(getPreferredTheme())
+
+    document.querySelectorAll<HTMLElement>('[data-bs-theme-value]')
+      .forEach(toggle => {
+        toggle.addEventListener('click', () => {
+          const theme = toggle.getAttribute('data-bs-theme-value')
+          if (!theme) {
+            return
+          }
+          setStoredTheme(theme)
+          setTheme(theme)
+          showActiveTheme(theme, true)
+        })
+      })
+  })
+})()

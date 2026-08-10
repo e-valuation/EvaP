@@ -148,12 +148,17 @@ $alert-colors: (
     border: 0;
 }
 
+.disabled .ts-control {
+    background-color: $light-gray !important;
+    border-color: $dark-gray;
+}
+
 @include color-mode(dark) {
     .ts-control, .ts-dropdown, .ts-wrapper.single.input-active .ts-control {
         background-color: $background-dark;
         color: $light-gray;
         border-color: $darker-gray;
-
+        
         .option:hover {
             background-color: $light-gray;
             color: $black;
@@ -161,6 +166,9 @@ $alert-colors: (
         input {
             color: $light-gray;
         }
+    }
+    .ts-wrapper:not(.form-control):not(.form-select).single .ts-control {
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23dee2e6' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3E%3C/svg%3E") !important;
     }
     .ts-wrapper.multi {
         .item {
@@ -171,6 +179,10 @@ $alert-colors: (
     .ts-wrapper.plugin-remove_button .item .remove {
         border-left: none;
     }
+    .disabled .ts-control {
+    background-color: $background-dark !important;
+    border-color: $dark-gray;
+}
 }
 
 
@@ -226,4 +238,10 @@ input[type="search"]::-webkit-search-cancel-button {
     #evaluation-table {
         border-color: $darker-gray;
     }
+    .card .card-header .nav-tabs .nav-item .nav-link {
+    border: none;
+    &:hover:not(.active) {
+        background-color: tint-color($background-dark, 10%);
+    }
+}
 }

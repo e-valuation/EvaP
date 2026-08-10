@@ -50,7 +50,7 @@
 .badge-percentage {
     @extend %badge;
     background-color: $primary-accent;
-    color: black;
+    color: $black;
     display: inline-block;
     width: 100%;
 }
@@ -65,6 +65,19 @@
     background-color: $light-gray;
     color: tint-color($medium-gray, 10%);
     text-shadow: none;
+}
+
+@include color-mode(dark) {
+    .badge-disabled {
+        background-color: $darker-gray;
+        color: $medium-gray;
+        text-shadow: none;
+        border-color: $medium-gray;
+    }
+    .badge-percentage {
+        background-color: shade-color($primary, 50%);
+        color: $light-gray;
+    }
 }
 
 .bg-primary-outline {
@@ -89,5 +102,36 @@
         color: $light-gray;
         background-color: $darker-gray;
         opacity: 0.5;
+    }
+    .bg-info, .bg-light, .bg-primary, .bg-success, .bg-warning, .bg-danger {
+        color: $light-gray;
+    }
+
+    .bg-primary {
+        background-color: shade-color($primary, 50%) !important;
+    }
+    .bg-primary-outline {
+        background-color: $primary-accent;
+    }
+    .bg-secondary {
+        background-color: shade-color($secondary, 50%) !important;
+    }
+    .bg-secondary-outline {
+        background-color: $secondary-accent;
+    }
+    .bg-info {
+        background-color: shade-color($info-accent, 50%) !important;
+    }
+    .bg-danger {
+        background-color: shade-color($danger, 50%) !important;
+    }
+    .bg-success {
+        background-color: shade-color($success, 50%) !important;
+    }
+    .bg-warning {
+        background-color: shade-color($warning, 50%) !important;
+    }
+    .bg-light {
+        background-color: shade-color($light, 50%) !important;
     }
 }

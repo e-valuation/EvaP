@@ -83,7 +83,13 @@
     color: $black;
 }
 @include color-mode(dark) {
-   .results-grid-row, .textanswer-review-grid {
+   .results-grid-row {
+        color: $white;
+        &:hover {
+            background-color: tint-color($background-dark, 10%);
+        }
+    }
+    .textanswer-review-grid {
         color: $white;
     }
 }

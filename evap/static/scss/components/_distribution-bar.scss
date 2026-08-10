@@ -68,6 +68,24 @@
 
 }
 
+@include color-mode(dark) {
+    .distribution-bar-container {
+        background: tint-color($background-dark, 10%);
+        box-shadow: inset 0 0 0 1px $darker-gray;
+
+        .left, .right {
+            color: $darker-gray;
+            @include bar-shadow($white)
+        }
+    }
+    .result-widget:hover {
+        .pole-icon {
+            color: $light-gray;
+            @include bar-shadow($darker-gray);
+        }
+    }
+}
+
 .result-widget:hover {
     .pole-icon {
         color: $darker-gray;
@@ -106,4 +124,12 @@
 .distribution-bar-disabled {
     background-color: $light-gray;
     color: tint-color($medium-gray, 10%);
+}
+
+@include color-mode(dark) {
+    .distribution-bar-disabled {
+        background-color: $darker-gray;
+        color: $medium-gray;
+        border-color: $medium-gray;
+    }   
 }

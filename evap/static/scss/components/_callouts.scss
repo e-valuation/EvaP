@@ -95,3 +95,37 @@
         }
     }
 }
+
+@include color-mode(dark) {
+    .callout-info {
+        background-color: shade-color($info-accent, 50%);
+        border-color: $info-accent;
+        color: $light-gray;
+        .callout-header {
+            color: $info;
+        }
+        &.closed:hover,
+        &.closed:active {
+            background-color: shade-color($info, 20%);
+            .callout-header {
+                color: $darker-gray;
+            }
+        }
+    }
+    .callout-warning {
+        background-color: shade-color($warning, 50%);
+        border-color: $warning;
+        color: $light-gray;
+        .callout-header {
+            color: $warning-accent;
+        }
+    }
+    .callout-danger {
+        background-color: shade-color($danger, 50%);
+        border-color: $danger;
+        color: $light-gray;
+        .callout-header {
+            color: $danger-accent;
+        }
+    }
+}
