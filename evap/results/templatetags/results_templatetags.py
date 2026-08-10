@@ -32,9 +32,11 @@ def evaluation_results_cache_timeout(evaluation: Evaluation) -> int | None:
     return 0  # don't cache at all
 
 
-@register.filter(name="participationclass")
-def participationclass(number_of_voters: int, number_of_participants: int) -> int:
-    return round((number_of_voters / number_of_participants) * 10)
+@register.filter(name="decile")
+def decile(dividend: int, divisor: int) -> int:
+    if divisor <= 0:
+        return 0
+    return round((dividend / divisor) * 10)
 
 
 @register.filter
