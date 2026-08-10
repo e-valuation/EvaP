@@ -3436,7 +3436,7 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
             counts_for_grade=True,
         )
 
-        page = self.app.get(f"/staff/questionnaire/{questionnaire.pk}/edit", user=self.manager)
+        page = self.app.get(reverse("staff:questionnaire_edit", args=[questionnaire.pk]), user=self.manager)
         form = page.forms["questionnaire-form"]
         form["type"] = Questionnaire.Type.DROPOUT
         response = form.submit()

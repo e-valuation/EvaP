@@ -1303,7 +1303,7 @@ class Question(models.Model):
                     ~(Q(type=QuestionType.TEXT) | Q(type=QuestionType.HEADING)) | ~Q(allows_additional_textanswers=True)
                 ),
                 name="check_evaluation_textanswer_or_heading_question_has_no_additional_textanswers",
-            ),
+            )
         ]
 
     def save(self, *args, **kwargs):
