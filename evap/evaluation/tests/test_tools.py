@@ -13,7 +13,7 @@ import evap.evaluation.views
 from evap.development.middleware import InvalidHtmlError
 from evap.evaluation.management.commands.tools import subprocess_run_or_exit
 from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer, UserProfile
-from evap.evaluation.tests.tools import SimpleTestCase, TestCase, WebTest
+from evap.evaluation.tests.tools import SimpleTestCase, TestCase, WebTest, assert_no_database_modifications
 from evap.evaluation.tools import (
     discard_cached_related_objects,
     get_object_from_dict_pk_entry_or_logged_40x,
@@ -248,6 +248,15 @@ class TestHelperMethods(TestCase):
 
         with self.assertRaises(SystemExit):
             subprocess_run_or_exit(["false"])
+
+    def test_assert_no_database_modifications(self):
+        with self.assertRaises(AssertionError) as context_manager:
+            with assert_no_database_modifications():
+                baker.make(UserProfile)
+
+        self.assertIn(
+            'Unexpected modifying query found: INSERT INTO "evaluation_userprofile"', str(context_manager.exception)
+        )
 
 
 class TestHelperMethodsWithoutTransaction(SimpleTestCase):
