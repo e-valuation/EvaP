@@ -183,7 +183,9 @@ class TestAnonymizeCommand(TestCase):
 
     def test_staff_notes_are_anonymized(self):
         management.call_command("anonymize", stdout=StringIO())
-        self.assertEqual(Evaluation.objects.get(id=self.evaluation.id).staff_notes, "Lorem ipsum dolor sit amet, consetetur")
+        self.assertEqual(
+            Evaluation.objects.get(id=self.evaluation.id).staff_notes, "Lorem ipsum dolor sit amet, consetetur"
+        )
 
 
 class TestRefreshResultsCacheCommand(TestCase):
