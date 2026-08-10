@@ -100,7 +100,7 @@
     </header>
     {% if request.user.is_manager %}
         <div class="card collapsible mb-3">
-            <div class="card-header d-flex">
+            <div class="card-header">
                 <a
                     class="collapse-toggle{% if not semester.participations_are_archived and not semester.grade_documents_are_deleted and not semester.results_are_archived %} collapsed{% endif %}"
                     data-bs-toggle="collapse"
@@ -226,7 +226,7 @@
     {% endif %}
 
     <div class="card collapsible mb-3">
-        <div class="card-header d-flex">
+        <div class="card-header">
             <a
                 id="collapseOverviewCardButton"
                 class="collapse-toggle collapsed"
@@ -354,7 +354,7 @@
                     </a>
                 </li>
             </ul>
-            <div class="ms-auto">
+            <div>
                 {% if request.user.is_manager %}
                     {% if not semester.participations_are_archived %}
                         <a class="btn btn-sm btn-light" href="{% url 'staff:semester_import' semester.id %}">

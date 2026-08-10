@@ -105,8 +105,8 @@
     {% endif %}
 
     <div class="card card-outline-primary mb-3">
-        <div class="card-header d-flex">
-            <div class="me-auto">{% translate 'Overview' %}</div>
+        <div class="card-header">
+            <div>{% translate 'Overview' %}</div>
             {% if can_export_text_answers %}
                 <a
                     class="btn btn-sm btn-light d-print-none"
@@ -117,11 +117,11 @@
             {% endif %}
             {% if evaluation.course.grade_documents.count == 1 and can_download_grades %}
                 <a
-                    class="btn btn-sm btn-light d-print-none ms-2"
+                    class="btn btn-sm btn-light d-print-none"
                     href="{% url 'grades:download_grades' evaluation.course.grade_documents.first.id %}"
                 >{{ evaluation.course.grade_documents.first.description }}</a>
             {% elif evaluation.course.grade_documents.count > 1 and can_download_grades %}
-                <div class="btn-group d-print-none ms-2" role="group">
+                <div class="btn-group d-print-none" role="group">
                     <button
                         type="button"
                         id="btnDownload"
@@ -189,8 +189,8 @@
             <div class="card-body">
                 {% for contribution_result in contributor_contribution_results %}
                     <div class="card collapsible{% if not forloop.last %} mb-3{% endif %}">
-                        <div class="card-header d-flex">
-                            <div class="me-auto">
+                        <div class="card-header">
+                            <div>
                                 <a
                                     class="collapse-toggle{% if not contribution_result.has_answers %} collapsed{% endif %}"
                                     data-bs-toggle="collapse"
@@ -255,10 +255,10 @@
 
     {% if evaluation.dropout_count > 0 %}
         <div class="card card-outline-primary mb-3">
-            <div class="card-header d-flex flex-row justify-content-between">
+            <div class="card-header">
                 <span>{% translate 'Dropout' %}</span>
 
-                <div class="badge-participants badge-participants-{{ evaluation.dropout_count|participationclass:evaluation.num_voters }} ms-2 ms-lg-3">
+                <div class="badge-participants badge-participants-{{ evaluation.dropout_count|participationclass:evaluation.num_voters }}">
                     <span class="fas fa-user"></span> {{ evaluation.dropout_count }}
                 </div>
             </div>
