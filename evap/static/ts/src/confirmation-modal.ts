@@ -24,6 +24,11 @@ export class ConfirmationModal extends HTMLElement {
         const confirmButtonExtraClass = this.getAttribute("confirm-button-class") ?? "btn-primary";
         confirmButton.className += " " + confirmButtonExtraClass;
 
+        const dialogExtraClass = this.getAttribute("dialog-extra-class");
+        if (dialogExtraClass !== null) {
+            this.dialog.className += " " + dialogExtraClass;
+        }
+
         const showButton = selectOrError("[slot=show-button]", this);
         showButton.addEventListener("click", event => {
             event.stopPropagation();
