@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from django.contrib.staticfiles.storage import ManifestStaticFilesStorage
+from django.http import HttpRequest
 
 from evap.tools import MonthAndDay
 
@@ -478,7 +479,7 @@ try:
     # localsettings file may or may not exist (for example in CI)
 
     # the import can overwrite locals with a slightly different type (e.g. DATABASES), which is fine.
-    from evap.localsettings import *  # type: ignore  # noqa: F403,PGH003
+    from evap.localsettings import *  # noqa: F403,PGH003
 except ImportError:
     pass
 
@@ -531,7 +532,7 @@ if DEBUG:
         INSTALLED_APPS += ["debug_toolbar"]
         MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
 
-        def show_toolbar(request):
+        def show_toolbar(request: HttpRequest) -> bool:
             return True
 
         DEBUG_TOOLBAR_CONFIG = {

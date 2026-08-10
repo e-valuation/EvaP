@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from enum import Enum
 from typing import Any, Final, Literal, assert_never, cast
+from uuid import UUID
 
 import openpyxl
 from django.conf import settings
@@ -24,6 +25,7 @@ from django.db.models import (
     OuterRef,
     Prefetch,
     Q,
+    QuerySet,
     Sum,
     When,
 )
@@ -144,7 +146,7 @@ logger = logging.getLogger(__name__)
 
 
 @manager_required
-def index(request):
+def index(request: HttpRequest) -> HttpResponse:
     template_data = {
         "semesters": Semester.objects.all(),
         "templates": EmailTemplate.objects.all().order_by("id"),
@@ -153,7 +155,7 @@ def index(request):
     return render(request, "staff_index.html", template_data)
 
 
-def annotate_evaluations_with_grade_document_counts(evaluations):
+def annotate_evaluations_with_grade_document_counts(evaluations: QuerySet[Evaluation]) -> QuerySet[Evaluation]:
     return evaluations.annotate(
         midterm_grade_documents_count=Count(
             "course__grade_documents",
@@ -168,7 +170,7 @@ def annotate_evaluations_with_grade_document_counts(evaluations):
     )
 
 
-def get_evaluations_with_prefetched_data(semester):
+def get_evaluations_with_prefetched_data(semester) -> QuerySet[Evaluation]:
     evaluations = (
         semester.evaluations.select_related("course__type")
         .prefetch_related(
@@ -201,14 +203,13 @@ def get_evaluations_with_prefetched_data(semester):
 
 
 @reviewer_required
-def semester_view(request, semester_id) -> HttpResponse:
+def semester_view(request, semester_id: int) -> HttpResponse:
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.results_are_archived and not request.user.is_manager:
         raise PermissionDenied
     rewards_active = is_semester_activated(semester)
 
-    evaluations = get_evaluations_with_prefetched_data(semester)
-    evaluations = sorted(evaluations, key=lambda cr: cr.full_name)
+    evaluations = sorted(get_evaluations_with_prefetched_data(semester), key=lambda cr: cr.full_name)
     courses = Course.objects.filter(semester=semester).prefetch_related(
         "type", "programs", "responsibles", "evaluations", "ignored_evaluations", "cms_course_links"
     )
@@ -274,22 +275,22 @@ class EvaluationOperation:
     confirmation_message: StrOrPromise | None = None
 
     @staticmethod
-    def applicable_to(evaluation):
+    def applicable_to(evaluation: Evaluation) -> bool:
         raise NotImplementedError
 
     @staticmethod
-    def warning_for_inapplicables(amount):
+    def warning_for_inapplicables(amount: int) -> str:
         raise NotImplementedError
 
     @staticmethod
     def apply(
-        request,
-        evaluations,
-        email_template=None,
-        email_template_contributor=None,
-        email_template_participant=None,
-        delete_previous_answers=None,
-    ):
+        request: HttpRequest,
+        evaluations: Collection[Evaluation],
+        email_template: EmailTemplate | None = None,
+        email_template_contributor: EmailTemplate | None = None,
+        email_template_participant: EmailTemplate | None = None,
+        delete_previous_answers: bool | None = None,
+    ) -> None:
         raise NotImplementedError
 
 
@@ -297,11 +298,11 @@ class ResetToNewOperation(EvaluationOperation):
     confirmation_message = gettext_lazy("Do you want to reset the following evaluations to preparation?")
 
     @staticmethod
-    def applicable_to(evaluation: Evaluation):
+    def applicable_to(evaluation: Evaluation) -> bool:
         return evaluation.can_reset_to_new
 
     @staticmethod
-    def warning_for_inapplicables(amount: int):
+    def warning_for_inapplicables(amount: int) -> str:
         return ngettext(
             "{} evaluation cannot be reset, because it is already in preparation or published. It was removed from the selection.",
             "{} evaluations cannot be reset, because they were already in preparation or published. They were removed from the selection.",
@@ -310,13 +311,13 @@ class ResetToNewOperation(EvaluationOperation):
 
     @staticmethod
     def apply(
-        request,
-        evaluations,
-        email_template=None,
-        email_template_contributor=None,
-        email_template_participant=None,
-        delete_previous_answers=None,
-    ):
+        request: HttpRequest,
+        evaluations: Collection[Evaluation],
+        email_template: EmailTemplate | None = None,
+        email_template_contributor: EmailTemplate | None = None,
+        email_template_participant: EmailTemplate | None = None,
+        delete_previous_answers: bool | None = None,
+    ) -> None:
         assert email_template_contributor is None
         assert email_template_participant is None
 
@@ -338,11 +339,11 @@ class ReadyForEditorsOperation(EvaluationOperation):
     confirmation_message = gettext_lazy("Do you want to send the following evaluations to editor review?")
 
     @staticmethod
-    def applicable_to(evaluation):
+    def applicable_to(evaluation: Evaluation) -> bool:
         return evaluation.state in [Evaluation.State.NEW, Evaluation.State.EDITOR_APPROVED]
 
     @staticmethod
-    def warning_for_inapplicables(amount):
+    def warning_for_inapplicables(amount: int) -> str:
         return ngettext(
             "{} evaluation cannot be reverted, because it was already approved. It was removed from the selection.",
             "{} evaluations cannot be reverted, because they were already approved. They were removed from the selection.",
@@ -351,12 +352,12 @@ class ReadyForEditorsOperation(EvaluationOperation):
 
     @staticmethod
     def apply(
-        request,
-        evaluations,
-        email_template=None,
-        email_template_contributor=None,
-        email_template_participant=None,
-        delete_previous_answers=None,
+        request: HttpRequest,
+        evaluations: Collection[Evaluation],
+        email_template: EmailTemplate | None = None,
+        email_template_contributor: EmailTemplate | None = None,
+        email_template_participant: EmailTemplate | None = None,
+        delete_previous_answers: bool | None = None,
     ):
         assert email_template_contributor is None
         assert email_template_participant is None
@@ -402,11 +403,11 @@ class BeginEvaluationOperation(EvaluationOperation):
     confirmation_message = gettext_lazy("Do you want to immediately start the following evaluations?")
 
     @staticmethod
-    def applicable_to(evaluation):
+    def applicable_to(evaluation: Evaluation) -> bool:
         return evaluation.state == Evaluation.State.APPROVED and evaluation.vote_end_date >= date.today()
 
     @staticmethod
-    def warning_for_inapplicables(amount):
+    def warning_for_inapplicables(amount: int) -> str:
         return ngettext(
             "{} evaluation cannot be started, because it was not approved, was already evaluated or its evaluation end date lies in the past. It was removed from the selection.",
             "{} evaluations cannot be started, because they were not approved, were already evaluated or their evaluation end dates lie in the past. They were removed from the selection.",
@@ -415,12 +416,12 @@ class BeginEvaluationOperation(EvaluationOperation):
 
     @staticmethod
     def apply(
-        request,
-        evaluations,
-        email_template=None,
-        email_template_contributor=None,
-        email_template_participant=None,
-        delete_previous_answers=None,
+        request: HttpRequest,
+        evaluations: Collection[Evaluation],
+        email_template: EmailTemplate | None = None,
+        email_template_contributor: EmailTemplate | None = None,
+        email_template_participant: EmailTemplate | None = None,
+        delete_previous_answers: bool | None = None,
     ):
         assert email_template_contributor is None
         assert email_template_participant is None
@@ -446,11 +447,11 @@ class UnpublishOperation(EvaluationOperation):
     confirmation_message = gettext_lazy("Do you want to unpublish the following evaluations?")
 
     @staticmethod
-    def applicable_to(evaluation):
+    def applicable_to(evaluation: Evaluation) -> bool:
         return evaluation.state == Evaluation.State.PUBLISHED
 
     @staticmethod
-    def warning_for_inapplicables(amount):
+    def warning_for_inapplicables(amount: int) -> str:
         return ngettext(
             "{} evaluation cannot be unpublished, because it's results have not been published. It was removed from the selection.",
             "{} evaluations cannot be unpublished because their results have not been published. They were removed from the selection.",
@@ -459,12 +460,12 @@ class UnpublishOperation(EvaluationOperation):
 
     @staticmethod
     def apply(
-        request,
-        evaluations,
-        email_template=None,
-        email_template_contributor=None,
-        email_template_participant=None,
-        delete_previous_answers=None,
+        request: HttpRequest,
+        evaluations: Collection[Evaluation],
+        email_template: EmailTemplate | None = None,
+        email_template_contributor: EmailTemplate | None = None,
+        email_template_participant: EmailTemplate | None = None,
+        delete_previous_answers: bool | None = None,
     ):
         assert email_template_contributor is None
         assert email_template_participant is None
@@ -487,11 +488,11 @@ class PublishOperation(EvaluationOperation):
     confirmation_message = gettext_lazy("Do you want to publish the following evaluations?")
 
     @staticmethod
-    def applicable_to(evaluation):
+    def applicable_to(evaluation: Evaluation) -> bool:
         return evaluation.state == Evaluation.State.REVIEWED
 
     @staticmethod
-    def warning_for_inapplicables(amount):
+    def warning_for_inapplicables(amount: int) -> str:
         return ngettext(
             "{} evaluation cannot be published, because it's not finished or not all of its text answers have been reviewed. It was removed from the selection.",
             "{} evaluations cannot be published, because they are not finished or not all of their text answers have been reviewed. They were removed from the selection.",
@@ -500,12 +501,12 @@ class PublishOperation(EvaluationOperation):
 
     @staticmethod
     def apply(
-        request,
-        evaluations,
-        email_template=None,
-        email_template_contributor=None,
-        email_template_participant=None,
-        delete_previous_answers=None,
+        request: HttpRequest,
+        evaluations: Collection[Evaluation],
+        email_template: EmailTemplate | None = None,
+        email_template_contributor: EmailTemplate | None = None,
+        email_template_participant: EmailTemplate | None = None,
+        delete_previous_answers: bool | None = None,
     ):
         assert email_template is None
         assert delete_previous_answers is None
@@ -548,7 +549,7 @@ def target_state_and_operation_from_str(target_state_str: str) -> tuple[Evaluati
 
 
 @manager_required
-def evaluation_operation(request, semester_id):
+def evaluation_operation(request: HttpRequest, semester_id: int) -> HttpResponse:
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.participations_are_archived:
         raise PermissionDenied
@@ -664,7 +665,7 @@ class SemesterEditView(SuccessMessageMixin, UpdateView):
 @require_POST
 @manager_required
 @transaction.atomic
-def semester_make_active(request):
+def semester_make_active(request: HttpRequest) -> HttpResponse:
     semester = get_object_from_dict_pk_entry_or_logged_40x(Semester, request.POST, "semester_id")
 
     Semester.objects.update(is_active=None)
@@ -676,7 +677,7 @@ def semester_make_active(request):
 
 @require_POST
 @manager_required
-def semester_delete(request):
+def semester_delete(request: HttpRequest) -> HttpResponse:
     semester = get_object_from_dict_pk_entry_or_logged_40x(Semester, request.POST, "semester_id")
 
     if not semester.can_be_deleted_by_manager:
@@ -695,7 +696,9 @@ def semester_delete(request):
 
 
 @manager_required
-def semester_import(request, semester_id):
+def semester_import(request: HttpRequest, semester_id: int) -> HttpResponse:
+    assert request.user.id is not None
+
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.participations_are_archived:
         raise PermissionDenied
@@ -751,7 +754,7 @@ def semester_import(request, semester_id):
 
 
 @manager_required
-def semester_export(request, semester_id):
+def semester_export(request: HttpRequest, semester_id: int) -> HttpResponse:
     semester = get_object_or_404(Semester, id=semester_id)
 
     ExportSheetFormset = formset_factory(form=ExportSheetForm, can_delete=True, extra=0, min_num=1, validate_min=True)
@@ -774,7 +777,7 @@ def semester_export(request, semester_id):
 
 
 @manager_required
-def semester_raw_export(_request, semester_id):
+def semester_raw_export(_request: HttpRequest, semester_id: int) -> HttpResponse:
     semester = get_object_or_404(Semester, id=semester_id)
 
     filename = f"Evaluation-{semester.name}-{get_language()}_raw.csv"
@@ -817,7 +820,7 @@ def semester_raw_export(_request, semester_id):
 
 
 @manager_required
-def semester_participation_export(_request, semester_id):
+def semester_participation_export(_request: HttpRequest, semester_id: int) -> HttpResponse:
     semester = get_object_or_404(Semester, id=semester_id)
     participants = (
         UserProfile.objects.filter(evaluations_participating_in__course__semester=semester).distinct().order_by("email")
@@ -867,7 +870,7 @@ def semester_participation_export(_request, semester_id):
 
 
 @manager_required
-def vote_timestamps_export(_request, semester_id):
+def vote_timestamps_export(_request: HttpRequest, semester_id: int) -> HttpResponse:
     semester = get_object_or_404(Semester, id=semester_id)
     timestamps = VoteTimestamp.objects.filter(evaluation__course__semester=semester).prefetch_related(
         "evaluation__course__programs"
@@ -902,7 +905,7 @@ def vote_timestamps_export(_request, semester_id):
 
 
 @manager_required
-def semester_questionnaire_assign(request, semester_id):
+def semester_questionnaire_assign(request: HttpRequest, semester_id: int) -> HttpResponse:
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.participations_are_archived:
         raise PermissionDenied
@@ -978,8 +981,8 @@ def semester_preparation_reminder(request: HttpRequest, semester_id: int) -> Htt
 
     if request.method == "POST":
         template = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_REMINDER)
-        for responsible, evaluations, __ in responsible_list:
-            body_params = {"user": responsible, "evaluations": evaluations}
+        for responsible, responsible_evaluations, __ in responsible_list:
+            body_params = {"user": responsible, "evaluations": responsible_evaluations}
             template.send_to_user(responsible, subject_params={}, body_params=body_params, use_cc=True, request=request)
         messages.success(request, _("Successfully sent reminders to everyone."))
         return HttpResponse()
@@ -991,7 +994,7 @@ def semester_preparation_reminder(request: HttpRequest, semester_id: int) -> Htt
 
 
 @manager_required
-def semester_grade_reminder(request, semester_id: int) -> HttpResponse:
+def semester_grade_reminder(request: HttpRequest, semester_id: int) -> HttpResponse:
     semester = get_object_or_404(Semester, id=semester_id)
 
     courses = sorted(
@@ -1013,7 +1016,7 @@ def semester_grade_reminder(request, semester_id: int) -> HttpResponse:
 
 
 @manager_required
-def send_reminder(request, semester_id, responsible_id):
+def send_reminder(request: HttpRequest, semester_id: int, responsible_id: int) -> HttpResponse:
     responsible = get_object_or_404(UserProfile, id=responsible_id)
     semester = get_object_or_404(Semester, id=semester_id)
 
@@ -1033,7 +1036,7 @@ def send_reminder(request, semester_id, responsible_id):
 
 @require_POST
 @manager_required
-def semester_archive_participations(request):
+def semester_archive_participations(request: HttpRequest) -> HttpResponse:
     semester = get_object_from_dict_pk_entry_or_logged_40x(Semester, request.POST, "semester_id")
 
     if not semester.participations_can_be_archived:
@@ -1044,7 +1047,7 @@ def semester_archive_participations(request):
 
 @require_POST
 @manager_required
-def semester_delete_grade_documents(request):
+def semester_delete_grade_documents(request: HttpRequest) -> HttpResponse:
     semester = get_object_from_dict_pk_entry_or_logged_40x(Semester, request.POST, "semester_id")
 
     if not semester.grade_documents_can_be_deleted:
@@ -1055,7 +1058,7 @@ def semester_delete_grade_documents(request):
 
 @require_POST
 @manager_required
-def semester_archive_results(request):
+def semester_archive_results(request: HttpRequest) -> HttpResponse:
     semester_id = request.POST.get("semester_id")
     semester = get_object_or_404(Semester, id=semester_id)
 
@@ -1066,7 +1069,7 @@ def semester_archive_results(request):
 
 
 @manager_required
-def course_create(request, semester_id):
+def course_create(request: HttpRequest, semester_id: int) -> HttpResponse:
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.participations_are_archived:
         raise PermissionDenied
@@ -1093,7 +1096,7 @@ def course_create(request, semester_id):
 
 
 @manager_required
-def course_copy(request, course_id):
+def course_copy(request: HttpRequest, course_id: int) -> HttpResponse:
     course = get_object_or_404(Course, id=course_id)
     course_form = CourseCopyForm(request.POST or None, instance=course)
 
@@ -1190,7 +1193,7 @@ class CourseEditView(SuccessMessageMixin, UpdateView):
 
 @require_POST
 @manager_required
-def course_delete(request):
+def course_delete(request: HttpRequest) -> HttpResponse:
     course = get_object_from_dict_pk_entry_or_logged_40x(Course, request.POST, "course_id")
     if not course.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting course not allowed")
@@ -1198,7 +1201,7 @@ def course_delete(request):
     return HttpResponse()  # 200 OK
 
 
-def evaluation_create_impl(request, semester: Semester, course: Course | None):
+def evaluation_create_impl(request: HttpRequest, semester: Semester, course: Course | None) -> HttpResponse:
     if course is not None:
         assert course.semester == semester
     if semester.participations_are_archived:
@@ -1239,19 +1242,19 @@ def evaluation_create_impl(request, semester: Semester, course: Course | None):
 
 
 @manager_required
-def evaluation_create_for_semester(request, semester_id):
+def evaluation_create_for_semester(request: HttpRequest, semester_id: int) -> HttpResponse:
     semester = get_object_or_404(Semester, id=semester_id)
     return evaluation_create_impl(request, semester, None)
 
 
 @manager_required
-def evaluation_create_for_course(request, course_id):
+def evaluation_create_for_course(request: HttpRequest, course_id: int) -> HttpResponse:
     course = get_object_or_404(Course, id=course_id)
     return evaluation_create_impl(request, course.semester, course)
 
 
 @manager_required
-def evaluation_copy(request, evaluation_id):
+def evaluation_copy(request: HttpRequest, evaluation_id: int) -> HttpResponse:
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
 
     form = EvaluationCopyForm(request.POST or None, evaluation)
@@ -1286,7 +1289,7 @@ def evaluation_copy(request, evaluation_id):
 
 
 @manager_required
-def evaluation_edit(request, evaluation_id):
+def evaluation_edit(request: HttpRequest, evaluation_id: int) -> HttpResponse:
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
 
     if request.method == "POST" and not evaluation.can_be_edited_by_manager:
@@ -1296,7 +1299,7 @@ def evaluation_edit(request, evaluation_id):
 
 
 @manager_required
-def helper_evaluation_edit(request, evaluation):
+def helper_evaluation_edit(request: HttpRequest, evaluation: Evaluation) -> HttpResponse:
     editable = evaluation.can_be_edited_by_manager
     InlineContributionFormset = inlineformset_factory(
         Evaluation, Contribution, formset=ContributionFormset, form=ContributionForm, extra=1 if editable else 0
@@ -1361,7 +1364,7 @@ def helper_evaluation_edit(request, evaluation):
     contributor_questionnaire_pairs = [
         (answer.contribution.contributor, answer.assignment.questionnaire)
         for answer_cls in [TextAnswer, RatingAnswerCounter]
-        for answer in answer_cls.objects.filter(contribution__evaluation=evaluation).select_related(
+        for answer in answer_cls.objects.filter(contribution__evaluation=evaluation).select_related(  # type: ignore[attr-defined]
             "assignment__questionnaire", "contribution__contributor"
         )
     ]
@@ -1389,7 +1392,7 @@ def helper_evaluation_edit(request, evaluation):
 
 @require_POST
 @manager_required
-def evaluation_delete(request):
+def evaluation_delete(request: HttpRequest) -> HttpResponse:
     evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
     return _evaluation_delete(request, evaluation)
 
@@ -1423,7 +1426,7 @@ def _evaluation_delete(request, evaluation):
 
 
 @manager_required
-def evaluation_email(request, evaluation_id):
+def evaluation_email(request: HttpRequest, evaluation_id: int) -> HttpResponse:
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
     export = "export" in request.POST
     form = EvaluationEmailForm(request.POST or None, evaluation=evaluation, export=export)
@@ -1510,10 +1513,13 @@ def import_or_copy_participants(
 
 @manager_required
 @transaction.atomic
-def evaluation_person_management(request, evaluation_id: int):
+def evaluation_person_management(request: HttpRequest, evaluation_id: int) -> HttpResponse:
     # This view indeed handles 4 tasks. However, they are tightly coupled, splitting them up
     # would lead to more code duplication. Thus, we decided to leave it as is for now
     # pylint: disable=too-many-locals
+
+    assert request.user.id is not None
+
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
     if evaluation.participations_are_archived:
         raise PermissionDenied
@@ -1585,7 +1591,7 @@ def evaluation_person_management(request, evaluation_id: int):
 
 
 @manager_required
-def evaluation_login_key_export(_request, evaluation_id):
+def evaluation_login_key_export(_request: HttpRequest, evaluation_id: int) -> HttpResponse:
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
 
     filename = f"Login_keys-{evaluation.full_name}-{evaluation.course.semester.short_name}.csv"
@@ -1713,7 +1719,7 @@ def semester_flagged_textanswers(request: HttpRequest, semester_id: int) -> Http
 
 
 @reviewer_required
-def evaluation_textanswers_skip(request):
+def evaluation_textanswers_skip(request: HttpRequest) -> HttpResponse:
     evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
     visited = request.session.get("review-skipped", set())
     visited.add(evaluation.pk)
@@ -1732,7 +1738,7 @@ def assert_textanswer_review_permissions(evaluation: Evaluation) -> None:
 
 @require_POST
 @reviewer_required
-def evaluation_textanswers_update_publish(request):
+def evaluation_textanswers_update_publish(request: HttpRequest) -> HttpResponse:
     answer = get_object_from_dict_pk_entry_or_logged_40x(TextAnswer, request.POST, "answer_id")
     evaluation = answer.contribution.evaluation
     action = request.POST.get("action", None)
@@ -1767,7 +1773,7 @@ def evaluation_textanswers_update_publish(request):
 
 @require_POST
 @reviewer_required
-def evaluation_textanswers_update_flag(request):
+def evaluation_textanswers_update_flag(request: HttpRequest) -> HttpResponse:
     answer = get_object_from_dict_pk_entry_or_logged_40x(TextAnswer, request.POST, "answer_id")
     assert_textanswer_review_permissions(answer.contribution.evaluation)
 
@@ -1782,7 +1788,7 @@ def evaluation_textanswers_update_flag(request):
 
 
 @manager_required
-def evaluation_textanswer_edit(request, textanswer_id):
+def evaluation_textanswer_edit(request: HttpRequest, textanswer_id: UUID) -> HttpResponse:
     textanswer = get_object_or_404(TextAnswer, id=textanswer_id)
     evaluation = textanswer.contribution.evaluation
     assert_textanswer_review_permissions(evaluation)
@@ -1810,8 +1816,9 @@ def evaluation_textanswer_edit(request, textanswer_id):
 
 
 @reviewer_required
-def evaluation_preview(request, evaluation_id):
+def evaluation_preview(request: HttpRequest, evaluation_id: int) -> HttpResponse:
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
+    assert isinstance(request.user, UserProfile)
     if evaluation.course.semester.results_are_archived and not request.user.is_manager:
         raise PermissionDenied
 
@@ -1819,7 +1826,7 @@ def evaluation_preview(request, evaluation_id):
 
 
 @manager_required
-def questionnaire_index(request):
+def questionnaire_index(request: HttpRequest) -> HttpResponse:
     filters = ["all", "visible", "archived"]
     filter_questionnaires = get_string_parameter_from_url_or_session(request, "filter_questionnaires", filters[0])
     if filter_questionnaires not in filters:
@@ -1853,7 +1860,8 @@ def questionnaire_index(request):
 
 
 @manager_required
-def questionnaire_view(request, questionnaire_id):
+def questionnaire_view(request: HttpRequest, questionnaire_id: int) -> HttpResponse:
+    assert isinstance(request.user, UserProfile)
     language = request.GET.get("language", request.user.language)
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
 
@@ -1893,7 +1901,7 @@ def questionnaire_usage(request: HttpRequest, questionnaire_id: int) -> HttpResp
 
 
 @manager_required
-def questionnaire_create(request):
+def questionnaire_create(request: HttpRequest) -> HttpResponse:
     questionnaire = Questionnaire()
     InlineQuestionAssignmentFormset = inlineformset_factory(
         Questionnaire,
@@ -1924,7 +1932,9 @@ def disable_all_except_named(fields: dict[str, Any], names_of_editable: Collecti
             field.disabled = True
 
 
-def make_questionnaire_edit_forms(request, questionnaire, editable):
+def make_questionnaire_edit_forms(
+    request: HttpRequest, questionnaire: Questionnaire, editable: bool
+) -> tuple[QuestionnaireForm, Any]:
     if editable:
         formset_kwargs = {"extra": 1}
     else:
@@ -1943,7 +1953,7 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
         formset=AtLeastOneFormset,
         form=QuestionAssignmentForm,
         exclude=("questionnaire",),
-        **formset_kwargs,
+        **formset_kwargs,  # type: ignore[arg-type]
     )
 
     form = QuestionnaireForm(request.POST or None, instance=questionnaire)
@@ -1960,15 +1970,15 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
         # disallow type changed from and to contributor or dropout
         single_types = [Questionnaire.Type.CONTRIBUTOR, Questionnaire.Type.DROPOUT]
         if questionnaire.type in single_types:
-            form.fields["type"].choices = filter(lambda c: c[0] == questionnaire.type, form.fields["type"].choices)
+            form.fields["type"].choices = filter(lambda c: c[0] == questionnaire.type, form.fields["type"].choices)  # type: ignore[attr-defined,arg-type]
         else:
-            form.fields["type"].choices = filter(lambda c: c[0] not in single_types, form.fields["type"].choices)
+            form.fields["type"].choices = filter(lambda c: c[0] not in single_types, form.fields["type"].choices)  # type: ignore[attr-defined,arg-type]
 
     return form, formset
 
 
 @manager_required
-def questionnaire_edit(request, questionnaire_id):
+def questionnaire_edit(request: HttpRequest, questionnaire_id: int) -> HttpResponse:
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
     editable = questionnaire.can_be_edited_by_manager
 
@@ -1986,7 +1996,7 @@ def questionnaire_edit(request, questionnaire_id):
     return render(request, "staff_questionnaire_form.html", template_data)
 
 
-def get_identical_form_and_formset(questionnaire):
+def get_identical_form_and_formset(questionnaire: Questionnaire) -> tuple[QuestionnaireForm, Any]:
     """
     Generates a Questionnaire creation form and formset filled out like the already exisiting Questionnaire
     specified in questionnaire_id. Used for copying and creating of new versions.
@@ -2007,7 +2017,7 @@ def get_identical_form_and_formset(questionnaire):
 
 
 @manager_required
-def questionnaire_copy(request, questionnaire_id):
+def questionnaire_copy(request: HttpRequest, questionnaire_id: int) -> HttpResponse:
     copied_questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
 
     if request.method == "POST":
@@ -2037,7 +2047,7 @@ def questionnaire_copy(request, questionnaire_id):
 
 
 @manager_required
-def questionnaire_new_version(request, questionnaire_id):
+def questionnaire_new_version(request: HttpRequest, questionnaire_id: int) -> HttpResponse:
     old_questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
 
     # Check if we can use the old name with the current time stamp.
@@ -2091,7 +2101,7 @@ def questionnaire_new_version(request, questionnaire_id):
 
 @require_POST
 @manager_required
-def questionnaire_delete(request):
+def questionnaire_delete(request: HttpRequest) -> HttpResponse:
     questionnaire = get_object_from_dict_pk_entry_or_logged_40x(Questionnaire, request.POST, "questionnaire_id")
 
     if not questionnaire.can_be_deleted_by_manager:
@@ -2102,9 +2112,9 @@ def questionnaire_delete(request):
 
 @require_POST
 @manager_required
-def questionnaire_update_indices(request):
+def questionnaire_update_indices(request: HttpRequest) -> HttpResponse:
     try:
-        order_by_questionnaire = {int(key): int(value) for key, value in request.POST.items()}
+        order_by_questionnaire = {int(key): int(value) for key, value in request.POST.items() if isinstance(value, str)}
     except (TypeError, ValueError) as e:
         raise SuspiciousOperation from e
 
@@ -2121,7 +2131,7 @@ def questionnaire_update_indices(request):
 
 @require_POST
 @manager_required
-def questionnaire_visibility(request):
+def questionnaire_visibility(request: HttpRequest) -> HttpResponse:
     questionnaire = get_object_from_dict_pk_entry_or_logged_40x(Questionnaire, request.POST, "questionnaire_id")
     try:
         visibility = int(request.POST["visibility"])
@@ -2138,7 +2148,7 @@ def questionnaire_visibility(request):
 
 @require_POST
 @manager_required
-def questionnaire_set_locked(request):
+def questionnaire_set_locked(request: HttpRequest) -> HttpResponse:
     questionnaire = get_object_from_dict_pk_entry_or_logged_40x(Questionnaire, request.POST, "questionnaire_id")
     try:
         is_locked = bool(int(request.POST["is_locked"]))
@@ -2166,7 +2176,7 @@ class ProgramIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
 
 
 @manager_required
-def program_merge_selection(request):
+def program_merge_selection(request: HttpRequest) -> HttpResponse:
     form = ProgramMergeSelectionForm(request.POST or None)
 
     if form.is_valid():
@@ -2178,7 +2188,7 @@ def program_merge_selection(request):
 
 
 @manager_required
-def program_merge(request, main_id, other_id):
+def program_merge(request: HttpRequest, main_id: int, other_id: int) -> HttpResponse:
     main_instance = get_object_or_404(Program, id=main_id)
     other_instance = get_object_or_404(Program, id=other_id)
     assert main_instance != other_instance
@@ -2228,7 +2238,7 @@ class CourseTypeIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
 
 
 @manager_required
-def course_type_merge_selection(request):
+def course_type_merge_selection(request: HttpRequest) -> HttpResponse:
     form = CourseTypeMergeSelectionForm(request.POST or None)
 
     if form.is_valid():
@@ -2240,7 +2250,7 @@ def course_type_merge_selection(request):
 
 
 @manager_required
-def course_type_merge(request, main_type_id, other_type_id):
+def course_type_merge(request: HttpRequest, main_type_id: int, other_type_id: int) -> HttpResponse:
     main_type = get_object_or_404(CourseType, id=main_type_id)
     other_type = get_object_or_404(CourseType, id=other_type_id)
     assert main_type != other_type
@@ -2277,7 +2287,7 @@ class ExamTypeIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
 
 
 @manager_required
-def text_answer_warnings_index(request):
+def text_answer_warnings_index(request: HttpRequest) -> HttpResponse:
     text_answer_warnings = TextAnswerWarning.objects.all()
 
     TextAnswerWarningFormset = modelformset_factory(
@@ -2301,7 +2311,7 @@ def text_answer_warnings_index(request):
 
 
 @manager_required
-def user_index(request):
+def user_index(request: HttpRequest) -> HttpResponse:
     form = UserEditSelectionForm(request.POST or None)
 
     if form.is_valid():
@@ -2312,7 +2322,7 @@ def user_index(request):
 
 
 @manager_required
-def user_list(request):
+def user_list(request: HttpRequest) -> HttpResponse:
     filter_users = get_bool_parameter_from_url_or_session(request, "filter_users")
 
     users = UserProfile.objects.all()
@@ -2320,7 +2330,7 @@ def user_list(request):
         users = users.exclude(is_active=False)
 
     users = (
-        users
+        users  # type: ignore[no-redef,misc]
         # the following six annotations basically add three bools indicating whether each user is part of a group or not.
         .annotate(manager_group_count=Sum(Case(When(groups__name="Manager", then=1), output_field=IntegerField())))
         .annotate(is_manager=ExpressionWrapper(Q(manager_group_count__exact=1), output_field=BooleanField()))
@@ -2349,7 +2359,7 @@ def user_list(request):
 
 
 @manager_required
-def user_export(request):
+def user_export(request: HttpRequest) -> HttpResponse:
     response = AttachmentResponse("exported_users.csv")
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
     header_row = (_("Title"), _("Last name"), _("First name"), _("Email"))
@@ -2370,7 +2380,9 @@ class UserCreateView(SuccessMessageMixin, CreateView):
 
 
 @manager_required
-def user_import(request):
+def user_import(request: HttpRequest) -> HttpResponse:
+    assert request.user.id is not None
+
     excel_form = UserImportForm(request.POST or None, request.FILES or None)
     import_type = ImportType.USER
 
@@ -2412,7 +2424,7 @@ def user_import(request):
 
 
 @manager_required
-def user_edit(request, user_id):
+def user_edit(request: HttpRequest, user_id: int) -> HttpResponse:
     user = get_object_or_404(UserProfile, id=user_id)
     form = UserForm(request.POST or None, request.FILES or None, instance=user)
 
@@ -2459,7 +2471,7 @@ def user_edit(request, user_id):
 
 @require_POST
 @manager_required
-def user_delete(request):
+def user_delete(request: HttpRequest) -> HttpResponse:
     user = get_object_from_dict_pk_entry_or_logged_40x(UserProfile, request.POST, "user_id")
 
     if not user.can_be_deleted_by_manager:
@@ -2471,7 +2483,7 @@ def user_delete(request):
 
 @require_POST
 @manager_required
-def user_resend_email(request):
+def user_resend_email(request: HttpRequest) -> HttpResponse:
     user = get_object_from_dict_pk_entry_or_logged_40x(UserProfile, request.POST, "user_id")
 
     template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
@@ -2487,7 +2499,9 @@ def user_resend_email(request):
 
 
 @manager_required
-def user_bulk_update(request):
+def user_bulk_update(request: HttpRequest) -> HttpResponse:
+    assert request.user.id is not None
+
     form = UserBulkUpdateForm(request.POST or None, request.FILES or None)
     operation = request.POST.get("operation")
     test_run = operation == "test"
@@ -2569,7 +2583,7 @@ class UserMergeSelectionView(FormView):
 
 
 @manager_required
-def user_merge(request, main_user_id, other_user_id):
+def user_merge(request: HttpRequest, main_user_id: int, other_user_id: int) -> HttpResponse:
     main_user = get_object_or_404(UserProfile, id=main_user_id)
     other_user = get_object_or_404(UserProfile, id=other_user_id)
 
@@ -2654,7 +2668,7 @@ class FaqIndexView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
 
 
 @manager_required
-def faq_section(request, section_id):
+def faq_section(request: HttpRequest, section_id: int) -> HttpResponse:
     section = get_object_or_404(FaqSection, id=section_id)
     questions = FaqQuestion.objects.filter(section=section)
 
@@ -2681,14 +2695,14 @@ class InfotextsView(SuccessMessageMixin, SaveValidFormMixin, FormsetView):
 
 
 @manager_required
-def download_sample_file(_request, filename):
+def download_sample_file(_request: HttpRequest, filename: str) -> HttpResponse:
     email_placeholder = "institution.com"
 
     if filename not in ["sample.xlsx", "sample_user.xlsx"]:
         raise SuspiciousOperation("Invalid file name.")
 
     book = openpyxl.load_workbook(filename=settings.STATICFILES_DIRS[0] / filename)
-    for sheet in book:
+    for sheet in book:  # type: ignore[attr-defined]
         for row in sheet:
             for cell in row:
                 if cell.value is not None:
@@ -2697,25 +2711,25 @@ def download_sample_file(_request, filename):
     response = AttachmentResponse(
         filename, content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    book.save(response)
+    book.save(response)  # type: ignore[arg-type]
     return response
 
 
 @manager_required
-def export_contributor_results_view(request, contributor_id):
+def export_contributor_results_view(request: HttpRequest, contributor_id: int) -> HttpResponse:
     contributor = get_object_or_404(UserProfile, id=contributor_id)
     return export_contributor_results(contributor)
 
 
 @require_POST
 @staff_permission_required
-def enter_staff_mode(request):
+def enter_staff_mode(request: HttpRequest) -> HttpResponse:
     staff_mode.enter_staff_mode(request)
     return redirect("evaluation:index")
 
 
 @require_POST
 @staff_permission_required
-def exit_staff_mode(request):
+def exit_staff_mode(request: HttpRequest) -> HttpResponse:
     staff_mode.exit_staff_mode(request)
     return redirect("evaluation:index")
