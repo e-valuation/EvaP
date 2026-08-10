@@ -89,7 +89,7 @@ class TestAnonymizeCommand(TestCase):
             course=cls.course,
             name_de="Wie man Software testet",
             name_en="Testing your software",
-            staff_notes="This evaluation has dropout answers",
+            staff_notes="Keep an eye on this one!",
         )
         baker.make(
             Evaluation,
@@ -183,7 +183,7 @@ class TestAnonymizeCommand(TestCase):
 
     def test_staff_notes_are_anonymized(self):
         management.call_command("anonymize", stdout=StringIO())
-        self.assertEqual(Evaluation.objects.get(id=self.evaluation.id).staff_notes, "Lorem ipsum dolor sit amet,")
+        self.assertEqual(Evaluation.objects.get(id=self.evaluation.id).staff_notes, "Lorem ipsum dolor sit amet, consetetur")
 
 
 class TestRefreshResultsCacheCommand(TestCase):
