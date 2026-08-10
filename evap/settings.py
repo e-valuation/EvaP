@@ -34,6 +34,9 @@ DEBUG = True
 # Works only with DEBUG = True and Django's development server (so no apache).
 ENABLE_DEBUG_TOOLBAR = False
 
+# Validate generated HTML using Nu Html Checker
+VNU_URL: str | None = None
+
 ### EvaP logic
 
 LOGIN_KEY_VALIDITY = 210  # days, so roughly 7 months
@@ -539,3 +542,6 @@ if DEBUG:
             "SHOW_TOOLBAR_CALLBACK": "evap.settings.show_toolbar",
             "JQUERY_URL": "",
         }
+
+if VNU_URL is not None:
+    MIDDLEWARE += ["evap.development.middleware.NuValidatorMiddleware"]
