@@ -4,6 +4,7 @@ from collections import OrderedDict
 from collections.abc import Iterable
 from dataclasses import dataclass
 from fractions import Fraction
+from typing import TYPE_CHECKING, cast
 
 from django.conf import settings
 from django.contrib import messages
@@ -37,6 +38,10 @@ from evap.results.tools import (
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.models import TextAnswerWarning
 from evap.student.tools import answer_field_id
+
+if TYPE_CHECKING:
+    from evap.evaluation.models import UserProfile
+
 
 SUCCESS_MAGIC_STRING = "vote submitted successfully"
 
@@ -76,14 +81,13 @@ class GlobalEvaluationProgress:
         if not settings.GLOBAL_EVALUATION_PROGRESS_REWARDS:
             return None
 
-        if not Semester.active_semester():
+        if not (active_semester := Semester.active_semester()):
             return None
 
         language = get_language()
 
         evaluations = (
-            Semester.active_semester()
-            .evaluations.exclude(state__lt=Evaluation.State.APPROVED)
+            active_semester.evaluations.exclude(state__lt=Evaluation.State.APPROVED)
             .exclude(is_rewarded=False)
             .exclude(id__in=settings.GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS)
             .exclude(course__type__id__in=settings.GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS)
@@ -278,7 +282,7 @@ def get_vote_page_form_groups(
     return form_groups
 
 
-def render_vote_page(
+def render_vote_page(  # pylint: disable=too-many-locals
     request: HttpRequest,
     evaluation: Evaluation,
     *,
@@ -286,7 +290,11 @@ def render_vote_page(
     dropout: bool,
     for_rendering_in_modal: bool = False,
 ) -> HttpResponse:
-    language = request.GET.get("language", evaluation.main_language)
+    fallback_language = (
+        evaluation.main_language if evaluation.main_language != Evaluation.UNDECIDED_MAIN_LANGUAGE else "en"
+    )
+    language = request.GET.get("language", fallback_language)
+
     with translation.override(language):
         form_groups = get_vote_page_form_groups(request, evaluation, preview=preview, dropout=dropout)
 
@@ -358,7 +366,7 @@ def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> Htt
     if dropout and not evaluation.is_dropout_allowed:
         raise SuspiciousOperation("Dropping out is not allowed")
 
-    if not evaluation.can_be_voted_for_by(request.user):
+    if not evaluation.can_be_voted_for_by(cast("UserProfile", request.user)):
         raise PermissionDenied
 
     form_groups = get_vote_page_form_groups(request, evaluation, preview=False, dropout=dropout)
@@ -391,6 +399,7 @@ def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> Htt
                             )
                     else:
                         if value != NO_ANSWER:
+                            assert question.answer_class is RatingAnswerCounter
                             answer_counter, __ = question.answer_class.objects.get_or_create(
                                 contribution=contribution, assignment=assignment, answer=value
                             )
@@ -425,4 +434,4 @@ def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> Htt
     evaluation.evaluation_evaluated.send(sender=Evaluation, request=request, semester=evaluation.course.semester)
 
     messages.success(request, _("Your vote was recorded."))
-    return HttpResponse(SUCCESS_MAGIC_STRING)
+    return HttpResponse(SUCCESS_MAGIC_STRING, content_type="text/plain")

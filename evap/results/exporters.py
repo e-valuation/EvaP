@@ -287,7 +287,9 @@ class ResultsExporter(ExcelExporter):
         # first cell of row is printed above
         self.write_empty_row_with_styles(["border_left_right"] * len(evaluations_with_results))
 
-        for question in self.filter_text_and_heading_questions(questionnaire.questions.all()):
+        for question in self.filter_text_and_heading_questions(
+            assignment.question for assignment in questionnaire.question_assignments.all()
+        ):
             self.write_cell(question.text, "italic" if question.is_heading_question else "default")
 
             for __, results in evaluations_with_results:
@@ -331,7 +333,7 @@ class ResultsExporter(ExcelExporter):
         include_unpublished: bool = False,
         contributor: UserProfile | None = None,
         verbose_heading: bool = True,
-    ):
+    ) -> None:
         # We want to throw early here, since workbook.save() will throw an IndexError otherwise.
         assert len(selection_list) > 0
 
@@ -385,7 +387,14 @@ class TextAnswerExporter(ExcelExporter):
 
     default_sheet_name = _("Text Answers")
 
-    def __init__(self, evaluation_name, semester_name, responsibles, results, contributor_name):
+    def __init__(
+        self,
+        evaluation_name: str,
+        semester_name: str,
+        responsibles: str,
+        results: "TextAnswerExporter.InputData",
+        contributor_name: str | None,
+    ) -> None:
         super().__init__()
         self.evaluation_name = evaluation_name
         self.semester_name = semester_name
@@ -394,7 +403,7 @@ class TextAnswerExporter(ExcelExporter):
         self.results = results
         self.contributor_name = contributor_name
 
-    def export_impl(self):  # pylint: disable=arguments-differ
+    def export_impl(self) -> None:  # pylint: disable=arguments-differ
         self.cur_sheet.col(0).width = 10000
         self.cur_sheet.col(1).width = 40000
 

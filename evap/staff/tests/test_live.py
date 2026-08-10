@@ -1,7 +1,9 @@
 from datetime import date, datetime
 
 from model_bakery import baker
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.expected_conditions import (
     element_to_be_clickable,
     invisibility_of_element_located,
@@ -226,7 +228,7 @@ class EvaluationGridLiveTest(LiveServerTest):
             self.wait.until(make_order_is_as_expected(expected_ascending))
 
 
-class QuestionnaireLiveTest(LiveServerTest):
+class QuestionnaireIndexLiveTest(LiveServerTest):
     def test_questionnaire_selection(self):
         top_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         bottom_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM)
@@ -245,6 +247,60 @@ class QuestionnaireLiveTest(LiveServerTest):
 
         self.assertFalse(top_element.is_displayed())
         self.assertTrue(bottom_element.is_displayed())
+
+
+class QuestionnaireEditLiveTest(LiveServerTest):
+    def setUp(self):
+        super().setUp()
+        self.questionnaire = baker.make(Questionnaire)
+        self.url = self.reverse("staff:questionnaire_edit", args=[self.questionnaire.id])
+        self.assignments = baker.make(
+            QuestionAssignment,
+            questionnaire=self.questionnaire,
+            question__text_en=(f"Q{i}" for i in range(5)),
+            order=iter(range(5)),
+            _bulk_create=True,
+            _quantity=5,
+        )
+
+    def test_add_multiple(self):
+        with self.enter_staff_mode():
+            self.selenium.get(self.url)
+            add_another = self.selenium.find_element(By.CLASS_NAME, "add-row")
+            add_another.click()
+            add_another.click()
+            add_another.click()
+
+            self.selenium.find_element(By.ID, "id_question_assignments-5-text_en").send_keys("Q5")
+            self.selenium.find_element(By.ID, "id_question_assignments-5-text_de").send_keys("Q5")
+            self.selenium.find_element(By.ID, "id_question_assignments-5-type").send_keys("text question", Keys.ENTER)
+
+            self.selenium.find_element(By.ID, "id_question_assignments-7-text_en").send_keys("Q6")
+            self.selenium.find_element(By.ID, "id_question_assignments-7-text_de").send_keys("Q6")
+            self.selenium.find_element(By.ID, "id_question_assignments-7-type").send_keys("positive yes-no", Keys.ENTER)
+
+            self.selenium.find_element(By.ID, "questionnaire-save-btn").click()
+
+        self.assertEqual(
+            list(self.questionnaire.question_assignments.values_list("question__text_en", flat=True)),
+            [f"Q{i}" for i in range(7)],
+        )
+        self.assertEqual(Question.objects.get(text_en="Q5").type, QuestionType.TEXT)
+        self.assertEqual(Question.objects.get(text_en="Q6").type, QuestionType.POSITIVE_YES_NO)
+
+    def test_question_ordering(self):
+        with self.enter_staff_mode():
+            self.selenium.get(self.url)
+            moving_arrows = self.selenium.find_elements(By.CLASS_NAME, "movable-icon")
+            self.assertEqual(len(moving_arrows), 7)  # one extra for "add another" row, one for hidden template row
+            ActionChains(self.selenium).drag_and_drop(moving_arrows[3], moving_arrows[1]).perform()
+            self.selenium.find_element(By.ID, "questionnaire-save-btn").click()
+
+        expected_order = [0, 2, 3, 1, 4]  # yields order Q0, Q3, Q1, Q2, Q4
+        for a in self.assignments:
+            a.refresh_from_db()
+        database_order = [a.order for a in self.assignments]
+        self.assertEqual(database_order, expected_order)
 
 
 class TextAnswerEditLiveTest(LiveServerTest):

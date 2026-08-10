@@ -1,7 +1,7 @@
 [project]
 name = "evap"
 description = "EvaP"
-version = "2026.2.0"
+version = "2026.5.0"
 readme = "README.md"
 requires-python = ">=3.13.0"
 dependencies = [
@@ -11,10 +11,10 @@ dependencies = [
     "mozilla-django-oidc~=5.0.2",
     "openpyxl~=3.1.5",
     "psycopg~=3.3.2",
-    "pydantic~=2.12.5",
-    "redis~=7.4.0",
-    "requests~=2.33.1",
-    "typing-extensions~=4.15.0",
+    "pydantic~=2.13.3",
+    "redis~=8.1.0",
+    "requests~=2.34.2",
+    "typing-extensions~=4.16.0",
     "xlwt~=1.3.0",
 ]
 
@@ -24,21 +24,22 @@ psycopg-c = ["psycopg[c]"]
 
 [dependency-groups]
 dev = [
-    "coverage~=7.13.1",
-    "django-debug-toolbar~=6.0",
+    "coverage~=7.15.0",
+    "django-debug-toolbar~=7.0",
     "django-stubs~=6.0.2",
     "django-webtest~=1.9.13",
-    "model-bakery~=1.23.3",
-    "mypy~=1.20.0",
+    "djangofmt~=0.2.11",
+    "model-bakery~=1.24.0",
+    "mypy~=2.3.0",
     "openpyxl-stubs~=0.1.25",
-    "pylint-django~=2.7.0",
+    "pylint-django~=2.8.0",
     "pylint~=4.0.4",
-    "ruff~=0.15.4",
+    "ruff~=0.16.1",
     "tblib~=3.2.2",
     "types-requests~=2.33.0",
     "xlrd~=2.0.1",
-    "typeguard~=4.5.1",
-    "selenium~=4.41.0",
+    "typeguard~=4.6.0",
+    "selenium~=4.46.0",
 ]
 lsp = [
     "python-lsp-server",
@@ -89,7 +90,7 @@ ignore = [
     "DJ008",                 # do not use __str__ where it is not required
     "COM812",                # incompatible with formatter
     "N802",                  # not as mighty as pylint's invalid-name https://github.com/astral-sh/ruff/issues/7660
-    "PLR0913",               # we can't determine a good limit for arguments. reviews should spot bad cases of this.
+    "PLR0913", "PLR0917",    # we can't determine a good limit for arguments. reviews should spot bad cases of this.
     "PLR2004", "PLW2901",
 ]
 
@@ -106,6 +107,12 @@ exclude = ["**/urls.py"]
 
 ##############################################
 
+[tool.djangofmt]
+extend-exclude = ["evap/static/bootstrap"]
+html-void-self-closing = "unchanged"
+custom-blocks = ["breadcrumb_item", "breadcrumb_item_url"]
+
+##############################################
 
 [tool.pylint.master]
 jobs = 0
@@ -151,15 +158,101 @@ disable = [
     "use-implicit-booleaness-not-comparison-to-string",  # forces us to use less expressive code
     "use-implicit-booleaness-not-comparison-to-zero",    # forces us to use less expressive code
     # the following are covered by ruff
-    "broad-exception-caught", "line-too-long", "unused-wildcard-import", "wildcard-import", "too-many-arguments",
-    "too-many-statements", "too-many-return-statements", "too-many-branches", "unnecessary-lambda-assignment",
-    "global-statement",
-    "import-outside-toplevel",
+    "broad-exception-caught", "line-too-long", "unused-wildcard-import", "wildcard-import",
+    "unnecessary-lambda-assignment",
     "wrong-import-position",
+    # Obtained using a script (See: https://github.com/e-valuation/EvaP/pull/2767)
+    # Very similar to the list (https://docs.astral.sh/ruff/default-rules/#pylint-pl) mapped to pylint names for the codes.
+    "typevar-name-incorrect-variance",          # C0105
+    "typevar-double-variance",                  # C0131
+    "typevar-name-mismatch",                    # C0132
+    "single-string-used-for-slots",             # C0205
+    "consider-using-dict-items",                # C0206
+    "use-maxsplit-arg",                         # C0207
+    "use-sequence-for-iteration",               # C0208
+    "useless-import-alias",                     # C0414
+    "import-outside-toplevel",                  # C0415
+    "use-implicit-booleaness-not-len",          # C1802
+    "non-ascii-name",                           # C2401
+    "non-ascii-module-import",                  # C2403
+    "unnecessary-direct-lambda-call",           # C3002
+    "init-is-generator",                        # E0100
+    "return-in-init",                           # E0101
+    "nonlocal-and-global",                      # E0115
+    "nonlocal-without-binding",                 # E0117
+    "used-prior-global-declaration",            # E0118
+    "assigning-non-slot",                       # E0237
+    "duplicate-bases",                          # E0241
+    "unexpected-special-method-signature",      # E0302
+    "invalid-length-returned",                  # E0303
+    "invalid-bool-returned",                    # E0304
+    "invalid-index-returned",                   # E0305
+    "invalid-str-returned",                     # E0307
+    "invalid-bytes-returned",                   # E0308
+    "invalid-hash-returned",                    # E0309
+    "invalid-all-object",                       # E0604
+    "invalid-all-format",                       # E0605
+    "potential-index-error",                    # E0643
+    "misplaced-bare-raise",                     # E0704
+    "repeated-keyword",                         # E1132
+    "await-outside-async",                      # E1142
+    "logging-too-many-args",                    # E1205
+    "logging-too-few-args",                     # E1206
+    "bad-format-character",                     # E1300
+    "bad-string-format-type",                   # E1307
+    "bad-str-strip-call",                       # E1310
+    "invalid-envvar-value",                     # E1507
+    "singledispatch-method",                    # E1519
+    "singledispatchmethod-function",            # E1520
+    "yield-inside-async-function",              # E1700
+    "bidirectional-unicode",                    # E2502
+    "invalid-character-backspace",              # E2510
+    "invalid-character-sub",                    # E2512
+    "invalid-character-esc",                    # E2513
+    "invalid-character-nul",                    # E2514
+    "invalid-character-zero-width-space",       # E2515
+    "comparison-with-itself",                   # R0124
+    "comparison-of-constants",                  # R0133
+    "property-with-parameters",                 # R0206
+    "consider-using-from-import",               # R0402
+    "too-many-return-statements",               # R0911
+    "too-many-branches",                        # R0912
+    "too-many-arguments",                       # R0913
+    "too-many-statements",                      # R0915
+    "too-many-positional-arguments",            # R0917
+    "redefined-argument-from-local",            # R1704
+    "stop-iteration-return",                    # R1708
+    "useless-return",                           # R1711
+    "consider-using-in",                        # R1714
+    "chained-comparison",                       # R1716
+    "consider-using-sys-exit",                  # R1722
+    "consider-using-min-builtin",               # R1730
+    "unnecessary-dict-index-lookup",            # R1733
+    "unnecessary-list-index-lookup",            # R1736
+    "unnecessary-lambda",                       # W0108
+    "useless-else-on-loop",                     # W0120
+    "self-assigning-variable",                  # W0127
+    "redeclared-assigned-name",                 # W0128
+    "assert-on-string-literal",                 # W0129
+    "named-expr-without-context",               # W0131
+    "pointless-exception-statement",            # W0133
+    "nan-comparison",                           # W0177
+    "bad-staticmethod-argument",                # W0211
+    "super-without-brackets",                   # W0245
+    "import-self",                              # W0406
+    "global-variable-not-assigned",             # W0602
+    "global-statement",                         # W0603
+    "global-at-module-level",                   # W0604
+    "self-cls-assignment",                      # W0642
+    "binary-op-exception",                      # W0711
+    "bad-open-mode",                            # W1501
+    "shallow-copy-environ",                     # W1507
+    "invalid-envvar-default",                   # W1508
+    "subprocess-popen-preexec-fn",              # W1509
+    "subprocess-run-check",                     # W1510
+    "useless-with-lock",                        # W2101
+    "nested-min-max",                           # W3301
 ]
-
-[tool.pylint.design]
-max-positional-arguments = 7
 
 ##############################################
 
@@ -181,13 +274,18 @@ exclude_also = [
 packages = ["evap", "tools"]
 plugins = ["mypy_django_plugin.main"]
 
+# list from https://mypy.readthedocs.io/en/stable/existing_code.html#introduce-stricter-options
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+strict_equality = true
+
 [tool.django-stubs]
 django_settings_module = "evap.settings"
 
 [[tool.mypy.overrides]]
 module = [
     "django_fsm.*",
-    "django_sendfile.*",
     "django_webtest.*",
     "debug_toolbar.*",
     "mozilla_django_oidc.*",
