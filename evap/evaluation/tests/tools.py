@@ -23,9 +23,13 @@ from django.urls import reverse
 from django.utils import timezone, translation
 from model_bakery import baker
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
-from selenium.webdriver.support.expected_conditions import staleness_of
+from selenium.webdriver.support.expected_conditions import (
+    presence_of_element_located,
+    staleness_of,
+)
 from selenium.webdriver.support.wait import WebDriverWait
 
 from evap.evaluation.models import (
@@ -396,6 +400,26 @@ class LiveServerTest(SeedBakerMixin, SeleniumTestCase):
         yield
         self.wait.until(staleness_of(html_element))
 
+    def search_and_select_in_tom_select(self, field_name: str, *keys: str, clear: bool = False):
+        self.wait.until(presence_of_element_located((By.CSS_SELECTOR, f"#id_{field_name} ~ .ts-wrapper .ts-control")))
+        # Use JS for the click to not accidentally click an item in the tom select
+        self.selenium.execute_script(f'document.querySelector("#id_{field_name} ~ .ts-wrapper .ts-control").click()')
+
+        if clear:
+            for el in self.selenium.find_elements(
+                By.CSS_SELECTOR, f"#id_{field_name} ~ .ts-wrapper .ts-control .remove"
+            ):
+                el.click()
+
+        input_field = self.wait.until(presence_of_element_located((By.ID, f"id_{field_name}-ts-control")))
+        if clear:
+            input_field.clear()
+        input_field.send_keys(*keys)
+
+        self.wait.until(presence_of_element_located((By.CSS_SELECTOR, f"#id_{field_name}-ts-dropdown .option")))
+
+        input_field.send_keys(Keys.ENTER)
+
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
@@ -421,3 +445,32 @@ def classes_of_element(element: WebElement) -> list[str]:
 def get_open_modals(driver: WebDriver, by: str, value: str) -> list[WebElement]:
     modals = driver.find_elements(by, value)
     return [modal for modal in modals if len(modal.shadow_root.find_elements(By.CSS_SELECTOR, "dialog:open")) == 1]
+
+
+class UserProfileSearchLiveServerTest(LiveServerTest):
+    def conduct_user_profile_search_test(
+        self, field_name: str, users_to_find: list[UserProfile], users_not_to_find: list[UserProfile]
+    ):
+        fields_to_use_for_search = ["first_name_given", "last_name", "email", "full_name"]
+
+        for user in users_to_find:
+            for field in fields_to_use_for_search:
+                self.search_and_select_in_tom_select(field_name, getattr(user, field), clear=True)
+
+                found_options = self.selenium.find_elements(By.CSS_SELECTOR, f"#id_{field_name}-ts-dropdown .option")
+                self.assertEqual(len(found_options), 1)
+
+                self.assertEqual(found_options[0].get_attribute("data-value"), str(user.pk))
+
+                input_field = self.selenium.find_element(By.ID, f"id_{field_name}")
+                self.assertEqual(input_field.get_attribute("value"), str(user.pk))
+
+        for user in users_not_to_find:
+            for field in fields_to_use_for_search:
+                input_field = self.selenium.find_element(By.ID, f"id_{field_name}-ts-control")
+                input_field.clear()
+                input_field.send_keys(getattr(user, field))
+
+                self.wait.until(
+                    presence_of_element_located((By.CSS_SELECTOR, f"#id_{field_name}-ts-dropdown .no-results"))
+                )
