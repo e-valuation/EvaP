@@ -4,7 +4,7 @@ from collections.abc import Iterable
 from copy import copy
 from enum import Enum
 from math import ceil, modf
-from typing import Any, TypeGuard, cast
+from typing import TYPE_CHECKING, TypeGuard, cast
 
 from django.conf import settings
 from django.core.cache import caches
@@ -26,6 +26,9 @@ from evap.evaluation.models import (
 )
 from evap.evaluation.tools import discard_cached_related_objects
 from evap.tools import assert_not_none, unordered_groupby
+
+if TYPE_CHECKING:
+    from typing import Any
 
 STATES_WITH_RESULTS_CACHING = {Evaluation.State.EVALUATED, Evaluation.State.REVIEWED, Evaluation.State.PUBLISHED}
 STATES_WITH_RESULT_TEMPLATE_CACHING = {Evaluation.State.PUBLISHED}

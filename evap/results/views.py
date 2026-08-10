@@ -1,6 +1,6 @@
 from collections import defaultdict
 from statistics import median
-from typing import Any, cast
+from typing import TYPE_CHECKING, cast
 
 from django.conf import settings
 from django.core.cache import caches
@@ -21,7 +21,6 @@ from evap.results.tools import (
     ContributionResult,
     EvaluationResult,
     HeadingResult,
-    PublishedRatingResult,
     QuestionnaireResult,
     RatingResult,
     TextResult,
@@ -33,6 +32,11 @@ from evap.results.tools import (
     get_results,
 )
 from evap.tools import unordered_groupby
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from evap.results.tools import PublishedRatingResult
 
 
 def get_course_result_template_fragment_cache_key(course_id: int, language: str) -> str:
