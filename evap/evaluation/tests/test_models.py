@@ -5,6 +5,7 @@ from django.contrib.auth.models import Group
 from django.core import mail
 from django.core.cache import caches
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 from django.test import override_settings
 from django_fsm import TransitionNotAllowed
 from model_bakery import baker
@@ -75,7 +76,7 @@ class TestQuestionnaire(TestCase):
 class TestQuestionAssignment(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.assignment = baker.make(QuestionAssignment)
+        cls.assignment = baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT)
         cls.question = cls.assignment.question
         cls.questionnaire = cls.assignment.questionnaire
 
@@ -90,6 +91,39 @@ class TestQuestionAssignment(TestCase):
     def test_questionnaire_cascading_delete_gc(self):
         self.questionnaire.delete()
         self.assertRaises(Question.DoesNotExist, self.question.refresh_from_db)
+
+    def test_save_rejects_invalid_counts_for_grade(self):
+        dropout = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
+        top = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        grade_question = baker.make(Question, type=QuestionType.GRADE)
+
+        dropout_assignment = QuestionAssignment(questionnaire=dropout, question=grade_question, counts_for_grade=True)
+        with self.assertRaisesMessage(
+            IntegrityError, "Questions in dropout questionnaires cannot count toward the grade."
+        ):
+            dropout_assignment.save()
+
+        for question_type in [QuestionType.TEXT, QuestionType.HEADING]:
+            assignment = QuestionAssignment(
+                questionnaire=top,
+                question=baker.make(Question, type=question_type),
+                counts_for_grade=True,
+            )
+            with self.assertRaisesMessage(IntegrityError, "Text and heading questions cannot count toward the grade."):
+                assignment.save()
+
+        rating_assignment = baker.make(
+            QuestionAssignment, questionnaire=top, question=grade_question, counts_for_grade=True
+        )
+        rating_assignment.refresh_from_db()
+        self.assertTrue(rating_assignment.counts_for_grade)
+
+        dropout_assignment = baker.make(
+            QuestionAssignment, questionnaire=dropout, question=grade_question, counts_for_grade=False
+        )
+        dropout_assignment.counts_for_grade = True
+        with self.assertRaises(IntegrityError):
+            dropout_assignment.save(update_fields=["order"])
 
 
 @override_settings(EVALUATION_END_OFFSET_HOURS=0)
@@ -334,6 +368,7 @@ class TestEvaluations(WebTest):
             TextAnswer,
             assignment__question__type=QuestionType.TEXT,
             assignment__questionnaire=questionnaire,
+            assignment__counts_for_grade=False,
             contribution=evaluation.general_contribution,
         )
 
@@ -357,6 +392,7 @@ class TestEvaluations(WebTest):
             TextAnswer,
             assignment__question__type=QuestionType.TEXT,
             assignment__questionnaire=questionnaire,
+            assignment__counts_for_grade=False,
             contribution=evaluation.general_contribution,
         )
 
@@ -380,6 +416,7 @@ class TestEvaluations(WebTest):
             TextAnswer,
             assignment__question__type=QuestionType.TEXT,
             assignment__questionnaire=questionnaire,
+            assignment__counts_for_grade=False,
             contribution=evaluation.general_contribution,
             answer=iter(["deleted", "public", "private"]),
             review_decision=iter(
@@ -414,6 +451,7 @@ class TestEvaluations(WebTest):
             TextAnswer,
             assignment__question__type=QuestionType.TEXT,
             assignment__questionnaire=questionnaire,
+            assignment__counts_for_grade=False,
             contribution=evaluation.general_contribution,
             answer="published answer",
             original_answer="original answer",
@@ -525,7 +563,11 @@ class TestEvaluations(WebTest):
             evaluation.TextAnswerReviewState.NO_TEXTANSWERS,
         )
 
-        textanswer = baker.make(TextAnswer, contribution=evaluation.general_contribution)
+        textanswer = baker.make(
+            TextAnswer,
+            contribution=evaluation.general_contribution,
+            assignment__counts_for_grade=False,
+        )
         del evaluation.num_textanswers  # reset cached_property cache
 
         # text_answer_review_state should be NO_REVIEW_NEEDED as long as we are still in_evaluation
@@ -1042,8 +1084,16 @@ class TestEmailTemplate(TestCase):
         contributor_both_contribution = make_contributor(contributor_both, evaluation2)
         contributor2_contribution = make_contributor(contributor2, evaluation2)
 
-        baker.make(TextAnswer, contribution=contributor_both_contribution)
-        baker.make(TextAnswer, contribution=contributor2_contribution)
+        baker.make(
+            TextAnswer,
+            contribution=contributor_both_contribution,
+            assignment__counts_for_grade=False,
+        )
+        baker.make(
+            TextAnswer,
+            contribution=contributor2_contribution,
+            assignment__counts_for_grade=False,
+        )
 
         expected_calls = [
             # these 4 are included since they are contributors for evaluation1 which can publish the average grade
@@ -1081,7 +1131,11 @@ class TestEmailTemplate(TestCase):
             send_to_user_mock.assert_has_calls(expected_calls, any_order=True)
 
         # if general textanswers for an evaluation exist, all responsibles should also be notified
-        baker.make(TextAnswer, contribution=evaluation2.general_contribution)
+        baker.make(
+            TextAnswer,
+            contribution=evaluation2.general_contribution,
+            assignment__counts_for_grade=False,
+        )
         expected_calls.append(
             call(
                 responsible2,
@@ -1174,3 +1228,15 @@ class TestEmailRecipientList(TestCase):
             evaluation, [EmailTemplate.Recipients.CONTRIBUTORS], filter_users_in_cc=True
         )
         self.assertCountEqual(recipient_list, [contributor2, contributor3])
+
+
+class TestQuestion(TestCase):
+    def test_save_coerces_additional_textanswers_for_text_and_heading(self):
+        # save() must persist allows_additional_textanswers=False for TEXT/HEADING even on a partial update_fields save.
+        for question_type in [QuestionType.TEXT, QuestionType.HEADING]:
+            question = baker.make(Question, type=QuestionType.NEGATIVE_LIKERT, allows_additional_textanswers=True)
+            question.type = question_type
+            question.save(update_fields=["type"])
+            question.refresh_from_db()
+            self.assertEqual(question.type, question_type)
+            self.assertFalse(question.allows_additional_textanswers)
