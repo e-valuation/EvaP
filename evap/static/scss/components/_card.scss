@@ -1,5 +1,14 @@
 .card-header {
     font-weight: bold;
+
+    // prepare for two elements, left- and right aligned, with flex wrap
+    // should have no effect with just a single child. We don't expect more than two children
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    > :nth-child(1) {
+        flex-grow: 1;
+    }
 }
 
 .card-outline-primary {

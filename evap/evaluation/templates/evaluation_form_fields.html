@@ -17,13 +17,13 @@
                 {% include 'bootstrap_form_field_label.html' with field=field class='col-md-3 pe-4' %}
                 <div class="col-md-7 card collapsible overflow-visible">
                     <a
-                        class="text-decoration-none fw-normal card-header d-flex collapse-toggle{% if state >= evaluation.State.EDITOR_APPROVED and evaluation.participants.count > 0 or evaluation_form.cms_disclaimer %} collapsed{% endif %}"
+                        class="text-decoration-none fw-normal card-header collapse-toggle{% if state >= evaluation.State.EDITOR_APPROVED and evaluation.participants.count > 0 or evaluation_form.cms_disclaimer %} collapsed{% endif %}"
                         data-bs-toggle="collapse"
                         href="#participant-box"
                     >
-                        {% if evaluation_form.cms_disclaimer %}{{ evaluation_form.cms_disclaimer }}{% endif %}
+                        {% if evaluation_form.cms_disclaimer %}<span>{{ evaluation_form.cms_disclaimer }}</span>{% endif %}
                         <span
-                            class="badge rounded-pill badge-btn ms-auto"
+                            class="badge rounded-pill badge-btn"
                             data-track-tomselect-count="#id_participants"
                         ></span>
                     </a>

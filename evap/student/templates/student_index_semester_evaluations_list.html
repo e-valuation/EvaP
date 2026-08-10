@@ -4,10 +4,8 @@
 {% for semester in semester_list %}
     {% if semester.evaluations %}
         <div class="card{% if not forloop.last %} mb-3{% endif %}{% if semester.results_are_archived %} deactivate{% endif %}">
-            <div class="card-header d-flex">
-                <span class="me-auto">
-                    {{ semester.semester_name }}
-                </span>
+            <div class="card-header">
+                <span>{{ semester.semester_name }}</span>
                 {% if semester.results_are_archived %}
                     <span class="archive-info">
                         <span class="fas fa-box-archive"></span> {% translate 'The results of this semester have been archived.' %}
