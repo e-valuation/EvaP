@@ -13,6 +13,7 @@ import openpyxl
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.staticfiles import finders
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import IntegrityError, transaction
 from django.db.models import (
@@ -2700,7 +2701,10 @@ def download_sample_file(_request: HttpRequest, filename: str) -> HttpResponse:
     if filename not in ["sample.xlsx", "sample_user.xlsx"]:
         raise SuspiciousOperation("Invalid file name.")
 
-    book = openpyxl.load_workbook(filename=settings.STATICFILES_DIRS[0] / filename)
+    workbook_filename = finders.find(filename)
+    if not workbook_filename:
+        return HttpResponseBadRequest()
+    book = openpyxl.load_workbook(filename=workbook_filename)
     for sheet in book:  # type: ignore[attr-defined]
         for row in sheet:
             for cell in row:
