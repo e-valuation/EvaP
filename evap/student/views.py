@@ -54,27 +54,12 @@ class GlobalEvaluationProgress:
         vote_ratio: Fraction
         text: str
 
-    @dataclass
-    class Campaign:
-        title_de: str
-        title_en: str
-        title = translate(en="title_en", de="title_de")
-
-        info_title_de: str
-        info_title_en: str
-        info_title = translate(en="info_title_en", de="info_title_de")
-
-        info_text_de: str
-        info_text_en: str
-        info_text = translate(en="info_text_en", de="info_text_de")
-
     vote_count: int
     participation_count: int
     max_reward_votes: int
     bar_width_votes: int
     last_vote_datetime: datetime.datetime
     rewards_with_progress: list[RewardProgress]
-    campaign: Campaign
 
     @staticmethod
     def from_settings() -> "GlobalEvaluationProgress | None":
@@ -121,7 +106,6 @@ class GlobalEvaluationProgress:
             bar_width_votes=min(vote_count, max_reward_votes),
             last_vote_datetime=last_vote_datetime,
             rewards_with_progress=rewards_with_progress,
-            campaign=GlobalEvaluationProgress.Campaign(**settings.GLOBAL_EVALUATION_PROGRESS_CAMPAIGN),
         )
 
 

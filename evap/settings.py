@@ -402,14 +402,6 @@ GLOBAL_EVALUATION_PROGRESS_REWARDS: list[
 ] = []  # (required_voter_ratio between 0 and 1, reward_text)
 GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS: list[int] = []
 GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS: list[int] = []
-GLOBAL_EVALUATION_PROGRESS_CAMPAIGN: dict[str, str] = {
-    "title_de": "",
-    "title_en": "",
-    "info_title_de": "",
-    "info_title_en": "",
-    "info_text_de": "",
-    "info_text_en": "",
-}
 
 ### Slogans
 SLOGANS_DE = [

@@ -17,7 +17,9 @@
         </div>
     {% endif %}
 
-    {% include 'student_global_evaluation_progress.html' with global_evaluation_progress=global_evaluation_progress %}
+    {% if show_reward_card %}
+        {% include 'student_rewards_card.html' %}
+    {% endif %}
 
     {% if unfinished_evaluations %}
         <div class="card card-outline-primary mb-3">
