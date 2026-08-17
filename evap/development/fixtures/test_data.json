@@ -130488,6 +130488,17 @@
   }
 },
 {
+  "model": "evaluation.infotext",
+  "pk": 4,
+  "fields": {
+    "title_de": "Informationen zu Belohnungen",
+    "title_en": "Information about rewards",
+    "content_de": "You will get reward points by taking part in evaluations. These points can be redeemed for different events.\r\nYou will receive vouchers for food and drinks at the event you selected below. We'll inform you about any upcoming event where you can redeem your reward points.",
+    "content_en": "You will get reward points by taking part in evaluations. These points can be redeemed for different events.\r\nYou will receive vouchers for food and drinks at the event you selected below. We'll inform you about any upcoming event where you can redeem your reward points.",
+    "page": "rewards_index"
+  }
+},
+{
   "model": "evaluation.userprofile",
   "pk": 1,
   "fields": {
