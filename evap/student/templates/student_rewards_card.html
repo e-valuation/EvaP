@@ -3,7 +3,7 @@
 {% if global_evaluation_progress %}
     <div class="card mb-3">
         <div class="card-header d-flex">
-            {{ global_evaluation_progress.campaign.title }}
+            {% translate 'Semester evaluation progress' %}
             {% if global_evaluation_progress.last_vote_datetime %}
                 <div class="ms-auto fw-normal fst-italic">
                     {% blocktranslate trimmed with time_interval=global_evaluation_progress.last_vote_datetime|timesince %}
@@ -38,23 +38,6 @@
                         <div class="text-lg-center fw-semibold progress-text">{{ reward.text }}</div>
                     </div>
                 {% endfor %}
-            </div>
-            <div class="card card-outline-light collapsible mt-2">
-                <div class="card-header d-flex">
-                    <a
-                        class="collapse-toggle collapse-toggle-light collapsed"
-                        data-bs-toggle="collapse"
-                        href="#goal-info-text"
-                        aria-controls="goal-info-text"
-                    >
-                        {{ global_evaluation_progress.campaign.info_title }}
-                    </a>
-                </div>
-                <div class="collapse" id="goal-info-text">
-                    <div class="card-body">
-                        {{ global_evaluation_progress.campaign.info_text }}
-                    </div>
-                </div>
             </div>
         </div>
     </div>
