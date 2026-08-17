@@ -1,19 +1,14 @@
 {% extends 'base.html' %}
 
 {% load evaluation_filters %}
+{% load infotext_templatetags %}
 
 {% block title %}{% translate 'Rewards' %} - {{ block.super }}{% endblock %}
 
 {% block content %}
     {{ block.super }}
 
-    <div class="callout callout-info small">
-        {% blocktranslate trimmed %}
-            You will get reward points by taking part in evaluations. These points can be redeemed for different events.
-            You will receive vouchers for food and drinks at the event you selected below. We'll inform you about any
-            upcoming event where you can redeem your reward points.
-        {% endblocktranslate %}
-    </div>
+    {% show_infotext "rewards_index" %}
 
     <div class="card card-outline-primary mb-3">
         <div class="card-header">

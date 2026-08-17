@@ -62,14 +62,6 @@ class TestStudentIndexView(WebTestWith200Check):
             (Fraction(1, 10), {"de": "a dog", "en": "a dog"}),
             (Fraction(5, 10), {"de": "a quokka", "en": "a quokka"}),
         ],
-        GLOBAL_EVALUATION_PROGRESS_CAMPAIGN={
-            "title_de": "global_evaluation_progress_title_str",
-            "title_en": "global_evaluation_progress_title_str",
-            "info_title_de": "global_evaluation_progress_info_title_str",
-            "info_title_en": "global_evaluation_progress_info_title_str",
-            "info_text_de": "global_evaluation_progress_info_text_str",
-            "info_text_en": "global_evaluation_progress_info_text_str",
-        },
         GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS=[1042],
         GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS=[1043],
     )
@@ -107,9 +99,6 @@ class TestStudentIndexView(WebTestWith200Check):
         expected_voter_percent = 100 * expected_voters // expected_participants
 
         page = self.app.get(self.url, user=self.user)
-        self.assertIn("global_evaluation_progress_title_str", page)
-        self.assertIn("global_evaluation_progress_info_title_str", page)
-        self.assertIn("global_evaluation_progress_info_text_str", page)
         self.assertIn("Last evaluation:", page)
         self.assertIn(
             f"{expected_voters} of {expected_participants} evaluations submitted ({expected_voter_percent}%)", page
@@ -151,14 +140,6 @@ class TestStudentIndexView(WebTestWith200Check):
 
     @override_settings(
         GLOBAL_EVALUATION_PROGRESS_REWARDS=[],
-        GLOBAL_EVALUATION_PROGRESS_CAMPAIGN={
-            "title_de": "global_evaluation_progress_title_str",
-            "title_en": "global_evaluation_progress_title_str",
-            "info_title_de": "global_evaluation_progress_info_title_str",
-            "info_title_en": "global_evaluation_progress_info_title_str",
-            "info_text_de": "global_evaluation_progress_info_text_str",
-            "info_text_en": "global_evaluation_progress_info_text_str",
-        },
     )
     def test_global_evaluation_progress_hidden(self):
         page = self.app.get(self.url, user=self.user)
