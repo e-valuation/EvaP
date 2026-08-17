@@ -3,8 +3,6 @@
 from fractions import Fraction
 from pathlib import Path
 
-from django.utils.safestring import mark_safe
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -51,14 +49,6 @@ GLOBAL_EVALUATION_PROGRESS_REWARDS: list[tuple[Fraction, dict[str, str]]] = [
 ]
 GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS: list[int] = []
 GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS: list[int] = []
-GLOBAL_EVALUATION_PROGRESS_CAMPAIGN: dict[str, str] = {
-    "title_de": "Spendenaktion",
-    "title_en": "Fundraising",
-    "info_title_de": "Jede Stimme zählt! Erfahre mehr über unser Spendenziel.",
-    "info_title_en": "Every vote counts! Read more about our fundraising goal.",
-    "info_text_de": mark_safe("Deine Teilnahme am Evaluationsprojekt wird helfen. Evaluiere also <b>jetzt</b>!"),
-    "info_text_en": mark_safe("Your participation in the evaluation helps, so evaluate <b>now</b>!"),
-}
 
 # Questionnaires automatically added to exam evaluations
 EXAM_QUESTIONNAIRE_IDS = [111]
