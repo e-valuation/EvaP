@@ -962,6 +962,7 @@
     <script type="module">
         import {DataGridBuilder, CSSGridTable} from "{% static 'js/datagrid-new.js' %}";
         import {RadioButtonFilter, CSSGridSorter} from "{% static 'js/datagrid-new.js' %}";
+        import {SearchFilter} from "../../static/js/datagrid-new.js";
 
         const evaluationGrid = document.querySelector("#evaluation-grid");
         const evaluationGridBinding = new CSSGridTable(evaluationGrid)
@@ -971,7 +972,10 @@
                 [["name", "asc"]])
             )
             .addFilter(new RadioButtonFilter('evaluation_state', document.querySelectorAll('#evaluation-filter-buttons [data-filter-value]')), true)
-            .addFilter(new SearchFilter())
+            .addFilter(new SearchFilter(
+                document.querySelector('input[name=search-evaluation]'),
+                document.querySelector('[data-reset=search-evaluation]')
+            ))
             .addRendererAndBuild(evaluationGridBinding)
         {#if (evaluationGrid) {#}
         {#    DataGrid.fromCSSGridTable(#}
