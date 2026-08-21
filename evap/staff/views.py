@@ -81,7 +81,13 @@ from evap.results.exporters import ResultsExporter
 from evap.results.tools import TextResult, calculate_average_distribution, distribution_to_grade
 from evap.results.views import update_template_cache_of_published_evaluations_in_course
 from evap.rewards.models import RewardPointGranting
-from evap.rewards.tools import can_reward_points_be_used_by, deactivate_semester, is_semester_activated
+from evap.rewards.tools import (
+    StatusPointsProgress,
+    can_reward_points_be_used_by,
+    deactivate_semester,
+    is_semester_activated,
+    semester_rewards_stats,
+)
 from evap.staff import staff_mode
 from evap.staff.forms import (
     AtLeastOneFormset,
@@ -838,31 +844,24 @@ def semester_participation_export(_request: HttpRequest, semester_id: int) -> Ht
             _("#Required evaluations"),
             _("#Optional evaluations voted for"),
             _("#Optional evaluations"),
-            _("Earned reward points"),
+            _("Earned reward points (semester)"),
+            _("Earned status points (total)"),
         ]
     )
     for participant in participants:
-        number_of_required_evaluations = semester.evaluations.filter(participants=participant, is_rewarded=True).count()
-        number_of_required_evaluations_voted_for = semester.evaluations.filter(
-            voters=participant, is_rewarded=True
-        ).count()
-        number_of_optional_evaluations = semester.evaluations.filter(
-            participants=participant, is_rewarded=False
-        ).count()
-        number_of_optional_evaluations_voted_for = semester.evaluations.filter(
-            voters=participant, is_rewarded=False
-        ).count()
-        query = RewardPointGranting.objects.filter(semester=semester, user_profile=participant).aggregate(Sum("value"))
-        earned_reward_points = query["value__sum"] or 0
+        stats = semester_rewards_stats(participant, semester)
+        user_status_points_progress = StatusPointsProgress.user_status_points_progress(participant)
+        earned_status_points = user_status_points_progress.earned_status_points if user_status_points_progress else 0
         writer.writerow(
             [
                 participant.email,
                 can_reward_points_be_used_by(participant),
-                number_of_required_evaluations_voted_for,
-                number_of_required_evaluations,
-                number_of_optional_evaluations_voted_for,
-                number_of_optional_evaluations,
-                earned_reward_points,
+                stats.number_of_required_evaluations_voted_for,
+                stats.number_of_required_evaluations,
+                stats.number_of_optional_evaluations_voted_for,
+                stats.number_of_optional_evaluations,
+                stats.earned_reward_points,
+                earned_status_points,
             ]
         )
 

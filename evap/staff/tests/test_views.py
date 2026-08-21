@@ -1441,19 +1441,29 @@ class TestSemesterRawDataExportView(WebTestStaffModeWith200Check):
         self.assertEqual(response.content, expected_content.encode("utf-8"))
 
 
+@override_settings(
+    REWARD_POINTS=[
+        (1 / 3, 1),
+        (2 / 3, 2),
+        (3 / 3, 3),
+    ],
+    STATUS_POINTS_EXCLUDED_SEMESTERS=[2],
+)
 class TestSemesterParticipationDataExportView(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        student_user = baker.make(UserProfile, email="student@example.com")
+        student_user = baker.make(UserProfile, email="student@institution.example.com")
         student_user2 = baker.make(UserProfile, email="student2@example.com")
 
-        semester = baker.make(Semester)
-        cls.url = f"/staff/semester/{semester.pk}/participation_export"
+        semester1 = baker.make(Semester, id=1)
+        semester2 = baker.make(Semester, id=2)
+        semester3 = baker.make(Semester, id=3)
+        cls.url = f"/staff/semester/{semester1.pk}/participation_export"
 
         baker.make(
             Evaluation,
-            course__semester=semester,
+            course__semester=semester1,
             participants=[student_user],
             voters=[student_user],
             _fill_optional=["name_de", "name_en"],
@@ -1461,21 +1471,23 @@ class TestSemesterParticipationDataExportView(WebTestStaffMode):
         )
         baker.make(
             Evaluation,
-            course__semester=semester,
+            course__semester=semester1,
             participants=[student_user, student_user2],
             _fill_optional=["name_de", "name_en"],
             is_rewarded=False,
         )
-        baker.make(RewardPointGranting, semester=semester, user_profile=student_user, value=23)
-        baker.make(RewardPointGranting, semester=semester, user_profile=student_user, value=42)
+        baker.make(RewardPointGranting, semester=semester1, user_profile=student_user, value=23)
+        baker.make(RewardPointGranting, semester=semester1, user_profile=student_user, value=42)
+        baker.make(RewardPointGranting, semester=semester2, user_profile=student_user, value=5)
+        baker.make(RewardPointGranting, semester=semester3, user_profile=student_user, value=3)
 
     def test_view_downloads_csv_file(self):
         response = self.app.get(self.url, user=self.manager)
         expected_content = (
             "Email;Can use reward points;#Required evaluations voted for;#Required evaluations;#Optional evaluations voted for;"
-            "#Optional evaluations;Earned reward points\n"
-            "student2@example.com;False;0;0;0;1;0\n"
-            "student@example.com;False;1;1;0;1;65\n"
+            "#Optional evaluations;Earned reward points (semester);Earned status points (total)\n"
+            "student2@example.com;False;0;0;0;1;0;0\n"
+            "student@institution.example.com;True;1;1;0;1;65;68\n"
         )
         self.assertEqual(response.content, expected_content.encode("utf-8"))
 
@@ -2454,6 +2466,13 @@ class TestEvaluationEditView(WebTestStaffMode):
         self.assertNotIn(hidden_questionnaire.name, page)
 
 
+@override_settings(
+    REWARD_POINTS=[
+        (1 / 3, 1),
+        (2 / 3, 2),
+        (3 / 3, 3),
+    ]
+)
 class TestEvaluationDeleteView(WebTestStaffMode):
     csrf_checks = False
     url = reverse("staff:evaluation_delete")

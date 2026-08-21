@@ -10,12 +10,57 @@
 
     {% show_infotext "rewards_index" %}
 
-    <div class="card card-outline-primary mb-3">
-        <div class="card-header">
-            {% translate 'Redeem points' %}
+    {% if status_points_progress %}
+        <div class="card mb-3">
+            <div class="card-header d-flex">
+                {% translate 'Your status' %}: {{ status_points_progress.current_status.name }}
+                <div class="ms-auto">
+                    <span class="badge bg-light">
+                        {% translate 'Your status points' %}: {{ status_points_progress.earned_status_points }}
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="rewards-progress-bar pt-0 px-4">
+                    <span class="progress-container">
+                        <span class="progress m-0 bg-info">
+                            {% with earned_status_points=status_points_progress.earned_status_points|min_value:status_points_progress.max_status_points %}
+                                <span
+                                    class="progress-bar width-percent-{% widthratio earned_status_points status_points_progress.max_status_points 100 %}"
+                                    style="background: {{ status_points_progress.current_status.color2 }}; background: linear-gradient(180deg, {{ status_points_progress.current_status.color2 }} -10%, {{ status_points_progress.current_status.color1 }} 10%, {{ status_points_progress.current_status.color2 }} 70%)"
+                                ></span>
+                            {% endwith %}
+                        </span>
+                    </span>
+                    {% for status in status_points_progress.statuses %}
+                        <div class="position-relative progress-step progress-step-top left-percent-{% widthratio status.points status_points_progress.max_status_points 100 %}">
+                            <div class="progress-step-number">
+                                {{ status.points }}
+                            </div>
+                            <div class="progress-step-label">{{ status.name }}</div>
+                        </div>
+                        {% if not forloop.first %}
+                            <div class="position-relative progress-step progress-step-bottom left-percent-{% widthratio status.points status_points_progress.max_status_points 100 %}">
+                                <div class="progress-step-number"></div>
+                                <div class="progress-step-label">{{ status.reward }}</div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="card card-outline-primary">
+        <div class="card-header d-flex">
+            {% translate 'Redeem reward points' %}
+            <div class="ms-auto">
+                <span class="badge bg-primary">
+                    {% translate 'Available reward points' %}: {{ total_points_available }}
+                </span>
+            </div>
         </div>
         <div class="card-body table-responsive">
-            <p><b>{% translate 'Total points available' %}: {{ total_points_available }}</b></p>
             {% if total_points_available > 0 %}
                 {% if events %}
                     <form id="reward-redemption-form" action="#" method="POST" class="form-horizontal multiselect-form">
@@ -29,7 +74,7 @@
                             <thead>
                                 <tr>
                                     <th class="width-percent-20">{% translate 'Date' %}</th>
-                                    <th class="width-percent-40">{% translate 'Event' %}</th>
+                                    <th class="width-percent-40">{% translate 'Offer' %}</th>
                                     <th class="width-percent-20">{% translate 'Available until' %}</th>
                                     <th class="width-percent-20">{% translate 'Redeem points' %}</th>
                                 </tr>
@@ -55,50 +100,85 @@
                 {% else %}
                     <p class="fst-italic">
                         {% blocktranslate trimmed %}
-                            Currently there are no events available for which you can redeem points. We'll send you a
+                            Currently, there are no offers available for which you can redeem points. We will send you a
                             message when this changes.
                         {% endblocktranslate %}
                     </p>
                 {% endif %}
             {% else %}
-                <p class="fst-italic">
+                <span class="fst-italic">
                     {% blocktranslate trimmed %}
                         You don't have any reward points that you could redeem.
                     {% endblocktranslate %}
-                </p>
+                </span>
             {% endif %}
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-header">
-            {% translate 'Reward points history' %}
+    <div class="row row-cols-1 row-cols-lg-2 g-3 pt-3">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    {% translate 'Earned reward points' %}
+                </div>
+                <div class="card-body table-responsive">
+                    {% if user_rewards_stats %}
+                        <table class="table table-striped table-vertically-aligned">
+                            <thead>
+                                <tr>
+                                    <th class="width-percent-40">{% translate 'Semester' %}</th>
+                                    <th class="width-percent-40">{% translate 'Submitted evaluations' %}</th>
+                                    <th class="width-percent-20 text-end">{% translate 'Earned points' %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for semester_rewards_stats in user_rewards_stats %}
+                                    <tr>
+                                        <td>{{ semester_rewards_stats.semester }}</td>
+                                        <td>
+                                            {% include 'progress_bar.html' with done=semester_rewards_stats.number_of_required_evaluations_voted_for total=semester_rewards_stats.number_of_required_evaluations %}
+                                        </td>
+                                        <td class="text-end">{{ semester_rewards_stats.earned_reward_points }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <span class="fst-italic">{% translate 'No reward points earned yet.' %}</span>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-        <div class="card-body table-responsive">
-            {% if reward_point_actions %}
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th class="width-percent-20">{% translate 'Date' %}</th>
-                            <th class="width-percent-40">{% translate 'Action' %}</th>
-                            <th class="width-percent-20 text-end">{% translate 'Granted points' %}</th>
-                            <th class="width-percent-20 text-end">{% translate 'Redeemed points' %}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for action_time, event_name, granting_value, redemption_value in reward_point_actions %}
-                            <tr>
-                                <td>{{ action_time }}</td>
-                                <td>{{ event_name }}</td>
-                                <td class="text-end">{{ granting_value }}</td>
-                                <td class="text-end">{{ redemption_value }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                <p class="fst-italic">{% translate 'No reward points earned yet.' %}</p>
-            {% endif %}
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    {% translate 'Redeemed reward points' %}
+                </div>
+                <div class="card-body table-responsive">
+                    {% if redemption_point_actions %}
+                        <table class="table table-striped table-vertically-aligned">
+                            <thead>
+                                <tr>
+                                    <th class="width-percent-30">{% translate 'Date' %}</th>
+                                    <th class="width-percent-40">{% translate 'Offer' %}</th>
+                                    <th class="width-percent-30 text-end">{% translate 'Redeemed points' %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for action_time, event_name, redemption_value in redemption_point_actions %}
+                                    <tr>
+                                        <td>{{ action_time }}</td>
+                                        <td>{{ event_name }}</td>
+                                        <td class="text-end">{{ redemption_value }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <span class="fst-italic">{% translate 'No reward points redeemed yet.' %}</span>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}
