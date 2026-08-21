@@ -58,9 +58,9 @@ class TestStudentIndexView(WebTestWith200Check):
             self.app.get(self.url, user=self.user)
 
     @override_settings(
-        GLOBAL_EVALUATION_PROGRESS_REWARDS=[
-            (Fraction(1, 10), {"de": "a dog", "en": "a dog"}),
-            (Fraction(5, 10), {"de": "a quokka", "en": "a quokka"}),
+        GLOBAL_EVALUATION_PROGRESS=[
+            (Fraction("0.1"), {"de": "a dog", "en": "a dog"}),
+            (Fraction("0.5"), {"de": "a quokka", "en": "a quokka"}),
         ],
         GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS=[1042],
         GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS=[1043],
@@ -99,7 +99,7 @@ class TestStudentIndexView(WebTestWith200Check):
         expected_voter_percent = 100 * expected_voters // expected_participants
 
         page = self.app.get(self.url, user=self.user)
-        self.assertIn("Last evaluation:", page)
+        self.assertIn("Last evaluation submitted:", page)
         self.assertIn(
             f"{expected_voters} of {expected_participants} evaluations submitted ({expected_voter_percent}%)", page
         )
@@ -108,7 +108,7 @@ class TestStudentIndexView(WebTestWith200Check):
         self.assertIn("a dog", page)
         self.assertIn("50%", page)
 
-    @override_settings(GLOBAL_EVALUATION_PROGRESS_REWARDS=[(Fraction("0.07"), {"de": "a dog", "en": "a dog"})])
+    @override_settings(GLOBAL_EVALUATION_PROGRESS=[(Fraction("0.07"), {"de": "a dog", "en": "a dog"})])
     def test_global_evaluation_progress_edge_cases(self):
         # no active semester
         Semester.objects.update(is_active=False)
@@ -125,7 +125,7 @@ class TestStudentIndexView(WebTestWith200Check):
         self.assertIn("7%", page)
         self.assertIn("a dog", page)
 
-        # more voters than required for last reward
+        # more voters than required for last step
         baker.make(
             Evaluation,
             course__semester=semester,
@@ -139,7 +139,7 @@ class TestStudentIndexView(WebTestWith200Check):
         self.assertIn("a dog", page)
 
     @override_settings(
-        GLOBAL_EVALUATION_PROGRESS_REWARDS=[],
+        GLOBAL_EVALUATION_PROGRESS=[],
     )
     def test_global_evaluation_progress_hidden(self):
         page = self.app.get(self.url, user=self.user)

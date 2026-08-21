@@ -39,8 +39,8 @@ SECRET_KEY = "$SECRET_KEY"  # nosec
 # Make apache work when DEBUG == False
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
-### Evaluation progress rewards
-GLOBAL_EVALUATION_PROGRESS_REWARDS: list[tuple[Fraction, dict[str, str]]] = [
+### Global evaluation progress
+GLOBAL_EVALUATION_PROGRESS: list[tuple[Fraction, dict[str, str]]] = [
     (Fraction("0"), {"de": "0 €", "en": "0€"}),
     (Fraction("0.25"), {"de": "1.000 €", "en": "1,000€"}),
     (Fraction("0.6"), {"de": "3.000 €", "en": "3,000€"}),

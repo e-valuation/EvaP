@@ -1,23 +1,83 @@
 {% load evaluation_filters %}
 
+{% if semester_rewards_stats %}
+    <div class="card mb-3">
+        <div class="card-header d-flex">
+            <span>
+                {% translate 'Your reward points progress' %}
+            </span>
+            <div class="ms-auto">
+                <span class="badge bg-light">
+                    {% translate 'Your status' %}: {{ status_points_progress.current_status.name }}
+                </span>
+                <a href="{% url 'rewards:index' %}" class="btn btn-sm btn-light">
+                    {% translate 'Go to rewards page' %}
+                </a>
+            </div>
+        </div>
+        <div class="card-body py-2">
+            {% with voted=semester_rewards_stats.number_of_required_evaluations_voted_for required=semester_rewards_stats.number_of_required_evaluations %}
+                <div
+                    class="rewards-progress-bar"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    data-fallback-placement='["bottom"]'
+                    title="<span class='progress-tooltip-icon'></span> {% translate 'Current progress' %}: {{ voted|percentage_zero_on_error:required }}{% if voted < required %}<br>
+                    <span class='progress-tooltip-icon background-striped'></span> {% translate 'Progress after next evaluation' %}: {{ voted|add:'1'|percentage_zero_on_error:required }}{% endif %}"
+                >
+                    <span class="progress-container">
+                        <span class="progress m-0 bg-info">
+                            <span
+                                class="progress-bar bg-primary width-percent-{% widthratio voted required 100 %}"
+                            ></span>
+                            {% if voted < required %}
+                                <span
+                                    class="progress-bar background-striped width-percent-{% widthratio 1 required 100 %}"
+                                ></span>
+                            {% endif %}
+                            <span class="progress-bartext">
+                                {% blocktranslate trimmed count required=required with percent=voted|percentage_zero_on_error:required %}
+                                    {{ voted }} of {{ required }} evaluation submitted ({{ percent }})
+                                {% plural %}
+                                    {{ voted }} of {{ required }} evaluations submitted ({{ percent }})
+                                {% endblocktranslate %}
+                            </span>
+                        </span>
+                    </span>
+                    {% for reward_points_step in reward_points_steps %}
+                        <div class="position-relative progress-step progress-step-bottom left-percent-{% widthratio reward_points_step.0 1 100 %}">
+                            <div class="progress-step-number">
+                                {{ reward_points_step.0|percentage:1 }}
+                            </div>
+                            {% if reward_points_step.1 %}
+                                <div class="progress-step-label">{{ reward_points_step.1 }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endwith %}
+        </div>
+    </div>
+{% endif %}
+
 {% if global_evaluation_progress %}
     <div class="card mb-3">
         <div class="card-header d-flex">
-            {% translate 'Semester evaluation progress' %}
+            {% translate 'Overall semester evaluation progress' %}
             {% if global_evaluation_progress.last_vote_datetime %}
                 <div class="ms-auto fw-normal fst-italic">
                     {% blocktranslate trimmed with time_interval=global_evaluation_progress.last_vote_datetime|timesince %}
-                        Last evaluation: {{ time_interval }} ago
+                        Last evaluation submitted: {{ time_interval }} ago
                     {% endblocktranslate %}
                 </div>
             {% endif %}
         </div>
         <div class="card-body py-2">
-            <div class="rewards-progress-bar pt-0 px-4">
+            <div class="rewards-progress-bar pt-0">
                 <span class="progress-container">
                     <span class="progress m-0 bg-info">
                         <span
-                            class="progress-bar bg-primary width-percent-{% widthratio global_evaluation_progress.bar_width_votes global_evaluation_progress.max_reward_votes 100 %}"
+                            class="progress-bar bg-primary width-percent-{% widthratio global_evaluation_progress.bar_width_votes global_evaluation_progress.max_step_votes 100 %}"
                         ></span>
                         <span class="progress-bartext">
                             {% blocktranslate trimmed count participant_count=global_evaluation_progress.participation_count with percent=global_evaluation_progress.vote_count|percentage_zero_on_error:global_evaluation_progress.participation_count vote_count=global_evaluation_progress.vote_count %}
@@ -28,12 +88,14 @@
                         </span>
                     </span>
                 </span>
-                {% for reward in global_evaluation_progress.rewards_with_progress %}
-                    <div class="position-relative progress-step {% if forloop.first or forloop.last or forloop.counter0|divisibleby:2 %}progress-step-bottom{% else %}progress-step-top{% endif %} left-percent-{% widthratio reward.progress 1 100 %}">
+                {% for step in global_evaluation_progress.steps_with_progress %}
+                    <div class="position-relative progress-step {% if forloop.first or forloop.last or forloop.counter0|divisibleby:2 %}progress-step-bottom{% else %}progress-step-top{% endif %} left-percent-{% widthratio step.progress 1 100 %}">
                         <div class="progress-step-number">
-                            {{ reward.vote_ratio|percentage:1 }}
+                            {{ step.vote_ratio|percentage:1 }}
                         </div>
-                        <div class="progress-step-label">{{ reward.text }}</div>
+                        {% if step.text %}
+                            <div class="progress-step-label">{{ step.text }}</div>
+                        {% endif %}
                     </div>
                 {% endfor %}
             </div>
