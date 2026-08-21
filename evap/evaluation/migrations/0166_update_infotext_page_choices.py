@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
     dependencies = [
         (
             "evaluation",
-            "0164_remove_questionnaire_questionnaire_visibility_choices_and_more",
+            "0165_question_counts_for_grade",
         ),
     ]
 

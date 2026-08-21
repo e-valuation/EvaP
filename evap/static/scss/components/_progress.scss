@@ -20,6 +20,22 @@
     }
 }
 
+.background-striped {
+    background-image: linear-gradient(-45deg, rgba(255, 255, 255, 0.75) 25%, rgba(255, 255, 255, 0.45) 25%, rgba(255, 255, 255, 0.45) 50%, rgba(255, 255, 255, 0.75) 50%, rgba(255, 255, 255, 0.75) 75%, rgba(255, 255, 255, 0.45) 75%, rgba(255, 255, 255, 0.45));
+    background-size: 1rem 1rem;
+}
+
+.progress-tooltip-icon {
+    display: inline-block;
+    background-color: $evap-dark-blue;
+    border-radius: 0.1rem;
+    width: 0.7rem;
+    height: 0.7rem;
+    &.background-striped {
+        background-size: 0.7rem 0.7rem;
+    }
+}
+
 .progress-container-warning {
     .progress {
         background-color: $evap-yellow;
