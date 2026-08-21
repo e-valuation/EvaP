@@ -69,11 +69,28 @@ MAIN_EVALUATION_DEFAULT_WEIGHT = 9
 
 # number of reward points a student should have for a semester after evaluating the given fraction of evaluations.
 REWARD_POINTS = [
-    (1 / 3, 1),
-    (2 / 3, 2),
-    (3 / 3, 3),
+    (10 / 100, 1),
+    (30 / 100, 2),
+    (50 / 100, 3),
+    (55 / 100, 4),
+    (60 / 100, 5),
+    (65 / 100, 6),
+    (70 / 100, 7),
+    (75 / 100, 8),
+    (80 / 100, 9),
+    (90 / 100, 10),
 ]
 MAX_REDEEMED_POINTS_PER_YEAR = 50
+
+# number of reward points required per status, status name, status reward, two colors for gradient
+STATUS_POINTS: list[tuple[int, dict[str, str], dict[str, str], str, str]] = [
+    (0, {"de": "Blau", "en": "Blue"}, {"de": "", "en": ""}, "#31708f", "#31708f"),
+    (10, {"de": "Grün", "en": "Green"}, {"de": "Sticker", "en": "Sticker"}, "#88bf4a", "#88bf4a"),
+    (25, {"de": "Bronze", "en": "Bronze"}, {"de": "Beutel", "en": "Bag"}, "#e1c096", "#ad8047"),
+    (35, {"de": "Silber", "en": "Silver"}, {"de": "Tasse", "en": "Mug"}, "#dbe4ee", "#b3c1c9"),
+    (50, {"de": "Gold", "en": "Gold"}, {"de": "T-Shirt", "en": "T-shirt"}, "#fdf68c", "#f4cd2a"),
+]
+STATUS_POINTS_EXCLUDED_SEMESTERS: list[int] = []  # ids of semesters to exclude for status progress
 
 # days before end date to send reminder
 REMIND_X_DAYS_AHEAD_OF_END_DATE = [2, 0]
@@ -397,10 +414,10 @@ STATIC_ROOT = DATADIR / "static_collected"
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 MEDIA_ROOT = DATADIR / "upload"
 
-### Evaluation progress rewards
-GLOBAL_EVALUATION_PROGRESS_REWARDS: list[
+### Global evaluation progress
+GLOBAL_EVALUATION_PROGRESS: list[
     tuple[Fraction, dict[str, str]]
-] = []  # (required_voter_ratio between 0 and 1, reward_text)
+] = []  # (required_voter_ratio between 0 and 1, step_texts)
 GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS: list[int] = []
 GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS: list[int] = []
 
