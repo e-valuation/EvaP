@@ -12,8 +12,8 @@
                 </div>
             {% endif %}
         </div>
-        <div class="card-body">
-            <div class="global-rewards-progress-bar pt-2 px-4">
+        <div class="card-body py-2">
+            <div class="rewards-progress-bar pt-0 px-4">
                 <span class="progress-container">
                     <span class="progress m-0 bg-info">
                         <span
@@ -29,13 +29,11 @@
                     </span>
                 </span>
                 {% for reward in global_evaluation_progress.rewards_with_progress %}
-                    <div class="position-relative progress-step left-percent-{% widthratio reward.progress 1 100 %}">
-                        <div class="mx-auto separator"></div>
-                        <div class="small text-center">
+                    <div class="position-relative progress-step {% if forloop.first or forloop.last or forloop.counter0|divisibleby:2 %}progress-step-bottom{% else %}progress-step-top{% endif %} left-percent-{% widthratio reward.progress 1 100 %}">
+                        <div class="progress-step-number">
                             {{ reward.vote_ratio|percentage:1 }}
                         </div>
-                        <div class="mx-auto separator spaced"></div>
-                        <div class="text-lg-center fw-semibold progress-text">{{ reward.text }}</div>
+                        <div class="progress-step-label">{{ reward.text }}</div>
                     </div>
                 {% endfor %}
             </div>
