@@ -114,6 +114,16 @@ class TestIndexView(WebTest):
         form2.submit(status=409)
         self.assertEqual(1, RewardPointRedemption.objects.filter(user_profile=self.student).count())
 
+    @override_settings(MAX_REDEEMED_POINTS_PER_YEAR=4)
+    def test_redeem_more_than_allowed(self):
+        response = self.app.get(self.url, user=self.student)
+        form = response.forms["reward-redemption-form"]
+        form.set("form-0-points", 2)
+        form.set("form-1-points", 3)
+        response = form.submit()
+        self.assertContains(response, "can only redeem up to")
+        self.assertEqual(5, reward_points_of_user(self.student))
+
 
 class TestEventsView(WebTestStaffModeWith200Check):
     url = reverse("rewards:reward_point_redemption_events")
