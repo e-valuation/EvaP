@@ -73,6 +73,7 @@ REWARD_POINTS = [
     (2 / 3, 2),
     (3 / 3, 3),
 ]
+MAX_REDEEMED_POINTS_PER_YEAR = 50
 
 # days before end date to send reminder
 REMIND_X_DAYS_AHEAD_OF_END_DATE = [2, 0]
