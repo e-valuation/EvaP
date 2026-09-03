@@ -391,6 +391,7 @@ def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> Htt
                         continue
 
                     value = questionnaire_form.cleaned_data.get(answer_field_id(contribution, questionnaire, question))
+                    assert value is not None
 
                     if question.is_text_question:
                         if value:
