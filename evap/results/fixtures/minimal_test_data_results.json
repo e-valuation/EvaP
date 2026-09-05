@@ -74,111 +74,6 @@
   }
 },
 {
-  "model": "evaluation.course",
-  "pk": 1,
-  "fields": {
-    "semester": 1,
-    "name_de": "a new course",
-    "name_en": "a course",
-    "type": 1,
-    "is_private": false,
-    "gets_no_grade_documents": false,
-    "programs": [
-      1
-    ],
-    "responsibles": [
-      2,
-      9
-    ]
-  }
-},
-{
-  "model": "evaluation.evaluation",
-  "pk": 1,
-  "fields": {
-    "state": 80,
-    "course": 1,
-    "exam_type": null,
-    "name_de": "a new evaluation",
-    "name_en": "an evaluation",
-    "main_language": "x",
-    "weight": 1,
-    "is_rewarded": true,
-    "is_midterm_evaluation": false,
-    "can_publish_text_results": true,
-    "_participant_count": 25,
-    "_voter_count": 17,
-    "dropout_count": 0,
-    "vote_start_datetime": "2014-09-10T00:00:00",
-    "vote_end_date": "2014-09-30",
-    "allow_editors_to_edit": true,
-    "wait_for_grade_upload_before_publishing": true,
-    "staff_notes": "",
-    "participants": [],
-    "voters": []
-  }
-},
-{
-  "model": "evaluation.contribution",
-  "pk": 1,
-  "fields": {
-    "evaluation": 1,
-    "contributor": null,
-    "role": 0,
-    "textanswer_visibility": "OWN",
-    "label": "",
-    "order": -1,
-    "questionnaires": [
-      2
-    ]
-  }
-},
-{
-  "model": "evaluation.contribution",
-  "pk": 3,
-  "fields": {
-    "evaluation": 1,
-    "contributor": 6,
-    "role": 0,
-    "textanswer_visibility": "OWN",
-    "label": "",
-    "order": -1,
-    "questionnaires": [
-      1
-    ]
-  }
-},
-{
-  "model": "evaluation.contribution",
-  "pk": 4,
-  "fields": {
-    "evaluation": 1,
-    "contributor": 7,
-    "role": 0,
-    "textanswer_visibility": "GENERAL",
-    "label": "",
-    "order": -1,
-    "questionnaires": [
-      1
-    ]
-  }
-},
-{
-  "model": "evaluation.contribution",
-  "pk": 6,
-  "fields": {
-    "evaluation": 1,
-    "contributor": 9,
-    "role": 1,
-    "textanswer_visibility": "GENERAL",
-    "label": "",
-    "order": -1,
-    "questionnaires": [
-      1
-    ]
-  }
-},
-{
   "model": "evaluation.question",
   "pk": 1,
   "fields": {
@@ -425,10 +320,10 @@
   "model": "evaluation.userprofile",
   "pk": 2,
   "fields": {
-    "is_superuser": false,
-    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
     "last_login": "2014-09-16T22:51:39.584",
+    "is_superuser": false,
     "email": "responsible@institution.example.com",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
     "title": "",
     "first_name_given": "responsible",
     "first_name_chosen": "",
@@ -452,10 +347,10 @@
   "model": "evaluation.userprofile",
   "pk": 3,
   "fields": {
-    "is_superuser": false,
-    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
     "last_login": "2014-09-16T22:52:04.981",
+    "is_superuser": false,
     "email": "delegate_for_responsible@institution.example.com",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
     "title": "",
     "first_name_given": "delegate_for_responsible",
     "first_name_chosen": "",
@@ -477,10 +372,10 @@
   "model": "evaluation.userprofile",
   "pk": 4,
   "fields": {
-    "is_superuser": false,
-    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
     "last_login": "2014-09-16T22:52:27.021",
+    "is_superuser": false,
     "email": "delegate_for_contributor@institution.example.com",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
     "title": "",
     "first_name_given": "delegate_for_contributor",
     "first_name_chosen": "",
@@ -502,10 +397,10 @@
   "model": "evaluation.userprofile",
   "pk": 5,
   "fields": {
-    "is_superuser": false,
-    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
     "last_login": "2014-09-16T22:52:46.611",
+    "is_superuser": false,
     "email": "student@institution.example.com",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
     "title": "",
     "first_name_given": "student",
     "first_name_chosen": "",
@@ -527,10 +422,10 @@
   "model": "evaluation.userprofile",
   "pk": 6,
   "fields": {
-    "is_superuser": false,
-    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
     "last_login": "2014-09-16T22:53:02.506",
+    "is_superuser": false,
     "email": "contributor@institution.example.com",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
     "title": "",
     "first_name_given": "contributor",
     "first_name_chosen": "",
@@ -554,10 +449,10 @@
   "model": "evaluation.userprofile",
   "pk": 7,
   "fields": {
-    "is_superuser": false,
-    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
     "last_login": "2014-09-16T22:53:02.506",
+    "is_superuser": false,
     "email": "contributor_general_textanswers@institution.example.com",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
     "title": "",
     "first_name_given": "contributor_general_textanswers",
     "first_name_chosen": "",
@@ -579,10 +474,10 @@
   "model": "evaluation.userprofile",
   "pk": 9,
   "fields": {
-    "is_superuser": false,
-    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
     "last_login": "2014-09-16T22:51:39.584",
+    "is_superuser": false,
     "email": "responsible_contributor@institution.example.com",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
     "title": "",
     "first_name_given": "responsible_contributor",
     "first_name_chosen": "",
@@ -606,10 +501,10 @@
   "model": "evaluation.userprofile",
   "pk": 10,
   "fields": {
-    "is_superuser": false,
-    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
     "last_login": "2014-09-16T22:52:46.611",
+    "is_superuser": false,
     "email": "student_external@external.com",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
     "title": "",
     "first_name_given": "student_external",
     "first_name_chosen": "",
@@ -631,10 +526,10 @@
   "model": "evaluation.userprofile",
   "pk": 11,
   "fields": {
-    "is_superuser": false,
-    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
     "last_login": "2014-09-16T22:52:46.611",
+    "is_superuser": false,
     "email": "proxy_delegate@institution.example.com",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
     "title": "",
     "first_name_given": "proxy_delegate",
     "first_name_chosen": "",
@@ -650,6 +545,111 @@
     "user_permissions": [],
     "delegates": [],
     "cc_users": []
+  }
+},
+{
+  "model": "evaluation.contribution",
+  "pk": 1,
+  "fields": {
+    "evaluation": 1,
+    "contributor": null,
+    "role": 0,
+    "textanswer_visibility": "OWN",
+    "label": "",
+    "order": -1,
+    "questionnaires": [
+      2
+    ]
+  }
+},
+{
+  "model": "evaluation.contribution",
+  "pk": 3,
+  "fields": {
+    "evaluation": 1,
+    "contributor": 6,
+    "role": 0,
+    "textanswer_visibility": "OWN",
+    "label": "",
+    "order": -1,
+    "questionnaires": [
+      1
+    ]
+  }
+},
+{
+  "model": "evaluation.contribution",
+  "pk": 4,
+  "fields": {
+    "evaluation": 1,
+    "contributor": 7,
+    "role": 0,
+    "textanswer_visibility": "GENERAL",
+    "label": "",
+    "order": -1,
+    "questionnaires": [
+      1
+    ]
+  }
+},
+{
+  "model": "evaluation.contribution",
+  "pk": 6,
+  "fields": {
+    "evaluation": 1,
+    "contributor": 9,
+    "role": 1,
+    "textanswer_visibility": "GENERAL",
+    "label": "",
+    "order": -1,
+    "questionnaires": [
+      1
+    ]
+  }
+},
+{
+  "model": "evaluation.evaluation",
+  "pk": 1,
+  "fields": {
+    "state": 80,
+    "course": 1,
+    "exam_type": null,
+    "name_de": "a new evaluation",
+    "name_en": "an evaluation",
+    "main_language": "x",
+    "weight": 1,
+    "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
+    "_participant_count": 25,
+    "_voter_count": 17,
+    "dropout_count": 0,
+    "vote_start_datetime": "2014-09-10T00:00:00",
+    "vote_end_date": "2014-09-30",
+    "allow_editors_to_edit": true,
+    "wait_for_grade_upload_before_publishing": true,
+    "staff_notes": "",
+    "participants": [],
+    "voters": []
+  }
+},
+{
+  "model": "evaluation.course",
+  "pk": 1,
+  "fields": {
+    "semester": 1,
+    "name_de": "a new course",
+    "name_en": "a course",
+    "type": 1,
+    "is_private": false,
+    "gets_no_grade_documents": false,
+    "programs": [
+      1
+    ],
+    "responsibles": [
+      2,
+      9
+    ]
   }
 }
 ]
