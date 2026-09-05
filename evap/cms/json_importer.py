@@ -503,8 +503,6 @@ class JSONImporter:
                 course.evaluations.all().update(
                     wait_for_grade_upload_before_publishing=wait_for_grade_upload_before_publishing
                 )
-
-            is_rewarded = False
         else:
             # Set evaluation period of two weeks for normal evaluations:
             # Start datetime is at 8:00 am on the monday in the week before the event ends
@@ -546,8 +544,6 @@ class JSONImporter:
             # Might be overwritten when importing related exam evaluation
             wait_for_grade_upload_before_publishing = True
 
-            is_rewarded = True
-
         main_language = LANGUAGE_MAP.get(data["language"], Evaluation.UNDECIDED_MAIN_LANGUAGE)
         if main_language == Evaluation.UNDECIDED_MAIN_LANGUAGE and data["isexam"]:
             related_main_evaluation = self.get_main_evaluation_data(data)
@@ -579,7 +575,7 @@ class JSONImporter:
             "vote_end_date": evaluation_end_date,
             "wait_for_grade_upload_before_publishing": wait_for_grade_upload_before_publishing,
             "weight": weight,
-            "is_rewarded": is_rewarded,
+            "is_rewarded": True,
             "main_language": main_language,
         }
 

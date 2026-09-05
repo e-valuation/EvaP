@@ -8,16 +8,20 @@
 {% block content %}
     {{ block.super }}
 
-    {% show_infotext "student_index" %}
-    {% if user.show_startpage_button %}
-        <div class="d-flex mb-3">
+    <div class="d-flex">
+        <span class="{% if user.show_startpage_button %}me-3{% endif %}">
+            {% show_infotext "student_index" %}
+        </span>
+        {% if user.show_startpage_button %}
             <div class="ms-auto d-print-none">
                 {% include 'startpage_button.html' with page='ST' btnClass='btn-sm' %}
             </div>
-        </div>
-    {% endif %}
+        {% endif %}
+    </div>
 
-    {% include 'student_global_evaluation_progress.html' with global_evaluation_progress=global_evaluation_progress %}
+    {% if show_reward_card %}
+        {% include 'student_rewards_card.html' with global_evaluation_progress=global_evaluation_progress %}
+    {% endif %}
 
     {% if unfinished_evaluations %}
         <div class="card card-outline-primary mb-3">

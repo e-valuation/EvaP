@@ -1,11 +1,13 @@
 from collections.abc import Generator
 from contextlib import contextmanager
-from datetime import date
+from datetime import date, datetime
 from typing import Any, cast
 
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import Sum
 from django.utils.translation import gettext as _
 
 from evap.evaluation.models import UserProfile
@@ -84,6 +86,12 @@ class BaseRewardPointRedemptionFormSet(forms.BaseFormSet):
 
         total_points_available = reward_points_of_user(self.user)
         total_points_redeemed = sum(form.cleaned_data["points"] for form in self.forms)
+        points_redeemed_this_year = (
+            RewardPointRedemption.objects.filter(
+                user_profile=self.user, redemption_time__year=datetime.now().year
+            ).aggregate(Sum("value"))["value__sum"]
+            or 0
+        )
         assert all(form.cleaned_data["points"] >= 0 for form in self.forms)
 
         if total_points_redeemed <= 0:
@@ -91,6 +99,13 @@ class BaseRewardPointRedemptionFormSet(forms.BaseFormSet):
 
         if total_points_redeemed > total_points_available:
             raise ValidationError(_("You don't have enough reward points."))
+
+        if points_redeemed_this_year + total_points_redeemed > settings.MAX_REDEEMED_POINTS_PER_YEAR:
+            raise ValidationError(
+                _("You can only redeem up to {points} points per year.").format(
+                    points=settings.MAX_REDEEMED_POINTS_PER_YEAR
+                )
+            )
 
     def save(self) -> list[RewardPointRedemption]:
         assert self.locked

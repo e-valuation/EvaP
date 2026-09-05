@@ -29,11 +29,15 @@ from evap.evaluation.models import (
     TextAnswer,
     VoteTimestamp,
 )
-from evap.evaluation.tools import translate
 from evap.results.tools import (
     annotate_distributions_and_grades,
     get_evaluations_with_course_result_attributes,
     textanswers_visible_to,
+)
+from evap.rewards.tools import (
+    StatusPointsProgress,
+    can_reward_points_be_used_by,
+    semester_rewards_stats,
 )
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.models import TextAnswerWarning
@@ -49,36 +53,21 @@ SUCCESS_MAGIC_STRING = "vote submitted successfully"
 @dataclass
 class GlobalEvaluationProgress:
     @dataclass
-    class RewardProgress:
-        progress: Fraction  # progress towards this reward, relative to max reward, between 0 and 1
+    class StepProgress:
+        progress: Fraction  # progress towards this step, relative to max step, between 0 and 1
         vote_ratio: Fraction
         text: str
 
-    @dataclass
-    class Campaign:
-        title_de: str
-        title_en: str
-        title = translate(en="title_en", de="title_de")
-
-        info_title_de: str
-        info_title_en: str
-        info_title = translate(en="info_title_en", de="info_title_de")
-
-        info_text_de: str
-        info_text_en: str
-        info_text = translate(en="info_text_en", de="info_text_de")
-
     vote_count: int
     participation_count: int
-    max_reward_votes: int
+    max_step_votes: int
     bar_width_votes: int
     last_vote_datetime: datetime.datetime
-    rewards_with_progress: list[RewardProgress]
-    campaign: Campaign
+    steps_with_progress: list[StepProgress]
 
     @staticmethod
     def from_settings() -> "GlobalEvaluationProgress | None":
-        if not settings.GLOBAL_EVALUATION_PROGRESS_REWARDS:
+        if not settings.GLOBAL_EVALUATION_PROGRESS:
             return None
 
         if not (active_semester := Semester.active_semester()):
@@ -100,14 +89,14 @@ class GlobalEvaluationProgress:
             .values()
         )
 
-        max_reward_vote_ratio, __ = max(settings.GLOBAL_EVALUATION_PROGRESS_REWARDS)
-        max_reward_votes = math.ceil(max_reward_vote_ratio * participation_count)
+        max_step_vote_ratio, __ = max(settings.GLOBAL_EVALUATION_PROGRESS)
+        max_step_votes = math.ceil(max_step_vote_ratio * participation_count)
 
-        rewards_with_progress = [
-            GlobalEvaluationProgress.RewardProgress(
-                progress=vote_ratio / max_reward_vote_ratio, vote_ratio=vote_ratio, text=text[language]
+        steps_with_progress = [
+            GlobalEvaluationProgress.StepProgress(
+                progress=vote_ratio / max_step_vote_ratio, vote_ratio=vote_ratio, text=text[language]
             )
-            for vote_ratio, text in settings.GLOBAL_EVALUATION_PROGRESS_REWARDS
+            for vote_ratio, text in settings.GLOBAL_EVALUATION_PROGRESS
         ]
 
         last_vote_datetime = VoteTimestamp.objects.filter(evaluation__in=evaluations).aggregate(Max("timestamp"))[
@@ -117,16 +106,15 @@ class GlobalEvaluationProgress:
         return GlobalEvaluationProgress(
             vote_count=vote_count,
             participation_count=participation_count,
-            max_reward_votes=max_reward_votes,
-            bar_width_votes=min(vote_count, max_reward_votes),
+            max_step_votes=max_step_votes,
+            bar_width_votes=min(vote_count, max_step_votes),
             last_vote_datetime=last_vote_datetime,
-            rewards_with_progress=rewards_with_progress,
-            campaign=GlobalEvaluationProgress.Campaign(**settings.GLOBAL_EVALUATION_PROGRESS_CAMPAIGN),
+            steps_with_progress=steps_with_progress,
         )
 
 
 @participant_required
-def index(request):
+def index(request):  # pylint: disable=too-many-locals
     query = (
         Evaluation.objects.annotate(
             participates_in=Exists(
@@ -217,12 +205,29 @@ def index(request):
 
     unfinished_evaluations.sort(key=sorter)
 
+    status_points_progress = StatusPointsProgress.user_status_points_progress(request.user)
+
+    active_semester_rewards_stats = None
+    active_semester = Semester.active_semester()
+    if active_semester:
+        active_semester_rewards_stats = semester_rewards_stats(request.user, active_semester)
+
+    # always show 0% and 100% on progress bar
+    reward_points_steps = list(settings.REWARD_POINTS)
+    for value in [0, 1]:
+        if not any(step[0] == value for step in reward_points_steps):
+            reward_points_steps.append((value,))
+
     template_data = {
         "semester_list": semester_list,
         "can_download_grades": request.user.can_download_grades,
         "unfinished_evaluations": unfinished_evaluations,
         "evaluation_end_warning_period": settings.EVALUATION_END_WARNING_PERIOD,
+        "show_reward_card": can_reward_points_be_used_by(request.user),
         "global_evaluation_progress": GlobalEvaluationProgress.from_settings(),
+        "semester_rewards_stats": active_semester_rewards_stats,
+        "reward_points_steps": reward_points_steps,
+        "status_points_progress": status_points_progress,
     }
 
     return render(request, "student_index.html", template_data)

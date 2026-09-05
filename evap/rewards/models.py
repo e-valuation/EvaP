@@ -39,6 +39,7 @@ class RewardPointGranting(models.Model):
     semester = models.ForeignKey(Semester, models.PROTECT, related_name="reward_point_grantings")
     granting_time = models.DateTimeField(verbose_name=_("granting time"), auto_now_add=True)
     value = models.IntegerField(verbose_name=_("value"), validators=[MinValueValidator(1)])
+    contributes_to_status = models.BooleanField(verbose_name=_("contributes to status"), default=True)
 
     granted_by_participation_removal = Signal()
     granted_by_evaluation_deletion = Signal()
