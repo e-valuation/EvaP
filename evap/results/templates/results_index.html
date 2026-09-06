@@ -183,6 +183,8 @@
         import { ResultGrid } from "{% static 'js/datagrid.js' %}";
         import { RangeSlider } from "{% static 'js/slider.js' %}";
 
+        const participantFilterMaxValue = Number("{{ results_participant_filter_max_value|escapejs }}");
+
         new ResultGrid({
             storageKey: "results-data-grid",
             head: document.querySelector(".grid-header"),
@@ -204,7 +206,7 @@
             ]),
             filterSliders: new Map([
                 ["participants", {
-                    slider: new RangeSlider("participant-filter"),
+                    slider: new RangeSlider("participant-filter", participantFilterMaxValue),
                     selector: "[data-col=voters]",
                 }],
             ]),
