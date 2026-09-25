@@ -1,6 +1,6 @@
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models import Q, Sum
+from django.db.models import Q, QuerySet, Sum
 from django.dispatch import Signal
 from django.utils.translation import gettext_lazy as _
 
@@ -20,10 +20,10 @@ class RewardPointRedemptionEvent(models.Model):
     )
 
     @property
-    def can_delete(self):
+    def can_delete(self) -> bool:
         return not self.reward_point_redemptions.exists()
 
-    def users_with_redeemed_points(self):
+    def users_with_redeemed_points(self) -> QuerySet[UserProfile]:
         return UserProfile.objects.filter(reward_point_redemptions__event=self).annotate(
             points=Sum("reward_point_redemptions__value", default=0, filter=Q(reward_point_redemptions__event=self))
         )

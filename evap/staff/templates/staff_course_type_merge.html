@@ -1,11 +1,17 @@
 {% extends 'staff_base.html' %}
 
 {% load evaluation_filters %}
+{% load staff_templatetags %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'staff:course_type_index' %}">{% translate 'Course types' %}</a></li>
-    <li class="breadcrumb-item">{% translate 'Merge course types' %}</li>
+    {% breadcrumb_item_url 'staff:course_type_index' %}
+        {% translate 'Course types' %}
+    {% endbreadcrumb_item_url %}
+
+    {% breadcrumb_item_url 'staff:course_type_merge_selection' %}
+        {% translate 'Merge course types' %}
+    {% endbreadcrumb_item_url %}
 {% endblock %}
 
 {% block content %}
@@ -15,9 +21,11 @@
     <div class="card mb-3">
         <div class="card-body">
             <p>
-                {% blocktranslate %}The following courses currently have the course type <strong>{{ other_type }}</strong> and will
-                get the type <strong>{{ main_type }}</strong> once you merge the course types. The course type <strong>
-                {{ other_type }}</strong> will be deleted after that.{% endblocktranslate %}
+                {% blocktranslate trimmed %}
+                    The following courses currently have the course type <strong>{{ other_type }}</strong> and will get
+                    the type <strong>{{ main_type }}</strong> once you merge the course types. The course type
+                    <strong>{{ other_type }}</strong> will be deleted after that.
+                {% endblocktranslate %}
             </p>
 
             <ul>

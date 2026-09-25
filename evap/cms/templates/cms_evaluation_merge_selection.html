@@ -1,5 +1,7 @@
 {% extends 'staff_base.html' %}
 
+{% load staff_templatetags %}
+
 {% block title %}
     {% translate 'Merge evaluations' %}
     {{ block.super }}
@@ -7,7 +9,9 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% translate 'Merge evaluations' %}</li>
+    {% breadcrumb_item %}
+        {% translate 'Merge evaluations' %}
+    {% endbreadcrumb_item %}
 {% endblock %}
 
 {% block content %}
@@ -18,7 +22,9 @@
         {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">
-                <p>{% translate 'Select the evaluations you want to merge. This will copy all participants and contributors, and will update the CMS links. Warning: This operation cannot be reverted in the UI.' %}</p>
+                <p>
+                    {% translate 'Select the evaluations you want to merge. This will copy all participants and contributors, and will update the CMS links. Warning: This operation cannot be reverted in the UI.' %}
+                </p>
                 {% include 'bootstrap_form.html' with form=form %}
             </div>
         </div>

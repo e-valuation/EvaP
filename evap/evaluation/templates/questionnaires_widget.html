@@ -7,7 +7,10 @@
                 <li><hr class="mb-1 mt-1" /></li>
             {% endif %}
         {% endifchanged %}
-        <li class="form-check col-8" data-bs-toggle="questionnaire-tooltip" title="{% spaceless %}
+        <li
+            class="form-check col-8"
+            data-bs-toggle="questionnaire-tooltip"
+            title="{% spaceless %}
             {% if questionnaire.is_locked and not manager %}
                 {% translate 'This questionnaire is locked, its selection cannot be changed.' %}<br /><br />
             {% endif %}
@@ -25,11 +28,24 @@
                     {% endif %}
                 {% endfor %}
             </ul>
-            {% endspaceless %}">
-            <input class="form-check-input" id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}"
-                autocomplete="off"{% if choice.data.selected or questionnaire.is_locked and not manager and choice.data.value in field.initial %} checked{% endif %}
-                    {% if field.field.disabled or questionnaire.is_locked and not manager %} disabled{% endif %} />
-            <label class="form-check-label{% if questionnaire in questionnaires_with_answers %} badge bg-danger{% endif %}" for="{{ choice.id_for_label }}">
+            {% endspaceless %}"
+        >
+            <input
+                class="form-check-input"
+                id="{{ choice.id_for_label }}"
+                name="{{ choice.data.name }}"
+                type="checkbox"
+                value="{{ choice.data.value }}"
+                autocomplete="off"
+                {% if choice.data.selected or questionnaire.is_locked and not manager and choice.data.value in field.initial %}
+                    checked
+                {% endif %}
+                {% if field.field.disabled or questionnaire.is_locked and not manager %}disabled{% endif %}
+            />
+            <label
+                class="form-check-label{% if questionnaire in questionnaires_with_answers %} badge bg-danger{% endif %}"
+                for="{{ choice.id_for_label }}"
+            >
                 {{ choice.choice_label }}
             </label>
         </li>

@@ -1,11 +1,16 @@
 {% extends 'staff_evaluation_base.html' %}
 
 {% load evaluation_filters %}
+{% load staff_templatetags %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'staff:semester_preparation_reminder' semester.id %}">{% translate 'Preparation reminder' %}</a></li>
-    <li class="breadcrumb-item">{{ responsible }}</li>
+    {% breadcrumb_item_url 'staff:semester_preparation_reminder' semester.id %}
+        {% translate 'Preparation reminder' %}
+    {% endbreadcrumb_item_url %}
+    {% breadcrumb_item %}
+        {{ responsible }}
+    {% endbreadcrumb_item %}
 {% endblock %}
 
 {% block content %}

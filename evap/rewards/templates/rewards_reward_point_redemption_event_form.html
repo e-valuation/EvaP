@@ -1,9 +1,15 @@
 {% extends 'staff_base.html' %}
 
+{% load staff_templatetags %}
+
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'rewards:reward_point_redemption_events' %}">{% translate 'Reward Point Redemption Events' %}</a></li>
-    <li class="breadcrumb-item">{% translate 'Edit event' %}</li>
+    {% breadcrumb_item_url 'rewards:reward_point_redemption_events' %}
+        {% translate 'Reward Point Redemption Events' %}
+    {% endbreadcrumb_item_url %}
+    {% breadcrumb_item %}
+        {% translate 'Edit event' %}
+    {% endbreadcrumb_item %}
 {% endblock %}
 
 {% block content %}
@@ -23,6 +29,6 @@
     </form>
 {% endblock %}
 
- {% block additional_javascript %}
- {% include 'bootstrap_datetimepicker.html' %}
- {% endblock %}
+{% block additional_javascript %}
+    {% include 'bootstrap_datetimepicker.html' %}
+{% endblock %}

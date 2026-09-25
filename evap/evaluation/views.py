@@ -61,12 +61,16 @@ def index(request: HttpRequest) -> HttpResponse:
 
     # parse the form data into the respective form
     submit_type = request.POST.get("submit_type", "no_submit")
-    new_key_form = NewKeyForm(request.POST if submit_type == "new_key" else None)
+    new_key_form = NewKeyForm(request.POST if submit_type == "new_key" else None, prefix="new-key")
 
     if submit_type == "login_email" and not password_login_is_active():
         raise SuspiciousOperation
 
-    login_email_form = LoginEmailForm(request, request.POST if submit_type == "login_email" else None)
+    login_email_form = LoginEmailForm(
+        request,
+        request.POST if submit_type == "login_email" else None,
+        prefix="login",
+    )
 
     # process form data
     if request.method == "POST":

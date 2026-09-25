@@ -6,7 +6,12 @@
     {{ block.super }}
     <h3>
         {% if course_form.instance.id %}
-            <span data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate 'Click to copy name' %}" data-copy-on-click="{{ course.name }}">
+            <span
+                data-bs-toggle="tooltip"
+                data-bs-placement="right"
+                title="{% translate 'Click to copy name' %}"
+                data-copy-on-click="{{ course.name }}"
+            >
                 {{ course.name }} ({{ course.semester.name }})
             </span>
         {% else %}
@@ -47,15 +52,24 @@
         {% if editable %}
             <div class="card card-submit-area card-submit-area-2 text-center mb-3">
                 <div class="card-body">
-                    <button name="operation" value="save" type="submit" class="btn btn-primary">{% translate 'Save' %}</button>
-                    <button name="operation" value="save_create_evaluation" type="submit" class="btn btn-dark">{% translate 'Save and create evaluation' %}</button>
+                    <button name="operation" value="save" type="submit" class="btn btn-primary">
+                        {% translate 'Save' %}
+                    </button>
+                    <button name="operation" value="save_create_evaluation" type="submit" class="btn btn-dark">
+                        {% translate 'Save and create evaluation' %}
+                    </button>
                 </div>
             </div>
         {% endif %}
     </form>
 
     {% if course.ignored_evaluations.count > 0 %}
-        <form id="ignored-evaluation-deletion-form" custom-success method="POST" action="{% url 'cms:ignored_evaluation_delete' %}">
+        <form
+            id="ignored-evaluation-deletion-form"
+            custom-success
+            method="POST"
+            action="{% url 'cms:ignored_evaluation_delete' %}"
+        >
             {% csrf_token %}
         </form>
 
@@ -84,16 +98,31 @@
                                 <td>{{ ignored_evaluation.notes|linebreaks }}</td>
                                 <td>{{ ignored_evaluation.cms_id }}</td>
                                 <td class="text-end">
-                                    <confirmation-modal type="submit" form="ignored-evaluation-deletion-form" name="ignored_evaluation_id" value="{{ ignored_evaluation.id }}" confirm-button-class="btn-danger">
+                                    <confirmation-modal
+                                        type="submit"
+                                        form="ignored-evaluation-deletion-form"
+                                        name="ignored_evaluation_id"
+                                        value="{{ ignored_evaluation.id }}"
+                                        confirm-button-class="btn-danger"
+                                    >
                                         <span slot="title">{% translate 'Delete ignored evaluation' %}</span>
                                         <span slot="action-text">{% translate 'Delete ignored evaluation' %}</span>
                                         <span slot="question">
                                             {% blocktranslate trimmed %}
-                                                Do you really want to delete the ignored evaluation <strong>{{ ignored_evaluation }}</strong>? It will then be imported again on the next CMS import.
+                                                Do you really want to delete the ignored evaluation
+                                                <strong>{{ ignored_evaluation }}</strong>? It will then be imported
+                                                again on the next CMS import.
                                             {% endblocktranslate %}
                                         </span>
 
-                                        <button slot="show-button" type="button" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Delete' %}">
+                                        <button
+                                            slot="show-button"
+                                            type="button"
+                                            class="btn btn-sm btn-danger"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="{% translate 'Delete' %}"
+                                        >
                                             <span class="fas fa-fw fa-trash" aria-hidden="true"></span>
                                         </button>
                                     </confirmation-modal>
