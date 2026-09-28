@@ -85,12 +85,35 @@
 @include color-mode(dark) {
    .results-grid-row {
         color: $white;
-        &:hover {
+        .col-order
+        
+        &.hover-row:hover {
             background-color: tint-color($background-dark, 10%);
         }
     }
     .textanswer-review-grid {
         color: $white;
+    }
+    .col-order {
+        &::before {
+            background-image: escape-svg($order-button-icon-dark);
+        }
+
+        &-asc::before {
+            background-image: escape-svg($order-button-down-icon-dark);
+        }
+
+        &-desc::before {
+            background-image: escape-svg($order-button-up-icon-dark);
+        }
+    }
+    #results-grid > :not(:first-child) {
+        border-top: calc(2 * $table-border-width) solid $table-border-color-dark;
+    }
+    .grid-striped .grid-row {
+        & > div {
+            border-bottom: 1px solid $table-border-color-dark;
+        }
     }
 }
 

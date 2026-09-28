@@ -83,6 +83,9 @@ $table-colors: (
     .hover-row.hover-row-info:hover {
         background-color: tint-color($background-dark, 10%);
     }
+    .results-grid-row.hover-row:hover {
+        background-color: tint-color($background-dark, 10%);
+    }
 }
 
 .preview-row .evaluation-name {

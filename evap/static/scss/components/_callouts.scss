@@ -106,16 +106,13 @@
         }
         &.closed:hover,
         &.closed:active {
-            background-color: shade-color($info, 20%);
-            .callout-header {
-                color: $darker-gray;
-            }
+            background-color: shade-color($info-accent, 20%);
         }
     }
     .callout-warning {
         background-color: shade-color($warning, 50%);
         border-color: $warning;
-        color: $light-gray;
+        color: $warning-accent;
         .callout-header {
             color: $warning-accent;
         }
@@ -123,7 +120,7 @@
     .callout-danger {
         background-color: shade-color($danger, 50%);
         border-color: $danger;
-        color: $light-gray;
+        color: $danger-accent;
         .callout-header {
             color: $danger-accent;
         }

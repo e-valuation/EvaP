@@ -269,7 +269,7 @@ a.collapse-toggle {
     }
 
     .btn-check:checked + .vote-btn-#{$name} {
-        background-color: shade-color($color, 50%);
+        background-color: $color;
         color: shade-color($color, 60%);
 
         &:hover {
@@ -347,4 +347,80 @@ a.collapse-toggle {
 td .btn {
     margin-top: 0.15rem;
     margin-bottom: 0.15rem;
+}
+@include color-mode(dark) {
+    .btn-primary {
+        background-color: shade-color($primary, 40%) !important;
+        border-color: shade-color($primary, 40%) !important;
+        &:hover {
+            background-color: shade-color($primary, 20%) !important;
+        }
+    }
+    .btn-primary-outline {
+        background-color: $primary-accent;
+        border-color: shade-color($primary-accent, 40%) !important;
+        &:hover {
+            background-color: shade-color($primary-accent, 20%) !important;
+        }
+    }
+    .btn-secondary {
+        background-color: shade-color($secondary, 50%) !important;
+        border-color: shade-color($secondary, 40%) !important;
+        &:hover {
+            background-color: shade-color($secondary, 20%) !important;
+        }
+    }
+    .btn-secondary-outline {
+        background-color: $secondary-accent;
+        border-color: $secondary-accent !important;
+        &:hover {
+            background-color: shade-color($secondary-accent, 20%) !important;
+        }
+    }
+    .btn-info {
+        background-color: shade-color($info-accent, 10%) !important;
+        border-color: shade-color($info-accent, 10%) !important;
+        color: $light-gray;
+        &:hover {
+            background-color: tint-color($info-accent, 20%) !important;
+        }
+    }
+    .btn-danger {
+        background-color: shade-color($danger, 50%) !important;
+        border-color: shade-color($danger, 40%) !important;
+        &:hover {
+            background-color: shade-color($danger, 20%) !important;
+        }
+    }
+    .btn-success {
+        background-color: shade-color($success, 50%) !important;
+        border-color: shade-color($success, 40%) !important;
+        color: $light-gray;
+        &:hover {
+            background-color: shade-color($success, 20%) !important;
+        }
+    }
+    .btn-warning {
+        background-color: shade-color($warning, 50%) !important;
+        border-color: shade-color($warning, 40%) !important;
+        color: $light-gray;
+        &:hover {
+            background-color: shade-color($warning, 20%) !important;
+        }
+    }
+    .btn-light {
+        background-color: $dark !important;
+        border-color: $dark !important;
+        &:hover {
+            background-color: tint-color($dark, 20%) !important;
+        }
+    }
+    .btn-dark {
+        background-color: $light !important;
+        border-color: $light !important;
+        color: $black;
+        &:hover {
+            background-color: shade-color($light, 20%) !important;
+        }
+    }
 }

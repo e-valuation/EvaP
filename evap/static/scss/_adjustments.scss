@@ -92,11 +92,33 @@ $alert-colors: (
     "light" $lighter-gray $light-gray,
     "dark" $dark-gray $darker-gray
 );
+$alert-colors-dark: (
+    "primary" shade-color($primary, 40%) shade-color($primary, 40%),
+    "secondary" shade-color($secondary, 50%) shade-color($secondary, 40%),
+    "success" shade-color($success, 50%) shade-color($success, 40%),
+    "info" shade-color($info-accent, 10%) shade-color($info-accent, 10%),
+    "warning" shade-color($warning, 50%) shade-color($warning, 40%),
+    "danger" shade-color($danger, 50%) shade-color($danger, 40%),
+    "light" $dark $dark,
+);
+
 @each $name, $bg-color, $border-color in $alert-colors {
     .alert-#{$name} {
         background-color: $bg-color;
         border-color: $border-color;
         color: shade-color($border-color, 60%);
+    }
+}
+@include color-mode(dark) {
+    @each $name, $bg-color, $border-color in $alert-colors-dark {
+        .alert-#{$name} {
+            background-color: $bg-color;
+            border-color: $border-color;
+            color: $light-gray;
+            @if $name == "dark" {
+                color: $black;
+            }
+        }
     }
 }
 .alert-primary {
@@ -159,8 +181,8 @@ $alert-colors: (
         color: $light-gray;
         border-color: $darker-gray;
         
-        .option:hover {
-            background-color: $light-gray;
+        .option:hover, .option:active {
+            background-color: $medium-gray;
             color: $black;
         }
         input {
@@ -180,9 +202,9 @@ $alert-colors: (
         border-left: none;
     }
     .disabled .ts-control {
-    background-color: $background-dark !important;
-    border-color: $dark-gray;
-}
+        background-color: tint-color($background-dark, 20%) !important;
+        border-color: $dark-gray;
+    }
 }
 
 

@@ -78,6 +78,11 @@
         background-color: shade-color($primary, 50%);
         color: $light-gray;
     }
+    @for $i from 0 through 10 {
+    .badge-participants-#{$i} {
+        background-color: mix($primary, shade-color($primary, 50%), $i * 10%);
+    }
+}
 }
 
 .bg-primary-outline {
@@ -108,7 +113,7 @@
     }
 
     .bg-primary {
-        background-color: shade-color($primary, 50%) !important;
+        background-color: shade-color($primary, 40%) !important;
     }
     .bg-primary-outline {
         background-color: $primary-accent;
@@ -120,7 +125,7 @@
         background-color: $secondary-accent;
     }
     .bg-info {
-        background-color: shade-color($info-accent, 50%) !important;
+        background-color: shade-color($info-accent, 10%) !important;
     }
     .bg-danger {
         background-color: shade-color($danger, 50%) !important;
@@ -132,6 +137,10 @@
         background-color: shade-color($warning, 50%) !important;
     }
     .bg-light {
-        background-color: shade-color($light, 50%) !important;
+        background-color: $dark !important;
+    }
+    .bg-dark {
+        background-color: $light !important;
+        color: $black;
     }
 }

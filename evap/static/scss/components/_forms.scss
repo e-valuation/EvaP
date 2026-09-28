@@ -2,7 +2,7 @@
 
 .is-invalid {
     .form-control, .ts-control {
-        border-color: shade-color($danger, 20%);
+        border-color: shade-color($danger, 20%) !important;
     }
 
     .form-control:focus, .ts-control:focus {
@@ -80,7 +80,7 @@ select[multiple] {
 
 @include color-mode(dark) {
     .form-control:disabled {
-        background-color: $background-dark;
+        background-color: tint-color($background-dark, 20%);
         opacity: .5;
     }
 }
