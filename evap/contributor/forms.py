@@ -57,13 +57,13 @@ class EvaluationForm(forms.ModelForm):
             Questionnaire.objects.general_questionnaires()
             .filter(Q(visibility=Questionnaire.Visibility.EDITORS) | Q(contributions__evaluation=self.instance))
             .distinct()
-            .prefetch_related("questions")
+            .prefetch_related("question_assignments", "question_assignments__question")
         )
         self.fields["dropout_questionnaires"].queryset = (
             Questionnaire.objects.dropout_questionnaires()
             .filter(Q(visibility=Questionnaire.Visibility.EDITORS) | Q(contributions__evaluation=self.instance))
             .distinct()
-            .prefetch_related("questions")
+            .prefetch_related("question_assignments", "question_assignments__question")
         )
 
         self.fields["vote_start_datetime"].localize = True
@@ -149,7 +149,7 @@ class EditorContributionForm(ContributionForm):
             Questionnaire.objects.contributor_questionnaires()
             .filter(Q(visibility=Questionnaire.Visibility.EDITORS) | Q(contributions__evaluation=self.evaluation))
             .distinct()
-            .prefetch_related("questions")
+            .prefetch_related("question_assignments", "question_assignments__question")
         )
         self.fields["contributor"].queryset = UserProfile.objects.filter(
             (Q(is_active=True) & Q(is_proxy_user=False)) | Q(pk=existing_contributor_pk)

@@ -17,29 +17,44 @@
                             {% translate 'Log in using Keycloak.' %}
                         </p>
                         <div class="text-center mt-5">
-                            <a href="{% url 'oidc_authentication_init' %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" class="btn btn-primary login-button" autofocus>{% translate 'Login' %}</a>
+                            <a
+                                href="{% url 'oidc_authentication_init' %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}"
+                                class="btn btn-primary login-button"
+                                autofocus
+                            >{% translate 'Login' %}</a>
                         </div>
                     {% else %}
                         <p class="card-text">
                             {% translate 'Log in using email and password.' %}
                         </p>
-                        <form id="email-login-form" class="d-flex flex-column" role="form"
-                            action="{% url 'evaluation:index' %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
+                        <form
+                            id="email-login-form"
+                            class="d-flex flex-column"
+                            role="form"
+                            action="{% url 'evaluation:index' %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}"
+                            method="POST"
+                        >
                             {% csrf_token %}
                             <input type="hidden" name="submit_type" value="login_email" />
                             {% for field in login_email_form %}
                                 {% include 'bootstrap_form_field.html' with field=field wide=True %}
                             {% endfor %}
                             <div class="d-flex justify-content-center">
-                                <button type="submit" class="btn btn-primary login-button">{% translate 'Login' %}</button>
+                                <button type="submit" class="btn btn-primary login-button">
+                                    {% translate 'Login' %}
+                                </button>
                             </div>
                         </form>
                     {% endif %}
                 </div>
             </div>
             <div class="card border-dark">
-                <form id="request-login-form" class="card-body d-flex flex-column"
-                    action="{% url 'evaluation:index' %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
+                <form
+                    id="request-login-form"
+                    class="card-body d-flex flex-column"
+                    action="{% url 'evaluation:index' %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}"
+                    method="POST"
+                >
                     {% csrf_token %}
                     <input type="hidden" name="submit_type" value="new_key" />
                     <h4 class="card-title text-dark">
@@ -50,8 +65,15 @@
                     </p>
                     {% include 'bootstrap_form_field.html' with field=new_key_form.email wide=True %}
                     <div class="d-flex justify-content-center">
-                        <button type="submit" class="btn btn-dark login-button">{% translate 'Request login URL' %}</button>
-                        <button type="button" class="btn btn-light ms-1" data-bs-toggle="modal" data-bs-target="#loginProblemsModal">
+                        <button type="submit" class="btn btn-dark login-button">
+                            {% translate 'Request login URL' %}
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-light ms-1"
+                            data-bs-toggle="modal"
+                            data-bs-target="#loginProblemsModal"
+                        >
                             {% translate 'Help' %}
                         </button>
                     </div>
@@ -63,20 +85,29 @@
 
 {% block modals %}
     {{ block.super }}
-    <div class="modal fade" id="loginProblemsModal" tabindex="-1" role="dialog" aria-labelledby="loginProblemsModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="loginProblemsModalLabel">{% translate 'Login problems' %}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                {% translate 'You should have received an evaluation invitation via email that included a URL to login on this platform. You can also request a new login URL on this page. If you encounter any problems with your login, please let us know by answering to the evaluation email you received.' %}
-                <div class="modal-submit-group">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% translate 'Close' %}</button>
+    <div
+        class="modal fade"
+        id="loginProblemsModal"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="loginProblemsModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginProblemsModalLabel">{% translate 'Login problems' %}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% translate 'You should have received an evaluation invitation via email that included a URL to login on this platform. You can also request a new login URL on this page. If you encounter any problems with your login, please let us know by answering to the evaluation email you received.' %}
+                    <div class="modal-submit-group">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                            {% translate 'Close' %}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock %}

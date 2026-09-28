@@ -2,7 +2,7 @@
   description = "EvaP";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
     pyproject-nix = {
       url = "github:nix-community/pyproject.nix";
@@ -75,23 +75,19 @@
           pkgs = pkgsFor.${system};
           pc-modules = import ./nix/services.nix {
             inherit pkgs;
-            inherit (self.devShells.${system}.evap.passthru) venv;
+            inherit (self.devShells.${system}.evap-dev.passthru) venv;
           };
-          make-process-compose = mode: (import inputs.process-compose-flake.lib { inherit pkgs; }).makeProcessCompose {
-            modules = [
-              inputs.services-flake.processComposeModules.default
-              pc-modules.databases
-              (lib.mkIf (mode > 0) pc-modules.devenv-setup)
-              (lib.mkIf (mode > 1) pc-modules.devenv)
-            ];
+          make-process-compose = mods: (import inputs.process-compose-flake.lib { inherit pkgs; }).makeProcessCompose {
+            modules = [ inputs.services-flake.processComposeModules.default ] ++ mods;
           };
         in
         rec {
           python3 = pkgs.python313;
 
-          services = make-process-compose 0;
-          services-full = make-process-compose 1;
-          services-fuller = make-process-compose 2;
+          services = make-process-compose (with pc-modules; [ databases ]);
+          services-full = make-process-compose (with pc-modules; [ databases devenv-setup ]);
+          services-fuller = make-process-compose (with pc-modules; [ databases devenv-setup devenv vnu ]);
+          services-ci = make-process-compose (with pc-modules; [ databases vnu ]);
           default = services-fuller;
 
           wait-for-pc = pkgs.writeShellApplication {

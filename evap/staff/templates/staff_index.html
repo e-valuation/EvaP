@@ -6,21 +6,27 @@
             <h4 class="card-title">{% translate 'Semesters' %}</h4>
             {% if semesters %}
                 <ul>
-                {% for semester in semesters %}
-                    <li><a href="{% url 'staff:semester_view' semester.id %}">{{ semester.name }}</a></li>
-                {% endfor %}
+                    {% for semester in semesters %}
+                        <li><a href="{% url 'staff:semester_view' semester.id %}">{{ semester.name }}</a></li>
+                    {% endfor %}
                 </ul>
             {% else %}
                 {% translate 'There are no semesters yet.' %}
             {% endif %}
-            <a href="{% url 'staff:semester_create' %}" class="btn btn-sm btn-dark mt-2">{% translate 'Create new semester' %}</a>
+            <a
+                href="{% url 'staff:semester_create' %}"
+                class="btn btn-sm btn-dark mt-2"
+            >{% translate 'Create new semester' %}</a>
         </div>
         <div class="card staff-index-card card-body">
             <h4 class="card-title">{% translate 'Questionnaires' %}</h4>
             <ul>
                 <li><a href="{% url 'staff:questionnaire_index' %}">{% translate 'All questionnaires' %}</a></li>
             </ul>
-            <a href="{% url 'staff:questionnaire_create' %}" class="btn btn-sm btn-dark mt-2">{% translate 'Create new questionnaire' %}</a>
+            <a
+                href="{% url 'staff:questionnaire_create' %}"
+                class="btn btn-sm btn-dark mt-2"
+            >{% translate 'Create new questionnaire' %}</a>
         </div>
         <div class="card staff-index-card card-body">
             <h4 class="card-title">{% translate 'Users' %}</h4>
@@ -31,7 +37,10 @@
                 <li><a href="{% url 'staff:user_merge_selection' %}">{% translate 'Merge users' %}</a></li>
                 <li><a href="{% url 'staff:user_bulk_update' %}">{% translate 'Update users' %}</a></li>
             </ul>
-            <a href="{% url 'staff:user_create' %}" class="btn btn-sm btn-dark mt-2">{% translate 'Create new user' %}</a>
+            <a
+                href="{% url 'staff:user_create' %}"
+                class="btn btn-sm btn-dark mt-2"
+            >{% translate 'Create new user' %}</a>
         </div>
         <div class="card staff-index-card card-body">
             <h4 class="card-title">{% translate 'Programs' %}</h4>
@@ -44,10 +53,12 @@
             <h4 class="card-title">{% translate 'Course types' %}</h4>
             <ul>
                 <li><a href="{% url 'staff:course_type_index' %}">{% translate 'All course types' %}</a></li>
-                <li><a href="{% url 'staff:course_type_merge_selection' %}">{% translate 'Merge course types' %}</a></li>
+                <li>
+                    <a href="{% url 'staff:course_type_merge_selection' %}">{% translate 'Merge course types' %}</a>
+                </li>
             </ul>
         </div>
-       <div class="card staff-index-card card-body">
+        <div class="card staff-index-card card-body">
             <h4 class="card-title">{% translate 'Exam types' %}</h4>
             <ul>
                 <li><a href="{% url 'staff:exam_type_index' %}">{% translate 'All exam types' %}</a></li>
@@ -66,7 +77,11 @@
         <div class="card staff-index-card card-body">
             <h4 class="card-title">{% translate 'Reward Points' %}</h4>
             <ul>
-                <li><a href="{% url 'rewards:reward_point_redemption_events' %}">{% translate 'Reward point redemption events' %}</a></li>
+                <li>
+                    <a
+                        href="{% url 'rewards:reward_point_redemption_events' %}"
+                    >{% translate 'Reward point redemption events' %}</a>
+                </li>
             </ul>
         </div>
         <div class="card staff-index-card card-body">

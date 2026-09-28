@@ -1,15 +1,23 @@
 {% extends 'staff_questionnaire_base.html' %}
 
+{% load staff_templatetags %}
+
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% translate 'Usage' %}</li>
+
+    {% breadcrumb_item %}
+        {% translate 'Usage' %}
+    {% endbreadcrumb_item %}
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
     <h3>{{ questionnaire.name }}</h3>
     {% for semester, evaluations in evaluations_grouped_by_semester.items %}
-        <div class="card mb-3 {% if semester.is_active %}card-outline-primary{% endif %}" data-id="semester-{{ semester.id }}">
+        <div
+            class="card mb-3 {% if semester.is_active %}card-outline-primary{% endif %}"
+            data-id="semester-{{ semester.id }}"
+        >
             <div class="card-header">
                 {{ semester.name }}
                 <span class="badge rounded-pill bg-dark">{{ evaluations|length }}</span>

@@ -569,7 +569,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
 class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
     @classmethod
     def setUpTestData(cls):
-        make_manager()
+        cls.manager = make_manager()
         responsible = baker.make(UserProfile, email="responsible@institution.example.com")
         cls.student1 = baker.make(UserProfile, email="student1@institution.example.com")
         cls.student2 = baker.make(UserProfile, email="student2@example.com")
@@ -586,6 +586,16 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
         cls.responsible_contribution = baker.make(
             Contribution, contributor=responsible, evaluation=cls.evaluation, questionnaires=[questionnaire]
         )
+
+    def test_zero_voters(self) -> None:
+        """Regression test for #2709."""
+        self.evaluation.dropout_count = 1
+        self.evaluation.end_evaluation()
+        self.evaluation.end_review()
+        self.evaluation.publish()
+        self.evaluation.save()
+        with run_in_staff_mode(self):
+            self.app.get(self.url, user=self.manager)
 
     def helper_test_answer_visibility_one_voter(self, user_email, expect_page_not_visible=False):
         page = self.app.get(self.url, user=user_email, expect_errors=expect_page_not_visible)

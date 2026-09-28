@@ -12,7 +12,7 @@ from pydantic import ValidationError
 
 import evap.cms.fixtures
 from evap.cms.json_importer import ImportDict, JSONImporter, NameChange, WarningMessage, _clean_whitespaces_and_hyphens
-from evap.cms.models import EvaluationLink, IgnoredEvaluation
+from evap.cms.models import CourseLink, EvaluationLink, IgnoredEvaluation
 from evap.evaluation.models import (
     Contribution,
     Course,
@@ -430,6 +430,28 @@ class TestImportEvents(TestCase):
         # Overall, 3 log entries should exist: Create Evaluation, Create General Contribution, Create Contribution of 3@example.com
         self.assertEqual(main_evaluation.related_logentries().count(), 3)
 
+    def test_import_contributor_contribution_update(self) -> None:
+        """Regression test for #2728"""
+
+        contributions = Contribution.objects.exclude(contributor=None)
+
+        self._import()
+        self.assertFalse(
+            contributions.exclude(
+                role=Contribution.Role.EDITOR,
+                textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            ).exists(),
+            msg="assumed default values from import",
+        )
+
+        contributions.update(role=Contribution.Role.CONTRIBUTOR)
+        self._import(assert_nop=True)
+        contributions.update(
+            role=Contribution.Role.EDITOR,  # back to default
+            textanswer_visibility=Contribution.TextAnswerVisibility.OWN_TEXTANSWERS,
+        )
+        self._import(assert_nop=True)
+
     def test_import_courses_exam_without_related_evaluation(self):
         CourseType.objects.create(name_en="Foo", name_de="Foo", import_names=["nat"])
         course_type = CourseType.objects.create(name_en="Bar", name_de="Bar", import_names=["Bachelorprojekt"])
@@ -564,6 +586,19 @@ class TestImportEvents(TestCase):
         # use weights
         self.assertEqual(evaluation_everything.weight, settings.MAIN_EVALUATION_DEFAULT_WEIGHT)
         self.assertEqual(evaluation_life.weight, settings.EXAM_EVALUATION_DEFAULT_WEIGHT)
+
+    def test_import_courses_deactivated_link(self):
+        course = baker.make(Course, name_en="unchanged")
+        course_link = baker.make(CourseLink, cms_id="0x9", course=course, is_active=False)
+        self._import(EXAMPLE_DATA_SPECIAL_CASES)
+        self.assertEqual(course_link.course.name_en, "unchanged")
+
+        course_link.is_active = True
+        course_link.save()
+
+        self._import(EXAMPLE_DATA_SPECIAL_CASES)
+        course_link = CourseLink.objects.get(cms_id="0x9")
+        self.assertEqual(course_link.course.name_en, "Vorlesung mit vielen Verantwortlichen")
 
     def test_import_ignore_non_responsible_users(self):
         with override_settings(NON_RESPONSIBLE_USERS=["4@example.com", "ignored.lecturer2@example.com"]):
@@ -849,6 +884,7 @@ class TestImportEvents(TestCase):
 
         importer = self._import(EXAMPLE_DATA_SPECIAL_CASES)
         evaluation = Evaluation.objects.get(cms_evaluation_links__cms_id="0x10")
+        # the evaluation should have three participants (because student "1" has no email and is skipped)
         self.assertEqual(
             set(evaluation.participants.values_list("last_name", flat=True)),
             {"2", "3", "7"},

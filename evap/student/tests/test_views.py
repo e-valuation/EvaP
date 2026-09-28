@@ -266,24 +266,26 @@ class TestVoteView(WebTest):
         )
 
     def test_question_ordering(self):
+        # Reorder questions after creation, regression test for #2741
+        self.bottom_text_assignment.order = 4
+        self.bottom_text_assignment.save()
+        self.bottom_grade_assignment.order = 1
+        self.bottom_grade_assignment.save()
+
         page = self.app.get(self.url, user=self.voting_user1, status=200)
 
-        top_heading_index = page.body.decode().index(self.top_heading_assignment.question.text)
-        top_text_index = page.body.decode().index(self.top_text_assignment.question.text)
-
-        contributor_heading_index = page.body.decode().index(self.contributor_heading_assignment.question.text)
-        contributor_likert_index = page.body.decode().index(self.contributor_likert_assignment.question.text)
-
-        bottom_heading_index = page.body.decode().index(self.bottom_heading_assignment.question.text)
-        bottom_grade_index = page.body.decode().index(self.bottom_grade_assignment.question.text)
+        def index(assignment):
+            return page.body.decode().index(assignment.question.text)
 
         self.assertTrue(
-            top_heading_index
-            < top_text_index
-            < contributor_heading_index
-            < contributor_likert_index
-            < bottom_heading_index
-            < bottom_grade_index
+            index(self.top_heading_assignment)
+            < index(self.top_text_assignment)
+            < index(self.contributor_heading_assignment)
+            < index(self.contributor_likert_assignment)
+            < index(self.bottom_heading_assignment)
+            < index(self.bottom_grade_assignment)
+            < index(self.bottom_likert_assignment)
+            < index(self.bottom_text_assignment)
         )
 
     def fill_form(self, form, fill_general_complete=True, fill_contributors_complete=True):
@@ -642,6 +644,8 @@ class TestVoteView(WebTest):
 
 
 class TestDropoutView(WebTest):
+    evaluation: Evaluation
+
     @classmethod
     def setUpTestData(cls) -> None:
         cls.user = baker.make(UserProfile, email="student@institution.example.com")
@@ -666,7 +670,7 @@ class TestDropoutView(WebTest):
             Evaluation, state=Evaluation.State.IN_EVALUATION, participants=[cls.user, cls.user2], main_language="en"
         )
 
-        cls.evaluation.general_contribution.questionnaires.add(cls.dropout_questionnaire, cls.normal_questionnaire)  # type: ignore[misc]
+        cls.evaluation.general_contribution.questionnaires.add(cls.dropout_questionnaire, cls.normal_questionnaire)  # type: ignore[union-attr]
 
     def assert_no_answer_set(self, form, dropout_questionnaire: Questionnaire):
         for name, fields in form.fields.items():

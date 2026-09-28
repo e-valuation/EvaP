@@ -2,6 +2,8 @@
  * @jest-environment jsdom
  */
 
+import { test, expect, describe } from "@jest/globals";
+
 Object.defineProperty(document, "cookie", {
     get: () =>
         `foo=${encodeURIComponent("F00")}; ` +

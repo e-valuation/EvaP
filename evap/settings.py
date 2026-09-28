@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from django.contrib.staticfiles.storage import ManifestStaticFilesStorage
+from django.http import HttpRequest
 
 from evap.tools import MonthAndDay
 
@@ -32,6 +33,9 @@ DEBUG = True
 # Very helpful but eats a lot of performance on sql-heavy pages.
 # Works only with DEBUG = True and Django's development server (so no apache).
 ENABLE_DEBUG_TOOLBAR = False
+
+# Validate generated HTML using Nu Html Checker
+VNU_URL: str | None = None
 
 ### EvaP logic
 
@@ -189,7 +193,7 @@ STORAGES = {
 
 CONTACT_EMAIL = "webmaster@localhost"
 ALLOW_ANONYMOUS_FEEDBACK_MESSAGES = True
-LEGAL_NOTICE_TEXT = "Objection! (this is a default setting that the administrators should change, please contact them)"
+LEGAL_NOTICE_LINK = "https://example.com/legalnotice"
 
 # Config for mail system
 DEFAULT_FROM_EMAIL = "webmaster@localhost"
@@ -435,7 +439,7 @@ SLOGANS_EN = [
 
 
 ### Allowed chosen first names / display names
-def CHARACTER_ALLOWED_IN_NAME(character):  # pylint: disable=invalid-name
+def CHARACTER_ALLOWED_IN_NAME(character: str) -> bool:  # pylint: disable=invalid-name
     return any(
         (
             ord(character) in range(32, 127),  # printable ASCII / Basic Latin characters
@@ -478,7 +482,7 @@ try:
     # localsettings file may or may not exist (for example in CI)
 
     # the import can overwrite locals with a slightly different type (e.g. DATABASES), which is fine.
-    from evap.localsettings import *  # type: ignore  # noqa: F403,PGH003
+    from evap.localsettings import *  # noqa: F403,PGH003
 except ImportError:
     pass
 
@@ -531,10 +535,13 @@ if DEBUG:
         INSTALLED_APPS += ["debug_toolbar"]
         MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
 
-        def show_toolbar(request):
+        def show_toolbar(request: HttpRequest) -> bool:
             return True
 
         DEBUG_TOOLBAR_CONFIG = {
             "SHOW_TOOLBAR_CALLBACK": "evap.settings.show_toolbar",
             "JQUERY_URL": "",
         }
+
+if VNU_URL is not None:
+    MIDDLEWARE += ["evap.development.middleware.NuValidatorMiddleware"]

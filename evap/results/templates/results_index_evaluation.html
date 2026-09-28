@@ -4,5 +4,5 @@
 {% get_current_language as LANGUAGE_CODE %}
 
 {% cache evaluation|evaluation_results_cache_timeout evaluation_result_template_fragment evaluation.id LANGUAGE_CODE links_to_results_page using="results" %}
-{% include 'results_index_evaluation_impl.html' %}
+    {% include 'results_index_evaluation_impl.html' %}
 {% endcache %}

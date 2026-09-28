@@ -62,3 +62,5 @@ GLOBAL_EVALUATION_PROGRESS_CAMPAIGN: dict[str, str] = {
 
 # Questionnaires automatically added to exam evaluations
 EXAM_QUESTIONNAIRE_IDS = [111]
+
+VNU_URL = "http://localhost:8001"
