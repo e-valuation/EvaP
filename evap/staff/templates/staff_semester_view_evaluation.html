@@ -2,76 +2,161 @@
 {% load staff_templatetags %}
 
 {% with state=evaluation.state %}
+    <td>
+        {% if request.user.is_manager and not info_only and not semester.participations_are_archived %}
+            <div
+                class="form-check"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                title="{% translate 'Select for evaluation operation' %}"
+            >
+                <input
+                    class="form-check-input"
+                    type="checkbox"
+                    name="evaluation"
+                    id="evaluation{{ evaluation.id }}"
+                    value="{{ evaluation.id }}"
+                />
+                <label class="form-check-label" for="evaluation{{ evaluation.id }}"></label>
+            </div>
+        {% endif %}
+    </td>
 
-<td>
-    {% if request.user.is_manager and not info_only and not semester.participations_are_archived %}
-        <div class="form-check" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Select for evaluation operation' %}">
-            <input class="form-check-input" type="checkbox" name="evaluation" id="evaluation{{ evaluation.id }}" value="{{ evaluation.id }}"/>
-            <label class="form-check-label" for="evaluation{{ evaluation.id }}"></label>
-        </div>
+    {% with approval_state_values=state|approval_state_values %}
+        <td
+            class="icon"
+            data-col="state-approval"
+            data-order="{{ approval_state_values.order }}"
+            data-filter="{{ approval_state_values.filter }}"
+        >
+            <span
+                class="{{ approval_state_values.icon }}"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                title="{{ approval_state_values.description }}"
+            ></span>
+        </td>
+    {% endwith %}
+
+    {% if state < evaluation.State.APPROVED %}
+        <td class="icon" data-col="state-evaluating" data-order="1" data-filter="evaluation_not_yet_started">
+            <span
+                class="fas fa-pause icon-gray"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                title="{% translate 'Evaluation did not start yet' %}"
+            ></span>
+        </td>
+    {% elif state == evaluation.State.APPROVED %}
+        <td class="icon" data-col="state-evaluating" data-order="1" data-filter="evaluation_not_yet_started">
+            <span
+                class="fas fa-pause icon-gray"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                title="{% translate 'Waiting for evaluation period to start' %}"
+            ></span>
+        </td>
+    {% elif state == evaluation.State.IN_EVALUATION %}
+        <td class="icon" data-col="state-evaluating" data-order="2" data-filter="in_evaluation">
+            <span
+                class="fas fa-play icon-gray"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                title="{% translate 'In evaluation' %}"
+            ></span>
+        </td>
+    {% elif state >= evaluation.State.EVALUATED %}
+        <td class="icon" data-col="state-evaluating" data-order="3" data-filter="evaluated">
+            <span
+                class="fas fa-stop icon-success"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                title="{% translate 'Evaluated' %}"
+            ></span>
+        </td>
     {% endif %}
-</td>
-
-{% with approval_state_values=state|approval_state_values %}
-    <td class="icon" data-col="state-approval" data-order="{{ approval_state_values.order }}" data-filter="{{ approval_state_values.filter }}">
-        <span class="{{ approval_state_values.icon }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ approval_state_values.description }}"></span>
-    </td>
-{% endwith %}
-
-{% if state < evaluation.State.APPROVED %}
-    <td class="icon" data-col="state-evaluating" data-order="1" data-filter="evaluation_not_yet_started">
-        <span class="fas fa-pause icon-gray" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Evaluation did not start yet' %}"></span>
-    </td>
-{% elif state == evaluation.State.APPROVED %}
-    <td class="icon" data-col="state-evaluating" data-order="1" data-filter="evaluation_not_yet_started">
-        <span class="fas fa-pause icon-gray" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Waiting for evaluation period to start' %}"></span>
-    </td>
-{% elif state == evaluation.State.IN_EVALUATION %}
-    <td class="icon" data-col="state-evaluating" data-order="2" data-filter="in_evaluation">
-        <span class="fas fa-play icon-gray" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'In evaluation' %}"></span>
-    </td>
-{% elif state >= evaluation.State.EVALUATED %}
-    <td class="icon" data-col="state-evaluating" data-order="3" data-filter="evaluated">
-        <span class="fas fa-stop icon-success" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Evaluated' %}"></span>
-    </td>
-
-{% if evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.NO_TEXTANSWERS or evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.NO_REVIEW_NEEDED %}
-    <td class="icon" data-col="state-textanswers" data-order="3" data-filter="no_review">
-        <span class="fas fa-comment icon-gray" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'No text answers available or evaluation not yet finished' %}"></span>
-    </td>
-{% elif evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.REVIEW_URGENT %}
-    <td class="icon" data-col="state-textanswers" data-order="1" data-filter="unreviewed_textanswers_urgent">
-        <span class="fas fa-comment icon-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Text answers awaiting urgent review because grading process is finished' %}"></span>
-    </td>
-{% elif evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.REVIEW_NEEDED %}
-    <td class="icon" data-col="state-textanswers" data-order="2" data-filter="unreviewed_textanswers">
-        <span class="fas fa-comment icon-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Text answers awaiting review' %}"></span>
-    </td>
-{% else %}
-    <td class="icon" data-col="state-textanswers" data-order="4" data-filter="textanswers_reviewed">
-        <span class="fas fa-comment icon-success" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Text answers reviewed' %}"></span>
-    </td>
-{% endif %}
-
-{% if state < evaluation.State.REVIEWED %}
-    <td class="icon" data-col="state-results" data-order="2" data-filter="evaluation_not_finished">
-        <span class="fas fa-chart-simple icon-gray" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Evaluation not finished' %}"></span>
-    </td>
-{% elif state == evaluation.State.REVIEWED %}
-    {% if evaluation.grading_process_is_finished %}
-        <td class="icon text-center" data-col="state-results" data-order="0" data-filter="results_not_published">
-            <span class="fas fa-chart-simple icon-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Results not yet published although grading process is finished' %}"></span>
+    {% if evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.NO_TEXTANSWERS or evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.NO_REVIEW_NEEDED %}
+        <td class="icon" data-col="state-textanswers" data-order="3" data-filter="no_review">
+            <span
+                class="fas fa-comment icon-gray"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                title="{% translate 'No text answers available or evaluation not yet finished' %}"
+            ></span>
+        </td>
+    {% elif evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.REVIEW_URGENT %}
+        <td class="icon" data-col="state-textanswers" data-order="1" data-filter="unreviewed_textanswers_urgent">
+            <span
+                class="fas fa-comment icon-danger"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                title="{% translate 'Text answers awaiting urgent review because grading process is finished' %}"
+            ></span>
+        </td>
+    {% elif evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.REVIEW_NEEDED %}
+        <td class="icon" data-col="state-textanswers" data-order="2" data-filter="unreviewed_textanswers">
+            <span
+                class="fas fa-comment icon-primary"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                title="{% translate 'Text answers awaiting review' %}"
+            ></span>
         </td>
     {% else %}
-        <td class="icon text-center" data-col="state-results" data-order="1" data-filter="results_not_yet_published">
-            <span class="fas fa-chart-simple icon-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Results not yet published' %}"></span>
+        <td class="icon" data-col="state-textanswers" data-order="4" data-filter="textanswers_reviewed">
+            <span
+                class="fas fa-comment icon-success"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                title="{% translate 'Text answers reviewed' %}"
+            ></span>
         </td>
     {% endif %}
-{% elif state == evaluation.State.PUBLISHED %}
-    <td class="icon" data-col="state-results" data-order="3" data-filter="results_published">
-        <span class="fas fa-chart-simple icon-success" data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Results published' %}"></span>
-    </td>
-{% endif %}
+
+    {% if state < evaluation.State.REVIEWED %}
+        <td class="icon" data-col="state-results" data-order="2" data-filter="evaluation_not_finished">
+            <span
+                class="fas fa-chart-simple icon-gray"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                title="{% translate 'Evaluation not finished' %}"
+            ></span>
+        </td>
+    {% elif state == evaluation.State.REVIEWED %}
+        {% if evaluation.grading_process_is_finished %}
+            <td class="icon text-center" data-col="state-results" data-order="0" data-filter="results_not_published">
+                <span
+                    class="fas fa-chart-simple icon-danger"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="{% translate 'Results not yet published although grading process is finished' %}"
+                ></span>
+            </td>
+        {% else %}
+            <td
+                class="icon text-center"
+                data-col="state-results"
+                data-order="1"
+                data-filter="results_not_yet_published"
+            >
+                <span
+                    class="fas fa-chart-simple icon-primary"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="{% translate 'Results not yet published' %}"
+                ></span>
+            </td>
+        {% endif %}
+    {% elif state == evaluation.State.PUBLISHED %}
+        <td class="icon" data-col="state-results" data-order="3" data-filter="results_published">
+            <span
+                class="fas fa-chart-simple icon-success"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                title="{% translate 'Results published' %}"
+            ></span>
+        </td>
+    {% endif %}
 
     {% if evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.NO_TEXTANSWERS or evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.NO_REVIEW_NEEDED %}
         <td class="icon" data-col="state-textanswers" data-order="3" data-filter="no_review">

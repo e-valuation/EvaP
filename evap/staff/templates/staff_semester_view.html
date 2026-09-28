@@ -485,9 +485,15 @@
                             >
                                 <span class="fas fa-play icon-gray"></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="evaluated"
-                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
-                                title="{% translate 'Evaluated' %}">
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-light"
+                                data-filter="evaluated"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                data-container=".btn-switch"
+                                title="{% translate 'Evaluated' %}"
+                            >
                                 <span class="fas fa-stop icon-success"></span>
                             </button>
                         </div>
@@ -503,19 +509,37 @@
                             >
                                 <span class="fas fa-comment icon-gray"></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="unreviewed_textanswers"
-                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
-                                title="{% translate 'Text answers awaiting review' %}">
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-light"
+                                data-filter="unreviewed_textanswers"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                data-container=".btn-switch"
+                                title="{% translate 'Text answers awaiting review' %}"
+                            >
                                 <span class="fas fa-comment icon-primary"></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="unreviewed_textanswers_urgent"
-                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
-                                title="{% translate 'Text answers awaiting urgent review because grading process is finished' %}">
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-light"
+                                data-filter="unreviewed_textanswers_urgent"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                data-container=".btn-switch"
+                                title="{% translate 'Text answers awaiting urgent review because grading process is finished' %}"
+                            >
                                 <span class="fas fa-comment icon-danger"></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="textanswers_reviewed"
-                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
-                                title="{% translate 'Text answers reviewed' %}">
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-light"
+                                data-filter="textanswers_reviewed"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                data-container=".btn-switch"
+                                title="{% translate 'Text answers reviewed' %}"
+                            >
                                 <span class="fas fa-comment icon-success"></span>
                             </button>
                         </div>
@@ -531,19 +555,37 @@
                             >
                                 <span class="fas fa-chart-simple icon-gray"></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="results_not_yet_published"
-                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
-                                title="{% translate 'Results not yet published' %}">
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-light"
+                                data-filter="results_not_yet_published"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                data-container=".btn-switch"
+                                title="{% translate 'Results not yet published' %}"
+                            >
                                 <span class="fas fa-chart-simple icon-primary"></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="results_not_published"
-                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
-                                title="{% translate 'Results not yet published although grading process is finished' %}">
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-light"
+                                data-filter="results_not_published"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                data-container=".btn-switch"
+                                title="{% translate 'Results not yet published although grading process is finished' %}"
+                            >
                                 <span class="fas fa-chart-simple icon-danger"></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="results_published"
-                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
-                                title="{% translate 'Results published' %}">
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-light"
+                                data-filter="results_published"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                data-container=".btn-switch"
+                                title="{% translate 'Results published' %}"
+                            >
                                 <span class="fas fa-chart-simple icon-success"></span>
                             </button>
                         </div>
@@ -672,14 +714,28 @@
                                 <span class="fas fa-pause icon-gray"></span>
                                 {% translate 'Start evaluation' %}
                             </button>
-                            <button name="target_state" value="{{ Evaluation.State.PUBLISHED }}" type="submit" class="btn btn-sm btn-light"
-                                data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Unpublished evaluations' %}">
+                            <button
+                                name="target_state"
+                                value="{{ Evaluation.State.PUBLISHED }}"
+                                type="submit"
+                                class="btn btn-sm btn-light"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="{% translate 'Unpublished evaluations' %}"
+                            >
                                 <span class="fas fa-chart-simple icon-primary"></span>
                                 <span class="fas fa-chart-simple icon-danger"></span>
                                 {% translate 'Publish' %}
                             </button>
-                            <button name="target_state" value="{{ Evaluation.State.REVIEWED }}" type="submit" class="btn btn-sm btn-light"
-                                data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'Published evaluations' %}">
+                            <button
+                                name="target_state"
+                                value="{{ Evaluation.State.REVIEWED }}"
+                                type="submit"
+                                class="btn btn-sm btn-light"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="{% translate 'Published evaluations' %}"
+                            >
                                 <span class="fas fa-chart-simple icon-success"></span>
                                 {% translate 'Unpublish' %}
                             </button>
