@@ -385,6 +385,7 @@ STATIC_URL = "/static/"
 # Additional locations of static files
 STATICFILES_DIRS = [
     MODULE / "static",
+    ("images", MODULE / "static_images"),
 ]
 
 # Absolute path to the directory static files should be collected to.

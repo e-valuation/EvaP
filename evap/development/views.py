@@ -1,5 +1,3 @@
-from django.conf import settings
-from django.core.exceptions import BadRequest
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 
@@ -11,12 +9,3 @@ def development_components(request: HttpRequest) -> HttpResponse:
         "infotext": {"page": "sample_page", "title": "Information", "content": "Give the user some explanation."},
     }
     return render(request, "development_components.html", template_data)
-
-
-def development_rendered(request: HttpRequest, filename: str) -> HttpResponse:
-    fixtures_directory = settings.STATICFILES_DIRS[0] / "ts" / "rendered"
-    try:
-        with open(fixtures_directory / filename, encoding="utf-8") as fixture:
-            return HttpResponse(fixture)
-    except (FileNotFoundError, ValueError, OSError) as e:
-        raise BadRequest from e
