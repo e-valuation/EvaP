@@ -24,7 +24,7 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    urlpatterns = [re_path(r"^static/(?P<path>.*)$", never_cache(serve))] + urlpatterns + [path('development/', include('evap.development.urls'))]
+    urlpatterns = [re_path(r"^static/.*$", never_cache(serve))] + urlpatterns + [path('development/', include('evap.development.urls'))]
 
     if settings.ENABLE_DEBUG_TOOLBAR:
         # pylint does not correctly evaluate this if, so it will raise an import-error on
