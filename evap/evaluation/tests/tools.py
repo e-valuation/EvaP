@@ -396,6 +396,10 @@ class LiveServerTest(SeedBakerMixin, SeleniumTestCase):
         yield
         self.wait.until(staleness_of(html_element))
 
+    # wait for all javascript to fully execute, so our click handlers are registered
+    def wait_until_document_ready(self):
+        self.wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
+
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()

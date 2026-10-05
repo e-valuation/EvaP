@@ -7,12 +7,14 @@ confirmation-modal:not(:defined) > :not([slot="show-button"]) {
 
 dialog.evap-modal-dialog {
   z-index: $zindex-modal;
-  max-width: 80ch;
-  border: 1px solid $dark-gray;
-  border-radius: 0.5rem;
-  padding: 0;
-  // Ensure dynamically sized UI elements, e.g. the TomSelect input in the direct delegation modal, are not cropped
-  overflow: visible;
+  width: 100%;
+  height: 100vh;
+  overflow-y: scroll;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  background-color: transparent;
+  border: none;
 
   // These attributes are inherited from parent elements, although it usually does not make any sense, because the
   // dialog is not displayed inside of the parent element. This list might grow over time.
@@ -57,6 +59,14 @@ dialog.evap-modal-dialog {
     z-index: $zindex-modal-backdrop;
     background-color: black;
     opacity: 50%;
+  }
+
+  form {
+    background-color: white;
+    max-width: 80ch;
+    border: 1px solid $dark-gray;
+    border-radius: 0.5rem;
+    margin: auto;
   }
 
   .evap-modal-container {
