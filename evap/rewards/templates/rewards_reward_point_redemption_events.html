@@ -1,10 +1,13 @@
 {% extends 'staff_base.html' %}
 
 {% load static %}
+{% load staff_templatetags %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% translate 'Reward Point Redemption Events' %}</li>
+    {% breadcrumb_item %}
+        {% translate 'Reward Point Redemption Events' %}
+    {% endbreadcrumb_item %}
 {% endblock %}
 
 {% block content %}

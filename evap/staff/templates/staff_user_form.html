@@ -1,15 +1,16 @@
 {% extends 'staff_base.html' %}
 
 {% load evaluation_filters %}
+{% load staff_templatetags %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'staff:user_index' %}">{% translate 'Users' %}</a></li>
-    {% if form.instance.id %}
-        <li class="breadcrumb-item">{{ form.instance.full_name }}</li>
-    {% else %}
-        <li class="breadcrumb-item">{% translate 'Create user' %}</li>
-    {% endif %}
+    {% breadcrumb_item_url 'staff:user_index' %}
+        {% translate 'Users' %}
+    {% endbreadcrumb_item_url %}
+    {% breadcrumb_item %}
+        {% if form.instance.id %}{{ form.instance.full_name }}{% else %}{% translate 'Create user' %}{% endif %}
+    {% endbreadcrumb_item %}
 {% endblock %}
 
 {% block content %}
@@ -66,7 +67,6 @@
                 {% translate "A user with this email address already exists. You probably want to merge the users." %}
             </p>
             <a
-                type="button"
                 class="btn btn-primary btn-sm"
                 href="{% url 'staff:user_merge' user_with_same_email.id form.instance.id %}"
             >{% translate "Merge both users" %}</a>

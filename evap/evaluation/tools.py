@@ -277,7 +277,7 @@ class AttachmentResponse(HttpResponse):
     _to the response instance_ as if it was a writable file.
     """
 
-    def __init__(self, filename: str, content_type=None, **kwargs) -> None:
+    def __init__(self, filename: str, content_type, **kwargs) -> None:
         super().__init__(content_type=content_type, **kwargs)
         self.set_content_disposition(filename)
 

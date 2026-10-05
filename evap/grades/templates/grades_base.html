@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load staff_templatetags %}
 
 {% block title %}{% translate 'Grade publishing' %} - {{ block.super }}{% endblock %}
 
@@ -6,12 +7,14 @@
     <div class="breadcrumb-bar">
         <ul class="breadcrumb">
             {% block breadcrumb %}
-                {% if disable_breadcrumb_grades or not user.is_grade_publisher %}
-                    <li class="breadcrumb-item">{% translate 'Grade publishing' %}</li>
+                {% if not user.is_grade_publisher %}
+                    {% breadcrumb_item %}
+                        {% translate 'Grade publishing' %}
+                    {% endbreadcrumb_item %}
                 {% else %}
-                    <li class="breadcrumb-item">
-                        <a href="{% url 'grades:index' %}">{% translate 'Grade publishing' %}</a>
-                    </li>
+                    {% breadcrumb_item_url 'grades:index' %}
+                        {% translate 'Grade publishing' %}
+                    {% endbreadcrumb_item_url %}
                 {% endif %}
             {% endblock %}
         </ul>
