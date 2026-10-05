@@ -13,6 +13,7 @@
 
 .progress-container .progress-disabled {
     background-color: $light-gray;
+
     .progress-bartext {
         text-shadow: none;
         color: tint-color($medium-gray, 10%);
@@ -73,10 +74,28 @@
     grid-column-start: 1;
     grid-row-start: 2;
 
-    .seperator {
+    .separator {
         width: 1px;
         height: 8px;
         border: $dark-gray 1px solid;
     }
 }
 
+@include media-breakpoint-up(md) {
+    .spaced {
+        display: none;
+    }
+}
+
+.progress-step:nth-of-type(3n + 1) .spaced {
+    display: none;
+}
+
+.progress-step:nth-of-type(3n + 2) .spaced {
+    height: 18px;
+}
+
+
+.progress-step:nth-of-type(3n) .spaced {
+    height: 36px;
+}

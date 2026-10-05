@@ -1,14 +1,13 @@
 {% extends 'grades_semester_base.html' %}
+{% load staff_templatetags %}
 
 {% block title %}{{ course.name }} - {{ block.super }}{% endblock %}
 
 {% block breadcrumb %}
     {{ block.super }}
     {% if course %}
-        {% if disable_breadcrumb_course %}
-            <li class="breadcrumb-item">{{ course.name }}</li>
-        {% else %}
-            <li class="breadcrumb-item"><a href="{% url 'grades:course_view' course.id %}">{{ course.name }}</a></li>
-        {% endif %}
+        {% breadcrumb_item_url 'grades:course_view' course.id %}
+            {{ course.name }}
+        {% endbreadcrumb_item_url %}
     {% endif %}
 {% endblock %}

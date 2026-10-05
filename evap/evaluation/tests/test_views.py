@@ -34,8 +34,8 @@ class TestIndexView(WebTest):
 
         response = self.app.get(self.url)
         password_form = response.forms["email-login-form"]
-        password_form["email"] = internal_email
-        password_form["password"] = "evap"
+        password_form["login-email"] = internal_email
+        password_form["login-password"] = "evap"
         response = password_form.submit()
         self.assertRedirects(response, self.url, fetch_redirect_response=False)
         self.assertRedirects(response.follow(), "/results/")
@@ -52,8 +52,8 @@ class TestIndexView(WebTest):
 
         response = self.app.get(self.url + "?next=/test42/")
         password_form = response.forms["email-login-form"]
-        password_form["email"] = internal_email
-        password_form["password"] = "evap"
+        password_form["login-email"] = internal_email
+        password_form["login-password"] = "evap"
         response = password_form.submit()
         self.assertRedirects(response.follow(), "/test42/", fetch_redirect_response=False)
 
@@ -64,10 +64,10 @@ class TestIndexView(WebTest):
         baker.make(UserProfile, email="asdf@example.com")
         response = self.app.get(self.url)
         email_form = response.forms["request-login-form"]
-        email_form["email"] = "doesnotexist@example.com"
+        email_form["new-key-email"] = "doesnotexist@example.com"
         self.assertIn("No user with this email address was found", email_form.submit())
         email = "asdf@example.com"
-        email_form["email"] = email
+        email_form["new-key-email"] = email
         self.assertIn("We sent you", email_form.submit().follow())
         self.assertEqual(len(mail.outbox), 1)
         self.assertTrue(mail.outbox[0].to == [email])

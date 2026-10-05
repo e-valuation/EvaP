@@ -89,6 +89,7 @@ class TestAnonymizeCommand(TestCase):
             course=cls.course,
             name_de="Wie man Software testet",
             name_en="Testing your software",
+            staff_notes="Keep an eye on this one!",
         )
         baker.make(
             Evaluation,
@@ -179,6 +180,12 @@ class TestAnonymizeCommand(TestCase):
         baker.make(UserProfile, password=make_password("evap"))
         with self.assertRaises(AssertionError):
             management.call_command("anonymize", stdout=StringIO())
+
+    def test_staff_notes_are_anonymized(self):
+        management.call_command("anonymize", stdout=StringIO())
+        self.assertEqual(
+            Evaluation.objects.get(id=self.evaluation.id).staff_notes, "Lorem ipsum dolor sit amet, consetetur"
+        )
 
 
 class TestRefreshResultsCacheCommand(TestCase):
@@ -290,7 +297,7 @@ class TestUpdateEvaluationStatesCommand(TestCase):
         self.assertEqual(mock.call_count, 1)
 
 
-@override_settings(REMIND_X_DAYS_AHEAD_OF_END_DATE=[0, 2])
+@override_settings(REMIND_X_DAYS_AHEAD_OF_END_DATE=[0, 2], TEXTANSWER_REVIEW_REMINDER_WEEKDAYS=[])
 class TestSendRemindersCommand(TestCase):
     def test_remind_user_about_one_evaluation(self):
         user_to_remind = baker.make(UserProfile)

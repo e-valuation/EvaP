@@ -10,6 +10,7 @@ from evap.cms.models import CourseLink, EvaluationLink, IgnoredEvaluation
 from evap.evaluation.auth import manager_required
 from evap.evaluation.models import Evaluation
 from evap.evaluation.tools import (
+    HttpRequest,
     HttpResponseNoContent,
     get_object_from_dict_pk_entry_or_logged_40x,
 )
@@ -20,7 +21,7 @@ from evap.staff.views import _evaluation_delete
 
 @require_POST
 @manager_required
-def ignored_evaluation_delete(request):
+def ignored_evaluation_delete(request: HttpRequest) -> HttpResponseNoContent:
     ignored_evaluation = get_object_from_dict_pk_entry_or_logged_40x(
         IgnoredEvaluation, request.POST, "ignored_evaluation_id"
     )

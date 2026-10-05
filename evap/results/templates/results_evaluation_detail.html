@@ -3,6 +3,7 @@
 {% load static %}
 {% load evaluation_filters %}
 {% load results_templatetags %}
+{% load staff_templatetags %}
 
 {% block title %}{{ evaluation.full_name }} - {{ evaluation.course.semester.name }} - {% translate 'Results' %} -
     {{ block.super }}{% endblock %}
@@ -10,8 +11,12 @@
 {% block breadcrumb_bar %}
     <div class="breadcrumb-bar">
         <ul class="breadcrumb">
-            <li class="breadcrumb-item">{{ evaluation.course.semester.name }}</li>
-            <li class="breadcrumb-item">{{ evaluation.full_name }}</li>
+            {% breadcrumb_item %}
+                {{ evaluation.course.semester.name }}
+            {% endbreadcrumb_item %}
+            {% breadcrumb_item %}
+                {{ evaluation.full_name }}
+            {% endbreadcrumb_item %}
         </ul>
     </div>
 {% endblock %}
@@ -106,7 +111,6 @@
                 <a
                     class="btn btn-sm btn-light d-print-none"
                     href="{% url 'results:evaluation_text_answers_export' evaluation.id %}?view_general_results={{ view_general_results.value }}&view_contributor_results={{ view_contributor_results.value }}{% if contributor_id is not None %}&contributor_id={{ contributor_id }}{% endif %}"
-                    type="button"
                 >
                     {% translate 'Export visible text answers' %}
                 </a>
@@ -254,7 +258,7 @@
             <div class="card-header d-flex flex-row justify-content-between">
                 <span>{% translate 'Dropout' %}</span>
 
-                <div class="badge-participants badge-participants-{{ evaluation.dropout_count|participationclass:evaluation.num_voters }} ms-2 ms-lg-3">
+                <div class="badge-participants badge-participants-{{ evaluation.dropout_count|decile:evaluation.num_voters }} ms-2 ms-lg-3">
                     <span class="fas fa-user"></span> {{ evaluation.dropout_count }}
                 </div>
             </div>
