@@ -10624,12 +10624,14 @@
     "staff_notes": "",
     "participants": [
       528,
+      452,
       386,
       411,
       441
     ],
     "voters": [
       528,
+      452,
       386,
       411
     ]
@@ -23465,6 +23467,16 @@
 },
 {
   "model": "evaluation.ratinganswercounter",
+  "pk": "017320a6-5276-4e8b-8c6f-86fe2437ccdb",
+  "fields": {
+    "assignment": 152,
+    "contribution": 4091,
+    "answer": 3,
+    "count": 1
+  }
+},
+{
+  "model": "evaluation.ratinganswercounter",
   "pk": "017f2946-0f9a-41f2-9794-a7592f6b1fc8",
   "fields": {
     "assignment": 54,
@@ -24801,6 +24813,16 @@
     "contribution": 3473,
     "answer": 0,
     "count": 5
+  }
+},
+{
+  "model": "evaluation.ratinganswercounter",
+  "pk": "05efb7eb-2a1b-4ad2-8176-2c0532a2dc30",
+  "fields": {
+    "assignment": 3,
+    "contribution": 4090,
+    "answer": -1,
+    "count": 1
   }
 },
 {
@@ -26791,6 +26813,16 @@
     "contribution": 4204,
     "answer": 1,
     "count": 17
+  }
+},
+{
+  "model": "evaluation.ratinganswercounter",
+  "pk": "0c41a062-72d7-4ed1-81c3-4e9092fa3afb",
+  "fields": {
+    "assignment": 131,
+    "contribution": 4090,
+    "answer": 5,
+    "count": 1
   }
 },
 {
@@ -29490,7 +29522,7 @@
     "assignment": 127,
     "contribution": 4090,
     "answer": 1,
-    "count": 1
+    "count": 2
   }
 },
 {
@@ -30030,7 +30062,7 @@
     "assignment": 133,
     "contribution": 4090,
     "answer": 3,
-    "count": 1
+    "count": 2
   }
 },
 {
@@ -30111,6 +30143,16 @@
     "contribution": 3932,
     "answer": 1,
     "count": 2
+  }
+},
+{
+  "model": "evaluation.ratinganswercounter",
+  "pk": "1636a883-a921-4186-8643-4f48093bdc4a",
+  "fields": {
+    "assignment": 158,
+    "contribution": 4091,
+    "answer": 2,
+    "count": 1
   }
 },
 {
@@ -31930,7 +31972,7 @@
     "assignment": 5,
     "contribution": 4090,
     "answer": 1,
-    "count": 1
+    "count": 2
   }
 },
 {
@@ -33740,7 +33782,7 @@
     "assignment": 151,
     "contribution": 4091,
     "answer": 2,
-    "count": 1
+    "count": 2
   }
 },
 {
@@ -44155,6 +44197,16 @@
 },
 {
   "model": "evaluation.ratinganswercounter",
+  "pk": "4152fc82-a322-441f-a635-235d9d6b3687",
+  "fields": {
+    "assignment": 128,
+    "contribution": 4090,
+    "answer": 2,
+    "count": 1
+  }
+},
+{
+  "model": "evaluation.ratinganswercounter",
   "pk": "415cc257-3097-4813-85bc-65762c46559f",
   "fields": {
     "assignment": 19,
@@ -47410,7 +47462,7 @@
     "assignment": 132,
     "contribution": 4090,
     "answer": 2,
-    "count": 1
+    "count": 2
   }
 },
 {
@@ -59235,6 +59287,16 @@
 },
 {
   "model": "evaluation.ratinganswercounter",
+  "pk": "6f303ecf-bad6-4dd3-ba87-782747419403",
+  "fields": {
+    "assignment": 157,
+    "contribution": 4091,
+    "answer": 1,
+    "count": 1
+  }
+},
+{
+  "model": "evaluation.ratinganswercounter",
   "pk": "6f429420-eacc-42d6-923b-2243f7b3d3cd",
   "fields": {
     "assignment": 6,
@@ -59450,6 +59512,16 @@
     "assignment": 57,
     "contribution": 4039,
     "answer": 3,
+    "count": 1
+  }
+},
+{
+  "model": "evaluation.ratinganswercounter",
+  "pk": "6fd61b7a-0748-4e98-a276-3e157243f7ff",
+  "fields": {
+    "assignment": 154,
+    "contribution": 4091,
+    "answer": 1,
     "count": 1
   }
 },
@@ -60980,6 +61052,16 @@
     "assignment": 16,
     "contribution": 908,
     "answer": 3,
+    "count": 1
+  }
+},
+{
+  "model": "evaluation.ratinganswercounter",
+  "pk": "74fcb553-0ec8-4aed-85c5-b132c8d05049",
+  "fields": {
+    "assignment": 165,
+    "contribution": 4090,
+    "answer": 2,
     "count": 1
   }
 },
@@ -65335,6 +65417,16 @@
 },
 {
   "model": "evaluation.ratinganswercounter",
+  "pk": "83671b56-ad4e-42ae-972e-a81cfb59d6d2",
+  "fields": {
+    "assignment": 155,
+    "contribution": 4091,
+    "answer": 1,
+    "count": 1
+  }
+},
+{
+  "model": "evaluation.ratinganswercounter",
   "pk": "837bc48d-90d4-4b8b-b329-e6b477ba154f",
   "fields": {
     "assignment": 37,
@@ -69130,7 +69222,7 @@
     "assignment": 130,
     "contribution": 4090,
     "answer": 4,
-    "count": 1
+    "count": 2
   }
 },
 {
@@ -72120,7 +72212,7 @@
     "assignment": 129,
     "contribution": 4090,
     "answer": 3,
-    "count": 1
+    "count": 2
   }
 },
 {
@@ -101250,7 +101342,7 @@
     "assignment": 156,
     "contribution": 4091,
     "answer": 2,
-    "count": 1
+    "count": 2
   }
 },
 {
@@ -102441,6 +102533,16 @@
     "contribution": 3545,
     "answer": 1,
     "count": 3
+  }
+},
+{
+  "model": "evaluation.ratinganswercounter",
+  "pk": "f2aa7233-9322-4906-aff4-f1cd112d9348",
+  "fields": {
+    "assignment": 153,
+    "contribution": 4091,
+    "answer": 2,
+    "count": 1
   }
 },
 {
@@ -130488,6 +130590,17 @@
   }
 },
 {
+  "model": "evaluation.infotext",
+  "pk": 4,
+  "fields": {
+    "title_de": "Informationen zu Belohnungen",
+    "title_en": "Information about rewards",
+    "content_de": "You will get reward points by taking part in evaluations. These points can be redeemed for different events.\r\nYou will receive vouchers for food and drinks at the event you selected below. We'll inform you about any upcoming event where you can redeem your reward points.",
+    "content_en": "You will get reward points by taking part in evaluations. These points can be redeemed for different events.\r\nYou will receive vouchers for food and drinks at the event you selected below. We'll inform you about any upcoming event where you can redeem your reward points.",
+    "page": "rewards_index"
+  }
+},
+{
   "model": "evaluation.userprofile",
   "pk": 1,
   "fields": {
@@ -154860,6 +154973,14 @@
   }
 },
 {
+  "model": "evaluation.votetimestamp",
+  "pk": 38,
+  "fields": {
+    "evaluation": 1682,
+    "timestamp": "2026-09-02T08:00:33.894"
+  }
+},
+{
   "model": "rewards.rewardpointredemptionevent",
   "pk": 1,
   "fields": {
@@ -154877,7 +154998,8 @@
     "user_profile": 846,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.413",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -154887,7 +155009,8 @@
     "user_profile": 235,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.424",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -154897,7 +155020,8 @@
     "user_profile": 678,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.455",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -154907,7 +155031,8 @@
     "user_profile": 270,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.463",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -154917,7 +155042,8 @@
     "user_profile": 851,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.476",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -154927,7 +155053,8 @@
     "user_profile": 339,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.484",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -154937,7 +155064,8 @@
     "user_profile": 222,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.514",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -154947,7 +155075,8 @@
     "user_profile": 240,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.529",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -154957,7 +155086,8 @@
     "user_profile": 355,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.536",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -154967,7 +155097,8 @@
     "user_profile": 734,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.541",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -154977,7 +155108,8 @@
     "user_profile": 438,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.548",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -154987,7 +155119,8 @@
     "user_profile": 455,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.572",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -154997,7 +155130,8 @@
     "user_profile": 854,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.600",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155007,7 +155141,8 @@
     "user_profile": 837,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.612",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155017,7 +155152,8 @@
     "user_profile": 368,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.617",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155027,7 +155163,8 @@
     "user_profile": 862,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.636",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155037,7 +155174,8 @@
     "user_profile": 875,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.646",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155047,7 +155185,8 @@
     "user_profile": 472,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.651",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155057,7 +155196,8 @@
     "user_profile": 541,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.680",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155067,7 +155207,8 @@
     "user_profile": 412,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.720",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155077,7 +155218,8 @@
     "user_profile": 475,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.726",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155087,7 +155229,8 @@
     "user_profile": 231,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.748",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155097,7 +155240,8 @@
     "user_profile": 245,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.769",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155107,7 +155251,8 @@
     "user_profile": 282,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.802",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155117,7 +155262,8 @@
     "user_profile": 279,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.817",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155127,7 +155273,8 @@
     "user_profile": 889,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.837",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155137,7 +155284,8 @@
     "user_profile": 503,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.844",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155147,7 +155295,8 @@
     "user_profile": 372,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.852",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155157,7 +155306,8 @@
     "user_profile": 873,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.911",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155167,7 +155317,8 @@
     "user_profile": 174,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.952",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155177,7 +155328,8 @@
     "user_profile": 705,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.959",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155187,7 +155339,8 @@
     "user_profile": 256,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.970",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155197,7 +155350,8 @@
     "user_profile": 754,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.978",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155207,7 +155361,8 @@
     "user_profile": 711,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:23.995",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155217,7 +155372,8 @@
     "user_profile": 424,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.003",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155227,7 +155383,8 @@
     "user_profile": 849,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.009",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155237,7 +155394,8 @@
     "user_profile": 771,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.035",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155247,7 +155405,8 @@
     "user_profile": 682,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.040",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155257,7 +155416,8 @@
     "user_profile": 332,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.045",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155267,7 +155427,8 @@
     "user_profile": 706,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.072",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155277,7 +155438,8 @@
     "user_profile": 275,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.086",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155287,7 +155449,8 @@
     "user_profile": 452,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.091",
-    "value": 3
+    "value": 9,
+    "contributes_to_status": true
   }
 },
 {
@@ -155297,7 +155460,8 @@
     "user_profile": 848,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.101",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155307,7 +155471,8 @@
     "user_profile": 878,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.125",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155317,7 +155482,8 @@
     "user_profile": 249,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.153",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155327,7 +155493,8 @@
     "user_profile": 494,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.160",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155337,7 +155504,8 @@
     "user_profile": 887,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.174",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155347,7 +155515,8 @@
     "user_profile": 728,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.198",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155357,7 +155526,8 @@
     "user_profile": 221,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.209",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155367,7 +155537,8 @@
     "user_profile": 638,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.219",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155377,7 +155548,8 @@
     "user_profile": 712,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.224",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155387,7 +155559,8 @@
     "user_profile": 857,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.264",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155397,7 +155570,8 @@
     "user_profile": 297,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.270",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155407,7 +155581,8 @@
     "user_profile": 507,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.281",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155417,7 +155592,8 @@
     "user_profile": 405,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.295",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155427,7 +155603,8 @@
     "user_profile": 544,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.319",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155437,7 +155614,8 @@
     "user_profile": 329,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.323",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155447,7 +155625,8 @@
     "user_profile": 917,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.330",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155457,7 +155636,8 @@
     "user_profile": 714,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.341",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155467,7 +155647,8 @@
     "user_profile": 905,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.374",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155477,7 +155658,8 @@
     "user_profile": 136,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.381",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155487,7 +155669,8 @@
     "user_profile": 692,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.386",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155497,7 +155680,8 @@
     "user_profile": 389,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.393",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155507,7 +155691,8 @@
     "user_profile": 657,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.405",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155517,7 +155702,8 @@
     "user_profile": 704,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.410",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155527,7 +155713,8 @@
     "user_profile": 916,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.428",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155537,7 +155724,8 @@
     "user_profile": 244,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.432",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155547,7 +155735,8 @@
     "user_profile": 375,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.454",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155557,7 +155746,8 @@
     "user_profile": 545,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.460",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155567,7 +155757,8 @@
     "user_profile": 838,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.489",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155577,7 +155768,8 @@
     "user_profile": 413,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.500",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155587,7 +155779,8 @@
     "user_profile": 345,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.528",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155597,7 +155790,8 @@
     "user_profile": 224,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.533",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155607,7 +155801,8 @@
     "user_profile": 319,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.549",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155617,7 +155812,8 @@
     "user_profile": 220,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.563",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155627,7 +155823,8 @@
     "user_profile": 253,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.572",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155637,7 +155834,8 @@
     "user_profile": 502,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.586",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155647,7 +155845,8 @@
     "user_profile": 41,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.604",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155657,7 +155856,8 @@
     "user_profile": 160,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.628",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155667,7 +155867,8 @@
     "user_profile": 892,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.642",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155677,7 +155878,8 @@
     "user_profile": 555,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.668",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155687,7 +155889,8 @@
     "user_profile": 242,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.676",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155697,7 +155900,8 @@
     "user_profile": 230,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.683",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155707,7 +155911,8 @@
     "user_profile": 911,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.688",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155717,7 +155922,8 @@
     "user_profile": 535,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.704",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155727,7 +155933,8 @@
     "user_profile": 364,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.720",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155737,7 +155944,8 @@
     "user_profile": 881,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.727",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155747,7 +155955,8 @@
     "user_profile": 907,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.743",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155757,7 +155966,8 @@
     "user_profile": 252,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.786",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155767,7 +155977,8 @@
     "user_profile": 431,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.824",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155777,7 +155988,8 @@
     "user_profile": 500,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.830",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155787,7 +155999,8 @@
     "user_profile": 377,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.834",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155797,7 +156010,8 @@
     "user_profile": 492,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.893",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155807,7 +156021,8 @@
     "user_profile": 388,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.897",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155817,7 +156032,8 @@
     "user_profile": 522,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.902",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155827,7 +156043,8 @@
     "user_profile": 550,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.933",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155837,7 +156054,8 @@
     "user_profile": 775,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.948",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155847,7 +156065,8 @@
     "user_profile": 845,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.960",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155857,7 +156076,8 @@
     "user_profile": 740,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.969",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155867,7 +156087,8 @@
     "user_profile": 914,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.977",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155877,7 +156098,8 @@
     "user_profile": 913,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.987",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155887,7 +156109,8 @@
     "user_profile": 129,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:24.991",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155897,7 +156120,8 @@
     "user_profile": 885,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.004",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155907,7 +156131,8 @@
     "user_profile": 700,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.019",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155917,7 +156142,8 @@
     "user_profile": 284,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.023",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155927,7 +156153,8 @@
     "user_profile": 350,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.047",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155937,7 +156164,8 @@
     "user_profile": 383,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.054",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155947,7 +156175,8 @@
     "user_profile": 756,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.068",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155957,7 +156186,8 @@
     "user_profile": 891,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.072",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155967,7 +156197,8 @@
     "user_profile": 486,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.076",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155977,7 +156208,8 @@
     "user_profile": 839,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.113",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155987,7 +156219,8 @@
     "user_profile": 549,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.137",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -155997,7 +156230,8 @@
     "user_profile": 520,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.142",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156007,7 +156241,8 @@
     "user_profile": 664,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.152",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156017,7 +156252,8 @@
     "user_profile": 858,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.160",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156027,7 +156263,8 @@
     "user_profile": 277,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.182",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156037,7 +156274,8 @@
     "user_profile": 444,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.188",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156047,7 +156285,8 @@
     "user_profile": 330,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.212",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156057,7 +156296,8 @@
     "user_profile": 896,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.227",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156067,7 +156307,8 @@
     "user_profile": 899,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.244",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156077,7 +156318,8 @@
     "user_profile": 843,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.295",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156087,7 +156329,8 @@
     "user_profile": 261,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.304",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156097,7 +156340,8 @@
     "user_profile": 852,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.324",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156107,7 +156351,8 @@
     "user_profile": 481,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.335",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156117,7 +156362,8 @@
     "user_profile": 772,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.358",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156127,7 +156373,8 @@
     "user_profile": 314,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.370",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156137,7 +156384,8 @@
     "user_profile": 895,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.387",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156147,7 +156395,8 @@
     "user_profile": 479,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.405",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156157,7 +156406,8 @@
     "user_profile": 886,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.418",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156167,7 +156417,8 @@
     "user_profile": 842,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.423",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156177,7 +156428,8 @@
     "user_profile": 888,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.430",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156187,7 +156439,8 @@
     "user_profile": 723,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.434",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156197,7 +156450,8 @@
     "user_profile": 868,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.454",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156207,7 +156461,8 @@
     "user_profile": 509,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.459",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156217,7 +156472,8 @@
     "user_profile": 361,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.463",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156227,7 +156483,8 @@
     "user_profile": 274,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.469",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156237,7 +156494,8 @@
     "user_profile": 318,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.480",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156247,7 +156505,8 @@
     "user_profile": 257,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.484",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156257,7 +156516,8 @@
     "user_profile": 403,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.493",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156267,7 +156527,8 @@
     "user_profile": 853,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.503",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156277,7 +156538,8 @@
     "user_profile": 430,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.507",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156287,7 +156549,8 @@
     "user_profile": 326,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.512",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156297,7 +156560,8 @@
     "user_profile": 844,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.527",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156307,7 +156571,8 @@
     "user_profile": 859,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.541",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156317,7 +156582,8 @@
     "user_profile": 457,
     "semester": 19,
     "granting_time": "2015-11-08T14:27:25.555",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156327,7 +156593,8 @@
     "user_profile": 270,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:14.091",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156337,7 +156604,8 @@
     "user_profile": 447,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:14.097",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156347,7 +156615,8 @@
     "user_profile": 393,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:14.115",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156357,7 +156626,8 @@
     "user_profile": 310,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:14.140",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156367,7 +156637,8 @@
     "user_profile": 459,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:14.201",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156377,7 +156648,8 @@
     "user_profile": 472,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:14.242",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156387,7 +156659,8 @@
     "user_profile": 412,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:14.293",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156397,7 +156670,8 @@
     "user_profile": 446,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:14.313",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156407,7 +156681,8 @@
     "user_profile": 528,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:14.320",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156417,7 +156692,8 @@
     "user_profile": 372,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:14.376",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156427,7 +156703,8 @@
     "user_profile": 74,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:14.467",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156437,7 +156714,8 @@
     "user_profile": 526,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:14.492",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156447,7 +156725,8 @@
     "user_profile": 831,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:14.546",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156457,7 +156736,8 @@
     "user_profile": 11,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:14.704",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156467,7 +156747,8 @@
     "user_profile": 386,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:14.715",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156477,7 +156758,8 @@
     "user_profile": 16,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:14.738",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156487,7 +156769,8 @@
     "user_profile": 545,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:14.778",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156497,7 +156780,8 @@
     "user_profile": 319,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:14.833",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156507,7 +156791,8 @@
     "user_profile": 230,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:14.927",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156517,7 +156802,8 @@
     "user_profile": 534,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:15.008",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156527,7 +156813,8 @@
     "user_profile": 307,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:15.022",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156537,7 +156824,8 @@
     "user_profile": 483,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:15.074",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156547,7 +156835,8 @@
     "user_profile": 402,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:15.086",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156557,7 +156846,8 @@
     "user_profile": 522,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:15.102",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156567,7 +156857,8 @@
     "user_profile": 1,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:15.310",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156577,7 +156868,8 @@
     "user_profile": 330,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:15.344",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156587,7 +156879,8 @@
     "user_profile": 411,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:15.376",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156597,7 +156890,8 @@
     "user_profile": 621,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:15.431",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156607,7 +156901,8 @@
     "user_profile": 318,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:15.547",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156617,7 +156912,8 @@
     "user_profile": 257,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:15.552",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
   }
 },
 {
@@ -156627,7 +156923,19 @@
     "user_profile": 320,
     "semester": 21,
     "granting_time": "2015-11-08T14:31:15.577",
-    "value": 3
+    "value": 3,
+    "contributes_to_status": true
+  }
+},
+{
+  "model": "rewards.rewardpointgranting",
+  "pk": 177,
+  "fields": {
+    "user_profile": 452,
+    "semester": 21,
+    "granting_time": "2026-09-02T08:00:33.909",
+    "value": 1,
+    "contributes_to_status": true
   }
 },
 {

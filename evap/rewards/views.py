@@ -24,7 +24,13 @@ from evap.rewards.models import (
     RewardPointRedemptionEvent,
     SemesterActivation,
 )
-from evap.rewards.tools import grant_eligible_reward_points_for_semester, redeemed_points_of_user, reward_points_of_user
+from evap.rewards.tools import (
+    StatusPointsProgress,
+    grant_eligible_reward_points_for_semester,
+    redeemed_points_of_user,
+    reward_points_of_user,
+    user_rewards_stats,
+)
 
 
 @reward_user_required
@@ -64,29 +70,24 @@ def index(request: HttpRequest) -> HttpResponse:
                 return redirect("rewards:index")
 
     total_points_available = reward_points_of_user(request.user)
-    reward_point_grantings = RewardPointGranting.objects.filter(user_profile=request.user)
     reward_point_redemptions = RewardPointRedemption.objects.filter(user_profile=request.user)
 
-    granted_point_actions: list[tuple[datetime, str, str | int, str | int]] = [
-        (granting.granting_time, _("Reward for") + " " + granting.semester.name, granting.value, "")
-        for granting in reward_point_grantings
+    redemption_point_actions: list[tuple[datetime, str, str | int]] = [
+        (redemption.redemption_time, redemption.event.name, redemption.value) for redemption in reward_point_redemptions
     ]
-    redemption_point_actions: list[tuple[datetime, str, str | int, str | int]] = [
-        (redemption.redemption_time, redemption.event.name, "", redemption.value)
-        for redemption in reward_point_redemptions
-    ]
+    redemption_point_actions = sorted(redemption_point_actions, key=lambda action: action[0], reverse=True)
 
-    reward_point_actions = sorted(
-        granted_point_actions + redemption_point_actions, key=lambda action: action[0], reverse=True
-    )
+    user_status_points_progress = StatusPointsProgress.user_status_points_progress(request.user)
 
     template_data = {
-        "reward_point_actions": reward_point_actions,
+        "user_rewards_stats": user_rewards_stats(request.user),
+        "redemption_point_actions": redemption_point_actions,
         "total_points_available": total_points_available,
         "total_points_spent": sum(redemption.value for redemption in reward_point_redemptions),
         "events": events,
         "formset": formset,
         "forms": zip(formset, events, strict=True),
+        "status_points_progress": user_status_points_progress,
     }
     return render(request, "rewards_index.html", template_data, status=status)
 

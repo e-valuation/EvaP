@@ -1797,6 +1797,7 @@ class Infotext(models.Model):
         STUDENT_INDEX = ("student_index", "Student index page")
         CONTRIBUTOR_INDEX = ("contributor_index", "Contributor index page")
         GRADES_PAGES = ("grades_pages", "Grade publishing pages")
+        REWARDS_INDEX = ("rewards_index", "Rewards index page")
 
     page = models.CharField(
         choices=Page.choices,
