@@ -1,11 +1,13 @@
-@use 'sass:math';
+@use "sass:math";
 
 .is-invalid {
-    .form-control, .ts-control {
+    .form-control,
+    .ts-control {
         border-color: $evap-dark-red;
     }
 
-    .form-control:focus, .ts-control:focus {
+    .form-control:focus,
+    .ts-control:focus {
         box-shadow: 0 0 0 0.2rem rgba($evap-dark-red, 0.25);
     }
 }

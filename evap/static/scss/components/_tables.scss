@@ -36,11 +36,11 @@ $table-colors: (
 }
 
 .table-seamless-links {
-  // Disable outline on cell after Ctrl-Click.
-  -moz-user-select: none;
-  td {
-      overflow: hidden;
-  }
+    // Disable outline on cell after Ctrl-Click.
+    -moz-user-select: none;
+    td {
+        overflow: hidden;
+    }
 }
 
 // Hoverable rows
@@ -52,20 +52,22 @@ $table-colors: (
         cursor: pointer;
 
         td {
-            background-color: inherit;  // workaround for bootstrap setting color in ".table > :not(caption) > * > *"
+            background-color: inherit; // workaround for bootstrap setting color in ".table > :not(caption) > * > *"
         }
 
         &.hover-row-info {
             background-color: $evap-light-blue;
 
             .btn-primary {
-                box-shadow: 0 0 0 3px rgba($evap-dark-blue, .5);
+                box-shadow: 0 0 0 3px rgba($evap-dark-blue, 0.5);
             }
         }
 
-        &.results-row, &.results-grid-row {
-            .distribution-bar, .badge-grade {
-                box-shadow: 0 0 0 3px rgba($dark-gray, .5);
+        &.results-row,
+        &.results-grid-row {
+            .distribution-bar,
+            .badge-grade {
+                box-shadow: 0 0 0 3px rgba($dark-gray, 0.5);
             }
         }
     }
@@ -133,7 +135,7 @@ td p {
 }
 
 .empty-disclaimer {
-  font-style: italic;
+    font-style: italic;
 }
 
 table:has(tbody *) .empty-disclaimer,
