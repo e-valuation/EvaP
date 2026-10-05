@@ -38,9 +38,6 @@
                         </thead>
                         <tbody>
                             {% for form_element in formset %}
-                                {% include 'bootstrap_form_errors.html' with errors=form_element.non_field_errors %}
-                                {% include 'bootstrap_form_errors.html' with errors=form_element.question_form.non_field_errors %}
-
                                 <tr class="tomselecttr sortable">
                                     {% for hidden in form_element.hidden_fields %}
                                         {{ hidden }}
@@ -57,6 +54,8 @@
                                     {% endfor %}
                                     <td>
                                         {% include 'bootstrap_form_field_widget.html' with field=form_element.question_form.text_de %}
+                                        {% include 'bootstrap_form_errors.html' with errors=form_element.non_field_errors %}
+                                        {% include 'bootstrap_form_errors.html' with errors=form_element.question_form.non_field_errors %}
                                     </td>
                                     <td>
                                         {% include 'bootstrap_form_field_widget.html' with field=form_element.question_form.text_en %}
