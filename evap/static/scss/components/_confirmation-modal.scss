@@ -61,7 +61,7 @@ dialog.evap-modal-dialog {
 
   .evap-modal-container {
     > * {
-      padding: 1rem;
+      padding: 1rem
     }
 
     > :not(:first-child) {
@@ -84,6 +84,16 @@ dialog.evap-modal-dialog {
       display: flex;
       flex-flow: wrap;
       justify-content: center;
+    }
+  }
+}
+
+@include color-mode(dark) {
+  dialog.evap-modal-dialog {
+    .evap-modal-container {
+      > :not(:first-child) {
+      border-top: 1px solid $medium-gray;
+    }
     }
   }
 }

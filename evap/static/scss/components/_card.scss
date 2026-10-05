@@ -3,26 +3,35 @@
 }
 
 .card-outline-primary {
-    border-color: rgba($evap-dark-blue, 0.5);
+        border-color: rgba($primary, 0.5);
 
-    > .card-header {
-        background-color: $evap-light-blue;
+        > .card-header {
+            background-color: $primary-accent;
+        }
+    }
+@include color-mode(dark) {
+    .card-outline-primary {
+        border-color: rgba($primary, 0.5);
+
+        > .card-header {
+            background-color: shade-color($primary, 40%);
+        }
     }
 }
 
 .card-outline-warning {
-    border-color: $evap-yellow;
+    border-color: $warning;
 
     > .card-header {
-        background-color: rgba($evap-yellow, 0.5);
+        background-color: rgba($warning, 0.5);
     }
 }
 
 .card-outline-danger {
-    border-color: $evap-red;
+    border-color: $danger;
 
     > .card-header {
-        background-color: rgba($evap-red, 0.5);
+        background-color: rgba($danger, 0.5);
     }
 }
 
@@ -31,6 +40,16 @@
 
     > .card-header {
         background-color: rgba($lighter-gray, 0.5);
+    }
+}
+
+@include color-mode(dark) {
+    .card-outline-light {
+        border-color: $darker-gray;
+        > .card-header {
+            background-color: tint-color($background-dark, 10%);
+            color: $light-gray;
+        }
     }
 }
 
@@ -57,9 +76,14 @@
 }
 
 .card-submit-area {
-    background-color: $lighter-gray;
-    border-color: rgba($evap-dark-blue, 0.5);
+    border-color: rgba($primary, 0.5);
     min-height: 65px;
+}
+
+@include color-mode(light) {
+    .card-submit-area {
+        background-color: $lighter-gray;
+    }
 }
 
 .card-submit-area-small {

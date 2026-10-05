@@ -3,21 +3,29 @@
 }
 
 $table-colors: (
-    "primary" $evap-dark-blue $white,
+    "primary" $primary $white,
     "secondary" $medium-gray $black,
-    "success" $evap-green $black,
-    "info" $evap-light-blue $black,
-    "warning" $evap-yellow $black,
-    "danger" $evap-red $white $black,
+    "success" $success $black shade-color($success, 50%) $light-gray,
+    "info" $info $black shade-color($info-accent, 50%) $light-gray,
+    "warning" $warning $black,
+    "danger" $danger $white $black,
     "light" $light-gray $black,
     "dark" $darker-gray $white
 );
-@each $name, $bg-color, $color in $table-colors {
+@each $name, $bg-color, $color, $bg-color-dark, $color-dark in $table-colors {
     .table-#{$name},
     .table-#{$name} > th,
     .table-#{$name} > td {
         background-color: $bg-color !important;
         color: $color;
+    }
+    @include color-mode(dark) {
+        .table-#{$name},
+        .table-#{$name} > th,
+        .table-#{$name} > td {
+            background-color: $bg-color-dark !important;
+            color: $color-dark;
+        }
     }
 }
 
@@ -56,10 +64,10 @@ $table-colors: (
         }
 
         &.hover-row-info {
-            background-color: $evap-light-blue;
+            background-color: $primary-accent;
 
             .btn-primary {
-                box-shadow: 0 0 0 3px rgba($evap-dark-blue, .5);
+                box-shadow: 0 0 0 3px rgba($primary, .5);
             }
         }
 
@@ -71,8 +79,17 @@ $table-colors: (
     }
 }
 
+@include color-mode(dark) {
+    .hover-row.hover-row-info:hover {
+        background-color: tint-color($background-dark, 10%);
+    }
+    .results-grid-row.hover-row:hover {
+        background-color: tint-color($background-dark, 10%);
+    }
+}
+
 .preview-row .evaluation-name {
-    color: $evap-dark-yellow;
+    color: shade-color($warning, 20%);
 }
 
 .results-row {
@@ -114,13 +131,20 @@ tr.evaluation-row:not(.heading-row) {
 
 .current-row-follows + .results-grid-row {
     border-radius: 0.2rem;
-    box-shadow: inset 0 0 6px $evap-dark-blue;
+    box-shadow: inset 0 0 6px $primary;
+}
+@include color-mode(dark) {
+    .current-row-follows + .results-grid-row {
+        box-shadow: inset 0 0 6px $primary-accent;
+    }
 }
 
-.heading-row {
-    .distribution-bar,
-    .badge-grade {
-        border: 1px solid $dark-gray;
+@include color-mode(light) {
+    .heading-row {
+        .distribution-bar,
+        .badge-grade {
+            border: 1px solid $dark-gray;
+        }
     }
 }
 

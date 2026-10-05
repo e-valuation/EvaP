@@ -7,6 +7,7 @@
 @import "adjustments";
 @import "utilities";
 
+$color-mode-type: data;
 html {
     position: relative;
     min-height: 100%;
@@ -21,6 +22,12 @@ body {
 
     &.mb-footer {
         margin-bottom: 60px; // keep space for footer
+    }
+}
+
+@include color-mode(dark) {
+    body {
+        background-image: url("../images/triangles_dark_gray.svg");
     }
 }
 

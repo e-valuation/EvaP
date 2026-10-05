@@ -2,11 +2,11 @@
 
 .is-invalid {
     .form-control, .ts-control {
-        border-color: $evap-dark-red;
+        border-color: shade-color($danger, 20%) !important;
     }
 
     .form-control:focus, .ts-control:focus {
-        box-shadow: 0 0 0 0.2rem rgba($evap-dark-red, 0.25);
+        box-shadow: 0 0 0 0.2rem rgba(shade-color($danger, 20%), 0.25);
     }
 }
 
@@ -52,7 +52,7 @@
     }
 
     &.is-invalid {
-        color: $evap-dark-red;
+        color: shade-color($danger, 20%);
     }
 }
 .form-static-text {
@@ -67,4 +67,17 @@
     width: 5px;
     height: auto;
     display: inline-block;
+}
+
+.form-control:disabled {
+    background: $light-gray;
+    opacity: .5;
+    border-color: $dark-gray;
+}
+
+@include color-mode(dark) {
+    .form-control:disabled {
+        background-color: tint-color($background-dark, 20%);
+        opacity: .5;
+    }
 }

@@ -40,6 +40,20 @@ input:checked + label.btn-light.for-above {
     }
 }
 
+@include color-mode(dark) {
+    .btn-light, .btn-textanswer{
+        background-color: $body-bg-dark;
+        border: $darker-gray 1px solid;
+        color: $light-gray;
+        >.fa-comment {
+            color: $light-gray;
+        }
+    }
+    .btn-light:active, .btn-light.active, .btn-light:hover {
+        background-color: tint-color($background-dark, 10%);
+    }
+}
+
 button:not(:disabled) {
     cursor: pointer;
 }
@@ -48,18 +62,18 @@ a:not([href]):not(.disabled) {
     cursor: pointer;
 }
 
-@include button-disabled-variant(".btn-primary", $evap-dark-blue, $evap-light-blue);
+@include button-disabled-variant(".btn-primary", $primary, $primary-accent); //TODO check which variants are needed
 @include button-disabled-variant(".btn-secondary", $dark-gray, $light-gray);
-@include button-disabled-variant(".btn-success", shade-color($evap-green, 25%), $evap-light-green);
-@include button-disabled-variant(".btn-danger", $evap-red, $evap-light-red);
-@include button-disabled-variant(".btn-warning", shade-color($evap-dark-yellow, 25%), $evap-light-yellow);
-@include button-disabled-variant(".btn-info", shade-color($evap-light-blue, 40%), tint-color($evap-light-blue, 10%));
+@include button-disabled-variant(".btn-success", shade-color($success, 25%), $success-accent);
+@include button-disabled-variant(".btn-danger", $danger, $danger-accent);
+@include button-disabled-variant(".btn-warning", shade-color($warning, 25%), $warning-accent);
+@include button-disabled-variant(".btn-info", shade-color($info, 40%), tint-color($info, 10%));
 @include button-disabled-variant(".btn-light", $medium-gray, $lighter-gray);
-@include button-disabled-variant(".btn-dark", $white, $dark-gray, $darker-gray);
+@include button-disabled-variant(".btn-dark", $white, $dark-gray, $dark);
 
 .btn-switch {
     display: inline-flex;
-    background-color: tint-color($light-gray, 4%);
+    background-color: $light-gray;
     border-radius: 0.2rem;
 
     .btn-toolbar {
@@ -67,12 +81,23 @@ a:not([href]):not(.disabled) {
     }
 
     .btn-group {
-        background: tint-color($light-gray, 4%);
+        background: $light-gray;
 
         &::before {
             width: 0.5rem;
             content: "";
         }
+    }
+}
+@include color-mode(dark) {
+    .btn-switch {
+        background-color: $background-accent-dark;
+        .btn-group {
+            background: $background-accent-dark;
+        }
+    }
+    .btn-switch-label {
+        color: $light-gray;
     }
 }
 .btn-switch-light {
@@ -200,7 +225,7 @@ a:not([href]):not(.disabled) {
     }
 
     .btn-check:focus-visible + & {
-        box-shadow: 0 0 0 $input-btn-focus-width rgba($evap-dark-blue, 0.25);
+        box-shadow: 0 0 0 $input-btn-focus-width rgba($primary, 0.25);
     }
 
     .vote-type-bipolar &:not(:last-child) {
@@ -213,7 +238,7 @@ button,
 a.collapse-toggle {
     &.tab-selectable:focus-visible {
         outline: none;
-        box-shadow: 0 0 0 $input-btn-focus-width rgba($evap-dark-blue, 0.25);
+        box-shadow: 0 0 0 $input-btn-focus-width rgba($primary, 0.25);
     }
 }
 
@@ -255,6 +280,32 @@ a.collapse-toggle {
     }
 }
 
+@include color-mode(dark) {
+    @each $name, $color in $vote-colors {
+    .btn.vote-btn-#{$name} {
+        background-color: tint-color($background-dark, 10%);
+        color: shade-color($color, 10%);
+
+        &:hover {
+            background-color: shade-color($color, 60%);
+            color: shade-color($color, 20%);
+        }
+    }
+
+    .btn-check:checked + .vote-btn-#{$name} {
+        background-color: shade-color($color, 20%);
+        color: shade-color($color, 80%);
+
+        &:hover {
+            background-color: tint-color($color, 10%);
+        }
+    }
+    }
+    .btn.vote-btn {
+        border-color: $darker-gray !important;
+    }
+}
+
 .btn-group > .vote-btn {
     flex: 0 1 auto;
 }
@@ -277,7 +328,7 @@ a.collapse-toggle {
     border-color: $medium-gray;
 
     & > .fa-comment {
-        color: $darker-gray;
+        color: $dark;
     }
 
     &.has-contents > .fa-comment {
@@ -298,4 +349,80 @@ a.collapse-toggle {
 td .btn {
     margin-top: 0.15rem;
     margin-bottom: 0.15rem;
+}
+@include color-mode(dark) {
+    .btn-primary {
+        background-color: shade-color($primary, 40%) !important;
+        border-color: shade-color($primary, 40%) !important;
+        &:hover {
+            background-color: shade-color($primary, 20%) !important;
+        }
+    }
+    .btn-primary-outline {
+        background-color: $primary-accent;
+        border-color: shade-color($primary-accent, 40%) !important;
+        &:hover {
+            background-color: shade-color($primary-accent, 20%) !important;
+        }
+    }
+    .btn-secondary {
+        background-color: shade-color($secondary, 50%) !important;
+        border-color: shade-color($secondary, 40%) !important;
+        &:hover {
+            background-color: shade-color($secondary, 20%) !important;
+        }
+    }
+    .btn-secondary-outline {
+        background-color: $secondary-accent;
+        border-color: $secondary-accent !important;
+        &:hover {
+            background-color: shade-color($secondary-accent, 20%) !important;
+        }
+    }
+    .btn-info {
+        background-color: shade-color($info-accent, 10%) !important;
+        border-color: shade-color($info-accent, 10%) !important;
+        color: $light-gray;
+        &:hover {
+            background-color: tint-color($info-accent, 20%) !important;
+        }
+    }
+    .btn-danger {
+        background-color: shade-color($danger, 50%) !important;
+        border-color: shade-color($danger, 40%) !important;
+        &:hover {
+            background-color: shade-color($danger, 20%) !important;
+        }
+    }
+    .btn-success {
+        background-color: shade-color($success, 50%) !important;
+        border-color: shade-color($success, 40%) !important;
+        color: $light-gray;
+        &:hover {
+            background-color: shade-color($success, 20%) !important;
+        }
+    }
+    .btn-warning {
+        background-color: shade-color($warning, 50%) !important;
+        border-color: shade-color($warning, 40%) !important;
+        color: $light-gray;
+        &:hover {
+            background-color: shade-color($warning, 20%) !important;
+        }
+    }
+    .btn-light {
+        background-color: $dark !important;
+        border-color: $dark !important;
+        &:hover {
+            background-color: tint-color($dark, 20%) !important;
+        }
+    }
+    .btn-dark {
+        background-color: $light !important;
+        border-color: $light !important;
+        color: $black;
+        &:hover {
+            background-color: shade-color($light, 20%) !important;
+        }
+    }
 }
