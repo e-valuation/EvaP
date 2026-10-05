@@ -214,7 +214,8 @@
   "fields": {
     "question": 1,
     "questionnaire": 1,
-    "order": -1
+    "order": -1,
+    "counts_for_grade": false
   }
 },
 {
@@ -223,7 +224,8 @@
   "fields": {
     "question": 2,
     "questionnaire": 1,
-    "order": -1
+    "order": -1,
+    "counts_for_grade": true
   }
 },
 {
@@ -232,7 +234,8 @@
   "fields": {
     "question": 1,
     "questionnaire": 2,
-    "order": -1
+    "order": -1,
+    "counts_for_grade": false
   }
 },
 {
@@ -241,7 +244,8 @@
   "fields": {
     "question": 2,
     "questionnaire": 2,
-    "order": -1
+    "order": -1,
+    "counts_for_grade": true
   }
 },
 {
@@ -250,7 +254,8 @@
   "fields": {
     "question": 5,
     "questionnaire": 2,
-    "order": -1
+    "order": -1,
+    "counts_for_grade": true
   }
 },
 {

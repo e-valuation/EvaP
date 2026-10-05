@@ -37,6 +37,8 @@ from evap.staff.forms import (
     EvaluationCopyForm,
     EvaluationEmailForm,
     EvaluationForm,
+    QuestionAssignmentForm,
+    QuestionForm,
     QuestionnaireForm,
     UserForm,
 )
@@ -601,7 +603,11 @@ class ContributionFormsetTests(TestCase):
         self.assertTrue(formset.forms[0].show_delete_button)
         self.assertTrue(formset.forms[1].show_delete_button)
 
-        baker.make(RatingAnswerCounter, contribution=contribution)
+        baker.make(
+            RatingAnswerCounter,
+            contribution=contribution,
+            assignment__question__type=QuestionType.POSITIVE_LIKERT,
+        )
 
         self.assertFalse(formset.forms[0].show_delete_button)
         self.assertTrue(formset.forms[1].show_delete_button)
@@ -1159,3 +1165,23 @@ class EvaluationCopyFormTests(TestCase):
         copied_evaluation = form.save()
         self.assertNotEqual(copied_evaluation, self.evaluation)
         self.assertEqual(Evaluation.objects.count(), 2)
+
+
+class QuestionFormTests(TestCase):
+    def test_clean_rejects_counting_text_and_heading_questions(self):
+        for question_type in [QuestionType.TEXT, QuestionType.HEADING]:
+            with self.subTest(question_type=question_type):
+                assignment = baker.make(
+                    QuestionAssignment,
+                    questionnaire__type=Questionnaire.Type.TOP,
+                    question__type=QuestionType.POSITIVE_LIKERT,
+                    counts_for_grade=True,
+                )
+                form_data = get_form_data_from_instance(QuestionAssignmentForm, assignment)
+                form_data.update(get_form_data_from_instance(QuestionForm, assignment.question))
+                form_data["type"] = question_type
+                form_data["counts_for_grade"] = True
+
+                form = QuestionAssignmentForm(form_data, instance=assignment)
+                self.assertFalse(form.is_valid())
+                self.assertIn("Text and heading questions cannot count toward the grade.", form.non_field_errors())
