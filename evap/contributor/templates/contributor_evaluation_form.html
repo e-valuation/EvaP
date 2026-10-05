@@ -82,8 +82,8 @@
                         </div>
                     {% else %}
                         <div>
-                            {% blocktranslate asvar title with evaluation_name=evaluation.full_name %}Request evaluation
-                                changes for {{ evaluation_name }}{% endblocktranslate %}
+                            {% blocktranslate trimmed asvar title with evaluation_name=evaluation.full_name %}
+                                Request evaluation changes for {{ evaluation_name }}{% endblocktranslate %}
                             {% translate 'Please tell us what changes to the evaluation we should make.' as teaser %}
                             {% translate 'Request changes' as show_button_text %}
                             {% include 'contact_modal.html' with form_id="change-evaluation-form" modal_id='changeEvaluationRequestModal' form_id='change-evaluation-form' user=request.user title=title teaser=teaser show_button_text=show_button_text show_button_class="btn btn-sm btn-light" %}
