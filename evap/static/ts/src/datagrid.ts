@@ -508,7 +508,7 @@ export class ResultGrid extends DataGrid {
                 .map(element => element.dataset.filterValue)
                 .filter(v => v !== undefined);
             filterValues.set(name, values);
-            slider.includeValues(values.map(parseFloat));
+            slider.assertNotBelowMin(values.map(parseFloat));
         }
         return filterValues;
     }

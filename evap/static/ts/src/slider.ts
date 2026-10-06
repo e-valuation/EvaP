@@ -16,25 +16,21 @@ export class RangeSlider {
     private readonly maxLabel: HTMLSpanElement;
     private readonly minLabel: HTMLSpanElement;
     private readonly rangeLabel: HTMLSpanElement;
-    private allowed: Range = { low: 0, high: 0 };
+    private readonly allowed: Range;
     private _value: Range = { low: 0, high: 0 };
-    private readonly hasFixedMax: boolean;
 
     private debounceTimeout?: ReturnType<typeof setTimeout>;
 
-    public constructor(sliderId: string, fixedMaxValue?: number) {
+    public constructor(sliderId: string, maxValue: number) {
         this.rangeSlider = selectOrError<HTMLDivElement>("#" + sliderId);
         this.lowSlider = selectOrError<HTMLInputElement>("[name=low]", this.rangeSlider);
         this.highSlider = selectOrError<HTMLInputElement>("[name=high]", this.rangeSlider);
         this.minLabel = selectOrError<HTMLSpanElement>(".text-start", this.rangeSlider);
         this.maxLabel = selectOrError<HTMLSpanElement>(".text-end", this.rangeSlider);
         this.rangeLabel = selectOrError<HTMLSpanElement>(".range-values", this.rangeSlider);
-        this.hasFixedMax = fixedMaxValue !== undefined;
-        if (fixedMaxValue !== undefined) {
-            this.allowed.high = fixedMaxValue;
-            this.updateNestedElements();
-            this.reset();
-        }
+        this.allowed = { low: 0, high: maxValue };
+        this.updateNestedElements();
+        this.reset();
 
         const setValueFromNestedElements = (): void => {
             this.value = { low: parseFloat(this.lowSlider.value), high: parseFloat(this.highSlider.value) };
@@ -59,7 +55,7 @@ export class RangeSlider {
         if (this.value.low > this.value.high) {
             [this.value.low, this.value.high] = [this.value.high, this.value.low];
         }
-        this.value.isOpenEnd = this.hasFixedMax && this.value.high === this.allowed.high;
+        this.value.isOpenEnd = this.value.high === this.allowed.high;
         this.rangeLabel.textContent = `${this.value.low} – ${this.formatHigh(this.value.high)}`;
 
         // debounce on range change callback
@@ -73,17 +69,8 @@ export class RangeSlider {
 
     public onRangeChange(): void {}
 
-    public includeValues(values: number[]): void {
+    public assertNotBelowMin(values: number[]): void {
         assert(Math.min(...values) >= this.allowed.low);
-        if (this.hasFixedMax) {
-            return;
-        }
-        const max = Math.max(...values);
-        if (max > this.allowed.high) {
-            this.allowed.high = max;
-            this.updateNestedElements();
-            this.reset();
-        }
     }
 
     public reset(): void {
@@ -100,6 +87,6 @@ export class RangeSlider {
     }
 
     private formatHigh(value: number): string {
-        return this.hasFixedMax && value === this.allowed.high ? `${value}+` : value.toString();
+        return value === this.allowed.high ? `${value}+` : value.toString();
     }
 }
