@@ -3,6 +3,7 @@ import { assert, selectOrError } from "./utils.js";
 export interface Range {
     low: number;
     high: number;
+    isOpenEnd?: boolean;
 }
 
 const RANGE_DEBOUNCE_MS = 100.0;
@@ -58,6 +59,7 @@ export class RangeSlider {
         if (this.value.low > this.value.high) {
             [this.value.low, this.value.high] = [this.value.high, this.value.low];
         }
+        this.value.isOpenEnd = this.hasFixedMax && this.value.high === this.allowed.high;
         this.rangeLabel.textContent = `${this.value.low} – ${this.formatHigh(this.value.high)}`;
 
         // debounce on range change callback
@@ -70,10 +72,6 @@ export class RangeSlider {
     }
 
     public onRangeChange(): void {}
-
-    public isOpenEnd(): boolean {
-        return this.hasFixedMax && this._value.high === this.allowed.high;
-    }
 
     public includeValues(values: number[]): void {
         assert(Math.min(...values) >= this.allowed.low);
