@@ -8,7 +8,7 @@ class SeedBakerMixin:
     @classmethod
     def setUpClass(cls):
         # runs before `setUpTestData`
-        from model_bakery import baker
+        from model_bakery import baker  # noqa: PLC0415
 
         baker.seed(cls.BAKER_SEED)
         super().setUpClass()
@@ -19,7 +19,7 @@ class SeedBakerMixin:
         # Same seed would imply the same value sequence, which causes problems:
         # * uniqueness constraints fail if setUpTestData and setUp both generate an instance of the same model class
         # * "assert name not in page"-style asserts fail for shared names with non-unique fields
-        from model_bakery import baker
+        from model_bakery import baker  # noqa: PLC0415
 
         baker.seed(cls.BAKER_SEED + 1)
         super()._pre_setup()
