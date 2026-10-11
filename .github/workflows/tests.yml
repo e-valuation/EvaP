@@ -182,7 +182,7 @@ jobs:
       - name: Run ruff
         run: ruff check .
       - name: Run pylint
-        run: pylint evap tools
+        run: pylint
       - name: Run ESLint
         run: |
           cd evap/static/ts

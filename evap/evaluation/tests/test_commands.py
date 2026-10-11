@@ -508,7 +508,7 @@ class TestLintCommand(TestCase):
         management.call_command("lint", stdout=StringIO())
         self.assertEqual(mock_subprocess_run.call_count, 3)
         mock_subprocess_run.assert_any_call(["ruff", "check", "."], check=False)
-        mock_subprocess_run.assert_any_call(["pylint", "evap", "tools"], check=False)
+        mock_subprocess_run.assert_any_call(["pylint"], check=False)
         mock_subprocess_run.assert_any_call(["npx", "eslint", "--quiet"], cwd="evap/static/ts", check=False)
 
 
