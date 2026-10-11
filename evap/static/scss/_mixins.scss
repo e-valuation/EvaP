@@ -1,7 +1,10 @@
 @import "../bootstrap/scss/mixins";
 
 @mixin bar-shadow($color) {
-    text-shadow: 0 0 2px $color, 0 0 2px $color, 0 0 2px $color, 0 0 2px $color, 0 0 2px $color, 0 0 2px $color;
+    text-shadow: -2px -2px 1px $color, -1px -2px 1px $color, 0px -2px 1px $color, 1px -2px 1px $color,
+        2px -2px 1px $color, -2px -1px 1px $color, 2px -1px 1px $color, -2px 0px 1px $color, 2px 0px 1px $color,
+        -2px 1px 1px $color, 2px 1px 1px $color, -2px 2px 1px $color, -1px 2px 1px $color, 0px 2px 1px $color,
+        1px 2px 1px $color, 2px 2px 1px $color;
 }
 
 @mixin no-user-select {
