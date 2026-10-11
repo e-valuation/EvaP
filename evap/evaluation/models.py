@@ -1828,8 +1828,8 @@ class UserProfileManager(BaseUserManager["UserProfile"]):
         *,
         email: str,
         password: str | None = None,
-        first_name_given: str | None = None,
-        last_name: str | None = None,
+        first_name_given: str,
+        last_name: str,
     ) -> "UserProfile":
         user = self.model(email=self.normalize_email(email), first_name_given=first_name_given, last_name=last_name)
         if password is not None:
@@ -1843,8 +1843,8 @@ class UserProfileManager(BaseUserManager["UserProfile"]):
         *,
         email: str,
         password: str | None = None,
-        first_name_given: str | None = None,
-        last_name: str | None = None,
+        first_name_given: str,
+        last_name: str,
     ) -> "UserProfile":
         user = self.create_user(
             password=password,

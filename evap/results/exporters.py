@@ -423,5 +423,5 @@ class TextAnswerExporter(ExcelExporter):
                 question_title = (f"{contributor_name}: " if contributor_name else "") + question.text
                 first_col = chain([question_title], repeat(""))
 
-                for answer, first_cell, line_style in zip(answers, first_col, line_styles, strict=False):
+                for answer, first_cell, line_style in zip(answers, first_col, line_styles, strict=False):  # pylint: disable=looping-through-iterator
                     self.write_row([first_cell, answer], style=line_style)

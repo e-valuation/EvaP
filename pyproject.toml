@@ -105,6 +105,9 @@ exclude = ["**/urls.py"]
 [tool.ruff.lint.flake8-tidy-imports.banned-api]
 "evap.settings".msg = "Use django.conf.settings instead."
 
+[tool.ruff.lint.flake8-import-conventions.extend-aliases]
+datetime = "datetime"
+
 ##############################################
 
 [tool.djangofmt]
