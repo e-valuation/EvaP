@@ -16,7 +16,7 @@ from django.contrib.staticfiles.handlers import StaticFilesHandler
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.http.request import HttpRequest, QueryDict
 from django.test import override_settings
-from django.test.runner import DiscoverRunner
+from django.test.runner import DiscoverRunner, ParallelTestSuite
 from django.test.selenium import SeleniumTestCase
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
@@ -40,6 +40,7 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
+from evap.evaluation.tests.seed_baker_mixin import SeedBakerMixin, initialize_baker_seed
 
 
 class EvapTestRunner(DiscoverRunner):
@@ -80,30 +81,21 @@ class EvapTestRunner(DiscoverRunner):
         self.log(f"Using baker seed: {self.__baker_seed}")
         SeedBakerMixin.BAKER_SEED = self.__baker_seed
 
+    @property
+    def parallel_test_suite(self):
+        initialize_baker_seed_args = (self.__baker_seed,)
+
+        class EvapParallelTestSuite(ParallelTestSuite):
+            process_setup = initialize_baker_seed
+            process_setup_args = initialize_baker_seed_args
+
+        return EvapParallelTestSuite
+
 
 class ResetLanguageOnTearDownMixin:
     def tearDown(self):
         translation.activate("en")  # Django by default does not "reset" this, causing test interdependency
         super().tearDown()
-
-
-class SeedBakerMixin:
-    BAKER_SEED: int
-
-    @classmethod
-    def setUpClass(cls):
-        # runs before `setUpTestData`
-        baker.seed(cls.BAKER_SEED)
-        super().setUpClass()
-
-    @classmethod
-    def _pre_setup(cls):
-        # runs before `setUp`
-        # Same seed would imply the same value sequence, which causes problems:
-        # * uniqueness constraints fail if setUpTestData and setUp both generate an instance of the same model class
-        # * "assert name not in page"-style asserts fail for shared names with non-unique fields
-        baker.seed(cls.BAKER_SEED + 1)
-        super()._pre_setup()
 
 
 class TestCase(SeedBakerMixin, ResetLanguageOnTearDownMixin, django.test.TestCase):
