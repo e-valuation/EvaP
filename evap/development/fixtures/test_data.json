@@ -1904,7 +1904,8 @@
   "fields": {
     "question": 479,
     "questionnaire": 112,
-    "order": 0
+    "order": 0,
+    "counts_for_grade": false
   }
 },
 {
@@ -1913,7 +1914,8 @@
   "fields": {
     "question": 480,
     "questionnaire": 112,
-    "order": 1
+    "order": 1,
+    "counts_for_grade": false
   }
 },
 {
@@ -1922,7 +1924,8 @@
   "fields": {
     "question": 473,
     "questionnaire": 110,
-    "order": 1
+    "order": 1,
+    "counts_for_grade": true
   }
 },
 {
@@ -1931,7 +1934,8 @@
   "fields": {
     "question": 478,
     "questionnaire": 111,
-    "order": 1
+    "order": 1,
+    "counts_for_grade": true
   }
 },
 {
@@ -1940,7 +1944,8 @@
   "fields": {
     "question": 472,
     "questionnaire": 110,
-    "order": 2
+    "order": 2,
+    "counts_for_grade": true
   }
 },
 {
@@ -1949,7 +1954,8 @@
   "fields": {
     "question": 255,
     "questionnaire": 48,
-    "order": 255
+    "order": 255,
+    "counts_for_grade": true
   }
 },
 {
@@ -1958,7 +1964,8 @@
   "fields": {
     "question": 257,
     "questionnaire": 48,
-    "order": 257
+    "order": 257,
+    "counts_for_grade": true
   }
 },
 {
@@ -1967,7 +1974,8 @@
   "fields": {
     "question": 258,
     "questionnaire": 48,
-    "order": 258
+    "order": 258,
+    "counts_for_grade": true
   }
 },
 {
@@ -1976,7 +1984,8 @@
   "fields": {
     "question": 259,
     "questionnaire": 50,
-    "order": 259
+    "order": 259,
+    "counts_for_grade": true
   }
 },
 {
@@ -1985,7 +1994,8 @@
   "fields": {
     "question": 260,
     "questionnaire": 50,
-    "order": 260
+    "order": 260,
+    "counts_for_grade": true
   }
 },
 {
@@ -1994,7 +2004,8 @@
   "fields": {
     "question": 262,
     "questionnaire": 50,
-    "order": 262
+    "order": 262,
+    "counts_for_grade": true
   }
 },
 {
@@ -2003,7 +2014,8 @@
   "fields": {
     "question": 313,
     "questionnaire": 48,
-    "order": 313
+    "order": 313,
+    "counts_for_grade": false
   }
 },
 {
@@ -2012,7 +2024,8 @@
   "fields": {
     "question": 314,
     "questionnaire": 48,
-    "order": 314
+    "order": 314,
+    "counts_for_grade": false
   }
 },
 {
@@ -2021,7 +2034,8 @@
   "fields": {
     "question": 315,
     "questionnaire": 81,
-    "order": 315
+    "order": 315,
+    "counts_for_grade": true
   }
 },
 {
@@ -2030,7 +2044,8 @@
   "fields": {
     "question": 316,
     "questionnaire": 81,
-    "order": 316
+    "order": 316,
+    "counts_for_grade": true
   }
 },
 {
@@ -2039,7 +2054,8 @@
   "fields": {
     "question": 317,
     "questionnaire": 81,
-    "order": 317
+    "order": 317,
+    "counts_for_grade": true
   }
 },
 {
@@ -2048,7 +2064,8 @@
   "fields": {
     "question": 318,
     "questionnaire": 81,
-    "order": 318
+    "order": 318,
+    "counts_for_grade": false
   }
 },
 {
@@ -2057,7 +2074,8 @@
   "fields": {
     "question": 319,
     "questionnaire": 82,
-    "order": 319
+    "order": 319,
+    "counts_for_grade": true
   }
 },
 {
@@ -2066,7 +2084,8 @@
   "fields": {
     "question": 320,
     "questionnaire": 82,
-    "order": 320
+    "order": 320,
+    "counts_for_grade": true
   }
 },
 {
@@ -2075,7 +2094,8 @@
   "fields": {
     "question": 321,
     "questionnaire": 82,
-    "order": 321
+    "order": 321,
+    "counts_for_grade": true
   }
 },
 {
@@ -2084,7 +2104,8 @@
   "fields": {
     "question": 322,
     "questionnaire": 82,
-    "order": 322
+    "order": 322,
+    "counts_for_grade": true
   }
 },
 {
@@ -2093,7 +2114,8 @@
   "fields": {
     "question": 323,
     "questionnaire": 82,
-    "order": 323
+    "order": 323,
+    "counts_for_grade": true
   }
 },
 {
@@ -2102,7 +2124,8 @@
   "fields": {
     "question": 324,
     "questionnaire": 83,
-    "order": 324
+    "order": 324,
+    "counts_for_grade": false
   }
 },
 {
@@ -2111,7 +2134,8 @@
   "fields": {
     "question": 325,
     "questionnaire": 84,
-    "order": 325
+    "order": 325,
+    "counts_for_grade": true
   }
 },
 {
@@ -2120,7 +2144,8 @@
   "fields": {
     "question": 326,
     "questionnaire": 84,
-    "order": 326
+    "order": 326,
+    "counts_for_grade": true
   }
 },
 {
@@ -2129,7 +2154,8 @@
   "fields": {
     "question": 327,
     "questionnaire": 84,
-    "order": 327
+    "order": 327,
+    "counts_for_grade": true
   }
 },
 {
@@ -2138,7 +2164,8 @@
   "fields": {
     "question": 328,
     "questionnaire": 84,
-    "order": 328
+    "order": 328,
+    "counts_for_grade": true
   }
 },
 {
@@ -2147,7 +2174,8 @@
   "fields": {
     "question": 329,
     "questionnaire": 84,
-    "order": 329
+    "order": 329,
+    "counts_for_grade": true
   }
 },
 {
@@ -2156,7 +2184,8 @@
   "fields": {
     "question": 330,
     "questionnaire": 50,
-    "order": 330
+    "order": 330,
+    "counts_for_grade": false
   }
 },
 {
@@ -2165,7 +2194,8 @@
   "fields": {
     "question": 331,
     "questionnaire": 50,
-    "order": 331
+    "order": 331,
+    "counts_for_grade": true
   }
 },
 {
@@ -2174,7 +2204,8 @@
   "fields": {
     "question": 325,
     "questionnaire": 85,
-    "order": 332
+    "order": 332,
+    "counts_for_grade": true
   }
 },
 {
@@ -2183,7 +2214,8 @@
   "fields": {
     "question": 476,
     "questionnaire": 50,
-    "order": 332
+    "order": 332,
+    "counts_for_grade": true
   }
 },
 {
@@ -2192,7 +2224,8 @@
   "fields": {
     "question": 326,
     "questionnaire": 85,
-    "order": 333
+    "order": 333,
+    "counts_for_grade": true
   }
 },
 {
@@ -2201,7 +2234,8 @@
   "fields": {
     "question": 335,
     "questionnaire": 85,
-    "order": 335
+    "order": 335,
+    "counts_for_grade": true
   }
 },
 {
@@ -2210,7 +2244,8 @@
   "fields": {
     "question": 336,
     "questionnaire": 86,
-    "order": 336
+    "order": 336,
+    "counts_for_grade": true
   }
 },
 {
@@ -2219,7 +2254,8 @@
   "fields": {
     "question": 337,
     "questionnaire": 86,
-    "order": 337
+    "order": 337,
+    "counts_for_grade": true
   }
 },
 {
@@ -2228,7 +2264,8 @@
   "fields": {
     "question": 338,
     "questionnaire": 86,
-    "order": 338
+    "order": 338,
+    "counts_for_grade": true
   }
 },
 {
@@ -2237,7 +2274,8 @@
   "fields": {
     "question": 339,
     "questionnaire": 86,
-    "order": 339
+    "order": 339,
+    "counts_for_grade": true
   }
 },
 {
@@ -2246,7 +2284,8 @@
   "fields": {
     "question": 340,
     "questionnaire": 86,
-    "order": 340
+    "order": 340,
+    "counts_for_grade": true
   }
 },
 {
@@ -2255,7 +2294,8 @@
   "fields": {
     "question": 341,
     "questionnaire": 86,
-    "order": 341
+    "order": 341,
+    "counts_for_grade": true
   }
 },
 {
@@ -2264,7 +2304,8 @@
   "fields": {
     "question": 475,
     "questionnaire": 86,
-    "order": 342
+    "order": 342,
+    "counts_for_grade": true
   }
 },
 {
@@ -2273,7 +2314,8 @@
   "fields": {
     "question": 342,
     "questionnaire": 86,
-    "order": 343
+    "order": 343,
+    "counts_for_grade": false
   }
 },
 {
@@ -2282,7 +2324,8 @@
   "fields": {
     "question": 325,
     "questionnaire": 87,
-    "order": 343
+    "order": 343,
+    "counts_for_grade": true
   }
 },
 {
@@ -2291,7 +2334,8 @@
   "fields": {
     "question": 326,
     "questionnaire": 87,
-    "order": 344
+    "order": 344,
+    "counts_for_grade": true
   }
 },
 {
@@ -2300,7 +2344,8 @@
   "fields": {
     "question": 345,
     "questionnaire": 87,
-    "order": 345
+    "order": 345,
+    "counts_for_grade": true
   }
 },
 {
@@ -2309,7 +2354,8 @@
   "fields": {
     "question": 346,
     "questionnaire": 87,
-    "order": 346
+    "order": 346,
+    "counts_for_grade": true
   }
 },
 {
@@ -2318,7 +2364,8 @@
   "fields": {
     "question": 329,
     "questionnaire": 87,
-    "order": 347
+    "order": 347,
+    "counts_for_grade": true
   }
 },
 {
@@ -2327,7 +2374,8 @@
   "fields": {
     "question": 348,
     "questionnaire": 87,
-    "order": 348
+    "order": 348,
+    "counts_for_grade": true
   }
 },
 {
@@ -2336,7 +2384,8 @@
   "fields": {
     "question": 349,
     "questionnaire": 87,
-    "order": 349
+    "order": 349,
+    "counts_for_grade": true
   }
 },
 {
@@ -2345,7 +2394,8 @@
   "fields": {
     "question": 350,
     "questionnaire": 88,
-    "order": 350
+    "order": 350,
+    "counts_for_grade": true
   }
 },
 {
@@ -2354,7 +2404,8 @@
   "fields": {
     "question": 351,
     "questionnaire": 88,
-    "order": 351
+    "order": 351,
+    "counts_for_grade": true
   }
 },
 {
@@ -2363,7 +2414,8 @@
   "fields": {
     "question": 352,
     "questionnaire": 88,
-    "order": 352
+    "order": 352,
+    "counts_for_grade": true
   }
 },
 {
@@ -2372,7 +2424,8 @@
   "fields": {
     "question": 325,
     "questionnaire": 89,
-    "order": 353
+    "order": 353,
+    "counts_for_grade": true
   }
 },
 {
@@ -2381,7 +2434,8 @@
   "fields": {
     "question": 326,
     "questionnaire": 89,
-    "order": 354
+    "order": 354,
+    "counts_for_grade": true
   }
 },
 {
@@ -2390,7 +2444,8 @@
   "fields": {
     "question": 345,
     "questionnaire": 89,
-    "order": 355
+    "order": 355,
+    "counts_for_grade": true
   }
 },
 {
@@ -2399,7 +2454,8 @@
   "fields": {
     "question": 356,
     "questionnaire": 89,
-    "order": 356
+    "order": 356,
+    "counts_for_grade": true
   }
 },
 {
@@ -2408,7 +2464,8 @@
   "fields": {
     "question": 329,
     "questionnaire": 89,
-    "order": 357
+    "order": 357,
+    "counts_for_grade": true
   }
 },
 {
@@ -2417,7 +2474,8 @@
   "fields": {
     "question": 358,
     "questionnaire": 90,
-    "order": 358
+    "order": 358,
+    "counts_for_grade": false
   }
 },
 {
@@ -2426,7 +2484,8 @@
   "fields": {
     "question": 325,
     "questionnaire": 91,
-    "order": 359
+    "order": 359,
+    "counts_for_grade": true
   }
 },
 {
@@ -2435,7 +2494,8 @@
   "fields": {
     "question": 360,
     "questionnaire": 91,
-    "order": 360
+    "order": 360,
+    "counts_for_grade": true
   }
 },
 {
@@ -2444,7 +2504,8 @@
   "fields": {
     "question": 345,
     "questionnaire": 91,
-    "order": 361
+    "order": 361,
+    "counts_for_grade": true
   }
 },
 {
@@ -2453,7 +2514,8 @@
   "fields": {
     "question": 362,
     "questionnaire": 91,
-    "order": 362
+    "order": 362,
+    "counts_for_grade": true
   }
 },
 {
@@ -2462,7 +2524,8 @@
   "fields": {
     "question": 363,
     "questionnaire": 91,
-    "order": 363
+    "order": 363,
+    "counts_for_grade": true
   }
 },
 {
@@ -2471,7 +2534,8 @@
   "fields": {
     "question": 364,
     "questionnaire": 92,
-    "order": 364
+    "order": 364,
+    "counts_for_grade": false
   }
 },
 {
@@ -2480,7 +2544,8 @@
   "fields": {
     "question": 365,
     "questionnaire": 93,
-    "order": 365
+    "order": 365,
+    "counts_for_grade": false
   }
 },
 {
@@ -2489,7 +2554,8 @@
   "fields": {
     "question": 345,
     "questionnaire": 85,
-    "order": 366
+    "order": 366,
+    "counts_for_grade": true
   }
 },
 {
@@ -2498,7 +2564,8 @@
   "fields": {
     "question": 341,
     "questionnaire": 82,
-    "order": 367
+    "order": 367,
+    "counts_for_grade": true
   }
 },
 {
@@ -2507,7 +2574,8 @@
   "fields": {
     "question": 368,
     "questionnaire": 84,
-    "order": 368
+    "order": 368,
+    "counts_for_grade": true
   }
 },
 {
@@ -2516,7 +2584,8 @@
   "fields": {
     "question": 369,
     "questionnaire": 91,
-    "order": 369
+    "order": 369,
+    "counts_for_grade": true
   }
 },
 {
@@ -2525,7 +2594,8 @@
   "fields": {
     "question": 370,
     "questionnaire": 89,
-    "order": 370
+    "order": 370,
+    "counts_for_grade": true
   }
 },
 {
@@ -2534,7 +2604,8 @@
   "fields": {
     "question": 329,
     "questionnaire": 85,
-    "order": 371
+    "order": 371,
+    "counts_for_grade": true
   }
 },
 {
@@ -2543,7 +2614,8 @@
   "fields": {
     "question": 341,
     "questionnaire": 88,
-    "order": 372
+    "order": 372,
+    "counts_for_grade": true
   }
 },
 {
@@ -2552,7 +2624,8 @@
   "fields": {
     "question": 373,
     "questionnaire": 86,
-    "order": 373
+    "order": 373,
+    "counts_for_grade": false
   }
 },
 {
@@ -2561,7 +2634,8 @@
   "fields": {
     "question": 350,
     "questionnaire": 94,
-    "order": 374
+    "order": 374,
+    "counts_for_grade": true
   }
 },
 {
@@ -2570,7 +2644,8 @@
   "fields": {
     "question": 375,
     "questionnaire": 94,
-    "order": 375
+    "order": 375,
+    "counts_for_grade": true
   }
 },
 {
@@ -2579,7 +2654,8 @@
   "fields": {
     "question": 376,
     "questionnaire": 94,
-    "order": 376
+    "order": 376,
+    "counts_for_grade": true
   }
 },
 {
@@ -2588,7 +2664,8 @@
   "fields": {
     "question": 377,
     "questionnaire": 94,
-    "order": 377
+    "order": 377,
+    "counts_for_grade": true
   }
 },
 {
@@ -2597,7 +2674,8 @@
   "fields": {
     "question": 378,
     "questionnaire": 94,
-    "order": 378
+    "order": 378,
+    "counts_for_grade": true
   }
 },
 {
@@ -2606,7 +2684,8 @@
   "fields": {
     "question": 379,
     "questionnaire": 94,
-    "order": 379
+    "order": 379,
+    "counts_for_grade": true
   }
 },
 {
@@ -2615,7 +2694,8 @@
   "fields": {
     "question": 380,
     "questionnaire": 94,
-    "order": 380
+    "order": 380,
+    "counts_for_grade": true
   }
 },
 {
@@ -2624,7 +2704,8 @@
   "fields": {
     "question": 381,
     "questionnaire": 94,
-    "order": 381
+    "order": 381,
+    "counts_for_grade": false
   }
 },
 {
@@ -2633,7 +2714,8 @@
   "fields": {
     "question": 382,
     "questionnaire": 95,
-    "order": 382
+    "order": 382,
+    "counts_for_grade": true
   }
 },
 {
@@ -2642,7 +2724,8 @@
   "fields": {
     "question": 383,
     "questionnaire": 95,
-    "order": 383
+    "order": 383,
+    "counts_for_grade": true
   }
 },
 {
@@ -2651,7 +2734,8 @@
   "fields": {
     "question": 384,
     "questionnaire": 95,
-    "order": 384
+    "order": 384,
+    "counts_for_grade": true
   }
 },
 {
@@ -2660,7 +2744,8 @@
   "fields": {
     "question": 385,
     "questionnaire": 95,
-    "order": 385
+    "order": 385,
+    "counts_for_grade": true
   }
 },
 {
@@ -2669,7 +2754,8 @@
   "fields": {
     "question": 387,
     "questionnaire": 95,
-    "order": 387
+    "order": 387,
+    "counts_for_grade": false
   }
 },
 {
@@ -2678,7 +2764,8 @@
   "fields": {
     "question": 388,
     "questionnaire": 96,
-    "order": 388
+    "order": 388,
+    "counts_for_grade": true
   }
 },
 {
@@ -2687,7 +2774,8 @@
   "fields": {
     "question": 389,
     "questionnaire": 96,
-    "order": 389
+    "order": 389,
+    "counts_for_grade": true
   }
 },
 {
@@ -2696,7 +2784,8 @@
   "fields": {
     "question": 390,
     "questionnaire": 96,
-    "order": 390
+    "order": 390,
+    "counts_for_grade": true
   }
 },
 {
@@ -2705,7 +2794,8 @@
   "fields": {
     "question": 391,
     "questionnaire": 96,
-    "order": 391
+    "order": 391,
+    "counts_for_grade": true
   }
 },
 {
@@ -2714,7 +2804,8 @@
   "fields": {
     "question": 392,
     "questionnaire": 96,
-    "order": 392
+    "order": 392,
+    "counts_for_grade": true
   }
 },
 {
@@ -2723,7 +2814,8 @@
   "fields": {
     "question": 393,
     "questionnaire": 96,
-    "order": 393
+    "order": 393,
+    "counts_for_grade": false
   }
 },
 {
@@ -2732,7 +2824,8 @@
   "fields": {
     "question": 394,
     "questionnaire": 97,
-    "order": 394
+    "order": 394,
+    "counts_for_grade": true
   }
 },
 {
@@ -2741,7 +2834,8 @@
   "fields": {
     "question": 395,
     "questionnaire": 97,
-    "order": 395
+    "order": 395,
+    "counts_for_grade": true
   }
 },
 {
@@ -2750,7 +2844,8 @@
   "fields": {
     "question": 396,
     "questionnaire": 97,
-    "order": 396
+    "order": 396,
+    "counts_for_grade": true
   }
 },
 {
@@ -2759,7 +2854,8 @@
   "fields": {
     "question": 397,
     "questionnaire": 97,
-    "order": 397
+    "order": 397,
+    "counts_for_grade": true
   }
 },
 {
@@ -2768,7 +2864,8 @@
   "fields": {
     "question": 398,
     "questionnaire": 97,
-    "order": 398
+    "order": 398,
+    "counts_for_grade": true
   }
 },
 {
@@ -2777,7 +2874,8 @@
   "fields": {
     "question": 399,
     "questionnaire": 97,
-    "order": 399
+    "order": 399,
+    "counts_for_grade": false
   }
 },
 {
@@ -2786,7 +2884,8 @@
   "fields": {
     "question": 325,
     "questionnaire": 98,
-    "order": 400
+    "order": 400,
+    "counts_for_grade": true
   }
 },
 {
@@ -2795,7 +2894,8 @@
   "fields": {
     "question": 326,
     "questionnaire": 98,
-    "order": 401
+    "order": 401,
+    "counts_for_grade": true
   }
 },
 {
@@ -2804,7 +2904,8 @@
   "fields": {
     "question": 327,
     "questionnaire": 98,
-    "order": 402
+    "order": 402,
+    "counts_for_grade": true
   }
 },
 {
@@ -2813,7 +2914,8 @@
   "fields": {
     "question": 328,
     "questionnaire": 98,
-    "order": 403
+    "order": 403,
+    "counts_for_grade": true
   }
 },
 {
@@ -2822,7 +2924,8 @@
   "fields": {
     "question": 350,
     "questionnaire": 99,
-    "order": 404
+    "order": 404,
+    "counts_for_grade": true
   }
 },
 {
@@ -2831,7 +2934,8 @@
   "fields": {
     "question": 375,
     "questionnaire": 99,
-    "order": 405
+    "order": 405,
+    "counts_for_grade": true
   }
 },
 {
@@ -2840,7 +2944,8 @@
   "fields": {
     "question": 376,
     "questionnaire": 99,
-    "order": 406
+    "order": 406,
+    "counts_for_grade": true
   }
 },
 {
@@ -2849,7 +2954,8 @@
   "fields": {
     "question": 377,
     "questionnaire": 99,
-    "order": 407
+    "order": 407,
+    "counts_for_grade": true
   }
 },
 {
@@ -2858,7 +2964,8 @@
   "fields": {
     "question": 378,
     "questionnaire": 99,
-    "order": 408
+    "order": 408,
+    "counts_for_grade": true
   }
 },
 {
@@ -2867,7 +2974,8 @@
   "fields": {
     "question": 379,
     "questionnaire": 99,
-    "order": 409
+    "order": 409,
+    "counts_for_grade": true
   }
 },
 {
@@ -2876,7 +2984,8 @@
   "fields": {
     "question": 380,
     "questionnaire": 99,
-    "order": 410
+    "order": 410,
+    "counts_for_grade": true
   }
 },
 {
@@ -2885,7 +2994,8 @@
   "fields": {
     "question": 381,
     "questionnaire": 99,
-    "order": 411
+    "order": 411,
+    "counts_for_grade": false
   }
 },
 {
@@ -2894,7 +3004,8 @@
   "fields": {
     "question": 412,
     "questionnaire": 100,
-    "order": 412
+    "order": 412,
+    "counts_for_grade": true
   }
 },
 {
@@ -2903,7 +3014,8 @@
   "fields": {
     "question": 383,
     "questionnaire": 100,
-    "order": 413
+    "order": 413,
+    "counts_for_grade": true
   }
 },
 {
@@ -2912,7 +3024,8 @@
   "fields": {
     "question": 414,
     "questionnaire": 100,
-    "order": 414
+    "order": 414,
+    "counts_for_grade": true
   }
 },
 {
@@ -2921,7 +3034,8 @@
   "fields": {
     "question": 387,
     "questionnaire": 100,
-    "order": 415
+    "order": 415,
+    "counts_for_grade": false
   }
 },
 {
@@ -2930,7 +3044,8 @@
   "fields": {
     "question": 388,
     "questionnaire": 101,
-    "order": 416
+    "order": 416,
+    "counts_for_grade": true
   }
 },
 {
@@ -2939,7 +3054,8 @@
   "fields": {
     "question": 389,
     "questionnaire": 101,
-    "order": 417
+    "order": 417,
+    "counts_for_grade": true
   }
 },
 {
@@ -2948,7 +3064,8 @@
   "fields": {
     "question": 391,
     "questionnaire": 101,
-    "order": 418
+    "order": 418,
+    "counts_for_grade": true
   }
 },
 {
@@ -2957,7 +3074,8 @@
   "fields": {
     "question": 419,
     "questionnaire": 101,
-    "order": 419
+    "order": 419,
+    "counts_for_grade": false
   }
 },
 {
@@ -2966,7 +3084,8 @@
   "fields": {
     "question": 420,
     "questionnaire": 102,
-    "order": 420
+    "order": 420,
+    "counts_for_grade": true
   }
 },
 {
@@ -2975,7 +3094,8 @@
   "fields": {
     "question": 421,
     "questionnaire": 102,
-    "order": 421
+    "order": 421,
+    "counts_for_grade": true
   }
 },
 {
@@ -2984,7 +3104,8 @@
   "fields": {
     "question": 422,
     "questionnaire": 102,
-    "order": 422
+    "order": 422,
+    "counts_for_grade": true
   }
 },
 {
@@ -2993,7 +3114,8 @@
   "fields": {
     "question": 423,
     "questionnaire": 102,
-    "order": 423
+    "order": 423,
+    "counts_for_grade": false
   }
 },
 {
@@ -3002,7 +3124,8 @@
   "fields": {
     "question": 428,
     "questionnaire": 85,
-    "order": 428
+    "order": 428,
+    "counts_for_grade": true
   }
 },
 {
@@ -3011,7 +3134,8 @@
   "fields": {
     "question": 429,
     "questionnaire": 88,
-    "order": 429
+    "order": 429,
+    "counts_for_grade": false
   }
 },
 {
@@ -3020,7 +3144,8 @@
   "fields": {
     "question": 430,
     "questionnaire": 88,
-    "order": 430
+    "order": 430,
+    "counts_for_grade": false
   }
 },
 {
@@ -3029,7 +3154,8 @@
   "fields": {
     "question": 329,
     "questionnaire": 98,
-    "order": 431
+    "order": 431,
+    "counts_for_grade": true
   }
 },
 {
@@ -3038,7 +3164,8 @@
   "fields": {
     "question": 432,
     "questionnaire": 104,
-    "order": 432
+    "order": 432,
+    "counts_for_grade": true
   }
 },
 {
@@ -3047,7 +3174,8 @@
   "fields": {
     "question": 337,
     "questionnaire": 104,
-    "order": 433
+    "order": 433,
+    "counts_for_grade": true
   }
 },
 {
@@ -3056,7 +3184,8 @@
   "fields": {
     "question": 338,
     "questionnaire": 104,
-    "order": 434
+    "order": 434,
+    "counts_for_grade": true
   }
 },
 {
@@ -3065,7 +3194,8 @@
   "fields": {
     "question": 435,
     "questionnaire": 104,
-    "order": 435
+    "order": 435,
+    "counts_for_grade": true
   }
 },
 {
@@ -3074,7 +3204,8 @@
   "fields": {
     "question": 436,
     "questionnaire": 104,
-    "order": 436
+    "order": 436,
+    "counts_for_grade": true
   }
 },
 {
@@ -3083,7 +3214,8 @@
   "fields": {
     "question": 341,
     "questionnaire": 104,
-    "order": 437
+    "order": 437,
+    "counts_for_grade": true
   }
 },
 {
@@ -3092,7 +3224,8 @@
   "fields": {
     "question": 438,
     "questionnaire": 104,
-    "order": 438
+    "order": 438,
+    "counts_for_grade": true
   }
 },
 {
@@ -3101,7 +3234,8 @@
   "fields": {
     "question": 439,
     "questionnaire": 104,
-    "order": 439
+    "order": 439,
+    "counts_for_grade": false
   }
 },
 {
@@ -3110,7 +3244,8 @@
   "fields": {
     "question": 440,
     "questionnaire": 104,
-    "order": 440
+    "order": 440,
+    "counts_for_grade": false
   }
 },
 {
@@ -3119,7 +3254,8 @@
   "fields": {
     "question": 336,
     "questionnaire": 105,
-    "order": 441
+    "order": 441,
+    "counts_for_grade": true
   }
 },
 {
@@ -3128,7 +3264,8 @@
   "fields": {
     "question": 442,
     "questionnaire": 105,
-    "order": 442
+    "order": 442,
+    "counts_for_grade": true
   }
 },
 {
@@ -3137,7 +3274,8 @@
   "fields": {
     "question": 443,
     "questionnaire": 105,
-    "order": 443
+    "order": 443,
+    "counts_for_grade": true
   }
 },
 {
@@ -3146,7 +3284,8 @@
   "fields": {
     "question": 340,
     "questionnaire": 105,
-    "order": 444
+    "order": 444,
+    "counts_for_grade": true
   }
 },
 {
@@ -3155,7 +3294,8 @@
   "fields": {
     "question": 445,
     "questionnaire": 105,
-    "order": 445
+    "order": 445,
+    "counts_for_grade": true
   }
 },
 {
@@ -3164,7 +3304,8 @@
   "fields": {
     "question": 446,
     "questionnaire": 105,
-    "order": 446
+    "order": 446,
+    "counts_for_grade": true
   }
 },
 {
@@ -3173,7 +3314,8 @@
   "fields": {
     "question": 342,
     "questionnaire": 105,
-    "order": 447
+    "order": 447,
+    "counts_for_grade": false
   }
 },
 {
@@ -3182,7 +3324,8 @@
   "fields": {
     "question": 373,
     "questionnaire": 105,
-    "order": 448
+    "order": 448,
+    "counts_for_grade": false
   }
 },
 {
@@ -3191,7 +3334,8 @@
   "fields": {
     "question": 449,
     "questionnaire": 106,
-    "order": 449
+    "order": 449,
+    "counts_for_grade": true
   }
 },
 {
@@ -3200,7 +3344,8 @@
   "fields": {
     "question": 450,
     "questionnaire": 106,
-    "order": 450
+    "order": 450,
+    "counts_for_grade": true
   }
 },
 {
@@ -3209,7 +3354,8 @@
   "fields": {
     "question": 451,
     "questionnaire": 106,
-    "order": 451
+    "order": 451,
+    "counts_for_grade": true
   }
 },
 {
@@ -3218,7 +3364,8 @@
   "fields": {
     "question": 452,
     "questionnaire": 106,
-    "order": 452
+    "order": 452,
+    "counts_for_grade": true
   }
 },
 {
@@ -3227,7 +3374,8 @@
   "fields": {
     "question": 453,
     "questionnaire": 106,
-    "order": 453
+    "order": 453,
+    "counts_for_grade": true
   }
 },
 {
@@ -3236,7 +3384,8 @@
   "fields": {
     "question": 454,
     "questionnaire": 106,
-    "order": 454
+    "order": 454,
+    "counts_for_grade": false
   }
 },
 {
@@ -3245,7 +3394,8 @@
   "fields": {
     "question": 455,
     "questionnaire": 106,
-    "order": 455
+    "order": 455,
+    "counts_for_grade": false
   }
 },
 {
@@ -3254,7 +3404,8 @@
   "fields": {
     "question": 325,
     "questionnaire": 107,
-    "order": 457
+    "order": 457,
+    "counts_for_grade": true
   }
 },
 {
@@ -3263,7 +3414,8 @@
   "fields": {
     "question": 326,
     "questionnaire": 107,
-    "order": 458
+    "order": 458,
+    "counts_for_grade": true
   }
 },
 {
@@ -3272,7 +3424,8 @@
   "fields": {
     "question": 345,
     "questionnaire": 107,
-    "order": 459
+    "order": 459,
+    "counts_for_grade": true
   }
 },
 {
@@ -3281,7 +3434,8 @@
   "fields": {
     "question": 346,
     "questionnaire": 107,
-    "order": 460
+    "order": 460,
+    "counts_for_grade": true
   }
 },
 {
@@ -3290,7 +3444,8 @@
   "fields": {
     "question": 329,
     "questionnaire": 107,
-    "order": 461
+    "order": 461,
+    "counts_for_grade": true
   }
 },
 {
@@ -3299,7 +3454,8 @@
   "fields": {
     "question": 462,
     "questionnaire": 107,
-    "order": 462
+    "order": 462,
+    "counts_for_grade": true
   }
 },
 {
@@ -3308,7 +3464,8 @@
   "fields": {
     "question": 349,
     "questionnaire": 107,
-    "order": 463
+    "order": 463,
+    "counts_for_grade": true
   }
 },
 {
@@ -3317,7 +3474,8 @@
   "fields": {
     "question": 348,
     "questionnaire": 107,
-    "order": 464
+    "order": 464,
+    "counts_for_grade": true
   }
 },
 {
@@ -3326,7 +3484,8 @@
   "fields": {
     "question": 325,
     "questionnaire": 108,
-    "order": 465
+    "order": 465,
+    "counts_for_grade": true
   }
 },
 {
@@ -3335,7 +3494,8 @@
   "fields": {
     "question": 326,
     "questionnaire": 108,
-    "order": 466
+    "order": 466,
+    "counts_for_grade": true
   }
 },
 {
@@ -3344,7 +3504,8 @@
   "fields": {
     "question": 345,
     "questionnaire": 108,
-    "order": 467
+    "order": 467,
+    "counts_for_grade": true
   }
 },
 {
@@ -3353,7 +3514,8 @@
   "fields": {
     "question": 329,
     "questionnaire": 108,
-    "order": 468
+    "order": 468,
+    "counts_for_grade": true
   }
 },
 {
@@ -3362,7 +3524,8 @@
   "fields": {
     "question": 349,
     "questionnaire": 108,
-    "order": 469
+    "order": 469,
+    "counts_for_grade": true
   }
 },
 {
@@ -3371,7 +3534,8 @@
   "fields": {
     "question": 348,
     "questionnaire": 108,
-    "order": 470
+    "order": 470,
+    "counts_for_grade": true
   }
 },
 {
@@ -3380,7 +3544,8 @@
   "fields": {
     "question": 471,
     "questionnaire": 109,
-    "order": 471
+    "order": 471,
+    "counts_for_grade": true
   }
 },
 {
@@ -3389,7 +3554,8 @@
   "fields": {
     "question": 477,
     "questionnaire": 84,
-    "order": 477
+    "order": 477,
+    "counts_for_grade": true
   }
 },
 {
