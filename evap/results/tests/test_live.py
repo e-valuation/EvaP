@@ -173,16 +173,22 @@ class ResultsIndexLiveTests(LiveServerTest):
             By.CSS_SELECTOR, "input[name=courseType][data-filter='Lecture']"
         )
         semester_checkbox = self.selenium.find_element(By.CSS_SELECTOR, "input[name=semester][data-filter='ST 14']")
+        low_slider = self.selenium.find_element(By.CSS_SELECTOR, "#participant-filter input[name=low]")
+        high_slider = self.selenium.find_element(By.CSS_SELECTOR, "#participant-filter input[name=high]")
         search_input.send_keys("Some search text")
         program_checkbox.click()
         course_type_checkbox.click()
         semester_checkbox.click()
+        low_slider.send_keys(Keys.ARROW_RIGHT)
+        high_slider.send_keys(Keys.ARROW_LEFT)
         reset_button.click()
 
         self.assertEqual(search_input.get_attribute("value"), "")
         self.assertFalse(program_checkbox.is_selected())
         self.assertFalse(course_type_checkbox.is_selected())
         self.assertFalse(semester_checkbox.is_selected())
+        self.assertEqual(low_slider.get_attribute("value"), low_slider.get_attribute("min"))
+        self.assertEqual(high_slider.get_attribute("value"), high_slider.get_attribute("max"))
 
     @override_settings(RESULTS_PARTICIPANT_FILTER_MAX_VALUE=50)
     def test_results_participants_range_slider(self):
