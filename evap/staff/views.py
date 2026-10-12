@@ -981,10 +981,16 @@ def semester_preparation_reminder(request: HttpRequest, semester_id: int) -> Htt
 
     if request.method == "POST":
         template = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_REMINDER)
+        internal_only = request.POST.get("internal_only") == "true"
         for responsible, responsible_evaluations, __ in responsible_list:
+            if internal_only and responsible.is_external:
+                continue
             body_params = {"user": responsible, "evaluations": responsible_evaluations}
             template.send_to_user(responsible, subject_params={}, body_params=body_params, use_cc=True, request=request)
-        messages.success(request, _("Successfully sent reminders to everyone."))
+        if internal_only:
+            messages.success(request, _("Successfully sent reminders to internal responsibles."))
+        else:
+            messages.success(request, _("Successfully sent reminders to everyone."))
         return HttpResponse()
     mode = request.GET.get("mode", "interactive")
     if mode not in ["interactive", "text"]:

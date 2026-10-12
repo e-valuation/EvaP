@@ -1074,6 +1074,22 @@ class TestSemesterPreparationReminderView(WebTestStaffModeWith200Check):
         self.assertEqual(kwargs["body_params"], {"user": self.user, "evaluations": [self.evaluation]})
         self.assertEqual(kwargs["use_cc"], True)
 
+    def test_remind_all_internal_only(self) -> None:
+        self.user.email = "responsible@institution.example.com"
+        self.user.save()
+
+        external_responsible = baker.make(UserProfile, email="external@external.example.com")
+        baker.make(
+            Evaluation,
+            course=baker.make(Course, semester=self.semester, responsibles=[external_responsible]),
+            state=Evaluation.State.PREPARED,
+        )
+
+        self.app.post(self.url, params={"internal_only": "true"}, user=self.manager, status=200)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, [self.user.email])
+
     def test_invalid_mode(self) -> None:
         self.app.get(self.url, params={"mode": "invalid"}, user=self.manager, status=400)
 
