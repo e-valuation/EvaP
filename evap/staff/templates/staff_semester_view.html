@@ -342,14 +342,20 @@
 
     <div class="card card-outline-primary">
         <div class="card-header d-flex">
-            <ul class="nav nav-pills" role="tablist">
+            <ul class="nav nav-tabs card-header-tabs">
                 <li class="nav-item">
-                    <a class="nav-link active" id="evaluationsTab" data-bs-toggle="pill" href="#evaluations" role="tab">
+                    <a
+                        class="nav-link active"
+                        id="evaluationsTab"
+                        data-bs-toggle="tab"
+                        data-bs-target="#evaluations"
+                        role="tab"
+                    >
                         <span class="fas fa-clipboard-check"></span> {% translate 'Evaluations' %}
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="coursesTab" data-bs-toggle="pill" href="#courses" role="tab">
+                    <a class="nav-link" id="coursesTab" data-bs-toggle="tab" data-bs-target="#courses" role="tab">
                         <span class="fas fa-chalkboard-user"></span> {% translate 'Courses' %}
                     </a>
                 </li>
