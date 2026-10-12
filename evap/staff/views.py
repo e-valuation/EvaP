@@ -962,7 +962,6 @@ def semester_questionnaire_assign(request: HttpRequest, semester_id: int) -> Htt
 @manager_required
 def semester_preparation_reminder(request: HttpRequest, semester_id: int) -> HttpResponse:
     semester = get_object_or_404(Semester, id=semester_id)
-    internal_only = request.POST.get("internal_only") == "true"
 
     evaluations = semester.evaluations.filter(
         state__in=[Evaluation.State.PREPARED, Evaluation.State.EDITOR_APPROVED]
@@ -970,8 +969,6 @@ def semester_preparation_reminder(request: HttpRequest, semester_id: int) -> Htt
 
     prepared_evaluations = semester.evaluations.filter(state=Evaluation.State.PREPARED)
     responsibles = UserProfile.objects.filter(courses_responsible_for__evaluations__in=prepared_evaluations).distinct()
-    if internal_only:
-        responsibles = responsibles.exclude(pk__in=[r.pk for r in responsibles if r.is_external])
 
     responsible_list = [
         (
@@ -984,7 +981,10 @@ def semester_preparation_reminder(request: HttpRequest, semester_id: int) -> Htt
 
     if request.method == "POST":
         template = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_REMINDER)
+        internal_only = request.POST.get("internal_only") == "true"
         for responsible, responsible_evaluations, __ in responsible_list:
+            if internal_only and responsible.is_external:
+                continue
             body_params = {"user": responsible, "evaluations": responsible_evaluations}
             template.send_to_user(responsible, subject_params={}, body_params=body_params, use_cc=True, request=request)
         messages.success(request, _("Successfully sent reminders."))
