@@ -14,7 +14,7 @@ if test -e "$NIX_CONF"; then
 else
     echo "Installing nix config at $NIX_CONF"
     mkdir -p "$XDG_CONFIG_HOME/nix/"
-    cp --verbose $(dirname $0)/nix.conf "$NIX_CONF"
+    cp -v $(dirname $0)/nix.conf "$NIX_CONF"
 fi
 
 if nix --version &> /dev/null; then
