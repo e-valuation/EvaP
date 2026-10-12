@@ -23,7 +23,7 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
-from evap.evaluation.tests.tools import LiveServerTest, classes_of_element
+from evap.evaluation.tests.tools import LiveServerTest, UserProfileSearchLiveServerTest, classes_of_element
 
 
 class EvaluationEditLiveTest(LiveServerTest):
@@ -61,15 +61,7 @@ class EvaluationEditLiveTest(LiveServerTest):
         with self.enter_staff_mode():
             self.selenium.get(self.reverse("staff:evaluation_edit", args=[evaluation.pk]))
 
-        row = self.wait.until(visibility_of_element_located((By.CSS_SELECTOR, "#id_contributions-0-contributor")))
-        tomselect_options = row.get_property("tomselect")["options"]
-        manager_text = "manager (manager@institution.example.com)"
-        manager_options = [key for key, value in tomselect_options.items() if value["text"] == manager_text]
-        self.assertEqual(len(manager_options), 1)
-        self.selenium.execute_script(
-            f"""let tomselect = document.querySelector("#id_contributions-0-contributor").tomselect;
-            tomselect.setValue("{manager_options[0]}");"""
-        )
+        self.search_and_select_in_tom_select("contributions-0-contributor", self.manager.email)
 
         submit_btn = self.wait.until(
             element_to_be_clickable((By.XPATH, "//button[@name='operation' and @value='save']"))
@@ -145,12 +137,9 @@ class ParticipantCollapseTests(LiveServerTest):
         counter = card_header.find_element(By.CSS_SELECTOR, ".rounded-pill")
         self.assertEqual(counter.text, "20")
 
-        tomselect_input = self.wait.until(
-            visibility_of_element_located((By.CSS_SELECTOR, "input#id_participants-ts-control"))
-        )
-        tomselect_input.click()
-        tomselect_input.send_keys("participant")
-        self.selenium.find_element(By.CSS_SELECTOR, ".option.active").click()
+        self.wait.until(visibility_of_element_located((By.CSS_SELECTOR, "#id_participants ~ .ts-wrapper .ts-control")))
+
+        self.search_and_select_in_tom_select("participants", "participant")
         self.assertEqual(counter.text, "21")
 
         random_participant_remove_button = self.selenium.find_element(
@@ -390,3 +379,99 @@ class TextAnswerEditLiveTest(LiveServerTest):
             self.wait.until(
                 invisibility_of_element_located((By.XPATH, "//div[contains(text(), 'this is a dummy answer')]"))
             )
+
+
+class StaffUserProfileSearchLiveTest(UserProfileSearchLiveServerTest):
+    def test_evaluation_form_set_participants(self) -> None:
+        """Test participants field in EvaluationForm."""
+        possible_participant = baker.make(
+            UserProfile, first_name_given="Jane", last_name="Doe", email="jane.doe@institution.example.com"
+        )
+        not_active_user = baker.make(
+            UserProfile,
+            first_name_given="User 1",
+            last_name="User 1",
+            email="user1@institution.example.com",
+            is_active=False,
+        )
+
+        evaluation = baker.make(
+            Evaluation,
+            course=baker.make(Course, programs=[baker.make(Program)], responsibles=[baker.make(UserProfile)]),
+            state=Evaluation.State.PREPARED,
+            vote_start_datetime=datetime(2099, 1, 1, 0, 0),
+            vote_end_date=date(2099, 12, 31),
+        )
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.reverse("staff:evaluation_edit", args=[evaluation.pk]))
+
+            self.conduct_user_profile_search_test("participants", [possible_participant], [not_active_user])
+
+    def test_evaluation_form_set_contributor(self) -> None:
+        """Test contributor field in ContributionForm in EvaluationForm formset."""
+        possible_contributor = baker.make(
+            UserProfile, first_name_given="Jane", last_name="Doe", email="jane.doe@institution.example.com"
+        )
+        not_active_user = baker.make(
+            UserProfile,
+            first_name_given="User 1",
+            last_name="User 1",
+            email="user1@institution.example.com",
+            is_active=False,
+        )
+
+        responsible = baker.make(UserProfile)
+        evaluation = baker.make(
+            Evaluation,
+            course=baker.make(Course, programs=[baker.make(Program)], responsibles=[responsible]),
+            state=Evaluation.State.PREPARED,
+            vote_start_datetime=datetime(2099, 1, 1, 0, 0),
+            vote_end_date=date(2099, 12, 31),
+        )
+        baker.make(Contribution, evaluation=evaluation, contributor=responsible)
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.reverse("staff:evaluation_edit", args=[evaluation.pk]))
+
+            self.conduct_user_profile_search_test(
+                "contributions-0-contributor", [possible_contributor], [not_active_user]
+            )
+
+    def test_user_edit_selection(self) -> None:
+        """Test user field in UserEditSelectionForm."""
+        possible_user = baker.make(
+            UserProfile, first_name_given="Jane", last_name="Doe", email="jane.doe@institution.example.com"
+        )
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.reverse("staff:user_index"))
+
+            self.conduct_user_profile_search_test("user", [possible_user], [])
+
+    def test_user_edit_set_cc_users_and_delegates(self) -> None:
+        """Test cc_users and delegates fields in UserForm."""
+        user_to_edit = baker.make(
+            UserProfile, first_name_given="John", last_name="Doe", email="john.doe@institution.example.com"
+        )
+        other_user = baker.make(
+            UserProfile, first_name_given="Jane", last_name="Doe", email="jane.doe@institution.example.com"
+        )
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.reverse("staff:user_edit", args=[user_to_edit.pk]))
+
+            self.conduct_user_profile_search_test("cc_users", [other_user], [])
+            self.conduct_user_profile_search_test("delegates", [other_user], [])
+
+    def test_user_merge_set_main_and_other_user(self) -> None:
+        """Test main_user and other_user fields in UserMergeSelectionForm."""
+        possible_user = baker.make(
+            UserProfile, first_name_given="John", last_name="Doe", email="john.doe@institution.example.com"
+        )
+
+        with self.enter_staff_mode():
+            self.selenium.get(self.reverse("staff:user_merge_selection"))
+
+            self.conduct_user_profile_search_test("main_user", [possible_user], [])
+            self.conduct_user_profile_search_test("other_user", [possible_user], [])
