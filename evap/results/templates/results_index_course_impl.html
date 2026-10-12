@@ -5,13 +5,27 @@
     <div data-col="name" data-order="{{ course.name|lower }}">
         <div>
             {% for program in course.programs.all %}
-                <span class="badge bg-primary badge-program">{{ program }}</span>
+                <span
+                    data-filter-category="program"
+                    data-filter-value="{{ program }}"
+                    class="badge bg-primary badge-program"
+                >{{ program }}</span>
             {% endfor %}
-            <span class="badge bg-secondary badge-course-type">{{ course.type }}</span>
+            <span
+                data-filter-category="courseType"
+                data-filter-value="{{ course.type }}"
+                class="badge bg-secondary badge-course-type"
+            >{{ course.type }}</span>
         </div>
         <span class="evaluation-name">{{ course.name }}</span>
     </div>
-    <div data-col="semester" data-order="{{ course.semester.id }}" class="text-center semester-short-name">
+    <div
+        data-col="semester"
+        data-order="{{ course.semester.id }}"
+        data-filter-category="semester"
+        data-filter-value="{{ course.semester.id }}"
+        class="text-center semester-short-name"
+    >
         {{ course.semester.short_name }}
     </div>
     <div data-col="responsible" data-order="{{ course.responsibles.first.last_name|lower }}">
