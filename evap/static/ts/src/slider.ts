@@ -1,4 +1,4 @@
-import { assert, selectOrError } from "./utils.js";
+import { assert, clamp, selectOrError } from "./utils.js";
 
 export interface Range {
     low: number;
@@ -46,8 +46,8 @@ export class RangeSlider {
 
     public set value(value: Range) {
         this._value = {
-            low: Math.max(this.allowed.low, Math.min(value.low, this.allowed.high)),
-            high: Math.max(this.allowed.low, Math.min(value.high, this.allowed.high)),
+            low: clamp(value.low, this.allowed.low, this.allowed.high),
+            high: clamp(value.high, this.allowed.low, this.allowed.high),
         };
 
         this.lowSlider.value = this.value.low.toString();
@@ -56,7 +56,7 @@ export class RangeSlider {
             [this.value.low, this.value.high] = [this.value.high, this.value.low];
         }
         this.value.isOpenEnd = this.value.high === this.allowed.high;
-        this.rangeLabel.textContent = `${this.value.low} – ${this.formatHigh(this.value.high)}`;
+        this.rangeLabel.innerText = `${this.value.low} – ${this.formatHigh(this.value.high)}`;
 
         // debounce on range change callback
         if (this.debounceTimeout !== undefined) {
@@ -82,8 +82,8 @@ export class RangeSlider {
         this.lowSlider.max = this.allowed.high.toString();
         this.highSlider.min = this.allowed.low.toString();
         this.highSlider.max = this.allowed.high.toString();
-        this.minLabel.textContent = this.allowed.low.toString();
-        this.maxLabel.textContent = this.formatHigh(this.allowed.high);
+        this.minLabel.innerText = this.allowed.low.toString();
+        this.maxLabel.innerText = this.formatHigh(this.allowed.high);
     }
 
     private formatHigh(value: number): string {
