@@ -84,6 +84,13 @@
                                     {{ semester.name }}
                                 </a>
                             {% endfor %}
+                            <hr class="dropdown-divider">
+                            <a
+                                class="dropdown-item"
+                                href="{% url 'staff:semester_create' %}"
+                            >
+                                {% translate 'Create new semester' %}
+                            </a>
                         </div>
                     </li>
                 {% elif user.is_reviewer %}
