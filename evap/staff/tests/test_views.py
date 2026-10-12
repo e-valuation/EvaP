@@ -488,6 +488,7 @@ class TestUserBulkUpdateView(WebTestStaffMode):
 
     @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com", "internal.example.com"])
     @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_TIME=datetime.timedelta(6 * 30))
+    @override_settings(IGNORE_USERS={"testuser3.tobeignored@institution.example.com"})
     @patch("evap.staff.tools.remove_user_from_represented_and_ccing_users")
     def test_handles_users(self, mock_remove: MagicMock) -> None:
         mock_remove.return_value = ["This text is supposed to be visible on the website."]
@@ -531,6 +532,7 @@ class TestUserBulkUpdateView(WebTestStaffMode):
         self.assertIn("1 participation of responsible would be removed due to inactivity.", response)
 
         self.assertIn("testupdate@institution.example.com &gt; testupdate@internal.example.com", response)
+        self.assertIn("Users to be ignored are:<br />testuser3.tobeignored@institution.example.com", response)
         self.assertIn(mock_remove.return_value[0], response)
         self.assertEqual(mock_remove.call_count, 3)
         calls = [[call[0][0].email, call[0][2]] for call in mock_remove.call_args_list]
@@ -551,6 +553,8 @@ class TestUserBulkUpdateView(WebTestStaffMode):
         expected_users.add(UserProfile.objects.get(email="testusernewinternal@institution.example.com"))
         # testusernewexternal is an external user and should not be created
         self.assertFalse(UserProfile.objects.filter(email="testusernewexternal@example.com").exists())
+        # testuser3.tobeignored is in IGNORE_USERS and should not be created
+        self.assertFalse(UserProfile.objects.filter(email="testuser3.tobeignored@institution.example.com").exists())
         # testupdate should have been renamed
         self.assertFalse(UserProfile.objects.filter(email="testupdate@institution.example.com").exists())
         self.assertTrue(UserProfile.objects.filter(email="testupdate@internal.example.com").exists())
