@@ -987,7 +987,10 @@ def semester_preparation_reminder(request: HttpRequest, semester_id: int) -> Htt
                 continue
             body_params = {"user": responsible, "evaluations": responsible_evaluations}
             template.send_to_user(responsible, subject_params={}, body_params=body_params, use_cc=True, request=request)
-        messages.success(request, _("Successfully sent reminders."))
+        if internal_only:
+            messages.success(request, _("Successfully sent reminders to internal responsibles."))
+        else:
+            messages.success(request, _("Successfully sent reminders to everyone."))
         return HttpResponse()
     mode = request.GET.get("mode", "interactive")
     if mode not in ["interactive", "text"]:
