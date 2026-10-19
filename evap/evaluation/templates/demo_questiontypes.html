@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block title %}{% translate 'Question types' %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+    <div class="card">
+        {% include 'student_vote_questionnaire_group.html' with questionnaire_group=questionnaire_group preview=False %}
+    </div>
+{% endblock %}

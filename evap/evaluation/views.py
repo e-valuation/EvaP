@@ -1,6 +1,7 @@
 import logging
 from datetime import date, timedelta
 
+from django import forms
 from django.conf import settings
 from django.contrib import auth, messages
 from django.core.exceptions import SuspiciousOperation
@@ -16,9 +17,10 @@ from django.views.decorators.http import require_POST
 from django.views.i18n import set_language
 
 from evap.evaluation.forms import LoginEmailForm, NewKeyForm, NotebookForm, ProfileForm
-from evap.evaluation.models import EmailTemplate, FaqSection, Semester, UserProfile
+from evap.evaluation.models import EmailTemplate, FaqSection, Semester, UserProfile, Question, Questionnaire
 from evap.evaluation.tools import HttpResponseNoContent, openid_login_is_active, password_login_is_active
 from evap.middleware import no_login_required
+from evap.student.forms import TextAnswerField, RatingAnswerField, HeadingField
 from evap.tools import assert_not_none
 
 logger = logging.getLogger(__name__)
@@ -251,3 +253,25 @@ def set_startpage(request: HttpRequest) -> HttpResponse:
     user.save()
 
     return redirect("evaluation:index")
+
+def questiontypes(request: HttpRequest) -> HttpResponse:
+    form = forms.Form()
+    form.questionnaire = Questionnaire(name_en="Question types", name_de="Fragetypen")
+
+    for _group_name, type_choices in Question.QUESTION_TYPES:
+        for question_type, type_name in type_choices:
+            question = Question(
+                type=question_type,
+                text_en=str(type_name),
+                text_de=str(type_name),
+                allows_additional_textanswers=False,
+            )
+            if question.is_text_question:
+                field = TextAnswerField.from_question(question)
+            elif question.is_rating_question:
+                field = RatingAnswerField.from_question(question)
+            elif question.is_heading_question:
+                field = HeadingField.from_question(question)
+            form.fields[f"question_{question_type}"] = field
+
+    return render(request, "demo_questiontypes.html", {"questionnaire_group": [form]})
