@@ -21,7 +21,7 @@ urlpatterns = [
     path("catalog.js", no_login_required(JavaScriptCatalog).as_view(), name="javascript-catalog"),
 ]
 
-if settings.DEBUG:
+if settings.DEBUG or settings.TESTING:
     urlpatterns += [path('development/', include('evap.development.urls'))]
 
     if settings.ENABLE_DEBUG_TOOLBAR:
