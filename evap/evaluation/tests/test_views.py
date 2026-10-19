@@ -74,6 +74,14 @@ class TestIndexView(WebTest):
         self.assertEqual(len(mail.outbox[0].cc), 0)
 
 
+class TestQuestionTypes(WebTest):
+    url = "/demo/questiontypes"
+
+    def test_question_types(self):
+        response = self.app.get(self.url)
+        self.assertEqual(response.status_code, 200)
+
+
 class TestStartpage(WebTest):
     def test_default_startpage(self):
         result = create_evaluation_with_responsible_and_editor()
