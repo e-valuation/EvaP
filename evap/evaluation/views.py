@@ -9,16 +9,23 @@ from django.core.mail import EmailMessage
 from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.utils import translation
 from django.utils.encoding import iri_to_uri
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.http import require_POST
 from django.views.i18n import set_language
 
 from evap.evaluation.forms import LoginEmailForm, NewKeyForm, NotebookForm, ProfileForm
 from evap.evaluation.models import EmailTemplate, FaqSection, Question, Questionnaire, Semester, UserProfile
-from evap.evaluation.tools import HttpResponseNoContent, openid_login_is_active, password_login_is_active
+from evap.evaluation.tools import (
+    HttpResponseNoContent,
+    StrOrPromise,
+    openid_login_is_active,
+    password_login_is_active,
+)
 from evap.middleware import no_login_required
 from evap.student.forms import HeadingField, RatingAnswerField, TextAnswerField
 from evap.tools import assert_not_none
@@ -262,14 +269,24 @@ class DemoQuestionnaireForm(forms.Form):
 
 
 def questiontypes_demo(request: HttpRequest) -> HttpResponse:
-    form = DemoQuestionnaireForm(questionnaire=Questionnaire(name_en=_("Question types"), name_de=_("Question types")))
+    def in_language(text: StrOrPromise, language: str) -> str:
+        with translation.override(language):
+            return str(text)
+
+    questionnaire_name = gettext_lazy("Question types")
+    form = DemoQuestionnaireForm(
+        questionnaire=Questionnaire(
+            name_en=in_language(questionnaire_name, "en"),
+            name_de=in_language(questionnaire_name, "de"),
+        )
+    )
 
     for _group_name, type_choices in Question.QUESTION_TYPES:
         for question_type, type_name in type_choices:
             question = Question(
                 type=question_type,
-                text_en=str(type_name),
-                text_de=str(type_name),
+                text_en=in_language(type_name, "en"),
+                text_de=in_language(type_name, "de"),
                 allows_additional_textanswers=False,
             )
             field: TextAnswerField | RatingAnswerField | HeadingField
