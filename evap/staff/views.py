@@ -988,7 +988,7 @@ def semester_preparation_reminder(request: HttpRequest, semester_id: int) -> Htt
             body_params = {"user": responsible, "evaluations": responsible_evaluations}
             template.send_to_user(responsible, subject_params={}, body_params=body_params, use_cc=True, request=request)
         if internal_only:
-            messages.success(request, _("Successfully sent reminders to internal responsibles."))
+            messages.success(request, _("Successfully sent reminders to internal users."))
         else:
             messages.success(request, _("Successfully sent reminders to everyone."))
         return HttpResponse()

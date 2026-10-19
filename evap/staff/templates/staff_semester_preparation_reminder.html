@@ -47,7 +47,7 @@
                         {% csrf_token %}
 
                         <input type="hidden" name="semester_id" value="{{ semester.id }}" />
-                        <input type="hidden" name="internal_only" value="true">
+                        <input type="hidden" name="internal_only" value="true" />
 
                         <confirmation-modal type="submit">
                             <span slot="title">{% translate 'Remind all internal users' %}</span>
