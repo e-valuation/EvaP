@@ -42,6 +42,7 @@ class ResultsExporter(ExcelExporter):
             "alignment: horiz centre, wrap on, rota 90; borders: left medium, top medium, right medium, bottom medium"
         ),
         "total_voters": xlwt.easyxf("alignment: horiz centre; borders: left medium, right medium"),
+        "total_participants": xlwt.easyxf("alignment: horiz centre; borders: left medium, right medium"),
         "evaluation_rate": xlwt.easyxf("alignment: horiz centre; borders: left medium, bottom medium, right medium"),
         "evaluation_weight": xlwt.easyxf("alignment: horiz centre; borders: left medium, right medium"),
         "program": xlwt.easyxf("alignment: wrap on; borders: left medium, right medium"),
@@ -231,9 +232,13 @@ class ResultsExporter(ExcelExporter):
         averages = (distribution_to_grade(calculate_average_distribution(e)) for e in annotated_evaluations)
         self.write_row(averages, lambda avg: self.grade_to_style(avg) if avg else "border_left_right")
 
-        self.write_cell(_("Total voters/Total participants"), "bold")
-        voter_ratios = (f"{e.num_voters}/{e.num_participants}" for e in annotated_evaluations)
-        self.write_row(voter_ratios, style="total_voters")
+        self.write_cell(_("Total voters"), "bold")
+        total_voters = (e.num_voters for e in annotated_evaluations)
+        self.write_row(total_voters, style="total_voters")
+
+        self.write_cell(_("Total participants"), "bold")
+        total_participants = (e.num_participants for e in annotated_evaluations)
+        self.write_row(total_participants, style="total_participants")
 
         self.write_cell(_("Evaluation rate"), "bold")
         # round down like in progress bar
