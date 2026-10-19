@@ -261,8 +261,8 @@ class DemoQuestionnaireForm(forms.Form):
         self.questionnaire = questionnaire
 
 
-def questiontypes(request: HttpRequest) -> HttpResponse:
-    form = DemoQuestionnaireForm(questionnaire=Questionnaire(name_en="Question types", name_de="Fragetypen"))
+def questiontypes_demo(request: HttpRequest) -> HttpResponse:
+    form = DemoQuestionnaireForm(questionnaire=Questionnaire(name_en=_("Question types"), name_de=_("Question types")))
 
     for _group_name, type_choices in Question.QUESTION_TYPES:
         for question_type, type_name in type_choices:
