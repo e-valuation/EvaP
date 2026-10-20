@@ -295,4 +295,4 @@ def questiontypes_demo(request: HttpRequest) -> HttpResponse:
                 field = HeadingField.from_question(question)
             form.fields[f"question_{question_type}"] = field
 
-    return render(request, "demo_questiontypes.html", {"questionnaire_group": [form]})
+    return render(request, "questiontypes_demo.html", {"questionnaire_group": [form]})
