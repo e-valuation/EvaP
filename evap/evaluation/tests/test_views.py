@@ -75,7 +75,7 @@ class TestIndexView(WebTest):
 
 
 class TestQuestionTypes(WebTest):
-    url = "/demo/questiontypes"
+    url = reverse("evaluation:questiontypes_demo")
 
     def test_question_types(self):
         response = self.app.get(self.url)
