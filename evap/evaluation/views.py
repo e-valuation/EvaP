@@ -9,7 +9,6 @@ from django.core.mail import EmailMessage
 from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.utils import translation
 from django.utils.encoding import iri_to_uri
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
@@ -22,9 +21,9 @@ from evap.evaluation.forms import LoginEmailForm, NewKeyForm, NotebookForm, Prof
 from evap.evaluation.models import EmailTemplate, FaqSection, Question, Questionnaire, Semester, UserProfile
 from evap.evaluation.tools import (
     HttpResponseNoContent,
-    StrOrPromise,
+    in_language,
     openid_login_is_active,
-    password_login_is_active, in_language,
+    password_login_is_active,
 )
 from evap.middleware import no_login_required
 from evap.student.forms import HeadingField, RatingAnswerField, TextAnswerField
