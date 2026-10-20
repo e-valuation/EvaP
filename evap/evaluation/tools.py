@@ -227,6 +227,7 @@ def in_language(text: StrOrPromise, language: str) -> str:
     with translation.override(language):
         return str(text)
 
+
 class FormsetView(FormView):
     """
     Just like `FormView`, but with a renaming from "form" to "formset".
