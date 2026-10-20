@@ -539,6 +539,9 @@ if TESTING:
     # give random char field values a reasonable length
     BAKER_CUSTOM_FIELDS_GEN = {"django.db.models.CharField": gen_string}
 
+    # deduce valid defaults for fields that depend on other fields
+    BAKER_CUSTOM_CLASS = "evap.evaluation.tests.tools.EvapBaker"
+
 
 # Development helpers
 if DEBUG:
