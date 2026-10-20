@@ -24,7 +24,7 @@ from evap.evaluation.tools import (
     HttpResponseNoContent,
     StrOrPromise,
     openid_login_is_active,
-    password_login_is_active,
+    password_login_is_active, in_language,
 )
 from evap.middleware import no_login_required
 from evap.student.forms import HeadingField, RatingAnswerField, TextAnswerField
@@ -269,10 +269,6 @@ class DemoQuestionnaireForm(forms.Form):
 
 
 def questiontypes_demo(request: HttpRequest) -> HttpResponse:
-    def in_language(text: StrOrPromise, language: str) -> str:
-        with translation.override(language):
-            return str(text)
-
     questionnaire_name = gettext_lazy("Question types")
     form = DemoQuestionnaireForm(
         questionnaire=Questionnaire(
