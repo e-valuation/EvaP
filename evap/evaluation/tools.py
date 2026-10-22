@@ -19,6 +19,7 @@ from django.dispatch.dispatcher import Signal
 from django.forms.formsets import BaseFormSet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils import translation
 from django.utils.datastructures import MultiValueDict
 from django.utils.translation import get_language
 from django.views.generic import FormView
@@ -219,6 +220,12 @@ def clean_email[EmailT: (str, str | None)](email: EmailT) -> EmailT:
 def capitalize_first(string: StrOrPromise) -> str:
     """Realize lazy promise objects and capitalize first letter."""
     return string[0].upper() + string[1:]
+
+
+def in_language(text: StrOrPromise, language: str) -> str:
+    """Elegant way to force the retrieval of a certain language."""
+    with translation.override(language):
+        return str(text)
 
 
 class FormsetView(FormView):
