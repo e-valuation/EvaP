@@ -6,6 +6,15 @@
     color: $danger;
 }
 
+@include color-mode(light) {
+    .warning-label {
+        color: shade-color($warning, 20%);
+    }
+    .error-label {
+        color: shade-color($danger, 20%);
+    }
+}
+
 .light-link {
     opacity: 0.4;
     color: $black;

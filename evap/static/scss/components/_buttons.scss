@@ -95,11 +95,14 @@ a:not([href]):not(.disabled) {
         .btn-group {
             background: $background-accent-dark;
         }
+        .btn-light {
+            border-color: $dark-gray !important;
+        }
+    }
     }
     .btn-switch-label {
         color: $light-gray;
     }
-}
 .btn-switch-light {
     background-color: $lighter-gray;
 
@@ -287,17 +290,17 @@ a.collapse-toggle {
         color: shade-color($color, 10%);
 
         &:hover {
-            background-color: shade-color($color, 60%);
+            background-color: shade-color($color, 60%) !important;
             color: shade-color($color, 20%);
         }
     }
 
     .btn-check:checked + .vote-btn-#{$name} {
-        background-color: shade-color($color, 20%);
+        background-color: shade-color($color, 20%) !important;
         color: shade-color($color, 80%);
 
         &:hover {
-            background-color: tint-color($color, 10%);
+            background-color: tint-color($color, 10%) !important;
         }
     }
     }
@@ -414,7 +417,7 @@ td .btn {
         background-color: $dark !important;
         border-color: $dark !important;
         &:hover {
-            background-color: tint-color($dark, 20%) !important;
+            background-color: tint-color($dark, 20%);
         }
     }
     .btn-dark {
