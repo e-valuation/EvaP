@@ -26,7 +26,15 @@ class Command(BaseCommand):
     def run_prettier(self) -> None:
         self.stdout.write("Executing npx prettier")
         subprocess.run(
-            ["npx", "prettier", "--write", "evap/static/ts/**/*.ts", "evap/static/ts/eslint.config.js"], check=False
+            [
+                "npx",
+                "prettier",
+                "--write",
+                "evap/static/ts/**/*.ts",
+                "evap/static/ts/eslint.config.js",
+                "evap/static/scss/**/*.scss",
+            ],
+            check=False,
         )  # nosec
 
     def run_djangofmt(self) -> None:

@@ -30,7 +30,6 @@
     text-align: right;
 }
 
-
 .col-question {
     position: relative;
     padding: 0.5rem 0.75rem 0;
@@ -93,13 +92,13 @@
 
     grid:
         "name semester responsible voters result"
-        / auto    6rem       12rem   10rem  11rem;
+        / auto 6rem 12rem 10rem 11rem;
 
     @include media-breakpoint-down(lg) {
         grid:
             "name semester  responsible responsible"
             "name semester       voters      result"
-            / auto    3rem         8rem       10rem;
+            / auto 3rem 8rem 10rem;
     }
 
     @include media-breakpoint-down(md) {
@@ -107,18 +106,18 @@
             "        name        name    semester"
             " responsible responsible responsible"
             "      voters      result      result"
-            /         1fr         1fr        6rem;
+            / 1fr 1fr 6rem;
     }
 
-    &:not(.grid-header) [data-col=responsible] {
+    &:not(.grid-header) [data-col="responsible"] {
         font-style: italic;
     }
 
-    [data-col=voters] {
+    [data-col="voters"] {
         max-width: 10rem;
     }
 
-    [data-col=result] {
+    [data-col="result"] {
         width: 100%;
         max-width: 11rem;
         justify-self: end;
@@ -133,7 +132,7 @@
         font-size: 0.9rem;
         row-gap: 0.25rem;
 
-        [data-col=name] {
+        [data-col="name"] {
             font-style: italic;
             color: $dark-gray;
         }
@@ -146,7 +145,7 @@
     gap: 0;
     grid:
         "answer edit review flag"
-        / auto  min-content min-content min-content;
+        / auto min-content min-content min-content;
 
     min-height: 0;
     padding: 0.5rem;
@@ -167,7 +166,7 @@
 }
 
 @each $col in name, semester, responsible, voters, result, answer, edit, review, flag {
-    [data-col=#{$col}] {
+    [data-col="#{$col}"] {
         grid-area: $col;
     }
 }
@@ -205,7 +204,8 @@ table th.col-order {
         padding-right: 0;
     }
 
-    &::before, &::after {
+    &::before,
+    &::after {
         bottom: 0.3rem;
         left: 0.3rem;
     }

@@ -1,31 +1,31 @@
-$evap-green:        #88bf4a;
-$evap-lime:         #bbd154;
-$evap-yellow:       #efe258;
-$evap-orange:       #f29e58;
-$evap-red:          #eb595a;
+$evap-green: #88bf4a;
+$evap-lime: #bbd154;
+$evap-yellow: #efe258;
+$evap-orange: #f29e58;
+$evap-red: #eb595a;
 
-$evap-dark-green:   shade-color($evap-green, 20%);
-$evap-dark-lime:    shade-color($evap-lime, 20%);
-$evap-dark-yellow:  shade-color($evap-yellow, 20%);
-$evap-dark-orange:  shade-color($evap-orange, 20%);
-$evap-dark-red:     shade-color($evap-red, 20%);
+$evap-dark-green: shade-color($evap-green, 20%);
+$evap-dark-lime: shade-color($evap-lime, 20%);
+$evap-dark-yellow: shade-color($evap-yellow, 20%);
+$evap-dark-orange: shade-color($evap-orange, 20%);
+$evap-dark-red: shade-color($evap-red, 20%);
 
-$evap-light-green:  tint-color($evap-green, 60%);
-$evap-light-lime:   tint-color($evap-lime, 60%);
+$evap-light-green: tint-color($evap-green, 60%);
+$evap-light-lime: tint-color($evap-lime, 60%);
 $evap-light-yellow: tint-color($evap-yellow, 60%);
 $evap-light-orange: tint-color($evap-orange, 60%);
-$evap-light-red:    tint-color($evap-red, 60%);
+$evap-light-red: tint-color($evap-red, 60%);
 
-$evap-dark-blue:    #31708f;
-$evap-light-blue:   #d9edf7;
+$evap-dark-blue: #31708f;
+$evap-light-blue: #d9edf7;
 
-$white:             #ffffff;
-$lighter-gray:      #f8f9fa;
-$light-gray:        #dee2e6;
-$medium-gray:       #adb5bd;
-$dark-gray:         #868e96;
-$darker-gray:       #495057;
-$black:             #000000;
+$white: #ffffff;
+$lighter-gray: #f8f9fa;
+$light-gray: #dee2e6;
+$medium-gray: #adb5bd;
+$dark-gray: #868e96;
+$darker-gray: #495057;
+$black: #000000;
 
 $primary: $evap-dark-blue;
 $secondary: $dark-gray;
@@ -42,7 +42,7 @@ $vote-colors: (
     "yellow": $evap-yellow,
     "orange": $evap-orange,
     "red": $evap-red,
-    "gray": $medium-gray
+    "gray": $medium-gray,
 );
 
 $code-color: $darker-gray;

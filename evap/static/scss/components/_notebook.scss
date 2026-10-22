@@ -28,7 +28,7 @@
     }
 
     .notebook-animation {
-        transition: width .0s !important; // disable predefined bootstrap animation
+        transition: width 0s !important; // disable predefined bootstrap animation
     }
 
     .right-to-element {
@@ -52,7 +52,9 @@
         }
 
         .notebook-card {
-            height: calc((100vh - #{$navbar-brand-height}) - (#{$footer-height} + ((#{$spacer} * 1.5) * 5))); // subtract 3 spacer with padding
+            height: calc(
+                (100vh - #{$navbar-brand-height}) - (#{$footer-height} + ((#{$spacer} * 1.5) * 5))
+            ); // subtract 3 spacer with padding
         }
     }
 
