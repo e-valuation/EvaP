@@ -112,7 +112,7 @@ datetime = "datetime"
 
 [tool.djangofmt]
 extend-exclude = ["evap/static/bootstrap"]
-html-void-self-closing = "unchanged"
+html-void-self-closing = "always"
 custom-blocks = ["breadcrumb_item", "breadcrumb_item_url"]
 
 ##############################################

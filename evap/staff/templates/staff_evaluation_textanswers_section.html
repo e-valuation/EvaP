@@ -53,7 +53,7 @@
                                             id="{{ answer.id }}-radio-publish"
                                             autocomplete="off"
                                             {% if answer.will_be_public %}checked{% endif %}
-                                        >
+                                        />
                                         <label
                                             class="btn btn-outline-primary"
                                             for="{{ answer.id }}-radio-publish"
@@ -68,7 +68,7 @@
                                             autocomplete="off"
                                             {% if answer.will_be_private %}checked{% endif %}
                                             {% if not contributor %}disabled{% endif %}
-                                        >
+                                        />
                                         <label
                                             class="btn btn-outline-primary"
                                             for="{{ answer.id }}-radio-private"
@@ -82,7 +82,7 @@
                                             id="{{ answer.id }}-radio-undecided"
                                             autocomplete="off"
                                             {% if not answer.is_reviewed %}checked{% endif %}
-                                        >
+                                        />
                                         <label
                                             class="btn btn-outline-primary"
                                             for="{{ answer.id }}-radio-undecided"
@@ -96,7 +96,7 @@
                                             id="{{ answer.id }}-radio-delete"
                                             autocomplete="off"
                                             {% if answer.will_be_deleted %}checked{% endif %}
-                                        >
+                                        />
                                         <label
                                             class="btn btn-outline-primary"
                                             for="{{ answer.id }}-radio-delete"
