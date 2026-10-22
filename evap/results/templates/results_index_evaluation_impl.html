@@ -41,7 +41,7 @@
         </span>
     </div>
     {% if not is_subentry %}
-        <div data-col="semester" data-order="{{ evaluation.course.semester.id }}" class="text-center semester-short-name">
+        <div data-col="semester" data-order="{{ evaluation.course.semester.id }}" class="text-center semester-short-name" data-filter-category="semester" data-filter-value="{{ evaluation.course.semester.id }}">
             {{ evaluation.course.semester.short_name }}
         </div>
     {% endif %}
