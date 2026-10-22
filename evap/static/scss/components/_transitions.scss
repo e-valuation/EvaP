@@ -26,7 +26,11 @@
     }
 }
 
-
+@include color-mode(dark) {
+    .collapse-toggle {
+        color: $light-gray;
+    }
+}
 .collapse-toggle-light {
     font-weight: normal;
 

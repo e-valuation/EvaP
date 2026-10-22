@@ -9,8 +9,9 @@
 }
 .badge-btn-zero {
     margin-left: 0.3rem;
-    color: $medium-gray;
-    background-color: $white;
+    color: $darker-gray;
+    background-color: $light-gray;
+    opacity: 0.5;
 }
 .bg-info, .bg-warning, .bg-light {
     color: $darker-gray;
@@ -36,27 +37,27 @@
 
 .badge-participants {
     @extend %badge;
-    background-color: $evap-dark-blue;
+    background-color: $primary;
     color: white;
 
     .fa-user {
         font-size: 80%;
     }
 
-    @include bar-shadow($evap-dark-blue);
+    @include bar-shadow($primary);
 }
 
 .badge-percentage {
     @extend %badge;
-    background-color: $evap-light-blue;
-    color: black;
+    background-color: $primary-accent;
+    color: $black;
     display: inline-block;
     width: 100%;
 }
 
 @for $i from 0 through 10 {
     .badge-participants-#{$i} {
-        background-color: mix($evap-dark-blue, $evap-light-blue, $i * 10%);
+        background-color: mix($primary, $primary-accent, $i * 10%);
     }
 }
 
@@ -66,10 +67,28 @@
     text-shadow: none;
 }
 
+@include color-mode(dark) {
+    .badge-disabled {
+        background-color: $darker-gray;
+        color: $medium-gray;
+        text-shadow: none;
+        border-color: $medium-gray;
+    }
+    .badge-percentage {
+        background-color: shade-color($primary, 50%);
+        color: $light-gray;
+    }
+    @for $i from 0 through 10 {
+    .badge-participants-#{$i} {
+        background-color: mix($primary, shade-color($primary, 50%), $i * 10%);
+    }
+}
+}
+
 .bg-primary-outline {
     background-color: $white;
-    color: $evap-dark-blue;
-    border: 1px solid $evap-dark-blue;
+    color: $primary;
+    border: 1px solid $primary;
     padding: 0.27em 0.35em;
 }
 
@@ -78,4 +97,50 @@
     color: $secondary;
     border: 1px solid $secondary;
     padding: 0.27em 0.35em;
+}
+@include color-mode(dark) {
+    .badge-btn {
+        color: $light-gray;
+        background-color: $darker-gray;
+    }
+    .badge-btn-zero {
+        color: $light-gray;
+        background-color: $darker-gray;
+        opacity: 0.5;
+    }
+    .bg-info, .bg-light, .bg-primary, .bg-success, .bg-warning, .bg-danger {
+        color: $light-gray;
+    }
+
+    .bg-primary {
+        background-color: shade-color($primary, 40%) !important;
+    }
+    .bg-primary-outline {
+        background-color: $primary-accent;
+    }
+    .bg-secondary {
+        background-color: shade-color($secondary, 50%) !important;
+    }
+    .bg-secondary-outline {
+        background-color: $secondary-accent;
+    }
+    .bg-info {
+        background-color: shade-color($info-accent, 10%) !important;
+    }
+    .bg-danger {
+        background-color: shade-color($danger, 50%) !important;
+    }
+    .bg-success {
+        background-color: shade-color($success, 50%) !important;
+    }
+    .bg-warning {
+        background-color: shade-color($warning, 50%) !important;
+    }
+    .bg-light {
+        background-color: $dark !important;
+    }
+    .bg-dark {
+        background-color: $light !important;
+        color: $black;
+    }
 }
