@@ -21,6 +21,7 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import translation
 from django.utils.datastructures import MultiValueDict
+from django.utils.functional import Promise
 from django.utils.translation import get_language
 from django.views.generic import FormView
 
@@ -222,10 +223,11 @@ def capitalize_first(string: StrOrPromise) -> str:
     return string[0].upper() + string[1:]
 
 
-def in_language(text: StrOrPromise, language: str) -> str:
-    """Elegant way to force the retrieval of a certain language."""
+def in_language(lazy_text: Promise, language: str) -> str:
+    """Evaluate a lazy translation (e.g. from gettext_lazy) in the given language."""
+    assert isinstance(lazy_text, Promise)
     with translation.override(language):
-        return str(text)
+        return str(lazy_text)
 
 
 class FormsetView(FormView):
