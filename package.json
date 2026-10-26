@@ -30,5 +30,10 @@
         },
         "resolver": "jest-ts-webcompat-resolver"
     },
+    "prettier": {
+        "tabWidth": 4,
+        "arrowParens": "avoid",
+        "printWidth": 120
+    },
     "type": "module"
 }

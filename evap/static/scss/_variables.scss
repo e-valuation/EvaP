@@ -12,7 +12,7 @@ $grid-breakpoints: (
     md: 768px,
     lg: 1008px,
     xl: 1200px,
-    xxl: 1400px
+    xxl: 1400px,
 );
 
 $print-breakpoint: lg;
@@ -24,14 +24,14 @@ $container-max-widths: (
     md: 720px,
     lg: 1000px,
     xl: 1140px,
-    xxl: 1320px
+    xxl: 1320px,
 );
 
-$border-radius:               .25rem !default;
-$border-radius-sm:            .2rem !default;
-$border-radius-lg:            .3rem !default;
-$border-radius-xl:            .75rem !default;
-$border-radius-2xl:           1.5rem !default;
+$border-radius: 0.25rem !default;
+$border-radius-sm: 0.2rem !default;
+$border-radius-lg: 0.3rem !default;
+$border-radius-xl: 0.75rem !default;
+$border-radius-2xl: 1.5rem !default;
 
 $border-color: $medium-gray;
 
@@ -85,7 +85,7 @@ $footer-height: 46px;
 
 $breadcrumb-divider-color: $medium-gray;
 
-$input-btn-focus-width: .25rem;
-$input-btn-focus-color-opacity: .25;
+$input-btn-focus-width: 0.25rem;
+$input-btn-focus-color-opacity: 0.25;
 
-$notebook-break: calc(3/2);
+$notebook-break: calc(3 / 2);
