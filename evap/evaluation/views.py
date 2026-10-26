@@ -26,7 +26,7 @@ from evap.evaluation.tools import (
     password_login_is_active,
 )
 from evap.middleware import no_login_required
-from evap.student.forms import HeadingField, RatingAnswerField, TextAnswerField
+from evap.student.forms import question_fields
 from evap.tools import assert_not_none
 
 logger = logging.getLogger(__name__)
@@ -282,16 +282,9 @@ def questiontypes_demo(request: HttpRequest) -> HttpResponse:
                 type=question_type,
                 text_en=in_language(type_name, "en"),
                 text_de=in_language(type_name, "de"),
-                allows_additional_textanswers=False,
             )
-            field: TextAnswerField | RatingAnswerField | HeadingField
-            if question.is_text_question:
-                field = TextAnswerField.from_question(question)
-            elif question.is_rating_question:
-                field = RatingAnswerField.from_question(question)
-            else:
-                assert question.is_heading_question
-                field = HeadingField.from_question(question)
-            form.fields[f"question_{question_type}"] = field
+            question.allows_additional_textanswers = question.is_rating_question
+            identifier = f"question_{question_type}"
+            form.fields.update(question_fields(question, identifier, f"{identifier}_ta"))
 
     return render(request, "questiontypes_demo.html", {"questionnaire_group": [form]})
