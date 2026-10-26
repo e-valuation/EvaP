@@ -1,4 +1,5 @@
 import logging
+from dataclasses import dataclass
 
 from django.conf import settings
 from django.contrib import messages
@@ -6,8 +7,8 @@ from django.db import models
 from django.db.models import Sum
 from django.dispatch import receiver
 from django.http import HttpRequest
+from django.utils.translation import get_language, ngettext
 from django.utils.translation import gettext as _
-from django.utils.translation import ngettext
 
 from evap.evaluation.models import Evaluation, Semester, UserProfile
 from evap.evaluation.tools import inside_transaction
@@ -54,7 +55,9 @@ def grant_reward_points_if_eligible(user: UserProfile, semester: Semester) -> tu
 
     # How many points have been granted to this user vs how many should they have (this semester)
     granted_points = (
-        RewardPointGranting.objects.filter(user_profile=user, semester=semester).aggregate(Sum("value"))["value__sum"]
+        RewardPointGranting.objects.filter(user_profile=user, semester=semester, contributes_to_status=True).aggregate(
+            Sum("value")
+        )["value__sum"]
         or 0
     )
     progress = float(required_evaluations.filter(voters=user).count()) / float(required_evaluations.count())
@@ -83,12 +86,91 @@ def grant_eligible_reward_points_for_semester(request: HttpRequest, semester: Se
         messages.success(request, message)
 
 
+@dataclass
+class StatusPointsProgress:
+    @dataclass
+    class Status:
+        points: int  # points required for this status
+        name: str
+        reward: str
+        color1: str  # first color for the gradient
+        color2: str  # second color for the gradient
+
+    max_status_points: int
+    statuses: list[Status]
+    current_status: Status | None = None
+    earned_points: int = 0
+
+    @staticmethod
+    def user_status_points_progress(user: UserProfile) -> "StatusPointsProgress | None":
+        if not settings.STATUS_POINTS:
+            return None
+
+        language = get_language()
+
+        statuses = [
+            StatusPointsProgress.Status(
+                points=points, name=name[language], reward=reward[language], color1=color1, color2=color2
+            )
+            for points, name, reward, color1, color2 in settings.STATUS_POINTS
+        ]
+        max_status_points = max(status.points for status in statuses)
+
+        query = (
+            RewardPointGranting.objects.filter(user_profile=user, contributes_to_status=True)
+            .exclude(semester__id__in=settings.STATUS_POINTS_EXCLUDED_SEMESTERS)
+            .aggregate(Sum("value"))
+        )
+        earned_points = query["value__sum"] or 0
+        current_status = max(
+            (status for status in statuses if status.points <= earned_points),
+            key=lambda status: status.points,
+        )
+
+        return StatusPointsProgress(
+            max_status_points=max_status_points,
+            statuses=statuses,
+            current_status=current_status,
+            earned_points=earned_points,
+        )
+
+
+@dataclass
+class UserSemesterRewardsStats:
+    number_of_required_evaluations: int
+    number_of_required_evaluations_voted_for: int
+    number_of_optional_evaluations: int
+    number_of_optional_evaluations_voted_for: int
+    earned_reward_points: int
+
+    @staticmethod
+    def semester_rewards_stats(user: UserProfile, semester: Semester) -> "UserSemesterRewardsStats":
+        query = RewardPointGranting.objects.filter(semester=semester, user_profile=user).aggregate(Sum("value"))
+        return UserSemesterRewardsStats(
+            semester.evaluations.filter(participants=user, is_rewarded=True).count(),
+            semester.evaluations.filter(voters=user, is_rewarded=True).count(),
+            semester.evaluations.filter(participants=user, is_rewarded=False).count(),
+            semester.evaluations.filter(voters=user, is_rewarded=False).count(),
+            query["value__sum"] or 0,
+        )
+
+
+def user_rewards_stats(user: UserProfile) -> dict[Semester, UserSemesterRewardsStats]:
+    return {
+        semester: UserSemesterRewardsStats.semester_rewards_stats(user, semester)
+        for semester in Semester.objects.all()
+        if semester.evaluations.filter(participants=user, is_rewarded=True).count() > 0
+    }
+
+
 # Signal handlers
 
 
 @receiver(Evaluation.evaluation_evaluated)
 def grant_reward_points_after_evaluate(request: HttpRequest, semester: Semester, **_kwargs) -> None:
     assert isinstance(request.user, UserProfile)
+    user_status_points_progress = StatusPointsProgress.user_status_points_progress(request.user)
+    old_status = user_status_points_progress.current_status if user_status_points_progress else None
 
     granting, completed_evaluation = grant_reward_points_if_eligible(request.user, semester)
     if granting:
@@ -109,6 +191,14 @@ def grant_reward_points_after_evaluate(request: HttpRequest, semester: Semester,
             message += " " + _("We're looking forward to receiving feedback for your other evaluations as well.")
 
         messages.success(request, message)
+
+        user_status_points_progress = StatusPointsProgress.user_status_points_progress(request.user)
+        new_status = user_status_points_progress.current_status if user_status_points_progress else None
+
+        if old_status and new_status and old_status.name != new_status.name:
+            messages.success(
+                request, _("You reached the status {status}. Congratulations!").format(status=new_status.name)
+            )
 
 
 @receiver(models.signals.m2m_changed, sender=Evaluation.participants.through)

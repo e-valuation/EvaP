@@ -5,7 +5,7 @@ from model_bakery import baker
 from evap.evaluation.models import NO_ANSWER, Course, Evaluation, Question, Questionnaire, QuestionType, UserProfile
 from evap.evaluation.tests.tools import TestCase, WebTest
 from evap.rewards.models import RewardPointGranting, SemesterActivation
-from evap.rewards.tools import reward_points_of_user
+from evap.rewards.tools import StatusPointsProgress, reward_points_of_user
 
 
 @override_settings(
@@ -75,6 +75,38 @@ class TestGrantRewardPoints(WebTest):
                 user_profile=self.student, semester=self.evaluation.course.semester
             ).count(),
         )
+
+    @override_settings(
+        STATUS_POINTS=[
+            (0, {"de": "Blau", "en": "Blue"}, {"de": "", "en": ""}, "#000", "#000"),
+            (2, {"de": "Grün", "en": "Green"}, {"de": "", "en": ""}, "#000", "#000"),
+        ]
+    )
+    def test_status_change(self):
+        self.assertEqual(0, reward_points_of_user(self.student))
+        self.assertEqual("Blue", StatusPointsProgress.user_status_points_progress(self.student).current_status.name)
+        SemesterActivation.objects.create(semester=self.evaluation.course.semester, is_active=True)
+        self.form.submit()
+        self.assertEqual(3, reward_points_of_user(self.student))
+        self.assertEqual("Green", StatusPointsProgress.user_status_points_progress(self.student).current_status.name)
+        page = self.app.get(reverse("student:index"), user=self.student)
+        self.assertIn("You reached the status", page)
+
+    @override_settings(
+        STATUS_POINTS=[
+            (0, {"de": "Blau", "en": "Blue"}, {"de": "", "en": ""}, "#000", "#000"),
+            (5, {"de": "Grün", "en": "Green"}, {"de": "", "en": ""}, "#000", "#000"),
+        ]
+    )
+    def test_no_status_change(self):
+        self.assertEqual(0, reward_points_of_user(self.student))
+        self.assertEqual("Blue", StatusPointsProgress.user_status_points_progress(self.student).current_status.name)
+        SemesterActivation.objects.create(semester=self.evaluation.course.semester, is_active=True)
+        self.form.submit()
+        self.assertEqual(3, reward_points_of_user(self.student))
+        self.assertEqual("Blue", StatusPointsProgress.user_status_points_progress(self.student).current_status.name)
+        page = self.app.get(reverse("student:index"), user=self.student)
+        self.assertNotIn("You reached the status", page)
 
 
 @override_settings(
