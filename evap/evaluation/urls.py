@@ -1,7 +1,6 @@
 from django.urls import path
 
 from evap.evaluation import views
-from evap.middleware import no_login_required
 
 app_name = "evaluation"
 
@@ -14,5 +13,5 @@ urlpatterns = [
     path("profile", views.profile_edit, name="profile_edit"),
     path("set_notes", views.set_notes, name="set_notes"),
     path("set_startpage", views.set_startpage, name="set_startpage"),
-    path("demo/questiontypes", no_login_required(views.questiontypes_demo), name="questiontypes_demo"),
+    path("demo/questiontypes", views.questiontypes_demo, name="questiontypes_demo"),
 ]
