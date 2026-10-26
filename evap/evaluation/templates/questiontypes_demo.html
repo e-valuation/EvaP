@@ -4,6 +4,8 @@
 
 {% block content %}
     <div class="card">
-        {% include 'student_vote_questionnaire_group.html' with questionnaire_group=questionnaire_group preview=False %}
+        <div class="card-body">
+            {% include 'student_vote_questionnaire_group.html' with questionnaire_group=questionnaire_group preview=False %}
+        </div>
     </div>
 {% endblock %}

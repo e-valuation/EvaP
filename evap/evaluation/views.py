@@ -18,7 +18,15 @@ from django.views.decorators.http import require_POST
 from django.views.i18n import set_language
 
 from evap.evaluation.forms import LoginEmailForm, NewKeyForm, NotebookForm, ProfileForm
-from evap.evaluation.models import EmailTemplate, FaqSection, Question, Questionnaire, Semester, UserProfile
+from evap.evaluation.models import (
+    EmailTemplate,
+    FaqSection,
+    Question,
+    Questionnaire,
+    QuestionType,
+    Semester,
+    UserProfile,
+)
 from evap.evaluation.tools import (
     HttpResponseNoContent,
     in_language,
@@ -276,15 +284,29 @@ def questiontypes_demo(request: HttpRequest) -> HttpResponse:
         )
     )
 
-    for _group_name, type_choices in Question.QUESTION_TYPES:
-        for question_type, type_name in type_choices:
-            question = Question(
+    for group_index, (group_name, type_choices) in enumerate(Question.QUESTION_TYPES):
+        questions = [
+            Question(
                 type=question_type,
                 text_en=in_language(type_name, "en"),
                 text_de=in_language(type_name, "de"),
             )
+            for question_type, type_name in type_choices
+            if question_type != QuestionType.HEADING
+        ]
+        if not questions:
+            continue
+
+        heading = Question(
+            type=QuestionType.HEADING,
+            text_en=in_language(group_name, "en"),
+            text_de=in_language(group_name, "de"),
+        )
+        form.fields.update(question_fields(heading, f"heading_{group_index}", f"heading_{group_index}_ta"))
+
+        for question in questions:
             question.allows_additional_textanswers = question.is_rating_question
-            identifier = f"question_{question_type}"
+            identifier = f"question_{question.type}"
             form.fields.update(question_fields(question, identifier, f"{identifier}_ta"))
 
     return render(request, "questiontypes_demo.html", {"questionnaire_group": [form]})
