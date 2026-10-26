@@ -1,5 +1,14 @@
 .card-header {
     font-weight: bold;
+
+    // Allow arbitrary many child elements. The first one should grow so that it is left-aligned
+    // and all others are right aligned
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    > :nth-child(1) {
+        flex-grow: 1;
+    }
 }
 
 .card-outline-primary {
