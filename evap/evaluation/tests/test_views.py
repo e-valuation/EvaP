@@ -76,7 +76,6 @@ class TestIndexView(WebTest):
 
 class TestQuestionTypes(WebTestWith200Check):
     url = reverse("evaluation:questiontypes_demo")
-    test_users = [""]
 
 
 class TestStartpage(WebTest):
