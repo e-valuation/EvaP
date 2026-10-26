@@ -2027,6 +2027,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     @property
     def can_be_deleted_by_manager(self) -> bool:
+        if self.logentry_set.exists():
+            return False
         if (
             self.is_responsible
             or self.is_contributor
