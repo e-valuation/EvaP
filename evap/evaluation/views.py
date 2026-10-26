@@ -24,6 +24,7 @@ from evap.evaluation.models import (
     Question,
     QuestionAssignment,
     Questionnaire,
+    QuestionType,
     Semester,
     UserProfile,
 )
@@ -284,15 +285,30 @@ def questiontypes_demo(request: HttpRequest) -> HttpResponse:
         )
     )
 
-    for _group_name, type_choices in Question.QUESTION_TYPES:
-        for question_type, type_name in type_choices:
-            question = Question(
+    for group_index, (group_name, type_choices) in enumerate(Question.QUESTION_TYPES):
+        questions = [
+            Question(
                 type=question_type,
                 text_en=in_language(type_name, "en"),
                 text_de=in_language(type_name, "de"),
             )
+            for question_type, type_name in type_choices
+            if question_type != QuestionType.HEADING
+        ]
+        if not questions:
+            continue
+
+        heading = Question(
+            type=QuestionType.HEADING,
+            text_en=in_language(group_name, "en"),
+            text_de=in_language(group_name, "de"),
+        )
+        heading_assignment = QuestionAssignment(question=heading, counts_for_grade=False)
+        form.fields.update(question_fields(heading_assignment, f"heading_{group_index}", f"heading_{group_index}_ta"))
+
+        for question in questions:
             question.allows_additional_textanswers = question.is_rating_question
-            identifier = f"question_{question_type}"
+            identifier = f"question_{question.type}"
             assignment = QuestionAssignment(question=question, counts_for_grade=question.is_rating_question)
             form.fields.update(question_fields(assignment, identifier, f"{identifier}_ta"))
 
