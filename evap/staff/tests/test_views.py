@@ -40,6 +40,7 @@ from evap.evaluation.models import (
     UserProfile,
     VoteTimestamp,
 )
+from evap.evaluation.models_logging import LogEntry
 from evap.evaluation.tests.tools import (
     FuzzyInt,
     TestCase,
@@ -518,6 +519,9 @@ class TestUserBulkUpdateView(WebTestStaffMode):
             contributions=[baker.make(Contribution, evaluation=evaluation)],
         )
         testuser1.cc_users.set([contributor2])
+        # users referenced by log entries must not be deleted, e.g. former managers who edited evaluations
+        former_manager = baker.make(UserProfile, email="former.manager@institution.example.com")
+        baker.make(LogEntry, user=former_manager)
 
         expected_users = set(UserProfile.objects.exclude(email="testuser2@institution.example.com"))
 
@@ -527,16 +531,24 @@ class TestUserBulkUpdateView(WebTestStaffMode):
         response = form.submit(name="operation", value="test")
 
         self.assertIn(
-            "1 will be updated, 1 will be deleted and 2 will be marked inactive. 1 new users will be created.", response
+            "1 will be updated, 1 will be deleted and 3 will be marked inactive. 1 new users will be created.", response
         )
         self.assertIn("1 participation of responsible would be removed due to inactivity.", response)
 
         self.assertIn("testupdate@institution.example.com &gt; testupdate@internal.example.com", response)
         self.assertIn("Users to be ignored are:<br />testuser3.tobeignored@institution.example.com", response)
         self.assertIn(mock_remove.return_value[0], response)
-        self.assertEqual(mock_remove.call_count, 3)
+        self.assertEqual(mock_remove.call_count, 4)
         calls = [[call[0][0].email, call[0][2]] for call in mock_remove.call_args_list]
-        self.assertEqual(calls, [[testuser2.email, True], [contributor2.email, True], [responsible.email, True]])
+        self.assertEqual(
+            calls,
+            [
+                [testuser2.email, True],
+                [contributor2.email, True],
+                [former_manager.email, True],
+                [responsible.email, True],
+            ],
+        )
         mock_remove.reset_mock()
 
         form = response.forms["user-bulk-update-form"]
@@ -563,14 +575,25 @@ class TestUserBulkUpdateView(WebTestStaffMode):
         self.assertTrue(UserProfile.objects.get(email="contributor1@institution.example.com").is_active)
         self.assertFalse(UserProfile.objects.get(email="contributor2@institution.example.com").is_active)
         self.assertFalse(UserProfile.objects.get(email="responsible@institution.example.com").is_active)
-        self.assertQuerySetEqual(UserProfile.objects.exclude(is_active=True), [contributor2, responsible])
+        self.assertFalse(UserProfile.objects.get(email="former.manager@institution.example.com").is_active)
+        self.assertQuerySetEqual(
+            UserProfile.objects.exclude(is_active=True), [contributor2, former_manager, responsible]
+        )
 
         self.assertQuerySetEqual(UserProfile.objects.all(), expected_users, ordered=False)
 
         self.assertIn(mock_remove.return_value[0], response)
-        self.assertEqual(mock_remove.call_count, 3)
+        self.assertEqual(mock_remove.call_count, 4)
         calls = [[call[0][0].email, call[0][2]] for call in mock_remove.call_args_list]
-        self.assertEqual(calls, [[testuser2.email, False], [contributor2.email, False], [responsible.email, False]])
+        self.assertEqual(
+            calls,
+            [
+                [testuser2.email, False],
+                [contributor2.email, False],
+                [former_manager.email, False],
+                [responsible.email, False],
+            ],
+        )
 
     @override_settings(DEBUG=False)
     def test_wrong_files_dont_crash(self) -> None:
