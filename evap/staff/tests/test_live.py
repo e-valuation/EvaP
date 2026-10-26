@@ -289,11 +289,25 @@ class QuestionnaireEditLiveTest(LiveServerTest):
         self.assertEqual(Question.objects.get(text_en="Q6").type, QuestionType.POSITIVE_YES_NO)
 
     def test_question_ordering(self):
+        num_questions = len(self.assignments)
+
         with self.enter_staff_mode():
             self.selenium.get(self.url)
             moving_arrows = self.selenium.find_elements(By.CLASS_NAME, "movable-icon")
-            self.assertEqual(len(moving_arrows), 7)  # one extra for "add another" row, one for hidden template row
-            ActionChains(self.selenium).drag_and_drop(moving_arrows[3], moving_arrows[1]).perform()
+            # one extra for "add another" row, one for hidden template row
+            self.assertEqual(len(moving_arrows), num_questions + 2)
+            source = self.wait.until(element_to_be_clickable(moving_arrows[3]))
+            target = self.wait.until(element_to_be_clickable(moving_arrows[1]))
+            ActionChains(self.selenium).drag_and_drop(source, target).perform()
+            self.wait.until(
+                lambda driver: (
+                    [
+                        el.get_attribute("value")
+                        for el in driver.find_elements(By.CSS_SELECTOR, "#question_table tr.sortable [id$=-text_en]")
+                    ][:num_questions]
+                    == ["Q0", "Q3", "Q1", "Q2", "Q4"]
+                )
+            )
             self.selenium.find_element(By.ID, "questionnaire-save-btn").click()
 
         expected_order = [0, 2, 3, 1, 4]  # yields order Q0, Q3, Q1, Q2, Q4
