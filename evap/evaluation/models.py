@@ -1866,6 +1866,9 @@ class UserProfileManager(BaseUserManager["UserProfile"]):
         user.groups.add(Group.objects.get(name="Manager"))
         return user
 
+    def get_delegate_options(self):
+        return self.exclude(is_active=False).exclude(is_proxy_user=True)
+
 
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     # null=True because certain external users don't have an address
