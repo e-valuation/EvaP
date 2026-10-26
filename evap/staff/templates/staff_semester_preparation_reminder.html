@@ -64,7 +64,7 @@
         {% for responsible, evaluations, delegates in responsible_list %}
             <div class="card{% if not forloop.last %} mb-3{% endif %}">
                 <div class="card-header">
-                    <span class="ps-1">
+                    <span>
                         <a href="{% url 'staff:user_edit' responsible.id %}">{{ responsible.full_name }}</a>,
                         {% translate 'Delegates' %}:
                         {% for delegate in delegates %}

@@ -1,8 +1,8 @@
 .card-header {
     font-weight: bold;
 
-    // prepare for two elements, left- and right aligned, with flex wrap
-    // should have no effect with just a single child. We don't expect more than two children
+    // Allow arbitrary many child elements. The first one should grow so that it is left-aligned
+    // and all others are right aligned
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
