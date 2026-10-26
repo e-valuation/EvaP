@@ -24,6 +24,7 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
+from evap.evaluation.models_logging import LogEntry
 from evap.evaluation.tests.tools import (
     TestCase,
     WebTest,
@@ -672,6 +673,11 @@ class TestUserProfile(TestCase):
 
         proxy_user = baker.make(UserProfile, is_proxy_user=True)
         self.assertFalse(proxy_user.can_be_deleted_by_manager)
+
+        user_with_log_entry = baker.make(UserProfile)
+        self.assertTrue(user_with_log_entry.can_be_deleted_by_manager)
+        baker.make(LogEntry, user=user_with_log_entry)
+        self.assertFalse(user_with_log_entry.can_be_deleted_by_manager)
 
     def test_inactive_users_hidden(self):
         active_user = baker.make(UserProfile)
