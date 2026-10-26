@@ -160,7 +160,7 @@ abstract class DataGrid {
                 row.filterValues
                     .get(name)
                     ?.map(rawValue => parseFloat(rawValue))
-                    .some(rowValue => rowValue >= bound.low && rowValue <= bound.high),
+                    .some(rowValue => rowValue >= bound.low && (rowValue <= bound.high || bound.isOpenEnd)),
             );
             row.isDisplayed = isDisplayedBySearch && isDisplayedByFilters && isDisplayedByRangeFilters;
         }
@@ -508,7 +508,7 @@ export class ResultGrid extends DataGrid {
                 .map(element => element.dataset.filterValue)
                 .filter(v => v !== undefined);
             filterValues.set(name, values);
-            slider.includeValues(values.map(parseFloat));
+            slider.assertNotBelowMin(values.map(parseFloat));
         }
         return filterValues;
     }

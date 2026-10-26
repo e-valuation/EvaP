@@ -1,7 +1,9 @@
 from typing import Any
 
+from django.test import override_settings
 from model_bakery import baker
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.expected_conditions import (
     invisibility_of_element_located,
     visibility_of_element_located,
@@ -171,13 +173,49 @@ class ResultsIndexLiveTests(LiveServerTest):
             By.CSS_SELECTOR, "input[name=courseType][data-filter='Lecture']"
         )
         semester_checkbox = self.selenium.find_element(By.CSS_SELECTOR, "input[name=semester][data-filter='ST 14']")
+        low_slider = self.selenium.find_element(By.CSS_SELECTOR, "#participant-filter input[name=low]")
+        high_slider = self.selenium.find_element(By.CSS_SELECTOR, "#participant-filter input[name=high]")
         search_input.send_keys("Some search text")
         program_checkbox.click()
         course_type_checkbox.click()
         semester_checkbox.click()
+        low_slider.send_keys(Keys.ARROW_RIGHT)
+        high_slider.send_keys(Keys.ARROW_LEFT)
         reset_button.click()
 
         self.assertEqual(search_input.get_attribute("value"), "")
         self.assertFalse(program_checkbox.is_selected())
         self.assertFalse(course_type_checkbox.is_selected())
         self.assertFalse(semester_checkbox.is_selected())
+        self.assertEqual(low_slider.get_attribute("value"), low_slider.get_attribute("min"))
+        self.assertEqual(high_slider.get_attribute("value"), high_slider.get_attribute("max"))
+
+    @override_settings(RESULTS_PARTICIPANT_FILTER_MAX_VALUE=50)
+    def test_results_participants_range_slider(self):
+        self.selenium.get(self.url)
+        self.wait.until(visibility_of_element_located((By.CLASS_NAME, "reset-button"))).click()
+
+        course_a_span = self.selenium.find_element(By.XPATH, "//span[contains(text(),'Course A')]")
+        range_label = self.selenium.find_element(By.CSS_SELECTOR, "#participant-filter .range-values")
+
+        self.selenium.find_element(By.CSS_SELECTOR, "#participant-filter input[name=high]").send_keys(Keys.ARROW_LEFT)
+        self.wait.until(invisibility_of_element_located(course_a_span))
+
+        self.assertEqual(range_label.text, "0 – 49")
+        self.assertRowsVisible(("Course C", "ST 14"), ("Course E", "ST 13"))
+
+    @override_settings(RESULTS_PARTICIPANT_FILTER_MAX_VALUE=50)
+    def test_results_participants_range_slider_maximum(self):
+        self.selenium.get(self.url)
+        self.wait.until(visibility_of_element_located((By.CLASS_NAME, "reset-button"))).click()
+
+        course_c_span = self.selenium.find_element(By.XPATH, "//span[contains(text(),'Course C')]")
+        range_label = self.selenium.find_element(By.CSS_SELECTOR, "#participant-filter .range-values")
+
+        self.selenium.find_element(By.CSS_SELECTOR, "#participant-filter input[name=low]").send_keys(Keys.END)
+        self.wait.until(invisibility_of_element_located(course_c_span))
+
+        self.assertEqual(range_label.text, "50 – 50+")
+        self.assertRowsVisible(
+            ("Course A", "ST 14"), ("Course A", "WT 13/14"), ("Course A", "ST 13"), ("Course D", "ST 14")
+        )
