@@ -74,6 +74,10 @@ class TestIndexView(WebTest):
         self.assertEqual(len(mail.outbox[0].cc), 0)
 
 
+class TestQuestionTypes(WebTestWith200Check):
+    url = reverse("evaluation:questiontypes_demo")
+
+
 class TestStartpage(WebTest):
     def test_default_startpage(self):
         result = create_evaluation_with_responsible_and_editor()

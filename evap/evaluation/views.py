@@ -1,6 +1,7 @@
 import logging
 from datetime import date, timedelta
 
+from django import forms
 from django.conf import settings
 from django.contrib import auth, messages
 from django.core.exceptions import SuspiciousOperation
@@ -11,14 +12,29 @@ from django.urls import reverse
 from django.utils.encoding import iri_to_uri
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.http import require_POST
 from django.views.i18n import set_language
 
 from evap.evaluation.forms import LoginEmailForm, NewKeyForm, NotebookForm, ProfileForm
-from evap.evaluation.models import EmailTemplate, FaqSection, Semester, UserProfile
-from evap.evaluation.tools import HttpResponseNoContent, openid_login_is_active, password_login_is_active
+from evap.evaluation.models import (
+    EmailTemplate,
+    FaqSection,
+    Question,
+    Questionnaire,
+    QuestionType,
+    Semester,
+    UserProfile,
+)
+from evap.evaluation.tools import (
+    HttpResponseNoContent,
+    in_language,
+    openid_login_is_active,
+    password_login_is_active,
+)
 from evap.middleware import no_login_required
+from evap.student.forms import question_fields
 from evap.tools import assert_not_none
 
 logger = logging.getLogger(__name__)
@@ -251,3 +267,46 @@ def set_startpage(request: HttpRequest) -> HttpResponse:
     user.save()
 
     return redirect("evaluation:index")
+
+
+class DemoQuestionnaireForm(forms.Form):
+    def __init__(self, *args, questionnaire: Questionnaire, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.questionnaire = questionnaire
+
+
+def questiontypes_demo(request: HttpRequest) -> HttpResponse:
+    questionnaire_name = gettext_lazy("Question types")
+    form = DemoQuestionnaireForm(
+        questionnaire=Questionnaire(
+            name_en=in_language(questionnaire_name, "en"),
+            name_de=in_language(questionnaire_name, "de"),
+        )
+    )
+
+    for group_index, (group_name, type_choices) in enumerate(Question.QUESTION_TYPES):
+        questions = [
+            Question(
+                type=question_type,
+                text_en=in_language(type_name, "en"),
+                text_de=in_language(type_name, "de"),
+            )
+            for question_type, type_name in type_choices
+            if question_type != QuestionType.HEADING
+        ]
+        if not questions:
+            continue
+
+        heading = Question(
+            type=QuestionType.HEADING,
+            text_en=in_language(group_name, "en"),
+            text_de=in_language(group_name, "de"),
+        )
+        form.fields.update(question_fields(heading, f"heading_{group_index}", f"heading_{group_index}_ta"))
+
+        for question in questions:
+            question.allows_additional_textanswers = question.is_rating_question
+            identifier = f"question_{question.type}"
+            form.fields.update(question_fields(question, identifier, f"{identifier}_ta"))
+
+    return render(request, "questiontypes_demo.html", {"questionnaire_group": [form]})

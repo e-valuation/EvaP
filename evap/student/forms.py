@@ -50,6 +50,29 @@ class RatingAnswerField(forms.TypedChoiceField):
         )
 
 
+def question_fields(
+    question: Question, identifier: str, additional_textanswer_identifier: str
+) -> dict[str, forms.Field]:
+    """Creates the form fields for a question, including the field for an additional text answer if allowed.
+    The additional text answer field must directly follow the rating field, as the template relies on this order."""
+
+    field: TextAnswerField | RatingAnswerField | HeadingField
+    if question.is_text_question:
+        field = TextAnswerField.from_question(question)
+    elif question.is_rating_question:
+        field = RatingAnswerField.from_question(question)
+    else:
+        assert question.is_heading_question
+        field = HeadingField.from_question(question)
+
+    fields: dict[str, forms.Field] = {identifier: field}
+    if question.is_rating_question and question.allows_additional_textanswers:
+        fields[additional_textanswer_identifier] = TextAnswerField(
+            label=question.text, related_answer_field_id=identifier
+        )
+    return fields
+
+
 class QuestionnaireVotingForm(forms.Form):
     """Dynamic form class that adds required fields per question.
 
@@ -60,22 +83,11 @@ class QuestionnaireVotingForm(forms.Form):
         self.questionnaire = questionnaire
 
         for assignment in self.questionnaire.question_assignments.all():
-            field: TextAnswerField | RatingAnswerField | HeadingField
             question = assignment.question
-            if question.is_text_question:
-                field = TextAnswerField.from_question(question)
-            elif question.is_rating_question:
-                field = RatingAnswerField.from_question(question)
-            else:
-                assert question.is_heading_question
-                field = HeadingField.from_question(question)
-
-            identifier = answer_field_id(contribution, questionnaire, question)
-            self.fields[identifier] = field
-
-            if question.is_rating_question and question.allows_additional_textanswers:
-                textanswer_field = TextAnswerField(label=question.text, related_answer_field_id=identifier)
-                textanswer_identifier = answer_field_id(
-                    contribution, questionnaire, question, additional_textanswer=True
+            self.fields.update(
+                question_fields(
+                    question,
+                    answer_field_id(contribution, questionnaire, question),
+                    answer_field_id(contribution, questionnaire, question, additional_textanswer=True),
                 )
-                self.fields[textanswer_identifier] = textanswer_field
+            )
