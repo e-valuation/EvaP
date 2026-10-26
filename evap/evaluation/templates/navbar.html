@@ -84,7 +84,7 @@
                                     {{ semester.name }}
                                 </a>
                             {% endfor %}
-                            <hr class="dropdown-divider">
+                            <hr class="dropdown-divider" />
                             <a
                                 class="dropdown-item"
                                 href="{% url 'staff:semester_create' %}"
@@ -206,7 +206,7 @@
                     {% for language_code, language_name in languages %}
                         <form class="d-flex" method="post" action="{% url 'evaluation:set_lang' %}">
                             {% csrf_token %}
-                            <input name="language" type="hidden" value="{{ language_code }}">
+                            <input name="language" type="hidden" value="{{ language_code }}" />
                             <button
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="bottom"
