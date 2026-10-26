@@ -52,10 +52,12 @@
           });
           evap-frontend-dev = evap-dev.overrideAttrs (prev: {
             nativeBuildInputs = (prev.nativeBuildInputs or [ ]) ++ (with pkgs; [ firefox geckodriver ]);
-            # On macOS, point Selenium to the Nix store .app bundle
-            env = lib.mergeAttrs (prev.env or { }) (if pkgs.stdenv.hostPlatform.isDarwin then {
-              SE_BROWSER_PATH = "${pkgs.firefox}/Applications/Firefox.app/Contents/MacOS/firefox";
-            } else { });
+            # point Selenium to the Nix firefox instead of a system-wide installation
+            env = lib.mergeAttrs (prev.env or { }) {
+              SE_BROWSER_PATH = if pkgs.stdenv.hostPlatform.isDarwin
+                then "${pkgs.firefox}/Applications/Firefox.app/Contents/MacOS/firefox"
+                else "${pkgs.firefox}/bin/firefox";
+            };
           });
           default = evap-dev;
 
