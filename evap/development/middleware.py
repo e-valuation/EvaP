@@ -35,8 +35,6 @@ class NuValidatorMiddleware:
         "custom-success",
         "reload-on-success",
         "Attribute “tomselect-no-sort” not allowed on element “select”",
-        # table correctness
-        "seen in “table”",
         # column count
         "999 columns",
         "999 established",
