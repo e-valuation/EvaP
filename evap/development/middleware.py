@@ -26,7 +26,6 @@ class InvalidHtmlError(Exception):
 class NuValidatorMiddleware:
     IGNORED_ERROR_PATTERNS = (
         "autocomplete",
-        "not allowed as child of element “span”",
         # accessibility
         "aria",
         'same "nearest ancestor autofocus scoping root element"',
