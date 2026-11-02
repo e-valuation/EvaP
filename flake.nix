@@ -56,7 +56,7 @@
             env = lib.mergeAttrs (prev.env or { }) {
               SE_BROWSER_PATH = if pkgs.stdenv.hostPlatform.isDarwin
                 then "${pkgs.firefox}/Applications/Firefox.app/Contents/MacOS/firefox"
-                else "${pkgs.firefox}/bin/firefox";
+                else lib.getExe pkgs.firefox;
             };
           });
           default = evap-dev;
