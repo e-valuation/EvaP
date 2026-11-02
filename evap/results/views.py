@@ -178,6 +178,7 @@ def index(request: HttpRequest) -> HttpResponse:
         "programs": programs,
         "course_types": course_types,
         "semesters": semesters,
+        "results_participant_filter_max_value": settings.RESULTS_PARTICIPANT_FILTER_MAX_VALUE,
     }
     return render(request, "results_index.html", template_data)
 
