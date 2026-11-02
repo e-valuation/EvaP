@@ -1,4 +1,5 @@
 import time
+import unittest
 from contextlib import contextmanager
 
 from evap.evaluation.tests.tools import WebTest, WebTestWith200Check
@@ -39,6 +40,12 @@ class WebTestStaffMode(WebTest):
 
 
 class WebTestStaffModeWith200Check(WebTestWith200Check):
+    @classmethod
+    def setUpClass(cls):
+        if cls is WebTestStaffModeWith200Check:
+            raise unittest.SkipTest("base class")
+        super().setUpClass()
+
     def setUp(self):
         helper_enter_staff_mode(self)
 

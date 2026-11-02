@@ -3477,6 +3477,7 @@ class TestQuestionnaireUsageView(WebTestStaffModeWith200Check):
     @classmethod
     def setUpTestData(cls):
         cls.user = make_manager()
+        cls.test_users = [cls.user]
 
         cls.questionnaire = baker.make(Questionnaire)
         cls.question = baker.make(Question)

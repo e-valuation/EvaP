@@ -1,5 +1,6 @@
 import random
 import time
+import unittest
 from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from datetime import timedelta
@@ -178,7 +179,14 @@ class WebTestWith200Check(WebTest):
     url = "/"
     test_users: list[UserProfile | str] = []
 
+    @classmethod
+    def setUpClass(cls):
+        if cls is WebTestWith200Check:
+            raise unittest.SkipTest("base class")
+        super().setUpClass()
+
     def test_check_response_code_200(self):
+        assert len(self.test_users) > 0
         for user in self.test_users:
             self.app.get(self.url, user=user, status=200)
 
@@ -235,6 +243,10 @@ def create_evaluation_with_responsible_and_editor():
         "editor": editor,
         "contribution": contribution,
     }
+
+
+def make_user(**kwargs):
+    return baker.make(UserProfile, email="test@institution.example.com", **kwargs)
 
 
 def make_manager(**kwargs):

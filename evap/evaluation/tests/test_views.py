@@ -11,6 +11,7 @@ from evap.evaluation.tests.tools import (
     WebTestWith200Check,
     create_evaluation_with_responsible_and_editor,
     make_manager,
+    make_user,
 )
 from evap.staff.tests.utils import WebTestStaffMode
 
@@ -77,6 +78,10 @@ class TestIndexView(WebTest):
 class TestQuestionTypes(WebTestWith200Check):
     url = reverse("evaluation:questiontypes_demo")
 
+    @classmethod
+    def setUpTestData(cls):
+        cls.test_users = [make_user()]
+
 
 class TestStartpage(WebTest):
     def test_default_startpage(self):
@@ -97,7 +102,10 @@ class TestStartpage(WebTest):
 
 class TestFAQView(WebTestWith200Check):
     url = "/faq"
-    test_users = [""]
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.test_users = [make_user()]
 
 
 class TestContactEmail(WebTest):
