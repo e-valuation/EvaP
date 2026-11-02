@@ -19,8 +19,10 @@
             data-id="semester-{{ semester.id }}"
         >
             <div class="card-header">
-                <span>{{ semester.name }}</span>
-                <span class="badge rounded-pill bg-dark">{{ evaluations|length }}</span>
+                <span>
+                    <span>{{ semester.name }}</span>
+                    <span class="badge rounded-pill bg-dark">{{ evaluations|length }}</span>
+                </span>
             </div>
             <div class="card-body">
                 <table class="table table-seamless-links">
