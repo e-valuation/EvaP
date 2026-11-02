@@ -2,10 +2,10 @@
 
 {% if global_evaluation_progress %}
     <div class="card mb-3">
-        <div class="card-header d-flex">
-            {{ global_evaluation_progress.campaign.title }}
+        <div class="card-header">
+            <span>{{ global_evaluation_progress.campaign.title }}</span>
             {% if global_evaluation_progress.last_vote_datetime %}
-                <div class="ms-auto fw-normal fst-italic">
+                <div class="fw-normal fst-italic">
                     {% blocktranslate trimmed with time_interval=global_evaluation_progress.last_vote_datetime|timesince %}
                         Last evaluation: {{ time_interval }} ago
                     {% endblocktranslate %}
@@ -40,7 +40,7 @@
                 {% endfor %}
             </div>
             <div class="card card-outline-light collapsible mt-2">
-                <div class="card-header d-flex">
+                <div class="card-header">
                     <a
                         class="collapse-toggle collapse-toggle-light collapsed"
                         data-bs-toggle="collapse"
