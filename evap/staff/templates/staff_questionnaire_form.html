@@ -39,9 +39,6 @@
                         <tbody>
                             {% for form_element in formset %}
                                 <tr class="tomselecttr sortable">
-                                    {% for hidden in form_element.hidden_fields %}
-                                        {{ hidden }}
-                                    {% endfor %}
                                     {% if editable %}
                                         <td class="movable">
                                             <span class="movable-icon fas fa-up-down"></span>
@@ -49,10 +46,13 @@
                                     {% else %}
                                         <td></td>
                                     {% endif %}
-                                    {% for hidden in form_element.question_form.hidden_fields %}
-                                        {{ hidden }}
-                                    {% endfor %}
                                     <td>
+                                        {% for hidden in form_element.hidden_fields %}
+                                            {{ hidden }}
+                                        {% endfor %}
+                                        {% for hidden in form_element.question_form.hidden_fields %}
+                                            {{ hidden }}
+                                        {% endfor %}
                                         {% include 'bootstrap_form_field_widget.html' with field=form_element.question_form.text_de %}
                                         {% include 'bootstrap_form_errors.html' with errors=form_element.non_field_errors %}
                                         {% include 'bootstrap_form_errors.html' with errors=form_element.question_form.non_field_errors %}

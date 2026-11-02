@@ -37,7 +37,6 @@ class NuValidatorMiddleware:
         "Attribute “tomselect-no-sort” not allowed on element “select”",
         # table correctness
         "seen in “table”",
-        "not allowed as child of element “tr”",
         # column count
         "999 columns",
         "999 established",
