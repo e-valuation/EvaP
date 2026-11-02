@@ -160,7 +160,7 @@ abstract class DataGrid {
                 row.filterValues
                     .get(name)
                     ?.map(rawValue => parseFloat(rawValue))
-                    .some(rowValue => rowValue >= bound.low && (rowValue <= bound.high || bound.isOpenEnd)),
+                    .some(rowValue => rowValue >= bound.low && (bound.high === undefined || rowValue <= bound.high)),
             );
             row.isDisplayed = isDisplayedBySearch && isDisplayedByFilters && isDisplayedByRangeFilters;
         }

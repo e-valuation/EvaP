@@ -2,8 +2,7 @@ import { assert, clamp, selectOrError } from "./utils.js";
 
 export interface Range {
     low: number;
-    high: number;
-    isOpenEnd?: boolean;
+    high?: number;
 }
 
 const RANGE_DEBOUNCE_MS = 100.0;
@@ -16,7 +15,7 @@ export class RangeSlider {
     private readonly maxLabel: HTMLSpanElement;
     private readonly minLabel: HTMLSpanElement;
     private readonly rangeLabel: HTMLSpanElement;
-    private readonly allowed: Range;
+    private readonly allowed: Required<Range>;
     private _value: Range = { low: 0, high: 0 };
 
     private debounceTimeout?: ReturnType<typeof setTimeout>;
@@ -45,18 +44,17 @@ export class RangeSlider {
     }
 
     public set value(value: Range) {
-        this._value = {
-            low: clamp(value.low, this.allowed.low, this.allowed.high),
-            high: clamp(value.high, this.allowed.low, this.allowed.high),
-        };
+        let low = clamp(value.low, this.allowed.low, this.allowed.high);
+        let high = clamp(value.high ?? this.allowed.high, this.allowed.low, this.allowed.high);
 
-        this.lowSlider.value = this.value.low.toString();
-        this.highSlider.value = this.value.high.toString();
-        if (this.value.low > this.value.high) {
-            [this.value.low, this.value.high] = [this.value.high, this.value.low];
+        this.lowSlider.value = low.toString();
+        this.highSlider.value = high.toString();
+        if (low > high) {
+            [low, high] = [high, low];
         }
-        this.value.isOpenEnd = this.value.high === this.allowed.high;
-        this.rangeLabel.innerText = `${this.value.low} – ${this.formatHigh(this.value.high)}`;
+        // the maximum means "or more", so it is stored as no upper bound
+        this._value = high === this.allowed.high ? { low } : { low, high };
+        this.rangeLabel.innerText = `${low} – ${this.formatHigh(high)}`;
 
         // debounce on range change callback
         if (this.debounceTimeout !== undefined) {
