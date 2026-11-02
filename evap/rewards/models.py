@@ -39,6 +39,11 @@ class RewardPointGranting(models.Model):
     semester = models.ForeignKey(Semester, models.PROTECT, related_name="reward_point_grantings")
     granting_time = models.DateTimeField(verbose_name=_("granting time"), auto_now_add=True)
     value = models.IntegerField(verbose_name=_("value"), validators=[MinValueValidator(1)])
+    # Participants receive reward points for participating in evaluations. Each point can be redeemed once for
+    # RewardPointRedemptionEvents, after which it is unavailable. Usually, reward points are double-counted as status
+    # points when contributes_to_status is True (currently everywhere in code). Status points cannot be redeemed and are
+    # only used to determine the user's status.
+    contributes_to_status = models.BooleanField(verbose_name=_("contributes to status"), default=True)
 
     granted_by_participation_removal = Signal()
     granted_by_evaluation_deletion = Signal()
