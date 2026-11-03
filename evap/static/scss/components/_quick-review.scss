@@ -65,13 +65,22 @@
     }
 }
 [data-layer="0"] {
+    background-color: $light-gray;
     border: $card-border-width solid $card-border-color;
     @include border-top-radius($card-border-radius);
 }
 [data-layer="1"] {
-    background-color: $light;
+    background-color: $lighter-gray;
     border-left: $card-border-width solid $card-border-color;
     border-right: $card-border-width solid $card-border-color;
+}
+@include color-mode(dark) {
+[data-layer="0"] {
+    background-color: tint-color($background-dark, 10%);
+}
+[data-layer="1"] {
+    background-color: tint-color($background-dark, 5%);
+}
 }
 [data-layer="2"] {
     border: $card-border-width solid $card-border-color;

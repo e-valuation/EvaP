@@ -4,7 +4,7 @@
     flex: 1;
     position: relative;
     font-size: unset;
-    background-color: $evap-light-blue;
+    background-color: $info;
 }
 
 .progress-container .progress-empty {
@@ -38,16 +38,16 @@
 
 .progress-container-warning {
     .progress {
-        background-color: $evap-yellow;
+        background-color: $warning;
     }
 
     .progress-bar {
-        background-color: $evap-dark-yellow;
+        background-color: shade-color($warning, 20%);
     }
 
     .progress-bartext {
         color: $black;
-        @include bar-shadow($evap-dark-yellow);
+        @include bar-shadow(shade-color($warning, 20%));
     }
 }
 
@@ -58,7 +58,7 @@
     color: $white;
     width: 100%;
     text-align: center;
-    @include bar-shadow($evap-dark-blue);
+    @include bar-shadow($primary);
 }
 
 .progress-badge-wrapper {
@@ -168,6 +168,20 @@
             &:nth-of-type(3n + 1) .progress-step-label::after {display: none;}
             &:nth-of-type(3n + 2) .progress-step-label::after {height: 18px;}
             &:nth-of-type(3n) .progress-step-label::after {height: 36px;}
+        }
+    }
+}
+
+@include color-mode(dark) {
+    .progress-container:not(.progress-container-warning) {
+        .progress-bar {
+            background-color: $primary;
+        }
+        .progress {
+            background-color: shade-color($primary, 50%);
+        }
+        .progress-bartext {
+            text-shadow: none;
         }
     }
 }
