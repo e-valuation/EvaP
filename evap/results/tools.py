@@ -19,6 +19,7 @@ from evap.evaluation.models import (
     Course,
     Evaluation,
     Question,
+    QuestionAssignment,
     Questionnaire,
     RatingAnswerCounter,
     TextAnswer,
@@ -65,15 +66,15 @@ class TextAnswerVisibility:
 
 
 def create_rating_result(
-    question: Question,
+    assignment: QuestionAssignment,
     answer_counters: Iterable[RatingAnswerCounter] | None,
     additional_text_result: "TextResult | None" = None,
 ) -> "RatingResult":
     if answer_counters is None:
-        return RatingResult(question, additional_text_result)
+        return RatingResult(assignment, additional_text_result)
     if any(counter.count != 0 for counter in answer_counters):
-        return AnsweredRatingResult(question, answer_counters, additional_text_result)
-    return PublishedRatingResult(question, answer_counters, additional_text_result)
+        return AnsweredRatingResult(assignment, answer_counters, additional_text_result)
+    return PublishedRatingResult(assignment, answer_counters, additional_text_result)
 
 
 class RatingResult:
@@ -89,9 +90,11 @@ class RatingResult:
     ) -> TypeGuard["AnsweredRatingResult"]:
         return isinstance(rating_result, AnsweredRatingResult)
 
-    def __init__(self, question: Question, additional_text_result: "TextResult | None" = None) -> None:
+    def __init__(self, assignment: QuestionAssignment, additional_text_result: "TextResult | None" = None) -> None:
+        question = assignment.question
         assert question.is_rating_question
         self.question = discard_cached_related_objects(copy(question))
+        self.counts_for_grade = assignment.counts_for_grade
         self.additional_text_result = additional_text_result
         self.colors = tuple(
             color for _, color, value in self.choices.as_name_color_value_tuples() if value != NO_ANSWER
@@ -106,11 +109,11 @@ class RatingResult:
 class PublishedRatingResult(RatingResult):
     def __init__(
         self,
-        question: Question,
+        assignment: QuestionAssignment,
         answer_counters: Iterable[RatingAnswerCounter],
         additional_text_result: "TextResult | None" = None,
     ) -> None:
-        super().__init__(question, additional_text_result)
+        super().__init__(assignment, additional_text_result)
         counts = OrderedDict(
             (value, [0, name, color, value]) for (name, color, value) in self.choices.as_name_color_value_tuples()
         )
@@ -279,7 +282,9 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
                         answer_counters = racs_per_contribution_assignment.get((contribution.id, assignment.id), [])
                     else:
                         answer_counters = None
-                    results.append(create_rating_result(question, answer_counters, additional_text_result=text_result))
+                    results.append(
+                        create_rating_result(assignment, answer_counters, additional_text_result=text_result)
+                    )
                 elif question.is_text_question and evaluation.can_publish_text_results:
                     assert text_result is not None
                     results.append(text_result)
@@ -341,17 +346,18 @@ def avg_distribution(weighted_distributions: Iterable[tuple[Distribution, float]
     return normalized_distribution(summed_distribution)
 
 
-def average_grade_questions_distribution(results: Iterable[RatingResult | HeadingResult | TextResult]) -> Distribution:
-    return avg_distribution(
-        [
-            (
-                unipolarized_distribution(cast("PublishedRatingResult", result)),
-                cast("PublishedRatingResult", result).count_sum,
-            )
-            for result in results
-            if result.question.is_grade_question
-        ]
-    )
+def average_grade_questions_distribution(
+    results: Iterable[RatingResult | HeadingResult | TextResult],
+) -> Distribution:
+    weighted_distributions = []
+    for result in results:
+        if isinstance(result, RatingResult) and result.question.is_grade_question and result.counts_for_grade:
+            # Unpublished RatingResults are only created when can_publish_rating_results is False. Reaching this
+            # function implies can_publish_average_grade, which is defined to imply can_publish_rating_results.
+            assert isinstance(result, PublishedRatingResult)
+            weighted_distributions.append((unipolarized_distribution(result), result.count_sum))
+
+    return avg_distribution(weighted_distributions)
 
 
 def average_non_grade_rating_questions_distribution(
@@ -364,7 +370,9 @@ def average_non_grade_rating_questions_distribution(
                 cast("PublishedRatingResult", result).count_sum,
             )
             for result in results
-            if result.question.is_non_grade_rating_question
+            if isinstance(result, RatingResult)
+            and result.question.is_non_grade_rating_question
+            and result.counts_for_grade
         ]
     )
 
@@ -426,8 +434,12 @@ def calculate_average_distribution(evaluation: Evaluation) -> Distribution:
     grouped_results = defaultdict(list)
     for contribution_result in get_results(evaluation).contribution_results:
         for questionnaire_result in contribution_result.questionnaire_results:
-            if not questionnaire_result.questionnaire.is_dropout:  # dropout questionnaires are not counted
-                grouped_results[contribution_result.contributor].extend(questionnaire_result.question_results)
+            if questionnaire_result.questionnaire.is_dropout:
+                assert not any(
+                    isinstance(result, RatingResult) and result.counts_for_grade
+                    for result in questionnaire_result.question_results
+                ), f"Dropout questionnaire {questionnaire_result.questionnaire.id} has results that count"
+            grouped_results[contribution_result.contributor].extend(questionnaire_result.question_results)
 
     evaluation_results = grouped_results.pop(None, [])
 
@@ -446,6 +458,8 @@ def calculate_average_distribution(evaluation: Evaluation) -> Distribution:
                         ),
                     ]
                 ),
+                # The weight of this contributors grade is supposed to represent the number of students the
+                # contributor interacted with, which we derive from the max answer count, independently of counts_for_grade.
                 max(
                     (
                         cast("PublishedRatingResult", result).count_sum

@@ -117,14 +117,30 @@ class TestExporters(TestCase):
 
         questionnaire = baker.make(Questionnaire)
 
-        baker.make(QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=questionnaire, order=0)
+        baker.make(
+            QuestionAssignment,
+            question__type=QuestionType.HEADING,
+            questionnaire=questionnaire,
+            order=0,
+            counts_for_grade=False,
+        )
         heading_assignment = baker.make(
-            QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=questionnaire, order=1
+            QuestionAssignment,
+            question__type=QuestionType.HEADING,
+            questionnaire=questionnaire,
+            order=1,
+            counts_for_grade=False,
         )
         likert_assignment = baker.make(
             QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire, order=2
         )
-        baker.make(QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=questionnaire, order=3)
+        baker.make(
+            QuestionAssignment,
+            question__type=QuestionType.HEADING,
+            questionnaire=questionnaire,
+            order=3,
+            counts_for_grade=False,
+        )
 
         contribution = baker.make(
             Contribution, evaluation=evaluation, questionnaires=[questionnaire], contributor=contributor
@@ -439,8 +455,9 @@ class TestExporters(TestCase):
         self.assertEqual(sheet.row_values(5)[1], 2.0)  # question 1 average
         self.assertEqual(sheet.row_values(8)[1], 3.0)  # question 2 average
         self.assertEqual(sheet.row_values(10)[1], 2.5)  # Average grade
-        self.assertEqual(sheet.row_values(11)[1], "5/10")  # Voters / Participants
-        self.assertEqual(sheet.row_values(12)[1], "50%")  # Voter percentage
+        self.assertEqual(sheet.row_values(11)[1], 5)  # Voters
+        self.assertEqual(sheet.row_values(12)[1], 10)  # Participants
+        self.assertEqual(sheet.row_values(13)[1], "50%")  # Voter percentage
 
     def test_course_grade(self):
         program = baker.make(Program)
@@ -470,9 +487,9 @@ class TestExporters(TestCase):
             cache_results(evaluation)
 
         sheet = self.get_export_sheet(course.semester, program, [course.type.id])
-        self.assertEqual(sheet.row_values(12)[1], expected_average)
-        self.assertEqual(sheet.row_values(12)[2], expected_average)
-        self.assertEqual(sheet.row_values(12)[3], expected_average)
+        self.assertEqual(sheet.row_values(13)[1], expected_average)
+        self.assertEqual(sheet.row_values(13)[2], expected_average)
+        self.assertEqual(sheet.row_values(13)[3], expected_average)
 
     def test_yes_no_question_result(self):
         program = baker.make(Program)
@@ -572,6 +589,7 @@ class TestExporters(TestCase):
             _quantity=len(Questionnaire.Type.values),
             _bulk_create=True,
             question__allows_additional_textanswers=False,
+            counts_for_grade=False,
         )
 
         baker.make(

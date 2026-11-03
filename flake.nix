@@ -35,7 +35,7 @@
       devShells = forAllSystems (system:
         let
           pkgs = pkgsFor.${system};
-          dependency-groups = if pkgs.stdenv.isDarwin then [ "psycopg-c" ] else [ "psycopg-binary" ];
+          dependency-groups = if pkgs.stdenv.hostPlatform.isDarwin then [ "psycopg-c" ] else [ "psycopg-binary" ];
         in
         rec {
           evap = pkgs.callPackage ./nix/shell.nix {
@@ -50,7 +50,15 @@
             dependency-groups = (prev.dependency-groups or [ ]) ++ [ "lsp" ];
             extraPackages = (prev.extraPackages or [ ]) ++ [ pkgs.typescript-language-server ];
           });
-          evap-frontend-dev = evap-dev.overrideAttrs (prev: { nativeBuildInputs = (prev.nativeBuildInputs or [ ]) ++ (with pkgs; [ firefox geckodriver ]); });
+          evap-frontend-dev = evap-dev.overrideAttrs (prev: {
+            nativeBuildInputs = (prev.nativeBuildInputs or [ ]) ++ (with pkgs; [ firefox geckodriver ]);
+            # point Selenium to the Nix firefox instead of a system-wide installation
+            env = lib.mergeAttrs (prev.env or { }) {
+              SE_BROWSER_PATH = if pkgs.stdenv.hostPlatform.isDarwin
+                then "${pkgs.firefox}/Applications/Firefox.app/Contents/MacOS/firefox"
+                else lib.getExe pkgs.firefox;
+            };
+          });
           default = evap-dev;
 
           impure = pkgs.mkShell {

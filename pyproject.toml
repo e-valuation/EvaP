@@ -1,17 +1,17 @@
 [project]
 name = "evap"
 description = "EvaP"
-version = "2026.5.0"
+version = "2026.10.0"
 readme = "README.md"
 requires-python = ">=3.13.0"
 dependencies = [
     "django-extensions~=4.1.0",
-    "django-fsm-2~=4.2.4",
-    "Django~=6.0.2",
+    "django-fsm-2~=4.3.0",
+    "Django~=6.1.1",
     "mozilla-django-oidc~=5.0.2",
     "openpyxl~=3.1.5",
     "psycopg~=3.3.2",
-    "pydantic~=2.13.3",
+    "pydantic~=2.14.0",
     "redis~=8.1.0",
     "requests~=2.34.2",
     "typing-extensions~=4.16.0",
@@ -24,22 +24,22 @@ psycopg-c = ["psycopg[c]"]
 
 [dependency-groups]
 dev = [
-    "coverage~=7.15.0",
-    "django-debug-toolbar~=7.0",
-    "django-stubs~=6.0.2",
+    "coverage~=7.17.0",
+    "django-debug-toolbar~=8.0",
+    "django-stubs~=6.1.0",
     "django-webtest~=1.9.13",
     "djangofmt~=1.0",
     "model-bakery~=1.24.0",
-    "mypy~=2.3.0",
+    "mypy~=2.4.0",
     "openpyxl-stubs~=0.1.25",
     "pylint-django~=2.8.0",
-    "pylint~=4.0.4",
-    "ruff~=0.16.1",
+    "pylint~=4.1.3",
+    "ruff~=0.17.0",
     "tblib~=3.2.2",
     "types-requests~=2.33.0",
     "xlrd~=2.0.1",
     "typeguard~=4.6.0",
-    "selenium~=4.46.0",
+    "selenium~=4.52.0",
 ]
 lsp = [
     "python-lsp-server",
@@ -105,16 +105,20 @@ exclude = ["**/urls.py"]
 [tool.ruff.lint.flake8-tidy-imports.banned-api]
 "evap.settings".msg = "Use django.conf.settings instead."
 
+[tool.ruff.lint.flake8-import-conventions.extend-aliases]
+datetime = "datetime"
+
 ##############################################
 
 [tool.djangofmt]
 extend-exclude = ["evap/static/bootstrap"]
-html-void-self-closing = "unchanged"
+html-void-self-closing = "always"
 custom-blocks = ["breadcrumb_item", "breadcrumb_item_url"]
 
 ##############################################
 
 [tool.pylint.master]
+files = "evap,tools"
 jobs = 0
 
 load-plugins = ["pylint_django"]

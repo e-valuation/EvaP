@@ -5,7 +5,7 @@
 {% else %}
     <form id="startpage-form" class="d-flex" method="post" action="{% url 'evaluation:set_startpage' %}">
         {% csrf_token %}
-        <input name="page" type="hidden" value="{{ page }}">
+        <input name="page" type="hidden" value="{{ page }}" />
         <button
             type="submit"
             class="btn {{ btnClass }} btn-light"
