@@ -8,7 +8,6 @@ from evap.results.tools import (
     STATES_WITH_RESULT_TEMPLATE_CACHING,
     Distribution,
     RatingResult,
-    get_grade_color,
     normalized_distribution,
 )
 
@@ -17,7 +16,16 @@ register = Library()
 
 @register.filter(name="gradecolor")
 def gradecolor(grade: float) -> str:
-    return "rgb({}, {}, {})".format(*get_grade_color(grade))  # pylint: disable=consider-using-f-string
+    if not grade:
+        return "#ffffff"
+    return f"var(--evap-grade-color-{round(round(grade, 1) * 10)})"
+
+
+@register.filter(name="gradetextcolor")
+def gradetextcolor(grade: float) -> str:
+    if not grade:
+        return "#000000"
+    return f"var(--evap-grade-text-color-{round(round(grade, 1) * 10)})"
 
 
 @register.filter(name="normalized_distribution")

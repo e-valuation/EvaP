@@ -267,15 +267,30 @@
                 >
                     <span class="fas fa-circle-half-stroke"></span>
                 </a>
-                <div class="dropdown-menu dropdown-menu-end dropdown-menu-tight" aria-labelledby="bd-theme">
-                    <button type="button" class="dropdown-item" data-bs-theme-value="light">
+                <div
+                    class="dropdown-menu dropdown-menu-end dropdown-menu-tight"
+                    aria-labelledby="navBarColorModeDropdownMenuLink"
+                >
+                    <button type="button" class="dropdown-item" data-bs-theme-value="light" aria-pressed="false">
                         {% translate 'Light' %}
                     </button>
-                    <button type="button" class="dropdown-item" data-bs-theme-value="dark">
+                    <button type="button" class="dropdown-item" data-bs-theme-value="dark" aria-pressed="false">
                         {% translate 'Dark' %}
                     </button>
-                    <button type="button" class="dropdown-item" data-bs-theme-value="auto">
+                    <button type="button" class="dropdown-item" data-bs-theme-value="auto" aria-pressed="false">
                         {% translate 'Auto' %}
+                    </button>
+                    <div class="dropdown-divider"></div>
+                    <button type="button" class="dropdown-item" data-evap-colors-value="default" aria-pressed="false">
+                        {% translate 'Default colors' %}
+                    </button>
+                    <button
+                        type="button"
+                        class="dropdown-item"
+                        data-evap-colors-value="alternative"
+                        aria-pressed="false"
+                    >
+                        {% translate 'Alternative colors' %}
                     </button>
                 </div>
             </li>

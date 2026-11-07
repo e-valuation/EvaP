@@ -1,47 +1,50 @@
 type Theme = "light" | "dark" | "auto";
+type Colors = "default" | "alternative";
+
+const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
 const isTheme = (value: string | null): value is Theme => value === "light" || value === "dark" || value === "auto";
+const isColors = (value: string | null): value is Colors => value === "default" || value === "alternative";
+
+const showActiveOption = (attribute: string, value: string): void => {
+    document.querySelectorAll<HTMLElement>(`[${attribute}]`).forEach(button => {
+        const active = button.getAttribute(attribute) === value;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+    });
+};
 
 const getStoredTheme = (): Theme | null => {
     const item = localStorage.getItem("theme");
     return isTheme(item) ? item : null;
 };
-const setStoredTheme = (theme: Theme): void => localStorage.setItem("theme", theme);
-
-const getPreferredTheme = (): Theme => {
-    const storedTheme = getStoredTheme();
-    if (storedTheme) {
-        return storedTheme;
-    }
-
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-};
+const getPreferredTheme = (): Theme => getStoredTheme() ?? (systemTheme.matches ? "dark" : "light");
 
 const setTheme = (theme: Theme): void => {
-    if (theme === "auto") {
-        document.documentElement.setAttribute(
-            "data-bs-theme",
-            window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light",
-        );
-    } else {
-        document.documentElement.setAttribute("data-bs-theme", theme);
-    }
+    const resolvedTheme = theme === "auto" ? (systemTheme.matches ? "dark" : "light") : theme;
+    document.documentElement.setAttribute("data-bs-theme", resolvedTheme);
+    showActiveOption("data-bs-theme-value", theme);
 };
 
-const showActiveTheme = (theme: Theme): void => {
-    const btnToActive = document.querySelector<HTMLElement>(`[data-bs-theme-value="${theme}"]`);
+const getPreferredColors = (): Colors => {
+    const storedColors = localStorage.getItem("evap-colors");
+    return isColors(storedColors) ? storedColors : "default";
+};
 
-    document.querySelectorAll<HTMLElement>("[data-bs-theme-value]").forEach(element => {
-        element.classList.remove("active");
-        element.setAttribute("aria-pressed", "false");
+const setColors = (colors: Colors): void => {
+    document.querySelectorAll<HTMLLinkElement>("#evap-default-colors, #evap-alternative-colors").forEach(sheet => {
+        sheet.media = sheet.id === `evap-${colors}-colors` ? "all" : "not all";
     });
-
-    btnToActive!.classList.add("active");
-    btnToActive!.setAttribute("aria-pressed", "true");
+    showActiveOption("data-evap-colors-value", colors);
 };
 
-setTheme(getPreferredTheme());
+const applyPreferences = (): void => {
+    setTheme(getPreferredTheme());
+    setColors(getPreferredColors());
+};
 
-window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+applyPreferences();
+
+systemTheme.addEventListener("change", () => {
     const storedTheme = getStoredTheme();
     if (storedTheme !== "light" && storedTheme !== "dark") {
         setTheme(getPreferredTheme());
@@ -49,14 +52,25 @@ window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () 
 });
 
 window.addEventListener("DOMContentLoaded", () => {
-    showActiveTheme(getPreferredTheme());
+    applyPreferences();
+
+    document.querySelectorAll<HTMLElement>("[data-evap-colors-value]").forEach(toggle => {
+        toggle.addEventListener("click", () => {
+            const colors = toggle.getAttribute("data-evap-colors-value");
+            if (!isColors(colors)) {
+                return;
+            }
+            localStorage.setItem("evap-colors", colors);
+            setColors(colors);
+        });
+    });
 
     document.querySelectorAll<HTMLElement>("[data-bs-theme-value]").forEach(toggle => {
         toggle.addEventListener("click", () => {
             const theme = toggle.getAttribute("data-bs-theme-value") as Theme;
-            setStoredTheme(theme);
+            localStorage.setItem("theme", theme);
             setTheme(theme);
-            showActiveTheme(theme);
+            document.querySelector<HTMLElement>("#navBarColorModeDropdownMenuLink")?.focus();
         });
     });
 });
