@@ -97,7 +97,9 @@
 
         <div class="card card-outline-primary slider">
             <div class="card-header">
-                {% translate 'Text answers' %}
+                <span>
+                    {% translate 'Text answers' %}
+                </span>
                 <span
                     class="hotkey-btn"
                     aria-hidden="true"
@@ -129,10 +131,12 @@
                 <div class="slider-items">
                     {% for questionnaire, contributor, label, is_responsible, results in sections %}
                         <div class="slider-item card-header" data-layer="0">
-                            {{ questionnaire.public_name }}{% if contributor %}:
-                                {{ contributor.full_name }}{% if is_responsible %}
-                                    ({% translate 'responsible' %}){% endif %}{% if label %}
-                                    &ndash;&nbsp;<span class="fst-italic">{{ label }}</span>{% endif %}{% endif %}
+                            <span>
+                                {{ questionnaire.public_name }}{% if contributor %}:
+                                    {{ contributor.full_name }}{% endif %}
+                                {% if is_responsible %}({% translate 'responsible' %}){% endif %}
+                                {% if label %}&ndash;&nbsp;<span class="fst-italic">{{ label }}</span>{% endif %}
+                            </span>
                         </div>
                         {% for result in results %}
                             <div class="slider-item card-body" data-layer="1">

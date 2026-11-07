@@ -151,7 +151,10 @@
         {% if evaluation_form_group_dropout %}
             <div class="card card-outline-warning mb-3">
                 <div class="card-header">
-                    <span class="fas fa-triangle-exclamation"></span> {% translate 'Dropout questionnaire' %}
+                    <span>
+                        <span class="fas fa-triangle-exclamation"></span>
+                        {% translate 'Dropout questionnaire' %}
+                    </span>
                 </div>
                 <div class="card-body">
                     <p>
@@ -213,8 +216,9 @@
                                             type="button"
                                         >
                                             {{ contributor.full_name }}
-                                            {% if label %}
-                                                &ndash; <span class="fst-italic">{{ label }}</span>{% endif %}
+                                            {% if label %}&ndash;&nbsp;<span
+                                                    class="fst-italic"
+                                                >{{ label }}</span>{% endif %}
                                         </button>
                                     </div>
                                 </div>
