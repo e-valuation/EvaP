@@ -1,3 +1,5 @@
+@use 'sass:math';
+
 .badge-btn {
     margin-left: 0.3rem;
     color: $darker-gray;
@@ -16,6 +18,11 @@
 .bg-info, .bg-warning, .bg-light {
     color: $darker-gray;
 }
+.bg-danger {
+    $background: $danger;
+    background-color: $background;
+    color: color-contrast($background);
+}
 
 %badge {
     border-radius: $badge-border-radius;
@@ -27,6 +34,15 @@
 
 .badge-grade {
     @extend %badge;
+    // Match the grade calculation's interpolation in steps of 0.1.
+    $grade-colors: $evap-green, $evap-lime, $evap-yellow, $evap-orange, $evap-red;
+    @for $grade from 10 through 50 {
+        $lower: math.floor(math.div($grade, 10));
+        $higher: math.ceil(math.div($grade, 10));
+        $background: mix(nth($grade-colors, $higher), nth($grade-colors, $lower), ($grade % 10) * 10%);
+        --evap-grade-color-#{$grade}: #{$background};
+        --evap-grade-text-color-#{$grade}: #{color-contrast($background)};
+    }
     color: $black;
     transition: box-shadow 0.15s ease-in-out;
 }

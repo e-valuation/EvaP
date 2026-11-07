@@ -669,7 +669,6 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
 
 
 class TestResultsSemesterEvaluationDetailViewPrivateEvaluation(WebTest):
-    @patch("evap.results.templatetags.results_templatetags.get_grade_color", new=lambda x: (0, 0, 0))
     def test_private_evaluation(self):
         semester = baker.make(Semester)
         manager = make_manager()
@@ -936,7 +935,6 @@ class TestArchivedResults(WebTest):
         baker.make(Contribution, evaluation=cls.evaluation, contributor=cls.contributor)
         cache_results(cls.evaluation)
 
-    @patch("evap.results.templatetags.results_templatetags.get_grade_color", new=lambda x: (0, 0, 0))
     def test_unarchived_results(self):
         url = "/results/"
         self.assertIn(self.evaluation.full_name, self.app.get(url, user=self.student))

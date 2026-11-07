@@ -1,8 +1,8 @@
-$evap-green:        #88bf4a;
-$evap-lime:         #bbd154;
-$evap-yellow:       #efe258;
-$evap-orange:       #f29e58;
-$evap-red:          #eb595a;
+$evap-green:        #88bf4a !default;
+$evap-lime:         #bbd154 !default;
+$evap-yellow:       #efe258 !default;
+$evap-orange:       #f29e58 !default;
+$evap-red:          #eb595a !default;
 
 $evap-light-green:  tint-color($evap-green, 60%);
 $evap-light-lime:   tint-color($evap-lime, 60%);

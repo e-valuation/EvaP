@@ -66,6 +66,8 @@ exclude = [
 artifacts = [
     "evap/static/css/evap.css",
     "evap/static/css/evap.css.map",
+    "evap/static/css/evap-alternative.css",
+    "evap/static/css/evap-alternative.css.map",
     "evap/static/js/*.js",
     "evap/static/js/*.map",
     "evap/static/bootstrap/dist/js/bootstrap.bundle.min.js",

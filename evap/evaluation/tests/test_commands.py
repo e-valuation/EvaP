@@ -200,15 +200,18 @@ class TestRefreshResultsCacheCommand(TestCase):
 
 class TestScssCommand(TestCase):
     def setUp(self):
-        self.scss_path = settings.STATICFILES_DIRS[0] / "scss" / "evap.scss"
-        self.css_path = settings.STATICFILES_DIRS[0] / "css" / "evap.css"
+        static_directory = settings.STATICFILES_DIRS[0]
+        self.scss_arguments = [
+            f"{static_directory}/scss/evap.scss:{static_directory}/css/evap.css",
+            f"{static_directory}/scss/evap-alternative.scss:{static_directory}/css/evap-alternative.css",
+        ]
 
     @patch("subprocess.run", return_value=FakeSubprocessRunResult())
     def test_scss_called(self, mock_subprocess_run):
         management.call_command("scss", stdout=StringIO())
 
         mock_subprocess_run.assert_called_once_with(
-            ["npx", "sass", self.scss_path, self.css_path],
+            ["npx", "sass", *self.scss_arguments],
             check=False,
         )
 
@@ -219,7 +222,7 @@ class TestScssCommand(TestCase):
         management.call_command("scss", "--watch", stdout=StringIO())
 
         mock_subprocess_run.assert_called_once_with(
-            ["npx", "sass", self.scss_path, self.css_path, "--watch", "--poll"],
+            ["npx", "sass", *self.scss_arguments, "--watch", "--poll"],
             check=False,
         )
 
@@ -228,7 +231,7 @@ class TestScssCommand(TestCase):
         management.call_command("scss", "--production", stdout=StringIO())
 
         mock_subprocess_run.assert_called_once_with(
-            ["npx", "sass", self.scss_path, self.css_path, "--style", "compressed"],
+            ["npx", "sass", *self.scss_arguments, "--style", "compressed"],
             check=False,
         )
 
