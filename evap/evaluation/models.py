@@ -1875,7 +1875,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     password = models.CharField(_("password"), max_length=128, default=partial(make_password, None))
 
     @override
-    def natural_key(self) -> tuple[()]:  # type: ignore[override]  # django-stubs bug
+    def natural_key(self) -> tuple[()]:
         return ()
 
     title = models.CharField(max_length=255, blank=True, default="", verbose_name=_("Title"))
