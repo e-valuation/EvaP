@@ -69,7 +69,7 @@ a:not([href]):not(.disabled) {
 @include button-disabled-variant(".btn-warning", shade-color($warning, 25%), $warning-accent);
 @include button-disabled-variant(".btn-info", shade-color($info, 40%), tint-color($info, 10%));
 @include button-disabled-variant(".btn-light", $medium-gray, $lighter-gray);
-@include button-disabled-variant(".btn-dark", $white, $dark-gray, $dark);
+@include button-disabled-variant(".btn-dark", $dark, $dark-gray);
 
 .btn-switch {
     display: inline-flex;
@@ -347,6 +347,12 @@ a.collapse-toggle {
     &.collapsed {
         box-shadow: none;
     }
+}
+
+// make btn-outline-danger usable for alternative color mode
+.btn-outline-danger {
+    color: shade-color($danger, 20%) !important;
+    border-color: shade-color($danger, 20%) !important;
 }
 
 td .btn {

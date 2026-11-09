@@ -1,3 +1,7 @@
 .dropdown-item-indent {
     text-indent: 20px;
 }
+
+.dropdown-item.active {
+    background-color: $primary-text-emphasis-dark;
+}

@@ -23,8 +23,8 @@ class Command(BaseCommand):
         command = [
             "npx",
             "sass",
-            static_directory / "scss" / "evap.scss",
-            static_directory / "css" / "evap.css",
+            f"{static_directory}/scss/evap.scss:{static_directory}/css/evap.css",
+            f"{static_directory}/scss/evap-alternative.scss:{static_directory}/css/evap-alternative.css",
         ]
 
         if options["watch"]:

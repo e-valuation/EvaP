@@ -13,7 +13,13 @@
 
             <link rel="stylesheet" href="{% static 'css/tom-select.bootstrap5.min.css' %}" />
             <link rel="stylesheet" href="{% static 'css/bootstrap-datetimepicker.min.css' %}" />
-            <link rel="stylesheet" href="{% static 'css/evap.css' %}" />
+            <link id="evap-default-colors" rel="stylesheet" href="{% static 'css/evap.css' %}" />
+            <link
+                id="evap-alternative-colors"
+                rel="stylesheet"
+                href="{% static 'css/evap-alternative.css' %}"
+                media="not all"
+            />
             {% if debug %}
                 <link rel="icon" type="image/png" sizes="64x64" href="{% static 'images/favicon_gray.png' %}" />
             {% else %}

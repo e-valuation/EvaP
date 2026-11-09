@@ -12,10 +12,10 @@
     -moz-user-select: none;
 }
 
-@mixin button-disabled-variant($parent, $color, $background, $border: $color) {
+@mixin button-disabled-variant($parent, $border, $background) {
     #{$parent}:disabled,
     #{$parent}.disabled {
-        color: $color;
+        color: color-contrast($background);
         background-color: $background;
         border-color: $border;
     }

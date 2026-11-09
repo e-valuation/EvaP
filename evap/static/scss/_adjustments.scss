@@ -28,20 +28,6 @@ body, .fixed-top, .fixed-bottom, .is-fixed, .sticky-top {
     background-color: transparent;
 }
 
-// change btn text colors for better contrast
-.btn-secondary {
-    @include button-variant($secondary, $secondary, $color: $white, $hover-color: $white, $disabled-color: $white);
-}
-.btn-outline-secondary {
-    @include button-outline-variant($secondary, $color-hover: $white);
-}
-.btn-danger {
-    @include button-variant($danger, $danger, $color: $white, $hover-color: $white, $disabled-color: $white);
-}
-.btn-outline-danger {
-    @include button-outline-variant($danger, $color-hover: $white);
-}
-
 // accordion adjustments
 .accordion-flush .accordion-item {
     border: 1px solid $dark-gray;
@@ -127,6 +113,11 @@ $alert-colors-dark: (
     color: shade-color($primary, 50%);
 }
 
+// make text-danger usable for alternative color mode
+.text-danger {
+    color: shade-color($danger, 20%) !important;
+}
+
 // fix checkbox positions
 .form-check:not(li) {
     padding-top: 0.25rem;
@@ -180,7 +171,7 @@ $alert-colors-dark: (
         background-color: $background-dark;
         color: $light-gray;
         border-color: $darker-gray;
-        
+
         .option:hover, .option.active {
             background-color: $medium-gray;
             color: $black;

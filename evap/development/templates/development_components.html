@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% load staff_templatetags %}
+{% load results_templatetags %}
 
 {% block title %}{% translate 'Development' %} - {{ block.super }}{% endblock %}
 
@@ -418,7 +419,12 @@
                                         </div>
                                     </div>
                                 {% endspaceless %}
-                                <div class="badge-grade ms-2" style="background-color: rgb(177, 205, 82)">1.8</div>
+                                <div
+                                    class="badge-grade ms-2"
+                                    style="background-color: {{ 1.8|gradecolor }}; color: {{ 1.8|gradetextcolor }}"
+                                >
+                                    1.8
+                                </div>
                             </div>
                         </td>
                     </tr>
@@ -470,7 +476,12 @@
                                         </div>
                                     </div>
                                 {% endspaceless %}
-                                <div class="badge-grade ms-2" style="background-color: rgb(177, 205, 82)">1.8</div>
+                                <div
+                                    class="badge-grade ms-2"
+                                    style="background-color: {{ 1.8|gradecolor }}; color: {{ 1.8|gradetextcolor }}"
+                                >
+                                    1.8
+                                </div>
                             </div>
                         </td>
                     </tr>
