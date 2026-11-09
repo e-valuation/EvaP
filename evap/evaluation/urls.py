@@ -13,4 +13,5 @@ urlpatterns = [
     path("profile", views.profile_edit, name="profile_edit"),
     path("set_notes", views.set_notes, name="set_notes"),
     path("set_startpage", views.set_startpage, name="set_startpage"),
+    path("demo/questiontypes", views.questiontypes_demo, name="questiontypes_demo"),
 ]
