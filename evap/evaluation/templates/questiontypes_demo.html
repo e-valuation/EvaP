@@ -3,6 +3,7 @@
 {% block title %}{% translate 'Question types' %} - {{ block.super }}{% endblock %}
 
 {% block content %}
+    <h3>{% translate 'Question types' %}</h3>
     <div class="card">
         <div class="card-body">
             {% include 'student_vote_questionnaire_group.html' with questionnaire_group=questionnaire_group preview=False %}
