@@ -29,7 +29,6 @@ class NuValidatorMiddleware:
         # accessibility
         "aria",
         'same "nearest ancestor autofocus scoping root element"',
-        "Every active “role=tab” element must have a corresponding “role=tabpanel” element",
         # custom attributes
         "custom-success",
         "reload-on-success",
