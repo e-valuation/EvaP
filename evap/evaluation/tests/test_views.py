@@ -77,6 +77,15 @@ class TestIndexView(WebTest):
 class TestQuestionTypes(WebTestWith200Check):
     url = reverse("evaluation:questiontypes_demo")
 
+    @classmethod
+    def setUpTestData(cls):
+        # View is only visible to users participating in at least one evaluation.
+        cls.user = baker.make(UserProfile, email="student@institution.example.com")
+        cls.semester = baker.make(Semester, is_active=True)
+        cls.evaluation = baker.make(Evaluation, course__semester=cls.semester, participants=[cls.user])
+
+        cls.test_users = [cls.user]
+
 
 class TestStartpage(WebTest):
     def test_default_startpage(self):
