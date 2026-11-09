@@ -1,8 +1,6 @@
 import django.contrib.auth.views
 from django.conf import settings
-from django.contrib.staticfiles.views import serve
-from django.urls import include, path, re_path
-from django.views.decorators.cache import never_cache
+from django.urls import include, path
 from django.views.i18n import JavaScriptCatalog
 
 from evap.middleware import no_login_required
@@ -24,7 +22,7 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    urlpatterns = [re_path(r"^static/.*$", never_cache(serve))] + urlpatterns + [path('development/', include('evap.development.urls'))]
+    urlpatterns += [path('development/', include('evap.development.urls'))]
 
     if settings.ENABLE_DEBUG_TOOLBAR:
         # pylint does not correctly evaluate this if, so it will raise an import-error on
