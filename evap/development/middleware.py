@@ -26,19 +26,13 @@ class InvalidHtmlError(Exception):
 class NuValidatorMiddleware:
     IGNORED_ERROR_PATTERNS = (
         "autocomplete",
-        "not allowed as child of element “span”",
         # accessibility
         "aria",
         'same "nearest ancestor autofocus scoping root element"',
-        "Every active “role=tab” element must have a corresponding “role=tabpanel” element",
-        "An element with “role=tab” must be contained in, or owned by, an element with the “role” value “tablist”",
         # custom attributes
         "custom-success",
         "reload-on-success",
         "Attribute “tomselect-no-sort” not allowed on element “select”",
-        # table correctness
-        "seen in “table”",
-        "not allowed as child of element “tr”",
         # column count
         "999 columns",
         "999 established",
