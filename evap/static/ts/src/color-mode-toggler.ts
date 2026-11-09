@@ -1,5 +1,3 @@
-import { assert, selectOrError } from "./utils.js";
-
 type Theme = "light" | "dark" | "auto";
 const isTheme = (value: string | null): value is Theme => value === "light" || value === "dark" || value === "auto";
 
@@ -30,15 +28,15 @@ const setTheme = (theme: Theme): void => {
 };
 
 const showActiveTheme = (theme: Theme): void => {
-    const btnToActive = selectOrError<HTMLElement>(`[data-bs-theme-value="${theme}"]`);
+    const btnToActive = document.querySelector<HTMLElement>(`[data-bs-theme-value="${theme}"]`);
 
     document.querySelectorAll<HTMLElement>("[data-bs-theme-value]").forEach(element => {
         element.classList.remove("active");
         element.setAttribute("aria-pressed", "false");
     });
 
-    btnToActive.classList.add("active");
-    btnToActive.setAttribute("aria-pressed", "true");
+    btnToActive!.classList.add("active");
+    btnToActive!.setAttribute("aria-pressed", "true");
 };
 
 setTheme(getPreferredTheme());
@@ -55,9 +53,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     document.querySelectorAll<HTMLElement>("[data-bs-theme-value]").forEach(toggle => {
         toggle.addEventListener("click", () => {
-            const theme = toggle.getAttribute("data-bs-theme-value")!;
-            assert(isTheme(theme));
-
+            const theme = toggle.getAttribute("data-bs-theme-value") as Theme;
             setStoredTheme(theme);
             setTheme(theme);
             showActiveTheme(theme);
