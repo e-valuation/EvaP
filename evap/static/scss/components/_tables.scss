@@ -80,8 +80,13 @@ $table-colors: (
 }
 
 @include color-mode(dark) {
-    .hover-row.hover-row-info:hover {
-        background-color: tint-color($background-dark, 10%);
+    .hover-row:hover {
+        &.hover-row-info {
+            background-color: tint-color($background-dark, 10%);
+        }
+        td {
+            background-color: tint-color($background-dark, 10%) !important;
+        }
     }
     .results-grid-row.hover-row:hover {
         background-color: tint-color($background-dark, 10%);
@@ -101,6 +106,12 @@ tr.heading-row td {
 }
 tr.heading-row:not(:first-child) td {
     border-top: 1px solid $light-gray;
+}
+
+@include color-mode(dark) {
+    tr.heading-row:not(:first-child) td {
+        border-top: 1px solid $darker-gray;
+    }
 }
 
 tr.heading-row.course-row {

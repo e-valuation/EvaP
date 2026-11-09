@@ -62,7 +62,7 @@ a:not([href]):not(.disabled) {
     cursor: pointer;
 }
 
-@include button-disabled-variant(".btn-primary", $primary, $primary-accent); //TODO check which variants are needed
+@include button-disabled-variant(".btn-primary", $primary, $primary-accent);
 @include button-disabled-variant(".btn-secondary", $dark-gray, $light-gray);
 @include button-disabled-variant(".btn-success", shade-color($success, 25%), $success-accent);
 @include button-disabled-variant(".btn-danger", $danger, $danger-accent);
