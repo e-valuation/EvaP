@@ -21,7 +21,7 @@
         listen_addresses = ""; # disable listening via TCP
         socketDir = "data";
         createDatabase = false;
-        initialScript.before = ''
+        initialScript.before = pkgs.writeText "init.sql" ''
           DROP USER IF EXISTS evap;
           DROP DATABASE IF EXISTS evap;
           CREATE USER evap PASSWORD 'evap' CREATEDB;

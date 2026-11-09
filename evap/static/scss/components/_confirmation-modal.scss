@@ -98,3 +98,13 @@ dialog.evap-modal-dialog {
     }
   }
 }
+
+@include color-mode(dark) {
+  dialog.evap-modal-dialog {
+    .evap-modal-container {
+      > :not(:first-child) {
+        border-top: 1px solid $medium-gray;
+      }
+    }
+  }
+}

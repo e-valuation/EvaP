@@ -13,6 +13,7 @@ import openpyxl
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.staticfiles import finders
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import IntegrityError, transaction
 from django.db.models import (
@@ -81,7 +82,13 @@ from evap.results.exporters import ResultsExporter
 from evap.results.tools import TextResult, calculate_average_distribution, distribution_to_grade
 from evap.results.views import update_template_cache_of_published_evaluations_in_course
 from evap.rewards.models import RewardPointGranting
-from evap.rewards.tools import can_reward_points_be_used_by, deactivate_semester, is_semester_activated
+from evap.rewards.tools import (
+    StatusPointsProgress,
+    UserSemesterRewardsStats,
+    can_reward_points_be_used_by,
+    deactivate_semester,
+    is_semester_activated,
+)
 from evap.staff import staff_mode
 from evap.staff.forms import (
     AtLeastOneFormset,
@@ -838,31 +845,24 @@ def semester_participation_export(_request: HttpRequest, semester_id: int) -> Ht
             _("#Required evaluations"),
             _("#Optional evaluations voted for"),
             _("#Optional evaluations"),
-            _("Earned reward points"),
+            _("Earned reward points (semester)"),
+            _("Earned status points (total)"),
         ]
     )
     for participant in participants:
-        number_of_required_evaluations = semester.evaluations.filter(participants=participant, is_rewarded=True).count()
-        number_of_required_evaluations_voted_for = semester.evaluations.filter(
-            voters=participant, is_rewarded=True
-        ).count()
-        number_of_optional_evaluations = semester.evaluations.filter(
-            participants=participant, is_rewarded=False
-        ).count()
-        number_of_optional_evaluations_voted_for = semester.evaluations.filter(
-            voters=participant, is_rewarded=False
-        ).count()
-        query = RewardPointGranting.objects.filter(semester=semester, user_profile=participant).aggregate(Sum("value"))
-        earned_reward_points = query["value__sum"] or 0
+        stats = UserSemesterRewardsStats.make_for(participant, semester)
+        user_status_points_progress = StatusPointsProgress.make_for(participant)
+        earned_points = user_status_points_progress.earned_points if user_status_points_progress else 0
         writer.writerow(
             [
                 participant.email,
                 can_reward_points_be_used_by(participant),
-                number_of_required_evaluations_voted_for,
-                number_of_required_evaluations,
-                number_of_optional_evaluations_voted_for,
-                number_of_optional_evaluations,
-                earned_reward_points,
+                stats.number_of_required_evaluations_voted_for,
+                stats.number_of_required_evaluations,
+                stats.number_of_optional_evaluations_voted_for,
+                stats.number_of_optional_evaluations,
+                stats.earned_reward_points,
+                earned_points,
             ]
         )
 
@@ -981,10 +981,16 @@ def semester_preparation_reminder(request: HttpRequest, semester_id: int) -> Htt
 
     if request.method == "POST":
         template = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_REMINDER)
+        internal_only = request.POST.get("internal_only") == "true"
         for responsible, responsible_evaluations, __ in responsible_list:
+            if internal_only and responsible.is_external:
+                continue
             body_params = {"user": responsible, "evaluations": responsible_evaluations}
             template.send_to_user(responsible, subject_params={}, body_params=body_params, use_cc=True, request=request)
-        messages.success(request, _("Successfully sent reminders to everyone."))
+        if internal_only:
+            messages.success(request, _("Successfully sent reminders to internal users."))
+        else:
+            messages.success(request, _("Successfully sent reminders to everyone."))
         return HttpResponse()
     mode = request.GET.get("mode", "interactive")
     if mode not in ["interactive", "text"]:
@@ -2700,7 +2706,10 @@ def download_sample_file(_request: HttpRequest, filename: str) -> HttpResponse:
     if filename not in ["sample.xlsx", "sample_user.xlsx"]:
         raise SuspiciousOperation("Invalid file name.")
 
-    book = openpyxl.load_workbook(filename=settings.STATICFILES_DIRS[0] / filename)
+    workbook_filename = finders.find(filename)
+    if not workbook_filename:
+        return HttpResponseBadRequest()
+    book = openpyxl.load_workbook(filename=workbook_filename)
     for sheet in book:  # type: ignore[attr-defined]
         for row in sheet:
             for cell in row:

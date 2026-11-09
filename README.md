@@ -16,7 +16,7 @@ For the documentation, please see our [wiki](https://github.com/e-valuation/EvaP
 
 We use [nix](https://nixos.org/) to manage the development environment. To get a local version of EvaP running, follow these steps:
 
-1. Windows only: Install the Windows Subsystem for Linux (WSL) using `wsl --install -d Ubuntu-24.04` (you may have to restart your computer and run this command again). Enter the WSL environment using the `wsl` command. On your first entry, you need to choose a username and password - anything works (for example: username "evap", password "evap"). Perform the next step outside of `/mnt`, for example by going to your home directory (`cd ~`).
+1. Windows only: Install the Windows Subsystem for Linux (WSL) using `wsl --install` (you may have to restart your computer and run this command again). Enter the WSL environment using the `wsl` command. On your first entry, you need to choose a username and password - anything works (for example: username "evap", password "evap"). Perform the next step outside of `/mnt`, for example by going to your home directory (`cd ~`).
 2. Install [git](https://git-scm.com/downloads). Run the following commands to clone and enter the EvaP repository:
    ```bash
    git clone https://github.com/e-valuation/EvaP.git

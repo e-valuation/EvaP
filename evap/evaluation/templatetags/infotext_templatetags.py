@@ -11,6 +11,7 @@ def show_infotext(page_name: str):
         "contributor_index": Infotext.Page.CONTRIBUTOR_INDEX,
         "grades_pages": Infotext.Page.GRADES_PAGES,
         "student_index": Infotext.Page.STUDENT_INDEX,
+        "rewards_index": Infotext.Page.REWARDS_INDEX,
     }
 
     return {"infotext": Infotext.objects.get(page=to_page_id[page_name])}

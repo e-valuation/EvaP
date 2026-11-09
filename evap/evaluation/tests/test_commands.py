@@ -407,6 +407,7 @@ class TestSendRemindersCommand(TestCase):
         baker.make(
             TextAnswer,
             contribution=evaluation.general_contribution,
+            assignment__counts_for_grade=False,
         )
 
         with patch("evap.evaluation.models.EmailTemplate.send_to_user") as mock:
@@ -508,7 +509,7 @@ class TestLintCommand(TestCase):
         management.call_command("lint", stdout=StringIO())
         self.assertEqual(mock_subprocess_run.call_count, 3)
         mock_subprocess_run.assert_any_call(["ruff", "check", "."], check=False)
-        mock_subprocess_run.assert_any_call(["pylint", "evap", "tools"], check=False)
+        mock_subprocess_run.assert_any_call(["pylint"], check=False)
         mock_subprocess_run.assert_any_call(["npx", "eslint", "--quiet"], cwd="evap/static/ts", check=False)
 
 
@@ -566,6 +567,7 @@ class TestSendTextanswerRemindersCommand(TestCase):
             TextAnswer,
             contribution=evaluation.general_contribution,
             review_decision=TextAnswer.ReviewDecision.UNDECIDED,
+            assignment__counts_for_grade=False,
         )
 
         management.call_command("send_reminders", stdout=StringIO())

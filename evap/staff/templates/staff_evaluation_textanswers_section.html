@@ -3,9 +3,11 @@
 {% for questionnaire, contributor, label, is_responsible, results in sections %}
     <div class="card{% if not forloop.last %} mb-3{% endif %}">
         <div class="card-header">
-            {{ questionnaire.public_name }}{% if contributor %}: {{ contributor.full_name }}{% if is_responsible %}
-                    ({% translate 'responsible' %}){% endif %}{% if label %}
-                    &ndash; <span class="fst-italic">{{ label }}</span>{% endif %}{% endif %}
+            <span>
+                {{ questionnaire.public_name }}{% if contributor %}: {{ contributor.full_name }}{% endif %}
+                {% if is_responsible %}({% translate 'responsible' %}){% endif %}
+                {% if label %}&ndash;&nbsp;<span class="fst-italic">{{ label }}</span>{% endif %}
+            </span>
         </div>
         <div class="card-body">
             {% for result in results %}
@@ -53,7 +55,7 @@
                                             id="{{ answer.id }}-radio-publish"
                                             autocomplete="off"
                                             {% if answer.will_be_public %}checked{% endif %}
-                                        >
+                                        />
                                         <label
                                             class="btn btn-outline-primary"
                                             for="{{ answer.id }}-radio-publish"
@@ -68,7 +70,7 @@
                                             autocomplete="off"
                                             {% if answer.will_be_private %}checked{% endif %}
                                             {% if not contributor %}disabled{% endif %}
-                                        >
+                                        />
                                         <label
                                             class="btn btn-outline-primary"
                                             for="{{ answer.id }}-radio-private"
@@ -82,7 +84,7 @@
                                             id="{{ answer.id }}-radio-undecided"
                                             autocomplete="off"
                                             {% if not answer.is_reviewed %}checked{% endif %}
-                                        >
+                                        />
                                         <label
                                             class="btn btn-outline-primary"
                                             for="{{ answer.id }}-radio-undecided"
@@ -96,7 +98,7 @@
                                             id="{{ answer.id }}-radio-delete"
                                             autocomplete="off"
                                             {% if answer.will_be_deleted %}checked{% endif %}
-                                        >
+                                        />
                                         <label
                                             class="btn btn-outline-primary"
                                             for="{{ answer.id }}-radio-delete"
