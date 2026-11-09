@@ -158,10 +158,12 @@ export class QuickReviewSlider {
             return;
         }
 
+        if (action === Action.TextanswerEdit) {
+            return;
+        }
+
         // Update UI after submit is done (https://stackoverflow.com/q/71473512/13679671)
         setTimeout(() => {
-            assert(action !== Action.TextanswerEdit, "You should have been redirected already.");
-
             if (action === Action.Unreview) {
                 delete this.selectedSlide.dataset.review;
             } else {
