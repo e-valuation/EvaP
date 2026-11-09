@@ -30,7 +30,6 @@ class NuValidatorMiddleware:
         "aria",
         'same "nearest ancestor autofocus scoping root element"',
         "Every active “role=tab” element must have a corresponding “role=tabpanel” element",
-        "An element with “role=tab” must be contained in, or owned by, an element with the “role” value “tablist”",
         # custom attributes
         "custom-success",
         "reload-on-success",
