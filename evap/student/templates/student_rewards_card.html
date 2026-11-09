@@ -2,18 +2,18 @@
 
 {% if semester_rewards_stats %}
     <div class="card mb-3">
-        <div class="card-header d-flex">
+        <div class="card-header">
             <span>
                 {% translate 'Your reward points progress' %}
             </span>
-            <div class="ms-auto">
+            <span>
                 <span class="badge bg-light">
                     {% translate 'Your status' %}: {{ status_points_progress.current_status.name }}
                 </span>
                 <a href="{% url 'rewards:index' %}" class="btn btn-sm btn-light">
                     {% translate 'Go to rewards page' %}
                 </a>
-            </div>
+            </span>
         </div>
         <div class="card-body py-2">
             {% with voted=semester_rewards_stats.number_of_required_evaluations_voted_for required=semester_rewards_stats.number_of_required_evaluations %}

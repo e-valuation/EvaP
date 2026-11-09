@@ -12,13 +12,13 @@
 
     {% if status_points_progress %}
         <div class="card mb-3">
-            <div class="card-header d-flex">
-                {% translate 'Your status' %}: {{ status_points_progress.current_status.name }}
-                <div class="ms-auto">
-                    <span class="badge bg-light">
-                        {% translate 'Your status points' %}: {{ status_points_progress.earned_points }}
-                    </span>
-                </div>
+            <div class="card-header">
+                <span>
+                    {% translate 'Your status' %}: {{ status_points_progress.current_status.name }}
+                </span>
+                <span class="badge bg-light">
+                    {% translate 'Your status points' %}: {{ status_points_progress.earned_points }}
+                </span>
             </div>
             <div class="card-body">
                 <div class="rewards-progress-bar pt-0 px-4">
@@ -52,13 +52,13 @@
     {% endif %}
 
     <div class="card card-outline-primary">
-        <div class="card-header d-flex">
-            {% translate 'Redeem reward points' %}
-            <div class="ms-auto">
-                <span class="badge bg-primary">
-                    {% translate 'Available reward points' %}: {{ total_points_available }}
-                </span>
-            </div>
+        <div class="card-header">
+            <span>
+                {% translate 'Redeem reward points' %}
+            </span>
+            <span class="badge bg-primary">
+                {% translate 'Available reward points' %}: {{ total_points_available }}
+            </span>
         </div>
         <div class="card-body table-responsive">
             {% if total_points_available > 0 %}
