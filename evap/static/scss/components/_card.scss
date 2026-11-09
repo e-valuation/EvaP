@@ -12,12 +12,12 @@
 }
 
 .card-outline-primary {
-        border-color: rgba($primary, 0.5);
+    border-color: rgba($primary, 0.5);
 
-        > .card-header {
-            background-color: $primary-accent;
-        }
+    > .card-header {
+        background-color: $primary-accent;
     }
+}
 @include color-mode(dark) {
     .card-outline-primary {
         border-color: rgba($primary, 0.5);

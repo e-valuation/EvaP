@@ -85,9 +85,7 @@
 @include color-mode(dark) {
    .results-grid-row {
         color: $white;
-        .col-order
-        
-        &.hover-row:hover {
+        .col-order &.hover-row:hover {
             background-color: tint-color($background-dark, 10%);
         }
     }

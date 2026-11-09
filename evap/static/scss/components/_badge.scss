@@ -79,10 +79,10 @@
         color: $light-gray;
     }
     @for $i from 0 through 10 {
-    .badge-participants-#{$i} {
-        background-color: mix($primary, shade-color($primary, 50%), $i * 10%);
+        .badge-participants-#{$i} {
+            background-color: mix($primary, shade-color($primary, 50%), $i * 10%);
+        }
     }
-}
 }
 
 .bg-primary-outline {
