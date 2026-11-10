@@ -428,4 +428,12 @@ td .btn {
             background-color: shade-color($light, 20%) !important;
         }
     }
+    .feedback-button .btn-dark {
+        background-color: $dark !important;
+        border-color: $dark !important;
+        color: $light-gray;
+        &:hover {
+            background-color: shade-color($dark, 20%) !important;
+        }
+    }
 }
