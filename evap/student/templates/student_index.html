@@ -9,9 +9,9 @@
     {{ block.super }}
 
     <div class="d-flex">
-        <span class="{% if user.show_startpage_button %}me-3{% endif %}">
+        <div class="{% if user.show_startpage_button %}me-3{% endif %}">
             {% show_infotext "student_index" %}
-        </span>
+        </div>
         {% if user.show_startpage_button %}
             <div class="ms-auto d-print-none">
                 {% include 'startpage_button.html' with page='ST' btnClass='btn-sm' %}
