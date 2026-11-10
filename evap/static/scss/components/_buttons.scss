@@ -417,7 +417,7 @@ td .btn {
         background-color: $dark !important;
         border-color: $dark !important;
         &:hover {
-            background-color: tint-color($dark, 20%);
+            background-color: tint-color($dark, 20%) !important;
         }
     }
     .btn-dark {
