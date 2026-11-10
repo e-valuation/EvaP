@@ -89,17 +89,6 @@ a:not([href]):not(.disabled) {
         }
     }
 }
-@include color-mode(dark) {
-    .btn-switch {
-        background-color: $background-accent-dark;
-        .btn-group {
-            background: $background-accent-dark;
-        }
-        .btn-light {
-            border-color: $dark-gray !important;
-        }
-    }
-}
 .btn-switch-label {
     color: $light-gray;
 }
@@ -117,6 +106,26 @@ a:not([href]):not(.disabled) {
     color: $darker-gray;
     padding: 0.25rem 0.25rem 0.25rem 0.5rem;
     font-size: 0.875rem;
+}
+@include color-mode(dark) {
+    .btn-switch {
+        background-color: $background-dark;
+        .btn-group {
+            background: $background-dark;
+        }
+        .btn-light {
+            border-color: $dark-gray !important;
+        }
+        .btn-switch-label {
+            color: $light-gray;
+        }
+    }
+    .btn-switch-light {
+        background-color: $background-accent-dark;
+        .btn-group {
+            background: $background-accent-dark;
+        }
+    }
 }
 .icon-buttons {
     .btn {
