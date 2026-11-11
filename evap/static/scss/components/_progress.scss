@@ -70,7 +70,7 @@
     padding-bottom: 3px;
 }
 
-.separator {
+.progress-step-dash {
     content: "";
     display: block;
     width: 1px;
@@ -102,7 +102,7 @@
             @extend .text-center;
             @extend .small;
             &::before, &::after {
-                @extend .separator;
+                @extend .progress-step-dash;
             }
         }
 
@@ -110,7 +110,7 @@
             @extend .text-center;
             @extend .fw-semibold;
             &::before, &::after {
-                @extend .separator;
+                @extend .progress-step-dash;
             }
         }
 
