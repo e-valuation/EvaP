@@ -21,5 +21,9 @@ div.vote-inputs label.choice-error {
 @include color-mode(dark) {
     div.vote-inputs {
         border-color: $darker-gray !important;
+
+        label.choice-error {
+            border-color: $danger !important;
+        }
     }
 }

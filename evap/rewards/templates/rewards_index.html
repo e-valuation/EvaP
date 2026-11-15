@@ -23,7 +23,7 @@
             <div class="card-body">
                 <div class="rewards-progress-bar pt-0 px-4">
                     <span class="progress-container">
-                        <span class="progress m-0 bg-info">
+                        <span class="progress m-0">
                             {% with earned_points=status_points_progress.earned_points|min_value:status_points_progress.max_status_points %}
                                 <span
                                     class="progress-bar width-percent-{% widthratio earned_points status_points_progress.max_status_points 100 %}"

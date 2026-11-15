@@ -26,10 +26,8 @@
                     <span class='progress-tooltip-icon background-striped'></span> {% translate 'Progress after next evaluation' %}: {{ voted|add:'1'|percentage_zero_on_error:required }}{% endif %}"
                 >
                     <span class="progress-container">
-                        <span class="progress m-0 bg-info">
-                            <span
-                                class="progress-bar bg-primary width-percent-{% widthratio voted required 100 %}"
-                            ></span>
+                        <span class="progress m-0">
+                            <span class="progress-bar width-percent-{% widthratio voted required 100 %}"></span>
                             {% if voted < required %}
                                 <span
                                     class="progress-bar background-striped width-percent-{% widthratio 1 required 100 %}"
@@ -75,9 +73,9 @@
         <div class="card-body py-2">
             <div class="rewards-progress-bar pt-0">
                 <span class="progress-container">
-                    <span class="progress m-0 bg-info">
+                    <span class="progress m-0">
                         <span
-                            class="progress-bar bg-primary width-percent-{% widthratio global_evaluation_progress.bar_width_votes global_evaluation_progress.max_step_votes 100 %}"
+                            class="progress-bar width-percent-{% widthratio global_evaluation_progress.bar_width_votes global_evaluation_progress.max_step_votes 100 %}"
                         ></span>
                         <span class="progress-bartext">
                             {% blocktranslate trimmed count participant_count=global_evaluation_progress.participation_count with percent=global_evaluation_progress.vote_count|percentage_zero_on_error:global_evaluation_progress.participation_count vote_count=global_evaluation_progress.vote_count %}

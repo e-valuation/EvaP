@@ -101,11 +101,11 @@
 @include color-mode(dark) {
     .badge-btn {
         color: $light-gray;
-        background-color: $darker-gray;
+        background-color: $background-dark;
     }
     .badge-btn-zero {
         color: $light-gray;
-        background-color: $darker-gray;
+        background-color: $background-dark;
         opacity: 0.5;
     }
     .bg-info, .bg-light, .bg-primary, .bg-success, .bg-warning, .bg-danger {
