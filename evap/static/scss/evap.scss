@@ -16,7 +16,7 @@ html {
 
 body {
     overflow-y: scroll !important;
-    background-image: url("../images/triangles_gray.svg");
+    background-image: url("../images/triangles_light.svg");
     background-size: cover;
     background-attachment: fixed;
 
@@ -27,7 +27,7 @@ body {
 
 @include color-mode(dark) {
     body {
-        background-image: url("../images/triangles_dark_gray.svg");
+        background-image: url("../images/triangles_dark.svg");
     }
 }
 
