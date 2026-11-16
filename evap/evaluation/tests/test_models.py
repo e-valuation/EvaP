@@ -77,7 +77,7 @@ class TestQuestionnaire(TestCase):
 class TestQuestionAssignment(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.assignment = baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT)
+        cls.assignment = baker.make(QuestionAssignment)
         cls.question = cls.assignment.question
         cls.questionnaire = cls.assignment.questionnaire
 

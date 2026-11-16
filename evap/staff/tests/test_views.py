@@ -2275,10 +2275,7 @@ class TestEvaluationEditView(WebTestStaffMode):
         )
         cls.url = reverse("staff:evaluation_edit", args=[cls.evaluation.pk])
 
-        baker.make(
-            Questionnaire,
-            question_assignments=[baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT)],
-        )
+        baker.make(Questionnaire, question_assignments=[baker.make(QuestionAssignment)])
         cls.general_assignment = baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT)
         cls.general_questionnaire = baker.make(Questionnaire, question_assignments=[cls.general_assignment])
         cls.evaluation.general_contribution.questionnaires.set([cls.general_questionnaire])
@@ -3283,11 +3280,7 @@ class TestQuestionnaireNewVersionView(WebTestStaffMode):
         cls.questionnaire = baker.make(Questionnaire, name_de=cls.name_de_orig, name_en=cls.name_en_orig)
         cls.url = f"/staff/questionnaire/{cls.questionnaire.pk}/new_version"
 
-        baker.make(
-            QuestionAssignment,
-            questionnaire=cls.questionnaire,
-            question__type=QuestionType.POSITIVE_LIKERT,
-        )
+        baker.make(QuestionAssignment, questionnaire=cls.questionnaire)
 
     def test_changes_old_title_and_visibility(self):
         page = self.app.get(url=self.url, user=self.manager)
@@ -3543,7 +3536,7 @@ class TestQuestionnaireViewView(WebTestStaffModeWith200Check):
         cls.test_users = [make_manager()]
 
         questionnaire = baker.make(Questionnaire)
-        cls.question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
+        cls.question = baker.make(Question)
         baker.make(QuestionAssignment, questionnaire=questionnaire, question=cls.question)
         cls.url = f"/staff/questionnaire/{questionnaire.pk}"
 
@@ -3628,11 +3621,7 @@ class TestQuestionnaireCopyView(WebTestStaffMode):
         questionnaire = baker.make(Questionnaire)
         cls.url = f"/staff/questionnaire/{questionnaire.pk}/copy"
 
-        baker.make(
-            QuestionAssignment,
-            questionnaire=questionnaire,
-            question__type=QuestionType.POSITIVE_LIKERT,
-        )
+        baker.make(QuestionAssignment, questionnaire=questionnaire)
 
     def test_not_changing_name_fails(self):
         response = self.app.get(self.url, user=self.manager, status=200)

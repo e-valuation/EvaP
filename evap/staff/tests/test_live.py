@@ -39,10 +39,7 @@ class EvaluationEditLiveTest(LiveServerTest):
             main_language="en",
         )
 
-        general_questionnaire = baker.make(
-            Questionnaire,
-            question_assignments=[baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT)],
-        )
+        general_questionnaire = baker.make(Questionnaire, question_assignments=[baker.make(QuestionAssignment)])
         evaluation.general_contribution.questionnaires.set([general_questionnaire])
 
         contribution1 = baker.make(
@@ -374,7 +371,6 @@ class QuestionnaireEditLiveTest(LiveServerTest):
             QuestionAssignment,
             questionnaire=self.questionnaire,
             question__text_en=(f"Q{i}" for i in range(5)),
-            question__type=QuestionType.POSITIVE_LIKERT,
             order=iter(range(5)),
             _bulk_create=True,
             _quantity=5,
