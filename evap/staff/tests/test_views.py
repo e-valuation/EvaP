@@ -809,11 +809,7 @@ class TestSemesterView(WebTestStaffMode):
             can_publish_text_results=True,
             course__semester=self.semester,
         )
-        baker.make(
-            TextAnswer,
-            contribution=evaluation.general_contribution,
-            assignment__counts_for_grade=False,
-        )
+        baker.make(TextAnswer, contribution=evaluation.general_contribution)
 
         textanswer_review_state_mock.return_value = Evaluation.TextAnswerReviewState.NO_TEXTANSWERS
         page = self.app.get(f"/staff/semester/{evaluation.course.semester.id}", user=self.manager)
@@ -918,10 +914,7 @@ class TestSemesterDeleteView(DeleteViewTestMixin, WebTestStaffMode):
             assignment__question__type=QuestionType.POSITIVE_LIKERT,
         )
         baker.make(
-            TextAnswer,
-            contribution=evaluation.general_contribution,
-            review_decision=TextAnswer.ReviewDecision.PUBLIC,
-            assignment__counts_for_grade=False,
+            TextAnswer, contribution=evaluation.general_contribution, review_decision=TextAnswer.ReviewDecision.PUBLIC
         )
 
         self.instance.archive()
@@ -3246,15 +3239,7 @@ class TestSemesterFlaggedTextAnswersView(WebTestStaffMode):
             Evaluation, course__semester=semester, participants=[student], _quantity=3, _bulk_create=True
         )
         textanswers = [
-            [
-                baker.make(
-                    TextAnswer,
-                    answer=f"Answer {i} {j}",
-                    contribution__evaluation=evaluation,
-                    assignment__counts_for_grade=False,
-                )
-                for j in range(3)
-            ]
+            [baker.make(TextAnswer, answer=f"Answer {i} {j}", contribution__evaluation=evaluation) for j in range(3)]
             for i, evaluation in enumerate(evaluations)
         ]
 
@@ -3998,12 +3983,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         expected_new_decision = old_decision if expected_new_decision == "unchanged" else expected_new_decision
 
         with run_in_staff_mode(self):
-            textanswer = baker.make(
-                TextAnswer,
-                contribution__evaluation=self.evaluation,
-                review_decision=old_decision,
-                assignment__counts_for_grade=False,
-            )
+            textanswer = baker.make(TextAnswer, contribution__evaluation=self.evaluation, review_decision=old_decision)
             params = {"answer_id": textanswer.id, "action": action}
             response = self.app.post(self.url, params=params, user=self.manager, status=status)
 
@@ -4081,11 +4061,7 @@ class TestEvaluationTextanswersUpdateFlagView(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.answer = baker.make(
-            TextAnswer,
-            contribution__evaluation__can_publish_text_results=True,
-            assignment__counts_for_grade=False,
-        )
+        cls.answer = baker.make(TextAnswer, contribution__evaluation__can_publish_text_results=True)
 
     def test_post_update(self):
         with run_in_staff_mode(self):

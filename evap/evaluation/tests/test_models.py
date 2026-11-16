@@ -568,11 +568,7 @@ class TestEvaluations(WebTest):
             evaluation.TextAnswerReviewState.NO_TEXTANSWERS,
         )
 
-        textanswer = baker.make(
-            TextAnswer,
-            contribution=evaluation.general_contribution,
-            assignment__counts_for_grade=False,
-        )
+        textanswer = baker.make(TextAnswer, contribution=evaluation.general_contribution)
         del evaluation.num_textanswers  # reset cached_property cache
 
         # text_answer_review_state should be NO_REVIEW_NEEDED as long as we are still in_evaluation
@@ -1094,16 +1090,8 @@ class TestEmailTemplate(TestCase):
         contributor_both_contribution = make_contributor(contributor_both, evaluation2)
         contributor2_contribution = make_contributor(contributor2, evaluation2)
 
-        baker.make(
-            TextAnswer,
-            contribution=contributor_both_contribution,
-            assignment__counts_for_grade=False,
-        )
-        baker.make(
-            TextAnswer,
-            contribution=contributor2_contribution,
-            assignment__counts_for_grade=False,
-        )
+        baker.make(TextAnswer, contribution=contributor_both_contribution)
+        baker.make(TextAnswer, contribution=contributor2_contribution)
 
         expected_calls = [
             # these 4 are included since they are contributors for evaluation1 which can publish the average grade
@@ -1141,11 +1129,7 @@ class TestEmailTemplate(TestCase):
             send_to_user_mock.assert_has_calls(expected_calls, any_order=True)
 
         # if general textanswers for an evaluation exist, all responsibles should also be notified
-        baker.make(
-            TextAnswer,
-            contribution=evaluation2.general_contribution,
-            assignment__counts_for_grade=False,
-        )
+        baker.make(TextAnswer, contribution=evaluation2.general_contribution)
         expected_calls.append(
             call(
                 responsible2,
