@@ -310,9 +310,8 @@ a.collapse-toggle {
         }
 
         .btn-check:checked + .vote-btn-#{$name} {
-            $background-color-checked: shade-color($color, 10);
-            background-color: $background-color-checked !important;
-            color: contrast-color($background-color-checked);
+            background-color: $color !important;
+            color: contrast-color($color);
 
             &:hover {
                 background-color: tint-color($color, 10%) !important;
@@ -419,12 +418,11 @@ td .btn {
         }
     }
     .btn-success {
-        $background: shade-color($success, 10%);
-        background-color: $background !important;
-        border-color: tint-color($background, 10%) !important;
-        color: color-contrast($background);
+        background-color: $success !important;
+        border-color: tint-color($success, 10%) !important;
+        color: color-contrast($success);
         &:hover {
-            background-color: tint-color($background, 10%) !important;
+            background-color: tint-color($success, 10%) !important;
         }
     }
     .btn-warning {
