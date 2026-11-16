@@ -1,5 +1,3 @@
-import time
-
 from django.test import override_settings
 from model_bakery import baker
 from selenium.webdriver.common.action_chains import ActionChains
@@ -9,8 +7,8 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.expected_conditions import (
     invisibility_of_element,
     presence_of_element_located,
+    visibility_of,
     visibility_of_element_located,
-visibility_of,
 )
 
 from evap.evaluation.models import (
