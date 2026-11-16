@@ -291,8 +291,8 @@ a.collapse-toggle {
 }
 
 @function vote-button-fg-color($color, $background) {
-  @if contrast-ratio($color, $background) >= 4.5 { @return $color; }
-  @return tint-color($color, 40%);
+    @if contrast-ratio($color, $background) >= 4.5 { @return $color; }
+    @return tint-color($color, 40%);
 }
 
 @include color-mode(dark) {
