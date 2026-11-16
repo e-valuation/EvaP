@@ -10,7 +10,7 @@
             data-fallback-placement='["left", "bottom"]'
             title="{% spaceless %}{% include 'result_widget_tooltip.html' with weight_info=course_or_evaluation|weight_info %}{% endspaceless %}"
         >
-            {% include "distribution_with_grade.html" with distribution=course_or_evaluation.distribution average=course_or_evaluation.avg_grade weight_info=course_or_evaluation|weight_info question_result=None %}
+            {% include "distribution_with_grade.html" with distribution=course_or_evaluation.distribution grade_average=course_or_evaluation.avg_grade weight_info=course_or_evaluation|weight_info question_result=None %}
         </div>
     {% else %}
         <div
