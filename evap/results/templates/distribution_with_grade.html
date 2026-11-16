@@ -47,7 +47,7 @@
 </div>
 <div
     class="badge-grade ms-2{% if question_result.warning %} participants-warning{% endif %}"
-    style="background-color: {{ average|gradecolor }}"
+    style="background-color: {{ average|gradecolor }}; color: {{ average|gradetextcolor }}"
 >
     {% if question_result.question.is_yes_no_question %}
         {{ question_result.approval_count|percentage:question_result.count_sum }}
