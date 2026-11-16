@@ -411,11 +411,12 @@ td .btn {
         }
     }
     .btn-success {
-        background-color: shade-color($success, 10%) !important;
-        border-color: shade-color($success, 0%) !important;
-        color: $black;
+        $background: shade-color($success, 10%);
+        background-color: $background !important;
+        border-color: tint-color($background, 10%) !important;
+        color: color-contrast($background);
         &:hover {
-            background-color: shade-color($success, 0%) !important;
+            background-color: tint-color($background, 10%) !important;
         }
     }
     .btn-warning {
