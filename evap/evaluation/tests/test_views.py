@@ -74,6 +74,14 @@ class TestIndexView(WebTest):
         self.assertEqual(len(mail.outbox[0].cc), 0)
 
 
+class TestQuestionTypes(WebTestWith200Check):
+    url = reverse("evaluation:questiontypes_demo")
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.test_users = [baker.make(UserProfile, email="student@institution.example.com")]
+
+
 class TestStartpage(WebTest):
     def test_default_startpage(self):
         result = create_evaluation_with_responsible_and_editor()
