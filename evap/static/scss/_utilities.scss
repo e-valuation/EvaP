@@ -1,3 +1,6 @@
+@use "sass:color";
+@use "sass:math";
+
 .warning-label {
     color: $warning;
 }
@@ -99,4 +102,32 @@ a.no-underline:hover {
     .left-percent-#{$i} {
         left: $i * 1% !important;
     }
+}
+
+@function linear-channel($channel) {
+    $channel: math.div($channel, 255);
+    @if $channel <= 0.04045 {
+        @return math.div($channel, 12.92);
+    }
+    @return math.pow(math.div($channel + 0.055, 1.055), 2.4);
+}
+
+// WCAG relative luminance.
+@function luminance($color) {
+  $r: linear-channel(color.channel($color, "red", $space: rgb));
+  $g: linear-channel(color.channel($color, "green", $space: rgb));
+  $b: linear-channel(color.channel($color, "blue", $space: rgb));
+
+  @return 0.2126 * $r + 0.7152 * $g + 0.0722 * $b;
+}
+
+// WCAG contrast ratio.
+@function contrast-ratio($color1, $color2) {
+  $l1: luminance($color1);
+  $l2: luminance($color2);
+
+  $lighter: math.max($l1, $l2);
+  $darker: math.min($l1, $l2);
+
+  @return math.div($lighter + 0.05, $darker + 0.05);
 }
