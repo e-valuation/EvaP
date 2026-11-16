@@ -63,7 +63,7 @@ dialog.evap-modal-dialog {
   }
 
   > form {
-    background-color: $white;
+    background-color: var(--bs-body-bg);
     max-width: 80ch;
     border: 1px solid $dark-gray;
     border-radius: 0.5rem;
@@ -75,14 +75,11 @@ dialog.evap-modal-dialog {
       padding: 1rem;
     }
 
-    > :not(:first-child) {
-      border-top: 1px solid $light-gray;
-    }
-
     header {
       display: flex;
       flex-direction: row;
       justify-content: space-between;
+      border-bottom: 1px solid var(--bs-border-color);
     }
 
     .question-area {
@@ -95,16 +92,6 @@ dialog.evap-modal-dialog {
       display: flex;
       flex-flow: wrap;
       justify-content: center;
-    }
-  }
-}
-
-@include color-mode(dark) {
-  dialog.evap-modal-dialog {
-    .evap-modal-container {
-      > :not(:first-child) {
-        border-top: 1px solid $medium-gray;
-      }
     }
   }
 }
