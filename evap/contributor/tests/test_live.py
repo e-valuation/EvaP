@@ -2,6 +2,7 @@ from datetime import date, datetime
 
 from model_bakery import baker
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.expected_conditions import visibility_of
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Program, UserProfile
 from evap.evaluation.tests.tools import LiveServerTest

@@ -1,3 +1,5 @@
+import time
+
 from django.test import override_settings
 from model_bakery import baker
 from selenium.webdriver.common.action_chains import ActionChains
@@ -8,6 +10,7 @@ from selenium.webdriver.support.expected_conditions import (
     invisibility_of_element,
     presence_of_element_located,
     visibility_of_element_located,
+visibility_of,
 )
 
 from evap.evaluation.models import (
@@ -241,6 +244,7 @@ class StudentVoteLiveTest(LiveServerTest):
         (modal,) = get_open_modals(self.selenium, *self.SKIP_CONTRIBUTOR_SELECTORS)
 
         confirm_button = modal.shadow_root.find_element(By.CSS_SELECTOR, "button[data-event-type='confirm']")
+        self.wait.until(visibility_of(confirm_button))
         confirm_button.click()
         self.wait.until(invisibility_of_element(modal))
         self.wait.until(lambda __: textarea.get_attribute("value") == "")
