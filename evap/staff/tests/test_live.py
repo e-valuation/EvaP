@@ -451,12 +451,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
         question1 = baker.make(Question, type=QuestionType.TEXT)
 
         general_questionnaire = baker.make(Questionnaire)
-        assignment = baker.make(
-            QuestionAssignment,
-            questionnaire=general_questionnaire,
-            question=question1,
-            counts_for_grade=False,
-        )
+        assignment = baker.make(QuestionAssignment, questionnaire=general_questionnaire, question=question1)
         evaluation.general_contribution.questionnaires.set([general_questionnaire])
 
         contribution1 = baker.make(

@@ -117,30 +117,14 @@ class TestExporters(TestCase):
 
         questionnaire = baker.make(Questionnaire)
 
-        baker.make(
-            QuestionAssignment,
-            question__type=QuestionType.HEADING,
-            questionnaire=questionnaire,
-            order=0,
-            counts_for_grade=False,
-        )
+        baker.make(QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=questionnaire, order=0)
         heading_assignment = baker.make(
-            QuestionAssignment,
-            question__type=QuestionType.HEADING,
-            questionnaire=questionnaire,
-            order=1,
-            counts_for_grade=False,
+            QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=questionnaire, order=1
         )
         likert_assignment = baker.make(
             QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire, order=2
         )
-        baker.make(
-            QuestionAssignment,
-            question__type=QuestionType.HEADING,
-            questionnaire=questionnaire,
-            order=3,
-            counts_for_grade=False,
-        )
+        baker.make(QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=questionnaire, order=3)
 
         contribution = baker.make(
             Contribution, evaluation=evaluation, questionnaires=[questionnaire], contributor=contributor
@@ -589,7 +573,6 @@ class TestExporters(TestCase):
             _quantity=len(Questionnaire.Type.values),
             _bulk_create=True,
             question__allows_additional_textanswers=False,
-            counts_for_grade=False,
         )
 
         baker.make(

@@ -377,7 +377,6 @@ class TestEvaluations(WebTest):
             TextAnswer,
             assignment__question__type=QuestionType.TEXT,
             assignment__questionnaire=questionnaire,
-            assignment__counts_for_grade=False,
             contribution=evaluation.general_contribution,
         )
 
@@ -401,7 +400,6 @@ class TestEvaluations(WebTest):
             TextAnswer,
             assignment__question__type=QuestionType.TEXT,
             assignment__questionnaire=questionnaire,
-            assignment__counts_for_grade=False,
             contribution=evaluation.general_contribution,
         )
 
@@ -425,7 +423,6 @@ class TestEvaluations(WebTest):
             TextAnswer,
             assignment__question__type=QuestionType.TEXT,
             assignment__questionnaire=questionnaire,
-            assignment__counts_for_grade=False,
             contribution=evaluation.general_contribution,
             answer=iter(["deleted", "public", "private"]),
             review_decision=iter(
@@ -460,7 +457,6 @@ class TestEvaluations(WebTest):
             TextAnswer,
             assignment__question__type=QuestionType.TEXT,
             assignment__questionnaire=questionnaire,
-            assignment__counts_for_grade=False,
             contribution=evaluation.general_contribution,
             answer="published answer",
             original_answer="original answer",

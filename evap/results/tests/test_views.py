@@ -362,11 +362,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         bottom_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM)
 
         top_heading_assignment = baker.make(
-            QuestionAssignment,
-            question__type=QuestionType.HEADING,
-            questionnaire=top_questionnaire,
-            order=0,
-            counts_for_grade=False,
+            QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=top_questionnaire, order=0
         )
         top_likert_assignment = baker.make(
             QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=top_questionnaire, order=1
@@ -377,11 +373,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         )
 
         bottom_heading_assignment = baker.make(
-            QuestionAssignment,
-            question__type=QuestionType.HEADING,
-            questionnaire=bottom_questionnaire,
-            order=0,
-            counts_for_grade=False,
+            QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=bottom_questionnaire, order=0
         )
         bottom_likert_assignment = baker.make(
             QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=bottom_questionnaire, order=1
@@ -413,28 +405,16 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         questionnaire = baker.make(Questionnaire)
 
         heading_assignment_0 = baker.make(
-            QuestionAssignment,
-            question__type=QuestionType.HEADING,
-            questionnaire=questionnaire,
-            order=0,
-            counts_for_grade=False,
+            QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=questionnaire, order=0
         )
         heading_assignment_1 = baker.make(
-            QuestionAssignment,
-            question__type=QuestionType.HEADING,
-            questionnaire=questionnaire,
-            order=1,
-            counts_for_grade=False,
+            QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=questionnaire, order=1
         )
         likert_assignment = baker.make(
             QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire, order=2
         )
         heading_assignment_2 = baker.make(
-            QuestionAssignment,
-            question__type=QuestionType.HEADING,
-            questionnaire=questionnaire,
-            order=3,
-            counts_for_grade=False,
+            QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=questionnaire, order=3
         )
 
         contribution = baker.make(

@@ -350,12 +350,7 @@ class TestCalculateAverageDistribution(TestCase):
             voters=[self.student1, self.student2],
         )
         questionnaire_text = baker.make(Questionnaire)
-        baker.make(
-            QuestionAssignment,
-            questionnaire=questionnaire_text,
-            question__type=QuestionType.TEXT,
-            counts_for_grade=False,
-        )
+        baker.make(QuestionAssignment, questionnaire=questionnaire_text, question__type=QuestionType.TEXT)
         baker.make(
             Contribution,
             contributor=baker.make(UserProfile),
@@ -604,10 +599,7 @@ class TestTextAnswerVisibilityInfo(TestCase):
         )
         cls.questionnaire = baker.make(Questionnaire)
         cls.assignment = baker.make(
-            QuestionAssignment,
-            questionnaire=cls.questionnaire,
-            question__type=QuestionType.TEXT,
-            counts_for_grade=False,
+            QuestionAssignment, questionnaire=cls.questionnaire, question__type=QuestionType.TEXT
         )
         cls.assignment_likert = baker.make(
             QuestionAssignment, questionnaire=cls.questionnaire, question__type=QuestionType.POSITIVE_LIKERT
