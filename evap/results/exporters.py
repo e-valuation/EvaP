@@ -421,7 +421,7 @@ class ResultsExporter(ExcelExporter):
         assert len(selection_list) > 0
 
         for sheet_counter, (program_ids, course_type_ids) in enumerate(selection_list, 1):
-            self.next_sheet("Sheet " + str(sheet_counter))
+            self.add_sheet("Sheet " + str(sheet_counter))
 
             evaluation_states = [Evaluation.State.PUBLISHED]
             if include_unpublished:

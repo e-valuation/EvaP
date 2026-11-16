@@ -333,8 +333,8 @@ class ExcelExporter(ABC):
         self.cur_col = 0
         self.cur_row += 1
 
-    def next_sheet(self, sheetname: str):
-        self.cur_sheet = self.workbook.add_sheet(sheetname)
+    def add_sheet(self, sheet_name: str):
+        self.cur_sheet = self.workbook.add_sheet(sheet_name)
         self.cur_row = 0
         self.cur_col = 0
 
