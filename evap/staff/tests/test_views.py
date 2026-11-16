@@ -3468,7 +3468,6 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
         assignment = baker.make(
             QuestionAssignment,
             questionnaire=questionnaire,
-            question__type=QuestionType.POSITIVE_LIKERT,
             counts_for_grade=True,
         )
 

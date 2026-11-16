@@ -1174,7 +1174,6 @@ class QuestionFormTests(TestCase):
                 assignment = baker.make(
                     QuestionAssignment,
                     questionnaire__type=Questionnaire.Type.TOP,
-                    question__type=QuestionType.POSITIVE_LIKERT,
                     counts_for_grade=True,
                 )
                 form_data = get_form_data_from_instance(QuestionAssignmentForm, assignment)

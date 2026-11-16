@@ -302,7 +302,6 @@ class QuestionnaireFormLiveTest(LiveServerTest):
         baker.make(
             QuestionAssignment,
             questionnaire=questionnaire,
-            question__type=QuestionType.POSITIVE_LIKERT,
             question__allows_additional_textanswers=True,
             counts_for_grade=True,
         )

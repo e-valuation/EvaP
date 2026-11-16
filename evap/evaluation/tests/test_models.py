@@ -1228,7 +1228,7 @@ class TestQuestion(TestCase):
     def test_save_coerces_additional_textanswers_for_text_and_heading(self):
         # save() must persist allows_additional_textanswers=False for TEXT/HEADING even on a partial update_fields save.
         for question_type in [QuestionType.TEXT, QuestionType.HEADING]:
-            question = baker.make(Question, type=QuestionType.NEGATIVE_LIKERT, allows_additional_textanswers=True)
+            question = baker.make(Question, allows_additional_textanswers=True)
             question.type = question_type
             question.save(update_fields=["type"])
             question.refresh_from_db()
