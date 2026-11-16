@@ -543,7 +543,6 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
             question__text_en="test-dropout-question-text",
             question__type=QuestionType.POSITIVE_YES_NO,
             questionnaire=questionnaire,
-            counts_for_grade=False,
         )
         self.evaluation.general_contribution.questionnaires.add(questionnaire)
         make_rating_answer_counters(assignment, self.evaluation.general_contribution, answer_counts=[10, 5])

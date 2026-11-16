@@ -477,7 +477,6 @@ class TestVoteView(WebTest):
             questionnaire=dropout_questionnaire,
             order=0,
             question__type=QuestionType.POSITIVE_LIKERT,
-            counts_for_grade=False,
         )
         self.evaluation.general_contribution.questionnaires.add(dropout_questionnaire)
 
